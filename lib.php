@@ -1395,7 +1395,7 @@ function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
 function booking_myprofile_navigation(core_user\output\myprofile\tree $tree, $user, $iscurrentuser, $course) {
     if ($iscurrentuser) {
         $url = new moodle_url('/mod/booking/mybookings.php');
-        $string = get_string('mybookings', 'mod_booking');
+        $string = get_string('mybookingoptions', 'mod_booking');
         $node = new core_user\output\myprofile\node('miscellaneous', 'booking', $string, null, $url);
 
         $tree->add_node($node);

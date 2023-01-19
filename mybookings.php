@@ -29,7 +29,7 @@ $course = $DB->get_record('course', array('id' => SITEID), '*', MUST_EXIST);
 $PAGE->set_context(context_user::instance($USER->id));
 $PAGE->navigation->extend_for_user($USER);
 $mybookingsurl = new moodle_url('/mod/booking/mybookings.php');
-$PAGE->navbar->add(get_string('mybookings', 'mod_booking'), $mybookingsurl);
+$PAGE->navbar->add(get_string('mybookingoptions', 'mod_booking'), $mybookingsurl);
 
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(format_string($course->fullname));
@@ -37,7 +37,7 @@ $PAGE->set_heading(fullname($USER));
 
 echo $OUTPUT->header();
 
-echo $OUTPUT->heading(get_string('mybookings', 'mod_booking'));
+echo $OUTPUT->heading(get_string('mybookingoptions', 'mod_booking'));
 
 echo $OUTPUT->box_start();
 

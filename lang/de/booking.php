@@ -19,6 +19,7 @@ $string['messageprovider:bookingconfirmation'] = "Buchungsbestätigungen";
 $string['booking:manageoptiontemplates'] = "Buchungsoptionsvorlagen verwalten";
 $string['booking:cantoggleformmode'] = 'Nutzer:in darf alle Einstellungen verwalten';
 $string['alreadypassed'] = 'Bereits vergangen';
+$string['search'] = 'Suche...';
 $string['teachers'] = 'Trainer:innen';
 $string['gotomanageresponses'] = '&lt;&lt; Buchungen verwalten';
 
@@ -277,7 +278,7 @@ $string['pollurl'] = 'Link zur Umfrage';
 $string['pollurlteachers'] = 'Trainer:innen Umfragelink';
 $string['select'] = 'Auswahl';
 $string['showactive'] = 'Nur buchbare Buchungsoptionen anzeigen';
-$string['showallbookings'] = 'Alle Buchungsoptionen anzeigen';
+$string['showallbookingoptions'] = 'Alle Buchungsoptionen';
 $string['starttimenotset'] = 'Kursbeginn nicht festgelegt';
 $string['subscribetocourse'] = 'Nutzer:innen in den Kurs einschreiben';
 $string['subscribeuser'] = 'Wollen Sie diese User wirklich in diesen Kurs einschreiben';
@@ -289,7 +290,7 @@ $string['waitinglist'] = 'Auf der Warteliste';
 $string['waitingplacesavailable'] = 'Verfügbare Wartelistenplätze:  {$a->overbookingavailable} von {$a->maxoverbooking}';
 $string['waitspaceavailable'] = 'Wartelistenplätze verfügbar';
 $string['duplicatebooking'] = 'Diese Buchungsoption duplizieren';
-$string['showmybookingsonly'] = 'Meine Buchungen anzeigen';
+$string['showmybookingsonly'] = 'Meine Buchungen';
 $string['moveoptionto'] = 'Buchungsoption in andere Buchungsinstanz verschieben';
 
 // Tag templates.
@@ -1539,9 +1540,6 @@ $string['bstlink'] = 'Anzeigen';
 $string['infoalreadybooked'] = '<div class="infoalreadybooked"><i>Sie haben diese Option bereits gebucht.</i></div>';
 $string['infowaitinglist'] = '<div class="infowaitinglist"><i>Sie sind auf der Warteliste für diese Option.</i></div>';
 
-// Shortcodes.
-$string['shortcodeslistofbookingoptions'] = 'Liste der buchbaren Optionen';
-
 $string['tableheader_text'] = 'Kursbezeichnung';
 $string['tableheader_teacher'] = 'Trainer*in(nen)';
 $string['tableheader_maxanswers'] = 'Verfügbare Plätze';
@@ -1654,9 +1652,6 @@ $string['cachedef_cachedprices'] = 'Standardpreise in Booking (Cache)';
 $string['cachedef_cachedbookinginstances'] = 'Buchungsinstanzen (Cache)';
 $string['cachedef_bookingoptionsettings'] = 'Settings für Buchungsoptionen (Cache)';
 $string['cachedef_cachedsemesters'] = 'Semester (Cache)';
-
-// Shortcodes.
-$string['search'] = 'Suche...';
 
 // Dates_handler.php.
 $string['chooseperiod'] = 'Zeitraum auswählen';

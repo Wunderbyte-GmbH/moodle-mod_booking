@@ -20,6 +20,7 @@ $string['booking:manageoptiontemplates'] = "Manage option templates";
 $string['booking:cantoggleformmode'] = 'User can edit all settings';
 $string['alreadypassed'] = 'Already passed';
 $string['gotomanageresponses'] = '&lt;&lt; Manage responses';
+$string['search'] = 'Search...';
 $string['teachers'] = 'Teachers';
 
 // General errors.
@@ -260,8 +261,8 @@ $string['endtimenotset'] = 'End date not set';
 $string['mustfilloutuserinfobeforebooking'] = 'Befor proceeding to the booking form, please fill in some personal booking information';
 $string['subscribeuser'] = 'Do you really want to enrol the users in the following course';
 $string['deleteuserfrombooking'] = 'Do you really want to delete the users from the booking?';
-$string['showallbookings'] = 'All bookings';
-$string['showmybookingsonly'] = 'My bookings';
+$string['showallbookingoptions'] = 'All booking options';
+$string['showmybookingsonly'] = 'My booked options';
 $string['showactive'] = 'Active bookings';
 $string['mailconfirmationsent'] = 'You will shortly receive a confirmation e-mail';
 $string['confirmdeletebookingoption'] = 'Do you really want to delete this booking option?';
@@ -285,8 +286,7 @@ $string['availableplaces'] = 'Places available: {$a->available} of {$a->maxanswe
 $string['pollurl'] = 'Poll url';
 $string['pollurlteachers'] = 'Teachers poll url';
 $string['select'] = 'Selection';
-$string['showactive'] = 'Active bookings';
-$string['showallbookings'] = 'All bookings';
+$string['showactive'] = 'Active booking options';
 $string['starttimenotset'] = 'Start date not set';
 $string['subscribetocourse'] = 'Enrol users in the course';
 $string['subscribeuser'] = 'Do you really want to enrol the users in the following course';
@@ -1362,7 +1362,7 @@ $string['info:teachersforoptiondates'] = 'Go to the <a href="{$a}" target="_self
 
 // Lib.php.
 $string['pollstrftimedate'] = '%Y-%m-%d';
-$string['mybookings'] = 'My bookings';
+$string['mybookingoptions'] = 'My booked options';
 $string['bookuserswithoutcompletedactivity'] = "Book users without completed activity";
 $string['sessionremindermailsubject'] = 'Reminder: You have an upcoming session';
 $string['sessionremindermailmessage'] = '<p>Keep in mind: You are booked for the following session:</p>
@@ -1744,9 +1744,6 @@ $string['bstlink'] = 'Show';
 $string['infoalreadybooked'] = '<div class="infoalreadybooked"><i>You are already booked for this option.</i></div>';
 $string['infowaitinglist'] = '<div class="infowaitinglist"><i>You are on the waiting list for this option.</i></div>';
 
-// Shortcodes.
-$string['shortcodeslistofbookingoptions'] = 'List of booking options';
-
 $string['tableheader_text'] = 'Course name';
 $string['tableheader_teacher'] = 'Teacher(s)';
 $string['tableheader_maxanswers'] = 'Available places';
@@ -1859,9 +1856,6 @@ $string['cachedef_cachedprices'] = 'Prices in booking (cache)';
 $string['cachedef_cachedbookinginstances'] = 'Booking instances (cache)';
 $string['cachedef_bookingoptionsettings'] = 'Booking option settings (cache)';
 $string['cachedef_cachedsemesters'] = 'Semesters (cache)';
-
-// Shortcodes.
-$string['search'] = 'Search...';
 
 // Dates_handler.php.
 $string['chooseperiod'] = 'Select time period';

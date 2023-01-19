@@ -170,7 +170,7 @@ class mobile {
                         'booking_option' => $options, 'cmid' => $cm->id, 'activeview' => $whichview,
             'string' => array(
                 'showactive' => get_string('showactive', 'booking'),
-                'showallbookings' => get_string('showallbookings', 'booking'),
+                'showallbookingoptions' => get_string('showallbookingoptions', 'booking'),
                 'showmybookingsonly' => get_string('showmybookingsonly', 'booking'),
                 'next' => get_string('next', 'booking'),
                 'previous' => get_string('previous', 'booking')

@@ -185,7 +185,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $whichviewopts = array('mybooking' => get_string('showmybookingsonly', 'mod_booking'),
             'myoptions' => get_string('myoptions', 'mod_booking'),
-            'showall' => get_string('showallbookings', 'mod_booking'),
+            'showall' => get_string('showallbookingoptions', 'mod_booking'),
             'showactive' => get_string('showactive', 'mod_booking'),
             'myinstitution' => get_string('showonlymyinstitutions', 'mod_booking'));
 

@@ -66,7 +66,7 @@ class renderer extends plugin_renderer_base {
             $tmpurlparams['whichview'] = 'showall';
             $row[] = new tabobject('showall',
                 new moodle_url('/mod/booking/view.php', $tmpurlparams, "goenrol"),
-                get_string('showallbookings', 'mod_booking'));
+                get_string('showallbookingoptions', 'mod_booking'));
         }
         if (in_array('mybooking', $showviews)) {
             $tmpurlparams['whichview'] = 'mybooking';
@@ -545,14 +545,25 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
-     * Render a bookingoptions_table.
+     * Render a bookingoptions_wbtable using wunderbyte_table plugin.
+     *
+     * @param templatable $bookingoptionswbtable
+     * @return string|boolean
+     */
+    public function render_bookingoptions_wbtable(templatable $bookingoptionswbtable) {
+        $data = $bookingoptionswbtable->export_for_template($this);
+        return $this->render_from_template('mod_booking/shortcodes_table', $data);
+    }
+
+    /**
+     * Render a bookingoptions_table using standard table_sql.
      *
      * @param templatable $bookingoptionstable
      * @return string|boolean
      */
     public function render_bookingoptions_table(templatable $bookingoptionstable) {
         $data = $bookingoptionstable->export_for_template($this);
-        return $this->render_from_template('mod_booking/shortcodes_table', $data);
+        return $this->render_from_template('mod_booking/bookingoptions_table', $data);
     }
 
     /**
@@ -725,6 +736,19 @@ class renderer extends plugin_renderer_base {
         $o = '';
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template($template, $data);
+        return $o;
+    }
+
+    /**
+     * Render main booking options view.
+     * @param $data array
+     * @param $template string
+     * @return string
+     */
+    public function render_view($data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/view', $data);
         return $o;
     }
 }
