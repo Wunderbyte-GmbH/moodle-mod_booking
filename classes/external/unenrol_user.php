@@ -55,9 +55,9 @@ class unenrol_user extends external_api {
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'cmid' => new external_value(PARAM_INT, 'CM ID', (bool) VALUE_REQUIRED, 0),
-            'optionid' => new external_value(PARAM_INT, 'Option id', (bool) VALUE_REQUIRED, 0),
-            'courseid' => new external_value(PARAM_INT, 'Course id', (bool) VALUE_REQUIRED, 0),
+            'cmid' => new external_value(PARAM_INT, 'CM ID'),
+            'optionid' => new external_value(PARAM_INT, 'Option id'),
+            'courseid' => new external_value(PARAM_INT, 'Course id'),
             ]
         );
     }
