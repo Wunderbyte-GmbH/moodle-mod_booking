@@ -53,8 +53,8 @@ class load_pre_booking_page extends external_api {
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'optionid' => new external_value(PARAM_INT, 'option id', (bool) VALUE_REQUIRED),
-            'pagenumber' => new external_value(PARAM_INT, 'number of page we want to load', (bool) VALUE_REQUIRED),
+            'optionid' => new external_value(PARAM_INT, 'option id'),
+            'pagenumber' => new external_value(PARAM_INT, 'number of page we want to load'),
             ]
         );
     }
