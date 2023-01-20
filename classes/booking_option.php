@@ -2501,7 +2501,7 @@ class booking_option {
             // If the user does this for herself or she has the right to do it for others, we toggle the state.
 
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-            $bookinganswer = singleton_service::get_instance_of_booking_answers($settings, $userid);
+            $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
 
             if (!$bookinganswer->user_on_notificationlist($userid)) {
                 self::write_user_answer_to_db($booking->id,
