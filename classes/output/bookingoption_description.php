@@ -28,6 +28,7 @@ use context_module;
 use html_writer;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
+use mod_booking\booking_bookit;
 use mod_booking\booking_option;
 use mod_booking\dates_handler;
 use mod_booking\price;
@@ -124,6 +125,12 @@ class bookingoption_description implements renderable, templatable {
 
     /** @var stdClass $usertobuyfor */
     public $usertobuyfor = null;
+
+    /** @var string $bookitsection */
+    public $bookitsection = null;
+
+    /** @var string $unitstring */
+    public $unitstring = null;
 
     /**
      * Constructor.
@@ -330,39 +337,8 @@ class bookingoption_description implements renderable, templatable {
                 // We set usertobuyfor here for better performance.
                 $this->usertobuyfor = price::return_user_to_buy_for();
 
-                if (list($conditionid, $isavailable, $description) = $boinfo->get_description(
-                    $settings, $this->usertobuyfor->id, true)) {
+                $this->bookitsection = booking_bookit::render_bookit_button($settings, $this->usertobuyfor->id);
 
-                    // Values object needed for col_price.
-                    $values = new stdClass;
-                    $values->id = $settings->id;
-                    $values->text = $settings->text;
-                    $values->description = $settings->description;
-
-                    // Price blocks normal availability, if it's the only one, we show the cart.
-                    if (!$isavailable) {
-                        switch ($conditionid) {
-                            case BO_COND_ALREADYBOOKED:
-                                $this->conditionmessage = bo_info::render_conditionmessage($description, 'success');
-                                break;
-                            case BO_COND_ISCANCELLED:
-                                $this->conditionmessage = bo_info::render_conditionmessage($description, 'danger');
-                                break;
-                            case BO_COND_ONWAITINGLIST:
-                                $this->conditionmessage = bo_info::render_conditionmessage($description, 'warning');
-                                break;
-                            case BO_COND_FULLYBOOKED:
-                                if (get_config('booking', 'usenotificationlist')) {
-                                    $this->conditionmessage = bo_info::render_conditionmessage($description, 'warning',
-                                        $values->id, false, null, true, $this->usertobuyfor);
-                                } else {
-                                    $this->conditionmessage = bo_info::render_conditionmessage($description, 'warning');
-                                }
-                                break;
-                        }
-                    }
-                    // TODO: If no price is set at all, we need to add possibility to book right away without shopping cart!
-                }
                 break;
         }
     }
@@ -399,15 +375,12 @@ class bookingoption_description implements renderable, templatable {
                 'currency' => $this->currency,
                 'pricecategoryname' => $this->pricecategoryname,
                 'dayofweektime' => $this->dayofweektime,
-                'bookinginformation' => $this->bookinginformation
+                'bookinginformation' => $this->bookinginformation,
+                'bookitsection' => $this->bookitsection,
         );
 
         if (!empty($this->unitstring)) {
             $returnarray['unitstring'] = $this->unitstring;
-        }
-
-        if (!empty($this->conditionmessage)) {
-            $returnarray['conditionmessage'] = $this->conditionmessage;
         }
 
         // We return all the customfields of the option.
