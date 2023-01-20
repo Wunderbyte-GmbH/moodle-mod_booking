@@ -57,7 +57,7 @@ class addbookingoption extends external_api {
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
             'name' => new external_value(PARAM_TEXT,
-                'Booking option name', (bool) VALUE_REQUIRED),
+                'Booking option name'),
             'titleprefix' => new external_value(PARAM_RAW, 
                 'Optional prefix to be shown before title', (bool) VALUE_DEFAULT, null),
             'targetcourseid' => new external_value(PARAM_INT,
@@ -166,8 +166,8 @@ class addbookingoption extends external_api {
                         string $bookingclosingtime = null,
                         int $enrolmentstatus = null,
                         string $description = null,
-                        int $descriptionformat = null,
-                        int $limitanswers = null,
+                        int $descriptionformat = 0,
+                        int $limitanswers = 0,
                         int $addtocalendar = null,
                         string $pollurl = null,
                         string $location = null,
@@ -178,18 +178,18 @@ class addbookingoption extends external_api {
                         int $removeafterminutes = null,
                         string $notifcationtext = null,
                         int $notifcationtextformat = null,
-                        int $disablebookingusers = null,
+                        int $disablebookingusers = 0,
                         int $beforebookedtext = null,
                         string $beforecompletedtext = null,
                         string $aftercompletedtext = null,
                         string $shorturl = null,
-                        int $duration = null,
+                        int $duration = 0,
                         string $useremail = null,
                         string $teacheremail = null,
                         string $userusername = null,
                         string $coursestarttime = null,
                         string $courseendtime = null,
-                        int $invisible = null,
+                        int $invisible = 0,
                         int $mergeparam = null
                     ): array {
 
