@@ -1,3 +1,10 @@
+## Version 7.8.4 (2023012000)
+**Improvements:**
+* Improvement: Better code quality.
+
+**Bugfixes:**
+* Bugfix: Fixed caching problem with {status} placeholder.
+
 ## Version 7.8.3 (2023011600)
 **Improvements:**
 * Improvement: Shorter string for unlimited places.
