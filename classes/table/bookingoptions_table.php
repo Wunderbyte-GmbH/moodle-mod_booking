@@ -120,7 +120,7 @@ class bookingoptions_table extends wunderbyte_table {
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
 
         // First we check if the user is booked already.
-        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings, $values->id);
+        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
 
         $bookingstatus = $bookinganswer->user_status($this->buyforuser->id);
 

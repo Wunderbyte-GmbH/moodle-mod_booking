@@ -734,9 +734,8 @@ class booking_option {
             $this->sync_waiting_list();
         }
 
-        // Before returning, we have to set back the answer cache.
-        $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
-        $cache->delete($this->optionid);
+        // Before returning, purge caches.
+        self::purge_cache_for_option($this->optionid);
 
         if ($cancelreservation) {
             return true;
@@ -775,6 +774,10 @@ class booking_option {
                 // An admin user cancelled the booking.
                 $msgparam = MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM;
             }
+
+            // Before sending an e-mail, we make sure that caches are purged.
+            self::purge_cache_for_option($this->optionid);
+
             // Let's send the cancel e-mails by using adhoc tasks.
             $messagecontroller = new message_controller(
                 MSGCONTRPARAM_QUEUE_ADHOC, $msgparam,
@@ -2192,14 +2195,16 @@ class booking_option {
      * Get the user status as a string.
      *
      * @param $userid userid of the user
+     * @param int|null $statusparam optional statusparam if we already know it
      * @return string localized string of user status
      */
-    public function get_user_status_string($userid) {
+    public function get_user_status_string($userid, $statusparam = null) {
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
-        $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
-
-        $statusparam = $bookinganswers->user_status($userid);
+        if ($statusparam === null) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+            $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
+            $statusparam = $bookinganswers->user_status($userid);
+        }
 
         switch ($statusparam) {
             case STATUSPARAM_BOOKED:
@@ -2514,6 +2519,8 @@ class booking_option {
                 // Before returning, we have to set back the answer cache.
                 $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
                 $cache->delete($optionid);
+                // We also purge caches for the option in general.
+                self::purge_cache_for_option($optionid);
 
                 $status = 0;
             }
@@ -2692,6 +2699,11 @@ class booking_option {
 
         cache_helper::purge_by_event('setbackoptionstable');
         cache_helper::invalidate_by_event('setbackoptionsettings', [$optionid]);
+
+        // Set back the answer cache.
+        $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
+        $cache->delete($optionid);
+
         cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
         // When we set back the booking_answers...
         // ... we have to make sure it's also deleted in the singleton service.

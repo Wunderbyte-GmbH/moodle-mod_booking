@@ -198,7 +198,7 @@ class message_controller {
      */
     private function get_email_params(): stdClass {
 
-        global $CFG, $PAGE;
+        global $CFG;
 
         $params = new stdClass();
 
@@ -234,7 +234,11 @@ class message_controller {
         ));
         $params->gotobookingoption = \html_writer::link($gotobookingoptionlink, $gotobookingoptionlink->out());
 
-        $params->status = $this->option->get_user_status_string($this->userid);
+        // Important: We have to delete answers cache before calling $bookinganswer->user_status.
+        $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
+        $data = $cache->delete($this->optionid);
+        $bookinganswer = singleton_service::get_instance_of_booking_answers($this->optionsettings);
+        $params->status = $this->option->get_user_status_string($this->userid, $bookinganswer->user_status($this->userid));
 
         $params->qr_id = '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' .
             rawurlencode($this->userid) . '&choe=UTF-8" title="Link to Google.com" />';

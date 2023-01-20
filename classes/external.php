@@ -581,7 +581,7 @@ class external extends external_api {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings, $userid);
+        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
 
         // Check if user is booked.
         $forbookeduser = $bookinganswer->user_status($userid) == 1 ? true : false;

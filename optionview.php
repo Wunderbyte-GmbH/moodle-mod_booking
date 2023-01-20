@@ -57,7 +57,7 @@ if ($settings = singleton_service::get_instance_of_booking_option_settings($opti
     }
 
 
-    $bookinganswer = singleton_service::get_instance_of_booking_answers($settings, $user->id);
+    $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
 
     $PAGE->navbar->add($settings->text);
     $PAGE->set_title(format_string($settings->text));
