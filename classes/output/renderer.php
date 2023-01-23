@@ -556,17 +556,6 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
-     * Render a bookingoptions_table using standard table_sql.
-     *
-     * @param templatable $bookingoptionstable
-     * @return string|boolean
-     */
-    public function render_bookingoptions_table(templatable $bookingoptionstable) {
-        $data = $bookingoptionstable->export_for_template($this);
-        return $this->render_from_template('mod_booking/bookingoptions_table', $data);
-    }
-
-    /**
      * Render output for text column.
      * @param $data array
      * @return string

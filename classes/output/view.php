@@ -25,8 +25,10 @@
 
 namespace mod_booking\output;
 
+use context_system;
 use mod_booking\singleton_service;
 use mod_booking\table\bookingoptions_table;
+use moodle_exception;
 use moodle_url;
 use renderer_base;
 use renderable;
@@ -54,17 +56,55 @@ class view implements renderable, templatable {
     public function __construct(int $cmid) {
         global $CFG;
 
+        if (!$context = context_system::instance()) {
+            throw new moodle_exception('badcontext');
+        }
+
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
         $allbookingoptionstable = new bookingoptions_table('allbookingoptionstable', $booking);
 
         $allbookingoptionstable->set_sql('*', "{booking_options}", '1=1');
-        $baseurl = new moodle_url('/mod/booking/view.php', ['id' => $cmid]);
-        $allbookingoptionstable->define_baseurl($baseurl);
+        $tablebaseurl = new moodle_url('/mod/booking/view.php', ['id' => $cmid]);
+        $tablebaseurl->remove_params('page');
+        $allbookingoptionstable->define_baseurl($tablebaseurl);
 
-        ob_start();
-        $allbookingoptionstable->out(40, true);
-        $this->renderedalloptionstable = ob_get_contents();
-        ob_end_clean();
+        // Headers.
+        $headers = [
+            get_string('bookingoption', 'mod_booking'),
+            get_string('teachers', 'mod_booking'),
+            get_string('dayofweektime', 'mod_booking'),
+            get_string('location', 'mod_booking'),
+            get_string('bookings', 'mod_booking'),
+            get_string('booknow', 'mod_booking'),
+        ];
+        if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mod/booking:addeditownoption', $context))) {
+            $headers[] = get_string('edit', 'core');
+        }
+        $allbookingoptionstable->define_headers($headers);
+
+        // Columns.
+        $columns = [
+            'text',
+            'teacher',
+            'dayofweektime',
+            'location',
+            'bookings',
+            'booknow',
+        ];
+        if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mod/booking:addeditownoption', $context))) {
+            $columns[] = 'action';
+        }
+        $allbookingoptionstable->define_columns($columns);
+
+        /**/
+
+        // Header column.
+        $allbookingoptionstable->define_header_column('text');
+
+            ob_start();
+            $allbookingoptionstable->out(40, true);
+            $this->renderedalloptionstable = ob_get_contents();
+            ob_end_clean();
     }
 
     /**

@@ -59,25 +59,17 @@ $title = $bookinginstancesettings->name;
 $baseurl = new moodle_url('/mod/booking/view.php', $urlparams);
 $PAGE->set_url($baseurl);
 
-if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mod/booking:addeditownoption', $context)) == false) {
-    echo $OUTPUT->header();
-    echo $OUTPUT->heading(get_string('accessdenied', 'mod_booking'), 4);
-    echo get_string('nopermissiontoaccesspage', 'mod_booking');
-    echo $OUTPUT->footer();
-    die();
-}
-
 $PAGE->navbar->add($title);
 $PAGE->set_title(format_string($title));
 $PAGE->set_heading($title);
-$PAGE->set_pagelayout('standard');
+$PAGE->set_pagelayout('base');
 $PAGE->add_body_class('mod_booking-view');
 
-$data = new view($cmid);
+$view = new view($cmid);
 
 echo $OUTPUT->header();
 
 $output = $PAGE->get_renderer('mod_booking');
-echo $output->render_view($data);
+echo $output->render_view($view);
 
 echo $OUTPUT->footer();

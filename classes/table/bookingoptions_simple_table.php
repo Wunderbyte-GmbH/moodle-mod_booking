@@ -81,7 +81,7 @@ class bookingoptions_simple_table extends wunderbyte_table {
 
         // Use the renderer to output this column.
         // For bookingoptions_simple_table we DO NOT collapse dates but show all of them within the table.
-        $data = new \mod_booking\output\col_coursestarttime(null, $values->optionid, $values->cmid, false);
+        $data = new \mod_booking\output\col_coursestarttime($values->optionid, null, $values->cmid, false);
         $output = $PAGE->get_renderer('mod_booking');
         return $output->render_col_coursestarttime($data);
     }

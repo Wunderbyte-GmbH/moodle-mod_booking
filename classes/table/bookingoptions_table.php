@@ -134,13 +134,13 @@ class bookingoptions_table extends table_sql {
 
     /**
      * This function is called for each data row to allow processing of the
-     * price value.
+     * booknow value.
      *
      * @param object $values Contains object with all the values of record.
      * @return string $string Return name of the booking option.
      * @throws dml_exception
      */
-    public function col_price($values) {
+    public function col_booknow($values) {
 
         // Render col_price using a template.
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);

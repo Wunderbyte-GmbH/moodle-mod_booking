@@ -29,7 +29,6 @@ use context_module;
 use mod_booking\booking_answers;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
-use moodle_url;
 use renderer_base;
 use renderable;
 use templatable;
@@ -49,6 +48,9 @@ class col_availableplaces implements renderable, templatable {
 
     /** @var stdClass $buyforuser user stdclass if we buy for user */
     private $buyforuser = null;
+
+    /** @var bool $showmanageresponses */
+    private $showmanageresponses = null;
 
     /** @var int $cmid */
     private $cmid = null;

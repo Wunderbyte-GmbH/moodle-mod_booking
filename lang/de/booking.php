@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 // General strings.
+$string['bookingoption'] = 'Buchungsoption';
+$string['bookings'] = 'Buchungen';
 $string['messageprovider:bookingconfirmation'] = "Buchungsbestätigungen";
 $string['booking:manageoptiontemplates'] = "Buchungsoptionsvorlagen verwalten";
 $string['booking:cantoggleformmode'] = 'Nutzer:in darf alle Einstellungen verwalten';

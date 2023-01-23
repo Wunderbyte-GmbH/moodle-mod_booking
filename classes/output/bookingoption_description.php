@@ -132,9 +132,6 @@ class bookingoption_description implements renderable, templatable {
     /** @var string $unitstring */
     public $unitstring = null;
 
-    /** @var string $conditionmessage */
-    public $conditionmessage = null;
-
     /**
      * Constructor.
      * @param int $optionid

@@ -24,13 +24,11 @@
 
 namespace mod_booking\output;
 
-use mod_booking\booking_option;
 use moodle_exception;
 use renderer_base;
 use renderable;
 use templatable;
 use mod_booking\dates_handler;
-use mod_booking\singleton_service;
 
 /**
  * This class prepares data for displaying a booking instance
@@ -44,6 +42,12 @@ class col_coursestarttime implements renderable, templatable {
     /** @var array $datestrings */
     public $datestrings = null;
 
+    /** @var int $optionid */
+    public $optionid = null;
+
+    /** @var bool $showcollapsebtn */
+    public $showcollapsebtn = null;
+
     /**
      * Constructor.
      *
@@ -52,7 +56,7 @@ class col_coursestarttime implements renderable, templatable {
      * @param int $cmid course module id of the booking instance
      * @param bool $collapsed set to true, if dates should be collapsed
      */
-    public function __construct($booking=null, $optionid, $cmid = null, $collapsed = true) {
+    public function __construct($optionid, $booking=null, $cmid = null, $collapsed = true) {
 
         if (empty($booking) && empty($cmid)) {
             throw new moodle_exception('Error: either booking instance or cmid have to be provided.');
