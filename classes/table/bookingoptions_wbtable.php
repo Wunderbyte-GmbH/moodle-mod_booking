@@ -23,19 +23,22 @@ require_once(__DIR__ . '/../../lib.php');
 require_once($CFG->libdir.'/tablelib.php');
 
 use coding_exception;
+use context_module;
 use dml_exception;
+use html_writer;
 use local_wunderbyte_table\wunderbyte_table;
-use mod_booking\booking;
-use mod_booking\dates_handler;
-use mod_booking\output\col_action;
-use mod_booking\output\col_availableplaces;
-use mod_booking\output\col_price;
-use mod_booking\output\col_teacher;
-use mod_booking\price;
-use mod_booking\singleton_service;
 use moodle_exception;
 use moodle_url;
 use stdClass;
+use table_sql;
+use mod_booking\bo_availability\bo_info;
+use mod_booking\booking;
+use mod_booking\booking_bookit;
+use mod_booking\dates_handler;
+use mod_booking\output\col_availableplaces;
+use mod_booking\output\col_teacher;
+use mod_booking\price;
+use mod_booking\singleton_service;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -44,31 +47,38 @@ defined('MOODLE_INTERNAL') || die();
  */
 class bookingoptions_wbtable extends wunderbyte_table {
 
-    private $output = null;
+    /** @var renderer_base $outputbooking */
+    private $outputbooking = null;
 
-    private $bookingsoptionsettings = [];
+    /** @var renderer_base $outputmusi */
+    private $outputmusi = null;
 
+    /** @var booking $booking */
     private $booking = null;
 
+    /** @var stdClass $buyforuser */
     private $buyforuser = null;
+
+    /** @var context_module $buyforuser */
+    private $context = null;
 
     /**
      * Constructor
-     * @param int $uniqueid all tables have to have a unique id, this is used
+     * @param string $uniqueid all tables have to have a unique id, this is used
      *      as a key when storing table properties like sort order in the session.
      * @param booking $booking the booking instance
      */
-    public function __construct($uniqueid, $booking = null) {
+    public function __construct(string $uniqueid, booking $booking = null) {
         parent::__construct($uniqueid);
 
         global $PAGE;
-        $this->baseurl = $PAGE->url;
 
         if ($booking) {
             $this->booking = $booking;
         }
 
-        $this->output = $PAGE->get_renderer('mod_booking');
+        $this->outputbooking = $PAGE->get_renderer('mod_booking');
+        $this->outputmusi = $PAGE->get_renderer('local_musi');
 
         // We set buyforuser here for better performance.
         $this->buyforuser = price::return_user_to_buy_for();
@@ -76,10 +86,33 @@ class bookingoptions_wbtable extends wunderbyte_table {
         // Columns and headers are not defined in constructor, in order to keep things as generic as possible.
     }
 
+    /**
+     * This function is called for each data row to allow processing of the
+     * invisible value. It's called 'invisibleoption' so it does not interfere with
+     * the bootstrap class 'invisible'.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string $invisible Returns visibility of the booking option as string.
+     * @throws coding_exception
+     */
+    public function col_invisibleoption($values) {
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
+
+        if (!empty($settings->invisible)) {
+            return get_string('invisibleoption', 'mod_booking');
+        } else {
+            return '';
+        }
+    }
 
     public function col_image($values) {
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
+
+        if (empty($settings->imageurl)) {
+            return null;
+        }
 
         return $settings->imageurl;
     }
@@ -95,41 +128,134 @@ class bookingoptions_wbtable extends wunderbyte_table {
     public function col_teacher($values) {
 
         // Render col_teacher using a template.
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
-
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
         $data = new col_teacher($values->id, $settings);
-
-        return $this->output->render_col_teacher($data);
+        return $this->outputmusi->render_col_teacher($data);
     }
 
     /**
      * This function is called for each data row to allow processing of the
-     * price value.
+     * booknow value.
      *
      * @param object $values Contains object with all the values of record.
      * @return string $string Return name of the booking option.
      * @throws dml_exception
      */
-    public function col_price($values) {
+    public function col_booknow($values) {
 
         // Render col_price using a template.
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
 
         // First we check if the user is booked already.
-        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings, $values->id);
+        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
 
-        $bookingstatus = $bookinganswer->user_status($this->buyforuser->id);
-
-        if ($bookingstatus == STATUSPARAM_BOOKED) {
-            return get_string('booked', 'mod_booking');
-        } else if ($bookingstatus == STATUSPARAM_WAITINGLIST) {
-            return get_string('waitinglist', 'mod_booking');
+        // Normally we won't arrive here, but if so, we want to show a meaningful error message.
+        if (!$this->context) {
+            $this->context = context_module::instance($settings->cmid);
         }
 
-        // We pass on the id of the booking option.
-        $data = new col_price($values, $settings, $this->buyforuser);
+        // Get the availability information for this booking option.
+        // boinfo contains availability information, description, visibility information etc.
+        $boinfo = new bo_info($settings);
 
-        return $this->output->render_col_price($data);
+        // TODO: bo_info needs to support cashier mode, where booking for another user is possible...
+        // ... even if availability for the user is not given.
+        if (list($conditionid, $isavailable, $description) = $boinfo->get_description($settings, $this->buyforuser->id, true)) {
+
+            // Price blocks normal availability, if it's the only one, we show the cart.
+            if (!$isavailable) {
+
+                // If user has capability to book for others (e.g. cashier), we allow overbooking.
+                $showprice = false;
+                if (has_capability('mod/booking:bookforothers', $this->context)) {
+                    // Allow overbooking.
+                    $showprice = true;
+                }
+
+                // We only show notify me button if it's turned on in settings.
+                $shownotificationlist = false;
+                if (get_config('booking', 'usenotificationlist')) {
+                    $shownotificationlist = true;
+                }
+
+                switch ($conditionid) {
+                    case BO_COND_ISLOGGEDIN:
+                    case BO_COND_PRICEISSET:
+                        return bo_info::render_conditionmessage('', '', $values->id, true, $values,
+                            false, $this->buyforuser);
+                    case BO_COND_ALREADYBOOKED:
+                        return bo_info::render_conditionmessage($description, 'success');
+                    case BO_COND_ONWAITINGLIST:
+                        return bo_info::render_conditionmessage($description, 'warning');
+                    case BO_COND_FULLYBOOKED:
+                        return bo_info::render_conditionmessage($description, 'warning', $values->id,
+                            $showprice, $values, $shownotificationlist, $this->buyforuser);
+                    case BO_COND_ISCANCELLED:
+                    default:
+                        return bo_info::render_conditionmessage($description, 'danger', $values->id,
+                            $showprice, $values, false, $this->buyforuser);
+                }
+            }
+            // TODO: If no price is set at all, we need to add possibility to book right away without shopping cart!
+            return 'book right away, no price';
+        }
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * condition message.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string $string condition message.
+     * @throws dml_exception
+     */
+    public function col_conditionmessage($values) {
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
+
+        // Normally we won't arrive here, but if so, we want to show a meaningful error message.
+        if (!$this->context) {
+            $this->context = context_module::instance($settings->cmid);
+        }
+
+        // Get the availability information for this booking option.
+        // boinfo contains availability information, description, visibility information etc.
+        $boinfo = new bo_info($settings);
+
+        if (list($conditionid, $isavailable, $description) = $boinfo->get_description($settings, $this->buyforuser->id, true)) {
+
+            // Price blocks normal availability, if it's the only one, we show the cart.
+            if (!$isavailable) {
+
+                // If user has capability to book for others (e.g. cashier), we allow overbooking.
+                $showprice = false;
+                if (has_capability('mod/booking:bookforothers', $this->context)) {
+                    // Allow overbooking.
+                    $showprice = true;
+                }
+
+                // We only show notify me button if it's turned on in settings.
+                $shownotificationlist = false;
+                if (get_config('booking', 'usenotificationlist')) {
+                    $shownotificationlist = true;
+                }
+
+                switch ($conditionid) {
+                    case BO_COND_ISLOGGEDIN:
+                    case BO_COND_PRICEISSET:
+                        return '';
+                    case BO_COND_ALREADYBOOKED:
+                        return bo_info::render_conditionmessage($description, 'success');
+                    case BO_COND_ONWAITINGLIST:
+                    case BO_COND_FULLYBOOKED:
+                        return bo_info::render_conditionmessage($description, 'warning');
+                    case BO_COND_ISCANCELLED:
+                        return bo_info::render_conditionmessage($description, 'danger');
+                    default:
+                        return '';
+                }
+            }
+        }
     }
 
     /**
@@ -146,46 +272,24 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $this->booking = singleton_service::get_instance_of_booking_by_optionid($values->id);
         }
 
-        $data = new stdClass();
-
         if ($this->booking) {
             $url = new moodle_url('/mod/booking/optionview.php', ['optionid' => $values->id,
                                                                   'cmid' => $this->booking->cmid,
                                                                   'userid' => $this->buyforuser->id]);
-            $data->url = $url->out(false);
-            $data->cmid;
         } else {
-            $data->url = '#';
-        }
-        $data->title = $values->text;
-        $data->titleprefix = $values->titleprefix;
-
-        // We will have a number of modals on this site, therefore we have to distinguish them.
-        // This is in case we render modal.
-        $data->modalcounter = $values->id;
-        $data->modaltitle = $values->text;
-        $data->userid = $this->buyforuser->id;
-
-        if (!empty($values->id)) {
-            $bookingsoptionsettings = singleton_service::get_instance_of_booking_option_settings($values->id);
-            if (!empty($bookingsoptionsettings)) {
-
-                // Get the URL to edit the option.
-                $data->editoptionurl = $bookingsoptionsettings->editoptionurl;
-
-                // Get the URL to manage answers (responses) of the option.
-                $data->manageresponsesurl = $bookingsoptionsettings->manageresponsesurl;
-
-                // Get the URL for the optiondates-teachers-report.
-                $data->optiondatesteachersurl = $bookingsoptionsettings->optiondatesteachersurl;
-            }
+            $url = '#';
         }
 
-        // To easily switch to modal view again.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* return $this->output->render_col_text_modal_js($data); */
+        $title = $values->text;
+        if (!empty($values->titleprefix)) {
+            $title = $values->titleprefix . ' - ' . $values->text;
+        }
 
-        return $this->output->render_col_text_link($data);
+        if (!$this->is_downloading()) {
+            $title = "<div class='musi-table-option-title'><a href='$url' target='_blank'>$title</a></div>";
+        }
+
+        return $title;
     }
 
 
@@ -199,23 +303,35 @@ class bookingoptions_wbtable extends wunderbyte_table {
      */
     public function col_bookings($values) {
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
         // Render col_bookings using a template.
         $data = new col_availableplaces($values, $settings, $this->buyforuser);
-        return $this->output->render_col_availableplaces($data);
+        return $this->outputbooking->render_col_availableplaces($data);
     }
 
     /**
      * This function is called for each data row to allow processing of the
-     * coursestarttime value.
+     * location value.
      *
      * @param object $values Contains object with all the values of record.
-     * @return string $coursestarttime Returns course start time as a readable string.
+     * @return string location
      * @throws coding_exception
      */
     public function col_location($values) {
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
+
+        if (isset($settings->entity) && (count($settings->entity) > 0)) {
+
+            $url = new moodle_url('/local/entities/view.php', ['id' => $settings->entity['id']]);
+
+            // If there is a shortname of the entity, we'll show the shortname, otherwise we show the full name.
+            $nametobeshown = $settings->entity['name'];
+            if (!empty($settings->entity['shortname'])) {
+                $nametobeshown = $settings->entity['shortname'];
+            }
+            return html_writer::tag('a', $nametobeshown, ['href' => $url->out(false)]);
+        }
 
         return $settings->location;
     }
@@ -225,18 +341,101 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * sports value.
      *
      * @param object $values Contains object with all the values of record.
+     * @return string $sports Returns rendered sport.
+     * @throws coding_exception
+     */
+    public function col_sport($values) {
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
+
+        if (isset($settings->customfields) && isset($settings->customfields['sport'])) {
+            if (is_array($settings->customfields['sport'])) {
+                return implode(", ", $settings->customfields['sport']);
+            } else {
+                return $settings->customfields['sport'];
+            }
+        }
+
+        // Normally we won't arrive here, but if so, we want to show a meaningful error message.
+        if (!$this->context) {
+            $this->context = context_module::instance($settings->cmid);
+        }
+
+        // The error message should only be shown to admins.
+        if (has_capability('moodle/site:config', $this->context)) {
+
+            $message = get_string('youneedcustomfieldsport', 'local_musi');
+
+            $message = "<div class='alert alert-danger'>$message</div>";
+
+            return $message;
+        }
+
+        // Normal users won't notice the problem.
+        return '';
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * booking option tags (botags).
+     *
+     * @param object $values Contains object with all the values of record.
      * @return string $sports Returns course start time as a readable string.
      * @throws coding_exception
      */
-    public function col_sports($values) {
+    public function col_botags($values) {
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
 
-        if (isset($settings->customfields)
-            && isset($settings->customfields['sport'])) {
-                return implode(", ", $settings->customfields['sport']);
+        $botagsstring = '';
+
+        if (isset($settings->customfields) && isset($settings->customfields['botags'])) {
+            $botagsarray = $settings->customfields['botags'];
+            if (!empty($botagsarray)) {
+                foreach ($botagsarray as $botag) {
+                    if (!empty($botag)) {
+                        $botagsstring .=
+                            "<span class='musi-table-botag rounded-sm bg-info text-light pl-1 pr-1 pb-0 pt-0 mr-1'>
+                            $botag
+                            </span>";
+                    } else {
+                        continue;
+                    }
+                }
+                if (!empty($botagsstring)) {
+                    return $botagsstring;
+                } else {
+                    return '';
+                }
+            }
         }
         return '';
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * associated Moodle course.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string a link to the Moodle course - if there is one
+     * @throws coding_exception
+     */
+    public function col_course($values) {
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
+
+        if (empty($settings->courseid)) {
+            $ret = '';
+        } else {
+            $moodleurl = new moodle_url('/course/view.php', ['id' => $settings->courseid]);
+            $courseurl = $moodleurl->out(false);
+            $gotocoursematerial = get_string('gotocoursematerial', 'local_musi');
+            $ret = "<a href='$courseurl' target='_self' class='btn btn-primary mt-2 mb-2 w-100'>
+                <i class='fa fa-graduation-cap' aria-hidden='true'></i>&nbsp;&nbsp;$gotocoursematerial
+            </a>";
+        }
+
+        return $ret;
     }
 
     /**
@@ -250,7 +449,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
     public function col_dayofweektime($values) {
 
         $ret = '';
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
 
         $units = null;
         if (!empty($settings->dayofweektime)) {
@@ -259,7 +458,6 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         if (!empty($settings->dayofweektime)) {
             $ret = $settings->dayofweektime;
-
             if (!$this->is_downloading() && !empty($units)) {
                 $ret .= " ($units)";
             }
@@ -280,12 +478,12 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         // Prepare date string.
         if ($values->coursestarttime != 0) {
-            $returnarray[] = userdate($values->coursestarttime, get_string('strftimedatetime', 'langconfig'));
+            $returnarray[] = userdate($values->coursestarttime, get_string('strftimedatetime'));
         }
 
         // Prepare date string.
         if ($values->courseendtime != 0) {
-            $returnarray[] = userdate($values->courseendtime, get_string('strftimedatetime', 'langconfig'));
+            $returnarray[] = userdate($values->courseendtime, get_string('strftimedatetime'));
         }
 
         return implode(' - ', $returnarray);
@@ -306,7 +504,10 @@ class bookingoptions_wbtable extends wunderbyte_table {
         // Link is empty on default.
         $link = '';
 
-        if ($DB->get_records('booking_answers', ['optionid' => $values->optionid])) {
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid, $values);
+        $bookinganswers = singleton_service::get_instance_of_booking_answers($settings, 0);
+
+        if (count($bookinganswers->usersonlist) > 0) {
             // Add a link to redirect to the booking option.
             $link = new moodle_url($CFG->wwwroot . '/mod/booking/report.php', array(
                 'id' => $values->cmid,
@@ -338,11 +539,110 @@ class bookingoptions_wbtable extends wunderbyte_table {
      */
     public function col_action($values) {
 
-        // Render col_action using a template.
+        if (!$this->booking) {
+            $this->booking = singleton_service::get_instance_of_booking_by_optionid($values->id, $values);
+        }
 
-        // Currently, this will use dummy teachers.
-        $data = new col_action($values->id);
+        $data = new stdClass();
 
-        return $this->output->render_col_action($data);
+        $data->id = $values->id;
+        $data->componentname = 'mod_booking';
+
+        if ($this->booking) {
+            $data->cmid = $this->booking->cmid;
+        }
+
+        // We will have a number of modals on this site, therefore we have to distinguish them.
+        // This is in case we render modal.
+        $data->modalcounter = $values->id;
+        $data->modaltitle = $values->text;
+        $data->userid = $this->buyforuser->id;
+
+        // Get the URL to edit the option.
+        if (!empty($values->id)) {
+            $bosettings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
+            if (!empty($bosettings)) {
+
+                if (!$this->context) {
+                    $this->context = context_module::instance($bosettings->cmid);
+                }
+
+                // If the user has no capability to editoptions, the URLs will not be added.
+                if ((has_capability('mod/booking:updatebooking', $this->context) ||
+                        has_capability('mod/booking:addeditownoption', $this->context))) {
+                    if (isset($bosettings->editoptionurl)) {
+                        // Get the URL to edit the option.
+
+                        $data->editoptionurl = $this->add_return_url($bosettings->editoptionurl);
+                    }
+                    if (isset($bosettings->manageresponsesurl)) {
+                        // Get the URL to manage responses (answers) for the option.
+                        $data->manageresponsesurl = $bosettings->manageresponsesurl;
+                    }
+                    if (isset($bosettings->optiondatesteachersurl)) {
+                        // Get the URL for the optiondates-teachers-report.
+                        $data->optiondatesteachersurl = $bosettings->optiondatesteachersurl;
+                    }
+                }
+            }
+        }
+
+        // If booking option is already cancelled, we want to show the "undo cancel" button instead.
+        if ($values->status == 1) {
+            $data->showundocancel = true;
+            $data->undocancellink = html_writer::link('#',
+            '<i class="fa fa-undo" aria-hidden="true"></i> ' .
+                get_string('undocancelthisbookingoption', 'mod_booking'),
+                [
+                    'class' => 'dropdown-item undocancelallusers',
+                    'data-id' => $values->id,
+                    'data-componentname' => 'mod_booking',
+                    'data-area' => 'option',
+                    'onclick' =>
+                        "require(['mod_booking/confirm_cancel'], function(init) {
+                            init.init('" . $values->id . "', '" . $values->status . "');
+                        });"
+                ]);
+        } else {
+            // Else we show the default cancel button.
+            // We do NOT set $data->undocancel here.
+            $data->showcancel = true;
+            $data->cancellink = html_writer::link('#',
+            '<i class="fa fa-ban" aria-hidden="true"></i> ' .
+                get_string('cancelallusers', 'mod_booking'),
+                [
+                    'class' => 'dropdown-item cancelallusers',
+                    'data-id' => $values->id,
+                    'data-componentname' => 'mod_booking',
+                    'data-area' => 'option',
+                    'onclick' =>
+                        "require(['local_shopping_cart/menu'], function(menu) {
+                            menu.confirmCancelAllUsersAndSetCreditModal('" . $values->id . "', 'mod_booking', 'option');
+                        });"
+                ]);
+        }
+
+        return $this->outputbooking->render_col_text_link($data);
+    }
+
+    private function add_return_url(string $urlstring):string {
+
+        $returnurl = $this->baseurl->out();
+
+        $urlcomponents = parse_url($urlstring);
+
+        parse_str($urlcomponents['query'], $params);
+
+        $url = new moodle_url(
+            $urlcomponents['path'],
+            array_merge(
+                $params, [
+                'returnto' => 'url',
+                'returnurl' => $returnurl
+                ]
+            )
+        );
+
+        return $url->out(false);
     }
 }

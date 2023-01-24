@@ -44,7 +44,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Search results for managers are shown in a table (student search results use the template searchresults_student).
  */
-class bookingoptions_table extends table_sql {
+class bookingoptions_tablesql extends table_sql {
 
     /** @var renderer_base $outputbooking */
     private $outputbooking = null;
