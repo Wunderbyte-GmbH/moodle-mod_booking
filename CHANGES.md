@@ -1,3 +1,8 @@
+## Version 7.8.5 (2023012500)
+**Bugfixes:**
+* Bugfix: Remove old institutions from restoring stepslib and fix crash.
+* Bugfix: Placeholder {address} was showing address of user instead of address of booking option.
+
 ## Version 7.8.4 (2023012000)
 **Improvements:**
 * Improvement: Better code quality.
