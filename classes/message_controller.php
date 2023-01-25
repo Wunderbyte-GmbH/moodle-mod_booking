@@ -345,15 +345,6 @@ class message_controller {
         if (isset($this->user->department)) {
             $params->department = $this->user->department;
         }
-        if (isset($this->user->address)) {
-            $params->address = $this->user->address;
-        }
-        if (isset($this->user->city)) {
-            $params->city = $this->user->city;
-        }
-        if (isset($this->user->country)) {
-            $params->country = $this->user->country;
-        }
 
         // Get bookingoption_description instance for rendering certain data.
         $params->teachers = $this->optionsettings->render_list_of_teachers();
