@@ -23,8 +23,8 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2021112916; // IMPORTANT: On this branch only increment the LAST TWO DIGITS!!
+$plugin->version = 2021112917; // IMPORTANT: On this branch only increment the LAST TWO DIGITS!!
 $plugin->requires = 2019111800; // Requires this Moodle version. Current: Moodle 3.8.
-$plugin->release = 'v7.0.22.16'; // IMPORTANT: On this branch only increment the LAST TWO DIGITS!!
+$plugin->release = 'v7.0.22.17'; // IMPORTANT: On this branch only increment the LAST TWO DIGITS!!
 $plugin->maturity = MATURITY_STABLE;
 $plugin->component = 'mod_booking';
