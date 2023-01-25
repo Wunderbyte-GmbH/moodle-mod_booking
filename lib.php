@@ -2610,15 +2610,6 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
     if (isset($user->department)) {
         $params->department = $user->department;
     }
-    if (isset($user->address)) {
-        $params->address = $user->address;
-    }
-    if (isset($user->city)) {
-        $params->city = $user->city;
-    }
-    if (isset($user->country)) {
-        $params->country = $user->country;
-    }
 
     // Add user profile fields to e-mail params.
     // If user profile fields are missing, we need to load them correctly.
