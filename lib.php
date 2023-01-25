@@ -114,7 +114,9 @@ function booking_get_coursemodule_info($cm) {
     $info = new cached_cm_info();
     $booking = new mod_booking\booking($cm->id);
     $booking->apply_tags();
-    $info->name = $booking->settings->name;
+    if (!empty($booking->settings->name)) {
+        $info->name = $booking->settings->name;
+    }
     return $info;
 }
 

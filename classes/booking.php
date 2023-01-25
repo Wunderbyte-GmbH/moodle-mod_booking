@@ -100,7 +100,9 @@ class booking {
         }
 
         if (!$this->cm) {
-            throw new moodle_exception('instancedoesnotexist');
+            // ERROR: The instance does not exist.
+            // But we do not want our site to crash, so we return null.
+            return null;
         }
 
         // In the constructur, we call the booking_settings, where we get the values from db or cache.
@@ -131,6 +133,9 @@ class booking {
     }
 
     public function apply_tags() {
+        if (empty($this->cm->course)) {
+            return;
+        }
         $tags = new booking_tags($this->cm->course);
         $this->settings = $tags->booking_replace($this->settings);
     }

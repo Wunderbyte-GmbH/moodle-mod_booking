@@ -46,8 +46,6 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $paths[] = new restore_path_element('booking_category',
                 '/activity/booking/categories/caegory');
         $paths[] = new restore_path_element('booking_tag', '/activity/booking/tags/tag');
-        $paths[] = new restore_path_element('booking_institution',
-                '/activity/booking/institutions/institution');
         $paths[] = new restore_path_element('booking_other',
                 '/activity/booking/options/option/others/other');
         $paths[] = new restore_path_element('booking_optiondate',
