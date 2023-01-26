@@ -41,6 +41,7 @@ if (!$context = context_system::instance()) {
 
 $cmid = required_param('id', PARAM_INT); // Course Module ID.
 $download = optional_param('download', '', PARAM_ALPHA);
+$whichview = optional_param('whichview', '', PARAM_ALPHA);
 
 // URL params.
 $urlparams = [
@@ -65,7 +66,7 @@ $PAGE->set_heading($title);
 $PAGE->set_pagelayout('base');
 $PAGE->add_body_class('mod_booking-view');
 
-$view = new view($cmid);
+$view = new view($cmid, $whichview);
 
 echo $OUTPUT->header();
 
