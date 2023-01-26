@@ -372,8 +372,8 @@ class booking_settings {
         }
 
         if ($dbrecord) {
+            $dbrecord->cmid = $cmid;
             $this->cmid = $cmid;
-
             $this->id = $dbrecord->id;
             $this->course = $dbrecord->course;
             $this->name = $dbrecord->name;
@@ -469,11 +469,16 @@ class booking_settings {
             $this->autcrtemplate = $dbrecord->autcrtemplate;
             $this->semesterid = $dbrecord->semesterid;
 
-            $dbrecord->cmid = $cmid;
-
-            if (!isset($dbrecord->bookingmanageruser)) {
-                $this->load_bookingmanageruser_from_db();
-                $dbrecord->bookingmanageruser = $this->bookingmanageruser;
+            // If we do not have it yet, we have to load the booking manager's user object from DB.
+            if (empty($dbrecord->bookingmanageruser) && !empty($dbrecord->bookingmanager)) {
+                $dbrecord->bookingmanageruser = $this->load_bookingmanageruser_from_db($dbrecord->bookingmanager);
+            }
+            if (!empty($dbrecord->bookingmanageruser)) {
+                $this->bookingmanageruser = $dbrecord->bookingmanageruser;
+            } else {
+                // Make sure, it's always null if booking manager could not be found.
+                $dbrecord->bookingmanageruser = null;
+                $this->bookingmanageruser = null;
             }
 
             return $dbrecord;
@@ -482,14 +487,17 @@ class booking_settings {
         }
     }
 
-    // Function to load bookingmanager as user from DB.
-    private function load_bookingmanageruser_from_db() {
+    /**
+     * Function to load bookingmanager as user from DB.
+     * @param string $username of a booking manager
+     * @return stdClass user object for booking manager
+     */
+    private function load_bookingmanageruser_from_db(string $username) {
         global $DB;
-
-        if (!empty($this->bookingmanager)) {
-            $this->bookingmanageruser = $DB->get_record('user', ['username' => $this->bookingmanager]);
+        if (!empty($username)) {
+            return $DB->get_record('user', ['username' => $username]);
         } else {
-            $this->bookingmanageruser = null;
+            return null;
         }
     }
 

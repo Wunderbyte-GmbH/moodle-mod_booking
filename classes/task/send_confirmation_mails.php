@@ -54,49 +54,52 @@ class send_confirmation_mails extends \core\task\adhoc_task {
             $trimmedmessage = trim($trimmedmessage);
 
             if ($trimmedmessage != '0') {
-                $userdata = $DB->get_record('user', array('id' => $taskdata->userto->id));
-                if (!$userdata->deleted) {
-                    // Hack to support multiple attachments.
-                    if (!message_controller::phpmailer_email_to_user($taskdata->userto, $taskdata->userfrom,
-                        $taskdata->subject, $taskdata->messagetext, $taskdata->messagehtml,
-                        $taskdata->attachment ?? '', empty($taskdata->attachment) ? '' : 'booking.ics')) {
+                if (!empty($taskdata->userto)) {
+                    $userdata = $DB->get_record('user', array('id' => $taskdata->userto->id));
+                    if (!$userdata->deleted) {
+                        // Hack to support multiple attachments.
+                        if (!message_controller::phpmailer_email_to_user($taskdata->userto, $taskdata->userfrom,
+                            $taskdata->subject, $taskdata->messagetext, $taskdata->messagehtml,
+                            $taskdata->attachment ?? '', empty($taskdata->attachment) ? '' : 'booking.ics')) {
 
-                        throw new \coding_exception('Confirmation email was not sent');
+                            throw new \coding_exception('Confirmation email was not sent');
 
-                    } else {
-                        if (!empty($taskdata->attachment)) {
-                            foreach ($taskdata->attachment as $key => $attached) {
-                                $search = str_replace($CFG->tempdir . '/', '', $attached);
-                                if ($DB->count_records_select('task_adhoc', "customdata LIKE '%$search%'") == 1) {
-                                    if (file_exists($attached)) {
-                                        unlink($attached);
+                        } else {
+                            if (!empty($taskdata->attachment)) {
+                                foreach ($taskdata->attachment as $key => $attached) {
+                                    $search = str_replace($CFG->tempdir . '/', '', $attached);
+                                    if ($DB->count_records_select('task_adhoc', "customdata LIKE '%$search%'") == 1) {
+                                        if (file_exists($attached)) {
+                                            unlink($attached);
+                                        }
                                     }
                                 }
                             }
-                        }
 
-                        // Use an event to log that a message has been sent.
-                        $event = \mod_booking\event\message_sent::create(array(
-                            'context' => context_system::instance(),
-                            'userid' => $taskdata->userto->id,
-                            'relateduserid' => $taskdata->userfrom->id,
-                            'other' => array(
-                                'messageparam' => $taskdata->messageparam,
-                                'subject' => $taskdata->subject
-                            )
-                        ));
-                        $event->trigger();
+                            // Use an event to log that a message has been sent.
+                            $event = \mod_booking\event\message_sent::create(array(
+                                'context' => context_system::instance(),
+                                'userid' => $taskdata->userto->id,
+                                'relateduserid' => $taskdata->userfrom->id,
+                                'other' => array(
+                                    'messageparam' => $taskdata->messageparam,
+                                    'subject' => $taskdata->subject
+                                )
+                            ));
+                            $event->trigger();
+                        }
                     }
+                } else {
+                    echo 'send_confirmation_mails: e-mail with subject "' . $taskdata->subject . '"' .
+                    ' was not sent because $taskdata->userto was missing.'. PHP_EOL;
                 }
             } else {
                 echo 'send_confirmation_mails: e-mail with subject "' . $taskdata->subject . '"' .
                     ' was not sent because message template is set to "0" (turned off).'. PHP_EOL;
             }
         } else {
-            throw new \coding_exception(
-                    'Confirmation email was not sent due to lack of custom message data');
+            echo 'Confirmation email was not sent due to lack of custom message data' . PHP_EOL;
         }
-
         echo 'send_confirmation_mails task finished' . PHP_EOL;
     }
 }

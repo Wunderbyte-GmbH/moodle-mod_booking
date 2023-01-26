@@ -17,6 +17,7 @@
 namespace mod_booking;
 defined('MOODLE_INTERNAL') || die();
 
+use cache_helper;
 use context_module;
 use stdClass;
 use moodle_exception;
@@ -30,6 +31,8 @@ use mod_booking\booking_option_settings;
 use mod_booking\output\optiondates_only;
 use mod_booking\output\bookingoption_changes;
 use mod_booking\output\bookingoption_description;
+use mod_booking\task\send_confirmation_mails;
+
 
 require_once($CFG->dirroot.'/user/profile/lib.php');
 
@@ -121,6 +124,9 @@ class message_controller {
         string $customsubject = '', string $custommessage = '') {
 
         global $DB, $USER, $PAGE;
+
+        // Purge booking instance settings before sending mails to make sure, we use correct data.
+        cache_helper::invalidate_by_event('setbackbookinginstances', [$cmid]);
 
         // When we call this via webservice, we don't have a context, this throws an error.
         // It's no use passing the context object either.
@@ -576,10 +582,14 @@ class message_controller {
      */
     private function send_mail_with_adhoc_task() {
 
-        if (!empty($this->bookingsettings->sendmail) || !empty($this->bookingsettings->copymail)) {
+        // Purge booking instance settings before sending mails to make sure, we use correct data.
+        cache_helper::invalidate_by_event('setbackbookinginstances', [$this->cmid]);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($this->cmid);
 
-            if (!empty($this->bookingsettings->sendmail)) {
-                $sendtask = new task\send_confirmation_mails();
+        if (!empty($bookingsettings->sendmail) || !empty($bookingsettings->copymail)) {
+
+            if (!empty($bookingsettings->sendmail)) {
+                $sendtask = new send_confirmation_mails();
                 $sendtask->set_custom_data($this->messagedata);
                 \core\task\manager::queue_adhoc_task($sendtask);
             }
@@ -587,18 +597,18 @@ class message_controller {
             // If the setting to send a copy to the booking manger has been enabled,
             // then also send a copy to the booking manager.
             // DO NOT send copies of change notifications to booking managers.
-            if (!empty($this->bookingsettings->copymail) &&
+            if (!empty($bookingsettings->copymail) &&
                 $this->messageparam != MSGPARAM_CHANGE_NOTIFICATION
             ) {
-
-                $this->messagedata->userto = $this->bookingmanager;
+                // Get booking manager from booking instance settings.
+                $this->messagedata->userto = $bookingsettings->bookingmanageruser;
 
                 if ($this->messageparam == MSGPARAM_CONFIRMATION || $this->messageparam == MSGPARAM_WAITINGLIST) {
                     $this->messagedata->subject = get_string($this->messagefieldname . 'subjectbookingmanager',
-                        'booking', $this->params);
+                        'mod_booking', $this->params);
                 }
 
-                $sendtask = new task\send_confirmation_mails();
+                $sendtask = new send_confirmation_mails();
                 $sendtask->set_custom_data($this->messagedata);
                 \core\task\manager::queue_adhoc_task($sendtask);
             }
