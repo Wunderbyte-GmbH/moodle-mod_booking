@@ -1,3 +1,7 @@
+## Version 7.8.6 (2023012600)
+**Bugfixes:**
+* Bugfix: Sending mail copies to the booking manager feature has been fixed.
+
 ## Version 7.8.5 (2023012500)
 **Bugfixes:**
 * Bugfix: Remove old institutions from restoring stepslib and fix crash.

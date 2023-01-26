@@ -1,3 +1,6 @@
+7.8.6 (2023012600)
+* Bugfix: Sending mail copies to the booking manager feature has been fixed.
+
 7.8.5 (2023012500)
 * Bugfix: Remove old institutions from restoring stepslib and fix crash.
 * Bugfix: Placeholder {address} was showing address of user instead of address of booking option.
