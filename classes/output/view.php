@@ -105,12 +105,7 @@ class view implements renderable, templatable {
         // In the future, we can parametrize this function so we can use it on many different places.
         $this->wbtable_initialize_list_layout($allbookingoptionstable);
 
-        // Return table with lazy loading if $lazy is true.
-        if ($this->whichview == 'showall') {
-            $out = $allbookingoptionstable->outhtml(40, true);
-        } else {
-            list($idstring, $encodedtable, $out) = $allbookingoptionstable->lazyouthtml(40, true);
-        }
+        $out = $allbookingoptionstable->outhtml(40, true);
 
         return $out;
     }
@@ -138,12 +133,7 @@ class view implements renderable, templatable {
         // In the future, we can parametrize this function so we can use it on many different places.
         $this->wbtable_initialize_list_layout($mybookingoptionstable);
 
-        // Return table with lazy loading if $lazy is true.
-        if ($this->whichview == 'mybooking') {
-            $out = $mybookingoptionstable->outhtml(40, true);
-        } else {
-            list($idstring, $encodedtable, $out) = $mybookingoptionstable->lazyouthtml(40, true);
-        }
+        $out = $mybookingoptionstable->outhtml(40, true);
 
         return $out;
     }
@@ -213,9 +203,6 @@ class view implements renderable, templatable {
             $_GET
         );
         $wbtable->define_baseurl($baseurl->out());
-
-        // This allows us to use infinite scrolling, No pages will be used.
-        $wbtable->infinitescroll = 40;
 
         $wbtable->tabletemplate = 'mod_booking/table_list';
     }

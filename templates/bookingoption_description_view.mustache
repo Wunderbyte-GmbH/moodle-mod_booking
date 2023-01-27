@@ -27,7 +27,7 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-md-7">
             <h2 class="title" >{{#titleprefix}}{{.}} - {{/titleprefix}}{{title}}</h2>
             {{#invisible}}
                 <div class="booking-option-info-invisible">{{#str}} invisibleoption, mod_booking {{/str}}</div>
@@ -61,13 +61,12 @@
             </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-5">
             <div class="card price-card">
-                <img class="w-100" src="{{imageurl}}">
-
-                {{{ bookitsection }}}
+              <img class="w-100" src="{{imageurl}}">
+              {{{ bookitsection }}}
               <div class="card-body">
-                <ul class="infolist">
+                <ul class="infolist" style="list-style: none;">
                     {{#dayofweektime}}
                     <li>
                         <span>
