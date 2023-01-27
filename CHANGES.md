@@ -1,3 +1,8 @@
+## Version 7.8.7 (2023012700)
+**Bugfixes:**
+* Bugfix: Fix navigation menu entry to delete booking option and add an entry to manage responses.
+* Bugfix: Fix and improve option templates, menu entries and checkbox for limit answers.
+
 ## Version 7.8.6 (2023012600)
 **Bugfixes:**
 * Bugfix: Sending mail copies to the booking manager feature has been fixed.
