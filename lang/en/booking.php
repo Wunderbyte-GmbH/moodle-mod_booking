@@ -1339,8 +1339,8 @@ $string['userssuccessfullygetnewpresencestatus'] = 'All users have a new presenc
 $string['deleteresponsesactivitycompletion'] = 'Delete all users with completed activity: {$a}';
 $string['signature'] = 'Signature';
 $string['userssucesfullygetnewpresencestatus'] = 'Presence status for selected users successfully updated';
-$string['copytotemplate'] = 'Copy to template';
-$string['copytotemplatesucesfull'] = 'Booking option was sucesfully copied to template.';
+$string['copytotemplate'] = 'Save booking option as template';
+$string['copytotemplatesucesfull'] = 'Booking option was sucesfully saved as template.';
 
 
 // Send message.

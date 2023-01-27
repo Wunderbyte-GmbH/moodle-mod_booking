@@ -1433,16 +1433,17 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     if (has_capability('mod/booking:manageoptiontemplates', $context) ||
         has_capability('mod/booking:updatebooking', $context) ||
         has_capability('mod/booking:addeditownoption', $context) ||
-        has_capability ( 'mod/booking:subscribeusers', $context ) ||
-        has_capability ( 'mod/booking:readresponses', $context ) ||
+        has_capability('mod/booking:subscribeusers', $context ) ||
+        has_capability('mod/booking:readresponses', $context ) ||
         $bookingisteacher) {
 
         if (has_capability('mod/booking:manageoptiontemplates', $context)) {
-            $navref->add(get_string('saveinstanceastemplate', 'mod_booking'),
-                new moodle_url('/mod/booking/instancetemplateadd.php', array('id' => $cm->id)),
-                    navigation_node::TYPE_CUSTOM, null, 'nav_saveinstanceastemplate');
+            if (empty($optionid)) {
+                // We only want to show this in instance mode.
+                $navref->add(get_string('saveinstanceastemplate', 'mod_booking'),
+                    new moodle_url('/mod/booking/instancetemplateadd.php', array('id' => $cm->id)),
+                        navigation_node::TYPE_CUSTOM, null, 'nav_saveinstanceastemplate');
 
-            if (is_null($optionid)) {
                 $navref->add(get_string("managecustomreporttemplates", "mod_booking"),
                     new moodle_url('/mod/booking/customreporttemplates.php', array('id' => $cm->id)),
                         navigation_node::TYPE_CUSTOM, null, 'nav_managecustomreporttemplates');
@@ -1451,6 +1452,14 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     }
 
     if (has_capability('mod/booking:manageoptiontemplates', $context)) {
+        if (!empty($optionid)) {
+            $navref->add(get_string('copytotemplate', 'mod_booking'),
+                new moodle_url('/mod/booking/report.php',
+                        array('id' => $cm->id, 'optionid' => $optionid,
+                            'action' => 'copytotemplate', 'sesskey' => sesskey())),
+                            navigation_node::TYPE_CUSTOM, null, 'nav_copytotemplate');
+        }
+
         $navref->add(get_string("manageoptiontemplates", "mod_booking"),
             new moodle_url('/mod/booking/optiontemplatessettings.php', array('id' => $cm->id)),
                 navigation_node::TYPE_CUSTOM, null, 'nav_manageoptiontemplates');
@@ -1518,14 +1527,6 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                     new moodle_url('/mod/booking/optiondates.php',
                             array('id' => $cm->id, 'optionid' => $optionid)),
                             navigation_node::TYPE_CUSTOM, null, 'nav_optiondatesmanager');
-        }
-
-        if (has_capability('mod/booking:manageoptiontemplates', $context)) {
-            $navref->add(get_string('copytotemplate', 'booking'),
-                        new moodle_url('/mod/booking/report.php',
-                                array('id' => $cm->id, 'optionid' => $optionid,
-                                    'action' => 'copytotemplate', 'sesskey' => sesskey())),
-                                    navigation_node::TYPE_CUSTOM, null, 'nav_copytotemplate');
         }
 
         if (has_capability ( 'mod/booking:subscribeusers', $context ) || booking_check_if_teacher ($option )) {

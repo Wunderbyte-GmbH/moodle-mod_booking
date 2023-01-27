@@ -1215,6 +1215,8 @@ $string['withselected'] = 'Ausgewählte Nutzer:innen';
 $string['yes'] = 'Ja';
 $string['signature'] = 'Unterschrift';
 $string['userssucesfullygetnewpresencestatus'] = 'Anwesenheitsstatus für ausgewählte Nutzer:innen erfolgreich aktualisiert';
+$string['copytotemplate'] = 'Buchungsoption als Vorlage speichern';
+$string['copytotemplatesucesfull'] = 'Buchungsoption erfolgreich als Vorlage gespeichert';
 
 // Send message.
 $string['booking:cansendmessages'] = 'Kann Nachrichten schicken.';
@@ -1268,7 +1270,7 @@ $string['instance_not_saved_no_valid_license'] = 'Buchung konnte nicht als Vorla
 $string['bookinginstancetemplatessettings'] = 'Buchungsinstanz-Vorlagen';
 $string['bookinginstancetemplatename'] = 'Name der Buchungsinstanz-Vorlage';
 $string['managebookinginstancetemplates'] = 'Buchungsinstanz-Vorlagen verwalten';
-$string['populatefromtemplate'] = 'Mit Buchungsinstanz-Vorlage ausfüllen';
+$string['populatefromtemplate'] = 'Mit Vorlage ausfüllen';
 
 // Institutions.php.
 $string['institutions'] = 'Institutionen';

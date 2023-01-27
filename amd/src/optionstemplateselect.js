@@ -54,8 +54,7 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             $("#id_location").val(obj.location);
                             $("#id_institution").val(obj.institution);
                             $("#id_address").val(obj.address);
-                            if ($('#id_limitanswers').is(':checked') != (obj.bookingclosingtime == 0 ? false : true) ||
-                                $('#id_limitanswers').is(':checked') != (obj.bookingopeningtime == 0 ? false : true)) {
+                            if ($('#id_limitanswers').is(':checked') != (obj.maxanswers == 0 ? false : true)) {
                                 $("#id_limitanswers").trigger('click');
                             }
                             $("#id_maxanswers").val(obj.maxanswers);
