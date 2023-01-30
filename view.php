@@ -35,13 +35,13 @@ require_login(0, false);
 
 global $DB, $PAGE, $OUTPUT, $USER;
 
-if (!$context = context_system::instance()) {
-    throw new moodle_exception('badcontext');
-}
-
 $cmid = required_param('id', PARAM_INT); // Course Module ID.
 $download = optional_param('download', '', PARAM_ALPHA);
 $whichview = optional_param('whichview', '', PARAM_ALPHA);
+
+list($course, $cm) = get_course_and_cm_from_cmid($cmid, 'booking');
+require_course_login($course, false, $cm);
+$context = context_module::instance($cm->id);
 
 // URL params.
 $urlparams = [
@@ -63,7 +63,7 @@ $PAGE->set_url($baseurl);
 $PAGE->navbar->add($title);
 $PAGE->set_title(format_string($title));
 $PAGE->set_heading($title);
-$PAGE->set_pagelayout('base');
+$PAGE->set_pagelayout('incourse');
 $PAGE->add_body_class('mod_booking-view');
 
 $view = new view($cmid, $whichview);

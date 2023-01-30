@@ -15,15 +15,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 // General strings.
+$string['alreadypassed'] = 'Bereits vergangen';
 $string['bookingoption'] = 'Buchungsoption';
 $string['bookings'] = 'Buchungen';
-$string['messageprovider:bookingconfirmation'] = "Buchungsbestätigungen";
 $string['booking:manageoptiontemplates'] = "Buchungsoptionsvorlagen verwalten";
 $string['booking:cantoggleformmode'] = 'Nutzer:in darf alle Einstellungen verwalten';
-$string['alreadypassed'] = 'Bereits vergangen';
+$string['dayofweek'] = 'Wochentag';
+$string['gotomanageresponses'] = '&lt;&lt; Buchungen verwalten';
+$string['messageprovider:bookingconfirmation'] = "Buchungsbestätigungen";
 $string['search'] = 'Suche...';
 $string['teachers'] = 'Trainer:innen';
-$string['gotomanageresponses'] = '&lt;&lt; Buchungen verwalten';
 
 // General errors.
 $string['error:choosevalue'] = 'Sie müssen hier einen Wert auswählen.';

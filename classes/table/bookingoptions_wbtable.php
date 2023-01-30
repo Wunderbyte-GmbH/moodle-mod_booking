@@ -286,6 +286,21 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
     /**
      * This function is called for each data row to allow processing of the
+     * institution value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string institution
+     * @throws coding_exception
+     */
+    public function col_institution($values) {
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
+        return $settings->institution;
+    }
+
+
+    /**
+     * This function is called for each data row to allow processing of the
      * sports value.
      *
      * @param object $values Contains object with all the values of record.

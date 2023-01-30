@@ -144,7 +144,7 @@ class view implements renderable, templatable {
      */
     private function wbtable_initialize_list_layout(wunderbyte_table &$wbtable) {
         $wbtable->add_subcolumns('leftside', ['text', 'action', 'teacher']);
-        $wbtable->add_subcolumns('footer', ['dayofweektime', 'location', 'bookings']);
+        $wbtable->add_subcolumns('footer', ['dayofweektime', 'location', 'institution', 'bookings']);
         $wbtable->add_subcolumns('rightside', ['booknow']);
 
         $wbtable->add_classes_to_subcolumns('leftside', ['columnkeyclass' => 'd-none']);
@@ -160,6 +160,10 @@ class view implements renderable, templatable {
             ['location']);
         $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-map-marker text-gray
             font-size-sm'], ['location']);
+        $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left text-gray  pr-2 font-size-sm'],
+            ['institution']);
+        $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-building-o text-gray
+            font-size-sm'], ['institution']);
         $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left text-gray pr-2 font-size-sm'],
             ['bookings']);
         $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-ticket text-gray
@@ -191,10 +195,30 @@ class view implements renderable, templatable {
 
         $wbtable->define_fulltextsearchcolumns(['titleprefix', 'text', 'description', 'location', 'teacherobjects']);
 
+        $wbtable->define_filtercolumns([
+            'location' => [
+                'localizedname' => get_string('location', 'mod_booking'),
+            ],
+            'institution' => [
+                'localizedname' => get_string('institution', 'mod_booking'),
+            ],
+            'dayofweek' => [
+                'localizedname' => get_string('dayofweek', 'mod_booking'),
+                'monday' => get_string('monday', 'mod_booking'),
+                'tuesday' => get_string('tuesday', 'mod_booking'),
+                'wednesday' => get_string('wednesday', 'mod_booking'),
+                'thursday' => get_string('thursday', 'mod_booking'),
+                'friday' => get_string('friday', 'mod_booking'),
+                'saturday' => get_string('saturday', 'mod_booking'),
+                'sunday' => get_string('sunday', 'mod_booking')
+            ],
+        ]);
+
         $wbtable->define_sortablecolumns([
             'text' => get_string('bookingoption', 'mod_booking'),
             'location',
-            'dayofweek'
+            'institution',
+            'dayofweek',
         ]);
 
         // It's important to have the baseurl defined, we use it as a return url at one point.

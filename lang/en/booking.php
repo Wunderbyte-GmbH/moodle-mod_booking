@@ -15,13 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 // General strings.
+$string['alreadypassed'] = 'Already passed';
 $string['bookingoption'] = 'Booking option';
 $string['bookings'] = 'Bookings';
-$string['messageprovider:bookingconfirmation'] = "Booking confirmations";
 $string['booking:manageoptiontemplates'] = "Manage option templates";
 $string['booking:cantoggleformmode'] = 'User can edit all settings';
-$string['alreadypassed'] = 'Already passed';
+$string['dayofweek'] = 'Weekday';
 $string['gotomanageresponses'] = '&lt;&lt; Manage responses';
+$string['messageprovider:bookingconfirmation'] = "Booking confirmations";
 $string['search'] = 'Search...';
 $string['teachers'] = 'Teachers';
 
