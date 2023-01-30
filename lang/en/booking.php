@@ -27,6 +27,7 @@ $string['optionsiteach'] = 'Teached by me';
 $string['messageprovider:bookingconfirmation'] = "Booking confirmations";
 $string['search'] = 'Search...';
 $string['teachers'] = 'Teachers';
+$string['assignteachers'] = 'Assign teachers:';
 
 // General errors.
 $string['error:choosevalue'] = 'You have to choose a value here.';
