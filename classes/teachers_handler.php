@@ -98,7 +98,7 @@ class teachers_handler {
             $allowedusers[$userrecord->id] = "$userrecord->firstname $userrecord->lastname ($userrecord->email)";
         }
 
-        $mform->addElement('autocomplete', 'teachersforoption', get_string('teachers', 'mod_booking'),
+        $mform->addElement('autocomplete', 'teachersforoption', get_string('assignteachers', 'mod_booking'),
             $allowedusers, $options);
         $mform->addHelpButton('teachersforoption', 'teachersforoption', 'mod_booking');
 

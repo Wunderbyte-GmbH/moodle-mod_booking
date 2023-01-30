@@ -21,6 +21,7 @@ $string['booking:cantoggleformmode'] = 'User can edit all settings';
 $string['alreadypassed'] = 'Already passed';
 $string['gotomanageresponses'] = '&lt;&lt; Manage responses';
 $string['teachers'] = 'Teachers';
+$string['assignteachers'] = 'Assign teachers:';
 
 // General errors.
 $string['error:choosevalue'] = 'You have to choose a value here.';
