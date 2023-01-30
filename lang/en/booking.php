@@ -36,6 +36,7 @@ $string['messageprovider:bookingconfirmation'] = "Booking confirmations";
 $string['optionsiteach'] = 'Teached by me';
 $string['search'] = 'Search...';
 $string['teachers'] = 'Teachers';
+$string['assignteachers'] = 'Assign teachers:';
 $string['thankyoubooked'] = '<i class="fa fa-3x fa-calendar-check-o text-success" aria-hidden="true"></i><br><br>
 Thank you! You have successfully booked <b>{$a}</b>.';
 $string['thankyoucheckout'] = '<i class="fa fa-3x fa-shopping-cart text-success" aria-hidden="true"></i><br><br>
