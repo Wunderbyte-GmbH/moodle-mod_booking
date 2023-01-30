@@ -58,6 +58,7 @@ class pricecategories_form extends moodleform {
             $defaultprice->identifier = 'default';
             $defaultprice->name = get_string('price', 'booking');
             $defaultprice->defaultvalue = 0;
+            $defaultprice->pricecatsortorder = 0;
             $defaultprice->disabled = 0; // Default price cannot be disabled.
 
             $defaultprice->id = $DB->insert_record('booking_pricecategories', $defaultprice);
