@@ -84,8 +84,8 @@ if (has_capability('mod/booking:cantoggleformmode', $context)) {
     set_user_preference('optionform_mode', 'simple');
 }
 
-$mform = new option_form(null, array('bookingid' => $bookingid, 'optionid' => $optionid, 'cmid' => $cmid,
-    'context' => $context));
+//$mform = new option_form(null, array('bookingid' => $bookingid, 'optionid' => $optionid, 'cmid' => $cmid,
+//    'context' => $context));
 
 // Duplicate this booking option.
 if ($optionid == -1 && $copyoptionid != 0) {
@@ -122,7 +122,18 @@ if ($optionid == -1 && $copyoptionid != 0) {
         // Subscribe the copied teacher to the new booking option.
         subscribe_teacher_to_booking_option($teachertocopy->userid, $optionid, $cm->id);
     }
-
+    
+    // If there are prices defined, let's duplicate them too.
+    if (get_config('booking', 'duplicationrestoreprices')) {
+        /* IMPORTANT: Once we support subbookings, we might have different areas than 'option'
+            and this means 'itemid' might be something else than an optionid.
+            So we have to find out, if we still can set the params like this. */
+        $prices = $DB->get_records('booking_prices', ['itemid' => $copyoptionid, 'area' => 'option']);
+        foreach ($prices as $price) {
+            $price->itemid = $optionid;
+        }
+        $DB->insert_records('booking_prices', $prices);
+    }
     // Also duplicate associated Moodle custom fields (e.g. "sports").
     $sql = "SELECT cfd.*
         FROM {customfield_data} cfd
@@ -152,6 +163,10 @@ if ($optionid == -1 && $copyoptionid != 0) {
     $defaultvalues->bookingname = $booking->settings->name;
     $defaultvalues->id = $cmid;
 }
+
+// Create form after duplication data were prepared.
+$mform = new option_form(null, array('bookingid' => $bookingid, 'optionid' => $optionid, 'cmid' => $cmid,
+    'context' => $context));
 
 if ($mform->is_cancelled()) {
 
