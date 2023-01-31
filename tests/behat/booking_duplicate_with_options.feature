@@ -87,7 +87,6 @@ Feature: In a booking create multi session options
       | Notification message                               | Advanced notification message |
       | Before booked                                      | Before booked message         |
       | After booked                                       | After booked message          |
-    And I click on "Save entity for each date too" "checkbox"
     And I press "Save and go back"
     ## Create 1st copy
     And I click on "Settings" "icon"
@@ -116,8 +115,6 @@ Feature: In a booking create multi session options
     And I should see "Teacher 1 (teacher1@example.com)" in the "#id_bookingoptionteacherscontainer" "css_element"
     And the field "Limit the number of participants" matches value "checked"
     And the field "Start and end time of course are known" matches value "checked"
-    ## NOT YET And the field "Save entity for each date too" matches value "checked"
-    ## NOT YET pricegroup_default pricegroup_specialprice
     And the following fields match these values:
       | Max. number of participants           | 10                            |
       | Max. number of places on waiting list | 5                             |
@@ -136,6 +133,8 @@ Feature: In a booking create multi session options
       | courseendtime[minute]                 | 00                            |
       | Teachers poll url                     | https://google.com            |
       | reoccurringdatestring                 | FR, 13:30 - 14:30             |
+      | pricegroup_default[bookingprice_default]           | 75                            |
+      | pricegroup_specialprice[bookingprice_specialprice] | 65                            |
       | Notification message                  | Advanced notification message |
       | Before booked                         | Before booked message         |
       | After booked                          | After booked message          |
