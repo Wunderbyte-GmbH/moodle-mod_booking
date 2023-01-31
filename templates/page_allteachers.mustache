@@ -1,0 +1,103 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/page_teacher
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * data-region
+}}
+{{#canedit}}
+<a class="text-primary" data-toggle="collapse" href="#collapsiblelistofteachers" role="button" aria-expanded="false" aria-controls="collapsiblelistofteachers">
+    <i class="fa fa-envelope" aria-hidden="true"></i> {{#str}} showteachersmailinglist, mod_booking {{/str}}
+</a>
+<div class="collapse card bg-light rounded p-2 page-allteachers-teachersmailinglist" id="collapsiblelistofteachers">
+    {{#teachers}}
+        "{{firstname}} {{lastname}}" &lt;{{email}}&gt;;<br>
+    {{/teachers}}
+</div>
+{{/canedit}}
+<div class="row">
+    {{#teachers}}
+        <div class="card m-2 page-allteachers-card">
+            <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+                <div class="text-white h3 mb-0 page-allteachers-teachername">{{firstname}} {{lastname}}</div>
+                <div class="page-allteachers-orderletter bg-light rounded text-dark text-center">{{orderletter}}</div>
+            </div>
+            <div class="card-body bg-light">
+                <div class="row">
+                    <div class="col-md-3">
+                        {{#image}}<a href="{{link}}"><img src="{{image}}" class="page-allteachers-teacherimage rounded-circle" width="70"></a>{{/image}}
+                    </div>
+                    <div class="col-md-9">
+                        {{#description}}<p class="card-text">{{{description}}}</p>{{/description}}
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-light">
+                <div class="row page-allteachers-buttons d-flex justify-content-around" aria-label="Basic example">
+                    <a href="{{link}}" class="btn btn-light">
+                        <span>
+                            <i class="fa fa-graduation-cap" aria-hidden="true"></i>
+                            <div>{{#str}} showcoursesofteacher, mod_booking {{/str}}</div>
+                        </span>
+                    </a>
+                    {{#messagingispossible}}
+                    <a id="message-user-button" role="button" data-conversationid="0"
+                    data-userid="{{teacherid}}" class="btn btn-light"
+                    href="{{messagelink}}">
+                        <span>
+                            <i class="icon fa fa-comment-o fa-fw iconsmall" title="{{#str}} messagebutton, mod_booking {{/str}}"
+                            role="img" aria-label="{{#str}} messagebutton, mod_booking {{/str}}"></i>
+                            <div class="header-button-title">{{#str}} messagebutton, mod_booking {{/str}}</div>
+                        </span>
+                    </a>
+                    {{/messagingispossible}}
+                    {{^messagingispossible}}
+                    <div data-toggle="tooltip" data-placement="top" title="{{#str}} messagingteacherimpossible, mod_booking {{/str}}">
+                        <a id="message-user-button" role="button" class="btn btn-light disabled">
+                            <span>
+                                <i class="icon fa fa-comment-o fa-fw iconsmall" title="{{#str}} messagebutton, mod_booking {{/str}}"
+                                role="img" aria-label="{{#str}} messagebutton, mod_booking {{/str}}"></i>
+                                <div class="header-button-title">{{#str}} messagebutton, mod_booking {{/str}}</div>
+                            </span>
+                        </a>
+                    </div>
+                    {{/messagingispossible}}
+                    {{#email}}
+                    <a href="mailto:{{email}}" class="page-allteachers-email btn btn-light">
+                        <span>
+                            <i class="fa fa-envelope" aria-hidden="true"></i>
+                            <div>{{#str}} sendmail, mod_booking {{/str}}</div>
+                        </span>
+                    </a>
+                    {{/email}}
+                    {{#linktoperformedunitsreport}}
+                    <a href="{{linktoperformedunitsreport}}" class="page-allteachers-linktoperformedunitsreport btn btn-light" target="_self">
+                        <span>
+                            <i class="fa fa-clock-o" aria-hidden="true"></i>
+                            <div>{{#str}} hours {{/str}}</div>
+                        </span>
+                    </a>
+                    {{/linktoperformedunitsreport}}
+                </div>
+            </div>
+        </div>
+    {{/teachers}}
+</div>

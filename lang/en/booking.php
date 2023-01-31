@@ -20,6 +20,7 @@ $string['bookingoption'] = 'Booking option';
 $string['bookings'] = 'Bookings';
 $string['booking:manageoptiontemplates'] = "Manage option templates";
 $string['booking:cantoggleformmode'] = 'User can edit all settings';
+$string['courses'] = 'Courses';
 $string['dayofweek'] = 'Weekday';
 $string['gotomanageresponses'] = '&lt;&lt; Manage responses';
 $string['messageprovider:bookingconfirmation'] = "Booking confirmations";
@@ -35,6 +36,19 @@ $string['week'] = "Week";
 $string['question'] = "Question";
 $string['answer'] = "Answer";
 $string['topic'] = "Topic";
+
+// Teachers.
+$string['teacher'] = 'Teacher';
+$string['allteachers'] = 'All teachers';
+$string['showallteachers'] = '&gt;&gt; Show all teachers';
+$string['showcoursesofteacher'] = 'Courses';
+$string['messagebutton'] = 'Message';
+$string['messagingteacherimpossible'] = 'You cannot send messages to this teacher
+ because you are not enrolled in any courses of her/him.';
+$string['sendmail'] = 'Mail';
+$string['teachernotfound'] = 'Teacher could not be found or does not exist.';
+$string['notateacher'] = 'The user selected is not teaching any courses and is probably not a teacher.';
+$string['showteachersmailinglist'] = 'Show a list of e-mails for all teachers...';
 
 // Teacher_added.php.
 $string['eventteacher_added'] = 'Teacher added';
@@ -1900,7 +1914,6 @@ $string['optiondatesteachersreport'] = 'Teaching Report / Replacement teachers';
 $string['optiondatesteachersreport_desc'] = 'This report gives an overview of which teacher was present at which specific date.<br>
 By default, every date will be filled in with the option\'s teacher. You can overwrite specific dates with replacement teachers.';
 $string['linktoteachersinstancereport'] = '<p><a href="{$a}" target="_self">&gt;&gt; Go to teachers report for booking instance</a></p>';
-$string['teacher'] = 'Teacher';
 $string['noteacherset'] = 'No teacher';
 $string['reason'] = 'Reason';
 $string['error:reasonfornoteacher'] = 'Enter a reason why no teachers were present at this date.';
@@ -1914,7 +1927,6 @@ $string['teachingreportforinstance'] = 'Teaching overview report for ';
 $string['teachersinstancereport:subtitle'] = '<strong>Hint:</strong> The number of units of a course (booking option) is calculated by the duration of an educational unit
  which you can <a href="/admin/settings.php?section=modsettingbooking" target="_blank">set in the booking settings</a> and the specified date series string (e.g. "Tue, 16:00-17:30").
  For blocked events or booking options missing this string, the number of units cannot be calculated!';
-$string['allteachers'] = 'All teachers';
 $string['units'] = 'Units';
 $string['sum_units'] = 'Sum of units';
 $string['units_courses'] = 'Courses / Units';

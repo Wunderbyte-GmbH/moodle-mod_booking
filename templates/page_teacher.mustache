@@ -1,0 +1,93 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/page_teacher
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * data-region
+}}
+
+{{#error}}
+<div class="alert alert-danger" role="alert">{{{errormessage}}}</div>
+{{/error}}
+{{^error}}
+<div class="card-deck">
+    {{#teacher}}
+        <div class="card">
+            {{#link}}<a href="{{.}}">{{/link}}
+                {{#image}}<img src="{{.}}" class="card-img-teacher rounded-circle p-3">{{/image}}
+                <div class="card-body">
+                    <h1 class="card-title font-weight-bold">{{firstname}} {{lastname}}</h1>
+                    {{#messagingispossible}}
+                    <div>
+                        <a id="message-user-button" role="button" data-conversationid="0"
+                        data-userid="{{teacherid}}" class="btn btn-light"
+                        href="{{wwwroot}}/message/index.php?id={{teacherid}}">
+                            <span>
+                                <i class="icon fa fa-comment-o fa-fw iconsmall" title="{{#str}} messagebutton, mod_booking {{/str}}"
+                                role="img" aria-label="{{#str}} messagebutton, mod_booking {{/str}}"></i>
+                                <span class="header-button-title">{{#str}} messagebutton, mod_booking {{/str}}</span>
+                            </span>
+                        </a>
+                    </div>
+                    {{/messagingispossible}}
+                    {{^messagingispossible}}
+                    <div style="display: inline-block;" data-toggle="tooltip" data-placement="right" title="{{#str}} messagingteacherimpossible, mod_booking {{/str}}">
+                        <a id="message-user-button" role="button" class="btn btn-light disabled">
+                            <span>
+                                <i class="icon fa fa-comment-o fa-fw iconsmall" title="{{#str}} messagebutton, mod_booking {{/str}}"
+                                role="img" aria-label="{{#str}} messagebutton, mod_booking {{/str}}"></i>
+                                <span class="header-button-title">{{#str}} messagebutton, mod_booking {{/str}}</span>
+                            </span>
+                        </a>
+                    </div>
+                    {{/messagingispossible}}
+                    <p class="card-description">{{{description}}}</p>
+                    {{#linktoperformedunitsreport}}
+                    <a href="{{linktoperformedunitsreport}}" class="btn btn-light" target="_self">
+                        <span>
+                            <i class="fa fa-clock-o" aria-hidden="true"></i> {{#str}} hours {{/str}}
+                        </span>
+                    </a>
+                    {{/linktoperformedunitsreport}}
+
+                </div>
+                <div class="card-footer">
+                    <nav>
+                    <div class="nav nav-pills mb-3" id="nav-tab" role="tablist">
+                        {{#optiontables}}
+                        <a class="nav-link rounded {{class}}" id="nav-tab-{{tablename}}" data-toggle="tab" href="#nav-table-{{tablename}}" role="tab" aria-controls="nav-tab-{{tablename}}">
+                            {{#str}}courses, mod_booking{{/str}} - {{bookinginstancename}}
+                        </a>
+                        {{/optiontables}}
+                    </div>
+                    </nav>
+                    <div class="tab-content" id="nav-tabContent">
+                        {{#optiontables}}
+                        <div class="tab-pane fade {{class}}" id="nav-table-{{tablename}}" role="tabpanel" aria-labelledby="nav-tab-{{tablename}}">{{{table}}}</div>
+                        {{/optiontables}}
+                    </div>
+
+                </div>
+            {{#link}}</a>{{/link}}
+        </div>
+    {{/teacher}}
+</div>
+{{/error}}

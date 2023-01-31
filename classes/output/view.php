@@ -88,7 +88,7 @@ class view implements renderable, templatable {
      * Render table for all booking options.
      * @return string the rendered table
      */
-    private function get_rendered_alloptions_table() {
+    public function get_rendered_alloptions_table() {
         $cmid = $this->cmid;
 
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
@@ -114,7 +114,7 @@ class view implements renderable, templatable {
      * Render table for my own booked options.
      * @return string the rendered table
      */
-    private function get_rendered_myoptions_table() {
+    public function get_rendered_myoptions_table() {
         global $USER;
 
         $cmid = $this->cmid;
@@ -139,10 +139,42 @@ class view implements renderable, templatable {
     }
 
     /**
+     * Render table all options a specified teacher is teaching.
+     * @param int $teacherid
+     * @return string the rendered table
+     */
+    public function get_rendered_table_for_teacher(int $teacherid) {
+        $cmid = $this->cmid;
+        $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
+
+        // Create the table.
+        $teacheroptionstable = new bookingoptions_wbtable('teacheroptionstable', $booking);
+
+        $wherearray = ['bookingid' => (int)$booking->id];
+
+        $wherearray['teacherobjects'] = '%"id":' . $teacherid . ',%';
+        list($fields, $from, $where, $params, $filter) =
+            booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
+        $teacheroptionstable->set_filter_sql($fields, $from, $where, $filter, $params);
+
+        // Initialize the default columnes, headers, settings and layout for the table.
+        // In the future, we can parametrize this function so we can use it on many different places.
+        $this->wbtable_initialize_list_layout($teacheroptionstable, false, false, false);
+
+        $out = $teacheroptionstable->outhtml(40, true);
+
+        return $out;
+    }
+
+    /**
      * Helper function to set the default layout for the table (list view).
      * @param wunderbyte_table $wbtable reference to the table class that should be initialized
+     * @param bool $filter
+     * @param bool $search
+     * @param bool $sort
      */
-    private function wbtable_initialize_list_layout(wunderbyte_table &$wbtable) {
+    private function wbtable_initialize_list_layout(wunderbyte_table &$wbtable,
+        bool $filter = true, bool $search = true, bool $sort = true) {
         $wbtable->add_subcolumns('leftside', ['text', 'action', 'teacher']);
         $wbtable->add_subcolumns('footer', ['dayofweektime', 'location', 'institution', 'bookings']);
         $wbtable->add_subcolumns('rightside', ['booknow']);
@@ -193,34 +225,40 @@ class view implements renderable, templatable {
         $wbtable->showreloadbutton = false;
         $wbtable->define_cache('mod_booking', 'bookingoptionstable');
 
-        $wbtable->define_fulltextsearchcolumns(['titleprefix', 'text', 'description',
-            'location', 'institution', 'teacherobjects']);
+        if ($search) {
+            $wbtable->define_fulltextsearchcolumns(['titleprefix', 'text', 'description',
+                'location', 'institution', 'teacherobjects']);
+        }
 
-        $wbtable->define_filtercolumns([
-            'location' => [
-                'localizedname' => get_string('location', 'mod_booking'),
-            ],
-            'institution' => [
-                'localizedname' => get_string('institution', 'mod_booking'),
-            ],
-            'dayofweek' => [
-                'localizedname' => get_string('dayofweek', 'mod_booking'),
-                'monday' => get_string('monday', 'mod_booking'),
-                'tuesday' => get_string('tuesday', 'mod_booking'),
-                'wednesday' => get_string('wednesday', 'mod_booking'),
-                'thursday' => get_string('thursday', 'mod_booking'),
-                'friday' => get_string('friday', 'mod_booking'),
-                'saturday' => get_string('saturday', 'mod_booking'),
-                'sunday' => get_string('sunday', 'mod_booking')
-            ],
-        ]);
+        if ($filter) {
+            $wbtable->define_filtercolumns([
+                'location' => [
+                    'localizedname' => get_string('location', 'mod_booking'),
+                ],
+                'institution' => [
+                    'localizedname' => get_string('institution', 'mod_booking'),
+                ],
+                'dayofweek' => [
+                    'localizedname' => get_string('dayofweek', 'mod_booking'),
+                    'monday' => get_string('monday', 'mod_booking'),
+                    'tuesday' => get_string('tuesday', 'mod_booking'),
+                    'wednesday' => get_string('wednesday', 'mod_booking'),
+                    'thursday' => get_string('thursday', 'mod_booking'),
+                    'friday' => get_string('friday', 'mod_booking'),
+                    'saturday' => get_string('saturday', 'mod_booking'),
+                    'sunday' => get_string('sunday', 'mod_booking')
+                ],
+            ]);
+        }
 
-        $wbtable->define_sortablecolumns([
-            'text' => get_string('bookingoption', 'mod_booking'),
-            'location',
-            'institution',
-            'dayofweek',
-        ]);
+        if ($sort) {
+            $wbtable->define_sortablecolumns([
+                'text' => get_string('bookingoption', 'mod_booking'),
+                'location',
+                'institution',
+                'dayofweek',
+            ]);
+        }
 
         $wbtable->tabletemplate = 'mod_booking/table_list';
     }

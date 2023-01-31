@@ -125,11 +125,13 @@ class bookingoptions_tablesql extends table_sql {
      * @throws dml_exception
      */
     public function col_teacher($values) {
+        global $PAGE;
+        $output = $PAGE->get_renderer('mod_booking');
 
         // Render col_teacher using a template.
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
         $data = new col_teacher($values->id, $settings);
-        return $this->outputmusi->render_col_teacher($data);
+        return $output->render_col_teacher($data);
     }
 
     /**

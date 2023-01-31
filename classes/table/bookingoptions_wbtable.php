@@ -51,12 +51,6 @@ class bookingoptions_wbtable extends wunderbyte_table {
     /** @var int $cmid */
     private $cmid = null;
 
-    /** @var renderer_base $outputbooking */
-    private $outputbooking = null;
-
-    /** @var renderer_base $outputmusi */
-    private $outputmusi = null;
-
     /** @var booking $booking */
     private $booking = null;
 
@@ -82,9 +76,6 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $this->cmid = $this->booking->cmid;
             $this->context = context_module::instance($this->cmid);
         }
-
-        $this->outputbooking = $PAGE->get_renderer('mod_booking');
-        $this->outputmusi = $PAGE->get_renderer('local_musi');
 
         // We set buyforuser here for better performance.
         $this->buyforuser = price::return_user_to_buy_for();
@@ -132,11 +123,13 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @throws dml_exception
      */
     public function col_teacher($values) {
+        global $PAGE;
+        $output = $PAGE->get_renderer('mod_booking');
 
         // Render col_teacher using a template.
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
         $data = new col_teacher($values->id, $settings);
-        return $this->outputmusi->render_col_teacher($data);
+        return $output->render_col_teacher($data);
     }
 
     /**
@@ -205,11 +198,13 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @throws coding_exception
      */
     public function col_bookings($values) {
+        global $PAGE;
+        $output = $PAGE->get_renderer('mod_booking');
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
         // Render col_bookings using a template.
         $data = new col_availableplaces($values, $settings, $this->buyforuser);
-        return $this->outputbooking->render_col_availableplaces($data);
+        return $output->render_col_availableplaces($data);
     }
 
     /**
@@ -518,6 +513,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @throws coding_exception
      */
     public function col_action_new($values) {
+        global $PAGE;
+        $output = $PAGE->get_renderer('mod_booking');
 
         if (empty($this->booking)) {
             $this->booking = singleton_service::get_instance_of_booking_by_optionid($values->id, $values);
@@ -605,7 +602,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 ]);
         }
 
-        return $this->outputbooking->render_col_text_link($data);
+        return $output->render_col_text_link($data);
     }
 
     private function add_return_url(string $urlstring):string {

@@ -728,6 +728,28 @@ class renderer extends plugin_renderer_base {
         return $o;
     }
 
+    /** Function to render the page of a single teacher
+     * @param any $data
+     * @return string
+     */
+    public function render_teacherpage($data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/page_teacher', $data);
+        return $o;
+    }
+
+    /** Function to render the page showing all teachers
+     * @param any $data
+     * @return string
+     */
+    public function render_allteacherspage($data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/page_allteachers', $data);
+        return $o;
+    }
+
     /**
      * Render main booking options view.
      * @param $data array

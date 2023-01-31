@@ -20,6 +20,7 @@ $string['bookingoption'] = 'Buchungsoption';
 $string['bookings'] = 'Buchungen';
 $string['booking:manageoptiontemplates'] = "Buchungsoptionsvorlagen verwalten";
 $string['booking:cantoggleformmode'] = 'Nutzer:in darf alle Einstellungen verwalten';
+$string['courses'] = 'Kurse';
 $string['dayofweek'] = 'Wochentag';
 $string['gotomanageresponses'] = '&lt;&lt; Buchungen verwalten';
 $string['messageprovider:bookingconfirmation'] = "Buchungsbestätigungen";
@@ -35,6 +36,19 @@ $string['week'] = "Woche";
 $string['question'] = "Frage";
 $string['answer'] = "Antwort";
 $string['topic'] = "Thema";
+
+// Teachers.
+$string['teacher'] = 'Trainer:in';
+$string['allteachers'] = 'Alle Trainer:innen';
+$string['showallteachers'] = '&gt;&gt; Alle Trainer:innen anzeigen';
+$string['showcoursesofteacher'] = 'Kurse';
+$string['messagebutton'] = 'Nachricht';
+$string['messagingteacherimpossible'] = 'Sie können dieser Trainerin / diesem Trainer keine Nachrichten senden,
+ weil Sie in keinen Kurs von ihr/ihm eingeschrieben sind.';
+$string['sendmail'] = 'Mail';
+$string['teachernotfound'] = 'Trainer:in konnte nicht gefunden werden oder existiert nicht.';
+$string['notateacher'] = 'Die ausgewählte Person unterrichtet keine buchbaren Kurse und kann daher nicht angezeigt werden.';
+$string['showteachersmailinglist'] = 'E-Mail-Liste für alle Trainer:innen anzeigen...';
 
 // Teacher_added.php.
 $string['eventteacher_added'] = 'Trainer:in hinzugefügt';
@@ -1696,7 +1710,6 @@ $string['optiondatesteachersreport'] = 'Training-Journal / Vertretungen';
 $string['optiondatesteachersreport_desc'] = 'In diesem Report erhalten Sie eine Übersicht, welche:r Trainer:in an welchem Termin geleitet hat.<br>
 Standardmäßig werden alle Termine mit dem/den eingestellten Trainer:innen der Buchungsoption befüllt. Sie können einzelne Termine mit Vertretungen überschreiben.';
 $string['linktoteachersinstancereport'] = '<p><a href="{$a}" target="_self">&gt;&gt; Zum Trainer:innen-Gesamtbericht für die Buchungsinstanz</a></p>';
-$string['teacher'] = 'Trainer:in';
 $string['noteacherset'] = 'Kein/e Trainer/in';
 $string['reason'] = 'Grund';
 $string['error:reasonfornoteacher'] = 'Geben Sie einen Grund an, warum an diesem Termin kein/e Trainer/in anwesend war.';
@@ -1710,7 +1723,6 @@ $string['teachingreportforinstance'] = 'Trainer:innen-Gesamtbericht für ';
 $string['teachersinstancereport:subtitle'] = '<strong>Hinweis:</strong> Die Anzahl der UE berechnet sich anhand des gesetzten Terminserien-Textfeldes (z.B. "Mo, 16:00-17:30")
  und der in den <a href="/admin/settings.php?section=modsettingbooking" target="_blank">Einstellungen festgelegten Dauer</a> einer UE. Für Blockveranstaltungen oder
  Buchungsoptionen bei denen das Feld nicht gesetzt ist, können die UE nicht berechnet werden!';
-$string['allteachers'] = 'Alle Trainer:innen';
 $string['units'] = 'UE';
 $string['sum_units'] = 'Summe UE';
 $string['units_courses'] = 'Kurse / UE';

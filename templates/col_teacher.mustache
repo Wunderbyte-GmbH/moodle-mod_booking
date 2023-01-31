@@ -15,7 +15,7 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_booking/col_teachers
+    @template mod_booking/col_teacher
 
     Classes required for JS:
     * none
@@ -25,7 +25,5 @@
 }}
 
 {{#teachers}}
-    <div>
-        <i class="fa fa-user"></i> {{firstname}} {{lastname}}
-    </div>
+    <i class="fa fa-graduation-cap" aria-hidden="true"></i> {{#teacherurl}}<a href="{{teacherurl}}">{{/teacherurl}}{{firstname}} {{lastname}}{{#teacherurl}}</a>{{/teacherurl}}&nbsp;
 {{/teachers}}
