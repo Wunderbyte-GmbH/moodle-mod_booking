@@ -47,6 +47,16 @@ class clean_booking_db extends \core\task\scheduled_task {
         // Remove entries from table "booking_optiondates_teachers" that belong to non-existing options.
         $DB->delete_records_select('booking_optiondates_teachers', "optiondateid NOT IN (SELECT id FROM {booking_optiondates})");
 
+        // Remove entries from table "booking_teachers" that belong to non-existing options.
+        $DB->delete_records_select('booking_teachers',
+        "bookingid NOT IN (
+            SELECT cm.instance
+            FROM {course_modules} cm
+            JOIN {modules} m
+            ON m.id = cm.module
+            WHERE m.name = 'booking'
+        )");
+
         // TODO: In the future, we can add additional cleaning.
     }
 }

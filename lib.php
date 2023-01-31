@@ -2090,7 +2090,7 @@ function booking_rate($ratings, $params) {
 /**
  * Given an ID of an instance of this module, will permanently delete the instance and data.
  *
- * @param int $id
+ * @param int $id this is the bookingid - not the cmid!
  * @return boolean
  */
 function booking_delete_instance($id) {
@@ -2169,6 +2169,11 @@ function booking_delete_instance($id) {
         // If optiondates are deleted we also have to delete the associated entries in booking_optiondates_teachers.
         // TODO: this should be moved into delete_booking_option.
         teachers_handler::delete_booking_optiondates_teachers_by_bookingid($booking->id);
+    }
+
+    // We also need to delete the booking teachers in the booking_teachers table!
+    if (!$DB->delete_records('booking_teachers', array("bookingid" => "$booking->id"))) {
+        $result = false;
     }
 
     // Delete any entity relations for the booking instance.
