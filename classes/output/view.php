@@ -193,7 +193,8 @@ class view implements renderable, templatable {
         $wbtable->showreloadbutton = false;
         $wbtable->define_cache('mod_booking', 'bookingoptionstable');
 
-        $wbtable->define_fulltextsearchcolumns(['titleprefix', 'text', 'description', 'location', 'teacherobjects']);
+        $wbtable->define_fulltextsearchcolumns(['titleprefix', 'text', 'description',
+            'location', 'institution', 'teacherobjects']);
 
         $wbtable->define_filtercolumns([
             'location' => [
@@ -220,13 +221,6 @@ class view implements renderable, templatable {
             'institution',
             'dayofweek',
         ]);
-
-        // It's important to have the baseurl defined, we use it as a return url at one point.
-        $baseurl = new moodle_url(
-            $_SERVER['REQUEST_URI'],
-            $_GET
-        );
-        $wbtable->define_baseurl($baseurl->out());
 
         $wbtable->tabletemplate = 'mod_booking/table_list';
     }

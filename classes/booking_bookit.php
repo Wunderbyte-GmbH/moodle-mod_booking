@@ -158,7 +158,7 @@ class booking_bookit {
             $datas[] = new prepagemodal(
                 $settings, // We pass on the optionid.
                 count($prepages), // The total number of pre booking pages.
-                $buttoncondition,  // This is the button we need to render twice.;
+                $buttoncondition,  // This is the button we need to render twice.
                 $showinmodalbutton, // This marker just suppresses the in modal button.
             );
 
@@ -239,7 +239,8 @@ class booking_bookit {
 
         // Make sure that we only buy from instance the user has access to.
         // This is just fraud prevention and can not happen ordinarily.
-        // $cm = get_coursemodule_from_instance('booking', $bookingoption->bookingid);
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $cm = get_coursemodule_from_instance('booking', $bookingoption->bookingid); */
 
         // TODO: Find out if the executing user has the right to access this instance.
         // This can lead to problems, rights should be checked further up.

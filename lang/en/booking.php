@@ -1992,7 +1992,7 @@ $string['bo_cond_booking_time_full_not_available'] = 'Not within normal booking 
 $string['bo_cond_alreadybooked_available'] = 'Not yet booked';
 $string['bo_cond_alreadybooked_full_available'] = 'The user has not yet booked';
 $string['bo_cond_alreadybooked_not_available'] = 'Booked';
-$string['bo_cond_alreadybooked_full_not_available'] = 'Booking option already booked';
+$string['bo_cond_alreadybooked_full_not_available'] = 'Booked';
 
 $string['bo_cond_fullybooked_available'] = 'Book it';
 $string['bo_cond_fullybooked_full_available'] = 'Booking is possible';

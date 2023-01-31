@@ -166,7 +166,7 @@ class bookitbutton implements bo_condition {
                 'userid' => $userid ?? 0,
                 'main' => [
                     'label' => $label,
-                    'class' => 'btn btn-secondary',
+                    'class' => 'btn btn-secondary w-100 mt-0 mb-0 pl-1 pr-1 pt-2 pb-2',
                     'role' => 'button',
                 ]
             ]

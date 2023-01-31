@@ -29,7 +29,6 @@ use context;
 use context_module;
 use local_shopping_cart\local\entities\cartitem;
 use mod_booking\booking_option;
-use mod_booking\booking_option_settings;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use renderer_base;
@@ -49,7 +48,7 @@ class bookit_price implements renderable, templatable {
     /** @var array $cartitem array of cartitem */
     public array $cartitem = [];
 
-    /** @var array $priceitem array of priceitem */
+    /** @var array $priceitems array of priceitems */
     public array $priceitems = [];
 
     /** @var context $context */
