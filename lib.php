@@ -1589,17 +1589,23 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 
 /**
  * Check if logged in user is in teachers db.
- *
+ * @param object $option optional option class
  * @return true if is assigned as teacher otherwise return false
  */
-function booking_check_if_teacher($option) {
+function booking_check_if_teacher(object $option = null) {
     global $DB, $USER;
 
-    $user = $DB->get_record('booking_teachers',
-            array('userid' => $USER->id,
-                'optionid' => $option->id));
+    if (empty($option)) {
+        // If we have no option, we check, if the teacher is a teacher of ANY option.
+        $user = $DB->get_records('booking_teachers',
+            ['userid' => $USER->id]);
+    } else {
+        // If we have an option, we check, if the teacher is a teacher of THIS option.
+        $user = $DB->get_record('booking_teachers',
+            ['userid' => $USER->id, 'optionid' => $option->id]);
+    }
 
-    if ($user === false) {
+    if (empty($user)) {
         return false;
     } else {
         return true;

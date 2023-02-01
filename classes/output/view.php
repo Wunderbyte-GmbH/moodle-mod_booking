@@ -59,29 +59,91 @@ class view implements renderable, templatable {
     /** @var string $renderedmyoptionstable the rendered my options table */
     private $renderedmyoptionstable = null;
 
-    /** @var string $whichview */
-    private $whichview = null;
+    /** @var bool $isteacher true if it's a teacher */
+    private $isteacher = null;
+
+    /** @var string $renderedoptionsiteachtable the rendered table of options I teach */
+    private $renderedoptionsiteachtable = null;
+
+    /** @var string $renderedshowonlyonetable the rendered table of one specific option */
+    private $renderedshowonlyonetable = null;
+
+    /** @var string $showall */
+    private $showall = null; // We keep this name for backwards compatibility!
+
+    /** @var string $mybooking */
+    private $mybooking = null; // We keep this name for backwards compatibility!
+
+    /** @var string $myoptions */
+    private $myoptions = null; // We keep this name for backwards compatibility!
+
+    /** @var string $myinstitution */
+    private $myinstitution = null; // We keep this name for backwards compatibility!
+
+    /** @var string $showactive */
+    private $showactive = null; // We keep this name for backwards compatibility!
+
+    /** @var string $showonlyone */
+    private $showonlyone = null; // We keep this name for backwards compatibility!
 
     /**
      * Constructor
      *
+     * @param int $cmid
+     * @param string $whichview
      * @param int $optionid
      */
-    public function __construct(int $cmid, string $whichview = 'showall') {
+    public function __construct(int $cmid, string $whichview = 'showall', int $optionid = 0) {
+        global $USER;
 
         $this->cmid = $cmid;
         if (!$this->context = context_system::instance()) {
             throw new moodle_exception('badcontext');
         }
-        $this->whichview = $whichview;
 
         // Verborgene immer mit lazyouthtml und für die jeweils aktuelle view outhtml!
 
         // Now create the tables.
+
+        // All options.
         $this->renderedalloptionstable = $this->get_rendered_alloptions_table();
 
-        // Now create the tables.
+        // My options.
         $this->renderedmyoptionstable = $this->get_rendered_myoptions_table();
+
+        // Options I teach.
+        if (booking_check_if_teacher()) {
+            $this->isteacher = true;
+            $this->renderedoptionsiteachtable = $this->get_rendered_table_for_teacher($USER->id, false, true, false);
+        }
+
+        switch ($whichview) {
+            case 'showactive':
+                $this->showactive = true;
+                break;
+            case 'showonlyone':
+                if (!empty($optionid)) {
+                    $this->showonlyone = true;
+                    $this->renderedshowonlyonetable = $this->get_rendered_showonlyone_table($optionid);
+                } else {
+                    $this->showall = true;
+                }
+                break;
+            case 'mybooking':
+                $this->mybooking = true;
+                break;
+            case 'myoptions':
+                $this->myoptions = true;
+                break;
+            case 'myinstitution':
+                $this->myinstitution = true;
+                break;
+            case 'showall':
+            default:
+                $this->showall = true;
+                break;
+                // TODO: We need to change the default to the view set in instance settings later.
+        }
     }
 
     /**
@@ -103,7 +165,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($allbookingoptionstable);
+        $this->wbtable_initialize_list_layout($allbookingoptionstable, false, true, false);
 
         $out = $allbookingoptionstable->outhtml(40, true);
 
@@ -131,7 +193,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($mybookingoptionstable);
+        $this->wbtable_initialize_list_layout($mybookingoptionstable, false, true, false);
 
         $out = $mybookingoptionstable->outhtml(40, true);
 
@@ -141,9 +203,13 @@ class view implements renderable, templatable {
     /**
      * Render table all options a specified teacher is teaching.
      * @param int $teacherid
+     * @param bool $tfilter turn on filter in wunderbyte table
+     * @param bool $tsearch turn on search in wunderbyte table
+     * @param bool $tsort turn on sorting in wunderbyte table
      * @return string the rendered table
      */
-    public function get_rendered_table_for_teacher(int $teacherid) {
+    public function get_rendered_table_for_teacher(int $teacherid,
+        bool $tfilter = true, bool $tsearch = true, bool $tsort = true) {
         $cmid = $this->cmid;
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
@@ -159,9 +225,39 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($teacheroptionstable, false, false, false);
+        $this->wbtable_initialize_list_layout($teacheroptionstable, $tfilter, $tsearch, $tsort);
 
         $out = $teacheroptionstable->outhtml(40, true);
+
+        return $out;
+    }
+
+    /**
+     * Render table for one specific booked option.
+     * @param int $optionid
+     * @return string the rendered table
+     */
+    public function get_rendered_showonlyone_table(int $optionid) {
+        global $USER;
+
+        $cmid = $this->cmid;
+
+        $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
+
+        // Create the table.
+        $showonlyonetable = new bookingoptions_wbtable('showonlyonetable', $booking);
+
+        $wherearray = ['bookingid' => (int)$booking->id];
+        $wherearray = ['id' => $optionid];
+        list($fields, $from, $where, $params, $filter) =
+                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
+        $showonlyonetable->set_filter_sql($fields, $from, $where, $filter, $params);
+
+        // Initialize the default columnes, headers, settings and layout for the table.
+        // In the future, we can parametrize this function so we can use it on many different places.
+        $this->wbtable_initialize_list_layout($showonlyonetable, false, false, false);
+
+        $out = $showonlyonetable->outhtml(1, true);
 
         return $out;
     }
@@ -176,7 +272,7 @@ class view implements renderable, templatable {
     private function wbtable_initialize_list_layout(wunderbyte_table &$wbtable,
         bool $filter = true, bool $search = true, bool $sort = true) {
         $wbtable->add_subcolumns('leftside', ['text', 'action', 'teacher']);
-        $wbtable->add_subcolumns('footer', ['dayofweektime', 'location', 'institution', 'bookings']);
+        $wbtable->add_subcolumns('footer', ['bookings', 'dayofweektime', 'location', 'institution', 'showdates']);
         $wbtable->add_subcolumns('rightside', ['booknow']);
 
         $wbtable->add_classes_to_subcolumns('leftside', ['columnkeyclass' => 'd-none']);
@@ -188,6 +284,10 @@ class view implements renderable, templatable {
             ['dayofweektime']);
         $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-clock-o text-gray
             font-size-sm'], ['dayofweektime']);
+        $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left text-gray pr-2 font-size-sm'],
+            ['showdates']);
+        $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-calendar text-gray
+            font-size-sm'], ['showdates']);
         $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left text-gray  pr-2 font-size-sm'],
             ['location']);
         $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-map-marker text-gray
@@ -271,7 +371,16 @@ class view implements renderable, templatable {
     public function export_for_template(renderer_base $output) {
         return [
             'alloptionstable' => $this->renderedalloptionstable,
-            'myoptionstable' => $this->renderedmyoptionstable
+            'myoptionstable' => $this->renderedmyoptionstable,
+            'optionsiteachtable' => $this->renderedoptionsiteachtable,
+            'showonlyonetable' => $this->renderedshowonlyonetable,
+            'showonlyone' => $this->showonlyone,
+            'showactive' => $this->showactive,
+            'isteacher' => $this->isteacher,
+            'showall' => $this->showall,
+            'mybooking' => $this->mybooking, // My booked options. We kept the name for backward compatibility.
+            'myoptions' => $this->myoptions, // Options I teach. We kept the name for backward compatibility.
+            'myinstitution' => $this->myinstitution,
         ];
     }
 }

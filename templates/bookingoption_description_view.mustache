@@ -89,11 +89,24 @@
                         <span class="d-md-none">
                             {{#str}} location, mod_booking {{/str}}
                         </span>
-                            {{{.}}}
                         <span>
+                            {{{.}}}
                         </span>
                     </li>
                     {{/location}}
+                    {{#institution}}
+                    <li>
+                        <span>
+                            <i class="fa fa-building-o"></i>
+                        </span>
+                        <span class="d-md-none">
+                            {{#str}} institution, mod_booking {{/str}}
+                        </span>
+                        <span>
+                            {{{.}}}
+                        </span>
+                    </li>
+                    {{/institution}}
                     {{#bookinginformation}}
                     <li>
                         <div class="col-ap-availableplaces" id="yui_3_17_2_1_1648034219116_756">

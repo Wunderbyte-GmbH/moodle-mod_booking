@@ -23,6 +23,7 @@ $string['booking:cantoggleformmode'] = 'Nutzer:in darf alle Einstellungen verwal
 $string['courses'] = 'Kurse';
 $string['dayofweek'] = 'Wochentag';
 $string['gotomanageresponses'] = '&lt;&lt; Buchungen verwalten';
+$string['optionsiteach'] = 'Ich unterrichte...';
 $string['messageprovider:bookingconfirmation'] = "Buchungsbestätigungen";
 $string['search'] = 'Suche...';
 $string['teachers'] = 'Trainer:innen';

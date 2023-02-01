@@ -22,7 +22,8 @@ $string['booking:manageoptiontemplates'] = "Manage option templates";
 $string['booking:cantoggleformmode'] = 'User can edit all settings';
 $string['courses'] = 'Courses';
 $string['dayofweek'] = 'Weekday';
-$string['gotomanageresponses'] = '&lt;&lt; Manage responses';
+$string['gotomanageresponses'] = '&lt;&lt; Manage bookings';
+$string['optionsiteach'] = 'I teach...';
 $string['messageprovider:bookingconfirmation'] = "Booking confirmations";
 $string['search'] = 'Search...';
 $string['teachers'] = 'Teachers';
@@ -1006,7 +1007,7 @@ $string['helptext:placeholders'] = '<p>
 
 $string['fields'] = 'Fields to display in different contexts';
 $string['reportfields'] = 'Downlodable responses fields (csv, xls-Download)';
-$string['responsesfields'] = 'Fields on the manage responses page';
+$string['responsesfields'] = 'Fields on the manage bookings page';
 $string['optionsfields'] = 'Fields on the booking options overview page';
 $string['signinsheetfields'] = 'Sign-in sheet fields (PDF)';
 $string['signinonesession'] = 'Display date(s) in the header';
@@ -1753,7 +1754,7 @@ $string['bstinstitution'] = 'Institution';
 $string['bstparticipants'] = 'Participants';
 $string['bstteacher'] = 'Teacher(s)';
 $string['bstwaitinglist'] = 'On waiting list';
-$string['bstmanageresponses'] = 'Manage responses';
+$string['bstmanageresponses'] = 'Manage bookings';
 $string['bstcourse'] = 'Course';
 $string['bstlink'] = 'Show';
 
@@ -1972,7 +1973,7 @@ $string['roundpricesafterformula_desc'] = 'If active, prices will be rounded to 
 $string['cancelallusers'] = 'Cancel booking for all users';
 
 // Col_availableplaces.mustache.
-$string['manageresponses'] = 'Manage responses';
+$string['manageresponses'] = 'Manage bookings';
 
 // Bo conditions.
 $string['availabilityconditions'] = 'Availability conditions';

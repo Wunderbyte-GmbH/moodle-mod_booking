@@ -36,6 +36,7 @@ require_login(0, false);
 global $DB, $PAGE, $OUTPUT, $USER;
 
 $cmid = required_param('id', PARAM_INT); // Course Module ID.
+$optionid = optional_param('optionid', 0, PARAM_INT);
 $download = optional_param('download', '', PARAM_ALPHA);
 $whichview = optional_param('whichview', '', PARAM_ALPHA);
 
@@ -66,7 +67,7 @@ $PAGE->set_heading($title);
 $PAGE->set_pagelayout('incourse');
 $PAGE->add_body_class('mod_booking-view');
 
-$view = new view($cmid, $whichview);
+$view = new view($cmid, $whichview, $optionid);
 
 echo $OUTPUT->header();
 

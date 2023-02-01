@@ -304,25 +304,29 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
     /**
      * This function is called for each data row to allow processing of the
-     * courseendtime value.
+     * showdates value.
      *
      * @param object $values Contains object with all the values of record.
-     * @return string $courseendtime Returns course end time as a readable string.
+     * @return string a string containing collapsible dates
      * @throws coding_exception
      */
-    public function col_coursedates($values) {
+    public function col_showdates($values) {
 
-        // Prepare date string.
-        if ($values->coursestarttime != 0) {
-            $returnarray[] = userdate($values->coursestarttime, get_string('strftimedatetime'));
+        global $PAGE;
+
+        if ($this->is_downloading()) {
+            if ($values->coursestarttime == 0) {
+                return '';
+            } else {
+                return userdate($values->coursestarttime, get_string('strftimedatetime', 'langconfig'));
+            }
         }
 
-        // Prepare date string.
-        if ($values->courseendtime != 0) {
-            $returnarray[] = userdate($values->courseendtime, get_string('strftimedatetime'));
-        }
-
-        return implode(' - ', $returnarray);
+        // Use the renderer to output this column.
+        $data = new \mod_booking\output\col_coursestarttime($values->id, $this->booking);
+        $output = $PAGE->get_renderer('mod_booking');
+        // We can go with the data from bookingoption_description directly to modal.
+        return $output->render_col_coursestarttime($data);
     }
 
     /**

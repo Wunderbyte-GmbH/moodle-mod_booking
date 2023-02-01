@@ -164,7 +164,7 @@ class page_teacher implements renderable, templatable {
                 $lazy = $firsttable ? '' : ' lazy="1" ';
 
                 $view = new view($booking->cmid);
-                $out = $view->get_rendered_table_for_teacher($teacherid);
+                $out = $view->get_rendered_table_for_teacher($teacherid, false, false, false);
 
                 $class = $firsttable ? 'active show' : '';
                 $firsttable = false;

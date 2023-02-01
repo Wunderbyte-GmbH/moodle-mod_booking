@@ -29,6 +29,7 @@ use context_module;
 use mod_booking\booking_answers;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
+use moodle_url;
 use renderer_base;
 use renderable;
 use templatable;
@@ -52,11 +53,8 @@ class col_availableplaces implements renderable, templatable {
     /** @var bool $showmanageresponses */
     private $showmanageresponses = null;
 
-    /** @var int $cmid */
-    private $cmid = null;
-
-    /** @var int $optionid */
-    private $optionid = null;
+    /** @var string $manageresponsesurl */
+    private $manageresponsesurl = null;
 
     /**
      * The constructor takes the values from db.
@@ -64,18 +62,26 @@ class col_availableplaces implements renderable, templatable {
      * @param booking_option_settings $settings
      */
     public function __construct($values, booking_option_settings $settings, $buyforuser = null) {
+        global $CFG;
 
         $this->buyforuser = $buyforuser;
-
         $this->bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
 
-        $this->cmid = $settings->cmid;
-        $this->optionid = $settings->id;
+        $cmid = $settings->cmid;
+        $optionid = $settings->id;
 
-        $context = context_module::instance($settings->cmid);
+        $context = context_module::instance($cmid);
         if (has_capability('mod/booking:updatebooking', $context) ||
              has_capability('mod/booking:addeditownoption', $context)) {
             $this->showmanageresponses = true;
+
+            // Add a link to redirect to the booking option.
+            $link = new moodle_url($CFG->wwwroot . '/mod/booking/report.php', array(
+                'id' => $cmid,
+                'optionid' => $optionid
+            ));
+            // Use html_entity_decode to convert "&amp;" to a simple "&" character.
+            $this->manageresponsesurl = html_entity_decode($link->out());
         }
     }
 
@@ -94,6 +100,12 @@ class col_availableplaces implements renderable, templatable {
 
         // We got the array of all the booking information.
         $bookinginformation = $this->bookinganswers->return_all_booking_information($userid);
+
+        // We need this to render a link to manage bookings in the template.
+        if (!empty($this->showmanageresponses) && $this->showmanageresponses == true) {
+            $bookinginformation['showmanageresponses'] = true;
+            $bookinginformation['manageresponsesurl'] = $this->manageresponsesurl;
+        }
 
         return $bookinginformation;
     }
