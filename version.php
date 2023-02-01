@@ -17,7 +17,7 @@
 /**
  *
  * @package mod_booking
- * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>,
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>,
  * @author David Bogner, Georg Maißer, Bernhard Fischer, Andraž Prinčič
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -28,3 +28,6 @@ $plugin->requires = 2021051700; // Requires this Moodle version. Current: Moodle
 $plugin->release = '7.8.7';
 $plugin->maturity = MATURITY_STABLE;
 $plugin->component = 'mod_booking';
+$plugin->dependencies = [
+    'local_wunderbyte_table' => 2023020100
+];
