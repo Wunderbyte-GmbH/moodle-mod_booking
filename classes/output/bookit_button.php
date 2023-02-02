@@ -49,6 +49,10 @@ class bookit_button implements renderable, templatable {
 
         global $USER;
 
+        if (class_exists('local_shopping_cart\shopping_cart')) {
+            $data['shoppingcartisavailable'] = true;
+        }
+
         if (empty($data['main']['label'])) {
             $data['main']['label'] = get_string('booknow', 'mod_booking');
         }

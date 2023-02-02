@@ -39,7 +39,9 @@
 <span class="pricecurrency h5">
     {{price}} {{currency}}
 </span>
+{{#shoppingcartisavailable}}
 <div>{{> local_shopping_cart/addtocartdb }}</div>
+{{/shoppingcartisavailable}}
 {{#priceitems}}
     <p><i>{{pricecategoryname}}</i></p>
 {{/priceitems}}

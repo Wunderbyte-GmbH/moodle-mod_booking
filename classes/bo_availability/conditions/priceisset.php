@@ -131,6 +131,13 @@ class priceisset implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full);
 
+        // If shopping cart is not installed, we still want to allow admins to book for others.
+        $context = context_module::instance($settings->cmid);
+        if (!class_exists('local_shopping_cart\shopping_cart') &&
+            has_capability('mod/booking:bookforothers', $context)) {
+            return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_MYALERT];
+        }
+
         return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_MYBUTTON];
     }
 

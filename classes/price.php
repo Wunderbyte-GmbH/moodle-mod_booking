@@ -637,9 +637,11 @@ class price {
 
         if ($userid === 0) {
 
-            $context = context_system::instance();
-            if (has_capability('local/shopping_cart:cashier', $context)) {
-                $userid = shopping_cart::return_buy_for_userid();
+            if (class_exists('local_shopping_cart\shopping_cart')) {
+                $context = context_system::instance();
+                if (has_capability('local/shopping_cart:cashier', $context)) {
+                    $userid = shopping_cart::return_buy_for_userid();
+                }
             }
         }
         if ($userid) {
