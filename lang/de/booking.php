@@ -1403,13 +1403,10 @@ $string['showdescriptionmode_help'] = 'Sie können wählen, ob Beschreibungen er
 $string['showdescriptioninline'] = 'Vollständige Beschreibungen direkt in der Tabelle';
 $string['showdescriptionmodal'] = 'Info-Links anzeigen (Standard)';
 
-$string['showlistoncoursepagelbl'] = 'Liste mit verfügbaren Buchungsoptionen auf Kursseite anzeigen';
-$string['showlistoncoursepagelbl_help'] = 'Wenn Sie diese Einstellung aktivieren, wird eine Liste mit allen verfügbaren
-                                Buchungsoptionen direkt auf der Kursseite unter dem Link der Buchungsinstanz angezeigt.
-                                Sie können auch nur den Kursnamen, eine Kurzinfo und einen Button, der auf die
-                                verfügbaren Buchungsoptionen zeigt, anzeigen lassen.';
-$string['showlistoncoursepage'] = 'Ja, Liste auf Kursseite anzeigen';
-$string['hidelistoncoursepage'] = 'Nein, Liste nicht auf Kursseite anzeigen (Standard)';
+$string['showlistoncoursepagelbl'] = 'Extra-Info auf Kursseite anzeigen';
+$string['showlistoncoursepagelbl_help'] = 'Wenn Sie diese Einstellung aktivieren, werden der Kursname, eine Kurzinfo
+ und ein Button, der auf die verfügbaren Buchungsoptionen verlinkt, angezeigt.';
+$string['hidelistoncoursepage'] = 'Nein, Extra-Info nicht auf Kursseite anzeigen (Standard)';
 $string['showcoursenameandbutton'] = 'Kursnamen, Kurzinfo und einen Button, der die verfügbaren Buchungsoptionen öffnet, anzeigen';
 
 $string['coursepageshortinfolbl'] = 'Kurzinfo';

@@ -31,7 +31,6 @@ use mod_booking\booking_option;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\booking_utils;
 use mod_booking\dates_handler;
-use mod_booking\output\coursepage_available_options;
 use mod_booking\output\coursepage_shortinfo_and_button;
 use mod_booking\singleton_service;
 use mod_booking\teachers_handler;
@@ -2518,18 +2517,19 @@ function mod_booking_cm_info_view(cm_info $cm) {
 
     if (!empty($booking)) {
         $html = '';
-        // Only show options list on course page if setting 'showlistoncoursepage' is set to 1.
-        if (isset($booking->settings->showlistoncoursepage) && $booking->settings->showlistoncoursepage == 1) {
-            $data = new coursepage_available_options($cm);
-            $output = $PAGE->get_renderer('mod_booking');
-            $html .= $output->render_coursepage_available_options($data);
-        } else if (isset($booking->settings->showlistoncoursepage) && $booking->settings->showlistoncoursepage == 2) {
-            // If showlistoncoursepage is set to 2, it means there should only be course name, a short info text...
-            // ...and a button redirecting to available booking options.
+
+        if (isset($booking->settings->showlistoncoursepage) &&
+            ($booking->settings->showlistoncoursepage == 1 || $booking->settings->showlistoncoursepage == 2)) {
+
+            /* NOTE: For backwards compatibility, we kept both values (1 and 2).
+            Coursepage_available_options are no longer supported! */
+
+            // Show course name, a short info text and a button redirecting to available booking options.
             $data = new coursepage_shortinfo_and_button($cm);
             $output = $PAGE->get_renderer('mod_booking');
             $html .= $output->render_coursepage_shortinfo_and_button($data);
         }
+
         if ($html !== '') {
             $cm->set_content($html);
         }

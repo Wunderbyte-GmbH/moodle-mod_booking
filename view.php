@@ -53,6 +53,12 @@ $params = [];
 
 $PAGE->set_context($context);
 
+// Trigger course_module_viewed event.
+$event = \mod_booking\event\course_module_viewed::create(
+    array('objectid' => $cm->instance, 'context' => $context));
+$event->add_record_snapshot('course', $course);
+$event->trigger();
+
 // Get the booking instance settings by cmid.
 $bookinginstancesettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
 
@@ -74,4 +80,6 @@ echo $OUTPUT->header();
 $output = $PAGE->get_renderer('mod_booking');
 echo $output->render_view($view);
 
+echo $OUTPUT->box('<a href="http://www.wunderbyte.at">' . get_string('createdbywunderbyte', 'mod_booking') . "</a>",
+        'box mdl-align');
 echo $OUTPUT->footer();

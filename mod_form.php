@@ -239,8 +239,7 @@ class mod_booking_mod_form extends moodleform_mod {
         // Choose if a list of available options should be shown right on the course page.
         $listoncoursepageoptions = array();
         $listoncoursepageoptions[0] = get_string('hidelistoncoursepage', 'booking');
-        $listoncoursepageoptions[1] = get_string('showlistoncoursepage', 'booking');
-        $listoncoursepageoptions[2] = get_string('showcoursenameandbutton', 'booking');
+        $listoncoursepageoptions[1] = get_string('showcoursenameandbutton', 'booking');
         $mform->addElement('select', 'showlistoncoursepage',
             get_string('showlistoncoursepagelbl', 'booking'), $listoncoursepageoptions);
         $mform->setDefault('showlistoncoursepage', 0); // List on course page is activated by default.
@@ -253,7 +252,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addHelpButton('coursepageshortinfo', 'coursepageshortinfolbl', 'booking');
         $mform->setType('coursepageshortinfo', PARAM_TEXT);
         // Hide short info for the first two options.
-        $mform->hideIf('coursepageshortinfo', 'showlistoncoursepage', 'in', [0, 1]);
+        $mform->hideIf('coursepageshortinfo', 'showlistoncoursepage', 'in', [0]);
 
         // Upload general images which need to have the same name as the value of a certain customfield.
         // These images will be used as a fallback for each option which has no image of its own.

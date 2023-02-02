@@ -281,7 +281,6 @@ $string['subscribeuser'] = 'Do you really want to enrol the users in the followi
 $string['deleteuserfrombooking'] = 'Do you really want to delete the users from the booking?';
 $string['showallbookingoptions'] = 'All booking options';
 $string['showmybookingsonly'] = 'My booked options';
-$string['showactive'] = 'Active bookings';
 $string['mailconfirmationsent'] = 'You will shortly receive a confirmation e-mail';
 $string['confirmdeletebookingoption'] = 'Do you really want to delete this booking option?';
 $string['norighttobook'] = 'Booking is not possible for your user role. Please contact the site administrator to give you the appropriate rights or enrol/sign in.';
@@ -1528,13 +1527,10 @@ $string['showdescriptionmode_help'] = 'You can choose how to show descriptions: 
 $string['showdescriptioninline'] = 'Show full descriptions inline (right inside the table)';
 $string['showdescriptionmodal'] = 'Show info links (default)';
 
-$string['showlistoncoursepagelbl'] = 'Show available booking options on course page';
-$string['showlistoncoursepagelbl_help'] = 'If you activate this setting, a list of available booking options will be
-                                            shown right on the course page below the link of the booking instance.
-                                            You can also choose to show only the course name, a short info and a button
-                                            redirecting to the available booking options.';
-$string['showlistoncoursepage'] = 'Show list on course page';
-$string['hidelistoncoursepage'] = 'Hide list on course page (default)';
+$string['showlistoncoursepagelbl'] = 'Show extra information on course page';
+$string['showlistoncoursepagelbl_help'] = 'If you activate this setting, the course name, a short info and a button
+                                            redirecting to the available booking options will be shown.';
+$string['hidelistoncoursepage'] = 'Hide extra information on course page (default)';
 $string['showcoursenameandbutton'] = 'Show course name, short info and a button redirecting to the available booking options';
 
 $string['coursepageshortinfolbl'] = 'Short info';
@@ -1938,7 +1934,7 @@ $string['substitutions'] = 'Substitution(s)';
 // Optionformconfig.php / optionformconfig_form.php.
 $string['optionformconfig'] = 'Booking: Configure booking option form';
 $string['optionformconfigsaved'] = 'Configuration for the booking option form saved.';
-$string['optionformconfigsubtitle'] = '<p>Turn off features you do not need, in order to make the booking option form clearer for your administrators.</p>
+$string['optionformconfigsubtitle'] = '<p>Turn off features you do not need, in order to make the booking option form more compact for your administrators.</p>
 <p><strong>BE CAREFUL:</strong> Only deactivate fields if you are completely sure that you won\'t need them!</p>';
 $string['optionformconfig:nobooking'] = 'You need to create at least one booking instance before you can use this form!';
 

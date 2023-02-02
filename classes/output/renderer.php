@@ -489,18 +489,6 @@ class renderer extends plugin_renderer_base {
      * @param $data array
      * @return string
      */
-    public function render_coursepage_available_options($data) {
-        $o = '';
-        $data = $data->export_for_template($this);
-        $o .= $this->render_from_template('mod_booking/coursepage_available_options', $data);
-        return $o;
-    }
-
-    /**
-     * Render function.
-     * @param $data array
-     * @return string
-     */
     public function render_coursepage_shortinfo_and_button($data) {
         $o = '';
         $data = $data->export_for_template($this);

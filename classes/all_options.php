@@ -331,14 +331,6 @@ class all_options extends table_sql {
         return $output;
     }
 
-    protected function col_availableplaces($values) {
-
-        // We moved this code to booking_utils so it's available outside of table_sql.
-
-        $utils = new booking_utils;
-        return $utils->return_button_based_on_record($this->booking, $this->context, $values);
-    }
-
     /**
      * This function is called for each data row to allow processing of columns which do not have a *_cols function.
      *
