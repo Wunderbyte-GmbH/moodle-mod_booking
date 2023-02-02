@@ -160,7 +160,7 @@ $string['allchangessaved'] = 'All changes have been saved.';
 $string['backtoresponses'] = '&lt;&lt; Back to responses';
 $string['allusersbooked'] = 'All {$a} selected users have successfully been assigned to this booking option.';
 $string['notallbooked'] = 'The following users could not be booked due to reaching the max number of bookings per user or lack of available places for the booking option: {$a}';
-$string['enrolledinoptions'] = "alredy booked in booking options: ";
+$string['enrolledinoptions'] = "already booked in booking options: ";
 $string['onlyusersfrominstitution'] = 'You can only add users from this institution: {$a}';
 
 $string['resultofcohortorgroupbooking'] = '<p>This is the result of your cohort booking:</p>
