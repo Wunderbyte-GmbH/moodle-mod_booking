@@ -31,7 +31,6 @@ use mod_booking\booking;
 use mod_booking\singleton_service;
 use mod_booking\table\bookingoptions_wbtable;
 use moodle_exception;
-use moodle_url;
 use renderer_base;
 use renderable;
 use templatable;
@@ -50,17 +49,11 @@ class view implements renderable, templatable {
     /** @var int $cmid */
     private $cmid = null;
 
-    /** @var context_system $context */
-    private $context = null;
-
     /** @var string $renderedalloptionstable the rendered all options table */
     private $renderedalloptionstable = null;
 
     /** @var string $renderedmyoptionstable the rendered my options table */
     private $renderedmyoptionstable = null;
-
-    /** @var bool $isteacher true if it's a teacher */
-    private $isteacher = null;
 
     /** @var string $renderedoptionsiteachtable the rendered table of options I teach */
     private $renderedoptionsiteachtable = null;
@@ -68,23 +61,29 @@ class view implements renderable, templatable {
     /** @var string $renderedshowonlyonetable the rendered table of one specific option */
     private $renderedshowonlyonetable = null;
 
+    /** @var string $renderedmyinstitutiontable the rendered table of all options of a specific institution */
+    private $renderedmyinstitutiontable = null;
+
+    /** @var string $myinstitutionname */
+    private $myinstitutionname = null;
+
     /** @var string $showall */
-    private $showall = null; // We keep this name for backwards compatibility!
+    private $showall = null; // We kept this name for backwards compatibility!
 
     /** @var string $mybooking */
-    private $mybooking = null; // We keep this name for backwards compatibility!
+    private $mybooking = null; // We kept this name for backwards compatibility!
 
     /** @var string $myoptions */
-    private $myoptions = null; // We keep this name for backwards compatibility!
+    private $myoptions = null; // We kept this name for backwards compatibility!
 
     /** @var string $myinstitution */
-    private $myinstitution = null; // We keep this name for backwards compatibility!
+    private $myinstitution = null; // We kept this name for backwards compatibility!
 
     /** @var string $showactive */
-    private $showactive = null; // We keep this name for backwards compatibility!
+    private $showactive = null; // We kept this name for backwards compatibility!
 
     /** @var string $showonlyone */
-    private $showonlyone = null; // We keep this name for backwards compatibility!
+    private $showonlyone = null; // We kept this name for backwards compatibility!
 
     /**
      * Constructor
@@ -94,29 +93,11 @@ class view implements renderable, templatable {
      * @param int $optionid
      */
     public function __construct(int $cmid, string $whichview = 'showall', int $optionid = 0) {
-        global $USER;
+        global $DB, $USER;
 
         $this->cmid = $cmid;
-        if (!$this->context = context_system::instance()) {
-            throw new moodle_exception('badcontext');
-        }
 
-        // Verborgene immer mit lazyouthtml und für die jeweils aktuelle view outhtml!
-
-        // Now create the tables.
-
-        // All options.
-        $this->renderedalloptionstable = $this->get_rendered_alloptions_table();
-
-        // My options.
-        $this->renderedmyoptionstable = $this->get_rendered_myoptions_table();
-
-        // Options I teach.
-        if (booking_check_if_teacher()) {
-            $this->isteacher = true;
-            $this->renderedoptionsiteachtable = $this->get_rendered_table_for_teacher($USER->id, false, true, false);
-        }
-
+        // These params are used to determine the active tabs in the mustache template.
         switch ($whichview) {
             case 'showactive':
                 $this->showactive = true;
@@ -143,6 +124,23 @@ class view implements renderable, templatable {
                 $this->showall = true;
                 break;
                 // TODO: We need to change the default to the view set in instance settings later.
+        }
+
+        // All options.
+        $this->renderedalloptionstable = $this->get_rendered_alloptions_table();
+
+        // My options.
+        $this->renderedmyoptionstable = $this->get_rendered_myoptions_table();
+
+        // Options I teach.
+        if (booking_check_if_teacher()) {
+            $this->renderedoptionsiteachtable = $this->get_rendered_table_for_teacher($USER->id, false, true, false);
+        }
+
+        // Only the booking options of my institution.
+        if (!empty($USER->institution)) {
+            $this->myinstitutionname = $USER->institution;
+            $this->renderedmyinstitutiontable = $this->get_rendered_myinstitution_table($USER->institution);
         }
     }
 
@@ -238,8 +236,6 @@ class view implements renderable, templatable {
      * @return string the rendered table
      */
     public function get_rendered_showonlyone_table(int $optionid) {
-        global $USER;
-
         $cmid = $this->cmid;
 
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
@@ -258,6 +254,34 @@ class view implements renderable, templatable {
         $this->wbtable_initialize_list_layout($showonlyonetable, false, false, false);
 
         $out = $showonlyonetable->outhtml(1, true);
+
+        return $out;
+    }
+
+    /**
+     * Render table for all options with a specific institution.
+     * @param string $institution
+     * @return string the rendered table
+     */
+    public function get_rendered_myinstitution_table(string $institution) {
+        $cmid = $this->cmid;
+
+        $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
+
+        // Create the table.
+        $myinstitutiontable = new bookingoptions_wbtable('myinstitutiontable', $booking);
+
+        $wherearray = ['bookingid' => (int)$booking->id];
+        $wherearray = ['institution' => $institution];
+        list($fields, $from, $where, $params, $filter) =
+                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
+        $myinstitutiontable->set_filter_sql($fields, $from, $where, $filter, $params);
+
+        // Initialize the default columnes, headers, settings and layout for the table.
+        // In the future, we can parametrize this function so we can use it on many different places.
+        $this->wbtable_initialize_list_layout($myinstitutiontable, false, true, false);
+
+        $out = $myinstitutiontable->outhtml(40, true);
 
         return $out;
     }
@@ -374,13 +398,14 @@ class view implements renderable, templatable {
             'myoptionstable' => $this->renderedmyoptionstable,
             'optionsiteachtable' => $this->renderedoptionsiteachtable,
             'showonlyonetable' => $this->renderedshowonlyonetable,
+            'myinstitutiontable' => $this->renderedmyinstitutiontable,
             'showonlyone' => $this->showonlyone,
             'showactive' => $this->showactive,
-            'isteacher' => $this->isteacher,
             'showall' => $this->showall,
             'mybooking' => $this->mybooking, // My booked options. We kept the name for backward compatibility.
             'myoptions' => $this->myoptions, // Options I teach. We kept the name for backward compatibility.
             'myinstitution' => $this->myinstitution,
+            'myinstitutionname' => $this->myinstitutionname,
         ];
     }
 }

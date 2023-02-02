@@ -187,7 +187,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'myoptions' => get_string('myoptions', 'mod_booking'),
             'showall' => get_string('showallbookingoptions', 'mod_booking'),
             'showactive' => get_string('showactive', 'mod_booking'),
-            'myinstitution' => get_string('showonlymyinstitutions', 'mod_booking'));
+            'myinstitution' => get_string('myinstitution', 'mod_booking'));
 
         // View selections to show on booking options overview.
         $options = array(

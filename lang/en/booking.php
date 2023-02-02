@@ -56,7 +56,7 @@ $string['eventteacher_added'] = 'Teacher added';
 $string['eventteacher_removed'] = 'Teacher removed';
 
 // Renderer.php.
-$string['showonlymyinstitutions'] = "My institution";
+$string['myinstitution'] = 'My institution';
 $string['addusertogroup'] = 'Add user to group: ';
 
 // View.php.

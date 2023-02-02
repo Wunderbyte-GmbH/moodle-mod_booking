@@ -56,7 +56,7 @@ $string['eventteacher_added'] = 'Trainer:in hinzugefügt';
 $string['eventteacher_removed'] = 'Trainer:in entfernt';
 
 // Renderer.php.
-$string['showonlymyinstitutions'] = "Meine Institution";
+$string['myinstitution'] = 'Meine Institution';
 
 // View.php.
 $string['addmorebookings'] = 'Buchungen hinzufügen';

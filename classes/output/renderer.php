@@ -54,7 +54,7 @@ class renderer extends plugin_renderer_base {
             $tmpurlparams['whichview'] = 'myinstitution';
             $row[] = new tabobject('myinstitution',
                     new moodle_url('/mod/booking/view.php', $tmpurlparams, "goenrol"),
-                    get_string('showonlymyinstitutions', 'mod_booking'));
+                    get_string('myinstitution', 'mod_booking'));
         }
         if (in_array('showactive', $showviews)) {
             $tmpurlparams['whichview'] = 'showactive';
