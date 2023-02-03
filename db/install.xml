@@ -62,7 +62,6 @@
         <FIELD NAME="numgenerator" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="paginationnum" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="25" SEQUENCE="false"/>
         <FIELD NAME="banusernames" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="showhelpfullnavigationlinks" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
         <FIELD NAME="daystonotify" TYPE="int" LENGTH="3" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="notifyemail" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="daystonotifyteachers" TYPE="int" LENGTH="3" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Days in advance to send notification mail to teachers."/>

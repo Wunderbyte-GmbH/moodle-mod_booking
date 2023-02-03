@@ -121,8 +121,6 @@ $string['existingsubscribers'] = 'Existing subscribers';
 $string['expired'] = 'Sorry, this activity closed on {$a} and is no longer available';
 $string['fillinatleastoneoption'] = 'You need to provide at least two possible answers.';
 $string['full'] = 'Full';
-$string['goenrol'] = 'Go to registration';
-$string['gotop'] = 'Go to top';
 $string['infonobookingoption'] = 'In order to add a booking option please use the settings block or the settings-icon on top of the page';
 $string['infotext:prolicensenecessary'] = 'You need a Booking PRO license if you want to use this feature.
  <a href="https://wunderbyte.at/en/contact" target="_blank">Contact Wunderbyte</a> if you want to buy a PRO license.';
@@ -205,8 +203,6 @@ $string['location_help'] = 'You can either enter the location name manually or c
 $string['removeafterminutes'] = 'Remove activity completion after N minutes';
 $string['banusernames'] = 'Ban usernames';
 $string['banusernames_help'] = 'To limit which usernames can`t apply just write in this field, and separate with coma. To ban usernames, that end with gmail.com and yahoo.com just write: gmail.com, yahoo.com';
-$string['showhelpfullnavigationlinks'] = 'Show navigation links.';
-$string['showhelpfullnavigationlinks_help'] = 'Show \'Go to registration\' and \'Go to top\' links.';
 $string['completionmodule'] = 'Upon completion of the selected course activity, enable bulk deletion of user bookings';
 $string['completionmodule_help'] = 'Display bulk deletion button for booking answers, if another course module has been completed. The bookings of users will be deleted with a click of a button on the report page! Only activities with completion enabled can be selected from the list.';
 $string['teacherroleid'] = 'Subscribe teacher with that role to the course';

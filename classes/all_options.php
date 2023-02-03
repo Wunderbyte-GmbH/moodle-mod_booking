@@ -112,7 +112,6 @@ class all_options extends table_sql {
             $onlyoneurl = new moodle_url('/mod/booking/view.php',
                 array('id' => $this->cm->id, 'optionid' => $values->id,
                     'action' => 'showonlyone', 'whichview' => 'showonlyone'));
-            $onlyoneurl->set_anchor('goenrol');
             $ddoptions[] = '<div class="dropdown-item">' .
                 html_writer::link($onlyoneurl,
                     $OUTPUT->pix_icon('i/publish',

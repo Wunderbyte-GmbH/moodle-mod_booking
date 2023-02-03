@@ -80,7 +80,7 @@ class mybookings_table extends table_sql {
      */
     protected function col_text($values) {
         $optionurl = new moodle_url("/mod/booking/view.php?id={$values->cmid}" .
-            "&optionid={$values->optionid}&action=showonlyone&whichview=showonlyone#goenrol");
+            "&optionid={$values->optionid}&whichview=showonlyone");
 
         return "<a href='{$optionurl}'>{$values->text}</a>";
     }

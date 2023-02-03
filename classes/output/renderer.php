@@ -53,32 +53,32 @@ class renderer extends plugin_renderer_base {
         if (!empty($USER->institution) && in_array('myinstitution', $showviews)) {
             $tmpurlparams['whichview'] = 'myinstitution';
             $row[] = new tabobject('myinstitution',
-                    new moodle_url('/mod/booking/view.php', $tmpurlparams, "goenrol"),
+                    new moodle_url('/mod/booking/view.php', $tmpurlparams),
                     get_string('myinstitution', 'mod_booking'));
         }
         if (in_array('showactive', $showviews)) {
             $tmpurlparams['whichview'] = 'showactive';
             $row[] = new tabobject('showactive',
-                new moodle_url('/mod/booking/view.php', $tmpurlparams, "goenrol"),
+                new moodle_url('/mod/booking/view.php', $tmpurlparams),
                 get_string('showactive', 'mod_booking'));
         }
         if (in_array('showall', $showviews)) {
             $tmpurlparams['whichview'] = 'showall';
             $row[] = new tabobject('showall',
-                new moodle_url('/mod/booking/view.php', $tmpurlparams, "goenrol"),
+                new moodle_url('/mod/booking/view.php', $tmpurlparams),
                 get_string('showallbookingoptions', 'mod_booking'));
         }
         if (in_array('mybooking', $showviews)) {
             $tmpurlparams['whichview'] = 'mybooking';
             $row[] = new tabobject('mybooking',
-                new moodle_url('/mod/booking/view.php', $tmpurlparams, "goenrol"),
+                new moodle_url('/mod/booking/view.php', $tmpurlparams),
                 get_string('showmybookingsonly', 'mod_booking'));
         }
 
         if ($myoptions > 0 && in_array('myoptions', $showviews)) {
             $tmpurlparams['whichview'] = 'myoptions';
             $row[] = new tabobject('myoptions',
-                    new moodle_url('/mod/booking/view.php', $tmpurlparams, "goenrol"),
+                    new moodle_url('/mod/booking/view.php', $tmpurlparams),
                     get_string('myoptions', 'booking', $myoptions));
         }
 

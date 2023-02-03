@@ -816,7 +816,6 @@ if (!$tableallbookings->is_downloading()) {
     $onlyoneurl = new moodle_url('/mod/booking/view.php',
             array('id' => $id, 'optionid' => $optionid, 'action' => 'showonlyone',
                 'whichview' => 'showonlyone'));
-    $onlyoneurl->set_anchor('goenrol');
 
     $pollurl = trim($bookingoption->option->pollurl);
     if (!empty($pollurl)) {

@@ -199,9 +199,6 @@ class booking_settings {
     /** @var string $banusernames */
     public $banusernames = null;
 
-    /** @var int $showhelpfullnavigationlinks */
-    public $showhelpfullnavigationlinks = null;
-
     /** @var int $daystonotify */
     public $daystonotify = null;
 
@@ -430,7 +427,6 @@ class booking_settings {
             $this->numgenerator = $dbrecord->numgenerator;
             $this->paginationnum = $dbrecord->paginationnum;
             $this->banusernames = $dbrecord->banusernames;
-            $this->showhelpfullnavigationlinks = $dbrecord->showhelpfullnavigationlinks;
             $this->daystonotify = $dbrecord->daystonotify;
             $this->notifyemail = $dbrecord->notifyemail;
             $this->daystonotifyteachers = $dbrecord->daystonotifyteachers;

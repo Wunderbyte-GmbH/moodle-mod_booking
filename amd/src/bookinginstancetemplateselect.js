@@ -117,7 +117,6 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             $('#id_numgenerator').val(obj.numgenerator);
                             $('#id_paginationnum').val(obj.paginationnum);
                             $('#id_banusernames').val(obj.banusernames);
-                            $('#id_showhelpfullnavigationlinks').val(obj.showhelpfullnavigationlinks);
                             $('#id_completionmodule').val(obj.completionmodule);
                             $('#id_comments').val(obj.comments);
                             $('#id_ratings').val(obj.ratings);

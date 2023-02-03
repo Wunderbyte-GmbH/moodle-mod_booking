@@ -90,14 +90,6 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
         // TODO: Kommentare!
         comment::init();
 
-
-        // TODO: showhelpfullnavigationlinks => komplett löschen! (auch aus DB)
-        if ($booking->settings->showhelpfullnavigationlinks) {
-            echo $html = html_writer::tag('div',
-                    '<a id="gotop" href="#goenrol">' . get_string('goenrol', 'booking') . '</a>',
-                    array('style' => 'width:100%; font-weight: bold; text-align: right;'));
-        }
-
         // TODO: If we have specified a teacher as organizer, we show a "busines_card" with photo, else legacy organizer description.
         if (!empty($booking->settings->organizatorname)
             && ($organizerid = (int)$booking->settings->organizatorname)) {
@@ -166,13 +158,6 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
             $link = new moodle_url('/mod/booking/viewpolicy.php', array('id' => $cm->id));
             echo $OUTPUT->action_link($link, get_string("bookingpolicy", "booking"),
                     new popup_action('click', $link));
-        }
-
-        // TODO: showhelpfullnavigationlinks komplett aus booking ausbauen
-        if ($booking->settings->showhelpfullnavigationlinks) {
-            echo $html = html_writer::tag('div',
-                    '<a id="goenrol" href="#gotop">' . get_string('gotop', 'booking') . '</a>',
-                    array('style' => 'width:100%; font-weight: bold; text-align: right;'));
         }
 
         // TODO: verfügbarkeit => check, ob Einschränkung per Datum noch funktioniert!

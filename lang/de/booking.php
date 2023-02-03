@@ -119,8 +119,6 @@ $string['existingsubscribers'] = 'Vorhandene Nutzer:innen';
 $string['expired'] = 'Diese Aktivität wurde leider am {$a} beendet und steht nicht mehr zur Verfügung';
 $string['fillinatleastoneoption'] = 'Geben Sie mindestens 2 mögliche Buchungen an.';
 $string['full'] = 'Ausgebucht';
-$string['goenrol'] = 'Gehe zu "Buchung vornehmen"';
-$string['gotop'] = 'Nach oben';
 $string['infonobookingoption'] = 'Um eine Buchungsoption zu erstellen, nutzen Sie den Block Einstellungen oder das Einstellungs-Icon';
 $string['infotext:prolicensenecessary'] = 'Sie benötigen Booking PRO, um dieses Feature nutzen zu können.
  <a href="https://wunderbyte.at/kontakt" target="_blank">Kontaktieren Sie Wunderbyte</a>, wenn Sie eine Lizenz erwerben möchten.';
@@ -206,8 +204,6 @@ $string['location_help'] = 'Sie können den Namen des Orts manuell eingeben oder
 $string['removeafterminutes'] = 'Aktivitätsabschluss nach N Minuten entfernen';
 $string['banusernames'] = 'Nutzer:innennamen ausschließen';
 $string['banusernames_help'] = 'Komma getrennte Liste von Usernamen, die nicht teilnehmen können. Um Usernamen mit bestimmten Endungen auszuschließen, kann man folgendes eingeben: gmail.com, yahoo.com';
-$string['showhelpfullnavigationlinks'] = 'Navigationshilfen anzeigen';
-$string['showhelpfullnavigationlinks_help'] = 'Zeige \'Zu den Buchungen\' and \'Nach oben\' Links.';
 $string['completionmodule'] = 'Aktiviere Massenlöschung von getätigten Buchungen basierend auf den Aktivitätsabschluss einer Kursaktivität';
 $string['completionmodule_help'] = 'Button zum Löschen aller Buchungen anzeigen, wenn eine andere Kursaktivität abgeschlossen wurde. Die Buchungen von Nutzer:innen werden mit einem Klick auf einen Button auf der Berichtsseite gelöscht! Nur Aktivitäten mit aktiviertem Abschluss können aus der Liste ausgewählt werden.';
 $string['teacherroleid'] = 'Wähle folgende Rolle, um Lehrkräfte in den Kurs einzuschreiben.';

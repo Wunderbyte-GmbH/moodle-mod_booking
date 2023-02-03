@@ -1016,7 +1016,6 @@ function booking_update_options($optionvalues, $context) {
                     $onlyoneurl = new moodle_url('/mod/booking/view.php',
                             array('id' => $optionvalues->id, 'optionid' => $optionvalues->optionid, 'action' => 'showonlyone',
                                    'whichview' => 'showonlyone'));
-                            $onlyoneurl->set_anchor('goenrol');
                     $shorturl = $googer->shorten(htmlspecialchars_decode($onlyoneurl->__toString()));
                     if ($shorturl) {
                         $option->shorturl = $shorturl;
@@ -1176,7 +1175,6 @@ function booking_update_options($optionvalues, $context) {
             $onlyoneurl = new moodle_url('/mod/booking/view.php',
                     array('id' => $optionvalues->id, 'optionid' => $optionid, 'action' => 'showonlyone',
                         'whichview' => 'showonlyone'));
-            $onlyoneurl->set_anchor('goenrol');
 
             $shorturl = $googer->shorten(htmlspecialchars_decode($onlyoneurl->__toString()));
             if ($shorturl) {
