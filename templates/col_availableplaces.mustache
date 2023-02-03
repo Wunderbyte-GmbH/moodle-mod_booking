@@ -40,9 +40,8 @@
         </span>
     {{/maxanswers}}
     {{^maxanswers}}
-        <span class="col-ap-availableplaces">
-            {{#str}} unlimitedplaces, mod_booking {{/str}}
-        </span>
+        <span class="text-success font-weight-bold">{{booked}}</span>
+             / {{#str}} unlimitedplaces, mod_booking {{/str}}
     {{/maxanswers}}
     {{#maxoverbooking}}
         <div class="col-ap-waitingplacesavailable">
@@ -65,7 +64,8 @@
     {{/maxanswers}}
     {{^maxanswers}}
         <span class="col-ap-availableplaces">
-            {{#str}} unlimitedplaces, mod_booking {{/str}}
+            <span class="text-success font-weight-bold">{{booked}}</span>
+             / {{#str}} unlimitedplaces, mod_booking {{/str}}
         </span>
     {{/maxanswers}}
     {{#maxoverbooking}}
@@ -88,9 +88,8 @@
         </span>
     {{/maxanswers}}
     {{^maxanswers}}
-        <span class="col-ap-availableplaces">
-            {{#str}} unlimitedplaces, mod_booking {{/str}}
-        </span>
+        <span class="text-success font-weight-bold">{{booked}}</span>
+             / {{#str}} unlimitedplaces, mod_booking {{/str}}
     {{/maxanswers}}
     {{#maxoverbooking}}
         <div class="col-ap-waitingplacesavailable">
