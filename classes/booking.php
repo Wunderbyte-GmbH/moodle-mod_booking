@@ -608,31 +608,35 @@ class booking {
      * Where means that it restricts the number of total records.
      * This distinction is important for the automatic filter generation of Wunderbyte Table.
      *
-     * @param integer $limitfrom
-     * @param integer $limitnum
+     * @param int $limitfrom
+     * @param int $limitnum
      * @param string $searchtext
-     * @param string $fields
-     * @param [type] $context
+     * @param ?string $fields
+     * @param ?object $context
      * @param array $filterarray
      * @param array $wherearray
+     * @param ?int $userid
+     * @param int $bookingparam
+     * @param string $additionalwhere
      * @return void
      */
     public static function get_options_filter_sql($limitfrom = 0,
                                                 $limitnum = 0,
                                                 $searchtext = '',
-                                                $fields = "*",
+                                                $fields = null,
                                                 $context = null,
                                                 $filterarray = [],
                                                 $wherearray = [],
                                                 $userid = null,
-                                                $bookingparam = STATUSPARAM_BOOKED) {
+                                                $bookingparam = STATUSPARAM_BOOKED,
+                                                $additionalwhere = '') {
 
         global $DB;
 
         $groupby = " bo.id ";
 
         if (empty($fields)) {
-            $fields = " DISTINCT s1.*";
+            $fields = "DISTINCT s1.*";
         }
 
         $where = '';
@@ -752,6 +756,11 @@ class booking {
                 $where .= " AND " . $DB->sql_like("$key", ":$paramsvaluekey", false);
                 $params[$paramsvaluekey] = $value;
             }
+        }
+
+        // We add additional conditions to $where, if there are any.
+        if (!empty($additionalwhere)) {
+            $where .= " AND " . $additionalwhere;
         }
 
         return [$fields, $from, $where, $params, $filter];

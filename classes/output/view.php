@@ -49,6 +49,9 @@ class view implements renderable, templatable {
     /** @var int $cmid */
     private $cmid = null;
 
+    /** @var string $renderedactiveoptionstable the rendered active options table */
+    private $renderedactiveoptionstable = null;
+
     /** @var string $renderedalloptionstable the rendered all options table */
     private $renderedalloptionstable = null;
 
@@ -126,11 +129,14 @@ class view implements renderable, templatable {
                 // TODO: We need to change the default to the view set in instance settings later.
         }
 
+        // Active options.
+        $this->renderedactiveoptionstable = $this->get_rendered_active_options_table();
+
         // All options.
-        $this->renderedalloptionstable = $this->get_rendered_alloptions_table();
+        $this->renderedalloptionstable = $this->get_rendered_all_options_table();
 
         // My options.
-        $this->renderedmyoptionstable = $this->get_rendered_myoptions_table();
+        $this->renderedmyoptionstable = $this->get_rendered_my_booked_options_table();
 
         // Options I teach.
         if (booking_check_if_teacher()) {
@@ -148,7 +154,7 @@ class view implements renderable, templatable {
      * Render table for all booking options.
      * @return string the rendered table
      */
-    public function get_rendered_alloptions_table() {
+    public function get_rendered_all_options_table() {
         $cmid = $this->cmid;
 
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
@@ -171,10 +177,39 @@ class view implements renderable, templatable {
     }
 
     /**
+     * Render table for active booking options.
+     * @return string the rendered table
+     */
+    public function get_rendered_active_options_table() {
+        $cmid = $this->cmid;
+
+        $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
+
+        // Create the table.
+        $activebookingoptionstable = new bookingoptions_wbtable('activebookingoptionstable', $booking);
+
+        $wherearray = ['bookingid' => (int)$booking->id];
+        $additionalwhere = '((courseendtime > :timenow OR courseendtime = 0) AND status = 0)';
+
+        list($fields, $from, $where, $params, $filter) =
+                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray, null, STATUSPARAM_BOOKED, $additionalwhere);
+        $params['timenow'] = time();
+        $activebookingoptionstable->set_filter_sql($fields, $from, $where, $filter, $params);
+
+        // Initialize the default columnes, headers, settings and layout for the table.
+        // In the future, we can parametrize this function so we can use it on many different places.
+        $this->wbtable_initialize_list_layout($activebookingoptionstable, false, true, false);
+
+        $out = $activebookingoptionstable->outhtml(40, true);
+
+        return $out;
+    }
+
+    /**
      * Render table for my own booked options.
      * @return string the rendered table
      */
-    public function get_rendered_myoptions_table() {
+    public function get_rendered_my_booked_options_table() {
         global $USER;
 
         $cmid = $this->cmid;
@@ -395,6 +430,7 @@ class view implements renderable, templatable {
     public function export_for_template(renderer_base $output) {
         return [
             'alloptionstable' => $this->renderedalloptionstable,
+            'activeoptionstable' => $this->renderedactiveoptionstable,
             'myoptionstable' => $this->renderedmyoptionstable,
             'optionsiteachtable' => $this->renderedoptionsiteachtable,
             'showonlyonetable' => $this->renderedshowonlyonetable,

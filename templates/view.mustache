@@ -23,29 +23,35 @@
     Data attributes required for JS:
     * data-region
 }}
-<ul class="nav nav-tabs mb-3" id="nav-tabs-booking-options-view" role="tablist">
+<ul class="nav nav-tabs" id="nav-tabs-booking-options-view" role="tablist">
   {{#showonlyone}}
-  <li class="nav-item" role="presentation">
+  <li class="nav-item mr-1" role="presentation">
     <button class="nav-link active" id="showonlyone-tab" data-toggle="pill" data-target="#showonlyone"
       type="button" role="tab" aria-controls="showonlyone" aria-selected="true">
       {{#str}} bookingoption, mod_booking {{/str}}
     </button>
   </li>
   {{/showonlyone}}
-  <li class="nav-item" role="presentation">
+  <li class="nav-item mr-1" role="presentation">
+    <button class="nav-link {{#showactive}}active{{/showactive}}" id="active-options-tab" data-toggle="pill" data-target="#active-options"
+      type="button" role="tab" aria-controls="active-options" aria-selected="true">
+      {{#str}} showactive, mod_booking {{/str}}
+    </button>
+  </li>
+  <li class="nav-item mr-1" role="presentation">
     <button class="nav-link {{#showall}}active{{/showall}}" id="all-options-tab" data-toggle="pill" data-target="#all-options"
       type="button" role="tab" aria-controls="all-options" aria-selected="true">
       {{#str}} showallbookingoptions, mod_booking {{/str}}
     </button>
   </li>
-  <li class="nav-item" role="presentation">
+  <li class="nav-item mr-1" role="presentation">
     <button class="nav-link {{#mybooking}}active{{/mybooking}}" id="my-options-tab" data-toggle="pill" data-target="#my-options"
       type="button" role="tab" aria-controls="my-options" aria-selected="true">
       {{#str}} showmybookingsonly, mod_booking {{/str}}
     </button>
   </li>
   {{#optionsiteachtable}}
-  <li class="nav-item" role="presentation">
+  <li class="nav-item mr-1" role="presentation">
     <button class="nav-link {{#myoptions}}active{{/myoptions}}" id="options-i-teach-tab" data-toggle="pill" data-target="#options-i-teach"
       type="button" role="tab" aria-controls="options-i-teach" aria-selected="true">
       {{#str}} optionsiteach, mod_booking {{/str}}
@@ -53,7 +59,7 @@
   </li>
   {{/optionsiteachtable}}
   {{#myinstitutiontable}}
-  <li class="nav-item" role="presentation">
+  <li class="nav-item mr-1" role="presentation">
     <button class="nav-link {{#myinstitution}}active{{/myinstitution}}" id="myinstitution-tab" data-toggle="pill" data-target="#myinstitution"
       type="button" role="tab" aria-controls="myinstitution" aria-selected="true">
       {{#str}} myinstitution, mod_booking {{/str}}{{#myinstitutionname}} ({{{.}}}){{/myinstitutionname}}
@@ -65,6 +71,7 @@
   {{#showonlyone}}
   <div class="tab-pane fade show active" id="showonlyone" role="tabpanel" aria-labelledby="showonlyone-tab">{{{showonlyonetable}}}</div>
   {{/showonlyone}}
+  <div class="tab-pane fade {{#showactive}}show active{{/showactive}}" id="active-options" role="tabpanel" aria-labelledby="active-options-tab">{{{activeoptionstable}}}</div>
   <div class="tab-pane fade {{#showall}}show active{{/showall}}" id="all-options" role="tabpanel" aria-labelledby="all-options-tab">{{{alloptionstable}}}</div>
   <div class="tab-pane fade {{#mybooking}}show active{{/mybooking}}" id="my-options" role="tabpanel" aria-labelledby="my-options-tab">{{{myoptionstable}}}</div>
   {{#optionsiteachtable}}

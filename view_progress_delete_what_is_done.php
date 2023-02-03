@@ -66,24 +66,6 @@ $booking->get_url_params();
 
 if (!$current && $bookingopen && has_capability('mod/booking:choose', $context)) {
 
-    switch ($whichview) {
-
-
-        // TODO:
-        case 'showactive':
-            $conditions[] = "((bo.courseendtime > :time OR bo.courseendtime = 0) AND bo.status = 0)";
-            $conditionsparams['time'] = time();
-            break;
-
-        // TODO:
-        case 'myinstitution':
-            $conditions[] = "bo.institution LIKE :institution";
-            $conditionsparams['institution'] = "%{$USER->institution}%";
-            break;
-
-    }
-
-
 
     if (!$tablealloptions->is_downloading()) {
 
