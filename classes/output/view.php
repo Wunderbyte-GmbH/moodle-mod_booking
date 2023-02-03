@@ -169,7 +169,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($allbookingoptionstable, false, true, false);
+        $this->wbtable_initialize_list_layout($allbookingoptionstable, true, true, false);
 
         $out = $allbookingoptionstable->outhtml(40, true);
 
