@@ -25,42 +25,42 @@
 }}
 <ul class="nav nav-tabs" id="nav-tabs-booking-options-view" role="tablist">
   {{#showonlyone}}
-  <li class="nav-item mr-1" role="presentation">
-    <button class="nav-link active" id="showonlyone-tab" data-toggle="pill" data-target="#showonlyone"
+  <li class="nav-item mr-1 border border-danger rounded-top" role="presentation">
+    <button class="nav-link active text-danger" id="showonlyone-tab" data-toggle="pill" data-target="#showonlyone"
       type="button" role="tab" aria-controls="showonlyone" aria-selected="true">
       {{#str}} bookingoption, mod_booking {{/str}}
     </button>
   </li>
   {{/showonlyone}}
-  <li class="nav-item mr-1" role="presentation">
-    <button class="nav-link {{#showactive}}active{{/showactive}}" id="active-options-tab" data-toggle="pill" data-target="#active-options"
+  <li class="nav-item mr-1 border border-success rounded-top" role="presentation">
+    <button class="nav-link {{#showactive}}active{{/showactive}} text-success" id="active-options-tab" data-toggle="pill" data-target="#active-options"
       type="button" role="tab" aria-controls="active-options" aria-selected="true">
       {{#str}} showactive, mod_booking {{/str}}
     </button>
   </li>
-  <li class="nav-item mr-1" role="presentation">
-    <button class="nav-link {{#showall}}active{{/showall}}" id="all-options-tab" data-toggle="pill" data-target="#all-options"
+  <li class="nav-item mr-1 border border-primary rounded-top" role="presentation">
+    <button class="nav-link {{#showall}}active{{/showall}} text-primary" id="all-options-tab" data-toggle="pill" data-target="#all-options"
       type="button" role="tab" aria-controls="all-options" aria-selected="true">
       {{#str}} showallbookingoptions, mod_booking {{/str}}
     </button>
   </li>
-  <li class="nav-item mr-1" role="presentation">
-    <button class="nav-link {{#mybooking}}active{{/mybooking}}" id="my-options-tab" data-toggle="pill" data-target="#my-options"
+  <li class="nav-item mr-1 border border-danger rounded-top" role="presentation">
+    <button class="nav-link {{#mybooking}}active{{/mybooking}} text-danger" id="my-options-tab" data-toggle="pill" data-target="#my-options"
       type="button" role="tab" aria-controls="my-options" aria-selected="true">
       {{#str}} showmybookingsonly, mod_booking {{/str}}
     </button>
   </li>
   {{#optionsiteachtable}}
-  <li class="nav-item mr-1" role="presentation">
-    <button class="nav-link {{#myoptions}}active{{/myoptions}}" id="options-i-teach-tab" data-toggle="pill" data-target="#options-i-teach"
+  <li class="nav-item mr-1 border border-info rounded-top" role="presentation">
+    <button class="nav-link {{#myoptions}}active{{/myoptions}} text-info" id="options-i-teach-tab" data-toggle="pill" data-target="#options-i-teach"
       type="button" role="tab" aria-controls="options-i-teach" aria-selected="true">
       {{#str}} optionsiteach, mod_booking {{/str}}
     </button>
   </li>
   {{/optionsiteachtable}}
   {{#myinstitutiontable}}
-  <li class="nav-item mr-1" role="presentation">
-    <button class="nav-link {{#myinstitution}}active{{/myinstitution}}" id="myinstitution-tab" data-toggle="pill" data-target="#myinstitution"
+  <li class="nav-item mr-1 border border-success rounded-top" role="presentation">
+    <button class="nav-link {{#myinstitution}}active{{/myinstitution}} text-success" id="myinstitution-tab" data-toggle="pill" data-target="#myinstitution"
       type="button" role="tab" aria-controls="myinstitution" aria-selected="true">
       {{#str}} myinstitution, mod_booking {{/str}}{{#myinstitutionname}} ({{{.}}}){{/myinstitutionname}}
     </button>
