@@ -27,7 +27,10 @@
  namespace mod_booking\bo_availability\conditions;
 
 use mod_booking\bo_availability\bo_condition;
+use mod_booking\bo_availability\bo_info;
+use mod_booking\booking_bookit;
 use mod_booking\booking_option_settings;
+use mod_booking\output\bookingoption_description;
 use mod_booking\output\bookit_button;
 use mod_booking\price;
 use mod_booking\singleton_service;
@@ -131,10 +134,39 @@ class bookitbutton implements bo_condition {
      * ... the acceptance of a booking policy would render the policy with this function.
      *
      * @param integer $optionid
-     * @return string
+     * @return array
      */
     public function render_page(int $optionid) {
-        return "";
+
+        $data = new bookingoption_description($optionid, null, DESCRIPTION_WEBSITE, true, false);
+
+        $template = 'mod_booking/bookingoption_description_mail';
+
+        $dataarray[] = [
+            'data' => (array)$data
+        ];
+
+        $templates[] = $template;
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        // list($template, $data) = $this->render_button($settings);
+        list($template, $data) = booking_bookit::render_bookit_template_data($settings, 0, false);
+        $data = reset($data);
+        $template = reset($template);
+
+        $dataarray[] = [
+            'data' => $data->data,
+        ];
+
+        $templates[] = $template;
+
+        $response = [
+            'json' => json_encode($dataarray),
+            'template' => implode(',', $templates),
+            'buttontype' => 0, // This means that the continue button is disabled.
+        ];
+
+        return $response;
     }
 
     /**

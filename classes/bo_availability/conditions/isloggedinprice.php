@@ -149,10 +149,10 @@ class isloggedinprice implements bo_condition {
      * ... the acceptance of a booking policy would render the policy with this function.
      *
      * @param integer $optionid
-     * @return string
+     * @return array
      */
     public function render_page(int $optionid) {
-        return "";
+        return [];
     }
 
     /**

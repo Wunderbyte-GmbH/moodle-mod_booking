@@ -80,28 +80,22 @@ class booking_bookit {
      *
      * @param booking_option_settings $settings
      * @param integer $userid
+     * @param bool $renderprepagemodal
      * @return array
      */
-    public static function render_bookit_template_data(booking_option_settings $settings, int $userid = 0) {
+    public static function render_bookit_template_data(
+        booking_option_settings $settings,
+        int $userid = 0,
+        bool $renderprepagemodal = true) {
 
         // Get blocking conditions, including prepages$prepages etc.
         $results = bo_info::get_condition_results($settings->id, $userid);
         // Decide, wether to show the direct booking button or a modal.
 
-        $prepages = [];
         $showinmodalbutton = true;
         $extrabuttoncondition = '';
         $justmyalert = false;
         foreach ($results as $result) {
-
-            // Only count the pre or postbent pages.
-            if ($result['insertpage'] === BO_PREPAGE_PREBOOK
-                || $result['insertpage'] === BO_PREPAGE_POSTBOOK) {
-                $prepages[] = [
-                    'id' => $result['id'],
-                    'classname' => $result['classname']
-                ];
-            }
 
             switch ($result['button'] ) {
                 case BO_BUTTON_MYBUTTON:
@@ -131,6 +125,8 @@ class booking_bookit {
             }
         }
 
+        $prepages = bo_info::return_sorted_conditions($results);
+
         $context = context_module::instance($settings->cmid);
         if (has_capability('mod/booking:bookforothers', $context)) {
             $full = true;
@@ -151,7 +147,7 @@ class booking_bookit {
         }
 
         // Big decession: can we render the button right away, or do we need to introduce a modal?
-        if (!$justmyalert && count($prepages) > 0) {
+        if (!$justmyalert && (count($prepages) > 0) && $renderprepagemodal) {
 
             // We render the button only from the highest relevant blocking condition.
 
@@ -346,50 +342,5 @@ class booking_bookit {
         $cartinformation['itemid'] = $itemid;
 
         return $cartinformation;
-    }
-
-    /**
-     * This function sorts the prepages according to their self defined priorities.
-     *
-     * @param array $prepages
-     * @param array $result
-     * @return void
-     */
-    private static function sort_prepages(array &$prepages, array $result) {
-
-        // Make sure the keys are set.
-        $prepages['pre'] = !isset($prepages['pre']) ? [] : $prepages['pre'];
-        $prepages['post'] = !isset($prepages['post']) ? [] : $prepages['post'];
-        $prepages['book'] = !isset($prepages['book']) ? null : $prepages['book'];
-
-        $newpage = [
-            'id' => $result['id'],
-            'classname' => $result['classname']
-        ];
-
-        switch ($result['insertpage']) {
-            case BO_PREPAGE_NONE:
-                // Do nothing.
-            break;
-            case BO_PREPAGE_BOOK:
-                $prepages['book'] = [
-                    'id' => $result['id'],
-                    'classname' => $result['classname']
-                ];
-            break;
-            case BO_PREPAGE_PREBOOK:
-                $prepages['pre'][] = [
-                    'id' => $result['id'],
-                    'classname' => $result['classname']
-                ];
-            break;
-            case BO_PREPAGE_POSTBOOK:
-                $prepages['post'][] = [
-                    'id' => $result['id'],
-                    'classname' => $result['classname']
-                ];
-            break;
-        }
-
     }
 }

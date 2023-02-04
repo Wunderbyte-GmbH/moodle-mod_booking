@@ -37,14 +37,13 @@ use local_entities\entitiesrelation_handler;
 use local_entities\local\entities\entitydate;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\subbookings\subbookings_info;
-use mod_booking\optiondates_handler;
 use mod_booking\dates_handler;
-use mod_booking\event\teacher_added;
 use mod_booking\teachers_handler;
 use moodle_url;
+use moodleform;
 use stdClass;
 
-class option_form extends \moodleform {
+class option_form extends moodleform {
 
     /** @var bool $formmode 'simple' or 'expert' */
     public $formmode = null;

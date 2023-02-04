@@ -36,15 +36,19 @@ var SELECTORS = {
     STATICBACKDROP: 'div.modal-backdrop',
 };
 
+/**
+ * Initializes the bookit button for the normal bookit function.
+ * @param {integer} itemid
+ * @param {string} area
+ */
 export const initbookitbutton = (itemid, area) => {
-
-    const buttons = document.querySelectorAll(SELECTORS.BOOKITBUTTON +
-        '[data-itemid="' + itemid + '"]' +
-        '[data-area="' + area + '"]');
 
     const selector = SELECTORS.BOOKITBUTTON +
     '[data-itemid="' + itemid + '"]' +
     '[data-area="' + area + '"]';
+
+    const buttons = document.querySelectorAll(selector);
+
     // eslint-disable-next-line no-console
     console.log(selector, buttons);
 
@@ -191,31 +195,7 @@ export const loadPreBookingPage = (
             let dataarray = jsonobject;
             const buttontype = res.buttontype;
 
-            templates.forEach(template => {
-
-                const data = dataarray.shift();
-
-                if (!data) {
-                    return true;
-                }
-
-                Templates.renderForPromise(template, data.data).then(({html, js}) => {
-
-                    // eslint-disable-next-line no-console
-                    // console.log(selector);
-
-                    Templates.appendNodeContents(selector, html, js);
-
-                    return true;
-                }).catch(ex => {
-                    Notification.addNotification({
-                        message: 'failed rendering ' + ex,
-                        type: "danger"
-                    });
-                });
-
-                return true;
-            });
+            renderTemplatesOnPage(templates, dataarray, selector);
 
             showRightButton(optionid, buttontype);
 
@@ -227,6 +207,41 @@ export const loadPreBookingPage = (
         }
     }]);
 };
+
+/**
+ *
+ * @param {string} templates
+ * @param {object} dataarray
+ * @param {string} selector
+ */
+async function renderTemplatesOnPage(templates, dataarray, selector) {
+
+    for (const template of templates) {
+        // eslint-disable-next-line no-console
+        console.log('i render first this template, ', template);
+
+        const data = dataarray.shift();
+
+        if (!data) {
+            return true;
+        }
+
+        await Templates.renderForPromise(template, data.data).then(({html, js}) => {
+
+            // eslint-disable-next-line no-console
+            console.log('no i append this template, ', template);
+            Templates.appendNodeContents(selector, html, js);
+
+            return true;
+        }).catch(ex => {
+            Notification.addNotification({
+                message: 'failed rendering ' + ex,
+                type: "danger"
+            });
+        });
+    }
+    return true;
+}
 
 /**
  * Reveal the hidden continue button.
@@ -241,39 +256,53 @@ function showRightButton(optionid, buttontype) {
     // If we are not yet on the last booking page.
     if (currentbookitpage[optionid] + 1 < totalbookitpages[optionid]) {
         const element = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.CONTINUEBUTTON);
-        element.classList.remove('hidden');
+        if (element) {
+            element.classList.remove('hidden');
+
+            if (buttontype == 1) {
+                element.classList.add('disabled');
+            }
+        }
 
         const inModalButton = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.INMODALBUTTON);
-        inModalButton.classList.add('hidden');
-
-        if (buttontype == 1) {
-            element.classList.add('disabled');
+        if (inModalButton) {
+            inModalButton.classList.add('hidden');
         }
 
     } else {
         // We are on the last booking page.
         const element = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.CONTINUEBUTTON);
-        element.classList.add('hidden');
+        if (element) {
+            element.classList.add('hidden');
+        }
 
         if (buttontype == 1) {
             const inModalButton = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.INMODALBUTTON);
-            inModalButton.classList.add('hidden');
+            if (inModalButton) {
+                inModalButton.classList.add('hidden');
+            }
         } else {
             const inModalButton = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.INMODALBUTTON);
-            inModalButton.classList.remove('hidden');
+            if (inModalButton) {
+                inModalButton.classList.remove('hidden');
+            }
         }
     }
     if (currentbookitpage[optionid] > 0) {
         const element = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.BACKBUTTON);
-        element.classList.remove('hidden');
+        if (element) {
+            element.classList.remove('hidden');
 
-        if (buttontype == 1) {
-            element.classList.add('disabled');
+            if (buttontype == 1) {
+                element.classList.add('disabled');
+            }
         }
 
     } else {
         const element = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.BACKBUTTON);
-        element.classList.add('hidden');
+        if (element) {
+            element.classList.add('hidden');
+        }
     }
 
 }
@@ -462,19 +491,15 @@ function bookit(itemid, area, userid) {
                         });
                     }
                 });
-
-                // eslint-disable-next-line no-console
-                console.log('no destroy modal');
-
-                const backdrop = document.querySelector(SELECTORS.STATICBACKDROP);
-                const modal = document.querySelector(SELECTORS.MODALID + itemid);
-                if (modal) {
-                    modal.classList.remove('show');
-                }
-                if (backdrop) {
-                    backdrop.remove();
-                }
             });
+            /* const backdrop = document.querySelector(SELECTORS.STATICBACKDROP);
+            const modal = document.querySelector(SELECTORS.MODALID + itemid);
+            if (modal) {
+                modal.classList.remove('show');
+            }
+            if (backdrop) {
+                backdrop.remove();
+            } */
         }
     }]);
 }

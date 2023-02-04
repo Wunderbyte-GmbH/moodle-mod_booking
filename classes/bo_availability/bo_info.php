@@ -455,17 +455,8 @@ class bo_info {
         // Results have to be sorted the right way. At the moment, it depends on the id of the blocking condition.
         usort($results, fn($a, $b) => ($a['id'] < $b['id'] ? 1 : -1 ));
 
-        $counter = 0;
-        $condition = '';
-        foreach ($results as $result) {
-            if ($result['insertpage']) {
-                if ($counter == $pagenumber) {
-                    $condition = $result['classname'];
-                    break;
-                }
-                $counter++;
-            }
-        }
+
+        $condition = self::return_class_of_current_page($results, $pagenumber);
 
         // We throw an exception if we didn't get a valid pagenumber.
         if (empty($condition)) {
@@ -539,5 +530,83 @@ class bo_info {
         }
 
         return $renderedstring;
+    }
+
+    /**
+     * Creates a correctly sorted array for all the pages...
+     * ... and returns the classname as string of current page.
+     *
+     * @param array $results
+     * @param integer $pagenumber
+     * @return string
+     */
+    private static function return_class_of_current_page(array $results, int $pagenumber) {
+
+        $conditionsarray = self::return_sorted_conditions($results);
+
+        // Now that we have the right order, we need to return classname which corresponds to
+        return $conditionsarray[$pagenumber]['classname'];
+    }
+
+    /**
+     * To sort the prepages, depending on blocking conditions array.
+     * This is also used to determine the total number of pages displayed.
+     * Just count the pages returned.
+     *
+     * @param array $results
+     * @return array
+     */
+    public static function return_sorted_conditions(array $results) {
+
+        // Make sure the keys are set.
+        $prepages = [];
+        $prepages['pre'] = [];
+        $prepages['post'] = [];
+        $prepages['book'] = null;
+
+        $showbutton = true;
+
+        // First, sort all the pages according to this system:
+        // Depending on the BO_PREPAGE_x constant, we order them pre or post the real booking button.
+        foreach ($results as $result) {
+
+            // One no button condition tetermines this for all.
+            if ($result['button'] === BO_BUTTON_NOBUTTON) {
+                $showbutton = false;
+            }
+
+            $newclass = [
+                'id' => $result['id'],
+                'classname' => $result['classname']
+            ];
+
+            switch ($result['insertpage']) {
+                case BO_PREPAGE_BOOK:
+                    $prepages['book'] = $newclass;
+                    break;
+                case BO_PREPAGE_PREBOOK:
+                    $prepages['pre'][] = $newclass;
+                    break;
+                case BO_PREPAGE_POSTBOOK:
+                    $prepages['post'][] = $newclass;
+                    break;
+            }
+        }
+
+        // We assemble the array in the right order.
+
+        $conditionsarray = $prepages['pre'];
+        // We might not have a book condition.
+        if ($showbutton) {
+            $conditionsarray[] = $prepages['book'];
+        }
+        $conditionsarray = array_merge($conditionsarray, $prepages['post']);
+
+        // When there are no pre or post pages, we don't want show the booking page.
+        if ((count($prepages['pre']) + count($prepages['post'])) < 1) {
+            return [];
+        } else {
+            return $conditionsarray;
+        }
     }
 }

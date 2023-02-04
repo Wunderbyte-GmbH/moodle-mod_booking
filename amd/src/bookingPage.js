@@ -25,6 +25,10 @@ var SELECTORS = {
     ACCEPTBOOKINPOLICYCHECKBOX: 'input.booking-page-accept-checkbox',
 };
 
+/**
+ * This handles JS on the bookit page.
+ * @param {integer} optionid
+ */
 export const init = (optionid) => {
 
     // eslint-disable-next-line no-console

@@ -111,7 +111,7 @@ interface bo_condition {
      * This
      *
      * @param int $optionid
-     * @return string
+     * @return array
      */
     public function render_page(int $optionid);
 
