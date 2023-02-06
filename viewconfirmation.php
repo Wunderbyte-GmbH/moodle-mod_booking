@@ -55,7 +55,12 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string("bookedtext", "booking"), 3, 'helptitle', 'uniqueid');
 
 $user = $DB->get_record('user', array('id' => $USER->id));
-$answer = $DB->get_record('booking_answers', array('userid' => $USER->id, 'optionid' => $optionid));
+$answer = $DB->get_record_sql(
+    "SELECT * FROM {booking_answers}
+    WHERE userid = :userid
+    AND optionid = :optionid
+    AND waitinglist < 2",
+    ['userid' => $USER->id, 'optionid' => $optionid]);
 if (!$answer) {
     echo $OUTPUT->error_text(get_string("notbooked", "booking"));
     echo $OUTPUT->continue_button(new moodle_url('/course/view.php', array('id' => $course->id)));
