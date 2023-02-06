@@ -95,10 +95,22 @@ class view implements renderable, templatable {
      * @param string $whichview
      * @param int $optionid
      */
-    public function __construct(int $cmid, string $whichview = 'showall', int $optionid = 0) {
+    public function __construct(int $cmid, string $whichview = '', int $optionid = 0) {
         global $DB, $USER;
 
         $this->cmid = $cmid;
+
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+
+        // If we do not have a whichview from URL, we use the default from instance settings.
+        if (empty($whichview)) {
+            if (!empty($bookingsettings->whichview)) {
+                $whichview = $bookingsettings->whichview;
+            } else {
+                $whichview = 'showall'; // Fallback.
+            }
+        }
+        $showviews = explode(',', $bookingsettings->showviews);
 
         // These params are used to determine the active tabs in the mustache template.
         switch ($whichview) {
@@ -130,21 +142,27 @@ class view implements renderable, templatable {
         }
 
         // Active options.
-        $this->renderedactiveoptionstable = $this->get_rendered_active_options_table();
+        if (in_array('showactive', $showviews)) {
+            $this->renderedactiveoptionstable = $this->get_rendered_active_options_table();
+        }
 
         // All options.
-        $this->renderedalloptionstable = $this->get_rendered_all_options_table();
+        if (in_array('showall', $showviews)) {
+            $this->renderedalloptionstable = $this->get_rendered_all_options_table();
+        }
 
-        // My options.
-        $this->renderedmyoptionstable = $this->get_rendered_my_booked_options_table();
+        // My bookings.
+        if (in_array('mybooking', $showviews)) {
+            $this->renderedmyoptionstable = $this->get_rendered_my_booked_options_table();
+        }
 
         // Options I teach.
-        if (booking_check_if_teacher()) {
+        if (in_array('myoptions', $showviews) && booking_check_if_teacher()) {
             $this->renderedoptionsiteachtable = $this->get_rendered_table_for_teacher($USER->id, false, true, false);
         }
 
         // Only the booking options of my institution.
-        if (!empty($USER->institution)) {
+        if (in_array('myinstitution', $showviews) && !empty($USER->institution)) {
             $this->myinstitutionname = $USER->institution;
             $this->renderedmyinstitutiontable = $this->get_rendered_myinstitution_table($USER->institution);
         }
@@ -192,7 +210,8 @@ class view implements renderable, templatable {
         $additionalwhere = '((courseendtime > :timenow OR courseendtime = 0) AND status = 0)';
 
         list($fields, $from, $where, $params, $filter) =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray, null, STATUSPARAM_BOOKED, $additionalwhere);
+            booking::get_options_filter_sql(0, 0, '', null, $booking->context, [],
+                $wherearray, null, STATUSPARAM_BOOKED, $additionalwhere);
         $params['timenow'] = time();
         $activebookingoptionstable->set_filter_sql($fields, $from, $where, $filter, $params);
 
@@ -391,21 +410,15 @@ class view implements renderable, templatable {
 
         if ($filter) {
             $wbtable->define_filtercolumns([
+                'teacherobjects' => [
+                    'localizedname' => get_string('teachers', 'mod_booking'),
+                    'jsonattribute' => 'name',
+                ],
                 'location' => [
                     'localizedname' => get_string('location', 'mod_booking'),
                 ],
                 'institution' => [
                     'localizedname' => get_string('institution', 'mod_booking'),
-                ],
-                'dayofweek' => [
-                    'localizedname' => get_string('dayofweek', 'mod_booking'),
-                    'monday' => get_string('monday', 'mod_booking'),
-                    'tuesday' => get_string('tuesday', 'mod_booking'),
-                    'wednesday' => get_string('wednesday', 'mod_booking'),
-                    'thursday' => get_string('thursday', 'mod_booking'),
-                    'friday' => get_string('friday', 'mod_booking'),
-                    'saturday' => get_string('saturday', 'mod_booking'),
-                    'sunday' => get_string('sunday', 'mod_booking')
                 ],
             ]);
         }

@@ -169,7 +169,7 @@ class mobile {
             'pagnumber' => $pagnumber, 'courseid' => $args->courseid, 'booking' => $booking,
                         'booking_option' => $options, 'cmid' => $cm->id, 'activeview' => $whichview,
             'string' => array(
-                'showactive' => get_string('showactive', 'booking'),
+                'showactive' => get_string('activebookingoptions', 'booking'),
                 'showallbookingoptions' => get_string('showallbookingoptions', 'booking'),
                 'showmybookingsonly' => get_string('showmybookingsonly', 'booking'),
                 'next' => get_string('next', 'booking'),
