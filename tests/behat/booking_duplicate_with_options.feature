@@ -47,8 +47,10 @@ Feature: In a booking create multi session options
     Then I should see "My booking"
     And I follow "My booking"
     And I should see "New option - duplication source"
-    And I click on "Settings" "icon"
-    And I follow "Edit this booking option"
+    ## And I click on "Settings" "icon"
+    ## And I follow "Edit this booking option"
+    And I click on "Settings" "icon" in the ".show.active .card.row .action .dropdown" "css_element"
+    And I click on "Edit this booking option" "link" in the ".show.active .card.row .action .dropdown" "css_element"
     And I set the following fields to these values:
       | Prefix              | MIB                   |
       | Booking option name | Topic: Statistics     |
@@ -81,6 +83,7 @@ Feature: In a booking create multi session options
     And I set the field "Add to course calendar" to "Add to calendar (visible only to course participants)"
     And I set the field "Assign teachers:" to "Teacher 1 (teacher1@example.com)"
     And I wait "1" seconds
+    And I set the field "Only book with price" to "checked"
     And I set the following fields to these values:
       | pricegroup_default[bookingprice_default]           | 75                            |
       | pricegroup_specialprice[bookingprice_specialprice] | 65                            |
@@ -89,13 +92,17 @@ Feature: In a booking create multi session options
       | After booked                                       | After booked message          |
     And I press "Save and go back"
     ## Create 1st copy
-    And I click on "Settings" "icon"
-    And I follow "Duplicate this booking option"
+    ## And I click on "Settings" "icon"
+    ## And I follow "Duplicate this booking option"
+    And I click on "Settings" "icon" in the ".show.active .card.row .action .dropdown" "css_element"
+    And I click on "Duplicate this booking option" "link" in the ".show.active .card.row .action .dropdown" "css_element"
     And I set the field "Booking option name" to "Topic: Statistics - Copy 1"
     And I press "Save and go back"
     ## Create 2nd copy
-    And I click on "Settings" "icon"
-    And I follow "Duplicate this booking option"
+    ## And I click on "Settings" "icon"
+    ## And I follow "Duplicate this booking option"
+    And I click on "Settings" "icon" in the ".show.active .card.row .action .dropdown" "css_element"
+    And I click on "Duplicate this booking option" "link" in the ".show.active .card.row .action .dropdown" "css_element"
     And I set the field "Booking option name" to "Topic: Statistics - Copy 2"
     And I press "Save and go back"
     ## Verify name for 1st copy
