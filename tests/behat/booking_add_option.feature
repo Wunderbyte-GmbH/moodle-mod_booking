@@ -34,7 +34,7 @@ Feature: In a booking instance create booking options
       | Booking text                     | This is the description for the test booking instance. |
       | Organizer name                   | Teacher 1                                              |
       | Sort by                          | Booking option name                                    |
-      | Default view for booking options | All bookings                                           |
+      | Default view for booking options | All booking options                                    |
     And I press "Save and return to course"
     Then I should see "Test booking"
     And I log out
@@ -66,8 +66,8 @@ Feature: In a booking instance create booking options
     And I log out
     And I am on the "Course 1" course page logged in as student1
     And I follow "My booking"
-    And I press "Book now"
-    Then I should see "Your booking was successfully saved"
-    And I press "Continue"
+    ## And I press "Book now"
+    ## And I click on "Book now" "text" // again same hidden element 
+    And I click on ".show.active .card.row .booknow .booking-button-mainarea.btn" "css_element"
     And I should see "Booked"
     And I should not see "Book now"
