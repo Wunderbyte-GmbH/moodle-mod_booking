@@ -285,17 +285,7 @@ class all_options extends table_sql {
             $data->invisible = true;
         }
 
-        $ret = '';
-
-        if ($this->booking->settings->showdescriptionmode == 0) {
-            // We will have a number of modals on this site, therefore we have to distinguish them.
-            $data->modalcounter = $values->id;
-
-            // We can go with the data from bookingoption_description directly to modal.
-            $ret = $output->render_col_text_modal($data);
-        } else {
-            $ret = $output->render_bookingoption_description($data);
-        }
+        $ret = $output->render_bookingoption_description($data);
 
         // Progress bar showing the consumed quota visually.
         if (get_config('booking', 'showprogressbars')) {
