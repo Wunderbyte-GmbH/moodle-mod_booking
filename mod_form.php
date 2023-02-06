@@ -227,22 +227,14 @@ class mod_booking_mod_form extends moodleform_mod {
             $alloptiontemplates);
         $mform->setDefault('templateid', 0);
 
-        // Options to show booking descriptions (inline or via modal info links).
-        $descriptionmodes = array();
-        $descriptionmodes[0] = get_string('showdescriptionmodal', 'booking');
-        $descriptionmodes[1] = get_string('showdescriptioninline', 'booking');
-        $mform->addElement('select', 'showdescriptionmode', get_string('showdescriptionmode', 'booking'), $descriptionmodes);
-        $mform->setDefault('showdescriptionmode', 0); // Modal view is default.
-        $mform->addHelpButton('showdescriptionmode', 'showdescriptionmode', 'booking');
-        $mform->setType('showdescriptionmode', PARAM_INT);
-
-        // Choose if a list of available options should be shown right on the course page.
+        // Choose if extra info should be shown right on the course page.
+        // Note: "List on course page" is no longer supported.
         $listoncoursepageoptions = array();
         $listoncoursepageoptions[0] = get_string('hidelistoncoursepage', 'booking');
         $listoncoursepageoptions[1] = get_string('showcoursenameandbutton', 'booking');
         $mform->addElement('select', 'showlistoncoursepage',
             get_string('showlistoncoursepagelbl', 'booking'), $listoncoursepageoptions);
-        $mform->setDefault('showlistoncoursepage', 0); // List on course page is activated by default.
+        $mform->setDefault('showlistoncoursepage', 0); // List on course page is tuned off by default.
         $mform->addHelpButton('showlistoncoursepage', 'showlistoncoursepagelbl', 'booking');
         $mform->setType('showlistoncoursepage', PARAM_INT);
 

@@ -58,7 +58,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                     'scale', 'whichview', 'daystonotify2', 'enablepresence', 'completionmodule', 'responsesfields',
                     'reportfields', 'optionsfields', 'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext',
                     'signinsheetfields', 'comments', 'ratings', 'removeuseronunenrol', 'teacherroleid', 'allowupdatedays',
-                    'templateid', 'showdescriptionmode', 'showlistoncoursepage', 'coursepageshortinfo', 'bookingimagescustomfield',
+                    'templateid', 'showlistoncoursepage', 'coursepageshortinfo', 'bookingimagescustomfield',
                     'defaultoptionsort', 'showviews', 'customtemplateid', 'autcractive', 'autcrprofile', 'autcrvalue',
                     'autcrtemplate', 'semesterid'));
 

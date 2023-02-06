@@ -3320,5 +3320,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023020300, 'booking');
     }
 
+    if ($oldversion < 2023020600) {
+
+        // Define field showdescriptionmode to be dropped from booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('showdescriptionmode');
+
+        // Conditionally launch drop field showdescriptionmode.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2023020600, 'booking');
+    }
+
     return true;
 }

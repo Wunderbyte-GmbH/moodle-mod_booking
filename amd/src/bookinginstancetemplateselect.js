@@ -64,7 +64,6 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             $('#id_defaultoptionsort').val(obj.defaultoptionsort);
                             $('#id_enablepresence').val(obj.enablepresence);
                             $('#id_templateid').val(obj.templateid);
-                            $('#id_showdescriptionmode').val(obj.showdescriptionmode);
                             $('#id_showlistoncoursepage').val(obj.showlistoncoursepage);
                             $('#id_coursepageshortinfo').val(obj.coursepageshortinfo);
                             // Known issue: coursepageshortinfo won't be unhidden when filled from template.

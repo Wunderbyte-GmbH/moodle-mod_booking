@@ -274,9 +274,6 @@ class booking_settings {
     /** @var int $templateid */
     public $templateid = null;
 
-    /** @var int $showdescriptionmode */
-    public $showdescriptionmode = null;
-
     /** @var int $showlistoncoursepage */
     public $showlistoncoursepage = null;
 
@@ -452,7 +449,6 @@ class booking_settings {
             $this->teacherroleid = $dbrecord->teacherroleid;
             $this->allowupdatedays = $dbrecord->allowupdatedays;
             $this->templateid = $dbrecord->templateid;
-            $this->showdescriptionmode = $dbrecord->showdescriptionmode;
             $this->showlistoncoursepage = $dbrecord->showlistoncoursepage;
             $this->coursepageshortinfo = $dbrecord->coursepageshortinfo;
             $this->bookingimagescustomfield = $dbrecord->bookingimagescustomfield;
