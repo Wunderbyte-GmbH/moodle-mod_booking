@@ -23,7 +23,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2023020600;
+$plugin->version = 2023020700;
 $plugin->requires = 2021051700; // Requires this Moodle version. Current: Moodle 3.11.
 $plugin->release = '7.8.7';
 $plugin->maturity = MATURITY_STABLE;

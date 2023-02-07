@@ -287,19 +287,6 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
             $where .= " AND bo.invisible = 0";
         }
 
-        // TODO: Sorting per wbtable!
-
-        $defaultorder = ($booking->settings->defaultoptionsort !== 'availableplaces') ? SORT_ASC : SORT_DESC;
-        if (!in_array('coursestarttime', $columns) && ($booking->settings->defaultoptionsort === 'coursestarttime')) {
-            // Fixed: If sort by is set to coursestarttime but coursestarttime column is missing ...
-            // ... we still want to order by coursestarttime.
-            $tablealloptions->sortable(false);
-            $where .= " ORDER BY bo.coursestarttime ASC";
-        } else {
-            // Else we can use the sortable method of table_sql.
-            $tablealloptions->sortable(true, $booking->settings->defaultoptionsort, $defaultorder);
-        }
-
         // TODO: custom fields für optiondates direkt bei den optiondates rendern
 
         $timessql = 'SELECT bod.id AS dateid, bo.id AS optionid, ' .
@@ -347,13 +334,6 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
                 AND uif.shortname = '{$profilefield->shortname}') AS cust" .
                 strtolower($profilefield->shortname);
             }
-        }
-
-        // TODO: myinstitution Tab!
-
-        if ($myoptions->myoptions > 0 && !has_capability('mod/booking:readresponses', $context)) {
-            $conditionsparams['onlyinstitution1'] = $USER->institution;
-            $conditions[] = 'tu.institution LIKE :onlyinstitution1';
         }
 
         // TODO: groupmode (??).

@@ -59,7 +59,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                     'reportfields', 'optionsfields', 'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext',
                     'signinsheetfields', 'comments', 'ratings', 'removeuseronunenrol', 'teacherroleid', 'allowupdatedays',
                     'templateid', 'showlistoncoursepage', 'coursepageshortinfo', 'bookingimagescustomfield',
-                    'defaultoptionsort', 'showviews', 'customtemplateid', 'autcractive', 'autcrprofile', 'autcrvalue',
+                    'showviews', 'customtemplateid', 'autcractive', 'autcrprofile', 'autcrvalue',
                     'autcrtemplate', 'semesterid'));
 
         $options = new backup_nested_element('options');
