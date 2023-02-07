@@ -349,11 +349,17 @@ class view implements renderable, templatable {
      */
     private function wbtable_initialize_list_layout(wunderbyte_table &$wbtable,
         bool $filter = true, bool $search = true, bool $sort = true) {
-        $wbtable->add_subcolumns('leftside', ['text', 'action', 'teacher']);
-        $wbtable->add_subcolumns('footer', ['bookings', 'dayofweektime', 'location', 'institution', 'showdates']);
+        $wbtable->add_subcolumns('leftside', ['text', 'invisibleoption', 'action', 'teacher']);
+        $wbtable->add_subcolumns('footer', ['bookings', 'dayofweektime', 'location', 'institution',
+            'showdates', 'progressbar', 'comments']);
         $wbtable->add_subcolumns('rightside', ['booknow']);
 
         $wbtable->add_classes_to_subcolumns('leftside', ['columnkeyclass' => 'd-none']);
+        $wbtable->add_classes_to_subcolumns(
+            'leftside',
+            ['columnvalueclass' => 'booking-option-info-invisible'], // shortcodes_option_info_invisible
+            ['invisibleoption']
+        );
         $wbtable->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-left m-0 mb-1 h5'], ['text']);
         $wbtable->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-right'], ['action']);
         $wbtable->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-left font-size-sm'], ['teacher']);

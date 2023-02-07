@@ -25,10 +25,13 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\output\business_card;
+use mod_booking\output\instance_description;
 use mod_booking\output\view;
 use mod_booking\singleton_service;
 
 require_once(__DIR__ . '/../../config.php');
+require_once($CFG->dirroot . '/comment/lib.php');
 
 // No guest autologin.
 require_login(0, false);
@@ -60,9 +63,9 @@ $event->add_record_snapshot('course', $course);
 $event->trigger();
 
 // Get the booking instance settings by cmid.
-$bookinginstancesettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+$bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
 
-$title = $bookinginstancesettings->name;
+$title = $bookingsettings->name;
 
 $baseurl = new moodle_url('/mod/booking/view.php', $urlparams);
 $PAGE->set_url($baseurl);
@@ -73,13 +76,28 @@ $PAGE->set_heading($title);
 $PAGE->set_pagelayout('incourse');
 $PAGE->add_body_class('mod_booking-view');
 
-$view = new view($cmid, $whichview, $optionid);
+// Get the renderer.
+$output = $PAGE->get_renderer('mod_booking');
 
 echo $OUTPUT->header();
 
-$output = $PAGE->get_renderer('mod_booking');
+// If we have specified a teacher as organizer, we show a "busines_card" with photo, else legacy organizer description.
+if (!empty($bookingsettings->organizatorname)
+    && ($organizerid = (int)$bookingsettings->organizatorname)) {
+    $data = new business_card($bookingsettings, $organizerid);
+    echo $output->render_business_card($data);
+} else {
+    $data = new instance_description($bookingsettings);
+    echo $output->render_instance_description($data);
+}
+
+// Now we show the actual view.
+// Init for commenting feature.
+comment::init();
+$view = new view($cmid, $whichview, $optionid);
 echo $output->render_view($view);
 
+// Wunderbyte info and footer.
 echo $OUTPUT->box('<a href="http://www.wunderbyte.at">' . get_string('createdbywunderbyte', 'mod_booking') . "</a>",
         'box mdl-align');
 echo $OUTPUT->footer();
