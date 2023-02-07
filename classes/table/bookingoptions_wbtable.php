@@ -19,10 +19,11 @@ namespace mod_booking\table;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once(__DIR__ . '/../../lib.php');
-require_once($CFG->libdir.'/tablelib.php');
+// require_once(__DIR__ . '/../../lib.php');
+// require_once($CFG->libdir.'/tablelib.php');
 
 use coding_exception;
+use comment;
 use context_course;
 use context_module;
 use dml_exception;
@@ -35,6 +36,7 @@ use table_sql;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
 use mod_booking\booking_bookit;
+use mod_booking\booking_option;
 use mod_booking\dates_handler;
 use mod_booking\output\col_availableplaces;
 use mod_booking\output\col_teacher;
@@ -60,6 +62,12 @@ class bookingoptions_wbtable extends wunderbyte_table {
     /** @var context_module $buyforuser */
     private $context = null;
 
+    /** @var object $cm */
+    private $cm = null;
+
+    /** @var object $course */
+    private $course = null;
+
     /**
      * Constructor
      * @param string $uniqueid all tables have to have a unique id, this is used
@@ -69,12 +77,11 @@ class bookingoptions_wbtable extends wunderbyte_table {
     public function __construct(string $uniqueid, booking $booking = null) {
         parent::__construct($uniqueid);
 
-        global $PAGE;
-
         if (!empty($booking)) {
             $this->booking = $booking;
             $this->cmid = $this->booking->cmid;
             $this->context = context_module::instance($this->cmid);
+            list($this->course, $this->cm) = get_course_and_cm_from_cmid($this->cmid);
         }
 
         // We set buyforuser here for better performance.
@@ -181,13 +188,63 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $title = $values->titleprefix . ' - ' . $values->text;
         }
 
-        if (!$this->is_downloading()) {
-            $title = "<div class='musi-table-option-title'><a href='$url' target='_blank'>$title</a></div>";
-        }
+        $title = "<div class='bookingoptions-wbtable-option-title'><a href='$url' target='_blank'>$title</a></div>";
 
         return $title;
     }
 
+    /**
+     * This function is called for each data row to allow processing of the
+     * progressbar value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string the progress bar HTML
+     * @throws dml_exception
+     */
+    public function col_progressbar($values) {
+        // Progress bar showing the consumed quota visually.
+        $progressbarhtml = '';
+        if (get_config('booking', 'showprogressbars')) {
+            $collapsible = false;
+            if (get_config('booking', 'progressbarscollapsible')) {
+                $collapsible = true;
+            }
+            $progressbarhtml = booking_option::get_progressbar_html($values->id, 'primary', 'white', $collapsible);
+        }
+        return $progressbarhtml;
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * comments value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string the comments HTML
+     * @throws dml_exception
+     */
+    public function col_comments($values) {
+
+        $commentshtml = '';
+        if (!empty($this->cm) && !empty($this->cmid) && !empty($this->context)) {
+
+            // Comment booking options.
+            $commentoptions = new stdClass();
+            $commentoptions->area = 'booking_option';
+            $commentoptions->context = $this->context;
+            $commentoptions->course = $this->course;
+            $commentoptions->cm = $this->cm;
+            $commentoptions->itemid = $values->id;
+            $commentoptions->component = 'mod_booking';
+            $commentoptions->client_id = $values->id;
+            $commentoptions->showcount = true;
+            $commentoptions->displaycancel = true;
+            $comment = new comment($commentoptions);
+            if (!empty($comment)) {
+                $commentshtml = $comment->output(true);
+            }
+        }
+        return $commentshtml;
+    }
 
     /**
      * This function is called for each data row to allow processing of the

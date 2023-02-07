@@ -24,9 +24,11 @@
 
 namespace mod_booking\output;
 
+use moodle_url;
 use renderer_base;
 use renderable;
 use templatable;
+use user_picture;
 
 /**
  * This class prepares data for displaying a booking instance
@@ -40,10 +42,7 @@ class business_card implements renderable, templatable {
     /** @var string $username the note as it is saved in db */
     public $username = null;
 
-    /** @var string $userpictureurl */
-    public $userpictureurl = null;
-
-    /** @var string $sendmessageurl */
+    /** @var moodle_url $sendmessageurl */
     public $sendmessageurl = null;
 
     /** @var string $description */
@@ -52,8 +51,11 @@ class business_card implements renderable, templatable {
     /** @var string $userdescription */
     public $userdescription = null;
 
-    /** @var string $userprofileurl */
+    /** @var moodle_url $userprofileurl */
     public $userprofileurl = null;
+
+    /** @var moodle_url $userpictureurl */
+    public $userpictureurl = null;
 
     /** @var string $duration */
     public $duration = null;
@@ -66,18 +68,18 @@ class business_card implements renderable, templatable {
      *
      * @param \stdClass $data
      */
-    public function __construct($booking, $userid) {
+    public function __construct($bookingsettings, $userid) {
 
         global $PAGE;
 
         $user = user_get_users_by_id([$userid]);
         $user = reset($user);
-        $userpic = new \user_picture($user);
+        $userpic = new user_picture($user);
         $userpic->size = 200;
         $userpictureurl = $userpic->get_url($PAGE);
-        $userprofileurl = new \moodle_url('../../user/profile.php', ['id' => $user->id]);
-        $sendmessageurl = new \moodle_url('../../message/index.php', ['id' => $user->id]);
-        $description = format_text($booking->settings->intro, $booking->settings->introformat);
+        $userprofileurl = new moodle_url('../../user/profile.php', ['id' => $user->id]);
+        $sendmessageurl = new moodle_url('../../message/index.php', ['id' => $user->id]);
+        $description = format_text($bookingsettings->intro, $bookingsettings->introformat);
         $userdescription = format_text($user->description, $user->descriptionformat);
 
         $this->username = "$user->firstname $user->lastname";
@@ -86,11 +88,11 @@ class business_card implements renderable, templatable {
         $this->sendmessageurl = $sendmessageurl;
         $this->description = $description;
         $this->userdescription = $userdescription;
-        $this->duration = $booking->settings->duration;
+        $this->duration = $bookingsettings->duration;
         $this->points = null;
         // Only show points if there are any.
-        if ($booking->settings->points != '0.00') {
-            $this->points = $booking->settings->points;
+        if ($bookingsettings->points != '0.00') {
+            $this->points = $bookingsettings->points;
         }
     }
 

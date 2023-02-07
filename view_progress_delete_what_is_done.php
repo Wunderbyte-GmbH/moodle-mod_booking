@@ -1,11 +1,6 @@
 <?php
 // We use this file to keep track of what is already migrated to new view.php.
 
-use mod_booking\all_options;
-use mod_booking\booking;
-use mod_booking\output\business_card;
-use mod_booking\output\instance_description;
-
 require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
 require_once($CFG->libdir . '/completionlib.php');
@@ -20,31 +15,11 @@ $confirm = optional_param('confirm', '', PARAM_INT);
 $answer = optional_param('answer', '', PARAM_ALPHANUM);
 $sorto = optional_param('sort', '1', PARAM_INT);
 
-$page = optional_param('page', '0', PARAM_INT);
-
-$conditions = array();
-$conditionsparams = array();
 $urlparams = array();
 
 $urlparams['id'] = $id;
 
-
 $booking = new booking($cm->id);
-
-if (!empty($action)) {
-    $urlparams['action'] = $action;
-}
-
-if (!empty($whichview)) {
-    $urlparams['whichview'] = $whichview;
-} else {
-    $urlparams['whichview'] = $booking->settings->whichview;
-    $whichview = $booking->settings->whichview;
-}
-
-if ($optionid > 0) {
-    $urlparams['optionid'] = $optionid;
-}
 
 
 // TODO: was ist das?
@@ -72,17 +47,6 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
         // TODO: Kommentare!
         comment::init();
 
-        // TODO: If we have specified a teacher as organizer, we show a "busines_card" with photo, else legacy organizer description.
-        if (!empty($booking->settings->organizatorname)
-            && ($organizerid = (int)$booking->settings->organizatorname)) {
-                $data = new business_card($booking, $organizerid);
-                $output = $PAGE->get_renderer('mod_booking');
-                echo $output->render_business_card($data);
-        } else {
-            $data = new instance_description($booking->settings);
-            $output = $PAGE->get_renderer('mod_booking');
-            echo $output->render_instance_description($data);
-        }
 
         // TODO: attachments!
         $out = array();
@@ -287,19 +251,6 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
             $where .= " AND bo.invisible = 0";
         }
 
-        // TODO: Sorting per wbtable!
-
-        $defaultorder = ($booking->settings->defaultoptionsort !== 'availableplaces') ? SORT_ASC : SORT_DESC;
-        if (!in_array('coursestarttime', $columns) && ($booking->settings->defaultoptionsort === 'coursestarttime')) {
-            // Fixed: If sort by is set to coursestarttime but coursestarttime column is missing ...
-            // ... we still want to order by coursestarttime.
-            $tablealloptions->sortable(false);
-            $where .= " ORDER BY bo.coursestarttime ASC";
-        } else {
-            // Else we can use the sortable method of table_sql.
-            $tablealloptions->sortable(true, $booking->settings->defaultoptionsort, $defaultorder);
-        }
-
         // TODO: custom fields für optiondates direkt bei den optiondates rendern
 
         $timessql = 'SELECT bod.id AS dateid, bo.id AS optionid, ' .
@@ -347,13 +298,6 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
                 AND uif.shortname = '{$profilefield->shortname}') AS cust" .
                 strtolower($profilefield->shortname);
             }
-        }
-
-        // TODO: myinstitution Tab!
-
-        if ($myoptions->myoptions > 0 && !has_capability('mod/booking:readresponses', $context)) {
-            $conditionsparams['onlyinstitution1'] = $USER->institution;
-            $conditions[] = 'tu.institution LIKE :onlyinstitution1';
         }
 
         // TODO: groupmode (??).
@@ -435,4 +379,3 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
             }
         }
     }
-
