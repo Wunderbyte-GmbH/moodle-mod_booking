@@ -26,7 +26,6 @@ require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
 require_once($CFG->libdir . '/completionlib.php');
 require_once("{$CFG->libdir}/tablelib.php");
-require_once($CFG->dirroot . '/comment/lib.php');
 
 global $DB, $CFG, $USER, $OUTPUT, $PAGE;
 
@@ -93,10 +92,10 @@ $PAGE->set_context($context);
 echo $OUTPUT->header();
 
 if (!$explanationstring) {
-    if ($seconds = $bu->secondstostart) {
+    if ($seconds = $bookingoption->secondstostart) {
         $minutes = $bu->get_pretty_duration($seconds);
         $explanationstring = get_string('bookingnotopenyet', 'booking', $minutes);
-    } else if ($minutes = $bu->secondspassed) {
+    } else if ($minutes = $bookingoption->secondspassed) {
         $explanationstring = get_string('bookingpassed', 'booking');
     } else {
         $explanationstring = get_string('linknotvalid', 'booking');

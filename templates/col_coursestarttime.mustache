@@ -25,9 +25,16 @@
 }}
 
 {{#showcollapsebtn}}
-    <a data-toggle="collapse" href="#optiondates{{{optionid}}}" role="button" aria-expanded="false" aria-controls="optiondates{{{optionid}}}">
-        {{#str}}showdates, mod_booking{{/str}}
-    </a>
+    <div class='booking-showdates-collapse'>
+        <span>
+            <i class="fa fa-calendar" aria-hidden="true"></i>
+        </span>
+        <span>
+            <a data-toggle="collapse" href="#optiondates{{{optionid}}}" role="button" aria-expanded="false" aria-controls="optiondates{{{optionid}}}">
+                {{#str}}showdates, mod_booking{{/str}}
+            </a>
+        </span>
+    </div>
     <div class="collapse" id="optiondates{{{optionid}}}">
         <small>
         {{#datestrings}}
@@ -39,6 +46,12 @@
 {{^showcollapsebtn}}
     <div id="optiondates{{{optionid}}}">
         <small>
+        <div class='booking-showdates-title'>
+            <span>
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+            </span>
+            <span><b>{{#str}} date_s, mod_booking {{/str}}:</b></span>
+        </div>
         {{#datestrings}}
             <div>{{{datestring}}}</div>
         {{/datestrings}}

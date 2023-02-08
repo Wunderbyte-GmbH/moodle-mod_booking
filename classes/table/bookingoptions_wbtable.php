@@ -19,8 +19,6 @@ namespace mod_booking\table;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-// require_once(__DIR__ . '/../../lib.php');
-// require_once($CFG->libdir.'/tablelib.php');
 
 use coding_exception;
 use comment;
@@ -32,8 +30,6 @@ use local_wunderbyte_table\wunderbyte_table;
 use moodle_exception;
 use moodle_url;
 use stdClass;
-use table_sql;
-use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
 use mod_booking\booking_bookit;
 use mod_booking\booking_option;
@@ -227,15 +223,15 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $commentshtml = '';
         if (!empty($this->cm) && !empty($this->cmid) && !empty($this->context)) {
 
+            // Important: Without init commenting won't work.
+            comment::init();
+
             // Comment booking options.
             $commentoptions = new stdClass();
             $commentoptions->area = 'booking_option';
             $commentoptions->context = $this->context;
-            $commentoptions->course = $this->course;
-            $commentoptions->cm = $this->cm;
             $commentoptions->itemid = $values->id;
             $commentoptions->component = 'mod_booking';
-            $commentoptions->client_id = $values->id;
             $commentoptions->showcount = true;
             $commentoptions->displaycancel = true;
             $comment = new comment($commentoptions);
@@ -371,18 +367,18 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         global $PAGE;
 
-        if ($this->is_downloading()) {
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* if ($this->is_downloading()) {
             if ($values->coursestarttime == 0) {
                 return '';
             } else {
                 return userdate($values->coursestarttime, get_string('strftimedatetime', 'langconfig'));
             }
-        }
+        } */
 
         // Use the renderer to output this column.
         $data = new \mod_booking\output\col_coursestarttime($values->id, $this->booking);
         $output = $PAGE->get_renderer('mod_booking');
-        // We can go with the data from bookingoption_description directly to modal.
         return $output->render_col_coursestarttime($data);
     }
 

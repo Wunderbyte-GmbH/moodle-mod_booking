@@ -349,7 +349,7 @@ class view implements renderable, templatable {
      */
     private function wbtable_initialize_list_layout(wunderbyte_table &$wbtable,
         bool $filter = true, bool $search = true, bool $sort = true) {
-        $wbtable->add_subcolumns('leftside', ['text', 'invisibleoption', 'action', 'teacher']);
+        $wbtable->add_subcolumns('leftside', ['invisibleoption', 'text', 'action', 'teacher']);
         $wbtable->add_subcolumns('footer', ['bookings', 'dayofweektime', 'location', 'institution',
             'showdates', 'progressbar', 'comments']);
         $wbtable->add_subcolumns('rightside', ['booknow']);
@@ -368,10 +368,8 @@ class view implements renderable, templatable {
             ['dayofweektime']);
         $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-clock-o text-gray
             font-size-sm'], ['dayofweektime']);
-        $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left text-gray pr-2 font-size-sm'],
+        $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left pr-2 text-gray'],
             ['showdates']);
-        $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-calendar text-gray
-            font-size-sm'], ['showdates']);
         $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left text-gray  pr-2 font-size-sm'],
             ['location']);
         $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-map-marker text-gray

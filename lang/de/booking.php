@@ -21,6 +21,7 @@ $string['bookings'] = 'Buchungen';
 $string['booking:manageoptiontemplates'] = "Buchungsoptionsvorlagen verwalten";
 $string['booking:cantoggleformmode'] = 'Nutzer:in darf alle Einstellungen verwalten';
 $string['courses'] = 'Kurse';
+$string['date_s'] = 'Termin(e)';
 $string['dayofweek'] = 'Wochentag';
 $string['gotomanageresponses'] = '&lt;&lt; Buchungen verwalten';
 $string['optionsiteach'] = 'Von mir geleitet';

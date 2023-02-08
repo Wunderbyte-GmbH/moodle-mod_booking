@@ -92,8 +92,6 @@ if (!empty($bookingsettings->organizatorname)
 }
 
 // Now we show the actual view.
-// Init for commenting feature.
-comment::init();
 $view = new view($cmid, $whichview, $optionid);
 echo $output->render_view($view);
 

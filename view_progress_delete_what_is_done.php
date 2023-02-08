@@ -1,15 +1,11 @@
 <?php
 // We use this file to keep track of what is already migrated to new view.php.
-
 require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
 require_once($CFG->libdir . '/completionlib.php');
 require_once("{$CFG->libdir}/tablelib.php");
-require_once($CFG->dirroot . '/comment/lib.php');
-
 
 $download = optional_param('download', '', PARAM_ALPHA);
-
 $optionid = optional_param('optionid', '', PARAM_INT);
 $confirm = optional_param('confirm', '', PARAM_INT);
 $answer = optional_param('answer', '', PARAM_ALPHANUM);
@@ -43,9 +39,6 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
 
 
     if (!$tablealloptions->is_downloading()) {
-
-        // TODO: Kommentare!
-        comment::init();
 
 
         // TODO: attachments!
@@ -242,14 +235,6 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
         $where = "b.id = :bookingid " .
                  (empty($conditions) ? '' : ' AND ' . implode(' AND ', $conditions));
 
-
-        // TOOD: check, ob invisibility noch richtig funktioniert!
-
-        // If the user does not have the capability to see invisible options...
-        if (!has_capability('mod/booking:canseeinvisibleoptions', $context)) {
-            // ... then only show visible options.
-            $where .= " AND bo.invisible = 0";
-        }
 
         // TODO: custom fields für optiondates direkt bei den optiondates rendern
 

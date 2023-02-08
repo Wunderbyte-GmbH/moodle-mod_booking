@@ -21,6 +21,7 @@ $string['bookings'] = 'Bookings';
 $string['booking:manageoptiontemplates'] = "Manage option templates";
 $string['booking:cantoggleformmode'] = 'User can edit all settings';
 $string['courses'] = 'Courses';
+$string['date_s'] = 'Date(s)';
 $string['dayofweek'] = 'Weekday';
 $string['gotomanageresponses'] = '&lt;&lt; Manage bookings';
 $string['optionsiteach'] = 'Teached by me';

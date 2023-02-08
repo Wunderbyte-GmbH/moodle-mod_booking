@@ -68,7 +68,7 @@ class col_coursestarttime implements renderable, templatable {
         $this->datestrings = dates_handler::return_array_of_sessions_simple($optionid);
 
         // Show a collapse button for the dates.
-        if (!empty($this->datestrings) && $collapsed == true) {
+        if (!empty($this->datestrings) && count($this->datestrings) > 2 && $collapsed == true) {
             $this->showcollapsebtn = true;
         }
     }
