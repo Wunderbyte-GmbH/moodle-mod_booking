@@ -2512,7 +2512,8 @@ class booking_option {
         } else {
             // If the user does this for herself or she has the right to do it for others, we toggle the state.
 
-            // booking_bookit::answer_booking_option('option', $optionid, STATUSPARAM_NOTIFYMELIST, $userid);
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* booking_bookit::answer_booking_option('option', $optionid, STATUSPARAM_NOTIFYMELIST, $userid); */
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
             $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
 
@@ -2665,9 +2666,11 @@ class booking_option {
      * @return string $html the HTML containing the progress bar
      */
     public static function get_progressbar_html(int $optionid, string $barcolor = "primary",
-        string $percentagecolor = "white", $collapsible = true) {
+        string $percentagecolor = "white", bool $collapsible = true) {
 
         $html = '';
+        $icon = "<i class='fa fa-hourglass' aria-hidden='true'></i>";
+
         $alreadypassed = get_string('alreadypassed', 'mod_booking');
         $consumedpercentage = self::get_consumed_quota($optionid) * 100;
         if ($consumedpercentage > 0 && $consumedpercentage <= 100) {
@@ -2684,18 +2687,18 @@ class booking_option {
             if ($collapsible) {
                 // Show collapsible progressbar.
                 $html .=
-                    "<p><a data-toggle='collapse' href='#progressbarContainer$optionid' role='button'
-                        aria-expanded='false' aria-controls='progressbarContainer$optionid'>
-                        <i class='fa fa-hourglass' aria-hidden='true'></i> $alreadypassed: $consumedpercentage%
-                    </a></p>
+                    "<p class='mb-0'>
+                        $icon <a data-toggle='collapse' href='#progressbarContainer$optionid' role='button'
+                        aria-expanded='false' aria-controls='progressbarContainer$optionid'>$alreadypassed: $consumedpercentage%</a>
+                    </p>
                     <div class='collapse' id='progressbarContainer$optionid'>
                         $progressbar
                     </div>";
             } else {
                 // Show progressbar with a label.
                 $html .=
-                    "<div class='progressbar-label mb-1'>
-                        <i class='fa fa-hourglass' aria-hidden='true'></i> $alreadypassed:
+                    "<div class='progressbar-label mb-0'>
+                        $icon $alreadypassed:
                     </div>
                     $progressbar";
             }

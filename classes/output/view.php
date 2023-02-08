@@ -351,8 +351,8 @@ class view implements renderable, templatable {
         bool $filter = true, bool $search = true, bool $sort = true) {
         $wbtable->add_subcolumns('leftside', ['invisibleoption', 'text', 'action', 'teacher']);
         $wbtable->add_subcolumns('footer', ['bookings', 'dayofweektime', 'location', 'institution',
-            'showdates', 'progressbar', 'comments']);
-        $wbtable->add_subcolumns('rightside', ['booknow']);
+            'showdates', 'comments']);
+        $wbtable->add_subcolumns('rightside', ['booknow', 'progressbar']);
 
         $wbtable->add_classes_to_subcolumns('leftside', ['columnkeyclass' => 'd-none']);
         $wbtable->add_classes_to_subcolumns(
@@ -368,7 +368,7 @@ class view implements renderable, templatable {
             ['dayofweektime']);
         $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-clock-o text-gray
             font-size-sm'], ['dayofweektime']);
-        $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left pr-2 text-gray'],
+        $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left pr-2 text-gray font-size-sm'],
             ['showdates']);
         $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left text-gray  pr-2 font-size-sm'],
             ['location']);
@@ -383,6 +383,8 @@ class view implements renderable, templatable {
         $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-ticket text-gray
             font-size-sm'], ['bookings']);
         $wbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-right'], ['booknow']);
+        $wbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-left mt-1 text-gray font-size-sm'],
+            ['progressbar']);
 
         // Override naming for columns.
         $wbtable->add_classes_to_subcolumns(
