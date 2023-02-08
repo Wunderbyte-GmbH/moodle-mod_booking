@@ -489,16 +489,27 @@ class bookingoptions_wbtable extends wunderbyte_table {
             // Book other users.
             if (has_capability('mod/booking:subscribeusers', $this->context) ||
                 booking_check_if_teacher($values)) {
-                $onlyoneurl = new moodle_url('/mod/booking/subscribeusers.php',
+                $subscribeusersurl = new moodle_url('/mod/booking/subscribeusers.php',
                     array('id' => $this->cmid, 'optionid' => $values->id,
                     'returnto' => 'url',
                     'returnurl' => $returnurl));
                 $ddoptions[] = '<div class="dropdown-item">' .
-                    html_writer::link($onlyoneurl,
+                    html_writer::link($subscribeusersurl,
                         $OUTPUT->pix_icon('i/users',
                             get_string('bookotherusers', 'mod_booking')) .
                         get_string('bookotherusers', 'mod_booking')) . '</div>';
             }
+
+            // Show link to optiondates-teachers-report (teacher substitutions).
+            $optiondatesteachersmoodleurl = new moodle_url('/mod/booking/optiondates_teachers_report.php',
+                ['id' => $this->cmid, 'optionid' => $values->id,
+                'returnto' => 'url', 'returnurl' => $returnurl]);
+            $ddoptions[] = '<div class="dropdown-item">' .
+                html_writer::link($optiondatesteachersmoodleurl,
+                    $OUTPUT->pix_icon('i/grades',
+                        get_string('optiondatesteachersreport', 'mod_booking')) .
+                    get_string('optiondatesteachersreport', 'mod_booking')) . '</div>';
+
             // Show only one option.
             $onlyoneurl = new moodle_url('/mod/booking/view.php',
                 array('id' => $this->cmid, 'optionid' => $values->id,
