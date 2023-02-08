@@ -1900,7 +1900,7 @@ $string['erroroptiondateend'] = 'Date end needs to be after date start.';
 // Optiondates_teachers_report.php & optiondates_teachers_table.php.
 $string['accessdenied'] = 'Access denied';
 $string['nopermissiontoaccesspage'] = '<div class="alert alert-danger" role="alert">You have no permission to access this page.</div>';
-$string['optiondatesteachersreport'] = 'Teaching Report / Replacement teachers';
+$string['optiondatesteachersreport'] = 'Substitutions / Cancelled dates';
 $string['optiondatesteachersreport_desc'] = 'This report gives an overview of which teacher was present at which specific date.<br>
 By default, every date will be filled in with the option\'s teacher. You can overwrite specific dates with replacement teachers.';
 $string['linktoteachersinstancereport'] = '<p><a href="{$a}" target="_self">&gt;&gt; Go to teachers report for booking instance</a></p>';

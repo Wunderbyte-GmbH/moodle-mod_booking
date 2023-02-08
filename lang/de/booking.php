@@ -1696,7 +1696,7 @@ $string['erroroptiondateend'] = 'Terminende muss nach dem Terminbeginn liegen.';
 // Optiondates_teachers_report.php & optiondates_teachers_table.php.
 $string['accessdenied'] = 'Zugriff verweigert';
 $string['nopermissiontoaccesspage'] = '<div class="alert alert-danger" role="alert">Sie sind nicht berechtigt, auf diese Seite zuzugreifen.</div>';
-$string['optiondatesteachersreport'] = 'Training-Journal / Vertretungen';
+$string['optiondatesteachersreport'] = 'Vertretungen & Absagen';
 $string['optiondatesteachersreport_desc'] = 'In diesem Report erhalten Sie eine Übersicht, welche:r Trainer:in an welchem Termin geleitet hat.<br>
 Standardmäßig werden alle Termine mit dem/den eingestellten Trainer:innen der Buchungsoption befüllt. Sie können einzelne Termine mit Vertretungen überschreiben.';
 $string['linktoteachersinstancereport'] = '<p><a href="{$a}" target="_self">&gt;&gt; Zum Trainer:innen-Gesamtbericht für die Buchungsinstanz</a></p>';

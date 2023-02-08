@@ -32,17 +32,17 @@
   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
       <h6 class="dropdown-header">{{#str}} actions {{/str}}</h6>
       <a class="dropdown-item editoption" href="{{editoptionurl}}" target="_self">
-        <i class="fa fa-edit" aria-hidden="true"></i> {{#str}} updatebooking, mod_booking {{/str}}
+        <i class="fa fa-edit fa-fw" aria-hidden="true"></i> {{#str}} updatebooking, mod_booking {{/str}}
       </a>
       <a class="dropdown-item manageresponses" href="{{manageresponsesurl}}" target="_self">
-        <i class="fa fa-ticket" aria-hidden="true"></i> {{#str}} manageresponses, mod_booking {{/str}}
+        <i class="fa fa-ticket fa-fw" aria-hidden="true"></i> {{#str}} manageresponses, mod_booking {{/str}}
       </a>
       {{#showcancel}}{{{cancellink}}}{{/showcancel}}
       {{#showundocancel}}{{{undocancellink}}}{{/showundocancel}}
       {{#optiondatesteachersurl}}
       <h6 class="dropdown-header">{{#str}} reports {{/str}}</h6>
       <a class="dropdown-item" href="{{optiondatesteachersurl}}" target="_self">
-        <i class="fa fa-table" aria-hidden="true"></i> {{#str}} optiondatesteachersreport, mod_booking {{/str}}
+        <i class="fa fa-table fa-fw" aria-hidden="true"></i> {{#str}} optiondatesteachersreport, mod_booking {{/str}}
       </a>
       {{/optiondatesteachersurl}}
   </div>

@@ -352,12 +352,12 @@ class view implements renderable, templatable {
         $wbtable->add_subcolumns('leftside', ['invisibleoption', 'text', 'action', 'teacher']);
         $wbtable->add_subcolumns('footer', ['bookings', 'dayofweektime', 'location', 'institution',
             'showdates', 'comments']);
-        $wbtable->add_subcolumns('rightside', ['booknow', 'progressbar']);
+        $wbtable->add_subcolumns('rightside', ['actionnew', 'booknow', 'progressbar']);
 
         $wbtable->add_classes_to_subcolumns('leftside', ['columnkeyclass' => 'd-none']);
         $wbtable->add_classes_to_subcolumns(
             'leftside',
-            ['columnvalueclass' => 'booking-option-info-invisible'], // shortcodes_option_info_invisible
+            ['columnvalueclass' => 'booking-option-info-invisible'],
             ['invisibleoption']
         );
         $wbtable->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-left m-0 mb-1 h5'], ['text']);
@@ -382,6 +382,7 @@ class view implements renderable, templatable {
             ['bookings']);
         $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-ticket text-gray
             font-size-sm'], ['bookings']);
+        $wbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-right'], ['actionnew']);
         $wbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-right'], ['booknow']);
         $wbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-left mt-1 text-gray font-size-sm'],
             ['progressbar']);
