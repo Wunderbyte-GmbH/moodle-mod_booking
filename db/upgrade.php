@@ -3350,5 +3350,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023020700, 'booking');
     }
 
+    if ($oldversion < 2023021000) {
+
+        // Define field itemid to be added to booking_subbooking_answers.
+        $table = new xmldb_table('booking_subbooking_answers');
+        $field = new xmldb_field('itemid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'id');
+
+        // Conditionally launch add field itemid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2023021000, 'booking');
+    }
+
     return true;
 }
