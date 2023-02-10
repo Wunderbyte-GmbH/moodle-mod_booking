@@ -18,11 +18,9 @@ namespace mod_booking;
 
 use context_module;
 use context_system;
-use mod_bigbluebuttonbn\settings;
-use mod_booking\bo_availability\bo_info;
+use mod_booking\bo_availability\bo_subinfo;
 use mod_booking\output\bookingoption_description;
 use mod_booking\output\bookit_button;
-use mod_booking\output\prepagemodal;
 use mod_booking\subbookings\subbookings_info;
 use moodle_exception;
 
@@ -31,8 +29,8 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Class for handling the booking process.
- * In the most simple case, this class provides a button for a user to book a booking option.
+ * Class for handling the booking process for subbookings.
+ * In the most simple case, this class provides a button for a user to book a subbooking option.
  * But this class handles the process, together with bo_conditions, prices and further functionalities...
  * ... as an integrative process.
  *
@@ -41,7 +39,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class booking_bookit {
+class booking_subbookit {
 
     /** @var booking_option_settings $settings */
     public $settings = null;
@@ -51,26 +49,22 @@ class booking_bookit {
      * This also includes a top and a bottom section which can be rendered seperately.
      *
      * @param booking_option_settings $settings
+     * @param integer $subbookingid
      * @param integer $userid
      * @return string
      */
-    public static function render_bookit_button(booking_option_settings $settings, int $userid = 0) {
+    public static function render_bookit_button(booking_option_settings $settings, int $subbokingid, int $userid = 0) {
 
         global $PAGE;
-
+        $PAGE->set_context(context_module::instance($settings->cmid));
         $output = $PAGE->get_renderer('mod_booking');
-        list($templates, $datas) = self::render_bookit_template_data($settings, $userid);
+        list($templates, $datas) = self::render_bookit_template_data($settings, $subbokingid, $userid);
 
         $html = '';
 
         foreach ($templates as $template) {
             $data = array_shift($datas);
-
-            if ($template == 'mod_booking/prepagemodal') {
-                $html .= $output->render_prepagemodal($data);
-            } else {
-                $html .= $output->render_bookit_button($data, $template);
-            }
+            $html .= $output->render_bookit_button($data, $template);
         }
 
         return $html;
@@ -80,17 +74,19 @@ class booking_bookit {
      * This is used to get template name & data as an array to render bookit-button (component).
      *
      * @param booking_option_settings $settings
+     * @param integer $subbookingid
      * @param integer $userid
      * @param bool $renderprepagemodal
      * @return array
      */
     public static function render_bookit_template_data(
         booking_option_settings $settings,
+        int $subbokingid,
         int $userid = 0,
         bool $renderprepagemodal = true) {
 
         // Get blocking conditions, including prepages$prepages etc.
-        $results = bo_info::get_condition_results($settings->id, $userid);
+        $results = bo_subinfo::get_subcondition_results($settings->id, $userid);
         // Decide, wether to show the direct booking button or a modal.
 
         $showinmodalbutton = true;
@@ -113,11 +109,6 @@ class booking_bookit {
                         $buttoncondition = $result['classname'];
                     }
                     break;
-                case BO_BUTTON_NOBUTTON:
-                    // The no button marker can override all the other conditions.
-                    // It is only relevant for the modal, not the rest.
-                    $showinmodalbutton = false;
-                    break;
                 case BO_BUTTON_JUSTMYALERT:
                     // The JUST MY ALERT prevents other buttons to be displayed.
                     $justmyalert = true;
@@ -125,8 +116,6 @@ class booking_bookit {
                     break;
             }
         }
-
-        $prepages = bo_info::return_sorted_conditions($results);
 
         $context = context_module::instance($settings->cmid);
         if (has_capability('mod/booking:bookforothers', $context)) {
@@ -147,31 +136,13 @@ class booking_bookit {
             $templates[] = $template;
         }
 
-        // Big decession: can we render the button right away, or do we need to introduce a modal?
-        if (!$justmyalert && (count($prepages) > 0) && $renderprepagemodal) {
+        $condition = new $buttoncondition();
+        list($template, $data) = $condition->render_button($settings, $subbokingid, 0, $full);
 
-            // We render the button only from the highest relevant blocking condition.
+        $datas[] = new bookit_button($data);
+        $templates[] = $template;
 
-            $datas[] = new prepagemodal(
-                $settings, // We pass on the optionid.
-                count($prepages), // The total number of pre booking pages.
-                $buttoncondition,  // This is the button we need to render twice.
-                $showinmodalbutton, // This marker just suppresses the in modal button.
-            );
-
-            $templates[] = 'mod_booking/prepagemodal';
-
-            return [$templates, $datas];
-        } else {
-
-            $condition = new $buttoncondition();
-            list($template, $data) = $condition->render_button($settings, 0, $full);
-
-            $datas[] = new bookit_button($data);
-            $templates[] = $template;
-
-            return [$templates, $datas];
-        }
+        return [$templates, $datas];
     }
 
     /**
@@ -194,18 +165,7 @@ class booking_bookit {
             throw new moodle_exception('norighttoaccess', 'mod_booking');
         }
 
-        if ($area === 'option') {
-
-            $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
-            $boinfo = new bo_info($settings);
-            if (!$boinfo->is_available($itemid, $userid)) {
-                return [
-                    'status' => 0,
-                    'message' => 'notallowedtobook',
-                ];
-            }
-            return self::answer_booking_option($area, $itemid, STATUSPARAM_BOOKED, $userid);
-        } else if (strpos($area, 'subbooking') === 0) {
+        if (strpos($area, 'subbooking') === 0) {
             // As a subbooking can have different slots, we use the area to provide the subbooking id.
             // The syntax is "subbooking-1" for the subbooking id 1.
             return self::answer_subbooking_option($area, $itemid, STATUSPARAM_BOOKED, $userid);
@@ -236,8 +196,7 @@ class booking_bookit {
 
         // Make sure that we only buy from instance the user has access to.
         // This is just fraud prevention and can not happen ordinarily.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $cm = get_coursemodule_from_instance('booking', $bookingoption->bookingid); */
+        // $cm = get_coursemodule_from_instance('booking', $bookingoption->bookingid);
 
         // TODO: Find out if the executing user has the right to access this instance.
         // This can lead to problems, rights should be checked further up.
@@ -339,9 +298,8 @@ class booking_bookit {
         // We reserve this subbooking option for a few minutes, during checkout.
         subbookings_info::save_response($area, $itemid, $status, $userid);
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($subbooking->optionid);
-
-        $cartinformation = $settings->return_subbooking_option_information($itemid);
+        $cartinformation = $subbooking->return_subbooking_information($itemid);
+        $cartinformation['itemid'] = $itemid;
 
         return $cartinformation;
     }

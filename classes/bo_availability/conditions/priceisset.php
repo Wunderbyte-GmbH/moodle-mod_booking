@@ -86,10 +86,6 @@ class priceisset implements bo_condition {
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
-        // Get the booking answers for this instance.
-        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
-        $user = singleton_service::get_instance_of_user($userid);
-
         $priceitems = price::get_prices_from_cache_or_db('option', $settings->id);
 
         // If the user is not yet booked we return true.
@@ -161,7 +157,13 @@ class priceisset implements bo_condition {
      * @return array
      */
     public function render_page(int $optionid) {
-        return [];
+        $response = [
+            'json' => '',
+            'template' => '',
+            'buttontype' => 1, // This means that the continue button is disabled.
+        ];
+
+        return $response;
     }
 
     /**

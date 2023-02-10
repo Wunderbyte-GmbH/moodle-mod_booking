@@ -19,6 +19,8 @@ namespace mod_booking;
 use context_module;
 use context_system;
 use local_entities\entitiesrelation_handler;
+use mod_booking\bo_availability\bo_subinfo;
+use mod_booking\bo_availability\conditions\subbooking;
 use mod_booking\customfield\booking_handler;
 use mod_booking\subbookings\subbookings_info;
 use moodle_exception;
@@ -1017,6 +1019,44 @@ class booking_option_settings {
             'area' => 'option',
             'description' => $this->description,
             'imageurl' => $this->imageurl ?? '',
+            'canceluntil' => $canceluntil ?? 0,
+            'coursestarttime' => $this->coursestarttime ?? 0,
+            'courseendtime' => $this->courseendtime ?? 0,
+        ];
+
+        return $returnarray;
+    }
+
+    /**
+     * Especially to create a shopping cart and such...
+     * ... we want one central function where we always get all the necessary keys.
+     *
+     * @param integer $subbookingid
+     * @param object $user
+     * @return array
+     */
+    public function return_subbooking_option_information(int $subbookingid, object $user = null):array {
+
+        global $USER;
+
+        if (empty($user)) {
+            $user = $USER;
+        }
+
+        $subbooking = subbookings_info::get_subbooking_by_area_and_id('subbooking', $subbookingid);
+
+        $price = price::get_price('subboking', $subbookingid, $user);
+        $canceluntil = booking_option::return_cancel_until_date($this->id);
+
+        $returnarray = [
+            'itemid' => $subbookingid,
+            'name' => $subbooking->name,
+            'price' => $price['price'] ?? "0.00",
+            'currency' => $price['currency'] ?? 'EUR',
+            'userid' => $user->id,
+            'component' => 'mod_booking',
+            'area' => 'subbooking',
+            'description' => $subbooking->description,
             'canceluntil' => $canceluntil ?? 0,
             'coursestarttime' => $this->coursestarttime ?? 0,
             'courseendtime' => $this->courseendtime ?? 0,

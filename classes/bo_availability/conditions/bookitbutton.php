@@ -138,6 +138,8 @@ class bookitbutton implements bo_condition {
      */
     public function render_page(int $optionid) {
 
+        global $USER;
+
         $data = new bookingoption_description($optionid, null, DESCRIPTION_WEBSITE, true, false);
 
         $template = 'mod_booking/bookingoption_description_mail';
@@ -160,10 +162,19 @@ class bookitbutton implements bo_condition {
 
         $templates[] = $template;
 
+        // Only if the option is not yet booked, we set buttontype to 1 (continue is disabled);
+        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+
+        if ($bookinganswer->user_status($USER->id) == STATUSPARAM_NOTBOOKED) {
+            $buttontype = 1;
+        } else {
+            $buttontype = 0;
+        }
+
         $response = [
             'json' => json_encode($dataarray),
             'template' => implode(',', $templates),
-            'buttontype' => 0, // This means that the continue button is disabled.
+            'buttontype' => $buttontype, // This means that the continue button is disabled.
         ];
 
         return $response;

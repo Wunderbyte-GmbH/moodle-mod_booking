@@ -24,14 +24,10 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_booking\bo_availability\conditions;
+ namespace mod_booking\bo_availability\subconditions;
 
-use html_writer;
-use mod_booking\bo_availability\bo_condition;
-use mod_booking\booking_option;
+use mod_booking\bo_availability\bo_subcondition;
 use mod_booking\booking_option_settings;
-use mod_booking\output\bookingoption_description;
-use mod_booking\singleton_service;
 use MoodleQuickForm;
 
 defined('MOODLE_INTERNAL') || die();
@@ -39,19 +35,20 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Base class for a single bo availability condition.
+ * This is the base booking condition. It is actually used to show the bookit button.
+ * It will always return false, because its the last check in the chain of booking conditions.
+ * We use this to have a clean logic of how depticting the book it button.
  *
  * All bo condition types must extend this class.
- *
  *
  * @package mod_booking
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class bookingpolicy implements bo_condition {
+class bookitbutton implements bo_subcondition {
 
     /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = BO_COND_BOOKINGPOLICY;
+    public $id = BO_COND_BOOKITBUTTON;
 
     /**
      * Needed to see if class can take JSON.
@@ -73,25 +70,16 @@ class bookingpolicy implements bo_condition {
      * Determines whether a particular item is currently available
      * according to this availability condition.
      * @param booking_option_settings $settings Item we're checking
+     * @param int $subbookingid
      * @param int $userid User ID to check availability for
      * @param bool $not Set true if we are inverting the condition
      * @return bool True if available
      */
-    public function is_available(booking_option_settings $settings, $userid, $not = false):bool {
+    public function is_available(booking_option_settings $settings, $subbookingid, $userid, $not = false):bool {
 
-        // This is the return value. Not available to begin with.
+        // In this case, the book it button is always shown.
+        // This always "blocks" the booking, so we always return false.
         $isavailable = false;
-
-        $bosettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
-
-        if (empty($bosettings->bookingpolicy)) {
-            $isavailable = true;
-        }
-
-        // If it's inversed, we inverse.
-        if ($not) {
-            $isavailable = !$isavailable;
-        }
 
         return $isavailable;
     }
@@ -108,12 +96,13 @@ class bookingpolicy implements bo_condition {
      *
      * @param bool $full Set true if this is the 'full information' view
      * @param booking_option_settings $settings Item we're checking
+     * @param int $subbookingid
      * @param int $userid User ID to check availability for
      * @param bool $not Set true if we are inverting the condition
      * @return array availability and Information string (for admin) about all restrictions on
      *   this item
      */
-    public function get_description(booking_option_settings $settings, $userid = null, $full = false, $not = false):array {
+    public function get_description(booking_option_settings $settings, $subbokingid, $userid = null, $full = false, $not = false):array {
 
         $description = '';
 
@@ -121,7 +110,7 @@ class bookingpolicy implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full);
 
-        return [$isavailable, $description, BO_PREPAGE_PREBOOK, BO_BUTTON_INDIFFERENT];
+        return [$isavailable, $description, BO_PREPAGE_BOOK, BO_BUTTON_MYBUTTON];
     }
 
     /**
@@ -129,50 +118,11 @@ class bookingpolicy implements bo_condition {
      *
      * @param MoodleQuickForm $mform
      * @param int $optionid
+     * @param int $subbokingid
      * @return void
      */
-    public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
+    public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid, $subbookingid) {
         // Do nothing.
-    }
-
-    /**
-     * The page refers to an additional page which a booking option can inject before the booking process.
-     * Not all bo_conditions need to take advantage of this. But eg a condition which requires...
-     * ... the acceptance of a booking policy would render the policy with this function.
-     *
-     * @param integer $optionid
-     * @return array
-     */
-    public function render_page(int $optionid) {
-        global $PAGE;
-
-        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        $bosettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
-        $dataarray = [];
-
-        $data = new bookingoption_description($settings->id, null, DESCRIPTION_WEBSITE, true, false);
-        $output = $PAGE->get_renderer('mod_booking');
-        $text = $output->render_bookingoption_description($data);
-        $text .= html_writer::tag('p', format_text($bosettings->bookingpolicy, $bosettings->bookingpolicyformat));
-        $text .= html_writer::tag('p', get_string('agreetobookingpolicy', 'mod_booking'));
-        $dataarray[] = [
-            'data' => [
-                'optionid' => $optionid,
-                'headline' => get_string('confirmbookingoffollowing', 'mod_booking'),
-                'text' => $text,
-                'checkbox' => "true",
-            ]
-        ];
-
-        $jsonstring = json_encode($dataarray);
-
-        $returnarray = [
-            'json' => $jsonstring,
-            'template' => 'mod_booking/booking_page',
-            'buttontype' => 1, // This means that the continue button is disabled.
-        ];
-
-        return $returnarray;
     }
 
     /**
@@ -182,12 +132,13 @@ class bookingpolicy implements bo_condition {
      * ['mod_booking/bookit_button', $data];
      *
      * @param booking_option_settings $settings
+     * @param int $subbokingid
      * @param int $userid
      * @param boolean $full
      * @param boolean $not
      * @return array
      */
-    public function render_button(booking_option_settings $settings, $userid = 0, $full = false, $not = false):array {
+    public function render_button(booking_option_settings $settings, int $subbokingid, $userid = 0, $full = false, $not = false):array {
 
         global $USER;
 
@@ -199,14 +150,13 @@ class bookingpolicy implements bo_condition {
         return [
             'mod_booking/bookit_button',
             [
-                'itemid' => $settings->id,
-                'area' => 'option',
+                'itemid' => $subbokingid,
+                'area' => 'subbooking',
                 'userid' => $userid ?? 0,
-                'nojs' => true,
                 'main' => [
                     'label' => $label,
-                    'class' => 'alert alert-success',
-                    'role' => 'alert',
+                    'class' => 'btn btn-secondary',
+                    'role' => 'button',
                 ]
             ]
         ];
@@ -220,13 +170,11 @@ class bookingpolicy implements bo_condition {
      * @return void
      */
     private function get_description_string($isavailable, $full) {
-        if ($isavailable) {
-            $description = $full ? get_string('bo_cond_alreadybooked_full_available', 'mod_booking') :
-                get_string('bo_cond_alreadybooked_available', 'mod_booking');
-        } else {
-            $description = $full ? get_string('bo_cond_alreadybooked_full_not_available', 'mod_booking') :
-                get_string('bo_cond_alreadybooked_not_available', 'mod_booking');
-        }
+
+        // In this case, we dont differentiate between availability, because when it blocks...
+        // ... it just means that it can be booked. Blocking has a different functionality here.
+        $description = get_string('booknow', 'mod_booking');
+
         return $description;
     }
 }

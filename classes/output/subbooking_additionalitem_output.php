@@ -26,6 +26,7 @@
 namespace mod_booking\output;
 
 use mod_booking\booking_option_settings;
+use mod_booking\booking_subbookit;
 use mod_booking\price;
 use renderer_base;
 use renderable;
@@ -62,18 +63,12 @@ class subbooking_additionalitem_output implements renderable, templatable {
                 continue;
             }
 
-            $price = price::get_price('subbooking', $subbooking->id);
+            $html = booking_subbookit::render_bookit_button($settings, $subbooking->id);
 
-            $data['items'][] = [
-                'itemid' => $subbooking->id,
-                'userid' => 0,
-                'componentname' => 'mod_booking',
-                'area' => 'subbooking',
-                'price' => $price['price'],
-                'currency' => $price['currency'],
-                'name' => $subbooking->name,
-                'description' => $subbooking->description,
-            ];
+            $subbookingdata = $settings->return_subbooking_option_information($subbooking->id);
+
+            $subbookingdata['button'] = $html;
+            $data['items'][] = $subbookingdata;
 
         }
 

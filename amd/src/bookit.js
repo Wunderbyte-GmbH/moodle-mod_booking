@@ -43,6 +43,23 @@ var SELECTORS = {
  */
 export const initbookitbutton = (itemid, area) => {
 
+    // eslint-disable-next-line no-console
+    console.log('initbookitbutton', itemid, area);
+
+    const initselector = SELECTORS.BOOKITBUTTON +
+    '[data-itemid]' +
+    '[data-area]';
+
+    if (!itemid || !area) {
+        const initbuttons = document.querySelectorAll(initselector);
+        initbuttons.forEach(button => {
+            const inititemid = button.dataset.itemid;
+            const initarea = button.dataset.area;
+            initbookitbutton(inititemid, initarea);
+        });
+        return;
+    }
+
     const selector = SELECTORS.BOOKITBUTTON +
     '[data-itemid="' + itemid + '"]' +
     '[data-area="' + area + '"]';
@@ -89,9 +106,6 @@ export const initbookitbutton = (itemid, area) => {
  * @param {integer} totalnumberofpages
  */
 export const initprepagemodal = (optionid, totalnumberofpages) => {
-
-    // eslint-disable-next-line no-console
-    console.log('initprepagemodal', optionid);
 
     currentbookitpage[optionid] = 0;
     totalbookitpages[optionid] = totalnumberofpages;
@@ -294,7 +308,7 @@ function showRightButton(optionid, buttontype) {
             element.classList.remove('hidden');
 
             if (buttontype == 1) {
-                element.classList.add('disabled');
+                // element.classList.add('disabled');
             }
         }
 
@@ -448,6 +462,8 @@ function bookit(itemid, area, userid) {
                 '[data-itemid=\'' + itemid + '\']' +
                 '[data-area=\'' + area + '\']');
 
+            const promises = [];
+
             // We run through every button. and render the data.
             buttons.forEach(button => {
 
@@ -478,28 +494,46 @@ function bookit(itemid, area, userid) {
                         // eslint-disable-next-line no-console
                         console.log(datatorender);
 
-                        Templates.renderForPromise(template, datatorender).then(({html, js}) => {
+                        const promise = Templates.renderForPromise(template, datatorender).then(({html, js}) => {
 
-                        Templates.appendNodeContents(button, html, js);
+                            Templates.appendNodeContents(button, html, js);
 
-                        return true;
+                            return true;
                         }).catch(ex => {
                             Notification.addNotification({
                                 message: 'failed rendering ' + ex,
                                 type: "danger"
                             });
                         });
+
+                        promises.push(promise);
                     }
                 });
             });
-            /* const backdrop = document.querySelector(SELECTORS.STATICBACKDROP);
-            const modal = document.querySelector(SELECTORS.MODALID + itemid);
-            if (modal) {
-                modal.classList.remove('show');
-            }
-            if (backdrop) {
-                backdrop.remove();
-            } */
+
+            Promise.all(promises).then(() => {
+                // eslint-disable-next-line no-console
+                console.log(currentbookitpage[itemid], totalbookitpages[itemid]);
+
+                // We close the modal only if we are on the last page of the booking pages.
+                if (currentbookitpage[itemid] == totalbookitpages[itemid] - 1) {
+
+                    const backdrop = document.querySelector(SELECTORS.STATICBACKDROP);
+                    const modal = document.querySelector(SELECTORS.MODALID + itemid);
+                    if (modal) {
+                        modal.classList.remove('show');
+                    }
+                    if (backdrop) {
+                        backdrop.remove();
+                    }
+                } else {
+                    toggleContinueButton(itemid, true);
+                }
+                return true;
+            }).catch(e => {
+                // eslint-disable-next-line no-console
+                console.log(e);
+            });
         }
     }]);
 }

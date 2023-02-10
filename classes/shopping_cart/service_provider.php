@@ -74,19 +74,19 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 $item['courseendtime']);
 
             return ['cartitem' => $cartitem];
-        } else if (str_starts_with($area, 'subbooking')) {
+        } else if (strpos($area, 'subbooking') === 0) {
             // As a subbooking can have different slots, we use the area to provide the subbooking id.
             // The syntax is "subbooking-1" for the subbooking id 1.
             $item = booking_bookit::answer_subbooking_option($area, $itemid, $userid);
 
             $cartitem = new cartitem($item['itemid'],
-                $item['title'],
+                $item['name'],
                 $item['price'],
                 $item['currency'],
                 'mod_booking',
                 $area,
                 $item['description'],
-                $item['imageurl'],
+                $item['imageurl'] ?? '',
                 $item['canceluntil'],
                 $item['coursestarttime'],
                 $item['courseendtime']);
@@ -116,7 +116,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             booking_bookit::answer_booking_option($area, $itemid, STATUSPARAM_NOTBOOKED, $userid);
 
             return true;
-        } else if (str_starts_with($area, 'subbooking')) {
+        } else if (strpos($area, 'subbooking') === 0) {
             // As a subbooking can have different slots, we use the area to provide the subbooking id.
             // The syntax is "subbooking-1" for the subbooking id 1.
             return self::unload_subbooking($area, $itemid, $userid);
@@ -149,7 +149,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             $bookingoption->user_confirm_response($user);
             return true;
 
-        } else if (str_starts_with($area, 'subbooking')) {
+        } else if (strpos($area, 'subbooking') === 0) {
             // As a subbooking can have different slots, we use the area to provide the subbooking id.
             // The syntax is "subbooking-1" for the subbooking id 1.
 
@@ -179,7 +179,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             booking_bookit::answer_booking_option($area, $itemid, STATUSPARAM_DELETED, $userid);
             return true;
 
-        } else if (str_starts_with($area, 'subbooking')) {
+        } else if (strpos($area, 'subbooking') === 0) {
             // As a subbooking can have different slots, we use the area to provide the subbooking id.
             // The syntax is "subbooking-1" for the subbooking id 1.
 

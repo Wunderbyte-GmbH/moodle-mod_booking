@@ -388,7 +388,7 @@ class subbookings_info {
                     $itemid,
                     $userid,
                     STATUSPARAM_RESERVED,
-                    [STATUSPARAM_WAITINGLIST]);
+                    [STATUSPARAM_WAITINGLIST, STATUSPARAM_RESERVED]);
                 break;
             case STATUSPARAM_NOTBOOKED: // We only want to delete the shortterm reservation.
                 // Check if there was a reserved or waiting list entry before.

@@ -52,7 +52,7 @@
                     {{{description}}}
                 </span>
                 <span>
-                    {{> local_shopping_cart/addtocartdb }}
+                    {{{button}}}
                 </span>
                 </div>
             </p>
@@ -60,6 +60,15 @@
     {{/items}}
 </ul>
 {{^items}}
-    <p>no items</p>
+    <p>{{#str}} noitems, mod_booking {{/str}}</p>
 {{/items}}
 </div>
+
+{{#js}}
+    require(['mod_booking/bookit'], function(init) {
+    init.initbookitbutton();
+    });
+    require(['local_shopping_cart/cart'], function(cart) {
+        cart.buttoninit();
+    });
+{{/js}}

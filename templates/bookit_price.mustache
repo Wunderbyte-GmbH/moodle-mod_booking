@@ -36,15 +36,17 @@
     }
 }}
 {{#price}}
-<span class="pricecurrency h5">
-    {{price}} {{currency}}
-</span>
-{{#shoppingcartisavailable}}
-<div>{{> local_shopping_cart/addtocartdb }}</div>
-{{/shoppingcartisavailable}}
-{{#priceitems}}
-    <p><i>{{pricecategoryname}}</i></p>
-{{/priceitems}}
+    <span class="pricecurrency h5">
+        {{price}} {{currency}}
+    </span>
+    {{#shoppingcartisavailable}}
+        <div>
+            {{> local_shopping_cart/addtocartdb }}
+        </div>
+    {{/shoppingcartisavailable}}
+    {{#priceitems}}
+        <p><i>{{pricecategoryname}}</i></p>
+    {{/priceitems}}
 {{/price}}
 {{^price}}
     {{#priceitems}}
@@ -52,5 +54,5 @@
     {{/priceitems}}
 {{/price}}
 {{^price}}
-    no price is set
+    {{#str}} nopriceisset, mod_booking {{/str}}
 {{/price}}

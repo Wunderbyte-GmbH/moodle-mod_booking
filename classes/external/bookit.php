@@ -89,7 +89,7 @@ class bookit extends external_api {
 
         if ($area == 'option') {
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
-        } else if (str_starts_with($area, 'subbooking')) {
+        } else if (strpos($area, 'subbooking') === 0) {
             $subbooking = subbookings_info::get_subbooking_by_area_and_id($area, $itemid);
             $settings = singleton_service::get_instance_of_booking_option_settings($subbooking->optionid);
         } else {
