@@ -1556,14 +1556,20 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                                 navigation_node::TYPE_CUSTOM, null, 'nav_bookuserswithoutcompletedactivity');
             }
         }
-        $modinfo = get_fast_modinfo($course);
+
+        // TODO: Move booking options to another option currently does not work correcly.
+        // We temporarily remove it from booking until we are sure, it works.
+        // We need to make sure it works for: teachers, optiondates, prices, answers customfields etc.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $modinfo = get_fast_modinfo($course);
         $bookinginstances = isset($modinfo->instances['booking']) ? count($modinfo->instances['booking']) : 0;
         if (has_capability('mod/booking:updatebooking', $contextcourse) && $bookinginstances > 1) {
             $navref->add(get_string('moveoptionto', 'booking'),
                 new moodle_url('/mod/booking/moveoption.php',
                     array('id' => $cm->id, 'optionid' => $optionid, 'sesskey' => sesskey())),
                     navigation_node::TYPE_CUSTOM, null, 'nav_moveoptionto');
-        }
+        } */
+
         if (has_capability ( 'mod/booking:readresponses', $context ) || booking_check_if_teacher ($option )) {
             $completion = new \completion_info($course);
             if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC && $booking->enablecompletion > 0) {

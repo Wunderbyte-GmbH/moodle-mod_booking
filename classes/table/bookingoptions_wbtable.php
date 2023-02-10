@@ -603,7 +603,11 @@ class bookingoptions_wbtable extends wunderbyte_table {
                             get_string('duplicatebooking', 'mod_booking')) .
                         get_string('duplicatebooking', 'mod_booking')) . '</div>';
             }
-            $modinfo = get_fast_modinfo($this->booking->course);
+            // TODO: Move booking options to another option currently does not work correcly.
+            // We temporarily remove it from booking until we are sure, it works.
+            // We need to make sure it works for: teachers, optiondates, prices, answers customfields etc.
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* $modinfo = get_fast_modinfo($this->booking->course);
             $bookinginstances = isset($modinfo->instances['booking']) ? count($modinfo->instances['booking']) : 0;
             if (has_capability('mod/booking:updatebooking', context_course::instance($this->booking->course->id)) &&
                 $bookinginstances > 1) {
@@ -612,7 +616,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                             array('id' => $this->cmid, 'optionid' => $values->id, 'sesskey' => sesskey())),
                         $OUTPUT->pix_icon('t/move', get_string('moveoptionto', 'booking')) .
                         get_string('moveoptionto', 'booking')) . '</div>';
-            }
+            } */
         }
         if (!empty($ddoptions)) {
             $ret .= '<div class="dropdown d-inline">
