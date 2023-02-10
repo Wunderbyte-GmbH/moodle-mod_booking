@@ -323,7 +323,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $courseurl = $moodleurl->out(false);
             $gotocoursematerial = get_string('gotocoursematerial', 'local_musi');
             $ret = "<a href='$courseurl' target='_self' class='btn btn-primary mt-2 mb-2 w-100'>
-                <i class='fa fa-graduation-cap' aria-hidden='true'></i>&nbsp;&nbsp;$gotocoursematerial
+                <i class='fa fa-graduation-cap fa-fw' aria-hidden='true'></i>&nbsp;&nbsp;$gotocoursematerial
             </a>";
         }
 
@@ -634,128 +634,5 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $ret .= '</div>';
 
         return $ret;
-    }
-
-    /**
-     * This function is called for each data row to allow processing of the
-     * action button.
-     *
-     * @param object $values Contains object with all the values of record.
-     * @return string $action Returns formatted action button.
-     * @throws moodle_exception
-     * @throws coding_exception
-     */
-    public function col_actionnew($values) {
-        global $PAGE;
-        $output = $PAGE->get_renderer('mod_booking');
-
-        if (empty($this->booking)) {
-            $this->booking = singleton_service::get_instance_of_booking_by_optionid($values->id, $values);
-        }
-        if (empty($this->cmid)) {
-            $this->cmid = $this->booking->cmid;
-        }
-        if (empty($this->context)) {
-            $this->context = context_module::instance($this->cmid);
-        }
-
-        $data = new stdClass();
-
-        $data->id = $values->id;
-        $data->componentname = 'mod_booking';
-        $data->cmid = $this->cmid;
-
-        // We will have a number of modals on this site, therefore we have to distinguish them.
-        // This is in case we render modal.
-        $data->modalcounter = $values->id;
-        $data->modaltitle = $values->text;
-        $data->userid = $this->buyforuser->id;
-
-        // Get the URL to edit the option.
-        if (!empty($values->id)) {
-            $bosettings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
-            if (!empty($bosettings)) {
-
-                if (!$this->context) {
-                    $this->context = context_module::instance($bosettings->cmid);
-                }
-
-                // If the user has no capability to editoptions, the URLs will not be added.
-                if ((has_capability('mod/booking:updatebooking', $this->context) ||
-                        has_capability('mod/booking:addeditownoption', $this->context))) {
-                    if (isset($bosettings->editoptionurl)) {
-                        // Get the URL to edit the option.
-
-                        $data->editoptionurl = $this->add_return_url($bosettings->editoptionurl);
-                    }
-                    if (isset($bosettings->manageresponsesurl)) {
-                        // Get the URL to manage responses (answers) for the option.
-                        $data->manageresponsesurl = $bosettings->manageresponsesurl;
-                    }
-                    if (isset($bosettings->optiondatesteachersurl)) {
-                        // Get the URL for the optiondates-teachers-report.
-                        $data->optiondatesteachersurl = $bosettings->optiondatesteachersurl;
-                    }
-                }
-            }
-        }
-
-        // If booking option is already cancelled, we want to show the "undo cancel" button instead.
-        if ($values->status == 1) {
-            $data->showundocancel = true;
-            $data->undocancellink = html_writer::link('#',
-            '<i class="fa fa-undo" aria-hidden="true"></i> ' .
-                get_string('undocancelthisbookingoption', 'mod_booking'),
-                [
-                    'class' => 'dropdown-item undocancelallusers',
-                    'data-id' => $values->id,
-                    'data-componentname' => 'mod_booking',
-                    'data-area' => 'option',
-                    'onclick' =>
-                        "require(['mod_booking/confirm_cancel'], function(init) {
-                            init.init('" . $values->id . "', '" . $values->status . "');
-                        });"
-                ]);
-        } else {
-            // Else we show the default cancel button.
-            // We do NOT set $data->undocancel here.
-            $data->showcancel = true;
-            $data->cancellink = html_writer::link('#',
-            '<i class="fa fa-ban" aria-hidden="true"></i> ' .
-                get_string('cancelallusers', 'mod_booking'),
-                [
-                    'class' => 'dropdown-item cancelallusers',
-                    'data-id' => $values->id,
-                    'data-componentname' => 'mod_booking',
-                    'data-area' => 'option',
-                    'onclick' =>
-                        "require(['local_shopping_cart/menu'], function(menu) {
-                            menu.confirmCancelAllUsersAndSetCreditModal('" . $values->id . "', 'mod_booking', 'option');
-                        });"
-                ]);
-        }
-
-        return $output->render_col_text_link($data);
-    }
-
-    private function add_return_url(string $urlstring):string {
-
-        $returnurl = $this->baseurl->out();
-
-        $urlcomponents = parse_url($urlstring);
-
-        parse_str($urlcomponents['query'], $params);
-
-        $url = new moodle_url(
-            $urlcomponents['path'],
-            array_merge(
-                $params, [
-                'returnto' => 'url',
-                'returnurl' => $returnurl
-                ]
-            )
-        );
-
-        return $url->out(false);
     }
 }

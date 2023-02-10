@@ -131,9 +131,10 @@ class message_controller {
         // When we call this via webservice, we don't have a context, this throws an error.
         // It's no use passing the context object either.
 
-        if (!isset($PAGE->context)) {
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* if (!isset($PAGE->context)) {
             $PAGE->set_context(context_module::instance($cmid));
-        }
+        } */
 
         if (!$bookingid) {
             $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);

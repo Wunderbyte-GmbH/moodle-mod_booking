@@ -357,3 +357,13 @@ if there only was one booking option. */
 .wb_shopping_cart[data-bookable="false"] {
     background: var(--warning);
 }
+
+#page-mod-booking-mod .dropdown-menu, 
+#page-mod-booking-view .dropdown-menu,
+#page-mod-booking-instancetemplateadd .dropdown-menu,
+#page-mod-booking-importoptions .dropdown-menu,
+#page-mod-booking-tagtemplates .dropdown-menu,
+#page-mod-booking-importexcel .dropdown-menu,
+#page-mod-booking-editoptions .dropdown-menu {
+    width: max-content;
+}

@@ -1733,7 +1733,7 @@ class booking_option {
         $failed = [];
         foreach ($users as $user) {
             $this->user_delete_response($user->userid);
-            if (!$newoption->user_submit_response($user)) {
+            if (!$newoption->user_submit_response($user, 0, 0, false, VERIFIED)) {
                 $failed[$user->userid] = $user->firstname . ' ' . $user->lastname . ' (' . $user->email . ')';
             }
         }
@@ -2687,7 +2687,7 @@ class booking_option {
             if ($collapsible) {
                 // Show collapsible progressbar.
                 $html .=
-                    "<p class='mb-0'>
+                    "<p class='mb-0 mt-1'>
                         $icon <a data-toggle='collapse' href='#progressbarContainer$optionid' role='button'
                         aria-expanded='false' aria-controls='progressbarContainer$optionid'>$alreadypassed: $consumedpercentage%</a>
                     </p>
@@ -2697,7 +2697,7 @@ class booking_option {
             } else {
                 // Show progressbar with a label.
                 $html .=
-                    "<div class='progressbar-label mb-0'>
+                    "<div class='progressbar-label mb-0 mt-1'>
                         $icon $alreadypassed:
                     </div>
                     $progressbar";

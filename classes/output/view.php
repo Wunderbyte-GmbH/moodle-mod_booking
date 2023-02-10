@@ -352,7 +352,7 @@ class view implements renderable, templatable {
         $wbtable->add_subcolumns('leftside', ['invisibleoption', 'text', 'action', 'teacher']);
         $wbtable->add_subcolumns('footer', ['bookings', 'dayofweektime', 'location', 'institution',
             'showdates', 'comments']);
-        $wbtable->add_subcolumns('rightside', ['actionnew', 'booknow', 'progressbar']);
+        $wbtable->add_subcolumns('rightside', ['booknow', 'progressbar']);
 
         $wbtable->add_classes_to_subcolumns('leftside', ['columnkeyclass' => 'd-none']);
         $wbtable->add_classes_to_subcolumns(
@@ -366,23 +366,22 @@ class view implements renderable, templatable {
         $wbtable->add_classes_to_subcolumns('footer', ['columnkeyclass' => 'd-none']);
         $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left text-gray pr-2 font-size-sm'],
             ['dayofweektime']);
-        $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-clock-o text-gray
+        $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-clock-o fa-fw text-gray
             font-size-sm'], ['dayofweektime']);
         $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left pr-2 text-gray font-size-sm'],
             ['showdates']);
         $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left text-gray  pr-2 font-size-sm'],
             ['location']);
-        $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-map-marker text-gray
+        $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-map-marker fa-fw text-gray
             font-size-sm'], ['location']);
         $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left text-gray  pr-2 font-size-sm'],
             ['institution']);
-        $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-building-o text-gray
+        $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-building-o fa-fw text-gray
             font-size-sm'], ['institution']);
         $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left text-gray pr-2 font-size-sm'],
             ['bookings']);
-        $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-ticket text-gray
+        $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-ticket fa-fw text-gray
             font-size-sm'], ['bookings']);
-        $wbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-right'], ['actionnew']);
         $wbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-right'], ['booknow']);
         $wbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-left mt-1 text-gray font-size-sm'],
             ['progressbar']);
