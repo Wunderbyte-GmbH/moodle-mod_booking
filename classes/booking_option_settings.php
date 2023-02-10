@@ -1012,8 +1012,8 @@ class booking_option_settings {
         $returnarray = [
             'itemid' => $this->id,
             'title' => $this->text,
-            'price' => $price['price'],
-            'currency' => $price['currency'],
+            'price' => $price['price'] ?? null,
+            'currency' => $price['currency'] ?? null,
             'userid' => $user->id,
             'component' => 'mod_booking',
             'area' => 'option',

@@ -529,22 +529,72 @@ class bookingoptions_wbtable extends wunderbyte_table {
                         $OUTPUT->pix_icon('t/delete', get_string('deletethisbookingoption', 'mod_booking')) .
                         get_string('deletethisbookingoption', 'mod_booking')) . '</div>';
 
-                if ($values->status == 1) {
-                    $ddoptions[] = '<div class="dropdown-item">' . html_writer::link('#',
-                        $OUTPUT->pix_icon('i/reload', '') .
-                        get_string('undocancelthisbookingoption', 'mod_booking'), ['onclick' =>
-                            "require(['mod_booking/confirm_cancel'], function(init) {
-                            init.init('" . $values->id . "', '" . $values->status . "');
-                            });"
+                // Cancel booking options.
+                // Find out if the booking option has a price or not.
+                $optioninfo = $optionsettings->return_booking_option_information();
+                $optionhasprice = empty($optioninfo['price']) ? false : true;
+
+                if ($optionhasprice && class_exists('local_shopping_cart\shopping_cart')) {
+                    // The option costs something and shopping cart is installed:
+                    // We have to cancel the shopping-cart way!
+                    if ($values->status == 1) {
+                        // If booking option is already cancelled, we want to show the "undo cancel" button.
+                        $ddoptions[] = '<div class="dropdown-item">' . html_writer::link('#',
+                            $OUTPUT->pix_icon('i/reload', '') .
+                            get_string('undocancelthisbookingoption', 'mod_booking'),
+                            [
+                                'class' => 'undocancelallusers',
+                                'data-id' => $values->id,
+                                'data-componentname' => 'mod_booking',
+                                'data-area' => 'option',
+                                'onclick' =>
+                                    "require(['mod_booking/confirm_cancel'], function(init) {
+                                        init.init('" . $values->id . "', '" . $values->status . "');
+                                    });"
                             ]) . "</div>";
+
+                    } else {
+                        // Else we show the cancel button.
+                        $ddoptions[] = '<div class="dropdown-item">' . html_writer::link('#',
+                            $OUTPUT->pix_icon('t/block', '') .
+                            get_string('cancelallusers', 'mod_booking'),
+                            [
+                                'class' => 'cancelallusers',
+                                'data-id' => $values->id,
+                                'data-componentname' => 'mod_booking',
+                                'data-area' => 'option',
+                                'onclick' =>
+                                    "require(['local_shopping_cart/menu'], function(menu) {
+                                        menu.confirmCancelAllUsersAndSetCreditModal('" . $values->id . "', 'mod_booking', 'option');
+                                    });"
+                            ]) . "</div>";
+                    }
+
                 } else {
-                    $ddoptions[] = '<div class="dropdown-item">' . html_writer::link('#',
-                        $OUTPUT->pix_icon('t/block', '') .
-                        get_string('cancelthisbookingoption', 'mod_booking'), ['onclick' =>
-                            "require(['mod_booking/confirm_cancel'], function(init) {
-                            init.init('" . $values->id . "', '" . $values->status . "');
-                            });"
+                    // The option has no price or shopping cart is not installed, so we cancel the default booking way.
+                    if ($values->status == 1) {
+                        // If booking option is already cancelled, we want to show the "undo cancel" button.
+                        $ddoptions[] = '<div class="dropdown-item">' . html_writer::link('#',
+                            $OUTPUT->pix_icon('i/reload', '') .
+                            get_string('undocancelthisbookingoption', 'mod_booking'),
+                            [
+                                'onclick' =>
+                                    "require(['mod_booking/confirm_cancel'], function(init) {
+                                        init.init('" . $values->id . "', '" . $values->status . "');
+                                    });"
                             ]) . "</div>";
+                    } else {
+                        // Else we show the cancel button.
+                        $ddoptions[] = '<div class="dropdown-item">' . html_writer::link('#',
+                            $OUTPUT->pix_icon('t/block', '') .
+                            get_string('cancelthisbookingoption', 'mod_booking'),
+                            [
+                                'onclick' =>
+                                    "require(['mod_booking/confirm_cancel'], function(init) {
+                                        init.init('" . $values->id . "', '" . $values->status . "');
+                                    });"
+                            ]) . "</div>";
+                    }
                 }
 
                 $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(new moodle_url('/mod/booking/editoptions.php',
