@@ -31,11 +31,8 @@ Feature: In a booking delete
     When I am on "Course 1" course homepage
     Then I follow "My booking"
     And I follow "My booking"
-    ## And I click on "Settings" "icon"
-    ## And I follow "Book other users"
-    ## And I click on "Settings" "icon" in the ".show.active .card.row .action .dropdown [data-id=\"140000\"]" "css_element"
-    And I click on "Settings" "icon" in the ".show.active .card.row .action .dropdown" "css_element"
-    And I click on "Book other users" "link" in the ".show.active .card.row .action .dropdown" "css_element"
+    And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
+    And I click on "Book other users" "link" in the "#allbookingoptionstable_r1" "css_element"
     And I click on "Student 1 (student1@example.com)" "text"
     And I click on "Student 2 (student2@example.com)" "text"
     And I click on "Add" "button"

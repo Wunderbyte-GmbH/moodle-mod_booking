@@ -48,26 +48,24 @@ Feature: In a booking instance create booking options
       | Booking option name | Test option - Webinar |
     And I set the field "startendtimeknown" to "checked"
     And I set the field "addtocalendar" to "1"
-    And I wait "2" seconds
+    And I wait "1" seconds
     And I set the following fields to these values:
-      | coursestarttime[day]    | 1                 |
-      | coursestarttime[month]  | January           |
-      | coursestarttime[year]   | ##yesterday##%Y## |
+      | coursestarttime[day]    | ## yesterday ## %d ## |
+      | coursestarttime[month]  | ## yesterday ## %B ## |
+      | coursestarttime[year]   | ## yesterday ## %Y ## |
       | coursestarttime[hour]   | 00                |
       | coursestarttime[minute] | 00                |
     And I set the following fields to these values:
-      | courseendtime[day]    | 1                    |
-      | courseendtime[month]  | January              |
+      | courseendtime[day]    | ## + 1 year ## %d ## |
+      | courseendtime[month]  | ## + 1 year ## %B ## |
       | courseendtime[year]   | ## + 1 year ## %Y ## |
       | courseendtime[hour]   | 00                   |
       | courseendtime[minute] | 00                   |
     And I press "Save and go back"
-    And I should see "Book now"
+    And I should see "Book now" in the "#allbookingoptionstable_r1" "css_element"
     And I log out
     And I am on the "Course 1" course page logged in as student1
     And I follow "My booking"
-    ## And I press "Book now"
-    ## And I click on "Book now" "text" // again same hidden element 
-    And I click on ".show.active .card.row .booknow .booking-button-mainarea.btn" "css_element"
+    And I click on "Book now" "text" in the "#allbookingoptionstable_r1" "css_element"
     And I should see "Booked"
     And I should not see "Book now"
