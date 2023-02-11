@@ -31,7 +31,6 @@ Feature: In a booking edit settings
     When I am on "Course 1" course homepage
     Then I follow "My booking"
     And I should see "New booking option"
-    ## And I follow "Actions menu"
     And I follow "Settings"
     And I set the following fields to these values:
       | pollurl | https://example.com |

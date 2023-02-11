@@ -47,10 +47,8 @@ Feature: In a booking create multi session options
     Then I should see "My booking"
     And I follow "My booking"
     And I should see "New option - duplication source"
-    ## And I click on "Settings" "icon"
-    ## And I follow "Edit this booking option"
-    And I click on "Settings" "icon" in the ".show.active .card.row .action .dropdown" "css_element"
-    And I click on "Edit this booking option" "link" in the ".show.active .card.row .action .dropdown" "css_element"
+    And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
+    And I click on "Edit this booking option" "link" in the "#allbookingoptionstable_r1" "css_element"
     And I set the following fields to these values:
       | Prefix              | MIB                   |
       | Booking option name | Topic: Statistics     |
@@ -92,25 +90,21 @@ Feature: In a booking create multi session options
       | After booked                                       | After booked message          |
     And I press "Save and go back"
     ## Create 1st copy
-    ## And I click on "Settings" "icon"
-    ## And I follow "Duplicate this booking option"
-    And I click on "Settings" "icon" in the ".show.active .card.row .action .dropdown" "css_element"
-    And I click on "Duplicate this booking option" "link" in the ".show.active .card.row .action .dropdown" "css_element"
+    And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
+    And I click on "Duplicate this booking option" "link" in the "#allbookingoptionstable_r1" "css_element"
     And I set the field "Booking option name" to "Topic: Statistics - Copy 1"
     And I press "Save and go back"
     ## Create 2nd copy
-    ## And I click on "Settings" "icon"
-    ## And I follow "Duplicate this booking option"
-    And I click on "Settings" "icon" in the ".show.active .card.row .action .dropdown" "css_element"
-    And I click on "Duplicate this booking option" "link" in the ".show.active .card.row .action .dropdown" "css_element"
+    And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
+    And I click on "Duplicate this booking option" "link" in the "#allbookingoptionstable_r1" "css_element"
     And I set the field "Booking option name" to "Topic: Statistics - Copy 2"
     And I press "Save and go back"
     ## Verify name for 1st copy
     And I should see "Topic: Statistics - Copy 1"
     And I should see "Topic: Statistics - Copy 2"
     ## Verify options for 2nd copy
-    And I click on "#mod_booking_all_options_r2_c3 .dropdown .icon" "css_element"
-    And I click on "#mod_booking_all_options_r2_c3 .fa-pencil" "css_element"
+    And I click on "Settings" "icon" in the "#allbookingoptionstable_r3" "css_element"
+    And I click on "Edit this booking option" "link" in the "#allbookingoptionstable_r3" "css_element"
     And the following fields match these values:
       | Prefix              | MIB                        |
       | Booking option name | Topic: Statistics - Copy 2 |
