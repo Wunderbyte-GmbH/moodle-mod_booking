@@ -60,7 +60,7 @@
     }
 }}
 
-<div class="wunderbyte_table_container_{{idstring}} {{#showcomponentstoggle}}wunderbyte_table_filter_on{{/showcomponentstoggle}} mt-2 px-2">
+<div class="wunderbyte_table_container_{{idstring}} {{#showcomponentstoggle}}wunderbyte_table_filter_on{{/showcomponentstoggle}} mt-2 px-2 {{uniqueid}}">
      <div class="container-fluid">
           <div class="row mb-2">
                <div>
@@ -76,14 +76,14 @@
      </div>
 
 
-     <div class="wunderbyte_table_container">
+     <div class="wunderbyte_table_container {{uniqueid}}">
           <aside class="wunderbyte_table_components {{^showcomponentstoggle}} inactive {{/showcomponentstoggle}}">
           <div>
                <span>{{> local_wunderbyte_table/component_filter }}</span>
                <span>{{> local_wunderbyte_table/component_infinitescroll }}</span>
           </div>
           </aside>
-          <div class= "wunderbyteTableClass" id='a{{idstring}}'>
+          <div class= "wunderbyteTableClass {{uniqueid}}" id='a{{idstring}}'>
                {{> mod_booking/table_list }}
           </div>
      </div>
