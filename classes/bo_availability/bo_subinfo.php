@@ -172,7 +172,7 @@ class bo_subinfo {
             $classname = get_class($condition);
 
             list($isavailable, $description, $insertpage, $button)
-                    = $condition->get_description($settings, $userid, $full);
+                    = $condition->get_description($settings, $subbookingid, $userid, $full);
             $resultsarray[$condition->id] = [
                 'id' => $condition->id,
                 'isavailable' => $isavailable,
@@ -223,14 +223,15 @@ class bo_subinfo {
      *
      * @param bool $full Set true if this is the 'full information' view
      * @param booking_option_settings $settings Item we're checking
+     * @param integer $subbookingid
      * @param int $userid User ID to check availability for
      * @param bool $not Set true if we are inverting the condition
      * @return array availability and Information string (for admin) about all restrictions on
      *   this item
      */
-    public function get_description(booking_option_settings $settings, $userid = null, $full = false):array {
+    public function get_description(booking_option_settings $settings, int $subbookingid, $userid = null, $full = false):array {
 
-        return $this->is_available($settings->id, $userid, false);
+        return $this->is_available($settings->id, $subbookingid, $userid, false);
     }
 
     /**

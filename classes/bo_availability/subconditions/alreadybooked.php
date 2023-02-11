@@ -24,10 +24,11 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
- namespace mod_booking\bo_availability\subconditions;
+namespace mod_booking\bo_availability\subconditions;
 
 use mod_booking\bo_availability\bo_subcondition;
 use mod_booking\booking_option_settings;
+use mod_booking\singleton_service;
 use MoodleQuickForm;
 
 defined('MOODLE_INTERNAL') || die();
@@ -35,20 +36,19 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * This is the base booking condition. It is actually used to show the bookit button.
- * It will always return false, because its the last check in the chain of booking conditions.
- * We use this to have a clean logic of how depticting the book it button.
+ * Base class for a single bo availability condition.
  *
  * All bo condition types must extend this class.
+ *
  *
  * @package mod_booking
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class bookitbutton implements bo_subcondition {
+class alreadybooked implements bo_subcondition {
 
     /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = BO_COND_BOOKITBUTTON;
+    public $id = BO_COND_ALREADYBOOKED;
 
     /**
      * Needed to see if class can take JSON.
@@ -77,9 +77,30 @@ class bookitbutton implements bo_subcondition {
      */
     public function is_available(booking_option_settings $settings, $subbookingid, $userid, $not = false):bool {
 
-        // In this case, the book it button is always shown.
-        // This always "blocks" the booking, so we always return false.
+        // This is the return value. Not available to begin with.
         $isavailable = false;
+
+        // Get the booking answers for this instance.
+        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+
+        $bookinginformation = $bookinganswer->return_all_booking_information($userid);
+
+        // If the user is not yet booked in the option we return true.
+        if (!isset($bookinginformation['iambooked'])) {
+
+            // Now we check the user has already the subbooking.
+            switch($bookinganswer->subbooking_user_status($subbookingid, $userid)) {
+                case STATUSPARAM_BOOKED:
+                    $isavailable = false;
+                default:
+                    $isavailable = true;
+            }
+        }
+
+        // If it's inversed, we inverse.
+        if ($not) {
+            $isavailable = !$isavailable;
+        }
 
         return $isavailable;
     }
@@ -106,11 +127,11 @@ class bookitbutton implements bo_subcondition {
 
         $description = '';
 
-        $isavailable = $this->is_available($settings, $userid, $not);
+        $isavailable = $this->is_available($settings, $subbookingid, $userid, $not);
 
         $description = $this->get_description_string($isavailable, $full);
 
-        return [$isavailable, $description, BO_PREPAGE_BOOK, BO_BUTTON_MYBUTTON];
+        return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_JUSTMYALERT];
     }
 
     /**
@@ -126,14 +147,26 @@ class bookitbutton implements bo_subcondition {
     }
 
     /**
+     * The page refers to an additional page which a booking option can inject before the booking process.
+     * Not all bo_conditions need to take advantage of this. But eg a condition which requires...
+     * ... the acceptance of a booking policy would render the policy with this function.
+     *
+     * @param integer $optionid
+     * @return array
+     */
+    public function render_page(int $optionid) {
+        return [];
+    }
+
+    /**
      * Some conditions (like price & bookit) provide a button.
      * Renders the button, attaches js to the Page footer and returns the html.
      * Return should look somehow like this.
      * ['mod_booking/bookit_button', $data];
      *
      * @param booking_option_settings $settings
-     * @param int $subbookingid
-     * @param int $userid
+     * @param integer $subbookingid
+     * @param integer $userid
      * @param boolean $full
      * @param boolean $not
      * @return array
@@ -150,13 +183,14 @@ class bookitbutton implements bo_subcondition {
         return [
             'mod_booking/bookit_button',
             [
-                'itemid' => $subbookingid,
-                'area' => 'subbooking',
+                'itemid' => $settings->id,
+                'area' => 'option',
                 'userid' => $userid ?? 0,
+                'nojs' => true,
                 'main' => [
                     'label' => $label,
-                    'class' => 'btn btn-secondary',
-                    'role' => 'button',
+                    'class' => 'alert alert-success',
+                    'role' => 'alert',
                 ]
             ]
         ];
@@ -170,11 +204,13 @@ class bookitbutton implements bo_subcondition {
      * @return void
      */
     private function get_description_string($isavailable, $full) {
-
-        // In this case, we dont differentiate between availability, because when it blocks...
-        // ... it just means that it can be booked. Blocking has a different functionality here.
-        $description = get_string('booknow', 'mod_booking');
-
+        if ($isavailable) {
+            $description = $full ? get_string('bo_cond_alreadybooked_full_available', 'mod_booking') :
+                get_string('bo_cond_alreadybooked_available', 'mod_booking');
+        } else {
+            $description = $full ? get_string('bo_cond_alreadybooked_full_not_available', 'mod_booking') :
+                get_string('bo_cond_alreadybooked_not_available', 'mod_booking');
+        }
         return $description;
     }
 }

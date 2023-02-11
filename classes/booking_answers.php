@@ -333,4 +333,22 @@ class booking_answers {
 
         return $DB->count_records_sql($sql, $params);
     }
+
+    /**
+     * Uncached function to get booking status of user regarding the subbooking.
+     *
+     * @param integer $subbookingid
+     * @param integer $userid
+     * @return integer
+     */
+    public function subbooking_user_status(int $subbookingid, int $userid = 0) {
+        global $DB;
+
+        if ($record = $DB->get_record('booking_subbooking_answers', ['sboptionid' => $subbookingid])) {
+            return $record->status;
+        } else {
+            return STATUSPARAM_NOTBOOKED;
+        }
+    }
+
 }

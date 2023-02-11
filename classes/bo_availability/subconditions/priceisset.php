@@ -77,7 +77,7 @@ class priceisset implements bo_subcondition {
      * @param bool $not Set true if we are inverting the condition
      * @return bool True if available
      */
-    public function is_available(booking_option_settings $settings, int $subbokingid, int $userid, $not = false):bool {
+    public function is_available(booking_option_settings $settings, int $subbookingid, int $userid, $not = false):bool {
 
         global $DB;
 
@@ -89,8 +89,8 @@ class priceisset implements bo_subcondition {
 
         if (count($priceitems) == 0) {
 
-            // Only now we actually check the price on the subboking.
-            $priceitems = price::get_prices_from_cache_or_db('subbooking', $subbokingid);
+            // Only now we actually check the price on the subbooking.
+            $priceitems = price::get_prices_from_cache_or_db('subbooking', $subbookingid);
             // If there is no price, we return true.
             if (count($priceitems) == 0) {
                 $isavailable = true;
@@ -123,7 +123,7 @@ class priceisset implements bo_subcondition {
      * @return array availability and Information string (for admin) about all restrictions on
      *   this item
      */
-    public function get_description(booking_option_settings $settings, $subbokingid, $userid = null, $full = false, $not = false):array {
+    public function get_description(booking_option_settings $settings, $subbookingid, $userid = null, $full = false, $not = false):array {
 
         $description = '';
 
@@ -142,7 +142,7 @@ class priceisset implements bo_subcondition {
      * @param int $subbookingid
      * @return void
      */
-    public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0, $subbokingid) {
+    public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0, $subbookingid) {
         // Do nothing.
     }
 
@@ -178,7 +178,7 @@ class priceisset implements bo_subcondition {
      * @param boolean $not
      * @return array
      */
-    public function render_button(booking_option_settings $settings, int $subbokingid, $userid = 0, $full = false, $not = false):array {
+    public function render_button(booking_option_settings $settings, int $subbookingid, $userid = 0, $full = false, $not = false):array {
 
         global $USER;
 
@@ -188,7 +188,7 @@ class priceisset implements bo_subcondition {
 
         $user = singleton_service::get_instance_of_user($userid);
 
-        $data = $settings->return_subbooking_option_information($subbokingid, $user);
+        $data = $settings->return_subbooking_option_information($subbookingid, $user);
 
         return ['mod_booking/bookit_price', $data];
     }

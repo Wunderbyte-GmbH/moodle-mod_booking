@@ -128,7 +128,7 @@ class booking_subbookit {
         if (!$justmyalert && !empty($extrabuttoncondition)) {
             $condition = new $extrabuttoncondition();
 
-            list($template, $data) = $condition->render_button($settings, 0, $full);
+            list($template, $data) = $condition->render_button($settings, $subbokingid, 0, $full);
 
             // This supports multiple templates as well.
             $datas[] = new bookit_button($data);
