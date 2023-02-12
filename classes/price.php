@@ -557,7 +557,7 @@ class price {
 
                 // If there is a change and the new price is "", we delete the entry.
                 if ($price === "") {
-                    $DB->delete_records('booking_prices', ['id' => $data->id]);
+                    $DB->delete_records('booking_prices', ['id' => $data->id, 'area' => $area]);
                 } else {
                     $data->price = $price;
                     $data->pricecategoryidentifier = $categoryidentifier;

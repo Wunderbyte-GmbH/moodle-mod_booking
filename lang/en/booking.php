@@ -2049,6 +2049,11 @@ $string['bo_cond_isbookable_not_available'] = 'Not allowed to book';
 $string['bo_cond_isbookable_full_not_available'] = 'Booking is forbidden for this booking option.
     <br>But you have the right to book a user anyways.';
 
+$string['bo_cond_subisbookable_available'] = 'Book it';
+$string['bo_cond_subisbookable_full_available'] = 'Booking is possible';
+$string['bo_cond_subisbookable_not_available'] = 'Book option first';
+$string['bo_cond_subisbookable_full_not_available'] = 'Booking is not possible for this subbooking as the corresponding option is not booked.';
+
 $string['bo_cond_iscancelled_available'] = 'Book it';
 $string['bo_cond_iscancelled_full_available'] = 'Booking is possible';
 $string['bo_cond_iscancelled_not_available'] = 'Cancelled';

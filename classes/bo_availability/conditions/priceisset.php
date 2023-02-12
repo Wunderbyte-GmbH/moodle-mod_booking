@@ -160,7 +160,7 @@ class priceisset implements bo_condition {
         $response = [
             'json' => '',
             'template' => '',
-            'buttontype' => 1, // This means that the continue button is disabled.
+            'buttontype' => 0, // This means that the continue button is enabled.
         ];
 
         return $response;

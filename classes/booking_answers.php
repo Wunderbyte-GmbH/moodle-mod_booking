@@ -344,7 +344,11 @@ class booking_answers {
     public function subbooking_user_status(int $subbookingid, int $userid = 0) {
         global $DB;
 
-        if ($record = $DB->get_record('booking_subbooking_answers', ['sboptionid' => $subbookingid])) {
+        if ($record = $DB->get_record('booking_subbooking_answers',
+            [
+                'sboptionid' => $subbookingid,
+                'optionid' => $this->optionid,
+            ])) {
             return $record->status;
         } else {
             return STATUSPARAM_NOTBOOKED;

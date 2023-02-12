@@ -79,8 +79,6 @@ class priceisset implements bo_subcondition {
      */
     public function is_available(booking_option_settings $settings, int $subbookingid, int $userid, $not = false):bool {
 
-        global $DB;
-
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
@@ -127,7 +125,7 @@ class priceisset implements bo_subcondition {
 
         $description = '';
 
-        $isavailable = $this->is_available($settings, $userid, $not);
+        $isavailable = $this->is_available($settings, $subbookingid, $userid, $not);
 
         $description = $this->get_description_string($isavailable, $full);
 
@@ -144,25 +142,6 @@ class priceisset implements bo_subcondition {
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0, $subbookingid) {
         // Do nothing.
-    }
-
-    /**
-     * The page refers to an additional page which a booking option can inject before the booking process.
-     * Not all bo_conditions need to take advantage of this. But eg a condition which requires...
-     * ... the acceptance of a booking policy would render the policy with this function.
-     *
-     * @param integer $optionid
-     * @param int $subbookingid
-     * @return array
-     */
-    public function render_page(int $optionid) {
-        $response = [
-            'json' => '',
-            'template' => '',
-            'buttontype' => 1, // This means that the continue button is disabled.
-        ];
-
-        return $response;
     }
 
     /**

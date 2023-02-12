@@ -85,16 +85,19 @@ class alreadybooked implements bo_subcondition {
 
         $bookinginformation = $bookinganswer->return_all_booking_information($userid);
 
-        // If the user is not yet booked in the option we return true.
-        if (!isset($bookinginformation['iambooked'])) {
+        // If the user is not yet booked in the option we return false.
+        if (isset($bookinginformation['iambooked'])) {
 
             // Now we check the user has already the subbooking.
             switch($bookinganswer->subbooking_user_status($subbookingid, $userid)) {
                 case STATUSPARAM_BOOKED:
                     $isavailable = false;
+                    break;
                 default:
                     $isavailable = true;
             }
+        } else {
+            $isavailable = true;
         }
 
         // If it's inversed, we inverse.
@@ -144,18 +147,6 @@ class alreadybooked implements bo_subcondition {
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid, $subbookingid) {
         // Do nothing.
-    }
-
-    /**
-     * The page refers to an additional page which a booking option can inject before the booking process.
-     * Not all bo_conditions need to take advantage of this. But eg a condition which requires...
-     * ... the acceptance of a booking policy would render the policy with this function.
-     *
-     * @param integer $optionid
-     * @return array
-     */
-    public function render_page(int $optionid) {
-        return [];
     }
 
     /**
