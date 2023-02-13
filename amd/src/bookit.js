@@ -27,7 +27,7 @@ var currentbookitpage = {};
 var totalbookitpages = {};
 
 var SELECTORS = {
-    MODALID: '#sbPrePageModal',
+    MODALID: 'sbPrePageModal_',
     INMODALDIV: ' div.pageContent',
     CONTINUEBUTTON: 'a.continue-button',
     BACKBUTTON: 'a.back-button',
@@ -42,9 +42,6 @@ var SELECTORS = {
  * @param {string} area
  */
 export const initbookitbutton = (itemid, area) => {
-
-    // eslint-disable-next-line no-console
-    console.log('initbookitbutton', itemid, area);
 
     const initselector = SELECTORS.BOOKITBUTTON +
     '[data-itemid]' +
@@ -66,9 +63,6 @@ export const initbookitbutton = (itemid, area) => {
 
     const buttons = document.querySelectorAll(selector);
 
-    // eslint-disable-next-line no-console
-    console.log(selector, buttons);
-
     if (!buttons) {
         return;
     }
@@ -80,8 +74,6 @@ export const initbookitbutton = (itemid, area) => {
             return;
         }
 
-        // eslint-disable-next-line no-console
-        console.log('add click listener ', button);
         if (!button.dataset.initialized) {
             button.dataset.initialized = 'true';
 
@@ -90,9 +82,6 @@ export const initbookitbutton = (itemid, area) => {
             button.addEventListener('click', e => {
 
                 e.stopPropagation();
-
-                // eslint-disable-next-line no-console
-                console.log('clicked ', e.target);
 
                 bookit(itemid, area, userid);
             });
@@ -130,38 +119,36 @@ function respondToVisibility(optionid, totalnumberofpages, callback) {
         return;
     }
 
-    const selector = SELECTORS.MODALID + optionid + SELECTORS.INMODALDIV;
-    let element = document.querySelector(selector);
+    let elements = document.querySelectorAll("[id^=" + SELECTORS.MODALID + optionid + "]");
 
-    if (!element) {
-        return;
-    }
-
-    // eslint-disable-next-line no-console
-    // console.log(selector, element);
-
-    var observer = new MutationObserver(function() {
-        if (!isHidden(element)) {
-            // Todo: Make sure it's not triggered on close.
-            callback(optionid);
-        }
-    });
-
-    // We look if we find a hidden parent. If not, we load right away.
-    while (element !== null) {
-        if (!isHidden(element)) {
-            element = element.parentElement;
-        } else {
-            if (element.dataset.observed) {
-                return;
-            }
-
-            observer.observe(element, {attributes: true});
-            element.dataset.observed = true;
+    elements.forEach(element => {
+        if (!element) {
             return;
         }
-    }
-    callback(optionid, totalnumberofpages);
+
+        var observer = new MutationObserver(function() {
+            if (!isHidden(element)) {
+                // Todo: Make sure it's not triggered on close.
+                callback(optionid);
+            }
+        });
+
+        // We look if we find a hidden parent. If not, we load right away.
+        while (element !== null) {
+            if (!isHidden(element)) {
+                element = element.parentElement;
+            } else {
+                if (element.dataset.observed) {
+                    return;
+                }
+
+                observer.observe(element, {attributes: true});
+                element.dataset.observed = true;
+                return;
+            }
+        }
+        callback(optionid, totalnumberofpages);
+    });
 }
 
 /**
@@ -181,13 +168,7 @@ function isHidden(el) {
 export const loadPreBookingPage = (
     optionid) => {
 
-    // eslint-disable-next-line no-console
-    // console.log('loadPreBookingPage ' + optionid, totalnumberofpages);
-
-    // We need to clear the content of the div.
-    const selector = SELECTORS.MODALID + optionid + SELECTORS.INMODALDIV;
-
-    const element = document.querySelector(selector);
+    const element = returnVisibleElement(optionid, SELECTORS.INMODALDIV);
 
     while (element.firstChild) {
         element.removeChild(element.firstChild);
@@ -209,7 +190,7 @@ export const loadPreBookingPage = (
             let dataarray = jsonobject;
             const buttontype = res.buttontype;
 
-            renderTemplatesOnPage(templates, dataarray, selector);
+            renderTemplatesOnPage(templates, dataarray, element);
 
             showRightButton(optionid, buttontype);
 
@@ -226,9 +207,9 @@ export const loadPreBookingPage = (
  *
  * @param {string} templates
  * @param {object} dataarray
- * @param {string} selector
+ * @param {HTMLElement} element
  */
-async function renderTemplatesOnPage(templates, dataarray, selector) {
+async function renderTemplatesOnPage(templates, dataarray, element) {
 
     for (const template of templates) {
         // eslint-disable-next-line no-console
@@ -242,9 +223,7 @@ async function renderTemplatesOnPage(templates, dataarray, selector) {
 
         await Templates.renderForPromise(template, data.data).then(({html, js}) => {
 
-            // eslint-disable-next-line no-console
-            console.log('no i append this template, ', template);
-            Templates.appendNodeContents(selector, html, js);
+            Templates.appendNodeContents(element, html, js);
 
             return true;
         }).catch(ex => {
@@ -264,12 +243,9 @@ async function renderTemplatesOnPage(templates, dataarray, selector) {
  */
 function showRightButton(optionid, buttontype) {
 
-    // eslint-disable-next-line no-console
-    console.log(SELECTORS.MODALID + optionid + ' ' + SELECTORS.INMODALBUTTON);
-
     // If we are not yet on the last booking page.
     if (currentbookitpage[optionid] + 1 < totalbookitpages[optionid]) {
-        const element = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.CONTINUEBUTTON);
+        const element = returnVisibleElement(optionid, SELECTORS.CONTINUEBUTTON);
         if (element) {
             element.classList.remove('hidden');
 
@@ -278,32 +254,32 @@ function showRightButton(optionid, buttontype) {
             }
         }
 
-        const inModalButton = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.INMODALBUTTON);
+        const inModalButton = returnVisibleElement(optionid, SELECTORS.INMODALBUTTON);
         if (inModalButton) {
             inModalButton.classList.add('hidden');
         }
 
     } else {
         // We are on the last booking page.
-        const element = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.CONTINUEBUTTON);
+        const element = returnVisibleElement(optionid, SELECTORS.CONTINUEBUTTON);
         if (element) {
             element.classList.add('hidden');
         }
 
         if (buttontype == 1) {
-            const inModalButton = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.INMODALBUTTON);
+            const inModalButton = returnVisibleElement(optionid, SELECTORS.INMODALBUTTON);
             if (inModalButton) {
                 inModalButton.classList.add('hidden');
             }
         } else {
-            const inModalButton = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.INMODALBUTTON);
+            const inModalButton = returnVisibleElement(optionid, SELECTORS.INMODALBUTTON);
             if (inModalButton) {
                 inModalButton.classList.remove('hidden');
             }
         }
     }
     if (currentbookitpage[optionid] > 0) {
-        const element = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.BACKBUTTON);
+        const element = returnVisibleElement(optionid, SELECTORS.BACKBUTTON);
         if (element) {
             element.classList.remove('hidden');
 
@@ -313,7 +289,7 @@ function showRightButton(optionid, buttontype) {
         }
 
     } else {
-        const element = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.BACKBUTTON);
+        const element = returnVisibleElement(optionid, SELECTORS.BACKBUTTON);
         if (element) {
             element.classList.add('hidden');
         }
@@ -328,12 +304,9 @@ function showRightButton(optionid, buttontype) {
  */
 export function toggleContinueButton(optionid, show = null) {
 
-    const continueButton = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.CONTINUEBUTTON);
+    const continueButton = returnVisibleElement(optionid, SELECTORS.CONTINUEBUTTON);
 
-    const bookingButton = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.BOOKITBUTTON);
-
-    // eslint-disable-next-line no-console
-    console.log(bookingButton, optionid, show);
+    const bookingButton = returnVisibleElement(optionid, SELECTORS.BOOKITBUTTON);
 
     if (continueButton) {
         disableButton(continueButton, show);
@@ -353,7 +326,7 @@ export function toggleContinueButton(optionid, show = null) {
 function showBookItButton(optionid, show) {
 
     // Hide Bookit button.
-    const inModalButton = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.INMODALBUTTON);
+    const inModalButton = returnVisibleElement(optionid, SELECTORS.INMODALBUTTON);
     if (currentbookitpage[optionid] + 1 == totalbookitpages[optionid]) {
         // Being on the last page.
         if (show) {
@@ -370,9 +343,6 @@ function showBookItButton(optionid, show) {
  * @param {boolean} show
  */
 function disableButton(element, show) {
-
-    // eslint-disable-next-line no-console
-    console.log(element, show);
 
     // If show is not defined yet, we define it automatically.
     if (show === null) {
@@ -397,39 +367,37 @@ function disableButton(element, show) {
  * @param {bool} back // If it is the back button, it's true, else its continue.
  */
 function initializeButton(optionid, back) {
-    let selector = "";
+
+    let elements = null;
 
     if (back) {
-        selector = SELECTORS.MODALID + optionid + ' ' + SELECTORS.BACKBUTTON;
+        elements = document.querySelectorAll("[id^=" + SELECTORS.MODALID + optionid + "] " + SELECTORS.BACKBUTTON);
     } else {
-        selector = SELECTORS.MODALID + optionid + ' ' + SELECTORS.CONTINUEBUTTON;
+        elements = document.querySelectorAll("[id^=" + SELECTORS.MODALID + optionid + "] " + SELECTORS.CONTINUEBUTTON);
     }
 
-    const element = document.querySelector(selector);
+    elements.forEach(element => {
+        if (element && !element.dataset.prepageinit) {
+            element.dataset.prepageinit = true;
 
-    // eslint-disable-next-line no-console
-    // console.log(element, selector);
+            element.addEventListener('click', (e) => {
 
-    if (element && !element.dataset.prepageinit) {
-        element.dataset.prepageinit = true;
+                e.stopPropagation();
 
-        element.addEventListener('click', (e) => {
+                if (element.classList.contains('hidden')) {
+                    return;
+                }
 
-            e.stopPropagation();
+                if (back) {
+                    currentbookitpage[optionid]--;
+                } else {
+                    currentbookitpage[optionid]++;
+                }
 
-            if (element.classList.contains('hidden')) {
-                return;
-            }
-
-            if (back) {
-                currentbookitpage[optionid]--;
-            } else {
-                currentbookitpage[optionid]++;
-            }
-
-            loadPreBookingPage(optionid);
-        });
-    }
+                loadPreBookingPage(optionid);
+            });
+        }
+    });
 }
 
 /**
@@ -448,9 +416,6 @@ function bookit(itemid, area, userid) {
             'userid': userid,
         },
         done: function(res) {
-
-            // eslint-disable-next-line no-console
-            console.log(res);
 
             const jsonarray = JSON.parse(res.json);
 
@@ -475,9 +440,6 @@ function bookit(itemid, area, userid) {
                 // For every button, we need a new jsonarray.
                 const arraytoreduce = [...jsonarray];
 
-                // eslint-disable-next-line no-console
-                console.log(templates, arraytoreduce);
-
                 templates.forEach(template => {
                     const data = arraytoreduce.shift();
 
@@ -486,13 +448,7 @@ function bookit(itemid, area, userid) {
                     if (!(template === 'mod_booking/prepagemodal'
                             && button.parentElement.classList.contains('in-modal-button'))) {
 
-                        // eslint-disable-next-line no-console
-                        console.log(template, data, button);
-
                         const datatorender = data.data ?? data;
-
-                        // eslint-disable-next-line no-console
-                        console.log(datatorender);
 
                         const promise = Templates.renderForPromise(template, datatorender).then(({html, js}) => {
 
@@ -512,8 +468,6 @@ function bookit(itemid, area, userid) {
             });
 
             Promise.all(promises).then(() => {
-                // eslint-disable-next-line no-console
-                console.log(currentbookitpage[itemid], totalbookitpages[itemid]);
 
                 // We close the modal only if we are on the last page of the booking pages.
                 if (currentbookitpage[itemid] == totalbookitpages[itemid] - 1) {
@@ -536,4 +490,26 @@ function bookit(itemid, area, userid) {
             });
         }
     }]);
+}
+
+/**
+ * We want to find out the visible modal
+ * @param {integer} optionid
+ * @param {string} appendedSelector
+ * @returns {HTMLElement}
+ */
+function returnVisibleElement(optionid, appendedSelector) {
+
+    // First, we get all the possbile Elements (we don't now the unique id appended to the element.)
+    const selector = "[id^=" + SELECTORS.MODALID + optionid + "].show " + appendedSelector;
+
+    const elements = document.querySelectorAll(selector);
+
+    let visibleElement = null;
+
+    elements.forEach(element => {
+        visibleElement = element;
+    });
+
+    return visibleElement;
 }
