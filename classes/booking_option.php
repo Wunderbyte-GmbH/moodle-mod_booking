@@ -31,6 +31,7 @@ use mod_booking\teachers_handler;
 use mod_booking\customfield\booking_handler;
 use mod_booking\event\bookinganswer_cancelled;
 use mod_booking\message_controller;
+use mod_booking\subbookings\subbookings_info;
 use mod_booking\task\send_completion_mails;
 use moodle_exception;
 
@@ -736,6 +737,14 @@ class booking_option {
 
         // Before returning, purge caches.
         self::purge_cache_for_option($this->optionid);
+
+        // We also have to trigger unenrolement of corresponding subbookings.
+        $subbookings = subbookings_info::return_array_of_subbookings($this->optionid);
+
+        foreach ($subbookings as $subbooking) {
+            // We delete this subbooking option.
+            subbookings_info::save_response($subbooking->area, $subbooking->itemid, STATUSPARAM_DELETED, $userid);
+        }
 
         if ($cancelreservation) {
             return true;

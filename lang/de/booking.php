@@ -1982,4 +1982,8 @@ $string['subbooking_additionalitem'] = "Buche zusätzlichen Artikel";
 $string['subbooking_additionalitem_desc'] = "Diese zusätzliche Buchung erlaubt einen weiten Artiekl zu buchen, etwa einen besseren Platz oder zusätzliches Material.";
 $string['subbooking_additionalitem_description'] = "Beschreiben Sie hier den zusätzlich buchbaren Artikel:";
 
+$string['subbooking_additionalperson'] = "Buche zusätzliche Person";
+$string['subbooking_additionalperson_desc'] = "Mit dieser zusätzlichen Buchung können Sie Plätze für z.B. Familienmitglieder buchen.";
+$string['subbooking_additionalperson_description'] = "Beschreiben Sie die Buchungsmöglichkeit.";
+
 $string['accept'] = "Aktzeptieren";

@@ -104,24 +104,34 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      * @param string $area
      * @param integer $itemid
      * @param integer $userid
-     * @return boolean
+     * @return array
      */
-    public static function unload_cartitem( string $area, int $itemid, int $userid = 0): bool {
+    public static function unload_cartitem( string $area, int $itemid, int $userid = 0): array {
         global $CFG;
 
         require_once($CFG->dirroot . '/mod/booking/lib.php');
 
         if ($area === 'option') {
 
+            // First, get an array of all depending subbookings.
+
+            $subbookings = subbookings_info::return_array_of_subbookings($itemid);
+
             booking_bookit::answer_booking_option($area, $itemid, STATUSPARAM_NOTBOOKED, $userid);
 
-            return true;
+            return [
+                'success' => 1,
+                'itemstounload' => $subbookings,
+            ];
         } else if (strpos($area, 'subbooking') === 0) {
             // As a subbooking can have different slots, we use the area to provide the subbooking id.
             // The syntax is "subbooking-1" for the subbooking id 1.
             return self::unload_subbooking($area, $itemid, $userid);
         } else {
-            return false;
+            return [
+                'success' => 0,
+                'itemstounload' => [],
+            ];;
         }
     }
 
@@ -221,13 +231,16 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      * @param string $area
      * @param integer $itemid
      * @param integer $userid
-     * @return boolean
+     * @return array
      */
-    private static function unload_subbooking(string $area, int $itemid, int $userid = 0):bool {
+    private static function unload_subbooking(string $area, int $itemid, int $userid = 0):array {
 
         // We unreserve this subbooking option.
         subbookings_info::save_response($area, $itemid, STATUSPARAM_NOTBOOKED, $userid);
 
-        return true;
+        return [
+            'success' => 1,
+            'itemstounload' => [],
+        ];
     }
 }

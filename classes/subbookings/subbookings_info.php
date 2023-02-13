@@ -323,7 +323,11 @@ class subbookings_info {
         global $DB;
 
         // First, we need to isolate the id of the subbooking. We might find it in the area.
-        list($area, $sbid) = explode('-', $area);
+
+        $array = explode('-', $area);
+
+        $area = array_shift($array);
+        $sbid = array_shift($array);
 
         // If we found an id, we use it as itemid and design the  slotid.
         if ($sbid) {
@@ -429,7 +433,7 @@ class subbookings_info {
 
         $now = time();
 
-        if ($records = self::return_subbooking_answers($subbooking->id, $itemid, $userid, $oldstatus)) {
+        if ($records = self::return_subbooking_answers($subbooking->id, $itemid, $subbooking->optionid, $userid, $oldstatus)) {
             while (count($records) > 0) {
                 $record = array_pop($records);
                 // We already popped one record, so count has to be 0.
@@ -448,6 +452,7 @@ class subbookings_info {
             $record = (object)[
                 'itemid' => $itemid,
                 'sboptionid' => $subbooking->id,
+                'optionid' => $subbooking->optionid,
                 'userid' => $userid,
                 'usermodified' => $USER->id,
                 'status' => $newstatus,
@@ -467,11 +472,12 @@ class subbookings_info {
      *
      * @param integer $sboid
      * @param integer $itemid
+     * @param integer $optionid
      * @param integer $userid
      * @param array $status
      * @return array
      */
-    private static function return_subbooking_answers(int $sboid, int $itemid, int $userid, array $status = []) {
+    private static function return_subbooking_answers(int $sboid, int $itemid, int $optionid, int $userid, array $status = []) {
 
         global $DB;
 
@@ -480,12 +486,14 @@ class subbookings_info {
                 FROM {booking_subbooking_answers}
                 WHERE itemid=:itemid
                 AND sboptionid=:sboptionid
-                AND userid=:userid";
+                AND userid=:userid
+                AND optionid=:optionid";
 
         $params = [
             'itemid' => $itemid,
             'sboptionid' => $sboid,
             'userid' => $userid,
+            'optionid' => $optionid,
         ];
 
         if (!empty($status)) {
@@ -501,5 +509,27 @@ class subbookings_info {
         $records = $DB->get_records_sql($sql, $params);
 
         return $records;
+    }
+
+    /**
+     * Returns an array of area and itemid, written for unloading subbookings from shopping cart.
+     *
+     * @param integer $optionid
+     * @return array
+     */
+    public static function return_array_of_subbookings(int $optionid):array {
+        global $DB;
+
+        $records = $DB->get_records('booking_subbooking_options', ['optionid' => $optionid]);
+        $returnarray = [];
+
+        foreach ($records as $record) {
+            $returnarray[] = (object)[
+                'area' => 'subbooking',
+                'itemid' => $record->id,
+            ];
+        }
+
+        return $returnarray;
     }
 }

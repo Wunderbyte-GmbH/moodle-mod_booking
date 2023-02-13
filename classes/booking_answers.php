@@ -344,11 +344,19 @@ class booking_answers {
     public function subbooking_user_status(int $subbookingid, int $userid = 0) {
         global $DB;
 
-        if ($record = $DB->get_record('booking_subbooking_answers',
-            [
-                'sboptionid' => $subbookingid,
-                'optionid' => $this->optionid,
-            ])) {
+        $sql = "SELECT *
+            FROM {booking_subbooking_answers}
+            WHERE sboptionid=:subbookingid
+            AND optionid=:optionid
+            AND status <= :statusparam"; // We get booked, waitinglist and reserved.
+
+        $params = [
+            'subbookingid' => $subbookingid,
+            'optionid' => $this->optionid,
+            'statusparam' => STATUSPARAM_RESERVED,
+        ];
+
+        if ($record = $DB->get_record_sql($sql, $params)) {
             return $record->status;
         } else {
             return STATUSPARAM_NOTBOOKED;

@@ -86,7 +86,7 @@ class booking_subbookit {
         bool $renderprepagemodal = true) {
 
         // Get blocking conditions, including prepages$prepages etc.
-        $results = bo_subinfo::get_subcondition_results($settings->id, $userid);
+        $results = bo_subinfo::get_subcondition_results($settings->id, $subbokingid, $userid);
         // Decide, wether to show the direct booking button or a modal.
 
         $showinmodalbutton = true;

@@ -116,7 +116,7 @@ class bo_subinfo {
             $optionid = $this->optionid;
         }
 
-        $results = $this->get_subcondition_results($optionid, $userid);
+        $results = $this->get_subcondition_results($optionid, $this->subbookingid, $userid);
 
         if (count($results) === 0) {
             $id = 0;
