@@ -61,7 +61,8 @@ class subbookings_info {
                 self::add_list_of_existing_subbookings_for_this_option($mform, $formdata);
 
             } else {
-                $mform->addElement('static', 'onlyaddsubbookingsonsavedoption', get_string('onlyaddsubbookingsonsavedoption', 'mod_booking'));
+                $mform->addElement('static', 'onlyaddsubbookingsonsavedoption',
+                    get_string('onlyaddsubbookingsonsavedoption', 'mod_booking'));
             }
         }
     }
@@ -155,7 +156,7 @@ class subbookings_info {
         // As we know which handler to call, we only instantiate one subbooking.
         $subbooking = self::get_subbooking($data->subbooking_type);
 
-        // subbooking has to be saved last, because it actually writes to DB.
+        // Subbooking has to be saved last, because it actually writes to DB.
         $subbooking->save_subbooking($data);
 
         // Every time we save the subbooking, we have to invalidate caches.
@@ -229,7 +230,7 @@ class subbookings_info {
             $mform->createElement('submit',
                 'btn_subbookingtype',
                 get_string('bookingsubbooking', 'mod_booking'),
-                $buttonargs) // $buttonargs)
+                $buttonargs)
         ];
         $mform->addGroup($categoryselect, 'subbooking_type', get_string('bookingsubbooking', 'mod_booking'), [' '], false);
         $mform->setType('btn_subbookingtype', PARAM_NOTAGS);
@@ -427,7 +428,8 @@ class subbookings_info {
      * @param array $oldstatus
      * @return bool
      */
-    private static function update_or_insert_answer(object $subbooking, int $itemid, int $userid, int $newstatus, array $oldstatus) {
+    private static function update_or_insert_answer(object $subbooking, int $itemid, int $userid,
+        int $newstatus, array $oldstatus) {
 
         global $DB, $USER;
 
@@ -481,7 +483,7 @@ class subbookings_info {
 
         global $DB;
 
-        // We always fetch all the entries
+        // We always fetch all the entries.
         $sql = "SELECT *
                 FROM {booking_subbooking_answers}
                 WHERE itemid=:itemid
@@ -517,7 +519,7 @@ class subbookings_info {
      * @param integer $optionid
      * @return array
      */
-    public static function return_array_of_subbookings(int $optionid):array {
+    public static function return_array_of_subbookings(int $optionid): array {
         global $DB;
 
         $records = $DB->get_records('booking_subbooking_options', ['optionid' => $optionid]);
