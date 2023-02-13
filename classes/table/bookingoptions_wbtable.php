@@ -618,15 +618,14 @@ class bookingoptions_wbtable extends wunderbyte_table {
                         get_string('moveoptionto', 'booking')) . '</div>';
             } */
         }
+
         if (!empty($ddoptions)) {
             $ret .= '<div class="dropdown d-inline">
-                    <a href="' .
-                new moodle_url('/mod/booking/editoptions.php',
-                    array('id' => $this->cmid, 'optionid' => $values->id)) .
-                '" id="action-menu-toggle-' . $values->id . '" title="" role="button" data-toggle="dropdown"
+                    <button class="dropdown-toggle btn btn-link" id="action-menu-toggle-' . $values->id .
+                        '" title="" role="button" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">' . $OUTPUT->pix_icon(
                     't/edit', get_string('settings', 'moodle')) .
-                '</a>
+                '</button>
                     <div class="dropdown-menu dropdown-menu-right menu align-tr-br" id="action-menu-' .
                 $values->id .
                 '-menu" data-rel="menu-content"

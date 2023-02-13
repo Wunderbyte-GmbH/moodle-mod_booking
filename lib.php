@@ -1425,6 +1425,8 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     $contextcourse = context_course::instance($course->id);
     $optionid = $PAGE->url->get_param('optionid');
 
+    $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cm->id);
+
     $bookingisteacher = false; // Set to false by default.
     if (!is_null($optionid) && $optionid > 0) {
         $option = new booking_option($cm->id, $optionid);
@@ -1465,20 +1467,6 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         }
     }
 
-    if (has_capability('mod/booking:manageoptiontemplates', $context)) {
-        if (!empty($optionid)) {
-            $navref->add(get_string('copytotemplate', 'mod_booking'),
-                new moodle_url('/mod/booking/report.php',
-                        array('id' => $cm->id, 'optionid' => $optionid,
-                            'action' => 'copytotemplate', 'sesskey' => sesskey())),
-                            navigation_node::TYPE_CUSTOM, null, 'nav_copytotemplate');
-        }
-
-        $navref->add(get_string("manageoptiontemplates", "mod_booking"),
-            new moodle_url('/mod/booking/optiontemplatessettings.php', array('id' => $cm->id)),
-                navigation_node::TYPE_CUSTOM, null, 'nav_manageoptiontemplates');
-    }
-
     $urlparam = array('id' => $cm->id, 'optionid' => -1);
     if (!$templatedid = $DB->get_field('booking', 'templateid', ['id' => $cm->instance])) {
         $templatedid = get_config('booking', 'defaulttemplate');
@@ -1504,26 +1492,40 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         $navref->add(get_string('recalculateprices', 'mod_booking'),
                 new moodle_url('/mod/booking/recalculateprices.php', array('id' => $cm->id)),
                 navigation_node::TYPE_CUSTOM, null, 'nav_recalculateprices');
-        $navref->add(get_string('teachers_instance_report', 'mod_booking'),
+        $navref->add(get_string('teachers_instance_report', 'mod_booking') . " ($bookingsettings->name)",
                 new moodle_url('/mod/booking/teachers_instance_report.php', ['cmid' => $cm->id]),
                 navigation_node::TYPE_CUSTOM, null, 'nav_teachers_instance_report');
     }
 
+    // We currently never show these entries as we are not sure if they work correctly.
+    // Filters, Permissions, Backup, Restore - will not be shown in "More..." menu.
+    $keys = $navref->get_children_key_list();
+    foreach ($keys as $key => $name) {
+        if ($name == 'modedit' || $name == 'roleassign' || $name == 'roleoverride' ||
+                    $name == 'rolecheck' || $name == 'filtermanage' || $name == 'logreport' ||
+                    $name == 'backup' || $name == 'restore') {
+            $navref->get($name)->remove();
+        }
+    }
+
     if (!is_null($optionid) && $optionid > 0) {
-        $option = $DB->get_record('booking_options', array('id' => $optionid));
-        $booking = $DB->get_record('booking', array('id' => $option->bookingid));
-        $keys = $navref->get_children_key_list();
+        // In previous booking versions Filters, Permissions, Backup, Restore where only hidden for booking options.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $keys = $navref->get_children_key_list();
         foreach ($keys as $key => $name) {
             if ($name == 'modedit' || $name == 'roleassign' || $name == 'roleoverride' ||
                         $name == 'rolecheck' || $name == 'filtermanage' || $name == 'logreport' ||
                         $name == 'backup' || $name == 'restore') {
                 $node = $navref->get($name)->remove();
             }
-        }
+        } */
+
+        $option = $DB->get_record('booking_options', array('id' => $optionid));
+        $booking = $DB->get_record('booking', array('id' => $option->bookingid));
 
         if (has_capability('mod/booking:updatebooking', $context) ||
             has_capability('mod/booking:addeditownoption', $context)) {
-            $navref->add(get_string('edit', 'core'),
+            $navref->add(get_string('updatebooking', 'mod_booking'),
                     new moodle_url('/mod/booking/editoptions.php',
                             array('id' => $cm->id, 'optionid' => $optionid)),
                             navigation_node::TYPE_CUSTOM, null, 'nav_edit');
@@ -1592,6 +1594,20 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                                 'action' => 'deletebookingoption', 'sesskey' => sesskey())),
                                 navigation_node::TYPE_CUSTOM, null, 'nav_deletebookingoption');
         }
+    }
+
+    if (has_capability('mod/booking:manageoptiontemplates', $context)) {
+        if (!empty($optionid)) {
+            $navref->add(get_string('copytotemplate', 'mod_booking'),
+                new moodle_url('/mod/booking/report.php',
+                        array('id' => $cm->id, 'optionid' => $optionid,
+                            'action' => 'copytotemplate', 'sesskey' => sesskey())),
+                            navigation_node::TYPE_CUSTOM, null, 'nav_copytotemplate');
+        }
+
+        $navref->add(get_string("manageoptiontemplates", "mod_booking"),
+            new moodle_url('/mod/booking/optiontemplatessettings.php', array('id' => $cm->id)),
+                navigation_node::TYPE_CUSTOM, null, 'nav_manageoptiontemplates');
     }
 }
 
