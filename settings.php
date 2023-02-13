@@ -147,7 +147,7 @@ if ($ADMIN->fulltree) {
                 get_string('subbookings', 'mod_booking'),
                 get_string('infotext:prolicensenecessary', 'mod_booking')));
     }
-    
+
     // PRO feature: Progress bars.
     if (wb_payment::pro_version_is_activated()) {
         $settings->add(

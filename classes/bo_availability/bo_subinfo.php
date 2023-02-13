@@ -46,7 +46,8 @@ define('BO_BUTTON_JUSTMYALERT', 4); // A strong Alert which also prevents button
 
 // Define if there are sites and if so, if they are prepend, postpend or booking relevant.
 define('BO_PREPAGE_NONE', 0); // This condition provides no page.
-define('BO_PREPAGE_BOOK', 1); // This condition does only provide a booking page (button or price). Only used when there are other pages as well.
+define('BO_PREPAGE_BOOK', 1); // This condition does only provide a booking page (button or price).
+                              // It's only used when there are other pages as well.
 define('BO_PREPAGE_PREBOOK', 2); // This should be before the bookit button.
 define('BO_PREPAGE_POSTBOOK', 3); // This should be after the bookit button.
 
@@ -359,7 +360,6 @@ class bo_subinfo {
         // Results have to be sorted the right way. At the moment, it depends on the id of the blocking condition.
         usort($results, fn($a, $b) => ($a['id'] < $b['id'] ? 1 : -1 ));
 
-
         $condition = self::return_class_of_current_page($results, $pagenumber);
 
         // We throw an exception if we didn't get a valid pagenumber.
@@ -448,7 +448,7 @@ class bo_subinfo {
 
         $conditionsarray = self::return_sorted_conditions($results);
 
-        // Now that we have the right order, we need to return classname which corresponds to
+        // Now that we have the right order, we need to return the corresponding classname.
         return $conditionsarray[$pagenumber]['classname'];
     }
 

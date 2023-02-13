@@ -147,7 +147,7 @@ class booking_bookit {
             $templates[] = $template;
         }
 
-        // Big decession: can we render the button right away, or do we need to introduce a modal?
+        // Big decision: can we render the button right away, or do we need to introduce a modal?
         if (!$justmyalert && (count($prepages) > 0) && $renderprepagemodal) {
 
             // We render the button only from the highest relevant blocking condition.
