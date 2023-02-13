@@ -313,17 +313,24 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @throws coding_exception
      */
     public function col_course($values) {
+        global $USER;
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
+        $ret = '';
 
-        if (empty($settings->courseid)) {
-            $ret = '';
-        } else {
+        $answersobject = singleton_service::get_instance_of_booking_answers($settings);
+        $status = $answersobject->user_status($USER->id);
+
+        if (!empty($settings->courseid) && (
+                $status == STATUSPARAM_BOOKED ||
+                has_capability('mod/booking:updatebooking', $this->context) ||
+                (has_capability('mod/booking:addeditownoption', $this->context) && booking_check_if_teacher($values))
+        )) {
             $moodleurl = new moodle_url('/course/view.php', ['id' => $settings->courseid]);
             $courseurl = $moodleurl->out(false);
-            $gotocoursematerial = get_string('gotocoursematerial', 'local_musi');
+            $gotomoodlecourse = get_string('gotomoodlecourse', 'mod_booking');
             $ret = "<a href='$courseurl' target='_self' class='btn btn-primary mt-2 mb-2 w-100'>
-                <i class='fa fa-graduation-cap fa-fw' aria-hidden='true'></i>&nbsp;&nbsp;$gotocoursematerial
+                <i class='fa fa-graduation-cap fa-fw' aria-hidden='true'></i>&nbsp;&nbsp;$gotomoodlecourse
             </a>";
         }
 

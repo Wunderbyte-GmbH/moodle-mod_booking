@@ -24,6 +24,7 @@ $string['courses'] = 'Courses';
 $string['date_s'] = 'Date(s)';
 $string['dayofweek'] = 'Weekday';
 $string['gotomanageresponses'] = '&lt;&lt; Manage bookings';
+$string['gotomoodlecourse'] = 'Go to Moodle course';
 $string['optionsiteach'] = 'Teached by me';
 $string['messageprovider:bookingconfirmation'] = "Booking confirmations";
 $string['search'] = 'Search...';

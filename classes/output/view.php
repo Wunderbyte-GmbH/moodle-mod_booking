@@ -352,7 +352,7 @@ class view implements renderable, templatable {
         $wbtable->add_subcolumns('leftside', ['invisibleoption', 'text', 'action', 'teacher']);
         $wbtable->add_subcolumns('footer', ['bookings', 'dayofweektime', 'location', 'institution',
             'showdates', 'comments']);
-        $wbtable->add_subcolumns('rightside', ['booknow', 'progressbar']);
+        $wbtable->add_subcolumns('rightside', ['booknow', 'course', 'progressbar']);
 
         $wbtable->add_classes_to_subcolumns('leftside', ['columnkeyclass' => 'd-none']);
         $wbtable->add_classes_to_subcolumns(

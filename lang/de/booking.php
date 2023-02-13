@@ -24,6 +24,7 @@ $string['courses'] = 'Kurse';
 $string['date_s'] = 'Termin(e)';
 $string['dayofweek'] = 'Wochentag';
 $string['gotomanageresponses'] = '&lt;&lt; Buchungen verwalten';
+$string['gotomoodlecourse'] = 'Zum Moodle-Kurs';
 $string['optionsiteach'] = 'Von mir geleitet';
 $string['messageprovider:bookingconfirmation'] = "Buchungsbestätigungen";
 $string['search'] = 'Suche...';
@@ -1986,4 +1987,4 @@ $string['subbooking_additionalperson'] = "Buche zusätzliche Person";
 $string['subbooking_additionalperson_desc'] = "Mit dieser zusätzlichen Buchung können Sie Plätze für z.B. Familienmitglieder buchen.";
 $string['subbooking_additionalperson_description'] = "Beschreiben Sie die Buchungsmöglichkeit.";
 
-$string['accept'] = "Aktzeptieren";
+$string['accept'] = "Akzeptieren";
