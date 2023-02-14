@@ -1779,10 +1779,12 @@ $string['bo_cond_subbooking_blocks'] = '';
 $string['bo_cond_bookitbutton'] = 'bookitbutton: Zeige den normalen Buchen-Button.';
 $string['bo_cond_isloggedinprice'] = 'isloggedinprice: Zeige alle Preise wenn nicht eingelogged.';
 
-$string['bo_cond_booking_time_available'] = 'Innerhalb der normalen Buchungszeiten';
-$string['bo_cond_booking_time_full_available'] = 'Innerhalb der normalen Buchungszeiten. Von {$a} bis {$b}';
+$string['bo_cond_booking_time_available'] = 'Innerhalb der normalen Buchungszeiten.';
 $string['bo_cond_booking_time_not_available'] = 'Nicht innerhalb der normalen Buchungszeiten.';
-$string['bo_cond_booking_time_full_not_available'] = 'Nicht innerhalb der normalen Buchungszeiten. Von {$a} bis {$b}';
+$string['bo_cond_booking_opening_time_not_available'] = 'Kann noch nicht gebucht werden.';
+$string['bo_cond_booking_opening_time_full_not_available'] = 'Kann ab<br>{$a}<br>gebucht werden.';
+$string['bo_cond_booking_closing_time_not_available'] = 'Kann nicht mehr gebucht werden.';
+$string['bo_cond_booking_closing_time_full_not_available'] = 'Konnte bis<br>{$a}<br>gebucht werden.';
 
 $string['bo_cond_alreadybooked_available'] = 'Noch nicht gebucht';
 $string['bo_cond_alreadybooked_full_available'] = 'Nutzer:in hat noch nicht gebucht';

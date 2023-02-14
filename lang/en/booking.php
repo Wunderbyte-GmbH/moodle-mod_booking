@@ -1987,10 +1987,12 @@ $string['bo_cond_subbooking'] = 'subbooking: Subbooking adds additonal options t
 $string['bo_cond_bookitbutton'] = 'bookitbutton: Show the normal booking button.';
 $string['bo_cond_isloggedinprice'] = 'isloggedinprice: Show all prices when not logged in.';
 
-$string['bo_cond_booking_time_available'] = 'Within normal booking times';
-$string['bo_cond_booking_time_full_available'] = 'Within normal booking times. From {$a} until {$b}';
+$string['bo_cond_booking_time_available'] = 'Within normal booking times.';
 $string['bo_cond_booking_time_not_available'] = 'Not within normal booking times.';
-$string['bo_cond_booking_time_full_not_available'] = 'Not within normal booking times. From {$a} until {$b}';
+$string['bo_cond_booking_opening_time_not_available'] = 'Cannot be booked yet.';
+$string['bo_cond_booking_opening_time_full_not_available'] = 'Can be booked from<br>{$a}.';
+$string['bo_cond_booking_closing_time_not_available'] = 'Cannot be booked anymore.';
+$string['bo_cond_booking_closing_time_full_not_available'] = 'Cannot be booked anymore (ended on {$a}).';
 
 $string['bo_cond_alreadybooked_available'] = 'Not yet booked';
 $string['bo_cond_alreadybooked_full_available'] = 'The user has not yet booked';
