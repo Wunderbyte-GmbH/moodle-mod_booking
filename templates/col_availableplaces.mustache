@@ -44,9 +44,9 @@
              / {{#str}} unlimitedplaces, mod_booking {{/str}}
     {{/maxanswers}}
     {{#maxoverbooking}}
-        <div class="col-ap-waitingplacesavailable">
-            {{#str}} waitingplacesavailable, mod_booking, { "overbookingavailable": {{freeonwaitinglist}}, "maxoverbooking": {{maxoverbooking}} } {{/str}}
-        </div>
+        <span class="col-ap-waitingplacesavailable">
+            ({{#str}} waitinglist, mod_booking {{/str}}: {{waiting}}/{{maxoverbooking}})
+        </span>
     {{/maxoverbooking}}
 {{/iambooked}}
 
@@ -69,9 +69,9 @@
         </span>
     {{/maxanswers}}
     {{#maxoverbooking}}
-        <div class="col-ap-waitingplacesavailable">
-            {{#str}} waitingplacesavailable, mod_booking, { "overbookingavailable": {{freeonwaitinglist}}, "maxoverbooking": {{maxoverbooking}} } {{/str}}
-        </div>
+        <span class="col-ap-waitingplacesavailable">
+            ({{#str}} waitinglist, mod_booking {{/str}}: {{waiting}}/{{maxoverbooking}})
+        </span>
     {{/maxoverbooking}}
 {{/onwaitinglist}}
 
@@ -92,9 +92,9 @@
              / {{#str}} unlimitedplaces, mod_booking {{/str}}
     {{/maxanswers}}
     {{#maxoverbooking}}
-        <div class="col-ap-waitingplacesavailable">
-            {{#str}} waitingplacesavailable, mod_booking, { "overbookingavailable": {{freeonwaitinglist}}, "maxoverbooking": {{maxoverbooking}} } {{/str}}
-        </div>
+        <span class="col-ap-waitingplacesavailable">
+            ({{#str}} waitinglist, mod_booking {{/str}}: {{waiting}}/{{maxoverbooking}})
+        </span>
     {{/maxoverbooking}}
 {{/notbooked}}
 </a>

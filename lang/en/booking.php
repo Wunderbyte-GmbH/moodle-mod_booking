@@ -1331,7 +1331,6 @@ $string['numrec'] = "Rec. num.";
 $string['generaterecnum'] = "Generate numbers";
 $string['generaterecnumareyousure'] = "This will generate new numbers and permanently delete the old one!";
 $string['generaterecnumnotification'] = "New numbers have been generated.";
-$string['waitinglist'] = 'Waiting list';
 $string['searchwaitinglist'] = 'On waiting list';
 $string['ratingsuccess'] = 'The ratings were successfully updated';
 $string['userid'] = 'UserID';
