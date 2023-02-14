@@ -84,9 +84,6 @@ if (has_capability('mod/booking:cantoggleformmode', $context)) {
     set_user_preference('optionform_mode', 'simple');
 }
 
-//$mform = new option_form(null, array('bookingid' => $bookingid, 'optionid' => $optionid, 'cmid' => $cmid,
-//    'context' => $context));
-
 // Duplicate this booking option.
 if ($optionid == -1 && $copyoptionid != 0) {
     // Adding new booking option - default values.
@@ -122,7 +119,7 @@ if ($optionid == -1 && $copyoptionid != 0) {
         // Subscribe the copied teacher to the new booking option.
         subscribe_teacher_to_booking_option($teachertocopy->userid, $optionid, $cm->id);
     }
-    
+
     // If there are prices defined, let's duplicate them too.
     if (get_config('booking', 'duplicationrestoreprices')) {
         /* IMPORTANT: Once we support subbookings, we might have different areas than 'option'

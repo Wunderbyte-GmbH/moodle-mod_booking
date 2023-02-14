@@ -704,6 +704,8 @@ class booking_option {
 
         global $USER, $DB;
 
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+
         $results = $DB->get_records('booking_answers',
                 array('userid' => $userid, 'optionid' => $this->optionid, 'completed' => 0));
 
@@ -729,9 +731,15 @@ class booking_option {
             }
         }
 
-        // Sync the waiting list and send status change mails.
         // If the whole option was cancelled, there is no need to sync anymore.
-        if (!$bookingoptioncancel) {
+        if (!$bookingoptioncancel && (
+            // Moving up from waiting list has not been turned off in settings.php.
+            !get_config('booking', 'turnoffwaitinglistaftercoursestart') ||
+            /* Moving up from waiting list has been turned off in settings.php,
+            but we still do sync if the booking option has not started yet. */
+            (get_config('booking', 'turnoffwaitinglistaftercoursestart') && time() < $optionsettings->coursestarttime)
+        )) {
+            // Sync the waiting list and send status change mails.
             $this->sync_waiting_list();
         }
 

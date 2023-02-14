@@ -1464,6 +1464,10 @@ $string['duplicationrestoreteachers'] = 'Trainer:innen inkludieren';
 $string['duplicationrestoreprices'] = 'Preise inkludieren';
 $string['duplicationrestoreentities'] = 'Entities inkludieren';
 
+$string['waitinglistheader'] = 'Warteliste';
+$string['waitinglistheader_desc'] = 'Hier können Sie Einstellungen zum Verhalten der Warteliste vornehmen.';
+$string['turnoffwaitinglistaftercoursestart'] = 'Automatisches Nachrücken ab Beginn der Buchungsoption deaktivieren.';
+
 $string['notificationlist'] = 'Benachrichtigungsliste';
 $string['notificationlistdesc'] = 'Wenn es bei einer Buchungsoption keine verfügbaren Plätze mehr gibt,
  können sich Teilnehmer:innnen registrieren lassen, um eine Benachrichtung zu erhalten, sobald wieder

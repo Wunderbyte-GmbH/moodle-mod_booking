@@ -68,6 +68,10 @@ $ADMIN->add('modbookingfolder',
 $ADMIN->add('modbookingfolder', $settings);
 
 if ($ADMIN->fulltree) {
+
+    // Has PRO version been activated?
+    $proversion = wb_payment::pro_version_is_activated();
+
     $settings->add(
         new admin_setting_heading('licensekeycfgheading',
             get_string('licensekeycfg', 'mod_booking'),
@@ -100,7 +104,7 @@ if ($ADMIN->fulltree) {
             $licensekeydesc, ''));
 
     // PRO feature.
-    if (wb_payment::pro_version_is_activated()) {
+    if ($proversion) {
         $settings->add(
             new admin_setting_heading('newcoursecategorycfieldheading',
                 get_string('automaticcoursecreation', 'mod_booking'),
@@ -131,43 +135,25 @@ if ($ADMIN->fulltree) {
                 get_string('infotext:prolicensenecessary', 'mod_booking')));
     }
 
-    // PRO feature: Subbookings.
-    if (wb_payment::pro_version_is_activated()) {
-        $settings->add(
-            new admin_setting_heading('subbookings',
-                get_string('subbookings', 'mod_booking'),
-                get_string('subbookings_desc', 'mod_booking')));
+    // Waiting list settings.
+    $settings->add(
+        new admin_setting_heading('waitinglistheader',
+            get_string('waitinglistheader', 'mod_booking'),
+            get_string('waitinglistheader_desc', 'mod_booking')));
 
-        $settings->add(
-            new admin_setting_configcheckbox('booking/showsubbookings',
-                    get_string('showsubbookings', 'mod_booking'), '', 0));
-    } else {
-        $settings->add(
-            new admin_setting_heading('subbookings',
-                get_string('subbookings', 'mod_booking'),
-                get_string('infotext:prolicensenecessary', 'mod_booking')));
-    }
+    $settings->add(
+        new admin_setting_configcheckbox('booking/turnoffwaitinglistaftercoursestart',
+                get_string('turnoffwaitinglistaftercoursestart', 'mod_booking'), '', 0));
 
-    // PRO feature: Progress bars.
-    if (wb_payment::pro_version_is_activated()) {
-        $settings->add(
-            new admin_setting_heading('progressbars',
-                get_string('progressbars', 'mod_booking'),
-                get_string('progressbars_desc', 'mod_booking')));
+    // Notification list settings.
+    $settings->add(
+        new admin_setting_heading('notificationlist',
+            get_string('notificationlist', 'mod_booking'),
+            get_string('notificationlistdesc', 'mod_booking')));
 
-        $settings->add(
-            new admin_setting_configcheckbox('booking/showprogressbars',
-                    get_string('showprogressbars', 'mod_booking'), '', 0));
-
-        $settings->add(
-            new admin_setting_configcheckbox('booking/progressbarscollapsible',
-                    get_string('progressbarscollapsible', 'mod_booking'), '', 1));
-    } else {
-        $settings->add(
-            new admin_setting_heading('progressbars',
-                get_string('progressbars', 'mod_booking'),
-                get_string('infotext:prolicensenecessary', 'mod_booking')));
-    }
+    $settings->add(
+        new admin_setting_configcheckbox('booking/usenotificationlist',
+                get_string('usenotificationlist', 'mod_booking'), '', 0));
 
     $settings->add(
         new admin_setting_heading('educationalunitinminutes',
@@ -258,18 +244,126 @@ if ($ADMIN->fulltree) {
                 get_string('duplicationrestoreentities', 'mod_booking'), '', 1));
 
     $settings->add(
-        new admin_setting_heading('notificationlist',
-            get_string('notificationlist', 'mod_booking'),
-            get_string('notificationlistdesc', 'mod_booking')));
+        new admin_setting_heading('optiontemplatessettings_heading',
+                get_string('optiontemplatessettings', 'mod_booking'), ''));
+
+    $alltemplates = array('' => get_string('dontuse', 'booking'));
+    $alloptiontemplates = $DB->get_records('booking_options', array('bookingid' => 0), '', $fields = 'id, text', 0, 0);
+
+    foreach ($alloptiontemplates as $key => $value) {
+            $alltemplates[$value->id] = $value->text;
+    }
 
     $settings->add(
-        new admin_setting_configcheckbox('booking/usenotificationlist',
-                get_string('usenotificationlist', 'mod_booking'), '', 0));
+             new admin_setting_configselect('booking/defaulttemplate',
+                        get_string('defaulttemplate', 'mod_booking'),
+                        get_string('defaulttemplatedesc', 'mod_booking'),
+                        1, $alltemplates));
 
     $settings->add(
-            new admin_setting_heading('mod_booking_icalcfg',
-                get_string('icalcfg', 'mod_booking'),
-                get_string('icalcfgdesc', 'mod_booking')));
+        new admin_setting_heading('availabilityinfotexts_heading',
+            get_string('availabilityinfotexts_heading', 'mod_booking'),
+            get_string('availabilityinfotexts_desc', 'mod_booking')));
+
+    // PRO feature.
+    if ($proversion) {
+
+        $settings->add(
+            new admin_setting_configcheckbox('booking/bookingplacesinfotexts',
+                get_string('bookingplacesinfotexts', 'mod_booking'),
+                get_string('bookingplacesinfotexts_info', 'booking'), 0));
+
+        $bookingplaceslowpercentages = [
+            5 => ' 5%',
+            10 => '10%',
+            15 => '15%',
+            20 => '20%',
+            30 => '30%',
+            40 => '40%',
+            50 => '50%',
+            60 => '60%',
+            70 => '70%',
+            80 => '80%',
+            90 => '90%',
+            100 => '100%'
+        ];
+
+        $settings->add(
+            new admin_setting_configselect('booking/bookingplaceslowpercentage',
+                get_string('bookingplaceslowpercentage', 'booking'),
+                get_string('bookingplaceslowpercentagedesc', 'booking'),
+                20, $bookingplaceslowpercentages));
+
+        $settings->add(
+            new admin_setting_configcheckbox('booking/waitinglistinfotexts',
+                get_string('waitinglistinfotexts', 'mod_booking'),
+                get_string('waitinglistinfotexts_info', 'booking'), 0));
+
+        $waitinglistlowpercentages = [
+            5 => ' 5%',
+            10 => '10%',
+            15 => '15%',
+            20 => '20%',
+            30 => '30%',
+            40 => '40%',
+            50 => '50%',
+            60 => '60%',
+            70 => '70%',
+            80 => '80%',
+            90 => '90%',
+            100 => '100%'
+        ];
+
+        $settings->add(
+            new admin_setting_configselect('booking/waitinglistlowpercentage',
+                get_string('waitinglistlowpercentage', 'booking'),
+                get_string('waitinglistlowpercentagedesc', 'booking'),
+                20, $waitinglistlowpercentages));
+    }
+
+    // PRO feature: Subbookings.
+    if ($proversion) {
+        $settings->add(
+            new admin_setting_heading('subbookings',
+                get_string('subbookings', 'mod_booking'),
+                get_string('subbookings_desc', 'mod_booking')));
+
+        $settings->add(
+            new admin_setting_configcheckbox('booking/showsubbookings',
+                    get_string('showsubbookings', 'mod_booking'), '', 0));
+    } else {
+        $settings->add(
+            new admin_setting_heading('subbookings',
+                get_string('subbookings', 'mod_booking'),
+                get_string('infotext:prolicensenecessary', 'mod_booking')));
+    }
+
+    // PRO feature: Progress bars.
+    if ($proversion) {
+        $settings->add(
+            new admin_setting_heading('progressbars',
+                get_string('progressbars', 'mod_booking'),
+                get_string('progressbars_desc', 'mod_booking')));
+
+        $settings->add(
+            new admin_setting_configcheckbox('booking/showprogressbars',
+                    get_string('showprogressbars', 'mod_booking'), '', 0));
+
+        $settings->add(
+            new admin_setting_configcheckbox('booking/progressbarscollapsible',
+                    get_string('progressbarscollapsible', 'mod_booking'), '', 1));
+    } else {
+        $settings->add(
+            new admin_setting_heading('progressbars',
+                get_string('progressbars', 'mod_booking'),
+                get_string('infotext:prolicensenecessary', 'mod_booking')));
+    }
+
+    $settings->add(
+        new admin_setting_heading('mod_booking_icalcfg',
+            get_string('icalcfg', 'mod_booking'),
+            get_string('icalcfgdesc', 'mod_booking')));
+
     $settings->add(
         new admin_setting_configcheckbox('booking/dontaddpersonalevents',
                 get_string('dontaddpersonalevents', 'mod_booking'),
@@ -369,91 +463,12 @@ if ($ADMIN->fulltree) {
         $settings->add($setting);
     }
 
-    $settings->add(
-        new admin_setting_heading('optiontemplatessettings_heading',
-                get_string('optiontemplatessettings', 'mod_booking'), ''));
-
-    $alltemplates = array('' => get_string('dontuse', 'booking'));
-    $alloptiontemplates = $DB->get_records('booking_options', array('bookingid' => 0), '', $fields = 'id, text', 0, 0);
-
-    foreach ($alloptiontemplates as $key => $value) {
-            $alltemplates[$value->id] = $value->text;
-    }
-
-    $settings->add(
-             new admin_setting_configselect('booking/defaulttemplate',
-                        get_string('defaulttemplate', 'mod_booking'),
-                        get_string('defaulttemplatedesc', 'mod_booking'),
-                        1, $alltemplates));
-
-    $settings->add(
-        new admin_setting_heading('availabilityinfotexts_heading',
-            get_string('availabilityinfotexts_heading', 'mod_booking'),
-            get_string('availabilityinfotexts_desc', 'mod_booking')));
-
-    // PRO feature.
-    if (wb_payment::pro_version_is_activated()) {
-
-        $settings->add(
-            new admin_setting_configcheckbox('booking/bookingplacesinfotexts',
-                get_string('bookingplacesinfotexts', 'mod_booking'),
-                get_string('bookingplacesinfotexts_info', 'booking'), 0));
-
-        $bookingplaceslowpercentages = [
-            5 => ' 5%',
-            10 => '10%',
-            15 => '15%',
-            20 => '20%',
-            30 => '30%',
-            40 => '40%',
-            50 => '50%',
-            60 => '60%',
-            70 => '70%',
-            80 => '80%',
-            90 => '90%',
-            100 => '100%'
-        ];
-
-        $settings->add(
-            new admin_setting_configselect('booking/bookingplaceslowpercentage',
-                get_string('bookingplaceslowpercentage', 'booking'),
-                get_string('bookingplaceslowpercentagedesc', 'booking'),
-                20, $bookingplaceslowpercentages));
-
-        $settings->add(
-            new admin_setting_configcheckbox('booking/waitinglistinfotexts',
-                get_string('waitinglistinfotexts', 'mod_booking'),
-                get_string('waitinglistinfotexts_info', 'booking'), 0));
-
-        $waitinglistlowpercentages = [
-            5 => ' 5%',
-            10 => '10%',
-            15 => '15%',
-            20 => '20%',
-            30 => '30%',
-            40 => '40%',
-            50 => '50%',
-            60 => '60%',
-            70 => '70%',
-            80 => '80%',
-            90 => '90%',
-            100 => '100%'
-        ];
-
-        $settings->add(
-            new admin_setting_configselect('booking/waitinglistlowpercentage',
-                get_string('waitinglistlowpercentage', 'booking'),
-                get_string('waitinglistlowpercentagedesc', 'booking'),
-                20, $waitinglistlowpercentages));
-    }
-
+    // Global mail templates (PRO).
     $settings->add(
         new admin_setting_heading('globalmailtemplates_heading',
             get_string('globalmailtemplates', 'mod_booking'),
             get_string('globalmailtemplates_desc', 'mod_booking')));
-
-    // PRO feature.
-    if (wb_payment::pro_version_is_activated()) {
+    if ($proversion) {
         $settings->add(new admin_setting_confightmleditor('booking/globalbookedtext',
             get_string('globalbookedtext', 'booking'), '', ''));
 

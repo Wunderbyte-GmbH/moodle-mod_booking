@@ -1589,6 +1589,10 @@ $string['duplicationrestoreteachers'] = 'Include teachers';
 $string['duplicationrestoreprices'] = 'Include prices';
 $string['duplicationrestoreentities'] = 'Include entities';
 
+$string['waitinglistheader'] = 'Waiting list';
+$string['waitinglistheader_desc'] = 'Here you can set how the booking waiting list should behave.';
+$string['turnoffwaitinglistaftercoursestart'] = 'Turn off automatic moving up after a booking option has started.';
+
 $string['notificationlist'] = 'Notification list';
 $string['notificationlistdesc'] = 'When no place is available anymore, users can still register to be notified when there is an opening';
 $string['usenotificationlist'] = 'Use notification list';
