@@ -181,7 +181,7 @@ class fullybooked implements bo_condition {
                 'userid' => $userid ?? 0,
                 'main' => [
                     'label' => $label,
-                    'class' => 'alert alert-info',
+                    'class' => 'alert alert-warning',
                     'role' => 'alert',
                 ]
             ]

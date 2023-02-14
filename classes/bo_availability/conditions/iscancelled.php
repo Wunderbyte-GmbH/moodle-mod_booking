@@ -170,7 +170,7 @@ class iscancelled implements bo_condition {
                 'userid' => $userid ?? 0,
                 'main' => [
                     'label' => $label,
-                    'class' => 'alert alert-info',
+                    'class' => 'alert alert-danger',
                     'role' => 'alert',
                 ]
             ]

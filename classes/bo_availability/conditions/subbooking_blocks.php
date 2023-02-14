@@ -201,11 +201,12 @@ class subbooking_blocks implements bo_condition {
         } else {
 
             // If we have one or more subbookings, we render the interface here.
-            // foreach ($settings->subbookings as $subbooking) {
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* foreach ($settings->subbookings as $subbooking) {
 
                 // These are already instantiated subbookings, we can call the function right away.
                 // list($data, $template) = $subbooking->return_interface($settings);
-            // }
+            } */
 
             $description = '';
 

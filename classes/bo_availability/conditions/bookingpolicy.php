@@ -205,7 +205,7 @@ class bookingpolicy implements bo_condition {
                 'nojs' => true,
                 'main' => [
                     'label' => $label,
-                    'class' => 'alert alert-success',
+                    'class' => 'alert alert-warning',
                     'role' => 'alert',
                 ]
             ]

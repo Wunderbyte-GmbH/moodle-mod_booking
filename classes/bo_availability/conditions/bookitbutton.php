@@ -151,7 +151,7 @@ class bookitbutton implements bo_condition {
         $templates[] = $template;
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        // list($template, $data) = $this->render_button($settings);
+
         list($template, $data) = booking_bookit::render_bookit_template_data($settings, 0, false);
         $data = reset($data);
         $template = reset($template);
@@ -162,16 +162,17 @@ class bookitbutton implements bo_condition {
 
         $templates[] = $template;
 
-        // Only if the option is not yet booked, we set buttontype to 1 (continue is disabled);
+        // Only if the option is not yet booked, we set buttontype to 1 (continue is disabled).
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
 
         // Inactive Continue Button.
         // We don't use this functionality right now.
-        // if ($bookinganswer->user_status($USER->id) == STATUSPARAM_NOTBOOKED) {
-        //     $buttontype = 1;
-        // } else {
-        //     $buttontype = 0;
-        // }
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* if ($bookinganswer->user_status($USER->id) == STATUSPARAM_NOTBOOKED) {
+            $buttontype = 1;
+        } else {
+            $buttontype = 0;
+        } */
         $buttontype = 0;
 
         $response = [
