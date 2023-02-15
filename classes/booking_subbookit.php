@@ -53,12 +53,12 @@ class booking_subbookit {
      * @param integer $userid
      * @return string
      */
-    public static function render_bookit_button(booking_option_settings $settings, int $subbokingid, int $userid = 0) {
+    public static function render_bookit_button(booking_option_settings $settings, int $subbookingid, int $userid = 0) {
 
         global $PAGE;
         $PAGE->set_context(context_module::instance($settings->cmid));
         $output = $PAGE->get_renderer('mod_booking');
-        list($templates, $datas) = self::render_bookit_template_data($settings, $subbokingid, $userid);
+        list($templates, $datas) = self::render_bookit_template_data($settings, $subbookingid, $userid);
 
         $html = '';
 
@@ -81,12 +81,12 @@ class booking_subbookit {
      */
     public static function render_bookit_template_data(
         booking_option_settings $settings,
-        int $subbokingid,
+        int $subbookingid,
         int $userid = 0,
         bool $renderprepagemodal = true) {
 
         // Get blocking conditions, including prepages$prepages etc.
-        $results = bo_subinfo::get_subcondition_results($settings->id, $subbokingid, $userid);
+        $results = bo_subinfo::get_subcondition_results($settings->id, $subbookingid, $userid);
         // Decide, wether to show the direct booking button or a modal.
 
         $showinmodalbutton = true;
@@ -128,7 +128,7 @@ class booking_subbookit {
         if (!$justmyalert && !empty($extrabuttoncondition)) {
             $condition = new $extrabuttoncondition();
 
-            list($template, $data) = $condition->render_button($settings, $subbokingid, 0, $full);
+            list($template, $data) = $condition->render_button($settings, $subbookingid, 0, $full);
 
             // This supports multiple templates as well.
             $datas[] = new bookit_button($data);
@@ -137,7 +137,7 @@ class booking_subbookit {
         }
 
         $condition = new $buttoncondition();
-        list($template, $data) = $condition->render_button($settings, $subbokingid, 0, $full);
+        list($template, $data) = $condition->render_button($settings, $subbookingid, 0, $full);
 
         $datas[] = new bookit_button($data);
         $templates[] = $template;

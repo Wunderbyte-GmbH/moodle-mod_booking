@@ -1045,7 +1045,7 @@ class booking_option_settings {
 
         $subbooking = subbookings_info::get_subbooking_by_area_and_id('subbooking', $subbookingid);
 
-        $price = price::get_price('subboking', $subbookingid, $user);
+        $price = price::get_price('subbooking', $subbookingid, $user);
         $canceluntil = booking_option::return_cancel_until_date($this->id);
 
         $returnarray = [

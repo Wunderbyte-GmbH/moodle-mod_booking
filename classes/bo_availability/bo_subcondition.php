@@ -71,12 +71,12 @@ interface bo_subcondition {
      * so that the information displayed to users makes sense.
      *
      * @param booking_option_settings $settings Item we're checking
-     * @param int $subbokingid
+     * @param int $subbookingid
      * @param int $userid User ID to check availability for
      * @param bool $not Set true if we are inverting the condition
      * @return bool True if available
      */
-    public function is_available(booking_option_settings $settings, int $subbokingid, int $userid, bool $not);
+    public function is_available(booking_option_settings $settings, int $subbookingid, int $userid, bool $not);
 
     /**
      * Obtains a string describing this restriction (whether or not
@@ -90,7 +90,7 @@ interface bo_subcondition {
      *
      * @param bool $full Set true if this is the 'full information' view
      * @param booking_option_settings $settings Item we're checking
-     * @param int $subbokingid
+     * @param int $subbookingid
      * @param int $userid userid of the user we want the description for.
      * @param bool $not Set true if we are inverting the condition
      * @return string Information string (for admin) about all restrictions on
@@ -104,7 +104,7 @@ interface bo_subcondition {
      *
      * @param MoodleQuickForm $mform
      * @param int $optionid
-     * @param int $subbokingid
+     * @param int $subbookingid
      * @return void
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid, $subbookingid);
@@ -116,11 +116,11 @@ interface bo_subcondition {
      * ['mod_booking/bookit_button', $data];
      *
      * @param booking_option_settings $settings
-     * @param int $subbokingid
+     * @param int $subbookingid
      * @param int $userid
      * @param boolean $full
      * @param boolean $not
      * @return array
      */
-    public function render_button(booking_option_settings $settings, int $subbokingid, $userid = 0, $full = false, $not = false):array;
+    public function render_button(booking_option_settings $settings, int $subbookingid, $userid = 0, $full = false, $not = false):array;
 }

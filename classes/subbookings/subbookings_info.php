@@ -180,7 +180,7 @@ class subbookings_info {
     }
 
     /**
-     * This function adds a list of existing subbokings for this function.
+     * This function adds a list of existing subbookings for this function.
      * Every line includes and edit and a delete no-submit-button.
      *
      * @param MoodleQuickForm $mform

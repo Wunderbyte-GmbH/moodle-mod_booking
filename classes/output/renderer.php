@@ -659,7 +659,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
-     * Render subboking timeslot
+     * Render subbooking timeslot
      * @param $data array
      * @return string
      */

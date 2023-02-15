@@ -140,7 +140,7 @@ class bo_subinfo {
     }
 
     /**
-     * Checks all the available conditions for a given subboking to check it's availability.
+     * Checks all the available conditions for a given subbooking to check it's availability.
      *
      * @param integer $optionid
      * @param integer $subbookingid

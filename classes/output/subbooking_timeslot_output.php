@@ -67,7 +67,7 @@ class subbooking_timeslot_output implements renderable, templatable {
         // There might be more than one relevant subbooking to handle.
         foreach ($settings->subbookings as $subbooking) {
 
-            // We only treat our kind of subbokings here.
+            // We only treat our kind of subbookings here.
             if ($subbooking->type === 'subbooking_timeslot') {
 
                 // Get the name from the entities handler.
