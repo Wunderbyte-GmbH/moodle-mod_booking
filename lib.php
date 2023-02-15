@@ -1501,7 +1501,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     // Filters, Permissions, Backup, Restore - will not be shown in "More..." menu.
     $keys = $navref->get_children_key_list();
     foreach ($keys as $key => $name) {
-        if ($name == 'modedit' || $name == 'roleassign' || $name == 'roleoverride' ||
+        if ($name == 'roleassign' || $name == 'roleoverride' ||
                     $name == 'rolecheck' || $name == 'filtermanage' || $name == 'logreport' ||
                     $name == 'backup' || $name == 'restore') {
             $navref->get($name)->remove();
@@ -1513,7 +1513,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         /* $keys = $navref->get_children_key_list();
         foreach ($keys as $key => $name) {
-            if ($name == 'modedit' || $name == 'roleassign' || $name == 'roleoverride' ||
+            if ($name == 'roleassign' || $name == 'roleoverride' ||
                         $name == 'rolecheck' || $name == 'filtermanage' || $name == 'logreport' ||
                         $name == 'backup' || $name == 'restore') {
                 $node = $navref->get($name)->remove();
