@@ -86,10 +86,13 @@ if (!empty($bookingsettings->organizatorname)
     && ($organizerid = (int)$bookingsettings->organizatorname)) {
     $data = new business_card($bookingsettings, $organizerid);
     echo $output->render_business_card($data);
-} else {
+}
+// As of Moodle 4.0 activity description will be shown automatically in module header.
+// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+/* else {
     $data = new instance_description($bookingsettings);
     echo $output->render_instance_description($data);
-}
+} */
 
 // Now we show the actual view.
 $view = new view($cmid, $whichview, $optionid);

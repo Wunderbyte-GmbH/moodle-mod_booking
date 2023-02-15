@@ -158,7 +158,7 @@ class view implements renderable, templatable {
 
         // Options I teach.
         if (in_array('myoptions', $showviews) && booking_check_if_teacher()) {
-            $this->renderedoptionsiteachtable = $this->get_rendered_table_for_teacher($USER->id, false, true, false);
+            $this->renderedoptionsiteachtable = $this->get_rendered_table_for_teacher($USER->id, false, true, true);
         }
 
         // Only the booking options of my institution.
@@ -187,7 +187,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($allbookingoptionstable, true, true, false);
+        $this->wbtable_initialize_list_layout($allbookingoptionstable, true, true, true);
 
         $out = $allbookingoptionstable->outhtml(40, true);
 
@@ -217,7 +217,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($activebookingoptionstable, false, true, false);
+        $this->wbtable_initialize_list_layout($activebookingoptionstable, false, true, true);
 
         $out = $activebookingoptionstable->outhtml(40, true);
 
@@ -245,7 +245,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($mybookingoptionstable, false, true, false);
+        $this->wbtable_initialize_list_layout($mybookingoptionstable, false, true, true);
 
         $out = $mybookingoptionstable->outhtml(40, true);
 
@@ -333,7 +333,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($myinstitutiontable, false, true, false);
+        $this->wbtable_initialize_list_layout($myinstitutiontable, true, true, true);
 
         $out = $myinstitutiontable->outhtml(40, true);
 
@@ -349,6 +349,10 @@ class view implements renderable, templatable {
      */
     private function wbtable_initialize_list_layout(wunderbyte_table &$wbtable,
         bool $filter = true, bool $search = true, bool $sort = true) {
+
+        // Activate sorting.
+        $wbtable->cardsort = true;
+
         $wbtable->add_subcolumns('leftside', ['invisibleoption', 'text', 'action', 'teacher']);
         $wbtable->add_subcolumns('footer', ['bookings', 'dayofweektime', 'location', 'institution',
             'showdates', 'comments']);
@@ -431,10 +435,10 @@ class view implements renderable, templatable {
 
         if ($sort) {
             $wbtable->define_sortablecolumns([
+                'titleprefix' => get_string('titleprefix', 'mod_booking'),
                 'text' => get_string('bookingoption', 'mod_booking'),
-                'location',
-                'institution',
-                'dayofweek',
+                'location' => get_string('location', 'mod_booking'),
+                'institution' => get_string('institution', 'mod_booking'),
             ]);
         }
 

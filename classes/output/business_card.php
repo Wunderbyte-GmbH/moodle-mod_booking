@@ -102,7 +102,8 @@ class business_card implements renderable, templatable {
                 'userpictureurl' => $this->userpictureurl->out(),
                 'userprofileurl' => $this->userprofileurl->out(),
                 'sendmessageurl' => $this->sendmessageurl->out(),
-                'description' => $this->description,
+                // As of Moodle 4.0 activity description will be shown automatically in module header.
+                /* 'description' => $this->description, */ // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
                 'userdescription' => $this->userdescription,
                 'duration' => $this->duration,
                 'points' => $this->points

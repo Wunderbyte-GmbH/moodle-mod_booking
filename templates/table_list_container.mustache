@@ -69,6 +69,7 @@
                     {{> local_wunderbyte_table/component_print }}
                </div>
                <div class="ml-auto">
+                    {{> local_wunderbyte_table/component_sort }}
                     {{> local_wunderbyte_table/component_search }}
                </div>
           </div>
@@ -77,9 +78,10 @@
 
      <div class="wunderbyte_table_container">
           <aside class="wunderbyte_table_components {{^showcomponentstoggle}} inactive {{/showcomponentstoggle}}">
-               {{> local_wunderbyte_table/component_sort }}
-               {{> local_wunderbyte_table/component_filter }}
-               {{> local_wunderbyte_table/component_infinitescroll }}
+          <div>
+               <span>{{> local_wunderbyte_table/component_filter }}</span>
+               <span>{{> local_wunderbyte_table/component_infinitescroll }}</span>
+          </div>
           </aside>
           <div class= "wunderbyteTableClass" id='a{{idstring}}'>
                {{> mod_booking/table_list }}
