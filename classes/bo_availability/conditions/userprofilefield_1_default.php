@@ -447,6 +447,7 @@ class userprofilefield_1_default implements bo_condition {
                 'itemid' => $settings->id,
                 'area' => 'option',
                 'userid' => $userid ?? 0,
+                'nojs' => true,
                 'main' => [
                     'label' => $label,
                     'class' => 'alert alert-warning',
