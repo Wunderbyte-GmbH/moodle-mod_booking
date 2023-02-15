@@ -353,6 +353,9 @@ class view implements renderable, templatable {
         // Activate sorting.
         $wbtable->cardsort = true;
 
+        // Without defining sorting won't work!
+        $wbtable->define_columns(['titleprefix']);
+
         $wbtable->add_subcolumns('leftside', ['invisibleoption', 'text', 'action', 'teacher']);
         $wbtable->add_subcolumns('footer', ['bookings', 'dayofweektime', 'location', 'institution',
             'showdates', 'comments']);
