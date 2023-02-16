@@ -49,8 +49,8 @@ require_once($CFG->dirroot . '/user/profile/lib.php');
  */
 class userprofilefield_1_default implements bo_condition {
 
-    /** @var int $id Id is set via json during construction */
-    public $id = null;
+    /** @var int $id Id is set via json during construction but we still need a default ID */
+    public $id = BO_COND_JSON_USERPROFILEFIELD;
 
     /** @var stdClass $customsettings an stdclass coming from the json which passes custom settings */
     public $customsettings = null;
@@ -285,9 +285,14 @@ class userprofilefield_1_default implements bo_condition {
                 $mform->hideIf('bo_cond_userprofilefield_overrideoperator', 'bo_cond_userprofilefield_overrideconditioncheckbox',
                     'notchecked');
 
-                $overrideconditions = bo_info::get_conditions(CONDPARAM_HARDCODED_ONLY);
+                $overrideconditions = bo_info::get_conditions(CONDPARAM_MFORM_ONLY);
                 $overrideconditionsarray = [];
                 foreach ($overrideconditions as $overridecondition) {
+                    // We do not combine conditions with each other.
+                    if ($overridecondition->id == BO_COND_JSON_USERPROFILEFIELD) {
+                        continue;
+                    }
+
                     // Remove the namespace from classname.
                     $fullclassname = get_class($overridecondition); // With namespace.
                     $classnameparts = explode('\\', $fullclassname);

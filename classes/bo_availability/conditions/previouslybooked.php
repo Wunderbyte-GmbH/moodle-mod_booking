@@ -48,7 +48,7 @@ use stdClass;
 class previouslybooked implements bo_condition {
 
     /** @var int $id Id is set via json during construction */
-    public $id = null;
+    public $id = BO_COND_JSON_PREVIOUSLYBOOKED;
 
     /** @var stdClass $customsettings an stdclass coming from the json which passes custom settings */
     public $customsettings = null;
@@ -200,9 +200,14 @@ class previouslybooked implements bo_condition {
             $mform->hideIf('bo_cond_previouslybooked_overrideoperator',
                 'bo_cond_previouslybooked_overrideconditioncheckbox', 'notchecked');
 
-            $overrideconditions = bo_info::get_conditions(CONDPARAM_HARDCODED_ONLY);
+            $overrideconditions = bo_info::get_conditions(CONDPARAM_MFORM_ONLY);
             $overrideconditionsarray = [];
             foreach ($overrideconditions as $overridecondition) {
+                // We do not combine conditions with each other.
+                if ($overridecondition->id == BO_COND_JSON_PREVIOUSLYBOOKED) {
+                    continue;
+                }
+
                 // Remove the namespace from classname.
                 $fullclassname = get_class($overridecondition); // With namespace.
                 $classnameparts = explode('\\', $fullclassname);
