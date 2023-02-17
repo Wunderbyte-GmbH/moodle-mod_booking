@@ -15,8 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 // General strings.
+$string['assignteachers'] = 'Assign teachers:';
 $string['alreadypassed'] = 'Already passed';
 $string['bookingoption'] = 'Booking option';
+$string['bookingoptionnamewithoutprefix'] = 'Name (without prefix)';
 $string['bookings'] = 'Bookings';
 $string['booking:manageoptiontemplates'] = "Manage option templates";
 $string['booking:cantoggleformmode'] = 'User can edit all settings';
@@ -25,11 +27,10 @@ $string['date_s'] = 'Date(s)';
 $string['dayofweek'] = 'Weekday';
 $string['gotomanageresponses'] = '&lt;&lt; Manage bookings';
 $string['gotomoodlecourse'] = 'Go to Moodle course';
-$string['optionsiteach'] = 'Teached by me';
 $string['messageprovider:bookingconfirmation'] = "Booking confirmations";
+$string['optionsiteach'] = 'Teached by me';
 $string['search'] = 'Search...';
 $string['teachers'] = 'Teachers';
-$string['assignteachers'] = 'Assign teachers:';
 
 // General errors.
 $string['error:choosevalue'] = 'You have to choose a value here.';

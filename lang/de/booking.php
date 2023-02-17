@@ -15,8 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 // General strings.
+$string['assignteachers'] = 'Lehrer:innen zuweisen:';
 $string['alreadypassed'] = 'Bereits vergangen';
 $string['bookingoption'] = 'Buchungsoption';
+$string['bookingoptionnamewithoutprefix'] = 'Name (ohne Präfix)';
 $string['bookings'] = 'Buchungen';
 $string['booking:manageoptiontemplates'] = "Buchungsoptionsvorlagen verwalten";
 $string['booking:cantoggleformmode'] = 'Nutzer:in darf alle Einstellungen verwalten';
@@ -25,8 +27,8 @@ $string['date_s'] = 'Termin(e)';
 $string['dayofweek'] = 'Wochentag';
 $string['gotomanageresponses'] = '&lt;&lt; Buchungen verwalten';
 $string['gotomoodlecourse'] = 'Zum Moodle-Kurs';
-$string['optionsiteach'] = 'Von mir geleitet';
 $string['messageprovider:bookingconfirmation'] = "Buchungsbestätigungen";
+$string['optionsiteach'] = 'Von mir geleitet';
 $string['search'] = 'Suche...';
 $string['teachers'] = 'Trainer:innen';
 

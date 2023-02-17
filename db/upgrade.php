@@ -3365,5 +3365,17 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023021100, 'booking');
     }
 
+    if ($oldversion < 2023021700) {
+        // Add field defaultoptionsort in case it was dropped.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('defaultoptionsort', XMLDB_TYPE_CHAR, '255', null, null, null, 'text', 'bookingimagescustomfield');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2023021700, 'booking');
+    }
+
     return true;
 }

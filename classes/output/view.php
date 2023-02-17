@@ -49,6 +49,9 @@ class view implements renderable, templatable {
     /** @var int $cmid */
     private $cmid = null;
 
+    /** @var int $defaultoptionsort */
+    private $defaultoptionsort = null;
+
     /** @var string $renderedactiveoptionstable the rendered active options table */
     private $renderedactiveoptionstable = null;
 
@@ -96,11 +99,14 @@ class view implements renderable, templatable {
      * @param int $optionid
      */
     public function __construct(int $cmid, string $whichview = '', int $optionid = 0) {
-        global $DB, $USER;
+        global $USER;
 
         $this->cmid = $cmid;
 
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+
+        // Default sort order from booking settings.
+        $this->defaultoptionsort = $bookingsettings->defaultoptionsort;
 
         // If we do not have a whichview from URL, we use the default from instance settings.
         if (empty($whichview)) {
@@ -350,11 +356,32 @@ class view implements renderable, templatable {
     private function wbtable_initialize_list_layout(wunderbyte_table &$wbtable,
         bool $filter = true, bool $search = true, bool $sort = true) {
 
+        // Set default sort order.
+        switch ($this->defaultoptionsort) {
+            case 'titleprefix':
+                $wbtable->sortable(true, 'titleprefix', SORT_ASC);
+                break;
+            case 'coursestarttime':
+                // Show newest first.
+                $wbtable->sortable(true, 'coursestarttime', SORT_DESC);
+                break;
+            case 'location':
+                $wbtable->sortable(true, 'location', SORT_ASC);
+                break;
+            case 'institution':
+                $wbtable->sortable(true, 'institution', SORT_ASC);
+                break;
+            case 'text':
+            default:
+                $wbtable->sortable(true, 'text', SORT_ASC);
+                break;
+        }
+
         // Activate sorting.
         $wbtable->cardsort = true;
 
         // Without defining sorting won't work!
-        $wbtable->define_columns(['titleprefix']);
+        $wbtable->define_columns(['titleprefix', 'coursestarttime']);
 
         $wbtable->add_subcolumns('leftside', ['invisibleoption', 'text', 'action', 'teacher']);
         $wbtable->add_subcolumns('footer', ['bookings', 'minanswers', 'dayofweektime', 'location', 'institution',
@@ -442,8 +469,9 @@ class view implements renderable, templatable {
 
         if ($sort) {
             $wbtable->define_sortablecolumns([
+                'coursestarttime' => get_string('optiondatestart', 'mod_booking'),
                 'titleprefix' => get_string('titleprefix', 'mod_booking'),
-                'text' => get_string('bookingoption', 'mod_booking'),
+                'text' => get_string('bookingoptionnamewithoutprefix', 'mod_booking'),
                 'location' => get_string('location', 'mod_booking'),
                 'institution' => get_string('institution', 'mod_booking'),
             ]);
