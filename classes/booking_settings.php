@@ -283,6 +283,9 @@ class booking_settings {
     /** @var int bookingimagescustomfield */
     public $bookingimagescustomfield = null;
 
+    /** @var string $defaultoptionsort */
+    public $defaultoptionsort = null;
+
     /** @var string $showviews */
     public $showviews = null;
 
@@ -449,6 +452,7 @@ class booking_settings {
             $this->showlistoncoursepage = $dbrecord->showlistoncoursepage;
             $this->coursepageshortinfo = $dbrecord->coursepageshortinfo;
             $this->bookingimagescustomfield = $dbrecord->bookingimagescustomfield;
+            $this->defaultoptionsort = $dbrecord->defaultoptionsort;
             $this->showviews = $dbrecord->showviews;
             $this->customtemplateid = $dbrecord->customtemplateid;
             $this->autcractive = $dbrecord->autcractive;

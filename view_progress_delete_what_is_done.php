@@ -285,6 +285,13 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
             }
         }
 
+        // TODO: myinstitution Tab!
+
+        if ($myoptions->myoptions > 0 && !has_capability('mod/booking:readresponses', $context)) {
+            $conditionsparams['onlyinstitution1'] = $USER->institution;
+            $conditions[] = 'tu.institution LIKE :onlyinstitution1';
+        }
+
         // TODO: groupmode (??).
 
         if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS &&
