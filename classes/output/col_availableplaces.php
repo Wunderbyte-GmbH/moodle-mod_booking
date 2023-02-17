@@ -29,6 +29,7 @@ use context_module;
 use mod_booking\booking_answers;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
+use mod_booking\utils\wb_payment;
 use moodle_url;
 use renderer_base;
 use renderable;
@@ -55,6 +56,9 @@ class col_availableplaces implements renderable, templatable {
 
     /** @var string $manageresponsesurl */
     private $manageresponsesurl = null;
+
+    /** @var array $bookinginformation */
+    private $bookinginformation = [];
 
     /**
      * The constructor takes the values from db.
@@ -83,6 +87,78 @@ class col_availableplaces implements renderable, templatable {
             // Use html_entity_decode to convert "&amp;" to a simple "&" character.
             $this->manageresponsesurl = html_entity_decode($link->out());
         }
+
+        if ($this->buyforuser) {
+            $userid = $this->buyforuser->id;
+        } else {
+            $userid = 0;
+        }
+
+        // We got the array of all the booking information.
+        $fullbookinginformation = $this->bookinganswers->return_all_booking_information($userid);
+        // We need to pop out the first value which is by itself another array containing the information we need.
+        $bookinginformation = array_pop($fullbookinginformation);
+
+        // We need this to render a link to manage bookings in the template.
+        if (!empty($this->showmanageresponses) && $this->showmanageresponses == true) {
+            if (is_array($bookinginformation)) {
+                $bookinginformation['showmanageresponses'] = true;
+                $bookinginformation['manageresponsesurl'] = $this->manageresponsesurl;
+            }
+        }
+
+        // PRO feature: Info texts instead of the actual booking numbers.
+        // Booking places.
+        if (!has_capability('mod/booking:updatebooking', $context) &&
+            get_config('booking', 'bookingplacesinfotexts')
+            && !empty($bookinginformation['maxanswers'])) {
+
+            $bookinginformation['showbookingplacesinfotext'] = true;
+
+            $bookingplaceslowpercentage = get_config('booking', 'bookingplaceslowpercentage');
+            $actualpercentage = ($bookinginformation['freeonlist'] / $bookinginformation['maxanswers']) * 100;
+
+            if ($bookinginformation['freeonlist'] == 0) {
+                // No places left.
+                $bookinginformation['bookingplacesinfotext'] = get_string('bookingplacesfullmessage', 'mod_booking');
+                $bookinginformation['bookingplacesclass'] = 'text-danger';
+            } else if ($actualpercentage <= $bookingplaceslowpercentage) {
+                // Only a few places left.
+                $bookinginformation['bookingplacesinfotext'] = get_string('bookingplaceslowmessage', 'mod_booking');
+                $bookinginformation['bookingplacesclass'] = 'text-danger';
+            } else {
+                // Still enough places left.
+                $bookinginformation['bookingplacesinfotext'] = get_string('bookingplacesenoughmessage', 'mod_booking');
+                $bookinginformation['bookingplacesclass'] = 'text-success';
+            }
+        }
+        // Waiting list places.
+        if (!has_capability('mod/booking:updatebooking', $context) &&
+            get_config('booking', 'waitinglistinfotexts')
+            && !empty($bookinginformation['maxoverbooking'])) {
+
+            $bookinginformation['showwaitinglistplacesinfotext'] = true;
+
+            $waitinglistlowpercentage = get_config('booking', 'waitinglistlowpercentage');
+            $actualwlpercentage = ($bookinginformation['freeonwaitinglist'] /
+                $bookinginformation['maxoverbooking']) * 100;
+
+            if ($bookinginformation['freeonwaitinglist'] == 0) {
+                // No places left.
+                $bookinginformation['waitinglistplacesinfotext'] = get_string('waitinglistfullmessage', 'mod_booking');
+                $bookinginformation['waitinglistplacesclass'] = 'text-danger';
+            } else if ($actualwlpercentage <= $waitinglistlowpercentage) {
+                // Only a few places left.
+                $bookinginformation['waitinglistplacesinfotext'] = get_string('waitinglistlowmessage', 'mod_booking');
+                $bookinginformation['waitinglistplacesclass'] = 'text-danger';
+            } else {
+                // Still enough places left.
+                $bookinginformation['waitinglistplacesinfotext'] = get_string('waitinglistenoughmessage', 'mod_booking');
+                $bookinginformation['waitinglistplacesclass'] = 'text-success';
+            }
+        }
+
+        $this->bookinginformation = $bookinginformation;
     }
 
     /**
@@ -92,21 +168,6 @@ class col_availableplaces implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output) {
 
-        if ($this->buyforuser) {
-            $userid = $this->buyforuser->id;
-        } else {
-            $userid = 0;
-        }
-
-        // We got the array of all the booking information.
-        $bookinginformation = $this->bookinganswers->return_all_booking_information($userid);
-
-        // We need this to render a link to manage bookings in the template.
-        if (!empty($this->showmanageresponses) && $this->showmanageresponses == true) {
-            $bookinginformation['showmanageresponses'] = true;
-            $bookinginformation['manageresponsesurl'] = $this->manageresponsesurl;
-        }
-
-        return $bookinginformation;
+        return $this->bookinginformation;
     }
 }

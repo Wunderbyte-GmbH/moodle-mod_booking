@@ -25,77 +25,44 @@
         "todo" : "todo"
     }
 }}
+{{#showmanageresponses}}
+<a href="{{{manageresponsesurl}}}" style="text-decoration: none;">
+{{/showmanageresponses}}
 
-{{#showmanageresponses}}<a href="{{{manageresponsesurl}}}" style="text-decoration: none;">{{/showmanageresponses}}
-{{#iambooked}}
-    {{#maxanswers}}
-        <span class="col-ap-availableplaces">
+{{! Booking places }}
+{{#maxanswers}}
+    <span class="col-ap-availableplaces {{#bookingplacesclass}}{{.}}{{/bookingplacesclass}}">
+        {{^showbookingplacesinfotext}}
             {{#fullybooked}}
                 <span class="text-danger font-weight-bold">{{booked}}</span>
             {{/fullybooked}}
             {{^fullybooked}}
                 <span class="text-success font-weight-bold">{{booked}}</span>
             {{/fullybooked}}
-             / {{maxanswers}}
-        </span>
-    {{/maxanswers}}
-    {{^maxanswers}}
-        <span class="text-success font-weight-bold">{{booked}}</span>
-             / {{#str}} unlimitedplaces, mod_booking {{/str}}
-    {{/maxanswers}}
-    {{#maxoverbooking}}
-        <span class="col-ap-waitingplacesavailable">
-            ({{#str}} waitinglist, mod_booking {{/str}}: {{waiting}}/{{maxoverbooking}})
-        </span>
-    {{/maxoverbooking}}
-{{/iambooked}}
+                / {{maxanswers}}
+        {{/showbookingplacesinfotext}}
+        {{#showbookingplacesinfotext}}
+            {{bookingplacesinfotext}}
+        {{/showbookingplacesinfotext}}
+    </span>
+{{/maxanswers}}
+{{^maxanswers}}
+    <span class="text-success font-weight-bold">{{booked}}</span>
+            / {{#str}} unlimitedplaces, mod_booking {{/str}}
+{{/maxanswers}}
 
-{{#onwaitinglist}}
-    {{#maxanswers}}
-        <span class="col-ap-availableplaces">
-            {{#fullybooked}}
-                <span class="text-danger font-weight-bold">{{booked}}</span>
-            {{/fullybooked}}
-            {{^fullybooked}}
-                <span class="text-success font-weight-bold">{{booked}}</span>
-            {{/fullybooked}}
-             / {{maxanswers}}
-        </span>
-    {{/maxanswers}}
-    {{^maxanswers}}
-        <span class="col-ap-availableplaces">
-            <span class="text-success font-weight-bold">{{booked}}</span>
-             / {{#str}} unlimitedplaces, mod_booking {{/str}}
-        </span>
-    {{/maxanswers}}
-    {{#maxoverbooking}}
-        <span class="col-ap-waitingplacesavailable">
+{{! Waiting list places }}
+{{#maxoverbooking}}
+    <span class="col-ap-waitingplacesavailable {{#waitinglistplacesclass}}{{.}}{{/waitinglistplacesclass}}">
+        {{^showwaitinglistplacesinfotext}}
             ({{#str}} waitinglist, mod_booking {{/str}}: {{waiting}}/{{maxoverbooking}})
-        </span>
-    {{/maxoverbooking}}
-{{/onwaitinglist}}
+        {{/showwaitinglistplacesinfotext}}
+        {{#showwaitinglistplacesinfotext}}
+            {{waitinglistplacesinfotext}}
+        {{/showwaitinglistplacesinfotext}}
+    </span>
+{{/maxoverbooking}}
 
-{{#notbooked}}
-    {{#maxanswers}}
-        <span class="col-ap-availableplaces">
-            {{#fullybooked}}
-                <span class="text-danger font-weight-bold">{{booked}}</span>
-            {{/fullybooked}}
-            {{^fullybooked}}
-                <span class="text-success font-weight-bold">{{booked}}</span>
-            {{/fullybooked}}
-             / {{maxanswers}}
-        </span>
-    {{/maxanswers}}
-    {{^maxanswers}}
-        <span class="text-success font-weight-bold">{{booked}}</span>
-             / {{#str}} unlimitedplaces, mod_booking {{/str}}
-    {{/maxanswers}}
-    {{#maxoverbooking}}
-        <span class="col-ap-waitingplacesavailable">
-            ({{#str}} waitinglist, mod_booking {{/str}}: {{waiting}}/{{maxoverbooking}})
-        </span>
-    {{/maxoverbooking}}
-{{/notbooked}}
+{{#showmanageresponses}}
 </a>
-{{#showmanageresponses}}</a>{{/showmanageresponses}}
+{{/showmanageresponses}}
