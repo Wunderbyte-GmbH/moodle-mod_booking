@@ -357,7 +357,7 @@ class view implements renderable, templatable {
         $wbtable->define_columns(['titleprefix']);
 
         $wbtable->add_subcolumns('leftside', ['invisibleoption', 'text', 'action', 'teacher']);
-        $wbtable->add_subcolumns('footer', ['bookings', 'dayofweektime', 'location', 'institution',
+        $wbtable->add_subcolumns('footer', ['bookings', 'minanswers', 'dayofweektime', 'location', 'institution',
             'showdates', 'comments']);
         $wbtable->add_subcolumns('rightside', ['booknow', 'course', 'progressbar']);
 
@@ -389,6 +389,10 @@ class view implements renderable, templatable {
             ['bookings']);
         $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-ticket fa-fw text-gray
             font-size-sm'], ['bookings']);
+        $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left text-gray pr-2 font-size-sm'],
+            ['minanswers']);
+        $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-arrow-up fa-fw text-gray
+            font-size-sm'], ['minanswers']);
         $wbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-right'], ['booknow']);
         $wbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-left mt-1 text-gray font-size-sm'],
             ['progressbar']);

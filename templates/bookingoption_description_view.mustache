@@ -70,7 +70,7 @@
                     {{#dayofweektime}}
                     <li>
                         <span>
-                            <i class="fa fa-clock-o"></i>
+                            <i class="fa fa-fw fa-clock-o" aria-hidden="true"></i>
                         </span>
                         <span class="d-md-none">
                             {{#str}} dayofweektime, mod_booking {{/str}}
@@ -84,7 +84,7 @@
                     {{#location}}
                     <li>
                         <span>
-                            <i class="fa fa-map-marker"></i>
+                            <i class="fa fa-fw fa-map-marker" aria-hidden="true"></i>
                         </span>
                         <span class="d-md-none">
                             {{#str}} location, mod_booking {{/str}}
@@ -97,7 +97,7 @@
                     {{#institution}}
                     <li>
                         <span>
-                            <i class="fa fa-building-o"></i>
+                            <i class="fa fa-fw fa-building-o" aria-hidden="true"></i>
                         </span>
                         <span class="d-md-none">
                             {{#str}} institution, mod_booking {{/str}}
@@ -109,11 +109,19 @@
                     {{/institution}}
                     {{#bookinginformation}}
                     <li>
-                        <div class="col-ap-availableplaces" id="yui_3_17_2_1_1648034219116_756">
-                            <span><i class="fa fa-users"></i></span>
+                        <div class="col-ap-availableplaces">
+                            <span><i class="fa fa-fw fa-users" aria-hidden="true"></i></span>
                             {{> booking/col_availableplaces }}
                         </div>
                     </li>
+                    {{#minanswers}}
+                    <li>
+                        <div class="col-ap-minanswers">
+                            <span><i class="fa fa-fw fa-arrow-up" aria-hidden="true"></i></span>
+                            {{#str}} minanswers, mod_booking {{/str}}: {{.}}
+                        </div>
+                    </li>
+                    {{/minanswers}}
                     {{/bookinginformation}}
                 </ul>
               </div>

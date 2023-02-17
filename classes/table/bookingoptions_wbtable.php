@@ -645,4 +645,20 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         return $ret;
     }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * minanswers value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string a string containing the minanswers description and value
+     * @throws coding_exception
+     */
+    public function col_minanswers($values) {
+        $ret = '';
+        if (!empty($values->minanswers)) {
+            $ret = get_string('minanswers', 'mod_booking') . ": $values->minanswers";
+        }
+        return $ret;
+    }
 }

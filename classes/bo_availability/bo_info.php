@@ -455,7 +455,6 @@ class bo_info {
         // Results have to be sorted the right way. At the moment, it depends on the id of the blocking condition.
         usort($results, fn($a, $b) => ($a['id'] < $b['id'] ? 1 : -1 ));
 
-
         $condition = self::return_class_of_current_page($results, $pagenumber);
 
         // We throw an exception if we didn't get a valid pagenumber.
@@ -544,7 +543,7 @@ class bo_info {
 
         $conditionsarray = self::return_sorted_conditions($results);
 
-        // Now that we have the right order, we need to return classname which corresponds to
+        // Now that we have the right order, we need to return the corresponding classname.
         return $conditionsarray[$pagenumber]['classname'];
     }
 
