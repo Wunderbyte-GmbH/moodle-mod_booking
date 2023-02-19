@@ -56,8 +56,10 @@ class booking_subbookit {
     public static function render_bookit_button(booking_option_settings $settings, int $subbookingid, int $userid = 0) {
 
         global $PAGE;
-        $PAGE->set_context(context_module::instance($settings->cmid));
+        $PAGE->set_context(context_system::instance());
+
         $output = $PAGE->get_renderer('mod_booking');
+
         list($templates, $datas) = self::render_bookit_template_data($settings, $subbookingid, $userid);
 
         $html = '';

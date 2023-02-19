@@ -2016,4 +2016,8 @@ $string['subbooking_additionalperson'] = "Buche zusätzliche Person";
 $string['subbooking_additionalperson_desc'] = "Mit dieser zusätzlichen Buchung können Sie Plätze für z.B. Familienmitglieder buchen.";
 $string['subbooking_additionalperson_description'] = "Beschreiben Sie die Buchungsmöglichkeit.";
 
+$string['subbooking_addpersons'] = "Füge Person hinzu";
+$string['personnr'] = 'Person Nr. {$a}';
+$string['age'] = 'Alter';
+
 $string['accept'] = "Akzeptieren";

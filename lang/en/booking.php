@@ -2244,4 +2244,8 @@ $string['subbooking_additionalperson'] = "Additional person booking";
 $string['subbooking_additionalperson_desc'] = "This permits you to add other persons to this booking option, e.g. to book a place for your family.";
 $string['subbooking_additionalperson_description'] = "Describe the additional person booking option";
 
+$string['subbooking_addpersons'] = "Add an additional person";
+$string['personnr'] = 'Person n° {$a}';
+$string['age'] = 'Age';
+
 $string['accept'] = "Accept";
