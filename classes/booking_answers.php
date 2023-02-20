@@ -267,6 +267,10 @@ class booking_answers {
             $returnarray['freeonwaitinglist'] = $returnarray['maxoverbooking'] - $returnarray['waiting'];
         }
 
+        if (!empty($this->bookingoptionsettings->minanswers) && $this->bookingoptionsettings->minanswers > 0) {
+            $returnarray['minanswers'] = $this->bookingoptionsettings->minanswers;
+        }
+
         // First check list of booked users.
         if (isset($this->usersonlist[$userid]) && $this->usersonlist[$userid]->waitinglist == STATUSPARAM_BOOKED) {
             $returnarray = array('iambooked' => $returnarray);
@@ -277,10 +281,6 @@ class booking_answers {
         } else {
             // Else it's not booked.
             $returnarray = array('notbooked' => $returnarray);
-        }
-
-        if ($this->bookingoptionsettings->minanswers != 0) {
-            $returnarray['minanswers'] = $this->bookingoptionsettings->minanswers;
         }
 
         return $returnarray;
