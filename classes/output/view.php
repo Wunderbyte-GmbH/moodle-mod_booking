@@ -383,7 +383,7 @@ class view implements renderable, templatable {
         // Without defining sorting won't work!
         $wbtable->define_columns(['titleprefix', 'coursestarttime']);
 
-        $wbtable->add_subcolumns('leftside', ['invisibleoption', 'text', 'action', 'teacher']);
+        $wbtable->add_subcolumns('leftside', ['invisibleoption', 'text', 'action', 'teacher', 'statusdescription']);
         $wbtable->add_subcolumns('footer', ['bookings', 'minanswers', 'dayofweektime', 'location', 'institution',
             'showdates', 'comments']);
         $wbtable->add_subcolumns('rightside', ['booknow', 'course', 'progressbar']);

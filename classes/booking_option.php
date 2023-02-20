@@ -498,10 +498,11 @@ class booking_option {
     /**
      * Get option text depending on status of users booking.
      *
-     * @param null $userid
+     * @param booking_answers $bookinganswers
+     * @param ?int $userid optional userid
      * @return string
      */
-    public function get_option_text($bookinganswers, $userid = null) {
+    public function get_text_depending_on_status(booking_answers $bookinganswers, ?int $userid = null) {
         global $USER, $PAGE;
 
         // When we call this via webservice, we don't have a context, this throws an error.
@@ -517,7 +518,7 @@ class booking_option {
 
         // New message controller.
         $messagecontroller = new message_controller(
-            MSGCONTRPARAM_DO_NOT_SEND,
+            MSGCONTRPARAM_DO_NOT_SEND, // We do not want to send anything here.
             MSGPARAM_CONFIRMATION,
             $this->booking->cm->id,
             $this->bookingid,

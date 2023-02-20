@@ -661,4 +661,26 @@ class bookingoptions_wbtable extends wunderbyte_table {
         }
         return $ret;
     }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * "text depending on user status (statusdescription)" value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string a string containing the text depending on userstatus
+     * @throws coding_exception
+     */
+    public function col_statusdescription($values) {
+        $ret = '';
+
+        $bookingoption = singleton_service::get_instance_of_booking_option($this->cmid, $values->id);
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
+        $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
+
+        $statusdescription = $bookingoption->get_text_depending_on_status($bookinganswers);
+        if (!empty($statusdescription)) {
+            $ret = $statusdescription;
+        }
+        return $ret;
+    }
 }

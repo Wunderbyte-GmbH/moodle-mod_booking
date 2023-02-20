@@ -270,7 +270,7 @@ class bookingoption_description implements renderable, templatable {
         $this->annotation = format_text($settings->annotation, FORMAT_HTML);
 
         // Currently, this will only get the description for the current user.
-        $this->statusdescription = $bookingoption->get_option_text($bookinganswers);
+        $this->statusdescription = $bookingoption->get_text_depending_on_status($bookinganswers);
 
         // Every date will be an array of datestring and customfields.
         // But customfields will only be shown if we show booking option information inline.
