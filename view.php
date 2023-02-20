@@ -71,7 +71,6 @@ $title = $bookingsettings->name;
 
 $baseurl = new moodle_url('/mod/booking/view.php', $urlparams);
 $PAGE->set_url($baseurl);
-$PAGE->requires->js_call_amd('mod_booking/view_actions', 'setup', array($id));
 
 $PAGE->navbar->add($title);
 $PAGE->set_title(format_string($title));

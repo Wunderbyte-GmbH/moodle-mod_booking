@@ -51,27 +51,7 @@ define(['jquery', 'core/config', 'mod_booking/jquery.barrating'],
                             }
                         });
                     });
-                    $('#showHideSearch').on('click', function() {
-                        $('#tableSearch').fadeToggle("slow", "linear");
-                        $('html, body').animate({
-                            scrollTop: $("#tableSearch").offset().top - 120
-                        }, 1000);
-                    });
-                    $('.showHideOptionText').on('click', function() {
-                        $('#optiontext' + $(this).data("id")).fadeToggle("slow", "linear");
-                        $('#showtext' + $(this).data("id")).toggle();
-                        $('#hidetext' + $(this).data("id")).toggle();
-                        $('html, body').animate({
-                            scrollTop: $('#optiontext' + $(this).data("id")).offset().top - 120
-                        }, 1000);
-                    });
-                    $('#page-mod-booking-view #buttonclear')
-                            .on('click',
-                                    function() {
-                                        $('#searchtext, #searchlocation, #searchinstitution, #searchname, #searchsurname')
-                                                .val('');
-                                        $('#searchButton').trigger('click');
-                                    });
+
                     $('#page-mod-booking-report #buttonclear')
                             .on('click',
                                     function() {
@@ -79,11 +59,13 @@ define(['jquery', 'core/config', 'mod_booking/jquery.barrating'],
                                                 .val('');
                                         $('#searchButton').trigger('click');
                                     });
+
                     $('#page-mod-booking-report #usercheckboxall')
                             .click(function() {
                                 $('#studentsform input:checkbox').not(this)
                                         .prop('checked', this.checked);
                             });
+
                     $('#page-mod-booking-report #menuratingall')
                             .change(function() {
                                 $('#studentsform input:checkbox').not(this)
@@ -92,6 +74,7 @@ define(['jquery', 'core/config', 'mod_booking/jquery.barrating'],
                                 $('.booking-option-rating .postratingmenu.ratinginput [value="' + selected + '"]')
                                         .attr('selected', true);
                             });
+
                     $('#page-mod-booking-report .booking-option-rating .ratinginput')
                             .change(function() {
                                 var selectid = $(this).attr('id');
@@ -99,6 +82,7 @@ define(['jquery', 'core/config', 'mod_booking/jquery.barrating'],
                                 $('#studentsform [id=check' + selected + ']')
                                         .prop('checked', 'checked');
                             });
+
                 }
             };
         });
