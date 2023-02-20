@@ -86,8 +86,8 @@ class all_options extends table_sql {
             $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
                     new moodle_url('/mod/booking/editoptions.php',
                         array('id' => $this->cm->id, 'optionid' => $values->id)),
-                    $OUTPUT->pix_icon('t/editstring', get_string('updatebooking', 'mod_booking')) .
-                    get_string('updatebooking', 'mod_booking')) . '</div>';
+                    $OUTPUT->pix_icon('t/editstring', get_string('editbookingoption', 'mod_booking')) .
+                    get_string('editbookingoption', 'mod_booking')) . '</div>';
 
             // Multiple dates session.
             $ddoptions[] = '<div class="dropdown-item">' .
@@ -115,8 +115,8 @@ class all_options extends table_sql {
             $ddoptions[] = '<div class="dropdown-item">' .
                 html_writer::link($onlyoneurl,
                     $OUTPUT->pix_icon('i/publish',
-                        get_string('onlythisbookingurl', 'mod_booking')) .
-                    get_string('onlythisbookingurl', 'mod_booking')) . '</div>';
+                        get_string('onlythisbookingoption', 'mod_booking')) .
+                    get_string('onlythisbookingoption', 'mod_booking')) . '</div>';
 
             if (has_capability('mod/booking:updatebooking', $this->context)) {
                 $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(new moodle_url('/mod/booking/report.php',

@@ -824,7 +824,7 @@ if (!$tableallbookings->is_downloading()) {
                  ($bookingoption->option->pollsend ? ' &#x2713;' : '') . ' | ';
     }
 
-    echo html_writer::link($onlyoneurl, get_string('onlythisbookingurl', 'booking'), array());
+    echo html_writer::link($onlyoneurl, get_string('onlythisbookingoption', 'booking'), array());
     if (!empty($bookingoption->option->shorturl)) {
         echo " ({$bookingoption->option->shorturl})";
     }

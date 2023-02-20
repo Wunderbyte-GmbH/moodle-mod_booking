@@ -1525,7 +1525,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 
         if (has_capability('mod/booking:updatebooking', $context) ||
             has_capability('mod/booking:addeditownoption', $context)) {
-            $navref->add(get_string('updatebooking', 'mod_booking'),
+            $navref->add(get_string('editbookingoption', 'mod_booking'),
                     new moodle_url('/mod/booking/editoptions.php',
                             array('id' => $cm->id, 'optionid' => $optionid)),
                             navigation_node::TYPE_CUSTOM, null, 'nav_edit');

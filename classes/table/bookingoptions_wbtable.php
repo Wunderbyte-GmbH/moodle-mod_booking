@@ -480,8 +480,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
                         ['id' => $this->cmid, 'optionid' => $values->id,
                         'returnto' => 'url',
                         'returnurl' => $returnurl]),
-                    $OUTPUT->pix_icon('t/editstring', get_string('updatebooking', 'mod_booking')) .
-                    get_string('updatebooking', 'mod_booking')) . '</div>';
+                    $OUTPUT->pix_icon('t/editstring', get_string('editbookingoption', 'mod_booking')) .
+                    get_string('editbookingoption', 'mod_booking')) . '</div>';
 
             // Multiple dates session.
             $ddoptions[] = '<div class="dropdown-item">' .
@@ -524,8 +524,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $ddoptions[] = '<div class="dropdown-item">' .
                 html_writer::link($onlyoneurl,
                     $OUTPUT->pix_icon('i/publish',
-                        get_string('onlythisbookingurl', 'mod_booking')) .
-                    get_string('onlythisbookingurl', 'mod_booking')) . '</div>';
+                        get_string('onlythisbookingoption', 'mod_booking')) .
+                    get_string('onlythisbookingoption', 'mod_booking')) . '</div>';
 
             if (has_capability('mod/booking:updatebooking', $this->context)) {
                 $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(new moodle_url('/mod/booking/report.php',
