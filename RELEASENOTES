@@ -1,3 +1,41 @@
+7.9.0 (2023022000)
+* New feature: Subbookings (not yet finished, but can be activated as preview).
+* New feature: New overview page of booking options making use of Wunderbyte Table.
+* New feature: Booking is now able to handle prices in combination with Wunderbyte Shopping Cart plugin.
+* New feature: New teachers pages, teachers overview and teachers instance report now part of booking.
+* New feature: Make cancelling of booking options work both the normal way as also the shopping cart way.
+* New feature: Person sub-booking (still unfinished).
+* New feature: New button linking to connected Moodle course (shown only, if user has booked or is admin).
+* New feature: Turn off automatic moving up from waiting list after option has started.
+* New feature: Sorting of booking options is now possible via new sorting feature (sorting options: prefix, title, start, location, institution).
+* Improvement: Lots of layout and usability improvements, especially with menus.
+* Improvement: New action menu.
+* Improvement: If unlimited, we still want to see the number of bookings.
+* Improvement: Better handling of the number of available bookings. Also including a manage responses link now.
+* Improvement: Re-implemented lots of functionalities of the old view.php (some still missing, will be added in later versions).
+* Improvement: Improved optionview.php and got rid of old info modal.
+* Improvement: Behat tests.
+* Improvement: Added pre- and postpage logic for subbookings (still unfinished).
+* Improvement: Collapse dates only if there are at least 3, several fixes, layout improvements.
+* Improvement: Layout improvements, bugfixes, better menus.
+* Improvement: Temporarily removed "move to other instance" feature until we are sure, it works.
+* Improvement: Code style and code quality improvements.
+* Improvement: Better condition alert colors.
+* Improvement: Waiting list places will now also be shown in new view.php.
+* Improvement: As of Moodle 4.0 activity description will be shown automatically in header, so we remove it form business card.
+* Improvement: Better display of minimum number of participants (minanswers).
+* Improvement: Better styling of teacher icons.
+* Bugfix: Fix and improve option templates, menu entries and checkbox for limit answers.
+* Bugfix: Delete booking_teachers artifacts when a booking instance gets deleted.
+* Bugfix: Fixed a bug where users could not be booked for unlimited options and a wrong error message was shown.
+* Bugfix: Bugfix: waitinglist < 2 for booking answers in viewconfirmation.php
+* Bugfix: Fixed an issue with external functions.
+* Bugfix: Fix faulty upgrade of subbooking answer table.
+* Bugfix: Fix booking_time condition.
+* Bugfix: Avoid js execution for alert buttons in conditions.
+* Bugfix: Fix override conditions in form (combine availability conditions).
+* Bugfix: Fix available places in option view and also show manage respones link there (admins only).
+
 7.8.7 (2023012700)
 * Bugfix: Fix navigation menu entry to delete booking option and add an entry to manage responses.
 * Bugfix: Fix and improve option templates, menu entries and checkbox for limit answers.
