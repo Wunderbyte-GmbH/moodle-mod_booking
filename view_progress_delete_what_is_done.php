@@ -1,42 +1,10 @@
 <?php
 // We use this file to keep track of what is already migrated to new view.php.
-require_once(__DIR__ . '/../../config.php');
-require_once("locallib.php");
-require_once($CFG->libdir . '/completionlib.php');
-require_once("{$CFG->libdir}/tablelib.php");
-
-$download = optional_param('download', '', PARAM_ALPHA);
-$optionid = optional_param('optionid', '', PARAM_INT);
-$confirm = optional_param('confirm', '', PARAM_INT);
-$answer = optional_param('answer', '', PARAM_ALPHANUM);
-$sorto = optional_param('sort', '1', PARAM_INT);
-
-$urlparams = array();
-
-$urlparams['id'] = $id;
-
-$booking = new booking($cm->id);
-
-
-// TODO: was ist das?
-$booking->checkautocreate();
-
-// TODO: check, ob richtige URL gesetzt.
-$PAGE->set_url($url);
 
 // TODO: check, was view_actions.js macht!
 $PAGE->requires->js_call_amd('mod_booking/view_actions', 'setup', array($id));
 
-// TODO: checken, ob wir das noch brauchen.
-$booking->apply_tags();
-
-// TODO: checken, ob wir das noch brauchen.
-$booking->get_url_params();
-
-
-
 if (!$current && $bookingopen && has_capability('mod/booking:choose', $context)) {
-
 
     if (!$tablealloptions->is_downloading()) {
 
@@ -85,38 +53,10 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
                 }
 
                 echo html_writer::start_tag('div');
-                echo html_writer::tag('label', get_string('category', 'booking') . ': ',
+                echo html_writer::tag('label', get_string('categoryheader', 'booking') . ': ',
                         array('class' => 'bold'));
                 echo html_writer::tag('span', implode(', ', $links));
                 echo html_writer::end_tag('div');
-            }
-        }
-
-        // TODO: bookingpolicy
-        if (strlen($booking->settings->bookingpolicy) > 0) {
-            $link = new moodle_url('/mod/booking/viewpolicy.php', array('id' => $cm->id));
-            echo $OUTPUT->action_link($link, get_string("bookingpolicy", "booking"),
-                    new popup_action('click', $link));
-        }
-
-        // TODO: verfügbarkeit => check, ob Einschränkung per Datum noch funktioniert!
-        if ($booking->settings->timeclose != 0) {
-            if ($booking->settings->timeopen > $timenow &&
-                     !has_capability('mod/booking:updatebooking', $context)) {
-                echo $OUTPUT->box(
-                        get_string("notopenyet", "booking",
-                                userdate($booking->settings->timeopen, get_string('strftimedate', 'langconfig'))),
-                        "center");
-                echo $OUTPUT->footer();
-                exit();
-            } else if ($booking->settings->timeclose < $timenow &&
-                     !has_capability('mod/booking:updatebooking', $context)) {
-                echo $OUTPUT->box(
-                        get_string("expired", "booking", userdate($booking->settings->timeclose)),
-                        "center");
-                $bookingopen = false;
-                echo $OUTPUT->footer();
-                exit();
             }
         }
 
@@ -283,13 +223,6 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
                 AND uif.shortname = '{$profilefield->shortname}') AS cust" .
                 strtolower($profilefield->shortname);
             }
-        }
-
-        // TODO: myinstitution Tab!
-
-        if ($myoptions->myoptions > 0 && !has_capability('mod/booking:readresponses', $context)) {
-            $conditionsparams['onlyinstitution1'] = $USER->institution;
-            $conditions[] = 'tu.institution LIKE :onlyinstitution1';
         }
 
         // TODO: groupmode (??).

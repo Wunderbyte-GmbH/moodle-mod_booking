@@ -384,7 +384,7 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
                 }
 
                 echo html_writer::start_tag('div');
-                echo html_writer::tag('label', get_string('category', 'booking') . ': ',
+                echo html_writer::tag('label', get_string('categoryheader', 'booking') . ': ',
                         array('class' => 'bold'));
                 echo html_writer::tag('span', implode(', ', $links));
                 echo html_writer::end_tag('div');

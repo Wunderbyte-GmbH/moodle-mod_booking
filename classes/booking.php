@@ -549,9 +549,15 @@ class booking {
 
                 if ($nrec === 0) {
                     $bookingoption = $DB->get_record('booking_options', array('id' => $this->settings->autcrtemplate));
-                    $bookingoption->text = "{$USER->institution} - " . fullname($USER);
+                    $bookingoption->text = '';
+                    if (!empty($USER->institution)) {
+                        $bookingoption->text .= "{$USER->institution} - ";
+                    } else {
+                        $bookingoption->text .= "[AUTO] ";
+                    }
+                    $bookingoption->text .= "{$USER->firstname} {$USER->lastname}";
                     $bookingoption->bookingid = $this->id;
-                    $bookingoption->description = (is_null($bookingoption->description) ? '' : $bookingoption->description);
+                    $bookingoption->description = (empty($bookingoption->description) ? '' : $bookingoption->description);
                     unset($bookingoption->id);
 
                     $nrecid = $DB->insert_record('booking_options', $bookingoption, true, false);

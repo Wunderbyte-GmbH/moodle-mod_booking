@@ -36,7 +36,7 @@ require_login($courseid, false);
 
 $PAGE->set_pagelayout('standard');
 
-$title = get_string('category', 'booking');
+$title = get_string('categoryheader', 'booking');
 
 $PAGE->navbar->add(get_string('addcategory', 'booking'));
 $PAGE->set_heading($COURSE->fullname);

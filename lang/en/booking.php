@@ -223,6 +223,7 @@ $string['howmanytimestorepeat'] = 'How many times to repeat?';
 $string['howoftentorepeat'] = 'How often to repeat?';
 
 // Categories.
+$string['categoryheader'] = '[DEPRECATED] Category';
 $string['category'] = 'Category';
 $string['categories'] = 'Categories';
 $string['addcategory'] = 'Edit categories';
@@ -341,10 +342,10 @@ $string['bookingoptiontext'] = "Booking option text depending on booking status"
 $string['beforebookedtext'] = 'Before booked';
 $string['beforecompletedtext'] = 'After booked';
 $string['aftercompletedtext'] = 'After activity completed';
-$string['conectedbooking'] = 'Connected booking';
+$string['connectedbooking'] = '[DEPRECATED] Connected booking';
 $string['errorpagination'] = 'Please enter a number bigger than 0';
 $string['notconectedbooking'] = 'Not connected';
-$string['conectedbooking_help'] = 'Booking instance eligible for transferring booked users. You can define from which option within the selected booking instance and how many users you will accept.';
+$string['connectedbooking_help'] = 'Booking instance eligible for transferring booked users. You can define from which option within the selected booking instance and how many users you will accept.';
 $string['cancancelbook'] = 'Allow user to cancel the booking during the booking period?';
 $string['cancancelbookdays'] = 'Disallow users to cancel their booking n days before start. Minus means, that users can still cancel n days AFTER course start.';
 $string['cancancelbookdaysno'] = "Don't limit";
@@ -362,7 +363,6 @@ $string['activatemails'] = 'Activate e-mails (confirmations, notifications and m
 $string['sendcopytobookingmanger'] = 'Send confirmation e-mail to booking manager';
 $string['allowdelete'] = 'Allow users to cancel their booking themselves';
 $string['bookingpolicy'] = 'Booking policy';
-$string['confirmationmessagesettings'] = 'Confirmation e-mail settings';
 $string['usernameofbookingmanager'] = 'Choose a booking manager';
 $string['usernameofbookingmanager_help'] = 'Username of the user who will be displayed in the "From" field of the confirmation notifications. If the option "Send confirmation e-mail to booking manager" is enabled, this is the user who receives a copy of the confirmation notifications.';
 $string['bookingmanagererror'] = 'The username entered is not valid. Either it does not exist or there are more then one users with this username (example: if you have mnet and local authentication enabled)';
@@ -390,6 +390,7 @@ $string['notes'] = 'Booking notes';
 $string['uploadheaderimages'] = 'Header images for booking options';
 $string['bookingimagescustomfield'] = 'Booking option custom field to match the header images with';
 $string['bookingimages'] = 'Upload header images for booking options - they need to have the exact same name as the value of the selected customfield in each booking option.';
+$string['emailsettings'] = 'E-mail settings';
 
 // Mail templates (instance specific or global).
 $string['mailtemplatesadvanced'] = 'Activate advanced settings for e-mail templates';
@@ -1706,8 +1707,9 @@ $string['customdownloadreport'] = 'Download report';
 $string['bookingoptionsfromtemplatemenu'] = 'New booking option from template';
 
 // Automatic option creation.
-$string['autcrheader'] = 'Automatic booking option creation';
-$string['autcrwhatitis'] = 'If this option is enabled it automatically creates a new booking option and assigns a user as booking manager / teacher to it. Users are selected based on a custom user profile field value.';
+$string['autcrheader'] = '[DEPRECATED] Automatic booking option creation';
+$string['autcrwhatitis'] = 'If this option is enabled it automatically creates a new booking option and assigns
+ a user as booking manager / teacher to it. Users are selected based on a custom user profile field value.';
 $string['enable'] = 'Enable';
 $string['customprofilefield'] = 'Custom profile field to check';
 $string['customprofilefieldvalue'] = 'Custom profile field value to check';

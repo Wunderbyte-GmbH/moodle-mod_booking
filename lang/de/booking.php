@@ -224,6 +224,7 @@ $string['usercalendarentry'] = 'Sie haben <a href="{$a}">diese Option</a> gebuch
 $string['bookingoptioncalendarentry'] = '<a href="{$a}" class="btn btn-primary">Jetzt buchen...</a>';
 
 // Categories.
+$string['categoryheader'] = '[VERALTET] Kategorie';
 $string['category'] = 'Kategorie';
 $string['categories'] = 'Kategorien';
 $string['addcategory'] = 'Kategorien bearbeiten';
@@ -333,10 +334,10 @@ $string['bookingoptiontext'] = 'Statusabhängiger Buchungsoptionstext';
 $string['beforebookedtext'] = 'Vor der Buchung';
 $string['beforecompletedtext'] = 'Nach der Buchung';
 $string['aftercompletedtext'] = 'Nach Aktivitätsabschluss';
-$string['conectedbooking'] = 'Vorgeschaltete Buchung';
+$string['connectedbooking'] = '[VERALTET] Vorgeschaltete Buchung';
 $string['errorpagination'] = 'Geben Sie ein Zahl ein, die größer als 0 ist';
 $string['notconectedbooking'] = 'Nicht vorgeschaltete Buchung';
-$string['conectedbooking_help'] = 'Buchung von der Teilnehmer:innen übernommen werden. Es kann bestimmt werden wie viele Teilnehmer:innen übernommen werden.';
+$string['connectedbooking_help'] = 'Buchung von der Teilnehmer:innen übernommen werden. Es kann bestimmt werden wie viele Teilnehmer:innen übernommen werden.';
 $string['cancancelbook'] = 'Nutzer:innen das Stornieren und buchen nach dem Buchungsstart erlauben?';
 $string['cancancelbookdays'] = 'Nutzer:innen künnen nur bis n Tage vor Kursstart stronieren. Negative Werte meinen n Tage NACH Kursstart.';
 $string['cancancelbookdaysno'] = 'Kein Limit';
@@ -354,7 +355,6 @@ $string['activatemails'] = 'E-Mails aktivieren (Bestätigungen, Erinnerungen etc
 $string['sendcopytobookingmanger'] = 'Eine Kopie der Bestätigungsmail an den Buchungsverwalter senden';
 $string['allowdelete'] = 'Teilnehmer:innen dürfen Buchungen selbst stornieren';
 $string['bookingpolicy'] = 'Buchungsbedingungen - bookingpolicy';
-$string['confirmationmessagesettings'] = 'Buchungsbestätigungseinstellungen';
 $string['usernameofbookingmanager'] = 'Buchungsverwalter/in auswählen';
 $string['usernameofbookingmanager_help'] = 'Nutzername des/der Nutzer/in, der als Absender/in der Buchungsbestätigunsmitteilungen angeführt wird. Wenn die Option "Eine Kopie des Bestätigungsmail an Buchungsverwalter senden" aktiviert ist, wird die Kopie der Buchungsbestätigung an diese/n Nutzer/in gesendet.';
 $string['bookingmanagererror'] = 'Der angegebene Nutzername ist ungültig. Entweder existiert der/die Nutzer/in nicht oder es gibt mehrere Nutzer:innen mit dem selben Nutzernamen (Dies ist zum Beispiel der Fall, wenn Sie MNET und lokale Authentifizierung gleichzeitig aktiviert haben)';
@@ -382,6 +382,7 @@ $string['notes'] = 'Anmerkungen zur Buchung';
 $string['uploadheaderimages'] = 'Header-Bilder für Buchungsoptionen';
 $string['bookingimagescustomfield'] = 'Benutzerdefiniertes Feld von Buchungsoptionen, mit dem die Header-Bilder gematcht werden';
 $string['bookingimages'] = 'Header-Bilder für Buchungsoptionen hochladen - diese müssen exakt den selben Namen haben, wie der jeweilige Wert, den das ausgewählte benutzerdefinierte Feld in der jeweiligen Buchungsoption hat.';
+$string['emailsettings'] = 'E-Mail-Einstellungen';
 
 // Mail templates (Instanz-spezifisch oder global).
 $string['mailtemplatesadvanced'] = 'Erweiterte Einstelllungen für E-Mail-Vorlagen aktivieren';
@@ -1510,6 +1511,25 @@ $string['signinsheetaddress'] = 'Adresse: ';
 $string['signinsheetlocation'] = 'Ort: ';
 $string['signinsheetdatetofillin'] = 'Datum: ';
 $string['linkgotobookingoption'] = 'Buchung anzeigen: {$a}</a>';
+
+// Custom report templates.
+$string['managecustomreporttemplates'] = 'Vorlagen für benutzerdefinierte Berichte verwalten';
+$string['customreporttemplates'] = 'Vorlagen für benutzerdefinierte Berichte';
+$string['customreporttemplate'] = 'Vorlage für benutzerdefinierten Bericht';
+$string['addnewreporttemplate'] = 'Vorlage für Bericht hinzufügen';
+$string['templatefile'] = 'Datei für Vorlage';
+$string['templatesuccessfullysaved'] = 'Vorlage wurde gespeichert';
+$string['customdownloadreport'] = 'Bericht herunterladen';
+$string['bookingoptionsfromtemplatemenu'] = 'Neue Buchungsoption aus Vorlage erstellen';
+
+// Automatic option creation.
+$string['autcrheader'] = '[VERALTET] Automatisches Erstellen von Buchungsoptionen';
+$string['autcrwhatitis'] = 'If this option is enabled it automatically creates a new booking option and assigns
+ a user as booking manager / teacher to it. Users are selected based on a custom user profile field value.';
+$string['enable'] = 'Enable';
+$string['customprofilefield'] = 'Custom profile field to check';
+$string['customprofilefieldvalue'] = 'Custom profile field value to check';
+$string['optiontemplate'] = 'Option template';
 
 // Link.php.
 $string['bookingnotopenyet'] = 'Ihr Event startet erst in {$a} Minuten. Dieser Link wird Sie ab 15 Minuten vor dem Event weiterleiten.';

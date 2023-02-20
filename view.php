@@ -26,7 +26,6 @@
  */
 
 use mod_booking\output\business_card;
-use mod_booking\output\instance_description;
 use mod_booking\output\view;
 use mod_booking\singleton_service;
 
@@ -53,6 +52,9 @@ $urlparams = [
 ];
 // SQL params.
 $params = [];
+
+$booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
+$booking->checkautocreate();
 
 $PAGE->set_context($context);
 

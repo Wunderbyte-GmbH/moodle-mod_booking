@@ -272,8 +272,8 @@ class mod_booking_mod_form extends moodleform_mod {
             'accepted_types' => array('image')));
 
         // Confirmation message.
-        $mform->addElement('header', 'confirmation',
-                get_string('confirmationmessagesettings', 'booking'));
+        $mform->addElement('header', 'emailsettings',
+                get_string('emailsettings', 'booking'));
 
         $mform->addElement('selectyesno', 'sendmail', get_string("activatemails", "booking"));
 
@@ -646,14 +646,14 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('selectyesno', 'removeuseronunenrol', get_string("removeuseronunenrol", "booking"));
         // Category.
 
-        $mform->addElement('header', 'categoryheader', get_string('category', 'booking'));
+        $mform->addElement('header', 'categoryheader', get_string('categoryheader', 'booking'));
 
         $url = $CFG->wwwroot . '/mod/booking/categories.php';
         if (isset($COURSE->id)) {
             $url .= '?courseid=' . $COURSE->id;
         }
 
-        $select = $mform->addElement('select', 'categoryid', get_string('category', 'booking'),
+        $select = $mform->addElement('select', 'categoryid', get_string('categoryheader', 'booking'),
                 $options, array('size' => 15));
         $select->setMultiple(true);
 
@@ -798,7 +798,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         // Connected bookings.
         $mform->addElement('header', 'conectedbookingheader',
-                get_string('conectedbooking', 'booking'));
+                get_string('connectedbooking', 'booking'));
 
         $bookings = $DB->get_records('booking', array('course' => $COURSE->id));
 
@@ -809,9 +809,9 @@ class mod_booking_mod_form extends moodleform_mod {
         }
 
         $mform->addElement('select', 'conectedbooking',
-                get_string('conectedbooking', 'mod_booking'), $opts);
+                get_string('connectedbooking', 'mod_booking'), $opts);
         $mform->setDefault('conectedbooking', 0);
-        $mform->addHelpButton('conectedbooking', 'conectedbooking', 'mod_booking');
+        $mform->addHelpButton('conectedbooking', 'connectedbooking', 'mod_booking');
 
         // Teachers.
         $mform->addElement('header', 'teachers',
