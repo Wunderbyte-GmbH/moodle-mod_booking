@@ -28,6 +28,7 @@ use context_module;
 use html_writer;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
+use mod_booking\booking_answers;
 use mod_booking\booking_bookit;
 use mod_booking\booking_option;
 use mod_booking\dates_handler;
@@ -49,88 +50,94 @@ use templatable;
 class bookingoption_description implements renderable, templatable {
 
     /** @var string $identifier unique identifier of the booking option */
-    public $identifier = null;
+    private $identifier = null;
 
     /** @var string $title the title (column text) as it is saved in db */
-    public $title = null;
+    private $title = null;
 
     /** @var string $titleprefix prefix to be shown before title */
-    public $titleprefix = null;
+    private $titleprefix = null;
 
     /** @var int $modalcounter */
-    public $modalcounter = null;
+    private $modalcounter = null;
 
     /** @var bool $invisible is the booking option invisible to normal users? */
-    public $invisible = null;
+    private $invisible = null;
 
     /** @var string $annotation internal annotation */
-    public $annotation = null;
+    private $annotation = null;
 
     /** @var int $userid */
-    public $userid = null;
+    private $userid = null;
 
     /** @var string $description from DB */
-    public $description = null;
+    private $description = null;
 
     /** @var string $statusdescription depending on booking status */
-    public $statusdescription = null;
+    private $statusdescription = null;
 
     /** @var string $imageurl URL of an uploaded image for the option */
-    public $imageurl = null;
+    private $imageurl = null;
 
     /** @var string $location as saved in db */
-    public $location = null;
+    private $location = null;
 
     /** @var string $address as saved in db */
-    public $address = null;
+    private $address = null;
 
     /** @var string $institution as saved in db */
-    public $institution = null;
+    private $institution = null;
 
     /** @var string $duration is saved in db as seconds and will be formatted in this class */
-    public $duration = null;
+    private $duration = null;
 
     /** @var string $booknowbutton as saved in db in minutes */
-    public $booknowbutton = null;
+    private $booknowbutton = null;
 
     /** @var array $dates as saved in db in minutes */
-    public $dates = [];
+    private $dates = [];
 
     /** @var array $teachers by names */
-    public $teachers = [];
+    private $teachers = [];
 
     /** @var float $price */
-    public $price = null;
+    private $price = null;
 
     /** @var float $priceformulaadd */
-    public $priceformulaadd = null;
+    private $priceformulaadd = null;
 
     /** @var float $priceformulamultiply */
-    public $priceformulamultiply = null;
+    private $priceformulamultiply = null;
 
     /** @var string $currency */
-    public $currency = null;
+    private $currency = null;
 
     /** @var string $pricecategoryname */
-    public $pricecategoryname = null;
+    private $pricecategoryname = null;
 
     /** @var string $dayofweektime */
-    public $dayofweektime = null;
+    private $dayofweektime = null;
 
     /** @var array $customfields */
-    public $customfields = [];
+    private $customfields = [];
 
     /** @var array $bookinginformation */
-    public $bookinginformation = [];
+    private $bookinginformation = [];
 
     /** @var stdClass $usertobuyfor */
-    public $usertobuyfor = null;
+    private $usertobuyfor = null;
 
     /** @var string $bookitsection */
-    public $bookitsection = null;
+    private $bookitsection = null;
 
     /** @var string $unitstring */
-    public $unitstring = null;
+    private $unitstring = null;
+
+    /** @var bool $showmanageresponses */
+    private $showmanageresponses = null;
+
+    /** @var string $manageresponsesurl */
+    private $manageresponsesurl = null;
 
     /**
      * Constructor.
@@ -156,7 +163,6 @@ class bookingoption_description implements renderable, templatable {
         // Booking answers class uses caching.
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $cmid = $settings->cmid;
-        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
         $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
         $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
 
@@ -226,7 +232,31 @@ class bookingoption_description implements renderable, templatable {
         }
 
         // We got the array of all the booking information.
-        $this->bookinginformation = $bookinganswers->return_all_booking_information($user->id);
+        $fullbookinginformation = $bookinganswers->return_all_booking_information($user->id);
+        // We need to pop out the first value which is by itself another array containing the information we need.
+        $this->bookinginformation = array_pop($fullbookinginformation);
+
+        $context = context_module::instance($cmid);
+        if (has_capability('mod/booking:updatebooking', $context) ||
+             has_capability('mod/booking:addeditownoption', $context)) {
+            $this->showmanageresponses = true;
+
+            // Add a link to redirect to the booking option.
+            $link = new moodle_url($CFG->wwwroot . '/mod/booking/report.php', array(
+                'id' => $cmid,
+                'optionid' => $optionid
+            ));
+            // Use html_entity_decode to convert "&amp;" to a simple "&" character.
+            $this->manageresponsesurl = html_entity_decode($link->out());
+        }
+
+        // We need this to render a link to manage bookings in the template.
+        if (!empty($this->showmanageresponses) && $this->showmanageresponses == true) {
+            if (is_array($this->bookinginformation)) {
+                $this->bookinginformation['showmanageresponses'] = true;
+                $this->bookinginformation['manageresponsesurl'] = $this->manageresponsesurl;
+            }
+        }
 
         // Description from booking option settings formatted as HTML.
         // When we call this via webservice, we don't have a context, this throws an error.
@@ -326,7 +356,6 @@ class bookingoption_description implements renderable, templatable {
             case DESCRIPTION_OPTIONVIEW:
                 // Get the availability information for this booking option.
                 // boinfo contains availability information, description, visibility information etc.
-                $boinfo = new bo_info($settings);
 
                 // We set usertobuyfor here for better performance.
                 $this->usertobuyfor = price::return_user_to_buy_for();
