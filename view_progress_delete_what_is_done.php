@@ -38,28 +38,6 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
             echo $OUTPUT->tag_list($tags, null, 'booking-tags');
         }
 
-        // TODO: category - brauchen wir das noch??
-        if ($booking->settings->categoryid != '0' && $booking->settings->categoryid != '') {
-            $categoryies = explode(',', $booking->settings->categoryid);
-
-            if (count($categoryies) > 0) {
-                $links = array();
-                foreach ($categoryies as $category) {
-                    $tmpcat = $DB->get_record('booking_category', array('id' => $category));
-                    if ($tmpcat) {
-                        $surl = new moodle_url('/mod/booking/category.php', array('id' => $id, 'category' => $tmpcat->id));
-                        $links[] = html_writer::link($surl, $tmpcat->name, array());
-                    }
-                }
-
-                echo html_writer::start_tag('div');
-                echo html_writer::tag('label', get_string('categoryheader', 'booking') . ': ',
-                        array('class' => 'bold'));
-                echo html_writer::tag('span', implode(', ', $links));
-                echo html_writer::end_tag('div');
-            }
-        }
-
 
         // TODO: Groups - wie hat das funktioniert??
 

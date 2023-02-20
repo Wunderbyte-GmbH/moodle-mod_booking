@@ -386,14 +386,12 @@ if (!$tableallbookings->is_downloading()) {
                 $bookingoption->option) || has_capability('moodle/rating:rate', $context))) {
 
             $allusers = $bookingoption->get_all_users();
-            $bookedusers = array();
             $ratings = array();
-            foreach ($allusers as $baid => $user) {
+            foreach ($allusers as $userid => $user) {
                 if (in_array($user->userid, $allselectedusers) && $user->userid != $USER->id) {
                     $rating = new stdClass();
-                    $bookedusers[$user->userid] = $baid;
-                    $bookinganswerid = "rating" . $bookedusers[$user->userid];
-
+                    $baid = $user->baid;
+                    $bookinganswerid = "rating" . $baid;
                     $rating->rateduserid = $user->userid;
                     $rating->itemid = $baid;
                     $rating->rating = $_POST[$bookinganswerid];

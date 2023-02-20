@@ -34,29 +34,22 @@ require_once('../../lib/tablelib.php');
  */
 class all_userbookings extends \table_sql {
 
-    /**
-     * @var booking_option|null
-     */
+    /** @var booking_option|null */
     public $bookingdata = null;
 
-    /**
-     * @var \   course_module|\stdClass|null
-     */
+    /** @var \   course_module|\stdClass|null */
     public $cm = null;
 
     public $db = null;
 
-    /**
-     *
-     * @var int
-     */
+    /** @var int $optionid*/
     public $optionid = null;
 
-    /**
-     *
-     * @var array of ratingoptions
-     */
+    /** @var array of ratingoptions */
     public $ratingoptions = null;
+
+    /** @var string $defaultdownloadformat*/
+    public $defaultdownloadformat = null;
 
     /**
      * Constructor
