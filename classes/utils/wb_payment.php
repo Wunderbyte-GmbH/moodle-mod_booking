@@ -82,6 +82,11 @@ pwIDAQAB
                 return true;
             }
         }
+        // Overriding - always use PRO for testing / debugging
+        global $CFG;
+        if (!empty($CFG->phpunit_dataroot) || !empty($CFG->behat_wwwroot)) {
+            return true;
+        }
         return false;
     }
 }
