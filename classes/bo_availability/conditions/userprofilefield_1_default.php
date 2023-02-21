@@ -134,7 +134,7 @@ class userprofilefield_1_default implements bo_condition {
                             }
                             break;
                         case '~':
-                            if (strpos($this->customsettings->value, $value)) {
+                            if (mb_strpos($value, $this->customsettings->value) !== false) {
                                 $isavailable = true;
                             }
                             break;
@@ -144,7 +144,7 @@ class userprofilefield_1_default implements bo_condition {
                             }
                             break;
                         case '!~':
-                            if (!strpos($this->customsettings->value, $value)) {
+                            if (!(mb_strpos($value, $this->customsettings->value) !== false)) {
                                 $isavailable = true;
                             }
                             break;
