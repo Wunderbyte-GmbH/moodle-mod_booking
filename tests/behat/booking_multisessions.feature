@@ -37,13 +37,13 @@ Feature: In a booking create multi session options
     And I set the following fields to these values:
       | Booking option name | Test option - Copy - Multisession |
     And I press "Save and go back"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Duplicate this booking option" "link" in the "#allbookingoptionstable_r1" "css_element"
+    And I click on "Settings" "icon" in the "#allbookingoptionstable_r2" "css_element"
+    And I click on "Duplicate this booking option" "link" in the "#allbookingoptionstable_r2" "css_element"
     And I set the following fields to these values:
       | Booking option name | Test option - Copy2 |
     And I press "Save and go back"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r2" "css_element"
-    And I click on "Manage option dates" "link" in the "#allbookingoptionstable_r2" "css_element"
+    And I click on "Settings" "icon" in the "#allbookingoptionstable_r3" "css_element"
+    And I click on "Manage option dates" "link" in the "#allbookingoptionstable_r3" "css_element"
     And I set the following fields to these values:
       | coursestarttime[day]    | 15                    |
       | coursestarttime[month]  | March                 |
@@ -81,18 +81,18 @@ Feature: In a booking create multi session options
     And I should see "## + 3 year ##%Y##" in the "#region-main table.generaltable" "css_element"
     And I should see "3:00 PM to 10:00 PM" in the "#region-main table.generaltable" "css_element"
     And I press "Back"
-    Then I should see "Test option - Copy - Multisession" in the "#allbookingoptionstable_r2" "css_element"
-    And I click on "Show dates" "link" in the "#allbookingoptionstable_r2" "css_element"
+    Then I should see "Test option - Copy - Multisession" in the "#allbookingoptionstable_r3" "css_element"
+    And I click on "Show dates" "link" in the "#allbookingoptionstable_r3" "css_element"
     And I wait "1" seconds
-    Then I should see "15 March" in the "#allbookingoptionstable_r2" "css_element"
-    And I should see "## + 1 year ##%Y##" in the "#allbookingoptionstable_r2" "css_element"
-    And I should see "1:00 PM - 8:00 PM" in the "#allbookingoptionstable_r2" "css_element"
-    And I should see "20 June" in the "#allbookingoptionstable_r2" "css_element"
-    And I should see "## + 2 year ##%Y##" in the "#allbookingoptionstable_r2" "css_element"
-    And I should see "2:00 PM - 9:00 PM" in the "#allbookingoptionstable_r2" "css_element"
-    And I should see "25 September" in the "#allbookingoptionstable_r2" "css_element"
-    And I should see "## + 3 year ##%Y##" in the "#allbookingoptionstable_r2" "css_element"
-    And I should see "3:00 PM - 10:00 PM" in the "#allbookingoptionstable_r2" "css_element"
+    Then I should see "15 March" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "## + 1 year ##%Y##" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "1:00 PM - 8:00 PM" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "20 June" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "## + 2 year ##%Y##" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "2:00 PM - 9:00 PM" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "25 September" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "## + 3 year ##%Y##" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "3:00 PM - 10:00 PM" in the "#allbookingoptionstable_r3" "css_element"
 
   @javascript
   Scenario: Send reminder mail to participant
@@ -100,7 +100,7 @@ Feature: In a booking create multi session options
     When I am on "Course 1" course homepage
     And I follow "My booking"
     And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Edit this booking option" "link" in the "#allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r1" "css_element"
     And I wait "1" seconds
     And I press "Teachers"
     And I wait "1" seconds
@@ -152,10 +152,8 @@ Feature: In a booking create multi session options
     When I am on "Course 1" course homepage
     Then I follow "My booking"
     And I follow "My booking"
-    ## And I click on "Settings" "icon"
-    ## And I follow "Book other users"
-    And I click on "Settings" "icon" in the ".show.active .card.row .action .dropdown" "css_element"
-    And I click on "Book other users" "link" in the ".show.active .card.row .action .dropdown" "css_element"
+    And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
+    And I click on "Book other users" "link" in the "#allbookingoptionstable_r1" "css_element"
     And I click on "Student 1 (student1@example.com)" "text"
     And I click on "Student 2 (student2@example.com)" "text"
     And I click on "Add" "button"
