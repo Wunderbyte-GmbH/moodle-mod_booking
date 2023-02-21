@@ -20,6 +20,9 @@ $string['alreadypassed'] = 'Already passed';
 $string['bookingoption'] = 'Booking option';
 $string['bookingoptionnamewithoutprefix'] = 'Name (without prefix)';
 $string['bookings'] = 'Bookings';
+
+$string['updatebooking'] = 'Update booking';
+
 $string['booking:manageoptiontemplates'] = "Manage option templates";
 $string['booking:cantoggleformmode'] = 'User can edit all settings';
 $string['courses'] = 'Courses';
@@ -363,6 +366,12 @@ $string['activatemails'] = 'Activate e-mails (confirmations, notifications and m
 $string['sendcopytobookingmanger'] = 'Send confirmation e-mail to booking manager';
 $string['allowdelete'] = 'Allow users to cancel their booking themselves';
 $string['bookingpolicy'] = 'Booking policy';
+
+$string['page:bookingpolicy'] = 'Booking policy';
+$string['page:bookitbutton'] = 'Book';
+$string['page:subbooking'] = 'Supplementary bookings';
+
+$string['confirmationmessagesettings'] = 'Confirmation e-mail settings';
 $string['usernameofbookingmanager'] = 'Choose a booking manager';
 $string['usernameofbookingmanager_help'] = 'Username of the user who will be displayed in the "From" field of the confirmation notifications. If the option "Send confirmation e-mail to booking manager" is enabled, this is the user who receives a copy of the confirmation notifications.';
 $string['bookingmanagererror'] = 'The username entered is not valid. Either it does not exist or there are more then one users with this username (example: if you have mnet and local authentication enabled)';

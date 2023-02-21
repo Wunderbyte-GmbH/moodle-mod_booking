@@ -358,7 +358,7 @@ if there only was one booking option. */
     background: var(--warning);
 }
 
-#page-mod-booking-mod .dropdown-menu, 
+#page-mod-booking-mod .dropdown-menu,
 #page-mod-booking-view .dropdown-menu,
 #page-mod-booking-instancetemplateadd .dropdown-menu,
 #page-mod-booking-importoptions .dropdown-menu,
@@ -368,4 +368,48 @@ if there only was one booking option. */
 #page-mod-booking-subscribeusers .dropdown-menu,
 #page-mod-booking-editoptions .dropdown-menu {
     width: max-content;
+}
+
+#prepage-booking-tabs li {
+    list-style-type: none;
+    font-size: 15px;
+    width: 25%;
+    float: left;
+    position: relative;
+    font-weight: 400;
+}
+
+
+/*Icon ProgressBar before any progress*/
+#prepage-booking-tabs li:before {
+    width: 50px;
+    height: 50px;
+    line-height: 45px;
+    display: block;
+    font-size: 20px;
+    color: #ffffff;
+    background: lightgray;
+    border-radius: 50%;
+    margin: 0 auto 10px auto;
+    padding: 2px;
+    font-family: FontAwesome;
+    content: "\f005";
+}
+
+/*ProgressBar connectors*/
+#prepage-booking-tabs li:after {
+    content: '';
+    width: 100%;
+    height: 2px;
+    background: lightgray;
+    position: absolute;
+    left: 0;
+    top: 25px;
+    z-index: -1;
+}
+
+/*Color number of the step and the connector before it*/
+#prepage-booking-tabs li.active:before,
+#prepage-booking-tabs li.active:after {
+    background: #673AB7;
 }

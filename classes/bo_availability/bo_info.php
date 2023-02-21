@@ -31,6 +31,7 @@ use mod_booking\output\button_notifyme;
 use mod_booking\output\col_price;
 use mod_booking\output\prepagemodal;
 use mod_booking\output\simple_modal;
+use mod_booking\price;
 use mod_booking\singleton_service;
 use moodle_exception;
 use MoodleQuickForm;
@@ -455,18 +456,31 @@ class bo_info {
         // Results have to be sorted the right way. At the moment, it depends on the id of the blocking condition.
         usort($results, fn($a, $b) => ($a['id'] < $b['id'] ? 1 : -1 ));
 
-        $condition = self::return_class_of_current_page($results, $pagenumber);
+        $conditions = self::return_sorted_conditions($results);
+        $condition = self::return_class_of_current_page($conditions, $pagenumber);
 
         // We throw an exception if we didn't get a valid pagenumber.
         if (empty($condition)) {
             throw new moodle_exception('wrongpagenumberforprebookingpage', 'mod_booking');
         }
 
+        $data = self::return_data_for_steps($conditions, $pagenumber);
+
+        $template = 'mod_booking/bookingpage/header';
+
         // We get the condition for the right page.
         $condition = new $condition();
 
+        $object = $condition->render_page($optionid);
+
+        // Now we introduce the header at the first place.
+        $object['template'] = $template . ',' . $object['template'];
+        $dataarray = array_merge([$data], $object['data']);
+
+        $object['json'] = json_encode($dataarray);
+
         // The condition renders the page we actually need.
-        return $condition->render_page($optionid);
+        return $object;
     }
 
     /**
@@ -532,19 +546,57 @@ class bo_info {
     }
 
     /**
-     * Creates a correctly sorted array for all the pages...
-     * ... and returns the classname as string of current page.
+     * This is the standard function to render the bookit button. Most bo conditions will use it, because a lot is similiar.
+     * They can still alter the returned array.
      *
-     * @param array $results
-     * @param integer $pagenumber
-     * @return string
+     * @param booking_option_settings $settings
+     * @param integer $userid
+     * @param string $label
+     * @param boolean $includeprice
+     * @return array
      */
-    private static function return_class_of_current_page(array $results, int $pagenumber) {
+    public static function render_button(
+        booking_option_settings $settings,
+        int $userid,
+        string $label,
+        string $alerttype = 'danger',
+        bool $includeprice = false) {
 
-        $conditionsarray = self::return_sorted_conditions($results);
+        $user = singleton_service::get_instance_of_user($userid);
 
-        // Now that we have the right order, we need to return the corresponding classname.
-        return $conditionsarray[$pagenumber]['classname'];
+        if (empty($user)) {
+            $user = null;
+        }
+
+        $data =  [
+            'itemid' => $settings->id,
+            'area' => 'option',
+            'userid' => $userid ?? 0,
+            'nojs' => true,
+            'main' => [
+                'label' => $label,
+                'class' => 'alert alert-' . $alerttype,
+                'role' => 'alert',
+            ]
+        ];
+
+        if ($includeprice) {
+            if ($price = price::get_price('option', $settings->id, $user)) {
+                $data['price'] = [
+                    'price' => $price['price'],
+                    'currency' => $price['currency'],
+                ];
+            }
+        }
+
+        // The reason for this structure is that we can have a number of comma separated templates.
+        // And corresponding data objects in an array. This will be interpreted in JS.
+        $returnarray = [
+            'mod_booking/bookit_button', // The template.
+            $data, // The corresponding data object.
+        ];
+
+        return $returnarray;
     }
 
     /**
@@ -607,5 +659,45 @@ class bo_info {
         } else {
             return $conditionsarray;
         }
+    }
+
+    /**
+     * This returns the data of the
+     *
+     * @param array $conditionsarray
+     * @param integer $pagenumber
+     * @return array
+     */
+    private static function return_data_for_steps(array $conditionsarray, int $pagenumber):array {
+
+        $data['tabs'] = [];
+
+        foreach ($conditionsarray as $key => $value) {
+
+            $array = explode('\\', $value['classname']);
+            $name = array_pop($array);
+            $data['tabs'][] = [
+                'name' => get_string('page:' . $name, 'mod_booking'),
+                'active' => $key <= $pagenumber ? true : false,
+            ];
+        };
+
+        return [
+            'data' => $data
+        ];
+    }
+
+    /**
+     * Creates a correctly sorted array for all the pages...
+     * ... and returns the classname as string of current page.
+     *
+     * @param array $conditionsarray
+     * @param integer $pagenumber
+     * @return string
+     */
+    private static function return_class_of_current_page(array $conditionsarray, int $pagenumber) {
+
+        // Now that we have the right order, we need to return the corresponding classname.
+        return $conditionsarray[$pagenumber]['classname'];
     }
 }

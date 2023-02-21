@@ -162,7 +162,8 @@ class subbooking_blocks implements bo_condition {
         $jsonstring = json_encode($dataarray);
 
         $returnarray = [
-            'json' => $jsonstring,
+            //'json' => $jsonstring,
+            'data' => $dataarray,
             'template' => implode(',', $templates),
             'buttontype' => 0,
         ];

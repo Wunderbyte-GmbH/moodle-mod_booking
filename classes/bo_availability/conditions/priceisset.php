@@ -158,7 +158,8 @@ class priceisset implements bo_condition {
      */
     public function render_page(int $optionid) {
         $response = [
-            'json' => '',
+            'data' => [],
+            // 'json' => '',
             'template' => '',
             'buttontype' => 0, // This means that the continue button is enabled.
         ];

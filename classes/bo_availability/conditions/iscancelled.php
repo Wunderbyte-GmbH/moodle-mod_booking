@@ -27,7 +27,9 @@
 namespace mod_booking\bo_availability\conditions;
 
 use mod_booking\bo_availability\bo_condition;
+use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
+use mod_booking\price;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
 
@@ -155,27 +157,9 @@ class iscancelled implements bo_condition {
      */
     public function render_button(booking_option_settings $settings, $userid = 0, $full = false, $not = false):array {
 
-        global $USER;
-
-        if ($userid === null) {
-            $userid = $USER->id;
-        }
         $label = $this->get_description_string(false, $full);
 
-        return [
-            'mod_booking/bookit_button',
-            [
-                'itemid' => $settings->id,
-                'area' => 'option',
-                'userid' => $userid ?? 0,
-                'nojs' => true,
-                'main' => [
-                    'label' => $label,
-                    'class' => 'alert alert-danger',
-                    'role' => 'alert',
-                ]
-            ]
-        ];
+        return bo_info::render_button($settings, $userid, $label, 'danger', true);
     }
 
     /**
@@ -183,7 +167,7 @@ class iscancelled implements bo_condition {
      *
      * @param bool $isavailable
      * @param bool $full
-     * @return void
+     * @return string
      */
     private function get_description_string($isavailable, $full) {
         if ($isavailable) {

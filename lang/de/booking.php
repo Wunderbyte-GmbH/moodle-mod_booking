@@ -20,6 +20,9 @@ $string['alreadypassed'] = 'Bereits vergangen';
 $string['bookingoption'] = 'Buchungsoption';
 $string['bookingoptionnamewithoutprefix'] = 'Name (ohne Präfix)';
 $string['bookings'] = 'Buchungen';
+
+$string['updatebooking'] = 'Update Buchung';
+
 $string['booking:manageoptiontemplates'] = "Buchungsoptionsvorlagen verwalten";
 $string['booking:cantoggleformmode'] = 'Nutzer:in darf alle Einstellungen verwalten';
 $string['courses'] = 'Kurse';
@@ -354,7 +357,13 @@ $string['defaultbookingoption'] = 'Standardeinstellungen für Buchungsoptionen';
 $string['activatemails'] = 'E-Mails aktivieren (Bestätigungen, Erinnerungen etc.)';
 $string['sendcopytobookingmanger'] = 'Eine Kopie der Bestätigungsmail an den Buchungsverwalter senden';
 $string['allowdelete'] = 'Teilnehmer:innen dürfen Buchungen selbst stornieren';
-$string['bookingpolicy'] = 'Buchungsbedingungen - bookingpolicy';
+$string['bookingpolicy'] = 'Buchungsbedingungen - Booking Policy';
+
+$string['page:bookingpolicy'] = 'Buchungsbedingungen';
+$string['page:bookitbutton'] = 'Buchen';
+$string['page:subbooking'] = 'Zusätzliche Buchungen';
+
+$string['confirmationmessagesettings'] = 'Buchungsbestätigungseinstellungen';
 $string['usernameofbookingmanager'] = 'Buchungsverwalter/in auswählen';
 $string['usernameofbookingmanager_help'] = 'Nutzername des/der Nutzer/in, der als Absender/in der Buchungsbestätigunsmitteilungen angeführt wird. Wenn die Option "Eine Kopie des Bestätigungsmail an Buchungsverwalter senden" aktiviert ist, wird die Kopie der Buchungsbestätigung an diese/n Nutzer/in gesendet.';
 $string['bookingmanagererror'] = 'Der angegebene Nutzername ist ungültig. Entweder existiert der/die Nutzer/in nicht oder es gibt mehrere Nutzer:innen mit dem selben Nutzernamen (Dies ist zum Beispiel der Fall, wenn Sie MNET und lokale Authentifizierung gleichzeitig aktiviert haben)';

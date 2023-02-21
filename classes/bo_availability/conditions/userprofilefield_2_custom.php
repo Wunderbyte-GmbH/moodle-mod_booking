@@ -205,7 +205,7 @@ class userprofilefield_2_custom implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        $description = self::get_description_string($isavailable, $full);
+        $description = self::get_description_string($isavailable, $full, $settings);
 
         return [$isavailable, $description, false, BO_BUTTON_MYALERT];
     }
@@ -404,40 +404,9 @@ class userprofilefield_2_custom implements bo_condition {
      */
     public function render_button(booking_option_settings $settings, $userid = 0, $full = false, $not = false):array {
 
-        global $USER;
+        $label = $this->get_description_string(false, $full, $settings);
 
-        if ($userid === null) {
-            $userid = $USER->id;
-        }
-        // We need to make sure we have the custom settings ready.
-        if (!$this->customsettings) {
-            // This description can only works with the right custom settings.
-            $availabilityarray = json_decode($settings->availability);
-
-            foreach ($availabilityarray as $availability) {
-                if (strpos($availability->class, 'userprofilefield_2_custom') > 0) {
-
-                    $this->customsettings = (object)$availability;
-                }
-            }
-        }
-
-        $label = $this->get_description_string(false, $full);
-
-        return [
-            'mod_booking/bookit_button',
-            [
-                'itemid' => $settings->id,
-                'area' => 'option',
-                'userid' => $userid ?? 0,
-                'nojs' => true,
-                'main' => [
-                    'label' => $label,
-                    'class' => 'alert alert-warning',
-                    'role' => 'alert',
-                ]
-            ]
-        ];
+        return bo_info::render_button($settings, $userid, $label, 'warning', true);
     }
 
     /**
@@ -445,13 +414,26 @@ class userprofilefield_2_custom implements bo_condition {
      *
      * @param bool $isavailable
      * @param bool $full
-     * @return void
+     * @return string
      */
-    private function get_description_string($isavailable, $full) {
+    private function get_description_string($isavailable, $full, $settings) {
         if ($isavailable) {
             $description = $full ? get_string('bo_cond_customuserprofilefield_full_available', 'mod_booking') :
                 get_string('bo_cond_customuserprofilefield_available', 'mod_booking');
         } else {
+
+            // We need to make sure we have the custom settings ready.
+            if (!$this->customsettings) {
+                // This description can only works with the right custom settings.
+                $availabilityarray = json_decode($settings->availability);
+
+                foreach ($availabilityarray as $availability) {
+                    if (strpos($availability->class, 'userprofilefield_2_custom') > 0) {
+
+                        $this->customsettings = (object)$availability;
+                    }
+                }
+            }
             $description = $full ? get_string('bo_cond_customuserprofilefield_full_not_available',
                 'mod_booking',
                 $this->customsettings) :

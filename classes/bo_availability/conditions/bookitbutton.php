@@ -138,8 +138,6 @@ class bookitbutton implements bo_condition {
      */
     public function render_page(int $optionid) {
 
-        global $USER;
-
         $data = new bookingoption_description($optionid, null, DESCRIPTION_WEBSITE, true, false);
 
         $template = 'mod_booking/bookingoption_description_mail';
@@ -176,9 +174,10 @@ class bookitbutton implements bo_condition {
         $buttontype = 0;
 
         $response = [
-            'json' => json_encode($dataarray),
+            // 'json' => json_encode($dataarray),
             'template' => implode(',', $templates),
             'buttontype' => $buttontype, // This means that the continue button is disabled.
+            'data' => $dataarray,
         ];
 
         return $response;
