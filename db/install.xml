@@ -77,6 +77,7 @@
         <FIELD NAME="responsesfields" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="reportfields" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="optionsfields" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="optionsdownloadfields" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="beforebookedtext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="beforecompletedtext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="aftercompletedtext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>

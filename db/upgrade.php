@@ -3377,5 +3377,19 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023021700, 'booking');
     }
 
+    if ($oldversion < 2023022100) {
+        // Add field optionsdownloadfields to table booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('optionsdownloadfields', XMLDB_TYPE_TEXT, 'small', null, null, null, null,
+            'optionsfields');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2023022100, 'booking');
+    }
+
     return true;
 }

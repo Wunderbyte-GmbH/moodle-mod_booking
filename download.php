@@ -57,18 +57,21 @@ $instancename = format_string($instancename);
 $fileandsheetname = "download_of_" . $instancename;
 $table->is_downloading($download, $fileandsheetname, $fileandsheetname);
 
-// TODO.
-// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-/*
 $booking = $table->booking;
-list($columns, $headers, $userprofilefields) = $booking->get_fields();
-
-$table->define_columns($columns);
-$table->define_headers($headers); */
 
 $table->headers = [];
 $table->columns = [];
 
+list($headers, $columns) = $booking->get_bookingoptions_fields(true); // Param needs to be true for download!
+
+if (!empty($headers)) {
+    $table->define_headers($headers);
+}
+if (!empty($columns)) {
+    $table->define_columns($columns);
+}
+
+/*
 $table->define_headers([
     get_string('optionidentifier', 'mod_booking'),
     get_string('titleprefix', 'mod_booking'),
@@ -98,5 +101,5 @@ $table->define_columns([
     'minanswers',
     'bookings',
 ]);
-
+*/
 $table->printtable(20, true);

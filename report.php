@@ -854,7 +854,7 @@ if (!$tableallbookings->is_downloading()) {
 
     $customfields = '';
 
-    list($columns, $headers, $userprofilefields) = $bookingoption->booking->get_fields();
+    list($columns, $headers, $userprofilefields) = $bookingoption->booking->get_manage_responses_fields();
 
     if ($userprofilefields) {
         foreach ($userprofilefields as $profilefield) {

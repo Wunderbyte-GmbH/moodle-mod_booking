@@ -912,10 +912,11 @@ $string['helptext:placeholders'] = '<p>
   </div>
 </div>';
 
-$string['fields'] = 'In bestimmten Bereichen anzuzeigende Informationen';
-$string['reportfields'] = 'Buchungsdatenload als csv, xls, usw.';
-$string['responsesfields'] = 'Auf der Buchungen verwalten-Seite';
-$string['optionsfields'] = 'Auf der Seite der Buchungsoptionsübersicht';
+$string['configurefields'] = 'Spalten und Felder anpassen';
+$string['manageresponsespagefields'] = 'Buchungen verwalten - Seite';
+$string['manageresponsesdownloadfields'] = 'Buchungen verwalten - Download (CSV, XLSX...)';
+$string['optionspagefields'] = 'Buchungsübersicht - Seite';
+$string['optionsdownloadfields'] = 'Buchungsübersicht - Download (CSV, XLSX...)';
 $string['signinsheetfields'] = 'Auf der Unterschriftenliste (PDF-Download)';
 $string['signinonesession'] = 'Termin(e) im Header anzeigen';
 $string['signinaddemptyrows'] = 'Leeren Zeilen hinzufügen';
@@ -935,7 +936,7 @@ $string['bookingpoints'] = 'Kurspunkte';
 $string['bookingpollurl'] = 'Link zur Umfrage';
 $string['bookingpollurlteachers'] = 'Link zur Trainer:innen-Umfrage';
 $string['bookingtags'] = 'Schlagwörter';
-$string['customlabels'] = 'Benutzerdefinierte Bezeichnungen';
+$string['customlabels'] = '[VERALTET] Benutzerdefinierte Bezeichnungen';
 $string['editinstitutions'] = 'Institutionen bearbeiten';
 $string['entervalidurl'] = 'Bitte geben Sie eine gültige URL an!';
 $string['eventtype'] = 'Art des Ereignisses';

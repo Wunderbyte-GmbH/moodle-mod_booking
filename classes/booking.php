@@ -419,11 +419,82 @@ class booking {
     }
 
     /**
-     * Get extra fields to display in report.php and view.php
+     * Get fields for download of booking options.
+     * @param bool $download true for download, else for page
+     * @return array an array of headers and columns
+     */
+    public function get_bookingoptions_fields(bool $download = false) {
+
+        if ($download) {
+            $fields = explode(',', $this->settings->optionsdownloadfields);
+        } else {
+            $fields = explode(',', $this->settings->optionsfields);
+        }
+
+        $columns = [];
+        $headers = [];
+
+        foreach ($fields as $value) {
+            switch ($value) {
+                case 'identifier':
+                    $headers[] = get_string('optionidentifier', 'mod_booking');
+                    $columns[] = 'identifier';
+                    break;
+                case 'titleprefix':
+                    $headers[] = get_string('titleprefix', 'mod_booking');
+                    $columns[] = 'titleprefix';
+                    break;
+                case 'text':
+                    $headers[] = get_string('bookingoption', 'mod_booking');
+                    $columns[] = 'text';
+                    break;
+                case 'description':
+                    $headers[] = get_string('description', 'mod_booking');
+                    $columns[] = 'description';
+                    break;
+                case 'teacher':
+                    $headers[] = get_string('teachers', 'mod_booking');
+                    $columns[] = 'teacher';
+                    break;
+                case 'showdates':
+                    $headers[] = get_string('dates', 'mod_booking');
+                    $columns[] = 'showdates';
+                    break;
+                case 'dayofweektime':
+                    $headers[] = get_string('dayofweektime', 'mod_booking');
+                    $columns[] = 'dayofweektime';
+                    break;
+                case 'location':
+                    $headers[] = get_string('location', 'mod_booking');
+                    $columns[] = 'location';
+                    break;
+                case 'institution':
+                    $headers[] = get_string('institution', 'mod_booking');
+                    $columns[] = 'institution';
+                    break;
+                case 'course':
+                    $headers[] = get_string('course', 'core');
+                    $columns[] = 'course';
+                    break;
+                case 'minanswers':
+                    $headers[] = get_string('minanswers', 'mod_booking');
+                    $columns[] = 'minanswers';
+                    break;
+                case 'bookings':
+                    $headers[] = get_string('bookings', 'mod_booking');
+                    $columns[] = 'bookings';
+                    break;
+            }
+        }
+        return [$headers, $columns];
+    }
+
+    /**
+     * Get extra fields to display in report.php.
      *
      * @return string[][]|array[]
      */
-    public function get_fields() {
+    public function get_manage_responses_fields() {
         global $DB;
         $reportfields = explode(',', $this->settings->reportfields);
         list($addquoted, $addquotedparams) = $DB->get_in_or_equal($reportfields);

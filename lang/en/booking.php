@@ -1004,10 +1004,11 @@ $string['helptext:placeholders'] = '<p>
   </div>
 </div>';
 
-$string['fields'] = 'Fields to display in different contexts';
-$string['reportfields'] = 'Downlodable responses fields (csv, xls-Download)';
-$string['responsesfields'] = 'Fields on the manage bookings page';
-$string['optionsfields'] = 'Fields on the booking options overview page';
+$string['configurefields'] = 'Configure fields and columns';
+$string['manageresponsespagefields'] = 'Manage responses - Page';
+$string['manageresponsesdownloadfields'] = 'Manage responses - Download (CSV, XLSX...)';
+$string['optionspagefields'] = 'Booking options overview - Page';
+$string['optionsdownloadfields'] = 'Booking options overview - Download (CSV, XLSX...)';
 $string['signinsheetfields'] = 'Sign-in sheet fields (PDF)';
 $string['signinonesession'] = 'Display date(s) in the header';
 $string['signinaddemptyrows'] = 'Add empty rows';
@@ -1026,7 +1027,7 @@ $string['bookingpoints'] = 'Course points';
 $string['bookingpollurl'] = 'Poll url';
 $string['bookingpollurlteachers'] = 'Teachers poll url';
 $string['bookingtags'] = 'Tags';
-$string['customlabels'] = 'Custom labels';
+$string['customlabels'] = '[DEPRECATED] Custom labels';
 $string['editinstitutions'] = 'Edit institutions';
 $string['entervalidurl'] = 'Please, enter a valid URL!';
 $string['eventtype'] = 'Event type';

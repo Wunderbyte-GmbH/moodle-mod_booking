@@ -432,6 +432,11 @@ function booking_add_instance($booking) {
         $booking->optionsfields = implode(',', $booking->optionsfields);
     }
 
+    if (isset($booking->optionsdownloadfields) && is_array($booking->optionsdownloadfields)
+        && count($booking->optionsdownloadfields) > 0) {
+        $booking->optionsdownloadfields = implode(',', $booking->optionsdownloadfields);
+    }
+
     if (isset($booking->signinsheetfields) && is_array($booking->signinsheetfields)
         && count($booking->signinsheetfields) > 0) {
         $booking->signinsheetfields = implode(',', $booking->signinsheetfields);
@@ -546,6 +551,11 @@ function booking_update_instance($booking) {
 
     if (isset($booking->optionsfields) && is_array($booking->optionsfields) && count($booking->optionsfields) > 0) {
         $booking->optionsfields = implode(',', $booking->optionsfields);
+    }
+
+    if (isset($booking->optionsdownloadfields) && is_array($booking->optionsdownloadfields)
+        && count($booking->optionsdownloadfields) > 0) {
+        $booking->optionsdownloadfields = implode(',', $booking->optionsdownloadfields);
     }
 
     if (isset($booking->categoryid) && count($booking->categoryid) > 0) {

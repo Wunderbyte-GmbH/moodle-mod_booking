@@ -244,6 +244,9 @@ class booking_settings {
     /** @var string $optionsfields */
     public $optionsfields = null;
 
+    /** @var string $optionsdownloadfields */
+    public $optionsdownloadfields = null;
+
     /** @var string $beforebookedtext */
     public $beforebookedtext = null;
 
@@ -439,6 +442,7 @@ class booking_settings {
             $this->responsesfields = $dbrecord->responsesfields;
             $this->reportfields = $dbrecord->reportfields;
             $this->optionsfields = $dbrecord->optionsfields;
+            $this->optionsdownloadfields = $dbrecord->optionsdownloadfields;
             $this->beforebookedtext = $dbrecord->beforebookedtext;
             $this->beforecompletedtext = $dbrecord->beforecompletedtext;
             $this->aftercompletedtext = $dbrecord->aftercompletedtext;

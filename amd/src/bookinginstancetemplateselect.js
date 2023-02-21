@@ -141,6 +141,7 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             // - course
                             // - enablecompletion
                             // - optionsfields
+                            // - optionsdownloadfields
                             // - reportfields
                             // - responsesfields
                             // - scale
