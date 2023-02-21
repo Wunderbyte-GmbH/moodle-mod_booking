@@ -2126,7 +2126,7 @@ $string['overridecondition'] = 'Condition';
 $string['overrideoperator'] = 'Operator';
 $string['overrideoperator:and'] = 'AND';
 $string['overrideoperator:or'] = 'OR';
-$string['bo_cond_previouslybooked_optionid'] = 'Booking option';
+$string['bo_cond_previouslybooked_optionid'] = 'Must be already booked';
 
 // Teacher_performed_units_report.php.
 $string['error:wrongteacherid'] = 'Error: No user could be found for the provided "teacherid".';
