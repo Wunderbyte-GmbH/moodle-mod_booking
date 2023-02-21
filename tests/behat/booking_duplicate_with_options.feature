@@ -48,7 +48,7 @@ Feature: In a booking create multi session options
     And I follow "My booking"
     And I should see "New option - duplication source"
     And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Edit this booking option" "link" in the "#allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r1" "css_element"
     And I set the following fields to these values:
       | Prefix              | MIB                   |
       | Booking option name | Topic: Statistics     |
@@ -104,7 +104,7 @@ Feature: In a booking create multi session options
     And I should see "Topic: Statistics - Copy 2"
     ## Verify options for 2nd copy
     And I click on "Settings" "icon" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Edit this booking option" "link" in the "#allbookingoptionstable_r3" "css_element"
+    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r3" "css_element"
     And the following fields match these values:
       | Prefix              | MIB                        |
       | Booking option name | Topic: Statistics - Copy 2 |

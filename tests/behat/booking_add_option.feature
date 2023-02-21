@@ -33,7 +33,7 @@ Feature: In a booking instance create booking options
       | Event type                       | Webinar                                                |
       | Booking text                     | This is the description for the test booking instance. |
       | Organizer name                   | Teacher 1                                              |
-      | Sort by                          | Booking option name                                    |
+      | Sort by                          | Name (without prefix)                                  |
       | Default view for booking options | All booking options                                    |
     And I press "Save and return to course"
     Then I should see "Test booking"
