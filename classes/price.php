@@ -587,11 +587,11 @@ class price {
      *
      * @param string $area
      * @param int $itemid
-     * @param object $user
+     * @param object|null $user
      *
      * @return array
      */
-    public static function get_price(string $area, int $itemid, object $user = null): array {
+    public static function get_price(string $area, int $itemid, $user = null): array {
 
         global $USER;
 
