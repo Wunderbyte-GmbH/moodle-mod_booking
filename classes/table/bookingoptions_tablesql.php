@@ -41,6 +41,8 @@ use mod_booking\singleton_service;
 
 defined('MOODLE_INTERNAL') || die();
 
+/* NOTE: This class is currently not used as we decided to use wunderbyte table instead! */
+
 /**
  * Search results for managers are shown in a table (student search results use the template searchresults_student).
  */
@@ -132,131 +134,6 @@ class bookingoptions_tablesql extends table_sql {
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
         $data = new col_teacher($values->id, $settings);
         return $output->render_col_teacher($data);
-    }
-
-    /**
-     * This function is called for each data row to allow processing of the
-     * booknow value.
-     *
-     * @param object $values Contains object with all the values of record.
-     * @return string $string Return name of the booking option.
-     * @throws dml_exception
-     */
-    public function col_booknow($values) {
-
-        // Render col_price using a template.
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
-
-        // First we check if the user is booked already.
-        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
-
-        // Normally we won't arrive here, but if so, we want to show a meaningful error message.
-        if (!$this->context) {
-            $this->context = context_module::instance($settings->cmid);
-        }
-
-        // Get the availability information for this booking option.
-        // boinfo contains availability information, description, visibility information etc.
-        $boinfo = new bo_info($settings);
-
-        // TODO: bo_info needs to support cashier mode, where booking for another user is possible...
-        // ... even if availability for the user is not given.
-        if (list($conditionid, $isavailable, $description) = $boinfo->get_description($settings, $this->buyforuser->id, true)) {
-
-            // Price blocks normal availability, if it's the only one, we show the cart.
-            if (!$isavailable) {
-
-                // If user has capability to book for others (e.g. cashier), we allow overbooking.
-                $showprice = false;
-                if (has_capability('mod/booking:bookforothers', $this->context)) {
-                    // Allow overbooking.
-                    $showprice = true;
-                }
-
-                // We only show notify me button if it's turned on in settings.
-                $shownotificationlist = false;
-                if (get_config('booking', 'usenotificationlist')) {
-                    $shownotificationlist = true;
-                }
-
-                switch ($conditionid) {
-                    case BO_COND_ISLOGGEDIN:
-                    case BO_COND_PRICEISSET:
-                        return bo_info::render_conditionmessage('', '', $values->id, true, $values,
-                            false, $this->buyforuser);
-                    case BO_COND_ALREADYBOOKED:
-                        return bo_info::render_conditionmessage($description, 'success');
-                    case BO_COND_ONWAITINGLIST:
-                        return bo_info::render_conditionmessage($description, 'warning');
-                    case BO_COND_FULLYBOOKED:
-                        return bo_info::render_conditionmessage($description, 'warning', $values->id,
-                            $showprice, $values, $shownotificationlist, $this->buyforuser);
-                    case BO_COND_ISCANCELLED:
-                    default:
-                        return bo_info::render_conditionmessage($description, 'danger', $values->id,
-                            $showprice, $values, false, $this->buyforuser);
-                }
-            }
-            // TODO: If no price is set at all, we need to add possibility to book right away without shopping cart!
-            return 'book right away, no price';
-        }
-    }
-
-    /**
-     * This function is called for each data row to allow processing of the
-     * condition message.
-     *
-     * @param object $values Contains object with all the values of record.
-     * @return string $string condition message.
-     * @throws dml_exception
-     */
-    public function col_conditionmessage($values) {
-
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
-
-        // Normally we won't arrive here, but if so, we want to show a meaningful error message.
-        if (!$this->context) {
-            $this->context = context_module::instance($settings->cmid);
-        }
-
-        // Get the availability information for this booking option.
-        // boinfo contains availability information, description, visibility information etc.
-        $boinfo = new bo_info($settings);
-
-        if (list($conditionid, $isavailable, $description) = $boinfo->get_description($settings, $this->buyforuser->id, true)) {
-
-            // Price blocks normal availability, if it's the only one, we show the cart.
-            if (!$isavailable) {
-
-                // If user has capability to book for others (e.g. cashier), we allow overbooking.
-                $showprice = false;
-                if (has_capability('mod/booking:bookforothers', $this->context)) {
-                    // Allow overbooking.
-                    $showprice = true;
-                }
-
-                // We only show notify me button if it's turned on in settings.
-                $shownotificationlist = false;
-                if (get_config('booking', 'usenotificationlist')) {
-                    $shownotificationlist = true;
-                }
-
-                switch ($conditionid) {
-                    case BO_COND_ISLOGGEDIN:
-                    case BO_COND_PRICEISSET:
-                        return '';
-                    case BO_COND_ALREADYBOOKED:
-                        return bo_info::render_conditionmessage($description, 'success');
-                    case BO_COND_ONWAITINGLIST:
-                    case BO_COND_FULLYBOOKED:
-                        return bo_info::render_conditionmessage($description, 'warning');
-                    case BO_COND_ISCANCELLED:
-                        return bo_info::render_conditionmessage($description, 'danger');
-                    default:
-                        return '';
-                }
-            }
-        }
     }
 
     /**

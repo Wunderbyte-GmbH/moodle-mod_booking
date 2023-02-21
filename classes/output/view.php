@@ -25,12 +25,14 @@
 
 namespace mod_booking\output;
 
+use context_module;
 use context_system;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
 use mod_booking\singleton_service;
 use mod_booking\table\bookingoptions_wbtable;
 use moodle_exception;
+use moodle_url;
 use renderer_base;
 use renderable;
 use templatable;
@@ -383,7 +385,7 @@ class view implements renderable, templatable {
         // Without defining sorting won't work!
         $wbtable->define_columns(['titleprefix', 'coursestarttime']);
 
-        $wbtable->add_subcolumns('leftside', ['invisibleoption', 'text', 'action', 'teacher', 'statusdescription']);
+        $wbtable->add_subcolumns('leftside', ['invisibleoption', 'text', 'action', 'teacher', 'statusdescription', 'description']);
         $wbtable->add_subcolumns('footer', ['bookings', 'minanswers', 'dayofweektime', 'location', 'institution',
             'showdates', 'comments']);
         $wbtable->add_subcolumns('rightside', ['booknow', 'course', 'progressbar']);
@@ -435,7 +437,7 @@ class view implements renderable, templatable {
             ['keystring' => get_string('tableheader_teacher', 'booking')],
             ['teacher']
         );
-        $wbtable->is_downloading('', 'List of booking options');
+        // $wbtable->is_downloading('', 'List of booking options');
 
         // Header column.
         $wbtable->define_header_column('text');
@@ -443,8 +445,15 @@ class view implements renderable, templatable {
         $wbtable->pageable(true);
         $wbtable->stickyheader = true;
         $wbtable->showcountlabel = false;
-        $wbtable->showdownloadbutton = false; // TODO.
         $wbtable->showreloadbutton = false;
+
+        // Only admins can download.
+        if (has_capability('mod/booking:updatebooking', context_module::instance($this->cmid))) {
+            $baseurl = new moodle_url('/mod/booking/download.php');
+            $wbtable->define_baseurl($baseurl);
+            $wbtable->showdownloadbutton = true;
+        }
+
         $wbtable->define_cache('mod_booking', 'bookingoptionstable');
 
         if ($search) {

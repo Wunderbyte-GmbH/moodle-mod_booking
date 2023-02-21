@@ -596,6 +596,37 @@ class dates_handler {
     }
 
     /**
+     * Static helper function to return an array of simple date strings.
+     * It will return only one item containing course start and endtime if no optiondates exist.
+     *
+     * @param int $optionid
+     * @return array array of optiondates strings
+     * @throws \dml_exception
+     */
+    public static function return_array_of_sessions_datestrings(int $optionid) {
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $sessions = self::return_dates_with_strings($settings);
+
+        $returnarray = [];
+
+        foreach ($sessions as $session) {
+            $returnarray[] = $session->datestring;
+        }
+
+        // If we don't have any sessions, we render the date of the option itself.
+        if (empty($sessions) && !empty($settings->coursestarttime) && !empty($settings->courseendtime)
+            && $settings->coursestarttime != "0" && $settings->courseendtime != "0") {
+            $returnarray[] = self::prettify_optiondates_start_end(
+                            $settings->coursestarttime,
+                            $settings->courseendtime,
+                            current_language());
+        }
+
+        return $returnarray;
+    }
+
+    /**
      * Helper function to calculate and render educational units.
      *
      * @param string $dayofweektime e.g. "Mon, 16:00 - 17:30"

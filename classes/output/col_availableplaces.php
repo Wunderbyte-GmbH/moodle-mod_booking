@@ -162,6 +162,14 @@ class col_availableplaces implements renderable, templatable {
     }
 
     /**
+     * Get booking information.
+     * @return array
+     */
+    public function get_bookinginformation() {
+        return $this->bookinginformation;
+    }
+
+    /**
      * Export for template.
      * @param renderer_base $output
      * @return array

@@ -47,10 +47,10 @@ defined('MOODLE_INTERNAL') || die();
 class bookingoptions_wbtable extends wunderbyte_table {
 
     /** @var int $cmid */
-    private $cmid = null;
+    public $cmid = null;
 
     /** @var booking $booking */
-    private $booking = null;
+    public $booking = null;
 
     /** @var stdClass $buyforuser */
     private $buyforuser = null;
@@ -130,12 +130,26 @@ class bookingoptions_wbtable extends wunderbyte_table {
      */
     public function col_teacher($values) {
         global $PAGE;
-        $output = $PAGE->get_renderer('mod_booking');
 
-        // Render col_teacher using a template.
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
-        $data = new col_teacher($values->id, $settings);
-        return $output->render_col_teacher($data);
+        $ret = '';
+
+        if ($this->is_downloading()) {
+            // When we download, we want to render teachers as plain text.
+            if (!empty($settings->teachers)) {
+                $teacherstrings = [];
+                foreach ($settings->teachers as $teacher) {
+                    $teacherstrings[] = "$teacher->firstname $teacher->lastname ($teacher->email)";
+                }
+                $ret = implode(' | ', $teacherstrings);
+            }
+        } else {
+            // Render col_teacher using a template.
+            $data = new col_teacher($values->id, $settings);
+            $output = $PAGE->get_renderer('mod_booking');
+            $ret = $output->render_col_teacher($data);
+        }
+        return $ret;
     }
 
     /**
@@ -164,6 +178,13 @@ class bookingoptions_wbtable extends wunderbyte_table {
      */
     public function col_text($values) {
 
+        $title = $values->text;
+
+        // If we download, we return the raw title without link or prefix.
+        if ($this->is_downloading()) {
+            return $title;
+        }
+
         if (empty($this->booking)) {
             $this->booking = singleton_service::get_instance_of_booking_by_optionid($values->id, $values);
         }
@@ -182,7 +203,6 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $url = '#';
         }
 
-        $title = $values->text;
         if (!empty($values->titleprefix)) {
             $title = $values->titleprefix . ' - ' . $values->text;
         }
@@ -260,7 +280,25 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
         // Render col_bookings using a template.
         $data = new col_availableplaces($values, $settings, $this->buyforuser);
-        return $output->render_col_availableplaces($data);
+
+        $ret = '';
+        if ($this->is_downloading()) {
+            $bookinginformation = $data->get_bookinginformation();
+
+            $booked = $bookinginformation['booked'] ?? 0;
+            $maxanswers = $bookinginformation['maxanswers'] ?? 0;
+            $waiting = $bookinginformation['waiting'] ?? 0;
+            $maxoverbooking = $bookinginformation['maxoverbooking'] ?? 0;
+
+            $ret .= "$booked / ";
+            $ret .= $maxanswers ?? get_string('unlimitedplaces', 'mod_booking');
+            if ($maxoverbooking) {
+                $ret .= " (" . get_string('waitinglist', 'mod_booking') . ": $waiting / $maxoverbooking)";
+            }
+        } else {
+            $ret = $output->render_col_availableplaces($data);
+        }
+        return $ret;
     }
 
     /**
@@ -274,6 +312,10 @@ class bookingoptions_wbtable extends wunderbyte_table {
     public function col_location($values) {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
+
+        if ($this->is_downloading()) {
+            return $settings->location;
+        }
 
         if (isset($settings->entity) && (count($settings->entity) > 0)) {
 
@@ -318,6 +360,13 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
         $ret = '';
 
+        $moodleurl = new moodle_url('/course/view.php', ['id' => $settings->courseid]);
+        $courseurl = $moodleurl->out(false);
+        // If we download, we want to return the plain URL.
+        if ($this->is_downloading()) {
+            return $courseurl;
+        }
+
         $answersobject = singleton_service::get_instance_of_booking_answers($settings);
         $status = $answersobject->user_status($USER->id);
 
@@ -326,8 +375,6 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 has_capability('mod/booking:updatebooking', $this->context) ||
                 (has_capability('mod/booking:addeditownoption', $this->context) && booking_check_if_teacher($values))
         )) {
-            $moodleurl = new moodle_url('/course/view.php', ['id' => $settings->courseid]);
-            $courseurl = $moodleurl->out(false);
             $gotomoodlecourse = get_string('gotomoodlecourse', 'mod_booking');
             $ret = "<a href='$courseurl' target='_self' class='btn btn-primary mt-2 mb-2 w-100'>
                 <i class='fa fa-graduation-cap fa-fw' aria-hidden='true'></i>&nbsp;&nbsp;$gotomoodlecourse
@@ -374,22 +421,18 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @throws coding_exception
      */
     public function col_showdates($values) {
-
         global $PAGE;
-
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* if ($this->is_downloading()) {
-            if ($values->coursestarttime == 0) {
-                return '';
-            } else {
-                return userdate($values->coursestarttime, get_string('strftimedatetime', 'langconfig'));
-            }
-        } */
-
-        // Use the renderer to output this column.
-        $data = new \mod_booking\output\col_coursestarttime($values->id, $this->booking);
-        $output = $PAGE->get_renderer('mod_booking');
-        return $output->render_col_coursestarttime($data);
+        $ret = '';
+        if ($this->is_downloading()) {
+            $datestrings = dates_handler::return_array_of_sessions_datestrings($values->id);
+            $ret = implode(' | ', $datestrings);
+        } else {
+            // Use the renderer to output this column.
+            $data = new \mod_booking\output\col_coursestarttime($values->id, $this->booking);
+            $output = $PAGE->get_renderer('mod_booking');
+            $ret = $output->render_col_coursestarttime($data);
+        }
+        return $ret;
     }
 
     /**
@@ -657,7 +700,10 @@ class bookingoptions_wbtable extends wunderbyte_table {
     public function col_minanswers($values) {
         $ret = '';
         if (!empty($values->minanswers)) {
-            $ret = get_string('minanswers', 'mod_booking') . ": $values->minanswers";
+            if (!$this->is_downloading()) {
+                $ret .= get_string('minanswers', 'mod_booking') . ": ";
+            }
+            $ret .= $values->minanswers;
         }
         return $ret;
     }
@@ -680,6 +726,25 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $statusdescription = $bookingoption->get_text_depending_on_status($bookinganswers);
         if (!empty($statusdescription)) {
             $ret = $statusdescription;
+        }
+        return $ret;
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * "description" value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string a string containing the description
+     * @throws coding_exception
+     */
+    public function col_description($values) {
+        $description = $values->description;
+        // If we download, we want to show text only without HTML tags.
+        if ($this->is_downloading()) {
+            $ret = strip_tags($description);
+        } else {
+            $ret = html_writer::div($description);
         }
         return $ret;
     }
