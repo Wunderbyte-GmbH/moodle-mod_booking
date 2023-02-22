@@ -71,35 +71,4 @@ if (!empty($columns)) {
     $table->define_columns($columns);
 }
 
-/*
-$table->define_headers([
-    get_string('optionidentifier', 'mod_booking'),
-    get_string('titleprefix', 'mod_booking'),
-    get_string('bookingoption', 'mod_booking'),
-    get_string('description', 'mod_booking'),
-    get_string('teachers', 'mod_booking'),
-    get_string('dates', 'mod_booking'),
-    get_string('dayofweektime', 'mod_booking'),
-    get_string('location', 'mod_booking'),
-    get_string('institution', 'mod_booking'),
-    get_string('course', 'core'),
-    get_string('minanswers', 'mod_booking'),
-    get_string('bookings', 'mod_booking'),
-]);
-
-$table->define_columns([
-    'identifier',
-    'titleprefix',
-    'text',
-    'description',
-    'teacher',
-    'showdates',
-    'dayofweektime',
-    'location',
-    'institution',
-    'course',
-    'minanswers',
-    'bookings',
-]);
-*/
 $table->printtable(20, true);

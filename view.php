@@ -101,6 +101,7 @@ $view = new view($cmid, $whichview, $optionid);
 echo $output->render_view($view);
 
 // Wunderbyte info and footer.
-echo $OUTPUT->box('<a href="http://www.wunderbyte.at">' . get_string('createdbywunderbyte', 'mod_booking') . "</a>",
-        'box mdl-align');
+$logourl = new moodle_url('/mod/booking/pix/wb-logo.png');
+echo $OUTPUT->box('<a href="https://www.wunderbyte.at" target="_blank"><img src="' . $logourl . '" width="200px" alt="Wunderbyte logo"><br>' .
+    get_string('createdbywunderbyte', 'mod_booking') . "</a>", 'box mdl-align');
 echo $OUTPUT->footer();
