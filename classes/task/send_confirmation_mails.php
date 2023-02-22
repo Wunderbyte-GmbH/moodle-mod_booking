@@ -44,7 +44,7 @@ class send_confirmation_mails extends \core\task\adhoc_task {
         global $CFG, $DB;
         $taskdata = $this->get_custom_data();
 
-        echo 'send_confirmation_mails task started' . PHP_EOL;
+        mtrace('send_confirmation_mails task started');
 
         if ($taskdata != null) {
 
@@ -90,16 +90,16 @@ class send_confirmation_mails extends \core\task\adhoc_task {
                         }
                     }
                 } else {
-                    echo 'send_confirmation_mails: e-mail with subject "' . $taskdata->subject . '"' .
-                    ' was not sent because $taskdata->userto was missing.'. PHP_EOL;
+                    mtrace('send_confirmation_mails: e-mail with subject "' . $taskdata->subject . '"' .
+                    ' was not sent because $taskdata->userto was missing.');
                 }
             } else {
-                echo 'send_confirmation_mails: e-mail with subject "' . $taskdata->subject . '"' .
-                    ' was not sent because message template is set to "0" (turned off).'. PHP_EOL;
+                mtrace('send_confirmation_mails: e-mail with subject "' . $taskdata->subject . '"' .
+                    ' was not sent because message template is set to "0" (turned off).');
             }
         } else {
-            echo 'Confirmation email was not sent due to lack of custom message data' . PHP_EOL;
+            mtrace('Confirmation email was not sent due to lack of custom message data');
         }
-        echo 'send_confirmation_mails task finished' . PHP_EOL;
+        mtrace('send_confirmation_mails task finished');
     }
 }

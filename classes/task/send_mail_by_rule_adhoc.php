@@ -55,8 +55,8 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
         $taskdata = $this->get_custom_data();
         $nextruntime = $this->get_next_run_time();
 
-        echo 'send_mail_by_rule_adhoc task: sending mail for option ' . $taskdata->optionid . ' to user '
-            . $taskdata->userid . PHP_EOL;
+        mtrace('send_mail_by_rule_adhoc task: sending mail for option ' . $taskdata->optionid . ' to user '
+            . $taskdata->userid);
 
         if ($taskdata != null) {
 
@@ -69,8 +69,8 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
 
             // We run the call again to see if something has changed (field in bo, in user profile etc.).
             if (!$rule->check_if_rule_still_applies($taskdata->optionid, $taskdata->userid, $nextruntime)) {
-                echo 'send_mail_by_rule_adhoc task: Rule does not apply anymore. Mail was NOT SENT for option ' .
-                    $taskdata->optionid . ' and user ' . $taskdata->userid . PHP_EOL;
+                mtrace('send_mail_by_rule_adhoc task: Rule does not apply anymore. Mail was NOT SENT for option ' .
+                    $taskdata->optionid . ' and user ' . $taskdata->userid);
                 return;
             }
 
@@ -87,11 +87,11 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
             }
 
             if ($messagecontroller->send_or_queue()) {
-                echo 'send_mail_by_rule_adhoc task: mail successfully sent for option ' . $taskdata->optionid . ' to user '
-                . $taskdata->userid . PHP_EOL;
+                mtrace('send_mail_by_rule_adhoc task: mail successfully sent for option ' . $taskdata->optionid . ' to user '
+                . $taskdata->userid);
             } else {
-                echo 'send_mail_by_rule_adhoc task: mail could not be sent for option ' . $taskdata->optionid . ' to user '
-                . $taskdata->userid . PHP_EOL;
+                mtrace('send_mail_by_rule_adhoc task: mail could not be sent for option ' . $taskdata->optionid . ' to user '
+                . $taskdata->userid);
             }
 
         } else {
