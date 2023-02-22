@@ -50,7 +50,7 @@ class send_notification_mails extends \core\task\scheduled_task {
 
         foreach ($results as $result) {
 
-            echo 'send_notification_mails task: sending mail to user with id: ' . $result->userid . PHP_EOL;
+            mtrace('send_notification_mails task: sending mail to user with id: ' . $result->userid );
 
             $booking = singleton_service::get_instance_of_booking_by_bookingid($result->bookingid);
             $settings = singleton_service::get_instance_of_booking_option_settings($result->optionid);
@@ -84,11 +84,11 @@ class send_notification_mails extends \core\task\scheduled_task {
             );
 
             if ($messagecontroller->send_or_queue()) {
-                echo 'send_notification_mails task: mail successfully sent to user with userid: '
-                        . $result->userid . PHP_EOL;
+                mtrace('send_notification_mails task: mail successfully sent to user with userid: '
+                        . $result->userid);
             } else {
-                echo 'send_notification_mails task: mail could not be sent to user with userid: '
-                        . $result->userid . PHP_EOL;
+                mtrace('send_notification_mails task: mail could not be sent to user with userid: '
+                        . $result->userid);
             }
 
         }

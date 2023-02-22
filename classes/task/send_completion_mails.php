@@ -50,7 +50,7 @@ class send_completion_mails extends \core\task\adhoc_task {
 
         $taskdata = $this->get_custom_data();
 
-        echo 'send_completion_mails task: sending completion mail to user with id: ' . $taskdata->userid . PHP_EOL;
+        mtrace('send_completion_mails task: sending completion mail to user with id: ' . $taskdata->userid);
 
         if ($taskdata != null) {
 
@@ -60,11 +60,11 @@ class send_completion_mails extends \core\task\adhoc_task {
             );
 
             if ($messagecontroller->send_or_queue()) {
-                echo 'send_completion_mails task: mail successfully sent to user with userid: '
-                        . $taskdata->userid . PHP_EOL;
+                mtrace('send_completion_mails task: mail successfully sent to user with userid: '
+                        . $taskdata->userid);
             } else {
-                echo 'send_completion_mails task: mail could not be sent to user with userid: '
-                        . $taskdata->userid . PHP_EOL;
+                mtrace('send_completion_mails task: mail could not be sent to user with userid: '
+                        . $taskdata->userid);
             }
 
         } else {
