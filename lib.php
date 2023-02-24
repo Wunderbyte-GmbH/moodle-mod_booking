@@ -508,6 +508,13 @@ function booking_add_instance($booking) {
 
     booking_grade_item_update($booking);
 
+    // When adding an instance, we need to invalidate the cache for booking instances.
+    cache_helper::invalidate_by_event('setbackbookinginstances', [$cmid]);
+
+    // Also purge caches for options table and booking_option_settings.
+    cache_helper::purge_by_event('setbackoptionstable');
+    cache_helper::purge_by_event('setbackoptionsettings');
+
     return $booking->id;
 }
 
@@ -2243,6 +2250,13 @@ function booking_delete_instance($id) {
     if (!$DB->delete_records("booking", array("id" => "$booking->id"))) {
         $result = false;
     }
+
+    // When deleting an instance, we need to invalidate the cache for booking instances.
+    cache_helper::invalidate_by_event('setbackbookinginstances', [$cm->id]);
+
+    // Also purge caches for options table and booking_option_settings.
+    cache_helper::purge_by_event('setbackoptionstable');
+    cache_helper::purge_by_event('setbackoptionsettings');
 
     return $result;
 }

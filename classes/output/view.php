@@ -276,9 +276,10 @@ class view implements renderable, templatable {
         // Create the table.
         $teacheroptionstable = new bookingoptions_wbtable('teacheroptionstable', $booking);
 
-        $wherearray = ['bookingid' => (int)$booking->id];
-
-        $wherearray['teacherobjects'] = '%"id":' . $teacherid . ',%';
+        $wherearray = [
+            'bookingid' => (int)$booking->id,
+            'teacherobjects' => '%"id":' . $teacherid . ',%',
+        ];
         list($fields, $from, $where, $params, $filter) =
             booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
         $teacheroptionstable->set_filter_sql($fields, $from, $where, $filter, $params);
@@ -305,8 +306,10 @@ class view implements renderable, templatable {
         // Create the table.
         $showonlyonetable = new bookingoptions_wbtable('showonlyonetable', $booking);
 
-        $wherearray = ['bookingid' => (int)$booking->id];
-        $wherearray = ['id' => $optionid];
+        $wherearray = [
+            'bookingid' => (int) $booking->id,
+            'id' => $optionid,
+        ];
         list($fields, $from, $where, $params, $filter) =
                 booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
         $showonlyonetable->set_filter_sql($fields, $from, $where, $filter, $params);
@@ -333,8 +336,10 @@ class view implements renderable, templatable {
         // Create the table.
         $myinstitutiontable = new bookingoptions_wbtable('myinstitutiontable', $booking);
 
-        $wherearray = ['bookingid' => (int)$booking->id];
-        $wherearray = ['institution' => $institution];
+        $wherearray = [
+            'bookingid' => (int) $booking->id,
+            'institution' => $institution,
+        ];
         list($fields, $from, $where, $params, $filter) =
                 booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
         $myinstitutiontable->set_filter_sql($fields, $from, $where, $filter, $params);
@@ -437,7 +442,8 @@ class view implements renderable, templatable {
             ['keystring' => get_string('tableheader_teacher', 'booking')],
             ['teacher']
         );
-        // $wbtable->is_downloading('', 'List of booking options');
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $wbtable->is_downloading('', 'List of booking options'); */
 
         // Header column.
         $wbtable->define_header_column('text');
