@@ -370,6 +370,15 @@ if there only was one booking option. */
     width: max-content;
 }
 
+.prepage-booking-page {
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+#prepage-booking-tabs {
+    counter-reset: section;
+}
+
 #prepage-booking-tabs li {
     list-style-type: none;
     font-size: 15px;
@@ -392,8 +401,10 @@ if there only was one booking option. */
     border-radius: 50%;
     margin: 0 auto 10px auto;
     padding: 2px;
-    font-family: FontAwesome;
-    content: "\f005";
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bolder;
+    counter-increment: section;
+    content: counter(section);
 }
 
 /*ProgressBar connectors*/

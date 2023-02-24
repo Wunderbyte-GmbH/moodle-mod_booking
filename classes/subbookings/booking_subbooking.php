@@ -90,6 +90,15 @@ interface booking_subbooking {
     public function return_interface(booking_option_settings $settings):array;
 
     /**
+     * The price might be altered, eg. when more than one item is selected.
+     *
+     * @param object $user
+     * @param object $user
+     * @return array
+     */
+    public function return_price($user):array;
+
+    /**
      * Function to return all relevant information of this subbooking as array.
      * This function can be used to differentiate for different items a single ...
      * ... subbooking option can provide. One example would be a timeslot subbooking...
@@ -97,16 +106,18 @@ interface booking_subbooking {
      * But normally the itemid here is the same as the subboooking it.
      *
      * @param integer $itemid
+     *
      * @return array
      */
-    public function return_subbooking_information(int $itemid = 0):array;
+    public function return_subbooking_information(int $itemid = 0, $user = null):array;
 
     /**
      * When a subbooking is booked, we might need some supplementary values saved.
      * Evey subbooking type can decide what to store in the answer json.
      *
      * @param integer $itemid
+     * @param object $user
      * @return string
      */
-    public function return_answer_json(int $itemid):string;
+    public function return_answer_json(int $itemid, $user = null):string;
 }

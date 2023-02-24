@@ -17,7 +17,10 @@
 namespace mod_booking\subbookings\sb_types;
 
 use context_module;
+use context_system;
+use html_writer;
 use mod_booking\booking_option_settings;
+use mod_booking\form\subbooking\additionalperson_form;
 use mod_booking\output\subbooking_additionalperson_output;
 use mod_booking\price;
 use mod_booking\subbookings\booking_subbooking;
@@ -272,7 +275,81 @@ class subbooking_additionalperson implements booking_subbooking {
 
         $data = new subbooking_additionalperson_output($settings);
 
-        return [$data, 'mod_booking/subbooking_additionalperson'];
+        return [$data, 'mod_booking/subbooking/additionalperson'];
+    }
+
+    /**
+     * The price might be altered, eg. when more than one item is selected.
+     *
+     * @param object $user
+     * @return array
+     */
+    public function return_price($user):array {
+
+        // First, we get the price object.
+        $price = price::get_price('subbooking', $this->id, $user);
+
+        if (empty($price)) {
+            return [];
+        }
+
+        // When choosing the elements from the subbookings, we store our current state in the cache.
+        $data = additionalperson_form::get_data_from_cache($this->id);
+
+        // If we find the multiplyer her, we set it, else it's 1.
+        $multiplyer = (int)$data->subbooking_addpersons ?? 1;
+
+        if (empty($multiplyer)) {
+            $multiplyer = 1;
+        }
+
+        $price['price'] = $multiplyer * $price['price'];
+
+        return $price;
+    }
+
+    /**
+     * The description might be adjusted depending on the choices of the user.
+     * How many of the items are booked etc.
+     *
+     * @param object $user
+     * @return string
+     */
+    public function return_description($user):string {
+
+        global $OUTPUT, $PAGE;
+
+        $PAGE->set_context(context_system::instance());
+
+        // When choosing the elements from the subbookings, we store our current state in the cache.
+        if (!$data = additionalperson_form::get_data_from_cache($this->id)) {
+            return $this->description;
+        }
+
+        $bp = $data->subbooking_addpersons ?? 1;
+
+        $templatedata = [
+            'introduction' => get_string('subbooking_bookedpersons', 'mod_booking'),
+            'bookedpersons' => [],
+        ];
+
+        $counter = 1;
+        while ($counter <= $bp) {
+            $fnkey = "person_firstname_$counter";
+            $lnkey = "person_lastname_$counter";
+            $akey = "person_age_$counter";
+
+            $templatedata['personbooked'][] = [
+                'firstname' => $data->{$fnkey},
+                'lastname' => $data->{$lnkey},
+                'age' => $data->{$akey},
+            ];
+            $counter++;
+        }
+
+        $description = $OUTPUT->render_from_template('mod_booking/subbooking/additionalperson_description', $templatedata);
+
+        return $description;
     }
 
     /**
@@ -283,9 +360,10 @@ class subbooking_additionalperson implements booking_subbooking {
      * But normally the itemid here is the same as the subboooking it.
      *
      * @param integer $itemid
+     * @param object $user
      * @return array
      */
-    public function return_subbooking_information(int $itemid = 0, $user = 0):array {
+    public function return_subbooking_information(int $itemid = 0, $user = null):array {
 
         return [];
     }
@@ -295,10 +373,13 @@ class subbooking_additionalperson implements booking_subbooking {
      * Evey subbooking type can decide what to store in the answer json.
      *
      * @param integer $itemid
+     * @param object $user
      * @return string
      */
-    public function return_answer_json(int $itemid):string {
+    public function return_answer_json(int $itemid, $user = null):string {
 
-        return '';
+        // When choosing the elements from the subbookings, we store our current state in the cache.
+        $data = additionalperson_form::get_data_from_cache($this->id);
+        return json_encode($data);
     }
 }

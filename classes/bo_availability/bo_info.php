@@ -34,6 +34,7 @@ use mod_booking\output\simple_modal;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use moodle_exception;
+use moodle_url;
 use MoodleQuickForm;
 use stdClass;
 
@@ -477,6 +478,21 @@ class bo_info {
         $object['template'] = $template . ',' . $object['template'];
         $dataarray = array_merge([$data], $object['data']);
 
+        $template = 'mod_booking/bookingpage/footer';
+
+        $footerdata = [
+            'data' => [
+                'optionid' => $optionid,
+            ]
+        ];
+
+        // Depending on the circumstances, keys are added to the array.
+        self::add_continue_button($footerdata, $results, $pagenumber, count($conditions));
+        self::add_back_button($footerdata, $results, $pagenumber, count($conditions));
+
+        $object['template'] = $object['template'] . ',' .  $template;
+        $dataarray = array_merge($dataarray, [$footerdata]);
+
         $object['json'] = json_encode($dataarray);
 
         // The condition renders the page we actually need.
@@ -699,5 +715,84 @@ class bo_info {
 
         // Now that we have the right order, we need to return the corresponding classname.
         return $conditionsarray[$pagenumber]['classname'];
+    }
+
+    /**
+     * Go through conditions classes to see if somewhere a price is set.
+     *
+     * @param array $results
+     * @return boolean
+     */
+    private static function has_price_set(array $results):bool {
+        foreach ($results as $result) {
+            if ($result['classname'] == 'mod_booking\bo_availability\conditions\priceisset') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Logic of the continue button in the prepage modal.
+     *
+     * @param array $footerdata
+     * @param array $results
+     * @param integer $pagenumber
+     * @param integer $totalpages
+     * @return void
+     */
+    private static function add_continue_button(array &$footerdata, array $results, int $pagenumber, int $totalpages) {
+
+        // Standardvalues.
+
+        $continuebutton = true;
+        $continueaction = 'continue';
+        $continuelabel = get_string('continue');
+        $continuelink = '#';
+
+        if ($pagenumber + 1 == $totalpages) { // If we are on the last page.
+
+            // We need to decide if we want to show on the last page a "go to checkout" button.
+            if (self::has_price_set($results)) {
+                $url = new moodle_url('/local/shopping_cart/checkout.php');
+                $continueaction = 'checkout';
+                $continuelabel = get_string('checkout', 'local_shopping_cart');
+                $continuelink = $url->out();
+            } else {
+                $continuebutton = false;
+            }
+        } else {
+
+        }
+
+        $footerdata['data']['continuebutton'] = $continuebutton; // Show button at all.
+        $footerdata['data']['continueaction'] = $continueaction; // Which action should be taken?
+        $footerdata['data']['continuelabel'] = $continuelabel; // The visible label.
+        $footerdata['data']['continuelink'] = $continuelink; // A hard link.
+    }
+
+    /**
+     * Logic of the back button in the prepage modal.
+     *
+     * @param array $footerdata
+     * @param array $results
+     * @param integer $pagenumber
+     * @param integer $totalpages
+     * @return void
+     */
+    private static function add_back_button(array &$footerdata, array $results, int $pagenumber, int $totalpages) {
+
+        // Standardvalues.
+        $backbutton = true;
+        $backaction = 'back';
+        $backlabel = get_string('back');
+
+        if ($pagenumber == 0) { // If we are on the last page.
+            $backbutton = false;
+        }
+
+        $footerdata['data']['backbutton'] = $backbutton; // Show button at all.
+        $footerdata['data']['backaction'] = $backaction; // Which action should be taken?
+        $footerdata['data']['backlabel'] = $backlabel; // The visible label.
     }
 }

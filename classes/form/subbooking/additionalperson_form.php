@@ -22,13 +22,15 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_booking\form;
+namespace mod_booking\form\subbooking;
 
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
+use cache;
+use cache_helper;
 use context;
 use context_system;
 use core_form\dynamic_form;
@@ -45,7 +47,7 @@ use stdClass;
  * @author Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class subbooking_additionalperson_form extends dynamic_form {
+class additionalperson_form extends dynamic_form {
 
     /** @param int $id */
     private $id = null;
@@ -73,7 +75,22 @@ class subbooking_additionalperson_form extends dynamic_form {
      */
     public function set_data_for_dynamic_submission(): void {
 
+        global $USER;
+
         $data = new stdClass();
+
+        $formdata = $this->_ajaxformdata;
+        $subbooking = subbookings_info::get_subbooking_by_area_and_id('subbooking', $formdata['id']);
+
+        // Todo: get these values.
+        $userid = $USER->id; // Might be a different user!
+        $optionid = $subbooking->optionid;
+        $subbookingid = $subbooking->id;
+
+        $cache = cache::make('mod_booking', 'subbookingforms');
+        $cachekey = $userid . '_' . $optionid . '_' . $subbookingid;
+
+        $data = $cache->get($cachekey);
 
         $this->set_data($data);
     }
@@ -83,9 +100,11 @@ class subbooking_additionalperson_form extends dynamic_form {
      * @return stdClass|null
      */
     public function process_dynamic_submission(): stdClass {
-        global $PAGE;
+        global $PAGE, $USER;
 
         $data = $this->get_data();
+
+        self::store_data_in_cache($data);
 
         return $data;
     }
@@ -102,6 +121,16 @@ class subbooking_additionalperson_form extends dynamic_form {
         $mform = $this->_form;
 
         $id = $formdata['id'];
+
+        // We know this is already a filled out form when we have this key.
+        if (isset($formdata["subbooking_addpersons"])) {
+            $data = (object)$formdata;
+
+            self::store_data_in_cache($data);
+        } else {
+            // we still might find sth in cache.
+            $data = self::get_data_from_cache($id);
+        }
 
         $mform->addElement('hidden', 'id', $id);
 
@@ -120,7 +149,7 @@ class subbooking_additionalperson_form extends dynamic_form {
         $mform->addGroup($categoryselect, 'subbooking_addpersons', get_string('subbooking_addpersons', 'mod_booking'), [' '], false);
         $mform->setType('btn_addperson', PARAM_NOTAGS);
 
-        $bookedpersons = $formdata['subbooking_addpersons'] ?? 1;
+        $bookedpersons = $formdata['subbooking_addpersons'] ?? $data->subbooking_addpersons ?? 1;
         $counter = 1;
         while ($counter <= $bookedpersons) {
             $mform->addElement('static', 'person_' . $counter, '', get_string('personnr', 'mod_booking', $counter));
@@ -151,6 +180,20 @@ class subbooking_additionalperson_form extends dynamic_form {
     public function validation($data, $files): array {
         $errors = [];
 
+        $counter = 1;
+        while ($data["subbooking_addpersons"] >= $counter) {
+            if (empty($data['person_firstname_' . $counter])) {
+                $errors['person_firstname_' . $counter] = get_string('isempty', 'mod_booking');
+            }
+            if (empty($data['person_lastname_' . $counter])) {
+                $errors['person_lastname_' . $counter] = get_string('isempty', 'mod_booking');
+            }
+            if (empty($data['person_age_' . $counter])) {
+                $errors['person_age_' . $counter] = get_string('isempty', 'mod_booking');
+            }
+            $counter++;
+        }
+
         return $errors;
     }
 
@@ -160,5 +203,61 @@ class subbooking_additionalperson_form extends dynamic_form {
      */
     protected function get_page_url_for_dynamic_submission(): moodle_url {
         return new moodle_url('/mod/booking/view.php', ['id' => $this->id]);
+    }
+
+    /**
+     * Helper function to store data in cache.
+     *
+     * @param object $data
+     * @param object $user
+     * @return void
+     */
+    public static function store_data_in_cache($data, $user = null) {
+
+        global $USER;
+
+        if (!$user) {
+            $user = $USER;
+        }
+
+        $subbooking = subbookings_info::get_subbooking_by_area_and_id('subbooking', $data->id);
+
+        // Todo: get these values.
+        $userid = $user->id; // Might be a different user!
+        $optionid = $subbooking->optionid;
+        $subbookingid = $subbooking->id;
+
+        $cache = cache::make('mod_booking', 'subbookingforms');
+        $cachekey = $userid . '_' . $optionid . '_' . $subbookingid;
+
+        $cache->set($cachekey, $data);
+    }
+
+    /**
+     * Helper function to store data in cache.
+     *
+     * @param int $data
+     * @param object $user
+     * @return object
+     */
+    public static function get_data_from_cache($subbookingid, $user = null) {
+
+        global $USER;
+
+        if (!$user) {
+            $user = $USER;
+        }
+
+        $subbooking = subbookings_info::get_subbooking_by_area_and_id('subbooking', $subbookingid);
+
+        // Todo: get these values.
+        $userid = $user->id; // Might be a different user!
+        $optionid = $subbooking->optionid;
+        $subbookingid = $subbooking->id;
+
+        $cache = cache::make('mod_booking', 'subbookingforms');
+        $cachekey = $userid . '_' . $optionid . '_' . $subbookingid;
+
+        return $cache->get($cachekey);
     }
 }

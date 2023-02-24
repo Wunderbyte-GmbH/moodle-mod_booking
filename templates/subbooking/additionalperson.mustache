@@ -15,37 +15,27 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_booking/booking_page
+    @template mod_booking/subbooking/additionalitem
 
     Classes required for JS:
     * none
 
+    Data attributes required for JS:
+    * data-action
+    * data-component
+    * data-area
+    * data-itemid
+
     Example context (json):
     {
-        "optionid": "3",
-        "headline": 'My headline',
-        "text": 'My longer text',
-        "checkobx" = "true",
+       'id': '1'
     }
 }}
 
-<div class="prepage-booking-page">
-        <h2>
-            {{{headline}}}
-        </h2>
-    {{{text}}}
-    {{#checkbox}}
-            <div class="form-check">
-                <input class="booking-page-accept-checkbox form-check-input" type="checkbox" value="" id="flexCheckChecked">
-                <label class="form-check-label" for="flexCheckChecked">
-                    {{#str}} accept, mod_booking {{/str}}
-                </label>
-            </div>
-    {{/checkbox}}
-</div>
+<div class="subbooking-additionalperson-form" data-id="{{itemid}}"></div>
 
 {{#js}}
-    require(['mod_booking/bookingPage'], function(init) {
-    init.init({{optionid}});
+    require(['mod_booking/subbookingAdditionalPerson'], function(init) {
+    init.init();
     });
 {{/js}}

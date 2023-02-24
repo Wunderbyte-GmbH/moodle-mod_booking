@@ -66,7 +66,7 @@ class booking_bookit {
         foreach ($templates as $template) {
             $data = array_shift($datas);
 
-            if ($template == 'mod_booking/prepagemodal') {
+            if ($template == 'mod_booking/bookingpage/prepagemodal') {
                 $html .= $output->render_prepagemodal($data);
             } else {
                 $html .= $output->render_bookit_button($data, $template);
@@ -159,7 +159,7 @@ class booking_bookit {
                 $showinmodalbutton, // This marker just suppresses the in modal button.
             );
 
-            $templates[] = 'mod_booking/prepagemodal';
+            $templates[] = 'mod_booking/bookingpage/prepagemodal';
 
             return [$templates, $datas];
         } else {

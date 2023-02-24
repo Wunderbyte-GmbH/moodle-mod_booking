@@ -254,6 +254,7 @@ $string['reminder_teacher_sent'] = 'Benachrichtigung an Trainer:in versendet';
 
 // View.php.
 $string['agreetobookingpolicy'] = 'Ich habe folgende Buchungsbedingungen gelesen und erkläre mich damit einverstanden';
+$string['bookingpolicynotchecked'] = 'Sie haben die Booking policy nicht akzeptiert';
 $string['allbookingoptions'] = 'Nutzer:innen für alle Buchungsoptionen herunterladen';
 $string['attachedfiles'] = 'Dateianhänge';
 $string['availability'] = 'Noch verfügbar ';
@@ -2026,6 +2027,7 @@ $string['subbooking_additionalperson_desc'] = "Mit dieser zusätzlichen Buchung 
 $string['subbooking_additionalperson_description'] = "Beschreiben Sie die Buchungsmöglichkeit.";
 
 $string['subbooking_addpersons'] = "Füge Person hinzu";
+$string['subbooking_bookedpersons'] = "Die folgenden Personen werden hinzugefügt:";
 $string['personnr'] = 'Person Nr. {$a}';
 $string['age'] = 'Alter';
 

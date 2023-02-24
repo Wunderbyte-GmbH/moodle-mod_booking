@@ -147,30 +147,14 @@ class bookingpolicy implements bo_condition {
     public function render_page(int $optionid) {
         global $PAGE;
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        $bosettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
-        $dataarray = [];
-
-        $data = new bookingoption_description($settings->id, null, DESCRIPTION_WEBSITE, true, false);
-        $output = $PAGE->get_renderer('mod_booking');
-        $text = $output->render_bookingoption_description($data);
-        $text .= html_writer::tag('p', format_text($bosettings->bookingpolicy, $bosettings->bookingpolicyformat));
-        $text .= html_writer::tag('p', get_string('agreetobookingpolicy', 'mod_booking'));
-        $dataarray[] = [
-            'data' => [
-                'optionid' => $optionid,
-                'headline' => get_string('confirmbookingoffollowing', 'mod_booking'),
-                'text' => $text,
-                'checkbox' => "true",
-            ]
+        $dataarray['data'] = [
+            'optionid' => $optionid,
         ];
-
-        $jsonstring = json_encode($dataarray);
 
         $returnarray = [
             // 'json' => $jsonstring,
-            'data' => $dataarray,
-            'template' => 'mod_booking/booking_page',
+            'data' => [$dataarray],
+            'template' => 'mod_booking/condition/bookingpolicy',
             'buttontype' => 1, // This means that the continue button is disabled.
         ];
 

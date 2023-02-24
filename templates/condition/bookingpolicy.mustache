@@ -15,27 +15,24 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_booking/subbooking_additionalitem
+    @template mod_booking/condition/bookingpolicy
 
     Classes required for JS:
     * none
 
     Data attributes required for JS:
-    * data-action
-    * data-component
-    * data-area
-    * data-itemid
+    * none
 
     Example context (json):
     {
-       'id': '1'
+       'optionid': '1'
     }
 }}
 
-<div class="subbooking-additionalperson-form" data-id="{{itemid}}"></div>
+<div class="condition-bookingpolicy-form" data-id="{{optionid}}">xxxxx</div>
 
 {{#js}}
-    require(['mod_booking/subbookingAdditionalPerson'], function(init) {
+    require(['mod_booking/condition/bookingPolicy'], function(init) {
     init.init();
     });
 {{/js}}

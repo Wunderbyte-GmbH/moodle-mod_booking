@@ -1,0 +1,57 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/bookingpage/header
+
+    Classes required for JS:
+    * none
+
+    Example context (json):
+    {
+        'backbutton': true,
+        'continuebutton': true,
+        'continuelabel': "my label",
+        'continuelink': "http://"
+    }
+}}
+
+<div class="prepage-booking-footer d-flex w-100 justify-content-between">
+    <span>
+        {{#backbutton}}
+            <a class="btn btn-primary back-button"
+                data-action="{{backaction}}">
+                {{#str}} back {{/str}}
+            </a>
+        {{/backbutton}}
+    </span>
+
+    <span class="continue-container">
+        {{#continuebutton}}
+            <a class="btn btn-primary continue-button" href="#"
+                data-action="{{continueaction}}"
+                data-href="{{continuelink}}">
+                {{{continuelabel}}}
+            </a>
+        {{/continuebutton}}
+    </span>
+</div>
+
+{{#js}}
+    require(['mod_booking/prepageFooter'], function(init) {
+    init.initFooterButtons({{optionid}});
+    });
+{{/js}}

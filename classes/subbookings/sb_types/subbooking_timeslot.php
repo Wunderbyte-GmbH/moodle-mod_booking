@@ -63,6 +63,9 @@ class subbooking_timeslot implements booking_subbooking {
     /** @var int $duration This is a supplementary field which is not directly in the db but wrapped in the json */
     public $duration = 0;
 
+    /** @var int $duration This is a supplementary field which is not directly in the db but wrapped in the json */
+    public $description = '';
+
     /**
      * Load json data from DB into the object.
      * @param stdClass $record a subbooking record from DB
@@ -232,7 +235,7 @@ class subbooking_timeslot implements booking_subbooking {
         // We need to create the json for rendering.
 
         $data = new subbooking_timeslot_output($settings, true);
-        return [$data, 'mod_booking/subbooking_timeslottable'];
+        return [$data, 'mod_booking/subbooking/timeslottable'];
     }
 
     /**
@@ -243,9 +246,10 @@ class subbooking_timeslot implements booking_subbooking {
      * But normally the itemid here is the same as the subboooking it.
      *
      * @param integer $itemid
+     * @param object $user
      * @return array
      */
-    public function return_subbooking_information(int $itemid = 0):array {
+    public function return_subbooking_information(int $itemid = 0, $user = null):array {
 
         // In the case of this subbooking type, the itemid refers to the slots.
         // In other types, the itemid is actually $this->id.
@@ -283,9 +287,10 @@ class subbooking_timeslot implements booking_subbooking {
      * Evey subbooking type can decide what to store in the answer json.
      *
      * @param integer $itemid
+     * @param object $user
      * @return string
      */
-    public function return_answer_json(int $itemid):string {
+    public function return_answer_json(int $itemid, $user = null):string {
 
         return '';
     }
@@ -396,6 +401,27 @@ class subbooking_timeslot implements booking_subbooking {
         }
 
         return $data;
+    }
+
+    /**
+     * The price might be altered, eg. when more than one item is selected.
+     *
+     * @param object $user
+     * @return array
+     */
+    public function return_price($user):array {
+        return price::get_price('subbooking', $this->id, $user);
+    }
+
+    /**
+     * The description might be adjusted depending on the choices of the user.
+     * How many of the items are booked etc.
+     *
+     * @param object $user
+     * @return string
+     */
+    public function return_description($user):string {
+        return $this->description;
     }
 
     /**

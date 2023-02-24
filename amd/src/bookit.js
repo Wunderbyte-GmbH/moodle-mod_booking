@@ -29,8 +29,8 @@ var totalbookitpages = {};
 var SELECTORS = {
     MODALID: 'sbPrePageModal_',
     INMODALDIV: ' div.pageContent',
-    CONTINUEBUTTON: 'a.continue-button',
-    BACKBUTTON: 'a.back-button',
+    CONTINUEBUTTON: 'a.continue-button', // Don't want to find button right now.
+    BACKBUTTON: 'a.back-button', // Don't want to find button right now.
     BOOKITBUTTON: 'div.booking-button-area',
     INMODALBUTTON: 'div.in-modal-button',
     STATICBACKDROP: 'div.modal-backdrop',
@@ -169,6 +169,9 @@ export const loadPreBookingPage = (
     optionid) => {
 
     const element = returnVisibleElement(optionid, SELECTORS.INMODALDIV);
+
+    // eslint-disable-next-line no-console
+    console.log('element'. element);
 
     while (element.firstChild) {
         element.removeChild(element.firstChild);
@@ -376,11 +379,17 @@ function initializeButton(optionid, back) {
         elements = document.querySelectorAll("[id^=" + SELECTORS.MODALID + optionid + "] " + SELECTORS.CONTINUEBUTTON);
     }
 
+    // eslint-disable-next-line no-console
+    console.log("[id^=" + SELECTORS.MODALID + optionid + "] " + SELECTORS.BACKBUTTON, elements);
+
     elements.forEach(element => {
         if (element && !element.dataset.prepageinit) {
             element.dataset.prepageinit = true;
 
             element.addEventListener('click', (e) => {
+
+                // eslint-disable-next-line no-console
+                console.log('click');
 
                 e.stopPropagation();
 
@@ -445,7 +454,7 @@ function bookit(itemid, area, userid) {
 
                     // We need to check if this will render the prepagemodal again.
                     // We never render the prepage modal in the in modal button.
-                    if (!(template === 'mod_booking/prepagemodal'
+                    if (!(template === 'mod_booking/bookingpage/prepagemodal'
                             && button.parentElement.classList.contains('in-modal-button'))) {
 
                         const datatorender = data.data ?? data;
@@ -512,4 +521,26 @@ function returnVisibleElement(optionid, appendedSelector) {
     });
 
     return visibleElement;
+}
+
+/**
+ * Load next prepage booking page.
+ * @param {int} optionid
+ */
+export function continueToNextPage(optionid) {
+
+    currentbookitpage[optionid]++;
+
+    loadPreBookingPage(optionid);
+}
+
+/**
+ *  Load previous prepage booking page.
+ * @param {int} optionid
+ */
+export function backToPreviousPage(optionid) {
+
+    currentbookitpage[optionid]--;
+
+    loadPreBookingPage(optionid);
 }

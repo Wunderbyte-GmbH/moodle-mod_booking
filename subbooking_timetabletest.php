@@ -177,6 +177,6 @@ $json = '{
 $jsondecode = json_decode($json);
 
 echo $OUTPUT->header();
-echo $OUTPUT->render_from_template('mod_booking/subbooking_timeslottable', $jsondecode);
+echo $OUTPUT->render_from_template('mod_booking/subbooking/timeslottable', $jsondecode);
 
 echo $OUTPUT->footer();

@@ -73,6 +73,20 @@ $definitions = array(
         'staticacceleration' => true,
         'staticaccelerationsize' => 1,
         'invalidationevents' => ['setbackoptionsanswers']
+    ),
+    'subbookingforms' => array( // This cache uses optionids as keys.
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 1,
+        'invalidationevents' => ['setbacksubbookingforms']
+    ),
+    'conditionforms' => array( // This cache uses optionids as keys.
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 1,
+        'invalidationevents' => ['setbackconditionforms']
     )
 );
 

@@ -1045,7 +1045,11 @@ class booking_option_settings {
 
         $subbooking = subbookings_info::get_subbooking_by_area_and_id('subbooking', $subbookingid);
 
-        $price = price::get_price('subbooking', $subbookingid, $user);
+        // This is the price for the subbooking id.
+        $price = $subbooking->return_price($user);
+        $description = $subbooking->return_description($user);
+
+        // But some subbookings might have a different price, eg. when you can buy one item multiple times.
         $canceluntil = booking_option::return_cancel_until_date($this->id);
 
         $returnarray = [
@@ -1056,7 +1060,7 @@ class booking_option_settings {
             'userid' => $user->id,
             'component' => 'mod_booking',
             'area' => 'subbooking',
-            'description' => $subbooking->description,
+            'description' => $description,
             'canceluntil' => $canceluntil ?? 0,
             'coursestarttime' => $this->coursestarttime ?? 0,
             'courseendtime' => $this->courseendtime ?? 0,

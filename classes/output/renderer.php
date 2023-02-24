@@ -655,7 +655,7 @@ class renderer extends plugin_renderer_base {
      */
     public function render_prepagemodal($data) {
         $data = $data->export_for_template($this);
-        return $this->render_from_template('mod_booking/prepagemodal', $data);
+        return $this->render_from_template('mod_booking/bookingpage/prepagemodal', $data);
     }
 
     /**
@@ -665,7 +665,7 @@ class renderer extends plugin_renderer_base {
      */
     public function render_sb_timeslot($data) {
         $data = $data->export_for_template($this);
-        return $this->render_from_template('mod_booking/subbooking_timeslottable', $data);
+        return $this->render_from_template('mod_booking/subbooking/timeslottable', $data);
     }
 
     /**

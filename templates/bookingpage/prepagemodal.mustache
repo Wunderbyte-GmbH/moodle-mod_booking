@@ -15,7 +15,7 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_booking/prepagemodal
+    @template mod_booking/bookingpage/prepagemodal
 
     Classes required for JS:
     * none
@@ -38,24 +38,7 @@
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-body">
-                <p>
-                    <div class="pageContent"></div>
-                </p>
-                <p>
-                    <div class="d-flex w-100 justify-content-between">
-                        <span>
-                            <a class="btn btn-primary back-button hidden">
-                                {{#str}} back {{/str}}
-                            </a>
-                        </span>
-                        <span>
-                            <a class="btn btn-primary continue-button hidden">
-                                {{#str}} continue {{/str}}
-                            </a>
-                        </span>
-                    </div>
-
-                </p>
+                <div class="pageContent row"></div>
             </div>
         </div>
     </div>
