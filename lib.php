@@ -817,6 +817,14 @@ function booking_update_options($optionvalues, $context) {
         $option->priceformulaoff = 0; // Default: Turned on.
     }
 
+    // Link to feedback form.
+    if (isset($optionvalues->pollurl)) {
+        $option->pollurl = $optionvalues->pollurl;
+    } else {
+        $option->pollurl = '';
+    }
+
+    // Link to teachers' feedback form.
     if (isset($optionvalues->pollurlteachers)) {
         $option->pollurlteachers = $optionvalues->pollurlteachers;
     } else {

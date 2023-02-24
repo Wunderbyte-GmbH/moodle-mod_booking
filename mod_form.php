@@ -597,20 +597,23 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addHelpButton('bookingchangedtext', 'bookingchangedtext', 'mod_booking');
         $mform->disabledIf('bookingchangedtext', 'mailtemplatessource', 'eq', 1);
 
-        $mform->addElement('editor', 'pollurltext', get_string('pollurltext', 'booking'), null,
-                $editoroptions);
-        $default = array('text' => get_string('pollurltextmessage', 'mod_booking', $fieldmapping),
-            'format' => FORMAT_HTML);
+        $mform->addElement('editor', 'pollurltext',
+            get_string('pollurltext', 'booking'), null, $editoroptions);
+        $default = [
+            'text' => get_string('pollurltextmessage', 'mod_booking', $fieldmapping),
+            'format' => FORMAT_HTML
+        ];
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('pollurltext', $default);
         $mform->addHelpButton('pollurltext', 'pollurltext', 'mod_booking');
         $mform->disabledIf('pollurltext', 'mailtemplatessource', 'eq', 1);
 
         $mform->addElement('editor', 'pollurlteacherstext',
-                get_string('pollurlteacherstext', 'booking'), null, $editoroptions);
-        $default = array(
+            get_string('pollurlteacherstext', 'booking'), null, $editoroptions);
+        $default = [
             'text' => get_string('pollurlteacherstextmessage', 'mod_booking', $fieldmapping),
-            'format' => FORMAT_HTML);
+            'format' => FORMAT_HTML
+        ];
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('pollurlteacherstext', $default);
         $mform->addHelpButton('pollurlteacherstext', 'pollurlteacherstext', 'mod_booking');
