@@ -58,7 +58,7 @@ class addbookingoption extends external_api {
         return new external_function_parameters([
             'name' => new external_value(PARAM_TEXT,
                 'Booking option name'),
-            'titleprefix' => new external_value(PARAM_RAW, 
+            'titleprefix' => new external_value(PARAM_RAW,
                 'Optional prefix to be shown before title', (bool) VALUE_DEFAULT, null),
             'targetcourseid' => new external_value(PARAM_INT,
                 'Id of course where this booking option should be created.', (bool) VALUE_DEFAULT, null),

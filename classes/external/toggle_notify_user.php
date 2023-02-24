@@ -86,7 +86,7 @@ class toggle_notify_user extends external_api {
      */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
-            'status' => new external_value(PARAM_INT, 
+            'status' => new external_value(PARAM_INT,
                     'Status 1 for user is now on list, 0 for not on list.'),
             'optionid' => new external_value(PARAM_INT, 'option id'),
             'error' => new external_value(PARAM_RAW, 'error'),

@@ -68,7 +68,7 @@ class priceisset implements bo_subcondition {
         return false;
     }
 
-/**
+    /**
      * Determines whether a particular item is currently available
      * according to this availability condition.
      * @param booking_option_settings $settings Item we're checking
@@ -140,7 +140,7 @@ class priceisset implements bo_subcondition {
      * @param int $subbookingid
      * @return void
      */
-    public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0, $subbookingid) {
+    public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0, $subbookingid = 0) {
         // Do nothing.
     }
 

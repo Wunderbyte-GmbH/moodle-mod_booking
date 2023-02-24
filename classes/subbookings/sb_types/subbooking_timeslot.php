@@ -271,7 +271,7 @@ class subbooking_timeslot implements booking_subbooking {
             'price' => $timeslot['price'],
             'currency' => $timeslot['currency'],
             'component' => 'mod_booking',
-            'area' => 'subbooking-' . $this->id, // $this-id is in this case not the itemid, but packed in the area.
+            'area' => 'subbooking-' . $this->id, // ... $this-id is in this case not the itemid, but packed in the area.
             'description' => $timeslot['slot'] ?? '',
             'imageurl' => '',
             'canceluntil' => strtotime('- 1 hour', $timeslot['slotstarttime']), // Hardcoded for now, one hour before.

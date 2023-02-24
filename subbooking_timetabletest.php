@@ -35,7 +35,7 @@ $title = "timetabletest";
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
 
-// Test JSON for
+// Test JSON for timetable.
 $json = '{
    "days": [
       {

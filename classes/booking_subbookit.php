@@ -198,6 +198,7 @@ class booking_subbookit {
 
         // Make sure that we only buy from instance the user has access to.
         // This is just fraud prevention and can not happen ordinarily.
+        // phpcs:ignore
         // $cm = get_coursemodule_from_instance('booking', $bookingoption->bookingid);
 
         // TODO: Find out if the executing user has the right to access this instance.
