@@ -100,7 +100,7 @@ Feature: In a booking
     Then I should see "Cannot be booked yet" in the "#allbookingoptionstable_r2" "css_element"
     And I should not see "Book now" in the "#allbookingoptionstable_r2" "css_element"
 
-@javascript
+  @javascript
   Scenario: Configure bookingoption-depdendent availability condition
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
@@ -129,7 +129,7 @@ Feature: In a booking
     And I should see "Book now" in the "#allbookingoptionstable_r1" "css_element"
     And I should not see "Not allowed to book" in the "#allbookingoptionstable_r1" "css_element"
 
-@javascript
+  @javascript
   Scenario: Configure userprofile-depdendent availability condition
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
@@ -233,4 +233,3 @@ Feature: In a booking
     And I should see "Booked" in the "#allbookingoptionstable_r3" "css_element"
     And I should see "Book now" in the "#allbookingoptionstable_r1" "css_element"
     And I should not see "Cannot be booked yet" in the "#allbookingoptionstable_r1" "css_element"
-

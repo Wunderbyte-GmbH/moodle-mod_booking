@@ -1,7 +1,7 @@
 @mod @mod_booking @booking_multisessions
-Feature: In a booking create multi session options
-  As a teacher
-  I need to add booking options with multiple dates
+Feature: In a booking create booking option with multiple custom options
+  As an admin
+  I need to duplicate booking option with multiple custom options
 
   Background:
     Given the following "users" exist:

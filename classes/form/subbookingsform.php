@@ -100,7 +100,7 @@ class subbookingsform extends dynamic_form {
     public function validation($data, $files) {
         $errors = [];
 
-        // subbookings_info::val
+        /* subbookings_info::val  */
 
         return $errors;
     }

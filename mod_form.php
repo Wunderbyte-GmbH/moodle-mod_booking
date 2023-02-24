@@ -46,7 +46,7 @@ class mod_booking_mod_form extends moodleform_mod {
      * @param array $options
      * @return array of course category names indexed by category id
      */
-    public function show_sub_categories($catid, $dashes = '', $options) {
+    public function show_sub_categories($catid, $dashes = '', $options = []) {
         global $DB;
         $dashes .= '&nbsp;&nbsp;';
         $categories = $DB->get_records('booking_category', array('cid' => $catid));

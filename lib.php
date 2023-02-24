@@ -2625,7 +2625,7 @@ function get_list_of_booking_events() {
         // We need to filter all classes that extend event base, or the base class itself.
         if (is_a($event, \core\event\base::class, true)) {
             $parts = explode('\\', $event);
-            $eventwithnamespace = "\\${event}";
+            $eventwithnamespace = "\\{$event}";
             $eventinformation[$eventwithnamespace] = $eventwithnamespace::get_name() .
                 " (" . array_pop($parts) . ")";
         }
