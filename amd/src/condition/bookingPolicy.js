@@ -39,15 +39,14 @@ export async function init() {
     console.log(SELECTOR.FORMCONTAINER);
 
     const container = document.querySelector(SELECTOR.FORMCONTAINER);
-
     const id = container.dataset.id;
-
-    let continuebutton = container.closest(SELECTOR.MODALBODY).querySelector(SELECTOR.CONTINUEBUTTON);
 
     const dynamicForm = new DynamicForm(container, 'mod_booking\\form\\condition\\bookingpolicy_form');
 
     // We need to render the dynamic form right away, so we can acutally have all the necessary elements present.
     await dynamicForm.load({id: id});
+
+    let continuebutton = container.closest(SELECTOR.MODALBODY).querySelector(SELECTOR.CONTINUEBUTTON);
 
     dynamicForm.addEventListener(dynamicForm.events.FORM_SUBMITTED, e => {
         const response = e.detail;
