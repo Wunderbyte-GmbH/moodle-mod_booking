@@ -27,6 +27,7 @@ namespace mod_booking\shopping_cart;
 use context_module;
 use Exception;
 use local_shopping_cart\local\entities\cartitem;
+use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_bookit;
 use mod_booking\booking_option;
 use mod_booking\output\bookingoption_description;
@@ -58,6 +59,16 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         require_once($CFG->dirroot . '/mod/booking/lib.php');
 
         if ($area === 'option') {
+
+            // first, we need to check if we have the right to actually load the item.
+            $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
+            $boinfo = new bo_info($settings);
+            list($id, $isavailable, $description) = $boinfo->is_available($optionid, $userid, true);
+
+            // The blocking ID has to be the price id. Else, we abort.
+            if ($id != BO_COND_PRICEISSET) {
+                return ['error' => 'nopermissiontobook'];
+            }
 
             $item = booking_bookit::answer_booking_option($area, $itemid, STATUSPARAM_RESERVED, $userid);
 

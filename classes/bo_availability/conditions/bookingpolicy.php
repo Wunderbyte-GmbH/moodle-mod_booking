@@ -27,6 +27,7 @@
 namespace mod_booking\bo_availability\conditions;
 
 use cache;
+use context_system;
 use html_writer;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
@@ -115,6 +116,12 @@ class bookingpolicy implements bo_condition {
     public function hard_block(booking_option_settings $settings, $userid):bool {
 
         $hardblock = true;
+
+        $context = context_system::instance();
+        if (has_capability('mod/booking:overrideboconditions', $context)) {
+            return false;
+        }
+
         // The user might have accepted the booking policy for this booking option already.
         // First, we see if we have sth in the conditions cache.
 

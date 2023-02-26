@@ -26,6 +26,7 @@
 
  namespace mod_booking\bo_availability\conditions;
 
+use context_system;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
@@ -117,6 +118,12 @@ class booking_time implements bo_condition {
      * @return boolean
      */
     public function hard_block(booking_option_settings $settings, $userid):bool {
+
+        $context = context_system::instance();
+        if (has_capability('mod/booking:overrideboconditions', $context)) {
+            return false;
+        }
+
         return true;
     }
 

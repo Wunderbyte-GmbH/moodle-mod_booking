@@ -107,13 +107,13 @@ class bo_info {
      * @param int $userid If set, specifies a different user ID to check availability for
      * @return array [isavailable, description]
      */
-    public function is_available(int $optionid = null, int $userid = 0):array {
+    public function is_available(int $optionid = null, int $userid = 0, bool $hardblock = false):array {
 
         if (!$optionid) {
             $optionid = $this->optionid;
         }
 
-        $results = $this->get_condition_results($optionid, $userid);
+        $results = $this->get_condition_results($optionid, $userid, $hardblock);
 
         if (count($results) === 0) {
             $id = 0;
@@ -135,7 +135,15 @@ class bo_info {
 
     }
 
-    public static function get_condition_results(int $optionid = null, int $userid = 0):array {
+    /**
+     * Central function to check all available conditions.
+     *
+     * @param integer|null $optionid
+     * @param integer $userid
+     * @param boolean $onlyhardblock
+     * @return array
+     */
+    public static function get_condition_results(int $optionid = null, int $userid = 0, bool $onlyhardblock = false):array {
         global $USER, $CFG;
 
         require_once($CFG->dirroot . '/mod/booking/lib.php');
@@ -176,6 +184,10 @@ class bo_info {
             if ($classname !== 'stdClass') {
                 list($isavailable, $description, $insertpage, $button)
                     = $condition->get_description($settings, $userid, $full);
+
+                if (!$isavailable && $onlyhardblock) {
+                    $isavailable = !$condition->hard_block($settings, $userid);
+                }
                 $resultsarray[$condition->id] = [
                     'id' => $condition->id,
                     'isavailable' => $isavailable,
@@ -203,6 +215,14 @@ class bo_info {
                 }
                 // Then pass the availability-parameters.
                 list($isavailable, $description, $insertpage, $button) = $instance->get_description($settings, $userid, $full);
+
+                if (!$isavailable && $onlyhardblock) {
+                    // If we only want hard blocks, we turn the is_avaialbe function.
+                    // False will only stay false, if hardblock returns true.
+                    $isavailable = !$instance->hard_block($settings, $userid);
+                }
+
+
                 $resultsarray[$condition->id] = ['id' => $condition->id,
                     'isavailable' => $isavailable,
                     'description' => $description,
