@@ -109,6 +109,23 @@ class max_number_of_bookings implements bo_condition {
     }
 
     /**
+     * The hard block is complementary to the is_available check.
+     * While is_available is used to build eg also the prebooking modals and...
+     * ... introduces eg the booking policy or the subbooking page, the hard block is meant to prevent ...
+     * ... unwanted booking. It's the check just before booking if we really...
+     * ... want the user to book. It will return always return false on subbookings...
+     * ... as they are not necessary, but return true when the booking policy is not yet answered.
+     * Hard block is only checked if is_available already returns false.
+     *
+     * @param booking_option_settings $booking_option_settings
+     * @param integer $userid
+     * @return boolean
+     */
+    public function hard_block(booking_option_settings $settings, $userid):bool {
+        return true;
+    }
+
+    /**
      * Obtains a string describing this restriction (whether or not
      * it actually applies). Used to obtain information that is displayed to
      * students if the activity is not available to them, and for staff to see

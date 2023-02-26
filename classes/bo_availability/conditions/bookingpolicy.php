@@ -26,9 +26,11 @@
 
 namespace mod_booking\bo_availability\conditions;
 
+use cache;
 use html_writer;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\booking_answers;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\output\bookingoption_description;
@@ -95,6 +97,42 @@ class bookingpolicy implements bo_condition {
         }
 
         return $isavailable;
+    }
+
+    /**
+     * The hard block is complementary to the is_available check.
+     * While is_available is used to build eg also the prebooking modals and...
+     * ... introduces eg the booking policy or the subbooking page, the hard block is meant to prevent ...
+     * ... unwanted booking. It's the check just before booking if we really...
+     * ... want the user to book. It will return always return false on subbookings...
+     * ... as they are not necessary, but return true when the booking policy is not yet answered.
+     * Hard block is only checked if is_available already returns false.
+     *
+     * @param booking_option_settings $booking_option_settings
+     * @param integer $userid
+     * @return boolean
+     */
+    public function hard_block(booking_option_settings $settings, $userid):bool {
+
+        $hardblock = true;
+        // The user might have accepted the booking policy for this booking option already.
+        // First, we see if we have sth in the conditions cache.
+
+        $cache = cache::make('mod_booking', 'conditionforms');
+        $cachekey = $userid . '_' . $settings->id . '_bookingpolicy';
+
+        // The cache value is set to true, so we don't need to block.
+        if ($data = $cache->get($cachekey)) {
+            if ($data->bookingpolicy_checkbox == 1) {
+                $hardblock = false;
+            }
+        }
+
+        // Now we see if there is already a booking answer from this user here.
+        // Relevant is PARAMSTATUS_BOOKED, PARAMSTATUS_RESERVED & PARAMSTATUS_WAITINGLIST
+        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+
+        return $hardblock;
     }
 
     /**
