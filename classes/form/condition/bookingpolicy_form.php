@@ -63,7 +63,7 @@ class bookingpolicy_form extends dynamic_form {
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
-        require_capability('moodle/site:config', context_system::instance());
+        require_capability('mod/booking:conditionforms', context_system::instance());
     }
 
 
@@ -80,8 +80,15 @@ class bookingpolicy_form extends dynamic_form {
         $formdata = $this->_ajaxformdata;
 
         // Todo: get these values.
-        $userid = $USER->id; // Might be a different user!
         $optionid = $formdata['id'];
+
+        $cache = cache::make('mod_booking', 'conditionforms');
+        $userid = $data->userid ?? $USER->id;
+        $cachekey = $userid . '_' . $optionid . '_bookingpolicy';
+
+        if ($cachedata = $cache->get($cachekey)) {
+            $data->bookingpolicy_checkbox = $cachedata->bookingpolicy_checkbox;
+        }
 
         $this->set_data($data);
     }
@@ -91,9 +98,20 @@ class bookingpolicy_form extends dynamic_form {
      * @return stdClass|null
      */
     public function process_dynamic_submission(): stdClass {
-        global $PAGE, $USER;
+
+        global $USER;
 
         $data = $this->get_data();
+
+        $cache = cache::make('mod_booking', 'conditionforms');
+        $userid = $data->userid ?? $USER->id;
+        $cachekey = $userid . '_' . $data->id . '_bookingpolicy';
+
+        if ($data->bookingpolicy_checkbox == 1) {
+            $cache->set($cachekey, $data);
+        } else {
+            $cache->delete($cachekey);
+        }
 
         return $data;
     }

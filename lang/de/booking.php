@@ -25,6 +25,7 @@ $string['updatebooking'] = 'Update Buchung';
 
 $string['booking:manageoptiontemplates'] = "Buchungsoptionsvorlagen verwalten";
 $string['booking:cantoggleformmode'] = 'Nutzer:in darf alle Einstellungen verwalten';
+$string['booking:overrideboconditions'] = 'Nutzer:in darf buchen auch wenn Verfügbarkeit false zurückliefert.';
 $string['courses'] = 'Kurse';
 $string['date_s'] = 'Termin(e)';
 $string['dayofweek'] = 'Wochentag';

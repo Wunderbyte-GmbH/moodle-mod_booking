@@ -198,7 +198,23 @@ class booking_bookit {
 
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
             $boinfo = new bo_info($settings);
-            if (!$boinfo->is_available($itemid, $userid)) {
+
+            // There are two cases where we can actually book.
+            // We call thefunction with hadblock set to true.
+            // This means that we only get those blocks that actually should prevent booking.
+            list($id, $isavailable, $description) = $boinfo->is_available($itemid, $userid, true);
+
+            // If isavailable is true, there is actually no blocking condition at all.
+            // This might never be the case, as we use this to introduce prepages and buttons (add to cart or bookit).
+            // Therefore, we have to override it to make this functionality useful.
+            // If the id is 1, this means that only the bookit button is blocking, this means we are allowed to book.
+
+            if ($id <= 1) {
+                $isavailable = true;
+            }
+
+            if (!$isavailable) {
+
                 return [
                     'status' => 0,
                     'message' => 'notallowedtobook',
@@ -257,6 +273,7 @@ class booking_bookit {
             $userid = $user->id;
         }
 
+        // Probably not necessary anymore, as we got the description from below.
         $price = price::get_price('option', $itemid, $user);
 
         // Now we reserve the place for the user.

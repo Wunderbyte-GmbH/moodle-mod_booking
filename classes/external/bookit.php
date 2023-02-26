@@ -80,12 +80,10 @@ class bookit extends external_api {
 
         require_login();
 
-        if (empty(booking_bookit::bookit($params['area'], $params['itemid'], $params['userid']))) {
-            return [
-                'status' => 0,
-                'message' => 'bookingnotsuccessfull',
-            ];
-        }
+        $response = booking_bookit::bookit($params['area'], $params['itemid'], $params['userid']);
+
+        $status = $response['status'];
+        $message = $response['message'];
 
         if ($area == 'option') {
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
@@ -102,8 +100,8 @@ class bookit extends external_api {
         list ($templates, $data) = booking_bookit::render_bookit_template_data($settings, $userid);
 
         return [
-            'status' => 1,
-            'message' => 'bookingsuccessful',
+            'status' => $status,
+            'message' => $message,
             'template' => implode(',', $templates),
             'json' => json_encode($data),
         ];

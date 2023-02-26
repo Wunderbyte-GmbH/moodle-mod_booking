@@ -25,6 +25,7 @@ $string['updatebooking'] = 'Update booking';
 
 $string['booking:manageoptiontemplates'] = "Manage option templates";
 $string['booking:cantoggleformmode'] = 'User can edit all settings';
+$string['booking:overrideboconditions'] = 'User can book even when conditions return false.';
 $string['courses'] = 'Courses';
 $string['date_s'] = 'Date(s)';
 $string['dayofweek'] = 'Weekday';
