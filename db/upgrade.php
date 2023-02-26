@@ -3391,5 +3391,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023022100, 'booking');
     }
 
+    if ($oldversion < 2023022600) {
+
+        // Define field json to be added to booking_answers.
+        $table = new xmldb_table('booking_answers');
+        $field = new xmldb_field('json', XMLDB_TYPE_TEXT, null, null, null, null, null, 'notes');
+
+        // Conditionally launch add field json.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2023022600, 'booking');
+    }
+
     return true;
 }
