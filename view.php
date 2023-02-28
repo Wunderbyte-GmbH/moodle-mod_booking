@@ -89,6 +89,35 @@ if (!empty($bookingsettings->organizatorname)
     $data = new business_card($bookingsettings, $organizerid);
     echo $output->render_business_card($data);
 }
+
+// Attachments.
+$out = [];
+$fs = get_file_storage();
+$files = $fs->get_area_files($context->id, 'mod_booking', 'myfilemanager',
+        $bookingsettings->id);
+if (count($files) > 0) {
+    echo html_writer::start_tag('div');
+    echo html_writer::tag('label', '<i class="fa fa-paperclip" aria-hidden="true"></i> ' .
+        get_string('attachedfiles', 'mod_booking') . ': ', array('class' => 'ml-3 mt-1 mb-3 bold'));
+
+    foreach ($files as $file) {
+        if ($file->get_filesize() > 0) {
+            $filename = $file->get_filename();
+            $url = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(),
+                $file->get_itemid(), $file->get_filepath(), $file->get_filename(), true);
+            $out[] = html_writer::link($url, $filename);
+        }
+    }
+    echo html_writer::tag('span', implode(', ', $out), ['class' => 'ml-2']);
+    echo html_writer::end_tag('div');
+}
+
+// Booking instance tags (default Moodle tags).
+if (!empty($CFG->usetags)) {
+    $tags = core_tag_tag::get_item_tags('mod_booking', 'booking', $bookingsettings->id);
+    echo $OUTPUT->tag_list($tags, null, 'booking-tags ml-3 mb-3');
+}
+
 // As of Moodle 4.0 activity description will be shown automatically in module header.
 // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
 /* else {
