@@ -21,7 +21,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(__DIR__ . '/../../config.php');
-require_once("locallib.php");
+require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
 use mod_booking\form\customreporttemplatesadd_form;
 
@@ -50,7 +50,6 @@ require_capability('mod/booking:manageoptiontemplates', $context);
 $PAGE->navbar->add(get_string("addnewreporttemplate", "booking"));
 $PAGE->set_title(format_string(get_string("addnewreporttemplate", "booking")));
 $PAGE->set_heading(get_string("addnewreporttemplate", "booking"));
-$PAGE->set_pagelayout('standard');
 
 $mform = new customreporttemplatesadd_form($url);
 

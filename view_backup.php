@@ -20,7 +20,7 @@ use mod_booking\output\business_card;
 use mod_booking\output\instance_description;
 
 require_once(__DIR__ . '/../../config.php');
-require_once("locallib.php");
+require_once($CFG->dirroot . '/mod/booking/locallib.php');
 require_once($CFG->libdir . '/completionlib.php');
 require_once("{$CFG->libdir}/tablelib.php");
 require_once($CFG->dirroot . '/comment/lib.php');

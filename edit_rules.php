@@ -28,7 +28,7 @@ use mod_booking\form\rulesform;
 use mod_booking\utils\wb_payment;
 
 require_once(__DIR__ . '/../../config.php');
-require_once('locallib.php');
+require_once($CFG->dirroot . '/mod/booking/locallib.php');
 require_once($CFG->libdir . '/adminlib.php');
 
 global $DB;

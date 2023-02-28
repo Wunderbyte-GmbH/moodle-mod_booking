@@ -24,7 +24,7 @@
 use mod_booking\booking_tags;
 
 require_once(__DIR__ . '/../../config.php');
-require_once("locallib.php");
+require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
 $id = required_param('id', PARAM_INT); // Course Module ID.
 $tagid = optional_param('tagid', 0, PARAM_INT);
@@ -84,7 +84,7 @@ $cancel = new moodle_url('/mod/booking/view.php', array('id' => $cm->id));
 $addnew = new moodle_url('/mod/booking/tagtemplatesadd.php', array('id' => $cm->id));
 
 echo '<div style="width: 100%; text-align: center; display:table;">';
-$button = $OUTPUT->single_button($cancel, get_string('cancel', 'booking'), 'get');
+$button = $OUTPUT->single_button($cancel, get_string('cancel', 'core'), 'get');
 echo html_writer::tag('span', $button, array('style' => 'text-align: right; display:table-cell;'));
 $button = $OUTPUT->single_button($addnew, get_string('addnewtagtemplate', 'booking'), 'get');
 echo html_writer::tag('span', $button, array('style' => 'text-align: left; display:table-cell;'));
