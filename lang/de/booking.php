@@ -1480,7 +1480,7 @@ $string['duplicationrestoreentities'] = 'Entities inkludieren';
 
 $string['waitinglistheader'] = 'Warteliste';
 $string['waitinglistheader_desc'] = 'Hier können Sie Einstellungen zum Verhalten der Warteliste vornehmen.';
-$string['turnoffwaitinglistaftercoursestart'] = 'Automatisches Nachrücken ab Beginn der Buchungsoption deaktivieren.';
+$string['turnoffwaitinglistaftercoursestart'] = 'Automatisches Nachrücken von der Warteliste ab Beginn der Buchungsoption deaktivieren.';
 
 $string['notificationlist'] = 'Benachrichtigungsliste';
 $string['notificationlistdesc'] = 'Wenn es bei einer Buchungsoption keine verfügbaren Plätze mehr gibt,
