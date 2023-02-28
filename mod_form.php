@@ -820,7 +820,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addHelpButton('conectedbooking', 'connectedbooking', 'mod_booking');
 
         // Custom labels.
-        $mform->addElement('header', 'customlabels', get_string('customlabels', 'mod_booking'));
+        $mform->addElement('header', 'customlabels', get_string('customlabelsdeprecated', 'mod_booking'));
 
         $mform->addElement('text', 'btncacname', get_string('btncacname', 'booking'),
                 array('size' => '64'));
