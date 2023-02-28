@@ -32,7 +32,7 @@ $optionid = optional_param('optionid', 0, PARAM_INT);
 $action = optional_param('action', 0, PARAM_ALPHANUM);
 list($course, $cm) = get_course_and_cm_from_cmid($id);
 // No guest autologin.
-require_course_login($course, false);
+require_course_login($course, false, $cm);
 $pageurl = new moodle_url('/mod/booking/optiontemplatessettings.php',  array('id' => $id, 'optionid' => $optionid));
 
 if (($action === 'delete') && ($optionid > 0)) {

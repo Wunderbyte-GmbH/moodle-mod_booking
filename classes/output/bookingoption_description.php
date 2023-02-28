@@ -425,4 +425,17 @@ class bookingoption_description implements renderable, templatable {
 
         return $returnarray;
     }
+
+    /**
+     * Is the option invisible?
+     * @return bool true if invisible, else false
+     */
+    public function is_invisible(): bool {
+        if (isset($this->invisible) && $this->invisible == 1) {
+            $ret = true;
+        } else {
+            $ret = false;
+        }
+        return $ret;
+    }
 }

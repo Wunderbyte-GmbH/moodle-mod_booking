@@ -45,16 +45,22 @@ $mode = optional_param('mode', '', PARAM_RAW);
 
 $returnurl = optional_param('returnurl', '', PARAM_LOCALURL);
 
-$url = new moodle_url('/mod/booking/editoptions.php', array('id' => $cmid, 'optionid' => $optionid));
-$PAGE->set_url($url);
-$PAGE->requires->jquery_plugin('ui-css');
+// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+/* $PAGE->requires->jquery_plugin('ui-css'); */
 
 list($course, $cm) = get_course_and_cm_from_cmid($cmid);
+
+require_course_login($course, false, $cm);
+
+$url = new moodle_url('/mod/booking/editoptions.php', array('id' => $cmid, 'optionid' => $optionid));
+$PAGE->set_url($url);
+
+$PAGE->set_pagelayout('admin');
+$PAGE->add_body_class('limitedwidth');
 
 // Initialize bookingid.
 $bookingid = (int) $cm->instance;
 
-require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);
 
 if (!$booking = new \mod_booking\booking($cmid)) {

@@ -33,14 +33,14 @@ require_once($CFG->libdir.'/adminlib.php');
 
 global $OUTPUT;
 
-// No guest autologin.
-require_login(0, false);
-
 $context = context_system::instance();
-$PAGE->set_context($context);
 
 $cmid = required_param('id', PARAM_INT);
 $submit = optional_param('submit', false, PARAM_BOOL);
+
+list($course, $cm) = get_course_and_cm_from_cmid($cmid);
+
+require_course_login($course, false, $cm);
 
 $pageurl = new \moodle_url('/mod/booking/recalculateprices.php');
 $PAGE->set_url($pageurl);

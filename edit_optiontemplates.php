@@ -29,7 +29,7 @@ $PAGE->set_url($url);
 $PAGE->requires->jquery_plugin('ui-css');
 list($course, $cm) = get_course_and_cm_from_cmid($id);
 
-require_course_login($course, false);
+require_course_login($course, false, $cm);
 
 if (!$booking = new booking($cm->id)) {
     throw new invalid_parameter_exception("Course module id is incorrect");
