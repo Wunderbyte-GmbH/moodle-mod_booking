@@ -283,9 +283,16 @@ class mod_booking_mod_form extends moodleform_mod {
             'notes' => get_string('notes', 'mod_booking'),
             'idnumber' => get_string("idnumber"));
 
-        $optionsfields = array('text' => get_string("select", "mod_booking"),
-            'coursestarttime' => get_string("coursedate", "mod_booking"),
-            'maxanswers' => get_string("availability", "mod_booking"));
+        $optionsfields = [
+            'description' => get_string('description', 'mod_booking'),
+            'statusdescription' => get_string('textdependingonstatus', 'mod_booking'),
+            'teacher' => get_string('teachers', 'mod_booking'),
+            'showdates' => get_string('dates', 'mod_booking'),
+            'dayofweektime' => get_string('dayofweektime', 'mod_booking'),
+            'location' => get_string('location', 'mod_booking'),
+            'institution' => get_string('institution', 'mod_booking'),
+            'minanswers' => get_string('minanswers', 'mod_booking'),
+        ];
 
         $optionsdownloadfields = [
             'identifier' => get_string('optionidentifier', 'mod_booking'),
@@ -729,7 +736,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         // Booking option text.
         $mform->addElement('header', 'bookingoptiontextheader',
-                get_string('bookingoptiontext', 'booking'));
+                get_string('textdependingonstatus', 'booking'));
 
         $mform->addElement('editor', 'beforecompletedtext',
                 get_string("beforecompletedtext", "booking"), null, null);

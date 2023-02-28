@@ -2671,7 +2671,7 @@ function xmldb_booking_upgrade($oldversion) {
     if ($oldversion < 2022090802) {
         // Get rid of the old "unique option names" workaround.
         // We use a separate "identifier" field now.
-        migrate_booking_option_identifiers();
+        migrate_booking_option_identifiers_2022090802();
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2022090802, 'booking');
@@ -3044,7 +3044,7 @@ function xmldb_booking_upgrade($oldversion) {
 
     if ($oldversion < 2022112901) {
         // We need to migrate optionids to itemids and set the area to 'option'.
-        migrate_optionids_for_prices();
+        migrate_optionids_for_prices_2022112901();
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2022112901, 'booking');
@@ -3404,6 +3404,14 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2023022600, 'booking');
+    }
+
+    if ($oldversion < 2023022800) {
+        // We need to migrate optionsfields for the new view.php.
+        migrate_optionsfields_2023022800();
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2023022800, 'booking');
     }
 
     return true;

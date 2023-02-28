@@ -487,7 +487,7 @@ class option_form extends moodleform {
             !isset($optionformconfig['bookingoptiontextheader']) || $optionformconfig['bookingoptiontextheader'] == 1) {
             // Booking option text.
             $mform->addElement('header', 'bookingoptiontextheader',
-                    get_string('bookingoptiontext', 'mod_booking'));
+                    get_string('textdependingonstatus', 'mod_booking'));
         }
 
         // Workaround: Only show, if it is not turned off in the option form config.

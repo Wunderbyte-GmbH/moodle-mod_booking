@@ -335,7 +335,7 @@ $string['cancelallusers'] = 'Alle gebuchten Userinnen stornieren';
 // Mod_form.
 $string['signinlogoheader'] = 'Logo in der Kopfzeile auf der Unterschriftenliste';
 $string['signinlogofooter'] = 'Logo in der Fußzeile auf der Unterschriftenliste';
-$string['bookingoptiontext'] = 'Statusabhängiger Buchungsoptionstext';
+$string['textdependingonstatus'] = 'Statusabhängiger Buchungsoptionstext';
 $string['beforebookedtext'] = 'Vor der Buchung';
 $string['beforecompletedtext'] = 'Nach der Buchung';
 $string['aftercompletedtext'] = 'Nach Aktivitätsabschluss';

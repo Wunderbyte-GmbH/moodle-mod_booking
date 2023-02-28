@@ -28,7 +28,7 @@
  * within booking options and move them into the new DB field 'identifier'.
  * @return void
  */
-function migrate_booking_option_identifiers() {
+function migrate_booking_option_identifiers_2022090802() {
     global $DB;
     if ($separator = get_config('booking', 'uniqueoptionnameseparator')) {
         if ($recordstomigrate = $DB->get_records('booking_options')) {
@@ -53,12 +53,28 @@ function migrate_booking_option_identifiers() {
  * so we need to set the area to "option" for each migrated row.
  * @return void
  */
-function migrate_optionids_for_prices() {
+function migrate_optionids_for_prices_2022112901() {
     global $DB;
     if ($recordstomigrate = $DB->get_records('booking_prices')) {
         foreach ($recordstomigrate as $record) {
             $record->area = 'option';
             $DB->update_record('booking_prices', $record);
+        }
+    }
+}
+
+/**
+ * With the new view.php we also introduced a new way to configure fields
+ * for the list of booking options. So after the new view gets introduced,
+ * we need to set all fields so nothing disappears.
+ */
+function migrate_optionsfields_2023022800() {
+    global $DB;
+    if ($recordstomigrate = $DB->get_records('booking')) {
+        foreach ($recordstomigrate as $record) {
+            $record->optionsfields =
+                'description,statusdescription,teacher,showdates,dayofweektime,location,institution,minanswers';
+            $DB->update_record('booking', $record);
         }
     }
 }
