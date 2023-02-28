@@ -420,10 +420,10 @@ class view implements renderable, templatable {
         $columnsfooter = [];
         $columnsfooter[] = 'bookings';
         if (in_array('minanswers', $optionsfields)) {
-            $columnsleftside[] = 'minanswers';
+            $columnsfooter[] = 'minanswers';
         }
         if (in_array('dayofweektime', $optionsfields)) {
-            $columnsleftside[] = 'dayofweektime';
+            $columnsfooter[] = 'dayofweektime';
         }
         if (in_array('location', $optionsfields)) {
             $columnsfooter[] = 'location';
@@ -432,7 +432,7 @@ class view implements renderable, templatable {
             $columnsfooter[] = 'institution';
         }
         if (in_array('showdates', $optionsfields)) {
-            $columnsleftside[] = 'showdates';
+            $columnsfooter[] = 'showdates';
         }
         $columnsfooter[] = 'comments';
 
