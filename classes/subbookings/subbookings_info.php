@@ -459,8 +459,8 @@ class subbookings_info {
                 'usermodified' => $USER->id,
                 'status' => $newstatus,
                 'json' => $subbooking->return_answer_json($itemid),
-                'timestart' => $data['coursestarttime'],
-                'timeend' => $data['courseendtime'],
+                'timestart' => $data['coursestarttime'] ?? null,
+                'timeend' => $data['courseendtime'] ?? null,
                 'timecreated' => $now,
                 'timemodified' => $now,
             ];
