@@ -1259,6 +1259,9 @@ function booking_update_options($optionvalues, $context) {
         // Deal with multiple option dates (multisessions).
         deal_with_multisessions($optionvalues, $booking, $optionid, $context);
 
+        // Update start and end date of the option depending on the sessions.
+        booking_updatestartenddate($optionid);
+
         // Save relation for each newly created optiondate if checkbox is active.
         save_entity_relations_for_optiondates_of_option($optionvalues, $optionid);
 
