@@ -267,6 +267,75 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
     /**
      * This function is called for each data row to allow processing of the
+     * ratings value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string the ratings HTML
+     * @throws dml_exception
+     */
+    public function col_ratings($values) {
+        global $DB, $USER;
+        $ratingshtml = '';
+
+        $isteacher = booking_check_if_teacher($values);
+
+        $params = ['optionid' => $values->id];
+
+        $sql = "SELECT AVG(rate) AS rating, COUNT(rate) AS ratingcount
+        FROM {booking_ratings} br
+        WHERE br.optionid = :optionid";
+
+        if ($record = $DB->get_record_sql($sql, $params)) {
+            $rating = $record->rating;
+            $ratingcount = $record->ratingcount;
+        } else {
+            $rating = null;
+            $ratingcount = null;
+        }
+
+        // Now add userid to params.
+        $params['userid'] = $USER->id;
+
+        $sql = "SELECT rate AS myrating
+            FROM {booking_ratings} br
+            WHERE br.optionid = :optionid
+            AND br.userid = :userid";
+
+        if ($record = $DB->get_record_sql($sql, $params)) {
+            $myrating = $record->myrating;
+        } else {
+            $myrating = null;
+        }
+
+        if (!empty($this->cmid)) {
+            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($this->cmid);
+            if (!empty($this->context) && !empty($bookingsettings)) {
+                if ($bookingsettings->ratings > 0) {
+
+                    $ratingshtml =
+                    "<div>
+                        <select class='starrating' id='rate$values->id' data-current-rating='$myrating' data-itemid='$values->id'>
+                            <option value='1'>1</option>
+                            <option value='2'>2</option>
+                            <option value='3'>3</option>
+                            <option value='4'>4</option>
+                            <option value='5'>5</option>
+                        </select>
+                    </div>";
+
+                    if (has_capability('mod/booking:readresponses', $this->context) || $isteacher) {
+                        $ratingshtml .= get_string('aggregateavg', 'rating') . ' ' . number_format(
+                                        (float) $rating, 2, '.', '') . " ($ratingcount)";
+                    }
+                }
+            }
+        }
+
+        return $ratingshtml;
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
      * coursestarttime value.
      *
      * @param object $values Contains object with all the values of record.

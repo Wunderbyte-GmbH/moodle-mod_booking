@@ -437,7 +437,7 @@ class view implements renderable, templatable {
         $columnsfooter[] = 'comments';
 
         $wbtable->add_subcolumns('footer', $columnsfooter);
-        $wbtable->add_subcolumns('rightside', ['booknow', 'course', 'progressbar']);
+        $wbtable->add_subcolumns('rightside', ['booknow', 'course', 'progressbar', 'ratings']);
 
         $wbtable->add_classes_to_subcolumns('leftside', ['columnkeyclass' => 'd-none']);
         $wbtable->add_classes_to_subcolumns(
@@ -486,6 +486,8 @@ class view implements renderable, templatable {
         $wbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-right'], ['booknow']);
         $wbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-left mt-1 text-gray font-size-sm'],
             ['progressbar']);
+        $wbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'mt-1'],
+            ['ratings']);
 
         // Override naming for columns.
         $wbtable->add_classes_to_subcolumns(
