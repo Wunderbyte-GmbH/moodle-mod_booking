@@ -846,7 +846,7 @@ class dates_handler {
 
             $slotstarttime = $starttime;
             $slotendtime = strtotime("+ $duration minutes ", $starttime);
-            $starttime = $slotendtime; // new starttime previous slotendtime.
+            $starttime = $slotendtime; // New starttime previous slotendtime.
             $slots[] = self::prettify_datetime($slotstarttime, $slotendtime);
         }
 
