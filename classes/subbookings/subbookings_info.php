@@ -28,6 +28,7 @@ namespace mod_booking\subbookings;
 use context_module;
 use Exception;
 use mod_booking\output\subbookingslist;
+use mod_booking\utils\wb_payment;
 use MoodleQuickForm;
 use stdClass;
 
@@ -52,7 +53,7 @@ class subbookings_info {
 
         global $PAGE;
 
-        if (get_config('booking', 'showsubbookings')) {
+        if (get_config('booking', 'showsubbookings') && wb_payment::pro_version_is_activated()) {
             // Add header to Element.
             $mform->addElement('header', 'bookingsubbookingsheader', get_string('bookingsubbookingsheader', 'mod_booking'));
 
