@@ -1,44 +1,6 @@
 <?php
 // We use this file to keep track of what is already migrated to new view.php.
 
-// TODO: check, was view_actions.js macht!
-$PAGE->requires->js_call_amd('mod_booking/view_actions', 'setup', array($id));
-
-if (!$current && $bookingopen && has_capability('mod/booking:choose', $context)) {
-
-    if (!$tablealloptions->is_downloading()) {
-
-
-        // TODO: attachments!
-        $out = array();
-        $fs = get_file_storage();
-        $files = $fs->get_area_files($context->id, 'mod_booking', 'myfilemanager',
-                $booking->settings->id);
-
-        if (count($files) > 0) {
-            echo html_writer::start_tag('div');
-            echo html_writer::tag('label', get_string("attachedfiles", "booking") . ': ',
-                    array('class' => 'bold'));
-
-            foreach ($files as $file) {
-                if ($file->get_filesize() > 0) {
-                    $filename = $file->get_filename();
-                    $url = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(),
-                        $file->get_itemid(), $file->get_filepath(), $file->get_filename(), true);
-                    $out[] = html_writer::link($url, $filename);
-                }
-            }
-            echo html_writer::tag('span', implode(', ', $out));
-            echo html_writer::end_tag('div');
-        }
-
-        // TODO: Tags - ersetzen durch neue botags??
-        if (!empty($CFG->usetags)) {
-            $tags = core_tag_tag::get_item_tags('mod_booking', 'booking', $booking->settings->id);
-            echo $OUTPUT->tag_list($tags, null, 'booking-tags');
-        }
-
-
         // TODO: Groups - wie hat das funktioniert??
 
         $columns[] = 'id';
@@ -152,56 +114,6 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
         $from = "{booking} b LEFT JOIN {booking_options} bo ON bo.bookingid = b.id";
         $where = "b.id = :bookingid " .
                  (empty($conditions) ? '' : ' AND ' . implode(' AND ', $conditions));
-
-
-        // TODO: custom fields für optiondates direkt bei den optiondates rendern
-
-        $timessql = 'SELECT bod.id AS dateid, bo.id AS optionid, ' .
-                    $DB->sql_concat('bod.coursestarttime', "'-'", 'bod.courseendtime') . ' AS times
-                FROM {booking_optiondates} bod, {booking_options} bo
-                WHERE bo.id = bod.optionid
-                AND bo.id ' . $insql . '
-                ORDER BY bod.coursestarttime ASC';
-        $times = $DB->get_records_sql($timessql, $inparams);
-
-        if (!empty($times)) {
-            foreach ($times as $time) {
-                // Optiondateid will be needed to render custom fields in all_options.php.
-                $timeobject = new stdClass();
-                $timeobject->optiondateid = $time->dateid;
-                $timeobject->times = $time->times;
-                $optiontimes[$time->optionid][] = $timeobject;
-            }
-            if (!empty($optiontimes)) {
-                foreach ($optiontimes as $key => $timeobject) {
-                    $tablealloptions->rawdata[$key]->timeobjects = $timeobject;
-                }
-            }
-        }
-
-
-        // TODO: Download!
-
-        // Downloading the data as CSV or similar.
-        $columns = array();
-        $headers = array();
-
-        $customfields = '';
-
-        list($columns, $headers, $userprofilefields) = $booking->get_manage_responses_fields();
-
-        if ($userprofilefields) {
-            foreach ($userprofilefields as $profilefield) {
-                $columns[] = "cust" . strtolower($profilefield->shortname);
-                $headers[] = $profilefield->name;
-                $customfields .= ", (SELECT " . $DB->sql_concat('uif.datatype', "'|'", 'uid.data') . " as custom
-                FROM {user_info_data} uid
-                LEFT JOIN {user_info_field}  uif ON uid.fieldid = uif.id
-                WHERE userid = tba.userid
-                AND uif.shortname = '{$profilefield->shortname}') AS cust" .
-                strtolower($profilefield->shortname);
-            }
-        }
 
         // TODO: groupmode (??).
 
