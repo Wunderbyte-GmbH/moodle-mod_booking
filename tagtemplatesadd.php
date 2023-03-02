@@ -35,6 +35,10 @@ $PAGE->set_url($url);
 list($course, $cm) = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
+
+// In Moodle 4.0+ we want to turn the instance description off on every page except view.php.
+$PAGE->activityheader->disable();
+
 $groupmode = groups_get_activity_groupmode($cm);
 
 if (!$context = context_module::instance($cm->id)) {

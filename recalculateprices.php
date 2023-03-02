@@ -42,6 +42,9 @@ list($course, $cm) = get_course_and_cm_from_cmid($cmid);
 
 require_course_login($course, false, $cm);
 
+// In Moodle 4.0+ we want to turn the instance description off on every page except view.php.
+$PAGE->activityheader->disable();
+
 $pageurl = new \moodle_url('/mod/booking/recalculateprices.php');
 $PAGE->set_url($pageurl);
 

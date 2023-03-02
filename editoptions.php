@@ -55,6 +55,9 @@ require_course_login($course, false, $cm);
 $url = new moodle_url('/mod/booking/editoptions.php', array('id' => $cmid, 'optionid' => $optionid));
 $PAGE->set_url($url);
 
+// In Moodle 4.0+ we want to turn the instance description off on every page except view.php.
+$PAGE->activityheader->disable();
+
 $PAGE->set_pagelayout('admin');
 $PAGE->add_body_class('limitedwidth');
 

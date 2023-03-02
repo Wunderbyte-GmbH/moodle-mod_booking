@@ -376,21 +376,6 @@ if there only was one booking option. */
     width: max-content;
 }
 
-/* The description text should only be shown on the view.php and nowhere else. */
-#page-mod-booking-edit_optiontemplate #intro,
-#page-mod-booking-optiontemplatessettings #intro,
-#page-mod-booking-teachers_instance_report #intro,
-#page-mod-booking-recalculateprices #intro,
-#page-mod-booking-importexcel #intro,
-#page-mod-booking-tagtemplates #intro,
-#page-mod-booking-importoptions #intro,
-#page-mod-booking-customreporttemplatesadd #intro,
-#page-mod-booking-customreporttemplates #intro,
-#page-mod-booking-instancetemplateadd #intro,
-#page-mod-booking-editoptions #intro {
-    display: none;
-}
-
 .prepage-booking-page {
     margin-top: 30px;
     margin-bottom: 30px;
@@ -417,7 +402,7 @@ if there only was one booking option. */
     line-height: 45px;
     display: block;
     font-size: 20px;
-    color: #ffffff;
+    color: #fff;
     background: lightgray;
     border-radius: 50%;
     margin: 0 auto 10px auto;
@@ -443,5 +428,5 @@ if there only was one booking option. */
 /*Color number of the step and the connector before it*/
 #prepage-booking-tabs li.active:before,
 #prepage-booking-tabs li.active:after {
-    background: #673AB7;
+    background: #673ab7;
 }
