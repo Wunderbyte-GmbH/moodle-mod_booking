@@ -29,12 +29,18 @@ $string['booking:overrideboconditions'] = 'User can book even when conditions re
 $string['courses'] = 'Courses';
 $string['date_s'] = 'Date(s)';
 $string['dayofweek'] = 'Weekday';
+$string['doyouwanttobook'] = 'Do you want to book <b>{$a}</b>?';
 $string['gotomanageresponses'] = '&lt;&lt; Manage bookings';
 $string['gotomoodlecourse'] = 'Go to Moodle course';
 $string['messageprovider:bookingconfirmation'] = "Booking confirmations";
 $string['optionsiteach'] = 'Teached by me';
 $string['search'] = 'Search...';
 $string['teachers'] = 'Teachers';
+$string['thankyoubooked'] = '<i class="fa fa-3x fa-calendar-check-o" aria-hidden="true"></i><br><br>
+Thank you! You have successfully booked <b>{$a}</b>.';
+$string['thankyoucheckout'] = '<i class="fa fa-3x fa-calendar-check-o" aria-hidden="true"></i><br><br>
+Thank you! You have successfully put <b>{$a}</b> into the shopping cart. Now click on <b>"Proceed to checkout"</b>
+ to continue.';
 
 // General errors.
 $string['error:choosevalue'] = 'You have to choose a value here.';

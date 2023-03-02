@@ -29,12 +29,18 @@ $string['booking:overrideboconditions'] = 'Nutzer:in darf buchen auch wenn Verf�
 $string['courses'] = 'Kurse';
 $string['date_s'] = 'Termin(e)';
 $string['dayofweek'] = 'Wochentag';
+$string['doyouwanttobook'] = 'Wollen Sie <b>{$a}</b> buchen?';
 $string['gotomanageresponses'] = '&lt;&lt; Buchungen verwalten';
 $string['gotomoodlecourse'] = 'Zum Moodle-Kurs';
 $string['messageprovider:bookingconfirmation'] = "Buchungsbestätigungen";
 $string['optionsiteach'] = 'Von mir geleitet';
 $string['search'] = 'Suche...';
 $string['teachers'] = 'Trainer:innen';
+$string['thankyoubooked'] = '<i class="fa fa-3x fa-calendar-check-o" aria-hidden="true"></i><br><br>
+Vielen Dank! Sie haben <b>{$a}</b> erfolgreich gebucht.';
+$string['thankyoucheckout'] = '<i class="fa fa-3x fa-calendar-check-o" aria-hidden="true"></i><br><br>
+Vielen Dank! Sie haben <b>{$a}</b> in den Warenkorb gelegt. Klicken Sie nun auf <b>"Weiter zur Bezahlung"</b>
+ um den Buchungsvorgang fortzusetzen.';
 
 // General errors.
 $string['error:choosevalue'] = 'Sie müssen hier einen Wert auswählen.';

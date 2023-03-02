@@ -23,7 +23,8 @@
     Data attributes required for JS:
     * data-region
 }}
-<div class="bookingoption-description-prepagemodal-bookit w-100 m-2 p-2 text-justify bg-light border border-secondary rounded">
+<p class="m-3">{{#str}} doyouwanttobook, mod_booking, {{title}} {{/str}}</p>
+<div class="bookingoption-description-prepagemodal-bookit w-100 ml-3 mr-3 mb-1 mt-1 p-2 text-justify bg-light border border-secondary rounded">
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-3">
@@ -34,7 +35,7 @@
                 <h6 class="h6-category">
                     {{sport}}
                 </h6>
-                <div {{^teachers}} style="display:none"{{/teachers}}>
+                <div class="ml-3" {{^teachers}} style="display:none"{{/teachers}}>
                     {{#teachers}}
                         <span class="mr-1"><i class="fa fa-graduation-cap" aria-hidden="true"></i> {{.}}</span>
                     {{/teachers}}

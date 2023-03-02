@@ -29,8 +29,7 @@
     }
 }}
 
-<div class="condition-bookingpolicy-form" data-id="{{optionid}}">
-
-Thank you!
-
+<div class="condition-confirmation" data-id="{{optionid}}">
+{{#hasprice}} thankyoubooked, mod_booking, {{title}} {{/hasprice}}
+{{^hasprice}} thankyoucheckout, mod_booking, {{title}} {{/hasprice}}
 </div>

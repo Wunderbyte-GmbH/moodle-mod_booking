@@ -28,6 +28,8 @@ namespace mod_booking\bo_availability\conditions;
 
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\booking_option_settings;
+use mod_booking\output\bookingoption_description;
+use mod_booking\price;
 use MoodleQuickForm;
 
 defined('MOODLE_INTERNAL') || die();
@@ -153,8 +155,16 @@ class confirmation implements bo_condition {
      */
     public function render_page(int $optionid) {
 
-        $dataarray['data'] = [
+        $priceitems = price::get_prices_from_cache_or_db('option', $optionid);
+
+        $data = new bookingoption_description($optionid, null, DESCRIPTION_WEBSITE, true, false);
+        $dataarray[] = [
+            'data' => $data->get_returnarray(),
         ];
+
+        if (count($priceitems) > 0) {
+            $dataarray[0]['data']['hasprice'] = true;
+        }
 
         $returnarray = [
             // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
