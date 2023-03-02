@@ -26,16 +26,8 @@
 
 namespace mod_booking\bo_availability\conditions;
 
-use cache;
-use context_system;
-use html_writer;
 use mod_booking\bo_availability\bo_condition;
-use mod_booking\bo_availability\bo_info;
-use mod_booking\booking_answers;
-use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
-use mod_booking\output\bookingoption_description;
-use mod_booking\singleton_service;
 use MoodleQuickForm;
 
 defined('MOODLE_INTERNAL') || die();
@@ -126,13 +118,16 @@ class confirmation implements bo_condition {
      * @return array availability and Information string (for admin) about all restrictions on
      *   this item
      */
-    public function get_description(booking_option_settings $settings, $userid = null, $full = false, $not = false):array {
+    public function get_description(booking_option_settings $settings, $userid = null, $full = false, $not = false): array {
 
         $description = '';
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        $description = $this->get_description_string($isavailable, $full);
+        // We don't need a description here.
+        $description = '';
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $description = $this->get_description_string($isavailable, $full); */
 
         return [$isavailable, $description, BO_PREPAGE_POSTBOOK, BO_BUTTON_INDIFFERENT];
     }
@@ -162,7 +157,8 @@ class confirmation implements bo_condition {
         ];
 
         $returnarray = [
-            // 'json' => $jsonstring,
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* 'json' => $jsonstring, */
             'data' => [$dataarray],
             'template' => 'mod_booking/condition/confirmation',
             'buttontype' => 1, // This means that the continue button is disabled.

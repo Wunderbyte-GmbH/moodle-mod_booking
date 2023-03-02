@@ -386,6 +386,7 @@ if there only was one booking option. */
 }
 
 #prepage-booking-tabs li {
+    color: lightgray;
     list-style-type: none;
     font-size: 15px;
     width: 25%;
@@ -394,28 +395,30 @@ if there only was one booking option. */
     font-weight: 400;
 }
 
+#prepage-booking-tabs li.active {
+    color: #5cb85c; /* Bootstrap success color.*/
+}
 
-/*Icon ProgressBar before any progress*/
+/* Icon prepage progress tabs before any progress */
 #prepage-booking-tabs li:before {
-    width: 50px;
-    height: 50px;
-    line-height: 45px;
-    display: block;
+    width: 34px;
+    display: inline-table;
     font-size: 20px;
     color: #fff;
     background: lightgray;
     border-radius: 50%;
-    margin: 0 auto 10px auto;
+    margin: 7px 7px;
+    text-align: center;
     padding: 2px;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: Helvetica, sans-serif, Arial;
     font-weight: bolder;
     counter-increment: section;
     content: counter(section);
 }
 
-/*ProgressBar connectors*/
+/* Prepage progress tabs connectors */
 #prepage-booking-tabs li:after {
-    content: '';
+    content: 'asdf';
     width: 100%;
     height: 2px;
     background: lightgray;
@@ -425,8 +428,10 @@ if there only was one booking option. */
     z-index: -1;
 }
 
-/*Color number of the step and the connector before it*/
+/* Color number of the step and the connector before it */
 #prepage-booking-tabs li.active:before,
 #prepage-booking-tabs li.active:after {
-    background: #673ab7;
+    background: #5cb85c; /* Bootstrap success color.*/
+    margin: 7px 7px;
+    text-align: center;
 }
