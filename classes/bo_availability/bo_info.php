@@ -222,7 +222,6 @@ class bo_info {
                     $isavailable = !$instance->hard_block($settings, $userid);
                 }
 
-
                 $resultsarray[$condition->id] = ['id' => $condition->id,
                     'isavailable' => $isavailable,
                     'description' => $description,
@@ -604,7 +603,7 @@ class bo_info {
             $user = null;
         }
 
-        $data =  [
+        $data = [
             'itemid' => $settings->id,
             'area' => 'option',
             'userid' => $userid ?? 0,
@@ -781,9 +780,7 @@ class bo_info {
             } else {
                 $continuebutton = false;
             }
-        } else {
-
-        }
+        } // Do we need "else"?
 
         $footerdata['data']['continuebutton'] = $continuebutton; // Show button at all.
         $footerdata['data']['continueaction'] = $continueaction; // Which action should be taken?

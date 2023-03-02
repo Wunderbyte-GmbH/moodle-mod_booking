@@ -68,7 +68,7 @@ class isbookable implements bo_subcondition {
         return false;
     }
 
-/**
+    /**
      * Determines whether a particular item is currently available
      * according to this availability condition.
      * @param booking_option_settings $settings Item we're checking
@@ -127,7 +127,8 @@ class isbookable implements bo_subcondition {
      * @return array availability and Information string (for admin) about all restrictions on
      *   this item
      */
-    public function get_description(booking_option_settings $settings, $subbookingid, $userid = null, $full = false, $not = false):array {
+    public function get_description(booking_option_settings $settings,
+        $subbookingid, $userid = null, $full = false, $not = false): array {
 
         $description = '';
 
@@ -163,7 +164,8 @@ class isbookable implements bo_subcondition {
      * @param boolean $not
      * @return array
      */
-    public function render_button(booking_option_settings $settings, int $subbookingid, $userid = 0, $full = false, $not = false):array {
+    public function render_button(booking_option_settings $settings,
+        int $subbookingid, $userid = 0, $full = false, $not = false): array {
 
         global $USER;
 

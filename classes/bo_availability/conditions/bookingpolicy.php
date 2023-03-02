@@ -136,7 +136,7 @@ class bookingpolicy implements bo_condition {
         }
 
         // Now we see if there is already a booking answer from this user here.
-        // Relevant is PARAMSTATUS_BOOKED, PARAMSTATUS_RESERVED & PARAMSTATUS_WAITINGLIST
+        // Relevant is PARAMSTATUS_BOOKED, PARAMSTATUS_RESERVED & PARAMSTATUS_WAITINGLIST.
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
 
         return $hardblock;
@@ -159,7 +159,8 @@ class bookingpolicy implements bo_condition {
      * @return array availability and Information string (for admin) about all restrictions on
      *   this item
      */
-    public function get_description(booking_option_settings $settings, $userid = null, $full = false, $not = false):array {
+    public function get_description(booking_option_settings $settings,
+        $userid = null, $full = false, $not = false): array {
 
         $description = '';
 
@@ -197,7 +198,8 @@ class bookingpolicy implements bo_condition {
         ];
 
         $returnarray = [
-            // 'json' => $jsonstring,
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* 'json' => $jsonstring, */
             'data' => [$dataarray],
             'template' => 'mod_booking/condition/bookingpolicy',
             'buttontype' => 1, // This means that the continue button is disabled.

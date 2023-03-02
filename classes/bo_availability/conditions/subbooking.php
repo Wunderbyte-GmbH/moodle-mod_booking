@@ -181,7 +181,8 @@ class subbooking implements bo_condition {
 
         $returnarray = [
             'data' => $dataarray,
-            // 'json' => $jsonstring,
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* 'json' => $jsonstring, */
             'template' => implode(',', $templates),
             'buttontype' => 0,
         ];
@@ -201,7 +202,8 @@ class subbooking implements bo_condition {
      * @param boolean $not
      * @return array
      */
-    public function render_button(booking_option_settings $settings, $userid = 0, $full = false, $not = false):array {
+    public function render_button(booking_option_settings $settings,
+        $userid = 0, $full = false, $not = false): array {
 
         return ['', ''];
     }

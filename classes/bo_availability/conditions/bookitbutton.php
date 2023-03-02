@@ -191,7 +191,8 @@ class bookitbutton implements bo_condition {
         $buttontype = 0;
 
         $response = [
-            // 'json' => json_encode($dataarray),
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* 'json' => json_encode($dataarray), */
             'template' => implode(',', $templates),
             'buttontype' => $buttontype, // This means that the continue button is disabled.
             'data' => $dataarray,

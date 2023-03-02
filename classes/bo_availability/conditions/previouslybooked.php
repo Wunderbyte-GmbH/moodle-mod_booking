@@ -379,16 +379,16 @@ class previouslybooked implements bo_condition {
         } else {
 
             if (!$this->customsettings) {
-                // This description can only works with the right custom settings.
-               $availabilityarray = json_decode($settings->availability);
+                // This description can only work with the right custom settings.
+                $availabilityarray = json_decode($settings->availability);
 
-               foreach ($availabilityarray as $availability) {
-                   if (strpos($availability->class, 'previouslybooked') > 0) {
+                foreach ($availabilityarray as $availability) {
+                    if (strpos($availability->class, 'previouslybooked') > 0) {
 
-                       $this->customsettings = (object)$availability;
-                   }
-               }
-           }
+                        $this->customsettings = (object)$availability;
+                    }
+                }
+            }
 
             if (!isset($this->customsettings->optionid)) {
                 return 'something is wrong here';

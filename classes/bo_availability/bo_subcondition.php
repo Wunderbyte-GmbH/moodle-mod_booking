@@ -122,5 +122,6 @@ interface bo_subcondition {
      * @param boolean $not
      * @return array
      */
-    public function render_button(booking_option_settings $settings, int $subbookingid, $userid = 0, $full = false, $not = false):array;
+    public function render_button(booking_option_settings $settings,
+        int $subbookingid, $userid = 0, $full = false, $not = false): array;
 }
