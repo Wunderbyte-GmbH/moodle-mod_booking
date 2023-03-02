@@ -1,0 +1,110 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/bookingoption_description_prepagemodal_bookit
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * data-region
+}}
+<div class="bookingoption-description-prepagemodal-bookit w-100 m-2 p-2 text-justify bg-light border border-secondary rounded">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3">
+                <img class="w-100 rounded" src="{{imageurl}}">
+            </div>
+            <div class="col-md-9">
+                <h2 class="title" >{{#titleprefix}}{{.}} - {{/titleprefix}}{{title}}</h2>
+                <h6 class="h6-category">
+                    {{sport}}
+                </h6>
+                <div {{^teachers}} style="display:none"{{/teachers}}>
+                    {{#teachers}}
+                        <span class="mr-1"><i class="fa fa-graduation-cap" aria-hidden="true"></i> {{.}}</span>
+                    {{/teachers}}
+                </div>
+                <ul class="infolist" style="list-style: none;">
+                    {{#dayofweektime}}
+                    <li>
+                        <span>
+                            <i class="fa fa-fw fa-clock-o" aria-hidden="true"></i>
+                        </span>
+                        <span class="d-md-none">
+                            {{#str}} dayofweektime, mod_booking {{/str}}
+                        </span>
+                            {{.}}
+                        <span>
+                            {{#unitstring}} ({{.}}) {{/unitstring}}
+                        </span>
+                    </li>
+                    {{/dayofweektime}}
+                    {{#location}}
+                    <li>
+                        <span>
+                            <i class="fa fa-fw fa-map-marker" aria-hidden="true"></i>
+                        </span>
+                        <span class="d-md-none">
+                            {{#str}} location, mod_booking {{/str}}
+                        </span>
+                        <span>
+                            {{{.}}}
+                        </span>
+                    </li>
+                    {{/location}}
+                    {{#institution}}
+                    <li>
+                        <span>
+                            <i class="fa fa-fw fa-building-o" aria-hidden="true"></i>
+                        </span>
+                        <span class="d-md-none">
+                            {{#str}} institution, mod_booking {{/str}}
+                        </span>
+                        <span>
+                            {{{.}}}
+                        </span>
+                    </li>
+                    {{/institution}}
+                </ul>
+                <a class="collapseoptiondatesbutton" data-toggle="collapse" href="#collapseoptiondates" role="button" aria-expanded="false" aria-controls="collapseOptiondates">
+                    {{#str}} showdates, mod_booking {{/str}}
+                </a>
+                <div id="collapseoptiondates" class="collapse list-group-item">
+                <div class="list-group">
+                    {{#dates}}
+                        <div class="list-group-item">
+                            <div>
+                                <b>{{{datestring}}}</b>
+                            </div>
+                            <div {{^customfields}}style="display:none"{{/customfields}}>
+                                <ul>
+                                    {{#customfields}}
+                                        <li>
+                                            {{name}}{{{value}}}
+                                        </li>
+                                    {{/customfields}}
+                                </ul>
+                            </div>
+                        </div>
+                    {{/dates}}
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

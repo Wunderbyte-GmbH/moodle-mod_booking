@@ -185,11 +185,12 @@ class fullybooked implements bo_condition {
      *
      * @param booking_option_settings $settings
      * @param int $userid
-     * @param boolean $full
-     * @param boolean $not
+     * @param bool $full
+     * @param bool $not
      * @return array
      */
-    public function render_button(booking_option_settings $settings, $userid = 0, $full = false, $not = false):array {
+    public function render_button(booking_option_settings $settings,
+        int $userid = 0, bool $full = false, bool $not = false, bool $fullwidth = true): array {
 
         $label = $this->get_description_string(false, $full);
 

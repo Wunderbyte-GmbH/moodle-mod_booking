@@ -15,12 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Base class for a single booking option availability condition.
- *
- * All bo condition types must extend this class.
+ * Booking policy condition.
  *
  * @package mod_booking
- * @copyright 2022 Wunderbyte GmbH
+ * @copyright 2023 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -28,13 +26,9 @@ namespace mod_booking\bo_availability\conditions;
 
 use cache;
 use context_system;
-use html_writer;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
-use mod_booking\booking_answers;
-use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
-use mod_booking\output\bookingoption_description;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
 
@@ -123,8 +117,7 @@ class bookingpolicy implements bo_condition {
         }
 
         // The user might have accepted the booking policy for this booking option already.
-        // First, we see if we have sth in the conditions cache.
-
+        // First, we see if we have something in the conditions cache.
         $cache = cache::make('mod_booking', 'conditionforms');
         $cachekey = $userid . '_' . $settings->id . '_bookingpolicy';
 
@@ -134,10 +127,6 @@ class bookingpolicy implements bo_condition {
                 $hardblock = false;
             }
         }
-
-        // Now we see if there is already a booking answer from this user here.
-        // Relevant is PARAMSTATUS_BOOKED, PARAMSTATUS_RESERVED & PARAMSTATUS_WAITINGLIST.
-        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
 
         return $hardblock;
     }
@@ -216,11 +205,12 @@ class bookingpolicy implements bo_condition {
      *
      * @param booking_option_settings $settings
      * @param int $userid
-     * @param boolean $full
-     * @param boolean $not
+     * @param bool $full
+     * @param bool $not
      * @return array
      */
-    public function render_button(booking_option_settings $settings, $userid = 0, $full = false, $not = false):array {
+    public function render_button(booking_option_settings $settings,
+        int $userid = 0, bool $full = false, bool $not = false, bool $fullwidth = true): array {
 
         $label = $this->get_description_string(false, $full);
 

@@ -155,24 +155,24 @@ class bookitbutton implements bo_condition {
      */
     public function render_page(int $optionid) {
 
-        $data = new bookingoption_description($optionid, null, DESCRIPTION_WEBSITE, true, false);
+        $data1 = new bookingoption_description($optionid, null, DESCRIPTION_WEBSITE, true, false);
 
-        $template = 'mod_booking/bookingoption_description_mail';
+        $template = 'mod_booking/bookingoption_description_prepagemodal_bookit';
 
         $dataarray[] = [
-            'data' => (array)$data
+            'data' => $data1->get_returnarray(),
         ];
 
         $templates[] = $template;
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        list($template, $data) = booking_bookit::render_bookit_template_data($settings, 0, false);
-        $data = reset($data);
+        list($template, $data2) = booking_bookit::render_bookit_template_data($settings, 0, false);
+        $data2 = reset($data2);
         $template = reset($template);
 
         $dataarray[] = [
-            'data' => $data->data,
+            'data' => $data2->data,
         ];
 
         $templates[] = $template;
@@ -209,11 +209,12 @@ class bookitbutton implements bo_condition {
      *
      * @param booking_option_settings $settings
      * @param int $userid
-     * @param boolean $full
-     * @param boolean $not
+     * @param bool $full
+     * @param bool $not
      * @return array
      */
-    public function render_button(booking_option_settings $settings, $userid = 0, $full = false, $not = false):array {
+    public function render_button(booking_option_settings $settings,
+        int $userid = 0, bool $full = false, bool $not = false, bool $fullwidth = true): array {
 
         global $USER;
 
@@ -221,6 +222,14 @@ class bookitbutton implements bo_condition {
             $userid = $USER->id;
         }
         $label = $this->get_description_string(false, $full);
+
+        if ($fullwidth) {
+            // For view.php and default rendering.
+            $class = 'btn btn-secondary w-100 mt-0 mb-0 pl-1 pr-1 pt-2 pb-2';
+        } else {
+            // For prepage modals we want to render the button different than on view.php.
+            $class = 'btn btn-success pl-3 pr-3 pb-2 pt-2 m-3';
+        }
 
         return [
             'mod_booking/bookit_button',
@@ -230,7 +239,7 @@ class bookitbutton implements bo_condition {
                 'userid' => $userid ?? 0,
                 'main' => [
                     'label' => $label,
-                    'class' => 'btn btn-secondary w-100 mt-0 mb-0 pl-1 pr-1 pt-2 pb-2',
+                    'class' => $class,
                     'role' => 'button',
                 ]
             ]

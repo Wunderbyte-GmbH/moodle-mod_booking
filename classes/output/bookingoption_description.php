@@ -371,33 +371,40 @@ class bookingoption_description implements renderable, templatable {
      * @return array
      */
     public function export_for_template(renderer_base $output) {
+        return $this->get_returnarray();
+    }
 
+    /**
+     * Helper function to get returnarray.
+     * @return array
+     */
+    public function get_returnarray(): array {
         $returnarray = array(
-                'title' => $this->title,
-                'titleprefix' => $this->titleprefix,
-                'invisible' => $this->invisible,
-                'annotation' => $this->annotation,
-                'identifier' => $this->identifier,
-                'modalcounter' => $this->modalcounter,
-                'userid' => $this->userid,
-                'description' => $this->description,
-                'statusdescription' => $this->statusdescription,
-                'imageurl' => $this->imageurl,
-                'location' => $this->location,
-                'address' => $this->address,
-                'institution' => $this->institution,
-                'duration' => $this->duration,
-                'dates' => $this->dates,
-                'booknowbutton' => $this->booknowbutton,
-                'teachers' => $this->teachers,
-                'price' => $this->price,
-                'priceformulaadd' => $this->priceformulaadd,
-                'priceformulamultiply' => $this->priceformulamultiply,
-                'currency' => $this->currency,
-                'pricecategoryname' => $this->pricecategoryname,
-                'dayofweektime' => $this->dayofweektime,
-                'bookinginformation' => $this->bookinginformation,
-                'bookitsection' => $this->bookitsection,
+            'title' => $this->title,
+            'titleprefix' => $this->titleprefix,
+            'invisible' => $this->invisible,
+            'annotation' => $this->annotation,
+            'identifier' => $this->identifier,
+            'modalcounter' => $this->modalcounter,
+            'userid' => $this->userid,
+            'description' => $this->description,
+            'statusdescription' => $this->statusdescription,
+            'imageurl' => $this->imageurl,
+            'location' => $this->location,
+            'address' => $this->address,
+            'institution' => $this->institution,
+            'duration' => $this->duration,
+            'dates' => $this->dates,
+            'booknowbutton' => $this->booknowbutton,
+            'teachers' => $this->teachers,
+            'price' => $this->price,
+            'priceformulaadd' => $this->priceformulaadd,
+            'priceformulamultiply' => $this->priceformulamultiply,
+            'currency' => $this->currency,
+            'pricecategoryname' => $this->pricecategoryname,
+            'dayofweektime' => $this->dayofweektime,
+            'bookinginformation' => $this->bookinginformation,
+            'bookitsection' => $this->bookitsection,
         );
 
         if (!empty($this->unitstring)) {

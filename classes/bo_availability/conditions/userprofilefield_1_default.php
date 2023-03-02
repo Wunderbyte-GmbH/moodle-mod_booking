@@ -447,7 +447,8 @@ class userprofilefield_1_default implements bo_condition {
      * @param boolean $not
      * @return array
      */
-    public function render_button(booking_option_settings $settings, $userid = 0, $full = false, $not = false):array {
+    public function render_button(booking_option_settings $settings,
+        $userid = 0, $full = false, $not = false, bool $fullwidth = true): array {
 
         $label = $this->get_description_string(false, $full, $settings);
 

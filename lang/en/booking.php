@@ -253,7 +253,7 @@ $string['reminder2_sent'] = 'Second reminder sent';
 $string['reminder_teacher_sent'] = 'Teacher reminder sent';
 
 // View.php.
-$string['agreetobookingpolicy'] = 'I have read, understood and agree to the booking policy.';
+$string['bookingpolicyagree'] = 'I have read, understood and agree to the booking policy.';
 $string['bookingpolicynotchecked'] = 'You have not accepted the booking policy.';
 $string['allbookingoptions'] = 'Download users for all booking options';
 $string['attachedfiles'] = 'Attached files';

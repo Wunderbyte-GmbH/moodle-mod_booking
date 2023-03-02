@@ -134,10 +134,7 @@ class bookingpolicy_form extends dynamic_form {
         $mform->addElement('hidden', 'id', $id);
         $mform->addElement('html', $bookingsettings->bookingpolicy);
 
-        $mform->addElement('advcheckbox', 'bookingpolicy_checkbox', '', get_string('agreetobookingpolicy', 'mod_booking'));
-
-        // Buttons.
-        // $this->add_action_buttons();
+        $mform->addElement('advcheckbox', 'bookingpolicy_checkbox', '', get_string('bookingpolicyagree', 'mod_booking'));
     }
 
     /**
@@ -150,7 +147,7 @@ class bookingpolicy_form extends dynamic_form {
         $errors = [];
 
         if ($data['bookingpolicy_checkbox'] != 1) {
-            $errors['bookingpolicy_checkbox'] = get_string('bookingpolicynotchecked','mod_booking');
+            $errors['bookingpolicy_checkbox'] = get_string('bookingpolicynotchecked', 'mod_booking');
         }
 
         return $errors;

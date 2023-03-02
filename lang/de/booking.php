@@ -254,7 +254,7 @@ $string['reminder2_sent'] = 'Zweite Benachrichtigung versendet';
 $string['reminder_teacher_sent'] = 'Benachrichtigung an Trainer:in versendet';
 
 // View.php.
-$string['agreetobookingpolicy'] = 'Ich habe die Buchungsbedingungen gelesen und erkläre mich damit einverstanden.';
+$string['bookingpolicyagree'] = 'Ich habe die Buchungsbedingungen gelesen und erkläre mich damit einverstanden.';
 $string['bookingpolicynotchecked'] = 'Sie haben die Buchungsbedingungen nicht akzeptiert.';
 $string['allbookingoptions'] = 'Nutzer:innen für alle Buchungsoptionen herunterladen';
 $string['attachedfiles'] = 'Dateianhänge';

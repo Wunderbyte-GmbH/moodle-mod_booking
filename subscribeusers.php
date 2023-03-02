@@ -71,7 +71,7 @@ $PAGE->navbar->add(get_string('booking:subscribeusers', 'booking'), $url);
 if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
     echo $OUTPUT->header();
     $alright = false;
-    $message = "<p><b>" . get_string('agreetobookingpolicy', 'booking') . ":</b></p>";
+    $message = "<p><b>" . get_string('bookingpolicyagree', 'booking') . ":</b></p>";
     $message .= "<p>" . format_text($bookingoption->booking->settings->bookingpolicy, FORMAT_HTML) . "<p>";
     $continueurl = new moodle_url($PAGE->url->out(false, array('agree' => 1)));
     $continue = new single_button($continueurl, get_string('continue'), 'get');

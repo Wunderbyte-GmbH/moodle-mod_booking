@@ -165,7 +165,7 @@ class booking_bookit {
         } else {
 
             $condition = new $buttoncondition();
-            list($template, $data) = $condition->render_button($settings, 0, $full);
+            list($template, $data) = $condition->render_button($settings, 0, $full, false, false);
 
             $datas[] = new bookit_button($data);
             $templates[] = $template;
