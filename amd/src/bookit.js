@@ -193,6 +193,14 @@ export const loadPreBookingPage = (
         },
         done: function(res) {
 
+            // eslint-disable-next-line no-console
+            console.log(currentbookitpage[optionid], totalbookitpages[optionid]);
+
+            // If we are on the last page, we reset it to 0.
+            if (currentbookitpage[optionid] === totalbookitpages[optionid] - 1) {
+                currentbookitpage[optionid] = 0;
+            }
+
             const jsonobject = JSON.parse(res.json);
 
             // We support more than one template, they will be seperated by comma.
