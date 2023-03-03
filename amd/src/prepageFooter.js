@@ -27,7 +27,10 @@ var SELECTORS = {
     INMODALDIV: ' div.pageContent',
     INMODALFOOTER: ' div.prepage-booking-footer',
     INMODALBUTTON: 'div.in-modal-button',
+    BOOKITBUTTON: 'div.booking-button-area',
 };
+
+const WAITTIME = 1500;
 
 /**
  * Add the click listener to a prepage modal button.
@@ -35,11 +38,10 @@ var SELECTORS = {
  */
 export function initFooterButtons(optionid) {
 
+    initBookingButton(optionid);
+
     // First, get all link elements in the footer.
     const elements = document.querySelectorAll("[id^=" + SELECTORS.MODALID + optionid + "] " + SELECTORS.INMODALFOOTER + " a");
-
-    // eslint-disable-next-line no-console
-    console.log("[id^=" + SELECTORS.MODALID + optionid + "] " + SELECTORS.INMODALFOOTER + " a", elements);
 
     elements.forEach(element => {
         if (element && !element.dataset.initialized) {
@@ -48,9 +50,6 @@ export function initFooterButtons(optionid) {
             element.dataset.initialized = true;
 
             element.addEventListener('click', () => {
-
-                // eslint-disable-next-line no-console
-                console.log('click');
 
                 if (element.classList.contains('hidden')) {
                     return;
@@ -76,5 +75,38 @@ export function initFooterButtons(optionid) {
                 }
             });
         }
+    });
+}
+
+/**
+ *
+ * @param {int} optionid
+ */
+async function initBookingButton(optionid) {
+
+    // First, we get the right modal.
+    let modal = document.querySelector("[id^=" + SELECTORS.MODALID + optionid + "]");
+
+    if (!modal) {
+        return;
+    }
+
+    // Within the modal, we only want to add the listener on the bookit button with option area.
+    const selector = SELECTORS.BOOKITBUTTON +
+    '[data-itemid]' +
+    '[data-area="option"]';
+
+    const button = modal.querySelector(selector);
+
+    if (!button) {
+        return;
+    }
+
+    button.addEventListener('click', () => {
+
+        // We don't continue right away but wait for a second.
+        setTimeout(() => {
+            continueToNextPage(optionid);
+        }, WAITTIME);
     });
 }
