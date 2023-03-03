@@ -507,8 +507,8 @@ class bo_info {
         ];
 
         // Depending on the circumstances, keys are added to the array.
-        self::add_continue_button($footerdata, $conditions, $pagenumber, count($conditions));
-        self::add_back_button($footerdata, $conditions, $pagenumber, count($conditions));
+        self::add_continue_button($footerdata, $conditions, $results, $pagenumber, count($conditions));
+        self::add_back_button($footerdata, $conditions, $results, $pagenumber, count($conditions));
 
         $object['template'] = $object['template'] . ',' .  $template;
         $dataarray = array_merge($dataarray, [$footerdata]);
@@ -762,11 +762,17 @@ class bo_info {
      *
      * @param array $footerdata
      * @param array $conditions
+     * @param array $results
      * @param integer $pagenumber
      * @param integer $totalpages
      * @return void
      */
-    private static function add_continue_button(array &$footerdata, array $conditions, int $pagenumber, int $totalpages) {
+    private static function add_continue_button(
+            array &$footerdata,
+            array $conditions,
+            array $results,
+            int $pagenumber,
+            int $totalpages) {
 
         // Standardvalues.
 
@@ -786,11 +792,9 @@ class bo_info {
 
         }
 
-        // If we are on the last page.
-        if ($pagenumber + 1 == $totalpages) {
-
+        if ($conditions[$pagenumber]['id'] === BO_COND_CONFIRMATION) {
             // We need to decide if we want to show on the last page a "go to checkout" button.
-            if (self::has_price_set($conditions)) {
+            if (self::has_price_set($results)) {
                 $url = new moodle_url('/local/shopping_cart/checkout.php');
                 $continueaction = 'checkout';
                 $continuelabel = get_string('checkout', 'local_shopping_cart');
@@ -801,7 +805,7 @@ class bo_info {
                 $continueaction = 'closemodal';
                 $continuelabel = get_string('close', 'mod_booking');
             }
-        } // Do we need "else"?
+        }
 
         $footerdata['data']['continuebutton'] = $continuebutton; // Show button at all.
         $footerdata['data']['continueaction'] = $continueaction; // Which action should be taken?
@@ -814,11 +818,17 @@ class bo_info {
      *
      * @param array $footerdata
      * @param array $conditions
+     * @param array $results
      * @param integer $pagenumber
      * @param integer $totalpages
      * @return void
      */
-    private static function add_back_button(array &$footerdata, array $conditions, int $pagenumber, int $totalpages) {
+    private static function add_back_button(
+            array &$footerdata,
+            array $conditions,
+            array $results,
+            int $pagenumber,
+            int $totalpages) {
 
         // Standardvalues.
         $backbutton = true;
