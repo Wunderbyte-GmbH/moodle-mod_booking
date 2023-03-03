@@ -476,6 +476,7 @@ class bo_info {
         // Results have to be sorted the right way. At the moment, it depends on the id of the blocking condition.
         usort($results, fn($a, $b) => ($a['id'] < $b['id'] ? 1 : -1 ));
 
+        // Sorted List of blocking conditions which also provide a proper page.
         $conditions = self::return_sorted_conditions($results);
         $condition = self::return_class_of_current_page($conditions, $pagenumber);
 
@@ -506,8 +507,8 @@ class bo_info {
         ];
 
         // Depending on the circumstances, keys are added to the array.
-        self::add_continue_button($footerdata, $results, $pagenumber, count($conditions));
-        self::add_back_button($footerdata, $results, $pagenumber, count($conditions));
+        self::add_continue_button($footerdata, $conditions, $pagenumber, count($conditions));
+        self::add_back_button($footerdata, $conditions, $pagenumber, count($conditions));
 
         $object['template'] = $object['template'] . ',' .  $template;
         $dataarray = array_merge($dataarray, [$footerdata]);
@@ -755,12 +756,12 @@ class bo_info {
      * Logic of the continue button in the prepage modal.
      *
      * @param array $footerdata
-     * @param array $results
+     * @param array $conditions
      * @param integer $pagenumber
      * @param integer $totalpages
      * @return void
      */
-    private static function add_continue_button(array &$footerdata, array $results, int $pagenumber, int $totalpages) {
+    private static function add_continue_button(array &$footerdata, array $conditions, int $pagenumber, int $totalpages) {
 
         // Standardvalues.
 
@@ -769,16 +770,31 @@ class bo_info {
         $continuelabel = get_string('continue');
         $continuelink = '#';
 
-        if ($pagenumber + 1 == $totalpages) { // If we are on the last page.
+
+        // If we are on the booking or priceissetpage, we don't want to show the continue button.
+        // The Thank you page only comes automatically.
+
+        if ($conditions[$pagenumber]['id'] === BO_COND_BOOKITBUTTON
+            || $conditions[$pagenumber]['id'] === BO_COND_PRICEISSET) {
+
+            $continuebutton = false;
+
+        }
+
+        // If we are on the last page.
+        if ($pagenumber + 1 == $totalpages) {
 
             // We need to decide if we want to show on the last page a "go to checkout" button.
-            if (self::has_price_set($results)) {
+            if (self::has_price_set($conditions)) {
                 $url = new moodle_url('/local/shopping_cart/checkout.php');
                 $continueaction = 'checkout';
                 $continuelabel = get_string('checkout', 'local_shopping_cart');
                 $continuelink = $url->out();
+                $continuebutton = true;
             } else {
-                $continuebutton = false;
+                $continuebutton = true;
+                $continueaction = 'closemodal';
+                $continuelabel = get_string('close');
             }
         } // Do we need "else"?
 
@@ -792,12 +808,12 @@ class bo_info {
      * Logic of the back button in the prepage modal.
      *
      * @param array $footerdata
-     * @param array $results
+     * @param array $conditions
      * @param integer $pagenumber
      * @param integer $totalpages
      * @return void
      */
-    private static function add_back_button(array &$footerdata, array $results, int $pagenumber, int $totalpages) {
+    private static function add_back_button(array &$footerdata, array $conditions, int $pagenumber, int $totalpages) {
 
         // Standardvalues.
         $backbutton = true;
