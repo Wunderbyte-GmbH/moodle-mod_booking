@@ -50,6 +50,11 @@ export async function init() {
 
         if (response) {
 
+            // eslint-disable-next-line no-console
+            console.log('response', response);
+
+            // dynamicForm.load(response);
+
             if (!continuebutton) {
                 continuebutton = container.closest(SELECTOR.MODALBODY).querySelector(SELECTOR.CONTINUEBUTTON);
             }
@@ -57,19 +62,15 @@ export async function init() {
                 continuebutton.dataset.blocked = 'false';
                 continuebutton.click();
             }
-
-            dynamicForm.load(response);
         }
     });
 
-    dynamicForm.addEventListener('change', e => {
-
-        // eslint-disable-next-line no-console
-        console.log(e);
-
+    const handler = () => {
         // In this case, we can submit right away as soon as sth is changed.
         dynamicForm.submitFormAjax();
-    });
+    };
+
+    dynamicForm.addEventListener('change', handler);
 
     // This goes on continue button.
     // It will prevent the action to be triggered.
