@@ -188,11 +188,11 @@ export const loadPreBookingPage = (
             // We have a data key in the json
             const templates = res.template.split(',');
             let dataarray = jsonobject;
-            const buttontype = res.buttontype;
+            // const buttontype = res.buttontype;
 
             renderTemplatesOnPage(templates, dataarray, element);
 
-            showRightButton(optionid, buttontype);
+            // showRightButton(optionid, buttontype);
 
             return true;
         },
@@ -234,66 +234,66 @@ async function renderTemplatesOnPage(templates, dataarray, element) {
     return true;
 }
 
-/**
- * Reveal the hidden continue button.
- * @param {interger} optionid
- * @param {interger} buttontype
- */
-function showRightButton(optionid, buttontype) {
+// /**
+//  * Reveal the hidden continue button.
+//  * @param {interger} optionid
+//  * @param {interger} buttontype
+//  */
+// function showRightButton(optionid, buttontype) {
 
-    // If we are not yet on the last booking page.
-    if (currentbookitpage[optionid] + 1 < totalbookitpages[optionid]) {
-        const element = returnVisibleElement(optionid, SELECTORS.CONTINUEBUTTON);
-        if (element) {
-            element.classList.remove('hidden');
+//     // If we are not yet on the last booking page.
+//     if (currentbookitpage[optionid] + 1 < totalbookitpages[optionid]) {
+//         const element = returnVisibleElement(optionid, SELECTORS.CONTINUEBUTTON);
+//         if (element) {
+//             element.classList.remove('hidden');
 
-            if (buttontype == 1) {
-                element.classList.add('disabled');
-            }
-        }
+//             if (buttontype == 1) {
+//                 element.classList.add('disabled');
+//             }
+//         }
 
-        const inModalButton = returnVisibleElement(optionid, SELECTORS.INMODALBUTTON);
-        if (inModalButton) {
-            inModalButton.classList.add('hidden');
-        }
+//         const inModalButton = returnVisibleElement(optionid, SELECTORS.INMODALBUTTON);
+//         if (inModalButton) {
+//             inModalButton.classList.add('hidden');
+//         }
 
-    } else {
-        // We are on the last booking page.
-        const element = returnVisibleElement(optionid, SELECTORS.CONTINUEBUTTON);
-        if (element) {
-            element.classList.add('hidden');
-        }
+//     } else {
+//         // We are on the last booking page.
+//         const element = returnVisibleElement(optionid, SELECTORS.CONTINUEBUTTON);
+//         if (element) {
+//             element.classList.add('hidden');
+//         }
 
-        if (buttontype == 1) {
-            const inModalButton = returnVisibleElement(optionid, SELECTORS.INMODALBUTTON);
-            if (inModalButton) {
-                inModalButton.classList.add('hidden');
-            }
-        } else {
-            const inModalButton = returnVisibleElement(optionid, SELECTORS.INMODALBUTTON);
-            if (inModalButton) {
-                inModalButton.classList.remove('hidden');
-            }
-        }
-    }
-    if (currentbookitpage[optionid] > 0) {
-        const element = returnVisibleElement(optionid, SELECTORS.BACKBUTTON);
-        if (element) {
-            element.classList.remove('hidden');
+//         if (buttontype == 1) {
+//             const inModalButton = returnVisibleElement(optionid, SELECTORS.INMODALBUTTON);
+//             if (inModalButton) {
+//                 inModalButton.classList.add('hidden');
+//             }
+//         } else {
+//             const inModalButton = returnVisibleElement(optionid, SELECTORS.INMODALBUTTON);
+//             if (inModalButton) {
+//                 inModalButton.classList.remove('hidden');
+//             }
+//         }
+//     }
+//     if (currentbookitpage[optionid] > 0) {
+//         const element = returnVisibleElement(optionid, SELECTORS.BACKBUTTON);
+//         if (element) {
+//             element.classList.remove('hidden');
 
-            if (buttontype == 1) {
-                // element.classList.add('disabled');
-            }
-        }
+//             if (buttontype == 1) {
+//                 // element.classList.add('disabled');
+//             }
+//         }
 
-    } else {
-        const element = returnVisibleElement(optionid, SELECTORS.BACKBUTTON);
-        if (element) {
-            element.classList.add('hidden');
-        }
-    }
+//     } else {
+//         const element = returnVisibleElement(optionid, SELECTORS.BACKBUTTON);
+//         if (element) {
+//             element.classList.add('hidden');
+//         }
+//     }
 
-}
+// }
 
 /**
  *

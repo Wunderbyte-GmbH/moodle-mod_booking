@@ -50,11 +50,6 @@ export async function init() {
 
         if (response) {
 
-            // eslint-disable-next-line no-console
-            console.log('response', response);
-
-            // dynamicForm.load(response);
-
             if (!continuebutton) {
                 continuebutton = container.closest(SELECTOR.MODALBODY).querySelector(SELECTOR.CONTINUEBUTTON);
             }

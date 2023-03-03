@@ -2276,3 +2276,4 @@ $string['personnr'] = 'Person n° {$a}';
 $string['age'] = 'Age';
 
 $string['accept'] = "Accept";
+$string['close'] = "Close";

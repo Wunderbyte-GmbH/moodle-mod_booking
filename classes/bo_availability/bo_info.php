@@ -794,7 +794,7 @@ class bo_info {
             } else {
                 $continuebutton = true;
                 $continueaction = 'closemodal';
-                $continuelabel = get_string('close');
+                $continuelabel = get_string('close', 'mod_booking');
             }
         } // Do we need "else"?
 

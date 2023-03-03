@@ -28,6 +28,7 @@ var SELECTORS = {
     INMODALFOOTER: ' div.prepage-booking-footer',
     INMODALBUTTON: 'div.in-modal-button',
     BOOKITBUTTON: 'div.booking-button-area',
+    STATICBACKDROP: 'div.modal-backdrop',
 };
 
 const WAITTIME = 1500;
@@ -72,6 +73,9 @@ export function initFooterButtons(optionid) {
                     case 'checkout':
                         window.location.href = element.dataset.href;
                     break;
+                    case 'closemodal':
+                        closeModal(optionid);
+                    break;
                 }
             });
         }
@@ -109,4 +113,19 @@ async function initBookingButton(optionid) {
             continueToNextPage(optionid);
         }, WAITTIME);
     });
+}
+
+/**
+ *
+ * @param {int} optionid
+ */
+function closeModal(optionid) {
+    const backdrop = document.querySelector(SELECTORS.STATICBACKDROP);
+    const modal = document.querySelector(SELECTORS.MODALID + optionid);
+    if (modal) {
+        modal.classList.remove('show');
+    }
+    if (backdrop) {
+        backdrop.remove();
+    }
 }

@@ -2048,3 +2048,4 @@ $string['personnr'] = 'Person Nr. {$a}';
 $string['age'] = 'Alter';
 
 $string['accept'] = "Akzeptieren";
+$string['close'] = "Schließen";
