@@ -639,6 +639,7 @@ class bo_info {
      * To sort the prepages, depending on blocking conditions array.
      * This is also used to determine the total number of pages displayed.
      * Just count the pages returned.
+     * If there are just booking & confirmation pages, we supress them.
      *
      * @param array $results
      * @return array
@@ -690,7 +691,11 @@ class bo_info {
         $conditionsarray = array_merge($conditionsarray, $prepages['post']);
 
         // When there are no pre or post pages, we don't want show the booking page.
-        if ((count($prepages['pre']) + count($prepages['post'])) < 1) {
+
+        // We can in the future include a setting which will allow for always showing booking modal.
+        // But right now, we will always suppress the Booking modal, when there is only one page.
+        // This single page has to be necessarily the confirmation page.
+        if ((count($prepages['pre']) + count($prepages['post'])) < 2) {
             return [];
         } else {
             return $conditionsarray;
