@@ -96,10 +96,33 @@ Feature: In a booking edit settings
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    And I follow "New booking option"
+    ## And I follow "New booking option"
+    And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r1" "css_element"
     And I follow "Dates"
     And I should see "Next May (nextmay)" in the "#id_datesheadercontainer .form-autocomplete-selection" "css_element"
     And I expand the "Select time period" autocomplete
     ## And I open the autocomplete suggestions list in the "#id_datesheadercontainer" "css_element"
-    And I wait "21" seconds
+    And I wait "1" seconds
     And I should see "Next June (nextjune)" in the "#id_datesheadercontainer .form-autocomplete-suggestions" "css_element"
+    And I set the following fields to these values:
+      | Booking option name   | Option - Test Semester |
+      | Select time period    | Next June (nextjune)   |
+      | reoccurringdatestring | Friday, 13:00-14:00    |
+    And I press "Create date series"
+    And I wait "1" seconds
+    And I should see "## + 1 year ##%Y##" in the ".reoccurringdates" "css_element"
+    And I should see "1:00 PM - 2:00 PM" in the ".reoccurringdates" "css_element"
+    And I should see "Friday, 7" in the ".reoccurringdates" "css_element"
+    And I should see "Friday, 14" in the ".reoccurringdates" "css_element"
+    And I press "Save and go back"
+    Then I should see "Option - Test Semester" in the "#allbookingoptionstable_r1" "css_element"
+    And I should see "Friday, 13:00-14:00" in the "#allbookingoptionstable_r1" "css_element"
+    And I wait "1" seconds
+    And I click on "Show dates" "link" in the "#allbookingoptionstable_r1" "css_element"
+    And I wait "1" seconds
+    And I should see "## + 1 year ##%Y##" in the "#allbookingoptionstable_r1" "css_element"
+    And I should see "1:00 PM - 2:00 PM" in the "#allbookingoptionstable_r1" "css_element"
+    And I should see "7 Friday" in the "#allbookingoptionstable_r1" "css_element"
+    And I should see "14 Friday" in the "#allbookingoptionstable_r1" "css_element"
+    ## And I should see "14 Friday ## + 1 year ##%Y##, 1:00PM - 2:00PM" in the "#allbookingoptionstable_r1" "css_element"
