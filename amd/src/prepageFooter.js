@@ -89,7 +89,8 @@ export function initFooterButtons(optionid) {
 async function initBookingButton(optionid) {
 
     // First, we get the right modal.
-    let modal = document.querySelector("[id^=" + SELECTORS.MODALID + optionid + "]");
+    let modal = document.querySelector("div.modal.show[id^=" + SELECTORS.MODALID + optionid + "]");
+
 
     if (!modal) {
         return;
@@ -121,7 +122,7 @@ async function initBookingButton(optionid) {
  */
 function closeModal(optionid) {
     const backdrop = document.querySelector(SELECTORS.STATICBACKDROP);
-    const modal = document.querySelector(SELECTORS.MODALID + optionid);
+    const modal = document.querySelector("div.modal.show[id^=" + SELECTORS.MODALID + optionid + "]");
     if (modal) {
         modal.classList.remove('show');
     }
