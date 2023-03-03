@@ -53,8 +53,8 @@ Feature: In a booking instance create booking options
       | coursestarttime[day]    | ## yesterday ## %d ## |
       | coursestarttime[month]  | ## yesterday ## %B ## |
       | coursestarttime[year]   | ## yesterday ## %Y ## |
-      | coursestarttime[hour]   | 00                |
-      | coursestarttime[minute] | 00                |
+      | coursestarttime[hour]   | 00                    |
+      | coursestarttime[minute] | 00                    |
     And I set the following fields to these values:
       | courseendtime[day]    | ## + 1 year ## %d ## |
       | courseendtime[month]  | ## + 1 year ## %B ## |
@@ -66,6 +66,7 @@ Feature: In a booking instance create booking options
     And I log out
     And I am on the "Course 1" course page logged in as student1
     And I follow "My booking"
-    And I click on "Book now" "text" in the "#allbookingoptionstable_r1" "css_element"
-    And I should see "Booked"
-    And I should not see "Book now"
+    And I click on "Book now" "text" in the "#allbookingoptionstable_r1 .booknow" "css_element"
+    And I wait "1" seconds
+    And I should see "Booked" in the ".active #allbookingoptionstable_r1" "css_element"
+    And I should not see "Book now" in the "#allbookingoptionstable_r1" "css_element"

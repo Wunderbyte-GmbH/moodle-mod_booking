@@ -32,6 +32,7 @@ Feature: In a booking create multi session options
     And I follow "My booking"
     And I should see "New option"
     And I click on "Book now" "text" in the "#allbookingoptionstable_r1" "css_element"
+    And I wait "5" seconds
     And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
     And I click on "Duplicate this booking option" "link" in the "#allbookingoptionstable_r1" "css_element"
     And I set the following fields to these values:
@@ -82,6 +83,7 @@ Feature: In a booking create multi session options
     And I should see "3:00 PM to 10:00 PM" in the "#region-main table.generaltable" "css_element"
     And I press "Back"
     Then I should see "Test option - Copy - Multisession" in the "#allbookingoptionstable_r3" "css_element"
+    And I wait "5" seconds
     And I click on "Show dates" "link" in the "#allbookingoptionstable_r3" "css_element"
     And I wait "1" seconds
     Then I should see "15 March" in the "#allbookingoptionstable_r3" "css_element"
