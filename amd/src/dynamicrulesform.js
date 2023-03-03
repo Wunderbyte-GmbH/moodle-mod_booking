@@ -40,9 +40,6 @@ export const init = (selector) => {
 
     element.addEventListener('click', e => {
 
-        // eslint-disable-next-line no-console
-        console.log(e.target);
-
         editRulesModal(e.target);
 
     });
@@ -53,9 +50,6 @@ export const init = (selector) => {
  * @param {HTMLElement} element
  */
 function editRulesModal(element) {
-
-    // eslint-disable-next-line no-console
-    console.log('editRulesModal', element);
 
     if (!element) {
         return;
@@ -108,10 +102,7 @@ function editRulesModal(element) {
 
         // Listen to events if you want to execute something on form submit.
         // Event detail will contain everything the process() function returned:
-        modalForm.addEventListener(modalForm.events.FORM_SUBMITTED, (e) => {
-            const response = e.detail;
-            // eslint-disable-next-line no-console
-            console.log('confirmCancelAndSetCreditModal response: ', response);
+        modalForm.addEventListener(modalForm.events.FORM_SUBMITTED, () => {
 
             // After adding or editing, we want to reload the window to update the rule list.
             window.location.reload();
@@ -122,9 +113,6 @@ function editRulesModal(element) {
             if (!e.target.name) {
                 return;
             }
-
-            // eslint-disable-next-line no-console
-            console.log(e.target.name);
 
             if (e.target.name == 'bookingruletype') {
                 window.skipClientValidation = true;

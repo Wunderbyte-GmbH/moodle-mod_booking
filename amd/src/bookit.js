@@ -170,9 +170,6 @@ export const loadPreBookingPage = (
 
     const element = returnVisibleElement(optionid, SELECTORS.INMODALDIV);
 
-    // eslint-disable-next-line no-console
-    console.log('element'. element);
-
     while (element.firstChild) {
         element.removeChild(element.firstChild);
     }
@@ -215,8 +212,6 @@ export const loadPreBookingPage = (
 async function renderTemplatesOnPage(templates, dataarray, element) {
 
     for (const template of templates) {
-        // eslint-disable-next-line no-console
-        console.log('i render first this template, ', template);
 
         const data = dataarray.shift();
 
@@ -379,17 +374,11 @@ function initializeButton(optionid, back) {
         elements = document.querySelectorAll("[id^=" + SELECTORS.MODALID + optionid + "] " + SELECTORS.CONTINUEBUTTON);
     }
 
-    // eslint-disable-next-line no-console
-    console.log("[id^=" + SELECTORS.MODALID + optionid + "] " + SELECTORS.BACKBUTTON, elements);
-
     elements.forEach(element => {
         if (element && !element.dataset.prepageinit) {
             element.dataset.prepageinit = true;
 
             element.addEventListener('click', (e) => {
-
-                // eslint-disable-next-line no-console
-                console.log('click');
 
                 e.stopPropagation();
 
@@ -478,20 +467,7 @@ function bookit(itemid, area, userid) {
 
             Promise.all(promises).then(() => {
 
-                // We close the modal only if we are on the last page of the booking pages.
-                if (currentbookitpage[itemid] == totalbookitpages[itemid] - 1) {
-
-                    const backdrop = document.querySelector(SELECTORS.STATICBACKDROP);
-                    const modal = document.querySelector(SELECTORS.MODALID + itemid);
-                    if (modal) {
-                        modal.classList.remove('show');
-                    }
-                    if (backdrop) {
-                        backdrop.remove();
-                    }
-                } else {
-                    toggleContinueButton(itemid, true);
-                }
+                // The actions on successful booking are executed elsewhere.
                 return true;
             }).catch(e => {
                 // eslint-disable-next-line no-console

@@ -52,9 +52,6 @@ export const init = (optionid, status) => {
  */
 function confirmCancelModal(optionid, status) {
 
-    // eslint-disable-next-line no-console
-    console.log('confirmCancelModal', 'optionid: ' + optionid, 'status: ' + status);
-
     const modalForm = new ModalForm({
 
         // Name of the class where form is defined (must extend \core_form\dynamic_form):
@@ -74,10 +71,7 @@ function confirmCancelModal(optionid, status) {
     });
     // Listen to events if you want to execute something on form submit.
     // Event detail will contain everything the process() function returned:
-    modalForm.addEventListener(modalForm.events.FORM_SUBMITTED, (e) => {
-        const response = e.detail;
-        // eslint-disable-next-line no-console
-        console.log('confirmCancelModal response: ', response);
+    modalForm.addEventListener(modalForm.events.FORM_SUBMITTED, () => {
 
         location.reload();
 

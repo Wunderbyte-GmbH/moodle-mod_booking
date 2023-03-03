@@ -73,10 +73,7 @@ export const initbuttons = () => {
 
     // Listen to events if you want to execute something on form submit.
     // Event detail will contain everything the process() function returned:
-    modalForm.addEventListener(modalForm.events.FORM_SUBMITTED, (e) => {
-        const response = e.detail;
-        // eslint-disable-next-line no-console
-        console.log('Response of the modal: ', response);
+    modalForm.addEventListener(modalForm.events.FORM_SUBMITTED, () => {
         window.location.reload();
     });
 

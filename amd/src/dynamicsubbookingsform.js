@@ -36,9 +36,6 @@ import ModalForm from 'core_form/modalform';
 
 export const init = (selector) => {
 
-    // eslint-disable-next-line no-console
-    console.log('dynamicsubbookingsform ', selector);
-
     // For this selector, we have the buttons add, edit & delete
 
     const elements = document.querySelectorAll(selector);
@@ -47,8 +44,6 @@ export const init = (selector) => {
 
         element.addEventListener('click', e => {
 
-            // eslint-disable-next-line no-console
-            console.log(e.target);
             editSubbookingsModal(e.target);
 
         });
@@ -60,9 +55,6 @@ export const init = (selector) => {
  * @param {HTMLElement} element
  */
 function editSubbookingsModal(element) {
-
-    // eslint-disable-next-line no-console
-    console.log('editSubbookingsModal', element);
 
     if (!element) {
         return;
@@ -100,8 +92,6 @@ function editSubbookingsModal(element) {
 
     } else if (action == "add" || action == 'edit') {
 
-        // eslint-disable-next-line no-console
-        console.log('optionid ', optionid);
         // A rule is added (ruleid == 0) or edited (ruleid > 0).
         const modalForm = new ModalForm({
             // Name of the class where form is defined (must extend \core_form\dynamic_form):
@@ -116,10 +106,7 @@ function editSubbookingsModal(element) {
 
         // Listen to events if you want to execute something on form submit.
         // Event detail will contain everything the process() function returned:
-        modalForm.addEventListener(modalForm.events.FORM_SUBMITTED, (e) => {
-            const response = e.detail;
-            // eslint-disable-next-line no-console
-            console.log('subbookingsform response: ', response);
+        modalForm.addEventListener(modalForm.events.FORM_SUBMITTED, () => {
 
             // After adding or editing, we want to reload the window to update the rule list.
             window.location.reload();
@@ -131,9 +118,6 @@ function editSubbookingsModal(element) {
                 return;
             }
 
-            // eslint-disable-next-line no-console
-            console.log(e.target.name);
-
             if (e.target.name == 'subbooking_type') {
                 window.skipClientValidation = true;
                 let button = document.querySelector('[name="btn_subbookingtype"]');
@@ -144,8 +128,6 @@ function editSubbookingsModal(element) {
         // Show the form.
         modalForm.show();
     } else {
-        // eslint-disable-next-line no-console
-        console.log('Error in dynamicrulesform.js: action should be "delete" or "edit-or-new".');
         return;
     }
 }

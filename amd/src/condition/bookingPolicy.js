@@ -35,9 +35,6 @@ const SELECTOR = {
  */
 export async function init() {
 
-    // eslint-disable-next-line no-console
-    console.log(SELECTOR.FORMCONTAINER);
-
     const container = document.querySelector(SELECTOR.FORMCONTAINER);
     const id = container.dataset.id;
 
@@ -52,9 +49,6 @@ export async function init() {
         const response = e.detail;
 
         if (response) {
-
-            // eslint-disable-next-line no-console
-            console.log(response);
 
             if (!continuebutton) {
                 continuebutton = container.closest(SELECTOR.MODALBODY).querySelector(SELECTOR.CONTINUEBUTTON);

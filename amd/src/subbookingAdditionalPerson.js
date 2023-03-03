@@ -50,38 +50,23 @@ export async function init() {
 
     const bookitbutton = container.closest(SELECTOR.MODALBODY).querySelector(SELECTOR.BOOKINGBUTTON + id);
 
-    // eslint-disable-next-line no-console
-    console.log('bookitbutton', SELECTOR.BOOKINGBUTTON + id, bookitbutton);
-
     dynamicForm.addEventListener(dynamicForm.events.FORM_SUBMITTED, e => {
         const response = e.detail;
 
         if (response) {
 
-            // eslint-disable-next-line no-console
-            console.log(response);
-
             if (bookitbutton) {
                 bookitbutton.dataset.blocked = 'false';
                 bookitbutton.click();
-
-                // eslint-disable-next-line no-console
-                console.log('clicked on bookitbutton');
             } else {
                 continuebutton.dataset.blocked = 'false';
                 continuebutton.click();
-
-                // eslint-disable-next-line no-console
-                console.log('clicked on continue');
             }
             dynamicForm.load({id: id});
         }
     });
 
     dynamicForm.addEventListener('change', e => {
-
-        // eslint-disable-next-line no-console
-        console.log(e);
 
         if (e.target.classList.contains('custom-select')) {
             const button = document.querySelector('.subbooking-additionalperson-form [data-no-submit="1"]');

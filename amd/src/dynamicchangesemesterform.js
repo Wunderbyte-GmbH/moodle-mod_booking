@@ -39,9 +39,6 @@ export const init = (selector, formClass, existingsemester) => {
 
     form.addEventListener(form.events.FORM_SUBMITTED, (e) => {
         e.preventDefault();
-        const response = e.detail;
-        // eslint-disable-next-line no-console
-        console.log('response', response);
     });
 
     // Cancel button does not make much sense in such forms but since it's there we'll just reload.
