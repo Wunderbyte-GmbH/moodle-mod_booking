@@ -789,10 +789,10 @@ class bo_info {
             || $conditions[$pagenumber]['id'] === BO_COND_PRICEISSET) {
 
             $continuebutton = false;
-
         }
 
-        if ($conditions[$pagenumber]['id'] === BO_COND_CONFIRMATION) {
+        if ($conditions[$pagenumber]['id'] === BO_COND_CONFIRMATION
+            || $conditions[$pagenumber]['id'] === BO_COND_SUBBOOKING) {
             // We need to decide if we want to show on the last page a "go to checkout" button.
             if (self::has_price_set($results)) {
                 $url = new moodle_url('/local/shopping_cart/checkout.php');

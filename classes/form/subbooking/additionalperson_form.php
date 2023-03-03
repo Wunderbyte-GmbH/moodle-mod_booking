@@ -65,7 +65,7 @@ class additionalperson_form extends dynamic_form {
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
-        require_capability('moodle/site:config', context_system::instance());
+        require_capability('mod/booking:conditionforms', context_system::instance());
     }
 
 
