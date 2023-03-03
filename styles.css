@@ -396,7 +396,7 @@ if there only was one booking option. */
 }
 
 #prepage-booking-tabs li.active {
-    color: #5cb85c; /* Bootstrap success color.*/
+    color: #357a32; /* Bootstrap success color.*/
 }
 
 /* Icon prepage progress tabs before any progress */
@@ -431,7 +431,7 @@ if there only was one booking option. */
 /* Color number of the step and the connector before it */
 #prepage-booking-tabs li.active:before,
 #prepage-booking-tabs li.active:after {
-    background: #5cb85c; /* Bootstrap success color.*/
+    background: #357a32; /* Bootstrap success color.*/
     margin: 7px 7px;
     text-align: center;
 }

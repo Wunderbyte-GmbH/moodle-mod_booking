@@ -38,7 +38,7 @@ $string['search'] = 'Suche...';
 $string['teachers'] = 'Trainer:innen';
 $string['thankyoubooked'] = '<i class="fa fa-3x fa-calendar-check-o text-success" aria-hidden="true"></i><br><br>
 Vielen Dank! Sie haben <b>{$a}</b> erfolgreich gebucht.';
-$string['thankyoucheckout'] = '<i class="fa fa-3x fa-calendar-check-o text-success" aria-hidden="true"></i><br><br>
+$string['thankyoucheckout'] = '<i class="fa fa-3x fa-shopping-cart text-success" aria-hidden="true"></i><br><br>
 Vielen Dank! Sie haben <b>{$a}</b> in den Warenkorb gelegt. Klicken Sie nun auf <b>"Weiter zur Bezahlung"</b>
  um den Buchungsvorgang fortzusetzen.';
 $string['thankyouwaitinglist'] = '<i class="fa fa-3x fa-clock-o text-info" aria-hidden="true"></i><br><br>

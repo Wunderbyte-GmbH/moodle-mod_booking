@@ -36,17 +36,21 @@
     }
 }}
 {{#price}}
-    <span class="pricecurrency h5">
-        {{price}} {{currency}}
-    </span>
-    {{#shoppingcartisavailable}}
-        <div>
-            {{> local_shopping_cart/addtocartdb }}
-        </div>
-    {{/shoppingcartisavailable}}
-    {{#priceitems}}
-        <p><i>{{pricecategoryname}}</i></p>
-    {{/priceitems}}
+<div class="w-100 d-flex justify-content-center">
+    <div class="pricecontainer">
+        <span class="pricecurrency h5">
+            {{price}} {{currency}}
+        </span>
+        {{#shoppingcartisavailable}}
+            <div>
+                {{> local_shopping_cart/addtocartdb }}
+            </div>
+        {{/shoppingcartisavailable}}
+        {{#priceitems}}
+            <p><i>{{pricecategoryname}}</i></p>
+        {{/priceitems}}
+    </div>    
+</div>
 {{/price}}
 {{^price}}
     {{#priceitems}}

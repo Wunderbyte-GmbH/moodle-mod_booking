@@ -244,8 +244,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
     public function col_comments($values) {
 
         $commentshtml = '';
-        if (!empty($this->cm) && !empty($this->cmid) && !empty($this->context)) {
-
+        if (!empty($this->context)) {
             // Important: Without init commenting won't work.
             comment::init();
 
