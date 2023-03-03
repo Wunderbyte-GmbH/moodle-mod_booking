@@ -36,11 +36,13 @@ $string['messageprovider:bookingconfirmation'] = "Booking confirmations";
 $string['optionsiteach'] = 'Teached by me';
 $string['search'] = 'Search...';
 $string['teachers'] = 'Teachers';
-$string['thankyoubooked'] = '<i class="fa fa-3x fa-calendar-check-o" aria-hidden="true"></i><br><br>
+$string['thankyoubooked'] = '<i class="fa fa-3x fa-calendar-check-o text-success" aria-hidden="true"></i><br><br>
 Thank you! You have successfully booked <b>{$a}</b>.';
-$string['thankyoucheckout'] = '<i class="fa fa-3x fa-calendar-check-o" aria-hidden="true"></i><br><br>
+$string['thankyoucheckout'] = '<i class="fa fa-3x fa-calendar-check-o text-success" aria-hidden="true"></i><br><br>
 Thank you! You have successfully put <b>{$a}</b> into the shopping cart. Now click on <b>"Proceed to checkout"</b>
  to continue.';
+$string['thankyouerror'] = '<i class="fa fa-3x fa-frown-o text-danger" aria-hidden="true"></i><br>
+Unfortunately, there was an error when booking <b>{$a}</b>.';
 
 // General errors.
 $string['error:choosevalue'] = 'You have to choose a value here.';
@@ -1993,6 +1995,7 @@ $string['manageresponses'] = 'Manage bookings';
 $string['availabilityconditions'] = 'Availability conditions';
 
 $string['bo_cond_alreadybooked'] = 'alreadybooked: Is already booked by this user';
+$string['bo_cond_alreadyreserved'] = 'alreadyreserved: Has already been added to cart by this user';
 $string['bo_cond_booking_time'] = 'Only bookable within a certain time';
 $string['bo_cond_fullybooked'] = 'fullybooked: Fully booked';
 $string['bo_cond_bookingpolicy'] = 'bookingpolicy: Confirm booking policy';
@@ -2023,6 +2026,11 @@ $string['bo_cond_alreadybooked_available'] = 'Not yet booked';
 $string['bo_cond_alreadybooked_full_available'] = 'The user has not yet booked';
 $string['bo_cond_alreadybooked_not_available'] = 'Booked';
 $string['bo_cond_alreadybooked_full_not_available'] = 'Booked';
+
+$string['bo_cond_alreadyreserved_available'] = 'Not yet added to cart';
+$string['bo_cond_alreadyreserved_full_available'] = 'Not yet added to cart';
+$string['bo_cond_alreadyreserved_not_available'] = 'Added to cart';
+$string['bo_cond_alreadyreserved_full_not_available'] = 'Added to cart';
 
 $string['bo_cond_fullybooked_available'] = 'Book it';
 $string['bo_cond_fullybooked_full_available'] = 'Booking is possible';

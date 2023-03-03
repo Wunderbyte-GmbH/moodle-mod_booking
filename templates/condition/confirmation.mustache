@@ -29,7 +29,14 @@
     }
 }}
 
-<div class="condition-confirmation" data-id="{{optionid}}">
-{{#hasprice}} thankyoubooked, mod_booking, {{title}} {{/hasprice}}
-{{^hasprice}} thankyoucheckout, mod_booking, {{title}} {{/hasprice}}
+<div class="condition-confirmation w-100 ml-3 mr-3 mb-1 mt-1 p-2 text-center bg-light border border-secondary rounded">
+    {{#alreadybooked}}
+        {{#str}} thankyoubooked, mod_booking, {{title}} {{/str}}
+    {{/alreadybooked}}
+    {{#alreadyreserved}}
+        {{#str}} thankyoucheckout, mod_booking, {{title}} {{/str}}
+    {{/alreadyreserved}}
+    {{#notyetbooked}}
+        {{#str}} thankyouerror, mod_booking, {{title}} {{/str}}
+    {{/notyetbooked}}
 </div>

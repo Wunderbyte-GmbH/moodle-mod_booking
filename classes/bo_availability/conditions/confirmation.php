@@ -27,6 +27,7 @@
 namespace mod_booking\bo_availability\conditions;
 
 use mod_booking\bo_availability\bo_condition;
+use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\output\bookingoption_description;
 use mod_booking\price;
@@ -155,21 +156,36 @@ class confirmation implements bo_condition {
      */
     public function render_page(int $optionid) {
 
-        $priceitems = price::get_prices_from_cache_or_db('option', $optionid);
+        global $USER;
+        $userid = $USER->id;
+
+        // Get blocking conditions, including prepages$prepages etc.
+        $results = bo_info::get_condition_results($optionid, $userid);
+        $lastresultid = array_pop($results)['id'];
 
         $data = new bookingoption_description($optionid, null, DESCRIPTION_WEBSITE, true, false);
-        $dataarray[] = [
-            'data' => $data->get_returnarray(),
-        ];
+        $bodata = $data->get_returnarray();
 
-        if (count($priceitems) > 0) {
-            $dataarray[0]['data']['hasprice'] = true;
+        switch ($lastresultid) {
+            case BO_COND_ALREADYBOOKED:
+                $bodata['alreadybooked'] = true;
+                break;
+            case BO_COND_ALREADYRESERVED:
+                $bodata['alreadyreserved'] = true;
+                break;
+            default:
+                $bodata['notyetbooked'] = true;
+                break;
         }
+
+        $dataarray[] = [
+            'data' => $bodata,
+        ];
 
         $returnarray = [
             // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
             /* 'json' => $jsonstring, */
-            'data' => [$dataarray],
+            'data' => $dataarray,
             'template' => 'mod_booking/condition/confirmation',
             'buttontype' => 1, // This means that the continue button is disabled.
         ];
@@ -193,23 +209,5 @@ class confirmation implements bo_condition {
         int $userid = 0, bool $full = false, bool $not = false, bool $fullwidth = true): array {
 
         return [];
-    }
-
-    /**
-     * Helper function to return localized description strings.
-     *
-     * @param bool $isavailable
-     * @param bool $full
-     * @return string
-     */
-    private function get_description_string($isavailable, $full) {
-        if ($isavailable) {
-            $description = $full ? get_string('bo_cond_alreadybooked_full_available', 'mod_booking') :
-                get_string('bo_cond_alreadybooked_available', 'mod_booking');
-        } else {
-            $description = $full ? get_string('bo_cond_alreadybooked_full_not_available', 'mod_booking') :
-                get_string('bo_cond_alreadybooked_not_available', 'mod_booking');
-        }
-        return $description;
     }
 }

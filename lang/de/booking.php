@@ -36,11 +36,13 @@ $string['messageprovider:bookingconfirmation'] = "Buchungsbestätigungen";
 $string['optionsiteach'] = 'Von mir geleitet';
 $string['search'] = 'Suche...';
 $string['teachers'] = 'Trainer:innen';
-$string['thankyoubooked'] = '<i class="fa fa-3x fa-calendar-check-o" aria-hidden="true"></i><br><br>
+$string['thankyoubooked'] = '<i class="fa fa-3x fa-calendar-check-o text-success" aria-hidden="true"></i><br><br>
 Vielen Dank! Sie haben <b>{$a}</b> erfolgreich gebucht.';
-$string['thankyoucheckout'] = '<i class="fa fa-3x fa-calendar-check-o" aria-hidden="true"></i><br><br>
+$string['thankyoucheckout'] = '<i class="fa fa-3x fa-calendar-check-o text-success" aria-hidden="true"></i><br><br>
 Vielen Dank! Sie haben <b>{$a}</b> in den Warenkorb gelegt. Klicken Sie nun auf <b>"Weiter zur Bezahlung"</b>
  um den Buchungsvorgang fortzusetzen.';
+$string['thankyouerror'] = '<i class="fa fa-3x fa-frown-o text-danger" aria-hidden="true"></i><br>
+Leider ist bei der Buchung von <b>{$a}</b> ein Fehler aufgetreten.';
 
 // General errors.
 $string['error:choosevalue'] = 'Sie müssen hier einen Wert auswählen.';
@@ -1804,10 +1806,11 @@ $string['cancelallusers'] = 'Storniere Buchung für alle Nutzer:innen';
 // Col_availableplaces.mustache.
 $string['manageresponses'] = 'Buchungen verwalten';
 
-// Bo conditions. TODO: Übersetzen.
+// Bo conditions.
 $string['availabilityconditions'] = 'Verfügbarkeit einschränken';
 
 $string['bo_cond_alreadybooked'] = 'alreadybooked: Von diesem User bereits gebucht';
+$string['bo_cond_alreadyreserved'] = 'alreadyreserved: Von diesem User bereits in den Warenkorb gelegt';
 $string['bo_cond_booking_time'] = 'Nur in einer bestimmten Zeit buchbar';
 $string['bo_cond_fullybooked'] = 'fullybooked: Ausgebucht';
 $string['bo_cond_max_number_of_bookings'] = 'max_number_of_bookings: Maximum an Nutzer:innen erreicht, die dieser User buchen darf';
@@ -1835,6 +1838,11 @@ $string['bo_cond_alreadybooked_available'] = 'Noch nicht gebucht';
 $string['bo_cond_alreadybooked_full_available'] = 'Nutzer:in hat noch nicht gebucht';
 $string['bo_cond_alreadybooked_not_available'] = 'Gebucht';
 $string['bo_cond_alreadybooked_full_not_available'] = 'Gebucht';
+
+$string['bo_cond_alreadyreserved_available'] = 'Noch nicht in den Warenkorb gelegt';
+$string['bo_cond_alreadyreserved_full_available'] = 'Noch nicht in den Warenkorb gelegt';
+$string['bo_cond_alreadyreserved_not_available'] = 'In den Warenkorb gelegt';
+$string['bo_cond_alreadyreserved_full_not_available'] = 'In den Warenkorb gelegt';
 
 $string['bo_cond_fullybooked_available'] = 'Buchen';
 $string['bo_cond_fullybooked_full_available'] = 'Buchen möglich';

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Already booked condition (item has been booked).
+ * Already reserved condition (item has been added to cart).
  *
  * @package mod_booking
  * @copyright 2022 Wunderbyte GmbH
@@ -35,19 +35,16 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Base class for a single bo availability condition.
- *
- * All bo condition types must extend this class.
- *
+ * Already reserved condition (item has been added to cart).
  *
  * @package mod_booking
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class alreadybooked implements bo_condition {
+class alreadyreserved implements bo_condition {
 
-    /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = BO_COND_ALREADYBOOKED;
+    /** @var int $id default conditions have hardcoded ids. */
+    public $id = BO_COND_ALREADYRESERVED;
 
     /**
      * Needed to see if class can take JSON.
@@ -86,7 +83,7 @@ class alreadybooked implements bo_condition {
         $bookinginformation = $bookinganswer->return_all_booking_information($userid);
 
         // If the user is not yet booked we return true.
-        if (!isset($bookinginformation['iambooked'])) {
+        if (!isset($bookinginformation['iamreserved'])) {
 
             $isavailable = true;
         }
@@ -182,9 +179,17 @@ class alreadybooked implements bo_condition {
     public function render_button(booking_option_settings $settings,
         int $userid = 0, bool $full = false, bool $not = false, bool $fullwidth = true): array {
 
-        $label = $this->get_description_string(false, $full);
+        global $USER;
 
-        return bo_info::render_button($settings, $userid, $label, 'success', true);
+        $userid = !empty($userid) ? $userid : $USER->id;
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($settings->id);
+
+        $user = singleton_service::get_instance_of_user($userid);
+
+        $data = $settings->return_booking_option_information($user);
+
+        return ['mod_booking/bookit_price', $data];
     }
 
     /**
@@ -196,11 +201,11 @@ class alreadybooked implements bo_condition {
      */
     private function get_description_string($isavailable, $full) {
         if ($isavailable) {
-            $description = $full ? get_string('bo_cond_alreadybooked_full_available', 'mod_booking') :
-                get_string('bo_cond_alreadybooked_available', 'mod_booking');
+            $description = $full ? get_string('bo_cond_alreadyreserved_full_available', 'mod_booking') :
+                get_string('bo_cond_alreadyreserved_available', 'mod_booking');
         } else {
-            $description = $full ? get_string('bo_cond_alreadybooked_full_not_available', 'mod_booking') :
-                get_string('bo_cond_alreadybooked_not_available', 'mod_booking');
+            $description = $full ? get_string('bo_cond_alreadyreserved_full_not_available', 'mod_booking') :
+                get_string('bo_cond_alreadyreserved_not_available', 'mod_booking');
         }
         return $description;
     }

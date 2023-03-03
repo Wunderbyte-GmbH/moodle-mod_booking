@@ -245,6 +245,7 @@ class booking_answers {
 
         $returnarray['waiting'] = count($this->usersonwaitinglist);
         $returnarray['booked'] = count($this->usersonlist);
+        $returnarray['reserved'] = count($this->usersreserved);
 
         $returnarray['onnotifylist'] = $this->user_on_notificationlist($userid);
 
@@ -277,6 +278,8 @@ class booking_answers {
         // First check list of booked users.
         if (isset($this->usersonlist[$userid]) && $this->usersonlist[$userid]->waitinglist == STATUSPARAM_BOOKED) {
             $returnarray = array('iambooked' => $returnarray);
+        } else if (isset($this->usersreserved[$userid]) && $this->usersreserved[$userid]->waitinglist == STATUSPARAM_RESERVED) {
+            $returnarray = array('iamreserved' => $returnarray);
         } else if (isset($this->usersonwaitinglist[$userid]) &&
             $this->usersonwaitinglist[$userid]->waitinglist == STATUSPARAM_WAITINGLIST) {
             // Now check waiting list.
