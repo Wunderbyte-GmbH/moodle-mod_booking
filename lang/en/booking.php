@@ -41,6 +41,8 @@ Thank you! You have successfully booked <b>{$a}</b>.';
 $string['thankyoucheckout'] = '<i class="fa fa-3x fa-calendar-check-o text-success" aria-hidden="true"></i><br><br>
 Thank you! You have successfully put <b>{$a}</b> into the shopping cart. Now click on <b>"Proceed to checkout"</b>
  to continue.';
+$string['thankyouwaitinglist'] = '<i class="fa fa-3x fa-clock-o text-info" aria-hidden="true"></i><br><br>
+ You were added to the waiting list for <b>{$a}</b>. You will automatically move up, in case someone drops out.';
 $string['thankyouerror'] = '<i class="fa fa-3x fa-frown-o text-danger" aria-hidden="true"></i><br>
 Unfortunately, there was an error when booking <b>{$a}</b>.';
 

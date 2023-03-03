@@ -173,6 +173,9 @@ class confirmation implements bo_condition {
             case BO_COND_ALREADYRESERVED:
                 $bodata['alreadyreserved'] = true;
                 break;
+            case BO_COND_ONWAITINGLIST:
+                $bodata['onwaitinglist'] = true;
+                break;
             default:
                 $bodata['notyetbooked'] = true;
                 break;

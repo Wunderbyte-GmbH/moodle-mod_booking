@@ -41,6 +41,8 @@ Vielen Dank! Sie haben <b>{$a}</b> erfolgreich gebucht.';
 $string['thankyoucheckout'] = '<i class="fa fa-3x fa-calendar-check-o text-success" aria-hidden="true"></i><br><br>
 Vielen Dank! Sie haben <b>{$a}</b> in den Warenkorb gelegt. Klicken Sie nun auf <b>"Weiter zur Bezahlung"</b>
  um den Buchungsvorgang fortzusetzen.';
+$string['thankyouwaitinglist'] = '<i class="fa fa-3x fa-clock-o text-info" aria-hidden="true"></i><br><br>
+Sie wurden zur Warteliste von <b>{$a}</b> hinzugefügt. Sollte jemand ausfallen, rücken Sie automatisch nach.';
 $string['thankyouerror'] = '<i class="fa fa-3x fa-frown-o text-danger" aria-hidden="true"></i><br>
 Leider ist bei der Buchung von <b>{$a}</b> ein Fehler aufgetreten.';
 
