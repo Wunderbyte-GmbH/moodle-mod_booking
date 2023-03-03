@@ -93,33 +93,36 @@ export const initbookitbutton = (itemid, area) => {
  * Gets called from mustache template.
  * @param {integer} optionid
  * @param {integer} totalnumberofpages
+ * @param {string} uniquid
  */
-export const initprepagemodal = (optionid, totalnumberofpages) => {
+export const initprepagemodal = (optionid, totalnumberofpages, uniquid) => {
+
+    // eslint-disable-next-line no-console
+    console.log('initprepagemodal', optionid, totalnumberofpages, uniquid);
 
     currentbookitpage[optionid] = 0;
     totalbookitpages[optionid] = totalnumberofpages;
 
-    respondToVisibility(optionid, totalnumberofpages, loadPreBookingPage);
-
-    // We can add the click listener to the continue button right away.
-
-    initializeButton(optionid, true); // Back button.
-    initializeButton(optionid, false); // Continue button.
+    respondToVisibility(optionid, totalnumberofpages, uniquid, loadPreBookingPage);
 };
 
 /**
  * React on visibility change.
  * @param {integer} optionid
  * @param {integer} totalnumberofpages
+ * @param {string} uniquid
  * @param {function} callback
  */
-function respondToVisibility(optionid, totalnumberofpages, callback) {
+function respondToVisibility(optionid, totalnumberofpages, uniquid, callback) {
+
+    // eslint-disable-next-line no-console
+    console.log('respondToVisibility', optionid, totalnumberofpages, uniquid);
 
     if (totalnumberofpages < 1) {
         return;
     }
 
-    let elements = document.querySelectorAll("[id^=" + SELECTORS.MODALID + optionid + "]");
+    let elements = document.querySelectorAll("[id^=" + SELECTORS.MODALID + optionid + "_" + uniquid + "]");
 
     elements.forEach(element => {
         if (!element) {
@@ -129,7 +132,7 @@ function respondToVisibility(optionid, totalnumberofpages, callback) {
         var observer = new MutationObserver(function() {
             if (!isHidden(element)) {
                 // Todo: Make sure it's not triggered on close.
-                callback(optionid);
+                callback(optionid, uniquid, totalnumberofpages);
             }
         });
 
@@ -164,14 +167,22 @@ function isHidden(el) {
 /**
  * Loads the (next) pre booking page.
  * @param {integer} optionid
+ * @param {string} uniquid
  */
 export const loadPreBookingPage = (
-    optionid) => {
+    optionid, uniquid) => {
 
-    const element = returnVisibleElement(optionid, SELECTORS.INMODALDIV);
+    // eslint-disable-next-line no-console
+    console.log('loadPreBookingPage', optionid, uniquid);
 
-    while (element.firstChild) {
-        element.removeChild(element.firstChild);
+    const element = returnVisibleElement(optionid, uniquid, SELECTORS.INMODALDIV);
+    if (element) {
+        while (element.firstChild) {
+            element.removeChild(element.firstChild);
+        }
+    } else {
+        // eslint-disable-next-line no-console
+        console.error('didnt find element');
     }
 
     Ajax.call([{
@@ -232,170 +243,6 @@ async function renderTemplatesOnPage(templates, dataarray, element) {
         });
     }
     return true;
-}
-
-// /**
-//  * Reveal the hidden continue button.
-//  * @param {interger} optionid
-//  * @param {interger} buttontype
-//  */
-// function showRightButton(optionid, buttontype) {
-
-//     // If we are not yet on the last booking page.
-//     if (currentbookitpage[optionid] + 1 < totalbookitpages[optionid]) {
-//         const element = returnVisibleElement(optionid, SELECTORS.CONTINUEBUTTON);
-//         if (element) {
-//             element.classList.remove('hidden');
-
-//             if (buttontype == 1) {
-//                 element.classList.add('disabled');
-//             }
-//         }
-
-//         const inModalButton = returnVisibleElement(optionid, SELECTORS.INMODALBUTTON);
-//         if (inModalButton) {
-//             inModalButton.classList.add('hidden');
-//         }
-
-//     } else {
-//         // We are on the last booking page.
-//         const element = returnVisibleElement(optionid, SELECTORS.CONTINUEBUTTON);
-//         if (element) {
-//             element.classList.add('hidden');
-//         }
-
-//         if (buttontype == 1) {
-//             const inModalButton = returnVisibleElement(optionid, SELECTORS.INMODALBUTTON);
-//             if (inModalButton) {
-//                 inModalButton.classList.add('hidden');
-//             }
-//         } else {
-//             const inModalButton = returnVisibleElement(optionid, SELECTORS.INMODALBUTTON);
-//             if (inModalButton) {
-//                 inModalButton.classList.remove('hidden');
-//             }
-//         }
-//     }
-//     if (currentbookitpage[optionid] > 0) {
-//         const element = returnVisibleElement(optionid, SELECTORS.BACKBUTTON);
-//         if (element) {
-//             element.classList.remove('hidden');
-
-//             if (buttontype == 1) {
-//                 // element.classList.add('disabled');
-//             }
-//         }
-
-//     } else {
-//         const element = returnVisibleElement(optionid, SELECTORS.BACKBUTTON);
-//         if (element) {
-//             element.classList.add('hidden');
-//         }
-//     }
-
-// }
-
-/**
- *
- * @param {integer} optionid
- * @param {boolean} show
- */
-export function toggleContinueButton(optionid, show = null) {
-
-    const continueButton = returnVisibleElement(optionid, SELECTORS.CONTINUEBUTTON);
-
-    const bookingButton = returnVisibleElement(optionid, SELECTORS.BOOKITBUTTON);
-
-    if (continueButton) {
-        disableButton(continueButton, show);
-    }
-    if (bookingButton) {
-        disableButton(bookingButton, show);
-    }
-
-    showBookItButton(optionid, show);
-}
-
-/**
- *
- * @param {integer} optionid
- * @param {boolean} show
- */
-function showBookItButton(optionid, show) {
-
-    // Hide Bookit button.
-    const inModalButton = returnVisibleElement(optionid, SELECTORS.INMODALBUTTON);
-    if (currentbookitpage[optionid] + 1 == totalbookitpages[optionid]) {
-        // Being on the last page.
-        if (show) {
-            inModalButton.classList.remove('hidden');
-        } else {
-            inModalButton.classList.add('hidden');
-        }
-    }
-}
-
-/**
- *
- * @param {HTMLElement} element
- * @param {boolean} show
- */
-function disableButton(element, show) {
-
-    // If show is not defined yet, we define it automatically.
-    if (show === null) {
-        if (element.classList.contains('disabled')) {
-            show = true;
-        } else {
-            show = false;
-        }
-    }
-
-    // Now we add or remove the disabled class.
-    if (show) {
-        element.classList.remove('disabled');
-    } else {
-        element.classList.add('disabled');
-    }
-}
-
-/**
- * Add the click listener to a prepage modal button.
- * @param {integer} optionid
- * @param {bool} back // If it is the back button, it's true, else its continue.
- */
-function initializeButton(optionid, back) {
-
-    let elements = null;
-
-    if (back) {
-        elements = document.querySelectorAll("[id^=" + SELECTORS.MODALID + optionid + "] " + SELECTORS.BACKBUTTON);
-    } else {
-        elements = document.querySelectorAll("[id^=" + SELECTORS.MODALID + optionid + "] " + SELECTORS.CONTINUEBUTTON);
-    }
-
-    elements.forEach(element => {
-        if (element && !element.dataset.prepageinit) {
-            element.dataset.prepageinit = true;
-
-            element.addEventListener('click', (e) => {
-
-                e.stopPropagation();
-
-                if (element.classList.contains('hidden')) {
-                    return;
-                }
-
-                if (back) {
-                    currentbookitpage[optionid]--;
-                } else {
-                    currentbookitpage[optionid]++;
-                }
-
-                loadPreBookingPage(optionid);
-            });
-        }
-    });
 }
 
 /**
@@ -480,19 +327,27 @@ function bookit(itemid, area, userid) {
 /**
  * We want to find out the visible modal
  * @param {integer} optionid
+ * @param {string} uniquid
  * @param {string} appendedSelector
  * @returns {HTMLElement}
  */
-function returnVisibleElement(optionid, appendedSelector) {
+function returnVisibleElement(optionid, uniquid, appendedSelector) {
 
     // First, we get all the possbile Elements (we don't now the unique id appended to the element.)
-    const selector = "[id^=" + SELECTORS.MODALID + optionid + "].show " + appendedSelector;
+    let selector = "[id^=" + SELECTORS.MODALID + optionid + "_" + uniquid + "] " + appendedSelector;
+    if (!uniquid || uniquid.length === 0) {
+        selector = "[id^=" + SELECTORS.MODALID + optionid + "].show " + appendedSelector;
+    }
 
     const elements = document.querySelectorAll(selector);
 
     let visibleElement = null;
 
     elements.forEach(element => {
+
+        // eslint-disable-next-line no-console
+        console.log('visibleElement', selector, element);
+
         visibleElement = element;
     });
 

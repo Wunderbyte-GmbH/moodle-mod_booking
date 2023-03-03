@@ -22,7 +22,6 @@
 import DynamicForm from 'core_form/dynamicform';
 
 const SELECTOR = {
-    MODALID: 'sbPrePageModal_',
     FORMCONTAINER: '.condition-bookingpolicy-form',
     MODALBODY: '.modal-body',
     CONTINUECONTAINER: ' div.prepage-booking-footer .continue-container',
@@ -35,7 +34,12 @@ const SELECTOR = {
  */
 export async function init() {
 
-    const container = document.querySelector(SELECTOR.FORMCONTAINER);
+    const container = document.querySelector("div.modal.show " + SELECTOR.FORMCONTAINER);
+
+    if (!container) {
+        return;
+    }
+
     const id = container.dataset.id;
 
     const dynamicForm = new DynamicForm(container, 'mod_booking\\form\\condition\\bookingpolicy_form');

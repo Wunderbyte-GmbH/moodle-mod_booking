@@ -104,9 +104,11 @@ class prepagemodal implements renderable, templatable {
     public function export_for_template(renderer_base $output) {
 
         $now = time();
+        $rand = rand(1, 1000);
+
 
         return [
-            'uniquid' => md5($this->optionid . $this->buttonhtml . $now),
+            'uniquid' => md5($this->optionid. $now . $rand),
             'optionid' => $this->optionid,
             'totalnumberofpages' => $this->totalnumberofpages,
             'buttonhtml' => $this->buttonhtml,
