@@ -89,8 +89,16 @@
     require(['mod_booking/modal_init'], function(init) {
      init.init();
     });
-    
+
     require(['mod_booking/button_notifyme'], function(init) {
      init.init();
+    });
+
+    require(['mod_booking/bookit'], function(init) {
+     init.initbookitbutton(null, null);
+    });
+
+    require(['mod_booking/bookit'], function(init) {
+     init.initprepagemodal(null, null, null);
     });
 {{/js}}

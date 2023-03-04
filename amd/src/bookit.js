@@ -100,8 +100,25 @@ export const initprepagemodal = (optionid, totalnumberofpages, uniquid) => {
     // eslint-disable-next-line no-console
     console.log('initprepagemodal', optionid, totalnumberofpages, uniquid);
 
+    if (!optionid || !uniquid || !totalnumberofpages) {
+
+        const elements = document.querySelectorAll("[id^=" + SELECTORS.MODALID);
+
+        elements.forEach(element => {
+            optionid = element.dataset.optionid;
+            uniquid = element.dataset.uniquid;
+            totalnumberofpages = element.dataset.pages;
+            if (optionid && uniquid) {
+                initprepagemodal(optionid, totalnumberofpages, uniquid);
+            }
+        });
+        return;
+    }
+
     currentbookitpage[optionid] = 0;
     totalbookitpages[optionid] = totalnumberofpages;
+
+    // We need to get all prepage modals on this site. Make sure they are initialized.
 
     respondToVisibility(optionid, totalnumberofpages, uniquid, loadPreBookingPage);
 };
@@ -118,16 +135,14 @@ function respondToVisibility(optionid, totalnumberofpages, uniquid, callback) {
     // eslint-disable-next-line no-console
     console.log('respondToVisibility', optionid, totalnumberofpages, uniquid);
 
-    if (totalnumberofpages < 1) {
-        return;
-    }
-
     let elements = document.querySelectorAll("[id^=" + SELECTORS.MODALID + optionid + "_" + uniquid + "]");
 
     elements.forEach(element => {
-        if (!element) {
+        if (!element || element.dataset.initialized == 'true') {
             return;
         }
+
+        element.dataset.initialized = true;
 
         var observer = new MutationObserver(function() {
             if (!isHidden(element)) {
