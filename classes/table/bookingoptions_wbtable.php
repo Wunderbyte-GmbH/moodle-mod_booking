@@ -249,6 +249,11 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         // TODO: We still need to figure out how we can fix comments in combination with wb-table-search.
         // Notice: We already have a webservice called init_comments which might help us!
+        //     // Important: Without init commenting won't work.
+		//     global $CFG;
+        //     require_once($CFG->dirroot. '/comment/lib.php');
+
+        //     comment::init();
 
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         /* if (!empty($this->cm) && !empty($this->cmid) && !empty($this->context)) {
