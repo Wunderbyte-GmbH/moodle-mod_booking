@@ -244,23 +244,24 @@ class bookingoptions_wbtable extends wunderbyte_table {
     public function col_comments($values) {
 
         $commentshtml = '';
-        if (!empty($this->context)) {
-            // Important: Without init commenting won't work.
-            comment::init();
+        // if (!empty($this->cm) && !empty($this->cmid) && !empty($this->context)) {
 
-            // Comment booking options.
-            $commentoptions = new stdClass();
-            $commentoptions->area = 'booking_option';
-            $commentoptions->context = $this->context;
-            $commentoptions->itemid = $values->id;
-            $commentoptions->component = 'mod_booking';
-            $commentoptions->showcount = true;
-            $commentoptions->displaycancel = true;
-            $comment = new comment($commentoptions);
-            if (!empty($comment)) {
-                $commentshtml = $comment->output(true);
-            }
-        }
+        //     // Important: Without init commenting won't work.
+        //     comment::init();
+
+        //     // Comment booking options.
+        //     $commentoptions = new stdClass();
+        //     $commentoptions->area = 'booking_option';
+        //     $commentoptions->context = $this->context;
+        //     $commentoptions->itemid = $values->id;
+        //     $commentoptions->component = 'mod_booking';
+        //     $commentoptions->showcount = true;
+        //     $commentoptions->displaycancel = true;
+        //     $comment = new comment($commentoptions);
+        //     if (!empty($comment)) {
+        //         $commentshtml = $comment->output(true);
+        //     }
+        // }
         return $commentshtml;
     }
 
