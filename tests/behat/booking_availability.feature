@@ -124,7 +124,7 @@ Feature: In a booking
     And I should not see "Book now" in the "#allbookingoptionstable_r1" "css_element"
     And I should see "Book now" in the "#allbookingoptionstable_r3" "css_element"
     And I click on "Book now" "text" in the "#allbookingoptionstable_r3" "css_element"
-    And I reload the page
+    ## And I reload the page
     And I should see "Booked" in the "#allbookingoptionstable_r3" "css_element"
     And I should see "Book now" in the "#allbookingoptionstable_r1" "css_element"
     And I should not see "Not allowed to book" in the "#allbookingoptionstable_r1" "css_element"
@@ -209,7 +209,7 @@ Feature: In a booking
     And I should not see "Book now" in the "#allbookingoptionstable_r1" "css_element"
     And I should see "Book now" in the "#allbookingoptionstable_r3" "css_element"
     And I click on "Book now" "text" in the "#allbookingoptionstable_r3" "css_element"
-    And I reload the page
+    ## And I reload the page
     And I should see "Booked" in the "#allbookingoptionstable_r3" "css_element"
     And I should see "Cannot be booked yet" in the "#allbookingoptionstable_r1" "css_element"
     And I log out
