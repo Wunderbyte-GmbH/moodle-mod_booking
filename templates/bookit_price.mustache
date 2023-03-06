@@ -36,7 +36,9 @@
     }
 }}
 {{#price}}
-<div class="w-100 d-flex justify-content-center">
+<div class="w-100 d-flex justify-content-center booking-button-area"
+    data-itemid="{{itemid}}"
+    data-area="{{area}}">
     <div class="pricecontainer">
         <span class="pricecurrency h5">
             {{price}} {{currency}}
@@ -49,7 +51,7 @@
         {{#priceitems}}
             <p><i>{{pricecategoryname}}</i></p>
         {{/priceitems}}
-    </div>    
+    </div>
 </div>
 {{/price}}
 {{^price}}
