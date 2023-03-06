@@ -22,6 +22,7 @@
 import DynamicForm from 'core_form/dynamicform';
 import {initbookitbutton} from 'mod_booking/bookit';
 import {buttoninit} from 'local_shopping_cart/cart';
+import {eventTypes} from 'core_filters/events';
 
 const SELECTOR = {
     MODALID: 'sbPrePageModal_',
@@ -29,7 +30,7 @@ const SELECTOR = {
     MODALBODY: '.modal-body',
     CONTINUECONTAINER: ' div.prepage-booking-footer .continue-container',
     CONTINUEBUTTON: ' div.prepage-booking-footer .continue-button',
-    BOOKINGBUTTON: '[data-area="subbooking"][data-itemid="',
+    BOOKINGBUTTON: '[data-area="subbooking"][data-userid][data-itemid="',
 };
 
 /**
@@ -37,12 +38,14 @@ const SELECTOR = {
  */
 export async function init() {
 
+    // eslint-disable-next-line no-console
+    console.log('init dynamic form');
+
     const container = document.querySelector(SELECTOR.FORMCONTAINER);
 
     const id = container.dataset.id;
 
     const continuebutton = container.closest(SELECTOR.MODALBODY).querySelector(SELECTOR.CONTINUEBUTTON);
-
     const dynamicForm = new DynamicForm(container, 'mod_booking\\form\\subbooking\\additionalperson_form');
 
     // We need to render the dynamic form right away, so we can acutally have all the necessary elements present.
@@ -50,20 +53,33 @@ export async function init() {
 
     const bookitbutton = container.closest(SELECTOR.MODALBODY).querySelector(SELECTOR.BOOKINGBUTTON + id);
 
+    // eslint-disable-next-line no-console
+    console.log(bookitbutton, continuebutton);
+
     dynamicForm.addEventListener(dynamicForm.events.FORM_SUBMITTED, e => {
         const response = e.detail;
 
         if (response) {
 
-            if (bookitbutton) {
-                bookitbutton.dataset.blocked = 'false';
-                bookitbutton.click();
-            } else {
-                continuebutton.dataset.blocked = 'false';
-                continuebutton.click();
-            }
+            unblockButtons(id, container);
+
             dynamicForm.load({id: id});
         }
+    });
+
+    document.addEventListener(eventTypes.filterContentUpdated, e => {
+        // eslint-disable-next-line no-console
+        console.log(e.target);
+
+        initButtons(id, container, dynamicForm);
+    });
+
+    dynamicForm.addEventListener(dynamicForm.events.SERVER_VALIDATION_ERROR, () => {
+
+        // eslint-disable-next-line no-console
+        console.log('error with form');
+
+        initButtons(id, container, dynamicForm);
     });
 
     dynamicForm.addEventListener('change', e => {
@@ -74,24 +90,41 @@ export async function init() {
         }
     });
 
+    initButtons(id, container, dynamicForm);
+}
+
+/**
+ * @param {integer} id
+ * @param {HTMLElement} container
+ * @param {*} dynamicForm
+ */
+function initButtons(id, container, dynamicForm) {
+
+    // We always need to get the buttons anew, as they might have been replaced.
+
+    const bookitbutton = container.closest(SELECTOR.MODALBODY).querySelector(SELECTOR.BOOKINGBUTTON + id);
+    const continuebutton = container.closest(SELECTOR.MODALBODY).querySelector(SELECTOR.CONTINUEBUTTON);
+
     // This goes on continue button.
     // It will prevent the action to be triggered.
     // Unless the form is validated (see above).
     if (continuebutton) {
-        continuebutton.dataset.blocked = true;
-        continuebutton.addEventListener('click', () => {
-            dynamicForm.submitFormAjax();
-        });
+
+        // eslint-disable-next-line no-console
+        console.log('continuebutton', continuebutton);
+
+        blockButton(continuebutton, dynamicForm);
     }
 
     // This goes on the bookit button as well as on the shopping cart.
     // It will prevent the action to be triggered.
     // Unless the form is validated (see above).
     if (bookitbutton) {
-        bookitbutton.dataset.blocked = true;
-        bookitbutton.addEventListener('click', () => {
-            dynamicForm.submitFormAjax();
-        });
+
+        // eslint-disable-next-line no-console
+        console.log('bookitbutton', bookitbutton);
+
+        blockButton(bookitbutton, dynamicForm);
     }
 
     // Only after the Form is loaded, we reinitialze the buttons.
@@ -103,3 +136,55 @@ export async function init() {
         console.log(e);
     }
 }
+
+/**
+ *
+ * @param {HTMLElement} button
+ * @param {*} dynamicForm
+ */
+function blockButton(button, dynamicForm) {
+
+    // eslint-disable-next-line no-console
+    console.log('blockButton', button);
+
+    if (!button.dataset.blocked) {
+        button.dataset.blocked = true;
+
+         // eslint-disable-next-line no-console
+        console.log('blockButton add listener', button);
+
+        button.addEventListener('click', () => {
+
+            // eslint-disable-next-line no-console
+            console.log('click');
+
+            dynamicForm.submitFormAjax();
+        });
+    }
+}
+
+/**
+ *
+ * @param {integer} id
+ * @param {HTMLElement} container
+ */
+function unblockButtons(id, container) {
+
+    // We always need to get the buttons anew, as they might have been replaced.
+
+    const bookitbutton = container.closest(SELECTOR.MODALBODY).querySelector(SELECTOR.BOOKINGBUTTON + id);
+    const continuebutton = container.closest(SELECTOR.MODALBODY).querySelector(SELECTOR.CONTINUEBUTTON);
+
+    if (bookitbutton) {
+        bookitbutton.dataset.blocked = 'false';
+        bookitbutton.click();
+    }
+
+    if (continuebutton) {
+        continuebutton.dataset.blocked = 'false';
+        if (!bookitbutton) {
+            continuebutton.click();
+        }
+    }
+}
+

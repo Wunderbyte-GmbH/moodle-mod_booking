@@ -53,13 +53,15 @@ export async function init() {
         const response = e.detail;
 
         if (response) {
+            // We need to reload the form.
+            dynamicForm.load({id: id});
 
             if (!continuebutton) {
                 continuebutton = container.closest(SELECTOR.MODALBODY).querySelector(SELECTOR.CONTINUEBUTTON);
             }
             if (continuebutton) {
                 continuebutton.dataset.blocked = 'false';
-                continuebutton.click();
+                // continuebutton.click();
             }
         }
     });

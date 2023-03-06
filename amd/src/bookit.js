@@ -31,7 +31,7 @@ var SELECTORS = {
     INMODALDIV: ' div.pageContent',
     CONTINUEBUTTON: 'a.continue-button', // Don't want to find button right now.
     BACKBUTTON: 'a.back-button', // Don't want to find button right now.
-    BOOKITBUTTON: 'div.booking-button-area',
+    BOOKITBUTTON: 'div.booking-button-area.noprice',
     INMODALBUTTON: 'div.in-modal-button',
     STATICBACKDROP: 'div.modal-backdrop',
 };

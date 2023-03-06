@@ -330,7 +330,7 @@ class subbooking_additionalperson implements booking_subbooking {
 
         $templatedata = [
             'introduction' => get_string('subbooking_bookedpersons', 'mod_booking'),
-            'bookedpersons' => [],
+            'personbooked' => [],
         ];
 
         $counter = 1;

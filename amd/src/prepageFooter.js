@@ -71,6 +71,7 @@ export function initFooterButtons(optionid) {
                         continueToNextPage(optionid);
                     break;
                     case 'checkout':
+                        closeModal(optionid);
                         window.location.href = element.dataset.href;
                     break;
                     case 'closemodal':

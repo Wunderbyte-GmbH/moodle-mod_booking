@@ -653,6 +653,7 @@ class bo_info {
         $prepages['book'] = null;
 
         $showbutton = true;
+        $confirmation = null;
 
         // First, sort all the pages according to this system:
         // Depending on the BO_PREPAGE_x constant, we order them pre or post the real booking button.
@@ -668,6 +669,11 @@ class bo_info {
                 'classname' => $result['classname']
             ];
 
+            if ($result['id'] === BO_COND_CONFIRMATION) {
+                $confirmation = $newclass;
+                continue;
+            }
+
             switch ($result['insertpage']) {
                 case BO_PREPAGE_BOOK:
                     $prepages['book'] = $newclass;
@@ -679,6 +685,10 @@ class bo_info {
                     $prepages['post'][] = $newclass;
                     break;
             }
+        }
+
+        if ($confirmation) {
+            $prepages['post'][] = $confirmation;
         }
 
         // We assemble the array in the right order.
@@ -788,11 +798,13 @@ class bo_info {
         if ($conditions[$pagenumber]['id'] === BO_COND_BOOKITBUTTON
             || $conditions[$pagenumber]['id'] === BO_COND_PRICEISSET) {
 
+            // But we want to show the continue button when we are not at the last but one page.
+            // E.G. when there are subbookings later on.
+            if ($totalpages - $pagenumber < 2)
             $continuebutton = false;
         }
 
-        if ($conditions[$pagenumber]['id'] === BO_COND_CONFIRMATION
-            || $conditions[$pagenumber]['id'] === BO_COND_SUBBOOKING) {
+        if ($conditions[$pagenumber]['id'] === BO_COND_CONFIRMATION) {
             // We need to decide if we want to show on the last page a "go to checkout" button.
             if (self::has_price_set($results)) {
                 $url = new moodle_url('/local/shopping_cart/checkout.php');
@@ -835,7 +847,8 @@ class bo_info {
         $backaction = 'back';
         $backlabel = get_string('back');
 
-        if ($pagenumber == 0) { // If we are on the last page.
+        if ($pagenumber == 0 // If we are on the first page.
+            || $conditions[$pagenumber]['id'] === BO_COND_CONFIRMATION) { // If we are on the confirmation page.
             $backbutton = false;
         }
 

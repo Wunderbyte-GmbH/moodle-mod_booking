@@ -140,7 +140,7 @@ class additionalperson_form extends dynamic_form {
         $buttonargs = array('style' => 'visibility:hidden;');
         $categoryselect = [
             $mform->createElement('select', 'subbooking_addpersons',
-            get_string('subbooking_addpersons', 'mod_booking'), [1 => 1, 2 => 2, 3 => 3, 4 => 4]),
+            get_string('subbooking_addpersons', 'mod_booking'), [0 => 0, 1 => 1, 2 => 2, 3 => 3, 4 => 4]),
             $mform->createElement('submit',
                 'btn_addperson',
                 get_string('subbooking_addpersons', 'mod_booking'),
@@ -149,7 +149,7 @@ class additionalperson_form extends dynamic_form {
         $mform->addGroup($categoryselect, 'subbooking_addpersons', get_string('subbooking_addpersons', 'mod_booking'), [' '], false);
         $mform->setType('btn_addperson', PARAM_NOTAGS);
 
-        $bookedpersons = $formdata['subbooking_addpersons'] ?? $data->subbooking_addpersons ?? 1;
+        $bookedpersons = $formdata['subbooking_addpersons'] ?? $data->subbooking_addpersons ?? 0;
         $counter = 1;
         while ($counter <= $bookedpersons) {
             $mform->addElement('static', 'person_' . $counter, '', get_string('personnr', 'mod_booking', $counter));
@@ -160,12 +160,13 @@ class additionalperson_form extends dynamic_form {
             $counter++;
         }
 
-        $subbooking = subbookings_info::get_subbooking_by_area_and_id('subbooking', $formdata['id']);
-        $settings = singleton_service::get_instance_of_booking_option_settings($subbooking->optionid);
-
-        $html = booking_subbookit::render_bookit_button($settings, $subbooking->id);
-
-        $mform->addElement('html', $html);
+        // We only show the "Add to cart button" when we actually have sth to add to the cart.
+        if ($bookedpersons > 0) {
+            $subbooking = subbookings_info::get_subbooking_by_area_and_id('subbooking', $formdata['id']);
+            $settings = singleton_service::get_instance_of_booking_option_settings($subbooking->optionid);
+            $html = booking_subbookit::render_bookit_button($settings, $subbooking->id);
+            $mform->addElement('html', $html);
+        }
 
         // Buttons.
         // $this->add_action_buttons();
