@@ -354,7 +354,7 @@ $string['errorpagination'] = 'Geben Sie ein Zahl ein, die größer als 0 ist';
 $string['notconectedbooking'] = 'Nicht vorgeschaltete Buchung';
 $string['connectedbooking_help'] = 'Buchung von der Teilnehmer:innen übernommen werden. Es kann bestimmt werden wie viele Teilnehmer:innen übernommen werden.';
 $string['cancancelbook'] = 'Nutzer:innen das Stornieren und buchen nach dem Buchungsstart erlauben?';
-$string['cancancelbookdays'] = 'Nutzer:innen künnen nur bis n Tage vor Kursstart stronieren. Negative Werte meinen n Tage NACH Kursstart.';
+$string['cancancelbookdays'] = 'Nutzer:innen können nur bis n Tage vor Kursstart stornieren. Negative Werte meinen n Tage NACH Kursstart.';
 $string['cancancelbookdaysno'] = 'Kein Limit';
 $string['addtocalendar'] = 'Zum Kurs-Kalender hinzufügen';
 $string['caleventtype'] = 'Kalenderereignis ist sichtbar für';
@@ -1027,7 +1027,7 @@ $string['recreategroup'] = 'Gruppe erneut anlegen und Nutzer:innen der Gruppe zu
 $string['copy'] = ' - Kopie';
 $string['enrolmentstatus'] = 'Nutzer:innen erst zu Kursbeginn in den Kurs einschreiben (Standard: Nicht angehakt &rarr; sofort einschreiben.)';
 $string['enrolmentstatus_help'] = 'Achtung: Damit die automatische Einschreibung funktioniert,
- müssen Sie in den Einstellungen der Buchungsinstanz "Nutzer/innen automatisch einschreiben" auf "Ja" setzen.';
+ müssen Sie in den Einstellungen der Buchungsinstanz "Nutzer:innen automatisch einschreiben" auf "Ja" setzen.';
 $string['duplicatename'] = 'Diese Bezeichnung für eine Buchungsoption existiert bereits. Bitte wählen Sie eine andere.';
 $string['newtemplatesaved'] = 'Neue Buchungsoptionsvorlage wurde gespeichert.';
 $string['option_template_not_saved_no_valid_license'] = 'Buchungsoption konnte nicht als Vorlage gespeichert werden.
