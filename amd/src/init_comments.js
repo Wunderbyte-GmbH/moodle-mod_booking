@@ -1,4 +1,3 @@
-<?php
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -14,20 +13,28 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- *
- * @package mod_booking
- * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>,
- * @author David Bogner, Georg Maißer, Bernhard Fischer, Andraž Prinčič
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+/*
+ * @package    mod_booking
+ * @copyright  Wunderbyte GmbH <info@wunderbyte.at>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2023030603;
-$plugin->requires = 2021051700; // Requires this Moodle version. Current: Moodle 3.11.
-$plugin->release = '7.9.0';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->component = 'mod_booking';
-$plugin->dependencies = [
-    'local_wunderbyte_table' => 2023022800
-];
+import Ajax from 'core/ajax';
+
+/**
+ * Gets called from mustache template.
+ */
+export const initcomments = () => {
+    Ajax.call([{
+        methodname: "mod_booking_init_comments",
+        args: {
+        },
+        done: function(status) {
+            return status;
+        },
+        fail: function(err) {
+            // eslint-disable-next-line no-console
+            console.log('Error in init_comments.js: ', err);
+        }
+    }]);
+};

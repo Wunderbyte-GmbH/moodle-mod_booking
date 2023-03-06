@@ -111,10 +111,17 @@ $functions = array(
         'capabilities' => '',
         'ajax' => true
     ),
+    'mod_booking_init_comments' => array(
+        'classname' => 'mod_booking\external\init_comments',
+        'description' => 'Init commenting',
+        'type' => 'read',
+        'capabilities' => '',
+        'ajax' => true
+    ),
 );
 
 $services = array(
-    'Booking module API' => array( // Very importnant, don't rename or will broke local_bookingapi plugin!!!
+    'Booking module API' => array( // Very important, don't rename or will break local_bookingapi plugin!!!
         'functions' => array ('mod_booking_bookings', 'mod_booking_categories'),
         'restrictedusers' => 0,
         'enabled' => 1,
