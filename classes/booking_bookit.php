@@ -165,7 +165,10 @@ class booking_bookit {
         } else {
 
             $condition = new $buttoncondition();
-            list($template, $data) = $condition->render_button($settings, 0, $full, false, false);
+
+            // The fourth param is for fullwidth button. We want it true, when we outside the modal and false inside.
+
+            list($template, $data) = $condition->render_button($settings, 0, $full, false, $renderprepagemodal);
 
             $datas[] = new bookit_button($data);
             $templates[] = $template;
