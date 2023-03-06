@@ -23,6 +23,8 @@ import Ajax from 'core/ajax';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
 
+import {reloadAllTables} from 'local_wunderbyte_table/reload';
+
 var currentbookitpage = {};
 var totalbookitpages = {};
 
@@ -337,6 +339,9 @@ function bookit(itemid, area, userid) {
 
             Promise.all(promises).then(() => {
 
+                // eslint-disable-next-line no-console
+                console.log('we could reload tables now');
+                reloadAllTables();
                 // The actions on successful booking are executed elsewhere.
                 return true;
             }).catch(e => {
