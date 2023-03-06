@@ -106,7 +106,6 @@ class prepagemodal implements renderable, templatable {
         $now = time();
         $rand = rand(1, 1000);
 
-
         return [
             'uniquid' => md5($this->optionid. $now . $rand),
             'optionid' => $this->optionid,
