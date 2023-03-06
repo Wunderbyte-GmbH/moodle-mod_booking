@@ -245,8 +245,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         $commentshtml = '';
 
-        // TODO: Unfortunately, this is not enough to fix comments with wunderbyte table.
-        // We still need to figure out how we can fix comments in combination with wb-table-search.
+        // TODO: We still need to figure out how we can fix comments in combination with wb-table-search.
         // Notice: We already have a webservice called init_comments which might help us!
 
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
