@@ -89,6 +89,9 @@ export function initFooterButtons(optionid) {
  */
 async function initBookingButton(optionid) {
 
+    // eslint-disable-next-line no-console
+    console.log('initBookingButton');
+
     // First, we get the right modal.
     let modal = document.querySelector("div.modal.show[id^=" + SELECTORS.MODALID + optionid + "]");
 
@@ -102,13 +105,22 @@ async function initBookingButton(optionid) {
     '[data-itemid]' +
     '[data-area="option"]';
 
-    const button = modal.querySelector(selector);
+    let button = modal.querySelector(selector);
 
     if (!button) {
         return;
     }
 
+    // When there is the shopping-cart button, we want to go lower.
+    button = button.querySelector('.wb_shopping_cart') ?? button;
+
+    // eslint-disable-next-line no-console
+    console.log(selector, button);
+
     button.addEventListener('click', () => {
+
+        // eslint-disable-next-line no-console
+        console.log('initBookingButton click');
 
         // We don't continue right away but wait for a second.
         setTimeout(() => {

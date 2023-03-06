@@ -53,25 +53,17 @@ export async function init() {
         const response = e.detail;
 
         if (response) {
-            // We need to reload the form.
             dynamicForm.load({id: id});
-
             if (!continuebutton) {
                 continuebutton = container.closest(SELECTOR.MODALBODY).querySelector(SELECTOR.CONTINUEBUTTON);
             }
             if (continuebutton) {
+
                 continuebutton.dataset.blocked = 'false';
-                // continuebutton.click();
+                continuebutton.click();
             }
         }
     });
-
-    const handler = () => {
-        // In this case, we can submit right away as soon as sth is changed.
-        dynamicForm.submitFormAjax();
-    };
-
-    dynamicForm.addEventListener('change', handler);
 
     // This goes on continue button.
     // It will prevent the action to be triggered.
