@@ -800,8 +800,9 @@ class bo_info {
 
             // But we want to show the continue button when we are not at the last but one page.
             // E.G. when there are subbookings later on.
-            if ($totalpages - $pagenumber < 2)
-            $continuebutton = false;
+            if ($totalpages - $pagenumber <= 2) {
+                $continuebutton = false;
+            }
         }
 
         if ($conditions[$pagenumber]['id'] === BO_COND_CONFIRMATION) {
