@@ -55,9 +55,9 @@ class bookit extends external_api {
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters(array(
-            'area'  => new external_value(PARAM_RAW, 'area'),
-            'itemid'  => new external_value(PARAM_INT, 'itemid'),
-            'userid'  => new external_value(PARAM_INT, 'userid'),
+            'area' => new external_value(PARAM_RAW, 'area'),
+            'itemid' => new external_value(PARAM_INT, 'itemid'),
+            'userid' => new external_value(PARAM_INT, 'userid'),
             )
         );
     }

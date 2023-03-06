@@ -272,7 +272,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'location' => get_string("location", "booking"),
             'coursestarttime' => get_string("coursestarttime", "booking"),
             'city' => new lang_string('city'),
-            'department'  => new lang_string('department'),
+            'department' => new lang_string('department'),
             'courseendtime' => get_string("courseendtime", "booking"),
             'numrec' => get_string("numrec", "booking"), 'userid' => get_string("userid", "booking"),
             'username' => get_string("username"), 'firstname' => get_string("firstname"),
@@ -315,12 +315,12 @@ class mod_booking_mod_form extends moodleform_mod {
             'description' => new lang_string('description'),
             'city' => new lang_string('city'),
             'country' => new lang_string('country'),
-            'idnumber'    => new lang_string('idnumber'),
-            'email'       => new lang_string('email'),
-            'phone1'      => new lang_string('phone1'),
-            'department'  => new lang_string('department'),
-            'address'  => new lang_string('address'),
-            'role'  => new lang_string('role'),
+            'idnumber' => new lang_string('idnumber'),
+            'email' => new lang_string('email'),
+            'phone1' => new lang_string('phone1'),
+            'department' => new lang_string('department'),
+            'address' => new lang_string('address'),
+            'role' => new lang_string('role'),
         );
 
         for ($i = 1; $i < 4; $i++) {

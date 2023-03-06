@@ -60,7 +60,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
         if ($area === 'option') {
 
-            // first, we need to check if we have the right to actually load the item.
+            // First, we need to check if we have the right to actually load the item.
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
             $boinfo = new bo_info($settings);
             list($id, $isavailable, $description) = $boinfo->is_available($optionid, $userid, true);

@@ -28,12 +28,12 @@ defined('MOODLE_INTERNAL') || die();
 
 $observers = array(
     array(
-        'eventname'   => '\core\event\user_created',
-        'callback'    => 'mod_booking_observer::user_created',
+        'eventname' => '\core\event\user_created',
+        'callback' => 'mod_booking_observer::user_created',
     ),
     array(
-        'eventname'   => '\core\event\user_updated',
-        'callback'    => 'mod_booking_observer::user_updated',
+        'eventname' => '\core\event\user_updated',
+        'callback' => 'mod_booking_observer::user_updated',
     ),
     array(
         'eventname' => '\core\event\user_deleted',

@@ -128,7 +128,7 @@ class additionalperson_form extends dynamic_form {
 
             self::store_data_in_cache($data);
         } else {
-            // we still might find sth in cache.
+            // We still might find sth in cache.
             $data = self::get_data_from_cache($id);
         }
 
@@ -146,7 +146,7 @@ class additionalperson_form extends dynamic_form {
                 get_string('subbooking_addpersons', 'mod_booking'),
                 $buttonargs)
         ];
-        $mform->addGroup($categoryselect, 'subbooking_addpersons', get_string('subbooking_addpersons', 'mod_booking'), [' '], false);
+        $mform->addGroup($categoryselect, 'subbooking_addpersons', get_string('subbooking_addpersons', 'mod_booking'), ' ', false);
         $mform->setType('btn_addperson', PARAM_NOTAGS);
 
         $bookedpersons = $formdata['subbooking_addpersons'] ?? $data->subbooking_addpersons ?? 0;
@@ -168,7 +168,7 @@ class additionalperson_form extends dynamic_form {
             $mform->addElement('html', $html);
         }
 
-        // Buttons.
+        // phpcs:ignore
         // $this->add_action_buttons();
     }
 

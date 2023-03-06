@@ -145,13 +145,13 @@ class provider implements
             WHERE tea.userid = :userid2";
 
         $params = [
-            'modname'       => 'booking',
-            'contextlevel'  => CONTEXT_MODULE,
-            'userid'        => $userid,
+            'modname' => 'booking',
+            'contextlevel' => CONTEXT_MODULE,
+            'userid' => $userid,
             // This is needed a second time because every param can only be used once.
-            'modname2'       => 'booking',
-            'contextlevel2'  => CONTEXT_MODULE,
-            'userid2'        => $userid,
+            'modname2' => 'booking',
+            'contextlevel2' => CONTEXT_MODULE,
+            'userid2' => $userid,
         ];
 
         $contextlist = new contextlist();

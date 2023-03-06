@@ -56,16 +56,16 @@ $functions = array(
         'ajax' => false
     ),
     'mod_booking_categories' => array(
-        'classname'   => 'mod_booking\external\categories',
+        'classname' => 'mod_booking\external\categories',
         'description' => 'Return categories for course id.',
-        'type'        => 'read',
+        'type' => 'read',
         'ajax' => true,
         'capabilities' => '',
     ),
     'mod_booking_bookings' => array(
-        'classname'   => 'mod_booking\external\bookings',
+        'classname' => 'mod_booking\external\bookings',
         'description' => 'Return bookings for course id.',
-        'type'        => 'read',
+        'type' => 'read',
         'ajax' => true,
         'capabilities' => '',
     ),
