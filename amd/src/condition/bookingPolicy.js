@@ -53,7 +53,7 @@ export async function init() {
         const response = e.detail;
 
         if (response) {
-            dynamicForm.load({id: id});
+
             if (!continuebutton) {
                 continuebutton = container.closest(SELECTOR.MODALBODY).querySelector(SELECTOR.CONTINUEBUTTON);
             }
@@ -71,7 +71,10 @@ export async function init() {
     if (continuebutton) {
         continuebutton.dataset.blocked = true;
         continuebutton.addEventListener('click', () => {
-            dynamicForm.submitFormAjax();
+
+            if (continuebutton.dataset.blocked == 'true') {
+                dynamicForm.submitFormAjax();
+            }
         });
     }
 }
