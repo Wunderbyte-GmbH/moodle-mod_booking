@@ -208,6 +208,10 @@ class isloggedinprice implements bo_condition {
         // And add them to the returned array.
         $returnarray['priceitems'] = $sortedpriceitems;
 
+        if ($fullwidth) {
+            $returnarray['fullwidth'] = $fullwidth;
+        }
+
         return ['mod_booking/col_price', $returnarray];
     }
 

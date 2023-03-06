@@ -210,6 +210,10 @@ class priceisset implements bo_condition {
 
         $data = $settings->return_booking_option_information($user);
 
+        if ($fullwidth) {
+            $data['fullwidth'] = $fullwidth;
+        }
+
         return ['mod_booking/bookit_price', $data];
     }
 

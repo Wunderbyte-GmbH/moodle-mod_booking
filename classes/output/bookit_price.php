@@ -51,6 +51,9 @@ class bookit_price implements renderable, templatable {
     /** @var array $priceitems array of priceitems */
     public array $priceitems = [];
 
+    /** @var array $priceitem a price item */
+    public array $priceitem = [];
+
     /** @var context $context */
     private $context = null;
 

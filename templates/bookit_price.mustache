@@ -39,12 +39,12 @@
 <div class="w-100 d-flex justify-content-center booking-button-area"
     data-itemid="{{itemid}}"
     data-area="{{area}}">
-    <div class="pricecontainer">
+    <div class="pricecontainer {{#fullwidth}}w-100{{/fullwidth}}">
         <span class="pricecurrency h5">
             {{price}} {{currency}}
         </span>
         {{#shoppingcartisavailable}}
-            <div>
+            <div class="bookit-addtocartbtn-area">
                 {{> local_shopping_cart/addtocartdb }}
             </div>
         {{/shoppingcartisavailable}}
