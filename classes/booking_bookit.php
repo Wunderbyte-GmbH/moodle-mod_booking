@@ -281,11 +281,13 @@ class booking_bookit {
                     'message' => 'notallowedtobook',
                 ];
             }
-            return self::answer_booking_option($area, $itemid, STATUSPARAM_BOOKED, $userid);
+            return array_merge(self::answer_booking_option($area, $itemid, STATUSPARAM_BOOKED, $userid),
+                                ['status' => 1, 'message' => 'booked']);
         } else if (strpos($area, 'subbooking') === 0) {
             // As a subbooking can have different slots, we use the area to provide the subbooking id.
             // The syntax is "subbooking-1" for the subbooking id 1.
-            return self::answer_subbooking_option($area, $itemid, STATUSPARAM_BOOKED, $userid);
+            return array_merge(self::answer_subbooking_option($area, $itemid, STATUSPARAM_BOOKED, $userid),
+                                ['status' => 1, 'message' => 'booked']);
         } else {
             return [
                 'status' => 0,
