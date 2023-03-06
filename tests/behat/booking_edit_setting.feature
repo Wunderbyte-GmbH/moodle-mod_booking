@@ -118,11 +118,10 @@ Feature: In a booking edit settings
     And I press "Save and go back"
     Then I should see "Option - Test Semester" in the "#allbookingoptionstable_r1" "css_element"
     And I should see "Friday, 13:00-14:00" in the "#allbookingoptionstable_r1" "css_element"
-    And I wait "1" seconds
     And I click on "Show dates" "link" in the "#allbookingoptionstable_r1" "css_element"
     And I wait "1" seconds
     And I should see "## + 1 year ##%Y##" in the "#allbookingoptionstable_r1" "css_element"
     And I should see "1:00 PM - 2:00 PM" in the "#allbookingoptionstable_r1" "css_element"
-    And I should see "7 Friday" in the "#allbookingoptionstable_r1" "css_element"
-    And I should see "14 Friday" in the "#allbookingoptionstable_r1" "css_element"
-    ## And I should see "14 Friday ## + 1 year ##%Y##, 1:00PM - 2:00PM" in the "#allbookingoptionstable_r1" "css_element"
+    And I should see "7 June" in the "#allbookingoptionstable_r1" "css_element"
+    And I should see "14 June" in the "#allbookingoptionstable_r1" "css_element"
+    ## And I should see "14 June ## + 1 year ##%Y##, 1:00PM - 2:00PM" in the "#allbookingoptionstable_r1" "css_element"
