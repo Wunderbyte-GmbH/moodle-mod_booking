@@ -123,6 +123,10 @@ class booking_bookit {
                     $justmyalert = true;
                     $buttoncondition = $result['classname'];
                     break;
+                case BO_BUTTON_CANCEL:
+                    $justmyalert = false;
+                    $extrabuttoncondition = $result['classname'];
+                    break;
             }
         }
 
