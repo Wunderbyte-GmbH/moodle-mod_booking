@@ -342,8 +342,6 @@ function bookit(itemid, area, userid) {
 
             Promise.all(promises).then(() => {
 
-                // eslint-disable-next-line no-console
-                console.log('we could reload tables now');
                 reloadAllTables();
                 // The actions on successful booking are executed elsewhere.
                 return true;
