@@ -24,6 +24,7 @@
 
 namespace mod_booking\bo_availability\conditions;
 
+use cache;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
@@ -44,10 +45,10 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class cancelmyself implements bo_condition {
+class confirmbookit implements bo_condition {
 
     /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = BO_COND_CANCELMYSELF;
+    public $id = BO_COND_CONFIRMBOOKIT;
 
     /**
      * Needed to see if class can take JSON.
@@ -80,16 +81,12 @@ class cancelmyself implements bo_condition {
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
-        // Get the booking answers for this instance.
-        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+        // If there is no cache blocking, we do nothing.
+        $cache = cache::make('mod_booking', 'confirmbooking');
+        $cachekey = $userid . "_" . $settings->id . '_bookit';
 
-        $bookinginformation = $bookinganswer->return_all_booking_information($userid);
-        $bosettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
-
-        // If the user is not yet booked we return true.
-        if (!isset($bookinginformation['iambooked'])
-            || $bosettings->cancancelbook != 1) {
-
+        $blocktime = $cache->get($cachekey);
+        if (!$blocktime || $blocktime < strtotime('- ' . TIME_TO_CONFIRM . ' seconds', time())) {
             $isavailable = true;
         }
 
@@ -229,6 +226,6 @@ class cancelmyself implements bo_condition {
             $description = $full ? get_string('bo_cond_alreadybooked_full_not_available', 'mod_booking') :
                 get_string('bo_cond_alreadybooked_not_available', 'mod_booking');
         }
-        return 'du darfst stornieren';
+        return 'wirklich stornieren?';
     }
 }

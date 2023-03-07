@@ -39,6 +39,11 @@
 <div class="w-100 d-flex justify-content-center booking-button-area"
     data-itemid="{{itemid}}"
     data-area="{{area}}">
+    {{#top}}
+        <div class="booking-button-toparea {{class}}" role="{{role}}">
+            {{{label}}}
+        </div>
+    {{/top}}
     <div class="pricecontainer {{#fullwidth}}w-100{{/fullwidth}}">
         <span class="pricecurrency h5">
             {{price}} {{currency}}
@@ -52,6 +57,11 @@
             <p><i>{{pricecategoryname}}</i></p>
         {{/priceitems}}
     </div>
+    {{#sub}}
+        <div class="booking-button-subarea {{class}}" role="{{role}}">
+            {{{label}}}
+        </div>
+    {{/sub}}
 </div>
 {{/price}}
 {{^price}}

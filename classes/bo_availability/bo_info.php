@@ -44,6 +44,7 @@ define('BO_BUTTON_MYBUTTON', 1); // Used for price or book it.
 define('BO_BUTTON_NOBUTTON', 2); // Forces no button (Eg special subbookings).
 define('BO_BUTTON_MYALERT', 3); // Alert is a weaker form of MYBUTTON. With special rights, Button is still shown.
 define('BO_BUTTON_JUSTMYALERT', 4); // A strong Alert which also prevents buttons to be displayed.
+define('BO_BUTTON_CANCEL', 5); // The Cancel button is shown next to MYALERT.
 
 // Define if there are sites and if so, if they are prepend, postpend or booking relevant.
 define('BO_PREPAGE_NONE', 0); // This condition provides no page.

@@ -16,6 +16,7 @@
 
 namespace mod_booking;
 
+use cache;
 use context_module;
 use context_system;
 use mod_bigbluebuttonbn\settings;
@@ -93,6 +94,7 @@ class booking_bookit {
         $results = bo_info::get_condition_results($settings->id, $userid);
         // Decide, wether to show the direct booking button or a modal.
 
+        $datas = [];
         $showinmodalbutton = true;
         $extrabuttoncondition = '';
         $justmyalert = false;
@@ -174,8 +176,17 @@ class booking_bookit {
 
             list($template, $data) = $condition->render_button($settings, 0, $full, false, $renderprepagemodal);
 
-            $datas[] = new bookit_button($data);
-            $templates[] = $template;
+            // If there is an extra button condition, we don't use two templates but one.
+            // We just move the extra condition to a different area.
+            if (!empty($extrabuttoncondition && !empty($datas))) {
+                $extrabutton = reset($datas);
+                $extrabutton->data['top'] = $data['main'];
+                $datas = [$extrabutton];
+                $templates = [$template];
+            } else {
+                $datas[] = new bookit_button($data);
+                $templates[] = $template;
+            }
 
             return [$templates, $datas];
         }
@@ -218,6 +229,23 @@ class booking_bookit {
 
             if ($id <= 1) {
                 $isavailable = true;
+            } else if ($id === BO_COND_CANCELMYSELF) {
+                // If the cancel condition is blocking here, we can actually mark the option for cancelation.
+                $cache = cache::make('mod_booking', 'confirmbooking');
+                $cachekey = $userid . "_" . $settings->id;
+                $now = time();
+                $cache->set($cachekey, $now);
+
+            } else if ($id === BO_COND_CONFIRMCANCEL) {
+                // Here we are already one step further and only confirm the cancelation.
+                $response = self::answer_booking_option($area, $itemid, STATUSPARAM_DELETED, $userid);
+
+                // Make sure cache is not blocking anymore.
+                $cache = cache::make('mod_booking', 'confirmbooking');
+                $cachekey = $userid . "_" . $settings->id;
+                $cache->delete($cachekey);
+
+                return $response;
             }
 
             if (!$isavailable) {

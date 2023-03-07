@@ -42,6 +42,9 @@ define('MAX_PRICE_CATEGORIES', 9);
 // Currently up to 20 different semesters can be created.
 define('MAX_SEMESTERS', 20);
 
+// Time to confirm booking or cancellation in seconds.
+define('TIME_TO_CONFIRM', 60);
+
 // Define description parameters.
 define('DESCRIPTION_WEBSITE', 1); // Shows link button with text "book now" and no link to TeamsMeeting etc.
 define('DESCRIPTION_CALENDAR', 2); // Shows link button with text "go to bookingoption" and meeting links via link.php.
@@ -83,6 +86,7 @@ define('MSGCONTRPARAM_VIEW_CONFIRMATION', 4);
 // Define booking availability condition ids.
 define('BO_COND_ISLOGGEDINPRICE', 170);
 define('BO_COND_ISLOGGEDIN', 160);
+define('BO_COND_CONFIRMCANCEL', 151);
 define('BO_COND_CANCELMYSELF', 150);
 define('BO_COND_ALREADYBOOKED', 140);
 define('BO_COND_ALREADYRESERVED', 130);
@@ -102,6 +106,7 @@ define('BO_COND_JSON_CUSTOMUSERPROFILEFIELD', 12);
 define('BO_COND_JSON_USERPROFILEFIELD', 11);
 
 define('BO_COND_PRICEISSET', 10); // Price has to be the lowest blocking condition.
+define('BO_COND_CONFIRMBOOKIT', 2);
 define('BO_COND_BOOKITBUTTON', 1); // This is only used to show the book it button.
 define('BO_COND_CONFIRMATION', 0); // This is the last page after booking.
 
