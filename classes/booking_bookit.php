@@ -227,7 +227,24 @@ class booking_bookit {
             // Therefore, we have to override it to make this functionality useful.
             // If the id is 1, this means that only the bookit button is blocking, this means we are allowed to book.
 
-            if ($id <= 1) {
+            if ($id < 1) {
+                $isavailable = true;
+            } else if ($id === BO_COND_BOOKITBUTTON) {
+
+                $cache = cache::make('mod_booking', 'confirmbooking');
+                $cachekey = $userid . "_" . $settings->id . "_bookit";
+                $now = time();
+                $cache->set($cachekey, $now);
+
+                $isavailable = false;
+
+            } else if ($id === BO_COND_CONFIRMBOOKIT) {
+
+                // Make sure cache is not blocking anymore.
+                $cache = cache::make('mod_booking', 'confirmbooking');
+                $cachekey = $userid . "_" . $settings->id . '_bookit';
+                $cache->delete($cachekey);
+
                 $isavailable = true;
             } else if ($id === BO_COND_CANCELMYSELF) {
                 // If the cancel condition is blocking here, we can actually mark the option for cancelation.

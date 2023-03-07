@@ -103,7 +103,7 @@ class bookitbutton implements bo_condition {
      * @return boolean
      */
     public function hard_block(booking_option_settings $settings, $userid):bool {
-        return false;
+        return true;
     }
 
     /**

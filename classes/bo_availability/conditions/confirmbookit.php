@@ -86,7 +86,9 @@ class confirmbookit implements bo_condition {
         $cachekey = $userid . "_" . $settings->id . '_bookit';
 
         $blocktime = $cache->get($cachekey);
-        if (!$blocktime || $blocktime < strtotime('- ' . TIME_TO_CONFIRM . ' seconds', time())) {
+        $limittime = strtotime('- ' . TIME_TO_CONFIRM . ' seconds', time());
+
+        if (!$blocktime || $limittime > $blocktime) {
             $isavailable = true;
         }
 
@@ -140,7 +142,7 @@ class confirmbookit implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full);
 
-        return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_CANCEL];
+        return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_MYBUTTON];
     }
 
     /**
@@ -226,6 +228,6 @@ class confirmbookit implements bo_condition {
             $description = $full ? get_string('bo_cond_alreadybooked_full_not_available', 'mod_booking') :
                 get_string('bo_cond_alreadybooked_not_available', 'mod_booking');
         }
-        return 'wirklich stornieren?';
+        return 'wirklich buchen?';
     }
 }
