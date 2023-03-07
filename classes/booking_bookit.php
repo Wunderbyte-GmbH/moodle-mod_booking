@@ -145,7 +145,7 @@ class booking_bookit {
         if (!$justmyalert && !empty($extrabuttoncondition)) {
             $condition = new $extrabuttoncondition();
 
-            list($template, $data) = $condition->render_button($settings, 0, $full);
+            list($template, $data) = $condition->render_button($settings, $userid, $full);
 
             // This supports multiple templates as well.
             $datas[] = new bookit_button($data);
@@ -174,7 +174,7 @@ class booking_bookit {
 
             // The fourth param is for fullwidth button. We want it true, when we outside the modal and false inside.
 
-            list($template, $data) = $condition->render_button($settings, 0, $full, false, $renderprepagemodal);
+            list($template, $data) = $condition->render_button($settings, $userid, $full, false, $renderprepagemodal);
 
             // If there is an extra button condition, we don't use two templates but one.
             // We just move the extra condition to a different area.
