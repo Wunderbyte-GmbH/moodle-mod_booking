@@ -589,17 +589,24 @@ class bo_info {
      * @param booking_option_settings $settings
      * @param integer $userid
      * @param string $label
+     * @param string $classes
      * @param bool $includeprice
      * @param bool $fullwidth
+     * @param string $role
+     * @param string $area
+     * @param bool $nojs
      * @return array
      */
     public static function render_button(
         booking_option_settings $settings,
         int $userid,
         string $label,
-        string $alerttype = 'danger',
+        string $classes = 'alert alert-danger',
         bool $includeprice = false,
-        bool $fullwidth = true) {
+        bool $fullwidth = true,
+        string $role = 'alert',
+        string $area = 'option',
+        bool $nojs = true) {
 
         $user = singleton_service::get_instance_of_user($userid);
 
@@ -607,20 +614,23 @@ class bo_info {
             $user = null;
         }
 
-        $fullwidthclasses = 'pl-3 pr-3 pb-2 pt-2 m-3'; // For prepage modals.
         if ($fullwidth) {
+            // For view.php and default rendering.
             $fullwidthclasses = 'w-100 mt-0 mb-0 pl-1 pr-1 pt-2 pb-2';
+        } else {
+            // For prepage modals we want to render the button different than on view.php.
+            $fullwidthclasses = 'pl-3 pr-3 pb-2 pt-2 m-3';
         }
 
         $data = [
             'itemid' => $settings->id,
-            'area' => 'option',
+            'area' => $area,
             'userid' => $userid ?? 0,
-            'nojs' => true,
+            'nojs' => $nojs,
             'main' => [
                 'label' => $label,
-                'class' => "$fullwidthclasses text-center alert alert-$alerttype",
-                'role' => 'alert',
+                'class' => "$classes $fullwidthclasses text-center",
+                'role' => $role,
             ]
         ];
 

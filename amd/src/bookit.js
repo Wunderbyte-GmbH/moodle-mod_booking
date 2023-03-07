@@ -224,11 +224,11 @@ export const loadPreBookingPage = (
             // We have a data key in the json
             const templates = res.template.split(',');
             let dataarray = jsonobject;
-            // const buttontype = res.buttontype;
+            // Const buttontype = res.buttontype;
 
             renderTemplatesOnPage(templates, dataarray, element);
 
-            // showRightButton(optionid, buttontype);
+            // ShowRightButton(optionid, buttontype);
 
             return true;
         },

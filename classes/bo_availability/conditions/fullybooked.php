@@ -196,7 +196,7 @@ class fullybooked implements bo_condition {
 
         $label = $this->get_description_string(false, $full);
 
-        return bo_info::render_button($settings, $userid, $label, 'warning', true);
+        return bo_info::render_button($settings, $userid, $label, 'alert alert-warning', true, $fullwidth, 'alert', 'option');
     }
 
     /**

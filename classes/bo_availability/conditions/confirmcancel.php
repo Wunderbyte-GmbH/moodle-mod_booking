@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Already booked condition (item has been booked).
+ * Confirm cancel condition.
  *
  * @package mod_booking
- * @copyright 2022 Wunderbyte GmbH
+ * @copyright 2023 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -181,34 +181,15 @@ class confirmcancel implements bo_condition {
     public function render_button(booking_option_settings $settings,
         int $userid = 0, bool $full = false, bool $not = false, bool $fullwidth = true): array {
 
-            global $USER;
+        global $USER;
 
-            if ($userid === null) {
-                $userid = $USER->id;
-            }
-            $label = $this->get_description_string(false, $full);
+        if ($userid === null) {
+            $userid = $USER->id;
+        }
+        $label = $this->get_description_string(false, $full);
 
-            if ($fullwidth) {
-                // For view.php and default rendering.
-                $class = 'btn btn-secondary w-100 mt-0 mb-0 pl-1 pr-1 pt-2 pb-2';
-            } else {
-                // For prepage modals we want to render the button different than on view.php.
-                $class = 'btn btn-success pl-3 pr-3 pb-2 pt-2 m-3';
-            }
-
-            return [
-                'mod_booking/bookit_button',
-                [
-                    'itemid' => $settings->id,
-                    'area' => 'option',
-                    'userid' => $userid ?? 0,
-                    'main' => [
-                        'label' => $label,
-                        'class' => $class,
-                        'role' => 'button',
-                    ]
-                ]
-            ];
+        return bo_info::render_button($settings, $userid, $label, 'btn btn-danger', false, $fullwidth,
+            'button', 'option', false);
     }
 
     /**

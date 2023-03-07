@@ -201,27 +201,8 @@ class cancelmyself implements bo_condition {
         }
         $label = $this->get_description_string(false, $full);
 
-        if ($fullwidth) {
-            // For view.php and default rendering.
-            $class = 'btn btn-secondary w-100 mt-0 mb-0 pl-1 pr-1 pt-2 pb-2';
-        } else {
-            // For prepage modals we want to render the button different than on view.php.
-            $class = 'btn btn-success pl-3 pr-3 pb-2 pt-2 m-3';
-        }
-
-        return [
-            'mod_booking/bookit_button',
-            [
-                'itemid' => $settings->id,
-                'area' => 'option',
-                'userid' => $userid ?? 0,
-                'main' => [
-                    'label' => $label,
-                    'class' => $class,
-                    'role' => 'button',
-                ]
-            ]
-        ];
+        return bo_info::render_button($settings, $userid, $label, 'btn btn-secondary', false, $fullwidth,
+            'button', 'option', false);
     }
 
     /**
