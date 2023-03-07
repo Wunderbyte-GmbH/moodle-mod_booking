@@ -132,9 +132,9 @@ class message_controller {
         // It's no use passing the context object either.
 
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* if (!isset($PAGE->context)) {
+        if (!isset($PAGE->context)) {
             $PAGE->set_context(context_module::instance($cmid));
-        } */
+        }
 
         if (!$bookingid) {
             $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
