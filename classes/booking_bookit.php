@@ -232,7 +232,7 @@ class booking_bookit {
             } else if ($id === BO_COND_CANCELMYSELF) {
                 // If the cancel condition is blocking here, we can actually mark the option for cancelation.
                 $cache = cache::make('mod_booking', 'confirmbooking');
-                $cachekey = $userid . "_" . $settings->id;
+                $cachekey = $userid . "_" . $settings->id . "_cancel";
                 $now = time();
                 $cache->set($cachekey, $now);
 
@@ -242,7 +242,7 @@ class booking_bookit {
 
                 // Make sure cache is not blocking anymore.
                 $cache = cache::make('mod_booking', 'confirmbooking');
-                $cachekey = $userid . "_" . $settings->id;
+                $cachekey = $userid . "_" . $settings->id . '_cancel';
                 $cache->delete($cachekey);
 
                 return $response;
