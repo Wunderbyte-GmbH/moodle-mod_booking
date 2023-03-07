@@ -299,6 +299,9 @@ function bookit(itemid, area, userid) {
 
             const promises = [];
 
+            // eslint-disable-next-line no-console
+            console.log(buttons);
+
             // We run through every button. and render the data.
             buttons.forEach(button => {
 
@@ -322,7 +325,7 @@ function bookit(itemid, area, userid) {
 
                         const promise = Templates.renderForPromise(template, datatorender).then(({html, js}) => {
 
-                            Templates.appendNodeContents(button, html, js);
+                            Templates.replaceNodeContents(button, html, js);
 
                             return true;
                         }).catch(ex => {
