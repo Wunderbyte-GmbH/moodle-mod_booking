@@ -2761,7 +2761,7 @@ class booking_option {
         $coursestarttime = $settings->coursestarttime;
 
         $allowupdatedays = $booking->settings->allowupdatedays;
-        if (!empty($allowupdatedays) && !empty($coursestarttime)) {
+        if (isset($allowupdatedays) && $allowupdatedays != 10000 && !empty($coursestarttime)) {
             // Different string depending on plus or minus.
             if ($allowupdatedays >= 0) {
                 $datestring = " - $allowupdatedays days";

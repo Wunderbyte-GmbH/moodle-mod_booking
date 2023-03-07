@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Already booked condition (item has been booked).
+ * Condition to allow users to cancel themselves.
  *
  * @package mod_booking
- * @copyright 2022 Wunderbyte GmbH
+ * @copyright 2023 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -26,6 +26,7 @@ namespace mod_booking\bo_availability\conditions;
 
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
@@ -77,6 +78,9 @@ class cancelmyself implements bo_condition {
 
         global $DB;
 
+        $optionid = $settings->id;
+        $now = time();
+
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
@@ -90,7 +94,14 @@ class cancelmyself implements bo_condition {
         if (!isset($bookinginformation['iambooked'])
             || $bosettings->cancancelbook != 1) {
 
-            $isavailable = true;
+            $isavailable = true; // True means cancel button is not shown.
+        } else {
+            // We have to check if there's a limit until a certain date.
+            $canceluntil = booking_option::return_cancel_until_date($optionid);
+            // If the cancel until date has passed, we do not show cancel button.
+            if ($canceluntil != 0 && $now > $canceluntil) {
+                $isavailable = true;
+            }
         }
 
         // If it's inversed, we inverse.
@@ -106,7 +117,7 @@ class cancelmyself implements bo_condition {
      * While is_available is used to build eg also the prebooking modals and...
      * ... introduces eg the booking policy or the subbooking page, the hard block is meant to prevent ...
      * ... unwanted booking. It's the check just before booking if we really...
-     * ... want the user to book. It will return always return false on subbookings...
+     * ... want the user to book. It will always return false on subbookings...
      * ... as they are not necessary, but return true when the booking policy is not yet answered.
      * Hard block is only checked if is_available already returns false.
      *
@@ -184,34 +195,33 @@ class cancelmyself implements bo_condition {
     public function render_button(booking_option_settings $settings,
         int $userid = 0, bool $full = false, bool $not = false, bool $fullwidth = true): array {
 
-            global $USER;
+        global $USER;
+        if ($userid === null) {
+            $userid = $USER->id;
+        }
+        $label = $this->get_description_string(false, $full);
 
-            if ($userid === null) {
-                $userid = $USER->id;
-            }
-            $label = $this->get_description_string(false, $full);
+        if ($fullwidth) {
+            // For view.php and default rendering.
+            $class = 'btn btn-secondary w-100 mt-0 mb-0 pl-1 pr-1 pt-2 pb-2';
+        } else {
+            // For prepage modals we want to render the button different than on view.php.
+            $class = 'btn btn-success pl-3 pr-3 pb-2 pt-2 m-3';
+        }
 
-            if ($fullwidth) {
-                // For view.php and default rendering.
-                $class = 'btn btn-secondary w-100 mt-0 mb-0 pl-1 pr-1 pt-2 pb-2';
-            } else {
-                // For prepage modals we want to render the button different than on view.php.
-                $class = 'btn btn-success pl-3 pr-3 pb-2 pt-2 m-3';
-            }
-
-            return [
-                'mod_booking/bookit_button',
-                [
-                    'itemid' => $settings->id,
-                    'area' => 'option',
-                    'userid' => $userid ?? 0,
-                    'main' => [
-                        'label' => $label,
-                        'class' => $class,
-                        'role' => 'button',
-                    ]
+        return [
+            'mod_booking/bookit_button',
+            [
+                'itemid' => $settings->id,
+                'area' => 'option',
+                'userid' => $userid ?? 0,
+                'main' => [
+                    'label' => $label,
+                    'class' => $class,
+                    'role' => 'button',
                 ]
-            ];
+            ]
+        ];
     }
 
     /**
@@ -222,13 +232,6 @@ class cancelmyself implements bo_condition {
      * @return string
      */
     private function get_description_string($isavailable, $full) {
-        if ($isavailable) {
-            $description = $full ? get_string('bo_cond_alreadybooked_full_available', 'mod_booking') :
-                get_string('bo_cond_alreadybooked_available', 'mod_booking');
-        } else {
-            $description = $full ? get_string('bo_cond_alreadybooked_full_not_available', 'mod_booking') :
-                get_string('bo_cond_alreadybooked_not_available', 'mod_booking');
-        }
-        return 'du darfst stornieren';
+        return get_string('cancel', 'mod_booking');
     }
 }

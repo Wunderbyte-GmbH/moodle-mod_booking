@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Already booked condition (item has been booked).
+ * Already started condition (item cannot be booked anymore because course has started).
  *
  * @package mod_booking
  * @copyright 2022 Wunderbyte GmbH
@@ -44,10 +44,10 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class alreadybooked implements bo_condition {
+class optionhasstarted implements bo_condition {
 
     /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = BO_COND_ALREADYBOOKED;
+    public $id = BO_COND_OPTIONHASSTARTED;
 
     /**
      * Needed to see if class can take JSON.
@@ -75,19 +75,19 @@ class alreadybooked implements bo_condition {
      */
     public function is_available(booking_option_settings $settings, $userid, $not = false):bool {
 
-        global $DB;
+        // Settings of the booking instance.
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
 
-        // This is the return value. Not available to begin with.
-        $isavailable = false;
-
-        // Get the booking answers for this instance.
-        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
-
-        $bookinginformation = $bookinganswer->return_all_booking_information($userid);
-
-        // If the user is not yet booked we return true.
-        if (!isset($bookinginformation['iambooked'])) {
-
+        // We kept the name "allowupdate" for legacy reasons.
+        // The actual meaning of this field is "allow booking after option has started".
+        if ($bookingsettings->allowupdate == 1) {
+            $isavailable = true;
+        } else if (!empty($settings->coursestarttime)) {
+            // In this case, we have to check if the booking option has already started.
+            $start = $settings->coursestarttime;
+            $now = time();
+            $isavailable = $now > $start ? false : true;
+        } else {
             $isavailable = true;
         }
 
@@ -184,7 +184,7 @@ class alreadybooked implements bo_condition {
 
         $label = $this->get_description_string(false, $full);
 
-        return bo_info::render_button($settings, $userid, $label, 'success', true, true);
+        return bo_info::render_button($settings, $userid, $label, 'danger', true);
     }
 
     /**
@@ -196,11 +196,11 @@ class alreadybooked implements bo_condition {
      */
     private function get_description_string($isavailable, $full) {
         if ($isavailable) {
-            $description = $full ? get_string('bo_cond_alreadybooked_full_available', 'mod_booking') :
-                get_string('bo_cond_alreadybooked_available', 'mod_booking');
+            $description = $full ? get_string('bo_cond_optionhasstarted_full_available', 'mod_booking') :
+                get_string('bo_cond_optionhasstarted_available', 'mod_booking');
         } else {
-            $description = $full ? get_string('bo_cond_alreadybooked_full_not_available', 'mod_booking') :
-                get_string('bo_cond_alreadybooked_not_available', 'mod_booking');
+            $description = $full ? get_string('bo_cond_optionhasstarted_full_not_available', 'mod_booking') :
+                get_string('bo_cond_optionhasstarted_not_available', 'mod_booking');
         }
         return $description;
     }

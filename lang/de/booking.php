@@ -353,7 +353,8 @@ $string['connectedbooking'] = '[VERALTET] Vorgeschaltete Buchung';
 $string['errorpagination'] = 'Geben Sie ein Zahl ein, die größer als 0 ist';
 $string['notconectedbooking'] = 'Nicht vorgeschaltete Buchung';
 $string['connectedbooking_help'] = 'Buchung von der Teilnehmer:innen übernommen werden. Es kann bestimmt werden wie viele Teilnehmer:innen übernommen werden.';
-$string['cancancelbook'] = 'Nutzer:innen das Stornieren und buchen nach dem Buchungsstart erlauben?';
+$string['allowbookingafterstart'] = 'Buchen nach Kursbeginn erlauben';
+$string['cancancelmyself'] = 'Teilnehmer:innen dürfen Buchungen selbst stornieren';
 $string['cancancelbookdays'] = 'Nutzer:innen können nur bis n Tage vor Kursstart stornieren. Negative Werte meinen n Tage NACH Kursstart.';
 $string['cancancelbookdaysno'] = 'Kein Limit';
 $string['addtocalendar'] = 'Zum Kurs-Kalender hinzufügen';
@@ -368,7 +369,6 @@ $string['minanswers'] = 'Mindestteilnehmerzahl';
 $string['defaultbookingoption'] = 'Standardeinstellungen für Buchungsoptionen';
 $string['activatemails'] = 'E-Mails aktivieren (Bestätigungen, Erinnerungen etc.)';
 $string['sendcopytobookingmanger'] = 'Eine Kopie der Bestätigungsmail an den Buchungsverwalter senden';
-$string['allowdelete'] = 'Teilnehmer:innen dürfen Buchungen selbst stornieren';
 $string['bookingpolicy'] = 'Buchungsbedingungen - Booking Policy';
 
 $string['page:bookingpolicy'] = 'Buchungsbedingungen';
@@ -1875,6 +1875,11 @@ $string['bo_cond_priceisset_available'] = 'Buchen';
 $string['bo_cond_priceisset_full_available'] = 'Buchen möglich';
 $string['bo_cond_priceisset_not_available'] = 'Muss bezahlt werden';
 $string['bo_cond_priceisset_full_not_available'] = 'Preis gesetzt, Bezahlung nötig';
+
+$string['bo_cond_optionhasstarted_available'] = 'Buchen';
+$string['bo_cond_optionhasstarted_full_available'] = 'Buchen möglich';
+$string['bo_cond_optionhasstarted_not_available'] = 'Bereits begonnen - Buchen nicht mehr möglich';
+$string['bo_cond_optionhasstarted_full_not_available'] = 'Bereits begonnen - User können nicht mehr buchen';
 
 $string['bo_cond_subbookingblocks_available'] = 'Buchen';
 $string['bo_cond_subbookingblocks_full_available'] = 'Buchen möglich';

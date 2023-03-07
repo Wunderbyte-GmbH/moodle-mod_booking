@@ -589,7 +589,8 @@ class bo_info {
      * @param booking_option_settings $settings
      * @param integer $userid
      * @param string $label
-     * @param boolean $includeprice
+     * @param bool $includeprice
+     * @param bool $fullwidth
      * @return array
      */
     public static function render_button(
@@ -597,12 +598,18 @@ class bo_info {
         int $userid,
         string $label,
         string $alerttype = 'danger',
-        bool $includeprice = false) {
+        bool $includeprice = false,
+        bool $fullwidth = true) {
 
         $user = singleton_service::get_instance_of_user($userid);
 
         if (empty($user)) {
             $user = null;
+        }
+
+        $fullwidthclasses = 'pl-3 pr-3 pb-2 pt-2 m-3'; // For prepage modals.
+        if ($fullwidth) {
+            $fullwidthclasses = 'w-100 mt-0 mb-0 pl-1 pr-1 pt-2 pb-2';
         }
 
         $data = [
@@ -612,7 +619,7 @@ class bo_info {
             'nojs' => true,
             'main' => [
                 'label' => $label,
-                'class' => 'alert alert-' . $alerttype,
+                'class' => "$fullwidthclasses text-center alert alert-$alerttype",
                 'role' => 'alert',
             ]
         ];
@@ -791,7 +798,6 @@ class bo_info {
         $continueaction = 'continue';
         $continuelabel = get_string('continue');
         $continuelink = '#';
-
 
         // If we are on the booking or priceissetpage, we don't want to show the continue button.
         // The Thank you page only comes automatically.

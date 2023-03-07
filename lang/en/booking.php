@@ -362,7 +362,8 @@ $string['connectedbooking'] = '[DEPRECATED] Connected booking';
 $string['errorpagination'] = 'Please enter a number bigger than 0';
 $string['notconectedbooking'] = 'Not connected';
 $string['connectedbooking_help'] = 'Booking instance eligible for transferring booked users. You can define from which option within the selected booking instance and how many users you will accept.';
-$string['cancancelbook'] = 'Allow user to cancel the booking during the booking period?';
+$string['allowbookingafterstart'] = 'Allow booking after course start';
+$string['cancancelmyself'] = 'Allow users to cancel their booking themselves';
 $string['cancancelbookdays'] = 'Disallow users to cancel their booking n days before start. Minus means, that users can still cancel n days AFTER course start.';
 $string['cancancelbookdaysno'] = "Don't limit";
 $string['addtocalendar'] = 'Add to course calendar';
@@ -377,7 +378,6 @@ $string['minanswers'] = 'Min. number of participants';
 $string['defaultbookingoption'] = 'Default booking options';
 $string['activatemails'] = 'Activate e-mails (confirmations, notifications and more)';
 $string['sendcopytobookingmanger'] = 'Send confirmation e-mail to booking manager';
-$string['allowdelete'] = 'Allow users to cancel their booking themselves';
 $string['bookingpolicy'] = 'Booking policy';
 
 $string['page:bookingpolicy'] = 'Booking policy';
@@ -2103,6 +2103,11 @@ $string['bo_cond_isloggedin_available'] = 'Book it';
 $string['bo_cond_isloggedin_full_available'] = 'Booking is possible';
 $string['bo_cond_isloggedin_not_available'] = 'Log in to book this option.';
 $string['bo_cond_isloggedin_full_not_available'] = 'User is not logged in.';
+
+$string['bo_cond_optionhasstarted_available'] = 'Book it';
+$string['bo_cond_optionhasstarted_full_available'] = 'Booking is possible';
+$string['bo_cond_optionhasstarted_not_available'] = 'Already started - booking is not possible anymore';
+$string['bo_cond_optionhasstarted_full_not_available'] = 'Already started - booking for users not possible anymore';
 
 $string['bo_cond_subbookingblocks_available'] = 'Book it';
 $string['bo_cond_subbookingblocks_full_available'] = 'Booking is possible';
