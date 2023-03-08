@@ -504,6 +504,7 @@ class bo_info {
         $footerdata = [
             'data' => [
                 'optionid' => $optionid,
+                'userid' => $userid,
             ]
         ];
 

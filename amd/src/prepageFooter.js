@@ -36,8 +36,9 @@ const WAITTIME = 1500;
 /**
  * Add the click listener to a prepage modal button.
  * @param {integer} optionid
+ * @param {integer} userid
  */
-export function initFooterButtons(optionid) {
+export function initFooterButtons(optionid, userid) {
 
     initBookingButton(optionid);
 
@@ -65,10 +66,10 @@ export function initFooterButtons(optionid) {
 
                 switch (action) {
                     case 'back':
-                        backToPreviousPage(optionid);
+                        backToPreviousPage(optionid, userid);
                     break;
                     case 'continue':
-                        continueToNextPage(optionid);
+                        continueToNextPage(optionid, userid);
                     break;
                     case 'checkout':
                         closeModal(optionid);

@@ -94,13 +94,14 @@ export const initbookitbutton = (itemid, area) => {
 /**
  * Gets called from mustache template.
  * @param {integer} optionid
+ * @param {integer} userid
  * @param {integer} totalnumberofpages
  * @param {string} uniquid
  */
-export const initprepagemodal = (optionid, totalnumberofpages, uniquid) => {
+export const initprepagemodal = (optionid, userid, totalnumberofpages, uniquid) => {
 
     // eslint-disable-next-line no-console
-    console.log('initprepagemodal', optionid, totalnumberofpages, uniquid);
+    console.log('initprepagemodal', optionid, userid, totalnumberofpages, uniquid);
 
     if (!optionid || !uniquid || !totalnumberofpages) {
 
@@ -109,9 +110,10 @@ export const initprepagemodal = (optionid, totalnumberofpages, uniquid) => {
         elements.forEach(element => {
             optionid = element.dataset.optionid;
             uniquid = element.dataset.uniquid;
+            userid = element.dataset.userid;
             totalnumberofpages = element.dataset.pages;
             if (optionid && uniquid) {
-                initprepagemodal(optionid, totalnumberofpages, uniquid);
+                initprepagemodal(optionid, userid, totalnumberofpages, uniquid);
             }
         });
         return;
@@ -122,22 +124,26 @@ export const initprepagemodal = (optionid, totalnumberofpages, uniquid) => {
 
     // We need to get all prepage modals on this site. Make sure they are initialized.
 
-    respondToVisibility(optionid, totalnumberofpages, uniquid, loadPreBookingPage);
+    respondToVisibility(optionid, userid, uniquid, totalnumberofpages, loadPreBookingPage);
 };
 
 /**
  * React on visibility change.
  * @param {integer} optionid
- * @param {integer} totalnumberofpages
+ * @param {integer} userid
  * @param {string} uniquid
+ * @param {integer} totalnumberofpages
  * @param {function} callback
  */
-function respondToVisibility(optionid, totalnumberofpages, uniquid, callback) {
+function respondToVisibility(optionid, userid, uniquid, totalnumberofpages, callback) {
 
     // eslint-disable-next-line no-console
     console.log('respondToVisibility', optionid, totalnumberofpages, uniquid);
 
     let elements = document.querySelectorAll("[id^=" + SELECTORS.MODALID + optionid + "_" + uniquid + "]");
+
+    // eslint-disable-next-line no-console
+    console.log('elements', "[id^=" + SELECTORS.MODALID + optionid + "_" + uniquid + "]", elements);
 
     elements.forEach(element => {
         if (!element || element.dataset.initialized == 'true') {
@@ -149,7 +155,7 @@ function respondToVisibility(optionid, totalnumberofpages, uniquid, callback) {
         var observer = new MutationObserver(function() {
             if (!isHidden(element)) {
                 // Todo: Make sure it's not triggered on close.
-                callback(optionid, uniquid, totalnumberofpages);
+                callback(optionid, userid, uniquid, totalnumberofpages);
             }
         });
 
@@ -167,7 +173,7 @@ function respondToVisibility(optionid, totalnumberofpages, uniquid, callback) {
                 return;
             }
         }
-        callback(optionid, totalnumberofpages);
+        callback(optionid, userid, uniquid, totalnumberofpages);
     });
 }
 
@@ -184,13 +190,14 @@ function isHidden(el) {
 /**
  * Loads the (next) pre booking page.
  * @param {integer} optionid
+ * @param {integer} userid
  * @param {string} uniquid
  */
 export const loadPreBookingPage = (
-    optionid, uniquid) => {
+    optionid, userid = 0, uniquid = '') => {
 
     // eslint-disable-next-line no-console
-    console.log('loadPreBookingPage', optionid, uniquid);
+    console.log('loadPreBookingPage', optionid, uniquid, userid);
 
     const element = returnVisibleElement(optionid, uniquid, SELECTORS.INMODALDIV);
     if (element) {
@@ -205,7 +212,8 @@ export const loadPreBookingPage = (
     Ajax.call([{
         methodname: "mod_booking_load_pre_booking_page",
         args: {
-            'optionid': optionid,
+            optionid,
+            userid,
             'pagenumber': currentbookitpage[optionid],
         },
         done: function(res) {
@@ -386,21 +394,23 @@ function returnVisibleElement(optionid, uniquid, appendedSelector) {
 /**
  * Load next prepage booking page.
  * @param {int} optionid
+ * @param {int} userid
  */
-export function continueToNextPage(optionid) {
+export function continueToNextPage(optionid, userid) {
 
     currentbookitpage[optionid]++;
 
-    loadPreBookingPage(optionid);
+    loadPreBookingPage(optionid, userid);
 }
 
 /**
  *  Load previous prepage booking page.
  * @param {int} optionid
+ * @param {int} userid
  */
-export function backToPreviousPage(optionid) {
+export function backToPreviousPage(optionid, userid) {
 
     currentbookitpage[optionid]--;
 
-    loadPreBookingPage(optionid);
+    loadPreBookingPage(optionid, userid);
 }

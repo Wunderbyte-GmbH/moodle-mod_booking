@@ -163,6 +163,7 @@ class booking_bookit {
                 count($prepages), // The total number of pre booking pages.
                 $buttoncondition,  // This is the button we need to render twice.
                 $showinmodalbutton, // This marker just suppresses the in modal button.
+                $userid, // The userid for which all this will be rendered.
             );
 
             $templates[] = 'mod_booking/bookingpage/prepagemodal';

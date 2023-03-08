@@ -54,6 +54,7 @@ class load_pre_booking_page extends external_api {
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
             'optionid' => new external_value(PARAM_INT, 'option id'),
+            'userid' => new external_value(PARAM_INT, 'user id', VALUE_OPTIONAL, 0),
             'pagenumber' => new external_value(PARAM_INT, 'number of page we want to load'),
             ]
         );
@@ -67,15 +68,16 @@ class load_pre_booking_page extends external_api {
      *
      * @return array
      */
-    public static function execute(int $optionid, int $pagenumber): array {
+    public static function execute(int $optionid, int $userid, int $pagenumber): array {
         global $USER;
 
         $params = self::validate_parameters(
                 self::execute_parameters(),
                 array('optionid' => $optionid,
+                'userid' => $userid,
                 'pagenumber' => $pagenumber));
 
-        $result = bo_info::load_pre_booking_page($params['optionid'], $params['pagenumber'], (int)$USER->id);
+        $result = bo_info::load_pre_booking_page($params['optionid'], $params['pagenumber'], $params['userid']);
 
         return $result;
     }

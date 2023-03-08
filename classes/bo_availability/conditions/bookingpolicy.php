@@ -77,12 +77,14 @@ class bookingpolicy implements bo_condition {
      */
     public function is_available(booking_option_settings $settings, $userid, $not = false):bool {
 
+        global $USER;
+
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
         $bosettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
 
-        if (empty($bosettings->bookingpolicy)) {
+        if ($USER->id != $userid || empty($bosettings->bookingpolicy)) {
             $isavailable = true;
         }
 
