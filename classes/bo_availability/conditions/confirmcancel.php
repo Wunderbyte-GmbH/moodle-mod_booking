@@ -28,6 +28,7 @@ use cache;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
+use mod_booking\price;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
 
@@ -81,13 +82,20 @@ class confirmcancel implements bo_condition {
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
-        // If there is no cache blocking, we do nothing.
-        $cache = cache::make('mod_booking', 'confirmbooking');
-        $cachekey = $userid . "_" . $settings->id . '_cancel';
+        $priceitems = price::get_prices_from_cache_or_db('option', $settings->id);
 
-        $blocktime = $cache->get($cachekey);
-        if (!$blocktime || $blocktime < strtotime('- ' . TIME_TO_CONFIRM . ' seconds', time())) {
-            $isavailable = true;
+        if (count($priceitems) > 0) {
+            // If we have a price, this condition is not used.
+            $isavailable = true; // True means, it won't be shown.
+        } else {
+            // If there is no cache blocking, we do nothing.
+            $cache = cache::make('mod_booking', 'confirmbooking');
+            $cachekey = $userid . "_" . $settings->id . '_cancel';
+
+            $blocktime = $cache->get($cachekey);
+            if (!$blocktime || $blocktime < strtotime('- ' . TIME_TO_CONFIRM . ' seconds', time())) {
+                $isavailable = true;
+            }
         }
 
         // If it's inversed, we inverse.

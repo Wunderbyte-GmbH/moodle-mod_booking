@@ -28,6 +28,7 @@ use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
+use mod_booking\price;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
 
@@ -90,18 +91,22 @@ class cancelmyself implements bo_condition {
         $bookinginformation = $bookinganswer->return_all_booking_information($userid);
         $bosettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
 
-        $isavailable = false;
-
-        // If the user is not allowed to cancel we never show cancel button.
-        if ($bosettings->cancancelbook != 1 || isset($bookinginformation['notbooked'])) {
-            $isavailable = true; // True means cancel button is not shown.
-        } else if (isset($bookinginformation['onwaitinglist']) || isset($bookinginformation['iambooked'])) {
-            // If the user is allowed to cancel, we first check if the user is already booked or on the waiting list.
-            // We have to check if there's a limit until a certain date.
-            $canceluntil = booking_option::return_cancel_until_date($optionid);
-            // If the cancel until date has passed, we do not show cancel button.
-            if ($canceluntil != 0 && $now > $canceluntil) {
-                $isavailable = true;
+        $priceitems = price::get_prices_from_cache_or_db('option', $settings->id);
+        if (count($priceitems) > 0) {
+            // If we have a price, this condition is not used.
+            $isavailable = true; // True means, it won't be shown.
+        } else {
+            // If the user is not allowed to cancel we never show cancel button.
+            if ($bosettings->cancancelbook != 1 || isset($bookinginformation['notbooked'])) {
+                $isavailable = true; // True means cancel button is not shown.
+            } else if (isset($bookinginformation['onwaitinglist']) || isset($bookinginformation['iambooked'])) {
+                // If the user is allowed to cancel, we first check if the user is already booked or on the waiting list.
+                // We have to check if there's a limit until a certain date.
+                $canceluntil = booking_option::return_cancel_until_date($optionid);
+                // If the cancel until date has passed, we do not show cancel button.
+                if ($canceluntil != 0 && $now > $canceluntil) {
+                    $isavailable = true;
+                }
             }
         }
 
