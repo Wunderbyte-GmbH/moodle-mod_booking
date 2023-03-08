@@ -81,11 +81,13 @@ export const initbookitbutton = (itemid, area) => {
 
             const userid = button.dataset.userid;
 
-            button.addEventListener('click', () => {
+            button.addEventListener('click', (e) => {
 
                 // e.stopPropagation();
 
-                bookit(itemid, area, userid);
+                if (e.target.classList.contains('btn')) {
+                    bookit(itemid, area, userid);
+                }
             });
         }
     });

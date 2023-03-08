@@ -28,11 +28,10 @@ var SELECTORS = {
     INMODALFOOTER: ' div.prepage-booking-footer',
     INMODALBUTTON: 'div.in-modal-button',
     BOOKITBUTTON: 'div.booking-button-area',
-    BOOKITCLASS: 'booking-button-area',
     STATICBACKDROP: 'div.modal-backdrop',
 };
 
-const WAITTIME = 2000;
+const WAITTIME = 1500;
 
 /**
  * Add the click listener to a prepage modal button.
@@ -113,20 +112,17 @@ async function initBookingButton(optionid) {
 
         if (button) {
 
-            // eslint-disable-next-line no-console
-            console.log(button, button.parentElement, button.parentNode);
+            const parentElement = e.target.closest(SELECTORS.BOOKITBUTTON);
+            button = e.target.closest('.btn');
 
             // eslint-disable-next-line no-console
-            console.log(button, button.parentElement, button.parentNode);
+            console.log(button, parentElement);
 
-            if (button.parentElement.classList.contains(SELECTORS.BOOKITCLASS)
-                && button.classList.contains('btn')) {
-
-
+            if (parentElement && button) {
                 // eslint-disable-next-line no-console
                 console.log('initBookingButton click');
 
-                if (button.parentElement.dataset.action == 'noforward') {
+                if ((parentElement.dataset.action == 'noforward')) {
                     return;
                 }
 
