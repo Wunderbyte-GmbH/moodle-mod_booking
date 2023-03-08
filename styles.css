@@ -358,6 +358,7 @@ if there only was one booking option. */
     background: var(--warning);
 }
 
+#page-mod-booking-optiondates .dropdown-menu,
 #page-mod-booking-edit_optiontemplate .dropdown-menu,
 #page-mod-booking-optiontemplatessettings .dropdown-menu,
 #page-mod-booking-teachers_instance_report .dropdown-menu,
