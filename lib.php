@@ -43,7 +43,7 @@ define('MAX_PRICE_CATEGORIES', 9);
 define('MAX_SEMESTERS', 20);
 
 // Time to confirm booking or cancellation in seconds.
-define('TIME_TO_CONFIRM', 60);
+define('TIME_TO_CONFIRM', 20);
 
 // Define description parameters.
 define('DESCRIPTION_WEBSITE', 1); // Shows link button with text "book now" and no link to TeamsMeeting etc.
