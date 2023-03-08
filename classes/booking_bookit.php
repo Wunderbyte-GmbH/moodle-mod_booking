@@ -246,7 +246,9 @@ class booking_bookit {
                 $cache->delete($cachekey);
 
                 $isavailable = true;
+
             } else if ($id === BO_COND_CANCELMYSELF) {
+
                 // If the cancel condition is blocking here, we can actually mark the option for cancelation.
                 $cache = cache::make('mod_booking', 'confirmbooking');
                 $cachekey = $userid . "_" . $settings->id . "_cancel";
@@ -254,6 +256,7 @@ class booking_bookit {
                 $cache->set($cachekey, $now);
 
             } else if ($id === BO_COND_CONFIRMCANCEL) {
+
                 // Here we are already one step further and only confirm the cancelation.
                 $response = self::answer_booking_option($area, $itemid, STATUSPARAM_DELETED, $userid);
 

@@ -107,7 +107,7 @@ async function initBookingButton(optionid) {
 
     let button = modal.querySelector(selector);
 
-    if (!button) {
+    if ((button.dataset.action == 'noforward') || (!button)) {
         return;
     }
 
