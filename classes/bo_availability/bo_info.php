@@ -492,7 +492,6 @@ class bo_info {
 
         // We get the condition for the right page.
         $condition = new $condition();
-
         $object = $condition->render_page($optionid);
 
         // Now we introduce the header at the first place.
@@ -555,14 +554,14 @@ class bo_info {
 
         // Show description.
         // If necessary in a modal.
-        if (!empty($description)) {
-            if ($modalfordescription) {
-                $data = new prepagemodal($optionid, 'test', $description);
-                $renderedstring = $output->render_prepagemodal($data);
-            } else {
-                $renderedstring = html_writer::div($description, "alert alert-$style text-center");
-            }
-        }
+        // if (!empty($description)) {
+        //     if ($modalfordescription) {
+        //         $data = new prepagemodal($optionid, 'test', $description);
+        //         $renderedstring = $output->render_prepagemodal($data);
+        //     } else {
+        //         $renderedstring = html_writer::div($description, "alert alert-$style text-center");
+        //     }
+        // }
 
         // Show price and add to cart button.
         if ($showprice && !empty($optionvalues) && $optionid && !empty($usertobuyfor)) {

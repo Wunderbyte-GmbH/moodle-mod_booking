@@ -28,10 +28,11 @@ var SELECTORS = {
     INMODALFOOTER: ' div.prepage-booking-footer',
     INMODALBUTTON: 'div.in-modal-button',
     BOOKITBUTTON: 'div.booking-button-area',
+    BOOKITCLASS: 'booking-button-area',
     STATICBACKDROP: 'div.modal-backdrop',
 };
 
-const WAITTIME = 1500;
+const WAITTIME = 2000;
 
 /**
  * Add the click listener to a prepage modal button.
@@ -44,6 +45,9 @@ export function initFooterButtons(optionid, userid) {
 
     // First, get all link elements in the footer.
     const elements = document.querySelectorAll("[id^=" + SELECTORS.MODALID + optionid + "] " + SELECTORS.INMODALFOOTER + " a");
+
+    // eslint-disable-next-line no-console
+    console.log('elements', elements);
 
     elements.forEach(element => {
         if (element && !element.dataset.initialized) {
@@ -96,37 +100,42 @@ async function initBookingButton(optionid) {
     // First, we get the right modal.
     let modal = document.querySelector("div.modal.show[id^=" + SELECTORS.MODALID + optionid + "]");
 
-
     if (!modal) {
         return;
     }
 
-    // Within the modal, we only want to add the listener on the bookit button with option area.
-    const selector = SELECTORS.BOOKITBUTTON +
-    '[data-itemid]' +
-    '[data-area="option"]';
-
-    let button = modal.querySelector(selector);
-
-    if ((button.dataset.action == 'noforward') || (!button)) {
-        return;
-    }
-
-    // When there is the shopping-cart button, we want to go lower.
-    button = button.querySelector('.wb_shopping_cart') ?? button;
-
-    // eslint-disable-next-line no-console
-    console.log(selector, button);
-
-    button.addEventListener('click', () => {
+    modal.addEventListener('click', (e) => {
 
         // eslint-disable-next-line no-console
-        console.log('initBookingButton click');
+        console.log('click on modal', e.target);
 
-        // We don't continue right away but wait for a second.
-        setTimeout(() => {
-            continueToNextPage(optionid);
-        }, WAITTIME);
+        let button = e.target;
+
+        if (button) {
+
+            // eslint-disable-next-line no-console
+            console.log(button, button.parentElement, button.parentNode);
+
+            // eslint-disable-next-line no-console
+            console.log(button, button.parentElement, button.parentNode);
+
+            if (button.parentElement.classList.contains(SELECTORS.BOOKITCLASS)
+                && button.classList.contains('btn')) {
+
+
+                // eslint-disable-next-line no-console
+                console.log('initBookingButton click');
+
+                if (button.parentElement.dataset.action == 'noforward') {
+                    return;
+                }
+
+                // We don't continue right away but wait for a second.
+                setTimeout(() => {
+                    continueToNextPage(optionid);
+                }, WAITTIME);
+            }
+        }
     });
 }
 

@@ -81,9 +81,9 @@ export const initbookitbutton = (itemid, area) => {
 
             const userid = button.dataset.userid;
 
-            button.addEventListener('click', e => {
+            button.addEventListener('click', () => {
 
-                e.stopPropagation();
+                // e.stopPropagation();
 
                 bookit(itemid, area, userid);
             });
@@ -313,11 +313,6 @@ function bookit(itemid, area, userid) {
             // We run through every button. and render the data.
             buttons.forEach(button => {
 
-                while (button.firstChild) {
-                    const child = button.firstChild;
-                    child.remove();
-                }
-
                 // For every button, we need a new jsonarray.
                 const arraytoreduce = [...jsonarray];
 
@@ -333,7 +328,7 @@ function bookit(itemid, area, userid) {
 
                         const promise = Templates.renderForPromise(template, datatorender).then(({html, js}) => {
 
-                            Templates.replaceNodeContents(button, html, js);
+                            Templates.replaceNode(button, html, js);
 
                             return true;
                         }).catch(ex => {
@@ -350,7 +345,12 @@ function bookit(itemid, area, userid) {
 
             Promise.all(promises).then(() => {
 
-                reloadAllTables();
+                const backdrop = document.querySelector(SELECTORS.STATICBACKDROP);
+
+                if (!backdrop) {
+                    reloadAllTables();
+                }
+
                 // The actions on successful booking are executed elsewhere.
                 return true;
             }).catch(e => {

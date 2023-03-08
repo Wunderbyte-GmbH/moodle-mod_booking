@@ -128,6 +128,7 @@ class booking_bookit {
                 case BO_BUTTON_CANCEL:
                     $justmyalert = false;
                     $extrabuttoncondition = $result['classname'];
+                    $renderprepagemodal = false;
                     break;
             }
         }
@@ -141,35 +142,40 @@ class booking_bookit {
             $full = false;
         }
 
-        // The extra button condition is used to show Alert & Button, if this is allowed for a user.
-        if (!$justmyalert && !empty($extrabuttoncondition)) {
-            $condition = new $extrabuttoncondition();
+        // Do we really want to render a modal?
+        $showprepagemodal = (!$justmyalert && (count($prepages) > 0) && $renderprepagemodal);
 
-            list($template, $data) = $condition->render_button($settings, $userid, $full);
-
-            // This supports multiple templates as well.
-            $datas[] = new bookit_button($data);
-
-            $templates[] = $template;
-        }
-
-        // Big decision: can we render the button right away, or do we need to introduce a modal?
-        if (!$justmyalert && (count($prepages) > 0) && $renderprepagemodal) {
+        // Big decision: can we render the button right away, or do we need to introduce a modal.
+        if ($showprepagemodal) {
 
             // We render the button only from the highest relevant blocking condition.
 
-            $datas[] = new prepagemodal(
+            $data = new prepagemodal(
                 $settings, // We pass on the optionid.
                 count($prepages), // The total number of pre booking pages.
                 $buttoncondition,  // This is the button we need to render twice.
-                $showinmodalbutton, // This marker just suppresses the in modal button.
+                !$justmyalert ? $extrabuttoncondition : '', // There might be a second button to render.
                 $userid, // The userid for which all this will be rendered.
             );
 
+            $datas[] = $data;
             $templates[] = 'mod_booking/bookingpage/prepagemodal';
 
             return [$templates, $datas];
         } else {
+
+            // The extra button condition is used to show Alert & Button, if this is allowed for a user.
+            if (!$justmyalert && !empty($extrabuttoncondition)) {
+                $condition = new $extrabuttoncondition();
+
+                // If showprepagemodal is true, we want fullwidth, that's why we pass it on as last param here.
+                list($template, $data) = $condition->render_button($settings, $userid, $full, false, $renderprepagemodal);
+
+                // This supports multiple templates as well.
+                $datas[] = new bookit_button($data);
+
+                $templates[] = $template;
+            }
 
             $condition = new $buttoncondition();
 

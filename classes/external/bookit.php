@@ -97,7 +97,7 @@ class bookit extends external_api {
             ];
         }
 
-        list ($templates, $data) = booking_bookit::render_bookit_template_data($settings, $userid);
+        list ($templates, $data) = booking_bookit::render_bookit_template_data($settings, $userid, false);
 
         return [
             'status' => $status,

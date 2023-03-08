@@ -168,12 +168,14 @@ class confirmation implements bo_condition {
 
         switch ($lastresultid) {
             case BO_COND_ALREADYBOOKED:
+            case BO_COND_CANCELMYSELF:
                 $bodata['alreadybooked'] = true;
                 break;
             case BO_COND_ALREADYRESERVED:
                 $bodata['alreadyreserved'] = true;
                 break;
             case BO_COND_ONWAITINGLIST:
+            case BO_COND_CANCELMYSELF:
                 $bodata['onwaitinglist'] = true;
                 break;
             default:
