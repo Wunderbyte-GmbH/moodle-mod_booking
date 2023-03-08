@@ -147,7 +147,7 @@ class bookitbutton implements bo_subcondition {
         if ($userid === null) {
             $userid = $USER->id;
         }
-        $label = $this->get_description_string(false, $full);
+        $label = $this->get_description_string();
 
         return [
             'mod_booking/bookit_button',
@@ -167,11 +167,9 @@ class bookitbutton implements bo_subcondition {
     /**
      * Helper function to return localized description strings.
      *
-     * @param bool $isavailable
-     * @param bool $full
      * @return void
      */
-    private function get_description_string($isavailable, $full) {
+    private function get_description_string() {
 
         // In this case, we dont differentiate between availability, because when it blocks...
         // ... it just means that it can be booked. Blocking has a different functionality here.

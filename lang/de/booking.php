@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 // General strings.
+$string['areyousure:book'] = 'Möchten Sie wirklich buchen?';
+$string['areyousure:cancel'] = 'Möchten Sie wirklich stornieren?';
 $string['assignteachers'] = 'Lehrer:innen zuweisen:';
 $string['alreadypassed'] = 'Bereits vergangen';
 $string['bookingoption'] = 'Buchungsoption';

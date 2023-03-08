@@ -90,12 +90,13 @@ class cancelmyself implements bo_condition {
         $bookinginformation = $bookinganswer->return_all_booking_information($userid);
         $bosettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
 
-        // If the user is not yet booked we return true.
-        if (!isset($bookinginformation['iambooked'])
-            || $bosettings->cancancelbook != 1) {
+        $isavailable = false;
 
+        // If the user is not allowed to cancel we never show cancel button.
+        if ($bosettings->cancancelbook != 1 || isset($bookinginformation['notbooked'])) {
             $isavailable = true; // True means cancel button is not shown.
-        } else {
+        } else if (isset($bookinginformation['onwaitinglist']) || isset($bookinginformation['iambooked'])) {
+            // If the user is allowed to cancel, we first check if the user is already booked or on the waiting list.
             // We have to check if there's a limit until a certain date.
             $canceluntil = booking_option::return_cancel_until_date($optionid);
             // If the cancel until date has passed, we do not show cancel button.
@@ -201,7 +202,7 @@ class cancelmyself implements bo_condition {
         }
         $label = $this->get_description_string(false, $full);
 
-        return bo_info::render_button($settings, $userid, $label, 'btn btn-secondary', false, $fullwidth,
+        return bo_info::render_button($settings, $userid, $label, 'btn btn-secondary w-auto ml-1', false, $fullwidth,
             'button', 'option', false);
     }
 

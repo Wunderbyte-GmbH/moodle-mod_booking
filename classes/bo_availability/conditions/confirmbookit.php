@@ -188,7 +188,7 @@ class confirmbookit implements bo_condition {
         if ($userid === null) {
             $userid = $USER->id;
         }
-        $label = $this->get_description_string(false, $full);
+        $label = $this->get_description_string();
 
         return bo_info::render_button($settings, $userid, $label, 'btn btn-warning', false, $fullwidth,
             'button', 'option', false);
@@ -197,18 +197,9 @@ class confirmbookit implements bo_condition {
     /**
      * Helper function to return localized description strings.
      *
-     * @param bool $isavailable
-     * @param bool $full
      * @return string
      */
-    private function get_description_string($isavailable, $full) {
-        if ($isavailable) {
-            $description = $full ? get_string('bo_cond_alreadybooked_full_available', 'mod_booking') :
-                get_string('bo_cond_alreadybooked_available', 'mod_booking');
-        } else {
-            $description = $full ? get_string('bo_cond_alreadybooked_full_not_available', 'mod_booking') :
-                get_string('bo_cond_alreadybooked_not_available', 'mod_booking');
-        }
-        return 'wirklich buchen?';
+    private function get_description_string() {
+        return get_string('areyousure:book', 'mod_booking');
     }
 }

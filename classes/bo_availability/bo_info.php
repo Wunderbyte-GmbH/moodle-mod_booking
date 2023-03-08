@@ -595,6 +595,7 @@ class bo_info {
      * @param string $role
      * @param string $area
      * @param bool $nojs
+     * @param string $dataaction
      * @return array
      */
     public static function render_button(
@@ -606,7 +607,9 @@ class bo_info {
         bool $fullwidth = true,
         string $role = 'alert',
         string $area = 'option',
-        bool $nojs = true) {
+        bool $nojs = true,
+        string $dataaction = '' // Use 'noforward' to disable automatic forwarding.
+    ) {
 
         $user = singleton_service::get_instance_of_user($userid);
 
@@ -626,6 +629,7 @@ class bo_info {
             'itemid' => $settings->id,
             'area' => $area,
             'userid' => $userid ?? 0,
+            'dataaction' => $dataaction,
             'nojs' => $nojs,
             'main' => [
                 'label' => $label,

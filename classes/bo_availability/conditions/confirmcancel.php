@@ -186,27 +186,18 @@ class confirmcancel implements bo_condition {
         if ($userid === null) {
             $userid = $USER->id;
         }
-        $label = $this->get_description_string(false, $full);
+        $label = $this->get_description_string();
 
-        return bo_info::render_button($settings, $userid, $label, 'btn btn-danger', false, $fullwidth,
+        return bo_info::render_button($settings, $userid, $label, 'btn btn-danger w-auto ml-1', false, $fullwidth,
             'button', 'option', false);
     }
 
     /**
      * Helper function to return localized description strings.
      *
-     * @param bool $isavailable
-     * @param bool $full
      * @return string
      */
-    private function get_description_string($isavailable, $full) {
-        if ($isavailable) {
-            $description = $full ? get_string('bo_cond_alreadybooked_full_available', 'mod_booking') :
-                get_string('bo_cond_alreadybooked_available', 'mod_booking');
-        } else {
-            $description = $full ? get_string('bo_cond_alreadybooked_full_not_available', 'mod_booking') :
-                get_string('bo_cond_alreadybooked_not_available', 'mod_booking');
-        }
-        return 'wirklich stornieren?';
+    private function get_description_string() {
+        return get_string('areyousure:cancel', 'mod_booking');
     }
 }

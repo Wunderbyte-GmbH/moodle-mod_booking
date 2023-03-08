@@ -224,7 +224,7 @@ class bookitbutton implements bo_condition {
         $label = $this->get_description_string(false, $full);
 
         return bo_info::render_button($settings, $userid, $label, 'btn btn-secondary', false, $fullwidth,
-            'button', 'option', false);
+            'button', 'option', false, 'noforward');
     }
 
     /**
