@@ -22,6 +22,15 @@
 
     Data attributes required for JS:
     * data-region
+
+    Example context (json):
+    {
+        "teachers": [
+            {
+              "key" : "Maxima Yoga"
+            }
+        ]
+    }
 }}
 <div {{^teachers}} style="display:none"{{/teachers}}>
     <b>{{#str}} teachers, mod_booking {{/str}}:</b>

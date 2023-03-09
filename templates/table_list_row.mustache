@@ -25,39 +25,89 @@
     * highscores - array: empty array, will be filled with JS.
 
     Example context (json):
+
     {
-       "listheaderclass" : "listheaderclass",
-       "cardheaderclass" : "cardheaderclass",
-       "cardfooterclass" : "cardfooterclass",
-       "cardimageclass" : "cardimageclass",
-       "cardheader": [
-            "columnclass" : "columnclass",
-            "columnkeyclass" : "columnkeyclass",
-            "key" : "columnname",
-            "keystring" : "localized column name",
-            "columnvalueclass" : "columnvalueclass"
-            "value" : "value"
-       ],
-       "cardbody": [
-            "columnclass" : "columnclass",
-            "columnkeyclass" : "columnkeyclass",
-            "key" : "columnname",
-            "keystring" : "localized column name",
-            "columnvalueclass" : "columnvalueclass"
-            "value" : "value"
-       ],
-       "cardfooter": [
-            "columnclass" : "columnclass",
-            "columnkeyclass" : "columnkeyclass",
-            "key" : "columnname",
-            "keystring" : "localized column name",
-            "columnvalueclass" : "columnvalueclass"
-            "value" : "value"
-       ],
-       "cardimage": [
-            "value" : "value"
-       ]
+      "datafields": [
+        {
+          "key":"value"
+        }
+      ],
+      "rowid": "allbookingoptionstable_r1",
+      "rowclasses": "rowclasses",
+        "leftside": {
+            "invisibleoption": {
+                "columnkeyclass": "d-none",
+                "columnvalueclass": "booking-option-info-invisible"
+            },
+            "text": {
+                "columnkeyclass": "d-none",
+                "columnclass": "text-left m-0 mb-1 h5",
+                "keystring": "Course name"
+            },
+            "action": {
+                "columnkeyclass": "d-none",
+                "columnclass": "text-right"
+            },
+            "teacher": {
+                "columnkeyclass": "d-none",
+                "columnclass": "text-left font-size-sm",
+                "keystring": "Teacher(s)"
+            },
+            "statusdescription": {
+                "columnkeyclass": "d-none"
+            },
+            "description": {
+                "columnkeyclass": "d-none"
+            }
+        },
+        "footer": {
+            "bookings": {
+                "columnkeyclass": "d-none",
+                "columnclass": "text-left text-gray pr-2 font-size-sm",
+                "columniclassbefore": "fa fa-ticket fa-fw text-gray\n            font-size-sm"
+            },
+            "minanswers": {
+                "columnkeyclass": "d-none",
+                "columnclass": "text-left text-gray pr-2 font-size-sm",
+                "columniclassbefore": "fa fa-arrow-up fa-fw text-gray\n                font-size-sm"
+            },
+            "dayofweektime": {
+                "columnkeyclass": "d-none",
+                "columnclass": "text-left text-gray pr-2 font-size-sm",
+                "columniclassbefore": "fa fa-clock-o fa-fw text-gray\n                font-size-sm"
+            },
+            "location": {
+                "columnkeyclass": "d-none",
+                "columnclass": "text-left text-gray  pr-2 font-size-sm",
+                "columniclassbefore": "fa fa-map-marker fa-fw text-gray\n                font-size-sm"
+            },
+            "institution": {
+                "columnkeyclass": "d-none",
+                "columnclass": "text-left text-gray  pr-2 font-size-sm",
+                "columniclassbefore": "fa fa-building-o fa-fw text-gray\n                font-size-sm"
+            },
+            "showdates": {
+                "columnkeyclass": "d-none",
+                "columnclass": "text-left pr-2 text-gray font-size-sm"
+            },
+            "comments": {
+                "columnkeyclass": "d-none"
+            }
+        },
+        "rightside": {
+            "booknow": {
+                "columnclass": "text-right"
+            },
+            "course": [],
+            "progressbar": {
+                "columnclass": "text-left mt-1 text-gray font-size-sm"
+            },
+            "ratings": {
+                "columnclass": "mt-1"
+            }
+        }
     }
+
 }}
 
 <div class="card border py-1 px-3 sk-fade mb-2 flex-md-row align-items-center row gx-0" {{#datafields}} data-{{key}}="{{value}}" {{/datafields}}>

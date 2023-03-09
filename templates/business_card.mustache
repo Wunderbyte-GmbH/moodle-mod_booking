@@ -22,24 +22,38 @@
 
     Data attributes required for JS:
     * data-region
+    
+    Example context (json):
+    {
+        "userpictureurl": "http://localhost:58000/message/index.php?id=980",
+        "username": "teacher1 teacher1",
+        "userprofileurl": "http://localhost:8010/user/profile.php?id=980",
+        "userdescription": "<p>Teacher1 Teacher1 is a software engineer at Example Co.</p>",
+        "description": "<p>This is a description of the event.</p>",
+        "duration": "2 hours",
+        "points": 5
+    }
+
 }}
 
+{{#username}}
 <div class='container mb-3' id='booking-business-card'>
     <div class='row'>
         <div class='col-1'>
-            <img src="{{userpictureurl}}" alt="{{username}}" class='userpicture' style="max-width:100%;"></img>
+            <img src="{{userpictureurl}}" alt="{{username}}" class='userpicture' style="max-width:100%;">
         </div>
         <div class='col-11'>
             <p class="bold">
                 {{#str}} organizatorname, mod_booking {{/str}}<br>
             </p>
             <p>
-                <b><a href='{{userprofileurl}}' alt='{{username}}'>{{username}}</a></b><br>
+                <b><a href='{{userprofileurl}}' aria-label='{{username}}'>{{username}}</a></b><br>
                 {{{userdescription}}}
             </p>
         </div>
     </div>
 </div>
+{{/username}}
 {{#description}}
     <div>
         <p>{{{description}}}</p>

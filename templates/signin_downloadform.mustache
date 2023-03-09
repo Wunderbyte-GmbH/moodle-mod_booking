@@ -27,6 +27,32 @@
     * see mod/booking/classes/output/signin_download.php
 
     This template is initially hidden, and is only displayed after the current user info has been loaded.
+
+	Example context (json):
+	{
+		"id": "7",
+		"optionid": "1",
+		"titleoption": "AERIAL YOGA",
+		"titleinstanceoption": "ws 22/23 - AERIAL YOGA",
+		"instanceoption": "ws 22/23",
+		"baseurl": "/mod/booking/report.php",
+		"teachersexist": true,
+		"sessions": [
+			{
+			"sessiondateonly": "3 March 2023",
+			"coursestarttime": "3 March 2023, 10:30 AM",
+			"courseendtime": "3 March 2023, 11:45 AM",
+			"id": "1"
+			},
+			{
+			"sessiondateonly": "10 March 2023",
+			"coursestarttime": "10 March 2023, 10:30 AM",
+			"courseendtime": "10 March 2023, 11:45 AM",
+			"id": "2"
+			}
+		]
+	}
+
 }}
 <div class="card"  style="display: none;" id="signinsheet">
     <form data-region="booking-download-signinsheet-form" method="get" action="{{baseurl}}">

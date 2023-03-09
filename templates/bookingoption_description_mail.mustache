@@ -22,6 +22,37 @@
 
     Data attributes required for JS:
     * data-region
+
+    Example context (json):
+    {
+        "titleprefix" : "titleprefix",
+        "location" : "location",
+        "institution" : "institution",
+        "address" : "address",
+        "statusdescription" : "statusdescription",
+        "booknowbutton": "booknow button HTML",
+        "teachers": [
+            {
+                "userid": "1006",
+                "firstname": "Maxima",
+                "lastname": "Yoga",
+                "email": "maxima.yoga@mailnotexisting.net",
+                "institution": "Institution",
+                "teacherurl": "url"
+            }
+        ],
+        "dates": [
+            {
+                "datestring": "datestring",
+                "customfields": [
+                    {
+                        "name" : "custom field name",
+                        "value" : "custom field value"
+                    }
+                ]
+            }
+        ]
+    }
 }}
 
 <h4>{{#titleprefix}}{{.}} - {{/titleprefix}}{{title}}</h4>

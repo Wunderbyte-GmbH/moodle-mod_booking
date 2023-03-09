@@ -22,6 +22,40 @@
 
     Data attributes required for JS:
     * data-region
+
+    Example context (json):
+    {
+        "titleprefix" : "titleprefix",
+        "description": "Booking option description",
+        "location" : "location",
+        "institution" : "institution",
+        "address" : "address",
+        "statusdescription" : "statusdescription",
+        "booknowbutton": "booknow button HTML",
+        "showteacherslabel": true,
+        "showdateslabel": true,
+        "teachers": [
+            {
+                "userid": "1006",
+                "firstname": "Maxima",
+                "lastname": "Yoga",
+                "email": "maxima.yoga@mailnotexisting.net",
+                "institution": "Institution",
+                "teacherurl": "url"
+            }
+        ],
+        "dates": [
+            {
+                "datestring": "datestring",
+                "customfields": [
+                    {
+                        "name" : "custom field name",
+                        "value" : "custom field value"
+                    }
+                ]
+            }
+        ]
+    }
 }}
 {{#booknowbutton}}
     <div class="float-right">
