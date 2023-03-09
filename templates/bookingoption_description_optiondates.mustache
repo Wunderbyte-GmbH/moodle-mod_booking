@@ -22,6 +22,21 @@
 
     Data attributes required for JS:
     * data-region
+    
+    Example context (json):
+    {
+        "dates": [
+            {
+                "datestring": "datestring",
+                "customfields": [
+                    {
+                        "name" : "custom field name",
+                        "value" : "custom field value"
+                    }
+                ]
+            }
+        ]
+    }
 }}
 <div {{^dates}} style="display:none"{{/dates}}>
     <b>{{#str}} sessions, mod_booking {{/str}}:</b>

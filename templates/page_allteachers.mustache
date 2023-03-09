@@ -22,6 +22,29 @@
 
     Data attributes required for JS:
     * data-region
+    
+    Example context (json):
+    {
+        "canedit" : true,
+        "teachers" : [
+            {
+                "key": [
+                    {
+                        "teacherid" : "1005",
+                        "firstname" : "Billy",
+                        "lastname" : "Teachy",
+                        "orderletter" : "T",
+                        "description" : "description text",
+                        "linktoperformedunitsreport" :  "http://site/mod/booking/teacher_performed_units_report.php?teacherid=1005",
+                        "email" : "billy.teachy@mailnotexisting.net",
+                        "messagingispossible" : true,
+                        "link" : "http://site/mod/booking/teacher.php?teacherid=1005",
+                        "messagelink" : "http://sote/message/index.php?id=1005"
+                    }
+                ]
+            }
+    ]
+}
 }}
 {{#canedit}}
 <a class="text-primary" data-toggle="collapse" href="#collapsiblelistofteachers" role="button" aria-expanded="false" aria-controls="collapsiblelistofteachers">

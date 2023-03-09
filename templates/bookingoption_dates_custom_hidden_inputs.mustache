@@ -22,6 +22,18 @@
 
     Data attributes required for JS:
     * data-region
+
+    Example context (json):
+    {
+        "dates": [
+            {
+                "dateid": "dateid-0",
+                "starttimestamp": "1678120200",
+                "endtimestamp": "1687797900",
+                "string": "Monday, 6 March 2023, 4:30 PM - Monday, 26 June 2023, 5:45 PM"
+            }
+        ]
+    }
 }}
 {{#dates}}
 <input id="{{dateid}}" type="text" name="coursetime-{{dateid}}" data-fieldtype="text" value="{{starttimestamp}}-{{endtimestamp}}" class="d-none felement">

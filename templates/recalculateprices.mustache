@@ -22,6 +22,15 @@
 
     Data attributes required for JS:
     * data-region
+    
+    Example context (json):
+    {
+        "cmid" :7,
+        "back" : "http://site/mod/booking/view.php?id=7",
+        "continue" : "http://site/mod/booking/recalculateprices.php?id=7&submit=1",
+        "alert" : 0,
+        "alertmsg" : "Caution! All prices will be recalculated and all old prices will be overwritten." 
+    }
 }}
 <div class="alert alert-danger alert-dismissible fade show" role="alert">
   {{{alertmsg}}}

@@ -15,13 +15,31 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_booking/bookingoption_dates
+    @template mod_booking/ruleslist
 
     Classes required for JS:
     * none
 
     Data attributes required for JS:
     * data-region
+
+    Example context (json):
+    {
+        "rules" : [
+            {
+                "key": [
+                    {
+                        "name" : "name",
+                        "actionname" : "actionname",
+                        "conditionname" : "conditionname",
+                        "localizedrulename" : "localizedrulename",
+                        "localizedactionname" : "localizedactionname",
+                        "localizedconditionname" : "localizedconditionname"
+                    }
+                ]
+            }
+    ]
+}
 }}
 
 <div class="booking-rules-container">

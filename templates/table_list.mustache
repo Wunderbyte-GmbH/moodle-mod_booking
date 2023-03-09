@@ -24,40 +24,22 @@
     * finishedgames - array: empty array, will be filled with JS.
     * highscores - array: empty array, will be filled with JS.
 
-    Example context (json):
-    {
-       "listheaderclass" : "listheaderclass",
-       "cardheaderclass" : "cardheaderclass",
-       "cardfooterclass" : "cardfooterclass",
-       "cardimageclass" : "cardimageclass",
-       "cardheader": [
-            "columnclass" : "columnclass",
-            "columnkeyclass" : "columnkeyclass",
-            "key" : "columnname",
-            "keystring" : "localized column name",
-            "columnvalueclass" : "columnvalueclass",
-            "value" : "value"
-       ],
-       "cardbody": [
-            "columnclass" : "columnclass",
-            "columnkeyclass" : "columnkeyclass",
-            "key" : "columnname",
-            "keystring" : "localized column name",
-            "columnvalueclass" : "columnvalueclass",
-            "value" : "value"
-       ],
-       "cardfooter": [
-            "columnclass" : "columnclass",
-            "columnkeyclass" : "columnkeyclass",
-            "key" : "columnname",
-            "keystring" : "localized column name",
-            "columnvalueclass" : "columnvalueclass",
-            "value" : "value"
-       ],
-       "cardimage": [
-            "value" : "value"
-       ]
-    }
+   Example context (json):
+   {
+   "table": {
+      "rows": [
+         {
+         "table_list_row": "table_list_row JSON"
+         }
+      ],
+      "component_pagination": "component_pagination JSON"
+   },
+   "js": {
+      "idstring": "example_idstring",
+      "encodedtable": "example_encodedtable",
+      "shoppingcartisavailable": true
+   }
+   }
 }}
 
 {{#table}}
