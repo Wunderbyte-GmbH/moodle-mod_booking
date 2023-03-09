@@ -50,9 +50,9 @@ Feature: In a booking instance create booking options
     And I set the field "addtocalendar" to "1"
     And I wait "1" seconds
     And I set the following fields to these values:
-      | coursestarttime[day]    | ## yesterday ## %d ## |
-      | coursestarttime[month]  | ## yesterday ## %B ## |
-      | coursestarttime[year]   | ## yesterday ## %Y ## |
+      | coursestarttime[day]    | ## tomorrow ## %d ## |
+      | coursestarttime[month]  | ## tomorrow ## %B ## |
+      | coursestarttime[year]   | ## tomorrow ## %Y ## |
       | coursestarttime[hour]   | 00                    |
       | coursestarttime[minute] | 00                    |
     And I set the following fields to these values:
@@ -67,7 +67,8 @@ Feature: In a booking instance create booking options
     And I am on the "Course 1" course page logged in as student1
     And I follow "My booking"
     And I wait "1" seconds
-    And I click on "Book now" "text" in the ".active #allbookingoptionstable_r1 .booknow" "css_element"
-    ## And I reload the page
-    And I should see "Booked" in the ".active #allbookingoptionstable_r1" "css_element"
+    And I click on "Book now" "text" in the "#allbookingoptionstable_r1 .booknow" "css_element"
+    And I should see "Do you really want to book?" in the "#allbookingoptionstable_r1" "css_element"
+    And I click on "Do you really want to book?" "text" in the "#allbookingoptionstable_r1" "css_element"
+    And I should see "Booked" in the "#allbookingoptionstable_r1" "css_element"
     And I should not see "Book now" in the "#allbookingoptionstable_r1" "css_element"
