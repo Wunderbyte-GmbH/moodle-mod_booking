@@ -106,7 +106,8 @@ define('BO_COND_JSON_PREVIOUSLYBOOKED', 13);
 define('BO_COND_JSON_CUSTOMUSERPROFILEFIELD', 12);
 define('BO_COND_JSON_USERPROFILEFIELD', 11);
 
-define('BO_COND_PRICEISSET', 10); // Price has to be the lowest blocking condition.
+define('BO_COND_NOSHOPPINGCART', 6);
+define('BO_COND_PRICEISSET', 5);
 define('BO_COND_CONFIRMBOOKIT', 2);
 define('BO_COND_BOOKITBUTTON', 1); // This is only used to show the book it button.
 define('BO_COND_CONFIRMATION', 0); // This is the last page after booking.

@@ -3414,5 +3414,18 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023022800, 'booking');
     }
 
+    if ($oldversion < 2023031301) {
+
+        // Changing precision of field allowupdatedays on table booking to (10).
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('allowupdatedays', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'teacherroleid');
+
+        // Launch change of precision for field allowupdatedays.
+        $dbman->change_field_precision($table, $field);
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2023031301, 'booking');
+    }
+
     return true;
 }

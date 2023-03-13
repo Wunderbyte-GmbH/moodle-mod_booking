@@ -40,7 +40,7 @@ use templatable;
 class bookit_button implements renderable, templatable {
 
     /** @var array $data */
-    public array $data = [];
+    public $data = [];
 
     /**
      * @param array $data

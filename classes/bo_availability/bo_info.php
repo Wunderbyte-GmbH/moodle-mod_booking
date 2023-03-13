@@ -475,7 +475,9 @@ class bo_info {
         $results = self::get_condition_results($optionid, $userid);
 
         // Results have to be sorted the right way. At the moment, it depends on the id of the blocking condition.
-        usort($results, fn($a, $b) => ($a['id'] < $b['id'] ? 1 : -1 ));
+        usort($results, function ($a, $b) {
+            return $a['id'] < $b['id'] ? 1 : -1;
+        });
 
         // Sorted List of blocking conditions which also provide a proper page.
         $conditions = self::return_sorted_conditions($results);
@@ -554,14 +556,15 @@ class bo_info {
 
         // Show description.
         // If necessary in a modal.
-        // if (!empty($description)) {
-        //     if ($modalfordescription) {
-        //         $data = new prepagemodal($optionid, 'test', $description);
-        //         $renderedstring = $output->render_prepagemodal($data);
-        //     } else {
-        //         $renderedstring = html_writer::div($description, "alert alert-$style text-center");
-        //     }
-        // }
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* if (!empty($description)) {
+            if ($modalfordescription) {
+                $data = new prepagemodal($optionid, 'test', $description);
+                $renderedstring = $output->render_prepagemodal($data);
+            } else {
+                $renderedstring = html_writer::div($description, "alert alert-$style text-center");
+            }
+        } */
 
         // Show price and add to cart button.
         if ($showprice && !empty($optionvalues) && $optionid && !empty($usertobuyfor)) {
