@@ -1650,7 +1650,7 @@ function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $o
  * @param array $allselectedusers
  */
 function booking_generatenewnumbers($bookingdatabooking, $cmid, $optionid, $allselectedusers) {
-    global $DB;
+    global $DB, $CFG;
 
     if (!empty($allselectedusers)) {
         $tmprecnum = $DB->get_record_sql(
@@ -1671,8 +1671,14 @@ function booking_generatenewnumbers($bookingdatabooking, $cmid, $optionid, $alls
             $DB->update_record('booking_answers', $userdata);
         }
     } else {
+        $random = "RAND()";
+
+        if (isset($CFG->dbfamily) && $CFG->dbfamily == "postgres") {
+            $random = "RANDOM()";
+        }
+
         $allusers = $DB->get_records_sql(
-                'SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY RAND()',
+                "SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY {$random}",
                 array($optionid));
 
         $recnum = 1;
