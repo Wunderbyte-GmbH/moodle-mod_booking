@@ -95,7 +95,8 @@ $out = [];
 $fs = get_file_storage();
 $files = $fs->get_area_files($context->id, 'mod_booking', 'myfilemanager',
         $bookingsettings->id);
-if (count($files) > 0) {
+
+if (count($files) > 1) {
     echo html_writer::start_tag('div');
     echo html_writer::tag('label', '<i class="fa fa-paperclip" aria-hidden="true"></i> ' .
         get_string('attachedfiles', 'mod_booking') . ': ', array('class' => 'ml-3 mt-1 mb-3 bold'));
