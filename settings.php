@@ -322,7 +322,9 @@ if ($ADMIN->fulltree) {
     }
 
     // PRO feature: Subbookings.
-    if ($proversion) {
+    // For the branch "without_subbookings", we remove subbookings temporarily.
+    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+    /* if ($proversion) {
         $settings->add(
             new admin_setting_heading('subbookings',
                 get_string('subbookings', 'mod_booking'),
@@ -336,7 +338,7 @@ if ($ADMIN->fulltree) {
             new admin_setting_heading('subbookings',
                 get_string('subbookings', 'mod_booking'),
                 get_string('infotext:prolicensenecessary', 'mod_booking')));
-    }
+    } */
 
     // PRO feature: Progress bars.
     if ($proversion) {

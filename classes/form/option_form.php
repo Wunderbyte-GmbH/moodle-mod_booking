@@ -449,7 +449,10 @@ class option_form extends moodleform {
 
         // TODO: expert/simple mode needs to work with this too!
         // Add subbookings options.
-        subbookings_info::add_subbookings_to_mform($mform, $this->_customdata);
+
+        // For the branch "without_subbookings", we remove subbookings temporarily.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* subbookings_info::add_subbookings_to_mform($mform, $this->_customdata); */
 
         // Workaround: Only show, if it is not turned off in the option form config.
         // We currently need this, because hideIf does not work with headers.
