@@ -157,7 +157,6 @@ class bookingoptions_simple_table extends wunderbyte_table {
         $link = new moodle_url($CFG->wwwroot . '/mod/booking/view.php', array(
             'id' => $values->cmid,
             'optionid' => $values->optionid,
-            'action' => 'showonlyone',
             'whichview' => 'showonlyone'
         ));
         // Use html_entity_decode to convert "&amp;" to a simple "&" character.

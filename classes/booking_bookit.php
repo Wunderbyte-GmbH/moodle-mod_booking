@@ -97,7 +97,7 @@ class booking_bookit {
         $datas = [];
         $showinmodalbutton = true;
         $extrabuttoncondition = '';
-        $justmyalert = false;
+        $justmyalert = null;
         foreach ($results as $result) {
 
             switch ($result['button'] ) {
@@ -122,7 +122,9 @@ class booking_bookit {
                     break;
                 case BO_BUTTON_JUSTMYALERT:
                     // The JUST MY ALERT prevents other buttons to be displayed.
-                    $justmyalert = true;
+                    if ($justmyalert === null) {
+                        $justmyalert = true;
+                    }
                     $buttoncondition = $result['classname'];
                     break;
                 case BO_BUTTON_CANCEL:
@@ -254,7 +256,7 @@ class booking_bookit {
 
                 $isavailable = true;
 
-            } else if ($id === BO_COND_CANCELMYSELF) {
+            } else if ($id === BO_COND_ALREADYBOOKED || $id === BO_COND_ONWAITINGLIST) {
 
                 // If the cancel condition is blocking here, we can actually mark the option for cancelation.
                 $cache = cache::make('mod_booking', 'confirmbooking');

@@ -21,10 +21,11 @@
 
 
 import {continueToNextPage, backToPreviousPage} from 'mod_booking/bookit';
+import {reloadAllTables} from 'local_wunderbyte_table/reload';
 
 var SELECTORS = {
     MODALID: 'sbPrePageModal_',
-    INMODALDIV: ' div.pageContent',
+    INMODALDIV: ' div.modalMainContent',
     INMODALFOOTER: ' div.prepage-booking-footer',
     INMODALBUTTON: 'div.in-modal-button',
     BOOKITBUTTON: 'div.booking-button-area',
@@ -147,5 +148,6 @@ function closeModal(optionid) {
     }
     if (backdrop) {
         backdrop.remove();
+        reloadAllTables();
     }
 }

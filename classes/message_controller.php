@@ -236,7 +236,6 @@ class message_controller {
         $gotobookingoptionlink = new \moodle_url($CFG->wwwroot . '/mod/booking/view.php', array(
             'id' => $this->cmid,
             'optionid' => $this->optionid,
-            'action' => 'showonlyone',
             'whichview' => 'showonlyone'
         ));
         $params->gotobookingoption = \html_writer::link($gotobookingoptionlink, $gotobookingoptionlink->out());

@@ -115,13 +115,7 @@ class onwaitinglist implements bo_condition {
      * @param integer $userid
      * @return boolean
      */
-    public function hard_block(booking_option_settings $settings, $userid):bool {
-
-        $context = context_system::instance();
-        if (has_capability('mod/booking:overrideboconditions', $context)) {
-            return false;
-        }
-
+    public function hard_block(booking_option_settings $settings, $userid): bool {
         return true;
     }
 

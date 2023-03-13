@@ -910,7 +910,6 @@ class option_form extends moodleform {
         $link = new moodle_url('/mod/booking/view.php', [
             'optionid' => $fromform->optionid,
             'id' => $fromform->id,
-            'action' => 'showonlyone',
             'whichview' => 'showonlyone']);
 
         foreach ($datestobook as $date) {

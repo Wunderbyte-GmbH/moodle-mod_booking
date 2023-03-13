@@ -111,7 +111,7 @@ class all_options extends table_sql {
             // Show only one option.
             $onlyoneurl = new moodle_url('/mod/booking/view.php',
                 array('id' => $this->cm->id, 'optionid' => $values->id,
-                    'action' => 'showonlyone', 'whichview' => 'showonlyone'));
+                    'whichview' => 'showonlyone'));
             $ddoptions[] = '<div class="dropdown-item">' .
                 html_writer::link($onlyoneurl,
                     $OUTPUT->pix_icon('i/publish',

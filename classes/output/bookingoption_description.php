@@ -315,7 +315,6 @@ class bookingoption_description implements renderable, templatable {
         $moodleurl = new \moodle_url($baseurl . '/mod/booking/view.php', array(
             'id' => $cmid,
             'optionid' => $settings->id,
-            'action' => 'showonlyone',
             'whichview' => 'showonlyone'
         ));
 

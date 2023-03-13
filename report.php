@@ -812,7 +812,7 @@ if (!$tableallbookings->is_downloading()) {
     $tableallbookings->finish_output();
 
     $onlyoneurl = new moodle_url('/mod/booking/view.php',
-            array('id' => $id, 'optionid' => $optionid, 'action' => 'showonlyone',
+            array('id' => $id, 'optionid' => $optionid,
                 'whichview' => 'showonlyone'));
 
     $pollurl = trim($bookingoption->option->pollurl);

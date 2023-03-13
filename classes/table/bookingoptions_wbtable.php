@@ -639,7 +639,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
             // Show only one option.
             $onlyoneurl = new moodle_url('/mod/booking/view.php',
                 array('id' => $this->cmid, 'optionid' => $values->id,
-                    'action' => 'showonlyone', 'whichview' => 'showonlyone'));
+                    'whichview' => 'showonlyone'));
             $ddoptions[] = '<div class="dropdown-item">' .
                 html_writer::link($onlyoneurl,
                     $OUTPUT->pix_icon('i/publish',

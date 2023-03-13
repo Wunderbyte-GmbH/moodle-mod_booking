@@ -988,7 +988,6 @@ class booking {
             $link = new moodle_url('/mod/booking/view.php', [
                 'optionid' => $record->optionid,
                 'id' => $optionsettings->cmid,
-                'action' => 'showonlyone',
                 'whichview' => 'showonlyone']);
 
             $newentittydate = new entitydate(

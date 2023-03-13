@@ -87,7 +87,7 @@ define('MSGCONTRPARAM_VIEW_CONFIRMATION', 4);
 define('BO_COND_ISLOGGEDINPRICE', 190);
 define('BO_COND_ISLOGGEDIN', 180);
 define('BO_COND_CONFIRMCANCEL', 170);
-define('BO_COND_CANCELMYSELF', 160);
+define('BO_COND_CANCELMYSELF', 105);
 define('BO_COND_ALREADYBOOKED', 150);
 define('BO_COND_ALREADYRESERVED', 140);
 define('BO_COND_ISCANCELLED', 130);
@@ -1049,7 +1049,7 @@ function booking_update_options($optionvalues, $context) {
                 $googer = new GoogleURLAPI($gapik);
                 if (!empty($gapik)) {
                     $onlyoneurl = new moodle_url('/mod/booking/view.php',
-                            array('id' => $optionvalues->id, 'optionid' => $optionvalues->optionid, 'action' => 'showonlyone',
+                            array('id' => $optionvalues->id, 'optionid' => $optionvalues->optionid,
                                    'whichview' => 'showonlyone'));
                     $shorturl = $googer->shorten(htmlspecialchars_decode($onlyoneurl->__toString()));
                     if ($shorturl) {
@@ -1208,7 +1208,7 @@ function booking_update_options($optionvalues, $context) {
         if (!empty($gapik)) {
             $googer = new GoogleURLAPI($gapik);
             $onlyoneurl = new moodle_url('/mod/booking/view.php',
-                    array('id' => $optionvalues->id, 'optionid' => $optionid, 'action' => 'showonlyone',
+                    array('id' => $optionvalues->id, 'optionid' => $optionid,
                         'whichview' => 'showonlyone'));
 
             $shorturl = $googer->shorten(htmlspecialchars_decode($onlyoneurl->__toString()));

@@ -30,7 +30,10 @@ var totalbookitpages = {};
 
 var SELECTORS = {
     MODALID: 'sbPrePageModal_',
-    INMODALDIV: ' div.pageContent',
+    INMODALDIV: ' div.modalMainContent',
+    MODALHEADER: 'div.modalHeader',
+    MODALBUTTONAREA: 'div.modalButtonArea',
+    MODALFOOTER: 'div.modalFooter',
     CONTINUEBUTTON: 'a.continue-button', // Don't want to find button right now.
     BACKBUTTON: 'a.back-button', // Don't want to find button right now.
     BOOKITBUTTON: 'div.booking-button-area.noprice',
@@ -83,7 +86,7 @@ export const initbookitbutton = (itemid, area) => {
 
             button.addEventListener('click', (e) => {
 
-                // e.stopPropagation();
+                // E.stopPropagation();
 
                 if (e.target.classList.contains('btn')) {
                     bookit(itemid, area, userid);
@@ -257,17 +260,48 @@ export const loadPreBookingPage = (
  */
 async function renderTemplatesOnPage(templates, dataarray, element) {
 
-    for (const template of templates) {
+    // eslint-disable-next-line no-console
+    console.log('templates: ', templates);
+
+    const modal = element.closest('.modal-body');
+
+    modal.querySelector(SELECTORS.MODALHEADER).innerHTML = '';
+    modal.querySelector(SELECTORS.INMODALDIV).innerHTML = '';
+    modal.querySelector(SELECTORS.MODALBUTTONAREA).innerHTML = '';
+    modal.querySelector(SELECTORS.MODALFOOTER).innerHTML = '';
+
+    templates.forEach(async template => {
 
         const data = dataarray.shift();
+
+        let targetelement = element;
 
         if (!data) {
             return true;
         }
 
+        switch (template) {
+            case 'mod_booking/bookingpage/header':
+                targetelement = modal.querySelector(SELECTORS.MODALHEADER);
+                break;
+            case 'mod_booking/bookingoption_description_prepagemodal_bookit':
+                targetelement = modal.querySelector(SELECTORS.INMODALDIV);
+                break;
+            case 'mod_booking/bookit_button':
+            case 'mod_booking/bookit_price':
+                targetelement = modal.querySelector(SELECTORS.MODALBUTTONAREA);
+                break;
+            case 'mod_booking/bookingpage/footer':
+                targetelement = modal.querySelector(SELECTORS.MODALFOOTER);
+                break;
+        }
+
         await Templates.renderForPromise(template, data.data).then(({html, js}) => {
 
-            Templates.appendNodeContents(element, html, js);
+            // eslint-disable-next-line no-console
+            console.log('targetelement: ', targetelement);
+
+            Templates.replaceNodeContents(targetelement, html, js);
 
             return true;
         }).catch(ex => {
@@ -276,7 +310,8 @@ async function renderTemplatesOnPage(templates, dataarray, element) {
                 type: "danger"
             });
         });
-    }
+        return true;
+    });
     return true;
 }
 
