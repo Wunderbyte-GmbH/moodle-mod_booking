@@ -72,7 +72,6 @@ class prepagemodal implements renderable, templatable {
             int $totalnumberofpages,
             string $buttoncondition,
             string $extrabuttoncondition,
-            // bool $showinmodalbutton = true,
             int $userid = 0) {
 
         global $PAGE;
@@ -96,7 +95,7 @@ class prepagemodal implements renderable, templatable {
 
         if (!empty($extrabuttoncondition)) {
             $extracondition = new $extrabuttoncondition();
-            list($extratemplate, $extradata) = $extracondition->render_button($settings, $userid, $full, false, true);
+            list($extratemplate, $extradata) = $extracondition->render_button($settings, $userid, $full);
 
             $extradata['top'] = $data['main'];
             $data = $extradata;
@@ -106,14 +105,6 @@ class prepagemodal implements renderable, templatable {
         $data = new bookit_button($data);
         $output = $PAGE->get_renderer('mod_booking');
         $this->buttonhtml = $output->render_bookit_button($data, $template);
-
-        // if ($showinmodalbutton) {
-        //     $condition = new $buttoncondition();
-        //     list($template, $data) = $condition->render_button($settings, $userid, $full);
-        //     $data = new bookit_button($data);
-
-        //     $this->inmodalbuttonhtml = $output->render_bookit_button($data, $template);
-        // }
     }
 
     /**

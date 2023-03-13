@@ -162,9 +162,7 @@ class confirmation implements bo_condition {
         // Get blocking conditions, including prepages$prepages etc.
         $results = bo_info::get_condition_results($optionid, $userid);
         $lastresultid = array_pop($results)['id'];
-        /*if ($lastresultid == BO_COND_CANCELMYSELF) {
-            $lastresultid = array_pop($results)['id'];
-        }*/
+
         $data = new bookingoption_description($optionid, null, DESCRIPTION_WEBSITE, true, false);
         $bodata = $data->get_returnarray();
 
