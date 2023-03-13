@@ -1,3 +1,34 @@
+## Version 8.0.0 (2023031300)
+**New features:**
+* New feature: New view.php now working with Wunderbyte Table (local_wunderbyte_table) with lots of improved features.
+* New feature: Show text depending on status description right in new booking overview.
+* New feature: Finished download for new view.php.
+* New feature: Add possibility to configure fields for booking options download.
+* New feature: Booking now supports prepagemodals with booking policy, a confirmation page and support for the "Book now" and "Add to cart" buttons. 
+* New feature: Re-implemented ratings, attachments and tag functionality for new view.php.
+* New feature: Intelligent differntiation between price and no-price booking options.
+* New feature: Implemented new "cancel myself" condition and settings.
+
+**Improvements:**
+* Improvement: Lots of improvements for the new view.php which now works with the local_wunderbyte_table plugin.
+* Improvement: Set old features to DEPRECATED which will be removed (or replaced) in the future.
+* Improvement: Remove deprecated JS stuff from view_actions.js - we only use it in report.php (as it breaks stuff in view).
+* Improvement: Show Wunderbyte logo in footer.
+* Improvement: Additional conditions now supporting booking, waiting list, confirmation of booking and cancelling and much more...
+* Improvement: Harmonized and improved menus for Moodle 4.0 and higher.
+* Improvement: Make fields of new view configurable.
+* Improvement: Improved some strings.
+* Improvement: Hide activity header using $PAGE->activityheader->disable() instead of CSS.
+
+**Bugfixes:**
+* Bugfix: Fix a bug where available places or minanswers were not shown correctly.
+* Bugfix: Fixed broken ratings in report.php.
+* Bugfix: Fix edit option link.
+* Bugfix: Poll URL (feedback link) was never saved for booking options.
+* Bugfix: Bookingid was missing in some tables because of incorrect array creation.
+* Bugfix: Function booking_updatestartenddate was not called on CSV import.
+* Bugfix: Fixed many tiny errors in the new prepagemodals.
+
 ## Version 7.9.0 (2023022000)
 **New features:**
 * New feature: Subbookings (not yet finished, but can be activated as preview).
