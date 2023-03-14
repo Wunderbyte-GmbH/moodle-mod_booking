@@ -184,7 +184,7 @@ class booking_bookit {
 
             // If there is an extra button condition, we don't use two templates but one.
             // We just move the extra condition to a different area.
-            if (!empty($extrabuttoncondition && !empty($datas))) {
+            if (!empty($extrabuttoncondition && !empty($datas) && isset($data['main']))) {
                 $extrabutton = reset($datas);
                 $extrabutton->data['top'] = $data['main'];
                 $datas = [$extrabutton];
