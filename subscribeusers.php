@@ -50,6 +50,9 @@ require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 $PAGE->set_context($context);
 
+// In Moodle 4.0+ we want to turn the instance description off on every page except view.php.
+$PAGE->activityheader->disable();
+
 $bookingoption = singleton_service::get_instance_of_booking_option($cm->id, $optionid);
 $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
