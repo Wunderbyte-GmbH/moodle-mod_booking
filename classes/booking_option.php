@@ -616,9 +616,10 @@ class booking_option {
             GROUP BY u.id
             ORDER BY ba.timemodified ASC";
             $groupmembers = $DB->get_records_sql($sql, array_merge($params, $inparams));
-            $this->bookedvisibleusers = array_intersect_key($groupmembers, $this->booking->canbookusers);
-        } else {
+            $this->bookedusers = array_intersect_key($groupmembers, $this->booking->canbookusers);
             $this->bookedvisibleusers = $this->bookedusers;
+        } else {
+            $this->bookedvisibleusers = $allanswers;
         }
         $this->potentialusers = array_diff_key($this->booking->canbookusers, $this->bookedvisibleusers);
         $this->sort_answers();
