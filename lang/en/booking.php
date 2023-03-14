@@ -48,6 +48,9 @@ $string['thankyouwaitinglist'] = '<i class="fa fa-3x fa-clock-o text-primary" ar
  You were added to the waiting list for <b>{$a}</b>. You will automatically move up, in case someone drops out.';
 $string['thankyouerror'] = '<i class="fa fa-3x fa-frown-o text-danger" aria-hidden="true"></i><br>
 Unfortunately, there was an error when booking <b>{$a}</b>.';
+$string['usersmatching'] = 'Gefundene Nutzer:innen';
+$string['allmoodleusers'] = 'Alle Nutzer:innen dieser Website';
+$string['enrolledusers'] = 'In den Kurs eingeschriebene Nutzer:innen';
 
 // General errors.
 $string['error:choosevalue'] = 'You have to choose a value here.';
@@ -180,7 +183,6 @@ $string['allusersbooked'] = 'All {$a} selected users have successfully been assi
 $string['notallbooked'] = 'The following users could not be booked due to reaching the max number of bookings per user or lack of available places for the booking option: {$a}';
 $string['enrolledinoptions'] = "already booked in booking options: ";
 $string['onlyusersfrominstitution'] = 'You can only add users from this institution: {$a}';
-
 $string['resultofcohortorgroupbooking'] = '<p>This is the result of your cohort booking:</p>
 <ul>
 <li>{$a->sumcohortmembers} users found in the selected cohorts</li>
@@ -193,6 +195,10 @@ $string['problemsofcohortorgroupbooking'] = '<br><p>Not all users could be booke
 <li>{$a->notsubscribedusers} users not booked for other reasons</li>
 </ul>';
 $string['nogrouporcohortselected'] = 'You need to select at least one group or cohort.';
+$string['bookanyoneswitchon'] = '<i class="fa fa-user-plus" aria-hidden="true"></i> Allow booking of users who are not enrolled';
+$string['bookanyoneswitchoff'] = '<i class="fa fa-user-times" aria-hidden="true"></i> Do not allow booking of users who are not enrolled (recommended)';
+$string['bookanyonewarning'] = 'Be careful: You can now book any users you want. Only use this setting if you know what you are doing.
+ To book users who are not enrolled into the course might cause problems.';
 
 // Subscribe_cohort_or_group_form.php.
 $string['scgfcohortheader'] = 'Cohort subscription';

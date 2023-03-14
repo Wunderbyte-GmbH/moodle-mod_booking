@@ -37,6 +37,7 @@ $optionid = required_param('optionid', PARAM_INT);
 $subscribe = optional_param('subscribe', false, PARAM_BOOL);
 $unsubscribe = optional_param('unsubscribe', false, PARAM_BOOL);
 $agree = optional_param('agree', false, PARAM_BOOL);
+$bookanyone = optional_param('bookanyone', false, PARAM_BOOL);
 
 list($course, $cm) = get_course_and_cm_from_cmid($id);
 
@@ -61,7 +62,7 @@ if (!booking_check_if_teacher ($bookingoption->option)) {
     }
 }
 
-$bookingoption->update_booked_users();
+$bookingoption->update_booked_users($bookanyone);
 $bookingoption->apply_tags();
 
 $PAGE->set_url($url);
@@ -84,11 +85,13 @@ if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
                     'accesscontext' => $context, 'optionid' => $optionid, 'cm' => $cm, 'course' => $course,
                     'potentialusers' => $bookingoption->bookedvisibleusers);
     $potentialuseroptions = $subscribeduseroptions;
-    $potentialuseroptions['potentialusers'] = $bookingoption->potentialusers;
-    $bookingoutput = $PAGE->get_renderer('mod_booking');
 
+    // Potential users will be selected on instantiation of booking_potential_user_selector.
+    $potentialuseroptions['potentialusers'] = [];
+
+    $bookingoutput = $PAGE->get_renderer('mod_booking');
     $existingselector = new booking_existing_user_selector('removeselect', $subscribeduseroptions);
-    $subscriberselector = new booking_potential_user_selector('addselect', $potentialuseroptions);
+    $subscriberselector = new booking_potential_user_selector('addselect', $potentialuseroptions, $bookanyone);
 
     if (data_submitted()) {
         require_sesskey();
@@ -155,7 +158,7 @@ if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
         }
         $subscriberselector->invalidate_selected_users();
         $existingselector->invalidate_selected_users();
-        $bookingoption->update_booked_users();
+        $bookingoption->update_booked_users($bookanyone);
         $subscriberselector->set_potential_users($bookingoption->potentialusers);
         $existingselector->set_potential_users($bookingoption->bookedvisibleusers);
     }
@@ -163,6 +166,19 @@ if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
 echo $OUTPUT->header();
 
 echo $OUTPUT->heading(format_string($optionsettings->get_title_with_prefix()), 3, 'helptitle', 'uniqueid');
+
+// Switch to turn booking of anyone ON or OFF.
+if (is_siteadmin() && $bookanyone) {
+    $url = new moodle_url('/mod/booking/subscribeusers.php', array('id' => $id, 'optionid' => $optionid,
+        'agree' => $agree, 'bookanyone' => false));
+    echo '<a class="btn btn-sm btn-light" href="' . $url . '">' . get_string('bookanyoneswitchoff', 'mod_booking') . '</a>';
+    echo '<div class="alert alert-warning p-1 mt-1 text-center">' . get_string('bookanyonewarning', 'mod_booking')  . '</div>';
+} else {
+    $url = new moodle_url('/mod/booking/subscribeusers.php', array('id' => $id, 'optionid' => $optionid,
+        'agree' => $agree, 'bookanyone' => true));
+    echo '<a class="btn btn-sm btn-light" href="' . $url . '">' . get_string('bookanyoneswitchon', 'mod_booking') . '</a>';
+}
+
 
 // We call the template render to display how many users are currently reserved.
 $data = new booked_users($optionid, false, true, true);

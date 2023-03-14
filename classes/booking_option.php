@@ -562,8 +562,10 @@ class booking_option {
      * Updates canbookusers and bookedusers does not check the status (booked or waitinglist)
      * Just gets the registered booking from database
      * Calculates the potential users (bookers able to book, but not yet booked)
+     *
+     * @param bool $bookanyone if true, any user can be booked (also not enrolled users)
      */
-    public function update_booked_users() {
+    public function update_booked_users(bool $bookanyone = false) {
         global $CFG, $DB, $USER;
 
         if (empty($this->booking->canbookusers)) {
@@ -592,7 +594,10 @@ class booking_option {
 
         // Note: mod/booking:choose may have been revoked after the user has booked: not count them as booked.
         $allanswers = $DB->get_records_sql($sql, $params);
-        $this->bookedusers = array_intersect_key($allanswers, $this->booking->canbookusers);
+
+        // If $bookanyone is true, we do not check for enrolment.
+        $this->bookedusers = $bookanyone ? $allanswers : array_intersect_key($allanswers, $this->booking->canbookusers);
+
         // TODO offer users with according caps to delete excluded users from booking option.
         $this->numberofanswers = count($this->bookedusers);
         if (groups_get_activity_groupmode($this->booking->cm) == SEPARATEGROUPS &&
