@@ -1,3 +1,7 @@
+8.0.1 (2023031301)
+* Improvement: If shopping cart plugin is not installed, but a price is set, we just show the price.
+* Bugfix: Do not show attachments string if there are no attachments in booking instance.
+
 8.0.0 (2023031300)
 * New feature: New view.php now working with Wunderbyte Table (local_wunderbyte_table) with lots of improved features.
 * New feature: Show text depending on status description right in new booking overview.
