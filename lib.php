@@ -469,8 +469,12 @@ function booking_add_instance($booking) {
     $booking->beforecompletedtext = $booking->beforecompletedtext['text'] ?? null;
     $booking->aftercompletedtext = $booking->aftercompletedtext['text'] ?? null;
 
-    // To avoid errors.
+    // If no policy was entered, we still have to check for HTML tags.
+    if (empty(strip_tags($booking->bookingpolicy['text']))) {
+        $booking->bookingpolicy['text'] = '';
+    }
     $booking->bookingpolicy = $booking->bookingpolicy['text'] ?? '';
+
     // Insert answer options from mod_form.
     $booking->id = $DB->insert_record("booking", $booking);
 
@@ -621,6 +625,15 @@ function booking_update_instance($booking) {
     if (isset($booking->aftercompletedtext['text'])) {
         $booking->aftercompletedtext = $booking->aftercompletedtext['text'];
     }
+    if (isset($booking->bookingpolicy['text'])) {
+        $booking->aftercompletedtext = $booking->aftercompletedtext['text'];
+    }
+
+    // If no policy was entered, we still have to check for HTML tags.
+    if (empty(strip_tags($booking->bookingpolicy))) {
+        $booking->bookingpolicy = '';
+    }
+
     $booking->bookedtext = $booking->bookedtext['text'];
     $booking->waitingtext = $booking->waitingtext['text'];
     $booking->notifyemail = $booking->notifyemail['text'];
