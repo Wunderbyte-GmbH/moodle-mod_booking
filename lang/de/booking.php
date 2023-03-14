@@ -1048,7 +1048,7 @@ $string['optionvisibility'] = 'Sichtbarkeit';
 $string['optionvisibility_help'] = 'Stellen Sie ein, ob die Buchungsoption für jede_n sichtbar sein soll oder nur für berechtigte Nutzer:innen.';
 $string['optionvisible'] = 'Für alle sichtbar (Standard)';
 $string['optioninvisible'] = 'Vor normalen Nutzer:innen verstecken (nur für berechtigte Personen sichtbar)';
-$string['invisibleoption'] = 'Unsichtbare Buchungsoption';
+$string['invisibleoption'] = '<i class="fa fa-eye-slash" aria-hidden="true"></i> Unsichtbar';
 $string['optionannotation'] = 'Interne Anmerkung';
 $string['optionannotation_help'] = 'Fügen Sie interne Notizen bzw. Anmerkungen hinzu. Diese werden NUR in DIESEM Formular und sonst nirgendwo angezeigt.';
 $string['optionidentifier'] = 'Identifikator';
