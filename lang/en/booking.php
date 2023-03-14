@@ -22,9 +22,7 @@ $string['alreadypassed'] = 'Already passed';
 $string['bookingoption'] = 'Booking option';
 $string['bookingoptionnamewithoutprefix'] = 'Name (without prefix)';
 $string['bookings'] = 'Bookings';
-
 $string['updatebooking'] = 'Update booking';
-
 $string['booking:manageoptiontemplates'] = "Manage option templates";
 $string['booking:cantoggleformmode'] = 'User can edit all settings';
 $string['booking:overrideboconditions'] = 'User can book even when conditions return false.';
@@ -51,6 +49,7 @@ Unfortunately, there was an error when booking <b>{$a}</b>.';
 $string['usersmatching'] = 'Gefundene Nutzer:innen';
 $string['allmoodleusers'] = 'Alle Nutzer:innen dieser Website';
 $string['enrolledusers'] = 'In den Kurs eingeschriebene Nutzer:innen';
+$string['nopriceisset'] = 'Kein Preis vorhanden';
 
 // General errors.
 $string['error:choosevalue'] = 'You have to choose a value here.';
