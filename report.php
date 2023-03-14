@@ -406,7 +406,7 @@ if (!$tableallbookings->is_downloading()) {
             if (!empty($ratings)) {
                 booking_rate($ratings, $params);
                 redirect($url,
-                        (empty($bookingoption->option->notificationtext) ? get_string('ratingsuccess',
+                        (empty($bookingoption->option->notificationtext) ? get_string('ratingsuccessful',
                                 'booking') : $bookingoption->option->notificationtext), 5);
             }
         } else if (isset($_POST['sendreminderemail']) &&
