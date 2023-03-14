@@ -1652,34 +1652,53 @@ function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $o
 function booking_generatenewnumbers($bookingdatabooking, $cmid, $optionid, $allselectedusers) {
     global $DB, $CFG;
 
+    $answerscount = $DB->get_field_sql(
+        "SELECT COUNT(*) AS answerscount
+        FROM {booking_answers}
+        WHERE optionid = :optionid AND waitinglist < 2",
+        ['optionid' => $optionid]);
+
     if (!empty($allselectedusers)) {
         $tmprecnum = $DB->get_record_sql(
-                'SELECT numrec FROM {booking_answers} WHERE optionid = ? ORDER BY numrec DESC LIMIT 1',
-                array($optionid));
+                "SELECT numrec
+                FROM {booking_answers}
+                WHERE optionid = :optionid AND waitinglist < 2
+                ORDER BY numrec DESC
+                LIMIT 1",
+                ['optionid' => $optionid]);
 
-        if ($tmprecnum->numrec == 0) {
+        // If NO users or ALL users are selected, we always want to start with 1.
+        if ($tmprecnum->numrec == 0 || count($allselectedusers) == $answerscount) {
             $recnum = 1;
         } else {
             $recnum = $tmprecnum->numrec + 1;
         }
 
-        foreach ($allselectedusers as $ui) {
+        foreach ($allselectedusers as $userid) {
             // TODO: Optimize DB query: get_records instead of loop.
-            $userdata = $DB->get_record('booking_answers',
-                    array('optionid' => $optionid, 'userid' => $ui));
+            $userdata = $DB->get_record_sql(
+                "SELECT *
+                FROM {booking_answers}
+                WHERE optionid = :optionid AND userid = :userid AND waitinglist < 2",
+                ['optionid' => $optionid, 'userid' => $userid]);
+
             $userdata->numrec = $recnum++;
             $DB->update_record('booking_answers', $userdata);
         }
     } else {
+        // Mysql and MariaDB use RAND().
         $random = "RAND()";
-
+        // Postgres uses RANDOM().
         if (isset($CFG->dbfamily) && $CFG->dbfamily == "postgres") {
             $random = "RANDOM()";
         }
 
         $allusers = $DB->get_records_sql(
-                "SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY {$random}",
-                array($optionid));
+                "SELECT *
+                FROM {booking_answers}
+                WHERE optionid = :optionid AND waitinglist < 2
+                ORDER BY {$random}",
+                ['optionid' => $optionid]);
 
         $recnum = 1;
 
