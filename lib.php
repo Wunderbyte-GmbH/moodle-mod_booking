@@ -1621,9 +1621,11 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                     navigation_node::TYPE_CUSTOM, null, 'nav_moveoptionto');
         } */
 
-        if (has_capability ( 'mod/booking:readresponses', $context ) || booking_check_if_teacher ($option )) {
+        if (has_capability ('mod/booking:readresponses', $context) || booking_check_if_teacher($option)) {
             $completion = new \completion_info($course);
-            if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC && $booking->enablecompletion > 0) {
+            if ($booking->enablecompletion > 0 &&
+                ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC ||
+                $completion->is_enabled($cm) == COMPLETION_TRACKING_MANUAL)) {
                 $navref->add(get_string('confirmuserswith', 'booking'),
                     new moodle_url('/mod/booking/confirmactivity.php', array('id' => $cm->id, 'optionid' => $optionid)),
                     navigation_node::TYPE_CUSTOM, null, 'nav_confirmuserswith');

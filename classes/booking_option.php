@@ -1814,7 +1814,9 @@ class booking_option {
 
         $suser = null;
 
-        foreach ($this->users as $key => $value) {
+        $bookinganswers = singleton_service::get_instance_of_booking_answers($this->settings);
+
+        foreach ($bookinganswers->usersonlist as $key => $value) {
             if ($value->userid == $userid) {
                 $suser = $key;
                 break;
@@ -1825,9 +1827,10 @@ class booking_option {
             return;
         }
 
-        if ($this->users[$suser]->completed == 0) {
+        if ($bookinganswers->usersonlist[$suser]->completed == 0) {
             $userdata = $DB->get_record('booking_answers',
-            array('optionid' => $this->optionid, 'userid' => $userid));
+            array('optionid' => $this->optionid, 'userid' => $userid,
+                'waitinglist' => STATUSPARAM_BOOKED));
             $userdata->completed = '1';
             $userdata->timemodified = time();
 
