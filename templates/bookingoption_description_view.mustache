@@ -15,13 +15,125 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_booking/bookingoption_description
+    @template mod_booking/bookingoption_description_view
 
     Classes required for JS:
     * none
 
     Data attributes required for JS:
     * data-region
+
+    Example context (json):
+    {
+        "identifier": "2345",
+        "title": "AERIAL YOGA",
+        "titleprefix": "pf2345",
+        "modalcounter": 1,
+        "invisible": "0",
+        "annotation": "",
+        "userid": "2",
+        "description": "Flow Yoga Multistyle MindestteilnehmerInnen: 6",
+        "statusdescription": "v",
+        "imageurl": "http://localhost:58000/pluginfile.php/22/mod_booking/bookingimages/1/Aerial_yoga.png",
+        "location": "1",
+        "address": "1090 Wien Tendlergasse 11",
+        "institution": "TENDLERGASSE",
+        "duration": "0 days  1 hours  0 minutes",
+        "booknowbutton": null,
+        "dates": [
+            {
+            "datestring": "3 March 2023, 10:30 AM - 11:45 AM",
+            "customfields": []
+            },
+            {
+            "datestring": "10 March 2023, 10:30 AM - 11:45 AM",
+            "customfields": []
+            }
+        ],
+        "teachers": [
+            "Maxima Yoga"
+        ],
+        "price": "79.00",
+        "priceformulaadd": "0.00",
+        "priceformulamultiply": "1.00",
+        "currency": "EUR",
+        "pricecategoryname": "Price",
+        "dayofweektime": "FR, 10:30 - 11:45",
+        "customfields": {
+            "sport": [
+            "AERIAL YOGA"
+            ],
+            "botags": [
+            ""
+            ]
+        },
+        "bookinginformation": {
+            "waiting": 0,
+            "booked": 1,
+            "reserved": 0,
+            "onnotifylist": false,
+            "maxanswers": "12",
+            "freeonlist": 11,
+            "fullybooked": false,
+            "showmanageresponses": true,
+            "manageresponsesurl": "http://localhost:58000/mod/booking/report.php?id=7&optionid=1"
+        },
+        "usertobuyfor": {
+            "id": "2",
+            "auth": "manual",
+            "confirmed": "1",
+            "policyagreed": "0",
+            "deleted": "0",
+            "suspended": "0",
+            "mnethostid": "1",
+            "username": "admin",
+            "password": "$2y$10$pAVtIFwAUH\bNSuVXjTgouqEjgxoYMb74bTiF0UEEoHJkKhrK0QdG",
+            "idnumber": "",
+            "firstname": "Admin",
+            "lastname": "User",
+            "email": "install@wunderbyte.at",
+            "emailstop": "0",
+            "phone1": "",
+            "phone2": "",
+            "institution": "",
+            "department": "",
+            "address": "",
+            "city": "",
+            "country": "",
+            "lang": "en",
+            "calendartype": "gregorian",
+            "theme": "",
+            "timezone": "99",
+            "firstaccess": "1669485049",
+            "lastaccess": "1678538409",
+            "lastlogin": "1678350420",
+            "currentlogin": "1678533798",
+            "lastip": "10.0.2.2",
+            "secret": "",
+            "picture": "0",
+            "description": "",
+            "descriptionformat": "1",
+            "mailformat": "1",
+            "maildigest": "0",
+            "maildisplay": "1",
+            "autosubscribe": "1",
+            "trackforums": "0",
+            "timecreated": "0",
+            "timemodified": "1669485103",
+            "trustbitmask": "0",
+            "imagealt": null,
+            "lastnamephonetic": "",
+            "firstnamephonetic": "",
+            "middlename": "",
+            "alternatename": "",
+            "moodlenetprofile": null,
+            "profile": []
+        },
+        "bookitsection": " HTML of Booked button",
+        "unitstring": "Units: 1.3",
+        "showmanageresponses": true,
+        "manageresponsesurl": "http://site/mod/booking/report.php?id=7&optionid=1"
+    }
 }}
 
 
@@ -37,7 +149,7 @@
             </h6>
             {{#description}}<div class="content"><p>{{{.}}}</p></div>{{/description}}
             {{> mod_booking/bookingoption_description_teachers }}
-            <a class="collapseoptiondatesbutton" data-toggle="collapse" href="#collapseoptiondates" role="button" aria-expanded="false" aria-controls="collapseOptiondates">
+            <a class="collapseoptiondatesbutton" data-toggle="collapse" href="#collapseoptiondates" role="button" aria-expanded="false" aria-controls="collapseoptiondates">
                 {{#str}} showdates, mod_booking {{/str}}
             </a>
             <div id="collapseoptiondates" class="collapse list-group-item">
@@ -63,7 +175,7 @@
         </div>
         <div class="col-md-5">
             <div class="card price-card">
-              <img class="w-100" src="{{imageurl}}">
+              <img class="w-100" src="{{imageurl}}" alt="{{title}}">
               {{{ bookitsection }}}
               <div class="card-body">
                 <ul class="infolist" style="list-style: none;">
