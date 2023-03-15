@@ -1,3 +1,18 @@
+## Version 8.0.2 (2023031500)
+**New features:**
+* New feature: Add possibility to book anyone - even if not enrolled (for site admins only).
+
+**Improvements:**
+* Improvement: Better invisibility label with eye icon.
+* Improvement: Disable activity header in report.php.
+* Improvement: Hide activity header on book other users page.
+
+**Bugfixes:**
+* Bugfix: Fix some bugs in automatic number generation of report.php.
+* Bugfix: Add missing string 'nopriceisset'.
+* Bugfix: Fix warning on deleting last item in shopping cart.
+* Bugfix: Added isset check for missing bookingpolicy.
+
 ## Version 8.0.1 (2023031301)
 **Improvements:**
 * Improvement: If shopping cart plugin is not installed, but a price is set, we just show the price.
