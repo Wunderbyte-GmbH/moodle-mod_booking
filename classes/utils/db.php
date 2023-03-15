@@ -137,6 +137,8 @@ class db {
             $oud[] = $u->userid;
         }
 
-        return array_intersect($oud, $ud);
+        $ret = array_unique(array_intersect($oud, $ud));
+
+        return $ret;
     }
 }
