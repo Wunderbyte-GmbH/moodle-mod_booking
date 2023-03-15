@@ -470,7 +470,7 @@ function booking_add_instance($booking) {
     $booking->aftercompletedtext = $booking->aftercompletedtext['text'] ?? null;
 
     // If no policy was entered, we still have to check for HTML tags.
-    if (empty(strip_tags($booking->bookingpolicy['text']))) {
+    if (!isset($booking->bookingpolicy['text']) || empty(strip_tags($booking->bookingpolicy['text']))) {
         $booking->bookingpolicy['text'] = '';
     }
     $booking->bookingpolicy = $booking->bookingpolicy['text'] ?? '';
