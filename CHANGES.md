@@ -1,3 +1,17 @@
+## Version 8.0.3 (2023031600)
+**New features:**
+* New feature: New placeholder {profilepicture} to add user profile picture to confirmation mails.
+
+**Improvements:**
+* Improvement: Added and updated behat tests.
+* Improvement: Link to teachers page on report.php instead of user profile.
+
+**Bugfixes:**
+* Bugfix: Fix broken confirm activity functionality.
+* Bugfix: Missing isset for $booking->bookingpolicy.
+* Bugfix: Fixed errors found with behat tests.
+* Bugfix: Fixed some mustache warnings.
+
 ## Version 8.0.2 (2023031500)
 **New features:**
 * New feature: Add possibility to book anyone - even if not enrolled (for site admins only).
