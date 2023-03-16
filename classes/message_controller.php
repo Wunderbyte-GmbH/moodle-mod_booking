@@ -24,6 +24,7 @@ use moodle_exception;
 use core_user;
 use core_text;
 use context_system;
+use context_user;
 use core\message\message;
 use mod_booking\booking_option;
 use mod_booking\booking_settings;
@@ -32,7 +33,7 @@ use mod_booking\output\optiondates_only;
 use mod_booking\output\bookingoption_changes;
 use mod_booking\output\bookingoption_description;
 use mod_booking\task\send_confirmation_mails;
-
+use moodle_url;
 
 require_once($CFG->dirroot.'/user/profile/lib.php');
 
@@ -386,6 +387,30 @@ class message_controller {
                 // Example: There is a user profile field called "Title".
                 // We can now use the placeholder {Title}. (Keep in mind that this is case-sensitive!).
                 $params->{$profilefieldkey} = $profilefieldvalue;
+            }
+        }
+
+        // Add a param for the user profile picture.
+        if ($usercontext = context_user::instance($this->userid, IGNORE_MISSING)) {
+            $fs = get_file_storage();
+            $files = $fs->get_area_files($usercontext->id, 'user', 'icon');
+            $picturefile = null;
+            foreach ($files as $file) {
+                $filenamewithoutextension = explode('.', $file->get_filename())[0];
+                if ($filenamewithoutextension === 'f1') {
+                    $picturefile = $file;
+                    // We found it, so break the loop.
+                    break;
+                }
+            }
+            if ($picturefile) {
+                // Retrieve the image contents and encode them as base64.
+                $picturedata = $picturefile->get_content();
+                $picturebase64 = base64_encode($picturedata);
+                // Now load the HTML of the image into the profilepicture param.
+                $params->profilepicture = '<img src="data:image/image;base64,' . $picturebase64 . '" />';
+            } else {
+                $params->profilepicture = '';
             }
         }
 

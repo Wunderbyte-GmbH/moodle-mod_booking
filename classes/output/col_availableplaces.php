@@ -60,6 +60,9 @@ class col_availableplaces implements renderable, templatable {
     /** @var array $bookinginformation */
     private $bookinginformation = [];
 
+    /** @var bool $showmaxanswers */
+    public $showmaxanswers = true;
+
     /**
      * The constructor takes the values from db.
      * @param stdClass $values

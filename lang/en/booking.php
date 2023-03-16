@@ -34,6 +34,7 @@ $string['gotomanageresponses'] = '&lt;&lt; Manage bookings';
 $string['gotomoodlecourse'] = 'Go to Moodle course';
 $string['messageprovider:bookingconfirmation'] = "Booking confirmations";
 $string['optionsiteach'] = 'Teached by me';
+$string['placeholders'] = 'Placeholders';
 $string['search'] = 'Search...';
 $string['teachers'] = 'Teachers';
 $string['assignteachers'] = 'Assign teachers:';
@@ -968,6 +969,40 @@ $string['aftercompletedtext_help'] = 'Leave this blank to use the site default t
 <li>{participant}</li>
 <li>{email} - User email</li>
 <li>{title}</li>
+<li>{duration}</li>
+<li>{starttime}</li>
+<li>{endtime}</li>
+<li>{startdate}</li>
+<li>{enddate}</li>
+<li>{courselink}</li>
+<li>{bookinglink}</li>
+<li>{pollurl}</li>
+<li>{pollurlteachers}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
+<li>{teacher} - Name of first teacher</li>
+<li>{teachers} - List of all teachers</li>
+<li>{teacherN} - Name of specific teacher, e.g. {teacher1}</li>
+<li>{pollstartdate}</li>
+<li>{qr_id} - Insert QR code with user id</li>
+<li>{qr_username} - Insert QR code with user username</li>
+<li>{dates} - Session times</li>
+<li>{shorturl} - Short URL of option</li>
+<li>{usercalendarurl} - Link to subscribe to user calendar (personal events)</li>
+<li>{coursecalendarurl} - Link to subscribe to course calendar (course events)</li>
+</ul>';
+
+$string['placeholders_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
+<ul>
+<li>{bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option)</li>
+<li>{gotobookingoption} - Link to booking option</li>
+<li>{status} - Booking status</li>
+<li>{participant}</li>
+<li>{profilepicture} - User\'s profile picture</li>
+<li>{email} - User email</li>
+<li>{title} - The title of the booking option</li>
 <li>{duration}</li>
 <li>{starttime}</li>
 <li>{endtime}</li>

@@ -34,6 +34,7 @@ $string['gotomanageresponses'] = '&lt;&lt; Buchungen verwalten';
 $string['gotomoodlecourse'] = 'Zum Moodle-Kurs';
 $string['messageprovider:bookingconfirmation'] = "Buchungsbestätigungen";
 $string['optionsiteach'] = 'Von mir geleitet';
+$string['placeholders'] = 'Platzhalter';
 $string['search'] = 'Suche...';
 $string['teachers'] = 'Trainer:innen';
 $string['thankyoubooked'] = '<i class="fa fa-3x fa-calendar-check-o text-success" aria-hidden="true"></i><br><br>
@@ -900,6 +901,39 @@ $string['pollurl_help'] = 'Folgende Platzhalter können im Text verwendet werden
 <li>{usercalendarurl} - Link zum Abonnieren des User-Kalenders (persönliche Ereignisse)</li>
 <li>{coursecalendarurl} - Link zum Abonnieren des Kurs-Kalenders (Kurs-Ereignisse)</li>
 </ul>';
+
+$string['placeholders_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
+  <ul>
+  <li>{bookingdetails} - Zusammenfassung der Buchung (inkl. Sessions und Link zur Buchungsoption)</li>
+  <li>{gotobookingoption} - Link zur Buchungsoption</li>
+  <li>{status} - Buchungsstatus</li>
+  <li>{participant}</li>
+  <li>{profilepicture} - Profilbild</li>
+  <li>{title}</li>
+  <li>{duration}</li>
+  <li>{starttime}</li>
+  <li>{endtime}</li>
+  <li>{startdate}</li>
+  <li>{enddate}</li>
+  <li>{courselink}</li>
+  <li>{bookinglink}</li>
+  <li>{pollurl}</li>
+  <li>{pollurlteachers}</li>
+  <li>{location}</li>
+  <li>{institution}</li>
+  <li>{address}</li>
+  <li>{eventtype}</li>
+  <li>{teacher} - Name der ersten Trainer:in</li>
+  <li>{teachers} - Liste aller Trainer:innen</li>
+  <li>{teacherN} - Name eines spezifischen Trainers. Z.B. {teacher1}</li>
+  <li>{pollstartdate}</li>
+  <li>{qr_id} - QR Code der Userid einfügen</li>
+  <li>{qr_username} - QR Code des Usernamen einfügen</li>
+  <li>{dates} - Sessions (bei mehreren Terminen)</li>
+  <li>{shorturl} - Verkürzte URL der Buchungsoption</li>
+  <li>{usercalendarurl} - Link zum Abonnieren des User-Kalenders (persönliche Ereignisse)</li>
+  <li>{coursecalendarurl} - Link zum Abonnieren des Kurs-Kalenders (Kurs-Ereignisse)</li>
+  </ul>';
 
 $string['helptext:placeholders'] = '<p>
 <a data-toggle="collapse" href="#collapsePlaceholdersHelptext" role="button" aria-expanded="false" aria-controls="collapsePlaceholdersHelptext">

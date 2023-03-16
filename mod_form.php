@@ -520,7 +520,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'format' => FORMAT_HTML);
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('bookedtext', $default);
-        $mform->addHelpButton('bookedtext', 'bookedtext', 'mod_booking');
+        $mform->addHelpButton('bookedtext', 'placeholders', 'mod_booking');
         $mform->disabledIf('bookedtext', 'mailtemplatessource', 'eq', 1);
 
         $mform->addElement('editor', 'waitingtext', get_string('waitingtext', 'booking'), null,
@@ -530,7 +530,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'format' => FORMAT_HTML);
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('waitingtext', $default);
-        $mform->addHelpButton('waitingtext', 'waitingtext', 'mod_booking');
+        $mform->addHelpButton('waitingtext', 'placeholders', 'mod_booking');
         $mform->disabledIf('waitingtext', 'mailtemplatessource', 'eq', 1);
 
         $mform->addElement('editor', 'notifyemail', get_string('notifyemail', 'booking'), null,
