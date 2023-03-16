@@ -146,7 +146,7 @@
 {{#invisible}}
 <div class="booking-option-info-invisible">{{#str}} invisibleoption, mod_booking {{/str}}</div>
 {{/invisible}}
-{{#imageurl}}<img src="{{{.}}}" class="img-fluid"/>{{/imageurl}}
+{{#imageurl}}<p><img src="{{{.}}}" class="img-fluid"/></p>{{/imageurl}}
 {{#dayofweektime}}
     <div class="bo_dayofweektime">
         {{#str}}dayofweektime, mod_booking{{/str}}: {{.}}
@@ -156,7 +156,6 @@
 {{#location}}<div class="bo_location">{{#str}}location, mod_booking{{/str}}: {{{.}}}</div>{{/location}}
 {{#institution}}<div class="bo_institution">{{#str}}institution, mod_booking{{/str}}: {{.}}</div>{{/institution}}
 {{#address}}<div class="bo_address">{{#str}}address, mod_booking{{/str}}: {{.}}</div>{{/address}}
-{{#duration}}<div class="bo_duration">{{#str}}bookingduration, mod_booking{{/str}}: {{.}}</div>{{/duration}}
 {{#statusdescription}}<div class="bo_statusdescription"><p>{{{.}}}</p></div>{{/statusdescription}}
 {{#description}}<div class="bo_description"><p>{{{.}}}</p></div>{{/description}}
 {{#price}}<div class="bo_price">{{.}} {{currency}} {{pricecategoryname}}</div>{{/price}}

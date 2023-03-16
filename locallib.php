@@ -427,8 +427,6 @@ function get_rendered_eventdescription(int $optionid, int $cmid,
     // - Rendered in calendar event -> use link.php? link.
     // - Rendered in ical file for mail -> use link.php? link.
 
-    $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
-
     $data = new bookingoption_description($optionid, null, $descriptionparam, true, $forbookeduser);
     $output = $PAGE->get_renderer('mod_booking');
 
