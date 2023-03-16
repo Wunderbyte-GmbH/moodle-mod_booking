@@ -631,8 +631,8 @@ if (!$tableallbookings->is_downloading()) {
 
     foreach ($bookingoption->teachers as $value) {
         $teachers[] = html_writer::link(
-                new moodle_url('/user/profile.php', array('id' => $value->userid)),
-                "{$value->firstname} {$value->lastname}", array());
+                new moodle_url('/mod/booking/teacher.php', array('teacherid' => $value->userid)),
+                "{$value->firstname} {$value->lastname}");
     }
 
     $linkst = '';
@@ -653,7 +653,7 @@ if (!$tableallbookings->is_downloading()) {
                     array());
         }
 
-        $linkst = "(" . implode(", ", $linkst) . ")";
+        $linkst = empty($linkst) ? "" : "(" . implode(", ", $linkst) . ")";
     }
 
     if ($isteacher) {
