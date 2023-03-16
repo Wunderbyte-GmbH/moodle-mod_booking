@@ -32,9 +32,6 @@ require_once(__DIR__ . '/../../config.php');
 $cmid = required_param('cmid', PARAM_INT);
 $download = optional_param('download', '', PARAM_ALPHA);
 
-// No guest autologin.
-require_login(0, false);
-
 $urlparams = [
     'cmid' => $cmid
 ];
