@@ -68,12 +68,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
                     // Use an event to log that reminder1 has been sent.
                     $event = reminder1_sent::create(array(
                         'context' => context_system::instance(),
-                        'objectid' => $record->optionid,
-                        'other' => array(
-                            'msgparam' => MSGPARAM_REMINDER_PARTICIPANT,
-                            'record' => $record,
-                            'daystonotify' => $record->daystonotify
-                        )
+                        'objectid' => $record->optionid
                     ));
                     $event->trigger();
                 }
@@ -90,12 +85,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
                     // Use an event to log that reminder2 has been sent.
                     $event = reminder2_sent::create(array(
                         'context' => context_system::instance(),
-                        'objectid' => $record->optionid,
-                        'other' => array(
-                            'msgparam' => MSGPARAM_REMINDER_PARTICIPANT,
-                            'record' => $record,
-                            'daystonotify2' => $record->daystonotify2
-                        )
+                        'objectid' => $record->optionid
                     ));
                     $event->trigger();
                 }

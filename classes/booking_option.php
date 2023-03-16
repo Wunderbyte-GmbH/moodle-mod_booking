@@ -2130,8 +2130,10 @@ class booking_option {
         } else {
             // Send to all booked users if we have an empty $tousers array.
             // Also make sure that teacher reminders won't be send to booked users.
-            if (!empty($bookingoption->usersonlist) && $messageparam !== MSGPARAM_REMINDER_TEACHER) {
-                foreach ($bookingoption->usersonlist as $currentuser) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+            $answers = singleton_service::get_instance_of_booking_answers($settings);
+            if (!empty($answers->usersonlist) && $messageparam !== MSGPARAM_REMINDER_TEACHER) {
+                foreach ($answers->usersonlist as $currentuser) {
                     $tmpuser = new stdClass();
                     $tmpuser->id = $currentuser->userid;
                     $allusers[] = $tmpuser;
