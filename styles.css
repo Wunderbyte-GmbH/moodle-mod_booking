@@ -311,3 +311,45 @@ if there only was one booking option. */
 #page-mod-booking-edit-rules .booking-rules-cards {
     padding-top: 15px;
 }
+
+/* Fullwidth menus. */
+#page-mod-booking-optiondates .dropdown-menu,
+#page-mod-booking-edit_optiontemplate .dropdown-menu,
+#page-mod-booking-optiontemplatessettings .dropdown-menu,
+#page-mod-booking-teachers_instance_report .dropdown-menu,
+#page-mod-booking-recalculateprices .dropdown-menu,
+#page-mod-booking-customreporttemplatesadd .dropdown-menu,
+#page-mod-booking-customreporttemplates .dropdown-menu,
+#page-mod-booking-mod .dropdown-menu,
+#page-mod-booking-view .dropdown-menu,
+#page-mod-booking-instancetemplateadd .dropdown-menu,
+#page-mod-booking-importoptions .dropdown-menu,
+#page-mod-booking-tagtemplates .dropdown-menu,
+#page-mod-booking-importexcel .dropdown-menu,
+#page-mod-booking-report .dropdown-menu,
+#page-mod-booking-subscribeusers .dropdown-menu,
+#page-mod-booking-viewconfirmation .dropdown-menu,
+#page-mod-booking-editoptions .dropdown-menu {
+    width: max-content;
+}
+
+/* Hide intro text which is shown by Moodle 4. */
+#page-mod-booking-optiondates #intro,
+#page-mod-booking-edit_optiontemplate #intro,
+#page-mod-booking-optiontemplatessettings #intro,
+#page-mod-booking-teachers_instance_report #intro,
+#page-mod-booking-recalculateprices #intro,
+#page-mod-booking-customreporttemplatesadd #intro,
+#page-mod-booking-customreporttemplates #intro,
+#page-mod-booking-mod #intro,
+#page-mod-booking-view #intro,
+#page-mod-booking-instancetemplateadd #intro,
+#page-mod-booking-importoptions #intro,
+#page-mod-booking-tagtemplates #intro,
+#page-mod-booking-importexcel #intro,
+#page-mod-booking-report #intro,
+#page-mod-booking-subscribeusers #intro,
+#page-mod-booking-viewconfirmation #intro,
+#page-mod-booking-editoptions #intro {
+    display: none;
+}
