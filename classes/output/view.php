@@ -197,7 +197,7 @@ class view implements renderable, templatable {
         // In the future, we can parametrize this function so we can use it on many different places.
         $this->wbtable_initialize_list_layout($allbookingoptionstable, true, true, true);
 
-        $out = $allbookingoptionstable->outhtml(40, true);
+        $out = $allbookingoptionstable->outhtml($booking->get_pagination_setting(), true);
 
         return $out;
     }
@@ -227,7 +227,7 @@ class view implements renderable, templatable {
         // In the future, we can parametrize this function so we can use it on many different places.
         $this->wbtable_initialize_list_layout($activebookingoptionstable, false, true, true);
 
-        $out = $activebookingoptionstable->outhtml(40, true);
+        $out = $activebookingoptionstable->outhtml($booking->get_pagination_setting(), true);
 
         return $out;
     }
@@ -255,7 +255,7 @@ class view implements renderable, templatable {
         // In the future, we can parametrize this function so we can use it on many different places.
         $this->wbtable_initialize_list_layout($mybookingoptionstable, false, true, true);
 
-        $out = $mybookingoptionstable->outhtml(40, true);
+        $out = $mybookingoptionstable->outhtml($booking->get_pagination_setting(), true);
 
         return $out;
     }
@@ -288,7 +288,7 @@ class view implements renderable, templatable {
         // In the future, we can parametrize this function so we can use it on many different places.
         $this->wbtable_initialize_list_layout($teacheroptionstable, $tfilter, $tsearch, $tsort);
 
-        $out = $teacheroptionstable->outhtml(40, true);
+        $out = $teacheroptionstable->outhtml($booking->get_pagination_setting(), true);
 
         return $out;
     }
@@ -348,7 +348,7 @@ class view implements renderable, templatable {
         // In the future, we can parametrize this function so we can use it on many different places.
         $this->wbtable_initialize_list_layout($myinstitutiontable, true, true, true);
 
-        $out = $myinstitutiontable->outhtml(40, true);
+        $out = $myinstitutiontable->outhtml($booking->get_pagination_setting(), true);
 
         return $out;
     }

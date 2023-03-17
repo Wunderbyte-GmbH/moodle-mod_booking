@@ -151,6 +151,15 @@ class booking {
     }
 
     /**
+     * Returm number of displayed rows of options per page for pagination (or given default)
+     * @return int
+     */
+    public function get_pagination_setting():int {
+        $paginationnum = (int) $this->settings->paginationnum > 0 ? (int) $this->settings->paginationnum : 40;
+        return $paginationnum;
+    }
+
+    /**
      * get all the user ids who are allowed to book capability mod/booking:choose available in
      * $this->canbookusers
      */
