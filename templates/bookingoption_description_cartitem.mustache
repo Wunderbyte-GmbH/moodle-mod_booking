@@ -79,7 +79,7 @@
         {{#description}}<div class="bo_description"><p>{{{.}}}</p></div>{{/description}}
         {{#price}}<div class="bo_price">{{.}} {{currency}} {{pricecategoryname}}</div>{{/price}}
         {{> mod_booking/bookingoption_description_teachers }}
-        <a class="collapseoptiondatesbutton" data-toggle="collapse" href="#collapseoptiondates_{{modalcounter}}" role="button" aria-expanded="false" aria-controls="collapseOptiondates">
+        <a class="collapseoptiondatesbutton" data-toggle="collapse" href="#collapseoptiondates_{{modalcounter}}" role="button" aria-expanded="false" aria-controls="collapseoptiondates_{{modalcounter}}">
             {{#str}} showdates, mod_booking {{/str}}
         </a>
         <div id="collapseoptiondates_{{modalcounter}}" class="collapse list-group-item">

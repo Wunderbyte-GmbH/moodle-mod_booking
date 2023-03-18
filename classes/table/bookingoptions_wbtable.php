@@ -247,6 +247,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         $commentshtml = '';
 
+        // phpcs:disable
         // TODO: We still need to figure out how we can fix comments in combination with wb-table-search.
         // Notice: We already have a webservice called init_comments which might help us!
         //     // Important: Without init commenting won't work.
@@ -274,6 +275,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 $commentshtml = $comment->output(true);
             }
         }*/
+        // phpcs:enable
+
         return $commentshtml;
     }
 

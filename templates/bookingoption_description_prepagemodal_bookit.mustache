@@ -34,7 +34,7 @@
         "userid": "2",
         "description": "Flow Yoga Multistyle MindestteilnehmerInnen: 6",
         "statusdescription": "v",
-        "imageurl": "http://localhost:58000/pluginfile.php/22/mod_booking/bookingimages/1/Aerial yoga.png",
+        "imageurl": "http://localhost:58000/pluginfile.php/22/mod_booking/bookingimages/1/Aerialyoga.png",
         "location": "1",
         "address": "1090 Wien Tendlergasse 11",
         "institution": "TENDLERGASSE",
@@ -142,7 +142,7 @@
         <div class="row">
             {{#imageurl}}
             <div class="col-md-3">
-                <img class="w-100 rounded" src="{{imageurl}}">
+                <img class="w-100 rounded" src="{{imageurl}}" alt="{{title}}">
             </div>
             {{/imageurl}}
             {{#imageurl}}<div class="col-md-9">{{/imageurl}}
@@ -198,7 +198,7 @@
                     </li>
                     {{/institution}}
                 </ul>
-                <a class="collapseoptiondatesbutton" data-toggle="collapse" href="#collapseoptiondates" role="button" aria-expanded="false" aria-controls="collapseOptiondates">
+                <a class="collapseoptiondatesbutton" data-toggle="collapse" href="#collapseoptiondates" role="button" aria-expanded="false" aria-controls="collapseoptiondates">
                     {{#str}} showdates, mod_booking {{/str}}
                 </a>
                 <div id="collapseoptiondates" class="collapse list-group-item">
