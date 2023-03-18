@@ -17,7 +17,7 @@ Feature: In a booking edit settings
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
       | teacher1 | C1     | manager        |
-      | admin    | C1     | manager        |
+      | admin1   | C1     | manager        |
       | student1 | C1     | student        |
       | student2 | C1     | student        |
     And the following "activities" exist:
@@ -41,6 +41,47 @@ Feature: In a booking edit settings
       | Booking confirmation          | {bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option) |
       | Max current bookings per user | 30                                                                                                    |
     And I press "Save and display"
+
+  @javascript
+  Scenario: Settings - show organizer
+    Given I log in as "admin1"
+    When I am on "Course 1" course homepage
+    Then I follow "My booking"
+    And I should not see "Organizer name"
+    And I follow "Settings"
+    And I expand the "Organizer name" autocomplete
+    And I should see "Teacher 1" in the "#fitem_id_organizatorname .form-autocomplete-suggestions" "css_element"
+    And I click on "Teacher 1" "text" in the "#fitem_id_organizatorname .form-autocomplete-suggestions" "css_element"
+    And I wait "1" seconds
+    And I press "Save and display"
+    Then I should see "Organizer name" in the "#booking-business-card" "css_element"
+    And I should see "Teacher 1" in the "#booking-business-card" "css_element"
+    Given I log in as "teacher1"
+    When I am on "Course 1" course homepage
+    Then I follow "My booking"
+    And I should see "New booking option"
+    And I should see "Organizer name" in the "#booking-business-card" "css_element"
+    And I should see "Teacher 1" in the "#booking-business-card" "css_element"
+
+  @javascript
+  Scenario: Settings - show info on course page
+    Given I log in as "teacher1"
+    When I am on "Course 1" course homepage
+    And I follow "My booking"
+    And I follow "Settings"
+    And I set the field "Event type" to "Sport class"
+    And I set the field "showlistoncoursepage" to "Hide extra information on course page"
+    Then I should not see "Short info"
+    And I press "Save and return to course"
+    And I should not see "My booking description"
+    And I follow "My booking"
+    And I follow "Settings"
+    And I set the field "showlistoncoursepage" to "Show course name, short info and a button redirecting to the available booking options"
+    And I set the field "Short info" to "Click on View available options, choose a booking option and click Book now"
+    And I press "Save and return to course"
+    Then I should see "Course 1" in the ".modtype_booking .description .coursename" "css_element"
+    And I should see "Sport class" in the ".modtype_booking .description .eventtype" "css_element"
+    And I should see "Click on View available options, choose a booking option and click Book now" in the ".modtype_booking .description .shortinfo" "css_element"
 
   @javascript
   Scenario: Create two semester settings for booking options
