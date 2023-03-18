@@ -1,7 +1,5 @@
 @mod @mod_booking @booking_edit_setting
-Feature: In a booking edit settings
-  As a teacher
-  I need to add booking and event to a booking.
+Feature: Edit booking's organizer, info and semester settings as a teacher or admin.
 
   Background:
     Given the following "users" exist:
@@ -84,7 +82,7 @@ Feature: In a booking edit settings
     And I should see "Click on View available options, choose a booking option and click Book now" in the ".modtype_booking .description .shortinfo" "css_element"
 
   @javascript
-  Scenario: Create two semester settings for booking options
+  Scenario: Settings - create two semester settings for booking options
     Given I log in as "admin"
     And I visit "/admin/category.php?category=modbookingfolder"
     And I follow "Booking: Semesters"
