@@ -75,7 +75,7 @@ class notifymelist implements bo_condition {
      * @param bool $not Set true if we are inverting the condition
      * @return bool True if available
      */
-    public function is_available(booking_option_settings $settings, $userid, $not = false):bool {
+    public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
 
         global $DB;
 

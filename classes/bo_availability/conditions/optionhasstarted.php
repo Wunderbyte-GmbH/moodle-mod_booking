@@ -73,7 +73,7 @@ class optionhasstarted implements bo_condition {
      * @param bool $not Set true if we are inverting the condition
      * @return bool True if available
      */
-    public function is_available(booking_option_settings $settings, $userid, $not = false):bool {
+    public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
 
         // Settings of the booking instance.
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);

@@ -24,18 +24,20 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
- namespace mod_booking\bo_availability\conditions;
+namespace mod_booking\bo_availability\conditions;
 
-use context_module;
 use context_system;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
-use moodle_url;
 use MoodleQuickForm;
 use stdClass;
+
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/user/profile/lib.php');
 
 /**
  * This class takes the configuration from json in the available column of booking_options table.
@@ -46,10 +48,10 @@ use stdClass;
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class previouslybooked implements bo_condition {
+class alwaysallowed implements bo_condition {
 
-    /** @var int $id Id is set via json during construction */
-    public $id = BO_COND_JSON_PREVIOUSLYBOOKED;
+    /** @var int $id Id is set via json during construction but we still need a default ID */
+    public $id = BO_COND_JSON_ALWAYSALLOWED;
 
     /** @var stdClass $customsettings an stdclass coming from the json which passes custom settings */
     public $customsettings = null;
@@ -60,7 +62,7 @@ class previouslybooked implements bo_condition {
      * @param integer $id
      * @return void
      */
-    public function __construct(int $id = null, booking_option_settings $settings = null) {
+    public function __construct(int $id = null) {
 
         if ($id) {
             $this->id = $id;
@@ -96,18 +98,7 @@ class previouslybooked implements bo_condition {
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
-        if (empty($this->customsettings->optionid)) {
-            $isavailable = true;
-        } else {
-            $optionid = $this->customsettings->optionid;
-            $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
-            $bookinganswer = singleton_service::get_instance_of_booking_answers($optionsettings);
-            $bookinginformation = $bookinganswer->return_all_booking_information($userid);
-
-            if (isset($bookinginformation['iambooked'])) {
-                $isavailable = true;
-            }
-        }
+        // TODO: Implement the logic here.
 
         // If it's inversed, we inverse.
         if ($not) {
@@ -136,7 +127,6 @@ class previouslybooked implements bo_condition {
         if (has_capability('mod/booking:overrideboconditions', $context)) {
             return false;
         }
-
         return true;
     }
 
@@ -181,54 +171,46 @@ class previouslybooked implements bo_condition {
         // Check if PRO version is activated.
         if (wb_payment::pro_version_is_activated()) {
 
-            $bookingoptionarray = [];
-            if ($bookingoptionrecords = $DB->get_records_sql(
-                "SELECT bo.id optionid, bo.titleprefix, bo.text optionname, b.name instancename
-                FROM {booking_options} bo
-                LEFT JOIN {booking} b
-                ON bo.bookingid = b.id")) {
-                foreach ($bookingoptionrecords as $bookingoptionrecord) {
-                    if (!empty($bookingoptionrecord->titleprefix)) {
-                        $bookingoptionarray[$bookingoptionrecord->optionid] =
-                            "$bookingoptionrecord->titleprefix - $bookingoptionrecord->optionname " .
-                                "($bookingoptionrecord->instancename)";
-                    } else {
-                        $bookingoptionarray[$bookingoptionrecord->optionid] =
-                            "$bookingoptionrecord->optionname ($bookingoptionrecord->instancename)";
-                    }
-                }
+            /* We want to add an autocomplete to select users which are always allowed to book.
+            Even if the booking option is fully booked or not within booking times. */
+
+            $users = get_users();
+
+            foreach ($users as $user) {
+                $listofusers[$user->id] = "$user->firstname $user->lastname ($user->email)";
+
             }
 
-            $mform->addElement('checkbox', 'restrictwithpreviouslybooked',
-                    get_string('restrictwithpreviouslybooked', 'mod_booking'));
+            $options = array(
+                'multiple' => true,
+                'noselectionstring' => get_string('choose...', 'mod_booking'),
+            );
 
-            $previouslybookedoptions = [
-                'tags' => false,
-                'multiple' => false
-            ];
-            $mform->addElement('autocomplete', 'bo_cond_previouslybooked_optionid',
-                get_string('bo_cond_previouslybooked_optionid', 'mod_booking'), $bookingoptionarray, $previouslybookedoptions);
-            $mform->setType('bo_cond_previouslybooked_optionid', PARAM_INT);
-            $mform->hideIf('bo_cond_previouslybooked_optionid', 'restrictwithpreviouslybooked', 'notchecked');
+            $mform->addElement('checkbox', 'alwaysallowedcheckbox',
+                    get_string('alwaysallowedcheckbox', 'mod_booking'));
 
-            $mform->addElement('checkbox', 'bo_cond_previouslybooked_overrideconditioncheckbox',
+            $mform->addElement('autocomplete', 'bo_cond_alwaysallowed_userids',
+                get_string('bo_cond_alwaysallowed_userids', 'mod_booking'), $listofusers, $options);
+            $mform->hideIf('bo_cond_alwaysallowed_userids', 'alwaysallowedcheckbox', 'notchecked');
+
+            $mform->addElement('checkbox', 'bo_cond_alwaysallowed_overrideconditioncheckbox',
                 get_string('overrideconditioncheckbox', 'mod_booking'));
-            $mform->hideIf('bo_cond_previouslybooked_overrideconditioncheckbox', 'restrictwithpreviouslybooked', 'notchecked');
+            $mform->hideIf('bo_cond_alwaysallowed_overrideconditioncheckbox', 'alwaysallowedcheckbox', 'notchecked');
 
             $overrideoperators = [
                 'AND' => get_string('overrideoperator:and', 'mod_booking'),
                 'OR' => get_string('overrideoperator:or', 'mod_booking')
             ];
-            $mform->addElement('select', 'bo_cond_previouslybooked_overrideoperator',
+            $mform->addElement('select', 'bo_cond_alwaysallowed_overrideoperator',
                 get_string('overrideoperator', 'mod_booking'), $overrideoperators);
-            $mform->hideIf('bo_cond_previouslybooked_overrideoperator',
-                'bo_cond_previouslybooked_overrideconditioncheckbox', 'notchecked');
+            $mform->hideIf('bo_cond_alwaysallowed_overrideoperator', 'bo_cond_alwaysallowed_overrideconditioncheckbox',
+                'notchecked');
 
             $overrideconditions = bo_info::get_conditions(CONDPARAM_MFORM_ONLY);
             $overrideconditionsarray = [];
             foreach ($overrideconditions as $overridecondition) {
                 // We do not combine conditions with each other.
-                if ($overridecondition->id == BO_COND_JSON_PREVIOUSLYBOOKED) {
+                if ($overridecondition->id == BO_COND_JSON_ALWAYSALLOWED) {
                     continue;
                 }
 
@@ -244,13 +226,11 @@ class previouslybooked implements bo_condition {
             if (!empty($optionid) && $optionid > 0) {
                 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
                 if (!empty($settings->availability)) {
-
                     $jsonconditions = json_decode($settings->availability);
-
                     if (!empty($jsonconditions)) {
                         foreach ($jsonconditions as $jsoncondition) {
                             // Currently conditions of the same type cannot be combined with each other.
-                            if ($jsoncondition->id != BO_COND_JSON_PREVIOUSLYBOOKED) {
+                            if ($jsoncondition->id != BO_COND_JSON_ALWAYSALLOWED) {
                                 $overrideconditionsarray[$jsoncondition->id] = get_string('bo_cond_' .
                                     $jsoncondition->name, 'mod_booking');
                             }
@@ -259,15 +239,15 @@ class previouslybooked implements bo_condition {
                 }
             }
 
-            $mform->addElement('select', 'bo_cond_previouslybooked_overridecondition',
+            $mform->addElement('select', 'bo_cond_alwaysallowed_overridecondition',
                 get_string('overridecondition', 'mod_booking'), $overrideconditionsarray);
-            $mform->hideIf('bo_cond_previouslybooked_overridecondition',
-                'bo_cond_previouslybooked_overrideconditioncheckbox',
+            $mform->hideIf('bo_cond_alwaysallowed_overridecondition', 'bo_cond_alwaysallowed_overrideconditioncheckbox',
                 'notchecked');
+
         } else {
             // No PRO license is active.
-            $mform->addElement('static', 'restrictwithpreviouslybooked',
-                get_string('restrictwithpreviouslybooked', 'mod_booking'),
+            $mform->addElement('static', 'static:alwaysallowed',
+                get_string('alwaysallowedcheckbox', 'mod_booking'),
                 get_string('proversiononly', 'mod_booking'));
         }
 
@@ -277,59 +257,14 @@ class previouslybooked implements bo_condition {
         $showhorizontalline = true;
         $formmode = get_user_preferences('optionform_mode');
         if ($formmode !== 'expert') {
-            $cfgrestrictwithpreviouslybooked = $DB->get_field('booking_optionformconfig', 'active',
-                ['elementname' => 'restrictwithpreviouslybooked']);
-            if ($cfgrestrictwithpreviouslybooked === "0") {
+            $cfgalwaysallowed = $DB->get_field('booking_optionformconfig', 'active',
+                ['elementname' => 'alwaysallowedcheckbox']);
+            if ($cfgalwaysallowed === "0") {
                 $showhorizontalline = false;
             }
         }
         if ($showhorizontalline) {
             $mform->addElement('html', '<hr class="w-50"/>');
-        }
-    }
-
-    /**
-     * Returns a condition object which is needed to create the condition JSON.
-     *
-     * @param stdClass $fromform
-     * @return stdClass|null the object for the JSON
-     */
-    public function get_condition_object_for_json(stdClass $fromform): stdClass {
-        $conditionobject = new stdClass;
-        if (!empty($fromform->restrictwithpreviouslybooked)) {
-            // Remove the namespace from classname.
-            $classname = __CLASS__;
-            $classnameparts = explode('\\', $classname);
-            $shortclassname = end($classnameparts); // Without namespace.
-
-            $conditionobject->id = BO_COND_JSON_PREVIOUSLYBOOKED;
-            $conditionobject->name = $shortclassname;
-            $conditionobject->class = $classname;
-            $conditionobject->optionid = $fromform->bo_cond_previouslybooked_optionid;
-
-            if (!empty($fromform->bo_cond_previouslybooked_overrideconditioncheckbox)) {
-                $conditionobject->overrides = $fromform->bo_cond_previouslybooked_overridecondition;
-                $conditionobject->overrideoperator = $fromform->bo_cond_previouslybooked_overrideoperator;
-            }
-        }
-        // Might be an empty object if restriction is not set.
-        return $conditionobject;
-    }
-
-    /**
-     * Set default values to be shown in form when loaded from DB.
-     * @param stdClass &$defaultvalues the default values
-     * @param stdClass $acdefault the condition object from JSON
-     */
-    public function set_defaults(stdClass &$defaultvalues, stdClass $acdefault) {
-        if (!empty($acdefault->optionid)) {
-            $defaultvalues->restrictwithpreviouslybooked = "1";
-            $defaultvalues->bo_cond_previouslybooked_optionid = $acdefault->optionid;
-        }
-        if (!empty($acdefault->overrides)) {
-            $defaultvalues->bo_cond_previouslybooked_overrideconditioncheckbox = "1";
-            $defaultvalues->bo_cond_previouslybooked_overridecondition = $acdefault->overrides;
-            $defaultvalues->bo_cond_previouslybooked_overrideoperator = $acdefault->overrideoperator;
         }
     }
 
@@ -346,6 +281,54 @@ class previouslybooked implements bo_condition {
     }
 
     /**
+     * Returns a condition object which is needed to create the condition JSON.
+     *
+     * @param stdClass $fromform
+     * @return stdClass|null the object for the JSON
+     */
+    public function get_condition_object_for_json(stdClass $fromform): stdClass {
+
+        $conditionobject = new stdClass;
+
+        if (!empty($fromform->alwaysallowedcheckbox)) {
+            // Remove the namespace from classname.
+            $classname = __CLASS__;
+            $classnameparts = explode('\\', $classname);
+            $shortclassname = end($classnameparts); // Without namespace.
+
+            $conditionobject->id = BO_COND_JSON_ALWAYSALLOWED;
+            $conditionobject->name = $shortclassname;
+            $conditionobject->class = $classname;
+            $conditionobject->userids = $fromform->bo_cond_alwaysallowed_userids;
+
+            if (!empty($fromform->bo_cond_alwaysallowed_overrideconditioncheckbox)) {
+                $conditionobject->overrides = $fromform->bo_cond_alwaysallowed_overridecondition;
+                $conditionobject->overrideoperator = $fromform->bo_cond_alwaysallowed_overrideoperator;
+            }
+        }
+        // Might be an empty object.
+        return $conditionobject;
+    }
+
+    /**
+     * Set default values to be shown in form when loaded from DB.
+     * @param stdClass &$defaultvalues the default values
+     * @param stdClass $acdefault the condition object from JSON
+     */
+    public function set_defaults(stdClass &$defaultvalues, stdClass $acdefault) {
+
+        if (!empty($acdefault->userids)) {
+            $defaultvalues->alwaysallowedcheckbox = "1";
+            $defaultvalues->bo_cond_alwaysallowed_userids = $acdefault->userids;
+        }
+        if (!empty($acdefault->overrides)) {
+            $defaultvalues->bo_cond_alwaysallowed_overrideconditioncheckbox = "1";
+            $defaultvalues->bo_cond_alwaysallowed_overridecondition = $acdefault->overrides;
+            $defaultvalues->bo_cond_alwaysallowed_overrideoperator = $acdefault->overrideoperator;
+        }
+    }
+
+    /**
      * Some conditions (like price & bookit) provide a button.
      * Renders the button, attaches js to the Page footer and returns the html.
      * Return should look somehow like this.
@@ -353,16 +336,13 @@ class previouslybooked implements bo_condition {
      *
      * @param booking_option_settings $settings
      * @param int $userid
-     * @param bool $full
-     * @param bool $not
+     * @param boolean $full
+     * @param boolean $not
      * @return array
      */
     public function render_button(booking_option_settings $settings,
-        int $userid = 0, bool $full = false, bool $not = false, bool $fullwidth = true): array {
-
-        $label = $this->get_description_string(false, $full, $settings);
-
-        return bo_info::render_button($settings, $userid, $label, 'alert alert-warning', true, $fullwidth, 'alert', 'option');
+        $userid = 0, $full = false, $not = false, bool $fullwidth = true): array {
+        return [];
     }
 
     /**
@@ -370,42 +350,10 @@ class previouslybooked implements bo_condition {
      *
      * @param bool $isavailable
      * @param bool $full
+     * @param booking_option_settings $settings
      * @return string
      */
     private function get_description_string($isavailable, $full, $settings) {
-
-        if ($isavailable) {
-            $description = $full ? get_string('bo_cond_previouslybooked_full_available', 'mod_booking') :
-                get_string('bo_cond_previouslybooked_available', 'mod_booking');
-        } else {
-
-            if (!$this->customsettings) {
-                // This description can only work with the right custom settings.
-                $availabilityarray = json_decode($settings->availability);
-
-                foreach ($availabilityarray as $availability) {
-                    if (strpos($availability->class, 'previouslybooked') > 0) {
-
-                        $this->customsettings = (object)$availability;
-                    }
-                }
-            }
-
-            if (!isset($this->customsettings->optionid)) {
-                return 'something is wrong here';
-            }
-            $settings = singleton_service::get_instance_of_booking_option_settings($this->customsettings->optionid);
-            $url = new moodle_url('/mod/booking/optionview.php', [
-                'optionid' => $this->customsettings->optionid,
-                'cmid' => $settings->cmid
-            ]);
-
-            $description = $full ? get_string('bo_cond_previouslybooked_full_not_available',
-                'mod_booking',
-                $url->out(false)) :
-                get_string('bo_cond_previouslybooked_not_available', 'mod_booking');
-        }
-
-        return $description;
+        return '';
     }
 }

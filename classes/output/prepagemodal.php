@@ -71,7 +71,7 @@ class prepagemodal implements renderable, templatable {
             $settings,
             int $totalnumberofpages,
             string $buttoncondition,
-            string $extrabuttoncondition,
+            string $extrabuttoncondition = '',
             int $userid = 0) {
 
         global $PAGE;
