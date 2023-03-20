@@ -68,7 +68,6 @@ $optiondatesteacherstable->is_downloading($download, $fileandsheetname, $fileand
 $tablebaseurl = $baseurl;
 $tablebaseurl->remove_params('page');
 $optiondatesteacherstable->define_baseurl($tablebaseurl);
-$optiondatesteacherstable->defaultdownloadformat = 'pdf';
 $optiondatesteacherstable->sortable(false);
 
 $optiondatesteacherstable->show_download_buttons_at(array(TABLE_P_BOTTOM));

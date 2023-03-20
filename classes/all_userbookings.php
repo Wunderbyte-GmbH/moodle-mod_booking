@@ -48,9 +48,6 @@ class all_userbookings extends \table_sql {
     /** @var array of ratingoptions */
     public $ratingoptions = null;
 
-    /** @var string $defaultdownloadformat*/
-    public $defaultdownloadformat = null;
-
     /**
      * Constructor
      *

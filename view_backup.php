@@ -309,7 +309,6 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
     $tablealloptions->is_downloading($download, $booking->settings->name, $booking->settings->name);
 
     $tablealloptions->define_baseurl($sorturl);
-    $tablealloptions->defaultdownloadformat = 'ods';
     if (has_capability('mod/booking:downloadresponses', $context)) {
         $tablealloptions->is_downloadable(true);
     } else {

@@ -267,7 +267,6 @@ $tableallbookings->is_downloading($download, $filename, $sheetname);
 $tablebaseurl = $currenturl;
 $tablebaseurl->remove_params('page');
 $tableallbookings->define_baseurl($tablebaseurl);
-$tableallbookings->defaultdownloadformat = 'ods';
 $tableallbookings->sortable(true, 'firstname');
 if (has_capability('mod/booking:downloadresponses', $context)) {
     $tableallbookings->is_downloadable(true);
