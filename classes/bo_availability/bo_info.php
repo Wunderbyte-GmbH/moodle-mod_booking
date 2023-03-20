@@ -679,10 +679,16 @@ class bo_info {
 
         $showbutton = true;
         $confirmation = null;
+        $showcheckout = false;
 
         // First, sort all the pages according to this system:
         // Depending on the BO_PREPAGE_x constant, we order them pre or post the real booking button.
         foreach ($results as $result) {
+
+            if ($result['id'] === BO_COND_PRICEISSET &&
+                class_exists('local_shopping_cart\shopping_cart')) {
+                $showcheckout = true;
+            }
 
             // One no button condition tetermines this for all.
             if ($result['button'] === BO_BUTTON_NOBUTTON) {
@@ -696,6 +702,9 @@ class bo_info {
 
             if ($result['id'] === BO_COND_CONFIRMATION) {
                 $confirmation = $newclass;
+                /* We use 'showcheckout' to differentiate between "Booking complete"
+                and "Proceed to checkout" confirmation. */
+                $confirmation['showcheckout'] = $showcheckout;
                 continue;
             }
 
@@ -750,8 +759,13 @@ class bo_info {
 
         foreach ($conditionsarray as $key => $value) {
 
-            $array = explode('\\', $value['classname']);
-            $name = array_pop($array);
+            if (isset($value['showcheckout']) && $value['showcheckout'] == true) {
+                $name = 'checkout'; // So we'll get the string 'page:checkout'.
+            } else {
+                // In all other cases, we want to get the string of 'page:conditionname', e.g. 'page:confirmation'.
+                $array = explode('\\', $value['classname']);
+                $name = array_pop($array);
+            }
             $data['tabs'][] = [
                 'name' => get_string('page:' . $name, 'mod_booking'),
                 'active' => $key <= $pagenumber ? true : false,

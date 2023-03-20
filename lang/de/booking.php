@@ -383,6 +383,7 @@ $string['page:bookingpolicy'] = 'Buchungsbedingungen';
 $string['page:bookitbutton'] = 'Buchen';
 $string['page:subbooking'] = 'Zusätzliche Buchungen';
 $string['page:confirmation'] = 'Buchung abgeschlossen';
+$string['page:checkout'] = 'Zur Bezahlung';
 
 $string['confirmationmessagesettings'] = 'Buchungsbestätigungseinstellungen';
 $string['usernameofbookingmanager'] = 'Buchungsverwalter/in auswählen';

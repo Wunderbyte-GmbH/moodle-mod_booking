@@ -392,6 +392,7 @@ $string['page:bookingpolicy'] = 'Booking policy';
 $string['page:bookitbutton'] = 'Book';
 $string['page:subbooking'] = 'Supplementary bookings';
 $string['page:confirmation'] = 'Booking complete';
+$string['page:checkout'] = 'Checkout';
 
 $string['confirmationmessagesettings'] = 'Confirmation e-mail settings';
 $string['usernameofbookingmanager'] = 'Choose a booking manager';
