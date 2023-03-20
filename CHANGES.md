@@ -1,3 +1,13 @@
+## Version 8.0.4 (2023032000)
+**Improvements:**
+* Improvement: Hide activity header on view confirmation page and show menu in full width.
+* Improvement: Remove duration from bookingoption_description and put image into paragraph.
+* Improvement: Remove unused attribute defaultdownloadformat.
+
+**Bugfixes:**
+* Bugfix: Fixed broken send reminder mails task.
+* Bugfix: Remove wrong login function.
+
 ## Version 8.0.3 (2023031600)
 **New features:**
 * New feature: New placeholder {profilepicture} to add user profile picture to confirmation mails.
