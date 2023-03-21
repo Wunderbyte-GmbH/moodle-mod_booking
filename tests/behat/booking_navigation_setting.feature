@@ -34,14 +34,14 @@ Feature: Configure and use booking's pagination and perform filtering - as a tea
     Then I follow "My booking"
     And I should see "Booking Option 1" in the "#allbookingoptionstable_r1" "css_element"
     And I should see "Booking Option 5" in the "#allbookingoptionstable_r5" "css_element"
-    And "//nav[@aria-label='Page navigation']" "xpath_element" should not exist
+    And "//nav[@aria-label='Page']" "xpath_element" should not exist
     And I follow "Settings"
     And I follow "Miscellaneous settings"
     And I wait "1" seconds
     And I set the field "paginationnum" to "3"
     And I press "Save and display"
     And I wait "1" seconds
-    And "//nav[@aria-label='Page navigation']" "xpath_element" should exist
+    And "//nav[@aria-label='Page']" "xpath_element" should exist
     And I should see "1" in the ".allbookingoptionstable .pagination" "css_element"
     And I should see "2" in the ".allbookingoptionstable .pagination" "css_element"
     And I should see "Booking Option 1" in the "#allbookingoptionstable_r1" "css_element"
@@ -49,7 +49,7 @@ Feature: Configure and use booking's pagination and perform filtering - as a tea
     And I should not see "Booking Option 4" in the ".allbookingoptionstable" "css_element"
     And I should not see "Booking Option 5" in the ".allbookingoptionstable" "css_element"
     ## Goto page 2
-    ## And I click on "2" "link" in the "//nav[@aria-label='Page navigation']" "xpath_element"
+    ## And I click on "2" "link" in the "//nav[@aria-label='Page']" "xpath_element"
     And I click on "2" "link" in the ".allbookingoptionstable .pagination" "css_element"
     And I should see "Booking Option 4" in the "#allbookingoptionstable_r1" "css_element"
     And I should see "Booking Option 5" in the "#allbookingoptionstable_r2" "css_element"
@@ -61,7 +61,7 @@ Feature: Configure and use booking's pagination and perform filtering - as a tea
     Then I follow "My booking"
     And I should see "Booking Option 1" in the "#allbookingoptionstable_r1" "css_element"
     And I should see "Booking Option 5" in the "#allbookingoptionstable_r5" "css_element"
-    And "//nav[@aria-label='Page navigation']" "xpath_element" should not exist
+    And "//nav[@aria-label='Page']" "xpath_element" should not exist
     And I wait "1" seconds
     And I set the field "Search" in the ".allbookingoptionstable" "css_element" to "Option 4"
     Then I should see "Booking Option 4" in the "#allbookingoptionstable_r1" "css_element"
@@ -72,7 +72,7 @@ Feature: Configure and use booking's pagination and perform filtering - as a tea
     And I set the field "paginationnum" to "3"
     And I press "Save and display"
     And I wait "1" seconds
-    And "//nav[@aria-label='Page navigation']" "xpath_element" should exist
+    And "//nav[@aria-label='Page']" "xpath_element" should exist
     And I should see "1" in the ".allbookingoptionstable .pagination" "css_element"
     And I should see "2" in the ".allbookingoptionstable .pagination" "css_element"
     And I should see "Booking Option 1" in the "#allbookingoptionstable_r1" "css_element"
@@ -81,4 +81,4 @@ Feature: Configure and use booking's pagination and perform filtering - as a tea
     And I should not see "Booking Option 5" in the ".allbookingoptionstable" "css_element"
     And I set the field "Search" in the ".allbookingoptionstable" "css_element" to "Option 4"
     Then I should see "Booking Option 4" in the "#allbookingoptionstable_r1" "css_element"
-    And "//nav[@aria-label='Page navigation']" "xpath_element" should exist
+    And "//nav[@aria-label='Page']" "xpath_element" should exist
