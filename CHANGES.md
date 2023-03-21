@@ -1,3 +1,16 @@
+## Version 8.0.5 (2023032100)
+**Improvements:**
+* Improvement: Differentiate between checkout and booking complete confirmation in header.
+* Improvement: the $booking->get_pagination_setting() method introduced to get number of booking options per page for rendering.
+
+**Bugfixes:**
+* Bugfix: Add missing isset checks.
+* Bugfix: Mustache's HTML validation fixes and little github styling.
+
+**Testing:**
+* Test: 2 behat scenarios have been added for testing settings.
+* Test: 2 behat scenarios have been added for testing navigation - paging and filtering.
+
 ## Version 8.0.4 (2023032000)
 **Improvements:**
 * Improvement: Hide activity header on view confirmation page and show menu in full width.
