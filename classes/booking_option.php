@@ -1700,7 +1700,8 @@ class booking_option {
         if ($bookingstatus = reset($bookingstatus)) {
             if (isset($bookingstatus['fullybooked']) && !$bookingstatus['fullybooked']) {
                 return STATUSPARAM_BOOKED;
-            } else if (!isset($bookingstatus['maxoverbooking']) || $bookingstatus['freeonwaitinglist'] > 0) {
+            } else if (!isset($bookingstatus['maxoverbooking']) ||
+                (isset($bookingstatus['freeonwaitinglist']) && $bookingstatus['freeonwaitinglist'] > 0)) {
                 return STATUSPARAM_WAITINGLIST;
             } else {
                 return false;
