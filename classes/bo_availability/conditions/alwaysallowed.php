@@ -98,7 +98,19 @@ class alwaysallowed implements bo_condition {
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
-        // TODO: Implement the logic here.
+        if (!isset($this->customsettings->userids)) {
+            $isavailable = true;
+        } else {
+            // Users have been set in condition.
+            if (isloggedin()) {
+                $userids = $this->customsettings->userids;
+                if (in_array("$userid", $userids)) {
+                    $isavailable = true;
+                } else {
+                    $isavailable = false;
+                }
+            }
+        }
 
         // If it's inversed, we inverse.
         if ($not) {
@@ -155,7 +167,7 @@ class alwaysallowed implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full, $settings);
 
-        return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_MYALERT];
+        return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_NOBUTTON];
     }
 
     /**
@@ -174,17 +186,28 @@ class alwaysallowed implements bo_condition {
             /* We want to add an autocomplete to select users which are always allowed to book.
             Even if the booking option is fully booked or not within booking times. */
 
-            $users = get_users();
+            $users = get_users(true, '', false, null, 'firstname ASC', '', '', '', '100');
 
             foreach ($users as $user) {
                 $listofusers[$user->id] = "$user->firstname $user->lastname ($user->email)";
 
             }
 
-            $options = array(
+            $options = [
+                'ajax' => 'core_search/form-search-user-selector',
                 'multiple' => true,
                 'noselectionstring' => get_string('choose...', 'mod_booking'),
-            );
+                'valuehtmlcallback' => function($value) {
+                    global $DB, $OUTPUT;
+                    $user = $DB->get_record('user', ['id' => (int)$value], '*', IGNORE_MISSING);
+                    if (!$user || !user_can_view_profile($user)) {
+                        return false;
+                    }
+                    $details = user_get_user_details($user);
+                    return $OUTPUT->render_from_template(
+                            'core_search/form-user-selector-suggestion', $details);
+                }
+            ];
 
             $mform->addElement('checkbox', 'alwaysallowedcheckbox',
                     get_string('alwaysallowedcheckbox', 'mod_booking'));

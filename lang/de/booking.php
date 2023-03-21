@@ -1855,6 +1855,7 @@ $string['availabilityconditions'] = 'Verfügbarkeit einschränken';
 
 $string['bo_cond_alreadybooked'] = 'alreadybooked: Von diesem User bereits gebucht';
 $string['bo_cond_alreadyreserved'] = 'alreadyreserved: Von diesem User bereits in den Warenkorb gelegt';
+$string['bo_cond_alwaysallowed'] = 'alwaysallowed: Kann von diesen Benutzer:innen immer gebucht werden';
 $string['bo_cond_booking_time'] = 'Nur in einer bestimmten Zeit buchbar';
 $string['bo_cond_fullybooked'] = 'fullybooked: Ausgebucht';
 $string['bo_cond_max_number_of_bookings'] = 'max_number_of_bookings: Maximum an Nutzer:innen erreicht, die dieser User buchen darf';
@@ -1933,6 +1934,10 @@ $string['bo_cond_subbooking_available'] = 'Buchen';
 $string['bo_cond_subbooking_full_available'] = 'Buchen möglich';
 $string['bo_cond_subbooking_not_available'] = 'Buchen';
 $string['bo_cond_subbooking_full_not_available'] = 'Buchen möglich';
+
+// BO conditions in mform.
+$string['alwaysallowedcheckbox'] = 'Bestimme Benutzer:in(nen) können immer buchen (muss mit "ODER" verknüpft werden)';
+$string['bo_cond_alwaysallowed_userids'] = 'Benutzer:in(nen), die buchen dürfen';
 
 $string['userinfofieldoff'] = 'Kein User-Profilfeld ausgewählt';
 $string['restrictwithuserprofilefield'] = 'Ein ausgewähltes Userprofilfeld soll einen bestimmten Wert haben';

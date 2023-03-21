@@ -95,7 +95,7 @@ class singleton_service {
      * @param int $cmid
      * @return booking
      */
-    public static function get_instance_of_booking_by_cmid(int $cmid) {
+    public static function get_instance_of_booking_by_cmid(int $cmid):booking {
 
         $instance = self::get_instance();
 
