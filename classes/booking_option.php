@@ -1017,6 +1017,11 @@ class booking_option {
         $waitinglist = $this->check_if_limit($user->id);
 
         if ($waitinglist === false) {
+
+            // TODO: introduce an "allowoverbooking" param into the availability JSON.
+            // If the JSON contains it, we want to allow overbooking even without a waiting list.
+            // TOOD: It has to be added to the override conditions mform elements as a checkbox.
+
             // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
             /* echo "Couldn't subscribe user $user->id because of full waitinglist <br>";*/
             return false;
@@ -1700,8 +1705,7 @@ class booking_option {
         if ($bookingstatus = reset($bookingstatus)) {
             if (isset($bookingstatus['fullybooked']) && !$bookingstatus['fullybooked']) {
                 return STATUSPARAM_BOOKED;
-            } else if (!isset($bookingstatus['maxoverbooking']) ||
-                (isset($bookingstatus['freeonwaitinglist']) && $bookingstatus['freeonwaitinglist'] > 0)) {
+            } else if (isset($bookingstatus['freeonwaitinglist']) && $bookingstatus['freeonwaitinglist'] > 0) {
                 return STATUSPARAM_WAITINGLIST;
             } else {
                 return false;

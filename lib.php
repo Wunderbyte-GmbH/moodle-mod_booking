@@ -122,6 +122,7 @@ define('CONDPARAM_ALL', 0);
 define('CONDPARAM_HARDCODED_ONLY', 1);
 define('CONDPARAM_JSON_ONLY', 2);
 define('CONDPARAM_MFORM_ONLY', 3);
+define('CONDPARAM_CANBEOVERRIDDEN', 4);
 
 // Define status for booking & subbooking options.
 define('UNVERIFIED', 0);

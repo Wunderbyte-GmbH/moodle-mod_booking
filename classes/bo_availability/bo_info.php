@@ -179,7 +179,9 @@ class bo_info {
         /* Run through all the individual conditions to make sure they are fullfilled.
         Hardcoded conditions are in instantiated classes whereas JSON conditions are in stdclasses.
         They come from the field 'availability' field of the booking options table. */
-        foreach ($conditions as $condition) {
+        while (count($conditions) > 0) {
+
+            $condition = array_shift($conditions);
 
             $classname = get_class($condition);
 
@@ -246,11 +248,13 @@ class bo_info {
                         switch ($condition->overrideoperator) {
                             case 'OR':
                                 // If one of the two results is true, both are true.
-                                if ($resultsarray[$ocid]['isavailable']
+                                if (isset($resultsarray[$ocid])) {
+                                    if ($resultsarray[$ocid]['isavailable']
                                     || $resultsarray[$condition->id]['isavailable']) {
                                         $resultsarray[$ocid]['isavailable'] = true;
                                         $resultsarray[$condition->id]['isavailable'] = true;
-                                };
+                                    };
+                                }
                                 break;
                             case 'AND':
                                 // We need to return the right description which actually failed.
@@ -270,7 +274,6 @@ class bo_info {
                                 // Only now: If NOT both are true, we set both to false.
                                 if (!($resultsarray[$ocid]['isavailable']
                                     && $resultsarray[$condition->id]['isavailable'])) {
-                                        $resultsarray[$ocid]['isavailable'] = false;
                                         $resultsarray[$condition->id]['isavailable'] = false;
                                         // Both get the same descripiton.
                                         // if one of them bubbles up as the blocking one, we see the right description.
@@ -278,6 +281,8 @@ class bo_info {
                                         $resultsarray[$condition->id]['description'] = $description;
                                 };
                         }
+                    } else {
+                        array_push($conditions, $condition);
                     }
                 }
             }
@@ -437,6 +442,11 @@ class bo_info {
                         break;
                     case CONDPARAM_MFORM_ONLY:
                         if ($instance->is_shown_in_mform()) {
+                            $conditions[] = $instance;
+                        }
+                        break;
+                    case CONDPARAM_CANBEOVERRIDDEN:
+                        if (isset($instance->overridable) && $instance->overridable === true) {
                             $conditions[] = $instance;
                         }
                         break;
@@ -627,10 +637,7 @@ class bo_info {
 
         if ($fullwidth) {
             // For view.php and default rendering.
-            $fullwidthclasses = 'w-100 mt-0 mb-0 pl-1 pr-1 pt-2 pb-2';
-        } else {
-            // For prepage modals we want to render the button different than on view.php.
-            $fullwidthclasses = 'pl-3 pr-3 pb-2 pt-2 m-3';
+            $fullwidthclasses = 'w-100';
         }
 
         $data = [

@@ -53,6 +53,9 @@ class userprofilefield_2_custom implements bo_condition {
     /** @var int $id Id is set via json during construction */
     public $id = BO_COND_JSON_CUSTOMUSERPROFILEFIELD;
 
+    /** @var bool $overridable Indicates if the condition can be overriden. */
+    public $overridable = true;
+
     /** @var stdClass $customsettings an stdclass coming from the json which passes custom settings */
     public $customsettings = null;
 
@@ -302,7 +305,7 @@ class userprofilefield_2_custom implements bo_condition {
                 $mform->hideIf('bo_cond_customuserprofilefield_overrideoperator',
                     'bo_cond_customuserprofilefield_overrideconditioncheckbox', 'notchecked');
 
-                $overrideconditions = bo_info::get_conditions(CONDPARAM_MFORM_ONLY);
+                $overrideconditions = bo_info::get_conditions(CONDPARAM_CANBEOVERRIDDEN);
                 $overrideconditionsarray = [];
                 foreach ($overrideconditions as $overridecondition) {
                     // We do not combine conditions with each other.

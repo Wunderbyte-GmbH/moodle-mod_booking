@@ -207,8 +207,9 @@ class cancelmyself implements bo_condition {
         }
         $label = $this->get_description_string(false);
 
-        return bo_info::render_button($settings, $userid, $label, 'btn btn-secondary w-auto ml-1', false, $fullwidth,
-            'button', 'option', false);
+        return bo_info::render_button($settings, $userid, $label,
+            'btn btn-light btn-sm',
+            false, $fullwidth, 'button', 'option', false);
     }
 
     /**
@@ -219,6 +220,7 @@ class cancelmyself implements bo_condition {
      * @return string
      */
     private function get_description_string($isavailable) {
-        return get_string('cancelsign', 'mod_booking');
+        return get_string('cancelsign', 'mod_booking') . "&nbsp;" .
+            get_string('cancelmyself', 'mod_booking');
     }
 }

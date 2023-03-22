@@ -196,7 +196,7 @@ class confirmcancel implements bo_condition {
         }
         $label = $this->get_description_string();
 
-        return bo_info::render_button($settings, $userid, $label, 'btn btn-danger w-auto ml-1', false, $fullwidth,
+        return bo_info::render_button($settings, $userid, $label, 'btn btn-danger ml-1', false, $fullwidth,
             'button', 'option', false);
     }
 

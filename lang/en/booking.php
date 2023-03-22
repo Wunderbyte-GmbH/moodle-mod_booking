@@ -16,12 +16,13 @@
 
 // General strings.
 $string['areyousure:book'] = 'Do you really want to book?';
-$string['areyousure:cancel'] = 'Do you really want to cancel?';
+$string['areyousure:cancel'] = 'Do you really want to be removed from this booking option?';
 $string['assignteachers'] = 'Assign teachers:';
 $string['alreadypassed'] = 'Already passed';
 $string['bookingoption'] = 'Booking option';
 $string['bookingoptionnamewithoutprefix'] = 'Name (without prefix)';
 $string['bookings'] = 'Bookings';
+$string['cancelmyself'] = 'Undo my booking';
 $string['cancelsign'] = '<i class="fa fa-ban" aria-hidden="true"></i>';
 $string['updatebooking'] = 'Update booking';
 $string['booking:manageoptiontemplates'] = "Manage option templates";
@@ -2043,9 +2044,9 @@ $string['availabilityconditions'] = 'Availability conditions';
 
 $string['bo_cond_alreadybooked'] = 'alreadybooked: Is already booked by this user';
 $string['bo_cond_alreadyreserved'] = 'alreadyreserved: Has already been added to cart by this user';
-$string['bo_cond_selectusers'] = 'selectusers: Can always be booked by these users';
+$string['bo_cond_selectusers'] = 'selectusers: Only selected users can book';
 $string['bo_cond_booking_time'] = 'Only bookable within a certain time';
-$string['bo_cond_fullybooked'] = 'fullybooked: Fully booked';
+$string['bo_cond_fullybooked'] = 'Fully booked';
 $string['bo_cond_bookingpolicy'] = 'bookingpolicy: Confirm booking policy';
 $string['bo_cond_notifymelist'] = 'notifymelist: Put me on a notify list';
 $string['bo_cond_max_number_of_bookings'] = 'max_number_of_bookings: Maximum number of bookings per user reached';
@@ -2062,6 +2063,7 @@ $string['bo_cond_subbooking_blocks'] = 'subbookingblocks: Subbooking blocks this
 $string['bo_cond_subbooking'] = 'subbooking: Subbooking adds additonal options to this Booking option';
 $string['bo_cond_bookitbutton'] = 'bookitbutton: Show the normal booking button.';
 $string['bo_cond_isloggedinprice'] = 'isloggedinprice: Show all prices when not logged in.';
+$string['bo_cond_optionhasstarted'] = 'Has already started';
 
 $string['bo_cond_booking_time_available'] = 'Within normal booking times.';
 $string['bo_cond_booking_time_not_available'] = 'Not within normal booking times.';
