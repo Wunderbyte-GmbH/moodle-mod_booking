@@ -22,6 +22,7 @@ $string['alreadypassed'] = 'Already passed';
 $string['bookingoption'] = 'Booking option';
 $string['bookingoptionnamewithoutprefix'] = 'Name (without prefix)';
 $string['bookings'] = 'Bookings';
+$string['cancelsign'] = '<i class="fa fa-ban" aria-hidden="true"></i>';
 $string['updatebooking'] = 'Update booking';
 $string['booking:manageoptiontemplates'] = "Manage option templates";
 $string['booking:cantoggleformmode'] = 'User can edit all settings';
@@ -2042,7 +2043,7 @@ $string['availabilityconditions'] = 'Availability conditions';
 
 $string['bo_cond_alreadybooked'] = 'alreadybooked: Is already booked by this user';
 $string['bo_cond_alreadyreserved'] = 'alreadyreserved: Has already been added to cart by this user';
-$string['bo_cond_alwaysallowed'] = 'alwaysallowed: Can always be booked by these users';
+$string['bo_cond_selectusers'] = 'selectusers: Can always be booked by these users';
 $string['bo_cond_booking_time'] = 'Only bookable within a certain time';
 $string['bo_cond_fullybooked'] = 'fullybooked: Fully booked';
 $string['bo_cond_bookingpolicy'] = 'bookingpolicy: Confirm booking policy';
@@ -2153,6 +2154,11 @@ $string['bo_cond_optionhasstarted_full_available'] = 'Booking is possible';
 $string['bo_cond_optionhasstarted_not_available'] = 'Already started - booking is not possible anymore';
 $string['bo_cond_optionhasstarted_full_not_available'] = 'Already started - booking for users not possible anymore';
 
+$string['bo_cond_selectusers_available'] = 'Book it';
+$string['bo_cond_selectusers_full_available'] = 'Booking is possible';
+$string['bo_cond_selectusers_not_available'] = 'Booking not allowed';
+$string['bo_cond_selectusers_full_not_available'] = 'Only the following users are allowed to book:<br>{$a}';
+
 $string['bo_cond_subbookingblocks_available'] = 'Book it';
 $string['bo_cond_subbookingblocks_full_available'] = 'Booking is possible';
 $string['bo_cond_subbookingblocks_not_available'] = 'Not allowed to book.';
@@ -2165,8 +2171,8 @@ $string['bo_cond_subbooking_not_available'] = 'Book it';
 $string['bo_cond_subbooking_full_not_available'] = 'Booking is possible';
 
 // BO conditions in mform.
-$string['alwaysallowedcheckbox'] = 'Certain user(s) can always book (needs to be combined with "OR" operator)';
-$string['bo_cond_alwaysallowed_userids'] = 'User(s) allowed to book';
+$string['selectuserscheckbox'] = 'Only specific user(s) are allowed to book';
+$string['bo_cond_selectusers_userids'] = 'User(s) allowed to book';
 
 $string['userinfofieldoff'] = 'No user profile field selected';
 $string['restrictwithuserprofilefield'] = 'A chosen user profile field should have a certain value';

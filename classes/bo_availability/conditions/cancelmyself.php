@@ -205,7 +205,7 @@ class cancelmyself implements bo_condition {
         if ($userid === null) {
             $userid = $USER->id;
         }
-        $label = $this->get_description_string(false, $full);
+        $label = $this->get_description_string(false);
 
         return bo_info::render_button($settings, $userid, $label, 'btn btn-secondary w-auto ml-1', false, $fullwidth,
             'button', 'option', false);
@@ -218,7 +218,7 @@ class cancelmyself implements bo_condition {
      * @param bool $full
      * @return string
      */
-    private function get_description_string($isavailable, $full) {
-        return get_string('cancel', 'mod_booking');
+    private function get_description_string($isavailable) {
+        return get_string('cancelsign', 'mod_booking');
     }
 }

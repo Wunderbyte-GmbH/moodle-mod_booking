@@ -19,9 +19,10 @@
  *
  * All bo condition types must extend this class.
  *
- * @package mod_booking
- * @copyright 2022 Wunderbyte GmbH
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     mod_booking
+ * @copyright   2023 Wunderbyte GmbH
+ * @author      Bernhard Fischer
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_booking\bo_availability\conditions;
@@ -44,14 +45,15 @@ require_once($CFG->dirroot . '/user/profile/lib.php');
  *
  * All bo condition types must extend this class.
  *
- * @package mod_booking
- * @copyright 2022 Wunderbyte GmbH
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     mod_booking
+ * @copyright   2023 Wunderbyte GmbH
+ * @author      Bernhard Fischer
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class alwaysallowed implements bo_condition {
+class selectusers implements bo_condition {
 
     /** @var int $id Id is set via json during construction but we still need a default ID */
-    public $id = BO_COND_JSON_ALWAYSALLOWED;
+    public $id = BO_COND_JSON_SELECTUSERS;
 
     /** @var stdClass $customsettings an stdclass coming from the json which passes custom settings */
     public $customsettings = null;
@@ -167,7 +169,7 @@ class alwaysallowed implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full, $settings);
 
-        return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_NOBUTTON];
+        return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_MYALERT];
     }
 
     /**
@@ -182,16 +184,6 @@ class alwaysallowed implements bo_condition {
 
         // Check if PRO version is activated.
         if (wb_payment::pro_version_is_activated()) {
-
-            /* We want to add an autocomplete to select users which are always allowed to book.
-            Even if the booking option is fully booked or not within booking times. */
-
-            $users = get_users(true, '', false, null, 'firstname ASC', '', '', '', '100');
-
-            foreach ($users as $user) {
-                $listofusers[$user->id] = "$user->firstname $user->lastname ($user->email)";
-
-            }
 
             $options = [
                 'ajax' => 'core_search/form-search-user-selector',
@@ -209,31 +201,31 @@ class alwaysallowed implements bo_condition {
                 }
             ];
 
-            $mform->addElement('checkbox', 'alwaysallowedcheckbox',
-                    get_string('alwaysallowedcheckbox', 'mod_booking'));
+            $mform->addElement('checkbox', 'selectuserscheckbox',
+                    get_string('selectuserscheckbox', 'mod_booking'));
 
-            $mform->addElement('autocomplete', 'bo_cond_alwaysallowed_userids',
-                get_string('bo_cond_alwaysallowed_userids', 'mod_booking'), $listofusers, $options);
-            $mform->hideIf('bo_cond_alwaysallowed_userids', 'alwaysallowedcheckbox', 'notchecked');
+            $mform->addElement('autocomplete', 'bo_cond_selectusers_userids',
+                get_string('bo_cond_selectusers_userids', 'mod_booking'), [], $options);
+            $mform->hideIf('bo_cond_selectusers_userids', 'selectuserscheckbox', 'notchecked');
 
-            $mform->addElement('checkbox', 'bo_cond_alwaysallowed_overrideconditioncheckbox',
+            $mform->addElement('checkbox', 'bo_cond_selectusers_overrideconditioncheckbox',
                 get_string('overrideconditioncheckbox', 'mod_booking'));
-            $mform->hideIf('bo_cond_alwaysallowed_overrideconditioncheckbox', 'alwaysallowedcheckbox', 'notchecked');
+            $mform->hideIf('bo_cond_selectusers_overrideconditioncheckbox', 'selectuserscheckbox', 'notchecked');
 
             $overrideoperators = [
                 'AND' => get_string('overrideoperator:and', 'mod_booking'),
                 'OR' => get_string('overrideoperator:or', 'mod_booking')
             ];
-            $mform->addElement('select', 'bo_cond_alwaysallowed_overrideoperator',
+            $mform->addElement('select', 'bo_cond_selectusers_overrideoperator',
                 get_string('overrideoperator', 'mod_booking'), $overrideoperators);
-            $mform->hideIf('bo_cond_alwaysallowed_overrideoperator', 'bo_cond_alwaysallowed_overrideconditioncheckbox',
+            $mform->hideIf('bo_cond_selectusers_overrideoperator', 'bo_cond_selectusers_overrideconditioncheckbox',
                 'notchecked');
 
             $overrideconditions = bo_info::get_conditions(CONDPARAM_MFORM_ONLY);
             $overrideconditionsarray = [];
             foreach ($overrideconditions as $overridecondition) {
                 // We do not combine conditions with each other.
-                if ($overridecondition->id == BO_COND_JSON_ALWAYSALLOWED) {
+                if ($overridecondition->id == BO_COND_JSON_SELECTUSERS) {
                     continue;
                 }
 
@@ -253,7 +245,7 @@ class alwaysallowed implements bo_condition {
                     if (!empty($jsonconditions)) {
                         foreach ($jsonconditions as $jsoncondition) {
                             // Currently conditions of the same type cannot be combined with each other.
-                            if ($jsoncondition->id != BO_COND_JSON_ALWAYSALLOWED) {
+                            if ($jsoncondition->id != BO_COND_JSON_SELECTUSERS) {
                                 $overrideconditionsarray[$jsoncondition->id] = get_string('bo_cond_' .
                                     $jsoncondition->name, 'mod_booking');
                             }
@@ -262,15 +254,20 @@ class alwaysallowed implements bo_condition {
                 }
             }
 
-            $mform->addElement('select', 'bo_cond_alwaysallowed_overridecondition',
-                get_string('overridecondition', 'mod_booking'), $overrideconditionsarray);
-            $mform->hideIf('bo_cond_alwaysallowed_overridecondition', 'bo_cond_alwaysallowed_overrideconditioncheckbox',
+            $options = array(
+                'noselectionstring' => get_string('choose...', 'mod_booking'),
+                'tags' => false,
+                'multiple' => true,
+            );
+            $mform->addElement('autocomplete', 'bo_cond_selectusers_overridecondition',
+                get_string('overridecondition', 'mod_booking'), $overrideconditionsarray, $options);
+            $mform->hideIf('bo_cond_selectusers_overridecondition', 'bo_cond_selectusers_overrideconditioncheckbox',
                 'notchecked');
 
         } else {
             // No PRO license is active.
-            $mform->addElement('static', 'static:alwaysallowed',
-                get_string('alwaysallowedcheckbox', 'mod_booking'),
+            $mform->addElement('static', 'static:selectusers',
+                get_string('selectuserscheckbox', 'mod_booking'),
                 get_string('proversiononly', 'mod_booking'));
         }
 
@@ -280,9 +277,9 @@ class alwaysallowed implements bo_condition {
         $showhorizontalline = true;
         $formmode = get_user_preferences('optionform_mode');
         if ($formmode !== 'expert') {
-            $cfgalwaysallowed = $DB->get_field('booking_optionformconfig', 'active',
-                ['elementname' => 'alwaysallowedcheckbox']);
-            if ($cfgalwaysallowed === "0") {
+            $cfgselectusers = $DB->get_field('booking_optionformconfig', 'active',
+                ['elementname' => 'selectuserscheckbox']);
+            if ($cfgselectusers === "0") {
                 $showhorizontalline = false;
             }
         }
@@ -313,20 +310,20 @@ class alwaysallowed implements bo_condition {
 
         $conditionobject = new stdClass;
 
-        if (!empty($fromform->alwaysallowedcheckbox)) {
+        if (!empty($fromform->selectuserscheckbox)) {
             // Remove the namespace from classname.
             $classname = __CLASS__;
             $classnameparts = explode('\\', $classname);
             $shortclassname = end($classnameparts); // Without namespace.
 
-            $conditionobject->id = BO_COND_JSON_ALWAYSALLOWED;
+            $conditionobject->id = BO_COND_JSON_SELECTUSERS;
             $conditionobject->name = $shortclassname;
             $conditionobject->class = $classname;
-            $conditionobject->userids = $fromform->bo_cond_alwaysallowed_userids;
+            $conditionobject->userids = $fromform->bo_cond_selectusers_userids;
 
-            if (!empty($fromform->bo_cond_alwaysallowed_overrideconditioncheckbox)) {
-                $conditionobject->overrides = $fromform->bo_cond_alwaysallowed_overridecondition;
-                $conditionobject->overrideoperator = $fromform->bo_cond_alwaysallowed_overrideoperator;
+            if (!empty($fromform->bo_cond_selectusers_overrideconditioncheckbox)) {
+                $conditionobject->overrides = $fromform->bo_cond_selectusers_overridecondition;
+                $conditionobject->overrideoperator = $fromform->bo_cond_selectusers_overrideoperator;
             }
         }
         // Might be an empty object.
@@ -341,13 +338,13 @@ class alwaysallowed implements bo_condition {
     public function set_defaults(stdClass &$defaultvalues, stdClass $acdefault) {
 
         if (!empty($acdefault->userids)) {
-            $defaultvalues->alwaysallowedcheckbox = "1";
-            $defaultvalues->bo_cond_alwaysallowed_userids = $acdefault->userids;
+            $defaultvalues->selectuserscheckbox = "1";
+            $defaultvalues->bo_cond_selectusers_userids = $acdefault->userids;
         }
         if (!empty($acdefault->overrides)) {
-            $defaultvalues->bo_cond_alwaysallowed_overrideconditioncheckbox = "1";
-            $defaultvalues->bo_cond_alwaysallowed_overridecondition = $acdefault->overrides;
-            $defaultvalues->bo_cond_alwaysallowed_overrideoperator = $acdefault->overrideoperator;
+            $defaultvalues->bo_cond_selectusers_overrideconditioncheckbox = "1";
+            $defaultvalues->bo_cond_selectusers_overridecondition = $acdefault->overrides;
+            $defaultvalues->bo_cond_selectusers_overrideoperator = $acdefault->overrideoperator;
         }
     }
 
@@ -365,7 +362,10 @@ class alwaysallowed implements bo_condition {
      */
     public function render_button(booking_option_settings $settings,
         $userid = 0, $full = false, $not = false, bool $fullwidth = true): array {
-        return [];
+
+        $label = $this->get_description_string(false, $full, $settings);
+
+        return bo_info::render_button($settings, $userid, $label, 'alert alert-warning', true, $fullwidth, 'alert', 'option');
     }
 
     /**
@@ -377,6 +377,36 @@ class alwaysallowed implements bo_condition {
      * @return string
      */
     private function get_description_string($isavailable, $full, $settings) {
-        return '';
+        global $DB;
+        if ($isavailable) {
+            $description = $full ? get_string('bo_cond_selectusers_full_available', 'mod_booking') :
+                get_string('bo_cond_selectusers_available', 'mod_booking');
+        } else {
+            if (!$this->customsettings) {
+                // This description can only works with the right custom settings.
+                $availabilityarray = json_decode($settings->availability);
+
+                foreach ($availabilityarray as $availability) {
+                    if (strpos($availability->class, 'selectusers') > 0) {
+                        $this->customsettings = (object)$availability;
+                    }
+                }
+            }
+
+            if ($full && !empty($this->customsettings->userids)) {
+                // Get a string of all users who are allowed to book.
+                $allowedusersstringarr = [];
+                foreach ($this->customsettings->userids as $uid) {
+                    $currentuser = $DB->get_record('user', ['id' => $uid]);
+                    $allowedusersstringarr[] = "$currentuser->firstname $currentuser->lastname (UserID: $currentuser->id)";
+                }
+                $allowedusersstring = implode(', ', $allowedusersstringarr);
+            }
+
+            $description = $full ? get_string('bo_cond_selectusers_full_not_available',
+                'mod_booking', $allowedusersstring) :
+                get_string('bo_cond_selectusers_not_available', 'mod_booking');
+        }
+        return $description;
     }
 }
