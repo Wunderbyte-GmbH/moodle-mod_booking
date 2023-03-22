@@ -155,7 +155,7 @@ class booking {
      * @return int
      */
     public function get_pagination_setting():int {
-        $paginationnum = (int) $this->settings->paginationnum > 0 ? (int) $this->settings->paginationnum : 40;
+        $paginationnum = (int) $this->settings->paginationnum > 0 ? (int) $this->settings->paginationnum : PAGINATIONDEF;
         return $paginationnum;
     }
 

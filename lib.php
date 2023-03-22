@@ -127,6 +127,9 @@ define('UNVERIFIED', 0);
 define('PENDING', 1);
 define('VERIFIED', 1);
 
+// Define common bookin settings
+define('PAGINATIONDEF', 25);
+
 /**
  * @param stdClass $cm
  * @return cached_cm_info
