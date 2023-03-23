@@ -25,6 +25,11 @@
 
 namespace mod_booking\event;
 
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+require_once($CFG->dirroot . '/mod/booking/lib.php');
+
 /**
  * The message_sent event class.
  *
