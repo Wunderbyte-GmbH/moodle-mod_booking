@@ -176,6 +176,8 @@ class bo_info {
 
         $resultsarray = [];
 
+        $overrideconditions = [];
+
         /* Run through all the individual conditions to make sure they are fullfilled.
         Hardcoded conditions are in instantiated classes whereas JSON conditions are in stdclasses.
         They come from the field 'availability' field of the booking options table. */
@@ -237,53 +239,59 @@ class bo_info {
                 ];
             }
 
-            // Now we might need to override the result of a previous condition which has been resolved as false before.
+            // We collect all conditions that have override conditions set.
             if (!empty($condition->overrides)) {
-                // Foreach override condition id (ocid).
-                foreach ($condition->overrides as $ocid) {
-                    if (isset($resultsarray[$ocid])) {
-                        // We know we have a result to override. It depends now on the operator what to do.
-                        // If the operator is or, we change the previous result from false to true, if this result is true.
-                        // OR we change this result to true, if the previous was true.
-                        switch ($condition->overrideoperator) {
-                            case 'OR':
-                                // If one of the two results is true, both are true.
-                                if (isset($resultsarray[$ocid])) {
-                                    if ($resultsarray[$ocid]['isavailable']
-                                    || $resultsarray[$condition->id]['isavailable']) {
-                                        $resultsarray[$ocid]['isavailable'] = true;
-                                        $resultsarray[$condition->id]['isavailable'] = true;
-                                    };
-                                }
-                                break;
-                            case 'AND':
-                                // We need to return the right description which actually failed.
-                                // If both fail, we want to return both descriptions.
+                $overrideconditions[] = $condition;
+            }
+        }
 
-                                $description = '';
-                                if (!$resultsarray[$ocid]['isavailable']) {
-                                    $description = $resultsarray[$ocid]['description'];
+        // Now we might need to override the result of a previous condition which has been resolved as false before.
+        foreach ($overrideconditions as $condition) {
+            // Foreach override condition id (ocid).
+            foreach ($condition->overrides as $ocid) {
+                if (isset($resultsarray[$ocid])) {
+                    // We know we have a result to override. It depends now on the operator what to do.
+                    // If the operator is or, we change the previous result from false to true, if this result is true.
+                    // OR we change this result to true, if the previous was true.
+                    switch ($condition->overrideoperator) {
+                        case 'OR':
+                            // If one of the two results is true, both are true.
+                            if (isset($resultsarray[$ocid])) {
+                                // If the original condition availability is true...
+                                // ...then we also can set the override condition to true.
+                                if ($resultsarray[$condition->id]['isavailable']) {
+                                    $resultsarray[$ocid]['isavailable'] = true;
                                 }
-                                if (!$resultsarray[$condition->id]['isavailable']) {
-                                    if (empty($description)) {
-                                        $description = $resultsarray[$condition->id]['description'];
-                                    } else {
-                                        $description .= '<br>' . $resultsarray[$condition->id]['description'];
-                                    }
+                            }
+                            break;
+                        case 'AND':
+                            // We need to return the right description which actually failed.
+                            // If both fail, we want to return both descriptions.
+
+                            $description = '';
+                            if (!$resultsarray[$ocid]['isavailable']) {
+                                $description = $resultsarray[$ocid]['description'];
+                            }
+                            if (!$resultsarray[$condition->id]['isavailable']) {
+                                if (empty($description)) {
+                                    $description = $resultsarray[$condition->id]['description'];
+                                } else {
+                                    $description .= '<br>' . $resultsarray[$condition->id]['description'];
                                 }
-                                // Only now: If NOT both are true, we set both to false.
-                                if (!($resultsarray[$ocid]['isavailable']
-                                    && $resultsarray[$condition->id]['isavailable'])) {
-                                        $resultsarray[$condition->id]['isavailable'] = false;
-                                        // Both get the same descripiton.
-                                        // if one of them bubbles up as the blocking one, we see the right description.
-                                        $resultsarray[$ocid]['description'] = $description;
-                                        $resultsarray[$condition->id]['description'] = $description;
-                                };
-                        }
-                    } else {
-                        array_push($conditions, $condition);
+                            }
+                            // Only now: If NOT both are true, we set both to false.
+                            if (!($resultsarray[$ocid]['isavailable']
+                                && $resultsarray[$condition->id]['isavailable'])) {
+                                    $resultsarray[$condition->id]['isavailable'] = false;
+                                    // Both get the same descripiton.
+                                    // if one of them bubbles up as the blocking one, we see the right description.
+                                    $resultsarray[$ocid]['description'] = $description;
+                                    $resultsarray[$condition->id]['description'] = $description;
+                            };
+                            break;
                     }
+                } else {
+                    array_push($conditions, $condition);
                 }
             }
         }

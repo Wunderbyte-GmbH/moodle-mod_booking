@@ -1014,7 +1014,9 @@ class booking_option {
         // False means, that it can't be booked.
         // 0 means, that we can book right away
         // 1 means, that there is only a place on the waiting list.
-        $waitinglist = $this->check_if_limit($user->id);
+        $waitinglist = $this->check_if_limit($user->id, true);
+        // Note: We currently allow overbooking with the second param set to true.
+        // We might need a config setting to turn this off completely for some clients.
 
         if ($waitinglist === false) {
 
@@ -1687,12 +1689,17 @@ class booking_option {
     }
 
     /**
-     * Check if user can enrol
+     * Check if user can enrol.
+     *
+     * Important notice: As of Booking 8, we use availability conditions to configure if a user can see
+     * the book now button. If a user is entitled to book (e.g. an admin or a special user who can always book
+     * - which was set with "OR" override conditions) then (s)he can even book if the option is fully booked.
      *
      * @param integer $userid
+     * @param bool $allowoverbooking
      * @return mixed false if enrolement is not possible, 0 for can book, 1 for waitinglist and 2 for notification list.
      */
-    private function check_if_limit(int $userid) {
+    private function check_if_limit(int $userid, bool $allowoverbooking = false) {
 
         $bookingoptionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
         $bookinganswer = singleton_service::get_instance_of_booking_answers($bookingoptionsettings);
@@ -1708,7 +1715,11 @@ class booking_option {
             } else if (isset($bookingstatus['freeonwaitinglist']) && $bookingstatus['freeonwaitinglist'] > 0) {
                 return STATUSPARAM_WAITINGLIST;
             } else {
-                return false;
+                if ($allowoverbooking) {
+                    return STATUSPARAM_BOOKED;
+                } else {
+                    return false;
+                }
             }
         }
     }

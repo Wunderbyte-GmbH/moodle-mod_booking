@@ -219,8 +219,8 @@ class previouslybooked implements bo_condition {
             $mform->hideIf('bo_cond_previouslybooked_overrideconditioncheckbox', 'restrictwithpreviouslybooked', 'notchecked');
 
             $overrideoperators = [
+                'OR' => get_string('overrideoperator:or', 'mod_booking'),
                 'AND' => get_string('overrideoperator:and', 'mod_booking'),
-                'OR' => get_string('overrideoperator:or', 'mod_booking')
             ];
             $mform->addElement('select', 'bo_cond_previouslybooked_overrideoperator',
                 get_string('overrideoperator', 'mod_booking'), $overrideoperators);

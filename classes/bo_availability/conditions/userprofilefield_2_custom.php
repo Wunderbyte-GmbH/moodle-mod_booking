@@ -297,8 +297,8 @@ class userprofilefield_2_custom implements bo_condition {
                     'notchecked');
 
                 $overrideoperators = [
+                    'OR' => get_string('overrideoperator:or', 'mod_booking'),
                     'AND' => get_string('overrideoperator:and', 'mod_booking'),
-                    'OR' => get_string('overrideoperator:or', 'mod_booking')
                 ];
                 $mform->addElement('select', 'bo_cond_customuserprofilefield_overrideoperator',
                     get_string('overrideoperator', 'mod_booking'), $overrideoperators);
