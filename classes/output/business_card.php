@@ -24,6 +24,7 @@
 
 namespace mod_booking\output;
 
+use context_module;
 use renderer_base;
 use renderable;
 use templatable;
@@ -77,7 +78,11 @@ class business_card implements renderable, templatable {
         $userpictureurl = $userpic->get_url($PAGE);
         $userprofileurl = new \moodle_url('../../user/profile.php', ['id' => $user->id]);
         $sendmessageurl = new \moodle_url('../../message/index.php', ['id' => $user->id]);
-        $description = format_text($booking->settings->intro, $booking->settings->introformat);
+
+        $context = context_module::instance($booking->settings->cmid);
+        $introtext = file_rewrite_pluginfile_urls($booking->settings->intro,
+                        'pluginfile.php', $context->id, 'mod_booking', 'intro', null);
+        $description = format_text($introtext, $booking->settings->introformat);
         $userdescription = format_text($user->description, $user->descriptionformat);
 
         $this->username = "$user->firstname $user->lastname";

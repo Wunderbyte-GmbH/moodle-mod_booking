@@ -24,6 +24,7 @@
 
 namespace mod_booking\output;
 
+use context_module;
 use renderer_base;
 use renderable;
 use templatable;
@@ -55,7 +56,10 @@ class instance_description implements renderable, templatable {
      * @param \stdClass $data
      */
     public function __construct($settings) {
-        $this->description = $settings->intro;
+        $context = context_module::instance($settings->cmid);
+        $introtext = file_rewrite_pluginfile_urls($settings->intro,
+                        'pluginfile.php', $context->id, 'mod_booking', 'intro', null);
+        $this->description = format_text($introtext, $settings->introformat);
         $this->duration = $settings->duration;
         $this->organizatorname = $settings->organizatorname;
         $this->points = null;
