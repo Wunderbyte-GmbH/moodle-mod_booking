@@ -79,14 +79,12 @@ class business_card implements renderable, templatable {
         $userpictureurl = $userpic->get_url($PAGE);
         $userprofileurl = new moodle_url('../../user/profile.php', ['id' => $user->id]);
         $sendmessageurl = new moodle_url('../../message/index.php', ['id' => $user->id]);
-        $description = format_text($bookingsettings->intro, $bookingsettings->introformat);
         $userdescription = format_text($user->description, $user->descriptionformat);
 
         $this->username = "$user->firstname $user->lastname";
         $this->userpictureurl = $userpictureurl;
         $this->userprofileurl = $userprofileurl;
         $this->sendmessageurl = $sendmessageurl;
-        $this->description = $description;
         $this->userdescription = $userdescription;
         $this->duration = $bookingsettings->duration;
         $this->points = null;
@@ -102,8 +100,6 @@ class business_card implements renderable, templatable {
                 'userpictureurl' => $this->userpictureurl->out(),
                 'userprofileurl' => $this->userprofileurl->out(),
                 'sendmessageurl' => $this->sendmessageurl->out(),
-                // As of Moodle 4.0 activity description will be shown automatically in module header.
-                /* 'description' => $this->description, */ // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
                 'userdescription' => $this->userdescription,
                 'duration' => $this->duration,
                 'points' => $this->points
