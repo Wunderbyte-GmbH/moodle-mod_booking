@@ -788,9 +788,24 @@ class price {
      */
     public static function is_in_time_scope(array $dayinfo, object $rangeinfo) {
 
+        // Get the localized day name.
+        $dayname = new lang_string($dayinfo['day'], 'mod_booking', null, current_language());
+
+        // For German, we have two letter abbreviations (Mo, Di, Mi...).
+        // For English, we have three letter abbrevitions (Mon, Tue, Wed,...).
+        switch(current_language()) {
+            case 'de':
+                $wdlength = 2;
+                break;
+            case 'en':
+            default:
+                $wdlength = 3;
+                break;
+        }
+
         // Only if a weekday is specified in the range, we check for it.
         if (isset($rangeinfo->weekdays)) {
-            $needle = substr($dayinfo['day'], 0, 2);
+            $needle = substr($dayname, 0, $wdlength);
             $needle = strtolower($needle);
             $weekdays = strtolower($rangeinfo->weekdays);
             $haystack = explode(',', strtolower($weekdays));
