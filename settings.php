@@ -211,20 +211,33 @@ if ($ADMIN->fulltree) {
             get_string('globalcurrencydesc', 'booking'),
             'EUR', $currencies));
 
-    $settings->add(
-        new admin_setting_configcheckbox('booking/applyunitfactor',
-                get_string('applyunitfactor', 'mod_booking'),
-                get_string('applyunitfactor_desc', 'mod_booking'), 1));
+    // PRO feature: Progress bars.
+    if ($proversion) {
+        $settings->add(
+            new admin_setting_heading('priceformulaheader',
+                get_string('priceformulaheader', 'mod_booking'),
+                get_string('priceformulaheader_desc', 'mod_booking')));
 
-    $settings->add(
-        new admin_setting_configcheckbox('booking/roundpricesafterformula',
-                get_string('roundpricesafterformula', 'mod_booking'),
-                get_string('roundpricesafterformula_desc', 'mod_booking'), 1));
+        $settings->add(
+            new admin_setting_configtextarea('booking/defaultpriceformula',
+                get_string('defaultpriceformula', 'booking'),
+                get_string('defaultpriceformuladesc', 'booking'), '', PARAM_TEXT, 60, 10));
 
-    $settings->add(
-        new admin_setting_configtextarea('booking/defaultpriceformula',
-            get_string('defaultpriceformula', 'booking'),
-            get_string('defaultpriceformuladesc', 'booking'), '', PARAM_TEXT, 60, 10));
+        $settings->add(
+            new admin_setting_configcheckbox('booking/applyunitfactor',
+                    get_string('applyunitfactor', 'mod_booking'),
+                    get_string('applyunitfactor_desc', 'mod_booking'), 1));
+
+        $settings->add(
+            new admin_setting_configcheckbox('booking/roundpricesafterformula',
+                    get_string('roundpricesafterformula', 'mod_booking'),
+                    get_string('roundpricesafterformula_desc', 'mod_booking'), 1));
+    } else {
+        $settings->add(
+            new admin_setting_heading('priceformulaheader',
+                get_string('priceformulaheader', 'mod_booking'),
+                get_string('infotext:prolicensenecessary', 'mod_booking')));
+    }
 
     $settings->add(
         new admin_setting_heading('duplicationrestore',

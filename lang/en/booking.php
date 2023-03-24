@@ -1891,6 +1891,8 @@ $string['pricecategoriessubtitle'] = '<p>Here you can define different price cat
 
 // Price formula.
 $string['defaultpriceformula'] = "Price formula";
+$string['priceformulaheader'] = "Price formula (PRO)";
+$string['priceformulaheader_desc'] = "Use a price formula to automatically calculate prices for booking options.";
 $string['defaultpriceformuladesc'] = "The JSON object permits the configuration of the automatic price calculation with a booking option.";
 
 // Semesters.
@@ -2029,7 +2031,7 @@ $string['applyunitfactor'] = 'Apply unit factor';
 $string['applyunitfactor_desc'] = 'If this setting is active, the educational unit length (e.g. 45 min) set above will be used
  to calculate the number of educational units. This number will be used as factor for the price formula.
  Example: A booking option has a date series like "Mon, 15:00 - 16:30". So it lasts 2 educational units (45 min each).
- So a unit factor of 2 will be applied to the price formula.';
+ So a unit factor of 2 will be applied to the price formula. (Unit factor will only be applied if a price formula is present.)';
 $string['roundpricesafterformula'] = 'Round prices (price formula)';
 $string['roundpricesafterformula_desc'] = 'If active, prices will be rounded to full numbers (no decimals) after the <strong>price formula</strong> has been applied.';
 

@@ -1705,6 +1705,8 @@ $string['pricecategoriessubtitle'] = '<p>Hier können Sie unterschiedliche Kateg
 
 // Price formula.
 $string['defaultpriceformula'] = "Preisformel";
+$string['priceformulaheader'] = "Preisformel (PRO)";
+$string['priceformulaheader_desc'] = "Eine Preisformel verwenden, um Preise automatisch berechnen zu können.";
 $string['defaultpriceformuladesc'] = "Das JSON Objekt erlaubt die Konfiguation der automatischen Preisberechnung.";
 
 // Semesters.
@@ -1842,7 +1844,7 @@ $string['nopriceformulaset'] = 'Sie müssen zuerst eine Formel in den Buchungsei
 $string['applyunitfactor'] = 'Einheitenfaktor anwenden';
 $string['applyunitfactor_desc'] = 'Wenn diese Einstellung aktiviert ist, wird die Länge der oben gesetzten Unterrichtseinheiten (z.B. 45 min) zur Berechnung der Anzahl der Einheiten
  herangezogen und als Faktor für die Preisformel verwendet. Beispiel: Eine Buchungsoption hat die Terminserie "Mo, 15:00 - 16:30". Sie dauert also 2 UE von
- jeweils 45 min. Auf die Preisformel wird also der Einheitenfaktor von 2 angewendet.';
+ jeweils 45 min. Auf die Preisformel wird also der Einheitenfaktor von 2 angewendet. (Einheitenfaktor wird nur bei vorhandener Preisformel angewendet.)';
 $string['roundpricesafterformula'] = 'Preise runden (Preisformel)';
 $string['roundpricesafterformula_desc'] = 'Preise auf ganze Zahlen runden (mathematisch), nachdem die <strong>Preisformel</strong> angewandt wurde.';
 
