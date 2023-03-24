@@ -186,7 +186,10 @@ class booking_bookit {
             // We just move the extra condition to a different area.
             if (!empty($extrabuttoncondition && !empty($datas) && isset($data['main']))) {
                 $extrabutton = reset($datas);
-                $extrabutton->data['top'] = $data['main'];
+                $extrabutton->data['top'] = $extrabutton->data["main"];
+                $extrabutton->data['main'] = $data['main'];
+                // Make sure that JS is turned on.
+                $extrabutton->data['nojs'] = false;
                 $datas = [$extrabutton];
                 $templates = [$template];
             } else {
