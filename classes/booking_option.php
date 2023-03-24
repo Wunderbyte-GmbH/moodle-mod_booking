@@ -19,6 +19,7 @@ use cache_helper;
 use coding_exception;
 use completion_info;
 use context_module;
+use context_system;
 use dml_exception;
 use Exception;
 use invalid_parameter_exception;
@@ -2810,6 +2811,14 @@ class booking_option {
      * @return bool true if overbooking is allowed
      */
     public static function option_allows_overbooking_for_user(int $optionid, int $userid):bool {
+
+        /* If the global setting to allow overbooking is on, we still need to check
+        if the current user has the capability to overbook. */
+        if (get_config('booking', 'allowoverbooking')
+            && has_capability('mod/booking:canoverbook', context_system::instance())) {
+            return true;
+        }
+
         /* Currently there is only one special case where we want to allow overbooking:
         When the fullybooked condition is present as an override condition in combination
         with an "OR" operator. In the future, there might be additional use cases that allow

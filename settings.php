@@ -105,13 +105,24 @@ if ($ADMIN->fulltree) {
 
     // PRO feature.
     if ($proversion) {
+
+        // Global setting to allow overbooking.
+        $settings->add(
+            new admin_setting_heading('allowoverbookingheader',
+                get_string('allowoverbookingheader', 'mod_booking'),
+                get_string('allowoverbookingheader_desc', 'mod_booking')));
+
+        $settings->add(
+            new admin_setting_configcheckbox('booking/allowoverbooking',
+                    get_string('allowoverbooking', 'mod_booking'), '', 0));
+
+        /* Booking option custom field to be used as course category
+        for automatically created courses. */
         $settings->add(
             new admin_setting_heading('newcoursecategorycfieldheading',
                 get_string('automaticcoursecreation', 'mod_booking'),
                 ''));
 
-        /* Booking option custom field to be used as course category
-        for automatically created courses. */
         $sql = "SELECT cff.shortname FROM {customfield_category} cfc
         LEFT JOIN {customfield_field} cff ON cfc.id = cff.categoryid
         WHERE cfc.component = 'mod_booking'";

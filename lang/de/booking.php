@@ -1563,6 +1563,11 @@ $string['newcoursecategorycfielddesc'] = 'Wählen Sie ein benutzerdefiniertes Bu
  um die Kurskategorie von automatisch erstellten Kursen festzulegen. Kurse können mit dem Eintrag "Neuer Kurs" im Menü "Einen Kurs auswählen"
  des Formulars zum Anlegen von Buchungsoptionen automatisch erstellt werden.';
 
+ $string['allowoverbooking'] = 'Allow overbooking';
+ $string['allowoverbookingheader'] = 'Overbooking of booking options (PRO)';
+ $string['allowoverbookingheader_desc'] = 'Allow administrators and entitled users to overbook booking options.
+  (Be careful: This can lead to unexpected behavior. Only activate this if you really need it.)';
+
 // Optiontemplatessettings.php.
 $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';
 $string['defaulttemplate'] = 'Standard-Vorlage';
