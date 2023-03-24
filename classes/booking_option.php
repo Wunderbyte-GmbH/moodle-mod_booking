@@ -997,7 +997,6 @@ class booking_option {
             $substractfromlimit = 0,
             $addedtocart = false,
             $verified = UNVERIFIED) {
-        global $DB;
 
         // First check, we only accept verified submissions.
         // This function always needs to be called with the verified param.
@@ -1014,9 +1013,8 @@ class booking_option {
         // False means, that it can't be booked.
         // 0 means, that we can book right away
         // 1 means, that there is only a place on the waiting list.
-        $waitinglist = $this->check_if_limit($user->id, true);
-        // Note: We currently allow overbooking with the second param set to true.
-        // We might need a config setting to turn this off completely for some clients.
+        $waitinglist = $this->check_if_limit($user->id, self::option_allows_overbooking_for_user($this->optionid, $user->id));
+        // With the second param, we check if overbooking is allowed.
 
         if ($waitinglist === false) {
 
@@ -2802,5 +2800,30 @@ class booking_option {
         }
 
         return $canceluntil;
+    }
+
+    /**
+     * Helper function to check if an option allows overbooking.
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @return bool true if overbooking is allowed
+     */
+    public static function option_allows_overbooking_for_user(int $optionid, int $userid):bool {
+        /* Currently there is only one special case where we want to allow overbooking:
+        When the fullybooked condition is present as an override condition in combination
+        with an "OR" operator. In the future, there might be additional use cases that allow
+        overbooking. */
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $availabilityconditions = json_decode($settings->availability);
+        foreach ($availabilityconditions as $ac) {
+            if (isset($ac->id) && $ac->id === BO_COND_JSON_SELECTUSERS
+                && isset($ac->overrideoperator) && $ac->overrideoperator === 'OR'
+                && isset($ac->overrides) && in_array("" . BO_COND_FULLYBOOKED . "", $ac->overrides)
+                && isset($ac->userids) && in_array("". $userid . "", $ac->userids)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
