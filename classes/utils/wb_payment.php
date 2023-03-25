@@ -83,9 +83,18 @@ pwIDAQAB
             }
         }
         // Overriding - always use PRO for testing / debugging.
-        global $CFG;
-        if (!empty($CFG->phpunit_dataroot) || !empty($CFG->behat_wwwroot)) {
-            return true;
+        global $CFG, $DB;
+        // Is Behat's DB being initiated:
+        if (!empty($CFG->behat_prefix)) {
+            if ($DB->record_exists_sql("SELECT * FROM {$CFG->behat_prefix}context")) {
+                return true;
+            }
+        }
+        // Is PhpUnit DB's being initiated:
+        if (!empty($CFG->phpunit_prefix)) {
+            if ($DB->record_exists_sql("SELECT * FROM {$CFG->phpunit_prefix}context")) {
+                return true;
+            }
         }
         return false;
     }
