@@ -36,8 +36,8 @@ Feature: In a booking
     And I click on "Settings" "icon" in the "#allbookingoptionstable_r2" "css_element"
     And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r2" "css_element"
     And I follow "Availability conditions"
-    And I set the field "Booking option is availably only after a certain date" to ""
-    And I set the field "Booking option is available until a certain date" to "checked"
+    And I set the field "Booking is possible only after a certain date" to ""
+    And I set the field "Booking is possible only until a certain date" to "checked"
     And I wait "1" seconds
     And I set the following fields to these values:
       | bookingclosingtime[day]   | 10                 |
@@ -61,8 +61,8 @@ Feature: In a booking
     And I click on "Settings" "icon" in the "#allbookingoptionstable_r2" "css_element"
     And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r2" "css_element"
     And I follow "Availability conditions"
-    And I set the field "Booking option is available until a certain date" to ""
-    And I set the field "Booking option is availably only after a certain date" to "checked"
+    And I set the field "Booking is possible only until a certain date" to ""
+    And I set the field "Booking is possible only after a certain date" to "checked"
     And I wait "1" seconds
     And I set the following fields to these values:
       | bookingopeningtime[day]   | ##yesterday##%d## |
@@ -82,8 +82,8 @@ Feature: In a booking
     And I click on "Settings" "icon" in the "#allbookingoptionstable_r2" "css_element"
     And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r2" "css_element"
     And I follow "Availability conditions"
-    And I set the field "Booking option is available until a certain date" to ""
-    And I set the field "Booking option is availably only after a certain date" to "checked"
+    And I set the field "Booking is possible only until a certain date" to ""
+    And I set the field "Booking is possible only after a certain date" to "checked"
     And I wait "1" seconds
     And I set the following fields to these values:
       | bookingopeningtime[day]    | 10                 |
@@ -110,8 +110,7 @@ Feature: In a booking
     And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r1" "css_element"
     And I follow "Availability conditions"
     And I set the field "User has previously booked a certain option" to "checked"
-    And I wait "2" seconds
-    And I click on "Option - advanced availability" "text" in the "#fitem_id_bo_cond_previouslybooked_optionid .form-autocomplete-selection" "css_element"
+    And I wait "1" seconds
     And I set the field "Must be already booked" to "Option - dependency"
     And I wait "1" seconds
     And I press "Save and go back"
@@ -188,8 +187,8 @@ Feature: In a booking
     And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r1" "css_element"
     And I follow "Availability conditions"
-    And I set the field "Booking option is available until a certain date" to ""
-    And I set the field "Booking option is availably only after a certain date" to "checked"
+    And I set the field "Booking is possible only until a certain date" to ""
+    And I set the field "Booking is possible only after a certain date" to "checked"
     And I wait "1" seconds
     And I set the following fields to these values:
       | bookingopeningtime[day]   | 10                 |
@@ -197,7 +196,7 @@ Feature: In a booking
       | bookingopeningtime[year]  | ## + 1 year ##%Y## |
     And I set the field "User has previously booked a certain option" to "checked"
     And I wait "1" seconds
-    And I click on "Option - advanced availability" "text" in the "#fitem_id_bo_cond_previouslybooked_optionid .form-autocomplete-selection" "css_element"
+    And I set the field "User has previously booked a certain option" to "checked"
     And I set the field "Must be already booked" to "Option - dependency"
     And I wait "1" seconds
     And I press "Save and go back"
@@ -224,7 +223,7 @@ Feature: In a booking
     And I follow "Availability conditions"
     And I set the field "bo_cond_previouslybooked_overrideconditioncheckbox" to "checked"
     And I set the field "bo_cond_previouslybooked_overrideoperator" to "OR"
-    And I set the field "bo_cond_previouslybooked_overridecondition" to "Only bookable within a certain time"
+    And I set the field "Condition" to "Only bookable within a certain time"
     And I wait "1" seconds
     And I press "Save and go back"
     And I log out
