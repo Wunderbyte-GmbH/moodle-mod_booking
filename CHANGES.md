@@ -1,3 +1,23 @@
+## Version 8.0.6 (2023032700)
+**New features:**
+* New feature: New "select users" availability condition.
+* New feature: New possibilities for override conditions (e.g.: "fullybooked" can now be overriden if combined with "OR").
+* New feature: Introduced a new setting to allow overbooking of booking options if a user has the "mod/booking:canoverbook" capability.
+
+**Improvements:**
+* Improvement: Define default pagination setting and use it.
+* Improvement: Remove intro description from business card. It's now part of the new activity header.
+* Improvement: Usability improvements for price formula and make price formula a PRO feature.
+* Improvement: Added a helper function to check if a user is allowed to overbook an option.
+
+**Bugfixes:**
+* Bugfix: Fix 2 behat navigations' tests to use aria-label="Page" string obtained from Moodle core.
+* Bugfix: Add default string to transform_msgparam function if msgparam is not found.
+* Bugfix: MSGPARAM constants were not found in message_sent.php because of missing lib.php inclusion - closes #265
+* Bugfix: Support both two-letter (German) and three-letter (English) abbreviations for date strings (date series).
+* Bugfix: JS was lost on extra button conditions.
+* Bugfix: Make sure import via CSV works.
+
 ## Version 8.0.5 (2023032100)
 **Improvements:**
 * Improvement: Differentiate between checkout and booking complete confirmation in header.
@@ -63,7 +83,7 @@
 * New feature: Show text depending on status description right in new booking overview.
 * New feature: Finished download for new view.php.
 * New feature: Add possibility to configure fields for booking options download.
-* New feature: Booking now supports prepagemodals with booking policy, a confirmation page and support for the "Book now" and "Add to cart" buttons. 
+* New feature: Booking now supports prepagemodals with booking policy, a confirmation page and support for the "Book now" and "Add to cart" buttons.
 * New feature: Re-implemented ratings, attachments and tag functionality for new view.php.
 * New feature: Intelligent differntiation between price and no-price booking options.
 * New feature: Implemented new "cancel myself" condition and settings.
