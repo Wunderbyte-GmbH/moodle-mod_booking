@@ -2182,6 +2182,14 @@ $string['bo_cond_subbooking_full_not_available'] = 'Booking is possible';
 // BO conditions in mform.
 $string['selectuserscheckbox'] = 'Only specific user(s) are allowed to book';
 $string['bo_cond_selectusers_userids'] = 'User(s) allowed to book';
+$string['bo_cond_selectusers_userids_help'] = '<p>If you use this condition, only selected people will be able to book this event.</p>
+<p>However, you can also use this condition to allow certain people to bypass other restrictions:</p>
+<p>(1) To do this, click the "Has relation to other condition" checkbox.<br>
+(2) Make sure that the "OR" operator is selected.<br>
+(3) Choose all conditions to be bypassed.</p>
+<p>Examples:<br>
+"Fully booked" => The selected person is allowed to book even if the event is already fully booked.<br>
+"Only bookable within a certain time" => The selected person is allowed to book also outside the normal booking times.</p>';
 
 $string['userinfofieldoff'] = 'No user profile field selected';
 $string['restrictwithuserprofilefield'] = 'A chosen user profile field should have a certain value';

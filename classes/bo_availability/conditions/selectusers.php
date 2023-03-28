@@ -209,6 +209,7 @@ class selectusers implements bo_condition {
 
             $mform->addElement('autocomplete', 'bo_cond_selectusers_userids',
                 get_string('bo_cond_selectusers_userids', 'mod_booking'), [], $options);
+            $mform->addHelpButton('bo_cond_selectusers_userids', 'bo_cond_selectusers_userids', 'mod_booking');
             $mform->hideIf('bo_cond_selectusers_userids', 'selectuserscheckbox', 'notchecked');
 
             $mform->addElement('checkbox', 'bo_cond_selectusers_overrideconditioncheckbox',

@@ -1953,6 +1953,14 @@ $string['bo_cond_subbooking_full_not_available'] = 'Buchen möglich';
 // BO conditions in mform.
 $string['selectuserscheckbox'] = 'Nur bestimmte Benutzer:in(nen) dürfen buchen';
 $string['bo_cond_selectusers_userids'] = 'Benutzer:in(nen), die buchen dürfen';
+$string['bo_cond_selectusers_userids_help'] = '<p>Wenn Sie diese Einschränkung verwenden, können nur ausgewählten Personen diese Veranstaltung buchen.</p>
+<p>Sie können diese Einschränkung aber auch verwenden, um es bestimmten Personen zu ermöglichen, andere Einschränkungen zu umgehen:</p>
+<p>(1) Klicken Sie hierzu auf das Häkchen "Steht in Bezug zu einer anderen Einschränkung"<br>
+(2) Stellen Sie sicher, dass der Operator "ODER" ausgewählt ist<br>
+(3) Wählen Sie alle Einschränkungen aus, die umgangen werden sollen.</p>
+<p>Beispiele:<br>
+"Ausgebucht" => Die ausgewählte Person darf auch dann buchen, wenn die Veranstaltung bereits ausgebucht ist.<br>
+"Nur in einer bestimmten Zeit buchbar" => Die ausgewählte Person darf auch außerhalb der normalen Buchungszeiten buchen</p>';
 
 $string['userinfofieldoff'] = 'Kein User-Profilfeld ausgewählt';
 $string['restrictwithuserprofilefield'] = 'Ein ausgewähltes Userprofilfeld soll einen bestimmten Wert haben';
