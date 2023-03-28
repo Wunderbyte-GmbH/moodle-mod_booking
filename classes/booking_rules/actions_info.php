@@ -104,7 +104,7 @@ class actions_info {
         // We just want filenames, as they are also the classnames.
         foreach ($filelist as $filepath) {
             $path = pathinfo($filepath);
-            $filename = 'mod_booking\booking_rules\actions\\' . $path['filename'];
+            $filename = 'mod_booking\\booking_rules\\actions\\' . $path['filename'];
 
             // We instantiate all the classes, because we need some information.
             if (class_exists($filename)) {
@@ -124,7 +124,7 @@ class actions_info {
     public static function get_action(string $actionname) {
         global $CFG;
 
-        $filename = 'mod_booking\booking_rules\actions\\' . $actionname;
+        $filename = 'mod_booking\\booking_rules\\actions\\' . $actionname;
 
         // We instantiate all the classes, because we need some information.
         if (class_exists($filename)) {

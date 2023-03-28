@@ -118,10 +118,11 @@ interface bo_subcondition {
      * @param booking_option_settings $settings
      * @param int $subbookingid
      * @param int $userid
-     * @param boolean $full
-     * @param boolean $not
+     * @param bool $full
+     * @param bool $not
+     * @param bool $fullwidth
      * @return array
      */
     public function render_button(booking_option_settings $settings,
-        int $subbookingid, $userid = 0, $full = false, $not = false): array;
+        int $subbookingid, int $userid=0, bool $full=false, bool $not=false, bool $fullwidth=true):array;
 }

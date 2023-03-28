@@ -157,14 +157,15 @@ class alreadybooked implements bo_subcondition {
      * ['mod_booking/bookit_button', $data];
      *
      * @param booking_option_settings $settings
-     * @param integer $subbookingid
-     * @param integer $userid
-     * @param boolean $full
-     * @param boolean $not
+     * @param int $subbookingid
+     * @param int $userid
+     * @param bool $full
+     * @param bool $not
+     * @param bool $fullwidth
      * @return array
      */
     public function render_button(booking_option_settings $settings,
-        int $subbookingid, $userid = 0, $full = false, $not = false): array {
+        int $subbookingid, int $userid=0, bool $full=false, bool $not=false, bool $fullwidth=true):array {
 
         global $USER;
 
@@ -173,20 +174,23 @@ class alreadybooked implements bo_subcondition {
         }
         $label = $this->get_description_string(false, $full);
 
-        return [
-            'mod_booking/bookit_button',
-            [
-                'itemid' => $settings->id,
-                'area' => 'option',
-                'userid' => $userid ?? 0,
-                'nojs' => true,
-                'main' => [
-                    'label' => $label,
-                    'class' => 'alert alert-success',
-                    'role' => 'alert',
-                ]
+        $data = [
+            'itemid' => $settings->id,
+            'area' => 'option',
+            'userid' => $userid ?? 0,
+            'nojs' => true,
+            'main' => [
+                'label' => $label,
+                'class' => 'alert alert-success',
+                'role' => 'alert',
             ]
         ];
+
+        if ($fullwidth) {
+            $data['fullwidth'] = $fullwidth;
+        }
+
+        return ['mod_booking/bookit_button', $data];
     }
 
     /**

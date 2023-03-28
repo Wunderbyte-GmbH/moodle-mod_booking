@@ -51,8 +51,6 @@ class subbookings_info {
     public static function add_subbookings_to_mform(MoodleQuickForm &$mform,
         array &$formdata = []) {
 
-        global $PAGE;
-
         if (get_config('booking', 'showsubbookings') && wb_payment::pro_version_is_activated()) {
             // Add header to Element.
             $mform->addElement('header', 'bookingsubbookingsheader', get_string('bookingsubbookingsheader', 'mod_booking'));
@@ -84,7 +82,14 @@ class subbookings_info {
         // We just want filenames, as they are also the classnames.
         foreach ($filelist as $filepath) {
             $path = pathinfo($filepath);
-            $filename = 'mod_booking\subbookings\sb_types\\' . $path['filename'];
+            $filename = 'mod_booking\\subbookings\\sb_types\\' . $path['filename'];
+
+            // NOTE: In the future we'll activate additional subbookings.
+            // But right now, we ONLY use the additional person booking.
+            // So we use the next 3 lines to skip anything else.
+            if ($path['filename'] !== 'subbooking_additionalperson') {
+                continue;
+            }
 
             // We instantiate all the classes, because we need some information.
             if (class_exists($filename)) {
@@ -104,7 +109,7 @@ class subbookings_info {
     public static function get_subbooking(string $subbookingtype) {
         global $CFG;
 
-        $filename = 'mod_booking\subbookings\sb_types\\' . $subbookingtype;
+        $filename = 'mod_booking\\subbookings\\sb_types\\' . $subbookingtype;
 
         // We instantiate all the classes, because we need some information.
         if (class_exists($filename)) {

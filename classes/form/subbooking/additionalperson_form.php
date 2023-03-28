@@ -181,6 +181,10 @@ class additionalperson_form extends dynamic_form {
     public function validation($data, $files): array {
         $errors = [];
 
+        if (empty($data['subbooking_name'])) {
+            $errors['subbooking_name'] = get_string('error:entervalue', 'mod_booking');
+        };
+
         $counter = 1;
         while ($data["subbooking_addpersons"] >= $counter) {
             if (empty($data['person_firstname_' . $counter])) {

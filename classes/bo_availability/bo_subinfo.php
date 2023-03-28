@@ -316,7 +316,7 @@ class bo_subinfo {
         // We just want filenames, as they are also the classnames.
         foreach ($filelist as $filepath) {
             $path = pathinfo($filepath);
-            $filename = 'mod_booking\bo_availability\subconditions\\' . $path['filename'];
+            $filename = 'mod_booking\\bo_availability\\subconditions\\' . $path['filename'];
 
             // We instantiate all the classes, because we need some information.
             if (class_exists($filename)) {
@@ -336,7 +336,7 @@ class bo_subinfo {
      * @return null|object
      */
     private static function get_condition($conditionname) {
-        $filename = 'mod_booking\bo_availability\conditions\\' . $conditionname . '.php';
+        $filename = 'mod_booking\\bo_availability\\conditions\\' . $conditionname . '.php';
 
         if (class_exists($filename)) {
             return new $filename();

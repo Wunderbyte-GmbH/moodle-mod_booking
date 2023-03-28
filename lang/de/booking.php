@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 // General strings.
+$string['accept'] = 'Akzeptieren';
+$string['age'] = 'Alter';
 $string['areyousure:book'] = 'Möchten Sie wirklich buchen?';
 $string['areyousure:cancel'] = 'Möchten Sie diese Buchung wirklich stornieren?';
 $string['assignteachers'] = 'Lehrer:innen zuweisen:';
@@ -24,6 +26,7 @@ $string['bookingoptionnamewithoutprefix'] = 'Name (ohne Präfix)';
 $string['bookings'] = 'Buchungen';
 $string['cancelmyself'] = 'Wieder abmelden';
 $string['cancelsign'] = '<i class="fa fa-ban" aria-hidden="true"></i>';
+$string['close'] = 'Schließen';
 $string['updatebooking'] = 'Update Buchung';
 $string['booking:manageoptiontemplates'] = "Buchungsoptionsvorlagen verwalten";
 $string['booking:cantoggleformmode'] = 'Nutzer:in darf alle Einstellungen verwalten';
@@ -1904,6 +1907,40 @@ $string['bo_cond_fullybooked_full_available'] = 'Buchen möglich';
 $string['bo_cond_fullybooked_not_available'] = 'Ausgebucht';
 $string['bo_cond_fullybooked_full_not_available'] = 'Ausgebucht. Buchen nicht mehr möglich.';
 
+$string['bo_cond_fullybookedoverride_available'] = 'Buchen';
+$string['bo_cond_fullybookedoverride_full_available'] = 'Buchen möglich';
+$string['bo_cond_fullybookedoverride_not_available'] = 'Ausgebucht';
+$string['bo_cond_fullybookedoverride_full_not_available'] = 'Ausgebucht. Buchen nicht mehr möglich.';
+
+$string['bo_cond_userprofilefield_available'] = 'Buchen';
+$string['bo_cond_userprofilefield_full_available'] = 'Buchen möglich';
+$string['bo_cond_userprofilefield_not_available'] = 'Buchen nicht möglich';
+$string['bo_cond_userprofilefield_full_not_available'] = 'Nur Benutzer:innen, bei denen das Profilfeld
+ {$a->profilefield} auf den Wert {$a->value} gesetzt ist, dürfen buchen.<br>Sie haben aber das Recht dennoch zu buchen.';
+
+$string['bo_cond_customuserprofilefield_available'] = 'Buchen';
+$string['bo_cond_customuserprofilefield_full_available'] = 'Buchen möglich';
+$string['bo_cond_customuserprofilefield_not_available'] = 'Buchen nicht möglich';
+$string['bo_cond_customuserprofilefield_full_not_available'] = 'Nur Benutzer:innen, bei denen das benutzerdefinierte Profilfeld
+ {$a->profilefield} auf den Wert {$a->value} gesetzt ist, dürfen buchen.<br>Sie haben aber das Recht dennoch zu buchen.';
+
+$string['bo_cond_previouslybooked_available'] = 'Buchen';
+$string['bo_cond_previouslybooked_full_available'] = 'Buchen möglich';
+$string['bo_cond_previouslybooked_not_available'] = 'Buchen nicht möglich';
+$string['bo_cond_previouslybooked_full_not_available'] = 'Nur Benutzer:innen, die früher bereits <a href="{$a}">option</a> gebucht haben, dürfen buchen.
+ <br>Sie haben aber das Recht dennoch zu buchen.';
+
+$string['bo_cond_isbookable_available'] = 'Buchen';
+$string['bo_cond_isbookable_full_available'] = 'Buchen möglich';
+$string['bo_cond_isbookable_not_available'] = 'Buchen nicht möglich';
+$string['bo_cond_isbookable_full_not_available'] = 'Buchen ist nicht erlaubt.
+ <br>Sie haben aber das Recht dennoch zu buchen.';
+
+$string['bo_cond_subisbookable_available'] = 'Buchen';
+$string['bo_cond_subisbookable_full_available'] = 'Buchen möglich';
+$string['bo_cond_subisbookable_not_available'] = 'Zuerst buchen';
+$string['bo_cond_subisbookable_full_not_available'] = 'Sie müssen zuerst buchen bevor sie Zusatzbuchungen vornehmen können.';
+
 $string['bo_cond_iscancelled_available'] = 'Buchen';
 $string['bo_cond_iscancelled_full_available'] = 'Buchen möglich';
 $string['bo_cond_iscancelled_not_available'] = 'Storniert';
@@ -2095,7 +2132,8 @@ $string['error:newcoursecategorycfieldmissing'] = 'Sie müssen zuerst ein <a hre
  auch in den <a href="{$a->settingsurl}" target="_blank">Plugin-Einstellungen des Buchungsmoduls</a> ausgewählt haben.';
 $string['error:coursecategoryvaluemissing'] = 'Sie müssen hier einen Wert auswählen, da dieser als Kurskategorie für den
  automatisch erstellten Moodle-Kurs benötigt wird.';
-// Subbookings.
+
+ // Subbookings.
 $string['bookingsubbookingsheader'] = "Zusatzbuchungen";
 $string['bookingsubbooking'] = "Zusatzbuchungen";
 $string['subbooking_name'] = "Name der Zusatzbuchung";
@@ -2116,13 +2154,9 @@ $string['subbooking_additionalitem_desc'] = "Diese zusätzliche Buchung erlaubt 
 $string['subbooking_additionalitem_description'] = "Beschreiben Sie hier den zusätzlich buchbaren Artikel:";
 
 $string['subbooking_additionalperson'] = "Buche zusätzliche Person";
-$string['subbooking_additionalperson_desc'] = "Mit dieser zusätzlichen Buchung können Sie Plätze für z.B. Familienmitglieder buchen.";
+$string['subbooking_additionalperson_desc'] = "Buchen Sie Plätze für zusätzliche Personen, z.B. für Familienmitglieder.";
 $string['subbooking_additionalperson_description'] = "Beschreiben Sie die Buchungsmöglichkeit.";
 
-$string['subbooking_addpersons'] = "Füge Person hinzu";
+$string['subbooking_addpersons'] = "Füge Person(en) hinzu";
 $string['subbooking_bookedpersons'] = "Die folgenden Personen werden hinzugefügt:";
 $string['personnr'] = 'Person Nr. {$a}';
-$string['age'] = 'Alter';
-
-$string['accept'] = "Akzeptieren";
-$string['close'] = "Schließen";

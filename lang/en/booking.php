@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 // General strings.
+$string['accept'] = 'Accept';
+$string['age'] = 'Age';
 $string['areyousure:book'] = 'Do you really want to book?';
 $string['areyousure:cancel'] = 'Do you really want to be removed from this booking option?';
 $string['assignteachers'] = 'Assign teachers:';
@@ -24,6 +26,7 @@ $string['bookingoptionnamewithoutprefix'] = 'Name (without prefix)';
 $string['bookings'] = 'Bookings';
 $string['cancelmyself'] = 'Undo my booking';
 $string['cancelsign'] = '<i class="fa fa-ban" aria-hidden="true"></i>';
+$string['close'] = 'Close';
 $string['updatebooking'] = 'Update booking';
 $string['booking:manageoptiontemplates'] = "Manage option templates";
 $string['booking:cantoggleformmode'] = 'User can edit all settings';
@@ -2324,7 +2327,8 @@ $string['error:newcoursecategorycfieldmissing'] = 'You need to create a <a href=
  <a href="{$a->settingsurl}" target="_blank">Booking plugin settings</a>.';
 $string['error:coursecategoryvaluemissing'] = 'You need to choose a value here as it is needed as course category
  for the automatically created Moodle course.';
-// Subbookings.
+
+ // Subbookings.
 $string['bookingsubbookingsheader'] = "Subbookings";
 $string['bookingsubbooking'] = "Subbooking";
 $string['subbooking_name'] = "Name of the subbooking";
@@ -2345,13 +2349,9 @@ $string['subbooking_additionalitem_desc'] = "This permits you to add optinally b
 $string['subbooking_additionalitem_description'] = "Describe the additionally bookable item:";
 
 $string['subbooking_additionalperson'] = "Additional person booking";
-$string['subbooking_additionalperson_desc'] = "This permits you to add other persons to this booking option, e.g. to book a place for your family.";
+$string['subbooking_additionalperson_desc'] = "This permits you to add other persons to this booking option, e.g. to book a places for your family members.";
 $string['subbooking_additionalperson_description'] = "Describe the additional person booking option";
 
-$string['subbooking_addpersons'] = "Add an additional person";
-$string['subbooking_bookedpersons'] = "The following persons are added:";
+$string['subbooking_addpersons'] = "Add additional person(s)";
+$string['subbooking_bookedpersons'] = "The following person(s) are added:";
 $string['personnr'] = 'Person n° {$a}';
-$string['age'] = 'Age';
-
-$string['accept'] = "Accept";
-$string['close'] = "Close";

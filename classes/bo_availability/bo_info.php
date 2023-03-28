@@ -431,7 +431,7 @@ class bo_info {
         // We just want filenames, as they are also the classnames.
         foreach ($filelist as $filepath) {
             $path = pathinfo($filepath);
-            $filename = 'mod_booking\bo_availability\conditions\\' . $path['filename'];
+            $filename = 'mod_booking\\bo_availability\\conditions\\' . $path['filename'];
 
             // We instantiate all the classes, because we need some information.
             if (class_exists($filename)) {
@@ -476,7 +476,7 @@ class bo_info {
      * @return null|object
      */
     private static function get_condition($conditionname) {
-        $filename = 'mod_booking\bo_availability\conditions\\' . $conditionname . '.php';
+        $filename = 'mod_booking\\bo_availability\\conditions\\' . $conditionname . '.php';
 
         if (class_exists($filename)) {
             return new $filename();
@@ -643,6 +643,7 @@ class bo_info {
             $user = null;
         }
 
+        // Needed for normal bookit button.
         if ($fullwidth) {
             // For view.php and default rendering.
             $fullwidthclasses = 'w-100';
@@ -660,6 +661,12 @@ class bo_info {
                 'role' => $role,
             ]
         ];
+
+        // Needed for bookit_price button.
+        if ($fullwidth) {
+            // For view.php and default rendering.
+            $data['fullwidth'] = true;
+        }
 
         if ($includeprice) {
             if ($price = price::get_price('option', $settings->id, $user)) {

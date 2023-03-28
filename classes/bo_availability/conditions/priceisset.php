@@ -28,9 +28,7 @@
 
 use context_module;
 use mod_booking\bo_availability\bo_condition;
-use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
-use mod_booking\output\bookit_price;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use MoodleQuickForm;

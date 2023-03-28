@@ -117,7 +117,7 @@ class rules_info {
         // We just want filenames, as they are also the classnames.
         foreach ($filelist as $filepath) {
             $path = pathinfo($filepath);
-            $filename = 'mod_booking\booking_rules\rules\\' . $path['filename'];
+            $filename = 'mod_booking\\booking_rules\\rules\\' . $path['filename'];
 
             // We instantiate all the classes, because we need some information.
             if (class_exists($filename)) {
@@ -136,7 +136,7 @@ class rules_info {
      */
     public static function get_rule(string $rulename) {
 
-        $filename = 'mod_booking\booking_rules\rules\\' . $rulename;
+        $filename = 'mod_booking\\booking_rules\\rules\\' . $rulename;
 
         // We instantiate all the classes, because we need some information.
         if (class_exists($filename)) {

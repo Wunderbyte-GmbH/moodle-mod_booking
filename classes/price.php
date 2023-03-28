@@ -60,10 +60,11 @@ class price {
     /**
      * Add form fields to passed on mform.
      *
-     * @param MoodleQuickForm $mform
+     * @param MoodleQuickForm $mform reference to the Moodle form
+     * @param bool $noformula can be used to turn price formula off (e.g. for subbookings)
      * @return void
      */
-    public function add_price_to_mform(MoodleQuickForm &$mform) {
+    public function add_price_to_mform(MoodleQuickForm &$mform, bool $noformula=false) {
 
         global $DB;
 
@@ -132,7 +133,7 @@ class price {
 
         // Only when there is an actual price formula, we do apply it.
         $priceformula = get_config('booking', 'defaultpriceformula');
-        if (!empty($priceformula) && is_json($priceformula)) {
+        if (!$noformula && !empty($priceformula) && is_json($priceformula)) {
 
             $mform->addElement('advcheckbox', 'priceformulaisactive', get_string('priceformulaisactive', 'mod_booking'),
             null, null, [0, 1]);

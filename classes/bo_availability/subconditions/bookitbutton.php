@@ -135,12 +135,13 @@ class bookitbutton implements bo_subcondition {
      * @param booking_option_settings $settings
      * @param int $subbookingid
      * @param int $userid
-     * @param boolean $full
-     * @param boolean $not
+     * @param bool $full
+     * @param bool $not
+     * @param bool $fullwidth
      * @return array
      */
     public function render_button(booking_option_settings $settings,
-        int $subbookingid, $userid = 0, $full = false, $not = false): array {
+        int $subbookingid, int $userid=0, bool $full=false, bool $not=false, bool $fullwidth=true):array {
 
         global $USER;
 
@@ -149,19 +150,22 @@ class bookitbutton implements bo_subcondition {
         }
         $label = $this->get_description_string();
 
-        return [
-            'mod_booking/bookit_button',
-            [
-                'itemid' => $subbookingid,
-                'area' => 'subbooking',
-                'userid' => $userid ?? 0,
-                'main' => [
-                    'label' => $label,
-                    'class' => 'btn btn-secondary',
-                    'role' => 'button',
-                ]
+        $data = [
+            'itemid' => $subbookingid,
+            'area' => 'subbooking',
+            'userid' => $userid ?? 0,
+            'main' => [
+                'label' => $label,
+                'class' => 'btn btn-secondary',
+                'role' => 'button',
             ]
         ];
+
+        if ($fullwidth) {
+            $data['fullwidth'] = $fullwidth;
+        }
+
+        return ['mod_booking/bookit_button', $data];
     }
 
     /**

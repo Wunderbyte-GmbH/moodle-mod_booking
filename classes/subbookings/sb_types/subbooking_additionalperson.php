@@ -127,7 +127,7 @@ class subbooking_additionalperson implements booking_subbooking {
 
         // Add price.
         $price = new price('subbooking', $sboid);
-        $price->add_price_to_mform($mform);
+        $price->add_price_to_mform($mform, true); // Second param true means no price formula here!
 
     }
 
@@ -296,14 +296,14 @@ class subbooking_additionalperson implements booking_subbooking {
         // When choosing the elements from the subbookings, we store our current state in the cache.
         $data = additionalperson_form::get_data_from_cache($this->id);
 
-        // If we find the multiplyer her, we set it, else it's 1.
-        $multiplyer = (int)$data->subbooking_addpersons ?? 1;
+        // If we find the multiplier here, we set it, else it's 1.
+        $multiplier = (int)$data->subbooking_addpersons ?? 1;
 
-        if (empty($multiplyer)) {
-            $multiplyer = 1;
+        if (empty($multiplier)) {
+            $multiplier = 1;
         }
 
-        $price['price'] = $multiplyer * $price['price'];
+        $price['price'] = $multiplier * $price['price'];
 
         return $price;
     }

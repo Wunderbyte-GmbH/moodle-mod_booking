@@ -170,7 +170,7 @@ class booking_bookit {
             if (!$justmyalert && !empty($extrabuttoncondition)) {
                 $condition = new $extrabuttoncondition();
 
-                list($template, $data) = $condition->render_button($settings, $userid, $full);
+                list($template, $data) = $condition->render_button($settings, $userid, $full, false, true);
 
                 // This supports multiple templates as well.
                 $datas[] = new bookit_button($data);
@@ -180,7 +180,7 @@ class booking_bookit {
 
             $condition = new $buttoncondition();
 
-            list($template, $data) = $condition->render_button($settings, $userid, $full);
+            list($template, $data) = $condition->render_button($settings, $userid, $full, false, true);
 
             // If there is an extra button condition, we don't use two templates but one.
             // We just move the extra condition to a different area.
@@ -193,6 +193,7 @@ class booking_bookit {
                 $datas = [$extrabutton];
                 $templates = [$template];
             } else {
+                $data['fullwidth'] = true;
                 $datas[] = new bookit_button($data);
                 $templates[] = $template;
             }
