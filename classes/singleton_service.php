@@ -303,4 +303,24 @@ class singleton_service {
         $instance->pricecategory[$identifier] = $pricecategory;
         return true;
     }
+
+    /**
+     * Sets and gets renderer instance.
+     *
+     * @param string $renderername
+     * @return renderer
+     */
+    public static function get_renderer(string $renderername) {
+
+        global $PAGE;
+
+        $instance = self::get_instance();
+
+        if (!isset($instance->renderer[$renderername])) {
+            $render = $PAGE->get_renderer($renderername);
+            $instance->renderer[$renderername] = $render;
+        }
+
+        return $instance->renderer[$renderername];
+    }
 }
