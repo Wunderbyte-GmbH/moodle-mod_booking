@@ -146,7 +146,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
         } else {
             // Render col_teacher using a template.
             $data = new col_teacher($values->id, $settings);
-            $output = $PAGE->get_renderer('mod_booking');
+            $output = singleton_service::get_renderer('mod_booking');
             $ret = $output->render_col_teacher($data);
         }
         return $ret;
@@ -359,7 +359,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
      */
     public function col_bookings($values) {
         global $PAGE;
-        $output = $PAGE->get_renderer('mod_booking');
+        $output = singleton_service::get_renderer('mod_booking');
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
         // Render col_bookings using a template.
@@ -513,7 +513,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
         } else {
             // Use the renderer to output this column.
             $data = new \mod_booking\output\col_coursestarttime($values->id, $this->booking);
-            $output = $PAGE->get_renderer('mod_booking');
+            $output = singleton_service::get_renderer('mod_booking');
             $ret = $output->render_col_coursestarttime($data);
         }
         return $ret;

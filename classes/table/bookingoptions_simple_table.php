@@ -27,6 +27,7 @@ use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking_utils;
 use mod_booking\booking_option;
 use mod_booking\output\col_text_with_description;
+use mod_booking\singleton_service;
 use moodle_exception;
 use moodle_url;
 
@@ -59,7 +60,7 @@ class bookingoptions_simple_table extends wunderbyte_table {
             // Use the renderer to output this column.
             $data = new col_text_with_description($values->optionid, $values->text,
                 $values->titleprefix ?? '', $values->description);
-            $output = $PAGE->get_renderer('mod_booking');
+            $output = singleton_service::get_renderer('mod_booking');
             return $output->render_col_text_with_description($data);
 
         } else {
@@ -82,7 +83,7 @@ class bookingoptions_simple_table extends wunderbyte_table {
         // Use the renderer to output this column.
         // For bookingoptions_simple_table we DO NOT collapse dates but show all of them within the table.
         $data = new \mod_booking\output\col_coursestarttime($values->optionid, null, $values->cmid, false);
-        $output = $PAGE->get_renderer('mod_booking');
+        $output = singleton_service::get_renderer('mod_booking');
         return $output->render_col_coursestarttime($data);
     }
 

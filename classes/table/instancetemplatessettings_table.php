@@ -25,6 +25,8 @@ use table_sql;
 
 class instancetemplatessettings_table extends table_sql {
 
+    private $instancetemplates;
+
     /**
      * instancetemplatessettings_table constructor.
      *

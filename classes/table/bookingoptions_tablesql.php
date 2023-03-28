@@ -48,12 +48,6 @@ defined('MOODLE_INTERNAL') || die();
  */
 class bookingoptions_tablesql extends table_sql {
 
-    /** @var renderer_base $outputbooking */
-    private $outputbooking = null;
-
-    /** @var renderer_base $outputmusi */
-    private $outputmusi = null;
-
     /** @var booking $booking */
     private $booking = null;
 
@@ -77,9 +71,6 @@ class bookingoptions_tablesql extends table_sql {
         if ($booking) {
             $this->booking = $booking;
         }
-
-        $this->outputbooking = $PAGE->get_renderer('mod_booking');
-        $this->outputmusi = $PAGE->get_renderer('local_musi');
 
         // We set buyforuser here for better performance.
         $this->buyforuser = price::return_user_to_buy_for();
@@ -128,7 +119,7 @@ class bookingoptions_tablesql extends table_sql {
      */
     public function col_teacher($values) {
         global $PAGE;
-        $output = $PAGE->get_renderer('mod_booking');
+        $output = singleton_service::get_renderer('mod_booking');
 
         // Render col_teacher using a template.
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
@@ -184,7 +175,9 @@ class bookingoptions_tablesql extends table_sql {
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
         // Render col_bookings using a template.
         $data = new col_availableplaces($values, $settings, $this->buyforuser);
-        return $this->outputbooking->render_col_availableplaces($data);
+
+        $output = singleton_service::get_renderer('mod_booking');
+        return $output->render_col_availableplaces($data);
     }
 
     /**
@@ -500,7 +493,8 @@ class bookingoptions_tablesql extends table_sql {
                 ]);
         }
 
-        return $this->outputbooking->render_col_text_link($data);
+        $output = singleton_service::get_renderer('mod_booking');
+        return $output->render_col_text_link($data);
     }
 
     private function add_return_url(string $urlstring):string {
