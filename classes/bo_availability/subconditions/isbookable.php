@@ -182,7 +182,7 @@ class isbookable implements bo_subcondition {
             'nojs' => true,
             'main' => [
                 'label' => $label,
-                'class' => 'alert alert-success',
+                'class' => 'alert alert-danger',
                 'role' => 'alert',
             ]
         ];

@@ -46,7 +46,7 @@
             {{#subbookings}}
             <li class="list-group-item">
                 <div class="d-flex justify-content-between">
-                    <h5>{{name}}</h5>
+                    <h5><i class="fa fa-puzzle-piece" aria-hidden="true"></i> {{name}}</h5>
                     <div class="btn-group" role="group" aria-label="Booking subbooking buttons">
                         <div class="btn btn-sm btn-outline-danger bookingsubbooking-button"
                             data-action="delete"
@@ -66,12 +66,7 @@
                 </div>
                 <div class="container">
                     <div class="row">
-                        <div class="col-sm-1 text-right">
-                            <small><i class="fa fa-bolt" aria-hidden="true"></i></small>
-                        </div>
-                        <div class="col-sm-11">
-                            <small>{{localizedsubbookingname}}</small>
-                        </div>
+                        <small>{{localizedsubbookingname}}</small>
                     </div>
                 </div>
             </li>

@@ -115,8 +115,6 @@ class additionalperson_form extends dynamic_form {
      */
     public function definition(): void {
 
-        global $OUTPUT;
-
         $formdata = $this->_ajaxformdata;
         $mform = $this->_form;
 
@@ -167,9 +165,6 @@ class additionalperson_form extends dynamic_form {
             $html = booking_subbookit::render_bookit_button($settings, $subbooking->id);
             $mform->addElement('html', $html);
         }
-
-        // phpcs:ignore
-        // $this->add_action_buttons();
     }
 
     /**
@@ -181,20 +176,16 @@ class additionalperson_form extends dynamic_form {
     public function validation($data, $files): array {
         $errors = [];
 
-        if (empty($data['subbooking_name'])) {
-            $errors['subbooking_name'] = get_string('error:entervalue', 'mod_booking');
-        };
-
         $counter = 1;
         while ($data["subbooking_addpersons"] >= $counter) {
             if (empty($data['person_firstname_' . $counter])) {
-                $errors['person_firstname_' . $counter] = get_string('isempty', 'mod_booking');
+                $errors['person_firstname_' . $counter] = get_string('error:entervalue', 'mod_booking');
             }
             if (empty($data['person_lastname_' . $counter])) {
-                $errors['person_lastname_' . $counter] = get_string('isempty', 'mod_booking');
+                $errors['person_lastname_' . $counter] = get_string('error:entervalue', 'mod_booking');
             }
             if (empty($data['person_age_' . $counter])) {
-                $errors['person_age_' . $counter] = get_string('isempty', 'mod_booking');
+                $errors['person_age_' . $counter] = get_string('error:entervalue', 'mod_booking');
             }
             $counter++;
         }

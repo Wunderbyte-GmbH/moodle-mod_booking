@@ -165,8 +165,6 @@ class subbooking implements bo_condition {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        // First, we need to have a list of the blocking subbookings.
-
         $templates = [];
         $dataarray = [];
         foreach ($settings->subbookings as $subbooking) {
@@ -181,8 +179,6 @@ class subbooking implements bo_condition {
 
         $returnarray = [
             'data' => $dataarray,
-            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-            /* 'json' => $jsonstring, */
             'template' => implode(',', $templates),
             'buttontype' => 0,
         ];

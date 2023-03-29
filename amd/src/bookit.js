@@ -274,6 +274,9 @@ async function renderTemplatesOnPage(templates, dataarray, element) {
 
         const data = dataarray.shift();
 
+        // eslint-disable-next-line no-console
+        console.log('data: ', data);
+
         let targetelement = element;
 
         if (!data) {
@@ -284,9 +287,6 @@ async function renderTemplatesOnPage(templates, dataarray, element) {
             case 'mod_booking/bookingpage/header':
                 targetelement = modal.querySelector(SELECTORS.MODALHEADER);
                 break;
-            case 'mod_booking/bookingoption_description_prepagemodal_bookit':
-                targetelement = modal.querySelector(SELECTORS.INMODALDIV);
-                break;
             case 'mod_booking/bookit_button':
             case 'mod_booking/bookit_price':
                 targetelement = modal.querySelector(SELECTORS.MODALBUTTONAREA);
@@ -294,7 +294,13 @@ async function renderTemplatesOnPage(templates, dataarray, element) {
             case 'mod_booking/bookingpage/footer':
                 targetelement = modal.querySelector(SELECTORS.MODALFOOTER);
                 break;
+            default:
+                targetelement = modal.querySelector(SELECTORS.INMODALDIV);
+                break;
         }
+
+        // eslint-disable-next-line no-console
+        console.log('data.data: ', data.data);
 
         await Templates.renderForPromise(template, data.data).then(({html, js}) => {
 
@@ -345,7 +351,7 @@ function bookit(itemid, area, userid) {
             const promises = [];
 
             // eslint-disable-next-line no-console
-            console.log(buttons);
+            console.log('buttons:', buttons);
 
             // We run through every button. and render the data.
             buttons.forEach(button => {
@@ -354,7 +360,11 @@ function bookit(itemid, area, userid) {
                 const arraytoreduce = [...jsonarray];
 
                 templates.forEach(template => {
+
                     const data = arraytoreduce.shift();
+
+                    // eslint-disable-next-line no-console
+                    console.log('data (arraytoreduce): ', data);
 
                     // We need to check if this will render the prepagemodal again.
                     // We never render the prepage modal in the in modal button.

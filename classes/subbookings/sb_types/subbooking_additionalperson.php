@@ -255,10 +255,7 @@ class subbooking_additionalperson implements booking_subbooking {
      */
     public function return_interface(booking_option_settings $settings):array {
 
-        // The interface of the timeslot booking should merge when there are multiple slot bookings.
-        // Therefore, we need to first find out how many of these are present.
-
-        // The interface of the timeslot booking should merge when there are multiple slot bookings.
+        // The interfaces should merge when there are multiple "additional person" subbookings.
         // Therefore, we need to first find out how many of these are present.
         $arrayofmine = array_filter($settings->subbookings, function($x) {
             return $x->type == $this->type;
@@ -270,12 +267,8 @@ class subbooking_additionalperson implements booking_subbooking {
             return [];
         }
 
-        // Now that we render the last item, we need to render all of them, plus the container.
-        // We need to create the json for rendering.
-
-        $data = new subbooking_additionalperson_output($settings);
-
-        return [$data, 'mod_booking/subbooking/additionalperson'];
+        $dataobj = new subbooking_additionalperson_output($settings);
+        return [['data' => $dataobj->data], 'mod_booking/subbooking/additionalperson'];
     }
 
     /**

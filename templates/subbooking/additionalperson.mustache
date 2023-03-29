@@ -32,7 +32,25 @@
     }
 }}
 
-<div class="subbooking-additionalperson-form" data-id="{{itemid}}"></div>
+<div class="w-100 d-flex justify-content-center">
+    <div id="accordionSb" class="w-75 mt-3">
+        {{#subbookings}}
+        <div class="card mb-2">
+            <div class="card-header text-left" id="headingSb{{itemid}}">
+                <h5 class="mb-0">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseSb{{itemid}}" aria-expanded="true" aria-controls="collapseSb{{itemid}}">
+                    <i class="fa fa-plus-square"></i> {{name}}
+                </button>
+                </h5>
+            </div>
+
+            <div id="collapseSb{{itemid}}" class="collapse" aria-labelledby="headingSb{{itemid}}" data-parent="#accordionSb">
+                <div class="card-body subbooking-additionalperson-form mb-3" data-id="{{itemid}}"></div>
+            </div>
+        </div>
+        {{/subbookings}}
+    </div>
+</div>
 
 {{#js}}
     require(['mod_booking/subbookingAdditionalPerson'], function(init) {

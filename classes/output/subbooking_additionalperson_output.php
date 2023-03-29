@@ -41,7 +41,7 @@ use templatable;
  */
 class subbooking_additionalperson_output implements renderable, templatable {
 
-    /** @var array $cartitem array of cartitem */
+    /** @var array $data */
     public $data = [];
 
 
@@ -67,11 +67,11 @@ class subbooking_additionalperson_output implements renderable, templatable {
             $subbookingdata = $settings->return_subbooking_option_information($subbooking->id);
 
             $subbookingdata['button'] = $html;
-            $data = $subbookingdata;
 
+            $data[] = $subbookingdata;
         }
 
-        $this->data = $data;
+        $this->data['subbookings'] = $data;
     }
 
     /**

@@ -41,56 +41,58 @@ export async function init() {
     // eslint-disable-next-line no-console
     console.log('init dynamic form');
 
-    const container = document.querySelector(SELECTOR.FORMCONTAINER);
+    const containers = document.querySelectorAll(SELECTOR.FORMCONTAINER);
 
-    const id = container.dataset.id;
+    containers.forEach(async container => {
+        const id = container.dataset.id;
 
-    const continuebutton = container.closest(SELECTOR.MODALBODY).querySelector(SELECTOR.CONTINUEBUTTON);
-    const dynamicForm = new DynamicForm(container, 'mod_booking\\form\\subbooking\\additionalperson_form');
+        const continuebutton = container.closest(SELECTOR.MODALBODY).querySelector(SELECTOR.CONTINUEBUTTON);
+        const dynamicForm = new DynamicForm(container, 'mod_booking\\form\\subbooking\\additionalperson_form');
 
-    // We need to render the dynamic form right away, so we can acutally have all the necessary elements present.
-    await dynamicForm.load({id: id});
+        // We need to render the dynamic form right away, so we can acutally have all the necessary elements present.
+        await dynamicForm.load({id: id});
 
-    const bookitbutton = container.closest(SELECTOR.MODALBODY).querySelector(SELECTOR.BOOKINGBUTTON + id);
+        const bookitbutton = container.closest(SELECTOR.MODALBODY).querySelector(SELECTOR.BOOKINGBUTTON + id);
 
-    // eslint-disable-next-line no-console
-    console.log(bookitbutton, continuebutton);
-
-    dynamicForm.addEventListener(dynamicForm.events.FORM_SUBMITTED, e => {
-        const response = e.detail;
-
-        if (response) {
-
-            unblockButtons(id, container);
-
-            dynamicForm.load({id: id});
-        }
-    });
-
-    document.addEventListener(eventTypes.filterContentUpdated, e => {
         // eslint-disable-next-line no-console
-        console.log(e.target);
+        console.log(bookitbutton, continuebutton);
+
+        dynamicForm.addEventListener(dynamicForm.events.FORM_SUBMITTED, e => {
+            const response = e.detail;
+
+            if (response) {
+
+                unblockButtons(id, container);
+
+                dynamicForm.load({id: id});
+            }
+        });
+
+        document.addEventListener(eventTypes.filterContentUpdated, e => {
+            // eslint-disable-next-line no-console
+            console.log(e.target);
+
+            initButtons(id, container, dynamicForm);
+        });
+
+        dynamicForm.addEventListener(dynamicForm.events.SERVER_VALIDATION_ERROR, () => {
+
+            // eslint-disable-next-line no-console
+            console.log('error with form');
+
+            initButtons(id, container, dynamicForm);
+        });
+
+        dynamicForm.addEventListener('change', e => {
+
+            if (e.target.classList.contains('custom-select')) {
+                const button = document.querySelector('.subbooking-additionalperson-form [data-no-submit="1"]');
+                dynamicForm.processNoSubmitButton(button);
+            }
+        });
 
         initButtons(id, container, dynamicForm);
     });
-
-    dynamicForm.addEventListener(dynamicForm.events.SERVER_VALIDATION_ERROR, () => {
-
-        // eslint-disable-next-line no-console
-        console.log('error with form');
-
-        initButtons(id, container, dynamicForm);
-    });
-
-    dynamicForm.addEventListener('change', e => {
-
-        if (e.target.classList.contains('custom-select')) {
-            const button = document.querySelector('.subbooking-additionalperson-form [data-no-submit="1"]');
-            dynamicForm.processNoSubmitButton(button);
-        }
-    });
-
-    initButtons(id, container, dynamicForm);
 }
 
 /**

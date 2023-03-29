@@ -2322,9 +2322,9 @@ $string['nocancelreason'] = "You need to give a reason for canceling this bookin
 $string['booking:bookforothers'] = "Book for others";
 
 // Booking_handler.php.
-$string['error:newcoursecategorycfieldmissing'] = 'You need to create a <a href="{$a->bookingcustomfieldsurl}" target="_blank">booking
- custom field</a> for new course categories first. After you have created one, make sure it is selected in the
- <a href="{$a->settingsurl}" target="_blank">Booking plugin settings</a>.';
+$string['error:newcoursecategorycfieldmissing'] = 'You need to create a <a href="{$a->bookingcustomfieldsurl}"
+ target="_blank">booking custom field</a> for new course categories first. After you have created one, make sure
+ it is selected in the <a href="{$a->settingsurl}" target="_blank">Booking plugin settings</a>.';
 $string['error:coursecategoryvaluemissing'] = 'You need to choose a value here as it is needed as course category
  for the automatically created Moodle course.';
 
@@ -2345,11 +2345,13 @@ $string['subbooking_timeslot_desc'] = "This opens timeslots for every booking da
 $string['subbooking_duration'] = "Duration in minutes";
 
 $string['subbooking_additionalitem'] = "Additional item booking";
-$string['subbooking_additionalitem_desc'] = "This permits you to add optinally bookable items to this booking option, eg. you can book a better special seat etc. or breakfast to your hotel room.";
+$string['subbooking_additionalitem_desc'] = "This permits you to add optinally bookable items to this booking option,
+ eg. you can book a better special seat etc. or breakfast to your hotel room.";
 $string['subbooking_additionalitem_description'] = "Describe the additionally bookable item:";
 
 $string['subbooking_additionalperson'] = "Additional person booking";
-$string['subbooking_additionalperson_desc'] = "This permits you to add other persons to this booking option, e.g. to book a places for your family members.";
+$string['subbooking_additionalperson_desc'] = "This permits you to add other persons to this booking option,
+ e.g. to book places for your family members.";
 $string['subbooking_additionalperson_description'] = "Describe the additional person booking option";
 
 $string['subbooking_addpersons'] = "Add additional person(s)";
