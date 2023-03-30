@@ -113,17 +113,15 @@ async function initBookingButton(optionid) {
 
         if (button) {
 
-            const parentElement = e.target.closest(SELECTORS.BOOKITBUTTON);
+            const bookingButtonArea = e.target.closest(SELECTORS.BOOKITBUTTON);
+
             button = e.target.closest('.btn');
 
-            // eslint-disable-next-line no-console
-            console.log(button, parentElement);
-
-            if (parentElement && button) {
+            if (bookingButtonArea && button) {
                 // eslint-disable-next-line no-console
                 console.log('initBookingButton click');
 
-                if ((parentElement.dataset.action == 'noforward')) {
+                if ((bookingButtonArea.dataset.action == 'noforward')) {
                     return;
                 }
 

@@ -172,6 +172,9 @@ class priceisset implements bo_subcondition {
 
         $data = $settings->return_subbooking_option_information($subbookingid, $user);
 
+        // For subbookings, we have to turn off automatic forwarding to the next page!
+        $data['dataaction'] = 'noforward';
+
         if ($fullwidth) {
             $data['fullwidth'] = $fullwidth;
         }

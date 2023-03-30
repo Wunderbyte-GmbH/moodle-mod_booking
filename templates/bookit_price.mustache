@@ -38,7 +38,8 @@
 {{#price}}
 <div class="w-100 d-flex justify-content-center booking-button-area"
     data-itemid="{{itemid}}"
-    data-area="{{area}}">
+    data-area="{{area}}"
+    {{#dataaction}}data-action="{{dataaction}}"{{/dataaction}} >
     {{#top}}
         <div class="booking-button-toparea {{class}}" role="{{role}}">
             {{{label}}}
