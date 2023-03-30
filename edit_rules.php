@@ -43,6 +43,9 @@ $settingsurl = new moodle_url('/admin/category.php', ['category' => 'modbookingf
 $url = new moodle_url('/mod/booking/edit_rules.php');
 $PAGE->set_url($url);
 
+// In Moodle 4.0+ we want to turn the instance description off on every page except view.php.
+$PAGE->activityheader->disable();
+
 $PAGE->set_pagelayout('admin');
 $PAGE->add_body_class('limitedwidth');
 $PAGE->set_pagetype('mod-booking-edit-rules');
@@ -50,10 +53,6 @@ $PAGE->set_pagetype('mod-booking-edit-rules');
 $PAGE->set_title(
     format_string($SITE->shortname) . ': ' . get_string('bookingrules', 'mod_booking')
 );
-
-if ($CFG->version >= 2022041900) {
-    $PAGE->activityheader->disable();
-}
 
 $output = $PAGE->get_renderer('booking');
 
