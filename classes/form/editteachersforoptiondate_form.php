@@ -19,6 +19,8 @@ namespace mod_booking\form;
 use context;
 use context_module;
 use context_system;
+use mod_booking\event\optiondates_teacher_added;
+use mod_booking\event\optiondates_teacher_deleted;
 use moodle_url;
 use stdClass;
 
@@ -80,7 +82,7 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
      * This is the correct place to insert and delete data from DB after modal form submission.
      */
     public function process_dynamic_submission() {
-        global $DB;
+        global $DB, $USER;
 
         $data = $this->get_data();
         $teachersforoptiondate = $data->teachersforoptiondate;
@@ -102,6 +104,18 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
                         'optiondateid' => $data->optiondateid,
                         'userid' => $existingteacherid
                     ]);
+
+                    // Trigger an event so we can use it with booking rules.
+                    $event = optiondates_teacher_deleted::create([
+                        'objectid' => $data->optionid,
+                        'context' => \context_system::instance(),
+                        'userid' => $USER->id,
+                        'relateduserid' => $existingteacherid,
+                        'other' => [
+                            'cmid' => $data->cmid
+                        ]
+                    ]);
+                    $event->trigger();
                 }
             }
         }
@@ -113,6 +127,19 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
                     $newteacherrecord->optiondateid = $data->optiondateid;
                     $newteacherrecord->userid = $teacherforoptiondate;
                     $DB->insert_record('booking_optiondates_teachers', $newteacherrecord);
+
+                    // Trigger an event so we can use it with booking rules.
+                    // Trigger an event so we can use it with booking rules.
+                    $event = optiondates_teacher_added::create([
+                        'objectid' => $data->optionid,
+                        'context' => \context_system::instance(),
+                        'userid' => $USER->id,
+                        'relateduserid' => $teacherforoptiondate,
+                        'other' => [
+                            'cmid' => $data->cmid
+                        ]
+                    ]);
+                    $event->trigger();
                 }
             }
         }

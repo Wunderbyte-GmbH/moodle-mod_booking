@@ -248,7 +248,6 @@ class mod_booking_observer {
         }
     }
 
-
     /**
      * When a booking option is completed, we send a mail to the user (as long as sendmail is activated).
      *
