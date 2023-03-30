@@ -38,6 +38,9 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  */
 class rule_react_on_event implements booking_rule {
 
+    /** @var int $ruleid */
+    public $ruleid = 0;
+
     /** @var string $rulename */
     protected $rulename = 'rule_react_on_event';
 
@@ -82,7 +85,9 @@ class rule_react_on_event implements booking_rule {
         // Only these events are currently supported and tested.
         $allowedeventkeys = [
             'bookingoption_cancelled',
-            'bookingoption_completed'
+            'bookingoption_completed',
+            'optiondates_teacher_added',
+            'optiondates_teacher_deleted',
         ];
 
         // Get a list of all booking events.
