@@ -1044,12 +1044,13 @@ $string['helptext:placeholders'] = '<p>
 <div class="collapse" id="collapsePlaceholdersHelptext">
   <div class="card card-body">
     <ul>
+        <li>{title} - Title of the booking option</li>
         <li>{bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option)</li>
         <li>{gotobookingoption} - Link to booking option</li>
+        <li>{journal} - Link to "Substitutions / Cancelled dates" (training journal)</li>
         <li>{status} - Booking status</li>
         <li>{participant}</li>
         <li>{email} - User email</li>
-        <li>{title}</li>
         <li>{duration}</li>
         <li>{starttime}</li>
         <li>{endtime}</li>

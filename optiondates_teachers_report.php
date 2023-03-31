@@ -46,6 +46,9 @@ $PAGE->set_context($context);
 $baseurl = new moodle_url('/mod/booking/optiondates_teachers_report.php', $urlparams);
 $PAGE->set_url($baseurl);
 
+// In Moodle 4.0+ we want to turn the instance description off on every page except view.php.
+$PAGE->activityheader->disable();
+
 if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mod/booking:addeditownoption', $context)) == false) {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('accessdenied', 'mod_booking'), 4);

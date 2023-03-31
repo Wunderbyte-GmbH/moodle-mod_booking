@@ -414,6 +414,13 @@ class message_controller {
             }
         }
 
+        // Add a param to the option's teachers report (training journal).
+        $teachersreportlink = new \moodle_url('/mod/booking/optiondates_teachers_report.php', [
+            'id' => $this->cmid,
+            'optionid' => $this->optionid,
+        ]);
+        $params->journal = \html_writer::link($teachersreportlink, $teachersreportlink->out());
+
         return $params;
     }
 
