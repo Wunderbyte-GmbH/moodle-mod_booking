@@ -53,8 +53,8 @@ Feature: In a booking instance create booking options
       | coursestarttime[day]    | ## tomorrow ## %d ## |
       | coursestarttime[month]  | ## tomorrow ## %B ## |
       | coursestarttime[year]   | ## tomorrow ## %Y ## |
-      | coursestarttime[hour]   | 00                    |
-      | coursestarttime[minute] | 00                    |
+      | coursestarttime[hour]   | 00                   |
+      | coursestarttime[minute] | 00                   |
     And I set the following fields to these values:
       | courseendtime[day]    | ## + 1 year ## %d ## |
       | courseendtime[month]  | ## + 1 year ## %B ## |
