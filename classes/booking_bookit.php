@@ -275,7 +275,8 @@ class booking_bookit {
                 $cachekey = $userid . "_" . $settings->id . '_cancel';
                 $cache->delete($cachekey);
 
-                return $response;
+                // Both - "status" and "message" - must be provided.
+                return array_merge($response, ['status' => 0, 'message' => 'cancelled']);
             }
 
             if (!$isavailable) {
