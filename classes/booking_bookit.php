@@ -268,15 +268,17 @@ class booking_bookit {
             } else if ($id === BO_COND_CONFIRMCANCEL) {
 
                 // Here we are already one step further and only confirm the cancelation.
-                $response = self::answer_booking_option($area, $itemid, STATUSPARAM_DELETED, $userid);
+                self::answer_booking_option($area, $itemid, STATUSPARAM_DELETED, $userid);
 
                 // Make sure cache is not blocking anymore.
                 $cache = cache::make('mod_booking', 'confirmbooking');
                 $cachekey = $userid . "_" . $settings->id . '_cancel';
                 $cache->delete($cachekey);
 
-                // Both - "status" and "message" - must be provided.
-                return array_merge($response, ['status' => 0, 'message' => 'cancelled']);
+                return [
+                    'status' => 1,
+                    'message' => 'cancelled',
+                ];
             }
 
             if (!$isavailable) {
