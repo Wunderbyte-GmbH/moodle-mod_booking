@@ -188,6 +188,11 @@ if ($ADMIN->fulltree) {
             get_string('bookingpricesettings', 'mod_booking'),
             get_string('bookingpricesettings_desc', 'mod_booking')));
 
+    $settings->add(
+        new admin_setting_configcheckbox('booking/priceisalwayson',
+                get_string('priceisalwayson', 'mod_booking'),
+                get_string('priceisalwayson_desc', 'mod_booking'), 0));
+
     // Choose the user profile field which is used to store each user's price category.
     $userprofilefields = $DB->get_records('user_info_field', null, '', 'id, name, shortname');
     if (!empty($userprofilefields)) {

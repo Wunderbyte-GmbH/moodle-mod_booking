@@ -678,6 +678,25 @@ class option_form extends moodleform {
             $erhandler->instance_form_validation((array)$fromform, $errors);
         }
 
+        // Price validation.
+        if ($data["useprice"] == 1) {
+            $pricecategories = $DB->get_records_sql("SELECT * FROM {booking_pricecategories} WHERE disabled = 0");
+            foreach ($pricecategories as $pricecategory) {
+                // Check for negative prices, they are not allowed.
+                if (isset($data["pricegroup_$pricecategory->identifier"]["bookingprice_$pricecategory->identifier"]) &&
+                    $data["pricegroup_$pricecategory->identifier"]["bookingprice_$pricecategory->identifier"] < 0) {
+                    $errors["pricegroup_$pricecategory->identifier"] =
+                        get_string('error:negativevaluenotallowed', 'mod_booking');
+                }
+                // If checkbox to use prices is turned on, we do not allow empty strings as prices!
+                if (isset($data["pricegroup_$pricecategory->identifier"]["bookingprice_$pricecategory->identifier"]) &&
+                    $data["pricegroup_$pricecategory->identifier"]["bookingprice_$pricecategory->identifier"] === "") {
+                    $errors["pricegroup_$pricecategory->identifier"] =
+                        get_string('error:pricemissing', 'mod_booking');
+                }
+            }
+        }
+
         $cfhandler = booking_handler::create();
         $errors = array_merge($errors, $cfhandler->instance_form_validation($data, $files));
 

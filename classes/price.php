@@ -93,8 +93,14 @@ class price {
         $mform->addElement('advcheckbox', 'useprice', get_string('useprice', 'mod_booking'),
             null, null, [0, 1]);
 
+        if (get_config('booking', 'priceisalwayson')) {
+            $mform->setDefault('useprice', 1);
+            $mform->hardFreeze('useprice');
+        } else {
+            $useprice = false;
+        }
+
         $defaultexists = false;
-        $useprice = false;
         foreach ($this->pricecategories as $pricecategory) {
             $formgroup = array();
 
@@ -125,10 +131,13 @@ class price {
             }
         }
 
-        if ($useprice) {
-            $mform->setDefault('useprice', 1);
-        } else {
-            $mform->setDefault('useprice', 0);
+        // We only need this, if price is not always on by default.
+        if (!get_config('booking', 'priceisalwayson')) {
+            if ($useprice) {
+                $mform->setDefault('useprice', 1);
+            } else {
+                $mform->setDefault('useprice', 0);
+            }
         }
 
         // Only when there is an actual price formula, we do apply it.
@@ -518,7 +527,7 @@ class price {
                 }
             }
 
-            // If we don't want to use prices, we just set price to 0.
+            // If we don't want to use prices, we just set price to empty string.
             if (empty($fromform->useprice)) {
                 $price = '';
             }

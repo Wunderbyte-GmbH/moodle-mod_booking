@@ -60,6 +60,8 @@ $string['nopriceisset'] = 'Kein Preis vorhanden';
 // General errors.
 $string['error:choosevalue'] = 'You have to choose a value here.';
 $string['error:entervalue'] = 'You have to enter a value here.';
+$string['error:negativevaluenotallowed'] = 'Please enter a positive value.';
+$string['error:pricemissing'] = 'Please enter a price.';
 
 // Index.php.
 $string['week'] = "Week";
@@ -1641,6 +1643,10 @@ $string['pricecategories'] = 'Booking: Price categories';
 
 $string['bookingpricesettings'] = 'Price settings';
 $string['bookingpricesettings_desc'] = 'Here you can customize booking prices.';
+
+$string['priceisalwayson'] = 'Prices always active';
+$string['priceisalwayson_desc'] = 'If you activate this checkbox, you cannot deactive prices for individual booking options.
+ However, you can still set a price of 0 EUR.';
 
 $string['bookingpricecategory'] = 'Price category';
 $string['bookingpricecategory_info'] = 'Define the name of the category, eg "students"';

@@ -59,6 +59,8 @@ $string['nopriceisset'] = 'No price has been set';
 // General errors.
 $string['error:choosevalue'] = 'Sie müssen hier einen Wert auswählen.';
 $string['error:entervalue'] = 'Sie müssen hier einen Wert eingeben.';
+$string['error:negativevaluenotallowed'] = 'Bitte einen positiven Wert eingeben.';
+$string['error:pricemissing'] = 'Bitte geben Sie einen Preis ein.';
 
 // Index.php.
 $string['week'] = "Woche";
@@ -1516,6 +1518,10 @@ $string['pricecategories'] = 'Buchung: Preiskategorien';
 
 $string['bookingpricesettings'] = 'Preis-Einstellungen';
 $string['bookingpricesettings_desc'] = 'Individuelle Einstellungen für die Preise von Buchungen.';
+
+$string['priceisalwayson'] = 'Preise immer aktiviert';
+$string['priceisalwayson_desc'] = 'Wenn Sie dieses Häkchen aktivieren, können Preise für einzelne Buchungsoptionen NICHT abgeschalten werden.
+ Es ist aber dennoch möglich, 0 EUR als Preis einzustellen.';
 
 $string['bookingpricecategory'] = 'Preiskategorie"';
 $string['bookingpricecategory_info'] = 'Definieren Sie den Namen der Preiskategorie, zum Beispiel "Studierende"';
