@@ -38,11 +38,8 @@ $context = context_system::instance();
 $PAGE->set_context($context);
 $PAGE->set_url('/download.php');
 
-$lib = wunderbyte_table::decode_table_settings($encodedtable);
-
-$table = new $lib['classname']($lib['uniqueid']);
-
-$table->update_from_json($lib);
+/** @var bookingoptions_wbtable $table */
+$table = wunderbyte_table::instantiate_from_tablecache_hash($encodedtable);
 
 $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($table->cmid);
 $instancename = $bookingsettings->name;
