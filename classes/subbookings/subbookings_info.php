@@ -343,6 +343,11 @@ class subbookings_info {
             $record = $DB->get_record('booking_subbooking_options', ['id' => $itemid]);
         }
 
+        // If subbooking type is missing we cannot instantiate a subbooking.
+        if (empty($record->type)) {
+            return null;
+        }
+
         $subbooking = self::get_subbooking($record->type);
         $subbooking->set_subbookingdata($record);
 
@@ -369,6 +374,11 @@ class subbookings_info {
         }
 
         $subbooking = self::get_subbooking_by_area_and_id($area, $itemid);
+
+        if (empty($subbooking)) {
+            // No subbooking could be found.
+            return true;
+        }
 
         // Do we need to update and if so, which records?
 
