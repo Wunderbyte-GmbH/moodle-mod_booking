@@ -24,6 +24,8 @@ require_once($CFG->libdir.'/tablelib.php');
 
 use dml_exception;
 use html_writer;
+use local_wunderbyte_table\output\table;
+use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking_option;
 use mod_booking\dates_handler;
 use moodle_url;
@@ -34,7 +36,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Report table to show and edit teachers for specific sessions (a.k.a. optiondates).
  */
-class optiondates_teachers_table extends table_sql {
+class optiondates_teachers_table extends wunderbyte_table {
 
     /**
      * Constructor
@@ -144,5 +146,34 @@ class optiondates_teachers_table extends table_sql {
         ]));
 
         return $ret;
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * 'reviewed' value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string $string Rendered edit button.
+     * @throws dml_exception
+     */
+    public function col_reviewed(object $values): string {
+        global $OUTPUT;
+
+        $data[] = [
+            'label' => get_string('reviewed', 'mod_booking'), // Name of your action button.
+            'class' => 'optiondates-teachers-reviewed-checkbox',
+            'id' => $values->optiondateid,
+            'methodname' => 'togglecheckbox', // The method needs to be added to your child of wunderbyte_table class.
+            'ischeckbox' => true,
+            'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                'id' => $values->optiondateid,
+                'labelcolumn' => 'username',
+            ]
+        ];
+
+        // This transforms the array to make it easier to use in mustache template.
+        table::transform_actionbuttons_array($data);
+
+        return $OUTPUT->render_from_template('local_wunderbyte_table/component_actionbutton', ['showactionbuttons' => $data]);;
     }
 }

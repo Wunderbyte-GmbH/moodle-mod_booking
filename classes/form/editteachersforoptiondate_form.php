@@ -16,6 +16,7 @@
 
 namespace mod_booking\form;
 
+use cache_helper;
 use context;
 use context_module;
 use context_system;
@@ -118,6 +119,7 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
                     $event->trigger();
                 }
             }
+            cache_helper::purge_by_event('setbackcachedteachersjournal');
         }
         // Add teachers if they have been added in autocomplete.
         if (!empty($teachersforoptiondate)) {
@@ -142,6 +144,7 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
                     $event->trigger();
                 }
             }
+            cache_helper::purge_by_event('setbackcachedteachersjournal');
         }
 
         // Save reason.

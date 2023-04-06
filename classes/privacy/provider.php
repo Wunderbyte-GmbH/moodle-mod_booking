@@ -24,6 +24,7 @@
 
 namespace mod_booking\privacy;
 
+use cache_helper;
 use coding_exception;
 use context;
 use context_module;
@@ -425,6 +426,7 @@ class provider implements
         $DB->delete_records_select('booking_answers', $select, $params);
         $DB->delete_records_select('booking_teachers', $select, $params);
         $DB->delete_records_select('booking_optiondates_teachers', $select, $params);
+        cache_helper::purge_by_event('setbackcachedteachersjournal');
         $DB->delete_records_select('booking_userevents', $select, $params);
         $DB->delete_records_select('booking_ratings', $select, $params);
         $DB->delete_records_select('booking_icalsequence', $select, $params);

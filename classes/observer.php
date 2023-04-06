@@ -70,6 +70,7 @@ class mod_booking_observer {
         $DB->delete_records_select('booking_answers', 'userid = :userid', $params);
         $DB->delete_records_select('booking_teachers', 'userid = :userid', $params);
         $DB->delete_records_select('booking_optiondates_teachers', 'userid = :userid', $params);
+        cache_helper::purge_by_event('setbackcachedteachersjournal');
         $DB->delete_records_select('booking_userevents', 'userid = :userid', $params);
         $DB->delete_records_select('booking_icalsequence', 'userid = :userid', $params);
     }

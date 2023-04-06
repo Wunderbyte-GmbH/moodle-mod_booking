@@ -40,6 +40,7 @@ $string['gotomoodlecourse'] = 'Go to Moodle course';
 $string['messageprovider:bookingconfirmation'] = "Booking confirmations";
 $string['optionsiteach'] = 'Teached by me';
 $string['placeholders'] = 'Placeholders';
+$string['reviewed'] = 'Reviewed';
 $string['search'] = 'Search...';
 $string['teachers'] = 'Teachers';
 $string['assignteachers'] = 'Assign teachers:';

@@ -40,6 +40,7 @@ $string['gotomoodlecourse'] = 'Zum Moodle-Kurs';
 $string['messageprovider:bookingconfirmation'] = "Buchungsbestätigungen";
 $string['optionsiteach'] = 'Von mir geleitet';
 $string['placeholders'] = 'Platzhalter';
+$string['reviewed'] = 'Kontrolliert';
 $string['search'] = 'Suche...';
 $string['teachers'] = 'Trainer:innen';
 $string['thankyoubooked'] = '<i class="fa fa-3x fa-calendar-check-o text-success" aria-hidden="true"></i><br><br>

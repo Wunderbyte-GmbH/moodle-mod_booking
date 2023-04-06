@@ -30,6 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
+use cache_helper;
 use context_course;
 use moodle_exception;
 use moodle_url;
@@ -218,6 +219,7 @@ class teachers_handler {
                 // 2. Insert the teacher into booking_optiondates_teachers for every optiondate.
                 $DB->insert_record('booking_optiondates_teachers', $newentry);
             }
+            cache_helper::purge_by_event('setbackcachedteachersjournal');
         }
     }
 
@@ -245,6 +247,7 @@ class teachers_handler {
                     // Insert the newly created optiondate with each teacher.
                     $DB->insert_record('booking_optiondates_teachers', $newentry);
                 }
+                cache_helper::purge_by_event('setbackcachedteachersjournal');
             }
         }
     }
@@ -272,6 +275,7 @@ class teachers_handler {
                     'userid' => $userid
                 ]);
             }
+            cache_helper::purge_by_event('setbackcachedteachersjournal');
         }
     }
 
@@ -290,6 +294,8 @@ class teachers_handler {
 
         // Delete all entries in booking_optiondates_teachers associated with the optiondate.
         $DB->delete_records('booking_optiondates_teachers', ['optiondateid' => $optiondateid]);
+
+        cache_helper::purge_by_event('setbackcachedteachersjournal');
     }
 
     /**
@@ -318,6 +324,7 @@ class teachers_handler {
                     ]);
                 }
             }
+            cache_helper::purge_by_event('setbackcachedteachersjournal');
         }
     }
 
@@ -339,6 +346,7 @@ class teachers_handler {
             foreach ($existingoptiondates as $existingoptiondate) {
                 $DB->delete_records('booking_optiondates_teachers', ['optiondateid' => $existingoptiondate->id]);
             }
+            cache_helper::purge_by_event('setbackcachedteachersjournal');
         }
     }
 }

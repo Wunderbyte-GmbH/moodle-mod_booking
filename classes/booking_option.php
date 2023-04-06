@@ -1576,6 +1576,7 @@ class booking_option {
                 if (!$DB->delete_records('booking_optiondates_teachers', ['optiondateid' => $record->id])) {
                     $result = false;
                 }
+                cache_helper::purge_by_event('setbackcachedteachersjournal');
             }
         }
 

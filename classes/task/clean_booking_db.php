@@ -16,6 +16,8 @@
 
 namespace mod_booking\task;
 
+use cache_helper;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/mod/booking/lib.php');
@@ -46,6 +48,7 @@ class clean_booking_db extends \core\task\scheduled_task {
 
         // Remove entries from table "booking_optiondates_teachers" that belong to non-existing options.
         $DB->delete_records_select('booking_optiondates_teachers', "optiondateid NOT IN (SELECT id FROM {booking_optiondates})");
+        cache_helper::purge_by_event('setbackcachedteachersjournal');
 
         // Remove entries from table "booking_teachers" that belong to non-existing options.
         $DB->delete_records_select('booking_teachers',

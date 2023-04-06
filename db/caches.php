@@ -53,6 +53,13 @@ $definitions = array(
         'staticaccelerationsize' => 1,
         'invalidationevents' => ['setbacksemesters']
     ),
+    'cachedteachersjournal' => array(
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 1,
+        'invalidationevents' => ['setbackcachedteachersjournal']
+    ),
     'bookingoptionstable' => array( // This cache uses hased sql queries as keys.
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,

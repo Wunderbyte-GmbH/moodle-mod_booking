@@ -104,7 +104,8 @@ if (!$optiondatesteacherstable->is_downloading()) {
         get_string('optiondate', 'mod_booking'),
         get_string('teacher', 'mod_booking'),
         get_string('reason', 'mod_booking'),
-        get_string('edit')
+        get_string('edit'),
+        get_string('reviewed', 'mod_booking'),
     ]);
 
     // Columns.
@@ -112,11 +113,15 @@ if (!$optiondatesteacherstable->is_downloading()) {
         'optiondate',
         'teacher',
         'reason',
-        'edit'
+        'edit',
+        'reviewed',
     ]);
 
     // Header column.
     $optiondatesteacherstable->define_header_column('optiondate');
+
+    // Table cache.
+    $optiondatesteacherstable->define_cache('mod_booking', 'cachedteachersjournal');
 
     // SQL query. The subselect will fix the "Did you remember to make the first column something...
     // ...unique in your call to get_records?" bug.
