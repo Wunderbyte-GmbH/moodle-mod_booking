@@ -103,4 +103,13 @@ $capabilities = array(
             'editingteacher' => CAP_ALLOW,
         ]
     ],
+
+    // Capability to review substitutions and missing hours in teaching journal.
+    'mod/booking:canreviewsubstitutions' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ]
+    ],
 );

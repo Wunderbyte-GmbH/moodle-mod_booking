@@ -22,6 +22,8 @@ global $CFG;
 require_once(__DIR__ . '/../../lib.php');
 require_once($CFG->libdir.'/tablelib.php');
 
+use cache_helper;
+use context_system;
 use dml_exception;
 use html_writer;
 use local_wunderbyte_table\output\table;
@@ -137,14 +139,15 @@ class optiondates_teachers_table extends wunderbyte_table {
     public function col_edit(object $values): string {
 
         $ret = '';
-        $ret .= html_writer::div(html_writer::link('#', "<h5><i class='fa fa-edit'></i></h5>",
-            ['class' => 'btn-modal-edit-teachers',
-            'data-cmid' => $_GET['id'],
-            'data-optionid' => $values->optionid,
-            'data-teachers' => $values->teachers,
-            'data-optiondateid' => $values->optiondateid
-        ]));
-
+        if (!$this->is_downloading()) {
+            $ret .= html_writer::div(html_writer::link('#', "<h5><i class='fa fa-edit'></i></h5>",
+                ['class' => 'btn-modal-edit-teachers',
+                'data-cmid' => $_GET['id'],
+                'data-optionid' => $values->optionid,
+                'data-teachers' => $values->teachers,
+                'data-optiondateid' => $values->optiondateid
+            ]));
+        }
         return $ret;
     }
 
@@ -159,12 +162,18 @@ class optiondates_teachers_table extends wunderbyte_table {
     public function col_reviewed(object $values): string {
         global $OUTPUT;
 
+        if ($this->is_downloading()) {
+            return $values->reviewed ? get_string('yes') : get_string('no');
+        }
+
         $data[] = [
             'label' => get_string('reviewed', 'mod_booking'), // Name of your action button.
             'class' => 'optiondates-teachers-reviewed-checkbox',
             'id' => $values->optiondateid,
             'methodname' => 'togglecheckbox', // The method needs to be added to your child of wunderbyte_table class.
             'ischeckbox' => true,
+            'checked' => $values->reviewed == 1,
+            'disabled' => !has_capability('mod/booking:canreviewsubstitutions', context_system::instance()),
             'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
                 'id' => $values->optiondateid,
                 'labelcolumn' => 'username',
@@ -175,5 +184,33 @@ class optiondates_teachers_table extends wunderbyte_table {
         table::transform_actionbuttons_array($data);
 
         return $OUTPUT->render_from_template('local_wunderbyte_table/component_actionbutton', ['showactionbuttons' => $data]);;
+    }
+
+    /**
+     * Toggle checkbox.
+     *
+     * @param int $optiondateid
+     * @param string $data
+     * @return array
+     */
+    public function togglecheckbox(int $optiondateid, string $data):array {
+        global $DB;
+
+        if (!has_capability('mod/booking:canreviewsubstitutions', context_system::instance())) {
+            return [
+                'success' => 0,
+                'message' => get_string('error:missingcapability', 'mod_booking'),
+             ];
+        }
+
+        $dataobject = json_decode($data);
+
+        if ($record = $DB->get_record('booking_optiondates', ['id' => $optiondateid])) {
+            $record->reviewed = $dataobject->state == 'true' ? 1 : 0;
+            $DB->update_record('booking_optiondates', $record);
+            cache_helper::purge_by_event('setbackcachedteachersjournal');
+        }
+
+        return [];
     }
 }

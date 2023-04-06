@@ -269,6 +269,7 @@
         <FIELD NAME="daystonotify" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Number of days in advance to send an e-mail notification to all booked users."/>
         <FIELD NAME="sent" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="If sent is 1, then an e-mail notification has already been sent for this optiondate."/>
         <FIELD NAME="reason" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The reason why a teacher was missing or substituted by someone."/>
+        <FIELD NAME="reviewed" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Substitution or cancellation of optiondate has been reviewed."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

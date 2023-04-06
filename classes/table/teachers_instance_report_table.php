@@ -33,6 +33,21 @@ use table_sql;
  */
 class teachers_instance_report_table extends table_sql {
 
+    /** @var int $bookingid */
+    public $bookingid;
+
+    /** @var int $cmid */
+    public $cmid;
+
+    /** @var int $unitlength */
+    public $unitlength;
+
+    /** @var string $decimalseparator */
+    public $decimalseparator;
+
+    /** @var string $thousandsseparator */
+    public $thousandsseparator;
+
     /**
      * Constructor
      * @param string $uniqueid all tables have to have a unique id, this is used
@@ -54,12 +69,12 @@ class teachers_instance_report_table extends table_sql {
 
         // For German use "," as comma and " " as thousands separator.
         if (current_language() == "de") {
-            $this->decimal_separator = ",";
-            $this->thousands_separator = " ";
+            $this->decimalseparator = ",";
+            $this->thousandsseparator = " ";
         } else {
             // In all other cases, we use the default separators.
-            $this->decimal_separator = ".";
-            $this->thousands_separator = ",";
+            $this->decimalseparator = ".";
+            $this->thousandsseparator = ",";
         }
 
         // Columns and headers are not defined in constructor, in order to keep things as generic as possible.
@@ -153,8 +168,8 @@ class teachers_instance_report_table extends table_sql {
                     $dayinfo = dates_handler::prepare_day_info($record->dayofweektime);
                     if (!empty($dayinfo['starttime']) && !empty($dayinfo['endtime'])) {
                         $minutes = (strtotime('today ' . $dayinfo['endtime']) - strtotime('today ' . $dayinfo['starttime'])) / 60;
-                        $units = number_format($minutes / $this->unitlength, 1, $this->decimal_separator,
-                            $this->thousands_separator);
+                        $units = number_format($minutes / $this->unitlength, 1, $this->decimalseparator,
+                            $this->thousandsseparator);
                         $unitstringpart = get_string('units', 'mod_booking') . ": $units";
                     } else {
                         $unitstringpart = get_string('units_unknown', 'mod_booking');
@@ -230,11 +245,11 @@ class teachers_instance_report_table extends table_sql {
         }
 
         if (!$this->is_downloading()) {
-            $retstring = number_format($sumunits, 1, $this->decimal_separator, $this->thousands_separator) .
+            $retstring = number_format($sumunits, 1, $this->decimalseparator, $this->thousandsseparator) .
                 ' ' . get_string('units', 'mod_booking');
         } else {
             // For download, we do not show the units so it's easier to use with sheet applications like Excel.
-            $retstring = number_format($sumunits, 1, $this->decimal_separator, $this->thousands_separator);
+            $retstring = number_format($sumunits, 1, $this->decimalseparator, $this->thousandsseparator);
         }
 
         return $retstring;

@@ -3427,5 +3427,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023031301, 'booking');
     }
 
+    if ($oldversion < 2023040600) {
+
+        // Define field reviewed to be added to booking_optiondates.
+        $table = new xmldb_table('booking_optiondates');
+        $field = new xmldb_field('reviewed', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'reason');
+
+        // Conditionally launch add field reviewed.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2023040600, 'booking');
+    }
+
     return true;
 }

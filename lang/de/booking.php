@@ -62,6 +62,7 @@ $string['error:choosevalue'] = 'Sie müssen hier einen Wert auswählen.';
 $string['error:entervalue'] = 'Sie müssen hier einen Wert eingeben.';
 $string['error:negativevaluenotallowed'] = 'Bitte einen positiven Wert eingeben.';
 $string['error:pricemissing'] = 'Bitte geben Sie einen Preis ein.';
+$string['error:missingcapability'] = 'Erforderliche Berechtigung fehlt. Bitte wenden Sie sich an einen Administrator.';
 
 // Index.php.
 $string['week'] = "Woche";
