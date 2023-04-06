@@ -27,8 +27,8 @@ Feature: In a booking
     And I create booking option "Option - availability by dates" in "My booking"
     And I create booking option "Option - dependency" in "My booking"
 
-  @javascript
-  Scenario: Configure availability condition by dates
+@javascript
+  Scenario: Configure availability condition by dates - until
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
@@ -54,6 +54,30 @@ Feature: In a booking
     Then I should see "Cannot be booked anymore" in the "#allbookingoptionstable_r2" "css_element"
     And I should not see "Book now" in the "#allbookingoptionstable_r2" "css_element"
     And I log out
+    Given I log in as "teacher1"
+    When I am on "Course 1" course homepage
+    And I follow "My booking"
+    And I wait "1" seconds
+    And I click on "Settings" "icon" in the "#allbookingoptionstable_r2" "css_element"
+    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r2" "css_element"
+    And I follow "Availability conditions"
+    And I set the field "Booking is possible only after a certain date" to ""
+    And I set the field "Booking is possible only until a certain date" to "checked"
+    And I wait "1" seconds
+    And I set the following fields to these values:
+      | bookingclosingtime[day]   | 10                 |
+      | bookingclosingtime[month] | May                |
+      | bookingclosingtime[year]  | ## + 1 year ##%Y## |
+    And I press "Save and go back"
+    And I log out
+    Given I log in as "student1"
+    When I am on "Course 1" course homepage
+    And I follow "My booking"
+    Then I should see "Book now" in the "#allbookingoptionstable_r2" "css_element"
+    And I log out
+
+  @javascript
+  Scenario: Configure availability condition by dates - after
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
