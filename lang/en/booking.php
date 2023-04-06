@@ -1697,10 +1697,10 @@ $string['newcoursecategorycfield'] = 'Booking option custom field to be used as 
 $string['newcoursecategorycfielddesc'] = 'Choose a booking option custom field which will be used as course category for automatically created
  courses using the dropdown entry "New course" in the form for creating new booking options.';
 
-$string['allowoverbooking'] = 'Überbuchen erlauben';
-$string['allowoverbookingheader'] = 'Buchungsoptionen überbuchen (PRO)';
-$string['allowoverbookingheader_desc'] = 'Berechtigten Nutzer:innen erlauben, Kurse zu überbuchen.
- (Achtung: Dies kann zu unerwünschtem Verhalten führen. Nur aktivieren, wenn wirklich benötigt.)';
+$string['allowoverbooking'] = 'Allow overbooking';
+$string['allowoverbookingheader'] = 'Overbooking of booking options (PRO)';
+$string['allowoverbookingheader_desc'] = 'Allow administrators and entitled users to overbook booking options.
+  (Be careful: This can lead to unexpected behavior. Only activate this if you really need it.)';
 
 // Mobile.
 $string['next'] = 'Next';
