@@ -1,3 +1,27 @@
+## Version 8.0.7 (2023040602)
+**New features:**
+* New feature: Additional person subbooking (still an experimental feature).
+* New feature: New possibility to react on changes on teachers report via booking rules (e.g. to send e-mails).
+* New feature: Introduce new {journal} placeholder to directly link to "substitutions / cancelled dates" (training journal).
+* New feature: New config setting to force prices to be always turned on. Also added price validation.
+* New feature: New possibility to review changes teachers report (substitutions / missing hours) via checkbox.
+  Introduced new capability 'mod/booking:canreviewsubstitutions'.
+
+**Improvements:**
+* Improvement: Add help button for select users condition.
+* Improvement: Added get_renderer function to singleton_service for improved performance.
+* Improvement: Lots of little improvements to additional person subbooking.
+* Improvement: Use new way to instantiate table from wunderbyte_table.
+* Improvement: Migrated teachers report from table_sql to wunderbyte_table.
+* Improvement: New behat tests.
+
+**Bugfixes:**
+* Bugfix: Lots of little bugfixes to additional person subbooking.
+* Bugfix: Fixed an exception that occurred on self-cancellation of students.
+* Bugfix: Undefined status for "confirm cancel" condition.
+* Bugfix: Fix error in delete_item_task if no subbooking is found.
+* Bugfix: German and English strings were mixed up for 'allowoverbooking'.
+
 ## Version 8.0.6 (2023032700)
 **New features:**
 * New feature: New "select users" availability condition.
