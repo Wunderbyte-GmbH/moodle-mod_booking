@@ -233,7 +233,7 @@ Feature: In a booking
     Then I should see "Book now" in the "#allbookingoptionstable_r3" "css_element"
 
   @javascript
-  Scenario: Configure combined availability conditions
+  Scenario: Configure combined availability conditions - date or option
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
@@ -288,3 +288,43 @@ Feature: In a booking
     And I should see "Booked" in the "#allbookingoptionstable_r3" "css_element"
     And I should see "Book now" in the "#allbookingoptionstable_r1" "css_element"
     And I should not see "Cannot be booked yet" in the "#allbookingoptionstable_r1" "css_element"
+
+  @javascript
+  Scenario: Configure combined availability conditions - overbooking given to user
+    Given I log in as "student1"
+    When I am on "Course 1" course homepage
+    And I follow "My booking"
+    And I wait "1" seconds   
+    And I should see "Book now" in the "#allbookingoptionstable_r3" "css_element"    
+    And I click on "Book now" "text" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "Do you really want to book?" in the "#allbookingoptionstable_r3" "css_element"
+    And I click on "Do you really want to book?" "text" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "Booked" in the "#allbookingoptionstable_r3" "css_element"
+    And I log out
+    Given I log in as "teacher1"
+    When I am on "Course 1" course homepage
+    And I follow "My booking"
+    And I should see "Option - dependency" in the "#allbookingoptionstable_r3" "css_element"
+    And I click on "Settings" "icon" in the "#allbookingoptionstable_r3" "css_element"
+    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r3" "css_element"
+    And I set the field "Limit the number of participants" to "checked"
+    And I set the field "Max. number of participants" to "1"
+    And I follow "Availability conditions"
+    And I set the field "Only specific user(s) are allowed to book" to "checked"
+    And I set the field "User(s) allowed to book" to "Student 2"
+    And I set the field "id_bo_cond_selectusers_overrideconditioncheckbox" to "checked"
+    And I set the field "id_bo_cond_selectusers_overrideoperator" to "OR"
+    And I set the field with xpath "//*[contains(@id, 'fitem_id_bo_cond_selectusers_overridecondition')]//*[contains(@id, 'form_autocomplete_input')]" to "Fully booked"
+    And I wait "1" seconds
+    And I press "Save and go back"
+    And I wait "1" seconds
+    Then I should see "Fully booked. Booking not possible anymore." in the "#allbookingoptionstable_r3" "css_element"
+    And I log out
+    Given I log in as "student2"
+    When I am on "Course 1" course homepage
+    And I follow "My booking"
+    And I wait "1" seconds
+    Then I should see "Book now" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "/ 1" in the "#allbookingoptionstable_r3 .col-ap-availableplaces" "css_element"
+    And I should see "1" in the "#allbookingoptionstable_r3 .col-ap-availableplaces .text-danger" "css_element"
+    And I log out
