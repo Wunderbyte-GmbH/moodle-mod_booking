@@ -3442,5 +3442,32 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023040600, 'booking');
     }
 
+    if ($oldversion < 2023041101) {
+
+        // Define table booking_campaigns to be created.
+        $table = new xmldb_table('booking_campaigns');
+
+        // Adding fields to table booking_campaigns.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, 'new campaign');
+        $table->add_field('type', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('json', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('starttime', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('endtime', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('pricefactor', XMLDB_TYPE_NUMBER, '10, 2', null, null, null, '1');
+        $table->add_field('limitfactor', XMLDB_TYPE_NUMBER, '10, 2', null, null, null, '1');
+
+        // Adding keys to table booking_campaigns.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Conditionally launch create table for booking_campaigns.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2023041101, 'booking');
+    }
+
     return true;
 }

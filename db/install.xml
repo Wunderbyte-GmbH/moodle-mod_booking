@@ -444,6 +444,21 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
+    <TABLE NAME="booking_campaigns" COMMENT="Booking campaigns for a specific time period.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="new campaign" SEQUENCE="false" COMMENT="Name of the campaign"/>
+        <FIELD NAME="type" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Campaign type"/>
+        <FIELD NAME="json" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Campaign conditions as JSON."/>
+        <FIELD NAME="starttime" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Campaign start time as unix timestamp."/>
+        <FIELD NAME="endtime" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="End time of the campaign as unix timestamp."/>
+        <FIELD NAME="pricefactor" TYPE="number" LENGTH="10" NOTNULL="false" DEFAULT="1" SEQUENCE="false" DECIMALS="2"/>
+        <FIELD NAME="limitfactor" TYPE="number" LENGTH="10" NOTNULL="false" DEFAULT="1" SEQUENCE="false" DECIMALS="2" COMMENT="Value to multiply booking limit with."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
     <TABLE NAME="booking_rules" COMMENT="Set of different rules defined with JSON.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
