@@ -15,13 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Rule edit form
+ * Campaigns edit form
  *
  * @package mod_booking
- * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\booking_campaigns\campaigns;
 use mod_booking\booking_rules\booking_rules;
 use mod_booking\utils\wb_payment;
 
@@ -36,7 +38,7 @@ require_login(0, false);
 
 admin_externalpage_setup('modbookingeditrules');
 
-$url = new moodle_url('/mod/booking/edit_rules.php');
+$url = new moodle_url('/mod/booking/edit_campaigns.php');
 $PAGE->set_url($url);
 
 // In Moodle 4.0+ we want to turn the instance description off on every page except view.php.
@@ -44,29 +46,29 @@ $PAGE->activityheader->disable();
 
 $PAGE->set_pagelayout('admin');
 $PAGE->add_body_class('limitedwidth');
-$PAGE->set_pagetype('mod-booking-edit-rules');
+$PAGE->set_pagetype('mod-booking-edit-campaigns');
 
 $PAGE->set_title(
-    format_string($SITE->shortname) . ': ' . get_string('bookingrules', 'mod_booking')
+    format_string($SITE->shortname) . ': ' . get_string('bookingcampaigns', 'mod_booking')
 );
 
-$output = $PAGE->get_renderer('booking');
+$output = $PAGE->get_renderer('mod_booking');
 
 echo $output->header();
-echo $output->heading(get_string('bookingrules', 'mod_booking'));
+echo $output->heading(get_string('bookingcampaigns', 'mod_booking'));
 
 // Check if PRO version is active.
 if (wb_payment::pro_version_is_activated()) {
-    echo booking_rules::return_rendered_list_of_saved_rules();
+    echo campaigns::return_rendered_list_of_saved_campaigns();
 
 } else {
     echo html_writer::div(get_string('infotext:prolicensenecessary', 'mod_booking'), 'alert alert-warning');
 }
 
 $PAGE->requires->js_call_amd(
-    'mod_booking/dynamicrulesform',
+    'mod_booking/dynamiccampaignsform',
     'init',
-    ['.booking-rules-container']
+    ['.booking-campaigns-container']
 );
 
 echo $output->footer();

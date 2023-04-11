@@ -65,6 +65,11 @@ $ADMIN->add('modbookingfolder',
                 get_string('bookingrules', 'mod_booking'),
                 new moodle_url('/mod/booking/edit_rules.php')));
 
+$ADMIN->add('modbookingfolder',
+new admin_externalpage('modbookingeditcampaigns',
+        get_string('bookingcampaigns', 'mod_booking'),
+        new moodle_url('/mod/booking/edit_campaigns.php')));
+
 $ADMIN->add('modbookingfolder', $settings);
 
 if ($ADMIN->fulltree) {

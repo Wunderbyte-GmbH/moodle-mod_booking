@@ -132,6 +132,9 @@ define('VERIFIED', 1);
 // Define common bookin settings.
 define('PAGINATIONDEF', 25);
 
+// Define campaign types.
+define('CAMPAIGN_TYPE_CUSTOMFIELD', 0);
+
 /**
  * @param stdClass $cm
  * @return cached_cm_info

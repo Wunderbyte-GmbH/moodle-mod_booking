@@ -41,8 +41,6 @@ $cmid = optional_param('id', 0, PARAM_INT);
 admin_externalpage_setup('modbookingsemesters', '', [],
     new moodle_url('/mod/booking/semesters.php'));
 
-$settingsurl = new moodle_url('/admin/category.php', ['category' => 'modbookingfolder']);
-
 $pageurl = new moodle_url('/mod/booking/semesters.php');
 $PAGE->set_url($pageurl);
 

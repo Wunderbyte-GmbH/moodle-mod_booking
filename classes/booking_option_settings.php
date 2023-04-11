@@ -473,6 +473,8 @@ class booking_option_settings {
                 $this->subbookings = $dbrecord->subbookings;
             }
 
+            // TODO: Check and apply campaigns, change $dbrecord appropriately!
+
             return $dbrecord;
         } else {
             debugging('Could not create option settings class for optionid: ' . $optionid);

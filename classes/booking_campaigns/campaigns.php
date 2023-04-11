@@ -15,40 +15,37 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Base class for booking rules information.
+ * Library containing static functions concerning booking campaigns.
  *
  * @package mod_booking
- * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @author Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace mod_booking\booking_campaigns;
 
-namespace mod_booking\booking_rules;
-
-use mod_booking\output\ruleslist;
+use mod_booking\output\campaignslist;
 
 /**
- * Class to handle display and management of rules.
+ * Library containing static functions concerning booking campaigns.
  *
  * @package mod_booking
- * @copyright 2022 Wunderbyte GmbH
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class booking_rules {
+class campaigns {
 
-    /** @var array $rules */
-    public $rules = [];
+    /** @var array $campaigns */
+    public $campaigns = [];
 
     /**
-     * Returns the rendered html for a list of rules.
-     *
-     * @return void
+     * Returns the rendered html for a list of campaigns.
+     * @return string the rendered campaigns
      */
-    public static function return_rendered_list_of_saved_rules($bookingid = 0) {
+    public static function return_rendered_list_of_saved_campaigns() {
         global $PAGE;
-
-        $rules = self::get_list_of_saved_rules($bookingid);
-
+        $rules = self::get_list_of_saved_campaigns();
         $data = new ruleslist($rules);
         $output = $PAGE->get_renderer('booking');
         return $output->render_ruleslist($data);

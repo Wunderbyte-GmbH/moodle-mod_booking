@@ -2055,6 +2055,10 @@ $string['filterstartdate'] = 'Von';
 $string['filterenddate'] = 'Bis';
 $string['filterbtn'] = 'Filtern';
 
+// Booking campaigns.
+$string['bookingcampaigns'] = 'Buchung: Kampagnen (PRO)';
+$string['campaigntype:customfield'] = 'Benutzerdefiniertes Buchungsoptionsfeld hat einen bestimmten Wert';
+
 // Booking rules.
 $string['bookingrules'] = 'Buchung: Globale Regeln (PRO)';
 $string['bookingrule'] = 'Regel';
