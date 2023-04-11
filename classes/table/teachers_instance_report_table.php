@@ -267,10 +267,10 @@ class teachers_instance_report_table extends table_sql {
     public function col_missinghours($values) {
         global $DB;
 
-        $sql = "SELECT bod.id, bod.bookingid, bod.optionid,
-                    bo.titleprefix, bo.text,
-                    bod.coursestarttime, bod.courseendtime,
-                    bt.userid teacherid, bod.reason
+        $sql = "SELECT DISTINCT bod.id, bod.bookingid, bod.optionid,
+                bo.titleprefix, bo.text,
+                bod.coursestarttime, bod.courseendtime,
+                bt.userid teacherid, bod.reason
                 FROM {booking_optiondates} bod
                 JOIN {booking_options} bo
                 ON bo.id = bod.optionid
@@ -339,8 +339,8 @@ class teachers_instance_report_table extends table_sql {
     public function col_substitutions($values) {
         global $DB;
 
-        $sql = "SELECT
-                    bod.id, bod.bookingid, bod.optionid,
+        $sql = "SELECT " . $DB->sql_concat("bod.id", "'-'", "bodt.userid") . " AS uniqueid, " .
+                    "bod.id, bod.bookingid, bod.optionid,
                     bo.titleprefix, bo.text,
                     bod.coursestarttime, bod.courseendtime,
                     bodt.userid teacherid, u.firstname, u.lastname, u.email,
