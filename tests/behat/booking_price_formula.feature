@@ -124,7 +124,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     And I press "Save and go back"
     And I should see "215.00 EUR" in the "#allbookingoptionstable_r3 .pricecurrency" "css_element"
 
-@javascript
+  @javascript
   Scenario: Option dates not in timeslot of the price formula and no price rounding
     Given I log in as "admin"
     And I visit "/admin/category.php?category=modbookingfolder"

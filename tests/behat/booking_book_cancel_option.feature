@@ -48,7 +48,7 @@ Feature: In a booking instance
     And I should not see "Book now" in the "#allbookingoptionstable_r1 .booknow" "css_element"
     And I should not see "Undo my booking" in the "#allbookingoptionstable_r1 .booknow" "css_element"
 
-@javascript
+  @javascript
   Scenario: Simple booking of oprion as a student with cancellation
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage

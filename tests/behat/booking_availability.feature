@@ -29,7 +29,7 @@ Feature: In a booking
     And I create booking option "Option - availability by dates" in "My booking"
     And I create booking option "Option - dependency" in "My booking"
 
-@javascript
+  @javascript
   Scenario: Configure availability condition by dates - until
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
@@ -249,8 +249,8 @@ Feature: In a booking
     Given I log in as "student1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    And I wait "1" seconds   
-    And I should see "Book now" in the "#allbookingoptionstable_r3" "css_element"    
+    And I wait "1" seconds
+    And I should see "Book now" in the "#allbookingoptionstable_r3" "css_element"
     And I click on "Book now" "text" in the "#allbookingoptionstable_r3" "css_element"
     And I should see "Do you really want to book?" in the "#allbookingoptionstable_r3" "css_element"
     And I click on "Do you really want to book?" "text" in the "#allbookingoptionstable_r3" "css_element"
@@ -289,7 +289,7 @@ Feature: In a booking
     Given I log in as "student1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    And I wait "1" seconds   
+    And I wait "1" seconds
     And I should see "Booked" in the "#allbookingoptionstable_r3" "css_element"
     And I log out
     Given I log in as "student3"
@@ -302,6 +302,34 @@ Feature: In a booking
     And I click on "Do you really want to book?" "text" in the "#allbookingoptionstable_r3" "css_element"
     And I should see "Fully booked - You are on the waiting list" in the "#allbookingoptionstable_r3" "css_element"
     And I log out
+
+  @javascript
+  Scenario: Configure max participants with admin overbooking
+    Given I log in as "admin"
+    And I visit "/admin/category.php?category=modbookingfolder"
+    And I set the field "Allow overbooking" to "checked"
+    And I press "Save changes"
+    When I am on "Course 1" course homepage
+    And I follow "My booking"
+    And I should see "Option - dependency" in the "#allbookingoptionstable_r3" "css_element"
+    And I click on "Settings" "icon" in the "#allbookingoptionstable_r3" "css_element"
+    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r3" "css_element"
+    And I set the field "Limit the number of participants" to "checked"
+    And I set the field "Max. number of participants" to "1"
+    And I wait "1" seconds
+    And I press "Save and go back"
+    And I click on "Settings" "icon" in the "#allbookingoptionstable_r3" "css_element"
+    And I click on "Book other users" "link" in the "#allbookingoptionstable_r3" "css_element"
+    And I click on "Student 1 (student1@example1.com)" "text"
+    And I click on "Add" "button"
+    And I follow "<< Back to responses"
+    And I follow "Booking"
+    And I should see "Fully booked. Booking not possible anymore" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "Book now" in the "#allbookingoptionstable_r3" "css_element"
+    And I click on "Book now" "text" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "Do you really want to book?" in the "#allbookingoptionstable_r3" "css_element"
+    And I click on "Do you really want to book?" "text" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "Booked" in the "#allbookingoptionstable_r3" "css_element"
 
   @javascript
   Scenario: Configure combined availability conditions - date or option
@@ -365,8 +393,8 @@ Feature: In a booking
     Given I log in as "student1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    And I wait "1" seconds   
-    And I should see "Book now" in the "#allbookingoptionstable_r3" "css_element"    
+    And I wait "1" seconds
+    And I should see "Book now" in the "#allbookingoptionstable_r3" "css_element"
     And I click on "Book now" "text" in the "#allbookingoptionstable_r3" "css_element"
     And I should see "Do you really want to book?" in the "#allbookingoptionstable_r3" "css_element"
     And I click on "Do you really want to book?" "text" in the "#allbookingoptionstable_r3" "css_element"
