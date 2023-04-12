@@ -2253,7 +2253,13 @@ $string['filterbtn'] = 'Filter';
 
 // Booking campaigns.
 $string['bookingcampaigns'] = 'Booking: Campaigns (PRO)';
+$string['bookingcampaign'] = 'Campaign';
 $string['campaigntype:customfield'] = 'Booking option custom field has a certain value';
+$string['addbookingcampaign'] = 'Add campaign';
+$string['deletebookingcampaign'] = 'Delete campaign';
+$string['deletebookingcampaign_confirmtext'] = 'Do you really want to delete the following campaign?';
+$string['campaign_name'] = 'Custom name for the campaign';
+$string['campaign_customfield'] = 'Campaign: Booking option custom field has a specific value';
 
 // Booking rules.
 $string['bookingrules'] = 'Booking: Global rules (PRO)';

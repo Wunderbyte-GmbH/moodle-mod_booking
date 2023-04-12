@@ -15,27 +15,28 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Base class for booking rules information.
+ * Base class for booking campaigns information.
  *
- * @package mod_booking
- * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
- * @author Bernhard Fischer
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     mod_booking
+ * @copyright   2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author      Bernhard Fischer
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace mod_booking\booking_campaigns;
 
-namespace mod_booking\booking_rules;
-
+use mod_booking\output\campaignslist;
 use MoodleQuickForm;
 use stdClass;
 
 /**
- * Class for additional information of booking rules.
+ * Base class for booking campaigns information.
  *
- * @package mod_booking
- * @copyright 2022 Wunderbyte GmbH
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     mod_booking
+ * @copyright   2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author      Bernhard Fischer
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class rules_info {
+class campaigns_info {
 
     /**
      * Add form fields to mform.
@@ -45,99 +46,113 @@ class rules_info {
      * @param array $ajaxformdata
      * @return void
      */
-    public static function add_rules_to_mform(MoodleQuickForm &$mform,
+    public static function add_campaigns_to_mform(MoodleQuickForm &$mform,
         array &$repeateloptions,
         array &$ajaxformdata = null) {
 
-        // First, get all the type of rules there are.
-        $rules = self::get_rules();
+        // First, get all the type of campaigns there are.
+        $campaigns = self::get_campaigns();
 
-        $rulesforselect = [];
-        $rulesforselect['0'] = get_string('choose...', 'mod_booking');
-        foreach ($rules as $rule) {
-            $fullclassname = get_class($rule); // With namespace.
+        $campaignsforselect = [];
+        $campaignsforselect['0'] = get_string('choose...', 'mod_booking');
+        foreach ($campaigns as $campaign) {
+            $fullclassname = get_class($campaign); // With namespace.
             $classnameparts = explode('\\', $fullclassname);
             $shortclassname = end($classnameparts); // Without namespace.
-            $rulesforselect[$shortclassname] = $rule->get_name_of_rule();
+            $campaignsforselect[$shortclassname] = $campaign->get_name_of_campaign();
         }
 
-        // The custom name of the role has to be at this place, but every rule will implement save and set of rule_name.
-        $mform->addElement('text', 'rule_name',
-            get_string('rule_name', 'mod_booking'), ['size' => '50']);
-        $repeateloptions['rule_name']['type'] = PARAM_TEXT;
+        // The custom name of the campaign has to be at this place, but every campaign will implement save and set of campaign_name.
+        $mform->addElement('text', 'campaign_name',
+            get_string('campaign_name', 'mod_booking'), ['size' => '50']);
+        $repeateloptions['campaign_name']['type'] = PARAM_TEXT;
 
-        $mform->registerNoSubmitButton('btn_bookingruletype');
+        $mform->registerNoSubmitButton('btn_bookingcampaignclassname');
         $buttonargs = array('style' => 'visibility:hidden;');
         $categoryselect = [
-            $mform->createElement('select', 'bookingruletype',
-            get_string('bookingrule', 'mod_booking'), $rulesforselect),
-            $mform->createElement('submit', 'btn_bookingruletype', get_string('bookingrule', 'mod_booking'), $buttonargs)
+            $mform->createElement('select', 'bookingcampaignclassname',
+            get_string('bookingcampaign', 'mod_booking'), $campaignsforselect),
+            $mform->createElement('submit', 'btn_bookingcampaignclassname',
+                get_string('bookingcampaign', 'mod_booking'), $buttonargs)
         ];
-        $mform->addGroup($categoryselect, 'bookingruletype', get_string('bookingrule', 'mod_booking'), [' '], false);
-        $mform->setType('btn_bookingruletype', PARAM_NOTAGS);
+        $mform->addGroup($categoryselect, 'bookingcampaignclassname',
+            get_string('bookingcampaign', 'mod_booking'), [' '], false);
+        $mform->setType('btn_bookingcampaignclassname', PARAM_NOTAGS);
 
-        if (isset($ajaxformdata['bookingruletype'])) {
-            $rule = self::get_rule($ajaxformdata['bookingruletype']);
+        if (isset($ajaxformdata['bookingcampaignclassname'])) {
+            $campaign = self::get_campaign_by_name($ajaxformdata['bookingcampaignclassname']);
         } else {
-            list($rule) = $rules;
+            list($campaign) = $campaigns;
         }
 
-        // We skip if no rule was selected.
-        if (empty($rule)) {
+        // We skip if no campaign was selected.
+        if (empty($campaign)) {
             return;
         }
 
-        $rule->add_rule_to_mform($mform, $repeateloptions);
-
-        $mform->addElement('html', '<hr>');
-
-        // At this point, we also load the conditions.
-        conditions_info::add_conditions_to_mform($mform, $ajaxformdata);
-
-        $mform->addElement('html', '<hr>');
-
-        // Finally, we load the actions.
-        actions_info::add_actions_to_mform($mform, $repeateloptions, $ajaxformdata);
+        $campaign->add_campaign_to_mform($mform, $repeateloptions);
     }
 
     /**
-     * Get all booking rules.
-     * @return array an array of booking rules (instances of class booking_rule).
+     * Get all booking campaigns.
+     * @return array an array of booking campaigns (instances of class booking_campaign).
      */
-    public static function get_rules() {
+    public static function get_campaigns() {
         global $CFG;
 
-        // First, we get all the available rules from our directory.
-        $path = $CFG->dirroot . '/mod/booking/classes/booking_rules/rules/*.php';
+        // First, we get all the available campaigns from our directory.
+        $path = $CFG->dirroot . '/mod/booking/classes/booking_campaigns/campaigns/*.php';
         $filelist = glob($path);
 
-        $rules = [];
+        $campaigns = [];
 
         // We just want filenames, as they are also the classnames.
         foreach ($filelist as $filepath) {
             $path = pathinfo($filepath);
-            $filename = 'mod_booking\\booking_rules\\rules\\' . $path['filename'];
+            $filename = 'mod_booking\\booking_campaigns\\campaigns\\' . $path['filename'];
 
             // We instantiate all the classes, because we need some information.
             if (class_exists($filename)) {
                 $instance = new $filename();
-                $rules[] = $instance;
+                $campaigns[] = $instance;
             }
         }
 
-        return $rules;
+        return $campaigns;
     }
 
     /**
-     * Get booking rule by name.
-     * @param string $rulename
-     * @return mixed
+     * Get booking campaign by campaign type.
+     * @param int $campaigntype the campaign type param
+     * @return mixed an instance of the campaign class or null
      */
-    public static function get_rule(string $rulename) {
+    public static function get_campaign_by_type(int $campaigntype) {
 
-        $filename = 'mod_booking\\booking_rules\\rules\\' . $rulename;
+        $campaignname = '';
+        switch($campaigntype) {
+            case CAMPAIGN_TYPE_CUSTOMFIELD:
+                $campaignname = 'campaign_customfield';
+                break;
+        }
 
-        // We instantiate all the classes, because we need some information.
+        $filename = 'mod_booking\\booking_campaigns\\campaigns\\' . $campaignname;
+
+        if (class_exists($filename)) {
+            return new $filename();
+        }
+
+        return null;
+    }
+
+    /**
+     * Get booking campaign by name.
+     * @param string $campaignname the campaign class name
+     * @return mixed an instance of the campaign class or null
+     */
+    public static function get_campaign_by_name(string $campaignname) {
+
+        $filename = 'mod_booking\\booking_campaigns\\campaigns\\' . $campaignname;
+
         if (class_exists($filename)) {
             return new $filename();
         }
@@ -160,119 +175,57 @@ class rules_info {
             return new stdClass();
         }
 
-        // If we have an ID, we retrieve the right rule from DB.
-        $record = $DB->get_record('booking_rules', ['id' => $data->id]);
-
-        $rule = self::get_rule($record->rulename);
-
-        $rulejsonobject = json_decode($record->rulejson);
-
-        $condition = conditions_info::get_condition($rulejsonobject->conditionname);
-        $action = actions_info::get_action($rulejsonobject->actionname);
-
-        // These function just add their bits to the object.
-        $condition->set_defaults($data, $record);
-        $action->set_defaults($data, $record);
-        $rule->set_defaults($data, $record);
+        // If we have an ID, we retrieve the right campaign from DB.
+        $record = $DB->get_record('booking_campaigns', ['id' => $data->id]);
+        $campaign = self::get_campaign_by_type($record->type);
+        $campaign->set_defaults($data, $record);
 
         return (object)$data;
 
     }
 
     /**
-     * Save all booking rules.
+     * Save the booking campaign.
      * @param stdClass &$data reference to the form data
      * @return void
      */
-    public static function save_booking_rule(stdClass &$data) {
+    public static function save_booking_campaign(stdClass &$data) {
 
-        // We receive the form with the data depending on the used handlers.
-        // As we know which handler to call, we only instantiate one rule.
-        $rule = self::get_rule($data->bookingruletype);
-        $condition = conditions_info::get_condition($data->bookingruleconditiontype);
-        $action = actions_info::get_action($data->bookingruleactiontype);
-
-        // These function don't really save to DB, they just add the values to the rulejson key.
-        $condition->save_condition($data);
-        $action->save_action($data);
-
-        // Rule has to be saved last, because it actually writes to DB.
-        $rule->save_rule($data);
-
-        self::execute_booking_rules();
+        $campaign = self::get_campaign_by_name($data->bookingcampaignclassname);
+        $campaign->save_campaign($data);
 
         return;
     }
 
     /**
-     * Execute all booking rules.
+     * Delete a booking campaign by its ID.
+     * @param int $campaignid the ID of the campaign
      */
-    public static function execute_booking_rules() {
+    public static function delete_campaign(int $campaignid) {
         global $DB;
-        if ($records = $DB->get_records('booking_rules')) {
-            foreach ($records as $record) {
-                if (!$rule = self::get_rule($record->rulename)) {
-                    continue;
-                }
-                // Important: Load the rule data from JSON into the rule instance.
-                $rule->set_ruledata($record);
-                // Now the rule can be executed.
-                $rule->execute();
-            }
-        }
+        $DB->delete_records('booking_campaigns', ['id' => (int)$campaignid]);
     }
 
     /**
-     * After an option has been added or updated,
-     * we need to check if any rules need to be applied or changed.
-     * @param int $optionid
+     * Returns the rendered html for a list of campaigns.
+     * @return string the rendered campaigns
      */
-    public static function execute_rules_for_option(int $optionid) {
-        global $DB;
-
-        // Only fetch rules which need to be reapplied. At the moment, it's just one.
-        // Eventbased rules don't have to be reapplied.
-        if ($records = $DB->get_records('booking_rules', ['rulename' => 'rule_daysbefore'])) {
-            foreach ($records as $record) {
-                if (!$rule = self::get_rule($record->rulename)) {
-                    continue;
-                }
-                // Important: Load the rule data from JSON into the rule instance.
-                $rule->set_ruledata($record);
-                // Now the rule can be executed.
-                $rule->execute($optionid);
-            }
-        }
+    public static function return_rendered_list_of_saved_campaigns() {
+        global $PAGE;
+        $campaigns = self::get_list_of_saved_campaigns();
+        $output = $PAGE->get_renderer('mod_booking');
+        return $output->render_campaignslist(new campaignslist($campaigns));
     }
 
     /**
-     * After a user has been added or updated,
-     * we need to check if any rules need to be applied or changed.
-     * @param int $userid
+     * Returns a list of campaigns in DB.
+     * @return array
      */
-    public static function execute_rules_for_user(int $userid) {
+    private static function get_list_of_saved_campaigns():array {
         global $DB;
-        // Only fetch rules which need to be reapplied. At the moment, it's just one.
-        // Eventbased rules don't have to be reapplied.
-        if ($records = $DB->get_records('booking_rules', ['rulename' => 'rule_daysbefore'])) {
-            foreach ($records as $record) {
-                if (!$rule = self::get_rule($record->rulename)) {
-                    continue;
-                }
-                // Important: Load the rule data into the rule instance.
-                $rule->set_ruledata($record);
-                // Now the rule can be executed.
-                $rule->execute(0, $userid);
-            }
+        if (!$campaigns = $DB->get_records('booking_campaigns')) {
+            $campaigns = [];
         }
-    }
-
-    /**
-     * Delete a booking rule by its ID.
-     * @param int $ruleid the ID of the rule
-     */
-    public static function delete_rule(int $ruleid) {
-        global $DB;
-        $DB->delete_records('booking_rules', ['id' => (int)$ruleid]);
+        return $campaigns;
     }
 }

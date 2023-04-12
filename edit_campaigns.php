@@ -24,6 +24,7 @@
  */
 
 use mod_booking\booking_campaigns\campaigns;
+use mod_booking\booking_campaigns\campaigns_info;
 use mod_booking\booking_rules\booking_rules;
 use mod_booking\utils\wb_payment;
 
@@ -59,7 +60,7 @@ echo $output->heading(get_string('bookingcampaigns', 'mod_booking'));
 
 // Check if PRO version is active.
 if (wb_payment::pro_version_is_activated()) {
-    echo campaigns::return_rendered_list_of_saved_campaigns();
+    echo campaigns_info::return_rendered_list_of_saved_campaigns();
 
 } else {
     echo html_writer::div(get_string('infotext:prolicensenecessary', 'mod_booking'), 'alert alert-warning');

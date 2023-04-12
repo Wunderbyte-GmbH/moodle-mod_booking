@@ -277,8 +277,10 @@ class renderer extends plugin_renderer_base {
 
             if (!$rating->settings->scale->isnumeric) {
                 // If a global scale, try to find current course ID from the context.
-                if (empty($rating->settings->scale->courseid) &&
-                         $coursecontext = $rating->context->get_course_context(false)) {
+                /** @var context $ratingcontext */
+                $ratingcontext = $rating->context;
+                if (empty($rating->settings->scale->courseid) && !empty($ratingcontext) &&
+                         $coursecontext = $ratingcontext->get_course_context(false)) {
                     $courseid = $coursecontext->instanceid;
                 } else {
                     $courseid = $rating->settings->scale->courseid;
@@ -624,6 +626,16 @@ class renderer extends plugin_renderer_base {
     public function render_ruleslist($data) {
         $data = $data->export_for_template($this);
         return $this->render_from_template('mod_booking/ruleslist', $data);
+    }
+
+    /**
+     * Render campaignslist
+     * @param $data array
+     * @return string
+     */
+    public function render_campaignslist($data) {
+        $data = $data->export_for_template($this);
+        return $this->render_from_template('mod_booking/campaignslist', $data);
     }
 
     /**

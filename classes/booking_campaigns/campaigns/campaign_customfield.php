@@ -14,13 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_booking\booking_rules\rules;
+namespace mod_booking\booking_campaigns\campaigns;
 
-use mod_booking\booking_rules\actions_info;
-use mod_booking\booking_rules\booking_rule;
-use mod_booking\booking_rules\conditions_info;
-use mod_booking\singleton_service;
-use mod_booking\task\send_mail_by_rule_adhoc;
+use mod_booking\booking_campaigns\booking_campaign;
 use MoodleQuickForm;
 use stdClass;
 
@@ -29,246 +25,144 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Rule do something a specified number of days before a chosen date.
- *
- * @package mod_booking
- * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
- * @author Georg Maißer
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * Campaign for booking options having a certain booking option customfield.
+ * @package     mod_booking
+ * @copyright   2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author      Bernhard Fischer
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class rule_react_on_event implements booking_rule {
+class campaign_customfield implements booking_campaign {
 
-    /** @var int $ruleid */
-    public $ruleid = 0;
+    /** @var int $id */
+    public $id = 0;
 
-    /** @var string $rulename */
-    protected $rulename = 'rule_react_on_event';
+    /** @var string $name can be any name set by the user */
+    public $name = '';
 
-    /** @var string $name */
-    public $name = null;
+    /** @var int $type */
+    public $type = CAMPAIGN_TYPE_CUSTOMFIELD;
 
-    /** @var string $rulejson */
-    public $rulejson = null;
+    /** @var string $classname */
+    public $classname = 'campaign_customfield';
 
-    /** @var int $ruleid */
-    public $boevent = null;
+    /** @var int $starttime */
+    public $starttime = 0;
+
+    /** @var int $endtime */
+    public $endtime = 0;
+
+    /** @var float $pricefactor */
+    public $pricefactor = 1.0;
+
+    /** @var float $limitfactor */
+    public $limitfactor = 1.0;
+
+    // From JSON.
+    /** @var string $fieldname */
+    public $fieldname = '';
+
+    /** @var string $fieldvalue */
+    public $fieldvalue = '';
 
     /**
      * Load json data from DB into the object.
-     * @param stdClass $record a rule record from DB
+     * @param stdClass $record a campaign record from DB
      */
-    public function set_ruledata(stdClass $record) {
-        $this->ruleid = $record->id ?? 0;
-        $this->set_ruledata_from_json($record->rulejson);
+    public function set_campaigndata(stdClass $record) {
+        $this->id = $record->id ?? 0;
+        $this->name = $record->name ?? '';
+        $this->starttime = $record->starttime ?? 0;
+        $this->endtime = $record->endtime ?? 0;
+        $this->pricefactor = $record->pricefactor ?? 1.0;
+        $this->limitfactor = $record->limitfactor ?? 1.0;
+
+        // Set additional data stored in JSON.
+        $jsonobj = json_decode($record->json);
+        $this->fieldname = $jsonobj->fieldname;
+        $this->fieldvalue = $jsonobj->fieldvalue;
     }
 
     /**
-     * Load data directly from JSON.
-     * @param string $json a json string for a booking rule
-     */
-    public function set_ruledata_from_json(string $json) {
-        $this->rulejson = $json;
-        $ruleobj = json_decode($json);
-        $this->name = $ruleobj->name;
-        $this->boevent = $ruleobj->ruledata->boevent;
-    }
-
-    /**
-     * Only customizable functions need to return their necessary form elements.
-     *
+     * Add the campaign to the mform.
      * @param MoodleQuickForm $mform
-     * @param int $optionid
      * @return void
      */
-    public function add_rule_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
+    public function add_campaign_to_mform(MoodleQuickForm &$mform) {
 
-        // Only these events are currently supported and tested.
-        $allowedeventkeys = [
-            'bookingoption_cancelled',
-            'bookingoption_completed',
-            'optiondates_teacher_added',
-            'optiondates_teacher_deleted',
-        ];
+        $mform->addElement('static', 'campaign_react_on_event_desc', '',
+            get_string('campaign_react_on_event_desc', 'mod_booking'));
 
-        // Get a list of all booking events.
-        $allevents = get_list_of_booking_events();
-        $allowedevents["0"] = get_string('choose...', 'mod_booking');
-
-        // Currently, we only allow events affecting booking options.
-        foreach ($allevents as $key => $value) {
-            $eventnameonly = str_replace("\\mod_booking\\event\\", "", $key);
-            if (in_array($eventnameonly, $allowedeventkeys)) {
-                $allowedevents[$key] = $value;
-            }
-        }
-
-        // Workaround: We need a group to get hideif to work.
-        $mform->addElement('static', 'rule_react_on_event_desc', '',
-            get_string('rule_react_on_event_desc', 'mod_booking'));
-
-        $mform->addElement('select', 'rule_react_on_event_event',
-            get_string('rule_event', 'mod_booking'), $allowedevents);
+        // TODO...
     }
 
     /**
-     * Get the name of the rule.
+     * Get the name of the campaign type.
      * @param bool $localized
      * @return string
      */
-    public function get_name_of_rule(bool $localized = true): string {
-        return $localized ? get_string($this->rulename, 'mod_booking') : $this->rulename;
+    public function get_name_of_campaign_type(bool $localized = true): string {
+        return $localized ? get_string($this->classname, 'mod_booking') : $this->classname;
     }
 
     /**
-     * Save the JSON for daysbefore rule defined in form.
-     * The role has to determine the handler for condtion and action and get the right json object.
+     * Save the campaign.
      * @param stdClass &$data form data reference
      */
-    public function save_rule(stdClass &$data) {
+    public function save_campaign(stdClass &$data) {
         global $DB;
 
         $record = new stdClass();
 
-        if (!isset($data->rulejson)) {
+        if (!isset($data->json)) {
             $jsonobject = new stdClass();
         } else {
-            $jsonobject = json_decode($data->rulejson);
+            $jsonobject = json_decode($data->json);
         }
 
-        $jsonobject->name = $data->rule_name;
-        $jsonobject->rulename = $this->rulename;
-        $jsonobject->ruledata = new stdClass();
-        $jsonobject->ruledata->boevent = $data->rule_react_on_event_event ?? '';
+        $jsonobject->fieldname = $data->fieldname;
+        $jsonobject->fieldvalue = $data->fieldvalue;
+        $record->json = json_encode($jsonobject);
 
-        $record->rulejson = json_encode($jsonobject);
-        $record->rulename = $this->rulename;
-        $record->bookingid = $data->bookingid ?? 0;
+        $record->name = $data->campaign_name;
+        $record->starttime = $data->starttime;
+        $record->endtime = $data->endtime;
+        $record->pricefactor = $data->pricefactor;
+        $record->limitfactor = $data->limitfactor;
 
         // If we can update, we add the id here.
         if ($data->id) {
             $record->id = $data->id;
-            $DB->update_record('booking_rules', $record);
+            $DB->update_record('booking_campaigns', $record);
         } else {
-            $ruleid = $DB->insert_record('booking_rules', $record);
-            $this->ruleid = $ruleid;
+            $this->id = $DB->insert_record('booking_campaigns', $record);
         }
     }
 
     /**
-     * Sets the rule defaults when loading the form.
+     * Sets the campaign defaults when loading the form.
      * @param stdClass &$data reference to the default values
-     * @param stdClass $record a record from booking_rules
+     * @param stdClass $record a record from booking_campaigns
      */
     public function set_defaults(stdClass &$data, stdClass $record) {
 
-        $data->bookingruletype = $this->rulename;
+        // TODO.
+        /* $data->bookingcampaigntype = $this->campaignname;
 
-        $jsonobject = json_decode($record->rulejson);
-        $ruledata = $jsonobject->ruledata;
+        $jsonobject = json_decode($record->campaignjson);
+        $campaigndata = $jsonobject->campaigndata;
 
-        $data->rule_name = $jsonobject->name;
-        $data->rule_react_on_event_event = $ruledata->boevent;
-
+        $data->campaign_name = $jsonobject->name;
+        $data->campaign_react_on_event_event = $campaigndata->boevent;*/
     }
 
     /**
-     * Execute the rule.
-     * @param int $optionid optional
-     * @param int $userid optional
-     */
-    public function execute(int $optionid = 0, int $userid = 0) {
-
-        // This rule executes only on event.
-        // And every event will have an optionid, because it's linked to a specific option.
-        if ($optionid === 0) {
-            return;
-        }
-
-        $jsonobject = json_decode($this->rulejson);
-
-        // We reuse this code when we check for validity, therefore we use a separate function.
-        $records = $this->get_records_for_execution($optionid, $userid);
-
-        // Now we finally execution the action, where we pass on every record.
-        $action = actions_info::get_action($jsonobject->actionname);
-        $action->set_actiondata_from_json($this->rulejson);
-        // For the execution, we need a rule id, otherwise we can't test for consistency.
-        $action->ruleid = $this->ruleid;
-
-        foreach ($records as $record) {
-
-            // Set the time of when the task should run.
-            $nextruntime = time();
-            $record->rulename = $this->rulename;
-            $record->nextruntime = $nextruntime;
-            $action->execute($record);
-        }
-    }
-
-    /**
-     * This function is called on execution of adhoc tasks,
-     * so we can see if the rule still applies and the adhoc task
-     * shall really be executed.
-     *
+     * Function to check if a campaign is currently active
+     * for a specific booking option.
      * @param int $optionid
-     * @param int $userid
-     * @param int $nextruntime
-     * @return bool true if the rule still applies, false if not
+     * @return bool true if the campaign is currently active
      */
-    public function check_if_rule_still_applies(int $optionid, int $userid, int $nextruntime): bool {
-
-        // For this rule, we don't need to check because everything is sent directly after event was triggered.
-        return true;
-    }
-
-    /**
-     * This helperfunction builds the sql with the help of the condition and returns the records.
-     * Testmode means that we don't limit by now timestamp.
-     *
-     * @param integer $optionid
-     * @param integer $userid
-     * @param bool $testmode
-     * @return array
-     */
-    public function get_records_for_execution(int $optionid, int $userid = 0) {
-        global $DB;
-
-        // Execution of a rule is a complexe action.
-        // Going from rule to condition to action...
-        // ... we need to go into actions with an array of records...
-        // ... which has the keys cmid, optionid & userid.
-
-        $jsonobject = json_decode($this->rulejson);
-
-        $params = [
-            'optionid' => $optionid,
-            'userid' => $userid,
-            'json' => $this->rulejson
-        ];
-
-        $sql = new stdClass();
-
-        $sql->select = "bo.id optionid, cm.id cmid";
-        $sql->from = "{booking_options} bo
-                    JOIN {course_modules} cm
-                    ON cm.instance = bo.bookingid
-                    JOIN {modules} m
-                    ON m.name = 'booking' AND m.id = cm.module";
-        $sql->where = " bo.id = :optionid";
-
-        // Now that we know the ids of the booking options concerend, we will determine the users concerned.
-        // The condition execution will add their own code to the sql.
-
-        $condition = conditions_info::get_condition($jsonobject->conditionname);
-
-        $condition->set_conditiondata_from_json($this->rulejson);
-
-        $condition->execute($sql, $params);
-
-        $sqlstring = "SELECT $sql->select FROM $sql->from WHERE $sql->where";
-
-        $records = $DB->get_records_sql($sqlstring, $params);
-
-        return $records;
+    public function check_if_campaign_is_active(int $optionid):bool {
+        // TODO: implement!
+        return false;
     }
 }
