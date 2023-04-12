@@ -10,6 +10,7 @@ Feature: In a booking
       | admin1   | Admin     | 1        | admin1@example.com    | A1       |
       | student1 | Student   | 1        | student1@example1.com | S1       |
       | student2 | Student   | 2        | student2@example2.com | S2       |
+      | student3 | Student   | 3        | student3@example3.com | S3       |
     And the following "courses" exist:
       | fullname | shortname | category | enablecompletion |
       | Course 1 | C1        | 0        | 1                |
@@ -20,6 +21,7 @@ Feature: In a booking
       | admin    | C1     | manager        |
       | student1 | C1     | student        |
       | student2 | C1     | student        |
+      | student3 | C1     | student        |
     And the following "activities" exist:
       | activity | course | name       | intro                  | bookingmanager | eventtype | Default view for booking options | Activate e-mails (confirmations, notifications and more) | Booking option name  |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | All bookings                     | Yes                                                      | New option - Webinar |
@@ -244,9 +246,6 @@ Feature: In a booking
     And I set the field "Max. number of participants" to "1"
     And I wait "1" seconds
     And I press "Save and go back"
-    ##And I wait "1" seconds
-    ##Then I should see "Fully booked. Booking not possible anymore." in the "#allbookingoptionstable_r3" "css_element"
-    ##And I log out
     Given I log in as "student1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
@@ -263,6 +262,45 @@ Feature: In a booking
     And I wait "1" seconds
     Then I should see "Fully booked" in the "#allbookingoptionstable_r3" "css_element"
     And I should not see "Book now" in the "#allbookingoptionstable_r3" "css_element"
+    And I log out
+
+  @javascript
+  Scenario: Configure participants limit and waiting list
+    Given I log in as "teacher1"
+    When I am on "Course 1" course homepage
+    And I follow "My booking"
+    And I should see "Option - dependency" in the "#allbookingoptionstable_r3" "css_element"
+    And I click on "Settings" "icon" in the "#allbookingoptionstable_r3" "css_element"
+    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r3" "css_element"
+    And I set the field "Limit the number of participants" to "checked"
+    And I set the following fields to these values:
+      | Max. number of participants           | 2 |
+      | Max. number of places on waiting list | 1 |
+      | Min. number of participants           | 1 |
+    And I wait "1" seconds
+    And I press "Save and go back"
+    And I click on "Settings" "icon" in the "#allbookingoptionstable_r3" "css_element"
+    And I click on "Book other users" "link" in the "#allbookingoptionstable_r3" "css_element"
+    And I click on "Student 1 (student1@example1.com)" "text"
+    And I click on "Student 2 (student2@example2.com)" "text"
+    And I click on "Add" "button"
+    And I follow "<< Back to responses"
+    And I follow "Booking"
+    Given I log in as "student1"
+    When I am on "Course 1" course homepage
+    And I follow "My booking"
+    And I wait "1" seconds   
+    And I should see "Booked" in the "#allbookingoptionstable_r3" "css_element"
+    And I log out
+    Given I log in as "student3"
+    When I am on "Course 1" course homepage
+    And I follow "My booking"
+    And I wait "1" seconds
+    Then I should see "Book now" in the "#allbookingoptionstable_r3" "css_element"
+    And I click on "Book now" "text" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "Do you really want to book?" in the "#allbookingoptionstable_r3" "css_element"
+    And I click on "Do you really want to book?" "text" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "Fully booked - You are on the waiting list" in the "#allbookingoptionstable_r3" "css_element"
     And I log out
 
   @javascript
