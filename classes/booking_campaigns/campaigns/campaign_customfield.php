@@ -42,8 +42,8 @@ class campaign_customfield implements booking_campaign {
     /** @var int $type */
     public $type = CAMPAIGN_TYPE_CUSTOMFIELD;
 
-    /** @var string $classname */
-    public $classname = 'campaign_customfield';
+    /** @var string $bookingcampaigntype */
+    public $bookingcampaigntype = 'campaign_customfield';
 
     /** @var int $starttime */
     public $starttime = 0;
@@ -89,10 +89,70 @@ class campaign_customfield implements booking_campaign {
      */
     public function add_campaign_to_mform(MoodleQuickForm &$mform) {
 
-        $mform->addElement('static', 'campaign_react_on_event_desc', '',
-            get_string('campaign_react_on_event_desc', 'mod_booking'));
+        global $DB;
 
-        // TODO...
+        $mform->addElement('text', 'name', get_string('campaign_name', 'mod_booking'));
+
+        // Custom field name.
+        $sql = "SELECT cf.shortname, cf.name
+            FROM {customfield_field} cf
+            JOIN {customfield_category} cc
+            ON cf.categoryid = cc.id
+            WHERE cc.area = 'booking'";
+
+        $records = $DB->get_records_sql($sql);
+
+        $fieldnames = [];
+        foreach ($records as $record) {
+            $fieldnames[$record->shortname] = $record->name;
+        }
+
+        $options = array(
+            'noselectionstring' => get_string('choose...', 'mod_booking'),
+            'tags' => false,
+            'multiple' => false,
+        );
+        $mform->addElement('autocomplete', 'fieldname',
+            get_string('fieldname', 'mod_booking'), $fieldnames, $options);
+
+        // Custom field value.
+        $sql = "SELECT DISTINCT cd.value
+            FROM {customfield_field} cf
+            JOIN {customfield_category} cc
+            ON cf.categoryid = cc.id
+            JOIN {customfield_data} cd
+            ON cd.fieldid = cf.id
+            WHERE cc.area = 'booking'
+            AND cd.value IS NOT NULL
+            AND cd.value <> ''";
+        $records = $DB->get_fieldset_sql($sql);
+
+        $fieldvalues = [];
+        foreach ($records as $record) {
+            $fieldvalues[$record] = $record;
+        }
+
+        $options = array(
+            'noselectionstring' => get_string('choose...', 'mod_booking'),
+            'tags' => true,
+            'multiple' => false,
+        );
+        $mform->addElement('autocomplete', 'fieldvalue',
+            get_string('fieldvalue', 'mod_booking'), $fieldvalues, $options);
+
+        $mform->addElement('date_time_selector', 'starttime', get_string('campaignstart', 'mod_booking'));
+        $mform->setType('starttime', PARAM_INT);
+
+        $mform->addElement('date_time_selector', 'endtime', get_string('campaignend', 'mod_booking'));
+        $mform->setType('endtime', PARAM_INT);
+
+        // Price factor (multiplier).
+        $mform->addElement('float', 'pricefactor', get_string('pricefactor', 'mod_booking'), null);
+        $mform->setDefault('pricefactor', 1);
+
+        // Limit factor (multiplier).
+        $mform->addElement('float', 'limitfactor', get_string('limitfactor', 'mod_booking'), null);
+        $mform->setDefault('limitfactor', 1);
     }
 
     /**
@@ -101,7 +161,7 @@ class campaign_customfield implements booking_campaign {
      * @return string
      */
     public function get_name_of_campaign_type(bool $localized = true): string {
-        return $localized ? get_string($this->classname, 'mod_booking') : $this->classname;
+        return $localized ? get_string($this->bookingcampaigntype, 'mod_booking') : $this->bookingcampaigntype;
     }
 
     /**
@@ -112,6 +172,7 @@ class campaign_customfield implements booking_campaign {
         global $DB;
 
         $record = new stdClass();
+        $record->type = CAMPAIGN_TYPE_CUSTOMFIELD;
 
         if (!isset($data->json)) {
             $jsonobject = new stdClass();
@@ -123,7 +184,7 @@ class campaign_customfield implements booking_campaign {
         $jsonobject->fieldvalue = $data->fieldvalue;
         $record->json = json_encode($jsonobject);
 
-        $record->name = $data->campaign_name;
+        $record->name = $data->name;
         $record->starttime = $data->starttime;
         $record->endtime = $data->endtime;
         $record->pricefactor = $data->pricefactor;
@@ -145,14 +206,21 @@ class campaign_customfield implements booking_campaign {
      */
     public function set_defaults(stdClass &$data, stdClass $record) {
 
-        // TODO.
-        /* $data->bookingcampaigntype = $this->campaignname;
+        $data->type = $record->type;
+        $data->name = $record->name;
+        $data->starttime = $record->starttime;
+        $data->endtime = $record->endtime;
+        $data->pricefactor = $record->pricefactor;
+        $data->limitfactor = $record->limitfactor;
 
-        $jsonobject = json_decode($record->campaignjson);
-        $campaigndata = $jsonobject->campaigndata;
-
-        $data->campaign_name = $jsonobject->name;
-        $data->campaign_react_on_event_event = $campaigndata->boevent;*/
+        if ($jsonboject = json_decode($record->json)) {
+            switch ($record->type) {
+                case CAMPAIGN_TYPE_CUSTOMFIELD:
+                    $data->fieldname = $jsonboject->fieldname;
+                    $data->fieldvalue = $jsonboject->fieldvalue;
+                    break;
+            }
+        }
     }
 
     /**
@@ -161,8 +229,59 @@ class campaign_customfield implements booking_campaign {
      * @param int $optionid
      * @return bool true if the campaign is currently active
      */
-    public function check_if_campaign_is_active(int $optionid):bool {
-        // TODO: implement!
+    public function campaign_is_active(int $optionid):bool {
+
+        $now = time();
+        if ($this->starttime <= $now && $now <= $this->endtime) {
+            // Within campaign time, so check if values apply.
+            $sql = "SELECT cd.instanceid, cf.shortname, cd.value
+                FROM {customfield_data} cd
+                JOIN {customfield_field} cf
+                ON cd.fieldid = cf.id
+                WHERE cf.shortname = :fieldname
+                AND cd.instanceid = :optionid
+                AND (
+                    cd.value = :fieldvalue1
+                    OR cd.value LIKE :fieldvalue2
+                    OR cd.value LIKE :fieldvalue3
+                    OR cd.value LIKE :fieldvalue4
+                )";
+            $params = [
+                'fieldname' => $this->fieldname,
+                'optionid' => $optionid,
+                'fieldvalue1' => $this->fieldvalue,
+                'fieldvalue2' => $this->fieldvalue . ',%',
+                'fieldvalue3' => '%,' . $this->fieldvalue,
+                'fieldvalue4' => '%,' . $this->fieldvalue . ',%',
+            ];
+            global $DB;
+            if ($DB->get_records_sql($sql, $params)) {
+                // Record found, so campaign is active.
+                return true;
+            }
+
+        }
+        // Campaign is not active for this booking option.
         return false;
+    }
+
+    /**
+     * Function to apply the campaign price factor.
+     * @param float $price the original price
+     * @return float the new price
+     */
+    public function get_campaign_price(float $price):float {
+        $campaignprice = $price * $this->pricefactor;
+        return round($campaignprice, 2);
+    }
+
+    /**
+     * Function to apply the campaign's booking limit factor.
+     * @param int $limit the original booking limit
+     * @return int the new booking limit
+     */
+    public function get_campaign_limit(int $limit):int {
+        $campaignlimit = $limit * $this->limitfactor;
+        return (int)round($campaignlimit, 0);
     }
 }

@@ -21,16 +21,27 @@
     * none
 
     Data attributes required for JS:
-    * data-region
+    * data-action
+    * data-id
+    * data-bookingcampaigntype
+    * data-name
 
     Example context (json):
     {
-        "todo" : "todo"
+        "campaigns" : {
+            "id" : "1",
+            "bookingcampaigntype" : "campaign_customfield",
+            "name" : "My campaign",
+            "description" : "Affects: Booking option custom field 'sport' having the value 'TAUCHEN'.",
+            "localizedtype" : "Booking option custom field has a specific value",
+            "localizedstart" : "Apr 04 2023, 15:52",
+            "localizedend" : "Apr 30 2023, 15:52"
+        }
     }
 }}
 
 <div class="booking-campaigns-container">
-    <div class="btn btn-success booking-campaigns-addnewcampaignbtn" data-action="edit-or-new" data-id="0" data-bookingid="0">
+    <div class="btn btn-success booking-campaigns-addnewcampaignbtn" data-action="edit-or-new" data-id="0">
         <i class="fa fa-plus-square" aria-hidden="true"></i> {{#str}} addbookingcampaign, mod_booking {{/str}}
     </div>
     <ul class="mt-3 list-group booking-campaigns-list">
@@ -39,10 +50,10 @@
             <div class="d-flex justify-content-between">
                 <h5>{{name}}</h5>
                 <div class="btn-group" role="group" aria-label="Booking campaign buttons">
-                    <div class="btn btn-sm btn-outline-danger" data-action="delete" data-id="{{id}}" data-name="{{name}}" data-bookingid="{{bookingid}}">
+                    <div class="btn btn-sm btn-outline-danger" data-action="delete" data-id="{{id}}" data-bookingcampaigntype="{{bookingcampaigntype}}" data-name="{{name}}">
                         <i class="fa fa-trash" aria-hidden="true"></i> {{#str}} delete {{/str}}
                     </div>
-                    <div class="btn btn-sm btn-outline-primary" data-action="edit-or-new" data-id="{{id}}" data-name="{{name}}" data-bookingid="{{bookingid}}">
+                    <div class="btn btn-sm btn-outline-primary" data-action="edit-or-new" data-id="{{id}}" data-bookingcampaigntype="{{bookingcampaigntype}}">
                         <i class="fa fa-pencil" aria-hidden="true"></i> {{#str}} edit {{/str}}
                     </div>
                 </div>
@@ -50,18 +61,18 @@
             <div class="container">
                 <div class="row">
                     <div class="col-sm-1 text-right">
-                        <small><i class="fa fa-bolt" aria-hidden="true"></i></small>
+                        <small><i class="fa fa-circle" aria-hidden="true"></i></small>
                     </div>
                     <div class="col-sm-11">
-                        <small>{{localizedcampaignname}}</small>
+                        <small>{{localizedtype}}</small>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-sm-1 text-right">
-                        <small><i class="fa fa-list-ul" aria-hidden="true"></i></small>
+                        <small><i class="fa fa-info-circle" aria-hidden="true"></i></small>
                     </div>
                     <div class="col-sm-11">
-                        <small>{{localizedconditionname}}</small>
+                        <small>{{description}}</small>
                     </div>
                 </div>
                 <div class="row">
@@ -69,7 +80,15 @@
                         <small><i class="fa fa-play" aria-hidden="true"></i></small>
                     </div>
                     <div class="col-sm-11">
-                        <small>{{localizedactionname}}</small>
+                        <small>{{localizedstart}}</small>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-1 text-right">
+                        <small><i class="fa fa-stop" aria-hidden="true"></i></small>
+                    </div>
+                    <div class="col-sm-11">
+                        <small>{{localizedend}}</small>
                     </div>
                 </div>
             </div>

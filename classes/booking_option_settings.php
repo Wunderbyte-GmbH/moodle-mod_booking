@@ -21,8 +21,10 @@ use context_system;
 use local_entities\entitiesrelation_handler;
 use mod_booking\bo_availability\bo_subinfo;
 use mod_booking\bo_availability\conditions\subbooking;
+use mod_booking\booking_campaigns\campaigns_info;
 use mod_booking\customfield\booking_handler;
 use mod_booking\subbookings\subbookings_info;
+use mod_booking\booking_campaigns\booking_campaign;
 use moodle_exception;
 use stdClass;
 use moodle_url;
@@ -473,7 +475,17 @@ class booking_option_settings {
                 $this->subbookings = $dbrecord->subbookings;
             }
 
-            // TODO: Check and apply campaigns, change $dbrecord appropriately!
+            // Check if there are active campaigns.
+            // If yes, we need to apply the booking limit factor.
+            $campaigns = campaigns_info::get_all_campaigns();
+            foreach ($campaigns as $camp) {
+                /** @var booking_campaign $campaign */
+                $campaign = $camp;
+                if ($campaign->campaign_is_active($this->id)) {
+                    $dbrecord->maxanswers = $campaign->get_campaign_limit($this->maxanswers);
+                    // Campaign booking limit has been applied.
+                }
+            }
 
             return $dbrecord;
         } else {
@@ -1009,6 +1021,19 @@ class booking_option_settings {
         }
 
         $price = price::get_price('option', $this->id, $user);
+
+        // Check if there are active campaigns.
+        // If yes, we need to apply the price factor.
+        $campaigns = campaigns_info::get_all_campaigns();
+        foreach ($campaigns as $camp) {
+            /** @var booking_campaign $campaign */
+            $campaign = $camp;
+            if ($campaign->campaign_is_active($this->id)) {
+                $price['price'] = $campaign->get_campaign_price($price['price']);
+                // Campaign price factor has been applied.
+            }
+        }
+
         $canceluntil = booking_option::return_cancel_until_date($this->id);
 
         $returnarray = [

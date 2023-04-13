@@ -37,9 +37,11 @@ $string['dayofweek'] = 'Wochentag';
 $string['doyouwanttobook'] = 'Wollen Sie <b>{$a}</b> buchen?';
 $string['gotomanageresponses'] = '&lt;&lt; Buchungen verwalten';
 $string['gotomoodlecourse'] = 'Zum Moodle-Kurs';
+$string['limitfactor'] = 'Buchungslimit-Faktor';
 $string['messageprovider:bookingconfirmation'] = "Buchungsbestätigungen";
 $string['optionsiteach'] = 'Von mir geleitet';
 $string['placeholders'] = 'Platzhalter';
+$string['pricefactor'] = 'Preisfaktor';
 $string['reviewed'] = 'Kontrolliert';
 $string['search'] = 'Suche...';
 $string['teachers'] = 'Trainer:innen';
@@ -2058,12 +2060,19 @@ $string['filterbtn'] = 'Filtern';
 // Booking campaigns.
 $string['bookingcampaigns'] = 'Buchung: Kampagnen (PRO)';
 $string['bookingcampaign'] = 'Kampagne';
-$string['campaigntype:customfield'] = 'Benutzerdefiniertes Buchungsoptionsfeld hat einen bestimmten Wert';
+$string['campaigntype'] = 'Kampagnentyp';
+$string['editcampaign'] = 'Kampagne bearbeiten';
 $string['addbookingcampaign'] = 'Kampagne hinzufügen';
 $string['deletebookingcampaign'] = 'Kampagne löschen';
 $string['deletebookingcampaign_confirmtext'] = 'Wollen Sie die folgende Kampagne wirklich löschen?';
 $string['campaign_name'] = 'Eigener Name der Kampagne';
-$string['campaign_customfield'] = 'Kampagne: Benutzerdefiniertes Buchungsoptionsfeld hat einen bestimmten Wert';
+$string['campaign_customfield'] = 'Benutzerdefiniertes Buchungsoptionsfeld hat einen bestimmten Wert';
+$string['campaign_customfield_descriptiontext'] = 'Betrifft: Benutzerdefiniertes Buchungsoptionsfeld "{$a->fieldname}"
+ mit dem Wert "{$a->fieldvalue}".';
+ $string['fieldname'] = 'Feld';
+ $string['fieldvalue'] = 'Wert';
+ $string['campaignstart'] = 'Beginn der Kampagne';
+ $string['campaignend'] = 'Ende der Kampagne';
 
 // Booking rules.
 $string['bookingrules'] = 'Buchung: Globale Regeln (PRO)';

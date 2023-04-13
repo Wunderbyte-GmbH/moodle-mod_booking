@@ -76,5 +76,19 @@ interface booking_campaign {
      * @param int $optionid
      * @return bool true if the campaign is currently active
      */
-    public function check_if_campaign_is_active(int $optionid):bool;
+    public function campaign_is_active(int $optionid):bool;
+
+    /**
+     * Function to apply the campaign price factor.
+     * @param float $price the original price
+     * @return float the new price
+     */
+    public function get_campaign_price(float $price):float;
+
+    /**
+     * Function to apply the booking limit factor.
+     * @param int $limit the original booking limit
+     * @return int the new booking limit
+     */
+    public function get_campaign_limit(int $limit):int;
 }

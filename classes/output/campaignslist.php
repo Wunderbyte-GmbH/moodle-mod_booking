@@ -26,6 +26,7 @@ namespace mod_booking\output;
 
 use renderer_base;
 use renderable;
+use stdClass;
 use templatable;
 
 /**
@@ -51,10 +52,13 @@ class campaignslist implements renderable, templatable {
         foreach ($campaigns as $campaign) {
             switch ($campaign->type) {
                 case CAMPAIGN_TYPE_CUSTOMFIELD:
+                    $campaign->bookingcampaigntype = 'campaign_customfield';
                     $campaignobj = json_decode($campaign->json);
-                    $campaign->fieldname = $campaignobj->fieldname;
-                    $campaign->fieldvalue = $campaignobj->fieldvalue;
-                    $campaign->localizedtype = get_string('campaigntype:customfield', 'mod_booking');
+                    $a = new stdClass;
+                    $a->fieldname = $campaignobj->fieldname;
+                    $a->fieldvalue = $campaignobj->fieldvalue;
+                    $campaign->description = get_string('campaign_customfield_descriptiontext', 'mod_booking', $a);
+                    $campaign->localizedtype = get_string('campaign_customfield', 'mod_booking');
                     $campaign->localizedstart = $this->render_localized_timestamp($campaign->starttime, current_language());
                     $campaign->localizedend = $this->render_localized_timestamp($campaign->endtime, current_language());
                     break;

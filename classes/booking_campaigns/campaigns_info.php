@@ -25,6 +25,7 @@
 namespace mod_booking\booking_campaigns;
 
 use mod_booking\output\campaignslist;
+use mod_booking\booking_campaigns\booking_campaign;
 use MoodleQuickForm;
 use stdClass;
 
@@ -47,50 +48,45 @@ class campaigns_info {
      * @return void
      */
     public static function add_campaigns_to_mform(MoodleQuickForm &$mform,
-        array &$repeateloptions,
         array &$ajaxformdata = null) {
 
         // First, get all the type of campaigns there are.
         $campaigns = self::get_campaigns();
 
         $campaignsforselect = [];
-        $campaignsforselect['0'] = get_string('choose...', 'mod_booking');
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $campaignsforselect['0'] = get_string('choose...', 'mod_booking'); */
         foreach ($campaigns as $campaign) {
             $fullclassname = get_class($campaign); // With namespace.
             $classnameparts = explode('\\', $fullclassname);
             $shortclassname = end($classnameparts); // Without namespace.
-            $campaignsforselect[$shortclassname] = $campaign->get_name_of_campaign();
+            $campaignsforselect[$shortclassname] = $campaign->get_name_of_campaign_type();
         }
 
-        // The custom name of the campaign has to be at this place, but every campaign will implement save and set of campaign_name.
-        $mform->addElement('text', 'campaign_name',
-            get_string('campaign_name', 'mod_booking'), ['size' => '50']);
-        $repeateloptions['campaign_name']['type'] = PARAM_TEXT;
-
-        $mform->registerNoSubmitButton('btn_bookingcampaignclassname');
+        $mform->registerNoSubmitButton('btn_bookingcampaigntype');
         $buttonargs = array('style' => 'visibility:hidden;');
         $categoryselect = [
-            $mform->createElement('select', 'bookingcampaignclassname',
-            get_string('bookingcampaign', 'mod_booking'), $campaignsforselect),
-            $mform->createElement('submit', 'btn_bookingcampaignclassname',
+            $mform->createElement('select', 'bookingcampaigntype',
+            get_string('campaigntype', 'mod_booking'), $campaignsforselect),
+            $mform->createElement('submit', 'btn_bookingcampaigntype',
                 get_string('bookingcampaign', 'mod_booking'), $buttonargs)
         ];
-        $mform->addGroup($categoryselect, 'bookingcampaignclassname',
-            get_string('bookingcampaign', 'mod_booking'), [' '], false);
-        $mform->setType('btn_bookingcampaignclassname', PARAM_NOTAGS);
+        $mform->addGroup($categoryselect, 'bookingcampaigntype',
+            get_string('campaigntype', 'mod_booking'), [' '], false);
+        $mform->setType('btn_bookingcampaigntype', PARAM_NOTAGS);
 
-        if (isset($ajaxformdata['bookingcampaignclassname'])) {
-            $campaign = self::get_campaign_by_name($ajaxformdata['bookingcampaignclassname']);
+        if (isset($ajaxformdata['bookingcampaigntype'])) {
+            $campaign = self::get_campaign_by_name($ajaxformdata['bookingcampaigntype']);
         } else {
             list($campaign) = $campaigns;
         }
 
-        // We skip if no campaign was selected.
+        // If campaign is empty, we use the default campaign.
         if (empty($campaign)) {
-            return;
+            $campaign = self::get_campaign_by_type(CAMPAIGN_TYPE_CUSTOMFIELD);
         }
 
-        $campaign->add_campaign_to_mform($mform, $repeateloptions);
+        $campaign->add_campaign_to_mform($mform);
     }
 
     /**
@@ -191,7 +187,7 @@ class campaigns_info {
      */
     public static function save_booking_campaign(stdClass &$data) {
 
-        $campaign = self::get_campaign_by_name($data->bookingcampaignclassname);
+        $campaign = self::get_campaign_by_name($data->bookingcampaigntype);
         $campaign->save_campaign($data);
 
         return;
@@ -225,6 +221,22 @@ class campaigns_info {
         global $DB;
         if (!$campaigns = $DB->get_records('booking_campaigns')) {
             $campaigns = [];
+        }
+        return $campaigns;
+    }
+
+    /**
+     * Get all campaigns from DB - but already instantiated.
+     * @return array
+     */
+    public static function get_all_campaigns():array {
+        $campaigns = [];
+        $records = self::get_list_of_saved_campaigns();
+        foreach ($records as $record) {
+            /** @var booking_campaign $campaign */
+            $campaign = self::get_campaign_by_type($record->type);
+            $campaign->set_campaigndata($record);
+            $campaigns[] = $campaign;
         }
         return $campaigns;
     }

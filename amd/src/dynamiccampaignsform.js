@@ -48,8 +48,9 @@ function editCampaignsModal(element) {
     }
 
     const campaignid = element.dataset.id;
-    const name = element.dataset.name;
+    const bookingcampaigntype = element.dataset.bookingcampaigntype;
     const action = element.dataset.action;
+    const name = element.dataset.name;
 
     if (!campaignid) {
         return;
@@ -62,7 +63,7 @@ function editCampaignsModal(element) {
             // Name of the class where form is defined (must extend \core_form\dynamic_form):
             formClass: "mod_booking\\form\\deletecampaignform",
             // Add as many arguments as you need, they will be passed to the form:
-            args: {id: campaignid, name: name},
+            args: {id: campaignid, bookingcampaigntype: bookingcampaigntype, name: name},
             // Pass any configuration settings to the modal dialogue, for example, the title:
             modalConfig: {
                 title: getString('deletebookingcampaign', 'mod_booking')
@@ -85,7 +86,7 @@ function editCampaignsModal(element) {
             // Name of the class where form is defined (must extend \core_form\dynamic_form):
             formClass: "mod_booking\\form\\campaignsform",
             // Add as many arguments as you need, they will be passed to the form:
-            args: {id: campaignid},
+            args: {id: campaignid, bookingcampaigntype: bookingcampaigntype},
             // Pass any configuration settings to the modal dialogue, for example, the title:
             modalConfig: {title: getString('editcampaign', 'mod_booking')},
             // DOM element that should get the focus after the modal dialogue is closed:
@@ -100,33 +101,14 @@ function editCampaignsModal(element) {
             window.location.reload();
         });
 
-        // We need to add an event listener for the change of the campaign, action, and condition select.
+        // We need to add an event listener for the change of the campaign type select.
         modalForm.addEventListener('change', (e) => {
             if (!e.target.name) {
                 return;
             }
-
             if (e.target.name == 'bookingcampaigntype') {
                 window.skipClientValidation = true;
                 let button = document.querySelector('[name="btn_bookingcampaigntype"]');
-                modalForm.processNoSubmitButton(button);
-            }
-
-            if (e.target.name == 'campaign_react_on_event_event') {
-                window.skipClientValidation = true;
-                let button = document.querySelector('[name="btn_bookingcampaigntype"]');
-                modalForm.processNoSubmitButton(button);
-            }
-
-            if (e.target.name == 'bookingcampaignconditiontype') {
-                window.skipClientValidation = true;
-                let button = document.querySelector('[name="btn_bookingcampaignconditiontype"]');
-                modalForm.processNoSubmitButton(button);
-            }
-
-            if (e.target.name == 'bookingcampaignactiontype') {
-                window.skipClientValidation = true;
-                let button = document.querySelector('[name="btn_bookingcampaignactiontype"]');
                 modalForm.processNoSubmitButton(button);
             }
         });

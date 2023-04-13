@@ -37,9 +37,11 @@ $string['dayofweek'] = 'Weekday';
 $string['doyouwanttobook'] = 'Do you want to book <b>{$a}</b>?';
 $string['gotomanageresponses'] = '&lt;&lt; Manage bookings';
 $string['gotomoodlecourse'] = 'Go to Moodle course';
+$string['limitfactor'] = 'Booking limit factor';
 $string['messageprovider:bookingconfirmation'] = "Booking confirmations";
 $string['optionsiteach'] = 'Teached by me';
 $string['placeholders'] = 'Placeholders';
+$string['pricefactor'] = 'Price factor';
 $string['reviewed'] = 'Reviewed';
 $string['search'] = 'Search...';
 $string['teachers'] = 'Teachers';
@@ -2254,12 +2256,19 @@ $string['filterbtn'] = 'Filter';
 // Booking campaigns.
 $string['bookingcampaigns'] = 'Booking: Campaigns (PRO)';
 $string['bookingcampaign'] = 'Campaign';
-$string['campaigntype:customfield'] = 'Booking option custom field has a certain value';
+$string['campaigntype'] = 'Campaign type';
+$string['editcampaign'] = 'Edit campaign';
 $string['addbookingcampaign'] = 'Add campaign';
 $string['deletebookingcampaign'] = 'Delete campaign';
 $string['deletebookingcampaign_confirmtext'] = 'Do you really want to delete the following campaign?';
 $string['campaign_name'] = 'Custom name for the campaign';
-$string['campaign_customfield'] = 'Campaign: Booking option custom field has a specific value';
+$string['campaign_customfield'] = 'Booking option custom field has a specific value';
+$string['campaign_customfield_descriptiontext'] = 'Affects: Booking option custom field "{$a->fieldname}"
+ having the value "{$a->fieldvalue}".';
+ $string['fieldname'] = 'Field';
+ $string['fieldvalue'] = 'Value';
+ $string['campaignstart'] = 'Start of campaign';
+ $string['campaignend'] = 'End of campaign';
 
 // Booking rules.
 $string['bookingrules'] = 'Booking: Global rules (PRO)';
