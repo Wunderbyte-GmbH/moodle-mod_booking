@@ -64,7 +64,7 @@ class campaigns_info {
         }
 
         $mform->registerNoSubmitButton('btn_bookingcampaigntype');
-        $buttonargs = array('style' => 'visibility:hidden;');
+        $buttonargs = array('class' => 'd-none');
         $categoryselect = [
             $mform->createElement('select', 'bookingcampaigntype',
             get_string('campaigntype', 'mod_booking'), $campaignsforselect),
@@ -86,7 +86,7 @@ class campaigns_info {
             $campaign = self::get_campaign_by_type(CAMPAIGN_TYPE_CUSTOMFIELD);
         }
 
-        $campaign->add_campaign_to_mform($mform);
+        $campaign->add_campaign_to_mform($mform, $ajaxformdata);
     }
 
     /**

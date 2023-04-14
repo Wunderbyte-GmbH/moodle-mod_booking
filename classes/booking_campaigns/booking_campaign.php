@@ -40,9 +40,10 @@ interface booking_campaign {
     /**
      * Adds the form elements for this campaign to the provided mform.
      * @param MoodleQuickForm $mform the mform where the campaign should be added
+     * @param array &$ajaxformdata reference to form data
      * @return void
      */
-    public function add_campaign_to_mform(MoodleQuickForm &$mform);
+    public function add_campaign_to_mform(MoodleQuickForm &$mform, array &$ajaxformdata);
 
     /**
      * Gets the human-readable name of a campaign type (localized).

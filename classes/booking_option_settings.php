@@ -1022,18 +1022,6 @@ class booking_option_settings {
 
         $price = price::get_price('option', $this->id, $user);
 
-        // Check if there are active campaigns.
-        // If yes, we need to apply the price factor.
-        $campaigns = campaigns_info::get_all_campaigns();
-        foreach ($campaigns as $camp) {
-            /** @var booking_campaign $campaign */
-            $campaign = $camp;
-            if ($campaign->campaign_is_active($this->id)) {
-                $price['price'] = $campaign->get_campaign_price($price['price']);
-                // Campaign price factor has been applied.
-            }
-        }
-
         $canceluntil = booking_option::return_cancel_until_date($this->id);
 
         $returnarray = [

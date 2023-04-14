@@ -2406,6 +2406,7 @@ class booking_option {
         switch ($descriptionparam) {
 
             case DESCRIPTION_WEBSITE:
+            case DESCRIPTION_OPTIONVIEW:
                 // We don't want to show these Buttons at all if the user is not booked.
                 if (!$forbookeduser) {
                     return [];

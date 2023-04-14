@@ -24,6 +24,7 @@ use lang_string;
 use local_shopping_cart\shopping_cart;
 use mod_booking\booking_option_settings;
 use local_entities\entitiesrelation_handler;
+use mod_booking\booking_campaigns\campaigns_info;
 use User;
 
 /**
@@ -715,6 +716,23 @@ class price {
             if (!$prices = $DB->get_records('booking_prices', ['area' => $area, 'itemid' => $itemid])) {
                 $cache->set($area . $itemid, true);
                 return [];
+            }
+
+            // Currently, we only have campaigns for booking options.
+            if ($area === 'option') {
+                // Check if there are active campaigns.
+                // If yes, we need to apply the price factor.
+                $campaigns = campaigns_info::get_all_campaigns();
+                foreach ($campaigns as $camp) {
+                    /** @var booking_campaign $campaign */
+                    $campaign = $camp;
+                    if ($campaign->campaign_is_active($itemid)) {
+                        foreach ($prices as &$price) {
+                            $price->price = $campaign->get_campaign_price($price->price);
+                            // Campaign price factor has been applied.
+                        }
+                    }
+                }
             }
 
             $data = json_encode($prices);

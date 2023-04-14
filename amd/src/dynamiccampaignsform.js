@@ -103,10 +103,19 @@ function editCampaignsModal(element) {
 
         // We need to add an event listener for the change of the campaign type select.
         modalForm.addEventListener('change', (e) => {
+
+            // eslint-disable-next-line no-console
+            console.log('change detected: ', e);
+
             if (!e.target.name) {
                 return;
             }
             if (e.target.name == 'bookingcampaigntype') {
+                window.skipClientValidation = true;
+                let button = document.querySelector('[name="btn_bookingcampaigntype"]');
+                modalForm.processNoSubmitButton(button);
+            }
+            if (e.target.name == 'fieldname') {
                 window.skipClientValidation = true;
                 let button = document.querySelector('[name="btn_bookingcampaigntype"]');
                 modalForm.processNoSubmitButton(button);

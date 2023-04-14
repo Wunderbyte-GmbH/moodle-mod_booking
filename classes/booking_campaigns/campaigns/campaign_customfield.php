@@ -85,9 +85,10 @@ class campaign_customfield implements booking_campaign {
     /**
      * Add the campaign to the mform.
      * @param MoodleQuickForm $mform
+     * @param array &$ajaxformdata reference to form data
      * @return void
      */
-    public function add_campaign_to_mform(MoodleQuickForm &$mform) {
+    public function add_campaign_to_mform(MoodleQuickForm &$mform, array &$ajaxformdata = null) {
 
         global $DB;
 
@@ -103,17 +104,13 @@ class campaign_customfield implements booking_campaign {
         $records = $DB->get_records_sql($sql);
 
         $fieldnames = [];
+        $fieldnames[0] = get_string('choose...', 'mod_booking');
         foreach ($records as $record) {
             $fieldnames[$record->shortname] = $record->name;
         }
 
-        $options = array(
-            'noselectionstring' => get_string('choose...', 'mod_booking'),
-            'tags' => false,
-            'multiple' => false,
-        );
-        $mform->addElement('autocomplete', 'fieldname',
-            get_string('fieldname', 'mod_booking'), $fieldnames, $options);
+        $mform->addElement('select', 'fieldname',
+            get_string('fieldname', 'mod_booking'), $fieldnames);
 
         // Custom field value.
         $sql = "SELECT DISTINCT cd.value
@@ -124,12 +121,24 @@ class campaign_customfield implements booking_campaign {
             ON cd.fieldid = cf.id
             WHERE cc.area = 'booking'
             AND cd.value IS NOT NULL
-            AND cd.value <> ''";
-        $records = $DB->get_fieldset_sql($sql);
+            AND cd.value <> ''
+            AND cf.shortname = :fieldname";
+
+        $params = ['fieldname' => ''];
+        if (!empty($ajaxformdata["fieldname"])) {
+            $params['fieldname'] = $ajaxformdata["fieldname"];
+        }
+        $records = $DB->get_fieldset_sql($sql, $params);
 
         $fieldvalues = [];
         foreach ($records as $record) {
-            $fieldvalues[$record] = $record;
+            if (strpos($record, ',') !== false) {
+                foreach (explode(',', $record) as $subrecord) {
+                    $fieldvalues[$subrecord] = $subrecord;
+                }
+            } else {
+                $fieldvalues[$record] = $record;
+            }
         }
 
         $options = array(
