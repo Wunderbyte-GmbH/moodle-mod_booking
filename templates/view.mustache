@@ -89,6 +89,22 @@
     </button>
   </li>
   {{/myinstitutiontable}}
+  {{#visibleoptionstable}}
+      <li class="nav-item mr-1" role="presentation">
+          <button class="nav-link {{#visibleoptions}}active{{/visibleoptions}}" id="visibleoptions-tab" data-toggle="pill" data-target="#visibleoptions"
+                  type="button" role="tab" aria-controls="visibleoptions" aria-selected="true">
+              {{#str}} visibleoptions, mod_booking {{/str}}
+          </button>
+      </li>
+  {{/visibleoptionstable}}
+  {{#invisibleoptionstable}}
+      <li class="nav-item mr-1" role="presentation">
+          <button class="nav-link {{#invisibleoptions}}active{{/invisibleoptions}}" id="invisibleoptions-tab" data-toggle="pill" data-target="#invisibleoptions"
+                  type="button" role="tab" aria-controls="invisibleoptions" aria-selected="true">
+              {{#str}} invisibleoptions, mod_booking {{/str}}
+          </button>
+      </li>
+  {{/invisibleoptionstable}}
 </ul>
 <div class="tab-content" id="pills-tabContent">
   {{#showonlyone}}
@@ -109,4 +125,11 @@
   {{#myinstitutiontable}}
   <div class="tab-pane fade {{#myinstitution}}show active{{/myinstitution}}" id="myinstitution" role="tabpanel" aria-labelledby="myinstitution-tab">{{{myinstitutiontable}}}</div>
   {{/myinstitutiontable}}
+  {{#visibleoptionstable}}
+  <div class="tab-pane fade {{#visibleoptions}}show active{{/visibleoptions}}" id="visibleoptions" role="tabpanel" aria-labelledby="visibleoptions-tab">{{{visibleoptionstable}}}</div>
+  {{/visibleoptionstable}}
+  {{#invisibleoptionstable}}
+  <div class="tab-pane fade {{#invisibleoptions}}show active{{/invisibleoptions}}" id="invisibleoptions" role="tabpanel" aria-labelledby="invisibleoptions-tab">{{{invisibleoptionstable}}}</div>
+  {{/invisibleoptionstable}}
+
 </div>
