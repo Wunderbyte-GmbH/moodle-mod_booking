@@ -72,6 +72,12 @@ class view implements renderable, templatable {
     /** @var string $renderedmyinstitutiontable the rendered table of all options of a specific institution */
     private $renderedmyinstitutiontable = null;
 
+    /** @var string $renderedvisibleoptionstable the rendered table of all options which are visible */
+    private $renderedvisibleoptionstable = null;
+
+    /** @var string $renderedinvisibleoptionstable the rendered table of all options which are invisible */
+    private $renderedinvisibleoptionstable = null;
+
     /** @var string $myinstitutionname */
     private $myinstitutionname = null;
 
@@ -92,6 +98,12 @@ class view implements renderable, templatable {
 
     /** @var string $showonlyone */
     private $showonlyone = null; // We kept this name for backwards compatibility!
+
+    /** @var string $showvisible */
+    private $showvisible = null; // We kept this name for backwards compatibility!
+
+    /** @var string $showinvisible */
+    private $showinvisible = null; // We kept this name for backwards compatibility!
 
     /**
      * Constructor
@@ -142,6 +154,12 @@ class view implements renderable, templatable {
             case 'myinstitution':
                 $this->myinstitution = true;
                 break;
+            case 'showvisible':
+                $this->showvisible = true;
+                break;
+            case 'showinvisible':
+                $this->showinvisible = true;
+                break;
             case 'showall':
             default:
                 $this->showall = true;
@@ -173,6 +191,16 @@ class view implements renderable, templatable {
         if (in_array('myinstitution', $showviews) && !empty($USER->institution)) {
             $this->myinstitutionname = $USER->institution;
             $this->renderedmyinstitutiontable = $this->get_rendered_myinstitution_table($USER->institution);
+        }
+
+        // Only show visible options.
+        if (in_array('showvisible', $showviews)) {
+            $this->renderedvisibleoptionstable = $this->get_rendered_visible_options_table();
+        }
+
+        // Only show invisible options.
+        if (in_array('showinvisible', $showviews)) {
+            $this->renderedinvisibleoptionstable = $this->get_rendered_invisible_options_table();
         }
     }
 
@@ -349,6 +377,64 @@ class view implements renderable, templatable {
         $this->wbtable_initialize_list_layout($myinstitutiontable, true, true, true);
 
         $out = $myinstitutiontable->outhtml($booking->get_pagination_setting(), true);
+
+        return $out;
+    }
+
+    /**
+     * Render table for all options which are visible.
+     * @return string the rendered table
+     */
+    public function get_rendered_visible_options_table() {
+        $cmid = $this->cmid;
+
+        $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
+
+        // Create the table.
+        $visibleoptionstable = new bookingoptions_wbtable('visibleoptionstable', $booking);
+
+        $wherearray = [
+            'bookingid' => (int) $booking->id,
+            'invisible' => 0,
+        ];
+        list($fields, $from, $where, $params, $filter) =
+            booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
+        $visibleoptionstable->set_filter_sql($fields, $from, $where, $filter, $params);
+
+        // Initialize the default columnes, headers, settings and layout for the table.
+        // In the future, we can parametrize this function so we can use it on many different places.
+        $this->wbtable_initialize_list_layout($visibleoptionstable, true, true, true);
+
+        $out = $visibleoptionstable->outhtml($booking->get_pagination_setting(), true);
+
+        return $out;
+    }
+
+    /**
+     * Render table for all options which are invisible.
+     * @return string the rendered table
+     */
+    public function get_rendered_invisible_options_table() {
+        $cmid = $this->cmid;
+
+        $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
+
+        // Create the table.
+        $invisibleoptionstable = new bookingoptions_wbtable('invisibleoptionstable', $booking);
+
+        $wherearray = [
+            'bookingid' => (int) $booking->id,
+            'invisible' => 1,
+        ];
+        list($fields, $from, $where, $params, $filter) =
+            booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
+        $invisibleoptionstable->set_filter_sql($fields, $from, $where, $filter, $params);
+
+        // Initialize the default columnes, headers, settings and layout for the table.
+        // In the future, we can parametrize this function so we can use it on many different places.
+        $this->wbtable_initialize_list_layout($invisibleoptionstable, true, true, true);
+
+        $out = $invisibleoptionstable->outhtml($booking->get_pagination_setting(), true);
 
         return $out;
     }
@@ -590,6 +676,8 @@ class view implements renderable, templatable {
             'optionsiteachtable' => $this->renderedoptionsiteachtable,
             'showonlyonetable' => $this->renderedshowonlyonetable,
             'myinstitutiontable' => $this->renderedmyinstitutiontable,
+            'visibleoptionstable' => $this->renderedvisibleoptionstable,
+            'invisibleoptionstable' => $this->renderedinvisibleoptionstable,
             'showonlyone' => $this->showonlyone,
             'showactive' => $this->showactive,
             'showall' => $this->showall,
@@ -597,6 +685,8 @@ class view implements renderable, templatable {
             'myoptions' => $this->myoptions, // Options I teach. We kept the name for backward compatibility.
             'myinstitution' => $this->myinstitution,
             'myinstitutionname' => $this->myinstitutionname,
+            'showvisible' => $this->showvisible,
+            'showinvisible' => $this->showinvisible
         ];
     }
 }

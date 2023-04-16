@@ -82,6 +82,20 @@ class renderer extends plugin_renderer_base {
                     get_string('myoptions', 'booking', $myoptions));
         }
 
+        if (in_array('showvisible', $showviews)) {
+            $tmpurlparams['whichview'] = 'showvisible';
+            $row[] = new tabobject('showvisible',
+                new moodle_url('/mod/booking/view.php', $tmpurlparams),
+                get_string('visibleoptions', 'mod_booking'));
+        }
+
+        if (in_array('showinvisible', $showviews)) {
+            $tmpurlparams['whichview'] = 'showinvisible';
+            $row[] = new tabobject('showinvisible',
+                new moodle_url('/mod/booking/view.php', $tmpurlparams),
+                get_string('invisibleoptions', 'mod_booking'));
+        }
+
         echo $this->tabtree($row, $current);
     }
 
