@@ -365,6 +365,8 @@ if ($mform->is_cancelled()) {
         // Redirect after pressing one of the 2 submit buttons.
         if (isset($fromform->submittandaddnew)) {
             $redirecturl = new moodle_url('/mod/booking/editoptions.php', array('id' => $cmid, 'optionid' => -1));
+        } else if (isset($fromform->submitandstay)) {
+            $redirecturl = new moodle_url('/mod/booking/editoptions.php', array('id' => $cmid, 'optionid' => $fromform->optionid));
         } else {
 
             if (!empty($returnurl)) {
