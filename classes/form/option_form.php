@@ -605,6 +605,8 @@ class option_form extends moodleform {
                 get_string('submitandgoback', 'mod_booking'));
         $buttonarray[] = &$mform->createElement("submit", 'submittandaddnew',
                 get_string('submitandaddnew', 'mod_booking'));
+        $buttonarray[] = &$mform->createElement("submit", 'submitandstay',
+            get_string('submitandstay', 'mod_booking'));
         $buttonarray[] = &$mform->createElement('cancel');
         $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
         $mform->closeHeaderBefore('buttonar');

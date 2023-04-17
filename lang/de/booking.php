@@ -1074,6 +1074,7 @@ $string['sendmailtobooker'] = 'Buchung für andere User durchführen: Mail an Us
 $string['sendmailtobooker_help'] = 'Diese Option aktivieren, um Buchungsbestätigungsmails anstatt an die gebuchten Nutzer:innen zu senden an den/die Nutzer/in senden, die die Buchung durchgeführt hat. Dies betrifft nur Buchungen, die auf der Seite "Buchung für andere Nutzer:innen durchführen" getätigt wurden';
 $string['startendtimeknown'] = 'Kursbeginn und Kursende sind bekannt';
 $string['submitandaddnew'] = 'Speichern und neue Buchung hinzufügen';
+$string['submitandstay'] = 'Übernehmen';
 $string['waitinglisttaken'] = 'Auf der Warteliste';
 $string['groupexists'] = 'Die Gruppe existiert bereits im Zielkurs. Bitte verwenden Sie einen anderen Namen für die Buchungsoption';
 $string['groupdeleted'] = 'Diese Buchung erstellt automatisch Gruppen im Zielkurs. Aber die Gruppe wurde im Zielkurs manuell gelöscht. Aktivieren Sie folgende Checkbox, um die Gruppe erneut zu erstellen';
