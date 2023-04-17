@@ -100,10 +100,10 @@ class view implements renderable, templatable {
     private $showonlyone = null; // We kept this name for backwards compatibility!
 
     /** @var string $showvisible */
-    private $showvisible = null; // We kept this name for backwards compatibility!
+    private $showvisible = null;
 
     /** @var string $showinvisible */
-    private $showinvisible = null; // We kept this name for backwards compatibility!
+    private $showinvisible = null;
 
     /**
      * Constructor
@@ -117,6 +117,7 @@ class view implements renderable, templatable {
 
         $this->cmid = $cmid;
 
+        $context = context_system::instance();
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
 
         // Default sort order from booking settings.
@@ -155,16 +156,22 @@ class view implements renderable, templatable {
                 $this->myinstitution = true;
                 break;
             case 'showvisible':
-                $this->showvisible = true;
+                // Tab will only be shown to users with the 'canseeinvisibleoptions' capability.
+                // For participants we use the "showall" table as they will only see visible options anyway.
+                if (has_capability('mod/booking:canseeinvisibleoptions', $context)) {
+                    $this->showvisible = true;
+                }
                 break;
             case 'showinvisible':
-                $this->showinvisible = true;
+                // Tab will only be shown to users with the 'canseeinvisibleoptions' capability.
+                if (has_capability('mod/booking:canseeinvisibleoptions', $context)) {
+                    $this->showinvisible = true;
+                }
                 break;
             case 'showall':
             default:
                 $this->showall = true;
                 break;
-                // TODO: We need to change the default to the view set in instance settings later.
         }
 
         // Active options.
@@ -194,12 +201,12 @@ class view implements renderable, templatable {
         }
 
         // Only show visible options.
-        if (in_array('showvisible', $showviews)) {
+        if (in_array('showvisible', $showviews) && has_capability('mod/booking:canseeinvisibleoptions', $context)) {
             $this->renderedvisibleoptionstable = $this->get_rendered_visible_options_table();
         }
 
         // Only show invisible options.
-        if (in_array('showinvisible', $showviews)) {
+        if (in_array('showinvisible', $showviews) && has_capability('mod/booking:canseeinvisibleoptions', $context)) {
             $this->renderedinvisibleoptionstable = $this->get_rendered_invisible_options_table();
         }
     }

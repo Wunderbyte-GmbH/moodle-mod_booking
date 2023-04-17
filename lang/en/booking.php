@@ -92,8 +92,8 @@ $string['eventteacher_removed'] = 'Teacher removed';
 
 // Renderer.php.
 $string['myinstitution'] = 'My institution';
-$string['visibleoptions'] = 'Visible bookings';
-$string['invisibleoptions'] = 'Invisible bookings';
+$string['visibleoptions'] = 'Visible booking options';
+$string['invisibleoptions'] = 'Invisible booking options';
 $string['addusertogroup'] = 'Add user to group: ';
 
 // View.php.

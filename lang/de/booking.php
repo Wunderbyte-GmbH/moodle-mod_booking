@@ -91,8 +91,8 @@ $string['eventteacher_removed'] = 'Trainer:in entfernt';
 
 // Renderer.php.
 $string['myinstitution'] = 'Meine Institution';
-$string['visibleoptions'] = 'Sichtbare Buchungen';
-$string['invisibleoptions'] = 'Unsichtbare Buchungen';
+$string['visibleoptions'] = 'Sichtbare Buchungsoptionen';
+$string['invisibleoptions'] = 'Unsichtbare Buchungsoptionen';
 
 // View.php.
 $string['addmorebookings'] = 'Buchungen hinzufügen';
