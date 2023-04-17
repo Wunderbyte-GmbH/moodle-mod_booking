@@ -1854,6 +1854,7 @@ $string['task_send_notification_mails'] = 'Booking: Benachrichtigungs-Mails vers
 $string['task_send_reminder_mails'] = 'Booking: Erinnerungs-Mails versenden';
 $string['task_send_mail_by_rule_adhoc'] = 'Booking: Mail via Regel versenden (Adhoc-Task)';
 $string['task_clean_booking_db'] = 'Booking: Datenbank aufräumen';
+$string['task_purge_campaign_caches'] = 'Booking: Caches für Buchungskampagne leeren';
 $string['optionbookabletitle'] = '{$a->title} wieder buchbar';
 $string['optionbookablebody'] = 'Sie können {$a->title} ab sofort wieder buchen. Klicken Sie <a href="{$a->url}">hier</a>, um direkt zur Buchungsoption zu gelangen.<br><br>
 (Sie erhalten diese Nachricht, da Sie bei der Buchungsoption auf den Benachrichtigungs-Button geklickt haben.)';

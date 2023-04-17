@@ -17,6 +17,7 @@
 namespace mod_booking\booking_campaigns\campaigns;
 
 use mod_booking\booking_campaigns\booking_campaign;
+use mod_booking\task\purge_campaign_caches;
 use MoodleQuickForm;
 use stdClass;
 
@@ -198,6 +199,15 @@ class campaign_customfield implements booking_campaign {
         $record->endtime = $data->endtime;
         $record->pricefactor = $data->pricefactor;
         $record->limitfactor = $data->limitfactor;
+
+        // We need to create two adhoc tasks to purge caches - one at start time and one at end time.
+        $purgetaskstart = new purge_campaign_caches();
+        $purgetaskstart->set_next_run_time($data->starttime);
+        \core\task\manager::queue_adhoc_task($purgetaskstart);
+
+        $purgetaskend = new purge_campaign_caches();
+        $purgetaskend->set_next_run_time($data->endtime);
+        \core\task\manager::queue_adhoc_task($purgetaskend);
 
         // If we can update, we add the id here.
         if ($data->id) {

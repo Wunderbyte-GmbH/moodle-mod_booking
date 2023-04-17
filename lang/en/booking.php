@@ -2040,6 +2040,7 @@ $string['task_send_notification_mails'] = 'Booking: Send notification mails';
 $string['task_send_reminder_mails'] = 'Booking: Send reminder mails';
 $string['task_send_mail_by_rule_adhoc'] = 'Booking: Send mail by rule (adhoc task)';
 $string['task_clean_booking_db'] = 'Booking: Clean database';
+$string['task_purge_campaign_caches'] = 'Booking: Clean caches for booking campaigns';
 $string['optionbookabletitle'] = '{$a->title} is available again';
 $string['optionbookablebody'] = '{$a->title} is now available again. <a href="{$a->url}">Click here</a> to directly go there.<br><br>
 (You receive this mail because you have clicked on the notification button for this option.)';
