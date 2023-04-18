@@ -2259,6 +2259,9 @@ $string['filterbtn'] = 'Filter';
 // Booking campaigns.
 $string['bookingcampaigns'] = 'Booking: Campaigns (PRO)';
 $string['bookingcampaign'] = 'Campaign';
+$string['bookingcampaignssubtitle'] = 'Campaigns allow you to discount the prices of selected booking options
+ for a specified period of time and increase the booking limit for that period. For campaigns to work, the
+ Moodle cron job must be set up correctly and run regularly.';
 $string['campaigntype'] = 'Campaign type';
 $string['editcampaign'] = 'Edit campaign';
 $string['addbookingcampaign'] = 'Add campaign';
@@ -2268,10 +2271,19 @@ $string['campaign_name'] = 'Custom name for the campaign';
 $string['campaign_customfield'] = 'Booking option custom field has a specific value';
 $string['campaign_customfield_descriptiontext'] = 'Affects: Booking option custom field "{$a->fieldname}"
  having the value "{$a->fieldvalue}".';
- $string['fieldname'] = 'Field';
- $string['fieldvalue'] = 'Value';
- $string['campaignstart'] = 'Start of campaign';
- $string['campaignend'] = 'End of campaign';
+$string['campaignfieldname'] = 'Field';
+$string['campaignfieldvalue'] = 'Value';
+$string['campaignstart'] = 'Start of campaign';
+$string['campaignend'] = 'End of campaign';
+
+// Booking campaign help buttons.
+$string['campaign_name_help'] = 'Specify any name for the campaign - for example, "Christmas Campaign 2023" or "Easter Discount 2023".';
+$string['campaignfieldname_help'] = 'Select the custom booking option field whose value is to be compared.';
+$string['campaignfieldvalue_help'] = 'Select the value of the field. The campaign applies to all booking options that have this value in the selected field.';
+$string['campaignstart_help'] = 'When does the campaign start?';
+$string['campaignend_help'] = 'When does the campaign end?';
+$string['pricefactor_help'] = 'Specify a value by which to multiply the price. For example, to discount the prices by 20%, enter the value <b>0.8</b>.';
+$string['limitfactor_help'] = 'Specify a value by which to multiply the booking limit. For example, to increase the booking limit by 20%, enter the value <b>1.2</b>.';
 
 // Booking rules.
 $string['bookingrules'] = 'Booking: Global rules (PRO)';

@@ -94,6 +94,7 @@ class campaign_customfield implements booking_campaign {
         global $DB;
 
         $mform->addElement('text', 'name', get_string('campaign_name', 'mod_booking'));
+        $mform->addHelpButton('name', 'campaign_name', 'mod_booking');
 
         // Custom field name.
         $sql = "SELECT cf.shortname, cf.name
@@ -111,7 +112,8 @@ class campaign_customfield implements booking_campaign {
         }
 
         $mform->addElement('select', 'fieldname',
-            get_string('fieldname', 'mod_booking'), $fieldnames);
+            get_string('campaignfieldname', 'mod_booking'), $fieldnames);
+        $mform->addHelpButton('fieldname', 'campaignfieldname', 'mod_booking');
 
         // Custom field value.
         $sql = "SELECT DISTINCT cd.value
@@ -148,21 +150,26 @@ class campaign_customfield implements booking_campaign {
             'multiple' => false,
         );
         $mform->addElement('autocomplete', 'fieldvalue',
-            get_string('fieldvalue', 'mod_booking'), $fieldvalues, $options);
+            get_string('campaignfieldvalue', 'mod_booking'), $fieldvalues, $options);
+        $mform->addHelpButton('fieldvalue', 'campaignfieldvalue', 'mod_booking');
 
         $mform->addElement('date_time_selector', 'starttime', get_string('campaignstart', 'mod_booking'));
         $mform->setType('starttime', PARAM_INT);
+        $mform->addHelpButton('starttime', 'campaignstart', 'mod_booking');
 
         $mform->addElement('date_time_selector', 'endtime', get_string('campaignend', 'mod_booking'));
         $mform->setType('endtime', PARAM_INT);
+        $mform->addHelpButton('endtime', 'campaignend', 'mod_booking');
 
         // Price factor (multiplier).
         $mform->addElement('float', 'pricefactor', get_string('pricefactor', 'mod_booking'), null);
         $mform->setDefault('pricefactor', 1);
+        $mform->addHelpButton('pricefactor', 'pricefactor', 'mod_booking');
 
         // Limit factor (multiplier).
         $mform->addElement('float', 'limitfactor', get_string('limitfactor', 'mod_booking'), null);
         $mform->setDefault('limitfactor', 1);
+        $mform->addHelpButton('limitfactor', 'limitfactor', 'mod_booking');
     }
 
     /**

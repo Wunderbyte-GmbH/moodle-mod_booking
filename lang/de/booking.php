@@ -2063,6 +2063,9 @@ $string['filterbtn'] = 'Filtern';
 // Booking campaigns.
 $string['bookingcampaigns'] = 'Buchung: Kampagnen (PRO)';
 $string['bookingcampaign'] = 'Kampagne';
+$string['bookingcampaignssubtitle'] = 'Mit Kampagnen können Sie für einen festgelegten Zeitraum die Preise von ausgewählten
+ Buchungsoptionen vergünstigen und das Buchungslimit für diesen Zeitraum erhöhen. Damit die Kampagnen funktionieren, muss der
+ Moodle Cron-Job richtig eingerichtet sein und regelmäßig laufen.';
 $string['campaigntype'] = 'Kampagnentyp';
 $string['editcampaign'] = 'Kampagne bearbeiten';
 $string['addbookingcampaign'] = 'Kampagne hinzufügen';
@@ -2072,10 +2075,19 @@ $string['campaign_name'] = 'Eigener Name der Kampagne';
 $string['campaign_customfield'] = 'Benutzerdefiniertes Buchungsoptionsfeld hat einen bestimmten Wert';
 $string['campaign_customfield_descriptiontext'] = 'Betrifft: Benutzerdefiniertes Buchungsoptionsfeld "{$a->fieldname}"
  mit dem Wert "{$a->fieldvalue}".';
- $string['fieldname'] = 'Feld';
- $string['fieldvalue'] = 'Wert';
- $string['campaignstart'] = 'Beginn der Kampagne';
- $string['campaignend'] = 'Ende der Kampagne';
+$string['campaignfieldname'] = 'Feld';
+$string['campaignfieldvalue'] = 'Wert';
+$string['campaignstart'] = 'Beginn der Kampagne';
+$string['campaignend'] = 'Ende der Kampagne';
+
+// Booking campaign help buttons.
+$string['campaign_name_help'] = 'Geben Sie einen beliebigen Namen für die Kampagne an - z.B. "Weihnachtsaktion 2023" oder "Oster-Rabatt 2023".';
+$string['campaignfieldname_help'] = 'Wählen Sie das benutzerdefinierte Buchungsoptionsfeld aus, dessen Wert verglichen werden soll.';
+$string['campaignfieldvalue_help'] = 'Wählen Sie den Wert des Feldes aus. Die Kampagne trifft auf alle Buchungsoptionen zu, die beim ausgewählten Feld diesen Wert eingetragen haben.';
+$string['campaignstart_help'] = 'Wann soll die Kampagne starten?';
+$string['campaignend_help'] = 'Wann soll die Kampagne enden?';
+$string['pricefactor_help'] = 'Geben Sie einen Wert an, mit dem der Preis multipliziert werden soll. Um die Preise beispielsweise um 20% zu vergünstigen, geben Sie den Wert 0,8 ein.';
+$string['limitfactor_help'] = 'Geben Sie einen Wert an, mit dem das Buchungslimit multipliziert werden soll. Um das Buchungslimit beispielsweise um 20% zu erhöhen, geben Sie den Wert 1.2 ein.';
 
 // Booking rules.
 $string['bookingrules'] = 'Buchung: Globale Regeln (PRO)';

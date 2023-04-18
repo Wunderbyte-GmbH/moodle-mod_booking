@@ -57,6 +57,12 @@ $output = $PAGE->get_renderer('mod_booking');
 
 echo $output->header();
 echo $output->heading(get_string('bookingcampaigns', 'mod_booking'));
+echo '<div class="alert alert-secondary alert-dismissible fade show" role="alert">' .
+    get_string('bookingcampaignssubtitle', 'mod_booking') .
+    '<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>';
 
 // Check if PRO version is active.
 if (wb_payment::pro_version_is_activated()) {
