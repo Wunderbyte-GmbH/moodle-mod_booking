@@ -444,10 +444,10 @@ function returnVisibleElement(optionid, uniquid, appendedSelector) {
  * @param {int} userid
  */
 export function continueToNextPage(optionid, userid) {
-
-    currentbookitpage[optionid]++;
-
-    loadPreBookingPage(optionid, userid);
+    if (currentbookitpage[optionid] < totalbookitpages[optionid]) {
+        currentbookitpage[optionid]++;
+        loadPreBookingPage(optionid, userid);
+    }
 }
 
 /**
@@ -460,4 +460,14 @@ export function backToPreviousPage(optionid, userid) {
     currentbookitpage[optionid]--;
 
     loadPreBookingPage(optionid, userid);
+}
+
+/**
+ *  Set back variables used in modal.
+ *  @param {int} optionid
+ */
+export function setBackModalVariables(optionid) {
+    // eslint-disable-next-line no-console
+    console.log('setBackModalVariables - optionid: ' + optionid + ' currentbookitpage[optionid]: ' + currentbookitpage[optionid]);
+    currentbookitpage[optionid] = 0;
 }

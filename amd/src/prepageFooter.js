@@ -18,9 +18,8 @@
  * @copyright  Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-
-import {continueToNextPage, backToPreviousPage} from 'mod_booking/bookit';
+import jQuery from 'jquery';
+import {continueToNextPage, backToPreviousPage, setBackModalVariables} from 'mod_booking/bookit';
 import {reloadAllTables} from 'local_wunderbyte_table/reload';
 
 var SELECTORS = {
@@ -32,7 +31,7 @@ var SELECTORS = {
     STATICBACKDROP: 'div.modal-backdrop',
 };
 
-const WAITTIME = 1500;
+/* Const WAITTIME = 1500;*/
 
 /**
  * Add the click listener to a prepage modal button.
@@ -40,6 +39,13 @@ const WAITTIME = 1500;
  * @param {integer} userid
  */
 export function initFooterButtons(optionid, userid) {
+
+    // Everytime we close the modal, we want to reset to the first prepage.
+    jQuery.each(jQuery("[id^=" + SELECTORS.MODALID + optionid + "]"), function() {
+        jQuery(this).on("hide.bs.modal", function() {
+            setBackModalVariables(optionid);
+        });
+    });
 
     initBookingButton(optionid);
 
@@ -125,10 +131,11 @@ async function initBookingButton(optionid) {
                     return;
                 }
 
+                // There are several bugs caused by automatic forwarding, so we comment it out for now.
                 // We don't continue right away but wait for a second.
-                setTimeout(() => {
+                /* setTimeout(() => {
                     continueToNextPage(optionid);
-                }, WAITTIME);
+                }, WAITTIME);*/
             }
         }
     });
@@ -139,13 +146,9 @@ async function initBookingButton(optionid) {
  * @param {int} optionid
  */
 function closeModal(optionid) {
-    const backdrop = document.querySelector(SELECTORS.STATICBACKDROP);
-    const modal = document.querySelector("div.modal.show[id^=" + SELECTORS.MODALID + optionid + "]");
-    if (modal) {
-        modal.classList.remove('show');
-    }
-    if (backdrop) {
-        backdrop.remove();
+
+    jQuery.each(jQuery("[id^=" + SELECTORS.MODALID + optionid + "]"), function() {
+        jQuery(this).modal('hide');
         reloadAllTables();
-    }
+    });
 }
