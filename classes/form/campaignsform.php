@@ -87,7 +87,7 @@ class campaignsform extends dynamic_form {
     }
 
     /**
-     * Validate dates.
+     * Validate campaigns.
      *
      * {@inheritdoc}
      * @see moodleform::validation()
@@ -95,7 +95,33 @@ class campaignsform extends dynamic_form {
     public function validation($data, $files) {
         $errors = [];
 
-        // TODO: validate!
+        switch ($data['bookingcampaigntype']) {
+            case 'campaign_customfield':
+                if ($data['fieldname'] == '0') {
+                    $errors['fieldname'] = get_string('error:choosevalue', 'mod_booking');
+                }
+                if (empty($data['fieldvalue'])) {
+                    $errors['fieldvalue'] = get_string('error:choosevalue', 'mod_booking');
+                }
+                break;
+        }
+
+        if (empty($data['name'])) {
+            $errors['name'] = get_string('error:entervalue', 'mod_booking');
+        }
+
+        if ($data['starttime'] >= $data['endtime']) {
+            $errors['starttime'] = get_string('error:campaignstart', 'mod_booking');
+            $errors['endtime'] = get_string('error:campaignend', 'mod_booking');
+        }
+
+        if ($data['pricefactor'] < 0 || $data['pricefactor'] > 1) {
+            $errors['pricefactor'] = get_string('error:pricefactornotbetween0and1', 'mod_booking');
+        }
+
+        if ($data['limitfactor'] < 1 || $data['limitfactor'] > 2) {
+            $errors['limitfactor'] = get_string('error:limitfactornotbetween1and2', 'mod_booking');
+        }
 
         return $errors;
     }

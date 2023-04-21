@@ -2065,7 +2065,7 @@ $string['bookingcampaigns'] = 'Buchung: Kampagnen (PRO)';
 $string['bookingcampaign'] = 'Kampagne';
 $string['bookingcampaignssubtitle'] = 'Mit Kampagnen können Sie für einen festgelegten Zeitraum die Preise von ausgewählten
  Buchungsoptionen vergünstigen und das Buchungslimit für diesen Zeitraum erhöhen. Damit die Kampagnen funktionieren, muss der
- Moodle Cron-Job richtig eingerichtet sein und regelmäßig laufen.';
+ Moodle Cron-Job regelmäßig laufen.';
 $string['campaigntype'] = 'Kampagnentyp';
 $string['editcampaign'] = 'Kampagne bearbeiten';
 $string['addbookingcampaign'] = 'Kampagne hinzufügen';
@@ -2088,6 +2088,14 @@ $string['campaignstart_help'] = 'Wann soll die Kampagne starten?';
 $string['campaignend_help'] = 'Wann soll die Kampagne enden?';
 $string['pricefactor_help'] = 'Geben Sie einen Wert an, mit dem der Preis multipliziert werden soll. Um die Preise beispielsweise um 20% zu vergünstigen, geben Sie den Wert 0,8 ein.';
 $string['limitfactor_help'] = 'Geben Sie einen Wert an, mit dem das Buchungslimit multipliziert werden soll. Um das Buchungslimit beispielsweise um 20% zu erhöhen, geben Sie den Wert 1.2 ein.';
+
+// Booking campaign errors.
+$string['error:pricefactornotbetween0and1'] = 'Sie müssen einen Wert zwischen 0 und 1 eingeben. Um die Preise z.B. um 10% zu reduzieren,
+ geben Sie den Wert 0,9 ein.';
+$string['error:limitfactornotbetween1and2'] = 'Sie müssen einen Wert zwischen 1 und 2 eingeben. Um das Buchungslimit z.B. um 20% zu erhöhen,
+ geben Sie den Wert 1,2 ein.';
+$string['error:campaignstart'] = 'Kampagnenbeginn muss vor dem Kampagnenende liegen.';
+$string['error:campaignend'] = 'Kampagnenende muss nach dem Kampagnenbeginn sein.';
 
 // Booking rules.
 $string['bookingrules'] = 'Buchung: Globale Regeln (PRO)';
