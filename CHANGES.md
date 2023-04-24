@@ -1,3 +1,18 @@
+## Version 8.0.8 (2023042400)
+**New features:**
+* New feature: Booking campaings - Reduce booking prices and increase booking limit for a specified time period for specific booking options.
+
+**Improvements:**
+* Improvement: Mustache linting for github actions.
+* Improvement: New tabs for visible/invisible booking options. (Tabs will only be shown to users with 'canseeinvisibleoptions' capability.)
+* Improvement: Added duplication and backup of subbooking options.
+
+**Bugfixes:**
+* Bugfix: Small SQL fixes for teachers instance report.
+* Bugfix: Fix several bugs with subbookings and prepage modals.
+* Bugfix: Fix broken entity backup.
+* Bugfix: Fix bugs with continue button and prepage modals.
+
 ## Version 8.0.7 (2023040602)
 **New features:**
 * New feature: Additional person subbooking (still an experimental feature).
