@@ -117,6 +117,10 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $customfield = new backup_nested_element('customfield', array('id'),
                 array('bookingid', 'optionid', 'optiondateid', 'cfgname', 'value'));
 
+        $subbookingoptions = new backup_nested_element('subbookingoptions');
+        $subbookingoption = new backup_nested_element('subbookingoption', array('id'),
+                array('optionid', 'name', 'type', 'json', 'block'));
+
         // Build the tree.
         $booking->add_child($options);
         $options->add_child($option);
@@ -139,6 +143,9 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $booking->add_child($tags);
         $tags->add_child($tag);
 
+        $booking->add_child($customfields);
+        $customfields->add_child($customfield);
+
         $option->add_child($others);
         $others->add_child($other);
 
@@ -148,8 +155,8 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $option->add_child($entitiesrelations);
         $entitiesrelations->add_child($entitiesrelation);
 
-        $booking->add_child($customfields);
-        $customfields->add_child($customfield);
+        $option->add_child($subbookingoptions);
+        $subbookingoptions->add_child($subbookingoption);
 
         // Define sources.
         $booking->set_source_table('booking', array('id' => backup::VAR_ACTIVITYID));
@@ -181,6 +188,11 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         // Only backup (or duplicate) entities, if config setting is set AND if entities are available.
         if (get_config('booking', 'duplicationrestoreentities') && class_exists('local_entities\entitiesrelation_handler')) {
             $entitiesrelation->set_source_table('local_entities_relations', ['instanceid' => backup::VAR_PARENTID]);
+        }
+
+        // Only backup (or duplicate) subbookingoptions, if config setting is set.
+        if (get_config('booking', 'duplicationrestoresubbookings')) {
+            $subbookingoption->set_source_table('booking_subbooking_options', ['optionid' => backup::VAR_PARENTID]);
         }
 
         // All the rest of elements only happen if we are including user info.

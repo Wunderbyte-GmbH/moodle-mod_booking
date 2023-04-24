@@ -71,6 +71,12 @@ class restore_booking_activity_structure_step extends restore_activity_structure
                 '/activity/booking/options/option/entitiesrelations/entitiesrelation');
         }
 
+        // Only restore subbookingoptions (aka subbookings), if config setting is set.
+        if (get_config('booking', 'duplicationrestoresubbookings')) {
+            $paths[] = new restore_path_element('booking_subbookingoption',
+                '/activity/booking/options/option/subbookingoptions/subbookingoption');
+        }
+
         if ($userinfo) {
             $paths[] = new restore_path_element('booking_answer', '/activity/booking/answers/answer');
         }
@@ -409,6 +415,25 @@ class restore_booking_activity_structure_step extends restore_activity_structure
             $data->timecreated = time();
             $DB->insert_record('local_entities_relations', $data);
             // No need to save this mapping as far as nothing depends on it.
+        }
+    }
+
+    /**
+     * Processes subbooking options.
+     *
+     * @param array $data The instance data from the backup file.
+     * @throws dml_exception
+     */
+    protected function process_booking_subbookingoption($data) {
+        global $DB, $USER;
+
+        if (get_config('booking', 'duplicationrestoresubbookings')) {
+            $data = (object) $data;
+            $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
+            $data->timecreated = time();
+            $data->timemodified = time();
+            $data->usermodified = $USER->id;
+            $DB->insert_record('booking_subbooking_options', $data);
         }
     }
 

@@ -1550,6 +1550,7 @@ $string['duplicationrestoredesc'] = 'Hier können Sie einstellen, welche Informa
 $string['duplicationrestoreteachers'] = 'Trainer:innen inkludieren';
 $string['duplicationrestoreprices'] = 'Preise inkludieren';
 $string['duplicationrestoreentities'] = 'Entities inkludieren';
+$string['duplicationrestoresubbookings'] = 'Zusatzbuchungen inkludieren (PRO)';
 
 $string['waitinglistheader'] = 'Warteliste';
 $string['waitinglistheader_desc'] = 'Hier können Sie Einstellungen zum Verhalten der Warteliste vornehmen.';

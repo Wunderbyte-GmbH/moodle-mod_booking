@@ -1675,6 +1675,7 @@ $string['duplicationrestoredesc'] = 'Here you can set which information you want
 $string['duplicationrestoreteachers'] = 'Include teachers';
 $string['duplicationrestoreprices'] = 'Include prices';
 $string['duplicationrestoreentities'] = 'Include entities';
+$string['duplicationrestoresubbookings'] = 'Include subbookings (PRO)';
 
 $string['waitinglistheader'] = 'Waiting list';
 $string['waitinglistheader_desc'] = 'Here you can set how the booking waiting list should behave.';

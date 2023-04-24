@@ -277,6 +277,12 @@ if ($ADMIN->fulltree) {
         new admin_setting_configcheckbox('booking/duplicationrestoreentities',
                 get_string('duplicationrestoreentities', 'mod_booking'), '', 1));
 
+    if (wb_payment::pro_version_is_activated()) {
+        $settings->add(
+            new admin_setting_configcheckbox('booking/duplicationrestoresubbookings',
+                    get_string('duplicationrestoresubbookings', 'mod_booking'), '', 1));
+    }
+
     $settings->add(
         new admin_setting_heading('optiontemplatessettings_heading',
                 get_string('optiontemplatessettings', 'mod_booking'), ''));
