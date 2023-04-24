@@ -105,18 +105,6 @@ function initButtons(id, container, dynamicForm) {
     // We always need to get the buttons anew, as they might have been replaced.
 
     const bookitbutton = container.closest(SELECTOR.MODALBODY).querySelector(SELECTOR.BOOKINGBUTTON + id);
-    const continuebutton = container.closest(SELECTOR.MODALBODY).querySelector(SELECTOR.CONTINUEBUTTON);
-
-    // This goes on continue button.
-    // It will prevent the action to be triggered.
-    // Unless the form is validated (see above).
-    if (continuebutton) {
-
-        // eslint-disable-next-line no-console
-        console.log('continuebutton', continuebutton);
-
-        blockButton(continuebutton, dynamicForm);
-    }
 
     // This goes on the bookit button as well as on the shopping cart.
     // It will prevent the action to be triggered.
@@ -175,18 +163,10 @@ function unblockButtons(id, container) {
     // We always need to get the buttons anew, as they might have been replaced.
 
     const bookitbutton = container.closest(SELECTOR.MODALBODY).querySelector(SELECTOR.BOOKINGBUTTON + id);
-    const continuebutton = container.closest(SELECTOR.MODALBODY).querySelector(SELECTOR.CONTINUEBUTTON);
 
     if (bookitbutton) {
         bookitbutton.dataset.blocked = 'false';
         bookitbutton.click();
-    }
-
-    if (continuebutton) {
-        continuebutton.dataset.blocked = 'false';
-        if (!bookitbutton) {
-            continuebutton.click();
-        }
     }
 }
 

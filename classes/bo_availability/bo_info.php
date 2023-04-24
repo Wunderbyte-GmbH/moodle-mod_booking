@@ -857,19 +857,6 @@ class bo_info {
         $continuelabel = get_string('continue');
         $continuelink = '#';
 
-        // If we are on the booking or priceissetpage, we don't want to show the continue button.
-        // The Thank you page only comes automatically.
-
-        if ($conditions[$pagenumber]['id'] === BO_COND_BOOKITBUTTON
-            || $conditions[$pagenumber]['id'] === BO_COND_PRICEISSET) {
-
-            // But we want to show the continue button when we are not at the last but one page.
-            // E.G. when there are subbookings later on.
-            if ($totalpages - $pagenumber <= 2) {
-                $continuebutton = false;
-            }
-        }
-
         if ($conditions[$pagenumber]['id'] === BO_COND_CONFIRMATION) {
             // We need to decide if we want to show on the last page a "go to checkout" button.
             if (self::has_price_set($results)) {
