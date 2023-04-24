@@ -111,7 +111,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
 
         $entitiesrelations = new backup_nested_element('entitiesrelations');
         $entitiesrelation = new backup_nested_element('entitiesrelation', array('id'),
-                array('entityid', 'modulename', 'instanceid', 'timecreated'));
+                array('entityid', 'component', 'area', 'instanceid', 'timecreated'));
 
         $customfields = new backup_nested_element('customfields');
         $customfield = new backup_nested_element('customfield', array('id'),
