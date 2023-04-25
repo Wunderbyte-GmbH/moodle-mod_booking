@@ -32,6 +32,7 @@ $string['booking:manageoptiontemplates'] = "Manage option templates";
 $string['booking:cantoggleformmode'] = 'User can edit all settings';
 $string['booking:overrideboconditions'] = 'User can book even when conditions return false.';
 $string['courses'] = 'Courses';
+$string['course_s'] = 'Kurs(e)';
 $string['date_s'] = 'Date(s)';
 $string['dayofweek'] = 'Weekday';
 $string['doyouwanttobook'] = 'Do you want to book <b>{$a}</b>?';
@@ -2071,7 +2072,7 @@ $string['availabilityconditions'] = 'Availability conditions';
 
 $string['bo_cond_alreadybooked'] = 'alreadybooked: Is already booked by this user';
 $string['bo_cond_alreadyreserved'] = 'alreadyreserved: Has already been added to cart by this user';
-$string['bo_cond_selectusers'] = 'selectusers: Only selected users can book';
+$string['bo_cond_selectusers'] = 'Only selected users can book';
 $string['bo_cond_booking_time'] = 'Only bookable within a certain time';
 $string['bo_cond_fullybooked'] = 'Fully booked';
 $string['bo_cond_bookingpolicy'] = 'bookingpolicy: Confirm booking policy';
@@ -2079,6 +2080,7 @@ $string['bo_cond_notifymelist'] = 'notifymelist: Put me on a notify list';
 $string['bo_cond_max_number_of_bookings'] = 'max_number_of_bookings: Maximum number of bookings per user reached';
 $string['bo_cond_onwaitinglist'] = 'onwaitinglist: User is on waiting list';
 $string['bo_cond_previouslybooked'] = 'User has previously booked a certain option';
+$string['bo_cond_enrolledincourse'] = 'User is enrolled in certain course(s)';
 $string['bo_cond_priceisset'] = 'priceisset: Price is set';
 $string['bo_cond_userprofilefield_1_default'] = 'User profile field has a certain value';
 $string['bo_cond_userprofilefield_2_custom'] = 'Custom user profile field has a certain value';
@@ -2155,6 +2157,12 @@ $string['bo_cond_previouslybooked_available'] = 'Book it';
 $string['bo_cond_previouslybooked_full_available'] = 'Booking is possible';
 $string['bo_cond_previouslybooked_not_available'] = 'Not allowed to book';
 $string['bo_cond_previouslybooked_full_not_available'] = 'Only user who have previously booked this <a href="{$a}">option</a> are allowed to book.
+    <br>But you have the right to book a user anyways.';
+
+$string['bo_cond_enrolledincourse_available'] = 'Book it';
+$string['bo_cond_enrolledincourse_full_available'] = 'Booking is possible';
+$string['bo_cond_enrolledincourse_not_available'] = 'Booking not allowed because you are not enrolled in at least one of the following course(s): {$a}';
+$string['bo_cond_enrolledincourse_full_not_available'] = 'Only user who are enrolled in the following course(s) are allowed to book: {$a}
     <br>But you have the right to book a user anyways.';
 
 $string['bo_cond_isbookable_available'] = 'Book it';

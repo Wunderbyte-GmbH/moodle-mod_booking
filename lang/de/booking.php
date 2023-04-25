@@ -32,6 +32,7 @@ $string['booking:manageoptiontemplates'] = "Buchungsoptionsvorlagen verwalten";
 $string['booking:cantoggleformmode'] = 'Nutzer:in darf alle Einstellungen verwalten';
 $string['booking:overrideboconditions'] = 'Nutzer:in darf buchen auch wenn Verfügbarkeit false zurückliefert.';
 $string['courses'] = 'Kurse';
+$string['course_s'] = 'Kurs(e)';
 $string['date_s'] = 'Termin(e)';
 $string['dayofweek'] = 'Wochentag';
 $string['doyouwanttobook'] = 'Wollen Sie <b>{$a}</b> buchen?';
@@ -1884,12 +1885,13 @@ $string['availabilityconditions'] = 'Verfügbarkeit einschränken';
 
 $string['bo_cond_alreadybooked'] = 'alreadybooked: Von diesem User bereits gebucht';
 $string['bo_cond_alreadyreserved'] = 'alreadyreserved: Von diesem User bereits in den Warenkorb gelegt';
-$string['bo_cond_selectusers'] = 'selectusers: Nur bestimmte Benutzer:in(nen) dürfen buchen';
+$string['bo_cond_selectusers'] = 'Nur bestimmte Benutzer:in(nen) dürfen buchen';
 $string['bo_cond_booking_time'] = 'Nur in einer bestimmten Zeit buchbar';
 $string['bo_cond_fullybooked'] = 'Ausgebucht';
 $string['bo_cond_max_number_of_bookings'] = 'max_number_of_bookings: Maximum an Nutzer:innen erreicht, die dieser User buchen darf';
 $string['bo_cond_onwaitinglist'] = 'onwaitinglist: Auf Warteliste';
-$string['bo_cond_previouslybooked'] = 'User hat früher eine bestimmte Option gebucht';
+$string['bo_cond_previouslybooked'] = 'Benutzer:in hat früher eine bestimmte Option gebucht';
+$string['bo_cond_enrolledincourse'] = 'Benutzer:in ist in bestimmte(n) Kurs(e) eingeschrieben';
 $string['bo_cond_priceisset'] = 'priceisset: Preis ist vorhanden';
 $string['bo_cond_userprofilefield_1_default'] = 'User-Profilfeld hat einen bestimmten Wert';
 $string['bo_cond_userprofilefield_2_custom'] = 'Benutzerdefiniertes User-Profilfeld hat einen bestimmten Wert';
@@ -1946,6 +1948,12 @@ $string['bo_cond_previouslybooked_full_available'] = 'Buchen möglich';
 $string['bo_cond_previouslybooked_not_available'] = 'Buchen nicht möglich';
 $string['bo_cond_previouslybooked_full_not_available'] = 'Nur Benutzer:innen, die früher bereits <a href="{$a}">option</a> gebucht haben, dürfen buchen.
  <br>Sie haben aber das Recht dennoch zu buchen.';
+
+$string['bo_cond_enrolledincourse_available'] = 'Buchen';
+$string['bo_cond_enrolledincourse_full_available'] = 'Buchen möglich';
+$string['bo_cond_enrolledincourse_not_available'] = 'Buchen nicht möglich, da Sie in mindestens einem der folgenden Kurse nicht eingeschrieben sind: {$a}';
+$string['bo_cond_enrolledincourse_full_not_available'] = 'Nur Benutzer:innen, die in den/die folgenden Kurs(e) eingeschrieben sind, dürfen buchen: {$a}
+    <br>Sie haben aber das Recht dennoch zu buchen.';
 
 $string['bo_cond_isbookable_available'] = 'Buchen';
 $string['bo_cond_isbookable_full_available'] = 'Buchen möglich';
