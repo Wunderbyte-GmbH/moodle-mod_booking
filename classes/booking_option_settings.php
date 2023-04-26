@@ -229,6 +229,9 @@ class booking_option_settings {
     /** @var string $imageurl url */
     public $imageurl = '';
 
+    /** @var int $responsiblecontact userid of the responsible contact person */
+    public $responsiblecontact = null;
+
 
     /**
      * Constructor for the booking option settings class.
@@ -346,6 +349,7 @@ class booking_option_settings {
             $this->dayofweek = $dbrecord->dayofweek;
             $this->availability = $dbrecord->availability;
             $this->status = $dbrecord->status;
+            $this->responsiblecontact = $dbrecord->responsiblecontact;
 
             // Price formula: absolute value.
             if (isset($dbrecord->priceformulaadd)) {

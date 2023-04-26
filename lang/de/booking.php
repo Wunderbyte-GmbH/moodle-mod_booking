@@ -43,6 +43,9 @@ $string['messageprovider:bookingconfirmation'] = "Buchungsbestätigungen";
 $string['optionsiteach'] = 'Von mir geleitet';
 $string['placeholders'] = 'Platzhalter';
 $string['pricefactor'] = 'Preisfaktor';
+$string['responsible'] = 'Zuständig';
+$string['responsiblecontact'] = 'Zuständige Kontaktperson';
+$string['responsiblecontact_help'] = 'Geben Sie eine zuständige Kontaktperson an. Dies sollte jemand anderer als der/die Lehrer/in sein.';
 $string['reviewed'] = 'Kontrolliert';
 $string['search'] = 'Suche...';
 $string['teachers'] = 'Trainer:innen';
@@ -439,8 +442,6 @@ E-Mail-Vorlagen nicht verwendet, sondern die E-Mail-Vorlagen, die in den Einstel
 wurden. <br><br>Bitte stellen Sie sicher, dass zu allen E-Mail-Typen eine Vorlage vorhanden ist.';
 $string['mailtemplatesinstance'] = 'E-Mail-Vorlagen aus dieser Buchungsinstanz verwenden (Standard)';
 $string['mailtemplatesglobal'] = 'Globale E-Mail-Vorlagen aus den Plugin-Einstellungen verwenden';
-
-$string['addnewlocation'] = "Neuen Ort hinzufügen";
 
 $string['pollurlteachers_help'] = 'Folgende Platzhalter können im Text verwendet werden:
 <ul>
@@ -1375,13 +1376,6 @@ $string['populatefromtemplate'] = 'Mit Vorlage ausfüllen';
 
 // Institutions.php.
 $string['institutions'] = 'Institutionen';
-$string['addnewinstitution'] = 'Institution hinzufügen';
-
-// Institutionform.class.php.
-$string['institutionname'] = 'Name der Institution';
-$string['addnewinstitution'] = 'Institution hinzufügen';
-$string['successfulldeletedinstitution'] = 'Institution erfolgreich gelöscht';
-$string['csvfile_help'] = 'CSV Datei darf nur eine Spalte mit dem Namen der Institution beinhalten.';
 
 // Otherbooking.php.
 $string['otherbookingoptions'] = 'Nutzer:innen dieser Buchungsoption zulassen';

@@ -868,6 +868,13 @@ function booking_update_options($optionvalues, $context) {
         $option->pollurlteachers = '';
     }
 
+    // Responsible contact person.
+    if (isset($optionvalues->responsiblecontact)) {
+        $option->responsiblecontact = $optionvalues->responsiblecontact;
+    } else {
+        $option->responsiblecontact = null;
+    }
+
     if ($optionvalues->limitanswers == 0) {
         $option->limitanswers = 0;
         $option->maxanswers = 0;

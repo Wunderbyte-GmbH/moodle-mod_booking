@@ -524,6 +524,9 @@ class view implements renderable, templatable {
         if (in_array('institution', $optionsfields)) {
             $columnsfooter[] = 'institution';
         }
+        if (in_array('responsiblecontact', $optionsfields)) {
+            $columnsfooter[] = 'responsiblecontact';
+        }
         if (in_array('showdates', $optionsfields)) {
             $columnsfooter[] = 'showdates';
         }
@@ -549,6 +552,12 @@ class view implements renderable, templatable {
                 ['dayofweektime']);
             $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-clock-o fa-fw text-gray
                 font-size-sm'], ['dayofweektime']);
+        }
+        if (in_array('responsiblecontact', $optionsfields)) {
+            $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left pr-2 text-gray font-size-sm'],
+                ['responsiblecontact']);
+            $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-user fa-fw text-gray
+                font-size-sm'], ['responsiblecontact']);
         }
         if (in_array('showdates', $optionsfields)) {
             $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left pr-2 text-gray font-size-sm'],

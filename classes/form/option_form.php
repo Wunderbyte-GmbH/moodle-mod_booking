@@ -251,7 +251,7 @@ class option_form extends moodleform {
                 'noselectionstring' => get_string('donotselectlocation', 'mod_booking'),
                 'tags' => true
         );
-        $mform->addElement('autocomplete', 'location', get_string('addnewlocation', 'mod_booking'), $locationstrings, $options);
+        $mform->addElement('autocomplete', 'location', get_string('location', 'mod_booking'), $locationstrings, $options);
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('location', PARAM_TEXT);
         } else {
@@ -273,7 +273,7 @@ class option_form extends moodleform {
                 'tags' => true
         );
         $mform->addElement('autocomplete', 'institution',
-            get_string('addnewinstitution', 'mod_booking'), $institutionstrings, $options);
+            get_string('institution', 'mod_booking'), $institutionstrings, $options);
         $mform->addHelpButton('institution', 'institution', 'mod_booking');
 
         $mform->addElement('text', 'address', get_string('address', 'mod_booking'),
@@ -416,6 +416,35 @@ class option_form extends moodleform {
         // Add teachers.
         $teacherhandler = new teachers_handler($optionid);
         $teacherhandler->add_to_mform($mform);
+
+        // Responsible contact person.
+        // Workaround: Only show, if it is not turned off in the option form config.
+        // We currently need this, because hideIf does not work with headers.
+        // In expert mode, we do not hide anything.
+        if ($this->formmode == 'expert' ||
+            !isset($optionformconfig['responsiblecontactheader']) || $optionformconfig['responsiblecontactheader'] == 1) {
+            // Advanced options.
+            $mform->addElement('header', 'responsiblecontactheader', get_string('responsiblecontact', 'mod_booking'));
+        }
+        // Responsible contact person - autocomplete.
+        $options = [
+            'ajax' => 'core_search/form-search-user-selector',
+            'multiple' => false,
+            'noselectionstring' => get_string('choose...', 'mod_booking'),
+            'valuehtmlcallback' => function($value) {
+                global $DB, $OUTPUT;
+                $user = $DB->get_record('user', ['id' => (int)$value], '*', IGNORE_MISSING);
+                if (!$user || !user_can_view_profile($user)) {
+                    return false;
+                }
+                $details = user_get_user_details($user);
+                return $OUTPUT->render_from_template(
+                        'core_search/form-user-selector-suggestion', $details);
+            }
+        ];
+        $mform->addElement('autocomplete', 'responsiblecontact',
+            get_string('responsiblecontact', 'mod_booking'), [], $options);
+        $mform->addHelpButton('responsiblecontact', 'responsiblecontact', 'mod_booking');
 
         // Add price.
         $price = new price('option', $this->_customdata['optionid']);

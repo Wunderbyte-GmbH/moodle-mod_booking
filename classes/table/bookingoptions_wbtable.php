@@ -129,8 +129,6 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @throws dml_exception
      */
     public function col_teacher($values) {
-        global $PAGE;
-
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
         $ret = '';
 
@@ -148,6 +146,35 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $data = new col_teacher($values->id, $settings);
             $output = singleton_service::get_renderer('mod_booking');
             $ret = $output->render_col_teacher($data);
+        }
+        return $ret;
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * responsiblecontact value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string $string Return a link to the responsible contact's user profile.
+     * @throws dml_exception
+     */
+    public function col_responsiblecontact($values) {
+        global $DB;
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
+        $ret = '';
+        if (empty($settings->responsiblecontact)) {
+            return $ret;
+        }
+        if ($user = $DB->get_record('user', ['id' => $settings->responsiblecontact])) {
+            $userstring = "$user->firstname $user->lastname";
+            $emailstring = " ($user->email)";
+            if ($this->is_downloading()) {
+                $ret = $userstring . $emailstring;
+            } else {
+                $profileurl = new moodle_url('/user/profile.php', array('id' => $settings->responsiblecontact));
+                $ret = get_string('responsible', 'mod_booking')
+                    . ": " . html_writer::link($profileurl, $userstring);
+            }
         }
         return $ret;
     }
@@ -505,7 +532,6 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @throws coding_exception
      */
     public function col_showdates($values) {
-        global $PAGE;
         $ret = '';
         if ($this->is_downloading()) {
             $datestrings = dates_handler::return_array_of_sessions_datestrings($values->id);

@@ -43,6 +43,9 @@ $string['messageprovider:bookingconfirmation'] = "Booking confirmations";
 $string['optionsiteach'] = 'Teached by me';
 $string['placeholders'] = 'Placeholders';
 $string['pricefactor'] = 'Price factor';
+$string['responsible'] = 'Responsible';
+$string['responsiblecontact'] = 'Responsible contact person';
+$string['responsiblecontact_help'] = 'Choose a person who is responsible for this booking option. This is not supposed to be the teacher!';
 $string['reviewed'] = 'Reviewed';
 $string['search'] = 'Search...';
 $string['teachers'] = 'Teachers';
@@ -448,8 +451,6 @@ templates won\'t be used. Instead the e-mail templates specified in the booking 
 Please make sure that there are existing e-mail templates in the booking settings for each e-mail type.';
 $string['mailtemplatesinstance'] = 'Use mail templates from this booking instance (default)';
 $string['mailtemplatesglobal'] = 'Use global mail templates from plugin settings';
-
-$string['addnewlocation'] = "Add new location";
 
 $string['pollurlteachers_help'] = 'You can use any of the following placeholders in the text:
 <ul>
@@ -1489,13 +1490,6 @@ $string['excelfile'] = 'CSV file with activity completion';
 
 // Institutions.php.
 $string['institutions'] = 'Institutions';
-$string['addnewinstitution'] = 'Add new institution';
-
-// Institutionform.class.php.
-$string['institutionname'] = 'Institution name';
-$string['addnewinstitution'] = 'Add new institution';
-$string['successfulldeletedinstitution'] = 'Institution was deleted';
-$string['csvfile_help'] = 'CSV file must contain only one column named Institution.';
 
 // Otherbooking.php.
 $string['otherbookingoptions'] = 'Accepting from';

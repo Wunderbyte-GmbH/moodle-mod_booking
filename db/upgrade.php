@@ -3469,5 +3469,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023041101, 'booking');
     }
 
+    if ($oldversion < 2023042600) {
+
+        // Define field responsiblecontact to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('responsiblecontact', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'status');
+
+        // Conditionally launch add field responsiblecontact.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2023042600, 'booking');
+    }
+
     return true;
 }

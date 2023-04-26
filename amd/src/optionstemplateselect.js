@@ -156,9 +156,13 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             // Flag if price formula is turned on or off.
                             $("#id_priceformulaoff").val(obj.priceformulaoff);
 
+                            // Responsible contact person.
+                            $("#id_responsiblecontact").val(obj.responsiblecontact);
+
                             // Trigger clicks to fix autocomplete bugs.
                             $("#fitem_id_location .form-autocomplete-downarrow").trigger('click');
                             $("#fitem_id_institution .form-autocomplete-downarrow").trigger('click');
+                            $("#fitem_id_responsiblecontact .form-autocomplete-downarrow").trigger('click');
                             $("#fitem_id_courseid .badge").trigger('click');
                             $("#id_optiontemplateid").trigger('click');
 
