@@ -84,23 +84,26 @@ class teachers_handler {
                 get_string('teachers', 'mod_booking'));
         }
 
-        $options = [
-            'tags' => false,
-            'multiple' => true
-        ];
         /* Important note: Currently, all users can be added as teachers for a booking option.
         In the future, there might be a user profile field defining users which are allowed
         to be added as teachers. */
-        $userrecords = $DB->get_records_sql(
-            "SELECT id, firstname, lastname, email FROM {user}"
-        );
-        $allowedusers = [];
-        foreach ($userrecords as $userrecord) {
-            $allowedusers[$userrecord->id] = "$userrecord->firstname $userrecord->lastname ($userrecord->email)";
-        }
-
+        $options = [
+            'ajax' => 'core_search/form-search-user-selector',
+            'multiple' => true,
+            'noselectionstring' => get_string('choose...', 'mod_booking'),
+            'valuehtmlcallback' => function($value) {
+                global $DB, $OUTPUT;
+                $user = $DB->get_record('user', ['id' => (int)$value], '*', IGNORE_MISSING);
+                if (!$user || !user_can_view_profile($user)) {
+                    return false;
+                }
+                $details = user_get_user_details($user);
+                return $OUTPUT->render_from_template(
+                        'core_search/form-user-selector-suggestion', $details);
+            }
+        ];
         $mform->addElement('autocomplete', 'teachersforoption', get_string('assignteachers', 'mod_booking'),
-            $allowedusers, $options);
+            [], $options);
         $mform->addHelpButton('teachersforoption', 'teachersforoption', 'mod_booking');
 
         // We only show link to teaching journal if it's an already existing booking option.
