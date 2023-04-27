@@ -27,6 +27,7 @@ namespace mod_booking\bo_availability;
 use context_module;
 use html_writer;
 use mod_booking\booking_option_settings;
+use mod_booking\output\bookingoption_description;
 use mod_booking\output\button_notifyme;
 use mod_booking\output\col_price;
 use mod_booking\output\prepagemodal;
@@ -533,7 +534,7 @@ class bo_info {
         ];
 
         // Depending on the circumstances, keys are added to the array.
-        self::add_continue_button($footerdata, $conditions, $results, $pagenumber, count($conditions));
+        self::add_continue_button($footerdata, $conditions, $results, $pagenumber, count($conditions), $optionid, $userid);
         self::add_back_button($footerdata, $conditions, $results, $pagenumber, count($conditions));
 
         $object['template'] = $object['template'] . ',' .  $template;
@@ -839,8 +840,10 @@ class bo_info {
      * @param array $footerdata
      * @param array $conditions
      * @param array $results
-     * @param integer $pagenumber
-     * @param integer $totalpages
+     * @param int $pagenumber
+     * @param int $totalpages
+     * @param int $optionid
+     * @param int $userid
      * @return void
      */
     private static function add_continue_button(
@@ -848,7 +851,9 @@ class bo_info {
             array $conditions,
             array $results,
             int $pagenumber,
-            int $totalpages) {
+            int $totalpages,
+            int $optionid,
+            int $userid) {
 
         // Standardvalues.
 
@@ -860,11 +865,22 @@ class bo_info {
         if ($conditions[$pagenumber]['id'] === BO_COND_CONFIRMATION) {
             // We need to decide if we want to show on the last page a "go to checkout" button.
             if (self::has_price_set($results)) {
-                $url = new moodle_url('/local/shopping_cart/checkout.php');
-                $continueaction = 'checkout';
-                $continuelabel = get_string('checkout', 'local_shopping_cart');
-                $continuelink = $url->out();
-                $continuebutton = true;
+                $results = self::get_condition_results($optionid, $userid);
+                $lastresultid = array_pop($results)['id'];
+                switch ($lastresultid) {
+                    case BO_COND_ALREADYRESERVED:
+                        $url = new moodle_url('/local/shopping_cart/checkout.php');
+                        $continueaction = 'checkout';
+                        $continuelabel = get_string('checkout', 'local_shopping_cart');
+                        $continuelink = $url->out();
+                        $continuebutton = true;
+                        break;
+                    default:
+                        $continuebutton = true;
+                        $continueaction = 'closemodal';
+                        $continuelabel = get_string('close', 'mod_booking');
+                        break;
+                }
             } else {
                 $continuebutton = true;
                 $continueaction = 'closemodal';
