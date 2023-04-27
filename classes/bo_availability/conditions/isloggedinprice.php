@@ -190,10 +190,12 @@ class isloggedinprice implements bo_condition {
             $pricecategory = price::get_active_pricecategory_from_cache_or_db($priceitem->pricecategoryidentifier);
 
             $priceitemarray = (array)$priceitem;
-            $priceitemarray['pricecategoryname'] = $pricecategory->name;
 
-            // Actually not yet sorted.
-            $sortedpriceitems[$pricecategory->pricecatsortorder] = $priceitemarray;
+            if (!empty($pricecategory)) {
+                $priceitemarray['pricecategoryname'] = $pricecategory->name;
+                // Actually not yet sorted.
+                $sortedpriceitems[$pricecategory->pricecatsortorder] = $priceitemarray;
+            }
         }
 
         // Now we sort the array according to the sort order defined in price categories.
