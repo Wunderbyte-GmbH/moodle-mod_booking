@@ -78,8 +78,6 @@ class prepagemodal implements renderable, templatable {
 
         $context = context_module::instance($settings->cmid);
 
-        $PAGE->set_context($context);
-
         if (has_capability('mod/booking:bookforothers', $context)) {
             $full = true;
         } else {
