@@ -341,7 +341,7 @@ if ($mform->is_cancelled()) {
         $handler = booking_handler::create();
         $handler->instance_form_save($fromform, $optionid == -1);
 
-        // Redirect after pressing one of the 2 submit buttons.
+        // Redirect after pressing one of the 3 submit buttons.
         if (isset($fromform->submittandaddnew)) {
             $redirecturl = new moodle_url('/mod/booking/editoptions.php', array('id' => $cmid, 'optionid' => -1));
         } else if (isset($fromform->submitandstay)) {
