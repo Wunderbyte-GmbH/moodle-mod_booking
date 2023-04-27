@@ -2374,6 +2374,9 @@ $string['nocancelreason'] = "You need to give a reason for canceling this bookin
 
 // Access.php.
 $string['booking:bookforothers'] = "Book for others";
+$string['booking:canoverbook'] = "Has permission to overbook";
+$string['booking:canreviewsubstitutions'] = "Allowed to review teacher substitutions (control checkbox)";
+$string['booking:conditionforms'] = "Submit condition forms like booking policy or subbookings";
 
 // Booking_handler.php.
 $string['error:newcoursecategorycfieldmissing'] = 'You need to create a <a href="{$a->bookingcustomfieldsurl}"

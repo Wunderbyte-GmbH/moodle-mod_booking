@@ -59,6 +59,17 @@ $optionsettings = singleton_service::get_instance_of_booking_option_settings($op
 $url = new moodle_url('/mod/booking/subscribeusers.php', array('id' => $id, 'optionid' => $optionid, 'agree' => $agree));
 $errorurl = new moodle_url('/mod/booking/view.php', array('id' => $id));
 
+$PAGE->set_url($url);
+
+// Without the "bookforothers" capability, we do not allow anything.
+if (!has_capability('mod/booking:bookforothers', $context)) {
+    echo $OUTPUT->header();
+    echo $OUTPUT->heading(get_string('accessdenied', 'mod_booking'), 4);
+    echo get_string('nopermissiontoaccesspage', 'mod_booking');
+    echo $OUTPUT->footer();
+    die();
+}
+
 if (!booking_check_if_teacher ($bookingoption->option)) {
     if (!(has_capability('mod/booking:subscribeusers', $context) || has_capability('moodle/site:accessallgroups', $context))) {
         throw new moodle_exception('nopermissions', 'core', $errorurl, get_string('bookotherusers', 'mod_booking'));
@@ -68,7 +79,6 @@ if (!booking_check_if_teacher ($bookingoption->option)) {
 $bookingoption->update_booked_users($bookanyone);
 $bookingoption->apply_tags();
 
-$PAGE->set_url($url);
 $PAGE->set_title(get_string('modulename', 'booking'));
 $PAGE->set_heading($COURSE->fullname);
 $PAGE->navbar->add(get_string('booking:subscribeusers', 'booking'), $url);

@@ -2180,6 +2180,9 @@ $string['nocancelreason'] = "Sie müssen eine Grund für die Stornierung angeben
 
 // Access.php.
 $string['booking:bookforothers'] = "Für andere buchen";
+$string['booking:canoverbook'] = "Darf überbuchen";
+$string['booking:canreviewsubstitutions'] = "Kann Vertretungen als kontrolliert markieren";
+$string['booking:conditionforms'] = "Formulare von Buchungsbedingungen abschicken (z.B. Buchungsbedingungen oder Zusatzbuchungen)";
 
 // Booking_handler.php.
 $string['error:newcoursecategorycfieldmissing'] = 'Sie müssen zuerst ein <a href="{$a->bookingcustomfieldsurl}"

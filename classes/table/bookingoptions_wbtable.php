@@ -647,8 +647,10 @@ class bookingoptions_wbtable extends wunderbyte_table {
                     get_string('optiondatesmanager', 'booking')) . '</div>';
 
             // Book other users.
-            if (has_capability('mod/booking:subscribeusers', $this->context) ||
-                booking_check_if_teacher($values)) {
+            if (has_capability('mod/booking:bookforothers', $this->context) &&
+                (has_capability('mod/booking:subscribeusers', $this->context) ||
+                booking_check_if_teacher($values))) {
+
                 $subscribeusersurl = new moodle_url('/mod/booking/subscribeusers.php',
                     array('id' => $this->cmid, 'optionid' => $values->id,
                     'returnto' => 'url',

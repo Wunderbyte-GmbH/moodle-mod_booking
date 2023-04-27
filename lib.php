@@ -1691,16 +1691,18 @@ function booking_check_if_teacher(object $option = null) {
         // If we have no option, we check, if the teacher is a teacher of ANY option.
         $user = $DB->get_records('booking_teachers',
             ['userid' => $USER->id]);
+        if (empty($user)) {
+            return false;
+        } else {
+            return true;
+        }
     } else {
-        // If we have an option, we check, if the teacher is a teacher of THIS option.
-        $user = $DB->get_record('booking_teachers',
-            ['userid' => $USER->id, 'optionid' => $option->id]);
-    }
-
-    if (empty($user)) {
-        return false;
-    } else {
-        return true;
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        if (in_array($USER->id, $settings->teacherids)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 
