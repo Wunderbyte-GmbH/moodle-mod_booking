@@ -85,7 +85,10 @@ class mod_booking_mod_form extends moodleform_mod {
     public function definition() {
         global $CFG, $DB, $COURSE, $USER, $PAGE;
 
-        $context = context_system::instance();
+        $systemcontext = context_system::instance();
+        $coursecontext = context_course::instance($COURSE->id);
+        $modulecontext = context_module::instance($this->_cm->id);
+
         $mform = &$this->_form;
 
         $mform->addElement('header', 'general', get_string('general', 'form'));
@@ -151,8 +154,6 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $mform->addElement('text', 'points', get_string('bookingpoints', 'booking'), 0);
         $mform->setType('points', PARAM_FLOAT);
-
-        $coursecontext = context_course::instance($COURSE->id);
 
         $teachers = get_enrolled_users($coursecontext, 'mod/booking:addinstance');
 
@@ -506,7 +507,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         // Add the fields to allow editing of the default text.
         $editoroptions = array('subdirs' => false, 'maxfiles' => 0, 'maxbytes' => 0,
-            'trusttext' => false, 'context' => $context);
+            'trusttext' => false, 'context' => $systemcontext);
 
         $fieldmapping = (object) array('status' => '{status}', 'participant' => '{participant}',
             'title' => '{title}', 'duration' => '{duration}', 'starttime' => '{starttime}',

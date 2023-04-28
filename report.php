@@ -184,7 +184,7 @@ if (!($isteacher) || has_capability('mod/booking:readresponses', $context)) {
 }
 
 $event = \mod_booking\event\report_viewed::create(
-        array('objectid' => $optionid, 'context' => context_module::instance($cm->id)));
+        array('objectid' => $optionid, 'context' => $context));
 $event->trigger();
 
 if ($action == 'downloadpdf') {
@@ -655,11 +655,14 @@ if (!$tableallbookings->is_downloading()) {
         $linkst = empty($linkst) ? "" : "(" . implode(", ", $linkst) . ")";
     }
 
-    if ($isteacher) {
+    if (has_capability('mod/booking:bookforothers', context_module::instance($cm->id)) &&
+                (has_capability('mod/booking:subscribeusers', context_module::instance($cm->id)) ||
+                booking_check_if_teacher($bookingoption->booking->settings))) {
         $url = new moodle_url('/mod/booking/subscribeusers.php',
             array('id' => $cm->id, 'optionid' => $optionid));
-        $linkst = $linkst . html_writer::link($url,
-            html_writer::tag('p', get_string('bookotherusers', 'booking'), ['class' => 'btn btn-secondary']));
+        $linkst = $linkst . "<div>" . html_writer::link(
+            $url, '<i class="fa fa-users fa-fw" aria-hidden="true"></i>&nbsp;' .
+                get_string('bookotherusers', 'booking'), ['class' => 'btn btn-light']) . "</div>";
     }
 
     echo "<p>" .

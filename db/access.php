@@ -85,7 +85,6 @@ $capabilities = array(
         'archetypes' => array('manager' => CAP_ALLOW)),
     'mod/booking:conditionforms' => array('captype' => 'write', 'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => array('user' => CAP_ALLOW)),
-
     'mod/booking:cansendmessages' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
@@ -94,7 +93,6 @@ $capabilities = array(
             'manager' => CAP_ALLOW,
         ]
     ],
-
     'mod/booking:canoverbook' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
@@ -103,13 +101,21 @@ $capabilities = array(
             'editingteacher' => CAP_ALLOW,
         ]
     ],
-
     // Capability to review substitutions and missing hours in teaching journal.
     'mod/booking:canreviewsubstitutions' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => [
             'manager' => CAP_ALLOW,
+        ]
+    ],
+    // Capability to manage optiondates.
+    'mod/booking:manageoptiondates' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
         ]
     ],
 );

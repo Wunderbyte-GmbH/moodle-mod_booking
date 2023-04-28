@@ -1487,7 +1487,6 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 
     $context = $cm->context;
     $course = $PAGE->course;
-    $contextcourse = context_course::instance($course->id);
     $optionid = $PAGE->url->get_param('optionid');
 
     $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cm->id);
@@ -1502,13 +1501,13 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         return;
     }
 
-    if (has_capability('mod/booking:updatebooking', $context) ||
-            has_capability('mod/booking:addeditownoption', $context)) {
-
-        $navref->add(get_string('createnewbookingoption', 'booking'),
-                new moodle_url('/mod/booking/editoptions.php', array('id' => $cm->id, 'optionid' => '')),
-                    navigation_node::TYPE_CUSTOM, null, 'nav_createnewbookingoption');
-                // Fixed: For a new booking option, optionid needs to be empty.
+    if (has_capability('mod/booking:updatebooking', $context)) {
+        $navref->add(
+            get_string('createnewbookingoption', 'booking'),
+            // For a new booking option, optionid needs to be empty.
+            new moodle_url('/mod/booking/editoptions.php', array('id' => $cm->id, 'optionid' => '')),
+                navigation_node::TYPE_CUSTOM, null, 'nav_createnewbookingoption'
+        );
     }
 
     if (has_capability('mod/booking:manageoptiontemplates', $context) ||
@@ -1592,22 +1591,25 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             has_capability('mod/booking:addeditownoption', $context)) {
             $navref->add(get_string('editbookingoption', 'mod_booking'),
                     new moodle_url('/mod/booking/editoptions.php',
-                            array('id' => $cm->id, 'optionid' => $optionid)),
-                            navigation_node::TYPE_CUSTOM, null, 'nav_edit');
+                        array('id' => $cm->id, 'optionid' => $optionid)),
+                        navigation_node::TYPE_CUSTOM, null, 'nav_edit');
             $navref->add(get_string('manageresponses', 'mod_booking'),
                     new moodle_url('/mod/booking/report.php',
-                            array('id' => $cm->id, 'optionid' => $optionid)),
-                                navigation_node::TYPE_CUSTOM, null, 'nav_manageresponses');
+                        array('id' => $cm->id, 'optionid' => $optionid)),
+                        navigation_node::TYPE_CUSTOM, null, 'nav_manageresponses');
         }
         if (has_capability('mod/booking:updatebooking', $context)) {
             $navref->add(get_string('duplicatebooking', 'booking'),
                     new moodle_url('/mod/booking/editoptions.php',
-                            array('id' => $cm->id, 'optionid' => -1, 'copyoptionid' => $optionid)),
+                        array('id' => $cm->id, 'optionid' => -1, 'copyoptionid' => $optionid)),
                         navigation_node::TYPE_CUSTOM, null, 'nav_duplicatebooking');
-            $navref->add(get_string('optiondatesmanager', 'booking'),
-                    new moodle_url('/mod/booking/optiondates.php',
+
+            if (has_capability('mod/booking:manageoptiondates', $context)) {
+                $navref->add(get_string('optiondatesmanager', 'booking'),
+                        new moodle_url('/mod/booking/optiondates.php',
                             array('id' => $cm->id, 'optionid' => $optionid)),
                             navigation_node::TYPE_CUSTOM, null, 'nav_optiondatesmanager');
+            }
         }
 
         if (has_capability ( 'mod/booking:subscribeusers', $context ) || booking_check_if_teacher ($option )) {
@@ -1630,7 +1632,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         /* $modinfo = get_fast_modinfo($course);
         $bookinginstances = isset($modinfo->instances['booking']) ? count($modinfo->instances['booking']) : 0;
-        if (has_capability('mod/booking:updatebooking', $contextcourse) && $bookinginstances > 1) {
+        if (has_capability('mod/booking:updatebooking', context_course::instance($course->id)) && $bookinginstances > 1) {
             $navref->add(get_string('moveoptionto', 'booking'),
                 new moodle_url('/mod/booking/moveoption.php',
                     array('id' => $cm->id, 'optionid' => $optionid, 'sesskey' => sesskey())),
