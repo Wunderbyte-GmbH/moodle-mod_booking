@@ -632,8 +632,8 @@ class option_form extends moodleform {
         $buttonarray = array();
         $buttonarray[] = &$mform->createElement('submit', 'submitbutton',
                 get_string('submitandgoback', 'mod_booking'));
-        $buttonarray[] = &$mform->createElement("submit", 'submittandaddnew',
-                get_string('submitandaddnew', 'mod_booking'));
+        $buttonarray[] = &$mform->createElement("submit", 'submitandadd',
+                get_string('submitandadd', 'mod_booking'));
         $buttonarray[] = &$mform->createElement("submit", 'submitandstay',
             get_string('submitandstay', 'mod_booking'));
         $buttonarray[] = &$mform->createElement('cancel');
