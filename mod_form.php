@@ -87,7 +87,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $systemcontext = context_system::instance();
         $coursecontext = context_course::instance($COURSE->id);
-        $modulecontext = context_module::instance($this->_cm->id);
+        //$modulecontext = context_module::instance($this->_cm->id);
 
         $mform = &$this->_form;
 
