@@ -137,8 +137,6 @@ class shortcodes {
                 'sunday' => get_string('sunday', 'mod_booking')
             ],  'location' => [
                 'localizedname' => get_string('location', 'mod_booking')
-            ],  'botags' => [
-                'localizedname' => get_string('tags', 'core')
             ]
         ]);
     }
@@ -209,7 +207,6 @@ class shortcodes {
 
         $table->add_subcolumns('info', $subcolumns_info);
         //$table->add_subcolumns('footer', ['botags']);
-        $table->add_subcolumns('rightside', ['botags', 'invisibleoption']);
 
         $table->add_classes_to_subcolumns('top', ['columnkeyclass' => 'd-none']);
         $table->add_classes_to_subcolumns('top', ['columnclass' => 'text-right col-md-2 position-relative pr-0'], ['action']);
@@ -230,7 +227,6 @@ class shortcodes {
         //Set additional descriptions
         $table->add_classes_to_subcolumns('rightside', ['columnvalueclass' => 'text-right mb-auto align-self-end shortcodes_option_info_invisible '],
             ['invisibleoption']);
-        $table->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-right mb-auto align-self-end '], ['botags']);
         $table->add_classes_to_subcolumns('rightside', ['columnclass' =>
             'text-right mt-auto align-self-end theme-text-color bold ']);
 
