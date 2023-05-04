@@ -488,6 +488,18 @@ class view implements renderable, templatable {
                 break;
         }
 
+        // Only admins can download.
+        if (has_capability('mod/booking:updatebooking', context_module::instance($this->cmid))) {
+            $baseurl = new moodle_url('/mod/booking/download.php');
+            $wbtable->define_baseurl($baseurl);
+            $wbtable->showdownloadbutton = true;
+        }
+
+        self::apply_standard_params_for_bookingtable($wbtable, $optionsfields, $filter, $search, $sort);
+    }
+
+
+    public static function apply_standard_params_for_bookingtable(wunderbyte_table &$wbtable, $optionsfields = [], bool $filter = true, bool $search = true, bool $sort = true) {
         // Activate sorting.
         $wbtable->cardsort = true;
 
@@ -603,7 +615,7 @@ class view implements renderable, templatable {
             ['teacher']
         );
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $wbtable->is_downloading('', 'List of booking options'); */
+        // $wbtable->is_downloading('', 'List of booking options');
 
         // Header column.
         $wbtable->define_header_column('text');
@@ -612,13 +624,6 @@ class view implements renderable, templatable {
         $wbtable->stickyheader = true;
         $wbtable->showcountlabel = false;
         $wbtable->showreloadbutton = false;
-
-        // Only admins can download.
-        if (has_capability('mod/booking:updatebooking', context_module::instance($this->cmid))) {
-            $baseurl = new moodle_url('/mod/booking/download.php');
-            $wbtable->define_baseurl($baseurl);
-            $wbtable->showdownloadbutton = true;
-        }
 
         $wbtable->define_cache('mod_booking', 'bookingoptionstable');
 

@@ -27,6 +27,7 @@
 namespace mod_booking;
 
 use mod_booking\booking;
+use mod_booking\output\view;
 use mod_booking\singleton_service;
 use mod_booking\table\bookingoptions_wbtable;
 use moodle_url;
@@ -46,7 +47,7 @@ class shortcodes {
      * @param string|null $content
      * @param object $env
      * @param Closure $next
-     * @return void
+     * @return string
      */
     public static function recommendedin($shortcode, $args, $content, $env, $next) {
 
@@ -71,19 +72,28 @@ class shortcodes {
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
-        $table->use_pages = false;
 
-        self::setTableOptionsFromArguments($table, $args);
-        self::generate_table_for_list($table, $args);
+        // We are applying standard params for bookingtable display
+        $optionsfields = [
+            "description",
+            "statusdescription",
+            "teacher",
+            "responsiblecontact",
+            "showdates",
+            "dayofweektime",
+            "location",
+            "institution",
+            "minanswers",
+        ];
+        view::apply_standard_params_for_bookingtable($table, $optionsfields, false, false, false);
 
-
-
-        $table->cardsort = true;
-
-        // This allows us to use infinite scrolling, No pages will be used.
-        $table->infinitescroll = 60;
-
-        $table->tabletemplate = 'mod_booking/table_list';
+        // So we don't need to configure manually.
+        //$table->use_pages = false;
+        //$table->cardsort = true;
+        //self::setTableOptionsFromArguments($table, $args);
+        //self::generate_table_for_list($table, $args);
+        //$table->infinitescroll = 60;
+        //$table->tabletemplate = 'mod_booking/table_list';
 
         $out = $table->outhtml($perpage, true);
 
@@ -103,7 +113,7 @@ class shortcodes {
         $table = new bookingoptions_wbtable($tablename, $booking);
 
         // Without defining sorting won't work!
-        $table->define_columns(['titleprefix']);
+        //$table->define_columns(['titleprefix']);
         return $table;
     }
 
