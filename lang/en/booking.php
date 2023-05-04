@@ -2415,3 +2415,6 @@ $string['subbooking_additionalperson_description'] = "Describe the additional pe
 $string['subbooking_addpersons'] = "Add additional person(s)";
 $string['subbooking_bookedpersons'] = "The following person(s) are added:";
 $string['personnr'] = 'Person n° {$a}';
+
+// Shortcodes
+$string['recommendedin'] = "Shortcode to show a list of booking options which should be recommended in a given course. To use this, add a booking customfield with the shortname 'recommendedin' and comma separated values with the shortnames of the courses you want to show this recommendations. So: When you want recommend option1 to the participants enroled in Course 1 (course1), then you need to set the customfield 'recommendedin' from within the booking option to 'course1'.";
