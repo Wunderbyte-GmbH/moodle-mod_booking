@@ -118,7 +118,10 @@
 <div class="card border py-1 px-3 sk-fade mb-2 flex-md-row align-items-center row gx-0" {{#datafields}} data-{{key}}="{{value}}" {{/datafields}}>
   <div class="content w-100">
     <div id="{{rowid}}" class="row {{rowclasses}}">
-        <div class="col-md-9">
+        <div
+        {{#rightside}} class="col-md-9" {{/rightside}}
+        {{^rightside}} class="col-12" {{/rightside}}
+        >
           {{#leftside}}
             {{#columnclass}}<div class="{{.}} {{key}}">{{/columnclass}}
               <span {{^value}} style="display:none" {{/value}}>
