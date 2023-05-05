@@ -54,8 +54,8 @@ Feature: In a booking create booking option with multiple custom options
       | Booking option name | Topic: Statistics     |
       | Description         | Class om Statistics   |
       | Internal annotation | Statistics for medics |
-      | Add new location    | MI Departmant         |
-      | Add new institution | Morphology Institute  |
+      | Location    | MI Departmant         |
+      | Institution | Morphology Institute  |
       | Address             | Ternopil              |
     And I set the field "Limit the number of participants" to "checked"
     And I set the following fields to these values:
@@ -79,7 +79,7 @@ Feature: In a booking create booking option with multiple custom options
       | Teachers poll url       | https://google.com    |
       | reoccurringdatestring   | FR, 13:30 - 14:30     |
     And I set the field "Add to course calendar" to "Add to calendar (visible only to course participants)"
-    And I set the field "Assign teachers:" to "Teacher 1 (teacher1@example.com)"
+    And I set the field "Assign teachers:" to "Teacher 1"
     And I wait "1" seconds
     And I set the field "Only book with price" to "checked"
     And I set the following fields to these values:
@@ -113,7 +113,7 @@ Feature: In a booking create booking option with multiple custom options
       | Address             | Ternopil                   |
     And I should see "MI Departmant" in the "#fitem_id_location" "css_element"
     And I should see "Morphology Institute" in the "#fitem_id_institution" "css_element"
-    And I should see "Teacher 1 (teacher1@example.com)" in the "#id_bookingoptionteacherscontainer" "css_element"
+    And I should see "Teacher 1" in the "#id_bookingoptionteacherscontainer" "css_element"
     And the field "Limit the number of participants" matches value "checked"
     And the field "Start and end time of course are known" matches value "checked"
     And the following fields match these values:

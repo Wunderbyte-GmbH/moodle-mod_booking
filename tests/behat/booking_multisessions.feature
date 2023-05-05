@@ -106,7 +106,7 @@ Feature: In a booking create multi session options
     And I wait "1" seconds
     And I press "Teachers"
     And I wait "1" seconds
-    And I set the field "Assign teachers:" to "Teacher 1 (teacher1@example.com)"
+    And I set the field "Assign teachers:" to "Teacher 1"
     And I press "Save and go back"
     And I follow "My booking"
     And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"

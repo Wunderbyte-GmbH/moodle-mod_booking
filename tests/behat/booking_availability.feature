@@ -376,7 +376,9 @@ Feature: In a booking
     And I follow "Availability conditions"
     And I set the field "bo_cond_previouslybooked_overrideconditioncheckbox" to "checked"
     And I set the field "bo_cond_previouslybooked_overrideoperator" to "OR"
-    And I set the field "Condition" to "Only bookable within a certain time"
+    And I wait "1" seconds
+    ## And I set the field "Condition" to "Only bookable within a certain time"
+    And I set the field with xpath "//*[contains(@id, 'fitem_id_bo_cond_previouslybooked_overridecondition')]//*[contains(@id, 'form_autocomplete_input')]" to "Only bookable within a certain time"
     And I wait "1" seconds
     And I press "Save and go back"
     And I log out
