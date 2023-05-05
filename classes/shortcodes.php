@@ -90,6 +90,8 @@ class shortcodes {
 
         view::apply_standard_params_for_bookingtable($table, $optionsfields, false, false, false);
 
+        unset($table->subcolumns['rightside']);
+
         // So we don't need to configure manually.
         //$table->use_pages = false;
         //$table->cardsort = true;
