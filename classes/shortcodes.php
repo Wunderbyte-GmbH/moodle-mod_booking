@@ -72,9 +72,8 @@ class shortcodes {
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
-
-        // We are applying standard params for bookingtable display
-        $optionsfields = [
+        // These are all possible options to be displayed in the bookingtable.
+        $possibleoptions = [
             "description",
             "statusdescription",
             "teacher",
@@ -85,6 +84,10 @@ class shortcodes {
             "institution",
             "minanswers",
         ];
+        // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
+        $exclude = explode(',', $args['exclude']);
+        $optionsfields = array_diff($possibleoptions, $exclude);
+
         view::apply_standard_params_for_bookingtable($table, $optionsfields, false, false, false);
 
         // So we don't need to configure manually.
