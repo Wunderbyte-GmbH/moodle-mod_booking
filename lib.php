@@ -687,6 +687,9 @@ function booking_update_instance($booking) {
     cache_helper::purge_by_event('setbackoptionstable');
     cache_helper::purge_by_event('setbackoptionsettings');
 
+    // This is wunderbyte table cache which needs some setback.
+    cache_helper::purge_by_event('setbackencodedtables');
+
     return $DB->update_record('booking', $booking);
 }
 
