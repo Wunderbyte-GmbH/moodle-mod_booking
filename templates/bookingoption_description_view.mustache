@@ -176,68 +176,70 @@
         </div>
         <div class="col-md-5">
             <div class="card price-card">
-              <img class="w-100" src="{{imageurl}}" alt="{{title}}">
-              {{{ bookitsection }}}
-              <div class="card-body">
-                <ul class="infolist" style="list-style: none;">
-                    {{#dayofweektime}}
-                    <li>
-                        <span>
-                            <i class="fa fa-fw fa-clock-o" aria-hidden="true"></i>
-                        </span>
-                        <span class="d-md-none">
-                            {{#str}} dayofweektime, mod_booking {{/str}}
-                        </span>
-                            {{.}}
-                        <span>
-                            {{#unitstring}} ({{.}}) {{/unitstring}}
-                        </span>
-                    </li>
-                    {{/dayofweektime}}
-                    {{#location}}
-                    <li>
-                        <span>
-                            <i class="fa fa-fw fa-map-marker" aria-hidden="true"></i>
-                        </span>
-                        <span class="d-md-none">
-                            {{#str}} location, mod_booking {{/str}}
-                        </span>
-                        <span>
-                            {{{.}}}
-                        </span>
-                    </li>
-                    {{/location}}
-                    {{#institution}}
-                    <li>
-                        <span>
-                            <i class="fa fa-fw fa-building-o" aria-hidden="true"></i>
-                        </span>
-                        <span class="d-md-none">
-                            {{#str}} institution, mod_booking {{/str}}
-                        </span>
-                        <span>
-                            {{{.}}}
-                        </span>
-                    </li>
-                    {{/institution}}
-                    {{#bookinginformation}}
-                    <li>
-                        <div class="col-ap-availableplaces">
-                            <span><i class="fa fa-fw fa-users" aria-hidden="true"></i></span>
-                            {{> booking/col_availableplaces }}
-                        </div>
-                    </li>
-                    {{#minanswers}}
-                    <li>
-                        <div class="col-ap-minanswers">
-                            <span><i class="fa fa-fw fa-arrow-up" aria-hidden="true"></i></span>
-                            {{#str}} minanswers, mod_booking {{/str}}: {{.}}
-                        </div>
-                    </li>
-                    {{/minanswers}}
-                    {{/bookinginformation}}
-                </ul>
-              </div>
+                {{#imageurl}}
+                <img class="w-100" src="{{imageurl}}" alt="{{title}}">
+                {{/imageurl}}
+                {{{ bookitsection }}}
+                <div class="card-body">
+                    <ul class="infolist" style="list-style: none;">
+                        {{#dayofweektime}}
+                        <li>
+                            <span>
+                                <i class="fa fa-fw fa-clock-o" aria-hidden="true"></i>
+                            </span>
+                            <span class="d-md-none">
+                                {{#str}} dayofweektime, mod_booking {{/str}}
+                            </span>
+                                {{.}}
+                            <span>
+                                {{#unitstring}} ({{.}}) {{/unitstring}}
+                            </span>
+                        </li>
+                        {{/dayofweektime}}
+                        {{#location}}
+                        <li>
+                            <span>
+                                <i class="fa fa-fw fa-map-marker" aria-hidden="true"></i>
+                            </span>
+                            <span class="d-md-none">
+                                {{#str}} location, mod_booking {{/str}}
+                            </span>
+                            <span>
+                                {{{.}}}
+                            </span>
+                        </li>
+                        {{/location}}
+                        {{#institution}}
+                        <li>
+                            <span>
+                                <i class="fa fa-fw fa-building-o" aria-hidden="true"></i>
+                            </span>
+                            <span class="d-md-none">
+                                {{#str}} institution, mod_booking {{/str}}
+                            </span>
+                            <span>
+                                {{{.}}}
+                            </span>
+                        </li>
+                        {{/institution}}
+                        {{#bookinginformation}}
+                        <li>
+                            <div class="col-ap-availableplaces">
+                                <span><i class="fa fa-fw fa-users" aria-hidden="true"></i></span>
+                                {{> booking/col_availableplaces }}
+                            </div>
+                        </li>
+                        {{#minanswers}}
+                        <li>
+                            <div class="col-ap-minanswers">
+                                <span><i class="fa fa-fw fa-arrow-up" aria-hidden="true"></i></span>
+                                {{#str}} minanswers, mod_booking {{/str}}: {{.}}
+                            </div>
+                        </li>
+                        {{/minanswers}}
+                        {{/bookinginformation}}
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
