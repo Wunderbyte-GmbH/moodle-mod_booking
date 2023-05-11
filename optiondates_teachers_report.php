@@ -33,7 +33,7 @@ $optionid = required_param('optionid', PARAM_INT);
 $download = optional_param('download', '', PARAM_ALPHA);
 
 list($course, $cm) = get_course_and_cm_from_cmid($cmid);
-require_course_login($course, false, $cm);
+require_course_login($course, true, $cm);
 
 $urlparams = [
     'id' => $cmid,
@@ -49,7 +49,9 @@ $PAGE->set_url($baseurl);
 // In Moodle 4.0+ we want to turn the instance description off on every page except view.php.
 $PAGE->activityheader->disable();
 
-if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mod/booking:addeditownoption', $context)) == false) {
+if ((has_capability('mod/booking:updatebooking', $context)
+    || has_capability('mod/booking:addeditownoption', $context)
+    || has_capability('mod/booking:viewreports', $context)) == false) {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('accessdenied', 'mod_booking'), 4);
     echo get_string('nopermissiontoaccesspage', 'mod_booking');
@@ -97,23 +99,23 @@ if (!empty($settings->titleprefix)) {
 }
 echo "<h2 class='mt-5'>$bookingoptionname</h2>";
 
+$columns = [
+    'optiondate' => get_string('optiondate', 'mod_booking'),
+    'teacher' => get_string('teacher', 'mod_booking'),
+    'reason' => get_string('reason', 'mod_booking'),
+    'reviewed'=> get_string('reviewed', 'mod_booking'),
+];
+
+if (has_capability('mod/booking:updatebooking', $context)
+    || has_capability('mod/booking:addeditownoption', $context)) {
+    $columns['edit'] = get_string('edit');
+}
+
 // Header.
-$optiondatesteacherstable->define_headers([
-    get_string('optiondate', 'mod_booking'),
-    get_string('teacher', 'mod_booking'),
-    get_string('reason', 'mod_booking'),
-    get_string('edit'),
-    get_string('reviewed', 'mod_booking'),
-]);
+$optiondatesteacherstable->define_headers(array_values($columns));
 
 // Columns.
-$optiondatesteacherstable->define_columns([
-    'optiondate',
-    'teacher',
-    'reason',
-    'edit',
-    'reviewed',
-]);
+$optiondatesteacherstable->define_columns(array_keys($columns));
 
 // Header column.
 $optiondatesteacherstable->define_header_column('optiondate');

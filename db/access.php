@@ -118,4 +118,12 @@ $capabilities = array(
             'editingteacher' => CAP_ALLOW,
         ]
     ],
+    // Capability to view reports without write access.
+    'mod/booking:viewreports' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ]
+    ],
 );
