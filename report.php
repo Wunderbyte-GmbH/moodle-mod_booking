@@ -179,7 +179,7 @@ $isteacher = booking_check_if_teacher($bookingoption->option);
 if ($paging < 1) {
     $paging = 25;
 }
-if (!($isteacher) || has_capability('mod/booking:readresponses', $context)) {
+if (!($isteacher || has_capability('mod/booking:viewreports', $context))) {
     require_capability('mod/booking:readresponses', $context);
 }
 
