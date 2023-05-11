@@ -24,6 +24,7 @@
 
 namespace mod_booking\utils;
 
+use cache_helper;
 use csv_import_reader;
 use mod_booking\booking;
 use stdClass;
@@ -223,6 +224,11 @@ class csv_import {
                 $bookingoption->id = $optionid;
                 // Unset all option fields in order to skip validation as existing data is used.
                 foreach ($this->columns as $columname => $column) {
+
+                    if ($columname == 'text') {
+                        continue;
+                    }
+
                     if (isset($csvrecord[$columname])) {
                         unset($csvrecord[$columname]);
                     }
@@ -298,7 +304,7 @@ class csv_import {
 
                             // When inserting a new teacher, we also need to insert the teacher for each optiondate.
                             teachers_handler::subscribe_teacher_to_all_optiondates($optionid, $teacher->id);
-                        } else {
+                        } else if ($teacherexists === false ) {
                             $this->add_csverror(get_string('noteacherfound', 'booking', $i), $i);
                         }
                     } else {
@@ -357,6 +363,10 @@ class csv_import {
         }
         $cir->cleanup(true);
         $cir->close();
+
+        // We need to purge all caches to be sure display works correctly.
+        cache_helper::purge_by_event('setbackoptionstable');
+
         return true;
     }
 
