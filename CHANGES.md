@@ -1,3 +1,7 @@
+## Version 8.0.9 (2023051200)
+**New features:**
+* New feature: Recommandation feature via shortcodes, to 'push' booking options in selected Moodle courses.
+
 ## Version 8.0.8 (2023042400)
 **New features:**
 * New feature: Booking campaings - Reduce booking prices and increase booking limit for a specified time period for specific booking options.
