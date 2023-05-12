@@ -298,7 +298,15 @@ class campaign_customfield implements booking_campaign {
      */
     public function get_campaign_price(float $price):float {
         $campaignprice = $price * $this->pricefactor;
-        return round($campaignprice, 2);
+
+        $discountprecision = 2;
+
+        // If local_shopping_cart is present, we can actually turn rounding on and off.
+        if (class_exists('local_shopping_cart\shopping_cart')) {
+            $discountprecision = get_config('local_shopping_cart', 'rounddiscounts') ? 0 : 2;
+        }
+
+        return round($campaignprice, $discountprecision);
     }
 
     /**
