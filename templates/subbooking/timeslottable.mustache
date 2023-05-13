@@ -99,6 +99,7 @@
 </select>
 <table class="mod-booking-timeslotbooking table">
     <thead class="thead-dark">
+    <tr>
         <th>
         Location
         </th>
@@ -107,7 +108,9 @@
             {{slot}}
         </th>
         {{/slots}}
+    </tr>
     </thead>
+    <tbody>
     {{#locations}}
     <tr>
         <td class="text-left name">{{name}}</td>
@@ -118,6 +121,7 @@
         {{/timeslots}}
     </tr>
     {{/locations}}
+    </tbody>
 </table>
 
 {{#js}}
