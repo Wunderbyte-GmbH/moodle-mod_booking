@@ -33,20 +33,21 @@
                 "price": 30,
                 "currency": "EUR",
                 "name": "my item",
-                "description": "more on my item"
+                "description": "more on my item",
+                "button": "a code of button HTML"
             }
         ]
     }
 }}
 <ul class="list-group">
     {{#items}}
-
+    <li>
         <div class="list-group-item list-group-item">
             <div class="d-flex w-100 justify-content-between">
             <h5 class="mb-1">{{name}}</h5>
             <small>{{price}} {{currency}}</small>
             </div>
-            <p class="mb-1">
+            <div class="mb-1">
                 <div class="d-flex w-100 justify-content-between">
                 <span>
                     {{{description}}}
@@ -55,8 +56,9 @@
                     {{{button}}}
                 </span>
                 </div>
-            </p>
+            </div>
         </div>
+    </li>
     {{/items}}
 </ul>
 {{^items}}
