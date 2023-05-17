@@ -35,6 +35,10 @@
         ]
     }
 }}
+{{! 
+This layout produces "Element “li” not allowed as child of element “body” in this context" validation error
+To eliminate it <li> tag has to be moved to the parent template
+}}
 {{#dates}}
 <li class="mb-1">
     <span class="datepills text-white small py-1 px-4 bg-primary">
