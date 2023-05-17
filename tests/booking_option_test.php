@@ -116,7 +116,9 @@ class booking_option_test extends advanced_testcase {
         $this->setUser($user1);
         $this->assertEquals(false, $bookingopttion1->can_rate());
 
-        $bo1 = $DB->get_record('booking', array('id' => $booking1->id));
+        // Disabled as deprecated upon decision.
+        // phpcs:disable
+        /* $bo1 = $DB->get_record('booking', array('id' => $booking1->id));
         $bo1->ratings = 1;
         $DB->update_record('booking', $bo1);
         $bookingopttion1 = new \mod_booking\booking_option($cmb1->id, $option1->id);
@@ -154,6 +156,7 @@ class booking_option_test extends advanced_testcase {
 
         $bookingopttion2->delete_responses_activitycompletion();
 
-        $this->assertEquals(1, $DB->count_records('booking_answers', array('optionid' => $option2->id)));
+        $this->assertEquals(1, $DB->count_records('booking_answers', array('optionid' => $option2->id))); */
+        // phpcs:enable
     }
 }
