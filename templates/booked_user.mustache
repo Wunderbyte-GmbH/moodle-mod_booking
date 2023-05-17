@@ -15,7 +15,7 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_booking/booked_users
+    @template mod_booking/booked_user
 
     Classes required for JS:
     * none
@@ -32,14 +32,12 @@
         "link" : "http://localhost:8010/user/profile.php?id=118"
     }
 }}
-
- <li class="list-group-item list-group-item-action">
-    <div>
-        <a href="{{link}}">
-            <h5 class="mb-1">
-                {{firstname}} {{lastname}}
-            </h5>
-        </a>
-    </div>
-    <p class="mb-1">{{email}}</p>
-</li>
+ 
+<div>
+    <a href="{{link}}">
+        <h5 class="mb-1">
+            {{firstname}} {{lastname}}
+        </h5>
+    </a>
+</div>
+<p class="mb-1">{{email}}</p>
