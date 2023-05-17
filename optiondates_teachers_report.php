@@ -104,7 +104,7 @@ $columns = [
     'optiondate' => get_string('optiondate', 'mod_booking'),
     'teacher' => get_string('teacher', 'mod_booking'),
     'reason' => get_string('reason', 'mod_booking'),
-    'reviewed'=> get_string('reviewed', 'mod_booking'),
+    'reviewed' => get_string('reviewed', 'mod_booking'),
 ];
 
 /* if (has_capability('mod/booking:updatebooking', $context)

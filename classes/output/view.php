@@ -499,7 +499,8 @@ class view implements renderable, templatable {
     }
 
 
-    public static function apply_standard_params_for_bookingtable(wunderbyte_table &$wbtable, $optionsfields = [], bool $filter = true, bool $search = true, bool $sort = true) {
+    public static function apply_standard_params_for_bookingtable(wunderbyte_table &$wbtable,
+        $optionsfields = [], bool $filter = true, bool $search = true, bool $sort = true) {
         // Activate sorting.
         $wbtable->cardsort = true;
 
@@ -614,7 +615,7 @@ class view implements renderable, templatable {
             ['keystring' => get_string('tableheader_teacher', 'booking')],
             ['teacher']
         );
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        // phpcs:ignore
         // $wbtable->is_downloading('', 'List of booking options');
 
         // Header column.

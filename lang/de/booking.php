@@ -2225,5 +2225,5 @@ $string['subbooking_addpersons'] = "Füge Person(en) hinzu";
 $string['subbooking_bookedpersons'] = "Die folgenden Personen werden hinzugefügt:";
 $string['personnr'] = 'Person Nr. {$a}';
 
-// Shortcodes
+// Shortcodes.
 $string['recommendedin'] = "Shortcode um Buchungsoptionen in bestimmten Kursen zu empfehlen. Legen Sie ein neues benutzerdefiniertes Feld für Buchungsoptionen mit dem Kurznamen 'recommendedin' an. In einer Buchungsoption setzen Sie nun den Wert dieses Feldes auf 'course1', wenn Sie die Buchungsoption im Course 1 (course1) empfehlen wollen.";
