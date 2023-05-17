@@ -63,7 +63,7 @@ class shortcodes {
             $perpage = 1000;
         }
 
-        $table = self::initTableForCourses();
+        $table = self::init_table_for_courses();
 
         $wherearray['recommendedin'] = "%$course->shortname%";
 
@@ -97,13 +97,15 @@ class shortcodes {
 
         unset($table->subcolumns['rightside']);
 
+        // phpcs:disable
         // So we don't need to configure manually.
         //$table->use_pages = false;
         //$table->cardsort = true;
-        //self::setTableOptionsFromArguments($table, $args);
+        //self::set_table_options_from_arguments($table, $args);
         //self::generate_table_for_list($table, $args);
         //$table->infinitescroll = 60;
         //$table->tabletemplate = 'mod_booking/table_list';
+        // phpcs:enable
 
         $out = $table->outhtml($perpage, true);
 
@@ -116,13 +118,14 @@ class shortcodes {
      * @param booking $booking
      * @return bookingoptions_wbtable
      */
-    private static function initTableForCourses($booking = null){
+    private static function init_table_for_courses($booking = null) {
 
         $tablename = bin2hex(random_bytes(12));
 
         $table = new bookingoptions_wbtable($tablename, $booking);
 
         // Without defining sorting won't work!
+        // phpcs:ignore
         //$table->define_columns(['titleprefix']);
         return $table;
     }
@@ -133,7 +136,7 @@ class shortcodes {
      * @param bookingoptions_wbtable $table
      * @return void
      */
-    private static function define_filtercolumns(&$table){
+    private static function define_filtercolumns(&$table) {
         $table->define_filtercolumns([
             'id',
             'dayofweek' => [
@@ -151,7 +154,7 @@ class shortcodes {
         ]);
     }
 
-    private static function getBooking($args){
+    private static function get_booking($args) {
         // If the id argument was not passed on, we have a fallback in the connfig.
         if (!isset($args['id'])) {
             $args['id'] = get_config('mod_booking', 'shortcodessetinstance');
@@ -169,8 +172,9 @@ class shortcodes {
         return $booking;
     }
 
-    private static function setTableOptionsFromArguments(&$table, $args){
+    private static function set_table_options_from_arguments(&$table, $args) {
 
+        // phpcs:ignore
         // $table->set_display_options($args);
 
         if (!empty($args['filter'])) {
@@ -187,7 +191,7 @@ class shortcodes {
                 'text' => get_string('coursename', 'mod_booking'),
                 'location' => get_string('location', 'mod_booking'),
             ]);
-        }else{
+        } else {
             $table->sortable(true, 'text');
         }
     }
@@ -199,23 +203,24 @@ class shortcodes {
      * @param array $args
      * @return void
      */
-    private static function generate_table_for_list(&$table, $args){
-        $subcolumns_info = ['teacher', 'dayofweektime', 'location','bookings'];
-        if(!empty($args['showminanswers'])){
-            $subcolumns_info[]='minanswers';
+    private static function generate_table_for_list(&$table, $args) {
+        $subcolumnsinfo = ['teacher', 'dayofweektime', 'location', 'bookings'];
+        if (!empty($args['showminanswers'])) {
+            $subcolumnsinfo[] = 'minanswers';
         }
-        $subcolumns_leftside = ['text'];
+        $subcolumnsleftside = ['text'];
 
         $table->define_cache('mod_booking', 'bookingoptionstable');
 
         $table->add_subcolumns('top', ['action']);
         $table->add_subcolumns('leftside', ['text']);
-        $table->add_subcolumns('info', $subcolumns_info);
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        $table->add_subcolumns('info', $subcolumnsinfo);
+        // phpcs:ignore
         /* $table->add_subcolumns('footer', ['botags']); */
-        $table->add_subcolumns('leftside', $subcolumns_leftside);
+        $table->add_subcolumns('leftside', $subcolumnsleftside);
 
-        $table->add_subcolumns('info', $subcolumns_info);
+        $table->add_subcolumns('info', $subcolumnsinfo);
+        // phpcs:ignore
         //$table->add_subcolumns('footer', ['botags']);
 
         $table->add_classes_to_subcolumns('top', ['columnkeyclass' => 'd-none']);
@@ -230,12 +235,13 @@ class shortcodes {
         $table->add_classes_to_subcolumns('info', ['columniclassbefore' => 'fa fa-clock-o'], ['dayofweektime']);
         $table->add_classes_to_subcolumns('info', ['columniclassbefore' => 'fa fa-map-marker'], ['location']);
         $table->add_classes_to_subcolumns('info', ['columniclassbefore' => 'fa fa-ticket'], ['bookings']);
-        if(!empty($args['showminanswers'])) {
+        if (!empty($args['showminanswers'])) {
             $table->add_classes_to_subcolumns('info', ['columniclassbefore' => 'fa fa-arrow-up'], ['minanswers']);
         }
 
-        //Set additional descriptions
-        $table->add_classes_to_subcolumns('rightside', ['columnvalueclass' => 'text-right mb-auto align-self-end shortcodes_option_info_invisible '],
+        // Set additional descriptions.
+        $table->add_classes_to_subcolumns('rightside', ['columnvalueclass' =>
+            'text-right mb-auto align-self-end shortcodes_option_info_invisible '],
             ['invisibleoption']);
         $table->add_classes_to_subcolumns('rightside', ['columnclass' =>
             'text-right mt-auto align-self-end theme-text-color bold ']);
