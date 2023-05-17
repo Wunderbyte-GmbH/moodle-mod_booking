@@ -509,7 +509,7 @@ class booking_option {
         // When we call this via webservice, we don't have a context, this throws an error.
         // It's no use passing the context object either.
 
-        if (!isset($PAGE->context)) {
+        if (!$context = $PAGE->context) {
             $PAGE->set_context(context_module::instance($this->cmid));
         }
 

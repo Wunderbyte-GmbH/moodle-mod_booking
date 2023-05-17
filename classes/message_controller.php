@@ -133,7 +133,7 @@ class message_controller {
         // It's no use passing the context object either.
 
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        if (!isset($PAGE->context)) {
+        if (!$context = $PAGE->context) {
             $PAGE->set_context(context_module::instance($cmid));
         }
 
