@@ -273,13 +273,29 @@ class csv_import {
 
                     // Now we check if we have an entity to which we can match the value.
                     if (class_exists('local_entities\entitiesrelation_handler')) {
-                        $erhandler = new entitiesrelation_handler('mod_booking', 'option');
 
-                        $entities = $erhandler->get_entities_by_name($bookingoption->location);
+                        $eroptionhandler = new entitiesrelation_handler('mod_booking', 'option');
+
+                        $entities = $eroptionhandler->get_entities_by_name($bookingoption->location);
                         // If we have exactly one entiity, we create the entities entry.
                         if (count($entities) === 1) {
                             $entity = reset($entities);
-                            $erhandler->save_entity_relation($optionid, $entity->id);
+
+                            // If there are no booking options, we just save as normal:
+                            $eroptionhandler->save_entity_relation($optionid, $entity->id);
+
+                            // We also need to save the entity relation to the single sessions.
+                            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+                            if (count($settings->sessions) > 0) {
+                                // If there are booking option dates, we need to run through them.
+                                // We need a new instance from the entities handler with a different area.
+                                $eroptiondatehandler = new entitiesrelation_handler('mod_booking', 'optiondate');
+
+                                foreach ($settings->sessions as $session) {
+                                    $eroptiondatehandler->save_entity_relation($session->id, $entity->id);
+                                }
+                            }
                         }
                     }
                 }
