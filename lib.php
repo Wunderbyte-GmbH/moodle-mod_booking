@@ -1615,7 +1615,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             }
         }
 
-        if (has_capability ( 'mod/booking:subscribeusers', $context ) || booking_check_if_teacher ($option )) {
+        if (has_capability ( 'mod/booking:subscribeusers', $context )) {
             $navref->add(get_string('bookotherusers', 'booking'),
                     new moodle_url('/mod/booking/subscribeusers.php',
                             array('id' => $cm->id, 'optionid' => $optionid)),
