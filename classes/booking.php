@@ -965,9 +965,11 @@ class booking {
             list($inoptionsql, $optionparams) = $DB->get_in_or_equal($areas['option'], SQL_PARAMS_NAMED);
             // We only select options with an odcount of NULL meaning there are no optiondates.
             // If there are optiondates, we are only interested in them and ignore the option itself.
-            $sql .= " WHERE (s1.area = 'option' AND s2.odcount IS NULL
-                    AND s1.coursestarttime <> 0 AND s1.courseendtime <> 0
-                    AND s1.instanceid $inoptionsql)";
+            $sql .= " WHERE (
+                        s1.area = 'option'
+                        AND s2.odcount IS NULL
+                        AND s1.coursestarttime <> 0 AND s1.courseendtime <> 0
+                        AND s1.instanceid $inoptionsql)";
             $params = array_merge($params, $optionparams);
         }
 
