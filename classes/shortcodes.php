@@ -85,8 +85,13 @@ class shortcodes {
             "minanswers",
         ];
         // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
-        $exclude = explode(',', $args['exclude']);
-        $optionsfields = array_diff($possibleoptions, $exclude);
+
+        if (isset($args['exclude'])) {
+            $exclude = explode(',', $args['exclude']);
+            $optionsfields = array_diff($possibleoptions, $exclude);
+        } else {
+            $optionsfields = $possibleoptions;
+        }
 
         view::apply_standard_params_for_bookingtable($table, $optionsfields, false, false, false);
 
