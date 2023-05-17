@@ -1,3 +1,7 @@
+## Version 8.0.10 (2023051700)
+**Improvements:**
+* Improvements: Adjustment of capabilities for better finetuning
+
 ## Version 8.0.9 (2023051200)
 **New features:**
 * New feature: Recommandation feature via shortcodes, to 'push' booking options in selected Moodle courses.

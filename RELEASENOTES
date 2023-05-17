@@ -1,3 +1,10 @@
+8.0.10 (2023051700)
+* Improvmenet: Adjustment of capabilities for better finetuning
+* Bugfix: Better support for csv import with local_entities
+
+8.0.9 (2023051200)
+* New feature: Recommandation feature via shortcodes, to 'push' booking options in selected Moodle courses.
+
 8.0.8 (2023042400)
 * New feature: Booking campaings - Reduce booking prices and increase booking limit for a specified time period for specific booking options.
 * Improvement: Mustache linting for github actions.
