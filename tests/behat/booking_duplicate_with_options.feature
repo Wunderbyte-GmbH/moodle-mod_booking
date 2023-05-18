@@ -26,7 +26,26 @@ Feature: In a booking create booking option with multiple custom options
     And I create booking option "New option - duplication source" in "My booking"
 
   @javascript
-  Scenario: Duplicate session with multiple options
+  Scenario: Simple duplication of booking option
+    Given I log in as "teacher1"
+    When I am on "Course 1" course homepage
+    And I follow "My booking"
+    And I should see "New option - duplication source"
+    And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
+    And I click on "Duplicate this booking option" "link" in the "#allbookingoptionstable_r1" "css_element"
+    And I set the following fields to these values:
+      | Booking option name | Test option - Copy1 |
+    And I press "Save and go back"
+    Then I should see "Test option - Copy1" in the "#allbookingoptionstable_r2" "css_element"
+    And I click on "Settings" "icon" in the "#allbookingoptionstable_r2" "css_element"
+    And I click on "Duplicate this booking option" "link" in the "#allbookingoptionstable_r2" "css_element"
+    And I set the following fields to these values:
+      | Booking option name | Test option - Copy2 |
+    And I press "Save and go back"
+    Then I should see "Test option - Copy2" in the "#allbookingoptionstable_r3" "css_element"
+
+  @javascript
+  Scenario: Duplicate booking option with multiple customized settings
     Given I log in as "admin"
     And I visit "/admin/category.php?category=modbookingfolder"
     And I follow "Booking: Price categories"
@@ -134,8 +153,8 @@ Feature: In a booking create booking option with multiple custom options
       | courseendtime[minute]                 | 00                            |
       | Teachers poll url                     | https://google.com            |
       | reoccurringdatestring                 | FR, 13:30 - 14:30             |
-      | pricegroup_default[bookingprice_default]           | 75                            |
-      | pricegroup_specialprice[bookingprice_specialprice] | 65                            |
+      | pricegroup_default[bookingprice_default]           | 75               |
+      | pricegroup_specialprice[bookingprice_specialprice] | 65               |
       | Notification message                  | Advanced notification message |
       | Before booked                         | Before booked message         |
       | After booked                          | After booked message          |
