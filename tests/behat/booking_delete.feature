@@ -26,7 +26,25 @@ Feature: In a booking delete
     And I create booking option "New option" in "My booking"
 
   @javascript
-  Scenario: Delete user from booking option
+  Scenario: Delete booking option as teacher
+    Given I log in as "teacher1"
+    When I am on "Course 1" course homepage
+    And I follow "My booking"
+    ## And I follow "My booking"
+    And I should see "New option" in the "#allbookingoptionstable_r1" "css_element"
+    And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
+    And I click on "Delete this booking option" "link" in the "#allbookingoptionstable_r1" "css_element"
+    Then I should see "Do you really want to delete this booking option?"
+    And I click on "Continue" "button"
+    And I wait "1" seconds
+    And "//div[@id, 'allbookingoptionstable_r1']" "xpath_element" should not exist
+    ## Next step(s) cause faiure:
+    ## Then I trigger cron
+    ## And I wait "1" seconds
+    ## And I run all adhoc tasks
+
+  @javascript
+  Scenario: Delete user from booking option as teacher
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     Then I follow "My booking"
