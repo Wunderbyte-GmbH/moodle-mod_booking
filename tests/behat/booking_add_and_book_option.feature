@@ -24,7 +24,7 @@ Feature: In a booking instance create booking options
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   |
 
   @javascript
-  Scenario: Create booking instance
+  Scenario: Create booking instance as teacher
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     And I add a "Booking" to section "0"
@@ -40,7 +40,7 @@ Feature: In a booking instance create booking options
     And I log out
 
   @javascript
-  Scenario: Create booking option and see it on activity page
+  Scenario: Create booking option as a teacher, see it on activity page and book it as a student
     Given I am on the "Course 1" course page logged in as teacher1
     And I follow "My booking"
     And I follow "New booking option"

@@ -130,7 +130,7 @@ Feature: In a booking create multi session options
     # And I should see "Behat test"
 
   @javascript
-  Scenario: Student books an option
+  Scenario: Student books an booking option
     ## URL webserver/_/mail is inacessible
     ## When I log in as "student1"
     ## And I open the link "webserver/_/mail"
@@ -156,7 +156,7 @@ Feature: In a booking create multi session options
     ## And I should see "Booking confirmation for New option - Webinar"
 
   @javascript
-  Scenario: Teacher sends mails to students
+  Scenario: Teacher book students into booking option and sends mails to them
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     Then I follow "My booking"
