@@ -51,7 +51,8 @@ $PAGE->activityheader->disable();
 
 if ((has_capability('mod/booking:updatebooking', $context)
     || has_capability('mod/booking:addeditownoption', $context)
-    || has_capability('mod/booking:viewreports', $context)) == false) {
+    || has_capability('mod/booking:viewreports', $context)
+    || has_capability('mod/booking:limitededitownoption', $context)) == false) {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('accessdenied', 'mod_booking'), 4);
     echo get_string('nopermissiontoaccesspage', 'mod_booking');
@@ -106,10 +107,13 @@ $columns = [
     'reviewed'=> get_string('reviewed', 'mod_booking'),
 ];
 
-if (has_capability('mod/booking:updatebooking', $context)
+/* if (has_capability('mod/booking:updatebooking', $context)
     || has_capability('mod/booking:addeditownoption', $context)) {
     $columns['edit'] = get_string('edit');
 }
+ */
+
+$columns['edit'] = get_string('edit');
 
 // Header.
 $optiondatesteacherstable->define_headers(array_values($columns));

@@ -2380,6 +2380,7 @@ $string['booking:canreviewsubstitutions'] = "Allowed to review teacher substitut
 $string['booking:conditionforms'] = "Submit condition forms like booking policy or subbookings";
 $string['booking:viewreports'] = 'Allow access for viewing reports';
 $string['booking:manageoptiondates'] = 'Manage option dates';
+$string['booking:limitededitownoption'] = 'Less than addeditownoption, only allows very limited actions';
 
 // Booking_handler.php.
 $string['error:newcoursecategorycfieldmissing'] = 'You need to create a <a href="{$a->bookingcustomfieldsurl}"

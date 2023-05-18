@@ -2186,6 +2186,7 @@ $string['booking:canreviewsubstitutions'] = "Kann Vertretungen als kontrolliert 
 $string['booking:conditionforms'] = "Formulare von Buchungsbedingungen abschicken (z.B. Buchungsbedingungen oder Zusatzbuchungen)";
 $string['booking:viewreports'] = 'Zugang um gewisse Buchungsberichte zu sehen';
 $string['booking:manageoptiondates'] = 'Bearbeite Termine';
+$string['booking:limitededitownoption'] = 'Weniger als addeditownoption, nur sehr beschränktes Editieren eigener Optionen erlaubt.';
 
 // Booking_handler.php.
 $string['error:newcoursecategorycfieldmissing'] = 'Sie müssen zuerst ein <a href="{$a->bookingcustomfieldsurl}"

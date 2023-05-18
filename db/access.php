@@ -126,4 +126,12 @@ $capabilities = array(
             'manager' => CAP_ALLOW,
         ]
     ],
+    // Capability to view reports without write access.
+    'mod/booking:limitededitownoption' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+        ]
+    ],
 );

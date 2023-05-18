@@ -22,6 +22,7 @@ use context_module;
 use context_system;
 use mod_booking\event\optiondates_teacher_added;
 use mod_booking\event\optiondates_teacher_deleted;
+use moodle_exception;
 use moodle_url;
 use stdClass;
 
@@ -56,7 +57,16 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
-        require_capability('mod/booking:addeditownoption', $this->get_context_for_dynamic_submission());
+
+        $context = $this->get_context_for_dynamic_submission();
+
+        if ((has_capability('mod/booking:updatebooking', $context)
+            || has_capability('mod/booking:addeditownoption', $context)
+            || has_capability('mod/booking:viewreports', $context)
+            || has_capability('mod/booking:limitededitownoption', $context)) == false) {
+
+                throw new moodle_exception('youdonthavetherighttoaccessthisform', 'mod_booking');
+        }
     }
 
     /**
