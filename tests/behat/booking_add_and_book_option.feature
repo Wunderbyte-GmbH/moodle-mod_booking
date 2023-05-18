@@ -1,4 +1,4 @@
-@mod @mod_booking @booking_add_option
+@mod @mod_booking @booking_add_and_book_option
 Feature: In a booking instance create booking options
   As a teacher
   I need to add booking options and events to a booking instance

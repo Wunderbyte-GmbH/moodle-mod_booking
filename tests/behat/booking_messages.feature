@@ -1,7 +1,7 @@
-@mod @mod_booking @booking_multisessions
-Feature: In a booking create multi session options
-  As a teacher
-  I need to add booking options with multiple dates
+@mod @mod_booking @booking_messages
+Feature: In a booking
+  As a teacher or a student
+  I need to test session options messaging (emailing) features
 
   Background:
     Given the following "users" exist:
