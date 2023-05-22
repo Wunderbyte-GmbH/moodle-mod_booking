@@ -1,3 +1,7 @@
+## Version 8.0.11 (2023052200)
+**Improvements:**
+* Improvmenet: Add failed booking event when using shopping cart
+
 ## Version 8.0.10 (2023051700)
 **Improvements:**
 * Improvements: Adjustment of capabilities for better finetuning

@@ -1,3 +1,6 @@
+8.0.11 (2023052200)
+* Improvmenet: Add failed booking event when using shopping cart
+
 8.0.10 (2023051700)
 * Improvmenet: Adjustment of capabilities for better finetuning
 * Bugfix: Better support for csv import with local_entities
