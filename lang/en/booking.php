@@ -289,6 +289,7 @@ $string['reminder2_sent'] = 'Second reminder sent';
 $string['reminder_teacher_sent'] = 'Teacher reminder sent';
 $string['optiondates_teacher_added'] = 'Substitution teacher was added';
 $string['optiondates_teacher_deleted'] = 'Teacher deleted from teaching journal';
+$string['booking_failed'] = 'Booking failed';
 
 // View.php.
 $string['bookingpolicyagree'] = 'I have read, understood and agree to the booking policy.';

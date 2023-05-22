@@ -30,6 +30,7 @@ use local_shopping_cart\local\entities\cartitem;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_bookit;
 use mod_booking\booking_option;
+use mod_booking\event\booking_failed;
 use mod_booking\output\bookingoption_description;
 use mod_booking\price;
 use mod_booking\singleton_service;
@@ -167,7 +168,31 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             } else {
                 $user = singleton_service::get_instance_of_user($userid);
             }
-            $bookingoption->user_confirm_response($user);
+
+            // If this returns false, the reason most like is that the reserveration was deleted before.
+            // Most likely because the item wasnt reserved anymore.
+            if (!$bookingoption->user_confirm_response($user)) {
+                // So, we noticed that the item was not reserved anymore.
+                // What we can do is to try to book anyways.
+
+                // If the booking is not successful, we return false and trigger the payment unsuccessful event.
+                // This will happen, when the booking is full.
+                $user = singleton_service::get_instance_of_user($userid);
+                if (!$bookingoption->user_submit_response($user, 0, 0, false, true)) {
+
+                    // Log cancellation of user.
+                    $event = booking_failed::create([
+                        'objectid' => $itemid,
+                        'context' => \context_module::instance($bookingoption->cmid),
+                        'userid' => $USER->id, // The user who did cancel.
+                        'relateduserid' => $userid // Affected user - the user who was cancelled.
+                    ]);
+                    $event->trigger(); // This will trigger the observer function and delete calendar events.
+
+                    return false;
+                }
+
+            }
             return true;
 
         } else if (strpos($area, 'subbooking') === 0) {

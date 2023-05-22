@@ -289,6 +289,7 @@ $string['reminder2_sent'] = 'Zweite Benachrichtigung versendet';
 $string['reminder_teacher_sent'] = 'Benachrichtigung an Trainer:in versendet';
 $string['optiondates_teacher_added'] = 'Vertretung wurde eingetragen';
 $string['optiondates_teacher_deleted'] = 'Trainer:in wurde aus Trainingsjournal entfernt';
+$string['booking_failed'] = 'Buchung gescheitert';
 
 // View.php.
 $string['bookingpolicyagree'] = 'Ich habe die Buchungsbedingungen gelesen und erkläre mich damit einverstanden.';
