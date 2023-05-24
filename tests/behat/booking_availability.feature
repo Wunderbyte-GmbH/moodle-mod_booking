@@ -1,5 +1,5 @@
 @mod @mod_booking @booking_availability
-Feature: In a booking
+Feature: Test booking options avaialbility conditions
   As a teacher I configure various availability conditions
   For different booking options
 

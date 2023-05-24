@@ -1,7 +1,7 @@
 @mod @mod_booking @booking_messages
-Feature: In a booking
+Feature: Test messaging features in a booking
   As a teacher or a student
-  I need to test session options messaging (emailing) features
+  I need to test booking option messaging (emailing) features
 
   Background:
     Given the following "users" exist:
