@@ -81,8 +81,8 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     And I should see "Sport class" in the ".modtype_booking .description .eventtype" "css_element"
     And I should see "Click on View available options, choose a booking option and click Book now" in the ".modtype_booking .description .shortinfo" "css_element"
 
-  @javascript
-  Scenario: Settings - create two semester settings for booking options
+@javascript
+  Scenario: Settings - create two semester settings and see it in booking options
     Given I log in as "admin"
     And I visit "/admin/category.php?category=modbookingfolder"
     And I follow "Booking: Semesters"
@@ -121,7 +121,7 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
       | semesterend[0][day]     | 30                 |
       | semesterend[0][month]   | June               |
       | semesterend[0][year]    | ## + 1 year ##%Y## |
-    And I should see "Semester 1"
+    And I should see "Semester 2"
     And the following fields match these values:
       | semesteridentifier[1]   | nextmay            |
       | semestername[1]         | Next May           |
@@ -144,6 +144,43 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     ## And I open the autocomplete suggestions list in the "#id_datesheadercontainer" "css_element"
     And I wait "1" seconds
     And I should see "Next June (nextjune)" in the "#id_datesheadercontainer .form-autocomplete-suggestions" "css_element"
+
+  @javascript
+  Scenario: Settings - create semester settings and use it in booking options
+    Given I log in as "admin"
+    And I visit "/admin/category.php?category=modbookingfolder"
+    And I follow "Booking: Semesters"
+    And I set the following fields to these values:
+      | semesteridentifier[0]   | nextjune           |
+      | semestername[0]         | Next June          |
+      | semesterstart[0][day]   | 1                  |
+      | semesterstart[0][month] | June               |
+      | semesterstart[0][year]  | ## + 1 year ##%Y## |
+      | semesterend[0][day]     | 30                 |
+      | semesterend[0][month]   | June               |
+      | semesterend[0][year]    | ## + 1 year ##%Y## |
+    ## Need to overrider potential bug:
+    And I set the field "semesterend[0][day]" to "30"
+    And I press "Save changes"
+    Then I should see "Semester 1"
+    And the following fields match these values:
+      | semesteridentifier[0]   | nextjune           |
+      | semestername[0]         | Next June          |
+      | semesterstart[0][day]   | 1                  |
+      | semesterstart[0][month] | June               |
+      | semesterstart[0][year]  | ## + 1 year ##%Y## |
+      | semesterend[0][day]     | 30                 |
+      | semesterend[0][month]   | June               |
+      | semesterend[0][year]    | ## + 1 year ##%Y## |
+    And I log out
+    Given I log in as "teacher1"
+    When I am on "Course 1" course homepage
+    And I follow "My booking"
+    ## And I follow "New booking option"
+    And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r1" "css_element"
+    And I follow "Dates"
+    And I should see "Next June (nextjune)" in the "#id_datesheadercontainer .form-autocomplete-selection" "css_element"
     And I set the following fields to these values:
       | Booking option name   | Option - Test Semester |
       | Select time period    | Next June (nextjune)   |
