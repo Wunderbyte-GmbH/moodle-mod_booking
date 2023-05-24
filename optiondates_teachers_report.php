@@ -107,11 +107,13 @@ $columns = [
     'reviewed' => get_string('reviewed', 'mod_booking'),
 ];
 
+// phpcs:disable
 /* if (has_capability('mod/booking:updatebooking', $context)
     || has_capability('mod/booking:addeditownoption', $context)) {
     $columns['edit'] = get_string('edit');
 }
  */
+// phpcs:enable
 
 $columns['edit'] = get_string('edit');
 

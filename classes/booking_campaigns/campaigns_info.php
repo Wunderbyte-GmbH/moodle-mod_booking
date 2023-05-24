@@ -29,6 +29,8 @@ use mod_booking\booking_campaigns\booking_campaign;
 use MoodleQuickForm;
 use stdClass;
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**

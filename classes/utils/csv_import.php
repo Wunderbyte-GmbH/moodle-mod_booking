@@ -281,7 +281,7 @@ class csv_import {
                         if (count($entities) === 1) {
                             $entity = reset($entities);
 
-                            // If there are no booking options, we just save as normal:
+                            // If there are no booking options, we just save as normal.
                             $eroptionhandler->save_entity_relation($optionid, $entity->id);
 
                             // We also need to save the entity relation to the single sessions.
