@@ -54,7 +54,7 @@
 	}
 
 }}
-<div class="card"  style="display: none;" id="signinsheet">
+<div class="card hidden" id="signinsheet" aria-hidden="true">
     <form data-region="booking-download-signinsheet-form" method="get" action="{{baseurl}}">
 		<div class="card-header"><h5 class="card-title">{{#str}}sign_in_sheet_download, mod_booking{{/str}}</h5></div>
 	    <div class="card-body p-y-4">
@@ -72,7 +72,7 @@
 					    <input id="signin-sort-lastname" type="radio" class="m-r-1" name="orderby" value="lastname"/><label for="signin-sort-lastname">{{#str}}sortbylastname, grades{{/str}}</label><br>
 					</div>
 					<div class="col-md-4 span4 col-4">
-						<label for="addemptyrows">{{#str}}signinaddemptyrows, mod_booking{{/str}}</label>
+						<label for="signin-addemptyrows">{{#str}}signinaddemptyrows, mod_booking{{/str}}</label>
 						<div>
 							<select name="addemptyrows" id="signin-addemptyrows" class="custom-select">
 								<option value="0">0</option>
