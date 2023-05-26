@@ -464,6 +464,7 @@ function booking_add_instance($booking) {
 
     // Copy the text fields out.
     $booking->bookedtext = $booking->bookedtext['text'] ?? $booking->bookedtext ?? null;
+    $booking->notificationtext = $booking->notificationtext['text'] ?? $booking->notificationtext ?? null;
     $booking->waitingtext = $booking->waitingtext['text'] ?? $booking->waitingtext ?? null;
     $booking->notifyemail = $booking->notifyemail['text'] ?? $booking->notifyemail ?? null;
     $booking->notifyemailteachers = $booking->notifyemailteachers['text'] ?? $booking->notifyemailteachers ?? null;
