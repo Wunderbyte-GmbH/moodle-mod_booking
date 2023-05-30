@@ -78,7 +78,10 @@ class prepagemodal implements renderable, templatable {
 
         $context = context_module::instance($settings->cmid);
 
-        $PAGE->set_context($context);
+        // Verification required to avoid error like "unsupported modification of PAGE->context from xx to yy".
+        if (!isset($PAGE->context->contextlevel)) {
+            $PAGE->set_context($context);
+        }
 
         if (has_capability('mod/booking:bookforothers', $context)) {
             $full = true;
