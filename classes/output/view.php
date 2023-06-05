@@ -665,6 +665,22 @@ class view implements renderable, templatable {
                     'localizedname' => get_string('institution', 'mod_booking'),
                 ];
             }
+
+            $filtercolumns['coursestarttime'] = [
+                'localizedname' => get_string('timespan', 'local_wunderbyte_table'),
+                'datepicker' => [
+                    'In between' => [
+                        'possibleoperations' => ['within', 'before', 'after'],
+                        'columntimestart' => 'coursestarttime',
+                        'columntimeend' => 'courseendtime',
+                        'labelstartvalue' => get_string('coursestarttime', 'mod_booking'),
+                        'defaultvaluestart' => 'now', // Can also be Unix timestamp or string "now".
+                        'labelendvalue' => get_string('courseendtime', 'mod_booking'),
+                        'defaultvalueend' => strtotime('+ 1 year', time()), // Can also be Unix timestamp or string "now".
+                        'checkboxlabel' => get_string('apply_filter', 'local_wunderbyte_table'), // Can be localized and will be displayed next to the checkbox.
+                    ]
+                ]
+            ];
             $wbtable->define_filtercolumns($filtercolumns);
         }
 
