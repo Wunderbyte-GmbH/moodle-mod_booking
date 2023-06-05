@@ -1,7 +1,10 @@
+## Version 8.0.13 (2023060500)
+**Improvements:**
+* Improvement: Code quality, behat tests, mustache linting, PHPunit fixes and more.
+
 ## Version 8.0.12 (2023052400)
 **Bugfixes:**
 * Bugfix: Add require_once to avoid warning from campaign_info with shortcodes use.
-
 
 ## Version 8.0.11 (2023052200)
 **Improvements:**
@@ -9,7 +12,7 @@
 
 ## Version 8.0.10 (2023051700)
 **Improvements:**
-* Improvements: Adjustment of capabilities for better finetuning
+* Improvement: Adjustment of capabilities for better finetuning
 
 ## Version 8.0.9 (2023051200)
 **New features:**
