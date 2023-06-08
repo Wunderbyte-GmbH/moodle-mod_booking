@@ -506,13 +506,11 @@ class booking_option {
     public function get_text_depending_on_status(booking_answers $bookinganswers, ?int $userid = null) {
         global $USER, $PAGE;
 
-        // When we call this via webservice, we don't have a context, this throws an error.
-        if (!isset($PAGE->context)) {
-            $PAGE->set_context(context_module::instance($this->cmid));
-        }
-        // We need both checks, as it depends on the usage which one will fail or throw an error.
-        if (!$context = $PAGE->context) {
-            $PAGE->set_context(context_module::instance($this->cmid));
+        // With shortcodes & webservice we might not have a valid context object.
+        if (!isset($PAGE->context) || !$context = $PAGE->context ?? null) {
+            if (empty($context)) {
+                $PAGE->set_context(context_module::instance($this->cmid));
+            }
         }
 
         $userid = $userid ?? $USER->id;
