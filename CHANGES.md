@@ -1,3 +1,7 @@
+## Version 8.0.15 (2023060901)
+**Bugfixes:**
+* Bugfix: Context in booking_bookit was set incorrectly!
+
 ## Version 8.0.14 (2023060900)
 **Improvements:**
 * Improvement: Code quality, and new timespan filter on view.php
