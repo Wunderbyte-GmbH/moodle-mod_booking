@@ -1,3 +1,7 @@
+## Version 8.0.14 (2023060900)
+**Improvements:**
+* Improvement: Code quality, and new timespan filter on view.php
+
 ## Version 8.0.13 (2023060500)
 **Improvements:**
 * Improvement: Code quality, behat tests, mustache linting, PHPunit fixes and more.
