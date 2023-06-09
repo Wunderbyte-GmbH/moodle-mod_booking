@@ -132,8 +132,7 @@ class message_controller {
         // When we call this via webservice, we don't have a context, this throws an error.
         // It's no use passing the context object either.
 
-         // With shortcodes & webservice we might not have a valid context object.
-         // With shortcodes & webservice we might not have a valid context object.
+        // With shortcodes & webservice we might not have a valid context object.
         if (!isset($PAGE->context) || !$context = $PAGE->context ?? null) {
             if (empty($context)) {
                 $PAGE->set_context(context_module::instance($cmid));
