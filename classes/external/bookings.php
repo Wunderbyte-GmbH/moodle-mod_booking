@@ -93,7 +93,9 @@ class bookings extends external_api {
                 $options['coursestarttime'] = $timediff;
             }
 
-            if (strcmp($cm->visible, "1") == 0) {
+            $context = context_module::instance($cm->id);
+
+            if (strcmp($cm->visible, "1") == 0 || has_capability('mod/booking:bookforothers', $context)) {
                 $bookingdata = new booking($cm->id);
 
                 if ($bookingdata->settings->showinapi == "1") {
