@@ -1,3 +1,7 @@
+## Version 8.0.17 (2023061201)
+**Bugfixes:**
+* Bugfix: Fix elective combinations.
+
 ## Version 8.0.16 (2023061200)
 **New features:**
 * New feature: Elective functionality implemented
