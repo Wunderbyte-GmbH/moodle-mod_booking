@@ -849,6 +849,8 @@ class option_form extends moodleform {
             $defaultvalues->id = $id;
         }
 
+        elective::option_form_set_data($defaultvalues);
+
         parent::set_data($defaultvalues);
     }
 

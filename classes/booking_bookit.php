@@ -373,27 +373,8 @@ class booking_bookit {
             $booking = singleton_service::get_instance_of_booking_settings_by_cmid($itemid);
 
             if (!empty($booking->enforceteacherorder)) {
-                // We use itemid as cmid.
-                $cachearray = $cache->get($itemid);
-                $arrayofoptions = $cachearray['arrayofoptions'];
 
-                // Unfortunately, we don't have the right ids at this moment. We really need to get all the options.
-
-                $sortarray = [];
-                foreach ($arrayofoptions as $optionid) {
-                    $sortoption = singleton_service::get_instance_of_booking_option_settings($optionid);
-                    array_push($sortarray, $sortoption);
-                }
-
-                usort($sortarray, function ($a, $b) {
-                    if ($a->sortorder == $b->sortorder) {
-                        return 0;
-                    }
-
-                    return $a->sortorder < $b->sortorder ? -1 : 1;
-                });
-
-                $arrayofoptions = array_map(fn($x) => $x->id, $sortarray);
+                $arrayofoptions = elective::return_sorted_array_of_options_from_cache($itemid);
             }
             else if (!$list) {
 

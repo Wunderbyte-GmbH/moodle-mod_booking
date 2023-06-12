@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking;
+
+use cache;
 use core\event\course_completed;
 use html_writer;
 use mod_booking\booking_utils;
@@ -96,6 +98,14 @@ class elective {
 
         global $DB;
 
+        if (!empty($customdata['bookingid'])) {
+            $booking = singleton_service::get_instance_of_booking_settings_by_bookingid($customdata['bookingid']);
+
+            if (empty($booking->iselective)) {
+                return;
+            }
+        }
+
         // Elective.
         $mform->addElement('header', 'electiveoptions', get_string('electivesettings', 'booking'));
         $mform->setExpanded('electiveoptions', true);
@@ -132,6 +142,24 @@ class elective {
 
         $mform->addElement('text', 'sortorder', get_string('electiveforcesortorder', 'booking'));
         $mform->setType('sortorder', PARAM_INT);
+    }
+
+    /**
+     * Function to set values.
+     *
+     * @param stdClass $defaultvalues
+     * @return void
+     */
+    public static function option_form_set_data(stdClass &$defaultvalues) {
+
+        if (!empty($defaultvalues->optionid)) {
+
+            $settings = singleton_service::get_instance_of_booking_option_settings($defaultvalues->optionid);
+
+            $defaultvalues->mustcombine = implode(',', $settings->electivecombinations['mustcombine']);
+            $defaultvalues->mustnotcombine = implode(',', $settings->electivecombinations['mustnotcombine']);
+        }
+
     }
 
     /**
@@ -457,7 +485,7 @@ class elective {
 
                 // Todo: If enforceorder is active for this instance, check completion status of previous booked options.
 
-                if (!empty($booking->settings->iselective)
+                if (!empty($booking->iselective)
                     && $enforceorder == 1) {
                     if (!self::check_if_allowed_to_inscribe($boption, $bookeduser->id)) {
                         continue;
@@ -470,9 +498,161 @@ class elective {
         }
 
         // If it's an elective, we can't set enrolmentstatus to 1, because we need to run check again and again.
-        if (!empty($boids) && empty($booking->settings->iselective)) {
+        if (!empty($boids) && empty($booking->iselective)) {
             list($insql, $params) = $DB->get_in_or_equal(array_keys($boids));
             $DB->set_field_select('booking_options', 'enrolmentstatus', '1', 'id ' . $insql, $params);
         }
+    }
+
+    /**
+     * Check if booking is alloowed in this combination
+     *
+     * @param booking_option_settings $settings
+     * @return boolean
+     */
+    public static function is_bookable(booking_option_settings $settings): bool {
+
+        global $DB;
+
+        if (empty($settings->electivecombinations['mustnotcombine'])) {
+            return true;
+        }
+
+        list($inorequal, $params) = $DB->get_in_or_equal($settings->electivecombinations['mustnotcombine'], SQL_PARAMS_NAMED);
+
+        $params['reserved'] = STATUSPARAM_RESERVED;
+
+        $sql = "SELECT *
+                FROM {booking_answers} ba
+                WHERE ba.optionid " . $inorequal .
+                "AND ba.waitinglist=:reserved";
+
+        $conflicts = $DB->get_records_sql($sql, $params);
+
+        if (count($conflicts) > 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Return an array of allowed and not allowed combinations.
+     *
+     * @param integer $optionid
+     * @return array
+     */
+    public static function load_combinations(int $optionid) {
+
+        global $DB;
+
+        $sql = "SELECT *
+                FROM {booking_combinations}
+                WHERE optionid=:optionid1
+                OR otheroptionid=:optionid2";
+
+        $params = [
+            'optionid1' => $optionid,
+            'optionid2' => $optionid,
+        ];
+
+        $records = $DB->get_records_sql($sql, $params);
+
+        $returnarrray['mustcombine'] = [];
+        $returnarrray['mustnotcombine'] = [];
+
+        foreach ($records as $record) {
+
+            // we always need to get the other id.
+            $otherid = $record->optionid == $optionid ?
+                $record->otheroptionid : $record->optionid;
+            if (!empty($record->cancombine)) {
+                $returnarrray['mustcombine'][$otherid] = $otherid;
+            } else {
+                $returnarrray['mustnotcombine'][$otherid] = $otherid;
+            }
+        }
+
+        return $returnarrray;
+    }
+
+    /**
+     * Checks currently selected booking options if they can be combined.
+     *
+     * @param booking_settings $booking
+     * @return boolean
+     */
+    public static function is_bookable_combination(booking_settings $booking):bool {
+
+        $arrayofoptions = self::get_options_from_cache($booking->cmid);
+
+        $cancombine = true;
+        foreach ($arrayofoptions as $option) {
+
+            foreach ($option->electivecombinations['mustcombine'] as $optionid) {
+                if (!isset($arrayofoptions[$optionid])) {
+                    $cancombine = false;
+                }
+            }
+
+            foreach ($option->electivecombinations['mustnotcombine'] as $optionid) {
+                if (isset($arrayofoptions[$optionid])) {
+                    $cancombine = false;
+                }
+            }
+        }
+
+        return $cancombine;
+    }
+
+
+    /**
+     * Get sorted array of options from cache.
+     *
+     * @param integer $cmid
+     * @return array
+     */
+    public static function return_sorted_array_of_options_from_cache(int $cmid):array {
+
+        $sortarray = self::get_options_from_cache($cmid);
+
+        usort($sortarray, function ($a, $b) {
+            if ($a->sortorder == $b->sortorder) {
+                return 0;
+            }
+
+            return $a->sortorder < $b->sortorder ? -1 : 1;
+        });
+
+        $arrayofoptions = array_map(fn($x) => $x->id, $sortarray);
+
+        return $arrayofoptions;
+    }
+
+    /**
+     * Get array of ints from cache and instantiate them.
+     *
+     * @param integer $cmid
+     * @return array
+     */
+    public static function get_options_from_cache(int $cmid):array {
+
+        $cache = cache::make('mod_booking', 'electivebookingorder');
+        // We use itemid as cmid.
+        $cachearray = $cache->get($cmid);
+
+        // Unfortunately, we don't have the right ids at this moment. We really need to get all the options.
+
+        if (!$cachearray) {
+            return [];
+        }
+
+        $arrayofoptions = [];
+        foreach ($cachearray['arrayofoptions'] as $optionid) {
+            $sortoption = singleton_service::get_instance_of_booking_option_settings($optionid);
+            $arrayofoptions[$sortoption->id] = $sortoption;
+        }
+
+        return $arrayofoptions;
     }
 }

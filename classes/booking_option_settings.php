@@ -238,6 +238,9 @@ class booking_option_settings {
     /** @var int $sortorder */
     public $sortorder = null;
 
+    /** @var array $electivecombinations */
+    public $electivecombinations = null;
+
 
     /**
      * Constructor for the booking option settings class.
@@ -487,6 +490,14 @@ class booking_option_settings {
                 $dbrecord->subbookings = $this->subbookings;
             } else {
                 $this->subbookings = $dbrecord->subbookings;
+            }
+
+            // If the key "electivecombinations" is not yet set, we need to load them via handler first.
+            if (!isset($dbrecord->electivecombinations)) {
+                $this->load_elective_combinations($optionid);
+                $dbrecord->electivecombinations = $this->electivecombinations;
+            } else {
+                $this->electivecombinations = $dbrecord->electivecombinations;
             }
 
             // Check if there are active campaigns.
@@ -791,8 +802,25 @@ class booking_option_settings {
         }
     }
 
+    /**
+     * Load subbookings
+     *
+     * @param integer $optionid
+     * @return void
+     */
     private function load_subbookings(int $optionid) {
         $this->subbookings = subbookings_info::load_subbookings($optionid);
+    }
+
+    /**
+     * Load elective combinations
+     *
+     * @param integer $optionid
+     * @return void
+     */
+    private function load_elective_combinations(int $optionid) {
+
+        $this->electivecombinations = elective::load_combinations($optionid);
     }
 
     /**

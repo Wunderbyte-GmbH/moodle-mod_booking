@@ -50,10 +50,10 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class electiveenoughcredits implements bo_condition {
+class electivenotbookable implements bo_condition {
 
     /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = BO_COND_ELECTIVENOTENOUGHCREDITS;
+    public $id = BO_COND_ELECTIVENOTBOOKABLE;
 
     /**
      * Needed to see if class can take JSON.
@@ -94,7 +94,10 @@ class electiveenoughcredits implements bo_condition {
                 $isavailable = false;
             }
 
-            // Now we check if the Plugin has excluded optionids.
+            // Now we check if it's bookable because of the combinations.
+            if (!elective::is_bookable($settings)) {
+                $isavailable = false;
+            }
 
         }
 
@@ -234,7 +237,7 @@ class electiveenoughcredits implements bo_condition {
             $userid = $USER->id;
         }
 
-        $label = get_string('notenoughcredits', 'mod_booking');
+        $label = get_string('electivenotbookable', 'mod_booking');
 
         return bo_info::render_button(
             $settings,
@@ -243,7 +246,7 @@ class electiveenoughcredits implements bo_condition {
             'btn btn-warning mt-1 mb-1',
             false,
             $fullwidth,
-            'button',
+            'alert',
             'option',
             false,
             'noforward');

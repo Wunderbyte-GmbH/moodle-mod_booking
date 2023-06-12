@@ -30,55 +30,60 @@
         "id" : "1"
     }
 }}
+{{#notbookablemessage}}
+  <div class="alert alert-danger">{{notbookablemessage}}</div>
+{{/notbookablemessage}}
 
-<button type="button" class="{{modalbuttonclass}}" data-toggle="modal" data-target="#electiveModalCenter">
-  {{#str}} bookelectivesbtn, mod_booking {{/str}}
-</button>
+{{^notbookablemessage}}
+  <button type="button" class="{{modalbuttonclass}}" data-toggle="modal" data-target="#electiveModalCenter">
+    {{#str}} bookelectivesbtn, mod_booking {{/str}}
+  </button>
 
-<div class="modal fade" id="electiveModalCenter" tabindex="-1" role="dialog" aria-labelledby="electiveModalCenterTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="electiveModalLongTitle">{{#str}} confirmbookingtitle, mod_booking {{/str}}</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p>
-            {{#str}} sortbookingoptions, mod_booking {{/str}}
-        </p>
-        <ul id="wb-sortabe" class="list-group">
-            {{#arrayofoptions}}
-                <li class="list-group-item" data-id={{id}}>
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-1">
-                                {{^isteacherorderforced}}
-                                    <i class="fa fa-arrows-alt"></i>
-                                {{/isteacherorderforced}}
-                             </div>
-                            <div class="col-6 text-left">
-                                    <h3>{{text}}</h3>
-                            </div>
-                            <div class="col-5 text-right">
-                                    {{#str}} credits, mod_booking {{/str}}: {{credits}}
-                            </div>
-                        </div>
-                    </div>
-                </li>
-            {{/arrayofoptions}}
-            {{^arrayofoptions}}
-                {{#str}} selectoptionsfirst, mod_booking {{/str}}
-            {{/arrayofoptions}}
-        </ul>
+  <div class="modal fade" id="electiveModalCenter" tabindex="-1" role="dialog" aria-labelledby="electiveModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="electiveModalLongTitle">{{#str}} confirmbookingtitle, mod_booking {{/str}}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>
+              {{#str}} sortbookingoptions, mod_booking {{/str}}
+          </p>
+          <ul id="wb-sortabe" class="list-group">
+              {{#arrayofoptions}}
+                  <li class="list-group-item" data-id={{id}}>
+                      <div class="container">
+                          <div class="row">
+                              <div class="col-1">
+                                  {{^isteacherorderforced}}
+                                      <i class="fa fa-arrows-alt"></i>
+                                  {{/isteacherorderforced}}
+                              </div>
+                              <div class="col-6 text-left">
+                                      <h3>{{text}}</h3>
+                              </div>
+                              <div class="col-5 text-right">
+                                      {{#str}} credits, mod_booking {{/str}}: {{credits}}
+                              </div>
+                          </div>
+                      </div>
+                  </li>
+              {{/arrayofoptions}}
+              {{^arrayofoptions}}
+                  {{#str}} selectoptionsfirst, mod_booking {{/str}}
+              {{/arrayofoptions}}
+          </ul>
 
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        {{{confirmbutton}}}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          {{{confirmbutton}}}
+        </div>
       </div>
     </div>
   </div>
-</div>
+{{/notbookablemessage}}
 

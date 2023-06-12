@@ -57,6 +57,10 @@ class elective_modal implements renderable, templatable {
     /** @var bool */
     public $isteacherorderforced = false;
 
+    /** @var string */
+    public $notbookablemessage;
+
+
     /**
      * Constructor
      *
@@ -110,6 +114,10 @@ class elective_modal implements renderable, templatable {
             });
         }
 
+        if (!elective::is_bookable_combination($booking)) {
+            $this->notbookablemessage = get_string('notbookablecombiantion', 'mod_booking');
+        }
+
         // If all credits have to be consumed at once, only enable the "book all selected" button...
         // ... when no more credits are left.
         if ($booking->consumeatonce == 1 && elective::return_credits_left($booking) !== 0) {
@@ -137,7 +145,8 @@ class elective_modal implements renderable, templatable {
             'modalbuttonclass' => $this->modalbuttonclass,
             'confirmbutton' => $this->confirmbutton,
             'arrayofoptions' => $this->arrayofoptions,
-            'isteacherorderforced' => $this->isteacherorderforced
+            'isteacherorderforced' => $this->isteacherorderforced,
+            'notbookablemessage' => $this->notbookablemessage,
         ];
     }
 

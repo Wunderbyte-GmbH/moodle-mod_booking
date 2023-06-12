@@ -801,8 +801,10 @@ class mod_booking_mod_form extends moodleform_mod {
         }
         $mform->addElement('select', 'customtemplateid', get_string('customreporttemplate', 'booking'), $customreporttemplates);
 
-        $elective_handler = new elective();
-        $elective_handler->instance_form_definition($mform);
+        if (wb_payment::pro_version_is_activated()) {
+            $elective_handler = new elective();
+            $elective_handler->instance_form_definition($mform);
+        }
 
         // Category.
         $mform->addElement('header', 'categoryheader', get_string('categoryheader', 'booking'));
