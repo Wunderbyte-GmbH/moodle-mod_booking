@@ -508,5 +508,17 @@
         <KEY NAME="usermodified" TYPE="foreign" FIELDS="usermodified" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
+     <TABLE NAME="booking_combinations" COMMENT="Booking option can define necessary or forbidden combination with other booking option">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Which booking option is concerned"/>
+        <FIELD NAME="otheroptionid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The OTHER booking option, with which a relation is defined here"/>
+        <FIELD NAME="othercourseid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Instead of a booking option, we can also define a relation to a course (must be booked, finished etc.)"/>
+        <FIELD NAME="cancombine" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="0 is can't combine, 1 is must combine, 3 is must not be finished, 4 is must be finished"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
   </TABLES>
 </XMLDB>
