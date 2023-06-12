@@ -79,6 +79,11 @@ export const initbookitbutton = (itemid, area) => {
             return;
         }
 
+        // We don't run code on disabled buttons.
+        if (button.classList.contains('disabled')) {
+            return;
+        }
+
         if (!button.dataset.initialized) {
             button.dataset.initialized = 'true';
 
@@ -88,8 +93,10 @@ export const initbookitbutton = (itemid, area) => {
 
                 // E.stopPropagation();
 
+                const data = button.dataset;
+
                 if (e.target.classList.contains('btn')) {
-                    bookit(itemid, area, userid);
+                    bookit(itemid, area, userid, data);
                 }
             });
         }
@@ -326,8 +333,9 @@ async function renderTemplatesOnPage(templates, dataarray, element) {
  * @param {int} itemid
  * @param {string} area
  * @param {int} userid
+ * @param {object} data
  */
-function bookit(itemid, area, userid) {
+function bookit(itemid, area, userid, data) {
 
     Ajax.call([{
         methodname: "mod_booking_bookit",
@@ -335,8 +343,13 @@ function bookit(itemid, area, userid) {
             'itemid': itemid,
             'area': area,
             'userid': userid,
+            'data': JSON.stringify(data),
         },
         done: function(res) {
+
+            if (document.querySelector('.booking-elective-component')) {
+                window.location.reload();
+            }
 
             const jsonarray = JSON.parse(res.json);
 

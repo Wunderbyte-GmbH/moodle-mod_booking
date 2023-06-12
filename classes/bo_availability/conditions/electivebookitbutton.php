@@ -15,18 +15,24 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Already reserved condition (item has been added to cart).
+ * Base class for a single booking option availability condition.
+ *
+ * All bo condition types must extend this class.
  *
  * @package mod_booking
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_booking\bo_availability\conditions;
+ namespace mod_booking\bo_availability\conditions;
 
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\booking_bookit;
 use mod_booking\booking_option_settings;
+use mod_booking\output\bookingoption_description;
+use mod_booking\output\bookit_button;
+use mod_booking\price;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
 
@@ -35,16 +41,20 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Already reserved condition (item has been added to cart).
+ * This is the base booking condition. It is actually used to show the bookit button.
+ * It will always return false, because its the last check in the chain of booking conditions.
+ * We use this to have a clean logic of how depticting the book it button.
+ *
+ * All bo condition types must extend this class.
  *
  * @package mod_booking
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class alreadyreserved implements bo_condition {
+class electivebookitbutton implements bo_condition {
 
-    /** @var int $id default conditions have hardcoded ids. */
-    public $id = BO_COND_ALREADYRESERVED;
+    /** @var int $id Standard Conditions have hardcoded ids. */
+    public $id = BO_COND_ELECTIVEBOOKITBUTTON;
 
     /**
      * Needed to see if class can take JSON.
@@ -72,25 +82,12 @@ class alreadyreserved implements bo_condition {
      */
     public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
 
-        global $DB;
+        $isavailable = true;
 
-        // This is the return value. Not available to begin with.
-        $isavailable = false;
+        $booking = singleton_service::get_instance_of_booking_settings_by_bookingid($settings->bookingid);
 
-        // Get the booking answers for this instance.
-        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
-
-        $bookinginformation = $bookinganswer->return_all_booking_information($userid);
-
-        // If the user is not yet booked we return true.
-        if (!isset($bookinginformation['iamreserved'])) {
-
-            $isavailable = true;
-        }
-
-        // If it's inversed, we inverse.
-        if ($not) {
-            $isavailable = !$isavailable;
+        if (!empty($booking->iselective)) {
+            $isavailable = false;
         }
 
         return $isavailable;
@@ -138,7 +135,7 @@ class alreadyreserved implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full);
 
-        return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_JUSTMYALERT];
+        return [$isavailable, $description, BO_PREPAGE_BOOK, BO_BUTTON_MYBUTTON];
     }
 
     /**
@@ -161,7 +158,51 @@ class alreadyreserved implements bo_condition {
      * @return array
      */
     public function render_page(int $optionid) {
-        return [];
+
+        $data1 = new bookingoption_description($optionid, null, DESCRIPTION_WEBSITE, true, false);
+
+        $template = 'mod_booking/bookingoption_description_prepagemodal_bookit';
+
+        $dataarray[] = [
+            'data' => $data1->get_returnarray(),
+        ];
+
+        $templates[] = $template;
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        list($template, $data2) = booking_bookit::render_bookit_template_data($settings, 0, false);
+        $data2 = reset($data2);
+        $template = reset($template);
+
+        $dataarray[] = [
+            'data' => $data2->data,
+        ];
+
+        $templates[] = $template;
+
+        // Only if the option is not yet booked, we set buttontype to 1 (continue is disabled).
+        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+
+        // Inactive Continue Button.
+        // We don't use this functionality right now.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* if ($bookinganswer->user_status($USER->id) == STATUSPARAM_NOTBOOKED) {
+            $buttontype = 1;
+        } else {
+            $buttontype = 0;
+        } */
+        $buttontype = 0;
+
+        $response = [
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* 'json' => json_encode($dataarray), */
+            'template' => implode(',', $templates),
+            'buttontype' => $buttontype, // This means that the continue button is disabled.
+            'data' => $dataarray,
+        ];
+
+        return $response;
     }
 
     /**
@@ -181,27 +222,14 @@ class alreadyreserved implements bo_condition {
 
         global $USER;
 
-        $userid = !empty($userid) ? $userid : $USER->id;
-
-        $settings = singleton_service::get_instance_of_booking_option_settings($settings->id);
-
-        $user = singleton_service::get_instance_of_user($userid);
-
-        $booking = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
-
-        if (empty($booking->iselective)) {
-            $data = $settings->return_booking_option_information($user);
-
-            if ($fullwidth) {
-                $data['fullwidth'] = $fullwidth;
-            }
-
-            return ['mod_booking/bookit_price', $data];
-        } else {
-
-            $label = get_string('selected', 'mod_booking');
-            return bo_info::render_button($settings, $userid, $label, 'alert alert-warning', true, $fullwidth, 'alert', 'option');
+        if ($userid === null) {
+            $userid = $USER->id;
         }
+
+        $label = get_string('selectelective', 'mod_booking', $settings->credits);
+
+        return bo_info::render_button($settings, $userid, $label, 'btn btn-secondary mt-1 mb-1', false, $fullwidth,
+            'button', 'option', false, 'noforward');
     }
 
     /**
@@ -211,14 +239,12 @@ class alreadyreserved implements bo_condition {
      * @param bool $full
      * @return string
      */
-    private function get_description_string($isavailable, $full) {
-        if ($isavailable) {
-            $description = $full ? get_string('bo_cond_alreadyreserved_full_available', 'mod_booking') :
-                get_string('bo_cond_alreadyreserved_available', 'mod_booking');
-        } else {
-            $description = $full ? get_string('bo_cond_alreadyreserved_full_not_available', 'mod_booking') :
-                get_string('bo_cond_alreadyreserved_not_available', 'mod_booking');
-        }
+    private function get_description_string($isavailable, $full): string {
+
+        // In this case, we dont differentiate between availability, because when it blocks...
+        // ... it just means that it can be booked. Blocking has a different functionality here.
+        $description = '';
+
         return $description;
     }
 }

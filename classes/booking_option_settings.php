@@ -232,6 +232,12 @@ class booking_option_settings {
     /** @var int $responsiblecontact userid of the responsible contact person */
     public $responsiblecontact = null;
 
+    /** @var int $credits */
+    public $credits = null;
+
+    /** @var int $sortorder */
+    public $sortorder = null;
+
 
     /**
      * Constructor for the booking option settings class.
@@ -350,6 +356,10 @@ class booking_option_settings {
             $this->availability = $dbrecord->availability;
             $this->status = $dbrecord->status;
             $this->responsiblecontact = $dbrecord->responsiblecontact;
+
+            // Elecitve.
+            $this->credits = $dbrecord->credits;
+            $this->sortorder = $dbrecord->sortorder;
 
             // Price formula: absolute value.
             if (isset($dbrecord->priceformulaadd)) {

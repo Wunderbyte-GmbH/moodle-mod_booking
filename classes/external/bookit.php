@@ -58,6 +58,7 @@ class bookit extends external_api {
             'area' => new external_value(PARAM_RAW, 'area'),
             'itemid' => new external_value(PARAM_INT, 'itemid'),
             'userid' => new external_value(PARAM_INT, 'userid'),
+            'data' => new external_value(PARAM_RAW, 'data'),
             )
         );
     }
@@ -68,19 +69,21 @@ class bookit extends external_api {
      * @param string $area
      * @param int $itemid
      * @param int $userid
+     * @param string $data
      *
      * @return array
      */
-    public static function execute(string $area, int $itemid, int $userid): array {
+    public static function execute(string $area, int $itemid, int $userid, string $data): array {
         $params = self::validate_parameters(self::execute_parameters(), [
             'itemid' => $itemid,
             'area' => $area,
             'userid' => $userid,
+            'data' => $data,
         ]);
 
         require_login();
 
-        $response = booking_bookit::bookit($params['area'], $params['itemid'], $params['userid']);
+        $response = booking_bookit::bookit($params['area'], $params['itemid'], $params['userid'], $params['data']);
 
         $status = $response['status'];
         $message = $response['message'];

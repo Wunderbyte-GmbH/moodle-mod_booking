@@ -974,6 +974,15 @@ class booking_option {
     public function enrol_user_coursestart($userid) {
         if ($this->option->enrolmentstatus == 2 ||
             ($this->option->enrolmentstatus < 2 && $this->option->coursestarttime < time())) {
+
+                // This is a new elective function. We only allow booking in the right order.
+            if ($this->booking->is_elective()) {
+                if (!elective::check_if_allowed_to_inscribe($this, $userid)) {
+                    // mtrace("The user with the userid {$userid} has to finish courses of other booking options first.");
+                    return;
+                }
+            }
+
             $this->enrol_user($userid);
         }
     }

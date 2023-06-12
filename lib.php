@@ -31,6 +31,7 @@ use mod_booking\booking_option;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\booking_utils;
 use mod_booking\dates_handler;
+use mod_booking\elective;
 use mod_booking\output\coursepage_shortinfo_and_button;
 use mod_booking\singleton_service;
 use mod_booking\teachers_handler;
@@ -108,9 +109,12 @@ define('BO_COND_JSON_PREVIOUSLYBOOKED', 13);
 define('BO_COND_JSON_CUSTOMUSERPROFILEFIELD', 12);
 define('BO_COND_JSON_USERPROFILEFIELD', 11);
 
+define('BO_COND_ELECTIVENOTENOUGHCREDITS', 9);
+define('BO_COND_ELECTIVEBOOKITBUTTON', 8);
+
 define('BO_COND_NOSHOPPINGCART', 6);
 define('BO_COND_PRICEISSET', 5);
-define('BO_COND_CONFIRMBOOKIT', 2);
+define('BO_COND_CONFIRMBOOKIT', 4);
 define('BO_COND_BOOKITBUTTON', 1); // This is only used to show the book it button.
 define('BO_COND_CONFIRMATION', 0); // This is the last page after booking.
 
@@ -434,6 +438,8 @@ function booking_add_instance($booking) {
         $booking->templateid = 0;
     }
 
+    $booking->iselective = !empty($booking->iselective) ? $booking->iselective : 0;
+
     if (empty($booking->timerestrict)) {
         $booking->timeopen = $booking->timeclose = 0;
     }
@@ -579,6 +585,8 @@ function booking_update_instance($booking) {
     } else {
         $booking->templateid = 0;
     }
+
+    $booking->iselective = !empty($booking->iselective) ? $booking->iselective : 0;
 
     if (isset($booking->optionsfields) && is_array($booking->optionsfields) && count($booking->optionsfields) > 0) {
         $booking->optionsfields = implode(',', $booking->optionsfields);
@@ -1043,6 +1051,14 @@ function booking_update_options($optionvalues, $context) {
             $option->shorturl = '';
         }
 
+        // Elective.
+        // Save combination arrays to DB.
+        elective::addcombinations($option->id, $optionvalues->mustcombine, 1);
+        elective::addcombinations($option->id, $optionvalues->mustnotcombine, 0);
+
+        $option->credits = $optionvalues->credits ?? 0;
+        $option->sortorder = $optionvalues->sortorder ?? 0;
+
         if (isset($optionvalues->text) && $optionvalues->text != '') {
             $option->calendarid = $DB->get_field('booking_options', 'calendarid',
                     array('id' => $option->id));
@@ -1224,6 +1240,14 @@ function booking_update_options($optionvalues, $context) {
                 $optionid = $dbrecord->id;
             }
         }
+
+        // Elective.
+        // Save combination arrays to DB.
+        elective::addcombinations($optionid, $optionvalues->mustcombine, 1);
+        elective::addcombinations($optionid, $optionvalues->mustnotcombine, 0);
+
+        $option->credits = $optionvalues->credits ?? 0;
+        $option->sortorder = $optionvalues->sortorder ?? 0;
 
         // Create group in target course if there is a course specified only.
         if (!empty($option->courseid) && !empty($booking->addtogroup)) {

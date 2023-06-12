@@ -310,6 +310,21 @@ class booking_settings {
     /** @var int $semesterid */
     public $semesterid = null;
 
+    /** @var int $iselective */
+    public $iselective = null;
+
+    /** @var int $consumeatonce */
+    public $consumeatonce = null;
+
+    /** @var int $maxcredits */
+    public $maxcredits = null;
+
+    /** @var int $enforceorder */
+    public $enforceorder = null;
+
+    /** @var int $enforceteacherorder */
+    public $enforceteacherorder = null;
+
     /** @var user $bookingmanageruser */
     public $bookingmanageruser = null;
 
@@ -464,6 +479,13 @@ class booking_settings {
             $this->autcrvalue = $dbrecord->autcrvalue;
             $this->autcrtemplate = $dbrecord->autcrtemplate;
             $this->semesterid = $dbrecord->semesterid;
+
+            // Elective
+            $this->iselective = $dbrecord->iselective;
+            $this->consumeatonce = $dbrecord->consumeatonce;
+            $this->maxcredits = $dbrecord->maxcredits;
+            $this->enforceorder = $dbrecord->enforceorder;
+            $this->enforceteacherorder = $dbrecord->enforceteacherorder;
 
             // If we do not have it yet, we have to load the booking manager's user object from DB.
             if (empty($dbrecord->bookingmanageruser) && !empty($dbrecord->bookingmanager)) {

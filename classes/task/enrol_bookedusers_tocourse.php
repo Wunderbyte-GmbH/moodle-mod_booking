@@ -17,6 +17,8 @@
 namespace mod_booking\task;
 
 use mod_booking\booking_option;
+use mod_booking\elective;
+use mod_booking\singleton_service;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -63,11 +65,25 @@ class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
 
             $boption = new booking_option($cm->id, $optionid);
 
+            $booking = $boption->booking;
+            // $iselective = $booking->settings->iselective; TODO: delete this?
+            $enforceorder = !empty($booking->settings->enforceorder) || !empty($booking->settings->enforceteacherorder) ? 1 : 0;
+
             // Get all booked users of the relevant booking options.
             $bookedusers = $boption->get_all_users_booked();
 
+            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($booking->cmid);
+
             // Enrol all users to the course.
             foreach ($bookedusers as $bookeduser) {
+
+                if ($bookingsettings->iselective
+                    && $enforceorder == 1) {
+                    if (!elective::check_if_allowed_to_inscribe($boption, $bookeduser->id)) {
+                        continue;
+                    }
+                }
+
                 $boption->enrol_user($bookeduser->userid);
 
                 // TODO: check if enrolment successful... (enrol_user needs to return boolean).
@@ -75,12 +91,14 @@ class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
                 if (!empty($boption->option->courseid)) {
                     mtrace("The user with the {$bookeduser->id} has been enrolled to the course {$boption->option->courseid}.");
                 }
-            }
-        }
 
-        if (!empty($boids)) {
-            list($insql, $params) = $DB->get_in_or_equal(array_keys($boids));
-            $DB->set_field_select('booking_options', 'enrolmentstatus', '1', 'id ' . $insql, $params);
+                // We update enrolement status of this option only if it's not an elective.
+                if (empty($bookingsettings->iselective)) {
+                    list($insql, $params) = $DB->get_in_or_equal(array_keys($optionid));
+                    $DB->set_field_select('booking_options', 'enrolmentstatus', '1', 'id ' . $insql, $params);
+                }
+
+            }
         }
     }
 }

@@ -91,4 +91,8 @@ $observers = array(
         'eventname' => '*',
         'callback' => 'mod_booking_observer::execute_rule'
     ),
+    array(
+        'eventname' => '\core\event\course_completed',
+        'callback' => 'mod_booking_observer::course_completed'
+    ),
 );

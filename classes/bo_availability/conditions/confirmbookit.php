@@ -85,11 +85,13 @@ class confirmbookit implements bo_condition {
         $cache = cache::make('mod_booking', 'confirmbooking');
         $cachekey = $userid . "_" . $settings->id . '_bookit';
 
-        $blocktime = $cache->get($cachekey);
-        $limittime = strtotime('- ' . TIME_TO_CONFIRM . ' seconds', time());
-
-        if (!$blocktime || $limittime > $blocktime) {
+        if (!$blocktime = $cache->get($cachekey)) {
             $isavailable = true;
+        } else {
+            $limittime = strtotime('- ' . TIME_TO_CONFIRM . ' seconds', time());
+            if ($limittime > $blocktime) {
+                $isavailable = true;
+            }
         }
 
         // If it's inversed, we inverse.

@@ -29,6 +29,7 @@ use context_module;
 use context_system;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
+use mod_booking\elective;
 use mod_booking\singleton_service;
 use mod_booking\table\bookingoptions_wbtable;
 use moodle_exception;
@@ -105,6 +106,12 @@ class view implements renderable, templatable {
     /** @var string $showinvisible */
     private $showinvisible = null;
 
+    /** @var string $elective */
+    private $renderelectivetable = null;
+
+    /** @var array $elective */
+    private $electivemodal = null;
+
     /**
      * Constructor
      *
@@ -113,7 +120,7 @@ class view implements renderable, templatable {
      * @param int $optionid
      */
     public function __construct(int $cmid, string $whichview = '', int $optionid = 0) {
-        global $USER;
+        global $USER, $PAGE;
 
         $this->cmid = $cmid;
 
@@ -174,6 +181,25 @@ class view implements renderable, templatable {
                 break;
         }
 
+        if (!empty($bookingsettings->iselective)) {
+            list($tablestring, $rawdata) = $this->get_rendered_elective_table();
+
+            $this->renderelectivetable = $tablestring;
+            $modal = new elective_modal($bookingsettings, $rawdata);
+            $this->electivemodal = $modal->return_as_array();
+
+            // Get booking settings.
+            $booking = singleton_service::get_instance_of_booking_settings_by_cmid($bookingsettings->cmid);
+
+            $this->electivemodal['maxcredits'] = $booking->maxcredits;
+            $this->electivemodal['creditsleft'] = elective::return_credits_left($booking);
+            $this->electivemodal['isteacherorderforced'] = empty($booking->enforceteacherorder) ? false : true;
+
+            $PAGE->requires->js_call_amd('mod_booking/elective-sorting', 'electiveSorting');
+
+            return;
+        }
+
         // Active options.
         if (in_array('showactive', $showviews)) {
             $this->renderedactiveoptionstable = $this->get_rendered_active_options_table();
@@ -209,6 +235,33 @@ class view implements renderable, templatable {
         if (in_array('showinvisible', $showviews) && has_capability('mod/booking:canseeinvisibleoptions', $context)) {
             $this->renderedinvisibleoptionstable = $this->get_rendered_invisible_options_table();
         }
+    }
+
+
+/**
+     * Render table for elective.
+     * @return array the rendered table
+     */
+    public function get_rendered_elective_table():array {
+        $cmid = $this->cmid;
+
+        $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
+
+        // Create the table.
+        $allbookingoptionstable = new bookingoptions_wbtable('allbookingoptionstable', $booking);
+
+        $wherearray = ['bookingid' => (int)$booking->id];
+        list($fields, $from, $where, $params, $filter) =
+                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
+        $allbookingoptionstable->set_filter_sql($fields, $from, $where, $filter, $params);
+
+        // Initialize the default columnes, headers, settings and layout for the table.
+        // In the future, we can parametrize this function so we can use it on many different places.
+        $this->wbtable_initialize_list_layout($allbookingoptionstable, true, true, true);
+
+        $out = $allbookingoptionstable->outhtml($booking->get_pagination_setting(), true);
+
+        return [$out, $allbookingoptionstable->rawdata];
     }
 
     /**
@@ -707,6 +760,7 @@ class view implements renderable, templatable {
      * @return array
      */
     public function export_for_template(renderer_base $output) {
+
         return [
             'alloptionstable' => $this->renderedalloptionstable,
             'activeoptionstable' => $this->renderedactiveoptionstable,
@@ -716,6 +770,7 @@ class view implements renderable, templatable {
             'myinstitutiontable' => $this->renderedmyinstitutiontable,
             'visibleoptionstable' => $this->renderedvisibleoptionstable,
             'invisibleoptionstable' => $this->renderedinvisibleoptionstable,
+            'electivetable' => $this->renderelectivetable,
             'showonlyone' => $this->showonlyone,
             'showactive' => $this->showactive,
             'showall' => $this->showall,
@@ -724,7 +779,8 @@ class view implements renderable, templatable {
             'myinstitution' => $this->myinstitution,
             'myinstitutionname' => $this->myinstitutionname,
             'showvisible' => $this->showvisible,
-            'showinvisible' => $this->showinvisible
+            'showinvisible' => $this->showinvisible,
+            'elective' => empty($this->renderelectivetable) ? false : $this->electivemodal,
         ];
     }
 }

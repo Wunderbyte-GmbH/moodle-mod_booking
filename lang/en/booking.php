@@ -2422,3 +2422,37 @@ $string['personnr'] = 'Person n° {$a}';
 
 // Shortcodes.
 $string['recommendedin'] = "Shortcode to show a list of booking options which should be recommended in a given course. To use this, add a booking customfield with the shortname 'recommendedin' and comma separated values with the shortnames of the courses you want to show this recommendations. So: When you want recommend option1 to the participants enroled in Course 1 (course1), then you need to set the customfield 'recommendedin' from within the booking option to 'course1'.";
+
+// Elective.
+$string['elective'] = "Elective";
+$string['selected'] = 'Selected';
+$string['bookelectivesbtn'] = 'Book selected electives';
+$string['electivesbookedsuccess'] = 'Your selected electives have been booked successfully.';
+$string['errormultibooking'] = 'There was an ERROR when booking the electives.';
+$string['selectelective'] = 'Select elective for {$a} credits';
+$string['electivedeselectbtn'] = 'Deselect elective';
+$string['confirmbookingtitle'] = "Confirm booking";
+$string['sortbookingoptions'] = "Please sort your bookings in the right order. You will only be able to access the associated courses one after the other. Top comes first.";
+$string['selectoptionsfirst'] = "Please select booking options first.";
+$string['electivesettings'] = 'Elective Settings';
+$string['iselective'] = 'Use instance as elective';
+$string['maxcredits'] = 'Max credits to use';
+$string['maxcredits_help'] = 'You can define the max amount of credits users can or must use when booking options. You can define in every booking option how many credits it is worth.';
+$string['unlimitedcredits'] = 'Don\'t use credits';
+$string['enforceorder'] = 'Enforce booking order';
+$string['enforceorder_help'] = 'Users will be inscribed only once they have completed the previous booking option';
+$string['consumeatonce'] = 'All credits have to be consumed at once';
+$string['consumeatonce_help'] = 'Uses can only book once, and they have to book all options in one step.';
+$string['credits'] = 'Credits';
+$string['notenoughcredits'] = 'Not enough credits';
+$string['credits_help'] = 'The number of credits which will be used by booking this option.';
+$string['mustcombine'] = 'Necessary booking options';
+$string['mustcombine_help'] = 'Booking options which have to be combined with this option';
+$string['mustnotcombine'] = 'Excluded booking options';
+$string['mustnotcombine_help'] = 'Booking options which can\'t be  combined with this option';
+$string['nooptionselected'] = 'No booking option selected';
+$string['creditsmessage'] = 'You have {$a->creditsleft} of {$a->maxcredits} credits left.';
+$string['notemplateyet'] = 'No template yet';
+$string['electiveforcesortorder'] = 'Teacher can force sort order';
+$string['enforceteacherorder'] = 'Enforce teachers order';
+$string['enforceteacherorder_help'] = 'Users will not be able to define order of selected options but they will be determined by teacher';

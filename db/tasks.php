@@ -20,7 +20,7 @@ $tasks = array(
     array('classname' => 'mod_booking\task\remove_activity_completion', 'blocking' => 0,
         'minute' => '*', 'hour' => '*', 'day' => '*', 'dayofweek' => '*', 'month' => '*'),
     array('classname' => 'mod_booking\task\enrol_bookedusers_tocourse', 'blocking' => 0,
-        'minute' => '10', 'hour' => '*', 'day' => '*', 'dayofweek' => '*', 'month' => '*'),
+        'minute' => '*', 'hour' => '*', 'day' => '*', 'dayofweek' => '*', 'month' => '*'),
     array('classname' => 'mod_booking\task\send_reminder_mails', 'blocking' => 0,
         'minute' => '7', 'hour' => '*', 'day' => '*', 'dayofweek' => '*', 'month' => '*'),
     array('classname' => 'mod_booking\task\send_notification_mails', 'blocking' => 0,

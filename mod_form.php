@@ -22,6 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\elective;
 use mod_booking\semester;
 use mod_booking\utils\wb_payment;
 
@@ -799,6 +800,9 @@ class mod_booking_mod_form extends moodleform_mod {
             $customreporttemplates[$value->id] = $value->name;
         }
         $mform->addElement('select', 'customtemplateid', get_string('customreporttemplate', 'booking'), $customreporttemplates);
+
+        $elective_handler = new elective();
+        $elective_handler->instance_form_definition($mform);
 
         // Category.
         $mform->addElement('header', 'categoryheader', get_string('categoryheader', 'booking'));
