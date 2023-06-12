@@ -1,3 +1,7 @@
+## Version 8.0.16 (2023061200)
+**New features:**
+* New feature: Elective functionality implemented
+
 ## Version 8.0.15 (2023060901)
 **Bugfixes:**
 * Bugfix: Context in booking_bookit was set incorrectly!
