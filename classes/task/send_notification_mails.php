@@ -16,7 +16,6 @@
 
 namespace mod_booking\task;
 
-use mod_booking\booking_option;
 use mod_booking\message_controller;
 use mod_booking\singleton_service;
 use moodle_url;

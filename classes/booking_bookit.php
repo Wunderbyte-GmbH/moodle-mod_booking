@@ -295,7 +295,7 @@ class booking_bookit {
                     if ($cachearray = $cache->get($cmid)) {
 
                         $list = [];
-                        foreach($cachearray['arrayofoptions'] as $item) {
+                        foreach ($cachearray['arrayofoptions'] as $item) {
                             if ($item == $itemid) {
                                 continue;
                             }
@@ -375,8 +375,7 @@ class booking_bookit {
             if (!empty($booking->enforceteacherorder)) {
 
                 $arrayofoptions = elective::return_sorted_array_of_options_from_cache($itemid);
-            }
-            else if (!$list) {
+            } else if (!$list) {
 
                 // We use itemid as cmid.
                 $cachearray = $cache->get($itemid);
