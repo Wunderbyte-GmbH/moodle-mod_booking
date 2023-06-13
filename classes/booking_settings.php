@@ -362,7 +362,7 @@ class booking_settings {
      *
      * @param int $cmid
      * @param object|null $dbrecord
-     * @return void
+     * @return object|null $dbrecordid
      */
     private function set_values(int $cmid, object $dbrecord = null) {
         global $DB;
