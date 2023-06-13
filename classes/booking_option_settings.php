@@ -513,10 +513,10 @@ class booking_option_settings {
             }
 
             return $dbrecord;
-        } else {
-            debugging('Could not create option settings class for optionid: ' . $optionid);
-            return null;
         }
+
+        // If record is not found in DB, we return null.
+        return null;
     }
 
     /**
