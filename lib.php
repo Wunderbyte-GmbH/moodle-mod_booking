@@ -1053,8 +1053,10 @@ function booking_update_options($optionvalues, $context) {
 
         // Elective.
         // Save combination arrays to DB.
-        elective::addcombinations($option->id, $optionvalues->mustcombine, 1);
-        elective::addcombinations($option->id, $optionvalues->mustnotcombine, 0);
+        if (!empty($booking->iselective)) {
+            elective::addcombinations($option->id, $optionvalues->mustcombine, 1);
+            elective::addcombinations($option->id, $optionvalues->mustnotcombine, 0);
+        }
 
         $option->credits = $optionvalues->credits ?? 0;
         $option->sortorder = $optionvalues->sortorder ?? 0;
