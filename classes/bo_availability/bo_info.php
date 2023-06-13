@@ -678,6 +678,14 @@ class bo_info {
             }
         }
 
+        // If user is on notification list, we need to show unsubscribe toggle bell.
+        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+        $bookinginformation = $bookinganswer->return_all_booking_information($userid);
+        if (isset($bookinginformation['notbooked']) && ($bookinginformation['notbooked']['onnotifylist']) ||
+            (isset($bookinginformation['iambooked']) && $bookinginformation['iambooked']['onnotifylist'])) {
+            $data['onlist'] = true;
+        }
+
         // The reason for this structure is that we can have a number of comma separated templates.
         // And corresponding data objects in an array. This will be interpreted in JS.
         $returnarray = [

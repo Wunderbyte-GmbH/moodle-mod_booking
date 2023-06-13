@@ -208,6 +208,14 @@ class priceisset implements bo_condition {
 
         $data = $settings->return_booking_option_information($user);
 
+        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+        $bookinginformation = $bookinganswer->return_all_booking_information($userid);
+
+        if (isset($bookinginformation['notbooked']) && ($bookinginformation['notbooked']['onnotifylist']) ||
+            (isset($bookinginformation['iambooked']) && $bookinginformation['iambooked']['onnotifylist'])) {
+            $data['onlist'] = true;
+        }
+
         if ($fullwidth) {
             $data['fullwidth'] = $fullwidth;
         }
