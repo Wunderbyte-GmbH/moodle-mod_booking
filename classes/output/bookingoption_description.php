@@ -264,6 +264,8 @@ class bookingoption_description implements renderable, templatable {
         if (!isset($PAGE->context) || !$context = $PAGE->context ?? null) {
             if (empty($context)) {
                 $PAGE->set_context(context_module::instance($cmid));
+            } else {
+                $PAGE->set_context($context);
             }
         }
         $this->description = format_text($settings->description, FORMAT_HTML);
