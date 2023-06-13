@@ -45,7 +45,7 @@ class elective {
 
     }
 
-     /**
+    /**
      * Add form fields to passed on mform.
      * This is used for the mod_form instance settings form.
      *
@@ -127,7 +127,7 @@ class elective {
 
         $optionid = $customdata['optionid'];
 
-        foreach($alloptions as $key => $optionobject) {
+        foreach ($alloptions as $key => $optionobject) {
 
             if ($optionid == $key) {
                 continue;
@@ -207,7 +207,7 @@ class elective {
 
             // Check if the record exists already.
             if ($id = self::otheroptionidexists($existingrecords, $otheroptionid, $mustcombine)) {
-                    // Mark record as existing
+                    // Mark record as existing.
                     $existingrecords[$id]->exists = true;
                 continue;
             }
@@ -233,8 +233,9 @@ class elective {
             if (!property_exists($item, 'exists')) {
                 $DB->delete_records('booking_combinations', array('id' => $item->id));
 
-                // Also delete the pair
-                $DB->delete_records('booking_combinations', array('optionid' => $item->otheroptionid, 'otheroptionid' => $item->optionid, 'cancombine' => $mustcombine));
+                // Also delete the pair.
+                $DB->delete_records('booking_combinations', array('optionid' => $item->otheroptionid,
+                    'otheroptionid' => $item->optionid, 'cancombine' => $mustcombine));
             }
         }
     }
@@ -247,7 +248,8 @@ class elective {
      */
     public static function get_combine_array($optionid, $mustcombine) {
         global $DB;
-        return $DB->get_fieldset_select('booking_combinations', 'otheroptionid', "optionid = {$optionid} AND cancombine = {$mustcombine}");
+        return $DB->get_fieldset_select('booking_combinations', 'otheroptionid',
+            "optionid = {$optionid} AND cancombine = {$mustcombine}");
     }
 
     /**
@@ -263,7 +265,7 @@ class elective {
         global $DB;
         // TODO: get all other options in this instance and check if user has completed them.
 
-        // First, get all booked options from this instance and user
+        // First, get all booked options from this instance and user.
 
         $sql = "SELECT ba.id, ba.userid, ba.optionid, ba.bookingid, bo.courseid
                 FROM {booking_answers} ba
@@ -283,7 +285,6 @@ class elective {
         // The sorting order comes from the ids, lower was booked first.
 
         foreach ($answers as $answer) {
-
 
             // We run through our booked options already in the right order.
             // Either way, we have to check if this option has course attached and if the course is completed.
@@ -334,14 +335,16 @@ class elective {
         }
 
         $outdata = new stdClass();
-        $outdata->creditsleft = elective::return_credits_left($booking);
+        $outdata->creditsleft = self::return_credits_left($booking);
         $outdata->maxcredits = $booking->settings->maxcredits;
 
-        $warning .= \html_writer::tag('div', get_string('creditsmessage', 'mod_booking', $outdata), array ('class' => 'alert alert-warning'));
+        $warning .= \html_writer::tag('div', get_string('creditsmessage', 'mod_booking', $outdata),
+            array ('class' => 'alert alert-warning'));
 
         if ($booking->settings->consumeatonce
             && $outdata->creditsleft > 0) {
-            $warning .= \html_writer::tag('div', get_string('consumeatonce', 'mod_booking', $outdata), array ('class' => 'alert alert-warning'));
+            $warning .= \html_writer::tag('div', get_string('consumeatonce', 'mod_booking', $outdata),
+                array ('class' => 'alert alert-warning'));
         }
 
         return $warning;
@@ -360,8 +363,7 @@ class elective {
         INNER JOIN {booking_options} bo
         ON ba.optionid = bo.id
         WHERE ba.userid = $USER->id
-        AND bo.bookingid = $booking->id"
-        ;
+        AND bo.bookingid = $booking->id";
 
         $data = $DB->get_records_sql($sql);
         $credits = 0;
@@ -475,7 +477,8 @@ class elective {
             $booking = singleton_service::get_instance_of_booking_settings_by_bookingid($bookingid);
             $boption = singleton_service::get_instance_of_booking_option($booking->cmid, $optionid);
 
-            // $iselective = $booking->settings->iselective; TODO: delete this?
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* $iselective = $booking->settings->iselective; TODO: delete this? */
             $enforceorder = !empty($booking->enforceorder) || !empty($booking->enforceteacherorder) ? 1 : 0;
 
             // Get all booked users of the relevant booking options.
@@ -493,7 +496,9 @@ class elective {
                 }
 
                 $boption->enrol_user($bookeduser->userid);
-                // mtrace("The user with the id {$bookeduser->id} has been enrolled to the course {$boption->option->courseid}.");
+                // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+                /* mtrace("The user with the id {$bookeduser->id} has been enrolled
+                to the course {$boption->option->courseid}."); */
             }
         }
 
@@ -563,7 +568,7 @@ class elective {
 
         foreach ($records as $record) {
 
-            // we always need to get the other id.
+            // We always need to get the other id.
             $otherid = $record->optionid == $optionid ?
                 $record->otheroptionid : $record->optionid;
             if (!empty($record->cancombine)) {
