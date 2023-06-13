@@ -978,7 +978,8 @@ class booking_option {
                 // This is a new elective function. We only allow booking in the right order.
             if ($this->booking->is_elective()) {
                 if (!elective::check_if_allowed_to_inscribe($this, $userid)) {
-                    // mtrace("The user with the userid {$userid} has to finish courses of other booking options first.");
+                    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+                    /* mtrace("The user with the userid {$userid} has to finish courses of other booking options first."); */
                     return;
                 }
             }
