@@ -82,7 +82,7 @@ class booking_tags {
     public function booking_replace(stdClass $settings = null): stdClass {
         $newsettings = clone $settings;
         foreach ($newsettings as $key => $value) {
-            if (in_array($key, $this->bookingtextfields)) {
+            if (in_array($key, $this->bookingtextfields) && (!is_null($newsettings->{$key}))) {
                 $newsettings->{$key} = $this->tag_replaces($newsettings->{$key});
             }
         }
@@ -92,7 +92,7 @@ class booking_tags {
     public function option_replace(stdClass $optionsettings = null): stdClass {
         $newoptionsettings = clone $optionsettings;
         foreach ($newoptionsettings as $key => $value) {
-            if (in_array($key, $this->optiontextfields)) {
+            if (in_array($key, $this->optiontextfields) && (!is_null($newoptionsettings->{$key}))) {
                 $newoptionsettings->{$key} = $this->tag_replaces($newoptionsettings->{$key});
             }
         }

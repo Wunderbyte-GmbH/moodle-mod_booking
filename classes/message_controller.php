@@ -463,7 +463,9 @@ class message_controller {
 
         // Replace the placeholders.
         foreach ($this->params as $name => $value) {
-            $text = str_replace('{' . $name . '}', $value, $text);
+            if (!is_null($value)) { // Since php 8.1.
+                $text = str_replace('{' . $name . '}', $value, $text);
+            }
         }
 
         return $text;

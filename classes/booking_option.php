@@ -553,7 +553,9 @@ class booking_option {
         }
 
         foreach ($params as $name => $value) {
-            $text = str_replace('{' . $name . '}', $value, $text);
+            if (!is_null($value)) { // Since php 8.1.
+                $text = str_replace('{' . $name . '}', $value, $text);
+            }
         }
 
         return $text;
