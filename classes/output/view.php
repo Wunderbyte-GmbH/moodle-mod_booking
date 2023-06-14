@@ -238,7 +238,7 @@ class view implements renderable, templatable {
     }
 
 
-/**
+    /**
      * Render table for elective.
      * @return array the rendered table
      */
@@ -730,7 +730,7 @@ class view implements renderable, templatable {
                         'defaultvaluestart' => 'now', // Can also be Unix timestamp or string "now".
                         'labelendvalue' => get_string('courseendtime', 'mod_booking'),
                         'defaultvalueend' => strtotime('+ 1 year', time()), // Can also be Unix timestamp or string "now".
-                        'checkboxlabel' => get_string('apply_filter', 'local_wunderbyte_table'), // Can be localized and will be displayed next to the checkbox.
+                        'checkboxlabel' => get_string('apply_filter', 'local_wunderbyte_table'),
                     ]
                 ]
             ];

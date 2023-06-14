@@ -255,8 +255,8 @@ class booking_subbookit {
         $user = singleton_service::get_instance_of_user($userid);
         $booking = singleton_service::get_instance_of_booking_by_optionid($itemid);
 
-         // With shortcodes & webservice we might not have a valid context object.
-         if (!isset($PAGE->context) || !$context = $PAGE->context ?? null) {
+        // With shortcodes & webservice we might not have a valid context object.
+        if (!isset($PAGE->context) || !$context = $PAGE->context ?? null) {
             if (empty($context)) {
                 $PAGE->set_context(context_module::instance($booking->cmid));
             }

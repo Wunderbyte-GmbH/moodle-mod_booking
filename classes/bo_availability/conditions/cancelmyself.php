@@ -100,8 +100,7 @@ class cancelmyself implements bo_condition {
 
             if (!empty($bosettings->iselective) && isset($bookinginformation['iamreserved'])) {
                 $isavailable = false;
-            }
-            else if ($bosettings->cancancelbook != 1 || isset($bookinginformation['notbooked'])) {
+            } else if ($bosettings->cancancelbook != 1 || isset($bookinginformation['notbooked'])) {
                 $isavailable = true; // True means cancel button is not shown.
             } else if (isset($bookinginformation['onwaitinglist']) || isset($bookinginformation['iambooked'])) {
                 // If the user is allowed to cancel, we first check if the user is already booked or on the waiting list.

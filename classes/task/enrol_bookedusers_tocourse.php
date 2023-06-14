@@ -66,6 +66,7 @@ class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
             $boption = new booking_option($cm->id, $optionid);
 
             $booking = $boption->booking;
+            // phpcs:ignore
             // $iselective = $booking->settings->iselective; TODO: delete this?
             $enforceorder = !empty($booking->settings->enforceorder) || !empty($booking->settings->enforceteacherorder) ? 1 : 0;
 

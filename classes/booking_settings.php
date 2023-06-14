@@ -480,7 +480,7 @@ class booking_settings {
             $this->autcrtemplate = $dbrecord->autcrtemplate;
             $this->semesterid = $dbrecord->semesterid;
 
-            // Elective
+            // Elective.
             $this->iselective = $dbrecord->iselective;
             $this->consumeatonce = $dbrecord->consumeatonce;
             $this->maxcredits = $dbrecord->maxcredits;

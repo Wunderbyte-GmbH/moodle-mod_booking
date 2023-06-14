@@ -3484,10 +3484,10 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023042600, 'booking');
     }
 
-    // Add the elective tables & upgrades
+    // Add the elective tables & upgrades.
     if ($oldversion < 2023061200) {
 
-        // Add booking combinations table:
+        // Add booking combinations table.
         $table = new xmldb_table('booking_combinations');
         // Adding fields to table booking_instancetemplate.
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);

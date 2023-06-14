@@ -24,8 +24,6 @@
 
 namespace mod_booking\output;
 
-defined('MOODLE_INTERNAL') || die();
-
 use cache;
 use html_writer;
 use mod_booking\booking_settings;
@@ -33,7 +31,6 @@ use mod_booking\elective;
 use renderer_base;
 use renderable;
 use templatable;
-
 
 
 /**
@@ -90,8 +87,6 @@ class elective_modal implements renderable, templatable {
         if (isset($cachearray['expirationtime']) && $cachearray['expirationtime'] > $now) {
             $arrayofoptions = $cachearray['arrayofoptions'] ?? [];
         } else {
-
-            // If
             if (isset($cachearray['arrayofoptions']) && count($cachearray['arrayofoptions']) > 0) {
 
             }
@@ -103,7 +98,7 @@ class elective_modal implements renderable, templatable {
         }
 
         // Resort based on teacher sort order.
-        if(!empty($booking->enforceteacherorder)) {
+        if (!empty($booking->enforceteacherorder)) {
             $this->isteacherorderforced = true;
             usort($this->arrayofoptions, function ($a, $b) {
                 if ($a['sortorder'] == $b['sortorder']) {
@@ -122,7 +117,7 @@ class elective_modal implements renderable, templatable {
         // ... when no more credits are left.
         if ($booking->consumeatonce == 1 && elective::return_credits_left($booking) !== 0) {
             $selectbtnoptions['class'] = 'btn btn-primary disabled';
-        } elseif (count($arrayofoptions) == 0) {
+        } else if (count($arrayofoptions) == 0) {
             // Also, disable the button when there is nothing selected.
             $selectbtnoptions['class'] = 'btn btn-primary disabled';
         } else {
