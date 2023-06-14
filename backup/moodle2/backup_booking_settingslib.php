@@ -22,4 +22,8 @@
  * @copyright 2012 onwards David Bogner
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once(__DIR__ . '/../../../../config.php');
+// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+/*require_once(__DIR__ . '/../../../../config.php');
+
+// No guest autologin.
+require_login(0, false);*/
