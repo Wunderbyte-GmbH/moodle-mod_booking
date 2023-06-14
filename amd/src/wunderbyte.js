@@ -27,7 +27,7 @@
 export function WunderByteJS() {
 }
 
-WunderByteJS.prototype.sortable = function (opt) {
+WunderByteJS.prototype.sortable = function(opt) {
     let sortableItems = [];
     let sortableContainer = null;
     let draggingItem = null;
@@ -42,7 +42,7 @@ WunderByteJS.prototype.sortable = function (opt) {
     // eslint-disable-next-line no-console
     console.log(options);
 
-    this.init = function () {
+    this.init = function() {
         sortableItems = document.querySelectorAll(options.items);
         sortableContainer = document.querySelector(options.container);
         sortableItems.forEach(item => {
@@ -53,7 +53,7 @@ WunderByteJS.prototype.sortable = function (opt) {
         }
     };
 
-    this.sortable = function (event) {
+    this.sortable = function(event) {
         draggingItem = event.target.closest('.list-group-item');
 
         // Limiting the movement type
@@ -64,17 +64,17 @@ WunderByteJS.prototype.sortable = function (opt) {
         sortableContainer.addEventListener('dragover', this.dragOver.bind(this), false);
         sortableContainer.addEventListener('dragend', this.dragEnd.bind(this), false);
 
-        setTimeout(function () {
+        setTimeout(function() {
             draggingItem.classList.add('ghost');
         }, 0);
     };
 
-    this.getVerticalCenter = function (element) {
+    this.getVerticalCenter = function(element) {
         let r = element.getBoundingClientRect();
         return (r.bottom - r.top) / 2;
     };
 
-    this.getMouseOffset = function (event) {
+    this.getMouseOffset = function(event) {
         const element = event.target.closest('.list-group-item');
         let r = element.getBoundingClientRect();
         return {
@@ -83,7 +83,7 @@ WunderByteJS.prototype.sortable = function (opt) {
         };
     };
 
-    this.dragOver = function (event) {
+    this.dragOver = function(event) {
         event.preventDefault();
         event.dataTransfer.dropEffect = 'move';
 
@@ -103,7 +103,7 @@ WunderByteJS.prototype.sortable = function (opt) {
         }
     };
 
-    this.dragEnd = function (event) {
+    this.dragEnd = function(event) {
         event.preventDefault();
         if (draggingItem) {
             draggingItem.classList.remove('ghost');
@@ -117,7 +117,7 @@ WunderByteJS.prototype.sortable = function (opt) {
     this.init();
 };
 
-WunderByteJS.prototype.dragable = function (opt) {
+WunderByteJS.prototype.dragable = function(opt) {
     let options = {
         container: '.wb-droppable',
         items: '.wb-item-draggable'
@@ -127,10 +127,10 @@ WunderByteJS.prototype.dragable = function (opt) {
 
     options = {...options, ...opt};
 
-    this.init = function () {
+    this.init = function() {
         var items = document.querySelectorAll(options.items);
 
-        // make items draggable
+        // Make items draggable
         items.forEach(item => {
             item.setAttribute('draggable', true);
             item.addEventListener('dragstart', this.dragStart.bind(this));
@@ -139,7 +139,7 @@ WunderByteJS.prototype.dragable = function (opt) {
 
         var containers = document.querySelectorAll(options.container);
 
-        // make containers listen to drop events
+        // Make containers listen to drop events
         containers.forEach(container => {
             container.classList.add('wb-droppable');
 
@@ -149,25 +149,25 @@ WunderByteJS.prototype.dragable = function (opt) {
         });
     };
 
-    this.dragStart = function () {
+    this.dragStart = function() {
         setTimeout(() => this.classList.add('hidden'), 0);
         draggingItem = this;
     };
 
-    this.dragEnd = function () {
+    this.dragEnd = function() {
         this.classList.remove('hidden');
         draggingItem = null;
     };
 
-    this.dragDrop = function () {
+    this.dragDrop = function() {
         this.append(draggingItem);
     };
 
-    this.dragEnter = function (e) {
+    this.dragEnter = function(e) {
         e.preventDefault();
     };
 
-    this.dragOver = function (e) {
+    this.dragOver = function(e) {
         e.preventDefault();
     };
 

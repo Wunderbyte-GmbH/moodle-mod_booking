@@ -46,7 +46,7 @@ export function electiveSorting() {
     const sortContainer = document.querySelector(SELECTOR.SORTCONTAINER);
 
     // Options for the observer (which mutations to observe)
-    const config = { attributes: true, childList: true, subtree: true };
+    const config = {attributes: true, childList: true, subtree: true};
 
     // Callback function to execute when mutations are observed
     const callback = (mutationList) => {
