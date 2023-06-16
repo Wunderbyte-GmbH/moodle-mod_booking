@@ -87,10 +87,12 @@ class elective_modal implements renderable, templatable {
         if (isset($cachearray['expirationtime']) && $cachearray['expirationtime'] > $now) {
             $arrayofoptions = $cachearray['arrayofoptions'] ?? [];
         } else {
-            if (isset($cachearray['arrayofoptions']) && count($cachearray['arrayofoptions']) > 0) {
-
-            }
+            // If there are items, we delete them.
             $arrayofoptions = [];
+            if (isset($cachearray['arrayofoptions']) && count($cachearray['arrayofoptions']) > 0) {
+                // We also reset the cache array.
+                $cache->delete($cmid);
+            }
         }
 
         foreach ($arrayofoptions as $item) {
