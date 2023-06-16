@@ -1,3 +1,17 @@
+## Version 8.0.18 (2023061600)
+**Improvements:**
+* Improvement: Code quality for elective.
+
+**Bugfixes:**
+* Bugfix: Missing check if instance is elective.
+* Bugfix: Elective fix for DB: add necessary fields to install.xml
+* Bugfix: If user is on notification list, we always need to show unsubscribe toggle bell.
+* Bugfix: Fix error when not an elective.
+* Bugfix: Fix missing $PAGE->context error.
+* Bugfix: If an option gets deleted, we want option settings to return null - no debug message.
+* Bugfix: Fixes for Github actions.
+* Bugfix: elective modal - if cache expires, we need to reset it.
+
 ## Version 8.0.17 (2023061201)
 **Bugfixes:**
 * Bugfix: Fix elective combinations.
