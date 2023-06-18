@@ -820,9 +820,9 @@ if (!$tableallbookings->is_downloading()) {
             array('id' => $id, 'optionid' => $optionid,
                 'whichview' => 'showonlyone'));
 
-    $pollurl = trim($bookingoption->option->pollurl);
+    $pollurl = $bookingoption->option->pollurl; // The trim() moved to form get_data.
     if (!empty($pollurl)) {
-        echo html_writer::link($bookingoption->option->pollurl, get_string('copypollurl', 'booking'),
+        echo html_writer::link($pollurl, get_string('copypollurl', 'booking'),
                 array('onclick' => 'copyToClipboard("' . $pollurl . '"); return false;')) .
                  ($bookingoption->option->pollsend ? ' &#x2713;' : '') . ' | ';
     }

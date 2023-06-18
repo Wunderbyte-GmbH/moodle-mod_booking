@@ -293,8 +293,7 @@ class all_userbookings extends \table_sql {
         }
 
         if (has_capability('mod/booking:communicate', \context_module::instance($this->cm->id))) {
-            $pollurl = trim($this->bookingdata->option->pollurl);
-            if (!empty($pollurl)) {
+            if (!empty($this->bookingdata->option->pollurl)) { // The trim() moved to form get_data.
                 echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="sendpollurl" value="' .
                          get_string('booking:sendpollurl', 'booking') . '" /></div>';
             }

@@ -900,6 +900,11 @@ class option_form extends moodleform {
             } else {
                 $data->annotation = '';
             }
+
+            // Ensure further php 8.1 compatibility.
+            if (isset($data->pollurl)) {
+                $data->pollurl = trim($data->pollurl);
+            }
         }
 
         return $data;
