@@ -225,7 +225,7 @@ class price {
                 return 0;
             }
 
-            $key = key($formulacomponent);
+            $key = key((array) $formulacomponent); // For the PHP 8.1 compatibility.
             $value = $formulacomponent->$key;
 
             switch ($key) {

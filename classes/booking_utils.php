@@ -180,10 +180,12 @@ class booking_utils {
     public function get_body($booking, $fieldname, $params, $urlencode = false) {
         $text = $booking->$fieldname;
         foreach ($params as $name => $value) {
-            if ($urlencode) {
-                $text = str_replace('{' . $name . '}', urlencode($value), $text);
-            } else {
-                $text = str_replace('{' . $name . '}', $value, $text);
+            if (!empty($value) && !empty($text)) {
+                if ($urlencode) {
+                    $text = str_replace('{' . $name . '}', urlencode($value), $text);
+                } else {
+                    $text = str_replace('{' . $name . '}', $value, $text);
+                }
             }
         }
         return $text;

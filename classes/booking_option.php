@@ -2834,8 +2834,8 @@ class booking_option {
         }
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        if ($availabilityconditions = json_decode($settings->availability)) {
-            foreach ($availabilityconditions as $ac) {
+        if (!empty($settings->availability)) {
+            foreach (json_decode($settings->availability) as $ac) {
                 /* Currently there is only one special case where we want to allow overbooking:
                 When the fullybooked condition is present as an override condition in combination
                 with an "OR" operator. In the future, there might be additional use cases that allow
