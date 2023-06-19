@@ -820,7 +820,11 @@ if (!$tableallbookings->is_downloading()) {
             array('id' => $id, 'optionid' => $optionid,
                 'whichview' => 'showonlyone'));
 
-    $pollurl = $bookingoption->option->pollurl; // The trim() moved to form get_data.
+    // PHP 8.1 compatibility with extra safety if poolurl has changed outside option form.
+    $pollurl = '';
+    if (!empty($bookingoption->option->pollurl)) {
+        $pollurl = trim($bookingoption->option->pollurl);
+    }
     if (!empty($pollurl)) {
         echo html_writer::link($pollurl, get_string('copypollurl', 'booking'),
                 array('onclick' => 'copyToClipboard("' . $pollurl . '"); return false;')) .

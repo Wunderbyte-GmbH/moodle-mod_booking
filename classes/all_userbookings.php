@@ -293,7 +293,12 @@ class all_userbookings extends \table_sql {
         }
 
         if (has_capability('mod/booking:communicate', \context_module::instance($this->cm->id))) {
-            if (!empty($this->bookingdata->option->pollurl)) { // The trim() moved to form get_data.
+            // PHP 8.1 compatibility with extra safety if poolurl has changed outside option form.
+            $pollurl = '';
+            if (!empty($this->bookingdata->option->pollurl)) {
+                $pollurl = trim($this->bookingdata->option->pollurl);
+            }
+            if (!empty($pollurl)) {
                 echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="sendpollurl" value="' .
                          get_string('booking:sendpollurl', 'booking') . '" /></div>';
             }
