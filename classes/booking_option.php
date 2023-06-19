@@ -1234,8 +1234,9 @@ class booking_option {
 
         $event = event\bookingoption_booked::create(
                 array('objectid' => $this->optionid,
-                    'context' => \context_module::instance($this->booking->cm->id),
-                    'relateduserid' => $user->id, 'other' => array('userid' => $user->id)));
+                    'context' => context_module::instance($this->booking->cm->id),
+                    'userid' => $user->id,
+                    'relateduserid' => $user->id));
         $event->trigger();
 
         $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
