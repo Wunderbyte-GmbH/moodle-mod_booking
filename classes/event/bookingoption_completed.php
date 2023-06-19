@@ -58,25 +58,6 @@ class bookingoption_completed extends \core\event\base {
         return new \moodle_url('/mod/booking/view.php', array('id' => $this->contextinstanceid));
     }
 
-    public function get_legacy_logdata() {
-        // Override if you are migrating an add_to_log() call.
-        return array($this->courseid, 'booking', 'book', 'choose',
-            'view.php?id=' . $this->contextinstanceid, $this->objectid, $this->contextinstanceid);
-    }
-
-    public static function get_legacy_eventname() {
-        // Override ONLY if you are migrating events_trigger() call.
-        return 'choose';
-    }
-
-    protected function get_legacy_eventdata() {
-        // Override if you migrating events_trigger() call.
-        $data = new \stdClass();
-        $data->id = $this->objectid;
-        $data->userid = $this->relateduserid;
-        return $data;
-    }
-
     /**
      * Custom validation.
      *
