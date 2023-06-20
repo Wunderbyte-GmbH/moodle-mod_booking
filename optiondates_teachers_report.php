@@ -129,8 +129,8 @@ $optiondatesteacherstable->define_header_column('optiondate');
 // Table cache.
 $optiondatesteacherstable->define_cache('mod_booking', 'cachedteachersjournal');
 
-$baseurl = new moodle_url('/mod/booking/download_optiondates_teachers_report.php');
-$optiondatesteacherstable->define_baseurl($baseurl);
+$downloadbaseurl = new moodle_url('/mod/booking/download_optiondates_teachers_report.php');
+$optiondatesteacherstable->define_baseurl($downloadbaseurl);
 $optiondatesteacherstable->showdownloadbutton = true;
 
 // SQL query. The subselect will fix the "Did you remember to make the first column something...

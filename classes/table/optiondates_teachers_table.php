@@ -28,10 +28,8 @@ use dml_exception;
 use html_writer;
 use local_wunderbyte_table\output\table;
 use local_wunderbyte_table\wunderbyte_table;
-use mod_booking\booking_option;
 use mod_booking\dates_handler;
 use moodle_url;
-use table_sql;
 
 defined('MOODLE_INTERNAL') || die();
 
