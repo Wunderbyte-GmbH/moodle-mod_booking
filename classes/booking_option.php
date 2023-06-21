@@ -893,7 +893,7 @@ class booking_option {
     public function sync_waiting_list() {
         global $DB;
 
-        if ($this->option->limitanswers) {
+        if ($this->option->limitanswers && !empty($this->option->maxanswers)) {
 
             // If users drop out of the waiting list because of changed limits, delete and inform them.
             $answerstodelete = $DB->get_records_sql(
@@ -901,7 +901,8 @@ class booking_option {
                 array($this->optionid), $this->option->maxoverbooking + $this->option->maxanswers);
 
             foreach ($answerstodelete as $answertodelete) {
-                $DB->delete_records('booking_answers', array('id' => $answertodelete->id));
+                $answertodelete->waitinglist = STATUSPARAM_DELETED;
+                $DB->update_record('booking_answers', $answertodelete);
 
                 $messagecontroller = new message_controller(
                     MSGCONTRPARAM_QUEUE_ADHOC, MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM,
@@ -1183,7 +1184,7 @@ class booking_option {
         foreach ($currentanswers as $currentanswer) {
             // This should never happen, but if we have more than one reserveration, we just confirm the first and delete the rest.
             if ($counter > 0) {
-                $DB->delete_records('booking_answers', array('id' => $currentanswer->id));
+                $DB->delete_records('booking_answers', array('id' => $currentanswer->id, 'waitinglist' => STATUSPARAM_RESERVED));
             } else {
                 // When it's the first reserveration, we just confirm it.
                 $currentanswer->timemodified = time();

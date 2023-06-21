@@ -136,6 +136,8 @@ class message_controller {
         if (!isset($PAGE->context) || !$context = $PAGE->context ?? null) {
             if (empty($context)) {
                 $PAGE->set_context(context_module::instance($cmid));
+            } else {
+                $PAGE->set_context($context);
             }
         }
 

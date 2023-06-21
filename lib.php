@@ -2402,38 +2402,6 @@ function booking_reset_course_form_defaults($course) {
 }
 
 /**
- * Actual implementation of the rest coures functionality, delete all the booking responses for course $data->courseid.
- *
- * @param $data the data submitted from the reset course.
- * @return array status array
- */
-function booking_reset_userdata($data) {
-    global $CFG, $DB;
-
-    $componentstr = get_string('modulenameplural', 'booking');
-    $status = array();
-
-    if (!empty($data->reset_booking)) {
-        $bookingssql = "SELECT ch.id
-        FROM {$CFG->prefix}booking ch
-        WHERE ch.course={$data->courseid}";
-
-        $DB->delete_records_select('booking_answers', "bookingid IN ($bookingssql)");
-        $status[] = array('component' => $componentstr,
-            'item' => get_string('removeresponses', 'booking'), 'error' => false);
-    }
-
-    // Updating dates - shift may be negative too.
-    if ($data->timeshift) {
-        shift_course_mod_dates('booking', array('timeopen', 'timeclose'), $data->timeshift,
-                $data->courseid);
-        $status[] = array('component' => $componentstr, 'item' => get_string('datechanged'),
-            'error' => false);
-    }
-    return $status;
-}
-
-/**
  *
  * @param int $seconds
  */
