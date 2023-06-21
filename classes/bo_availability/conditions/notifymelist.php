@@ -51,6 +51,9 @@ class notifymelist implements bo_condition {
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = BO_COND_NOTIFYMELIST;
 
+    /** @var bool $overridable Indicates if the condition can be overriden. */
+    public $overridable = true;
+
     /**
      * Needed to see if class can take JSON.
      * @return bool
