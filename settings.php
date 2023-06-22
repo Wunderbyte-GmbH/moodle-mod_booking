@@ -108,6 +108,26 @@ if ($ADMIN->fulltree) {
             get_string('licensekey', 'mod_booking'),
             $licensekeydesc, ''));
 
+    // PRO feature: Appearance settings.
+    if ($proversion) {
+
+        $settings->add(
+            new admin_setting_heading('appearancesettings',
+                get_string('appearancesettings', 'mod_booking'),
+                get_string('appearancesettings_desc', 'mod_booking')));
+
+        // Turn off wunderbyte branding.
+        $settings->add(
+            new admin_setting_configcheckbox('booking/turnoffwunderbytelogo',
+                    get_string('turnoffwunderbytelogo', 'mod_booking'),
+                    get_string('turnoffwunderbytelogo_desc', 'mod_booking'), 0));
+    } else {
+        $settings->add(
+            new admin_setting_heading('appearancesettings',
+                get_string('appearancesettings', 'mod_booking'),
+                get_string('infotext:prolicensenecessary', 'mod_booking')));
+    }
+
     // PRO feature.
     if ($proversion) {
 

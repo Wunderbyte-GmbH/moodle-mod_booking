@@ -1584,6 +1584,11 @@ $string['allowoverbookingheader'] = 'Buchungsoptionen überbuchen (PRO)';
 $string['allowoverbookingheader_desc'] = 'Berechtigten Nutzer:innen erlauben, Kurse zu überbuchen.
  (Achtung: Dies kann zu unerwünschtem Verhalten führen. Nur aktivieren, wenn wirklich benötigt.)';
 
+$string['appearancesettings'] = 'Darstellung (PRO)';
+$string['appearancesettings_desc'] = 'Passen Sie die Darstellung des Buchungsplugins an.';
+$string['turnoffwunderbytelogo'] = 'Wunderbyte Logo und Link nicht anzeigen';
+$string['turnoffwunderbytelogo_desc'] = 'Wenn diese Einstellung aktiviert ist, werden das Wunderbyte Logo und der Link zur Wunderbyte-Website nicht angezeigt.';
+
 // Optiontemplatessettings.php.
 $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';
 $string['defaulttemplate'] = 'Standard-Vorlage';

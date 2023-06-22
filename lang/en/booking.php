@@ -1706,6 +1706,11 @@ $string['allowoverbookingheader'] = 'Overbooking of booking options (PRO)';
 $string['allowoverbookingheader_desc'] = 'Allow administrators and entitled users to overbook booking options.
   (Be careful: This can lead to unexpected behavior. Only activate this if you really need it.)';
 
+$string['appearancesettings'] = 'Appearance (PRO)';
+$string['appearancesettings_desc'] = 'Configure the appearance of the booking plugin.';
+$string['turnoffwunderbytelogo'] = 'Do not show Wunderbyte logo und link';
+$string['turnoffwunderbytelogo_desc'] = 'If you activate this setting, the Wunderbyte logo and the link to the Wunderbyte website won\'t be shown.';
+
 // Mobile.
 $string['next'] = 'Next';
 $string['previous'] = 'Previous';
