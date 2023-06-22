@@ -1,3 +1,15 @@
+## Version 8.0.19 (2023062200)
+**Improvements:**
+* Improvement: Fix deprecation warnings for PHP 8.1.
+* Improvement: Moodle 4.2 has been added to the github workflow.
+* Improvement: New PRO feature to turn off Wunderbyte logo and link.
+
+**Bugfixes:**
+* Bugfix: Fix for Moodle 4.2 compatibility - set userid in the event.
+* Bugfix: Fix for Moodle 4.2 compatibility - legacy methods removed from event classes.
+* Bugfix: When limiting to 0 participants sync_waiting_list() deleted answers.
+* Bugfix: Notify list also needs to be an overridable condition.
+
 ## Version 8.0.18 (2023061600)
 **Improvements:**
 * Improvement: Code quality for elective.
