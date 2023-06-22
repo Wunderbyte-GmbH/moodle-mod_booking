@@ -1182,7 +1182,7 @@ class booking_option {
 
         $counter = 0;
         foreach ($currentanswers as $currentanswer) {
-            // This should never happen, but if we have more than one reserveration, we just confirm the first and delete the rest.
+            // This should never happen, but if we have more than one reservation, we just confirm the first and delete the rest.
             if ($counter > 0) {
                 $DB->delete_records('booking_answers', array('id' => $currentanswer->id, 'waitinglist' => STATUSPARAM_RESERVED));
             } else {
