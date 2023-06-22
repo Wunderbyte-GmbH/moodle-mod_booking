@@ -752,6 +752,9 @@ class view implements renderable, templatable {
         }
 
         $wbtable->tabletemplate = 'mod_booking/table_list';
+
+        // Let's collapse filters per default.
+        $wbtable->filteronloadinactive = true;
     }
 
     /**
