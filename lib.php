@@ -27,6 +27,7 @@ require_once($CFG->dirroot .'/course/externallib.php');
 
 
 use local_entities\entitiesrelation_handler;
+use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\booking_utils;
@@ -1110,6 +1111,10 @@ function booking_update_options($optionvalues, $context) {
             // This is needed to create option dates with the webservice importer.
             deal_with_multisessions($optionvalues, $booking, $option->id, $context);
 
+            // Save the additional JSON conditions (the ones which have been added to the mform).
+            bo_info::save_json_conditions_from_form($optionvalues);
+            $option->availability = $optionvalues->availability;
+
             // Check if custom field will be updated or newly created.
             if (!empty($customfields)) {
                 foreach ($customfields as $fieldcfgname => $field) {
@@ -1333,6 +1338,10 @@ function booking_update_options($optionvalues, $context) {
 
         // Save relation for each newly created optiondate if checkbox is active.
         save_entity_relations_for_optiondates_of_option($optionvalues, $optionid);
+
+        // Save the additional JSON conditions (the ones which have been added to the mform).
+        bo_info::save_json_conditions_from_form($optionvalues);
+        $option->availability = $optionvalues->availability;
 
         // Trigger an event that booking option has been updated - only if it is NOT a template.
         if (!isset($optionvalues->addastemplate) || $optionvalues->addastemplate == 0) {

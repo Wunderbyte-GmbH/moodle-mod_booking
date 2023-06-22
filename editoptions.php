@@ -256,9 +256,6 @@ if ($mform->is_cancelled()) {
 
         dates_handler::add_values_from_post_to_form($fromform);
 
-        // Save the additional JSON conditions (the ones which have been added to the mform).
-        bo_info::save_json_conditions_from_form($fromform);
-
         // Todo: Should nbooking be renamed to $optionid?
         $nbooking = booking_update_options($fromform, $context);
 
