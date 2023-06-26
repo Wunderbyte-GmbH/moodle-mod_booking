@@ -1,3 +1,8 @@
+
+## Version 8.0.20 (2023062600)
+**Improvements:**
+* Improvement: Some more funcationalities for webservice importer
+
 ## Version 8.0.19 (2023062200)
 **Improvements:**
 * Improvement: Fix deprecation warnings for PHP 8.1.

@@ -1,3 +1,6 @@
+8.0.20 (2023062600)
+* Improvement: Some more funcationalities for webservice importer
+
 8.0.19 (2023062200)
 * Improvement: Fix deprecation warnings for PHP 8.1.
 * Improvement: Moodle 4.2 has been added to the github workflow.
