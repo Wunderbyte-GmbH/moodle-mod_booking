@@ -26,8 +26,8 @@ use mod_booking\output\page_teacher;
 
 require_once(__DIR__ . '/../../config.php');
 
-// No guest autologin.
-require_login(0, false);
+// TODO: config setting
+/* require_login(0, false); */
 
 global $DB, $PAGE, $OUTPUT, $USER;
 

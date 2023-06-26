@@ -1710,6 +1710,12 @@ $string['appearancesettings'] = 'Appearance (PRO)';
 $string['appearancesettings_desc'] = 'Configure the appearance of the booking plugin.';
 $string['turnoffwunderbytelogo'] = 'Do not show Wunderbyte logo und link';
 $string['turnoffwunderbytelogo_desc'] = 'If you activate this setting, the Wunderbyte logo and the link to the Wunderbyte website won\'t be shown.';
+$string['teachersnologinrequired'] = 'Login for teacher pages not necessary';
+$string['teachersnologinrequired_desc'] = 'If you activate this setting, everyone can access the teacher pages (teacher.php), regardless if logged in or not.';
+$string['teachersshowemails'] = 'Always show teacher\'s email addresses to everyone';
+$string['teachersshowemails_desc'] = 'If you activate this setting, every user can see
+ the e-mail address of any teacher - even if they are not logged in. Be careful: This might be
+ a privacy issue. Only activate this, if you are sure it corresponds with your organization\'s privacy policy.';
 
 // Mobile.
 $string['next'] = 'Next';
