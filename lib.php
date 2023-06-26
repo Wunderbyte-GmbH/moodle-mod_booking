@@ -1341,7 +1341,7 @@ function booking_update_options($optionvalues, $context) {
 
         // Save the additional JSON conditions (the ones which have been added to the mform).
         bo_info::save_json_conditions_from_form($optionvalues);
-        $option->availability = $optionvalues->availability;
+        $option->availability = $optionvalues->availability ?? null;
 
         // Trigger an event that booking option has been updated - only if it is NOT a template.
         if (!isset($optionvalues->addastemplate) || $optionvalues->addastemplate == 0) {

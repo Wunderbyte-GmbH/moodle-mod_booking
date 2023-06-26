@@ -23,9 +23,12 @@
  */
 namespace mod_booking\utils;
 
+use coding_exception;
 use mod_booking\booking;
 use stdClass;
 use mod_booking\booking_option;
+use mod_booking\customfield\booking_handler;
+use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -101,6 +104,8 @@ class webservice_import {
         // Now that we have the option id, also from new users, we can add the teacher.
 
         $this->add_teacher_to_bookingoption($bookingoptionid, $data);
+
+        $this->add_customfields_to_bookingoption($bookingoptionid, $data);
 
         return array('status' => 1);
     }
@@ -317,26 +322,22 @@ class webservice_import {
         }
 
         if (!empty($data->responsiblecontact)) {
-            $emails = explode(',', $data->responsiblecontact);
-            $responsiblecontacts = [];
 
-            foreach ($emails as $email) {
-                if (!$user = $DB->get_record('user', array('suspended' => 0, 'deleted' => 0, 'confirmed' => 1,
-                'email' => $email), 'id', IGNORE_MULTIPLE)) {
+            if (!$user = $DB->get_record('user', array('suspended' => 0, 'deleted' => 0, 'confirmed' => 1,
+            'email' => $data->responsiblecontact), 'id', IGNORE_MULTIPLE)) {
 
-                    throw new \moodle_exception('responsiblecontactnotsubscribed', 'mod_booking', null, null,
-                    'The contact with email ' . $email .
-                    ' does not exist in the target database.');
-                } else {
-                    $responsiblecontacts[] = $user->id;
-                }
+                throw new \moodle_exception('responsiblecontactnotsubscribed', 'mod_booking', null, null,
+                'The contact with email ' . $data->responsiblecontact .
+                ' does not exist in the target database.');
+            } else {
+                $data->responsiblecontact = $user->id;
             }
-            $data->responsiblecontact = implode(',', $responsiblecontacts);
+
         }
 
         if (!empty($data->boav_enrolledincourse)) {
 
-            $items = explode(';', $data->boav_enrolledincourse);
+            $items = explode(',', $data->boav_enrolledincourse);
 
             list($inorequal, $params) = $DB->get_in_or_equal($items, SQL_PARAMS_NAMED);
             $sql = "SELECT id
@@ -347,21 +348,6 @@ class webservice_import {
             $data->bo_cond_enrolledincourse_courseids = array_keys($courses);
             $data->restrictwithenrolledincourse = 1;
             unset($data->boav_enrolledincourse);
-        }
-    }
-
-    /**
-     * Function to return the key for the next session, by counting existing ones.
-     * If no bookingoption as of yet, we return 1.
-     * @param object $data
-     * @param booking_option|null $bookingoption
-     * @return int
-     */
-    private static function return_next_sessionkey(object $data, booking_option $bookingoption = null) {
-        if ($bookingoption) {
-            return count($bookingoption->settings->sessions) + 1;
-        } else {
-            return 1;
         }
     }
 
@@ -378,6 +364,30 @@ class webservice_import {
         }
     }
 
+    /**
+     *
+     * @param mixed $optionid
+     * @param mixed $data
+     * @return void
+     * @throws moodle_exception
+     * @throws coding_exception
+     */
+    private function add_customfields_to_bookingoption($optionid, $data) {
+        if (!empty($data->recommendedin)) {
+
+            $handler = booking_handler::create();
+            $handler->field_save($optionid, 'recommendedin', $data->recommendedin);
+        }
+    }
+
+    /**
+     * Add the teacher information to the booking option.
+     * @param mixed $optionid
+     * @param mixed $data
+     * @return void
+     * @throws moodle_exception
+     * @throws coding_exception
+     */
     private function add_teacher_to_bookingoption($optionid, $data) {
         global $DB;
 

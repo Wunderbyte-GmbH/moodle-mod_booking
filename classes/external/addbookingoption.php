@@ -116,9 +116,9 @@ class addbookingoption extends external_api {
                 'Notification text format', (bool) VALUE_DEFAULT, null),
             'disablebookingusers' => new external_value(PARAM_INT,
                 'Set to 1 to disable booking, else 0.', (bool) VALUE_DEFAULT, 0),
-            'beforebookedtext' => new external_value(PARAM_INT,
-                'Max waintinglist', (bool) VALUE_DEFAULT, null),
-            'beforecompletedtext' => new external_value(PARAM_TEXT,
+            'beforebookedtext' => new external_value(PARAM_RAW,
+                'Before booked text', (bool) VALUE_DEFAULT, null),
+            'beforecompletedtext' => new external_value(PARAM_RAW,
                 'Text to show before completion.', (bool) VALUE_DEFAULT, null),
             'aftercompletedtext' => new external_value(PARAM_RAW,
                 'Text to show after completion.', (bool) VALUE_DEFAULT, null),
@@ -139,9 +139,11 @@ class addbookingoption extends external_api {
             'invisible' => new external_value(PARAM_INT,
                 'Default is 0 and visible. 1 will make the option invisible to students.', (bool) VALUE_DEFAULT, 0),
             'responsiblecontact' => new external_value(PARAM_RAW,
-                'Responsible contact as e-mails, semicolon separated', (bool) VALUE_DEFAULT, ''),
+                'Responsible contact as e-mail. Only one possible.', (bool) VALUE_DEFAULT, ''),
             'boav_enrolledincourse' => new external_value(PARAM_RAW,
-                'Booking Condition enrolled courses with shortnames, semicolon separated', (bool) VALUE_DEFAULT, ''),
+                'Booking Condition enrolled courses with shortnames, comma separated', (bool) VALUE_DEFAULT, ''),
+            'recommendedin' => new external_value(PARAM_RAW,
+                'This is for the recommendedin-feature and takes the shortnames of the courses, separated by commas.', (bool) VALUE_DEFAULT, ''),
             'mergeparam' => new external_value(PARAM_INT,
                 'To upload multisession in consecutive steps or to add teachers to option.
                 0 is no multisession, 1 is create ms, 2 is merge with previous, 3 is merge teacher to option',
@@ -199,6 +201,7 @@ class addbookingoption extends external_api {
                         int $invisible = 0,
                         string $responsiblecontact = null,
                         string $boav_enrolledincourse = null,
+                        string $recommendedin = null,
                         int $mergeparam = null
                     ): array {
 
@@ -247,6 +250,7 @@ class addbookingoption extends external_api {
                         'invisible' => $invisible,
                         'responsiblecontact' => $responsiblecontact,
                         'boav_enrolledincourse' => $boav_enrolledincourse,
+                        'recommendedin' => $recommendedin,
                         'mergeparam' => $mergeparam
                     ));
 
