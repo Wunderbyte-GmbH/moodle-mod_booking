@@ -253,7 +253,8 @@ class message_controller {
 
         $params->qr_id = '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' .
             rawurlencode($this->userid) . '&choe=UTF-8" title="Link to Google.com" />';
-        $params->qr_username = isset($this->user->username) ? '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' .
+        $params->qr_username = isset($this->user->username) ?
+            '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' .
             rawurlencode($this->user->username) . '&choe=UTF-8" title="QR encoded username" />' : '';
         $params->participant = fullname($this->user);
         $params->email = $this->user->email ?? '';

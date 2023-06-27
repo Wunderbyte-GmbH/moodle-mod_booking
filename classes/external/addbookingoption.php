@@ -143,7 +143,8 @@ class addbookingoption extends external_api {
             'boav_enrolledincourse' => new external_value(PARAM_RAW,
                 'Booking Condition enrolled courses with shortnames, comma separated', (bool) VALUE_DEFAULT, ''),
             'recommendedin' => new external_value(PARAM_RAW,
-                'This is for the recommendedin-feature and takes the shortnames of the courses, separated by commas.', (bool) VALUE_DEFAULT, ''),
+                'This is for the recommendedin-feature and takes the shortnames of the courses, separated by commas.',
+                (bool) VALUE_DEFAULT, ''),
             'mergeparam' => new external_value(PARAM_INT,
                 'To upload multisession in consecutive steps or to add teachers to option.
                 0 is no multisession, 1 is create ms, 2 is merge with previous, 3 is merge teacher to option',
@@ -200,7 +201,7 @@ class addbookingoption extends external_api {
                         string $courseendtime = null,
                         int $invisible = 0,
                         string $responsiblecontact = null,
-                        string $boav_enrolledincourse = null,
+                        string $boavenrolledincourse = null,
                         string $recommendedin = null,
                         int $mergeparam = null
                     ): array {
@@ -249,7 +250,7 @@ class addbookingoption extends external_api {
                         'courseendtime' => $courseendtime,
                         'invisible' => $invisible,
                         'responsiblecontact' => $responsiblecontact,
-                        'boav_enrolledincourse' => $boav_enrolledincourse,
+                        'boav_enrolledincourse' => $boavenrolledincourse,
                         'recommendedin' => $recommendedin,
                         'mergeparam' => $mergeparam
                     ));
