@@ -26,6 +26,7 @@
 
 namespace mod_booking\bo_availability\conditions;
 
+use context_system;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\booking_option_settings;
 use mod_booking\output\button_notifyme;
@@ -80,7 +81,7 @@ class notifymelist implements bo_condition {
      */
     public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
 
-        global $DB;
+        global $USER;
 
         // This is the return value. Not available to begin with.
         $isavailable = false;
@@ -89,7 +90,14 @@ class notifymelist implements bo_condition {
         $shownotificationlist = get_config('booking', 'usenotificationlist');
 
         // If not, this is always true.
-        if (!$shownotificationlist) {
+        if (!$shownotificationlist ||
+            // It's also true, if we have the cashier capability...
+            // ...as the cashier always needs to be able to book for other users...
+            // ...even if the booking option is fully booked.
+            (class_exists('local_shopping_cart\shopping_cart') &&
+                has_capability('local/shopping_cart:cashier', context_system::instance()) &&
+                $userid != $USER->id)
+        ) {
             $isavailable = true;
         } else {
             // See if this is already fully booked.
