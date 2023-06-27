@@ -1458,7 +1458,8 @@ function deal_with_multisessions(&$optionvalues, $booking, $optionid, $context) 
  * @param $cmid course module id
  * @return localised string of user status
  */
-function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
+// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+/* function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
     global $DB;
     $option = $DB->get_record('booking_options', array('id' => $optionid));
     $current = $DB->get_record('booking_answers',
@@ -1496,7 +1497,7 @@ function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
         return $status;
     }
     return get_string('notbooked', 'booking');
-}
+} */
 
 /**
  * Extend booking user navigation
@@ -2438,7 +2439,8 @@ function booking_pretty_duration($seconds) {
  * @param $cmid course module id
  * @return mixed false if no user gets from waitinglist to booked list or userid of user now on booked list
  */
-function booking_check_statuschange($optionid, $booking, $cancelleduserid, $cmid) {
+// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+/*function booking_check_statuschange($optionid, $booking, $cancelleduserid, $cmid) {
     global $DB;
     if (booking_get_user_status($cancelleduserid, $optionid, $booking->id, $cmid) !== get_string('booked', 'booking')) {
         return false;
@@ -2471,6 +2473,7 @@ function booking_check_statuschange($optionid, $booking, $cancelleduserid, $cmid
         return false;
     }
 }
+*/
 
 /**
  * Returns all other caps used in module
