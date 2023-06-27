@@ -1588,13 +1588,16 @@ $string['appearancesettings'] = 'Darstellung (PRO)';
 $string['appearancesettings_desc'] = 'Passen Sie die Darstellung des Buchungsplugins an.';
 $string['turnoffwunderbytelogo'] = 'Wunderbyte Logo und Link nicht anzeigen';
 $string['turnoffwunderbytelogo_desc'] = 'Wenn diese Einstellung aktiviert ist, werden das Wunderbyte Logo und der Link zur Wunderbyte-Website nicht angezeigt.';
+
+$string['teachersettings'] = 'Trainer:innen (PRO)';
+$string['teachersettings_desc'] = 'Trainer:innen-spezifische Einstellungen.';
 $string['teachersnologinrequired'] = 'Einloggen bei Trainer:innen-Seiten nicht notwendig';
-$string['teachersnologinrequired_desc'] = 'Wenn Sie diese Einstellung aktivieren, dann können die Trainer:innen-Seiten (teacher.php) auch von
+$string['teachersnologinrequired_desc'] = 'Wenn Sie diese Einstellung aktivieren, dann können die Trainer:innen-Seiten auch von
  nicht-eingeloggten Benutzer:innen gesehen werden.';
 $string['teachersshowemails'] = 'E-Mail-Adressen von Trainer:innen immer anzeigen';
 $string['teachersshowemails_desc'] = 'Wenn Sie diese Einstellung aktivieren, dann werden allen Benutzer:innen die E-Mail-Adressen der Trainer:innen
- angezeigt, selbst wenn diese nicht eingeloggt sind. Achtung: Dies könnte ein Datenschutz-Problem darstellen. Aktivieren Sie dies nur,
- wenn es die Datenschutzbestimmungen Ihrer Organisation erlauben.';
+ angezeigt, selbst wenn diese nicht eingeloggt sind. <span class="text-danger"><b>Achtung:</b> Dies könnte ein Datenschutz-Problem darstellen. Aktivieren Sie dies nur,
+ wenn es die Datenschutzbestimmungen Ihrer Organisation erlauben.</span>';
 
 // Optiontemplatessettings.php.
 $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';

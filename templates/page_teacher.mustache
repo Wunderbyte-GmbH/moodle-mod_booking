@@ -31,7 +31,7 @@
                 "firstname" : "Maxima",
                 "lastname" : "Yoga",
                 "description" : "description",
-                "optiontables" : [ 
+                "optiontables" : [
                     {
                         "key" : [
                             {
@@ -62,6 +62,14 @@
                 {{#image}}<img src="{{.}}" class="card-img-teacher rounded-circle p-3">{{/image}}
                 <div class="card-body">
                     <h1 class="card-title font-weight-bold">{{firstname}} {{lastname}}</h1>
+                    {{#email}}
+                    <div>
+                        <a href="mailto:{{email}}" class="page-teacher-email btn btn-link">
+                            <i class="fa fa-envelope" aria-hidden="true"></i>
+                            {{email}}
+                        </a>
+                    </div>
+                    {{/email}}
                     {{#messagingispossible}}
                     <div>
                         <a id="message-user-button" role="button" data-conversationid="0"

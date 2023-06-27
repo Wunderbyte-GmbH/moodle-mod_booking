@@ -22,12 +22,14 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+require_once(__DIR__ . '/../../config.php'); // phpcs:ignore moodle.Files.RequireLogin.Missing
+
+// Check if login is required.
+if (empty(get_config('booking', 'teachersnologinrequired'))) {
+    require_login(0, false);
+}
+
 use mod_booking\output\page_teacher;
-
-require_once(__DIR__ . '/../../config.php');
-
-// TODO: config setting
-/* require_login(0, false); */
 
 global $DB, $PAGE, $OUTPUT, $USER;
 

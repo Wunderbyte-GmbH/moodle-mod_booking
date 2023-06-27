@@ -122,6 +122,21 @@ if ($ADMIN->fulltree) {
                     get_string('turnoffwunderbytelogo', 'mod_booking'),
                     get_string('turnoffwunderbytelogo_desc', 'mod_booking'), 0));
 
+    } else {
+        $settings->add(
+            new admin_setting_heading('appearancesettings',
+                get_string('appearancesettings', 'mod_booking'),
+                get_string('infotext:prolicensenecessary', 'mod_booking')));
+    }
+
+    // PRO feature: Teacher settings.
+    if ($proversion) {
+
+        $settings->add(
+            new admin_setting_heading('teachersettings',
+                get_string('teachersettings', 'mod_booking'),
+                get_string('teachersettings_desc', 'mod_booking')));
+
         $settings->add(
             new admin_setting_configcheckbox('booking/teachersnologinrequired',
                     get_string('teachersnologinrequired', 'mod_booking'),
@@ -133,8 +148,8 @@ if ($ADMIN->fulltree) {
                     get_string('teachersshowemails_desc', 'mod_booking'), 0));
     } else {
         $settings->add(
-            new admin_setting_heading('appearancesettings',
-                get_string('appearancesettings', 'mod_booking'),
+            new admin_setting_heading('teachersettings',
+                get_string('teachersettings', 'mod_booking'),
                 get_string('infotext:prolicensenecessary', 'mod_booking')));
     }
 

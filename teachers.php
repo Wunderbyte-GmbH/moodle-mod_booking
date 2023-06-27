@@ -24,10 +24,12 @@
 
 use mod_booking\output\page_allteachers;
 
-require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/../../config.php'); // phpcs:ignore moodle.Files.RequireLogin.Missing
 
-// No guest autologin.
-require_login(0, false);
+// Check if login is required.
+if (empty(get_config('booking', 'teachersnologinrequired'))) {
+    require_login(0, false);
+}
 
 global $DB, $PAGE, $OUTPUT, $USER;
 

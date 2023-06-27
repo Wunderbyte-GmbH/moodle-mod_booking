@@ -86,8 +86,9 @@ class page_teacher implements renderable, templatable {
     public function export_for_template(renderer_base $output) {
         global $PAGE, $CFG;
 
+        $context = context_system::instance();
         if (!isset($PAGE->context)) {
-            $PAGE->set_context(context_system::instance());
+            $PAGE->set_context($context);
         }
 
         $returnarray = [];
@@ -112,6 +113,18 @@ class page_teacher implements renderable, templatable {
             'description' => format_text($this->teacher->description, $this->teacher->descriptionformat),
             'optiontables' => $teacheroptiontables
         ];
+
+        // If the user has set to hide e-mails, we won't show them.
+        // However, a site admin will always see e-mail addresses.
+        // If the plugin setting to show all teacher e-mails (teachersshowemails) is turned on...
+        // ... then teacher e-mails will always be shown to anyone.
+        if (!empty($this->teacher->email) &&
+            ($this->teacher->maildisplay == 1 ||
+                has_capability('mod/booking:updatebooking', $context) ||
+                get_config('booking', 'teachersshowemails')
+            )) {
+            $returnarray['teacher']['email'] = $this->teacher->email;
+        }
 
         if ($this->teacher->picture) {
             $picture = new \user_picture($this->teacher);

@@ -22,7 +22,7 @@
 
     Data attributes required for JS:
     * data-region
-    
+
     Example context (json):
     {
         "canedit" : true,
@@ -60,7 +60,9 @@
     {{#teachers}}
         <div class="card m-2 page-allteachers-card">
             <div class="card-header bg-dark d-flex justify-content-between align-items-center">
-                <div class="text-white h3 mb-0 page-allteachers-teachername">{{firstname}} {{lastname}}</div>
+                <a href="{{link}}" style="text-decoration: none;">
+                    <div class="text-white h3 mb-0 page-allteachers-teachername">{{firstname}} {{lastname}}</div>
+                </a>
                 <div class="page-allteachers-orderletter bg-light rounded text-dark text-center">{{orderletter}}</div>
             </div>
             <div class="card-body bg-light">

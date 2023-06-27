@@ -108,8 +108,13 @@ class page_allteachers implements renderable, templatable {
 
             // If the user has set to hide e-mails, we won't show them.
             // However, a site admin will always see e-mail addresses.
+            // If the plugin setting to show all teacher e-mails (teachersshowemails) is turned on...
+            // ... then teacher e-mails will always be shown to anyone.
             if (!empty($teacher->email) &&
-                ($teacher->maildisplay == 1 || has_capability('mod/booking:updatebooking', $context))) {
+                ($teacher->maildisplay == 1 ||
+                    has_capability('mod/booking:updatebooking', $context) ||
+                    get_config('booking', 'teachersshowemails')
+                )) {
                 $teacherarr['email'] = $teacher->email;
             }
 
