@@ -265,10 +265,10 @@ class booking_answers {
             $returnarray['fullybooked'] = false;
         }
 
-        if ($this->bookingoptionsettings->maxoverbooking != 0) {
-            $returnarray['maxoverbooking'] = $this->bookingoptionsettings->maxoverbooking;
-
-            $returnarray['freeonwaitinglist'] = $returnarray['maxoverbooking'] - $returnarray['waiting'];
+        $maxoverbooking = $this->bookingoptionsettings->maxoverbooking ?? 0;
+        if ($maxoverbooking > 0) {
+            $returnarray['maxoverbooking'] = $maxoverbooking;
+            $returnarray['freeonwaitinglist'] = $maxoverbooking - $returnarray['waiting'];
         }
 
         if (!empty($this->bookingoptionsettings->minanswers) && $this->bookingoptionsettings->minanswers > 0) {

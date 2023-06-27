@@ -62,7 +62,7 @@ class booking_option_settings {
     public $maxanswers = null;
 
     /** @var int $maxoverbooking */
-    public $maxoverbooking = null;
+    public $maxoverbooking = 0;
 
     /** @var int $minanswers */
     public $minanswers = null;
@@ -316,7 +316,7 @@ class booking_option_settings {
             $this->titleprefix = $dbrecord->titleprefix;
             $this->text = $dbrecord->text;
             $this->maxanswers = $dbrecord->maxanswers;
-            $this->maxoverbooking = $dbrecord->maxoverbooking;
+            $this->maxoverbooking = $dbrecord->maxoverbooking ?? 0;
             $this->minanswers = $dbrecord->minanswers;
             $this->bookingopeningtime = $dbrecord->bookingopeningtime;
             $this->bookingclosingtime = $dbrecord->bookingclosingtime;

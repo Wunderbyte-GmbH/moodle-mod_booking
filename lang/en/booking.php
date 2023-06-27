@@ -1676,6 +1676,9 @@ $string['duplicationrestoresubbookings'] = 'Include subbookings (PRO)';
 
 $string['waitinglistheader'] = 'Waiting list';
 $string['waitinglistheader_desc'] = 'Here you can set how the booking waiting list should behave.';
+$string['turnoffwaitinglist'] = 'Turn off waiting list globally';
+$string['turnoffwaitinglist_desc'] = 'Activate this setting, if you do not want to use the waiting list
+ feature on this site (e.g. because you only want to use the notification list).';
 $string['turnoffwaitinglistaftercoursestart'] = 'Turn off automatic moving up from waiting list after a booking option has started.';
 
 $string['notificationlist'] = 'Notification list';

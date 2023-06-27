@@ -298,9 +298,11 @@ class option_form extends moodleform {
         $mform->setType('maxanswers', PARAM_INT);
         $mform->disabledIf('maxanswers', 'limitanswers', 'notchecked');
 
-        $mform->addElement('text', 'maxoverbooking', get_string('maxoverbooking', 'mod_booking'));
-        $mform->setType('maxoverbooking', PARAM_INT);
-        $mform->disabledIf('maxoverbooking', 'limitanswers', 'notchecked');
+        if (!get_config('booking', 'turnoffwaitinglist')) {
+            $mform->addElement('text', 'maxoverbooking', get_string('maxoverbooking', 'mod_booking'));
+            $mform->setType('maxoverbooking', PARAM_INT);
+            $mform->disabledIf('maxoverbooking', 'limitanswers', 'notchecked');
+        }
 
         $mform->addElement('text', 'minanswers', get_string('minanswers', 'mod_booking'));
         $mform->setType('minanswers', PARAM_INT);

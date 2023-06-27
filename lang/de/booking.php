@@ -1551,6 +1551,9 @@ $string['duplicationrestoresubbookings'] = 'Zusatzbuchungen inkludieren (PRO)';
 
 $string['waitinglistheader'] = 'Warteliste';
 $string['waitinglistheader_desc'] = 'Hier können Sie Einstellungen zum Verhalten der Warteliste vornehmen.';
+$string['turnoffwaitinglist'] = 'Warteliste global deaktivieren';
+$string['turnoffwaitinglist_desc'] = 'Aktivieren Sie diese Einstellung, um die Warteliste auf der gesamten
+ Plattform auszuschalten (z.B. weil Sie nur die Benachrichtigungsliste verwenden möchten).';
 $string['turnoffwaitinglistaftercoursestart'] = 'Automatisches Nachrücken von der Warteliste ab Beginn der Buchungsoption deaktivieren.';
 
 $string['notificationlist'] = 'Benachrichtigungsliste';

@@ -632,6 +632,9 @@ class booking_option {
      * Add booked/waitinglist info to each userobject of users.
      */
     public function sort_answers() {
+
+        $maxoverbooking = $this->option->maxoverbooking ?? 0;
+
         if (!empty($this->bookedusers) && null != $this->option) {
             foreach ($this->bookedusers as $rank => $userobject) {
                 $userobject->bookingcmid = $this->booking->cm->id;
@@ -640,7 +643,7 @@ class booking_option {
                 }
                 // Rank starts at 0 so add + 1 to corespond to max answer settings.
                 if ($this->option->maxanswers < ($rank + 1) &&
-                         $rank + 1 <= ($this->option->maxanswers + $this->option->maxoverbooking)) {
+                         $rank + 1 <= ($this->option->maxanswers + $maxoverbooking)) {
                     $userobject->booked = 'waitinglist';
                 } else if ($rank + 1 <= $this->option->maxanswers) {
                     $userobject->booked = 'booked';
@@ -893,78 +896,84 @@ class booking_option {
     public function sync_waiting_list() {
         global $DB;
 
-        if ($this->option->limitanswers && !empty($this->option->maxanswers)) {
+        /* TODO: We might need to rewrite this function and use the booking_answers class instead of direct DB calls.
+        The way it works now, we could run into serious problems - e.g. when combining this functionality with Booking campaigns! */
 
-            // If users drop out of the waiting list because of changed limits, delete and inform them.
-            $answerstodelete = $DB->get_records_sql(
-                'SELECT * FROM {booking_answers} WHERE optionid = ? AND waitinglist < 3 ORDER BY timemodified ASC',
-                array($this->optionid), $this->option->maxoverbooking + $this->option->maxanswers);
+        // If there is no waiting list, we do not do anything!
+        if (!empty($this->option->maxoverbooking) || get_config('booking', 'turnoffwaitinglist')) {
+            if ($this->option->limitanswers && !empty($this->option->maxanswers)) {
 
-            foreach ($answerstodelete as $answertodelete) {
-                $answertodelete->waitinglist = STATUSPARAM_DELETED;
-                $DB->update_record('booking_answers', $answertodelete);
-
-                $messagecontroller = new message_controller(
-                    MSGCONTRPARAM_QUEUE_ADHOC, MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM,
-                    $this->cmid, $this->bookingid, $this->optionid, $answertodelete->userid
-                );
-                $messagecontroller->send_or_queue();
-            }
-
-            // Update, enrol and inform users who have switched from the waiting list to status "booked".
-            // We include STATUSPARAM_BOOKED STATUSPARAM_WAITINGLIST & STATUSPARAM_RESERVED (all < 3) in this logic.
-            $newbookedanswers = $DB->get_records_sql(
+                // If users drop out of the waiting list because of changed limits, delete and inform them.
+                $answerstodelete = $DB->get_records_sql(
                     'SELECT * FROM {booking_answers} WHERE optionid = ? AND waitinglist < 3 ORDER BY timemodified ASC',
-                    array($this->optionid), 0, $this->option->maxanswers);
-            foreach ($newbookedanswers as $newbookedanswer) {
-                if ($newbookedanswer->waitinglist == STATUSPARAM_WAITINGLIST) {
-                    $newbookedanswer->waitinglist = STATUSPARAM_BOOKED;
-                    $DB->update_record("booking_answers", $newbookedanswer);
-                    $this->enrol_user_coursestart($newbookedanswer->userid);
+                    array($this->optionid), $this->option->maxoverbooking + $this->option->maxanswers);
+
+                foreach ($answerstodelete as $answertodelete) {
+                    $answertodelete->waitinglist = STATUSPARAM_DELETED;
+                    $DB->update_record('booking_answers', $answertodelete);
 
                     $messagecontroller = new message_controller(
-                        MSGCONTRPARAM_QUEUE_ADHOC, MSGPARAM_STATUS_CHANGED,
-                        $this->cmid, $this->bookingid, $this->optionid, $newbookedanswer->userid
+                        MSGCONTRPARAM_QUEUE_ADHOC, MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM,
+                        $this->cmid, $this->bookingid, $this->optionid, $answertodelete->userid
                     );
                     $messagecontroller->send_or_queue();
                 }
-            }
 
-            // Update and inform users who have been put on the waiting list because of changed limits.
-            // We include STATUSPARAM_BOOKED STATUSPARAM_WAITINGLIST & STATUSPARAM_RESERVED (all < 3) in this logic.
-            $newwaitinglistanswers = $DB->get_records_sql(
-                    'SELECT * FROM {booking_answers} WHERE optionid = ? AND waitinglist < 3 ORDER BY timemodified ASC',
-                    array($this->optionid), $this->option->maxanswers, $this->option->maxoverbooking);
+                // Update, enrol and inform users who have switched from the waiting list to status "booked".
+                // We include STATUSPARAM_BOOKED STATUSPARAM_WAITINGLIST & STATUSPARAM_RESERVED (all < 3) in this logic.
+                $newbookedanswers = $DB->get_records_sql(
+                        'SELECT * FROM {booking_answers} WHERE optionid = ? AND waitinglist < 3 ORDER BY timemodified ASC',
+                        array($this->optionid), 0, $this->option->maxanswers);
+                foreach ($newbookedanswers as $newbookedanswer) {
+                    if ($newbookedanswer->waitinglist == STATUSPARAM_WAITINGLIST) {
+                        $newbookedanswer->waitinglist = STATUSPARAM_BOOKED;
+                        $DB->update_record("booking_answers", $newbookedanswer);
+                        $this->enrol_user_coursestart($newbookedanswer->userid);
 
-            foreach ($newwaitinglistanswers as $newwaitinglistanswer) {
-                if ($newwaitinglistanswer->waitinglist == STATUSPARAM_BOOKED) {
-                    $newwaitinglistanswer->waitinglist = STATUSPARAM_WAITINGLIST;
-                    $DB->update_record("booking_answers", $newwaitinglistanswer);
-
-                    $messagecontroller = new message_controller(
-                        MSGCONTRPARAM_QUEUE_ADHOC, MSGPARAM_STATUS_CHANGED,
-                        $this->cmid, $this->bookingid, $this->optionid, $newwaitinglistanswer->userid
-                    );
-                    $messagecontroller->send_or_queue();
+                        $messagecontroller = new message_controller(
+                            MSGCONTRPARAM_QUEUE_ADHOC, MSGPARAM_STATUS_CHANGED,
+                            $this->cmid, $this->bookingid, $this->optionid, $newbookedanswer->userid
+                        );
+                        $messagecontroller->send_or_queue();
+                    }
                 }
-            }
-        } else {
-            // If option was set to unlimited, inform all users that have been on the waiting list of the status change.
-            if ($onwaitinglistanswers = $DB->get_records('booking_answers', ['optionid' => $this->optionid,
-                                                                            'waitinglist' => 1])) {
-                foreach ($onwaitinglistanswers as $onwaitinglistanswer) {
 
-                    $messagecontroller = new message_controller(
-                        MSGCONTRPARAM_QUEUE_ADHOC, MSGPARAM_STATUS_CHANGED,
-                        $this->cmid, $this->bookingid, $this->optionid, $onwaitinglistanswer->userid
-                    );
-                    $messagecontroller->send_or_queue();
+                // Update and inform users who have been put on the waiting list because of changed limits.
+                // We include STATUSPARAM_BOOKED STATUSPARAM_WAITINGLIST & STATUSPARAM_RESERVED (all < 3) in this logic.
+                $newwaitinglistanswers = $DB->get_records_sql(
+                        'SELECT * FROM {booking_answers} WHERE optionid = ? AND waitinglist < 3 ORDER BY timemodified ASC',
+                        array($this->optionid), $this->option->maxanswers, $this->option->maxoverbooking);
+
+                foreach ($newwaitinglistanswers as $newwaitinglistanswer) {
+                    if ($newwaitinglistanswer->waitinglist == STATUSPARAM_BOOKED) {
+                        $newwaitinglistanswer->waitinglist = STATUSPARAM_WAITINGLIST;
+                        $DB->update_record("booking_answers", $newwaitinglistanswer);
+
+                        $messagecontroller = new message_controller(
+                            MSGCONTRPARAM_QUEUE_ADHOC, MSGPARAM_STATUS_CHANGED,
+                            $this->cmid, $this->bookingid, $this->optionid, $newwaitinglistanswer->userid
+                        );
+                        $messagecontroller->send_or_queue();
+                    }
                 }
-            }
+            } else {
+                // If option was set to unlimited, inform all users that have been on the waiting list of the status change.
+                if ($onwaitinglistanswers = $DB->get_records('booking_answers', ['optionid' => $this->optionid,
+                                                                                'waitinglist' => 1])) {
+                    foreach ($onwaitinglistanswers as $onwaitinglistanswer) {
 
-            // Now move everybody from the waiting list to booked users.
-            $DB->execute("UPDATE {booking_answers} SET waitinglist = 0 WHERE optionid = :optionid AND waitinglist < 2",
-                    array('optionid' => $this->optionid));
+                        $messagecontroller = new message_controller(
+                            MSGCONTRPARAM_QUEUE_ADHOC, MSGPARAM_STATUS_CHANGED,
+                            $this->cmid, $this->bookingid, $this->optionid, $onwaitinglistanswer->userid
+                        );
+                        $messagecontroller->send_or_queue();
+                    }
+                }
+
+                // Now move everybody from the waiting list to booked users.
+                $DB->execute("UPDATE {booking_answers} SET waitinglist = 0 WHERE optionid = :optionid AND waitinglist < 2",
+                        array('optionid' => $this->optionid));
+            }
         }
     }
 
@@ -1923,7 +1932,7 @@ class booking_option {
             'institution' => $this->option->institution,
             'address' => $this->option->address,
             'maxanswers' => $this->option->maxanswers,
-            'maxoverbooking' => $this->option->maxoverbooking,
+            'maxoverbooking' => $this->option->maxoverbooking ?? 0,
             'minanswers' => $this->option->minanswers,
             'bookingopeningtime' => ($this->option->bookingopeningtime == 0 ? get_string('nodateset', 'mod_booking') : userdate(
                 $this->option->bookingopeningtime, get_string('strftimedatetime', 'langconfig'))),
@@ -2238,10 +2247,12 @@ class booking_option {
             }
             $useridaskey = array_flip($sortedanswers);
 
+            $maxoverbooking = $this->option->maxoverbooking ?? 0;
+
             if ($this->option->limitanswers) {
                 if (!isset($useridaskey[$userid])) {
                     $status = STATUSPARAM_NOTBOOKED;
-                } else if ($useridaskey[$userid] > $this->option->maxanswers + $this->option->maxoverbooking) {
+                } else if ($useridaskey[$userid] > $this->option->maxanswers + $maxoverbooking) {
                     $status = "Problem, please contact the admin";
                 } else if (($useridaskey[$userid]) >= $this->option->maxanswers) {
                     $status = STATUSPARAM_WAITINGLIST;

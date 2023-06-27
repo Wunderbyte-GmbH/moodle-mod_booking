@@ -203,6 +203,11 @@ if ($ADMIN->fulltree) {
             get_string('waitinglistheader_desc', 'mod_booking')));
 
     $settings->add(
+        new admin_setting_configcheckbox('booking/turnoffwaitinglist',
+                get_string('turnoffwaitinglist', 'mod_booking'),
+                get_string('turnoffwaitinglist_desc', 'mod_booking'), 0));
+
+    $settings->add(
         new admin_setting_configcheckbox('booking/turnoffwaitinglistaftercoursestart',
                 get_string('turnoffwaitinglistaftercoursestart', 'mod_booking'), '', 0));
 
