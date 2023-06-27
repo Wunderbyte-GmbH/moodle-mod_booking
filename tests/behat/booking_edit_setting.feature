@@ -200,3 +200,83 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     And I should see "7 June" in the "#allbookingoptionstable_r1" "css_element"
     And I should see "14 June" in the "#allbookingoptionstable_r1" "css_element"
     ## And I should see "14 June ## + 1 year ##%Y##, 1:00PM - 2:00PM" in the "#allbookingoptionstable_r1" "css_element"
+
+  @javascript
+  Scenario: Booking settings - access the teacher pages without login
+    Given I log in as "admin"
+    When I am on "Course 1" course homepage
+    And I follow "My booking"
+    And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r1" "css_element"
+    And I wait "1" seconds
+    And I press "Teachers"
+    And I wait "1" seconds
+    And I set the field "Assign teachers:" to "Teacher 1"
+    And I press "Save and go back"
+    And I visit "/admin/category.php?category=modbookingfolder"
+    And I set the field "s_booking_teachersnologinrequired" to ""
+    And I press "Save changes"
+    And I log out
+    And I visit "/mod/booking/teachers.php"
+    And I wait to be redirected
+    And I should see "Log in to" in the "#region-main" "css_element"
+    And I log in as "admin"
+    And I visit "/admin/category.php?category=modbookingfolder"
+    And I set the field "s_booking_teachersnologinrequired" to "checked"
+    And I press "Save changes"
+    And I log out
+    And I visit "/mod/booking/teachers.php"
+    Then I should see "Teacher 1" in the ".page-allteachers-card" "css_element"
+    And I follow "Teacher"
+    And I should see "Teacher 1" in the ".card-title" "css_element"
+
+  @javascript
+  Scenario: Booking settings - display teachers' emails pages without login
+    Given I log in as "admin"
+    When I am on "Course 1" course homepage
+    And I follow "My booking"
+    And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r1" "css_element"
+    And I wait "1" seconds
+    And I press "Teachers"
+    And I wait "1" seconds
+    And I set the field "Assign teachers:" to "Teacher 1"
+    And I press "Save and go back"
+    And I visit "/admin/category.php?category=modbookingfolder"
+    And I set the field "s_booking_teachersnologinrequired" to "checked"
+    And I set the field "s_booking_teachersshowemails" to ""
+    And I press "Save changes"
+    And I log out
+    And I visit "/mod/booking/teachers.php"
+    Then I should see "Teacher 1" in the ".page-allteachers-card" "css_element"
+    And I should not see "Mail" in the ".page-allteachers-card" "css_element"
+    And I follow "Teacher"
+    And I should see "Teacher 1" in the ".card-title" "css_element"
+    And I should not see "teacher1@example.com" in the ".card-title" "css_element"
+    And I log in as "admin"
+    And I visit "/admin/category.php?category=modbookingfolder"
+    And I set the field "s_booking_teachersshowemails" to "checked"
+    And I press "Save changes"
+    And I log out
+    And I visit "/mod/booking/teachers.php"
+    Then I should see "Teacher 1" in the ".page-allteachers-card" "css_element"
+    And I should see "Mail" in the ".page-allteachers-card" "css_element"
+    And I follow "Teacher"
+    And I should see "Teacher 1" in the ".card-title" "css_element"
+    And I should see "teacher1@example.com" in the ".card-body" "css_element"
+
+  @javascript
+  Scenario: Booking settings - hide branding info
+    Given I log in as "admin"
+    When I visit "/admin/category.php?category=modbookingfolder"
+    And I set the field "s_booking_turnoffwunderbytelogo" to ""
+    And I press "Save changes"
+    And I am on "Course 1" course homepage
+    And I follow "My booking"
+    Then I should see "Booking module created by Wunderbyte GmbH" in the "#region-main" "css_element"
+    When I visit "/admin/category.php?category=modbookingfolder"
+    And I set the field "s_booking_turnoffwunderbytelogo" to "checked"
+    And I press "Save changes"
+    And I am on "Course 1" course homepage
+    And I follow "My booking"
+    Then I should not see "Booking module created by Wunderbyte GmbH" in the "#region-main" "css_element"
