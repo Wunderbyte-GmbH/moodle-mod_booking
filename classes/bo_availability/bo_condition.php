@@ -125,12 +125,12 @@ interface bo_condition {
 
     /**
      * Render the supplementary page before the booking process.
-     * This
      *
      * @param int $optionid
+     * @param int $userid optional user id
      * @return array
      */
-    public function render_page(int $optionid);
+    public function render_page(int $optionid, int $userid = 0);
 
     /**
      * Some conditions (like price & bookit) provide a button.

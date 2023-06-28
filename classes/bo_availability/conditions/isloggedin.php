@@ -152,11 +152,11 @@ class isloggedin implements bo_condition {
      * Not all bo_conditions need to take advantage of this. But eg a condition which requires...
      * ... the acceptance of a booking policy would render the policy with this function.
      *
-     * @param integer $optionid
-     * @param integer $optionid
+     * @param int $optionid
+     * @param int $userid optional user id
      * @return array
      */
-    public function render_page(int $optionid) {
+    public function render_page(int $optionid, int $userid = 0) {
         return [];
     }
 

@@ -518,7 +518,7 @@ class bo_info {
 
         // We get the condition for the right page.
         $condition = new $condition();
-        $object = $condition->render_page($optionid);
+        $object = $condition->render_page($optionid, $userid ?? 0);
 
         // Now we introduce the header at the first place.
         $object['template'] = $template . ',' . $object['template'];

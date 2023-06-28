@@ -81,7 +81,7 @@ class fullybooked implements bo_condition {
      */
     public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
 
-        global $DB;
+        global $USER;
 
         // This is the return value. Not available to begin with.
         $isavailable = false;
@@ -100,6 +100,15 @@ class fullybooked implements bo_condition {
                 $bookinginformation['notbooked']['freeonwaitinglist'] > 0) {
                 $isavailable = true;
             }
+        }
+
+        // It's also true, if we have the cashier capability...
+        // ...as the cashier always needs to be able to book for other users...
+        // ...even if the booking option is fully booked.
+        if (class_exists('local_shopping_cart\shopping_cart') &&
+                has_capability('local/shopping_cart:cashier', context_system::instance()) &&
+                $userid != $USER->id) {
+            $isavailable = true;
         }
 
         // If it's inversed, we inverse.
@@ -177,10 +186,11 @@ class fullybooked implements bo_condition {
      * Not all bo_conditions need to take advantage of this. But eg a condition which requires...
      * ... the acceptance of a booking policy would render the policy with this function.
      *
-     * @param integer $optionid
+     * @param int $optionid
+     * @param int $userid optional user id
      * @return array
      */
-    public function render_page(int $optionid) {
+    public function render_page(int $optionid, int $userid = 0) {
         return [];
     }
 
@@ -199,7 +209,8 @@ class fullybooked implements bo_condition {
     public function render_button(booking_option_settings $settings,
         int $userid = 0, bool $full = false, bool $not = false, bool $fullwidth = true): array {
 
-        $label = $this->get_description_string(false, $full);
+        $isavailable = $this->is_available($settings, $userid);
+        $label = $this->get_description_string($isavailable, $full);
 
         return bo_info::render_button($settings, $userid, $label, 'alert alert-warning', true, $fullwidth, 'alert', 'option');
     }

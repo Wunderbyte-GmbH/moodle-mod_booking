@@ -150,7 +150,7 @@ export const initprepagemodal = (optionid, userid, totalnumberofpages, uniquid) 
 function respondToVisibility(optionid, userid, uniquid, totalnumberofpages, callback) {
 
     // eslint-disable-next-line no-console
-    console.log('respondToVisibility', optionid, totalnumberofpages, uniquid);
+    console.log('respondToVisibility', optionid, totalnumberofpages, uniquid, userid);
 
     let elements = document.querySelectorAll("[id^=" + SELECTORS.MODALID + optionid + "_" + uniquid + "]");
 
