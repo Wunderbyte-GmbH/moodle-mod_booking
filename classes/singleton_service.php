@@ -243,7 +243,7 @@ class singleton_service {
      * @param int $userid
      * @return stdClass
      */
-    public static function get_instance_of_user($userid) {
+    public static function get_instance_of_user(int $userid) {
         $instance = self::get_instance();
 
         if (isset($instance->users[$userid])) {

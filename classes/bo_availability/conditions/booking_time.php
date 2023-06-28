@@ -63,7 +63,7 @@ class booking_time implements bo_condition {
     }
 
     /**
-     * Needed to see if it shows up in mform.
+     * Needed to see if it shows up in mform,
      * @return bool
      */
     public function is_shown_in_mform(): bool {

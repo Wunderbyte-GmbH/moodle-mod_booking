@@ -82,8 +82,22 @@ class bookwithcredits implements bo_condition {
      */
     public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
 
-        // We show this button only when a user actually has credits.
+        global $USER;
+
         $isavailable = true;
+
+        if (!empty(get_config('mod_booking', 'bookwithcreditsactive')) {
+            $profilefiled = get_config('mod_booking', 'bookwithcreditsactive');
+
+        }
+
+
+        $Data = $USER->profile['credits'];
+
+        $user = singleton_service::get_instance_of_user($userid);
+
+        // We show this button only when a user actually has credits.
+
 
         return $isavailable;
     }
@@ -222,7 +236,7 @@ class bookwithcredits implements bo_condition {
         }
         $label = $this->get_description_string(false, $full);
 
-        return bo_info::render_button($settings, $userid, $label, 'btn btn-secondary mt-1 mb-1', false, $fullwidth,
+        return bo_info::render_button($settings, $userid, $label, 'btn btn-danger mt-1 mb-1', false, $fullwidth,
             'button', 'option', false, 'noforward');
     }
 

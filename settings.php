@@ -282,6 +282,11 @@ if ($ADMIN->fulltree) {
             get_string('globalcurrencydesc', 'booking'),
             'EUR', $currencies));
 
+    $settings->add(
+        new admin_setting_configcheckbox('booking/bookwithcreditsactive',
+                get_string('bookwithcreditsactive', 'mod_booking'),
+                get_string('bookwithcreditsactive_desc', 'mod_booking'), 0));
+
     // PRO feature: Progress bars.
     if ($proversion) {
         $settings->add(

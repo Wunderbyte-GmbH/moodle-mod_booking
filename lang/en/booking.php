@@ -1647,6 +1647,13 @@ $string['pricecategories'] = 'Booking: Price categories';
 $string['bookingpricesettings'] = 'Price settings';
 $string['bookingpricesettings_desc'] = 'Here you can customize booking prices.';
 
+$string['bookwithcreditsactive'] = "Book with credits";
+$string['bookwithcreditsactive_desc'] = "Users with credits can book directly without paying a price.";
+
+$string['bookwithcreditsprofilefield'] = "Choose a user profile field.";
+$string['bookwithcreditsprofilefield_desc'] = "To use this functionality, please define a user profile field where credits are stored. You should create this field in a way that your users can't set a credit themselves.";
+
+
 $string['priceisalwayson'] = 'Prices always active';
 $string['priceisalwayson_desc'] = 'If you activate this checkbox, you cannot deactive prices for individual booking options.
  However, you can still set a price of 0 EUR.';
