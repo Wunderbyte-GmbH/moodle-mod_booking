@@ -86,18 +86,26 @@ class bookwithcredits implements bo_condition {
 
         $isavailable = true;
 
-        if (!empty(get_config('mod_booking', 'bookwithcreditsactive')) {
-            $profilefiled = get_config('mod_booking', 'bookwithcreditsactive');
+        $isactive = get_config('booking', 'bookwithcreditsactive');
+
+        if (!empty($isactive)) {
+            $profilefiled = get_config('booking', 'bookwithcreditsprofilefield');
+
+            if (!empty($profilefiled)) {
+                if (empty($userid) || $userid != $USER->id) {
+                    $user = singleton_service::get_instance_of_user($userid);
+                } else {
+                    $user = $USER;
+                }
+
+                $credits = $user->profile[$profilefiled] ?? 0;
+
+                if ($credits > $settings->credits) {
+                    $isavailable = false;
+                }
+            }
 
         }
-
-
-        $Data = $USER->profile['credits'];
-
-        $user = singleton_service::get_instance_of_user($userid);
-
-        // We show this button only when a user actually has credits.
-
 
         return $isavailable;
     }
