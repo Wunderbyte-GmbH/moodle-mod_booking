@@ -258,13 +258,13 @@ if ($ADMIN->fulltree) {
         foreach ($userprofilefields as $userprofilefield) {
             $userprofilefieldsarray[$userprofilefield->shortname] = $userprofilefield->name;
         }
+    }
 
-        $settings->add(
+    $settings->add(
         new admin_setting_configselect('booking/pricecategoryfield',
             get_string('pricecategoryfield', 'mod_booking'),
             get_string('pricecategoryfielddesc', 'mod_booking'),
-            0, $userprofilefieldsarray));
-    }
+            0, $userprofilefieldsarray ?? []));
 
     // Currency dropdown.
     $currenciesobjects = price::get_possible_currencies();
@@ -286,6 +286,13 @@ if ($ADMIN->fulltree) {
         new admin_setting_configcheckbox('booking/bookwithcreditsactive',
                 get_string('bookwithcreditsactive', 'mod_booking'),
                 get_string('bookwithcreditsactive_desc', 'mod_booking'), 0));
+
+    $settings->add(
+        new admin_setting_configselect('booking/bookwithcreditsprofilefield',
+            get_string('bookwithcreditsprofilefield', 'mod_booking'),
+            get_string('bookwithcreditsprofilefield_desc', 'mod_booking'),
+            0, $userprofilefieldsarray ?? []));
+
 
     // PRO feature: Progress bars.
     if ($proversion) {
