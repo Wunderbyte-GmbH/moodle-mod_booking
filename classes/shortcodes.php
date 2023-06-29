@@ -97,16 +97,6 @@ class shortcodes {
 
         unset($table->subcolumns['rightside']);
 
-        // phpcs:disable
-        // So we don't need to configure manually.
-        //$table->use_pages = false;
-        //$table->cardsort = true;
-        //self::set_table_options_from_arguments($table, $args);
-        //self::generate_table_for_list($table, $args);
-        //$table->infinitescroll = 60;
-        //$table->tabletemplate = 'mod_booking/table_list';
-        // phpcs:enable
-
         $out = $table->outhtml($perpage, true);
 
         return $out;
@@ -170,30 +160,6 @@ class shortcodes {
         }
 
         return $booking;
-    }
-
-    private static function set_table_options_from_arguments(&$table, $args) {
-
-        // phpcs:ignore
-        // $table->set_display_options($args);
-
-        if (!empty($args['filter'])) {
-            self::define_filtercolumns($table);
-        }
-
-        if (!empty($args['search'])) {
-            $table->define_fulltextsearchcolumns(['titleprefix', 'text', 'description', 'location', 'teacherobjects']);
-        }
-
-        if (!empty($args['sort'])) {
-            $table->define_sortablecolumns([
-                'titleprefix' => get_string('titleprefix', 'mod_booking'),
-                'text' => get_string('coursename', 'mod_booking'),
-                'location' => get_string('location', 'mod_booking'),
-            ]);
-        } else {
-            $table->sortable(true, 'text');
-        }
     }
 
     /**
