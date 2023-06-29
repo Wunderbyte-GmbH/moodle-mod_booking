@@ -467,16 +467,6 @@ class renderer extends plugin_renderer_base {
         return $o;
     }
 
-    /** Function to render bookingoption_description in template.
-     * This creates a link on a dedicated optionview.php, instead of the modal.
-     */
-    public function render_col_text_link(stdClass $data) {
-        $o = '';
-        $data = (array)$data;
-        $o .= $this->render_from_template('mod_booking/col_text_link', $data);
-        return $o;
-    }
-
     /**
      * Render function.
      * @param $data array

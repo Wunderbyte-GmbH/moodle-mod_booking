@@ -24,6 +24,7 @@ $string['alreadypassed'] = 'Already passed';
 $string['bookingoption'] = 'Booking option';
 $string['bookingoptionnamewithoutprefix'] = 'Name (without prefix)';
 $string['bookings'] = 'Bookings';
+$string['cancelallusers'] = 'Cancel booking for all users';
 $string['cancelmyself'] = 'Undo my booking';
 $string['cancelsign'] = '<i class="fa fa-ban" aria-hidden="true"></i>';
 $string['close'] = 'Close';
@@ -2081,9 +2082,6 @@ $string['applyunitfactor_desc'] = 'If this setting is active, the educational un
 $string['roundpricesafterformula'] = 'Round prices (price formula)';
 $string['roundpricesafterformula_desc'] = 'If active, prices will be rounded to full numbers (no decimals) after the <strong>price formula</strong> has been applied.';
 
-// Col_text_link.mustache.
-$string['cancelallusers'] = 'Cancel booking for all users';
-
 // Col_availableplaces.mustache.
 $string['manageresponses'] = 'Manage bookings';
 
@@ -2108,8 +2106,8 @@ $string['bo_cond_isbookable'] = 'isbookable: Booking is allowed';
 $string['bo_cond_isloggedin'] = 'isloggedin: User is logged in';
 $string['bo_cond_fullybookedoverride'] = 'fullybookedoverride: Can be overbooked by staff';
 $string['bo_cond_iscancelled'] = 'iscancelled: Booking option cancelled';
-$string['bo_cond_subbooking_blocks'] = 'subbookingblocks: Subbooking blocks this Booking option';
-$string['bo_cond_subbooking'] = 'subbooking: Subbooking adds additonal options to this Booking option';
+$string['bo_cond_subbooking_blocks'] = 'Subbooking blocks this booking option';
+$string['bo_cond_subbooking'] = 'Subbbookings exist';
 $string['bo_cond_bookitbutton'] = 'bookitbutton: Show the normal booking button.';
 $string['bo_cond_isloggedinprice'] = 'isloggedinprice: Show all prices when not logged in.';
 $string['bo_cond_optionhasstarted'] = 'Has already started';

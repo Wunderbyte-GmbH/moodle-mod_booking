@@ -24,6 +24,7 @@ $string['alreadypassed'] = 'Bereits vergangen';
 $string['bookingoption'] = 'Buchungsoption';
 $string['bookingoptionnamewithoutprefix'] = 'Name (ohne Präfix)';
 $string['bookings'] = 'Buchungen';
+$string['cancelallusers'] = 'Storniere Buchung für alle Nutzer:innen';
 $string['cancelmyself'] = 'Wieder abmelden';
 $string['cancelsign'] = '<i class="fa fa-ban" aria-hidden="true"></i>';
 $string['close'] = 'Schließen';
@@ -1894,9 +1895,6 @@ $string['applyunitfactor_desc'] = 'Wenn diese Einstellung aktiviert ist, wird di
 $string['roundpricesafterformula'] = 'Preise runden (Preisformel)';
 $string['roundpricesafterformula_desc'] = 'Preise auf ganze Zahlen runden (mathematisch), nachdem die <strong>Preisformel</strong> angewandt wurde.';
 
-// Col_text_link.mustache.
-$string['cancelallusers'] = 'Storniere Buchung für alle Nutzer:innen';
-
 // Col_availableplaces.mustache.
 $string['manageresponses'] = 'Buchungen verwalten';
 
@@ -1921,7 +1919,8 @@ $string['bo_cond_isbookable'] = 'isbookable: Buchen ist erlaubt';
 $string['bo_cond_isloggedin'] = 'isloggedin: User ist eingeloggt';
 $string['bo_cond_fullybookedoverride'] = 'fullybookedoverride: Kann überbucht werden.';
 $string['bo_cond_iscancelled'] = 'iscancelled: Buchungsoption storniert';
-$string['bo_cond_subbooking_blocks'] = '';
+$string['bo_cond_subbooking'] = 'Zusatzbuchungen sind vorhanden';
+$string['bo_cond_subbooking_blocks'] = 'Zusatzbuchung blockiert Verfügbarkeit';
 $string['bo_cond_bookitbutton'] = 'bookitbutton: Zeige den normalen Buchen-Button.';
 $string['bo_cond_isloggedinprice'] = 'isloggedinprice: Zeige alle Preise wenn nicht eingelogged.';
 $string['bo_cond_optionhasstarted'] = 'Hat bereits begonnen';
