@@ -166,7 +166,7 @@ class confirmbookwithcredits implements bo_condition {
      * @param integer $optionid
      * @return array
      */
-    public function render_page(int $optionid) {
+    public function render_page(int $optionid, int $userid = 0) {
         return [];
     }
 
