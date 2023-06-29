@@ -26,6 +26,7 @@
 
 namespace mod_booking\bo_availability\conditions;
 
+use context_system;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
@@ -47,6 +48,9 @@ class subbooking implements bo_condition {
 
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = BO_COND_SUBBOOKING;
+
+    /** @var bool $overridable Indicates if the condition can be overriden. */
+    public $overridable = true;
 
     /**
      * Needed to see if class can take JSON.
@@ -74,12 +78,21 @@ class subbooking implements bo_condition {
      */
     public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
 
-        global $DB;
+        global $USER;
 
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
-        if (!subbookings_info::not_blocked($settings)) {
+        if (subbookings_info::not_blocked($settings)) {
+            // It's available if it's NOT blocked.
+            $isavailable = true;
+        }
+
+        if (class_exists('local_shopping_cart\shopping_cart') &&
+            has_capability('local/shopping_cart:cashier', context_system::instance()) &&
+            $userid != $USER->id) {
+            // It's also true, if we have the cashier capability...
+            // ...as the cashier always needs to be able to book for other users.
             $isavailable = true;
         }
 
