@@ -389,7 +389,7 @@ class bo_info {
      */
     public static function save_json_conditions_from_form(stdClass &$fromform) {
 
-        $optionid = $fromform->optionid;
+        $optionid = $fromform->optionid ?? 0;
 
         if (!empty($optionid) && $optionid > 0) {
             $conditions = self::get_conditions(CONDPARAM_JSON_ONLY);
