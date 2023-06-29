@@ -453,6 +453,12 @@ class option_form extends moodleform {
         $price = new price('option', $this->_customdata['optionid']);
         $price->add_price_to_mform($mform);
 
+        // If the form is no elective, and we can pay with credits, we can actually use this.
+        if (empty($booking->iselective)) {
+            $mform->addElement('text', 'credits', get_string('credits', 'mod_booking'));
+            $mform->setType('credits', PARAM_INT);
+        }
+
         // Add entities.
         if (class_exists('local_entities\entitiesrelation_handler')) {
             $erhandler = new entitiesrelation_handler('mod_booking', 'option');
