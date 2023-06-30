@@ -31,6 +31,7 @@ use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use MoodleQuickForm;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -59,7 +60,8 @@ class booking_time implements bo_condition {
      * @return bool
      */
     public function is_json_compatible(): bool {
-        return false; // Hardcoded condition, but still shown in mform.
+        return false;
+        // Important: If we want to re-activate override conditions here, we need to make it JSON compatible!
     }
 
     /**
@@ -182,6 +184,65 @@ class booking_time implements bo_condition {
         $mform->setType('bookingclosingtime', PARAM_INT);
         $mform->hideIf('bookingclosingtime', 'restrictanswerperiodclosing', 'notchecked');
 
+        // Override conditions should not be necessary here - but let's keep it if we change our mind.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $mform->addElement('checkbox', 'bo_cond_booking_time_overrideconditioncheckbox',
+                get_string('overrideconditioncheckbox', 'mod_booking'));
+        $mform->hideIf('bo_cond_booking_time_overrideconditioncheckbox', 'restrictanswerperiodopening', 'notchecked');
+        $mform->hideIf('bo_cond_booking_time_overrideconditioncheckbox', 'restrictanswerperiodclosing', 'notchecked');
+
+        $overrideoperators = [
+            'OR' => get_string('overrideoperator:or', 'mod_booking'),
+            'AND' => get_string('overrideoperator:and', 'mod_booking'),
+        ];
+        $mform->addElement('select', 'bo_cond_booking_time_overrideoperator',
+            get_string('overrideoperator', 'mod_booking'), $overrideoperators);
+        $mform->hideIf('bo_cond_booking_time_overrideoperator', 'bo_cond_booking_time_overrideconditioncheckbox',
+            'notchecked');
+
+        $overrideconditions = bo_info::get_conditions(CONDPARAM_CANBEOVERRIDDEN);
+        $overrideconditionsarray = [];
+        foreach ($overrideconditions as $overridecondition) {
+            // We do not combine conditions with each other.
+            if ($overridecondition->id == BO_COND_BOOKING_TIME) {
+                continue;
+            }
+
+            // Remove the namespace from classname.
+            $fullclassname = get_class($overridecondition); // With namespace.
+            $classnameparts = explode('\\', $fullclassname);
+            $shortclassname = end($classnameparts); // Without namespace.
+            $overrideconditionsarray[$overridecondition->id] =
+                get_string('bo_cond_' . $shortclassname, 'mod_booking');
+        }
+
+        // Check for json conditions that might have been saved before.
+        if (!empty($optionid) && $optionid > 0) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            if (!empty($settings->availability)) {
+                $jsonconditions = json_decode($settings->availability);
+                if (!empty($jsonconditions)) {
+                    foreach ($jsonconditions as $jsoncondition) {
+                        // Currently conditions of the same type cannot be combined with each other.
+                        if ($jsoncondition->id != BO_COND_BOOKING_TIME) {
+                            $overrideconditionsarray[$jsoncondition->id] = get_string('bo_cond_' .
+                                $jsoncondition->name, 'mod_booking');
+                        }
+                    }
+                }
+            }
+        }
+
+        $options = array(
+            'noselectionstring' => get_string('choose...', 'mod_booking'),
+            'tags' => false,
+            'multiple' => true,
+        );
+        $mform->addElement('autocomplete', 'bo_cond_booking_time_overridecondition',
+            get_string('overridecondition', 'mod_booking'), $overrideconditionsarray, $options);
+        $mform->hideIf('bo_cond_booking_time_overridecondition', 'bo_cond_booking_time_overrideconditioncheckbox',
+            'notchecked');*/
+
         // Workaround: Only show, if it is not turned off in the option form config.
         // We currently need this, because html elements do not show up in the option form config.
         // In expert mode, we always show everything.
@@ -303,4 +364,57 @@ class booking_time implements bo_condition {
 
         return [$openingtime, $closingtime];
     }
+
+    /*
+     * Returns a condition object which is needed to create the condition JSON.
+     *
+     * @param stdClass $fromform
+     * @return stdClass|null the object for the JSON
+     */
+    // Override conditions should not be necessary here - but let's keep it if we change our mind.
+    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+    /*public function get_condition_object_for_json(stdClass $fromform): stdClass {
+
+        $conditionobject = new stdClass;
+
+        // Booking time is a special case, bookingopeningtime and bookingclosingtime are stored in extra DB fields not in JSON!
+
+        if (!empty($fromform->restrictanswerperiodopening) || !empty($fromform->restrictanswerperiodclosing)) {
+            // Remove the namespace from classname.
+            $classname = __CLASS__;
+            $classnameparts = explode('\\', $classname);
+            $shortclassname = end($classnameparts); // Without namespace.
+
+            $conditionobject->id = BO_COND_BOOKING_TIME;
+            $conditionobject->name = $shortclassname;
+            $conditionobject->class = $classname;
+
+            // Important: We do not store bookingopeningtime and bookingclosingtime in JSON!
+            // They are stored in extra DB fields.
+
+            if (!empty($fromform->bo_cond_booking_time_overrideconditioncheckbox)) {
+                $conditionobject->overrides = $fromform->bo_cond_booking_time_overridecondition;
+                $conditionobject->overrideoperator = $fromform->bo_cond_booking_time_overrideoperator;
+            }
+        }
+        // Might be an empty object.
+        return $conditionobject;
+    }*/
+
+    // Override conditions should not be necessary here - but let's keep it if we change our mind.
+    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+    /*
+     * Set default values to be shown in form when loaded from DB.
+     * @param stdClass &$defaultvalues the default values
+     * @param stdClass $acdefault the condition object from JSON
+     */
+    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+    /*public function set_defaults(stdClass &$defaultvalues, stdClass $acdefault) {
+
+        if (!empty($acdefault->overrides)) {
+            $defaultvalues->bo_cond_booking_time_overrideconditioncheckbox = "1";
+            $defaultvalues->bo_cond_booking_time_overridecondition = $acdefault->overrides;
+            $defaultvalues->bo_cond_booking_time_overrideoperator = $acdefault->overrideoperator;
+        }
+    }*/
 }

@@ -202,7 +202,9 @@ class bo_info {
                     'description' => $description,
                     'classname' => $classname,
                     'button' => $button, // This indicates if this condition provides a button.
-                    'insertpage' => $insertpage // Bool, only in combination with is available false.
+                    'insertpage' => $insertpage, // Bool, only in combination with is available false.
+                    'condition' => $condition,
+                    'reciprocal' => $condition->is_shown_in_mform(),
                 ];
             } else {
                 // Else we need to instantiate the condition first.
@@ -237,6 +239,8 @@ class bo_info {
                     'classname' => $classname,
                     'button' => $button, // This indicates if this condition provides a button.
                     'insertpage' => $insertpage, // Bool, only in combination with is available false.
+                    'condition' => $condition,
+                    'reciprocal' => $instance->is_shown_in_mform(),
                 ];
             }
 
@@ -258,8 +262,16 @@ class bo_info {
                         case 'OR':
                             // If one of the two results is true, both are true.
                             if (isset($resultsarray[$ocid])) {
+                                $overrideswithkeys = array_flip($resultsarray[$ocid]['condition']->overrides ?? []);
+
                                 // If the original condition availability is true...
                                 // ...then we also can set the override condition to true.
+                                if (!$resultsarray[$ocid]['reciprocal'] ||
+                                    isset($overrideswithkeys[$condition->id])) {
+                                    if ($resultsarray[$ocid]['isavailable']) {
+                                        $resultsarray[$condition->id]['isavailable'] = true;
+                                    }
+                                }
                                 if ($resultsarray[$condition->id]['isavailable']) {
                                     $resultsarray[$ocid]['isavailable'] = true;
                                 }
