@@ -278,21 +278,19 @@ class subbookings_info {
      * While the not blocking subblocking doesn't prevent the blocking of the main option...
      * ... it still needs to announce the presence of options...
      * ... which may want to introduce a page in the booking process.
-     * Blockings subbookings are handled by a different bo_condition.
+     * Blocking subbookings are handled by a different bo_condition.
      *
      * @param object $settings
      * @return bool
      */
-    public static function not_blocked(object $settings) {
+    public static function has_soft_subbookings(object $settings) {
 
-        $notblocked = false;
         foreach ($settings->subbookings as $subbooking) {
             if ($subbooking->block != 1) {
-                $notblocked = true;
+                return true;
             }
         }
-
-        return $notblocked;
+        return false;
     }
 
     /**
