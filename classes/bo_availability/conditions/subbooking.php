@@ -49,8 +49,9 @@ class subbooking implements bo_condition {
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = BO_COND_SUBBOOKING;
 
-    /** @var bool $overridable Indicates if the condition can be overriden. */
-    public $overridable = true;
+    /* Important: Soft subbookings are not overridable as they need to do
+    a "soft block" so they appear in prepage modals but do not block the
+    booking process. */
 
     /**
      * Needed to see if class can take JSON.
