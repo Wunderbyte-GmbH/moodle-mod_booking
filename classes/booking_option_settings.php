@@ -431,6 +431,8 @@ class booking_option_settings {
                 $this->load_imageurl_from_db($optionid, $dbrecord->bookingid);
                 if (!empty($this->imageurl)) {
                     $dbrecord->imageurl = $this->imageurl;
+                } else {
+                    $dbrecord->imageurl = '';
                 }
             } else {
                 $this->imageurl = $dbrecord->imageurl;
