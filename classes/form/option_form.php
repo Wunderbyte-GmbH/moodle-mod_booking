@@ -543,6 +543,7 @@ class option_form extends moodleform {
             $mform->addElement('editor', 'beforebookedtext', get_string("beforebookedtext", "booking"),
                     null, null);
             $mform->setType('beforebookedtext', PARAM_CLEANHTML);
+            $mform->addHelpButton('beforebookedtext', 'beforebookedtext', 'mod_booking');
         }
 
         // Workaround: Only show, if it is not turned off in the option form config.
@@ -553,6 +554,7 @@ class option_form extends moodleform {
             $mform->addElement('editor', 'beforecompletedtext',
                     get_string("beforecompletedtext", "booking"), null, null);
             $mform->setType('beforecompletedtext', PARAM_CLEANHTML);
+            $mform->addHelpButton('beforecompletedtext', 'beforecompletedtext', 'mod_booking');
         }
 
         // Workaround: Only show, if it is not turned off in the option form config.
@@ -563,6 +565,7 @@ class option_form extends moodleform {
             $mform->addElement('editor', 'aftercompletedtext',
                     get_string("aftercompletedtext", "booking"), null, null);
             $mform->setType('aftercompletedtext', PARAM_CLEANHTML);
+            $mform->addHelpButton('aftercompletedtext', 'aftercompletedtext', 'mod_booking');
         }
 
         // Templates and recurring 'events' - only visible when adding new.
@@ -850,6 +853,7 @@ class option_form extends moodleform {
         if (isset($defaultvalues->id) && isset($defaultvalues->optionid)) {
             $handler = booking_handler::create();
             $id = $defaultvalues->id;
+            $defaultvalues->id = $defaultvalues->optionid;
             $handler->instance_form_before_set_data($defaultvalues);
             if (class_exists('local_entities\entitiesrelation_handler')) {
                 $erhandler = new entitiesrelation_handler('mod_booking', 'option');
