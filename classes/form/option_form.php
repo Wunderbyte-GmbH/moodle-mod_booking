@@ -35,6 +35,7 @@ use mod_booking\price;
 use mod_booking\singleton_service;
 use local_entities\entitiesrelation_handler;
 use local_entities\local\entities\entitydate;
+use mod_booking\bo_actions\actions_info;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\subbookings\subbookings_info;
 use mod_booking\option\dates_handler;
@@ -495,6 +496,7 @@ class option_form extends moodleform {
         subbookings_info::add_subbookings_to_mform($mform, $this->_customdata);
 
         elective::instance_option_form_definition($mform, $this->_customdata);
+        actions_info::add_actions_to_mform($mform, $formdata);
 
         // Workaround: Only show, if it is not turned off in the option form config.
         // We currently need this, because hideIf does not work with headers.

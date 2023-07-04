@@ -2378,3 +2378,11 @@ $string['electiveforcesortorder'] = 'Teacher can force sort order';
 $string['enforceteacherorder'] = 'Enforce teachers order';
 $string['enforceteacherorder_help'] = 'Users will not be able to define order of selected options but they will be determined by teacher';
 $string['notbookablecombiantion'] = 'This combination of electives is not allowed';
+
+// Booking Actions.
+$string['bookingactionsheader'] = "Actions after Booking";
+$string['selectboactiontype'] = 'Select action after booking';
+$string['bookingactionadd'] = "Add action";
+
+$string['userprofilefield'] = "Profile field";
+$string['course'] = "Moodle course";
