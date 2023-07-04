@@ -502,6 +502,7 @@ class booking_option_settings {
                 $this->electivecombinations = $dbrecord->electivecombinations;
             }
 
+            // TODO: This is a performance problem. We need to cache campaigns!
             // Check if there are active campaigns.
             // If yes, we need to apply the booking limit factor.
             $campaigns = campaigns_info::get_all_campaigns();

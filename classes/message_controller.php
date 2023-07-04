@@ -126,6 +126,7 @@ class message_controller {
 
         global $DB, $USER, $PAGE;
 
+        // TODO: This is a bad idea. We need to find out the correct places where we really need to purge!
         // Purge booking instance settings before sending mails to make sure, we use correct data.
         cache_helper::invalidate_by_event('setbackbookinginstances', [$cmid]);
 
