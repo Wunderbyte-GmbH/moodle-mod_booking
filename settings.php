@@ -278,11 +278,11 @@ if ($ADMIN->fulltree) {
                 get_string('priceisalwayson_desc', 'mod_booking'), 0));
 
     // Choose the user profile field which is used to store each user's price category.
-    $userprofilefields = $DB->get_records('user_info_field', null, '', 'id, name, shortname');
-    $userprofilefieldsarray = [];
-    $userprofilefieldsarray[0] = get_string('pricecategoryfieldoff', 'mod_booking');
-
+    $userprofilefields = profile_get_custom_fields();
     if (!empty($userprofilefields)) {
+        $userprofilefieldsarray = [];
+        $userprofilefieldsarray[0] = get_string('pricecategoryfieldoff', 'mod_booking');
+
         // Create an array of key => value pairs for the dropdown.
         foreach ($userprofilefields as $userprofilefield) {
             $userprofilefieldsarray[$userprofilefield->shortname] = $userprofilefield->name;
@@ -293,7 +293,7 @@ if ($ADMIN->fulltree) {
         new admin_setting_configselect('booking/pricecategoryfield',
             get_string('pricecategoryfield', 'mod_booking'),
             get_string('pricecategoryfielddesc', 'mod_booking'),
-            0, $userprofilefieldsarray));
+            0, $userprofilefieldsarray ?? []));
 
     // Currency dropdown.
     $currenciesobjects = price::get_possible_currencies();
@@ -466,6 +466,23 @@ if ($ADMIN->fulltree) {
         $settings->add(
             new admin_setting_heading('subbookings',
                 get_string('subbookings', 'mod_booking'),
+                get_string('infotext:prolicensenecessary', 'mod_booking')));
+    }
+
+    // PRO feature: Subbookings.
+    if ($proversion) {
+        $settings->add(
+            new admin_setting_heading('boactions',
+                get_string('boactions', 'mod_booking'),
+                get_string('boactions_desc', 'mod_booking')));
+
+        $settings->add(
+            new admin_setting_configcheckbox('booking/showboactions',
+                    get_string('showsubbookings', 'mod_booking'), '', 0));
+    } else {
+        $settings->add(
+            new admin_setting_heading('subbookings',
+                get_string('boactions', 'mod_booking'),
                 get_string('infotext:prolicensenecessary', 'mod_booking')));
     }
 

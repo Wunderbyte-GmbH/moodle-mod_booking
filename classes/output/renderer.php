@@ -665,6 +665,16 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render booking actions list
+     * @param $data array
+     * @return string
+     */
+    public function render_boactionslist($data) {
+        $data = $data->export_for_template($this);
+        return $this->render_from_template('mod_booking/bookingactions/boactionslist', $data);
+    }
+
+    /**
      * Render subbookings pre page modal.
      * @param $data array
      * @return string

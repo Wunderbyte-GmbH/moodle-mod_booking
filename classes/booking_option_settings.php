@@ -240,6 +240,15 @@ class booking_option_settings {
     /** @var array $electivecombinations */
     public $electivecombinations = null;
 
+    /** @var string $json Is used to store non performance critical data like booking actions */
+    public $json = null;
+
+    /** @var stdClass $jsonobject Is used to store non performance critical data like booking actions */
+    public $jsonobject = null;
+
+    /** @var array $bookingactions */
+    public $bookingactions = null;
+
     /** @var stdClass $params */
     public $params = null;
 
@@ -368,6 +377,8 @@ class booking_option_settings {
             $this->credits = $dbrecord->credits;
             $this->sortorder = $dbrecord->sortorder;
 
+            $this->json = $dbrecord->json;
+
             // Price formula: absolute value.
             if (isset($dbrecord->priceformulaadd)) {
                 $this->priceformulaadd = $dbrecord->priceformulaadd;
@@ -388,6 +399,13 @@ class booking_option_settings {
             } else {
                 $this->priceformulaoff = 0; // Default: Turned on.
             }
+
+            if (!empty($dbrecord->json)) {
+                $this->bookingactions = $this->load_bookingactions($dbrecord);
+            } else {
+                $this->bookingactions = [];
+            }
+
 
             // If the course module id (cmid) is not yet set, we load it. //TODO: bookingid 0 bei option templates berücksichtigen!!
             if (!isset($dbrecord->cmid)) {
@@ -837,6 +855,27 @@ class booking_option_settings {
 
         $this->electivecombinations = elective::load_combinations($optionid);
     }
+
+    /**
+     * Load after booking actions.
+     *
+     * @param stdClass $dbrecord
+     * @return void
+     */
+    private function load_bookingactions(stdClass $dbrecord) {
+
+        // We might need to only now read the json object, but we want to do it only once.
+        if (empty($this->jsonobject)) {
+            $this->jsonobject = json_decode($dbrecord->json);
+        }
+
+        // We only pass on the object, because the after booking action is not performance critical.
+        // But we economize on the instantiation of the boaction classes.
+        if (!empty($this->jsonobject['boactions'])) {
+            $this->bookingactions = $this->jsonobject['boactions'];
+        }
+    }
+
 
     /**
      * Returns the cached settings as stClass.

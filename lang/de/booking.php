@@ -2311,3 +2311,14 @@ $string['nooptionselected'] = 'Keine Buchungsoption ausgewählt';
 $string['creditsmessage'] = 'Noch {$a->creditsleft} von insgesamt {$a->maxcredits} Credits verfügbar.';
 $string['notemplateyet'] = 'Es gibt noch kein Template';
 $string['notbookablecombiantion'] = 'Diese Kombination von Wahlfächern ist nicht erlaubt';
+
+// Booking Actions.
+$string['boactionsheader'] = "Aktionen nach der Buchung";
+$string['selectboactiontype'] = 'Wähle Aktion nach der Buchung';
+$string['bookingactionadd'] = "Füge Aktion hinzu";
+
+$string['userprofilefield'] = "Profilfeld";
+$string['boactionselectuserprofile'] = "Wähle Profilfeld";
+
+
+$string['course'] = "Moodle Kurs";

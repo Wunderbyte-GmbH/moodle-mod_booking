@@ -169,6 +169,7 @@
         <FIELD NAME="responsiblecontact" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="credits" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Elective feature."/>
         <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Elective feature."/>
+        <FIELD NAME="json" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="This allows to add supplementary information which is not performance sensible like after booking actions etc."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
