@@ -402,7 +402,7 @@ class selectusers implements bo_condition {
                 // Get a string of all users who are allowed to book.
                 $allowedusersstringarr = [];
                 foreach ($this->customsettings->userids as $uid) {
-                    $currentuser = $DB->get_record('user', ['id' => $uid]);
+                    $currentuser = singleton_service::get_instance_of_user($uid);
                     $allowedusersstringarr[] = "$currentuser->firstname $currentuser->lastname (UserID: $currentuser->id)";
                 }
                 $allowedusersstring = implode(', ', $allowedusersstringarr);

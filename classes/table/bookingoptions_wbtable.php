@@ -159,13 +159,12 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @throws dml_exception
      */
     public function col_responsiblecontact($values) {
-        global $DB;
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
         $ret = '';
         if (empty($settings->responsiblecontact)) {
             return $ret;
         }
-        if ($user = $DB->get_record('user', ['id' => $settings->responsiblecontact])) {
+        if ($user = singleton_service::get_instance_of_user($settings->responsiblecontact)) {
             $userstring = "$user->firstname $user->lastname";
             $emailstring = " ($user->email)";
             if ($this->is_downloading()) {

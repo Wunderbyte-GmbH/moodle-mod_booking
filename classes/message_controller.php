@@ -187,7 +187,7 @@ class message_controller {
         if ($userid == $USER->id) {
             $this->user = $USER;
         } else {
-            $this->user = $DB->get_record('user', array('id' => $userid));
+            $this->user = singleton_service::get_instance_of_user($userid);
         }
 
         // Generate email params.
