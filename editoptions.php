@@ -184,8 +184,7 @@ if ($optionid == -1 && $copyoptionid != 0) {
         $DB->insert_record('booking_subbooking_options', $sb);
     }
 
-} else if ($optionid > 0 && $defaultvalues = $DB->get_record('booking_options',
-                array('bookingid' => $booking->settings->id, 'id' => $optionid))) {
+} else if ($optionid > 0 && $defaultvalues = $DB->get_record('booking_options', ['id' => $optionid])) {
     $defaultvalues->optionid = $optionid;
     $defaultvalues->bookingname = $booking->settings->name;
     $defaultvalues->id = $cmid;
