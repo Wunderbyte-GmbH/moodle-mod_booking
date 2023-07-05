@@ -2459,6 +2459,8 @@ $string['sortbookingoptions'] = "Please sort your bookings in the right order. Y
 $string['selectoptionsfirst'] = "Please select booking options first.";
 $string['electivesettings'] = 'Elective Settings';
 $string['iselective'] = 'Use instance as elective';
+$string['iselective_help'] = 'This allows you to force users to book several booking options at once in a specific order
+ or in specific relations to each other. Additionally, you can force the use of credits.';
 $string['maxcredits'] = 'Max credits to use';
 $string['maxcredits_help'] = 'You can define the max amount of credits users can or must use when booking options. You can define in every booking option how many credits it is worth.';
 $string['unlimitedcredits'] = 'Don\'t use credits';
