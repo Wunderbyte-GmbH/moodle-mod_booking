@@ -1651,8 +1651,9 @@ $string['bookingpricesettings_desc'] = 'Here you can customize booking prices.';
 $string['bookwithcreditsactive'] = "Book with credits";
 $string['bookwithcreditsactive_desc'] = "Users with credits can book directly without paying a price.";
 
-$string['bookwithcreditsprofilefield'] = "Choose a user profile field.";
-$string['bookwithcreditsprofilefield_desc'] = "To use this functionality, please define a user profile field where credits are stored. You should create this field in a way that your users can't set a credit themselves.";
+$string['bookwithcreditsprofilefield'] = "User profile field for credits";
+$string['bookwithcreditsprofilefield_desc'] = "To use this functionality, please define a user profile field where credits are stored.
+ <span class='text-danger'><b>Be careful:</b> You should create this field in a way that your users can't set a credit themselves.</span>";
 
 
 $string['priceisalwayson'] = 'Prices always active';

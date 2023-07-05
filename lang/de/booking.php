@@ -1526,8 +1526,9 @@ $string['bookingpricesettings_desc'] = 'Individuelle Einstellungen für die Prei
 $string['bookwithcreditsactive'] = "Buchen mit Guthaben/Credits";
 $string['bookwithcreditsactive_desc'] = "NutzerInnen mit Guthaben/Credits sehen keinen Preis, sondern können mit ihren Credits buchen.";
 
-$string['bookwithcreditsprofilefield'] = "Wählen Sie ein benutzerdefiniertes Profilfeld";
-$string['bookwithcreditsprofilefield_desc'] = "Um die Funktion nutzen zu können, muss es ein Profilfeld geben, in dem die Credits der NutzerInnen hiinterlegt werden können. Dieses Feld sollte von den NutzerInnen nicht bearbeitet werden können.";
+$string['bookwithcreditsprofilefield'] = "Benutzerdefiniertes Profilfeld für Guthaben/Credits";
+$string['bookwithcreditsprofilefield_desc'] = "Um die Funktion nutzen zu können, muss es ein Profilfeld geben, in dem die Credits der Nutzer:innen hiinterlegt werden können.
+<span class='text-danger'><b>Achtung:</b> Dieses Feld sollte von den Nutzer:innen nicht bearbeitet werden können.</span>";
 
 $string['priceisalwayson'] = 'Preise immer aktiviert';
 $string['priceisalwayson_desc'] = 'Wenn Sie dieses Häkchen aktivieren, können Preise für einzelne Buchungsoptionen NICHT abgeschalten werden.
