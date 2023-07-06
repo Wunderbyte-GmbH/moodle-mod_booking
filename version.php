@@ -29,5 +29,5 @@ $plugin->release = '8.0.20';
 $plugin->maturity = MATURITY_STABLE;
 $plugin->component = 'mod_booking';
 $plugin->dependencies = [
-    'local_wunderbyte_table' => 2023061600
+    'local_wunderbyte_table' => 2023070500
 ];

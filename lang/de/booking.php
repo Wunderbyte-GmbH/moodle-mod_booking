@@ -369,7 +369,7 @@ $string['edittag'] = 'Bearbeiten';
 // Mod_booking\all_options.
 $string['showdescription'] = 'Beschreibung anzeigen';
 $string['hidedescription'] = 'Beschreibung verstecken';
-$string['cancelallusers'] = 'Alle gebuchten Userinnen stornieren';
+$string['cancelallusers'] = 'Alle gebuchten Teilnehmer:innen stornieren';
 
 // Mod_form.
 $string['signinlogoheader'] = 'Logo in der Kopfzeile auf der Unterschriftenliste';
