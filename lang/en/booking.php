@@ -60,10 +60,11 @@ $string['thankyouwaitinglist'] = '<i class="fa fa-3x fa-clock-o text-primary" ar
  You were added to the waiting list for <b>{$a}</b>. You will automatically move up, in case someone drops out.';
 $string['thankyouerror'] = '<i class="fa fa-3x fa-frown-o text-danger" aria-hidden="true"></i><br>
 Unfortunately, there was an error when booking <b>{$a}</b>.';
-$string['usersmatching'] = 'Gefundene Nutzer:innen';
-$string['allmoodleusers'] = 'Alle Nutzer:innen dieser Website';
-$string['enrolledusers'] = 'In den Kurs eingeschriebene Nutzer:innen';
-$string['nopriceisset'] = 'Kein Preis vorhanden';
+$string['toomanytoshow'] = 'Too many records found...';
+$string['usersmatching'] = 'Matching users';
+$string['allmoodleusers'] = 'All users of this site';
+$string['enrolledusers'] = 'Users enrolled in course';
+$string['nopriceisset'] = 'No price has been set';
 
 // General errors.
 $string['error:choosevalue'] = 'You have to choose a value here.';
@@ -2240,7 +2241,7 @@ $string['bo_cond_selectusers_userids_help'] = '<p>If you use this condition, onl
 
 $string['userinfofieldoff'] = 'No user profile field selected';
 $string['restrictwithuserprofilefield'] = 'A chosen user profile field should have a certain value';
-$string['restrictwithpreviouslybooked'] = 'User has previously booked a certain option';
+$string['previouslybookedcheckbox'] = 'User has previously booked a certain option';
 $string['bo_cond_userprofilefield_field'] = 'Profile field';
 $string['bo_cond_userprofilefield_value'] = 'Value';
 $string['bo_cond_userprofilefield_operator'] = 'Operator';

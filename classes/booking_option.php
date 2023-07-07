@@ -2860,4 +2860,66 @@ class booking_option {
         }
         return false;
     }
+
+    /**
+     * Function to lazyload a list of booking options for autocomplete.
+     *
+     * @param string $query
+     * @return array
+     */
+    public static function load_booking_options(string $query) {
+
+        global $DB;
+
+        $values = explode(' ', $query);
+
+        $fullsql = $DB->sql_concat('bo.id', '\'\'', 'bo.titleprefix', '\'\'', 'bo.text', '\'\'', 'b.name');
+
+        $sql = "SELECT * FROM (
+                    SELECT bo.id, bo.titleprefix, bo.text, b.name instancename, $fullsql AS fulltextstring
+                    FROM {booking_options} bo
+                    LEFT JOIN {booking} b
+                    ON bo.bookingid = b.id
+                ) AS fulltexttable";
+
+        if (!empty($query)) {
+            // We search for every word extra to get better results.
+            $firstrun = true;
+            $counter = 1;
+            foreach ($values as $value) {
+
+                $sql .= $firstrun ? ' WHERE ' : ' AND ';
+                $sql .= " " . $DB->sql_like('fulltextstring', ':param' . $counter, false) . " ";
+                $params['param' . $counter] = "%$value%";
+                $firstrun = false;
+                $counter++;
+            }
+        }
+
+        // We don't return more than 100 records, so we don't need to fetch more from db.
+        $sql .= " limit 102";
+
+        $rs = $DB->get_recordset_sql($sql, $params);
+        $count = 0;
+        $list = [];
+
+        foreach ($rs as $record) {
+            $optiondata = (object)[
+                'id' => $record->id,
+                'titleprefix' => $record->titleprefix,
+                'text' => $record->text,
+                'instancename' => $record->instancename,
+            ];
+
+            $count++;
+            $list[$record->id] = $optiondata;
+        }
+
+        $rs->close();
+
+        return [
+            'warnings' => count($list) > 100 ? get_string('toomanytoshow', 'mod_booking', '> 100') : '',
+            'list' => count($list) > 100 ? [] : $list,
+        ];
+    }
 }

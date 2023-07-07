@@ -59,10 +59,11 @@ $string['thankyouwaitinglist'] = '<i class="fa fa-3x fa-clock-o text-primary" ar
 Sie wurden zur Warteliste von <b>{$a}</b> hinzugefügt. Sollte jemand ausfallen, rücken Sie automatisch nach.';
 $string['thankyouerror'] = '<i class="fa fa-3x fa-frown-o text-danger" aria-hidden="true"></i><br>
 Leider ist bei der Buchung von <b>{$a}</b> ein Fehler aufgetreten.';
-$string['usersmatching'] = 'Matching users';
-$string['allmoodleusers'] = 'All users of this site';
-$string['enrolledusers'] = 'Users enrolled in course';
-$string['nopriceisset'] = 'No price has been set';
+$string['toomanytoshow'] = 'Zu viele gefunden...';
+$string['usersmatching'] = 'Gefundene Nutzer:innen';
+$string['allmoodleusers'] = 'Alle Nutzer:innen dieser Website';
+$string['enrolledusers'] = 'In den Kurs eingeschriebene Nutzer:innen';
+$string['nopriceisset'] = 'Kein Preis vorhanden';
 
 // General errors.
 $string['error:choosevalue'] = 'Sie müssen hier einen Wert auswählen.';
@@ -2048,7 +2049,7 @@ $string['bo_cond_selectusers_userids_help'] = '<p>Wenn Sie diese Einschränkung 
 
 $string['userinfofieldoff'] = 'Kein User-Profilfeld ausgewählt';
 $string['restrictwithuserprofilefield'] = 'Ein ausgewähltes Userprofilfeld soll einen bestimmten Wert haben';
-$string['restrictwithpreviouslybooked'] = 'User hat früher bereits eine bestimmte Option gebucht';
+$string['previouslybookedcheckbox'] = 'User hat früher bereits eine bestimmte Option gebucht';
 $string['bo_cond_userprofilefield_field'] = 'Profilfeld';
 $string['bo_cond_userprofilefield_value'] = 'Wert';
 $string['bo_cond_userprofilefield_operator'] = 'Operator';

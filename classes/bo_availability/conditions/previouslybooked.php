@@ -202,8 +202,8 @@ class previouslybooked implements bo_condition {
                 }
             }
 
-            $mform->addElement('checkbox', 'restrictwithpreviouslybooked',
-                    get_string('restrictwithpreviouslybooked', 'mod_booking'));
+            $mform->addElement('checkbox', 'previouslybookedcheckbox',
+                    get_string('previouslybookedcheckbox', 'mod_booking'));
 
             $previouslybookedoptions = [
                 'tags' => false,
@@ -212,11 +212,11 @@ class previouslybooked implements bo_condition {
             $mform->addElement('autocomplete', 'bo_cond_previouslybooked_optionid',
                 get_string('bo_cond_previouslybooked_optionid', 'mod_booking'), $bookingoptionarray, $previouslybookedoptions);
             $mform->setType('bo_cond_previouslybooked_optionid', PARAM_INT);
-            $mform->hideIf('bo_cond_previouslybooked_optionid', 'restrictwithpreviouslybooked', 'notchecked');
+            $mform->hideIf('bo_cond_previouslybooked_optionid', 'previouslybookedcheckbox', 'notchecked');
 
             $mform->addElement('checkbox', 'bo_cond_previouslybooked_overrideconditioncheckbox',
                 get_string('overrideconditioncheckbox', 'mod_booking'));
-            $mform->hideIf('bo_cond_previouslybooked_overrideconditioncheckbox', 'restrictwithpreviouslybooked', 'notchecked');
+            $mform->hideIf('bo_cond_previouslybooked_overrideconditioncheckbox', 'previouslybookedcheckbox', 'notchecked');
 
             $overrideoperators = [
                 'OR' => get_string('overrideoperator:or', 'mod_booking'),
@@ -274,8 +274,8 @@ class previouslybooked implements bo_condition {
                 'notchecked');
         } else {
             // No PRO license is active.
-            $mform->addElement('static', 'restrictwithpreviouslybooked',
-                get_string('restrictwithpreviouslybooked', 'mod_booking'),
+            $mform->addElement('static', 'previouslybookedcheckbox',
+                get_string('previouslybookedcheckbox', 'mod_booking'),
                 get_string('proversiononly', 'mod_booking'));
         }
 
@@ -285,9 +285,9 @@ class previouslybooked implements bo_condition {
         $showhorizontalline = true;
         $formmode = get_user_preferences('optionform_mode');
         if ($formmode !== 'expert') {
-            $cfgrestrictwithpreviouslybooked = $DB->get_field('booking_optionformconfig', 'active',
-                ['elementname' => 'restrictwithpreviouslybooked']);
-            if ($cfgrestrictwithpreviouslybooked === "0") {
+            $cfgpreviouslybookedcheckbox = $DB->get_field('booking_optionformconfig', 'active',
+                ['elementname' => 'previouslybookedcheckbox']);
+            if ($cfgpreviouslybookedcheckbox === "0") {
                 $showhorizontalline = false;
             }
         }
@@ -304,7 +304,7 @@ class previouslybooked implements bo_condition {
      */
     public function get_condition_object_for_json(stdClass $fromform): stdClass {
         $conditionobject = new stdClass;
-        if (!empty($fromform->restrictwithpreviouslybooked)) {
+        if (!empty($fromform->previouslybookedcheckbox)) {
             // Remove the namespace from classname.
             $classname = __CLASS__;
             $classnameparts = explode('\\', $classname);
@@ -331,7 +331,7 @@ class previouslybooked implements bo_condition {
      */
     public function set_defaults(stdClass &$defaultvalues, stdClass $acdefault) {
         if (!empty($acdefault->optionid)) {
-            $defaultvalues->restrictwithpreviouslybooked = "1";
+            $defaultvalues->previouslybookedcheckbox = "1";
             $defaultvalues->bo_cond_previouslybooked_optionid = $acdefault->optionid;
         }
         if (!empty($acdefault->overrides)) {
