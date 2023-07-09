@@ -252,6 +252,10 @@ class bo_info {
 
         // Now we might need to override the result of a previous condition which has been resolved as false before.
         foreach ($overrideconditions as $condition) {
+
+            // As we manipulate this value, we have to keep the original value.
+            $resultsarray[$condition->id]['isavailable:original'] = $resultsarray[$condition->id]['isavailable'];
+
             // Foreach override condition id (ocid).
             foreach ($condition->overrides as $ocid) {
                 if (isset($resultsarray[$ocid])) {
@@ -263,16 +267,15 @@ class bo_info {
                             // If one of the two results is true, both are true.
                             if (isset($resultsarray[$ocid])) {
                                 $overrideswithkeys = array_flip($resultsarray[$ocid]['condition']->overrides ?? []);
-
-                                // If the original condition availability is true...
-                                // ...then we also can set the override condition to true.
                                 if (!$resultsarray[$ocid]['reciprocal'] ||
                                     isset($overrideswithkeys[$condition->id])) {
                                     if ($resultsarray[$ocid]['isavailable']) {
                                         $resultsarray[$condition->id]['isavailable'] = true;
                                     }
                                 }
-                                if ($resultsarray[$condition->id]['isavailable']) {
+                                // If the original condition availability is true...
+                                // ...then we also can set the override condition to true.
+                                if ($resultsarray[$condition->id]['isavailable:original']) {
                                     $resultsarray[$ocid]['isavailable'] = true;
                                 }
                             }
