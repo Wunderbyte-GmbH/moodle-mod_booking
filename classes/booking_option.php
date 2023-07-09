@@ -56,65 +56,59 @@ require_once($CFG->libdir . '/completionlib.php');
  */
 class booking_option {
 
-    /** @var int $cmid course module id */
-    public $cmid = null;
+    /** @var ?int $cmid course module id */
+    public ?int $cmid = null;
 
-    /** @var int id of the booking option in table booking_options */
-    public $id = null;
+    /** @var ?int id of the booking option in table booking_options */
+    public ?int $id = null;
 
-    /** @var int id of the booking option in table booking_options */
-    public $optionid = null;
+    /** @var ?int id of the booking option in table booking_options */
+    public ?int $optionid = null;
 
-    /** @var int id of the booking instance */
+    /** @var ?int id of the booking instance */
     public $bookingid = null;
 
-    /** @var booking object  */
-    public $booking = null;
+    /** @var ?booking object  */
+    public ?booking $booking = null;
 
     /** @var array of stdClass objects including status: key is booking_answer id $allusers->userid, $allusers->waitinglist */
-    protected $allusers = array();
+    protected array $allusers = array();
 
     /** @var array of the users booked for this option key userid */
-    public $bookedusers = array();
+    public array $bookedusers = array();
 
     /** @var array of booked users visible to the current user (group members) */
-    public $bookedvisibleusers = array();
+    public array $bookedvisibleusers = array();
 
     /** @var array of users subscribeable to booking option if groups enabled, members of groups user has access to */
-    public $potentialusers = array();
+    public array $potentialusers = array();
 
-    /** @var stdClass option config object */
-    public $option = null;
+    /** @var ?stdClass option config object */
+    public ?stdClass $option = null;
 
     /** @var array booking option teachers defined in booking_teachers table */
-    public $teachers = array();
+    public array $teachers = array();
 
-    /** @var int number of answers */
-    public $numberofanswers = null;
+    /** @var ?int number of answers */
+    public ?int $numberofanswers = null;
 
     /** @var array of users filters */
-    public $filters = array();
+    public array $filters = array();
 
     /** @var array of all user objects (waitinglist and regular) - filtered */
-    public $users = array();
-
-    /** @var array of user objects with regular bookings NO waitinglist userid as key */
-    public $usersonlist = array();
-
-    /** @var array of user objects with users on waitinglist userid as key */
-    public $usersonwaitinglist = array();
+    public array $users = array();
 
     /** @var int number of the page starting with 0 */
-    public $page = 0;
+    public int $page = 0;
 
     /** @var int number of bookings displayed on a single page */
-    public $perpage = 0;
+    public int $perpage = 0;
 
-    /** @var string filter and other url params */
-    public $urlparams;
+    /** @var array filter and other url params */
+    public array $urlparams;
 
     /** @var string $times course start time - course end time or session times separated with a comma */
-    public $optiontimes = '';
+    public string $optiontimes = '';
 
     /** @var boolean if I'm booked */
     public $iambooked = 0;
@@ -126,19 +120,19 @@ class booking_option {
     public $completed = 0;
 
     /** @var int user on waiting list */
-    public $waiting = 0;
+    public int $waiting = 0;
 
     /** @var int booked users */
-    public $booked = 0;
+    public int $booked = 0;
 
-    /** @var booking_option_settings $settings */
-    public $settings = null;
+    /** @var ?booking_option_settings $settings */
+    public ?booking_option_settings $settings = null;
 
-    /** @var int|null */
-    public $secondstostart = null;
+    /** @var ?int Seconds */
+    public ?int $secondstostart = null;
 
-    /** @var int|null */
-    public $secondspassed = null;
+    /** @var ?int Seconds passed since start */
+    public ?int $secondspassed = null;
 
     /**
      * Creates basic booking option
@@ -150,7 +144,7 @@ class booking_option {
      * @param int $perpage options per page
      * @param bool $getusers Get booked users via DB query
      */
-    public function __construct($cmid, $optionid, $filters = array(), $page = 0, $perpage = 0, $getusers = true) {
+    public function __construct(int $cmid, int $optionid, array $filters = array(), int $page = 0, int $perpage = 0, bool $getusers = true) {
 
         $this->cmid = $cmid;
 
@@ -191,12 +185,12 @@ class booking_option {
      * Saves db query when booking id is given as well, but uses already cached settings.
      *
      * @param $optionid
-     * @param int $bookingid booking id
+     * @param ?int $bookingid booking id
      * @return booking_option
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function create_option_from_optionid($optionid, $bookingid = null) {
+    public static function create_option_from_optionid($optionid, ?int $bookingid = null): ?booking_option {
         global $DB;
 
         if (empty($bookingid)) {
@@ -224,7 +218,7 @@ class booking_option {
      * @param int $optionid
      * @return int
      */
-    public function calculate_how_many_can_book_to_other($optionid) {
+    public function calculate_how_many_can_book_to_other(int $optionid): int {
         global $DB;
 
         if (isset($optionid) && $optionid > 0) {
@@ -244,7 +238,7 @@ class booking_option {
                 $keys[] = $value->userid;
             }
 
-            foreach ($this->usersonwaitinglist as $user) {
+            foreach ($this->get_all_users_on_waitinglist() as $user) {
                 if (in_array($user->userid, $keys)) {
                     $user->bookedtootherbooking = 1;
                 } else {
@@ -252,7 +246,7 @@ class booking_option {
                 }
             }
 
-            foreach ($this->usersonlist as $user) {
+            foreach ($this->get_all_users_booked() as $user) {
                 if (in_array($user->userid, $keys)) {
                     $user->usersonlist = 1;
                 } else {
@@ -327,89 +321,6 @@ class booking_option {
                            WHERE t.optionid = ' . $this->optionid . '');
         }
         return $this->teachers;
-    }
-
-    /**
-     * Get all users filtered,and save them in
-     * $this->users all users (booked and waitinglist)
-     * $this->usersonwaitinglist waitinglist users
-     * $this->usersonlist booked users
-     */
-    public function get_users() {
-        global $CFG, $DB;
-        $params = array();
-
-        $options = "ba.optionid = :optionid";
-        $params['optionid'] = $this->optionid;
-
-        if (isset($this->filters['searchcompleted']) && strlen($this->filters['searchcompleted']) > 0) {
-            $options .= " AND ba.completed = :completed";
-            $params['completed'] = $this->filters['searchcompleted'];
-        }
-        if (isset($this->filters['searchdate']) && $this->filters['searchdate'] == 1) {
-            $beginofday = strtotime("{$this->urlparams['searchdateday']}-{$this->urlparams['searchdatemonth']}-"
-                . "{$this->urlparams['searchdateyear']}");
-            $endofday = strtotime("tomorrow", $beginofday) - 1;
-            $options .= " AND ba.timecreated BETWEEN :beginofday AND :endofday";
-            $params['beginofday'] = $beginofday;
-            $params['endofday'] = $endofday;
-        }
-
-        if (isset($this->filters['searchname']) && strlen($this->filters['searchname']) > 0) {
-            $options .= " AND LOWER(u.firstname) LIKE LOWER(:searchname)";
-            $params['searchname'] = '%' . $this->filters['searchname'] . '%';
-        }
-
-        if (isset($this->filters['searchsurname']) && strlen($this->filters['searchsurname']) > 0) {
-            $options .= " AND LOWER(u.lastname) LIKE LOWER(:searchsurname)";
-            $params['searchsurname'] = '%' . $this->filters['searchsurname'] . '%';
-        }
-        if (groups_get_activity_groupmode($this->booking->cm) == SEPARATEGROUPS &&
-                 !has_capability('moodle/site:accessallgroups',
-                        \context_course::instance($this->booking->course->id))) {
-            list($groupsql, $groupparams) = booking::booking_get_groupmembers_sql(
-                    $this->booking->course->id);
-            $options .= " AND u.id IN ($groupsql)";
-            $params = array_merge($params, $groupparams);
-        }
-
-        $limitfrom = $this->perpage * $this->page;
-        $numberofrecords = $this->perpage;
-
-        if ($CFG->version >= 2021051700) {
-            // This only works in Moodle 3.11 and later.
-            $mainuserfields = \core_user\fields::for_name()->with_userpic()->get_sql('u')->selects;
-            $mainuserfields = trim($mainuserfields, ', ');
-        } else {
-            // This is only here to support Moodle versions earlier than 3.11.
-            $mainuserfields = \user_picture::fields('u');
-        }
-
-        $sql = 'SELECT ba.id AS aid,
-                ba.bookingid,
-                ba.numrec,
-                ba.userid,
-                ba.optionid,
-                ba.timemodified,
-                ba.completed,
-                ba.timecreated,
-                ba.waitinglist,' .
-                $mainuserfields . ', ' .
-                $DB->sql_fullname('u.firstname', 'u.lastname') . ' AS fullname
-                FROM {booking_answers} ba
-                LEFT JOIN {user} u ON ba.userid = u.id
-                WHERE ' . $options . '
-                ORDER BY ba.optionid, ba.timemodified DESC';
-
-        $this->users = $DB->get_records_sql($sql, $params, $limitfrom, $numberofrecords);
-
-        foreach ($this->users as $user) {
-            if ($user->waitinglist == 1) {
-                $this->usersonwaitinglist[$user->userid] = $user;
-            } else if ($user->waitinglist == 0) {
-                $this->usersonlist[$user->userid] = $user;
-            }
-        }
     }
 
     /**
@@ -828,7 +739,7 @@ class booking_option {
      * @return stdClass transferred->success = true/false, transferred->no[] errored users,
      *         $transferred->yes transferred users
      */
-    public function transfer_users_to_otheroption($newoption, $userids) {
+    public function transfer_users_to_otheroption(int $newoption, array $userids) {
         global $CFG, $DB;
         $transferred = new stdClass();
         $transferred->yes = array(); // Successfully transferred users.
@@ -860,7 +771,7 @@ class booking_option {
                 ORDER BY ba.timecreated ASC';
             $users = $DB->get_records_sql($sql, $inparams);
             foreach ($users as $user) {
-                if ($otheroption->user_submit_response($user, 0, 1)) {
+                if ($otheroption->user_submit_response($user, 0, 1, false, true)) {
                     $transferred->yes[] = $user;
                 } else {
                     $transferred->no[] = $user;
@@ -1829,9 +1740,9 @@ class booking_option {
     /**
      * Confirm activity for selected user.
      *
-     * @param userid
+     * @param ?int $userid
      */
-    public function confirmactivity($userid = null) {
+    public function confirmactivity(?int $userid = null) {
         global $CFG, $DB;
         require_once($CFG->libdir . '/completionlib.php');
         $course = $DB->get_record('course', array('id' => $this->booking->cm->course));
@@ -1887,6 +1798,105 @@ class booking_option {
         $option->bookingid = 0;
 
         $DB->insert_record("booking_options", $option);
+    }
+
+    /**
+     * Creates a new booking option based on an existing optionid and adapts
+     * values according to $valuestochange.
+     *
+     * @param int $fromoptionid
+     * @param array $valuestochange
+     * @return int
+     */
+    public static function duplicate_option(int $fromoptionid, array $valuestochange = []): int {
+        global $DB, $USER;
+        // Current time at duplication.
+        $now = time();
+
+        // Adding new booking option - default values.
+        $defaultvalues = $DB->get_record('booking_options', array('id' => $fromoptionid));
+        $oldoptionid = $defaultvalues->id;
+        $defaultvalues->text = $defaultvalues->text . get_string('copy', 'mod_booking');
+        $defaultvalues->optionid = -1;
+        $defaultvalues->copyoptionid = $fromoptionid;
+        $booking = singleton_service::get_instance_of_booking_by_optionid($fromoptionid);
+        $defaultvalues->bookingname = $booking->settings->name;
+        $defaultvalues->bookingid = $booking->id;
+        $defaultvalues->id = $booking->cmid;
+        // Identifier needs to be unique, so create a new random one.
+        $defaultvalues->identifier = substr(str_shuffle(md5(microtime())), 0, 8);
+
+        // Create a new duplicate of the old booking option.
+        $optionid = booking_update_options($defaultvalues, $booking->context);
+        $defaultvalues->optionid = $optionid;
+
+        // If there was an associated entity, also copy it.
+        if (class_exists('local_entities\entitiesrelation_handler')) {
+            $erhandler = new entitiesrelation_handler('mod_booking', 'option');
+            $entityid = $erhandler->get_entityid_by_instanceid($fromoptionid);
+            if ($entityid) {
+                $erhandler->save_entity_relation($optionid, $entityid);
+            }
+        }
+
+        // If there are associated teachers, let's duplicate them too.
+        $teacherstocopy = $DB->get_records('booking_teachers', ['bookingid' => $booking->id, 'optionid' => $fromoptionid]);
+
+        // For each copied teacher change the old optionid to the new one and unset the old id.
+        foreach ($teacherstocopy as $teachertocopy) {
+            // Subscribe the copied teacher to the new booking option.
+            subscribe_teacher_to_booking_option($teachertocopy->userid, $optionid, $booking->cmid);
+        }
+
+        // If there are prices defined, let's duplicate them too.
+        if (get_config('booking', 'duplicationrestoreprices')) {
+            /* IMPORTANT: Once we support subbookings, we might have different areas than 'option'
+                and this means 'itemid' might be something else than an optionid.
+                So we have to find out, if we still can set the params like this. */
+            $prices = $DB->get_records('booking_prices', ['itemid' => $fromoptionid, 'area' => 'option']);
+            foreach ($prices as $price) {
+                $price->itemid = $optionid;
+            }
+            $DB->insert_records('booking_prices', $prices);
+        }
+
+        // Also duplicate associated Moodle custom fields (e.g. "sports").
+        $sql = "SELECT cfd.*
+        FROM {customfield_data} cfd
+        LEFT JOIN {customfield_field} cff
+        ON cff.id = cfd.fieldid
+        LEFT JOIN {customfield_category} cfc
+        ON cfc.id = cff.categoryid
+        WHERE cfc.component = 'mod_booking'
+        AND cfd.instanceid = :oldoptionid";
+
+        $params = [
+                'oldoptionid' => $fromoptionid
+        ];
+
+        $oldcustomfields = $DB->get_records_sql($sql, $params);
+        foreach ($oldcustomfields as $cf) {
+            unset($cf->id);
+            $cf->timecreated = $now;
+            $cf->timemodified = $now;
+            $cf->instanceid = $optionid;
+            $DB->insert_record('customfield_data', $cf);
+        }
+
+        // We also need to duplicate subbookings of the booking option.
+        $sql = "SELECT *
+        FROM {booking_subbooking_options}
+        WHERE optionid = :oldoptionid";
+        $oldsubbookings = $DB->get_records_sql($sql, $params);
+        foreach ($oldsubbookings as $sb) {
+            unset($sb->id);
+            $sb->usermodified = $USER->id;
+            $sb->timecreated = $now;
+            $sb->timemodified = $now;
+            $sb->optionid = $optionid;
+            $DB->insert_record('booking_subbooking_options', $sb);
+        }
+        return $optionid;
     }
 
     // Print custom report.
@@ -2217,10 +2227,10 @@ class booking_option {
      * STATUSPARAM_NOTBOOKED (4) ... user has not booked the option
      * STATUSPARAM_DELETED (5) ... user answer was deleted
      *
-     * @param $userid userid of the user
+     * @param int $userid userid of the user
      * @return int user status param
      */
-    public function get_user_status($userid) {
+    public function get_user_status(int $userid): int {
 
         global $DB;
 
@@ -2263,11 +2273,11 @@ class booking_option {
     /**
      * Get the user status as a string.
      *
-     * @param $userid userid of the user
-     * @param int|null $statusparam optional statusparam if we already know it
+     * @param int $userid userid of the user
+     * @param ?int $statusparam optional statusparam if we already know it
      * @return string localized string of user status
      */
-    public function get_user_status_string($userid, $statusparam = null) {
+    public function get_user_status_string(int $userid, $statusparam = null) {
 
         if ($statusparam === null) {
             $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
@@ -2491,6 +2501,8 @@ class booking_option {
                     'name' => null,
                     'value' => "$field->cfgname: <a href='$link' target='_blank'>$link</a>"
                 ];
+            default:
+                return [];
         }
     }
 

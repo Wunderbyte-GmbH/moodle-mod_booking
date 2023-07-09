@@ -64,34 +64,34 @@ class booking_bookinginstance implements renderable, templatable {
         $this->url = $url->out();
         if (!empty($data->options)) {
             foreach ($data->options as $option) {
-                $params = array('id' => $this->coursemoduleid, 'optionid' => $option->option->id);
+                $params = array('id' => $this->coursemoduleid, 'optionid' => $option->optionid);
                 $url = new \moodle_url("/mod/booking/report.php", $params);
                 $link = \html_writer::link($url, $option->option->text,
                         array('class' => 'btn btn-secondary'));
                 $regulars = array();
                 $waiting = array();
                 if ($sort != 'my') {
-                    if (!empty($option->usersonlist)) {
-                        foreach ($option->usersonlist as $user) {
+                    if (!empty($bookedusers = $option->get_all_users_booked())) {
+                        foreach ($bookedusers as $user) {
                             $user->id = $user->userid;
                             $userdata = new \user_picture($user);
                             $regulars[] = $OUTPUT->render($userdata) . ' ' . fullname($user);
                         }
                     }
-                    if (!empty($option->usersonwaitinglist)) {
-                        foreach ($option->usersonwaitinglist as $user) {
+                    if (!empty($waitlistusers = $option->get_all_users_on_waitinglist())) {
+                        foreach ($waitlistusers as $user) {
                             $user->id = $user->userid;
                             $userdata = new \user_picture($user);
                             $waiting[] = $OUTPUT->render($userdata) . ' ' . fullname($user);
                         }
                     }
                 } else {
-                    if (!empty($option->usersonlist) && isset($option->usersonlist[$USER->id])) {
+                    if (!empty($bookedusers = $option->get_all_users_booked()) && isset($bookedusers[$USER->id])) {
                         $userdata = new \user_picture($USER);
                         $regulars[] = $OUTPUT->render($userdata) . ' ' . fullname($USER);
                     }
-                    if (!empty($option->usersonwaitinglist) &&
-                             isset($option->usersonwaitinglist[$USER->id])) {
+                    if (!empty($waitlistusers = $option->get_all_users_on_waitinglist()) &&
+                             isset($waitlistusers[$USER->id])) {
                         $userdata = new \user_picture($USER);
                         $waiting[] = $OUTPUT->render($userdata) . ' ' . fullname($USER);
                     }

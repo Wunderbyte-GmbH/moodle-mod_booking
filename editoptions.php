@@ -26,9 +26,10 @@ require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 require_once($CFG->libdir . '/formslib.php');
 
+use mod_booking\booking_option;
 use mod_booking\form\option_form;
 use mod_booking\form\modaloptiondateform;
-use \core\output\notification;
+use core\output\notification;
 use mod_booking\customfield\booking_handler;
 use mod_booking\price;
 use local_entities\entitiesrelation_handler;
@@ -98,91 +99,7 @@ if (has_capability('mod/booking:cantoggleformmode', $context)) {
 // Duplicate this booking option.
 if ($optionid == -1 && $copyoptionid != 0) {
 
-    // Current time at duplication.
-    $now = time();
-
-    // Adding new booking option - default values.
-    $defaultvalues = $DB->get_record('booking_options', array('id' => $copyoptionid));
-    $oldoptionid = $defaultvalues->id;
-    $defaultvalues->text = $defaultvalues->text . get_string('copy', 'mod_booking');
-    $defaultvalues->optionid = -1;
-    $defaultvalues->copyoptionid = $copyoptionid;
-    $defaultvalues->bookingname = $booking->settings->name;
-    $defaultvalues->bookingid = $bookingid;
-    $defaultvalues->id = $cmid;
-    // Identifier needs to be unique, so create a new random one.
-    $defaultvalues->identifier = substr(str_shuffle(md5(microtime())), 0, 8);
-
-    // Create a new duplicate of the old booking option.
-    $optionid = booking_update_options($defaultvalues, $context);
-    $defaultvalues->optionid = $optionid;
-
-    // If there was an associated entity, also copy it.
-    if (class_exists('local_entities\entitiesrelation_handler')) {
-        $erhandler = new entitiesrelation_handler('mod_booking', 'option');
-        $entityid = $erhandler->get_entityid_by_instanceid($copyoptionid);
-        if ($entityid) {
-            $erhandler->save_entity_relation($optionid, $entityid);
-        }
-    }
-
-    // If there are associated teachers, let's duplicate them too.
-    $teacherstocopy = $DB->get_records('booking_teachers', ['bookingid' => $bookingid, 'optionid' => $oldoptionid]);
-
-    // For each copied teacher change the old optionid to the new one and unset the old id.
-    foreach ($teacherstocopy as $teachertocopy) {
-        // Subscribe the copied teacher to the new booking option.
-        subscribe_teacher_to_booking_option($teachertocopy->userid, $optionid, $cm->id);
-    }
-
-    // If there are prices defined, let's duplicate them too.
-    if (get_config('booking', 'duplicationrestoreprices')) {
-        /* IMPORTANT: Once we support subbookings, we might have different areas than 'option'
-            and this means 'itemid' might be something else than an optionid.
-            So we have to find out, if we still can set the params like this. */
-        $prices = $DB->get_records('booking_prices', ['itemid' => $copyoptionid, 'area' => 'option']);
-        foreach ($prices as $price) {
-            $price->itemid = $optionid;
-        }
-        $DB->insert_records('booking_prices', $prices);
-    }
-
-    // Also duplicate associated Moodle custom fields (e.g. "sports").
-    $sql = "SELECT cfd.*
-        FROM {customfield_data} cfd
-        LEFT JOIN {customfield_field} cff
-        ON cff.id = cfd.fieldid
-        LEFT JOIN {customfield_category} cfc
-        ON cfc.id = cff.categoryid
-        WHERE cfc.component = 'mod_booking'
-        AND cfd.instanceid = :oldoptionid";
-
-    $params = [
-        'oldoptionid' => $oldoptionid
-    ];
-
-    $oldcustomfields = $DB->get_records_sql($sql, $params);
-    foreach ($oldcustomfields as $cf) {
-        unset($cf->id);
-        $cf->timecreated = $now;
-        $cf->timemodified = $now;
-        $cf->instanceid = $optionid;
-        $DB->insert_record('customfield_data', $cf);
-    }
-
-    // We also need to duplicate subbookings of the booking option.
-    $sql = "SELECT *
-        FROM {booking_subbooking_options}
-        WHERE optionid = :oldoptionid";
-    $oldsubbookings = $DB->get_records_sql($sql, $params);
-    foreach ($oldsubbookings as $sb) {
-        unset($sb->id);
-        $sb->usermodified = $USER->id;
-        $sb->timecreated = $now;
-        $sb->timemodified = $now;
-        $sb->optionid = $optionid;
-        $DB->insert_record('booking_subbooking_options', $sb);
-    }
+    $optionid = booking_option::duplicate_option($copyoptionid);
 
 } else if ($optionid > 0 && $defaultvalues = $DB->get_record('booking_options', ['id' => $optionid])) {
     $defaultvalues->optionid = $optionid;
@@ -284,7 +201,7 @@ if ($mform->is_cancelled()) {
             }
         }
 
-        $bookingdata = new \mod_booking\booking_option($cmid, $nbooking);
+        $bookingdata = new booking_option($cmid, $nbooking);
         $bookingdata->sync_waiting_list();
 
         if (has_capability('mod/booking:addeditownoption', $context) && $optionid == -1 &&
@@ -328,7 +245,7 @@ if ($mform->is_cancelled()) {
                             $nbooking, array('subdirs' => false, 'maxfiles' => 1));
                 }
 
-                $bookingdata = new \mod_booking\booking_option($cmid, $nbooking);
+                $bookingdata = new booking_option($cmid, $nbooking);
                 $bookingdata->sync_waiting_list();
 
                 if (has_capability('mod/booking:addeditownoption', $context) && $optionid == -1 &&

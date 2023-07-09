@@ -39,6 +39,7 @@ $optionid = required_param('optionid', PARAM_INT);
 $delete = optional_param('delete', '', PARAM_INT);
 $duplicate = optional_param('duplicate', '', PARAM_INT);
 $edit = optional_param('edit', '', PARAM_INT);
+$split = optional_param('split', PARAM_BOOL);
 $url = new moodle_url('/mod/booking/optiondates.php', array('id' => $id, 'optionid' => $optionid));
 $PAGE->set_url($url);
 

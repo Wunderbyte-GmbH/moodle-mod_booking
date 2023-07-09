@@ -309,12 +309,9 @@ class calendar {
      * @param numeric $calendareventid
      * @param numeric $addtocalendar 0 = do not add, 1 = add as course event, 2 = add as global event.
      * @return int calendarid
-     * @throws coding_exception
-     * @throws dml_exception
      */
     private function booking_optiondate_add_to_cal($booking, $option, $optiondate,
         $calendareventid, $userid = 0, $addtocalendar = 1) {
-
         global $DB, $CFG;
         $fulldescription = '';
 
@@ -330,7 +327,8 @@ class calendar {
 
             $bookingoption = new \mod_booking\booking_option($this->cmid, $this->optionid, null, null, null, true);
             // If the user is booked, we have a different kind of description.
-            $forbookeduser = isset($bookingoption->usersonlist[$userid]) ? true : false;
+            $bookedusers = $bookingoption->get_all_users_booked();
+            $forbookeduser = isset($bookedusers[$userid]);
             $fulldescription = get_rendered_eventdescription($option->id, $this->cmid, DESCRIPTION_CALENDAR, $forbookeduser);
         } else {
             // Event calendar.

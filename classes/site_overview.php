@@ -251,7 +251,7 @@ class site_overview implements \renderable {
                                                 array($booking->id));
                                         $optids = \array_keys($bkngoptionids);
                                         foreach ($optids as $id) {
-                                            $bookingoptionobjects[$id] = new \mod_booking\booking_option(
+                                            $bookingoptionobjects[$id] = new booking_option(
                                                     $booking->coursemodule, $id);
                                         }
                                         $booking->options = $bookingoptionobjects;
