@@ -480,10 +480,13 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $answersobject = singleton_service::get_instance_of_booking_answers($settings);
         $status = $answersobject->user_status($USER->id);
 
+        $isteacherofthisoption = booking_check_if_teacher($values);
+
         if (!empty($settings->courseid) && (
                 $status == STATUSPARAM_BOOKED ||
                 has_capability('mod/booking:updatebooking', $this->context) ||
-                (has_capability('mod/booking:addeditownoption', $this->context) && booking_check_if_teacher($values))
+                (has_capability('mod/booking:addeditownoption', $this->context) && $isteacherofthisoption) ||
+                (has_capability('mod/booking:limitededitownoption', $this->context) && $isteacherofthisoption)
         )) {
             $gotomoodlecourse = get_string('gotomoodlecourse', 'mod_booking');
             $ret = "<a href='$courseurl' target='_self' class='btn btn-primary mt-2 mb-2 w-100'>
