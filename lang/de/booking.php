@@ -49,6 +49,7 @@ $string['responsiblecontact'] = 'Zuständige Kontaktperson';
 $string['responsiblecontact_help'] = 'Geben Sie eine zuständige Kontaktperson an. Dies sollte jemand anderer als der/die Lehrer/in sein.';
 $string['reviewed'] = 'Kontrolliert';
 $string['search'] = 'Suche...';
+$string['sendmailtoallbookedusers'] = 'E-Mail an alle gebuchten Nutzer:innen senden';
 $string['teachers'] = 'Trainer:innen';
 $string['thankyoubooked'] = '<i class="fa fa-3x fa-calendar-check-o text-success" aria-hidden="true"></i><br><br>
 Vielen Dank! Sie haben <b>{$a}</b> erfolgreich gebucht.';
@@ -1608,8 +1609,13 @@ $string['teachersnologinrequired_desc'] = 'Wenn Sie diese Einstellung aktivieren
  nicht-eingeloggten Benutzer:innen gesehen werden.';
 $string['teachersshowemails'] = 'E-Mail-Adressen von Trainer:innen immer anzeigen';
 $string['teachersshowemails_desc'] = 'Wenn Sie diese Einstellung aktivieren, dann werden allen Benutzer:innen die E-Mail-Adressen der Trainer:innen
- angezeigt, selbst wenn diese nicht eingeloggt sind. <span class="text-danger"><b>Achtung:</b> Dies könnte ein Datenschutz-Problem darstellen. Aktivieren Sie dies nur,
- wenn es die Datenschutzbestimmungen Ihrer Organisation erlauben.</span>';
+  angezeigt, selbst wenn diese nicht eingeloggt sind. <span class="text-danger"><b>Achtung:</b> Dies könnte ein Datenschutz-Problem darstellen. Aktivieren Sie dies nur,
+  wenn es die Datenschutzbestimmungen Ihrer Organisation erlauben.</span>';
+$string['teachersallowmailtobookedusers'] = 'Trainer:innen erlauben, eine Direkt-Mail an gebuchte Nutzer:innen zu senden';
+$string['teachersallowmailtobookedusers_desc'] = 'Wenn Sie diese Einstellung aktivieren, können Trainer:innen eine Direktnachricht
+    mit ihrem eigenen Mail-Programm an gebuchte Nutzer:innen senden - die E-Mail-Adressen der gebuchten Nutzer:innen werden dadurch sichtbar.
+    <span class="text-danger"><b>Achtung:</b> Dies könnte ein Datenschutz-Problem darstellen. Aktivieren Sie dies nur,
+    wenn es die Datenschutzbestimmungen Ihrer Organisation erlauben.</span>';
 
 // Optiontemplatessettings.php.
 $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';

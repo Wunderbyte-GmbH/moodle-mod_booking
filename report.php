@@ -23,6 +23,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\booking_option;
 use mod_booking\output\booked_users;
 
 require_once(__DIR__ . '/../../config.php');
@@ -634,15 +635,17 @@ if (!$tableallbookings->is_downloading()) {
                 "{$value->firstname} {$value->lastname}");
     }
 
+    $isteacherofthisoption = booking_check_if_teacher($bookingoption->booking->settings);
+
     $linkst = '';
-    if (has_capability('mod/booking:communicate', context_module::instance($cm->id)) ||
-             has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
+    if (has_capability('mod/booking:communicate', $context) ||
+             has_capability('mod/booking:updatebooking', $context)) {
         $linkst = array();
 
         $haspollurl = (!empty($bookingoption->booking->settings->pollurlteachers) ||
             !empty($bookingoption->option->pollurlteachers));
 
-        if (has_capability('mod/booking:communicate', context_module::instance($cm->id)) && $haspollurl) {
+        if (has_capability('mod/booking:communicate', $context) && $haspollurl) {
             $linkst[] = html_writer::link(
                     new moodle_url('/mod/booking/report.php',
                             array('id' => $cm->id, 'optionid' => $optionid,
@@ -655,14 +658,31 @@ if (!$tableallbookings->is_downloading()) {
         $linkst = empty($linkst) ? "" : "(" . implode(", ", $linkst) . ")";
     }
 
-    if (has_capability('mod/booking:bookforothers', context_module::instance($cm->id)) &&
-                (has_capability('mod/booking:subscribeusers', context_module::instance($cm->id)) ||
-                booking_check_if_teacher($bookingoption->booking->settings))) {
+    // Action buttons on top.
+    $actionbuttonstop = '';
+    if (has_capability('mod/booking:bookforothers', $context) &&
+                (has_capability('mod/booking:subscribeusers', $context) ||
+                $isteacherofthisoption)) {
         $url = new moodle_url('/mod/booking/subscribeusers.php',
             array('id' => $cm->id, 'optionid' => $optionid));
-        $linkst = $linkst . "<div>" . html_writer::link(
-            $url, '<i class="fa fa-users fa-fw" aria-hidden="true"></i>&nbsp;' .
-                get_string('bookotherusers', 'booking'), ['class' => 'btn btn-light']) . "</div>";
+        $actionbuttonstop .= "<span>" .
+            html_writer::link($url, '<i class="fa fa-users fa-fw" aria-hidden="true"></i>&nbsp;' .
+                get_string('bookotherusers', 'booking'), ['class' => 'btn btn-light mr-2']) .
+        "</span>";
+    }
+
+    if (get_config('booking', 'teachersallowmailtobookedusers') && (
+        has_capability('mod/booking:updatebooking', $context) ||
+        (has_capability('mod/booking:addeditownoption', $context) && $isteacherofthisoption) ||
+        (has_capability('mod/booking:limitededitownoption', $context) && $isteacherofthisoption)
+    )) {
+        $mailtolink = booking_option::get_mailto_link_for_partipants($optionid);
+        if (!empty($mailtolink)) {
+            $actionbuttonstop .= "<span>" .
+                html_writer::link($mailtolink, '<i class="fa fa-envelope fa-fw" aria-hidden="true"></i>&nbsp;' .
+                    get_string('sendmailtoallbookedusers', 'booking'), ['class' => 'btn btn-light mr-2']) .
+            "</span>";
+        }
     }
 
     echo "<p>" .
@@ -672,6 +692,8 @@ if (!$tableallbookings->is_downloading()) {
              (empty($bookingoption->booking->settings->lblteachname) ? get_string('teachers', 'booking') . ': ' :
                 $bookingoption->booking->settings->lblteachname . ': ') .
                     implode(', ', $teachers) . " {$linkst}</p>";
+
+    echo "<div class='report-actionbuttons-top'>$actionbuttonstop</div>";
 
     $links = array();
 

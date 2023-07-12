@@ -616,6 +616,11 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $viewphpurl = new moodle_url('/mod/booking/view.php', ['id' => $this->cmid]);
         $returnurl = $viewphpurl->out();
 
+        // Capabilities.
+        $canupdate = has_capability('mod/booking:updatebooking', $this->context);
+        $isteacherandcanedit = (has_capability('mod/booking:addeditownoption', $this->context) &&
+            booking_check_if_teacher($values));
+
         $ddoptions = array();
         $ret = '<div class="menubar" id="action-menu-' . $values->id . '-menubar" role="menubar">';
 
@@ -627,9 +632,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 array('target' => '_blank'));
         }
 
-        if (has_capability('mod/booking:updatebooking', $this->context) || (has_capability(
-                    'mod/booking:addeditownoption', $this->context) &&
-                booking_check_if_teacher($values))) {
+        if ($canupdate || $isteacherandcanedit) {
             $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
                     new moodle_url('/mod/booking/editoptions.php',
                         ['id' => $this->cmid, 'optionid' => $values->id,
@@ -666,6 +669,17 @@ class bookingoptions_wbtable extends wunderbyte_table {
                         get_string('bookotherusers', 'mod_booking')) . '</div>';
             }
 
+            if (get_config('booking', 'teachersallowmailtobookedusers')) {
+                $mailtolink = booking_option::get_mailto_link_for_partipants($values->id);
+                if (!empty($mailtolink)) {
+                    $ddoptions[] = '<div class="dropdown-item">' .
+                        html_writer::link($mailtolink, $OUTPUT->pix_icon('t/email',
+                            get_string('sendmailtoallbookedusers', 'mod_booking')) .
+                        get_string('sendmailtoallbookedusers', 'booking')) .
+                    '</div>';
+                }
+            }
+
             // Show link to optiondates-teachers-report (teacher substitutions).
             $optiondatesteachersmoodleurl = new moodle_url('/mod/booking/optiondates_teachers_report.php',
                 ['id' => $this->cmid, 'optionid' => $values->id,
@@ -686,14 +700,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                         get_string('onlythisbookingoption', 'mod_booking')) .
                     get_string('onlythisbookingoption', 'mod_booking')) . '</div>';
 
-            if (has_capability('mod/booking:updatebooking', $this->context)) {
-                $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(new moodle_url('/mod/booking/report.php',
-                        array('id' => $this->cmid, 'optionid' => $values->id, 'action' => 'deletebookingoption',
-                            'sesskey' => sesskey(),
-                            'returnto' => 'url',
-                            'returnurl' => $returnurl)),
-                        $OUTPUT->pix_icon('t/delete', get_string('deletethisbookingoption', 'mod_booking')) .
-                        get_string('deletethisbookingoption', 'mod_booking')) . '</div>';
+            if ($canupdate) {
 
                 // Cancel booking options.
                 // Find out if the booking option has a price or not.
@@ -768,6 +775,19 @@ class bookingoptions_wbtable extends wunderbyte_table {
                         'returnto' => 'url', 'returnurl' => $returnurl)), $OUTPUT->pix_icon('t/copy',
                             get_string('duplicatebooking', 'mod_booking')) .
                         get_string('duplicatebooking', 'mod_booking')) . '</div>';
+
+                $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
+                        new moodle_url('/mod/booking/report.php', [
+                            'id' => $this->cmid,
+                            'optionid' => $values->id,
+                            'action' => 'deletebookingoption',
+                            'sesskey' => sesskey(),
+                            'returnto' => 'url',
+                            'returnurl' => $returnurl
+                        ]),
+                        $OUTPUT->pix_icon('t/delete', get_string('deletethisbookingoption', 'mod_booking')) .
+                            get_string('deletethisbookingoption', 'mod_booking')
+                ) . '</div>';
             }
             // TODO: Move booking options to another option currently does not work correcly.
             // We temporarily remove it from booking until we are sure, it works.

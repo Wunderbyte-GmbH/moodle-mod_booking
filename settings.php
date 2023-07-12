@@ -139,13 +139,18 @@ if ($ADMIN->fulltree) {
 
         $settings->add(
             new admin_setting_configcheckbox('booking/teachersnologinrequired',
-                    get_string('teachersnologinrequired', 'mod_booking'),
-                    get_string('teachersnologinrequired_desc', 'mod_booking'), 0));
+                get_string('teachersnologinrequired', 'mod_booking'),
+                get_string('teachersnologinrequired_desc', 'mod_booking'), 0));
 
         $settings->add(
             new admin_setting_configcheckbox('booking/teachersshowemails',
-                    get_string('teachersshowemails', 'mod_booking'),
-                    get_string('teachersshowemails_desc', 'mod_booking'), 0));
+                get_string('teachersshowemails', 'mod_booking'),
+                get_string('teachersshowemails_desc', 'mod_booking'), 0));
+
+        $settings->add(
+            new admin_setting_configcheckbox('booking/teachersallowmailtobookedusers',
+                get_string('teachersallowmailtobookedusers', 'mod_booking'),
+                get_string('teachersallowmailtobookedusers_desc', 'mod_booking'), 0));
     } else {
         $settings->add(
             new admin_setting_heading('teachersettings',

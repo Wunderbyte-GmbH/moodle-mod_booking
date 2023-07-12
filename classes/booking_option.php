@@ -2922,4 +2922,55 @@ class booking_option {
             'list' => count($list) > 100 ? [] : $list,
         ];
     }
+
+    /**
+     * Helper function to generate mailto-Link for all booked users of a booking option.
+     * TO: The teacher sending the mail (logged in user by default).
+     * BCC: The booked participants of the booking option.
+     *
+     * @param int $optionid
+     * @return string the mailto link - will be empty if there are no booked users
+     */
+    public static function get_mailto_link_for_partipants(int $optionid): string {
+        global $USER;
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $answers = singleton_service::get_instance_of_booking_answers($settings);
+        $bookedusers = $answers->usersonlist;
+
+        // Use the booking option title as subject.
+        $subject = $settings->get_title_with_prefix();
+
+        if (empty($bookedusers)) {
+            return '';
+        }
+
+        $teachersstring = '';
+        if (!empty($settings->teachers)) {
+            foreach ($settings->teachers as $t) {
+                if (!empty($t->email) && ($t->email != $USER->email)) {
+                    $teachersstring .= "$t->email,";
+                }
+            }
+            if ($teachersstring) {
+                $teachersstring = trim($teachersstring, ',');
+                $teachersstring = "cc=$teachersstring&";
+            }
+        }
+
+        $emailstring = '';
+        foreach ($bookedusers as $bu) {
+            $user = singleton_service::get_instance_of_user($bu->userid);
+            if (!empty($user->email)) {
+                $emailstring .= "$user->email,";
+            }
+        }
+
+        if (empty($emailstring)) {
+            return '';
+        }
+
+        // We put all teachers in CC and all participants in BCC.
+        return "mailto:$USER->email?$teachersstring" . "bcc=$emailstring&subject=$subject";
+    }
 }

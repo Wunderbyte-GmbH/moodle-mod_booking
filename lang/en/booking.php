@@ -49,6 +49,7 @@ $string['responsiblecontact'] = 'Responsible contact person';
 $string['responsiblecontact_help'] = 'Choose a person who is responsible for this booking option. This is not supposed to be the teacher!';
 $string['reviewed'] = 'Reviewed';
 $string['search'] = 'Search...';
+$string['sendmailtoallbookedusers'] = 'Send e-mail to all booked users';
 $string['teachers'] = 'Teachers';
 $string['assignteachers'] = 'Assign teachers:';
 $string['thankyoubooked'] = '<i class="fa fa-3x fa-calendar-check-o text-success" aria-hidden="true"></i><br><br>
@@ -333,7 +334,6 @@ $string['confirmdeletebookingoption'] = 'Do you really want to delete this booki
 $string['norighttobook'] = 'Booking is not possible for your user role. Please contact the site administrator to give you the appropriate rights or enrol/sign in.';
 $string['maxperuserwarning'] = 'You currently have used {$a->count} out of {$a->limit} maximum available bookings ({$a->eventtype}) for your user account';
 $string['bookedpast'] = 'Booked (course terminated)';
-$string['bookotherusers'] = 'Book other users';
 $string['attachedfiles'] = 'Attached files';
 $string['eventduration'] = 'Event duration';
 $string['eventpoints'] = 'Points';
@@ -1730,8 +1730,13 @@ $string['teachersnologinrequired'] = 'Login for teacher pages not necessary';
 $string['teachersnologinrequired_desc'] = 'If you activate this setting, everyone can access the teacher pages, regardless if logged in or not.';
 $string['teachersshowemails'] = 'Always show teacher\'s email addresses to everyone';
 $string['teachersshowemails_desc'] = 'If you activate this setting, every user can see
- the e-mail address of any teacher - even if they are not logged in. <span class="text-danger"><b>Be careful:</b> This might be
- a privacy issue. Only activate this, if you are sure it corresponds with your organization\'s privacy policy.</span>';
+    the e-mail address of any teacher - even if they are not logged in. <span class="text-danger"><b>Be careful:</b> This might be
+    a privacy issue. Only activate this, if you are sure it corresponds with your organization\'s privacy policy.</span>';
+$string['teachersallowmailtobookedusers'] = 'Allow teachers to send an e-mail to all booked users using their own mail client';
+$string['teachersallowmailtobookedusers_desc'] = 'If you activate this setting, teachers can click a button to send an e-mail
+    to all booked users using their own mail client - the e-mail-addresses of all users will be visible.
+    <span class="text-danger"><b>Be careful:</b> This might be a privacy issue. Only activate this,
+    if you are sure it corresponds with your organization\'s privacy policy.</span>';
 
 // Mobile.
 $string['next'] = 'Next';
