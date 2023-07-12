@@ -1,3 +1,36 @@
+## Version 8.0.21 (2023071200)
+**New features:**
+* New feature: New settings to show teacher pages for not logged-in users and to show teacher e-mails to everyone.
+* New feature: Turn off waiting list globally by config setting.
+* New feature: New possibility to book with credits.
+* New feature: Send direct mails via mail client to all booked users.
+
+**Improvements:**
+* Improvement: Cashier is now able to overbook booking options for other users (not herself).
+* Improvement: Code quality: commented out deprecated functions.
+* Improvement: Filter in Wunderbyte table inactive on loading.
+* Improvement: Code quality: Rename col_text_link to musi_bookingoption_menu and move it to local_musi.
+* Improvement: Use singleton service to retrieve users.
+* Improvement: Better strings for book with credits settings.
+* Improvement: Also allow access to connected Moodle course for teachers with 'mod/booking:limitededitownoption' capability.
+* Improvement:
+
+**Bugfixes:**
+* Bugfix: Fix error with missing username or email in message_controller.
+* Bugfix: Fix wrong userid when cashier books for others with prepage modals.
+* Bugfix: Fix the following error for subbooking: "Exception - Warning: Undefined property:
+  stdClass::$id in [dirroot]/mod/booking/classes/subbookings/sb_types/subbooking_additionalperson.php on line 173"
+* Bugfix: Fixed availability problem with subbookings that lead to unexpected errors with availability conditions.
+* Bugfix: Fix prepage modal bug with subbookings and rename not_blocked to has_soft_subbookings.
+* Bugfix: Normal subbookings are not overridable as they need to do a "soft block" so they appear in prepage modals.
+* Bugfix: Make sure empty url does not trigger db request.
+* Bugfix: Fix override conditions logic.
+* Bugfix: With override conditions we need to check the ORIGINAL value!
+
+**Tests:**
+* Behat: 3 scenarios have been added to cover turning off branding and make teacher pages (teacher.php and teachers.php) available to not logged-in users and force the display of teacher e-mail addresses
+* GitHub: fix of the Moodle CodeChecker errors.
+* Behat: new scenario Add single subbooking option for a booking option as a teacher
 
 ## Version 8.0.20 (2023062600)
 **Improvements:**
