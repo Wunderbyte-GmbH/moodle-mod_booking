@@ -259,7 +259,6 @@ class bookwithcredits implements bo_condition {
             $label = get_string('bookwithcredit', 'mod_booking', $settings->credits);
         }
 
-
         return bo_info::render_button($settings, $userid, $label, 'btn btn-success mt-1 mb-1', false, $fullwidth,
             'button', 'option', false, 'noforward');
     }
