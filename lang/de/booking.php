@@ -2316,6 +2316,8 @@ $string['notbookablecombiantion'] = 'Diese Kombination von Wahlfächern ist nich
 $string['boactionsheader'] = "Aktionen nach der Buchung";
 $string['selectboactiontype'] = 'Wähle Aktion nach der Buchung';
 $string['bookingactionadd'] = "Füge Aktion hinzu";
+$string['boactions_desc'] = "Beschreibung der Aktion nach der Buchung";
+$string['boactions'] = "Aktionen nach der Buchung";
 
 $string['userprofilefield'] = "Profilfeld";
 $string['boactionselectuserprofile'] = "Wähle Profilfeld";

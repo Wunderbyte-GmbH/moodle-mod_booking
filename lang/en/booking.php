@@ -2409,5 +2409,8 @@ $string['bookingactionsheader'] = "Actions after Booking";
 $string['selectboactiontype'] = 'Select action after booking';
 $string['bookingactionadd'] = "Add action";
 
+$string['boactions_desc'] = "Description of the Actions after Booking";
+$string['boactions'] = "Actions after Booking";
+
 $string['userprofilefield'] = "Profile field";
 $string['course'] = "Moodle course";
