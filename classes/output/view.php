@@ -32,7 +32,6 @@ use mod_booking\booking;
 use mod_booking\elective;
 use mod_booking\singleton_service;
 use mod_booking\table\bookingoptions_wbtable;
-use moodle_exception;
 use moodle_url;
 use renderer_base;
 use renderable;
