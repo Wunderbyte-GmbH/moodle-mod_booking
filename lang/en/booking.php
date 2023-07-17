@@ -2414,3 +2414,9 @@ $string['boactions'] = "Actions after Booking";
 
 $string['userprofilefield'] = "Profile field";
 $string['course'] = "Moodle course";
+
+$string['noselection'] = 'No selection';
+$string['boactionuserprofilevalue'] = 'Value';
+
+$string['set'] = 'Replace';
+$string['substract'] = 'Subsctract';

@@ -68,18 +68,50 @@ class actions_info {
     }
 
     /**
+     * Add action type selector and form for modal.
+     *
+     * @param MoodleQuickForm $mform
+     * @param array $formdata
+     * @return void
+     */
+    public static function add_actionsform_to_mform(MoodleQuickForm &$mform,
+        array &$formdata = []) {
+
+        // $buttonargs = [];
+        // $conditionsforselect = [
+        //     1 => 'eins',
+        //     2 => 'zwei',
+        // ];
+
+        // $mform->registerNoSubmitButton('btn_bookingruleconditiontype');
+        // // $buttonargs = array('style' => 'visibility:hidden;');
+        // $categoryselect = [
+        //     $mform->createElement('select', 'bookingruleconditiontype',
+        //     get_string('bookingrulecondition', 'mod_booking'), $conditionsforselect),
+        //     $mform->createElement('submit', 'btn_bookingruleconditiontype', get_string('bookingrulecondition', 'mod_booking'),
+        //         $buttonargs)
+        // ];
+        // $mform->addGroup($categoryselect, 'bookingruleconditiontype', get_string('bookingrulecondition', 'mod_booking'),
+        //     [' '], false);
+        // $mform->setType('btn_bookingruleconditiontype', PARAM_NOTAGS);
+
+        self::add_action($mform, $formdata);
+
+    }
+
+    /**
      * Get all booking actions.
      * @return array an array of booking actions (instances of class booking_action).
      */
     public static function get_action_types() {
         global $CFG;
 
-        $actions = core_component::get_component_classes_in_namespace('mod_booking', 'bo_actions\\action_tpes');
+        $actionstypes = core_component::get_component_classes_in_namespace('mod_booking', 'bo_actions\\action_types');
 
         $actions = [];
 
         // We just want filenames, as they are also the classnames.
-        foreach ($actions as $key => $value) {
+        foreach ($actionstypes as $key => $value) {
 
             // We instantiate all the classes, because we need some information.
             if (class_exists($key)) {

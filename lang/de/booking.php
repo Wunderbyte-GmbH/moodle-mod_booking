@@ -2322,5 +2322,10 @@ $string['boactions'] = "Aktionen nach der Buchung";
 $string['userprofilefield'] = "Profilfeld";
 $string['boactionselectuserprofile'] = "Wähle Profilfeld";
 
-
 $string['course'] = "Moodle Kurs";
+
+$string['noselection'] = 'Keine Auswahl';
+$string['boactionuserprofilevalue'] = 'Wert';
+
+$string['set'] = 'Ersetzen';
+$string['substract'] = 'Minus';
