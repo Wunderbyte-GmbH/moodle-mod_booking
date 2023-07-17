@@ -1327,6 +1327,7 @@ $string['copytotemplatesucesfull'] = 'Buchungsoption erfolgreich als Vorlage ges
 
 // Send message.
 $string['booking:cansendmessages'] = 'Kann Nachrichten schicken.';
+$string['messageprovider:sendmessages'] = 'Kann Nachrichten schicken';
 $string['activitycompletionsuccess'] = 'Alle Nutzer:innen wurden für den Aktivitätsabschluss ausgewählt';
 $string['booking:communicate'] = 'Can communicate';
 $string['confirmoptioncompletion'] = 'Abschluss bestätigen';
