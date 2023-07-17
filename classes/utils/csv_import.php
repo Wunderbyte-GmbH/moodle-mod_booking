@@ -441,27 +441,23 @@ class csv_import {
                     $bookingoption->$column = $this->fix_encoding($value);
                     break;
                 case 'bookingclosingtime':
+                    $bookingoption->restrictanswerperiodclosing = 1;
+                    $bookingoption->$column = $this->get_timestamp($value);
+                    break;
                 case 'bookingopeningtime':
+                    $bookingoption->restrictanswerperiodopening = 1;
+                    $bookingoption->$column = $this->get_timestamp($value);
+                    break;
                 case 'coursestarttime':
                 case 'courseendtime':
-                    $date = date_create_from_format($this->formdata->dateparseformat, $value);
                     $bookingoption->startendtimeknown = 1;
-                    if ($date) {
-                        $bookingoption->$column = $date->getTimestamp();
-                    } else {
-                        $bookingoption->$column = strtotime($value);
-                    }
+                    $bookingoption->$column = $this->get_timestamp($value);
                     break;
                 // For optiondates.
                 case preg_match('/ms[1-3]starttime/', $column) ? $column : !$column:
                 case preg_match('/ms[1-3]endtime/', $column) ? $column : !$column:
-                    $date = date_create_from_format($this->formdata->dateparseformat, $value);
                     $bookingoption->startendtimeknown = 1;
-                    if ($date) {
-                        $bookingoption->$column = $date->getTimestamp();
-                    } else {
-                        $bookingoption->$column = strtotime($value);
-                    }
+                    $bookingoption->$column = $this->get_timestamp($value);
                     break;
                 case 'institution':
                     // Create institution if it does not exist.
@@ -706,5 +702,21 @@ class csv_import {
         } else {
             return utf8_encode($instr);
         }
+    }
+
+    /**
+     * Returns the timestamp from the given value.
+     * @param string $value
+     * @return int
+     */
+    private function get_timestamp($value) {
+        $date = date_create_from_format($this->formdata->dateparseformat, $value);
+        if ($date) {
+            $timestamp = $date->getTimestamp() ?? 0;
+        } else {
+            $timestamp = strtotime($value) ?? 0;
+        }
+
+        return $timestamp;
     }
 }

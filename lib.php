@@ -933,8 +933,8 @@ function booking_update_options($optionvalues, $context, int $updateparam = UPDA
     }
 
     if (isset($optionvalues->startendtimeknown)) {
-        $option->coursestarttime = $optionvalues->coursestarttime;
-        $option->courseendtime = $optionvalues->courseendtime;
+        $option->coursestarttime = $optionvalues->coursestarttime ?? 0;
+        $option->courseendtime = $optionvalues->courseendtime ?? 0;
     } else {
         $option->coursestarttime = 0;
         $option->courseendtime = 0;
