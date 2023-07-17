@@ -1,3 +1,7 @@
+8.0.22 (2023071700)
+* Bugfix: Added string for message provider
+* Bugfix: Fixed CSV Importer vor bookingopeningtime & bookingclosingtime
+
 8.0.21 (2023071200)
 * New feature: New settings to show teacher pages for not logged-in users and to show teacher e-mails to everyone.
 * New feature: Turn off waiting list globally by config setting.

@@ -1,3 +1,8 @@
+## Version 8.0.22 (2023071700)
+**Bugfixes:**
+* Bugfix: Added string for message provider
+* Bugfix: Fixed CSV Importer vor bookingopeningtime & bookingclosingtime
+
 ## Version 8.0.21 (2023071200)
 **New features:**
 * New feature: New settings to show teacher pages for not logged-in users and to show teacher e-mails to everyone.
