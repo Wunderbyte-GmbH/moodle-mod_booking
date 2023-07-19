@@ -241,6 +241,8 @@ class booking_option_settings {
     /** @var array $electivecombinations */
     public $electivecombinations = null;
 
+    /** @var stdClass $params */
+    public $params = null;
 
     /**
      * Constructor for the booking option settings class.
@@ -436,6 +438,14 @@ class booking_option_settings {
                 }
             } else {
                 $this->imageurl = $dbrecord->imageurl;
+            }
+
+            // If the key "params" is not yet set, we need to load them (which is quite expensive).
+            if (!isset($dbrecord->params)) {
+                $this->params = booking_option::get_placeholder_params($optionid);
+                $dbrecord->params = $this->params;
+            } else {
+                $this->params = $dbrecord->params;
             }
 
             // If the key "sessions" is not yet set, we need to load from DB.

@@ -20,6 +20,7 @@ use coding_exception;
 use completion_info;
 use context_module;
 use context_system;
+use context_user;
 use dml_exception;
 use Exception;
 use invalid_parameter_exception;
@@ -32,6 +33,8 @@ use mod_booking\teachers_handler;
 use mod_booking\customfield\booking_handler;
 use mod_booking\event\bookinganswer_cancelled;
 use mod_booking\message_controller;
+use mod_booking\output\bookingoption_changes;
+use mod_booking\output\optiondates_only;
 use mod_booking\subbookings\subbookings_info;
 use mod_booking\task\send_completion_mails;
 use moodle_exception;
@@ -515,19 +518,24 @@ class booking_option {
 
         $userid = $userid ?? $USER->id;
 
-        $text = "";
+        // We stop supporting placeholders here as it can lead to memory overflow.
+        /* $generateparams = false;
+        if ((strpos($this->option->aftercompletedtext, '{') !== false) ||
+            (strpos($this->option->beforecompletedtext, '{') !== false) ||
+            (strpos($this->option->beforebookedtext, '{') !== false)
+        ) {
+            if ($userid == $USER->id) {
+                // For the logged-in user, we have the params already cached.
+                $params = $this->settings->params;
+            } else {
+                // If it's another user, we have to re-generate the params.
+                $params = self::get_placeholder_params($this->optionid, $userid);
+            }
+        } else {
+            $params = [];
+        }*/
 
-        // New message controller.
-        $messagecontroller = new message_controller(
-            MSGCONTRPARAM_DO_NOT_SEND, // We do not want to send anything here.
-            MSGPARAM_CONFIRMATION,
-            $this->booking->cm->id,
-            $this->bookingid,
-            $this->optionid,
-            $userid
-        );
-        // Get the email params from message controller.
-        $params = $messagecontroller->get_params();
+        $text = "";
 
         if (in_array($bookinganswers->user_status($userid), array(STATUSPARAM_BOOKED, STATUSPARAM_WAITINGLIST))) {
             $ac = $bookinganswers->is_activity_completed($userid);
@@ -552,11 +560,15 @@ class booking_option {
             }
         }
 
-        foreach ($params as $name => $value) {
-            if (!is_null($value)) { // Since php 8.1.
-                $text = str_replace('{' . $name . '}', $value, $text);
+        // Now we replace the placeholder params if necessary.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* if (!empty($params)) {
+            foreach ($params as $name => $value) {
+                if (!is_null($value)) { // Since php 8.1.
+                    $text = str_replace('{' . $name . '}', $value, $text);
+                }
             }
-        }
+        }*/
 
         return $text;
     }
@@ -2972,5 +2984,171 @@ class booking_option {
 
         // We put all teachers in CC and all participants in BCC.
         return "mailto:$USER->email?$teachersstring" . "bcc=$emailstring&subject=$subject";
+    }
+
+    /**
+     * Function to load all params used by {placeholders} (e.g. for mail templates).
+     * @param int $optionid option id
+     * @param int $userid optional user id, if not provided the logged in $USER will be used
+     * @param int $messageparam optional
+     * @param int $messagecontrolparam optional
+     * @param array $changes optional changes array
+     * @param int $optiondateid optional optiondate id of a specific session (for session reminders only)
+     */
+    public static function get_placeholder_params(int $optionid, int $userid = 0) {
+
+        global $CFG, $PAGE, $USER;
+
+        $params = new stdClass();
+
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $cmid = $optionsettings->cmid;
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+        if (empty($userid)) {
+            $userid = $USER->id;
+        }
+        $user = singleton_service::get_instance_of_user($userid);
+        $output = $PAGE->get_renderer('mod_booking');
+
+        $timeformat = get_string('strftimetime', 'langconfig');
+        $dateformat = get_string('strftimedate', 'langconfig');
+
+        $courselink = '';
+        if ($optionsettings->courseid) {
+            $courselink = new \moodle_url('/course/view.php', array('id' => $optionsettings->courseid));
+            $courselink = \html_writer::link($courselink, $courselink->out());
+        }
+        $bookinglink = new \moodle_url('/mod/booking/view.php', array('id' => $cmid));
+        $bookinglink = \html_writer::link($bookinglink, $bookinglink->out());
+
+        // We add the URLs for the user to subscribe to user and course event calendar.
+        $bu = new booking_utils();
+
+        // These links will not be clickable (beacuse they will be copied by users).
+        $params->usercalendarurl = '<a href="#" style="text-decoration:none; color:#000">' .
+        $bu->booking_generate_calendar_subscription_link($user, 'user') .
+        '</a>';
+
+        $params->coursecalendarurl = '<a href="#" style="text-decoration:none; color:#000">' .
+        $bu->booking_generate_calendar_subscription_link($user, 'courses') .
+        '</a>';
+
+        // Add a placeholder with a link to go to the current booking option.
+        $gotobookingoptionlink = new \moodle_url($CFG->wwwroot . '/mod/booking/view.php', array(
+            'id' => $cmid,
+            'optionid' => $optionid,
+            'whichview' => 'showonlyone'
+        ));
+        $params->gotobookingoption = \html_writer::link($gotobookingoptionlink, $gotobookingoptionlink->out());
+
+        // Important: We have to delete answers cache before calling $bookinganswer->user_status.
+        $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
+        $data = $cache->delete($optionid);
+        $bookinganswer = singleton_service::get_instance_of_booking_answers($optionsettings);
+        $params->status = self::get_user_status_string($userid, $bookinganswer->user_status($userid));
+
+        $params->qr_id = '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' .
+            rawurlencode($userid) . '&choe=UTF-8" title="Link to Google.com" />';
+        $params->qr_username = isset($user->username) ?
+            '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' .
+            rawurlencode($user->username) . '&choe=UTF-8" title="QR encoded username" />' : '';
+
+        $params->participant = fullname($user);
+        $params->email = $user->email ?? '';
+        $params->title = format_string($optionsettings->get_title_with_prefix());
+        $params->duration = $bookingsettings->duration;
+        $params->starttime = $optionsettings->coursestarttime ?
+            userdate($optionsettings->coursestarttime, $timeformat) : '';
+        $params->endtime = $optionsettings->courseendtime ?
+            userdate($optionsettings->courseendtime, $timeformat) : '';
+        $params->startdate = $optionsettings->coursestarttime ?
+            userdate($optionsettings->coursestarttime, $dateformat) : '';
+        $params->enddate = $optionsettings->courseendtime ?
+            userdate($optionsettings->courseendtime, $dateformat) : '';
+        $params->courselink = $courselink;
+        $params->bookinglink = $bookinglink;
+        $params->location = $optionsettings->location;
+        $params->institution = $optionsettings->institution;
+        $params->address = $optionsettings->address;
+        $params->eventtype = $bookingsettings->eventtype;
+        $params->shorturl = $optionsettings->shorturl;
+        $params->pollstartdate = $optionsettings->coursestarttime ?
+            userdate((int) $optionsettings->coursestarttime, get_string('pollstrftimedate', 'booking')) : '';
+        if (empty($optionsettings->pollurl)) {
+            $params->pollurl = $bookingsettings->pollurl;
+        } else {
+            $params->pollurl = $optionsettings->pollurl;
+        }
+        if (empty($optionsettings->pollurlteachers)) {
+            $params->pollurlteachers = $bookingsettings->pollurlteachers;
+        } else {
+            $params->pollurlteachers = $optionsettings->pollurlteachers;
+        }
+
+        // Placeholder for the number of booked users.
+        $params->numberparticipants = strval(count(self::get_all_users_booked()));
+
+        // Placeholder for the number of users on the waiting list.
+        $params->numberwaitinglist = strval(count(self::get_all_users_on_waitinglist()));
+
+        // Add placeholders for additional user fields.
+        if (isset($user->username)) {
+            $params->username = $user->username;
+        }
+        if (isset($user->firstname)) {
+            $params->firstname = $user->firstname;
+        }
+        if (isset($user->lastname)) {
+            $params->lastname = $user->lastname;
+        }
+        if (isset($user->department)) {
+            $params->department = $user->department;
+        }
+
+        // Get bookingoption_description instance for rendering certain data.
+        $params->teachers = $optionsettings->render_list_of_teachers();
+
+        // Params for individual teachers.
+        $i = 1;
+        foreach ($optionsettings->teachers as $teacher) {
+            $params->{"teacher" . $i} = $teacher->firstname . ' ' . $teacher->lastname;
+            $i++;
+        }
+        // If there's only one teacher, we can use either {teacher} or {teacher1}.
+        if (!empty($params->teacher1)) {
+            $params->teacher = $params->teacher1;
+        } else {
+            $params->teacher = '';
+        }
+
+        // Add user profile fields to e-mail params.
+        // If user profile fields are missing, we need to load them correctly.
+        if (empty($user->profile)) {
+            $user->profile = [];
+            profile_load_data($user);
+            foreach ($user as $userkey => $uservalue) {
+                if (substr($userkey, 0, 14) == "profile_field_") {
+                    $profilefieldkey = str_replace('profile_field_', '', $userkey);
+                    $user->profile[$profilefieldkey] = $uservalue;
+                }
+            }
+        }
+        foreach ($user->profile as $profilefieldkey => $profilefieldvalue) {
+            // Ignore fields that use a param name that is already in use.
+            if (!isset($params->{$profilefieldkey})) {
+                // Example: There is a user profile field called "Title".
+                // We can now use the placeholder {Title}. (Keep in mind that this is case-sensitive!).
+                $params->{$profilefieldkey} = $profilefieldvalue;
+            }
+        }
+
+        // Add a param to the option's teachers report (training journal).
+        $teachersreportlink = new \moodle_url('/mod/booking/optiondates_teachers_report.php', [
+            'id' => $cmid,
+            'optionid' => $optionid,
+        ]);
+        $params->journal = \html_writer::link($teachersreportlink, $teachersreportlink->out());
+
+        return $params;
     }
 }

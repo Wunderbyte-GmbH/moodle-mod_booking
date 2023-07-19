@@ -184,135 +184,28 @@ class message_controller {
         // Resolve the correct message fieldname.
         $this->messagefieldname = $this->get_message_fieldname();
 
-        // Generate user data.
+        // Generate user data and email placeholder params.
         if ($userid == $USER->id) {
             $this->user = $USER;
+            // For the logged-in user, we already have the params cached in booking option settings.
+            $this->params = $this->optionsettings->params;
         } else {
             $this->user = singleton_service::get_instance_of_user($userid);
+            $this->params = booking_option::get_placeholder_params($optionid, $userid);
         }
 
-        // Generate email params.
-        $this->params = $this->get_email_params();
-
-        // Generate the email body.
-        $this->messagebody = $this->get_email_body();
-
-        // For adhoc task mails, we need to prepare data differently.
-        if ($this->msgcontrparam == MSGCONTRPARAM_QUEUE_ADHOC) {
-            $this->messagedata = $this->get_message_data_queue_adhoc();
-        } else {
-            $this->messagedata = $this->get_message_data_send_now();
-        }
-    }
-
-    /**
-     * Prepares the email parameters.
-     * @return stdClass data to be sent via mail
-     */
-    private function get_email_params(): stdClass {
-
-        global $CFG;
-
-        $params = new stdClass();
-
-        $timeformat = get_string('strftimetime', 'langconfig');
-        $dateformat = get_string('strftimedate', 'langconfig');
-
-        $courselink = '';
-        if ($this->optionsettings->courseid) {
-            $courselink = new \moodle_url('/course/view.php', array('id' => $this->optionsettings->courseid));
-            $courselink = \html_writer::link($courselink, $courselink->out());
-        }
-        $bookinglink = new \moodle_url('/mod/booking/view.php', array('id' => $this->cmid));
-        $bookinglink = \html_writer::link($bookinglink, $bookinglink->out());
-
-        // We add the URLs for the user to subscribe to user and course event calendar.
-        $bu = new booking_utils();
-
-        // These links will not be clickable (beacuse they will be copied by users).
-        $params->usercalendarurl = '<a href="#" style="text-decoration:none; color:#000">' .
-        $bu->booking_generate_calendar_subscription_link($this->user, 'user') .
-        '</a>';
-
-        $params->coursecalendarurl = '<a href="#" style="text-decoration:none; color:#000">' .
-        $bu->booking_generate_calendar_subscription_link($this->user, 'courses') .
-        '</a>';
-
-        // Add a placeholder with a link to go to the current booking option.
-        $gotobookingoptionlink = new \moodle_url($CFG->wwwroot . '/mod/booking/view.php', array(
-            'id' => $this->cmid,
-            'optionid' => $this->optionid,
-            'whichview' => 'showonlyone'
-        ));
-        $params->gotobookingoption = \html_writer::link($gotobookingoptionlink, $gotobookingoptionlink->out());
-
-        // Important: We have to delete answers cache before calling $bookinganswer->user_status.
-        $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
-        $data = $cache->delete($this->optionid);
-        $bookinganswer = singleton_service::get_instance_of_booking_answers($this->optionsettings);
-        $params->status = $this->option->get_user_status_string($this->userid, $bookinganswer->user_status($this->userid));
-
-        $params->qr_id = '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' .
-            rawurlencode($this->userid) . '&choe=UTF-8" title="Link to Google.com" />';
-        $params->qr_username = isset($this->user->username) ?
-            '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' .
-            rawurlencode($this->user->username) . '&choe=UTF-8" title="QR encoded username" />' : '';
-        $params->participant = fullname($this->user);
-        $params->email = $this->user->email ?? '';
-        $params->title = format_string($this->optionsettings->get_title_with_prefix());
-        $params->duration = $this->bookingsettings->duration;
-        $params->starttime = $this->optionsettings->coursestarttime ?
-            userdate($this->optionsettings->coursestarttime, $timeformat) : '';
-        $params->endtime = $this->optionsettings->courseendtime ?
-            userdate($this->optionsettings->courseendtime, $timeformat) : '';
-        $params->startdate = $this->optionsettings->coursestarttime ?
-            userdate($this->optionsettings->coursestarttime, $dateformat) : '';
-        $params->enddate = $this->optionsettings->courseendtime ?
-            userdate($this->optionsettings->courseendtime, $dateformat) : '';
-        $params->courselink = $courselink;
-        $params->bookinglink = $bookinglink;
-        $params->location = $this->optionsettings->location;
-        $params->institution = $this->optionsettings->institution;
-        $params->address = $this->optionsettings->address;
-        $params->eventtype = $this->bookingsettings->eventtype;
-        $params->shorturl = $this->optionsettings->shorturl;
-        $params->pollstartdate = $this->optionsettings->coursestarttime ?
-            userdate((int) $this->optionsettings->coursestarttime, get_string('pollstrftimedate', 'booking')) : '';
-        if (empty($this->optionsettings->pollurl)) {
-            $params->pollurl = $this->bookingsettings->pollurl;
-        } else {
-            $params->pollurl = $this->optionsettings->pollurl;
-        }
-        if (empty($this->optionsettings->pollurlteachers)) {
-            $params->pollurlteachers = $this->bookingsettings->pollurlteachers;
-        } else {
-            $params->pollurlteachers = $this->optionsettings->pollurlteachers;
-        }
-
-        // Placeholder for the number of booked users.
-        $params->numberparticipants = strval(count($this->option->get_all_users_booked()));
-
-        // Placeholder for the number of users on the waiting list.
-        $params->numberwaitinglist = strval(count($this->option->get_all_users_on_waitinglist()));
-
-        // If there are changes, let's render them.
-        if (!empty($this->changes)) {
-            $data = new bookingoption_changes($this->changes, $this->cmid);
-            $params->changes = $this->output->render_bookingoption_changes($data);
-        }
-
+        // E-Mail specific params.
         switch ($this->msgcontrparam) {
             case MSGCONTRPARAM_SEND_NOW:
             case MSGCONTRPARAM_QUEUE_ADHOC:
+                // We overwrite {bookingdetails} here, so we have a description for e-mails (website description is default).
                 // Add placeholder {bookingdetails} so we can add the detailed option description (similar to calendar, modal...
                 // ... and ical) to mails.
-                $params->bookingdetails = get_rendered_eventdescription($this->optionsettings->id,
-                    $this->cmid, DESCRIPTION_MAIL);
+                $this->params->bookingdetails = get_rendered_eventdescription($optionid, $cmid, DESCRIPTION_MAIL);
                 break;
             case MSGCONTRPARAM_VIEW_CONFIRMATION:
                 // For viewconfirmation.php.
-                $params->bookingdetails = get_rendered_eventdescription($this->optionsettings->id,
-                    $this->cmid, DESCRIPTION_WEBSITE);
+                $this->params->bookingdetails = get_rendered_eventdescription($optionid, $cmid, DESCRIPTION_WEBSITE);
                 break;
             case MSGCONTRPARAM_DO_NOT_SEND:
             default:
@@ -321,7 +214,6 @@ class message_controller {
 
         // Params for session reminders.
         if ($this->messageparam == MSGPARAM_SESSIONREMINDER) {
-
             // For session reminders we only have ONE session.
             $sessions = [];
             foreach ($this->optionsettings->sessions as $session) {
@@ -331,73 +223,27 @@ class message_controller {
                     }
                 }
             }
-
             // Render optiontimes using a template.
             $data = new optiondates_only($this->optionsettings);
-            $params->dates = $this->output->render_optiondates_only($data);
-
+            $this->params->dates = $this->output->render_optiondates_only($data);
             // Rendered session description.
-            $params->sessiondescription = get_rendered_eventdescription($this->optionid, $this->cmid, DESCRIPTION_CALENDAR);
+            $this->params->sessiondescription = get_rendered_eventdescription($this->optionid, $this->cmid, DESCRIPTION_CALENDAR);
 
         } else {
             // Render optiontimes using a template.
             $data = new optiondates_only($this->optionsettings);
-            $params->dates = $this->output->render_optiondates_only($data);
+            $this->params->dates = $this->output->render_optiondates_only($data);
         }
 
-        // Add placeholders for additional user fields.
-        if (isset($this->user->username)) {
-            $params->username = $this->user->username;
-        }
-        if (isset($this->user->firstname)) {
-            $params->firstname = $this->user->firstname;
-        }
-        if (isset($this->user->lastname)) {
-            $params->lastname = $this->user->lastname;
-        }
-        if (isset($this->user->department)) {
-            $params->department = $this->user->department;
+        // If there are changes, let's render them.
+        // We need the {changes} placeholder for change notifications.
+        if (!empty($changes)) {
+            $data = new bookingoption_changes($changes, $cmid);
+            $this->params->changes = $this->output->render_bookingoption_changes($data);
         }
 
-        // Get bookingoption_description instance for rendering certain data.
-        $params->teachers = $this->optionsettings->render_list_of_teachers();
-
-        // Params for individual teachers.
-        $i = 1;
-        foreach ($this->optionsettings->teachers as $teacher) {
-            $params->{"teacher" . $i} = $teacher->firstname . ' ' . $teacher->lastname;
-            $i++;
-        }
-        // If there's only one teacher, we can use either {teacher} or {teacher1}.
-        if (!empty($params->teacher1)) {
-            $params->teacher = $params->teacher1;
-        } else {
-            $params->teacher = '';
-        }
-
-        // Add user profile fields to e-mail params.
-        // If user profile fields are missing, we need to load them correctly.
-        if (empty($this->user->profile)) {
-            $this->user->profile = [];
-            profile_load_data($this->user);
-            foreach ($this->user as $userkey => $uservalue) {
-                if (substr($userkey, 0, 14) == "profile_field_") {
-                    $profilefieldkey = str_replace('profile_field_', '', $userkey);
-                    $this->user->profile[$profilefieldkey] = $uservalue;
-                }
-            }
-        }
-        foreach ($this->user->profile as $profilefieldkey => $profilefieldvalue) {
-            // Ignore fields that use a param name that is already in use.
-            if (!isset($params->{$profilefieldkey})) {
-                // Example: There is a user profile field called "Title".
-                // We can now use the placeholder {Title}. (Keep in mind that this is case-sensitive!).
-                $params->{$profilefieldkey} = $profilefieldvalue;
-            }
-        }
-
-        // Add a param for the user profile picture.
-        if ($usercontext = context_user::instance($this->userid, IGNORE_MISSING)) {
+        // Add a param for the user profile picture so we can show it in e-mails.
+        if ($usercontext = context_user::instance($userid, IGNORE_MISSING)) {
             $fs = get_file_storage();
             $files = $fs->get_area_files($usercontext->id, 'user', 'icon');
             $picturefile = null;
@@ -414,20 +260,21 @@ class message_controller {
                 $picturedata = $picturefile->get_content();
                 $picturebase64 = base64_encode($picturedata);
                 // Now load the HTML of the image into the profilepicture param.
-                $params->profilepicture = '<img src="data:image/image;base64,' . $picturebase64 . '" />';
+                $this->params->profilepicture = '<img src="data:image/image;base64,' . $picturebase64 . '" />';
             } else {
-                $params->profilepicture = '';
+                $this->params->profilepicture = '';
             }
         }
 
-        // Add a param to the option's teachers report (training journal).
-        $teachersreportlink = new \moodle_url('/mod/booking/optiondates_teachers_report.php', [
-            'id' => $this->cmid,
-            'optionid' => $this->optionid,
-        ]);
-        $params->journal = \html_writer::link($teachersreportlink, $teachersreportlink->out());
+        // Generate the email body.
+        $this->messagebody = $this->get_email_body();
 
-        return $params;
+        // For adhoc task mails, we need to prepare data differently.
+        if ($this->msgcontrparam == MSGCONTRPARAM_QUEUE_ADHOC) {
+            $this->messagedata = $this->get_message_data_queue_adhoc();
+        } else {
+            $this->messagedata = $this->get_message_data_send_now();
+        }
     }
 
     /**
