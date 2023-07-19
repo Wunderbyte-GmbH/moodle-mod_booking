@@ -31,7 +31,7 @@ use stdClass;
 use html_writer;
 use local_entities\entitiesrelation_handler;
 use mod_booking\customfield\booking_handler;
-use mod_booking\dates_handler;
+use mod_booking\option\dates_handler;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use mod_booking\teachers_handler;

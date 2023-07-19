@@ -28,7 +28,7 @@ use moodle_exception;
 use renderer_base;
 use renderable;
 use templatable;
-use mod_booking\dates_handler;
+use mod_booking\option\dates_handler;
 
 /**
  * This class prepares data for displaying a booking instance

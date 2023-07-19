@@ -302,12 +302,6 @@ class teachers_handler {
     public static function remove_teachers_from_deleted_optiondate(int $optiondateid) {
         global $DB;
 
-        if (empty($optiondateid)) {
-            throw new moodle_exception(
-                'Could not delete teacher(s) from the deleted optiondate because of missing optiondateid.'
-            );
-        }
-
         // Delete all entries in booking_optiondates_teachers associated with the optiondate.
         $DB->delete_records('booking_optiondates_teachers', ['optiondateid' => $optiondateid]);
 

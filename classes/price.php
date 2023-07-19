@@ -18,6 +18,7 @@ namespace mod_booking;
 
 use cache_helper;
 use context_system;
+use mod_booking\option\dates_handler;
 use MoodleQuickForm;
 use stdClass;
 use lang_string;

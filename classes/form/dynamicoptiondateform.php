@@ -34,7 +34,7 @@ use context;
 use context_module;
 use core_form\dynamic_form;
 use moodle_url;
-use mod_booking\dates_handler;
+use mod_booking\option\dates_handler;
 use stdClass;
 
 /**

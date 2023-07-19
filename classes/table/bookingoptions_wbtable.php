@@ -33,7 +33,7 @@ use stdClass;
 use mod_booking\booking;
 use mod_booking\booking_bookit;
 use mod_booking\booking_option;
-use mod_booking\dates_handler;
+use mod_booking\option\dates_handler;
 use mod_booking\output\col_availableplaces;
 use mod_booking\output\col_teacher;
 use mod_booking\price;

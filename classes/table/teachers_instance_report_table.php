@@ -23,7 +23,7 @@ global $CFG;
 require_once(__DIR__ . '/../../lib.php');
 require_once($CFG->libdir.'/tablelib.php');
 
-use mod_booking\dates_handler;
+use mod_booking\option\dates_handler;
 use moodle_url;
 use table_sql;
 

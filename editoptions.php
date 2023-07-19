@@ -34,7 +34,7 @@ use mod_booking\customfield\booking_handler;
 use mod_booking\price;
 use local_entities\entitiesrelation_handler;
 use mod_booking\bo_availability\bo_info;
-use mod_booking\dates_handler;
+use mod_booking\option\dates_handler;
 
 global $DB, $OUTPUT, $PAGE, $USER;
 

@@ -25,6 +25,7 @@ use dml_exception;
 use Exception;
 use invalid_parameter_exception;
 use local_entities\entitiesrelation_handler;
+use mod_booking\option\dates_handler;
 use stdClass;
 use moodle_url;
 use mod_booking\booking_utils;
@@ -1897,6 +1898,18 @@ class booking_option {
             $DB->insert_record('booking_subbooking_options', $sb);
         }
         return $optionid;
+    }
+
+    /**
+     * This function transform each option date into a separate booking option.
+     * The result is going to be a booking option with a single date for each option date present.
+     * The original booking option will have the date which is nearest to now.
+     *
+     * @return void
+     */
+    public function transform_optiondates_to_option(){
+        // TODO. This has to be programmed.
+        $dateobjects = dates_handler::return_array_of_sessions_datestrings($this->optionid);
     }
 
     // Print custom report.

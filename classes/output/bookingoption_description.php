@@ -31,7 +31,7 @@ use mod_booking\booking;
 use mod_booking\booking_answers;
 use mod_booking\booking_bookit;
 use mod_booking\booking_option;
-use mod_booking\dates_handler;
+use mod_booking\option\dates_handler;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use moodle_url;

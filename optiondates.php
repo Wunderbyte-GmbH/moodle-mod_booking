@@ -25,7 +25,7 @@ use local_entities\entitiesrelation_handler;
 use mod_booking\booking_option;
 use mod_booking\calendar;
 use mod_booking\form\optiondatesadd_form;
-use mod_booking\dates_handler;
+use mod_booking\option\dates_handler;
 use mod_booking\singleton_service;
 use mod_booking\teachers_handler;
 
@@ -39,7 +39,7 @@ $optionid = required_param('optionid', PARAM_INT);
 $delete = optional_param('delete', '', PARAM_INT);
 $duplicate = optional_param('duplicate', '', PARAM_INT);
 $edit = optional_param('edit', '', PARAM_INT);
-$split = optional_param('split', PARAM_BOOL);
+$split = optional_param('split', false, PARAM_BOOL);
 $url = new moodle_url('/mod/booking/optiondates.php', array('id' => $id, 'optionid' => $optionid));
 $PAGE->set_url($url);
 
@@ -66,59 +66,10 @@ $bu = new \mod_booking\booking_utils($booking, $bookingoption);
 
 if ($delete != '') {
     $changes = [];
-    // If there is an associated calendar event, delete it first.
     if ($optiondate = $DB->get_record('booking_optiondates', ['id' => $delete])) {
-        $DB->delete_records('event', ['id' => $optiondate->eventid]);
-
-        // Also, clean all associated user records.
-        $records = $DB->get_records('booking_userevents', array('optiondateid' => $delete));
-
-        foreach ($records as $record) {
-            $DB->delete_records('event', array('id' => $record->eventid));
-            $DB->delete_records('booking_userevents', array('id' => $record->id));
-        }
-
-        // Also store the changes so they can be sent in an update mail.
-        $changes[] = ['info' => get_string('changeinfosessiondeleted', 'booking'),
-                      'fieldname' => 'coursestarttime',
-                      'oldvalue' => $optiondate->coursestarttime];
-        $changes[] = ['fieldname' => 'courseendtime',
-                      'oldvalue' => $optiondate->courseendtime];
+        $datehandler = new dates_handler($bookingoption->id, $booking->id);
+        $datehandler->delete_option_date($optiondate);
     }
-
-    // Now we can delete the session.
-    $DB->delete_records('booking_optiondates', array('optionid' => $optionid, 'id' => $delete));
-
-    // We also need to delete the associated records in booking_optiondates_teachers.
-    teachers_handler::remove_teachers_from_deleted_optiondate($delete);
-
-    // If there is an associated entity, delete it too.
-    if (class_exists('local_entities\entitiesrelation_handler')) {
-        $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
-        $erhandler->delete_relation($delete);
-    }
-
-    // If there are no sessions left, we switch from multisession to simple option.
-    if (!$DB->get_records('booking_optiondates', ['optionid' => $optionid])) {
-        $bu = new \mod_booking\booking_utils();
-        $bu->booking_show_option_userevents($optionid);
-    }
-
-    booking_updatestartenddate($optionid);
-
-    // Delete associated custom fields.
-    dates_handler::optiondate_deletecustomfields($delete);
-
-    // After deleting, we invalidate caches.
-    booking_option::purge_cache_for_option($optionid);
-
-    // If there have been significant changes, we have to resend an e-mail (containing an updated ical)...
-    // ...and the information about the changes..
-    if (!empty($changes)) {
-        // Set no update to true, so the original.
-        $bu->react_on_changes($cm->id, $context, $optionid, $changes, true);
-    }
-
     redirect($url, get_string('optiondatessuccessfullydelete', 'booking'), 5);
 }
 

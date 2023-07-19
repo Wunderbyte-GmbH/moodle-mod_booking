@@ -20,7 +20,7 @@ use context_module;
 use local_entities\entitiesrelation_handler;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
-use mod_booking\dates_handler;
+use mod_booking\option\dates_handler;
 use mod_booking\output\subbooking_timeslot_output;
 use mod_booking\price;
 use mod_booking\singleton_service;

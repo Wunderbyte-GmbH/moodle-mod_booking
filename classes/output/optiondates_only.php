@@ -26,7 +26,7 @@
 namespace mod_booking\output;
 
 use mod_booking\booking_option_settings;
-use mod_booking\dates_handler;
+use mod_booking\option\dates_handler;
 use renderer_base;
 use renderable;
 use templatable;

@@ -28,7 +28,6 @@ use mod_booking\booking_campaigns\booking_campaign;
 use moodle_exception;
 use stdClass;
 use moodle_url;
-use User;
 
 /**
  * Settings class for booking option instances.

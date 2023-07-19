@@ -31,7 +31,7 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\booking_utils;
-use mod_booking\dates_handler;
+use mod_booking\option\dates_handler;
 use mod_booking\elective;
 use mod_booking\output\coursepage_shortinfo_and_button;
 use mod_booking\singleton_service;

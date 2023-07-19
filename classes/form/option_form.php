@@ -37,7 +37,7 @@ use local_entities\entitiesrelation_handler;
 use local_entities\local\entities\entitydate;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\subbookings\subbookings_info;
-use mod_booking\dates_handler;
+use mod_booking\option\dates_handler;
 use mod_booking\elective;
 use mod_booking\teachers_handler;
 use moodle_url;

@@ -17,7 +17,7 @@
 namespace mod_booking\form;
 
 use html_writer;
-use mod_booking\dates_handler;
+use mod_booking\option\dates_handler;
 use stdClass;
 
 /**
