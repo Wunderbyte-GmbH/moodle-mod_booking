@@ -676,7 +676,7 @@ class booking {
      * @return bool
      */
     public function is_elective() {
-        if ($this->settings->iselective == 1) {
+        if (isset($this->settings->iselective) && $this->settings->iselective == 1) {
             return true;
         }
         return false;
@@ -688,8 +688,8 @@ class booking {
      * @return bool
      */
     public function uses_credits() {
-        if ($this->settings->iselective == 1
-                && $this->settings->maxcredits > 0) {
+        if (isset($this->settings->iselective) && $this->settings->iselective == 1
+                && isset($this->settings->maxcredits) && $this->settings->maxcredits > 0) {
             return true;
         }
         return false;
