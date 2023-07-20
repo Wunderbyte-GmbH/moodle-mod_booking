@@ -454,7 +454,7 @@ class option_form extends moodleform {
         $price->add_price_to_mform($mform);
 
         // If the form is no elective, and we can pay with credits, we can actually use this.
-        if (empty($booking->iselective)) {
+        if (!$booking->is_elective() && $booking->uses_credits()) {
             $mform->addElement('text', 'credits', get_string('credits', 'mod_booking'));
             $mform->setType('credits', PARAM_INT);
         }
