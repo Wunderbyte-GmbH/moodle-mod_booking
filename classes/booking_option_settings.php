@@ -440,14 +440,6 @@ class booking_option_settings {
                 $this->imageurl = $dbrecord->imageurl;
             }
 
-            // If the key "params" is not yet set, we need to load them (which is quite expensive).
-            if (!isset($dbrecord->params)) {
-                $this->params = booking_option::get_placeholder_params($optionid);
-                $dbrecord->params = $this->params;
-            } else {
-                $this->params = $dbrecord->params;
-            }
-
             // If the key "sessions" is not yet set, we need to load from DB.
             if (!isset($dbrecord->sessions)) {
                 $this->load_sessions_from_db($optionid);

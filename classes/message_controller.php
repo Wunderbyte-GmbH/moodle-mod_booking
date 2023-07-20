@@ -124,7 +124,7 @@ class message_controller {
         int $optionid, int $userid, int $optiondateid = null, $changes = null,
         string $customsubject = '', string $custommessage = '') {
 
-        global $DB, $USER, $PAGE;
+        global $USER, $PAGE;
 
         // TODO: This is a bad idea. We need to find out the correct places where we really need to purge!
         // Purge booking instance settings before sending mails to make sure, we use correct data.
@@ -154,7 +154,11 @@ class message_controller {
         $this->optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $this->output = $PAGE->get_renderer('mod_booking');
 
-        if (empty($this->optionsettings->id)) {
+        // For easy access.
+        $settings = $this->optionsettings;
+        $optionid = $settings->id;
+
+        if (empty($optionid)) {
             debugging('ERROR: Option settings could not be created. Most probably, the option was deleted from DB.',
                 DEBUG_DEVELOPER);
             return;
@@ -184,17 +188,17 @@ class message_controller {
         // Resolve the correct message fieldname.
         $this->messagefieldname = $this->get_message_fieldname();
 
-        // Generate user data and email placeholder params.
+        // Generate user data.
         if ($userid == $USER->id) {
             $this->user = $USER;
-            // For the logged-in user, we already have the params cached in booking option settings.
-            $this->params = $this->optionsettings->params;
         } else {
             $this->user = singleton_service::get_instance_of_user($userid);
-            $this->params = booking_option::get_placeholder_params($optionid, $userid);
         }
 
-        // E-Mail specific params.
+        // Generate e-mail placeholder params.
+        $this->params = booking_option::get_placeholder_params($optionid, $userid);
+
+        // Now we add e-mail specific params.
         switch ($this->msgcontrparam) {
             case MSGCONTRPARAM_SEND_NOW:
             case MSGCONTRPARAM_QUEUE_ADHOC:
@@ -216,7 +220,7 @@ class message_controller {
         if ($this->messageparam == MSGPARAM_SESSIONREMINDER) {
             // For session reminders we only have ONE session.
             $sessions = [];
-            foreach ($this->optionsettings->sessions as $session) {
+            foreach ($settings->sessions as $session) {
                 if (!empty($session->optiondateid) && !empty($this->optiondateid)) {
                     if ($session->optiondateid == $this->optiondateid) {
                         $sessions[] = $session;
@@ -224,14 +228,14 @@ class message_controller {
                 }
             }
             // Render optiontimes using a template.
-            $data = new optiondates_only($this->optionsettings);
+            $data = new optiondates_only($settings);
             $this->params->dates = $this->output->render_optiondates_only($data);
             // Rendered session description.
             $this->params->sessiondescription = get_rendered_eventdescription($this->optionid, $this->cmid, DESCRIPTION_CALENDAR);
 
         } else {
             // Render optiontimes using a template.
-            $data = new optiondates_only($this->optionsettings);
+            $data = new optiondates_only($settings);
             $this->params->dates = $this->output->render_optiondates_only($data);
         }
 

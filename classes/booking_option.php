@@ -509,6 +509,8 @@ class booking_option {
     public function get_text_depending_on_status(booking_answers $bookinganswers, ?int $userid = null) {
         global $USER, $PAGE;
 
+        // Notice: For performance reasons, we stopped supporting placeholders here!
+
         // With shortcodes & webservice we might not have a valid context object.
         if (!isset($PAGE->context) || !$context = $PAGE->context ?? null) {
             if (empty($context)) {
@@ -517,23 +519,6 @@ class booking_option {
         }
 
         $userid = $userid ?? $USER->id;
-
-        // We stop supporting placeholders here as it can lead to memory overflow.
-        /* $generateparams = false;
-        if ((strpos($this->option->aftercompletedtext, '{') !== false) ||
-            (strpos($this->option->beforecompletedtext, '{') !== false) ||
-            (strpos($this->option->beforebookedtext, '{') !== false)
-        ) {
-            if ($userid == $USER->id) {
-                // For the logged-in user, we have the params already cached.
-                $params = $this->settings->params;
-            } else {
-                // If it's another user, we have to re-generate the params.
-                $params = self::get_placeholder_params($this->optionid, $userid);
-            }
-        } else {
-            $params = [];
-        }*/
 
         $text = "";
 
@@ -559,16 +544,6 @@ class booking_option {
                 $text = format_text($this->booking->settings->beforebookedtext, FORMAT_HTML, $this->booking->course->id);
             }
         }
-
-        // Now we replace the placeholder params if necessary.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* if (!empty($params)) {
-            foreach ($params as $name => $value) {
-                if (!is_null($value)) { // Since php 8.1.
-                    $text = str_replace('{' . $name . '}', $value, $text);
-                }
-            }
-        }*/
 
         return $text;
     }
@@ -2990,10 +2965,6 @@ class booking_option {
      * Function to load all params used by {placeholders} (e.g. for mail templates).
      * @param int $optionid option id
      * @param int $userid optional user id, if not provided the logged in $USER will be used
-     * @param int $messageparam optional
-     * @param int $messagecontrolparam optional
-     * @param array $changes optional changes array
-     * @param int $optiondateid optional optiondate id of a specific session (for session reminders only)
      */
     public static function get_placeholder_params(int $optionid, int $userid = 0) {
 
@@ -3001,21 +2972,21 @@ class booking_option {
 
         $params = new stdClass();
 
-        $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        $cmid = $optionsettings->cmid;
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $cmid = $settings->cmid;
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+        $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
         if (empty($userid)) {
             $userid = $USER->id;
         }
         $user = singleton_service::get_instance_of_user($userid);
-        $output = $PAGE->get_renderer('mod_booking');
 
         $timeformat = get_string('strftimetime', 'langconfig');
         $dateformat = get_string('strftimedate', 'langconfig');
 
         $courselink = '';
-        if ($optionsettings->courseid) {
-            $courselink = new \moodle_url('/course/view.php', array('id' => $optionsettings->courseid));
+        if ($settings->courseid) {
+            $courselink = new \moodle_url('/course/view.php', array('id' => $settings->courseid));
             $courselink = \html_writer::link($courselink, $courselink->out());
         }
         $bookinglink = new \moodle_url('/mod/booking/view.php', array('id' => $cmid));
@@ -3044,8 +3015,8 @@ class booking_option {
         // Important: We have to delete answers cache before calling $bookinganswer->user_status.
         $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
         $data = $cache->delete($optionid);
-        $bookinganswer = singleton_service::get_instance_of_booking_answers($optionsettings);
-        $params->status = self::get_user_status_string($userid, $bookinganswer->user_status($userid));
+        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+        $params->status = $bookingoption->get_user_status_string($userid, $bookinganswer->user_status($userid));
 
         $params->qr_id = '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' .
             rawurlencode($userid) . '&choe=UTF-8" title="Link to Google.com" />';
@@ -3055,41 +3026,41 @@ class booking_option {
 
         $params->participant = fullname($user);
         $params->email = $user->email ?? '';
-        $params->title = format_string($optionsettings->get_title_with_prefix());
+        $params->title = format_string($settings->get_title_with_prefix());
         $params->duration = $bookingsettings->duration;
-        $params->starttime = $optionsettings->coursestarttime ?
-            userdate($optionsettings->coursestarttime, $timeformat) : '';
-        $params->endtime = $optionsettings->courseendtime ?
-            userdate($optionsettings->courseendtime, $timeformat) : '';
-        $params->startdate = $optionsettings->coursestarttime ?
-            userdate($optionsettings->coursestarttime, $dateformat) : '';
-        $params->enddate = $optionsettings->courseendtime ?
-            userdate($optionsettings->courseendtime, $dateformat) : '';
+        $params->starttime = $settings->coursestarttime ?
+            userdate($settings->coursestarttime, $timeformat) : '';
+        $params->endtime = $settings->courseendtime ?
+            userdate($settings->courseendtime, $timeformat) : '';
+        $params->startdate = $settings->coursestarttime ?
+            userdate($settings->coursestarttime, $dateformat) : '';
+        $params->enddate = $settings->courseendtime ?
+            userdate($settings->courseendtime, $dateformat) : '';
         $params->courselink = $courselink;
         $params->bookinglink = $bookinglink;
-        $params->location = $optionsettings->location;
-        $params->institution = $optionsettings->institution;
-        $params->address = $optionsettings->address;
+        $params->location = $settings->location;
+        $params->institution = $settings->institution;
+        $params->address = $settings->address;
         $params->eventtype = $bookingsettings->eventtype;
-        $params->shorturl = $optionsettings->shorturl;
-        $params->pollstartdate = $optionsettings->coursestarttime ?
-            userdate((int) $optionsettings->coursestarttime, get_string('pollstrftimedate', 'booking')) : '';
-        if (empty($optionsettings->pollurl)) {
+        $params->shorturl = $settings->shorturl;
+        $params->pollstartdate = $settings->coursestarttime ?
+            userdate((int) $settings->coursestarttime, get_string('pollstrftimedate', 'booking')) : '';
+        if (empty($settings->pollurl)) {
             $params->pollurl = $bookingsettings->pollurl;
         } else {
-            $params->pollurl = $optionsettings->pollurl;
+            $params->pollurl = $settings->pollurl;
         }
-        if (empty($optionsettings->pollurlteachers)) {
+        if (empty($settings->pollurlteachers)) {
             $params->pollurlteachers = $bookingsettings->pollurlteachers;
         } else {
-            $params->pollurlteachers = $optionsettings->pollurlteachers;
+            $params->pollurlteachers = $settings->pollurlteachers;
         }
 
         // Placeholder for the number of booked users.
-        $params->numberparticipants = strval(count(self::get_all_users_booked()));
+        $params->numberparticipants = strval(count($bookingoption->get_all_users_booked()));
 
         // Placeholder for the number of users on the waiting list.
-        $params->numberwaitinglist = strval(count(self::get_all_users_on_waitinglist()));
+        $params->numberwaitinglist = strval(count($bookingoption->get_all_users_on_waitinglist()));
 
         // Add placeholders for additional user fields.
         if (isset($user->username)) {
@@ -3106,11 +3077,11 @@ class booking_option {
         }
 
         // Get bookingoption_description instance for rendering certain data.
-        $params->teachers = $optionsettings->render_list_of_teachers();
+        $params->teachers = $settings->render_list_of_teachers();
 
         // Params for individual teachers.
         $i = 1;
-        foreach ($optionsettings->teachers as $teacher) {
+        foreach ($settings->teachers as $teacher) {
             $params->{"teacher" . $i} = $teacher->firstname . ' ' . $teacher->lastname;
             $i++;
         }
