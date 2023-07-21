@@ -95,7 +95,7 @@ class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
 
                 // We update enrolement status of this option only if it's not an elective.
                 if (empty($bookingsettings->iselective)) {
-                    list($insql, $params) = $DB->get_in_or_equal(array_keys($optionid));
+                    list($insql, $params) = $DB->get_in_or_equal([$optionid]);
                     $DB->set_field_select('booking_options', 'enrolmentstatus', '1', 'id ' . $insql, $params);
                 }
 
