@@ -145,7 +145,8 @@ class booking_option {
      * @param int $perpage options per page
      * @param bool $getusers Get booked users via DB query
      */
-    public function __construct(int $cmid, int $optionid, array $filters = array(), int $page = 0, int $perpage = 0, bool $getusers = true) {
+    public function __construct(int $cmid, int $optionid, array $filters = array(), int $page = 0, int $perpage = 0,
+            bool $getusers = true) {
 
         $this->cmid = $cmid;
 
@@ -157,7 +158,7 @@ class booking_option {
 
         if (empty($this->settings->id)) {
             debugging('ERROR: Option settings could not be created. Most probably, the option was deleted from DB.',
-                DEBUG_DEVELOPER);
+                    DEBUG_DEVELOPER);
             return;
         }
 

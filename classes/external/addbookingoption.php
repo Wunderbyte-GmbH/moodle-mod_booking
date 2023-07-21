@@ -142,7 +142,7 @@ class addbookingoption extends external_api {
                 'Default is 0 and visible. 1 will make the option invisible to students.', (bool) VALUE_DEFAULT, 0),
             'responsiblecontact' => new external_value(PARAM_RAW,
                 'Responsible contact as e-mail. Only one possible.', (bool) VALUE_DEFAULT, ''),
-            'boav_enrolledincourse' => new external_value(PARAM_RAW,
+            'boavenrolledincourse' => new external_value(PARAM_RAW,
                 'Booking Condition enrolled courses with shortnames, comma separated', (bool) VALUE_DEFAULT, ''),
             'recommendedin' => new external_value(PARAM_RAW,
                 'This is for the recommendedin-feature and takes the shortnames of the courses, separated by commas.',
@@ -254,7 +254,7 @@ class addbookingoption extends external_api {
                         'courseendtime' => $courseendtime,
                         'invisible' => $invisible,
                         'responsiblecontact' => $responsiblecontact,
-                        'boav_enrolledincourse' => $boavenrolledincourse,
+                        'boavenrolledincourse' => $boavenrolledincourse,
                         'recommendedin' => $recommendedin,
                         'mergeparam' => $mergeparam
                     ));

@@ -147,7 +147,7 @@ class dates_handler {
         $id = $date->id;
 
         // If there is an associated calendar event, delete it first.
-        if($date->eventid !== null && $date->eventid !== 0) {
+        if ($date->eventid !== null && $date->eventid !== 0) {
             $DB->delete_records('event', ['id' => $date->eventid]);
             // Store the changes so they can be sent in an update mail.
             $changes[] = ['info' => get_string('changeinfosessiondeleted', 'booking'),
@@ -159,7 +159,7 @@ class dates_handler {
 
         // Also, clean all associated user records.
         $records = $DB->get_records('booking_userevents', ['optiondateid' => $id]);
-        if (!empty($records)){
+        if (!empty($records)) {
             foreach ($records as $record) {
                 $DB->delete_records('event', array('id' => $record->eventid));
                 $DB->delete_records('booking_userevents', array('id' => $record->id));
@@ -174,7 +174,6 @@ class dates_handler {
 
         // Finally delete the option date.
         $DB->delete_records('booking_optiondates', ['id' => $id]);
-
 
         // We also need to delete any associated entities.
         // If there is an associated relation to the entity, delete it too.

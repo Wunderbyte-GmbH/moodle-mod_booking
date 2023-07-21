@@ -341,9 +341,9 @@ class webservice_import {
 
         }
 
-        if (!empty($data->boav_enrolledincourse)) {
+        if (!empty($data->boavenrolledincourse)) {
 
-            $items = explode(',', $data->boav_enrolledincourse);
+            $items = explode(',', $data->boavenrolledincourse);
 
             list($inorequal, $params) = $DB->get_in_or_equal($items, SQL_PARAMS_NAMED);
             $sql = "SELECT id
@@ -353,7 +353,7 @@ class webservice_import {
 
             $data->bo_cond_enrolledincourse_courseids = array_keys($courses);
             $data->restrictwithenrolledincourse = 1;
-            unset($data->boav_enrolledincourse);
+            unset($data->boavenrolledincourse);
         }
 
         if (!empty($data->enroltocourseshortname)) {
