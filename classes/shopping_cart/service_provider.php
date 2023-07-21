@@ -124,9 +124,17 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         require_once($CFG->dirroot . '/mod/booking/lib.php');
 
         if ($area === 'option') {
+            // It might be possible that booking options are already deleted at this point...
+            // ... e.g. when called by delete_item_task.
+            // That's why we check if the booking option really exists.
+            if (!$bookingoption = booking_option::create_option_from_optionid($itemid)) {
+                return [
+                    'success' => 0,
+                    'itemstounload' => [],
+                ];
+            }
 
             // First, get an array of all depending subbookings.
-
             $subbookings = subbookings_info::return_array_of_subbookings($itemid);
 
             booking_bookit::answer_booking_option($area, $itemid, STATUSPARAM_NOTBOOKED, $userid);
@@ -143,7 +151,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             return [
                 'success' => 0,
                 'itemstounload' => [],
-            ];;
+            ];
         }
     }
 
