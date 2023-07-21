@@ -276,7 +276,14 @@ class csv_import {
 
                         $eroptionhandler = new entitiesrelation_handler('mod_booking', 'option');
 
-                        $entities = $eroptionhandler->get_entities_by_name($bookingoption->location);
+                        if (is_numeric($bookingoption->location)) {
+                            // It's the entity id.
+                            $entities = $eroptionhandler->get_entities_by_id($bookingoption->location);
+                        } else {
+                            // It's the entity name (NOT shortname).
+                            $entities = $eroptionhandler->get_entities_by_name($bookingoption->location);
+                        }
+
                         // If we have exactly one entiity, we create the entities entry.
                         if (count($entities) === 1) {
                             $entity = reset($entities);
