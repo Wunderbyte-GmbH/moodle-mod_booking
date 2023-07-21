@@ -244,6 +244,9 @@ class booking_option_settings {
     /** @var stdClass $params */
     public $params = null;
 
+    /** @var bool $campaignisset flag to apply campaigns only once */
+    public $campaignisset = null;
+
     /**
      * Constructor for the booking option settings class.
      * The constructor can take the dbrecord stdclass which is the initial DB request for this option.
@@ -505,16 +508,24 @@ class booking_option_settings {
             }
 
             // TODO: This is a performance problem. We need to cache campaigns!
+            // TODO: We need to cache get_all_campaigns too!
             // Check if there are active campaigns.
             // If yes, we need to apply the booking limit factor.
-            $campaigns = campaigns_info::get_all_campaigns();
-            foreach ($campaigns as $camp) {
-                /** @var booking_campaign $campaign */
-                $campaign = $camp;
-                if ($campaign->campaign_is_active($this->id)) {
-                    $dbrecord->maxanswers = $campaign->get_campaign_limit($this->maxanswers);
-                    // Campaign booking limit has been applied.
+            if (!isset($dbrecord->campaignisset)) {
+                $campaigns = campaigns_info::get_all_campaigns();
+                foreach ($campaigns as $camp) {
+                    /** @var booking_campaign $campaign */
+                    $campaign = $camp;
+                    if ($campaign->campaign_is_active($this->id)) {
+                        $dbrecord->maxanswers = $campaign->get_campaign_limit($this->maxanswers);
+                        // Campaign booking limit has been applied.
+                    }
                 }
+                // Campaigns have been applied - let's cache a flag so we do not do it again.
+                $this->campaignisset = true;
+                $dbrecord->campaignisset = true;
+            } else {
+                $this->campaignisset = $dbrecord->campaignisset;
             }
 
             return $dbrecord;
