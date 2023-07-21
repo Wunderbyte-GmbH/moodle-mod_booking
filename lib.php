@@ -982,7 +982,7 @@ function booking_update_options($optionvalues, $context, int $updateparam = UPDA
     if (!empty($optionvalues->local_entities_entityid)) {
         // We might have more than one address, this will lead to more than one record which comes back.
         if (class_exists('local_entities\entitiesrelation_handler')) {
-            $entities = entitiesrelation_handler::get_entity_by_id($optionvalues->local_entities_entityid);
+            $entities = entitiesrelation_handler::get_entities_by_id($optionvalues->local_entities_entityid);
             $option->address = '';
             foreach ($entities as $entity) {
                 $option->location = $entity->name;
