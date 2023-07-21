@@ -1,3 +1,11 @@
+## Version 8.0.24 (2023072101)
+**Improvements:**
+* Improvement: Cache a flag to check if we already have applied campaigns, so we don't do it several times.
+
+**Bugfixes:**
+* Bugfix: Closes #44 (local_shopping_cart bug) "Adhoc tasks fails on testing site".
+* Bugfix: get_in_or_equal needs an array as input param.
+
 ## Version 8.0.23 (2023072100)
 **New features:**
 * New feature: Entity import now works with both full name or entity id.
