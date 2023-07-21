@@ -1,3 +1,17 @@
+## Version 8.0.23 (2023072100)
+**New features:**
+* New feature: Entity import now works with both full name or entity id.
+
+**Improvements:**
+* Improvement: Stop creating placeholder params from view.php for better performance and move the function to booking_option class.
+* Improvement: Code quality: missing isset checks for iselective and maxcredits.
+* Improvement: Decision: we only show entity full name in location field.
+* Improvement: Renamed get_entity_by_id to get_entities_by_id (there can be more than one because of join with address table).
+
+**Bugfixes:**
+* Bugfix: Fixed initialization of pricecategoryfield setting if user profile fields were missing.
+* Bugfix: Wrong check for is_elective().
+
 ## Version 8.0.22 (2023071700)
 **Bugfixes:**
 * Bugfix: Added string for message provider
@@ -18,7 +32,6 @@
 * Improvement: Use singleton service to retrieve users.
 * Improvement: Better strings for book with credits settings.
 * Improvement: Also allow access to connected Moodle course for teachers with 'mod/booking:limitededitownoption' capability.
-* Improvement:
 
 **Bugfixes:**
 * Bugfix: Fix error with missing username or email in message_controller.
