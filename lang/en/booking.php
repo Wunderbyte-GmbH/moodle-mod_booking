@@ -2409,6 +2409,8 @@ $string['bookingactionsheader'] = "Actions after Booking";
 $string['selectboactiontype'] = 'Select action after booking';
 $string['bookingactionadd'] = "Add action";
 
+$string['boactionname'] = "Name of action";
+
 $string['boactions_desc'] = "Description of the Actions after Booking";
 $string['boactions'] = "Actions after Booking";
 
@@ -2418,5 +2420,6 @@ $string['course'] = "Moodle course";
 $string['noselection'] = 'No selection';
 $string['boactionuserprofilevalue'] = 'Value';
 
-$string['set'] = 'Replace';
-$string['substract'] = 'Subsctract';
+$string['actionoperator:set'] = 'Replace';
+$string['actionoperator:substract'] = 'Subsctract';
+$string['actionoperator'] = 'Action';

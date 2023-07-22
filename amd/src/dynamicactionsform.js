@@ -58,6 +58,8 @@ function editActionsModal(element) {
     const actionid = element.dataset.id;
     const name = element.dataset.name;
     const action = element.dataset.action;
+    const optionid = element.dataset.optionid;
+    const cmid = element.dataset.cmid;
 
     if (!actionid) {
         return;
@@ -93,7 +95,7 @@ function editActionsModal(element) {
             // Name of the class where form is defined (must extend \core_form\dynamic_form):
             formClass: "mod_booking\\form\\actions\\actionsform",
             // Add as many arguments as you need, they will be passed to the form:
-            args: {id: actionid},
+            args: {id: actionid, cmid, optionid},
             // Pass any configuration settings to the modal dialogue, for example, the title:
             modalConfig: {title: getString('editaction', 'mod_booking')},
             // DOM element that should get the focus after the modal dialogue is closed:

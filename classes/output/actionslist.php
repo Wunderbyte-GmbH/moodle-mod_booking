@@ -51,7 +51,7 @@ class actionslist implements renderable, templatable {
      *
      * @param array $actions
      */
-    public function __construct(int $cmid, int $optionid, array $actions) {
+    public function __construct(int $cmid, int $optionid, $actions = []) {
 
         $this->optionid = $optionid;
         $this->cmid = $cmid;

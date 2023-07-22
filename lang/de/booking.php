@@ -2319,6 +2319,7 @@ $string['bookingactionadd'] = "Füge Aktion hinzu";
 $string['boactions_desc'] = "Beschreibung der Aktion nach der Buchung";
 $string['boactions'] = "Aktionen nach der Buchung";
 
+$string['boactionname'] = "Name der Aktion";
 $string['userprofilefield'] = "Profilfeld";
 $string['boactionselectuserprofile'] = "Wähle Profilfeld";
 
@@ -2327,5 +2328,6 @@ $string['course'] = "Moodle Kurs";
 $string['noselection'] = 'Keine Auswahl';
 $string['boactionuserprofilevalue'] = 'Wert';
 
-$string['set'] = 'Ersetzen';
-$string['substract'] = 'Minus';
+$string['actionoperator:set'] = 'Ersetzen';
+$string['actionoperator:substract'] = 'Minus';
+$string['actionoperator'] = 'Aktion';

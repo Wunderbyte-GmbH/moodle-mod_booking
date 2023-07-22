@@ -953,6 +953,8 @@ function booking_update_options(object $optionvalues, context_module $context, i
     $option->aftercompletedtext = $optionvalues->aftercompletedtext;
     $option->limitanswers = $optionvalues->limitanswers;
 
+    $option->json = $optionvalues->json ?? '';
+
     if ((!$optionvalues->duration || $optionvalues->duration == 0)
             && (isset($optionvalues->coursestarttime)
                     && isset($optionvalues->courseendtime))
