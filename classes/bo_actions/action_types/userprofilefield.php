@@ -25,9 +25,15 @@
 namespace mod_booking\bo_actions\action_types;
 
 use coding_exception;
+use context_module;
 use mod_booking\bo_actions\booking_action;
+use mod_booking\singleton_service;
+use MoodleQuickForm;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
  * Base class for a single bo availability condition.
@@ -56,19 +62,41 @@ class userprofilefield implements booking_action {
             }
         }
 
+        $mform->addElement('text', 'boactionname', get_string('boactionname', 'mod_booking'));
+
         $mform->addElement('select', 'boactionselectuserprofile', get_string('userprofilefield', 'mod_booking'),
             $userprofilefieldsarray);
 
         $operatorarray = [
-            'set' => get_string('set', 'mod_booking'),
+            'set' => get_string('actionoperator:set', 'mod_booking'),
             'add' => get_string('add'),
-            'substract' => get_string('substract', 'mod_booking'),
+            'substract' => get_string('actionoperator:substract', 'mod_booking'),
         ];
 
-        $mform->addElement('select', 'boactionuserprofileoperator', get_string('operator', 'mod_booking'),
+        $mform->addElement('select', 'boactionuserprofileoperator', get_string('actionoperator', 'mod_booking'),
             $operatorarray);
 
-        $mform->addElement('text', '', get_string('boactionuserprofilevalue', 'mod_booking'), 'z');
+        $mform->addElement('text', 'boactionuserprofilevalue', get_string('boactionuserprofilevalue', 'mod_booking'));
+
+    }
+
+    /**
+     * This actually only translates the action values and stores them in the json property of the data object.
+     * @param stdClass &$data form data reference
+     */
+    public static function save_action(stdClass &$data) {
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($data->optionid);
+
+        $optionvalues = $settings->return_settings_as_stdclass();
+
+        $optionvalues->optionid = $optionvalues->id;
+
+        $optionvalues->json = 'xx';
+
+        $context = context_module::instance($data->cmid);
+
+        booking_update_options($optionvalues, $context, UPDATE_OPTIONS_PARAM_REDUCED);
 
     }
 

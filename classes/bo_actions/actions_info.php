@@ -77,24 +77,6 @@ class actions_info {
     public static function add_actionsform_to_mform(MoodleQuickForm &$mform,
         array &$formdata = []) {
 
-        // $buttonargs = [];
-        // $conditionsforselect = [
-        //     1 => 'eins',
-        //     2 => 'zwei',
-        // ];
-
-        // $mform->registerNoSubmitButton('btn_bookingruleconditiontype');
-        // // $buttonargs = array('style' => 'visibility:hidden;');
-        // $categoryselect = [
-        //     $mform->createElement('select', 'bookingruleconditiontype',
-        //     get_string('bookingrulecondition', 'mod_booking'), $conditionsforselect),
-        //     $mform->createElement('submit', 'btn_bookingruleconditiontype', get_string('bookingrulecondition', 'mod_booking'),
-        //         $buttonargs)
-        // ];
-        // $mform->addGroup($categoryselect, 'bookingruleconditiontype', get_string('bookingrulecondition', 'mod_booking'),
-        //     [' '], false);
-        // $mform->setType('btn_bookingruleconditiontype', PARAM_NOTAGS);
-
         self::add_action($mform, $formdata);
 
     }

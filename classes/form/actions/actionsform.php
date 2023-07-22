@@ -46,11 +46,16 @@ class actionsform extends dynamic_form {
         $customdata = $this->_customdata;
         $ajaxformdata = $this->_ajaxformdata;
 
-        // If we open an existing rule, we need to save the id right away.
-        if (!empty($ajaxformdata['id'])) {
-            $mform->addElement('hidden', 'id', $ajaxformdata['id']);
+        $mform->addElement('hidden', 'id', $customdata['id'] ?? $ajaxformdata['id'] ?? 0);
+        $mform->addElement('hidden', 'optionid', $customdata['optionid'] ?? $ajaxformdata['optionid'] ?? 0);
+        $mform->addElement('hidden', 'cmid', $customdata['cmid'] ?? $ajaxformdata['cmid'] ?? 0);
 
-            $this->prepare_ajaxformdata($ajaxformdata);
+        // If we open an existing action, we need to save the id right away.
+        if (!empty($ajaxformdata['id'])) {
+
+
+            // If we have enough information, we can just load the data.
+            // $this->prepare_ajaxformdata($ajaxformdata);
         }
 
         $repeateloptions = [];
@@ -97,77 +102,6 @@ class actionsform extends dynamic_form {
     public function validation($data, $files) {
         $errors = [];
 
-        if (empty($data['rule_name'])) {
-            $errors['rule_name'] = get_string('error:entervalue', 'mod_booking');
-        }
-
-        switch ($data['bookingruletype']) {
-            case '0':
-                $errors['bookingruletype'] = get_string('error:choosevalue', 'mod_booking');
-                break;
-            case 'rule_daysbefore':
-                if ($data['rule_daysbefore_days'] == '0') {
-                    $errors['rule_daysbefore_days'] = get_string('error:choosevalue', 'mod_booking');
-                }
-                if ($data['rule_daysbefore_datefield'] == '0') {
-                    $errors['rule_daysbefore_datefield'] = get_string('error:choosevalue', 'mod_booking');
-                }
-                break;
-            case 'rule_react_on_event':
-                if ($data['rule_react_on_event_event'] == '0') {
-                    $errors['rule_react_on_event_event'] = get_string('error:choosevalue', 'mod_booking');
-                }
-                break;
-        }
-
-        switch ($data['bookingruleconditiontype']) {
-            case 'enter_userprofilefield':
-                if ($data['condition_enter_userprofilefield_cpfield'] == '0') {
-                    $errors['condition_enter_userprofilefield_cpfield'] = get_string('error:choosevalue', 'mod_booking');
-                }
-                if (empty($data['condition_enter_userprofilefield_textfield'])) {
-                    $errors['condition_enter_userprofilefield_textfield'] = get_string('error:entervalue', 'mod_booking');
-                }
-                break;
-            case 'match_userprofilefield':
-                if ($data['condition_match_userprofilefield_cpfield'] == '0') {
-                    $errors['condition_match_userprofilefield_cpfield'] = get_string('error:choosevalue', 'mod_booking');
-                }
-                if ($data['condition_match_userprofilefield_optionfield'] == '0') {
-                    $errors['condition_match_userprofilefield_optionfield'] = get_string('error:choosevalue', 'mod_booking');
-                }
-                break;
-            case 'select_student_in_bo':
-                if ($data['condition_select_student_in_bo_borole'] == '-1') {
-                    $errors['condition_select_student_in_bo_borole'] = get_string('error:choosevalue', 'mod_booking');
-                }
-                break;
-            case 'select_teacher_in_bo':
-                // Nothing to check here.
-                break;
-            case 'select_user_from_event':
-                if ($data['condition_select_user_from_event_type'] == '0') {
-                    $errors['condition_select_user_from_event_type'] = get_string('error:choosevalue', 'mod_booking');
-                }
-                break;
-            case 'select_users':
-                if (empty($data['condition_select_users_userids'])) {
-                    $errors['condition_select_users_userids'] = get_string('error:choosevalue', 'mod_booking');
-                }
-                break;
-        }
-
-        switch ($data['bookingruleactiontype']) {
-            case 'send_mail':
-                if (empty($data['action_send_mail_subject'])) {
-                    $errors['action_send_mail_subject'] = get_string('error:entervalue', 'mod_booking');
-                }
-                if (empty(strip_tags($data["action_send_mail_template"]["text"]))) {
-                    $errors['action_send_mail_template'] = get_string('error:entervalue', 'mod_booking');
-                }
-                break;
-        }
-
         return $errors;
     }
 
@@ -177,7 +111,7 @@ class actionsform extends dynamic_form {
      * @return moodle_url
      */
     protected function get_page_url_for_dynamic_submission(): moodle_url {
-        return new moodle_url('/mod/booking/edit_rules.php');
+        return new moodle_url('/mod/booking/editoptions.php');
     }
 
     /**
@@ -205,21 +139,5 @@ class actionsform extends dynamic_form {
      */
     private function prepare_ajaxformdata(array &$ajaxformdata) {
 
-        global $DB;
-
-        // If we have an ID, we retrieve the right rule from DB.
-        $record = $DB->get_record('booking_rules', ['id' => $ajaxformdata['id']]);
-
-        $jsonboject = json_decode($record->rulejson);
-
-        if (empty($ajaxformdata['bookingruletype'])) {
-            $ajaxformdata['bookingruletype'] = $jsonboject->rulename;
-        }
-        if (empty($ajaxformdata['bookingruleconditiontype'])) {
-            $ajaxformdata['bookingruleconditiontype'] = $jsonboject->conditionname;
-        }
-        if (empty($ajaxformdata['bookingruleactiontype'])) {
-            $ajaxformdata['bookingruleactiontype'] = $jsonboject->actionname;
-        }
     }
 }

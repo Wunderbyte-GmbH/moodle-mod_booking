@@ -974,6 +974,9 @@ function booking_update_options(object $optionvalues, context_module $context, i
     } else {
         $option->description = "";
     }
+    $option->limitanswers = $optionvalues->limitanswers;
+
+    $option->json = $optionvalues->json ?? '';
 
     if (isset($optionvalues->beforebookedtext)) {
         $option->beforebookedtext = $optionvalues->beforebookedtext;
