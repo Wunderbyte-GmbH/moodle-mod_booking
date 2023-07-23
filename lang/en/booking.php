@@ -2413,8 +2413,11 @@ $string['boactionname'] = "Name of action";
 
 $string['boactions_desc'] = "Description of the Actions after Booking";
 $string['boactions'] = "Actions after Booking";
-
 $string['userprofilefield'] = "Profile field";
+
+$string['boactioncancelbookingvalue'] = "Aktiviere sofortige Ausbuchung";
+$string['boactioncancelbooking_desc'] = "Wird verwendet wenn eine Option mehrmals gekauft werden können soll.";
+
 $string['course'] = "Moodle course";
 
 $string['noselection'] = 'No selection';
