@@ -152,6 +152,9 @@ class option_form extends moodleform {
         $mform->addRule('titleprefix', get_string('maximumchars', '', 10), 'maxlength', 10, 'client');
         $mform->setType('titleprefix', PARAM_TEXT);
         $mform->addHelpButton('titleprefix', 'titleprefix', 'mod_booking');
+        if (!empty($bookingoptionsettings)) {
+            $mform->setDefault('titleprefix', $bookingoptionsettings->titleprefix);
+        }
 
         // Booking option name.
         $mform->addElement('text', 'text', get_string('bookingoptionname', 'mod_booking'), array('size' => '64'));
