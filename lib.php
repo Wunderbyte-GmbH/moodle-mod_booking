@@ -25,7 +25,6 @@ require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 require_once($CFG->dirroot .'/course/externallib.php');
 
-
 use local_entities\entitiesrelation_handler;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option;
@@ -1215,7 +1214,7 @@ function booking_update_options($optionvalues, $context, int $updateparam = UPDA
                 $optiondateshandler->save_from_form($optionvalues);
             } else {
                 // Delete optiondates.
-                $optiondateshandler->delete_option_dates($optionvalues);
+                $optiondateshandler->delete_all_option_dates();
             }
 
             // Save teachers using handler.

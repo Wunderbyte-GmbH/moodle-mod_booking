@@ -51,10 +51,10 @@ use mod_booking\singleton_service;
 class dates_handler {
 
     /** @var int $optionid */
-    public $optionid = 0;
+    public int $optionid = 0;
 
     /** @var int $bookingid */
-    public $bookingid = 0;
+    public int $bookingid = 0;
 
     /**
      * Constructor.

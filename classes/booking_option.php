@@ -1908,7 +1908,7 @@ class booking_option {
      *
      * @return void
      */
-    public function transform_optiondates_to_option(){
+    public function transform_optiondates_to_option() {
         // TODO. This has to be programmed.
         $dateobjects = dates_handler::return_array_of_sessions_datestrings($this->optionid);
     }
