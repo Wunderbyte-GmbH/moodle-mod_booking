@@ -20,12 +20,12 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
-use coding_exception;
 use context;
 use context_system;
 use core_form\dynamic_form;
 use mod_booking\bo_actions\actions_info;
 use moodle_url;
+use stdClass;
 
 /**
  * Dynamic actions form.
@@ -34,7 +34,7 @@ use moodle_url;
  * @package mod_booking
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class actionsform extends dynamic_form {
+class deleteactionsform extends dynamic_form {
 
     /**
      * {@inheritdoc}
@@ -50,26 +50,8 @@ class actionsform extends dynamic_form {
         $mform->addElement('hidden', 'optionid', $formdata['optionid'] ?? 0);
         $mform->addElement('hidden', 'cmid', $formdata['cmid'] ?? 0);
 
-    }
+        $mform->addElement('static', 'deleteaction', get_string('reallydeleteaction', 'mod_booking'));
 
-    /**
-     * Definition with the data which was already transmitted.
-     * @return void
-     * @throws coding_exception
-     */
-    public function definition_after_data() {
-
-        $mform = $this->_form;
-        $formdata = $this->_customdata ?? $this->_ajaxformdata;
-
-        if (!empty($formdata['id'] && empty($formdata['action_type']))) {
-            $data = (object)$formdata;
-            $data = actions_info::set_data_for_form($data);
-
-            $formdata['action_type'] = $data->action_type;
-        }
-
-        actions_info::add_actionsform_to_mform($mform, $formdata);
     }
 
     /**
@@ -79,7 +61,7 @@ class actionsform extends dynamic_form {
     public function process_dynamic_submission() {
         $data = parent::get_data();
 
-        actions_info::save_action($data);
+        actions_info::delete_action($data);
 
         return $data;
     }
@@ -90,12 +72,7 @@ class actionsform extends dynamic_form {
      */
     public function set_data_for_dynamic_submission(): void {
 
-        if (!empty($this->_ajaxformdata['id'])) {
-            $data = (object)$this->_ajaxformdata;
-            $data = actions_info::set_data_for_form($data);
-        } else {
-            $data = (Object)$this->_ajaxformdata;
-        }
+        $data = new stdClass();
 
         $this->set_data($data);
 
@@ -137,5 +114,4 @@ class actionsform extends dynamic_form {
     protected function check_access_for_dynamic_submission(): void {
         require_capability('moodle/site:config', context_system::instance());
     }
-
 }

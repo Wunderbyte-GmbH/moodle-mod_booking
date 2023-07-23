@@ -26,6 +26,7 @@ namespace mod_booking\bo_actions\action_types;
 
 use coding_exception;
 use context_module;
+use core_reportbuilder\local\helpers\user_profile_fields;
 use mod_booking\bo_actions\booking_action;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
@@ -45,7 +46,55 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class userprofilefield implements booking_action {
+class userprofilefield extends booking_action {
+
+    /**
+     * Apply action.
+     * @param stdClass $actiondata
+     * @param ?int $userid
+     * @return int // Status. 0 is do nothing, 1 aborts after application right away.
+     */
+    public function apply_action(stdClass $actiondata, int $userid = 0) {
+
+        global $USER, $CFG;
+
+        if (!empty($userid)) {
+            $user = singleton_service::get_instance_of_user($userid);
+        } else {
+            $user = $USER;
+        }
+
+        require_once("$CFG->dirroot/user/profile/lib.php");
+
+        profile_load_data($user);
+
+        if (isset($user->profile[$actiondata->boactionselectuserprofile])) {
+
+            switch ($actiondata->boactionuserprofileoperator) {
+                case 'set':
+                    $user->profile[$actiondata->boactionselectuserprofile] = $actiondata->boactionuserprofilevalue;
+                    break;
+                case 'add':
+
+                    $number = intval($user->profile[$actiondata->boactionselectuserprofile]);
+                    $key = "profile_field_$actiondata->boactionselectuserprofile";
+                    $user->{$key} =
+                            $number + $actiondata->boactionuserprofilevalue;
+                    break;
+                case 'substract':
+                    $number = intval($user->profile[$actiondata->boactionselectuserprofile]);
+
+                    $key = "profile_field_$actiondata->boactionselectuserprofile";
+                    $user->{$key} =
+                            $number - $actiondata->boactionuserprofilevalue;
+                    break;
+            }
+        }
+
+        profile_save_data($user);
+
+        return 0; // We will allow all other after actions like events.
+    }
 
     public static function add_action_to_mform(&$mform) {
 
@@ -78,41 +127,5 @@ class userprofilefield implements booking_action {
 
         $mform->addElement('text', 'boactionuserprofilevalue', get_string('boactionuserprofilevalue', 'mod_booking'));
 
-    }
-
-    /**
-     * This actually only translates the action values and stores them in the json property of the data object.
-     * @param stdClass &$data form data reference
-     */
-    public static function save_action(stdClass &$data) {
-
-        $settings = singleton_service::get_instance_of_booking_option_settings($data->optionid);
-
-        $optionvalues = $settings->return_settings_as_stdclass();
-
-        $optionvalues->optionid = $optionvalues->id;
-
-        $optionvalues->json = 'xx';
-
-        $context = context_module::instance($data->cmid);
-
-        booking_update_options($optionvalues, $context, UPDATE_OPTIONS_PARAM_REDUCED);
-
-    }
-
-    /**
-     * Returns description
-     * @return string
-     * @throws coding_exception
-     */
-    public static function get_name_of_action() {
-
-        $classname = get_called_class();
-
-        // We only want the last part of the classname.
-        $array = explode('\\', $classname);
-
-        $classname = array_pop($array);
-        return get_string($classname, 'mod_booking');
     }
 }

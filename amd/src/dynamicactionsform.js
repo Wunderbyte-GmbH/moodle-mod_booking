@@ -34,14 +34,29 @@
 import {get_string as getString} from 'core/str';
 import ModalForm from 'core_form/modalform';
 
-export const init = (selector) => {
+const SELECTOR = {
+    'buttons': '.booking-actions-container .btn'
+};
 
-    const element = document.querySelector(selector);
+export const init = () => {
 
-    element.addEventListener('click', e => {
+    // eslint-disable-next-line no-console
+    console.log(SELECTOR.buttons);
 
-        editActionsModal(e.target);
+    const elements = document.querySelectorAll(SELECTOR.buttons);
 
+    // eslint-disable-next-line no-console
+    console.log(elements);
+
+    elements.forEach(element => {
+
+        // If the data-action is add-or-edit, we add the edit modal.
+
+        element.addEventListener('click', e => {
+
+            editActionsModal(e.target);
+
+        });
     });
 };
 
@@ -56,7 +71,6 @@ function editActionsModal(element) {
     }
 
     const actionid = element.dataset.id;
-    const name = element.dataset.name;
     const action = element.dataset.action;
     const optionid = element.dataset.optionid;
     const cmid = element.dataset.cmid;
@@ -70,9 +84,9 @@ function editActionsModal(element) {
         const deleteForm = new ModalForm({
 
             // Name of the class where form is defined (must extend \core_form\dynamic_form):
-            formClass: "mod_booking\\form\\editactionsform",
+            formClass: "mod_booking\\form\\actions\\deleteactionsform",
             // Add as many arguments as you need, they will be passed to the form:
-            args: {id: actionid, name: name},
+            args: {id: actionid, cmid, optionid},
             // Pass any configuration settings to the modal dialogue, for example, the title:
             modalConfig: {
                 title: getString('deletebookingaction', 'mod_booking')
@@ -112,31 +126,17 @@ function editActionsModal(element) {
 
         // We need to add an event listener for the change of the action, action, and condition select.
         modalForm.addEventListener('change', (e) => {
+
+            // eslint-disable-next-line no-console
+            console.log(e.target.name, e.target.value);
+
             if (!e.target.name) {
                 return;
             }
 
-            if (e.target.name == 'bookingactiontype') {
+            if (e.target.name == 'action_type') {
                 window.skipClientValidation = true;
-                let button = document.querySelector('[name="btn_bookingactiontype"]');
-                modalForm.processNoSubmitButton(button);
-            }
-
-            if (e.target.name == 'action_react_on_event_event') {
-                window.skipClientValidation = true;
-                let button = document.querySelector('[name="btn_bookingactiontype"]');
-                modalForm.processNoSubmitButton(button);
-            }
-
-            if (e.target.name == 'bookingactionconditiontype') {
-                window.skipClientValidation = true;
-                let button = document.querySelector('[name="btn_bookingactionconditiontype"]');
-                modalForm.processNoSubmitButton(button);
-            }
-
-            if (e.target.name == 'bookingactionactiontype') {
-                window.skipClientValidation = true;
-                let button = document.querySelector('[name="btn_bookingactionactiontype"]');
+                let button = document.querySelector('[name="btn_actiontype"]');
                 modalForm.processNoSubmitButton(button);
             }
         });

@@ -26,6 +26,7 @@ use invalid_parameter_exception;
 use local_entities\entitiesrelation_handler;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\option\dates_handler;
+use mod_booking\bo_actions\actions_info;
 use stdClass;
 use moodle_url;
 use mod_booking\booking_utils;
@@ -390,6 +391,18 @@ class booking_option {
 
         $text = "";
 
+        // New message controller.
+        $messagecontroller = new message_controller(
+            MSGCONTRPARAM_DO_NOT_SEND, // We do not want to send anything here.
+            MSGPARAM_CONFIRMATION,
+            $this->booking->cm->id,
+            $this->bookingid,
+            $this->optionid,
+            $userid
+        );
+        // Get the email params from message controller.
+        $params = $messagecontroller->get_params();
+
         if (in_array($bookinganswers->user_status($userid), array(STATUSPARAM_BOOKED, STATUSPARAM_WAITINGLIST))) {
             $ac = $bookinganswers->is_activity_completed($userid);
             if ($ac == 1) {
@@ -410,6 +423,12 @@ class booking_option {
                 $text = format_text($this->option->beforebookedtext, FORMAT_HTML, $this->booking->course->id);
             } else if (!empty($this->booking->settings->beforebookedtext)) {
                 $text = format_text($this->booking->settings->beforebookedtext, FORMAT_HTML, $this->booking->course->id);
+            }
+        }
+
+        foreach ($params as $name => $value) {
+            if (!is_null($value)) { // Since php 8.1.
+                $text = str_replace('{' . $name . '}', $value, $text);
             }
         }
 
@@ -1117,6 +1136,13 @@ class booking_option {
 
             return true;
         }
+
+        // At this point, we trigger the after booking actions.
+        // Depending on the status, we have different ways of continueing.
+        if (actions_info::apply_actions($this->settings) == 1) {
+            return true;
+        }
+
 
         $this->enrol_user_coursestart($user->id);
 

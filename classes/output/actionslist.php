@@ -58,9 +58,9 @@ class actionslist implements renderable, templatable {
 
         foreach ($actions as $action) {
 
-            $action->name = $action->name;
+            $action->name = $action->boactionname;
             // Localize the names.
-            $action->localizedactionname = get_string($action->type, 'mod_booking');
+            $action->localizedactionname = get_string($action->action_type, 'mod_booking');
 
             $this->actions[] = (array)$action;
         }

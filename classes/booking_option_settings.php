@@ -246,8 +246,8 @@ class booking_option_settings {
     /** @var stdClass $jsonobject Is used to store non performance critical data like booking actions */
     public $jsonobject = null;
 
-    /** @var array $bookingactions */
-    public $bookingactions = null;
+    /** @var array $boactions */
+    public $boactions = null;
 
     /** @var stdClass $params */
     public $params = null;
@@ -401,9 +401,9 @@ class booking_option_settings {
             }
 
             if (!empty($dbrecord->json)) {
-                $this->bookingactions = $this->load_bookingactions($dbrecord);
+                $this->load_bookingactions($dbrecord);
             } else {
-                $this->bookingactions = [];
+                $this->boactions = [];
             }
 
 
@@ -862,17 +862,24 @@ class booking_option_settings {
      * @param stdClass $dbrecord
      * @return void
      */
-    private function load_bookingactions(stdClass $dbrecord) {
+    private function load_bookingactions(stdClass &$dbrecord) {
 
         // We might need to only now read the json object, but we want to do it only once.
-        if (empty($this->jsonobject)) {
+        if (empty($dbrecord->jsonobject)) {
             $this->jsonobject = json_decode($dbrecord->json);
-        }
+            $dbrecord->jsonobject = $this->jsonobject;
 
-        // We only pass on the object, because the after booking action is not performance critical.
-        // But we economize on the instantiation of the boaction classes.
-        if (!empty($this->jsonobject['boactions'])) {
-            $this->bookingactions = $this->jsonobject['boactions'];
+            // We only pass on the object, because the after booking action is not performance critical.
+            // But we economize on the instantiation of the boaction classes.
+            if (!empty($this->jsonobject->boactions)) {
+                $this->boactions = (array)$this->jsonobject->boactions;
+                // Just be sure they are stored as array.
+                $this->jsonobject->boactions = $this->boactions;
+                $dbrecord->boactions = $this->boactions;
+            }
+        } else {
+            $this->boactions = $dbrecord->boactions;
+            $this->jsonobject = $dbrecord->jsonobject;
         }
     }
 

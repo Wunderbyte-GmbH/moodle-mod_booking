@@ -26,10 +26,13 @@
 namespace mod_booking\bo_actions;
 
 use context_module;
+use core_analytics\action;
 use core_component;
+use mod_booking\booking_option_settings;
 use mod_booking\output\actionslist;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
+use moodle_exception;
 use MoodleQuickForm;
 use stdClass;
 
@@ -86,7 +89,6 @@ class actions_info {
      * @return array an array of booking actions (instances of class booking_action).
      */
     public static function get_action_types() {
-        global $CFG;
 
         $actionstypes = core_component::get_component_classes_in_namespace('mod_booking', 'bo_actions\\action_types');
 
@@ -137,16 +139,16 @@ class actions_info {
             return new stdClass();
         }
 
-        // If we have an ID, we retrieve the right action from DB.
-        $record = $DB->get_record('booking_action_options', ['id' => $data->id]);
+        // If we have an id, we can load the right booking option.
+        $settings = singleton_service::get_instance_of_booking_option_settings($data->optionid);
 
-        $action = self::get_action($record->type);
+        if (!empty($settings->boactions[$data->id])) {
 
-        $data->optionid = $record->optionid;
-        $data->action_type = $record->type;
+            $action = self::get_action($settings->boactions[$data->id]->action_type);
+        }
 
         // These function just add their bits to the object.
-        $action->set_defaults($data, $record);
+        $action->set_defaults($data, $settings->boactions[$data->id]);
 
         return (object)$data;
 
@@ -171,21 +173,39 @@ class actions_info {
         // Every time we save the action, we have to invalidate caches.
         // Trigger an event that booking option has been updated.
 
-        $context = context_module::instance($data->cmid);
-        $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $data->optionid,
-                'userid' => $USER->id));
-        $event->trigger();
+        // $context = context_module::instance($data->cmid);
+        // $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $data->optionid,
+        //         'userid' => $USER->id));
+        // $event->trigger();
 
         return;
     }
 
     /**
      * Delete a booking action by its ID.
-     * @param int $actionid the ID of the action
+     * @param stdClass $data
      */
-    public static function delete_action(int $actionid) {
-        global $DB;
-        $DB->delete_records('booking_action_options', ['id' => (int)$actionid]);
+    public static function delete_action(stdClass $data) {
+
+        // Todo: Actually delete information from option.
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($data->optionid);
+
+        // We would certainly expect that we find this booking action with the given id.
+        if (isset($settings->boactions[$data->id])) {
+
+            $optionvalues = $settings->return_settings_as_stdclass();
+            $optionvalues->optionid = $optionvalues->id;
+
+            unset($optionvalues->jsonobject->boactions[$data->id]);
+
+            $optionvalues->json = json_encode($optionvalues->jsonobject);
+
+            $context = context_module::instance($data->cmid);
+
+            booking_update_options($optionvalues, $context, UPDATE_OPTIONS_PARAM_REDUCED);
+        }
+
     }
 
     /**
@@ -207,7 +227,7 @@ class actions_info {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        $data = new actionslist($cmid, $optionid, $settings->bookingactions);
+        $data = new actionslist($cmid, $optionid, $settings->boactions ?? []);
         $output = $PAGE->get_renderer('mod_booking');
         $html = $output->render_boactionslist($data);
 
@@ -247,7 +267,7 @@ class actions_info {
         $mform->addGroup($categoryselect, 'action_type', get_string('bookingaction', 'mod_booking'), [' '], false);
         $mform->setType('btn_actiontype', PARAM_NOTAGS);
 
-        if (isset($formdata['action_type'])) {
+        if (!empty($formdata['action_type'])) {
             $action = self::get_action($formdata['action_type']);
         } else {
             list($action) = $actiontypes;
@@ -258,300 +278,50 @@ class actions_info {
     }
 
     /**
-     * This function checks if a action blocks the main booking option.
-     * A action can use the option as container only and therby block its booking.
-     * When this is the case, the action can return a description (which could be a modal eg.)...
-     * ... to render instead of booking-button.
-     * If there is more than one blocking action, this is recognized as well.
-     *
-     * @param object $settings
-     * @return bool
+     * Function to actually execute the actions of the booking option.
+     * @param booking_option_settings $settings
+     * @param int $userid
+     * @return int // Status. 0 is do nothing, 1 aborts after application right away.
      */
-    public static function is_blocked(object $settings) {
-
-        $isblocked = false;
-        foreach ($settings->actions as $action) {
-            if ($action->block == 1) {
-                $isblocked = true;
-            }
-        }
-
-        return $isblocked;
-    }
-
-    /**
-     * This function checks if there are any not blocking actions in the main booking option.
-     * While the not blocking subblocking doesn't prevent the blocking of the main option...
-     * ... it still needs to announce the presence of options...
-     * ... which may want to introduce a page in the booking process.
-     * Blocking actions are handled by a different bo_condition.
-     *
-     * @param object $settings
-     * @return bool
-     */
-    public static function has_soft_actions(object $settings) {
-
-        foreach ($settings->actions as $action) {
-            if ($action->block != 1) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Load all the available actions for a specific ID and return them as array.
-     * We return the instantiated classes to be able to call functions on them.
-     *
-     * @param integer $optionid
-     * @return array
-     */
-    public static function load_actions(int $optionid) {
-
-        global $DB;
-
-        $records = $DB->get_records('booking_action_options', ['optionid' => $optionid]);
-        $returnarray = [];
-
-        foreach ($records as $record) {
-            $action = self::get_action($record->type);
-            $action->set_actiondata($record);
-            $returnarray[] = $action;
-        }
-
-        return $returnarray;
-    }
-
-    /**
-     * Returns a given action option instance.
-     * The ID might actually come from the area.
-     *
-     * @param string $area
-     * @param integer $itemid
-     * @return object
-     */
-    public static function get_action_by_area_and_id(string $area, int $itemid) {
-        global $DB;
-
-        // First, we need to isolate the id of the action. We might find it in the area.
-
-        $array = explode('-', $area);
-
-        $area = array_shift($array);
-        $sbid = array_shift($array);
-
-        // If we found an id, we use it as itemid and design the  slotid.
-        if ($sbid) {
-            $record = $DB->get_record('booking_action_options', ['id' => $sbid]);
-        } else {
-            $record = $DB->get_record('booking_action_options', ['id' => $itemid]);
-        }
-
-        // If action type is missing we cannot instantiate a action.
-        if (empty($record->type)) {
-            return null;
-        }
-
-        $action = self::get_action($record->type);
-        $action->set_actiondata($record);
-
-        return $action;
-    }
-
-    /**
-     * Function to save answer to a action.
-     * We can provide a status which will then decide what actually happens.
-     *
-     * @param string $area
-     * @param integer $itemid
-     * @param integer $userid
-     * @param integer $status
-     * @return boolean
-     */
-    public static function save_response(string $area, int $itemid, int $status, $userid = 0):bool {
+    public static function apply_actions(booking_option_settings $settings, int $userid = 0) {
 
         global $USER;
 
-        // Make sure we have the right user.
-        if ($userid == 0) {
-            $userid = $USER->id;
+        $userid = !empty($userid) ? $userid : $USER->id;
+
+        if (empty($settings->boactions)) {
+            return 0;
         }
 
-        $action = self::get_action_by_area_and_id($area, $itemid);
+        $returnstatus = 0;
+        foreach ($settings->boactions as $actiondata) {
 
-        if (empty($action)) {
-            // No action could be found.
-            return true;
-        }
+            $action = self::return_action($actiondata);
 
-        // Do we need to update and if so, which records?
+            $status = $action->apply_action($actiondata, $userid);
 
-        switch ($status) {
-            case STATUSPARAM_BOOKED: // We actually book.
-                // Check if there was a reserved or waiting list entry before.
-                self::update_or_insert_answer(
-                    $action,
-                    $itemid,
-                    $userid,
-                    STATUSPARAM_BOOKED,
-                    [STATUSPARAM_RESERVED,
-                    STATUSPARAM_WAITINGLIST]);
-                break;
-            case STATUSPARAM_WAITINGLIST: // We move to the waiting list.
-                // Check if there was a reserved entry before.
-                self::update_or_insert_answer(
-                    $action,
-                    $itemid,
-                    $userid,
-                    STATUSPARAM_WAITINGLIST,
-                    [STATUSPARAM_RESERVED]);
-                break;
-            case STATUSPARAM_RESERVED: // We only want to use shortterm reservation.
-                // Check if there was a reserved or waiting list entry before.
-                self::update_or_insert_answer(
-                    $action,
-                    $itemid,
-                    $userid,
-                    STATUSPARAM_RESERVED,
-                    [STATUSPARAM_WAITINGLIST, STATUSPARAM_RESERVED]);
-                break;
-            case STATUSPARAM_NOTBOOKED: // We only want to delete the shortterm reservation.
-                // Check if there was a reserved or waiting list entry before.
-                self::update_or_insert_answer(
-                    $action,
-                    $itemid,
-                    $userid,
-                    STATUSPARAM_NOTBOOKED,
-                    [STATUSPARAM_RESERVED]);
-                break;
-            case STATUSPARAM_DELETED: // We delete the existing subscription.
-                // Check if there was a booked entry before.
-                self::update_or_insert_answer(
-                    $action,
-                    $itemid,
-                    $userid,
-                    STATUSPARAM_DELETED,
-                    [STATUSPARAM_BOOKED]);
-                break;
-        };
-        return true;
-    }
-
-    /**
-     * This function looks for old answers of a special type and if there are any, it deletes them.
-     * Also, it creates a new answer record if necessary.
-     *
-     * @param object $action
-     * @param integer $itemid
-     * @param integer $userid
-     * @param integer $newstatus
-     * @param array $oldstatus
-     * @return bool
-     */
-    private static function update_or_insert_answer(object $action, int $itemid, int $userid,
-        int $newstatus, array $oldstatus) {
-
-        global $DB, $USER;
-
-        $now = time();
-
-        if ($records = self::return_action_answers($action->id, $itemid, $action->optionid, $userid, $oldstatus)) {
-            while (count($records) > 0) {
-                $record = array_pop($records);
-                // We already popped one record, so count has to be 0.
-                if (count($records) == 0 && $newstatus !== STATUSPARAM_NOTBOOKED) {
-                    $record->timemodified = $now;
-                    $record->status = $newstatus;
-                    $DB->update_record('booking_action_answers', $record);
-                } else {
-                    // This is just for cleaning, should never happen.
-                    $DB->delete_records('booking_action_answers', ['id' => $record->id]);
-                }
-            }
-        } else if ($newstatus !== STATUSPARAM_DELETED || $newstatus !== STATUSPARAM_NOTBOOKED) {
-
-            $data = $action->return_action_information($itemid, $userid);
-            $record = (object)[
-                'itemid' => $itemid,
-                'sboptionid' => $action->id,
-                'optionid' => $action->optionid,
-                'userid' => $userid,
-                'usermodified' => $USER->id,
-                'status' => $newstatus,
-                'json' => $action->return_answer_json($itemid),
-                'timestart' => $data['coursestarttime'] ?? null,
-                'timeend' => $data['courseendtime'] ?? null,
-                'timecreated' => $now,
-                'timemodified' => $now,
-            ];
-
-            $DB->insert_record('booking_action_answers', $record);
-        }
-    }
-
-    /**
-     * Returns all answer records for a certain PARAMSTATUS if defined.
-     *
-     * @param integer $sboid
-     * @param integer $itemid
-     * @param integer $optionid
-     * @param integer $userid
-     * @param array $status
-     * @return array
-     */
-    private static function return_action_answers(int $sboid, int $itemid, int $optionid, int $userid, array $status = []) {
-
-        global $DB;
-
-        // We always fetch all the entries.
-        $sql = "SELECT *
-                FROM {booking_action_answers}
-                WHERE itemid=:itemid
-                AND sboptionid=:sboptionid
-                AND userid=:userid
-                AND optionid=:optionid";
-
-        $params = [
-            'itemid' => $itemid,
-            'sboptionid' => $sboid,
-            'userid' => $userid,
-            'optionid' => $optionid,
-        ];
-
-        if (!empty($status)) {
-
-            list ($inorequal, $ieparams) = $DB->get_in_or_equal($status, SQL_PARAMS_NAMED);
-            $sql .= " AND status $inorequal";
-
-            foreach ($ieparams as $key => $value) {
-                $params[$key] = $value;
+            if ($status > $returnstatus) {
+                $returnstatus = $status;
             }
         }
 
-        $records = $DB->get_records_sql($sql, $params);
+        return $status;
 
-        return $records;
     }
 
     /**
-     * Returns an array of area and itemid, written for unloading actions from shopping cart.
-     *
-     * @param integer $optionid
-     * @return array
+     * Returns the instantiated actions depending on the action data.
+     * @param stdClass $actiondata
+     * @return ?booking_action
      */
-    public static function return_array_of_actions(int $optionid): array {
-        global $DB;
+    private static function return_action(stdClass $actiondata) {
 
-        $records = $DB->get_records('booking_action_options', ['optionid' => $optionid]);
-        $returnarray = [];
-
-        foreach ($records as $record) {
-            $returnarray[] = (object)[
-                'area' => 'action',
-                'itemid' => $record->id,
-            ];
+        $classname = 'mod_booking\\bo_actions\\action_types\\' . $actiondata->action_type;
+        try {
+            $action = new $classname();
+        } catch (moodle_exception $e) {
+            return null;
         }
-
-        return $returnarray;
+        return $action;
     }
 }

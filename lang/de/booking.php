@@ -2271,6 +2271,9 @@ $string['boactionname'] = "Name der Aktion";
 $string['userprofilefield'] = "Profilfeld";
 $string['boactionselectuserprofile'] = "Wähle Profilfeld";
 
+$string['boactioncancelbookingvalue'] = "Activate immediate cancelation";
+$string['boactioncancelbooking_desc'] = "Used for options which can be bought multiple times";
+
 $string['course'] = "Moodle Kurs";
 
 $string['noselection'] = 'Keine Auswahl';
