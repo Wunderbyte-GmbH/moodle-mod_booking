@@ -26,6 +26,8 @@ use core_form\dynamic_form;
 use mod_booking\booking_campaigns\campaigns_info;
 use moodle_url;
 
+require_once($CFG->dirroot . '/mod/booking/lib.php');
+
 /**
  * Dynamic campaigns form.
  * @copyright   2023 Wunderbyte GmbH <info@wunderbyte.at>
