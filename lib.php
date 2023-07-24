@@ -1417,7 +1417,7 @@ function save_entity_relations_for_optiondates_of_option(&$optionvalues, $option
  */
 function deal_with_multisessions(&$optionvalues, $booking, $optionid, $context) {
 
-    global $DB, $USER;
+    global $DB;
 
     // Deal with new optiondates (Multisessions).
     // TODO: We should have an optiondates class to deal with all of this.
@@ -1437,10 +1437,8 @@ function deal_with_multisessions(&$optionvalues, $booking, $optionid, $context) 
             if (!empty($optionvalues->$daystonotify)) {
                 $optiondate->daystonotify = $optionvalues->$daystonotify;
             }
-            $optiondateid = $DB->insert_record('booking_optiondates', $optiondate);
-
-            // Add teachers of the booking option to newly created optiondate.
-            teachers_handler::subscribe_existing_teachers_to_new_optiondate($optiondateid);
+            $dateshandler = new dates_handler($optionid, $booking->id);
+            $optiondateid = $dateshandler->create_option_date($optiondate);
 
             for ($j = 1; $j < 4; ++$j) {
                 $cfname = 'ms' . $i . 'cf' . $j . 'name';
@@ -1458,66 +1456,9 @@ function deal_with_multisessions(&$optionvalues, $booking, $optionid, $context) 
                     $DB->insert_record("booking_customfields", $customfield);
                 }
             }
-
-            // We trigger the event, where we take care of events in calendar etc.
-            $event = \mod_booking\event\bookingoptiondate_created::create(array('context' => $context, 'objectid' => $optiondateid,
-                'userid' => $USER->id, 'other' => ['optionid' => $optionid]));
-            $event->trigger();
         }
     }
 }
-
-/**
- * Was moved to booking_option class.
- * THIS FUNCTION WILL BE DELETED IN A FUTURE RELEASE.
- * Checks the status of the specified user
- *
- * @param $userid userid of the user
- * @param $optionid booking option to check
- * @param $bookingid booking id
- * @param $cmid course module id
- * @return localised string of user status
- */
-// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-/* function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
-    global $DB;
-    $option = $DB->get_record('booking_options', array('id' => $optionid));
-    $current = $DB->get_record('booking_answers',
-        array('userid' => $userid, 'optionid' => $optionid));
-    $allresponses = $DB->get_records_select('booking_answers',
-        "optionid = $optionid", array(), 'timemodified', 'userid');
-
-    $context = context_module::instance($cmid);
-    $sortedresponses = array();
-    if (!empty($allresponses)) {
-        foreach ($allresponses as $answer) {
-            $sortedresponses[] = $answer->userid;
-        }
-        $useridaskey = array_flip($sortedresponses);
-
-        if ($option->limitanswers) {
-            if (!isset($useridaskey[$userid])) {
-                $status = get_string('notbooked', 'booking');
-            } else if ($useridaskey[$userid] > $option->maxanswers + $option->maxoverbooking) {
-                $status = "Problem, please contact the admin";
-            } else if (($useridaskey[$userid]) >= $option->maxanswers) {
-                $status = get_string('onwaitinglist', 'booking');
-            } else if ($useridaskey[$userid] <= $option->maxanswers) {
-                $status = get_string('booked', 'booking');
-            } else {
-                $status = get_string('notbooked', 'booking');
-            }
-        } else {
-            if (isset($useridaskey[$userid])) {
-                $status = get_string('booked', 'booking');
-            } else {
-                $status = get_string('notbooked', 'booking');
-            }
-        }
-        return $status;
-    }
-    return get_string('notbooked', 'booking');
-} */
 
 /**
  * Extend booking user navigation

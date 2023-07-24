@@ -35,6 +35,7 @@ use lang_string;
 use local_entities\entitiesrelation_handler;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
+use mod_booking\calendar;
 use mod_booking\semester;
 use mod_booking\teachers_handler;
 use MoodleQuickForm;
@@ -66,6 +67,43 @@ class dates_handler {
         $this->bookingid = $bookingid;
     }
 
+    /**
+     * Create an option date from an optiondate object
+     * @param stdClass $optiondate
+     * @return int the option date id
+     */
+    public function create_option_date(stdClass $optiondate): int {
+        global $DB, $USER;
+        $optiondateid = $DB->insert_record('booking_optiondates', $optiondate);
+        // Add teachers of the booking option to newly created optiondate.
+        teachers_handler::subscribe_existing_teachers_to_new_optiondate($optiondateid);
+
+        // If a new optiondate is inserted, we add the entity of the parent option as default.
+        if (class_exists('local_entities\entitiesrelation_handler')) {
+            $erhandleroption = new entitiesrelation_handler('mod_booking', 'option');
+            $entityid = $erhandleroption->get_entityid_by_instanceid($this->optionid);
+            $erhandleroptiondate = new entitiesrelation_handler('mod_booking', 'optiondate');
+            $erhandleroptiondate->save_entity_relation($optiondateid, $entityid);
+        }
+        // After updating, we invalidate caches.
+        cache_helper::purge_by_event('setbackoptionstable');
+        cache_helper::invalidate_by_event('setbackoptionsettings', [$this->optionid]);
+
+        booking_updatestartenddate($this->optionid);
+        // We trigger the event, where we take care of events in calendar etc. First we get the context.
+        $booking = singleton_service::get_instance_of_booking_by_bookingid($optiondate->bookingid);
+        $context = $booking->get_context();
+        $event = \mod_booking\event\bookingoptiondate_created::create(array('context' => $context, 'objectid' => $optiondateid,
+                'userid' => $USER->id, 'other' => ['optionid' => $this->optionid]));
+        $event->trigger();
+        // Also create new user events (user calendar entries) for all booked users.
+        $option = singleton_service::get_instance_of_booking_option($booking->cmid, $this->optionid);
+        $users = $option->get_all_users();
+        foreach ($users as $user) {
+            new calendar($booking->cmid, $this->optionid, $user->id, calendar::TYPEOPTIONDATE, $optiondateid, 1);
+        }
+        return $optiondateid;
+    }
     /**
      * Add form fields to be passed on mform.
      *
@@ -187,9 +225,7 @@ class dates_handler {
             $bu = new \mod_booking\booking_utils();
             $bu->booking_show_option_userevents($this->optionid);
         }
-
         booking_updatestartenddate($this->optionid);
-
         // After deleting, we invalidate caches.
         booking_option::purge_cache_for_option($this->optionid);
 
@@ -248,26 +284,8 @@ class dates_handler {
                 $optiondate->coursestarttime = (int) $starttime;
                 $optiondate->courseendtime = (int) $endtime;
                 $optiondate->daystonotify = 0; // TODO: We will implement this in a later release..
-
-                $optiondateid = $DB->insert_record('booking_optiondates', $optiondate);
-
-                // Add teachers of the booking option to newly created optiondate.
-                teachers_handler::subscribe_existing_teachers_to_new_optiondate($optiondateid);
-
-                // If a new optiondate is inserted, we add the entity of the parent option as default.
-                if (class_exists('local_entities\entitiesrelation_handler')) {
-                    $erhandleroption = new entitiesrelation_handler('mod_booking', 'option');
-                    $entityid = $erhandleroption->get_entityid_by_instanceid($this->optionid);
-                    $erhandleroptiondate = new entitiesrelation_handler('mod_booking', 'optiondate');
-                    $erhandleroptiondate->save_entity_relation($optiondateid, $entityid);
-                }
+                $this->create_option_date($optiondate);
             }
-
-            // After updating, we invalidate caches.
-            cache_helper::purge_by_event('setbackoptionstable');
-            cache_helper::invalidate_by_event('setbackoptionsettings', [$this->optionid]);
-
-            booking_updatestartenddate($this->optionid);
         }
     }
 

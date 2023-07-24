@@ -91,15 +91,11 @@ if ($duplicate != '') {
         $record->eventid = 0; // No calendar event found to duplicate.
     }
 
-    $edit = $DB->insert_record('booking_optiondates', $record);
+    $datehandler = new dates_handler($bookingoption->id, $booking->id);
+    $edit = $datehandler->create_option_date($record);
 
     // For more readable code.
     $newoptiondateid = $edit;
-
-    // Add teachers of the booking option to newly created optiondate.
-    teachers_handler::subscribe_existing_teachers_to_new_optiondate($newoptiondateid);
-
-    booking_updatestartenddate($optionid);
 
     // Also duplicate custom fields of the optiondate.
     optiondate_duplicatecustomfields($oldoptiondateid, $newoptiondateid);
@@ -111,12 +107,6 @@ if ($duplicate != '') {
         if ($entityid) {
             $erhandler->save_entity_relation($newoptiondateid, $entityid);
         }
-    }
-
-    // Also create new user events (user calendar entries) for all booked users.
-    $users = $bookingoption->get_all_users_booked();
-    foreach ($users as $user) {
-        new calendar($cm->id, $optionid, $user->id, calendar::TYPEOPTIONDATE, $newoptiondateid, 1);
     }
 }
 
@@ -178,17 +168,14 @@ if ($mform->is_cancelled()) {
     } else {
         // It's a new optiondate (a.k.a. session).
         $changes = [];
-        if ($optiondateid = $DB->insert_record('booking_optiondates', $optiondate)) {
-
-            // Add teachers of the booking option to newly created optiondate.
-            teachers_handler::subscribe_existing_teachers_to_new_optiondate($optiondateid);
-
+        $datehandler = new dates_handler($bookingoption->id, $booking->id);
+        if ($optiondateid = $datehandler->create_option_date($optiondate)) {
             // Add info that a session has been added (do this only at coursestarttime, we don't need it twice).
-            $changes[] = [  'info' => get_string('changeinfosessionadded', 'booking'),
-                            'fieldname' => 'coursestarttime',
-                            'newvalue' => $optiondate->coursestarttime];
-            $changes[] = [  'fieldname' => 'courseendtime',
-                            'newvalue' => $optiondate->courseendtime];
+            $changes[] = ['info' => get_string('changeinfosessionadded', 'booking'),
+                    'fieldname' => 'coursestarttime',
+                    'newvalue' => $optiondate->coursestarttime];
+            $changes[] = ['fieldname' => 'courseendtime',
+                    'newvalue' => $optiondate->courseendtime];
         }
 
         // Retrieve available custom field data.

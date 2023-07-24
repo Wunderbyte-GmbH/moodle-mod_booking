@@ -1908,9 +1908,47 @@ class booking_option {
      *
      * @return void
      */
-    public function transform_optiondates_to_option() {
+    public function create_booking_options_from_optiondates(): void {
+        global $DB;
         // TODO. This has to be programmed.
-        $dateobjects = dates_handler::return_array_of_sessions_datestrings($this->optionid);
+        $dateobjects = dates_handler::get_existing_optiondates($this->optionid);
+        // Check if we have option dates that can be used for creating new options. If there aren't any do nothing.
+        if (empty($dateobjects)) {
+            return;
+        }
+        // Modify the existing option to have only one start and end date.
+        $dateshandler = new dates_handler($this->id);
+        $dateshandler->delete_all_option_dates();
+        $count = 0;
+
+        $settings = $this->settings;
+
+        foreach ($dateobjects as $optiondate) {
+
+            $newoption = $settings->return_settings_as_stdclass();
+
+            $newoption->coursestartdater = $optiondate->startdate;
+            $newoption->coursestartdater = $optiondate->startdate;
+
+            unset($newoption->optionid);
+            unset($newoption->id);
+            unset($newoption->sessions);
+
+            booking_update_options($newoption);
+
+            if ($count === 0) {
+                // Add a single option date to the existing booking option.
+               $dateshandler->create_option_date($optiondate);
+            } else {
+
+            }
+            $count++;
+        }
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+
+        // Create new booking option based on the existing one.
+
+
     }
 
     // Print custom report.
