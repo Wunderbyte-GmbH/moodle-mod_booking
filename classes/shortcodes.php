@@ -63,7 +63,7 @@ class shortcodes {
             $perpage = 1000;
         }
 
-        $table = self::init_table_for_courses();
+        $table = self::init_table_for_courses($course->shortname);
 
         $wherearray['recommendedin'] = "%$course->shortname%";
 
@@ -105,12 +105,13 @@ class shortcodes {
     /**
      * Base function for standard table configuration
      *
-     * @param booking $booking
+     * @param ?booking $booking
+     * @param ?string $uniquetablename
      * @return bookingoptions_wbtable
      */
-    private static function init_table_for_courses($booking = null) {
+    private static function init_table_for_courses($booking = null, $uniquetablename = null) {
 
-        $tablename = bin2hex(random_bytes(12));
+        $tablename = $uniquetablename ?? bin2hex(random_bytes(12));
 
         $table = new bookingoptions_wbtable($tablename, $booking);
 
