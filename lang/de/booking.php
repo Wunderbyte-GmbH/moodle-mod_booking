@@ -1603,6 +1603,9 @@ $string['appearancesettings_desc'] = 'Passen Sie die Darstellung des Buchungsplu
 $string['turnoffwunderbytelogo'] = 'Wunderbyte Logo und Link nicht anzeigen';
 $string['turnoffwunderbytelogo_desc'] = 'Wenn diese Einstellung aktiviert ist, werden das Wunderbyte Logo und der Link zur Wunderbyte-Website nicht angezeigt.';
 
+$string['collapseshowsettings'] = "Klappe Terminanzeige bei mehr als x Terminen zu.";
+$string['collapseshowsettings_desc'] = "Um auf der Überblicksseite nicht zu viele Termine auf einmal anzuzeigen, kann hier ein Limit definiert werden, ab dem die Anzeige standardmäßig eingeklappt ist.";
+
 $string['teachersettings'] = 'Trainer:innen (PRO)';
 $string['teachersettings_desc'] = 'Trainer:innen-spezifische Einstellungen.';
 

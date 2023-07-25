@@ -1626,6 +1626,9 @@ $string['appearancesettings_desc'] = 'Configure the appearance of the booking pl
 $string['turnoffwunderbytelogo'] = 'Do not show Wunderbyte logo und link';
 $string['turnoffwunderbytelogo_desc'] = 'If you activate this setting, the Wunderbyte logo and the link to the Wunderbyte website won\'t be shown.';
 
+$string['collapseshowsettings'] = "Collapse 'show dates' with more than x dates.";
+$string['collapseshowsettings_desc'] = "To avoid a messy view with too many dates, a lower limit for collapsed dates can be defined here.";
+
 $string['teachersettings'] = 'Teachers (PRO)';
 $string['teachersettings_desc'] = 'Teacher-specific settings.';
 

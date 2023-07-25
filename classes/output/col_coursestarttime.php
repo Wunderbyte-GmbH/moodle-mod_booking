@@ -67,8 +67,10 @@ class col_coursestarttime implements renderable, templatable {
         $this->optionid = $optionid;
         $this->datestrings = dates_handler::return_array_of_sessions_simple($optionid);
 
+        $maxdates = get_config('booking', 'collapseshowsettings') ?? 2; // Hardcoded fallback on two.
+
         // Show a collapse button for the dates.
-        if (!empty($this->datestrings) && count($this->datestrings) > 2 && $collapsed == true) {
+        if (!empty($this->datestrings) && count($this->datestrings) > $maxdates && $collapsed == true) {
             $this->showcollapsebtn = true;
         }
     }
