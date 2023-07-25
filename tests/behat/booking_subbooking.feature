@@ -1,4 +1,4 @@
-@mod @mod_booking @booking_price_formula
+@mod @mod_booking @booking_subboking
 Feature: Enabling subboking as admin configuring subboking as a teacher and booking it as a student.
 
   Background:
