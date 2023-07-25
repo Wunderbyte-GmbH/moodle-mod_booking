@@ -138,6 +138,11 @@ if ($ADMIN->fulltree) {
                 get_string('teachersettings_desc', 'mod_booking')));
 
         $settings->add(
+            new admin_setting_configcheckbox('booking/teacherslinkonteacher',
+                get_string('teacherslinkonteacher', 'mod_booking'),
+                get_string('teacherslinkonteacher_desc', 'mod_booking'), 1));
+
+        $settings->add(
             new admin_setting_configcheckbox('booking/teachersnologinrequired',
                 get_string('teachersnologinrequired', 'mod_booking'),
                 get_string('teachersnologinrequired_desc', 'mod_booking'), 0));

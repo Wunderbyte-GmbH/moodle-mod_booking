@@ -1628,6 +1628,10 @@ $string['turnoffwunderbytelogo_desc'] = 'If you activate this setting, the Wunde
 
 $string['teachersettings'] = 'Teachers (PRO)';
 $string['teachersettings_desc'] = 'Teacher-specific settings.';
+
+$string['teacherslinkonteacher'] = 'Add links on teacher sites';
+$string['teacherslinkonteacher_desc'] = 'When there are teachers added to a booking options, this setting will add links to an overview page.';
+
 $string['teachersnologinrequired'] = 'Login for teacher pages not necessary';
 $string['teachersnologinrequired_desc'] = 'If you activate this setting, everyone can access the teacher pages, regardless if logged in or not.';
 $string['teachersshowemails'] = 'Always show teacher\'s email addresses to everyone';

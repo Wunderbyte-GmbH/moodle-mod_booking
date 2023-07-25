@@ -1605,6 +1605,10 @@ $string['turnoffwunderbytelogo_desc'] = 'Wenn diese Einstellung aktiviert ist, w
 
 $string['teachersettings'] = 'Trainer:innen (PRO)';
 $string['teachersettings_desc'] = 'Trainer:innen-spezifische Einstellungen.';
+
+$string['teacherslinkonteacher'] = 'Links auf Trainer Seiten einfügen.';
+$string['teacherslinkonteacher_desc'] = 'Sind bei einer Buchungsoption Trainer:innen definiert, so werden die Namen automatisch mit einer Überblicksseite für diese Trainer:innen verknüpft.';
+
 $string['teachersnologinrequired'] = 'Einloggen bei Trainer:innen-Seiten nicht notwendig';
 $string['teachersnologinrequired_desc'] = 'Wenn Sie diese Einstellung aktivieren, dann können die Trainer:innen-Seiten auch von
  nicht-eingeloggten Benutzer:innen gesehen werden.';
