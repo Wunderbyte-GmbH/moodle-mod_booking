@@ -2411,6 +2411,8 @@ $string['bookingactionadd'] = "Add action";
 
 $string['boactionname'] = "Name of action";
 
+$string['onlyaddactionsonsavedoption'] = "Actions after booking can only be added once the booking option is saved.";
+
 $string['boactions_desc'] = "Description of the Actions after Booking";
 $string['boactions'] = "Actions after Booking";
 $string['userprofilefield'] = "Profile field";
@@ -2426,3 +2428,4 @@ $string['boactionuserprofilevalue'] = 'Value';
 $string['actionoperator:set'] = 'Replace';
 $string['actionoperator:substract'] = 'Subsctract';
 $string['actionoperator'] = 'Action';
+$string['actionoperator:adddate'] = 'Add date';

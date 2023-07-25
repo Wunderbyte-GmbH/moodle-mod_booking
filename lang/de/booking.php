@@ -2319,6 +2319,8 @@ $string['bookingactionadd'] = "Füge Aktion hinzu";
 $string['boactions_desc'] = "Beschreibung der Aktion nach der Buchung";
 $string['boactions'] = "Aktionen nach der Buchung";
 
+$string['onlyaddactionsonsavedoption'] = "Aktionen nach der Buchung könnnen nur zu schon gespeicherte Optionen hinzugefügt werden.";
+
 $string['boactionname'] = "Name der Aktion";
 $string['userprofilefield'] = "Profilfeld";
 $string['boactionselectuserprofile'] = "Wähle Profilfeld";
@@ -2334,3 +2336,4 @@ $string['boactionuserprofilevalue'] = 'Wert';
 $string['actionoperator:set'] = 'Ersetzen';
 $string['actionoperator:substract'] = 'Minus';
 $string['actionoperator'] = 'Aktion';
+$string['actionoperator:adddate'] = 'Füge Zeitraum hinzu';

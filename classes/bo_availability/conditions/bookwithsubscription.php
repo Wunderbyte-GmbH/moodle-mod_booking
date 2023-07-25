@@ -51,10 +51,10 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class bookwithcredits implements bo_condition {
+class bookwithsubscription implements bo_condition {
 
     /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = BO_COND_BOOKWITHCREDITS;
+    public $id = BO_COND_BOOKWITHSUBSCRIPTION;
 
     /**
      * Needed to see if class can take JSON.
@@ -86,6 +86,8 @@ class bookwithcredits implements bo_condition {
 
         $isavailable = true;
 
+        return true;
+
         $isactive = get_config('booking', 'bookwithcreditsactive');
 
         if (!empty($isactive)) {
@@ -111,10 +113,7 @@ class bookwithcredits implements bo_condition {
                     }
 
                     $key = "profile_field_" . $profilefield;
-
-                    $usercredit = $user->{$key} ?? $user->profile[$profilefield] ?? 0;
-
-                    if ($settings->credits <= $usercredit) {
+                    if ($settings->credits < $user->{$key}) {
 
                         $isavailable = false;
                     }
