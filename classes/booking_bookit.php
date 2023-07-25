@@ -264,6 +264,15 @@ class booking_bookit {
 
                 $isavailable = false;
 
+            } else if ($id === BO_COND_BOOKWITHSUBSCRIPTION) {
+
+                $cache = cache::make('mod_booking', 'confirmbooking');
+                $cachekey = $userid . "_" . $settings->id . "_bookwithsubscription";
+                $now = time();
+                $cache->set($cachekey, $now);
+
+                $isavailable = false;
+
             } else if ($id === BO_COND_CONFIRMBOOKIT) {
 
                 // Make sure cache is not blocking anymore.

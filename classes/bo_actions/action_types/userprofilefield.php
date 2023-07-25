@@ -68,7 +68,10 @@ class userprofilefield extends booking_action {
 
         profile_load_data($user);
 
-        if (isset($user->profile[$actiondata->boactionselectuserprofile])) {
+        // There are two ways to acces the profile fields, we have to support both.
+        $key = "profile_field_" . $actiondata->boactionselectuserprofile;
+        if (isset($user->profile[$actiondata->boactionselectuserprofile])
+            || isset($user->{$key})) {
 
             switch ($actiondata->boactionuserprofileoperator) {
                 case 'set':
@@ -77,21 +80,42 @@ class userprofilefield extends booking_action {
                 case 'add':
 
                     $number = intval($user->profile[$actiondata->boactionselectuserprofile]);
-                    $key = "profile_field_$actiondata->boactionselectuserprofile";
                     $user->{$key} =
                             $number + $actiondata->boactionuserprofilevalue;
                     break;
                 case 'substract':
                     $number = intval($user->profile[$actiondata->boactionselectuserprofile]);
 
-                    $key = "profile_field_$actiondata->boactionselectuserprofile";
                     $user->{$key} =
                             $number - $actiondata->boactionuserprofilevalue;
                     break;
-            }
-        }
+                case 'adddate':
 
-        profile_save_data($user);
+                    // First we check if the user has already a value in the field.
+
+                    if (empty($user->{$key})) {
+
+                        $settings = singleton_service::get_instance_of_booking_option_settings($actiondata->optionid);
+                        $startdate = !empty($settings->coursestarttime) ? $settings->coursestarttime : null;
+                    } else {
+                        list($startstring, $endstring) = explode(' - ', $user->{$key});
+
+                        $startdate = strtotime($endstring) ?? null;
+                    }
+
+                    $enddate = strtotime($actiondata->boactionuserprofilevalue, $startdate);
+
+                    if (!empty($startstring)) {
+                        $startdate = strtotime($startstring);
+                    } else if (empty($startdate)) {
+                        $startdate = time();
+                    }
+
+                    $user->{$key} = userdate($startdate) . " - " . userdate($enddate);
+                    break;
+            }
+            profile_save_data($user);
+        }
 
         return 0; // We will allow all other after actions like events.
     }
@@ -120,6 +144,7 @@ class userprofilefield extends booking_action {
             'set' => get_string('actionoperator:set', 'mod_booking'),
             'add' => get_string('add'),
             'substract' => get_string('actionoperator:substract', 'mod_booking'),
+            'adddate' => get_string('actionoperator:adddate', 'mod_booking'),
         ];
 
         $mform->addElement('select', 'boactionuserprofileoperator', get_string('actionoperator', 'mod_booking'),
