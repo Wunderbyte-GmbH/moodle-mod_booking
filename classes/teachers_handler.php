@@ -65,7 +65,7 @@ class teachers_handler {
      * @return void
      */
     public function add_to_mform(MoodleQuickForm &$mform) {
-        global $DB;
+        global $DB, $OUTPUT;
 
         // Workaround: Only show, if it is not turned off in the option form config.
         // We currently need this, because hideIf does not work with headers.
@@ -87,23 +87,28 @@ class teachers_handler {
         /* Important note: Currently, all users can be added as teachers for a booking option.
         In the future, there might be a user profile field defining users which are allowed
         to be added as teachers. */
+
+        // We need to preload list to not only have the id, but the rendered values.
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+
+        $list = [];
+        foreach ($settings->teachers as $teacher) {
+            $list[$teacher->userid] = $OUTPUT->render_from_template('mod_booking/form-user-selector-suggestion', ['email' => [(array)$teacher]]);
+        }
+
         $options = [
-            'ajax' => 'core_search/form-search-user-selector',
+            'tags' => false,
             'multiple' => true,
-            'noselectionstring' => get_string('choose...', 'mod_booking'),
-            'valuehtmlcallback' => function($value) {
-                global $DB, $OUTPUT;
-                $user = $DB->get_record('user', ['id' => (int)$value], '*', IGNORE_MISSING);
-                if (!$user || !user_can_view_profile($user)) {
-                    return false;
-                }
-                $details = user_get_user_details($user);
-                return $OUTPUT->render_from_template(
-                        'core_search/form-user-selector-suggestion', $details);
-            }
+            'noselectionstring' => '',
+            'ajax' => 'mod_booking/form_users_selector',
         ];
-        $mform->addElement('autocomplete', 'teachersforoption', get_string('assignteachers', 'mod_booking'),
-            [], $options);
+        /* Important note: Currently, all users can be added as teachers for optiondates.
+        In the future, there might be a user profile field defining users which are allowed
+        to be added as substitute teachers. */
+        $mform->addElement('autocomplete', 'teachersforoption', get_string('teachers', 'mod_booking'),
+            $list, $options);
+
         $mform->addHelpButton('teachersforoption', 'teachersforoption', 'mod_booking');
 
         // We only show link to teaching journal if it's an already existing booking option.
