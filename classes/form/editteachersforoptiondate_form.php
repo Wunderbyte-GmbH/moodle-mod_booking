@@ -190,7 +190,7 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
         $mform->addElement('hidden', 'optiondateid', $optiondateid);
         $mform->setType('optiondateid', PARAM_INT);
 
-        $mform->addElement('hidden', 'teachers', $teachers);
+        $mform->addElement('hidden', 'teachers', $this->_ajaxformdata['teachers']);
         $mform->setType('teachers', PARAM_RAW);
 
         $options = [
