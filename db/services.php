@@ -125,6 +125,13 @@ $functions = array(
         'capabilities' => '',
         'ajax' => 1
     ),
+    'mod_booking_search_users' => array(
+            'classname' => 'mod_booking\external\search_users',
+            'description' => 'Search a list of all users',
+            'type' => 'read',
+            'capabilities' => '',
+            'ajax' => 1
+    ),
 );
 
 $services = array(

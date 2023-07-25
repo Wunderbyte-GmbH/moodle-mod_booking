@@ -172,14 +172,22 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
      * The form definition.
      */
     public function definition() {
-        global $DB;
+        global $DB, $OUTPUT;
 
         $mform = $this->_form;
 
         $cmid = $this->_ajaxformdata['cmid'];
         $optionid = $this->_ajaxformdata['optionid'];
         $optiondateid = $this->_ajaxformdata['optiondateid'];
-        $teachers = explode(',', $this->_ajaxformdata['teachers']);
+        $teacheridstring = $this->_ajaxformdata['teachers'];
+        $teacherids = explode(',', $teacheridstring);
+        list ($insql, $inparams) = $DB->get_in_or_equal($teacherids, SQL_PARAMS_NAMED);
+        $sql = "SELECT id, firstname, lastname, email FROM {user} WHERE id $insql";
+        $teachers = $DB->get_records_sql($sql, $inparams);
+        $list = [];
+        foreach ($teachers as $teacher) {
+            $list[$teacher->id] = $OUTPUT->render_from_template('mod_booking/form-user-selector-suggestion', ['email' => [(array)$teacher]]);
+        }
 
         $mform->addElement('hidden', 'cmid', $cmid);
         $mform->setType('cmid', PARAM_INT);
@@ -190,27 +198,21 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
         $mform->addElement('hidden', 'optiondateid', $optiondateid);
         $mform->setType('optiondateid', PARAM_INT);
 
-        $mform->addElement('hidden', 'teachers', $teachers);
+        $mform->addElement('hidden', 'teachers', $teacheridstring);
         $mform->setType('teachers', PARAM_RAW);
 
         $options = [
             'tags' => false,
-            'multiple' => true
+            'multiple' => true,
+            'noselectionstring' => '',
+            'ajax' => 'mod_booking/form_users_selector',
         ];
         /* Important note: Currently, all users can be added as teachers for optiondates.
         In the future, there might be a user profile field defining users which are allowed
         to be added as substitute teachers. */
-        $userrecords = $DB->get_records_sql(
-            "SELECT id, firstname, lastname, email FROM {user}"
-        );
-        $allowedusers = [];
-        foreach ($userrecords as $userrecord) {
-            $allowedusers[$userrecord->id] = "$userrecord->firstname $userrecord->lastname ($userrecord->email)";
-        }
-
         $mform->addElement('autocomplete', 'teachersforoptiondate', get_string('teachers', 'mod_booking'),
-            $allowedusers, $options);
-        $mform->setDefault('teachersforoptiondate', $teachers);
+            $list, $options);
+        $mform->setDefault('teachersforoptiondate', $teacherids);
 
         $mform->addElement('text', 'reason', get_string('reason', 'mod_booking'));
         $mform->setType('reason', PARAM_TEXT);
