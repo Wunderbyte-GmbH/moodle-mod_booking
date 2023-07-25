@@ -138,12 +138,14 @@ class optiondates_teachers_table extends wunderbyte_table {
 
         $ret = '';
         if (!$this->is_downloading()) {
-            $ret .= html_writer::div(html_writer::link('#', "<h5><i class='fa fa-edit'></i></h5>",
+            $ret .= html_writer::div(html_writer::link('#', "<h5><i class='icon fa fa-edit'></i></h5>",
                 ['class' => 'btn-modal-edit-teachers',
                 'data-cmid' => $_GET['id'],
                 'data-optionid' => $values->optionid,
                 'data-teachers' => $values->teachers,
-                'data-optiondateid' => $values->optiondateid
+                'data-optiondateid' => $values->optiondateid,
+                'title' => get_string('editteachers', 'mod_booking'),
+                'aria-label' => get_string('editteachers', 'mod_booking')
             ]));
         }
         return $ret;
