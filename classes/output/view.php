@@ -312,7 +312,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($activebookingoptionstable, false, true, true);
+        $this->wbtable_initialize_list_layout($activebookingoptionstable, true, true, true);
 
         $out = $activebookingoptionstable->outhtml($booking->get_pagination_setting(), true);
 
@@ -340,7 +340,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($mybookingoptionstable, false, true, true);
+        $this->wbtable_initialize_list_layout($mybookingoptionstable, true, true, true);
 
         $out = $mybookingoptionstable->outhtml($booking->get_pagination_setting(), true);
 
