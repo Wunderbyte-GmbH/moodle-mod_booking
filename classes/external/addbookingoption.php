@@ -192,7 +192,7 @@ class addbookingoption extends external_api {
                         string $notifcationtext = null,
                         int $notifcationtextformat = null,
                         int $disablebookingusers = 0,
-                        int $beforebookedtext = null,
+                        string $beforebookedtext = null,
                         string $beforecompletedtext = null,
                         string $aftercompletedtext = null,
                         string $shorturl = null,
