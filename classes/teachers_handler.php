@@ -149,6 +149,11 @@ class teachers_handler {
      */
     public function save_from_form(stdClass &$formdata, bool $doenrol = true) {
 
+        // If we don't have the key here, we ignore all of this.
+        if (!isset($formdata->teachersforoption)) {
+            return;
+        }
+
         // Array of teacher ids.
         $teacherids = $formdata->teachersforoption;
 
