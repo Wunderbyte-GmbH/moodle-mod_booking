@@ -76,6 +76,8 @@ class addbookingoption extends external_api {
                 'Idnumber identifier of target course. Overriden by bookingidnumber.', (bool) VALUE_DEFAULT, null),
             'courseshortname' => new external_value(PARAM_RAW,
                 'Shortname of target course. Overriden by bookingidnumber.', (bool) VALUE_DEFAULT, null),
+            'enroltocourseshortname' => new external_value(PARAM_RAW,
+                'Shortname of course uses will be enroled to.', (bool) VALUE_DEFAULT, null),
             'maxanswers' => new external_value(PARAM_INT,
                 'Max places', (bool) VALUE_DEFAULT, null),
             'maxoverbooking' => new external_value(PARAM_INT,
@@ -169,6 +171,7 @@ class addbookingoption extends external_api {
                         int $bookingoptionid = null,
                         $courseidnumber = null,
                         string $courseshortname = null,
+                        string $enroltocourseshortname = null,
                         int $maxanswers = null,
                         int $maxoverbooking = null,
                         int $minanswers = null,
@@ -217,6 +220,7 @@ class addbookingoption extends external_api {
                         'bookingidnumber' => $bookingidnumber, // Idnumber of target booking instance.
                         'courseidnumber' => $courseidnumber, // Way of identifying target course via idnumber.
                         'courseshortname' => $courseshortname, // Way of identifiying target course via shortname.
+                        'enroltocourseshortname' => $enroltocourseshortname, // shortname of the course useres will be enroled to.
                         'bookingoptionid' => $bookingoptionid, // Moodle id of bookingoption to update booking option.
                         'maxanswers' => $maxanswers,
                         'maxoverbooking' => $maxoverbooking,

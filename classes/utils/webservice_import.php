@@ -355,6 +355,15 @@ class webservice_import {
             $data->restrictwithenrolledincourse = 1;
             unset($data->boav_enrolledincourse);
         }
+
+        if (!empty($data->enroltocourseshortname)) {
+
+            if ($courseid = $DB->get_field('course', 'id', ['shortname' => $data->enroltocourseshortname])) {
+                $data->courseid = $courseid;
+                unset($data->enroltocourseshortname);
+            }
+
+        }
     }
 
     /**
@@ -398,7 +407,7 @@ class webservice_import {
         global $DB;
 
         // If no teacher e-mail is provided, we don't do anything.
-        if (empty($data->teacheremail)) {
+        if (empty($data->teacheremail) || !strpos($data->teacheremail, "@")) {
             return;
         }
 
