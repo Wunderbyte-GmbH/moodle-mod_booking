@@ -34,9 +34,9 @@ Feature: Test booking options avaialbility conditions
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    And I should see "Option - availability by dates" in the "#allbookingoptionstable_r2" "css_element"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r2" "css_element"
-    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r2" "css_element"
+    And I should see "Option - availability by dates" in the "[id^='allbookingoptionstable'][id$='_r2']" "css_element"
+    And I click on "Settings" "icon" in the "[id^='allbookingoptionstable'][id$='_r2']" "css_element"
+    And I click on "Edit booking option" "link" in the "[id^='allbookingoptionstable'][id$='_r2']" "css_element"
     And I follow "Availability conditions"
     And I set the field "Booking is possible only after a certain date" to ""
     And I set the field "Booking is possible only until a certain date" to "checked"
