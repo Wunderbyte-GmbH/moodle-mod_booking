@@ -280,18 +280,24 @@ class webservice_import {
                 $data->startendtimeknown = 1;
                 $data->coursestarttime = strtotime($data->coursestarttime);
                 $data->courseendtime = strtotime($data->courseendtime);
-            } else if ($data->mergeparam == 1 || $data->mergeparam == 2) {
+            } else if ($data->mergeparam == 1 || $data->mergeparam == 2 || $data->mergeparam == 3) {
 
                 $data->startendtimeknown = 1;
 
                 $data->coursestarttime = strtotime($data->coursestarttime);
                 $data->courseendtime = strtotime($data->courseendtime);
 
+                $createnewdates = true;
                 foreach ($bookingoption->settings->sessions as $session) {
                     $data->stillexistingdates[$session->id] = "$session->coursestarttime - $session->courseendtime";
-                }
 
-                $data->newoptiondates[] = "$data->coursestarttime - $data->courseendtime";
+                    if ("$data->coursestarttime - $data->courseendtime" == "$session->coursestarttime - $session->courseendtime") {
+                        $createnewdates = false;
+                    }
+                }
+                if ($createnewdates) {
+                    $data->newoptiondates[] = "$data->coursestarttime - $data->courseendtime";
+                }
 
             }
         }
