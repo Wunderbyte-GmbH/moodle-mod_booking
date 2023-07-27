@@ -109,7 +109,7 @@ class teachers_handler {
         /* Important note: Currently, all users can be added as teachers for optiondates.
         In the future, there might be a user profile field defining users which are allowed
         to be added as substitute teachers. */
-        $mform->addElement('autocomplete', 'teachersforoption', get_string('teachers', 'mod_booking'),
+        $mform->addElement('autocomplete', 'teachersforoption', get_string('assignteachers', 'mod_booking'),
             $list, $options);
 
         $mform->addHelpButton('teachersforoption', 'teachersforoption', 'mod_booking');

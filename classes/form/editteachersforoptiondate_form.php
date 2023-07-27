@@ -181,15 +181,22 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
         $optiondateid = $this->_ajaxformdata['optiondateid'];
         $teacheridstring = $this->_ajaxformdata['teachers'];
         $teacherids = explode(',', $teacheridstring);
-        list ($insql, $inparams) = $DB->get_in_or_equal($teacherids, SQL_PARAMS_NAMED);
-        $sql = "SELECT id, firstname, lastname, email FROM {user} WHERE id $insql";
-        $teachers = $DB->get_records_sql($sql, $inparams);
+        $teacherids = array_filter($teacherids, 'is_numeric'); // Eliminate 'undefined' in case if no teacher.
+        
         $list = [];
-        foreach ($teachers as $teacher) {
-            $list[$teacher->id] =
-                $OUTPUT->render_from_template(
-                    'mod_booking/form-user-selector-suggestion',
-                    ['email' => [(array)$teacher]]);
+        // Process only if teachers assigned.
+        if (!empty($teacherids)) { 
+            list ($insql, $inparams) = $DB->get_in_or_equal($teacherids, SQL_PARAMS_NAMED);
+
+            $sql = "SELECT id, firstname, lastname, email FROM {user} WHERE id $insql";
+            $teachers = $DB->get_records_sql($sql, $inparams);
+        
+            foreach ($teachers as $teacher) {
+                $list[$teacher->id] =
+                    $OUTPUT->render_from_template(
+                        'mod_booking/form-user-selector-suggestion',
+                        ['email' => [(array)$teacher]]);
+            }
         }
 
         $mform->addElement('hidden', 'cmid', $cmid);
