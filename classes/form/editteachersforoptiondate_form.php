@@ -182,15 +182,15 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
         $teacheridstring = $this->_ajaxformdata['teachers'];
         $teacherids = explode(',', $teacheridstring);
         $teacherids = array_filter($teacherids, 'is_numeric'); // Eliminate 'undefined' in case if no teacher.
-        
+
         $list = [];
         // Process only if teachers assigned.
-        if (!empty($teacherids)) { 
+        if (!empty($teacherids)) {
             list ($insql, $inparams) = $DB->get_in_or_equal($teacherids, SQL_PARAMS_NAMED);
 
             $sql = "SELECT id, firstname, lastname, email FROM {user} WHERE id $insql";
             $teachers = $DB->get_records_sql($sql, $inparams);
-        
+
             foreach ($teachers as $teacher) {
                 $list[$teacher->id] =
                     $OUTPUT->render_from_template(

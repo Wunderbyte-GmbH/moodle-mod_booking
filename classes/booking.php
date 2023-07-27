@@ -178,7 +178,7 @@ class booking {
                     WHERE u.deleted = 0
                 ) AS fulltexttable";
         // Check for u.deleted = 0 is important, so we do not load any deleted users!
-        $params=[];
+        $params = [];
         if (!empty($query)) {
             // We search for every word extra to get better results.
             $firstrun = true;
