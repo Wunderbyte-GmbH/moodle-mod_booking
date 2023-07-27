@@ -94,7 +94,10 @@ class teachers_handler {
 
         $list = [];
         foreach ($settings->teachers as $teacher) {
-            $list[$teacher->userid] = $OUTPUT->render_from_template('mod_booking/form-user-selector-suggestion', ['email' => [(array)$teacher]]);
+            $list[$teacher->userid] =
+                $OUTPUT->render_from_template(
+                    'mod_booking/form-user-selector-suggestion',
+                    ['email' => [(array)$teacher]]);
         }
 
         $options = [

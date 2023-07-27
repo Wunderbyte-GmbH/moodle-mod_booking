@@ -122,18 +122,19 @@ if ($ADMIN->fulltree) {
                     get_string('turnoffwunderbytelogo', 'mod_booking'),
                     get_string('turnoffwunderbytelogo_desc', 'mod_booking'), 0));
 
-            $options = [
-                1 => "1",
-                2 => "2",
-                3 => "3",
-                4 => "4",
-                5 => "5",
-                6 => "6",
-                7 => "7",
-                8 => "8",
-                9 => "9",
-                10 => "10",
-            ];
+        $options = [
+            1 => "1",
+            2 => "2",
+            3 => "3",
+            4 => "4",
+            5 => "5",
+            6 => "6",
+            7 => "7",
+            8 => "8",
+            9 => "9",
+            10 => "10",
+        ];
+
         $settings->add(
             new admin_setting_configselect('booking/collapseshowsettings',
                 get_string('collapseshowsettings', 'mod_booking'),

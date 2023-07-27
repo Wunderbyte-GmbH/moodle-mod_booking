@@ -220,7 +220,7 @@ class addbookingoption extends external_api {
                         'bookingidnumber' => $bookingidnumber, // Idnumber of target booking instance.
                         'courseidnumber' => $courseidnumber, // Way of identifying target course via idnumber.
                         'courseshortname' => $courseshortname, // Way of identifiying target course via shortname.
-                        'enroltocourseshortname' => $enroltocourseshortname, // shortname of the course useres will be enroled to.
+                        'enroltocourseshortname' => $enroltocourseshortname, // Shortname of the course useres will be enroled to.
                         'bookingoptionid' => $bookingoptionid, // Moodle id of bookingoption to update booking option.
                         'maxanswers' => $maxanswers,
                         'maxoverbooking' => $maxoverbooking,

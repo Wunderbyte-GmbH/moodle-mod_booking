@@ -186,7 +186,10 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
         $teachers = $DB->get_records_sql($sql, $inparams);
         $list = [];
         foreach ($teachers as $teacher) {
-            $list[$teacher->id] = $OUTPUT->render_from_template('mod_booking/form-user-selector-suggestion', ['email' => [(array)$teacher]]);
+            $list[$teacher->id] =
+                $OUTPUT->render_from_template(
+                    'mod_booking/form-user-selector-suggestion',
+                    ['email' => [(array)$teacher]]);
         }
 
         $mform->addElement('hidden', 'cmid', $cmid);
