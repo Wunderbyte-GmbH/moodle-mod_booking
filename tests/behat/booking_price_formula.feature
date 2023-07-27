@@ -57,9 +57,9 @@ Feature: As a teacher - configure and use booking's price formula feature.
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     Then I follow "My booking"
-    And I should see "Price formula option - Dates NOT in timeslot" in the "#allbookingoptionstable_r2" "css_element"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r2" "css_element"
-    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r2" "css_element"
+    And I should see "Price formula option - Dates NOT in timeslot" in the ".allbookingoptionstable_r2" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I follow "Dates"
     And I wait "1" seconds
     And I set the field "Select time period" to "Next May (nextmay)"
@@ -72,16 +72,16 @@ Feature: As a teacher - configure and use booking's price formula feature.
     And I set the field "Manual factor" to "2"
     And I set the field "Absolute value" to "5"
     And I press "Save and go back"
-    And I should see "285.00 EUR" in the "#allbookingoptionstable_r2 .pricecurrency" "css_element"
+    And I should see "285.00 EUR" in the ".allbookingoptionstable_r2 .pricecurrency" "css_element"
 
   @javascript
   Scenario: Option dates are in timeslot of the price formula
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     Then I follow "My booking"
-    And I should see "Price formula option - Dates In timeslot" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r1" "css_element"
+    And I should see "Price formula option - Dates In timeslot" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Dates"
     And I wait "1" seconds
     And I set the field "Select time period" to "Next May (nextmay)"
@@ -94,7 +94,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     And I set the field "Manual factor" to "2"
     And I set the field "Absolute value" to "5"
     And I press "Save and go back"
-    And I should see "145.00 EUR" in the "#allbookingoptionstable_r1 .pricecurrency" "css_element"
+    And I should see "145.00 EUR" in the ".allbookingoptionstable_r1 .pricecurrency" "css_element"
 
   @javascript
   Scenario: Option dates not in timeslot of the price formula and no unit factor
@@ -107,9 +107,9 @@ Feature: As a teacher - configure and use booking's price formula feature.
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     Then I follow "My booking"
-    And I should see "Price formula option - No unit factor" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "Price formula option - No unit factor" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
     And I follow "Dates"
     And I wait "1" seconds
     And I set the field "Select time period" to "Next May (nextmay)"
@@ -122,7 +122,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     And I set the field "Manual factor" to "3"
     And I set the field "Absolute value" to "5"
     And I press "Save and go back"
-    And I should see "215.00 EUR" in the "#allbookingoptionstable_r3 .pricecurrency" "css_element"
+    And I should see "215.00 EUR" in the ".allbookingoptionstable_r3 .pricecurrency" "css_element"
 
   @javascript
   Scenario: Option dates not in timeslot of the price formula and no price rounding
@@ -135,9 +135,9 @@ Feature: As a teacher - configure and use booking's price formula feature.
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     Then I follow "My booking"
-    And I should see "Price formula option - No unit factor" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "Price formula option - No unit factor" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
     And I follow "Dates"
     And I wait "1" seconds
     And I set the field "Select time period" to "Next May (nextmay)"
@@ -151,7 +151,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     And I set the field "Absolute value" to "5"
     And I press "Save and go back"
     And I wait "20" seconds
-    And I should see "425.60 EUR" in the "#allbookingoptionstable_r3 .pricecurrency" "css_element"
+    And I should see "425.60 EUR" in the ".allbookingoptionstable_r3 .pricecurrency" "css_element"
 
   @javascript
   Scenario: Empty price formula not being applied
@@ -163,9 +163,9 @@ Feature: As a teacher - configure and use booking's price formula feature.
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     Then I follow "My booking"
-    And I should see "Price formula option - No unit factor" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "Price formula option - No unit factor" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
     And I follow "Price"
     And I set the field "Only book with price" to "checked"
     And the following fields match these values:

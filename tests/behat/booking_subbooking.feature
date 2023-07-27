@@ -36,8 +36,8 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     When I am on "Course 1" course homepage
     Then I follow "My booking"
     And I wait until the page is ready
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r1" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I wait until the page is ready
     And I press "Subbookings"
     And I click on "Add a subbooking" "text" in the ".booking-subbookings-container" "css_element"
@@ -56,9 +56,9 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     ## Given I am on the "Course 1" course page logged in as student1
     ## And I follow "My booking"
     ## And I wait until the page is ready
-    ## Then I should see "Test option 1" in the "#allbookingoptionstable_r1" "css_element"
-    ## And I should see "Book now" in the "#allbookingoptionstable_r1 .booknow" "css_element"
-    ## And I click on "Book now" "text" in the "#allbookingoptionstable_r1 .booknow" "css_element"
+    ## Then I should see "Test option 1" in the ".allbookingoptionstable_r1" "css_element"
+    ## And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    ## And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     ## Then I should see "Test option 1" in the ".modal-dialog .bookingoption-description-prepagemodal-bookit" "css_element"
     ## And I click on "Book now" "button" in the ".modal-dialog .booking-button-area" "css_element"
     ## And I should see "Do you really want to book?" in the ".modal-dialog .booking-button-area" "css_element"
@@ -80,4 +80,4 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     ## And I follow "Continue"
     ## And I should see "You have successfully booked Test option 1" in the ".condition-confirmation" "css_element"
     ## And I follow "Close"
-    ## And I should see "Booked" in the "#allbookingoptionstable_r1" "css_element"
+    ## And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"

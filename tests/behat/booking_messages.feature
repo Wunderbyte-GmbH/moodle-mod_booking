@@ -30,16 +30,16 @@ Feature: Test messaging features in a booking
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r1" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I wait "1" seconds
     And I press "Teachers"
     And I wait "1" seconds
     And I set the field "Assign teachers:" to "Teacher 1"
     And I press "Save and go back"
     And I follow "My booking"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Book other users" "link" in the "#allbookingoptionstable_r1" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Student 1 (student1@example.com)" "text"
     And I click on "Student 2 (student2@example.com)" "text"
     And I click on "Add" "button"
@@ -71,10 +71,10 @@ Feature: Test messaging features in a booking
     When I am on "Course 1" course homepage
     And I follow "My booking"
     And I should see "New option - Webinar"
-    And I click on "Book now" "text" in the "#allbookingoptionstable_r1" "css_element"
-    And I should see "Do you really want to book?" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Do you really want to book?" "text" in the "#allbookingoptionstable_r1" "css_element"
-    And I should see "Booked" in the "#allbookingoptionstable_r1" "css_element"
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Do you really want to book?" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Do you really want to book?" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
     ## Next step(s) cause faiure (coding error, email was not sent):
     ## Then I trigger cron
     ## And I wait "1" seconds
@@ -90,8 +90,8 @@ Feature: Test messaging features in a booking
     When I am on "Course 1" course homepage
     Then I follow "My booking"
     And I follow "My booking"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Book other users" "link" in the "#allbookingoptionstable_r1" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Student 1 (student1@example.com)" "text"
     And I click on "Student 2 (student2@example.com)" "text"
     And I click on "Add" "button"

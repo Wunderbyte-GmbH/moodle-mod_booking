@@ -35,9 +35,9 @@ Feature: Test of book policy setting in a booking instance
     And I follow "Miscellaneous settings"
     And I set the field "Booking policy" to "Are you sure?"
     And I press "Save and display"
-    And I should see "Test option 1" in the "#allbookingoptionstable_r1" "css_element"
-    And I should see "Book now" in the "#allbookingoptionstable_r1 .booknow" "css_element"
-    And I click on "Book now" "text" in the "#allbookingoptionstable_r1 .booknow" "css_element"
+    And I should see "Test option 1" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     Then I should see "Are you sure?" in the ".condition-bookingpolicy-form" "css_element"
     And I log out
 
@@ -50,17 +50,17 @@ Feature: Test of book policy setting in a booking instance
     And I follow "Miscellaneous settings"
     And I set the field "Booking policy" to "Are you sure?"
     And I press "Save and display"
-    And I should see "Test option 1" in the "#allbookingoptionstable_r1" "css_element"
-    And I should see "Book now" in the "#allbookingoptionstable_r1 .booknow" "css_element"
-    And I click on "Book now" "text" in the "#allbookingoptionstable_r1 .booknow" "css_element"
+    And I should see "Test option 1" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     Then I should see "Are you sure?" in the ".condition-bookingpolicy-form" "css_element"
     And I log out
     Given I am on the "Course 1" course page logged in as student1
     And I follow "My booking"
     And I wait "1" seconds
-    And I should see "Test option 1" in the "#allbookingoptionstable_r1" "css_element"
-    And I should see "Book now" in the "#allbookingoptionstable_r1 .booknow" "css_element"
-    And I click on "Book now" "text" in the "#allbookingoptionstable_r1 .booknow" "css_element"
+    And I should see "Test option 1" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     Then I should see "Are you sure?" in the ".condition-bookingpolicy-form" "css_element"
     And I set the field "bookingpolicy_checkbox" to "checked"
     And I follow "Continue"
@@ -73,4 +73,4 @@ Feature: Test of book policy setting in a booking instance
     And I follow "Continue"
     And I should see "You have successfully booked Test option 1" in the ".condition-confirmation" "css_element"
     And I follow "Close"
-    And I should see "Booked" in the "#allbookingoptionstable_r1" "css_element"
+    And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"

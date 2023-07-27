@@ -32,8 +32,8 @@ Feature: In a booking - create options and assign or substituing teachers
     And I log in as "admin1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Manage option dates" "link" in the "#allbookingoptionstable_r1" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Manage option dates" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I set the following fields to these values:
       | coursestarttime[day]    | 15                  |
       | coursestarttime[month]  | March               |
@@ -50,9 +50,9 @@ Feature: In a booking - create options and assign or substituing teachers
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    And I should see "Booking option - Teachers" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Substitutions / Cancelled dates" "link" in the "#allbookingoptionstable_r1" "css_element"
+    And I should see "Booking option - Teachers" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Substitutions / Cancelled dates" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Booking option - Teachers" in the "#region-main" "css_element"
     And I should see "No teacher" in the "#optiondates_teachers_table_r1 .teacher" "css_element"
     And I click on "Edit" "link" in the "#optiondates_teachers_table_r1 .edit" "css_element"
@@ -79,9 +79,9 @@ Feature: In a booking - create options and assign or substituing teachers
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I follow "My booking"
-    And I should see "Booking option - Teachers" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Substitutions / Cancelled dates" "link" in the "#allbookingoptionstable_r1" "css_element"
+    And I should see "Booking option - Teachers" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Substitutions / Cancelled dates" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Booking option - Teachers" in the "#region-main" "css_element"
     And I should see "No teacher" in the "#optiondates_teachers_table_r1 .teacher" "css_element"
     When I click on "Edit" "link" in the "#optiondates_teachers_table_r1 .edit" "css_element"

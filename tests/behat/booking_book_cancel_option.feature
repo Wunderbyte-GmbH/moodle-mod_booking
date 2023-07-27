@@ -39,14 +39,14 @@ Feature: In a booking instance
     Given I am on the "Course 1" course page logged in as student1
     And I follow "My booking"
     And I wait "1" seconds
-    Then I should see "Test option 1" in the "#allbookingoptionstable_r1" "css_element"
-    And I should see "Book now" in the "#allbookingoptionstable_r1 .booknow" "css_element"
-    And I click on "Book now" "text" in the "#allbookingoptionstable_r1 .booknow" "css_element"
-    And I should see "Do you really want to book?" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Do you really want to book?" "text" in the "#allbookingoptionstable_r1" "css_element"
-    And I should see "Booked" in the "#allbookingoptionstable_r1" "css_element"
-    And I should not see "Book now" in the "#allbookingoptionstable_r1 .booknow" "css_element"
-    And I should not see "Undo my booking" in the "#allbookingoptionstable_r1 .booknow" "css_element"
+    Then I should see "Test option 1" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I should see "Do you really want to book?" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Do you really want to book?" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    And I should not see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I should not see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
 
   @javascript
   Scenario: Simple booking of oprion as a student with cancellation
@@ -61,17 +61,17 @@ Feature: In a booking instance
     Given I am on the "Course 1" course page logged in as student1
     And I follow "My booking"
     And I wait "1" seconds
-    Then I should see "Test option 1" in the "#allbookingoptionstable_r1" "css_element"
-    And I should see "Book now" in the "#allbookingoptionstable_r1 .booknow" "css_element"
-    And I click on "Book now" "text" in the "#allbookingoptionstable_r1 .booknow" "css_element"
-    And I should see "Do you really want to book?" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Do you really want to book?" "text" in the "#allbookingoptionstable_r1" "css_element"
-    And I should see "Booked" in the "#allbookingoptionstable_r1" "css_element"
-    And I should not see "Book now" in the "#allbookingoptionstable_r1 .booknow" "css_element"
-    And I should see "Undo my booking" in the "#allbookingoptionstable_r1 .booknow" "css_element"
+    Then I should see "Test option 1" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I should see "Do you really want to book?" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Do you really want to book?" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    And I should not see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I wait "1" seconds
-    And I click on "Undo my booking" "text" in the "#allbookingoptionstable_r1 .booknow" "css_element"
-    And I should see "Do you really want to be removed from this booking option?" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Do you really want to be removed from this booking option?" "text" in the "#allbookingoptionstable_r1" "css_element"
+    And I click on "Undo my booking" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I should see "Do you really want to be removed from this booking option?" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Do you really want to be removed from this booking option?" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I wait "1" seconds
-    And I should see "Book now" in the "#allbookingoptionstable_r1 .booknow" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"

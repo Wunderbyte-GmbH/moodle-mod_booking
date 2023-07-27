@@ -31,9 +31,9 @@ Feature: In a booking delete
     When I am on "Course 1" course homepage
     And I follow "My booking"
     ## And I follow "My booking"
-    And I should see "New option" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Delete this booking option" "link" in the "#allbookingoptionstable_r1" "css_element"
+    And I should see "New option" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Delete this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I wait until the page is ready
     Then I should see "Do you really want to delete this booking option?"
     And I click on "Continue" "button"
@@ -50,8 +50,8 @@ Feature: In a booking delete
     When I am on "Course 1" course homepage
     Then I follow "My booking"
     And I follow "My booking"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Book other users" "link" in the "#allbookingoptionstable_r1" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Student 1 (student1@example.com)" "text"
     And I click on "Student 2 (student2@example.com)" "text"
     And I click on "Add" "button"

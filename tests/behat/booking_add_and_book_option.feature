@@ -62,13 +62,13 @@ Feature: In a booking instance create booking options
       | courseendtime[hour]   | 00                   |
       | courseendtime[minute] | 00                   |
     And I press "Save and go back"
-    And I should see "Book now" in the "#allbookingoptionstable_r1" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     And I log out
     And I am on the "Course 1" course page logged in as student1
     And I follow "My booking"
     And I wait "1" seconds
-    And I click on "Book now" "text" in the "#allbookingoptionstable_r1 .booknow" "css_element"
-    And I should see "Do you really want to book?" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Do you really want to book?" "text" in the "#allbookingoptionstable_r1" "css_element"
-    And I should see "Booked" in the "#allbookingoptionstable_r1" "css_element"
-    And I should not see "Book now" in the "#allbookingoptionstable_r1" "css_element"
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I should see "Do you really want to book?" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Do you really want to book?" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    And I should not see "Book now" in the ".allbookingoptionstable_r1" "css_element"

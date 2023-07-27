@@ -34,9 +34,9 @@ Feature: Test booking options avaialbility conditions
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    And I should see "Option - availability by dates" in the "[id^='allbookingoptionstable'][id$='_r2']" "css_element"
-    And I click on "Settings" "icon" in the "[id^='allbookingoptionstable'][id$='_r2']" "css_element"
-    And I click on "Edit booking option" "link" in the "[id^='allbookingoptionstable'][id$='_r2']" "css_element"
+    And I should see "Option - availability by dates" in the ".allbookingoptionstable_r2" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I follow "Availability conditions"
     And I set the field "Booking is possible only after a certain date" to ""
     And I set the field "Booking is possible only until a certain date" to "checked"
@@ -46,22 +46,22 @@ Feature: Test booking options avaialbility conditions
       | bookingclosingtime[month] | May                |
       | bookingclosingtime[year]  | ## - 1 year ##%Y## |
     And I press "Save and go back"
-    Then I should see "Cannot be booked anymore" in the "#allbookingoptionstable_r2" "css_element"
-    And I should see "May 10" in the "#allbookingoptionstable_r2" "css_element"
-    And I should see "## - 1 year ##%Y##" in the "#allbookingoptionstable_r2" "css_element"
+    Then I should see "Cannot be booked anymore" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "May 10" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "## - 1 year ##%Y##" in the ".allbookingoptionstable_r2" "css_element"
     And I log out
     Given I log in as "student1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    Then I should see "Cannot be booked anymore" in the "#allbookingoptionstable_r2" "css_element"
-    And I should not see "Book now" in the "#allbookingoptionstable_r2" "css_element"
+    Then I should see "Cannot be booked anymore" in the ".allbookingoptionstable_r2" "css_element"
+    And I should not see "Book now" in the ".allbookingoptionstable_r2" "css_element"
     And I log out
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
     And I wait "1" seconds
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r2" "css_element"
-    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r2" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I follow "Availability conditions"
     And I set the field "Booking is possible only after a certain date" to ""
     And I set the field "Booking is possible only until a certain date" to "checked"
@@ -75,7 +75,7 @@ Feature: Test booking options avaialbility conditions
     Given I log in as "student1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    Then I should see "Book now" in the "#allbookingoptionstable_r2" "css_element"
+    Then I should see "Book now" in the ".allbookingoptionstable_r2" "css_element"
     And I log out
 
   @javascript
@@ -84,8 +84,8 @@ Feature: Test booking options avaialbility conditions
     When I am on "Course 1" course homepage
     And I follow "My booking"
     And I wait "1" seconds
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r2" "css_element"
-    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r2" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I follow "Availability conditions"
     And I set the field "Booking is possible only until a certain date" to ""
     And I set the field "Booking is possible only after a certain date" to "checked"
@@ -99,14 +99,14 @@ Feature: Test booking options avaialbility conditions
     Given I log in as "student1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    Then I should see "Book now" in the "#allbookingoptionstable_r2" "css_element"
+    Then I should see "Book now" in the ".allbookingoptionstable_r2" "css_element"
     And I log out
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
     And I wait "1" seconds
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r2" "css_element"
-    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r2" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I follow "Availability conditions"
     And I set the field "Booking is possible only until a certain date" to ""
     And I set the field "Booking is possible only after a certain date" to "checked"
@@ -116,24 +116,24 @@ Feature: Test booking options avaialbility conditions
       | bookingopeningtime[month]  | March              |
       | bookingopeningtime[year]   | ## + 1 year ##%Y## |
     And I press "Save and go back"
-    Then I should see "Can be booked from" in the "#allbookingoptionstable_r2" "css_element"
-    And I should see "March 10" in the "#allbookingoptionstable_r2" "css_element"
-    And I should see "## + 1 year ##%Y##" in the "#allbookingoptionstable_r2" "css_element"
+    Then I should see "Can be booked from" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "March 10" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "## + 1 year ##%Y##" in the ".allbookingoptionstable_r2" "css_element"
     And I log out
     Given I log in as "student1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    Then I should see "Cannot be booked yet" in the "#allbookingoptionstable_r2" "css_element"
-    And I should not see "Book now" in the "#allbookingoptionstable_r2" "css_element"
+    Then I should see "Cannot be booked yet" in the ".allbookingoptionstable_r2" "css_element"
+    And I should not see "Book now" in the ".allbookingoptionstable_r2" "css_element"
 
   @javascript
   Scenario: Configure bookingoption-depdendent availability condition
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    And I should see "Option - advanced availability" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r1" "css_element"
+    And I should see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Availability conditions"
     And I set the field "User has previously booked a certain option" to "checked"
     And I wait "1" seconds
@@ -145,24 +145,24 @@ Feature: Test booking options avaialbility conditions
     When I am on "Course 1" course homepage
     And I follow "My booking"
     And I wait "1" seconds
-    Then I should see "Not allowed to book" in the "#allbookingoptionstable_r1" "css_element"
-    And I should not see "Book now" in the "#allbookingoptionstable_r1" "css_element"
-    And I should see "Book now" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Book now" "text" in the "#allbookingoptionstable_r3" "css_element"
-    And I should see "Do you really want to book?" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Do you really want to book?" "text" in the "#allbookingoptionstable_r3" "css_element"
-    And I should see "Booked" in the "#allbookingoptionstable_r3" "css_element"
-    And I should see "Book now" in the "#allbookingoptionstable_r1" "css_element"
-    And I should not see "Not allowed to book" in the "#allbookingoptionstable_r1" "css_element"
+    Then I should see "Not allowed to book" in the ".allbookingoptionstable_r1" "css_element"
+    And I should not see "Book now" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Do you really want to book?" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Do you really want to book?" "text" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Booked" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
+    And I should not see "Not allowed to book" in the ".allbookingoptionstable_r1" "css_element"
 
   @javascript
   Scenario: Configure userprofile-depdendent availability condition
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    And I should see "Option - dependency" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "Option - dependency" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
     And I follow "Availability conditions"
     And I set the field "A chosen user profile field should have a certain value" to "checked"
     And I wait "1" seconds
@@ -173,20 +173,20 @@ Feature: Test booking options avaialbility conditions
     And I wait "1" seconds
     And I press "Save and go back"
     And I wait "1" seconds
-    Then I should see "Only user with customfield email set to value gmail.com are allowed to book" in the "#allbookingoptionstable_r3" "css_element"
+    Then I should see "Only user with customfield email set to value gmail.com are allowed to book" in the ".allbookingoptionstable_r3" "css_element"
     And I log out
     Given I log in as "student1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
     And I wait "1" seconds
-    Then I should see "Not allowed to book" in the "#allbookingoptionstable_r3" "css_element"
-    And I should not see "Book now" in the "#allbookingoptionstable_r3" "css_element"
+    Then I should see "Not allowed to book" in the ".allbookingoptionstable_r3" "css_element"
+    And I should not see "Book now" in the ".allbookingoptionstable_r3" "css_element"
     And I log out
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r3" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
     And I follow "Availability conditions"
     And I set the field "A chosen user profile field should have a certain value" to "checked"
     And I wait "1" seconds
@@ -201,47 +201,47 @@ Feature: Test booking options avaialbility conditions
     When I am on "Course 1" course homepage
     And I follow "My booking"
     And I wait "1" seconds
-    Then I should not see "Not allowed to book" in the "#allbookingoptionstable_r3" "css_element"
-    And I should see "Book now" in the "#allbookingoptionstable_r3" "css_element"
+    Then I should not see "Not allowed to book" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
 
   @javascript
   Scenario: Configure user-depdendent availability condition
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    And I should see "Option - dependency" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "Option - dependency" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
     And I follow "Availability conditions"
     And I set the field "Only specific user(s) are allowed to book" to "checked"
     And I set the field "User(s) allowed to book" to "Student 2"
     And I wait "1" seconds
     And I press "Save and go back"
     And I wait "1" seconds
-    Then I should see "Only the following users are allowed to book:" in the "#allbookingoptionstable_r3" "css_element"
-    And I should see "Student 2" in the "#allbookingoptionstable_r3" "css_element"
+    Then I should see "Only the following users are allowed to book:" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Student 2" in the ".allbookingoptionstable_r3" "css_element"
     And I log out
     Given I log in as "student1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
     And I wait "1" seconds
-    Then I should see "Booking not allowed" in the "#allbookingoptionstable_r3" "css_element"
-    And I should not see "Book now" in the "#allbookingoptionstable_r3" "css_element"
+    Then I should see "Booking not allowed" in the ".allbookingoptionstable_r3" "css_element"
+    And I should not see "Book now" in the ".allbookingoptionstable_r3" "css_element"
     And I log out
     Given I log in as "student2"
     When I am on "Course 1" course homepage
     And I follow "My booking"
     And I wait "1" seconds
-    Then I should see "Book now" in the "#allbookingoptionstable_r3" "css_element"
+    Then I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
 
   @javascript
   Scenario: Configure max participants limit
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    And I should see "Option - dependency" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "Option - dependency" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
     And I set the field "Limit the number of participants" to "checked"
     And I set the field "Max. number of participants" to "1"
     And I wait "1" seconds
@@ -250,18 +250,18 @@ Feature: Test booking options avaialbility conditions
     When I am on "Course 1" course homepage
     And I follow "My booking"
     And I wait "1" seconds
-    And I should see "Book now" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Book now" "text" in the "#allbookingoptionstable_r3" "css_element"
-    And I should see "Do you really want to book?" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Do you really want to book?" "text" in the "#allbookingoptionstable_r3" "css_element"
-    And I should see "Booked" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Do you really want to book?" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Do you really want to book?" "text" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Booked" in the ".allbookingoptionstable_r3" "css_element"
     And I log out
     Given I log in as "student2"
     When I am on "Course 1" course homepage
     And I follow "My booking"
     And I wait "1" seconds
-    Then I should see "Fully booked" in the "#allbookingoptionstable_r3" "css_element"
-    And I should not see "Book now" in the "#allbookingoptionstable_r3" "css_element"
+    Then I should see "Fully booked" in the ".allbookingoptionstable_r3" "css_element"
+    And I should not see "Book now" in the ".allbookingoptionstable_r3" "css_element"
     And I log out
 
   @javascript
@@ -269,9 +269,9 @@ Feature: Test booking options avaialbility conditions
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    And I should see "Option - dependency" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "Option - dependency" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
     And I set the field "Limit the number of participants" to "checked"
     And I set the following fields to these values:
       | Max. number of participants           | 2 |
@@ -279,8 +279,8 @@ Feature: Test booking options avaialbility conditions
       | Min. number of participants           | 1 |
     And I wait "1" seconds
     And I press "Save and go back"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Book other users" "link" in the "#allbookingoptionstable_r3" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Book other users" "link" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Student 1 (student1@example1.com)" "text"
     And I click on "Student 2 (student2@example2.com)" "text"
     And I click on "Add" "button"
@@ -290,17 +290,17 @@ Feature: Test booking options avaialbility conditions
     When I am on "Course 1" course homepage
     And I follow "My booking"
     And I wait "1" seconds
-    And I should see "Booked" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "Booked" in the ".allbookingoptionstable_r3" "css_element"
     And I log out
     Given I log in as "student3"
     When I am on "Course 1" course homepage
     And I follow "My booking"
     And I wait "1" seconds
-    Then I should see "Book now" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Book now" "text" in the "#allbookingoptionstable_r3" "css_element"
-    And I should see "Do you really want to book?" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Do you really want to book?" "text" in the "#allbookingoptionstable_r3" "css_element"
-    And I should see "Fully booked - You are on the waiting list" in the "#allbookingoptionstable_r3" "css_element"
+    Then I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Do you really want to book?" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Do you really want to book?" "text" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Fully booked - You are on the waiting list" in the ".allbookingoptionstable_r3" "css_element"
     And I log out
 
   @javascript
@@ -311,34 +311,34 @@ Feature: Test booking options avaialbility conditions
     And I press "Save changes"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    And I should see "Option - dependency" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "Option - dependency" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
     And I set the field "Limit the number of participants" to "checked"
     And I set the field "Max. number of participants" to "1"
     And I wait "1" seconds
     And I press "Save and go back"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Book other users" "link" in the "#allbookingoptionstable_r3" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Book other users" "link" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Student 1 (student1@example1.com)" "text"
     And I click on "Add" "button"
     And I follow "<< Back to responses"
     And I follow "Booking"
-    And I should see "Fully booked. Booking not possible anymore" in the "#allbookingoptionstable_r3" "css_element"
-    And I should see "Book now" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Book now" "text" in the "#allbookingoptionstable_r3" "css_element"
-    And I should see "Do you really want to book?" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Do you really want to book?" "text" in the "#allbookingoptionstable_r3" "css_element"
-    And I should see "Booked" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "Fully booked. Booking not possible anymore" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Do you really want to book?" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Do you really want to book?" "text" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Booked" in the ".allbookingoptionstable_r3" "css_element"
 
   @javascript
   Scenario: Configure combined availability conditions - date or option
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    And I should see "Option - advanced availability" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r1" "css_element"
+    And I should see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Availability conditions"
     And I set the field "Booking is possible only until a certain date" to ""
     And I set the field "Booking is possible only after a certain date" to "checked"
@@ -358,21 +358,21 @@ Feature: Test booking options avaialbility conditions
     When I am on "Course 1" course homepage
     And I follow "My booking"
     And I wait "1" seconds
-    Then I should see "Cannot be booked yet" in the "#allbookingoptionstable_r1" "css_element"
-    And I should not see "Book now" in the "#allbookingoptionstable_r1" "css_element"
-    And I should see "Book now" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Book now" "text" in the "#allbookingoptionstable_r3" "css_element"
-    And I should see "Do you really want to book?" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Do you really want to book?" "text" in the "#allbookingoptionstable_r3" "css_element"
-    And I should see "Booked" in the "#allbookingoptionstable_r3" "css_element"
-    And I should see "Cannot be booked yet" in the "#allbookingoptionstable_r1" "css_element"
+    Then I should see "Cannot be booked yet" in the ".allbookingoptionstable_r1" "css_element"
+    And I should not see "Book now" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Do you really want to book?" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Do you really want to book?" "text" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Booked" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Cannot be booked yet" in the ".allbookingoptionstable_r1" "css_element"
     And I log out
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    And I should see "Option - advanced availability" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r1" "css_element"
+    And I should see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Availability conditions"
     And I set the field "bo_cond_previouslybooked_overrideconditioncheckbox" to "checked"
     And I set the field "bo_cond_previouslybooked_overrideoperator" to "OR"
@@ -386,9 +386,9 @@ Feature: Test booking options avaialbility conditions
     When I am on "Course 1" course homepage
     And I follow "My booking"
     And I wait "1" seconds
-    And I should see "Booked" in the "#allbookingoptionstable_r3" "css_element"
-    And I should see "Book now" in the "#allbookingoptionstable_r1" "css_element"
-    And I should not see "Cannot be booked yet" in the "#allbookingoptionstable_r1" "css_element"
+    And I should see "Booked" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
+    And I should not see "Cannot be booked yet" in the ".allbookingoptionstable_r1" "css_element"
 
   @javascript
   Scenario: Configure combined availability conditions - overbooking given to user
@@ -396,18 +396,18 @@ Feature: Test booking options avaialbility conditions
     When I am on "Course 1" course homepage
     And I follow "My booking"
     And I wait "1" seconds
-    And I should see "Book now" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Book now" "text" in the "#allbookingoptionstable_r3" "css_element"
-    And I should see "Do you really want to book?" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Do you really want to book?" "text" in the "#allbookingoptionstable_r3" "css_element"
-    And I should see "Booked" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Do you really want to book?" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Do you really want to book?" "text" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Booked" in the ".allbookingoptionstable_r3" "css_element"
     And I log out
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    And I should see "Option - dependency" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Settings" "icon" in the "#allbookingoptionstable_r3" "css_element"
-    And I click on "Edit booking option" "link" in the "#allbookingoptionstable_r3" "css_element"
+    And I should see "Option - dependency" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
     And I set the field "Limit the number of participants" to "checked"
     And I set the field "Max. number of participants" to "1"
     And I follow "Availability conditions"
@@ -419,13 +419,13 @@ Feature: Test booking options avaialbility conditions
     And I wait "1" seconds
     And I press "Save and go back"
     And I wait "1" seconds
-    Then I should see "Fully booked. Booking not possible anymore." in the "#allbookingoptionstable_r3" "css_element"
+    Then I should see "Fully booked. Booking not possible anymore." in the ".allbookingoptionstable_r3" "css_element"
     And I log out
     Given I log in as "student2"
     When I am on "Course 1" course homepage
     And I follow "My booking"
     And I wait "1" seconds
-    Then I should see "Book now" in the "#allbookingoptionstable_r3" "css_element"
-    And I should see "/ 1" in the "#allbookingoptionstable_r3 .col-ap-availableplaces" "css_element"
-    And I should see "1" in the "#allbookingoptionstable_r3 .col-ap-availableplaces .text-danger" "css_element"
+    Then I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "/ 1" in the ".allbookingoptionstable_r3 .col-ap-availableplaces" "css_element"
+    And I should see "1" in the ".allbookingoptionstable_r3 .col-ap-availableplaces .text-danger" "css_element"
     And I log out
