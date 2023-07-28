@@ -28,6 +28,9 @@ $string['cancelallusers'] = 'Storniere Buchung für alle Nutzer:innen';
 $string['cancelmyself'] = 'Wieder abmelden';
 $string['cancelsign'] = '<i class="fa fa-ban" aria-hidden="true"></i>';
 $string['close'] = 'Schließen';
+$string['confirmoptioncreation'] = 'Wollen Sie diese Buchungsoption splitten sodass aus jedem Einzeltermin eine eigene
+ Buchungsoption erstellt wird?';
+$string['createoptionsfromoptiondate'] = 'Für jeden Einzeltermin eine neue Buchungsoption erstellen';
 $string['updatebooking'] = 'Update Buchung';
 $string['booking:manageoptiontemplates'] = "Buchungsoptionsvorlagen verwalten";
 $string['booking:cantoggleformmode'] = 'Nutzer:in darf alle Einstellungen verwalten';

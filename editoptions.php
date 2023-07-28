@@ -41,6 +41,8 @@ global $DB, $OUTPUT, $PAGE, $USER;
 $cmid = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT);
 $copyoptionid = optional_param('copyoptionid', 0, PARAM_INT);
+$createfromoptiondates = optional_param('createfromoptiondates', 0, PARAM_INT);
+$confirm = optional_param('confirm', 0, PARAM_INT);
 $sesskey = optional_param('sesskey', '', PARAM_INT);
 $mode = optional_param('mode', '', PARAM_RAW);
 
@@ -95,6 +97,32 @@ if (has_capability('mod/booking:cantoggleformmode', $context)) {
     // Without the capability, we always use simple mode.
     set_user_preference('optionform_mode', 'simple');
 }
+
+// Create booking options form option dates.
+if ($confirm === 1 && $createfromoptiondates === 1) {
+    // Create the booking options.
+    $option = \mod_booking\singleton_service::get_instance_of_booking_option($cmid, $optionid);
+    $option->create_booking_options_from_optiondates();
+
+    // Redirect back to the page without the 'confirm' parameter to prevent accidental re-execution.
+    redirect(new moodle_url('/mod/booking/view.php', array('id' => $cm->id, 'optionid' => $optionid)));
+} else if ($createfromoptiondates === 1 && $confirm === 0) {
+    echo $OUTPUT->header();
+    // If the user has not confirmed yet, display the confirmation dialog.
+    $confirmurl = new moodle_url('/mod/booking/editoptions.php', array(
+            'id' => $cm->id,
+            'optionid' => $optionid,
+            'confirm' => 1, // Adding the 'confirm' parameter with value 1 to indicate confirmation.
+            'createfromoptiondates' => 1
+    ));
+    $confirmbutton = new single_button($confirmurl, get_string('confirm'), 'get');
+
+    // Print the confirmation message and button.
+    echo $OUTPUT->confirm(get_string('confirmoptioncreation', 'mod_booking'), $confirmbutton, $returnurl);
+    echo $OUTPUT->footer();
+    return;
+}
+
 
 // Duplicate this booking option.
 if ($optionid == -1 && $copyoptionid != 0) {

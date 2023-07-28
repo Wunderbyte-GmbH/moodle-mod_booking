@@ -28,6 +28,9 @@ $string['cancelallusers'] = 'Cancel booking for all users';
 $string['cancelmyself'] = 'Undo my booking';
 $string['cancelsign'] = '<i class="fa fa-ban" aria-hidden="true"></i>';
 $string['close'] = 'Close';
+$string['confirmoptioncreation'] = 'Do you want to split this booking option so that a separate booking option is created
+ from each individual date of this booking option?';
+$string['createoptionsfromoptiondate'] = 'For each option date create a new option';
 $string['updatebooking'] = 'Update booking';
 $string['booking:manageoptiontemplates'] = "Manage option templates";
 $string['booking:cantoggleformmode'] = 'User can edit all settings';

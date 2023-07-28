@@ -665,6 +665,15 @@ class bookingoptions_wbtable extends wunderbyte_table {
                         get_string('bookotherusers', 'mod_booking')) . '</div>';
             }
 
+            // Create booking option from each option date.
+            $createfromoptiondateurl = new moodle_url('/mod/booking/editoptions.php',
+                    array('id' => $this->cmid, 'optionid' => $values->id, 'createfromoptiondates' => 1));
+            $ddoptions[] = '<div class="dropdown-item">' .
+                    html_writer::link($createfromoptiondateurl,
+                            $OUTPUT->pix_icon('i/users',
+                                    get_string('createoptionsfromoptiondate', 'mod_booking')) .
+                            get_string('createoptionsfromoptiondate', 'mod_booking')) . '</div>';
+
             if (get_config('booking', 'teachersallowmailtobookedusers')) {
                 $mailtolink = booking_option::get_mailto_link_for_partipants($values->id);
                 if (!empty($mailtolink)) {

@@ -1909,46 +1909,31 @@ class booking_option {
      * @return void
      */
     public function create_booking_options_from_optiondates(): void {
-        global $DB;
-        // TODO. This has to be programmed.
         $dateobjects = dates_handler::get_existing_optiondates($this->optionid);
+        $context = context_module::instance($this->cmid);
         // Check if we have option dates that can be used for creating new options. If there aren't any do nothing.
         if (empty($dateobjects)) {
             return;
         }
         // Modify the existing option to have only one start and end date.
-        $dateshandler = new dates_handler($this->id);
+        $dateshandler = new dates_handler($this->optionid, $this->bookingid);
         $dateshandler->delete_all_option_dates();
-        $count = 0;
-
         $settings = $this->settings;
-
+        $firstrun = true;
         foreach ($dateobjects as $optiondate) {
-
             $newoption = $settings->return_settings_as_stdclass();
-
-            $newoption->coursestartdater = $optiondate->startdate;
-            $newoption->coursestartdater = $optiondate->startdate;
-
-            unset($newoption->optionid);
-            unset($newoption->id);
-            unset($newoption->sessions);
-
-            booking_update_options($newoption);
-
-            if ($count === 0) {
-                // Add a single option date to the existing booking option.
-               $dateshandler->create_option_date($optiondate);
-            } else {
-
+            $newoption->coursestarttime = $optiondate->starttimestamp;
+            $newoption->courseendtime = $optiondate->endtimestamp;
+            $newoption->startendtimeknown = 1;
+            if (!$firstrun) {
+                unset($newoption->optionid);
+                unset($newoption->id);
+                unset($newoption->sessions);
+                unset($newoption->optiondate);
             }
-            $count++;
+            booking_update_options($newoption, $context);
+            $firstrun = false;
         }
-        $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
-
-        // Create new booking option based on the existing one.
-
-
     }
 
     // Print custom report.
