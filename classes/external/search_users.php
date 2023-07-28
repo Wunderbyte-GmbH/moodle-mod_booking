@@ -20,6 +20,10 @@ use external_function_parameters;
 use external_value;
 use mod_booking\booking;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->libdir . '/externallib.php');
+
 /**
  * Provides the mod_booking_search_users external function.
  *
