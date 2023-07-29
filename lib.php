@@ -846,7 +846,11 @@ function booking_update_options(object $optionvalues, context_module $context, i
     }
 
     // Visibility of the option.
-    $option->invisible = $optionvalues->invisible;
+    if (isset($optionvalues->invisible)) {
+        $option->invisible = $optionvalues->invisible;
+    } else {
+        $option->invisible = 0;
+    }
 
     // Annotation field for internal remarks.
     if (empty($optionvalues->annotation)) {
@@ -897,7 +901,13 @@ function booking_update_options(object $optionvalues, context_module $context, i
         $option->responsiblecontact = null;
     }
 
-    if ($optionvalues->limitanswers == 0) {
+    if (isset($optionvalues->limitanswers)) {
+        $option->limitanswers = $optionvalues->limitanswers;
+    } else {
+        $option->limitanswers = 0;
+    }
+    if (isset($optionvalues->limitanswers) && $optionvalues->limitanswers == 0) {
+        $option->limitanswers = 0;
         $option->maxanswers = 0;
         $option->maxoverbooking = 0;
     } else {
@@ -944,23 +954,42 @@ function booking_update_options(object $optionvalues, context_module $context, i
     } else {
         $option->enrolmentstatus = 0;
     }
+
     if (empty($optionvalues->description)) {
         $option->description = "";
     } else {
         $option->description = $optionvalues->description;
     }
-    $option->beforebookedtext = $optionvalues->beforebookedtext;
-    $option->beforecompletedtext = $optionvalues->beforecompletedtext;
-    $option->aftercompletedtext = $optionvalues->aftercompletedtext;
-    $option->limitanswers = $optionvalues->limitanswers;
 
-    if ((!$optionvalues->duration || $optionvalues->duration == 0)
-            && (isset($optionvalues->coursestarttime)
-                    && isset($optionvalues->courseendtime))
-            && $delta = $optionvalues->courseendtime - $optionvalues->coursestarttime) {
+    if (isset($optionvalues->beforebookedtext)) {
+        $option->beforebookedtext = $optionvalues->beforebookedtext;
+    } else {
+        $option->beforebookedtext = "";
+    }
+
+    if (isset($optionvalues->beforecompletedtext)) {
+        $option->beforecompletedtext = $optionvalues->beforecompletedtext;
+    } else {
+        $option->beforecompletedtext = "";
+    }
+
+    if (isset($optionvalues->aftercompletedtext)) {
+        $option->aftercompletedtext = $optionvalues->aftercompletedtext;
+    } else {
+        $option->aftercompletedtext = "";
+    }
+
+    if ((empty($optionvalues->duration) || $optionvalues->duration == 0)
+        && (isset($optionvalues->coursestarttime)
+    && isset($optionvalues->courseendtime))
+    && $delta = $optionvalues->courseendtime - $optionvalues->coursestarttime) {
         $option->duration = $delta;
     } else {
-        $option->duration = $optionvalues->duration;
+        if (isset($optionvalues->duration)) {
+            $option->duration = $optionvalues->duration;
+        } else {
+            $option->duration = 0;
+        }
     }
 
     $option->timemodified = time();
