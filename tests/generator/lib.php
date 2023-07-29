@@ -14,6 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+
+use mod_booking\price;
+
 /**
  * mod_booking data generator
  *
@@ -22,6 +28,7 @@
  * @copyright 2017 Andraž Prinčič {@link https://www.princic.net}
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 class mod_booking_generator extends testing_module_generator {
 
     /**
@@ -80,7 +87,6 @@ class mod_booking_generator extends testing_module_generator {
      * @return stdClass the booking option object
      */
     public function create_option($record = null) {
-        global $DB;
 
         $record = (array) $record;
 
@@ -136,7 +142,32 @@ class mod_booking_generator extends testing_module_generator {
             }
         }
 
-        $record->id = booking_update_options($record, $context);
+        if ($record->id = booking_update_options($record, $context)) {
+            $record->optionid = $record->id;
+            // Save the prices to option.
+            $price = new price('option', $record->optionid);
+            foreach ($price->pricecategories as $pricecat) {
+                $catname = "pricegroup_".$pricecat->identifier;
+                $record->{$catname} = ["bookingprice_".$pricecat->identifier => (float) $pricecat->defaultvalue];
+            }
+            $price->save_from_form($record);
+        }
+
+        return $record;
+    }
+
+    /**
+     * Function to create a dummy pricecategory option.
+     *
+     * @param array|stdClass $record
+     * @return stdClass the booking pricecategory object
+     */
+    public function create_pricecategory($record = null) {
+        global $DB;
+
+        $record = (object) $record;
+
+        $record->id = $DB->insert_record('booking_pricecategories', $record);
 
         return $record;
     }

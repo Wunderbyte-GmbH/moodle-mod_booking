@@ -37,6 +37,10 @@ class behat_mod_booking_generator extends behat_generator_base {
                 'required' => ['booking', 'text', 'course', 'description'],
                 'switchids' => ['booking' => 'bookingid', 'course' => 'courseid'],
             ],
+            'pricecategories' => [
+                'datagenerator' => 'pricecategory',
+                'required' => ['ordernum', 'name', 'defaultvalue'],
+            ],
         ];
     }
 
