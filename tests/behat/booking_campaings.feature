@@ -26,9 +26,9 @@ Feature: Create booking campaings for booking options as a teacher and booking i
       | name   | category | type | shortname | configdata[defaultvalue] |
       | Sport1 | SportArt | text | spt1      | defsport1                |
     And the following "mod_booking > options" exist:
-      | booking     | text           | course | description   | optiondatestart[0][day] | optiondatestart[0][month] | optiondatestart[0][year] |optiondatestart[0][hour] |optiondatestart[0][minute] |optiondateend[0][day] |optiondateend[0][month] |optiondateend[0][year] |optiondateend[0][hour] | optiondateend[0][minute] |
-      | BookingCMP  | Test option 1  | C1     | Option desc 1 | 15 | March | ## + 1 year ##%Y## | 13 | 00 | 15 | March | ## + 1 year ##%Y## | 16 | 00 |
-      | BookingCMP  | Test option 2  | C1     | Option desc 2 | 15 | April | ## + 1 year ##%Y## | 13 | 00 | 15 | April | ## + 1 year ##%Y## | 16 | 00 |
+      | booking     | text           | course | description   | coursestarttime | courseendtime | optiondatestart[0] | optiondateend[0] | optiondatestart[1] | optiondateend[1] |
+      | BookingCMP  | Test option 1  | C1     | Option desc 1 | ## tomorrow ##  | ## +4 days ## | ## tomorrow ##     | ## +2 days ##    | ## +3 days ##      | ## +4 days ##    |
+      | BookingCMP  | Test option 2  | C1     | Option desc 2 | ## tomorrow ##  | ## +5 days ## | ## +2 days ##      | ## +3 days ##    | ## +4 days ##      | ## +4 days ##    |
 
   @javascript
   Scenario: Booking campaings: create booking campain
