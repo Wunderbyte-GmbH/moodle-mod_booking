@@ -99,13 +99,44 @@ class mod_booking_generator extends testing_module_generator {
                     'courseid must be present in phpunit_util::create_option() $record');
         }
 
+        $cmb1 = get_coursemodule_from_instance('booking', $record['bookingid'], $record['courseid']);
+        if (!$context = context_module::instance($cmb1->id)) {
+            throw new moodle_exception('badcontext');
+        }
+
         // Increment the forum subscription count.
         $this->bookingoptions++;
 
         $record = (object) $record;
 
-        // Add the subscription.
-        $record->id = $DB->insert_record('booking_options', $record);
+        // Conversion of strings like ["optiondatestart[0]"]=> int(1690792686) into arrays (by ChatGPT).
+        $optiondatestart = array();
+        $optiondateend = array();
+        foreach ($record as $key => $value) {
+            if (strpos($key, 'optiondatestart') === 0) {
+                // Get the index from the key.
+                preg_match('/optiondatestart\[(\d+)\]/', $key, $matches);
+                $index = $matches[1];
+                $optiondatestart[$index] = $value;
+            } else if (strpos($key, 'optiondateend') === 0) {
+                // Get the index from the key.
+                preg_match('/optiondateend\[(\d+)\]/', $key, $matches);
+                $index = $matches[1];
+                $optiondateend[$index] = $value;
+            }
+        }
+        // Sort the arrays by index.
+        ksort($optiondatestart);
+        ksort($optiondateend);
+
+        // Add optiondates to booking option.
+        if (is_array($optiondatestart) && is_array($optiondateend)) {
+            foreach ($optiondatestart as $i => $startdate) {
+                $record->newoptiondates[] = "$startdate - $optiondateend[$i]";
+            }
+        }
+
+        $record->id = booking_update_options($record, $context);
 
         return $record;
     }
