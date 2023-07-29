@@ -35,6 +35,7 @@ use mod_booking\price;
 use local_entities\entitiesrelation_handler;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\option\dates_handler;
+use mod_booking\singleton_service;
 
 global $DB, $OUTPUT, $PAGE, $USER;
 
@@ -126,8 +127,19 @@ if ($confirm === 1 && $createfromoptiondates === 1) {
 
 // Duplicate this booking option.
 if ($optionid == -1 && $copyoptionid != 0) {
+    // Adding new booking option - default values.
+    $defaultvalues = $DB->get_record('booking_options', array('id' => $copyoptionid));
+    $defaultvalues->text = $defaultvalues->text . get_string('copy', 'mod_booking');
+    $defaultvalues->optionid = -1;
+    $defaultvalues->copyoptionid = $copyoptionid;
+    $fromoption = singleton_service::get_instance_of_booking_by_optionid($copyoptionid);
+    $defaultvalues->bookingname = $fromoption->settings->name;
+    $defaultvalues->bookingid = $fromoption->id;
+    unset($defaultvalues->identifier);
 
-    $optionid = booking_option::duplicate_option($copyoptionid);
+    // Create a new duplicate of the old booking option.
+    $optionid = booking_update_options($defaultvalues, $fromoption->context);
+
 
 } else if ($optionid > 0 && $defaultvalues = $DB->get_record('booking_options', ['id' => $optionid])) {
     $defaultvalues->optionid = $optionid;

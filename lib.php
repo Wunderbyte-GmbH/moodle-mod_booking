@@ -717,7 +717,7 @@ function booking_update_instance($booking) {
  * @param int $updateparam optional param to define behavior
  * @return boolean|number optionid
  */
-function booking_update_options($optionvalues, $context, int $updateparam = UPDATE_OPTIONS_PARAM_DEFAULT) {
+function booking_update_options(object $optionvalues, context_module $context, int $updateparam = UPDATE_OPTIONS_PARAM_DEFAULT) {
     global $DB, $CFG, $PAGE, $USER;
 
     require_once("$CFG->dirroot/mod/booking/locallib.php");
@@ -734,7 +734,7 @@ function booking_update_options($optionvalues, $context, int $updateparam = UPDA
 
     // Get the original option to compare it for changes.
     if (!empty($optionvalues->optionid) &&
-        $optionvalues->optionid != -1) {
+            $optionvalues->optionid != -1) {
         if (!$originaloption = $DB->get_record('booking_options', ['id' => $optionvalues->optionid])) {
             $originaloption = false;
         }
@@ -955,9 +955,9 @@ function booking_update_options($optionvalues, $context, int $updateparam = UPDA
     $option->limitanswers = $optionvalues->limitanswers;
 
     if ((!$optionvalues->duration || $optionvalues->duration == 0)
-        && (isset($optionvalues->coursestarttime)
-    && isset($optionvalues->courseendtime))
-    && $delta = $optionvalues->courseendtime - $optionvalues->coursestarttime) {
+            && (isset($optionvalues->coursestarttime)
+                    && isset($optionvalues->courseendtime))
+            && $delta = $optionvalues->courseendtime - $optionvalues->coursestarttime) {
         $option->duration = $delta;
     } else {
         $option->duration = $optionvalues->duration;
@@ -1008,13 +1008,13 @@ function booking_update_options($optionvalues, $context, int $updateparam = UPDA
 
             if (!empty($category->name)) {
                 $categories = core_course_external::get_categories(array(
-                    array('key' => 'name', 'value' => $category->name)
+                        array('key' => 'name', 'value' => $category->name)
                 ));
 
                 if (empty($categories)) {
                     $category->idnumber = $category->name;
                     $categories = array(
-                        array('name' => $category->name, 'idnumber' => $category->idnumber, 'parent' => 0)
+                            array('name' => $category->name, 'idnumber' => $category->idnumber, 'parent' => 0)
                     );
                     $createdcats = core_course_external::create_categories($categories);
                     $categoryid = $createdcats[0]['id'];
@@ -1080,7 +1080,7 @@ function booking_update_options($optionvalues, $context, int $updateparam = UPDA
                 $option->sent2 = $DB->get_field('booking_options', 'sent2',
                         array('id' => $option->id));
                 $option->sentteachers = $DB->get_field('booking_options', 'sentteachers',
-                    array('id' => $option->id));
+                        array('id' => $option->id));
             }
 
             // Save the additional JSON conditions (the ones which have been added to the mform).
@@ -1114,8 +1114,8 @@ function booking_update_options($optionvalues, $context, int $updateparam = UPDA
                     $googer = new GoogleURLAPI($gapik);
                     if (!empty($gapik)) {
                         $onlyoneurl = new moodle_url('/mod/booking/view.php',
-                                array('id' => $optionvalues->id, 'optionid' => $optionvalues->optionid,
-                                    'whichview' => 'showonlyone'));
+                                array('id' => $context->instanceid, 'optionid' => $optionvalues->optionid,
+                                        'whichview' => 'showonlyone'));
                         $shorturl = $googer->shorten(htmlspecialchars_decode($onlyoneurl->__toString()));
                         if ($shorturl) {
                             $option->shorturl = $shorturl;
@@ -1132,7 +1132,7 @@ function booking_update_options($optionvalues, $context, int $updateparam = UPDA
                         if (!empty($optionvalues->$fieldcfgname)) {
                             $customfieldid = $DB->get_field('booking_customfields', 'id',
                                     array('bookingid' => $booking->id, 'optionid' => $option->id,
-                                        'cfgname' => $fieldcfgname));
+                                            'cfgname' => $fieldcfgname));
                             if ($customfieldid) {
                                 $customfield = new stdClass();
                                 $customfield->id = $customfieldid;
@@ -1188,13 +1188,13 @@ function booking_update_options($optionvalues, $context, int $updateparam = UPDA
                     if (!empty($PAGE->cm->id)) {
                         $cmid = $PAGE->cm->id;
                     } else {
-                        $cm = get_coursemodule_from_instance('booking', $option->bookingid);
+                        $cm = context_module::instance($context->instanceid);
                         if (!empty($cm->id)) {
                             $cmid = $cm->id;
                         }
                     }
                     // If we have no cmid, it's most possibly a template.
-                    if (!empty($cmid)) {
+                    if (!empty($cmid) && $option->bookingid != 0) {
                         // We only react on changes, if a cmid exists.
                         $bu->react_on_changes($cmid, $context, $option->id, $changes);
                     }
@@ -1259,8 +1259,8 @@ function booking_update_options($optionvalues, $context, int $updateparam = UPDA
             // Add as template.
             // Fixed: For templates, make sure they won't get inserted twice.
             $dbrecord = $DB->get_record("booking_options",
-                ['text' => $option->text,
-                    'bookingid' => $option->bookingid]);
+                    ['text' => $option->text,
+                            'bookingid' => $option->bookingid]);
             if (empty($dbrecord)) {
                 $optionid = $DB->insert_record("booking_options", $option);
             } else {
@@ -1292,8 +1292,8 @@ function booking_update_options($optionvalues, $context, int $updateparam = UPDA
         if (!empty($gapik)) {
             $googer = new GoogleURLAPI($gapik);
             $onlyoneurl = new moodle_url('/mod/booking/view.php',
-                    array('id' => $optionvalues->id, 'optionid' => $optionid,
-                        'whichview' => 'showonlyone'));
+                    array('id' => $context->instanceid, 'optionid' => $optionid,
+                            'whichview' => 'showonlyone'));
 
             $shorturl = $googer->shorten(htmlspecialchars_decode($onlyoneurl->__toString()));
             if ($shorturl) {
@@ -1335,12 +1335,67 @@ function booking_update_options($optionvalues, $context, int $updateparam = UPDA
         }
 
         $doenrol = true;
-        // If it's a duplicate, we also duplicate the teachers!
+        // If it's a duplicate, we also duplicate referenced values like teachers, entities and customfields!
         if (!empty($optionvalues->copyoptionid) && $optionvalues->copyoptionid > 0) {
             $doenrol = false; // For a duplicate, we do not want to enrol the teachers right away...
             // ...as we most possibly will change the Moodle course in the duplicate.
             $copyoptionsettings = singleton_service::get_instance_of_booking_option_settings($optionvalues->copyoptionid);
             $optionvalues->teachersforoption = $copyoptionsettings->teacherids;
+            // If there was an associated entity, also copy it.
+            if (class_exists('local_entities\entitiesrelation_handler')) {
+                $erhandler = new entitiesrelation_handler('mod_booking', 'option');
+                $entityid = $erhandler->get_entityid_by_instanceid($optionvalues->copyoptionid);
+                if ($entityid) {
+                    $erhandler->save_entity_relation($optionid, $entityid);
+                }
+            }
+            // If there are prices defined, let's duplicate them too.
+            if (get_config('booking', 'duplicationrestoreprices')) {
+                /* IMPORTANT: Once we support subbookings, we might have different areas than 'option'
+                    and this means 'itemid' might be something else than an optionid.
+                    So we have to find out, if we still can set the params like this. */
+                $prices = $DB->get_records('booking_prices', ['itemid' => $optionvalues->copyoptionid, 'area' => 'option']);
+                foreach ($prices as $price) {
+                    $price->itemid = $optionid;
+                }
+                $DB->insert_records('booking_prices', $prices);
+            }
+            // Also duplicate associated Moodle custom fields (e.g. "sports").
+            $sql = "SELECT cfd.*
+                    FROM {customfield_data} cfd
+                    LEFT JOIN {customfield_field} cff
+                    ON cff.id = cfd.fieldid
+                    LEFT JOIN {customfield_category} cfc
+                    ON cfc.id = cff.categoryid
+                    WHERE cfc.component = 'mod_booking'
+                    AND cfd.instanceid = :oldoptionid";
+
+            $params = [
+                    'oldoptionid' => $optionvalues->copyoptionid
+            ];
+
+            $oldcustomfields = $DB->get_records_sql($sql, $params);
+            foreach ($oldcustomfields as $cf) {
+                unset($cf->id);
+                $cf->timecreated = $now;
+                $cf->timemodified = $now;
+                $cf->instanceid = $optionid;
+                $DB->insert_record('customfield_data', $cf);
+            }
+
+            // We also need to duplicate subbookings of the booking option.
+            $sql = "SELECT *
+                    FROM {booking_subbooking_options}
+                    WHERE optionid = :oldoptionid";
+            $oldsubbookings = $DB->get_records_sql($sql, $params);
+            foreach ($oldsubbookings as $sb) {
+                unset($sb->id);
+                $sb->usermodified = $USER->id;
+                $sb->timecreated = $now;
+                $sb->timemodified = $now;
+                $sb->optionid = $optionid;
+                $DB->insert_record('booking_subbooking_options', $sb);
+            }
         }
 
         // We only save teachers if there are any.
@@ -1366,11 +1421,11 @@ function booking_update_options($optionvalues, $context, int $updateparam = UPDA
         // Trigger an event that booking option has been updated - only if it is NOT a template.
         if (!isset($optionvalues->addastemplate) || $optionvalues->addastemplate == 0) {
             $event = \mod_booking\event\bookingoption_updated::create(
-                array(
-                    'context' => $context,
-                    'objectid' => $optionid,
-                    'userid' => $USER->id
-                )
+                    array(
+                            'context' => $context,
+                            'objectid' => $optionid,
+                            'userid' => $USER->id
+                    )
             );
             $event->trigger();
         }

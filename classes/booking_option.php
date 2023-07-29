@@ -1803,105 +1803,6 @@ class booking_option {
     }
 
     /**
-     * Creates a new booking option based on an existing optionid and adapts
-     * values according to $valuestochange.
-     *
-     * @param int $fromoptionid
-     * @param array $valuestochange
-     * @return int
-     */
-    public static function duplicate_option(int $fromoptionid, array $valuestochange = []): int {
-        global $DB, $USER;
-        // Current time at duplication.
-        $now = time();
-
-        // Adding new booking option - default values.
-        $defaultvalues = $DB->get_record('booking_options', array('id' => $fromoptionid));
-        $oldoptionid = $defaultvalues->id;
-        $defaultvalues->text = $defaultvalues->text . get_string('copy', 'mod_booking');
-        $defaultvalues->optionid = -1;
-        $defaultvalues->copyoptionid = $fromoptionid;
-        $booking = singleton_service::get_instance_of_booking_by_optionid($fromoptionid);
-        $defaultvalues->bookingname = $booking->settings->name;
-        $defaultvalues->bookingid = $booking->id;
-        $defaultvalues->id = $booking->cmid;
-        // Identifier needs to be unique, so create a new random one.
-        $defaultvalues->identifier = substr(str_shuffle(md5(microtime())), 0, 8);
-
-        // Create a new duplicate of the old booking option.
-        $optionid = booking_update_options($defaultvalues, $booking->context);
-        $defaultvalues->optionid = $optionid;
-
-        // If there was an associated entity, also copy it.
-        if (class_exists('local_entities\entitiesrelation_handler')) {
-            $erhandler = new entitiesrelation_handler('mod_booking', 'option');
-            $entityid = $erhandler->get_entityid_by_instanceid($fromoptionid);
-            if ($entityid) {
-                $erhandler->save_entity_relation($optionid, $entityid);
-            }
-        }
-
-        // If there are associated teachers, let's duplicate them too.
-        $teacherstocopy = $DB->get_records('booking_teachers', ['bookingid' => $booking->id, 'optionid' => $fromoptionid]);
-
-        // For each copied teacher change the old optionid to the new one and unset the old id.
-        foreach ($teacherstocopy as $teachertocopy) {
-            // Subscribe the copied teacher to the new booking option.
-            subscribe_teacher_to_booking_option($teachertocopy->userid, $optionid, $booking->cmid);
-        }
-
-        // If there are prices defined, let's duplicate them too.
-        if (get_config('booking', 'duplicationrestoreprices')) {
-            /* IMPORTANT: Once we support subbookings, we might have different areas than 'option'
-                and this means 'itemid' might be something else than an optionid.
-                So we have to find out, if we still can set the params like this. */
-            $prices = $DB->get_records('booking_prices', ['itemid' => $fromoptionid, 'area' => 'option']);
-            foreach ($prices as $price) {
-                $price->itemid = $optionid;
-            }
-            $DB->insert_records('booking_prices', $prices);
-        }
-
-        // Also duplicate associated Moodle custom fields (e.g. "sports").
-        $sql = "SELECT cfd.*
-        FROM {customfield_data} cfd
-        LEFT JOIN {customfield_field} cff
-        ON cff.id = cfd.fieldid
-        LEFT JOIN {customfield_category} cfc
-        ON cfc.id = cff.categoryid
-        WHERE cfc.component = 'mod_booking'
-        AND cfd.instanceid = :oldoptionid";
-
-        $params = [
-                'oldoptionid' => $fromoptionid
-        ];
-
-        $oldcustomfields = $DB->get_records_sql($sql, $params);
-        foreach ($oldcustomfields as $cf) {
-            unset($cf->id);
-            $cf->timecreated = $now;
-            $cf->timemodified = $now;
-            $cf->instanceid = $optionid;
-            $DB->insert_record('customfield_data', $cf);
-        }
-
-        // We also need to duplicate subbookings of the booking option.
-        $sql = "SELECT *
-        FROM {booking_subbooking_options}
-        WHERE optionid = :oldoptionid";
-        $oldsubbookings = $DB->get_records_sql($sql, $params);
-        foreach ($oldsubbookings as $sb) {
-            unset($sb->id);
-            $sb->usermodified = $USER->id;
-            $sb->timecreated = $now;
-            $sb->timemodified = $now;
-            $sb->optionid = $optionid;
-            $DB->insert_record('booking_subbooking_options', $sb);
-        }
-        return $optionid;
-    }
-
-    /**
      * This function transform each option date into a separate booking option.
      * The result is going to be a booking option with a single date for each option date present.
      * The original booking option will have the date which is nearest to now.
@@ -1930,6 +1831,7 @@ class booking_option {
                 unset($newoption->id);
                 unset($newoption->sessions);
                 unset($newoption->optiondate);
+                unset($newoption->identifier);
             }
             booking_update_options($newoption, $context);
             $firstrun = false;
