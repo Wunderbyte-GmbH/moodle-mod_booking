@@ -848,7 +848,6 @@ class option_form extends moodleform {
         if (isset($defaultvalues->id) && isset($defaultvalues->optionid)) {
             $handler = booking_handler::create();
             $id = $defaultvalues->id;
-            $defaultvalues->id = $defaultvalues->optionid;
             $handler->instance_form_before_set_data($defaultvalues);
             if (class_exists('local_entities\entitiesrelation_handler')) {
                 $erhandler = new entitiesrelation_handler('mod_booking', 'option');

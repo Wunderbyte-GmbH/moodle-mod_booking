@@ -333,6 +333,7 @@ function booking_comment_permissions($commentparam): array {
             }
             break;
     }
+    return [];
 }
 
 /**
@@ -896,7 +897,6 @@ function booking_update_options(object $optionvalues, context_module $context, i
     }
 
     if ($optionvalues->limitanswers == 0) {
-        $option->limitanswers = 0;
         $option->maxanswers = 0;
         $option->maxoverbooking = 0;
     } else {
@@ -910,7 +910,6 @@ function booking_update_options(object $optionvalues, context_module $context, i
         } else {
             $option->maxoverbooking = 0;
         }
-        $option->limitanswers = 1;
     }
 
     if (isset($optionvalues->minanswers)) {

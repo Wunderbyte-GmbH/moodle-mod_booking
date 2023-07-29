@@ -1,4 +1,4 @@
-@mod @mod_booking @booking_multisessions
+@mod @mod_booking @booking_multisessions @booking_duplicate_option
 Feature: In a booking create booking option with multiple custom options
   As an admin
   I need to duplicate booking option with multiple custom options
@@ -85,14 +85,14 @@ Feature: In a booking create booking option with multiple custom options
       | duration[timeunit]                    | hours |
     And I click on "Start and end time of course are known" "checkbox"
     And I set the following fields to these values:
-      | coursestarttime[day]    | ##tomorrow##%d##      |
-      | coursestarttime[month]  | ##tomorrow##%B##      |
-      | coursestarttime[year]   | ##tomorrow##%Y##      |
+      | coursestarttime[day]    | 20                    |
+      | coursestarttime[month]  | 7                     |
+      | coursestarttime[year]   | 2030                  |
       | coursestarttime[hour]   | 09                    |
       | coursestarttime[minute] | 00                    |
-      | courseendtime[day]      | ##tomorrow##%d##      |
-      | courseendtime[month]    | ## + 2 month ## %B ## |
-      | courseendtime[year]     | ##tomorrow##%Y##      |
+      | courseendtime[day]      | 1                     |
+      | courseendtime[month]    | 10                    |
+      | courseendtime[year]     | 2030                  |
       | courseendtime[hour]     | 18                    |
       | courseendtime[minute]   | 00                    |
       | Teachers poll url       | https://google.com    |
@@ -141,14 +141,14 @@ Feature: In a booking create booking option with multiple custom options
       | Min. number of participants           | 3                             |
       | duration[number]                      | 2                             |
       | duration[timeunit]                    | hours                         |
-      | coursestarttime[day]                  | ##tomorrow##%d##              |
-      | coursestarttime[month]                | ##tomorrow##%B##              |
-      | coursestarttime[year]                 | ##tomorrow##%Y##              |
+      | coursestarttime[day]                  | 20                            |
+      | coursestarttime[month]                | 7                             |
+      | coursestarttime[year]                 | 2030                          |
       | coursestarttime[hour]                 | 09                            |
       | coursestarttime[minute]               | 00                            |
-      | courseendtime[day]                    | ##tomorrow##%d##              |
-      | courseendtime[month]                  | ## + 2 month ## %B ##         |
-      | courseendtime[year]                   | ##tomorrow##%Y##              |
+      | courseendtime[day]                    | 1                             |
+      | courseendtime[month]                  | 10                            |
+      | courseendtime[year]                   | 2030                          |
       | courseendtime[hour]                   | 18                            |
       | courseendtime[minute]                 | 00                            |
       | Teachers poll url                     | https://google.com            |

@@ -135,12 +135,14 @@ if ($optionid == -1 && $copyoptionid != 0) {
     $fromoption = singleton_service::get_instance_of_booking_by_optionid($copyoptionid);
     $defaultvalues->bookingname = $fromoption->settings->name;
     $defaultvalues->bookingid = $fromoption->id;
+    $defaultvalues->id = $cmid;
     unset($defaultvalues->identifier);
 
     // Create a new duplicate of the old booking option.
     $optionid = booking_update_options($defaultvalues, $fromoption->context);
-
-
+    // There is an optionid now. So it has to be used later on instead of -1.
+    $defaultvalues->optionid = $optionid;
+    unset($defaultvalues->copyoptionid);
 } else if ($optionid > 0 && $defaultvalues = $DB->get_record('booking_options', ['id' => $optionid])) {
     $defaultvalues->optionid = $optionid;
     $defaultvalues->bookingname = $booking->settings->name;
