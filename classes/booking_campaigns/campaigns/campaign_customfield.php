@@ -217,7 +217,7 @@ class campaign_customfield implements booking_campaign {
         \core\task\manager::queue_adhoc_task($purgetaskend);
 
         // If we can update, we add the id here.
-        if ($data->id) {
+        if (isset($data->id)) {
             $record->id = $data->id;
             $DB->update_record('booking_campaigns', $record);
         } else {
