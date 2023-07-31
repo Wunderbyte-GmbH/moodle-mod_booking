@@ -19,6 +19,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
 use mod_booking\price;
+use mod_booking\customfield\booking_handler;
 
 /**
  * mod_booking data generator
@@ -151,6 +152,9 @@ class mod_booking_generator extends testing_module_generator {
                 $record->{$catname} = ["bookingprice_".$pricecat->identifier => (float) $pricecat->defaultvalue];
             }
             $price->save_from_form($record);
+            // Save customfield data to option (the id key has to be set to option id).
+            $handler = booking_handler::create();
+            $handler->instance_form_save($record, $record->optionid == -1);
         }
 
         return $record;

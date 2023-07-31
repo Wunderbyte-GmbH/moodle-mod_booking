@@ -31,9 +31,9 @@ Feature: Create booking campaings for booking options as a teacher and booking i
       | 2        | discount1  | Disc1 | 77           | 0        | 2                 |
       | 3        | discount2  | Disc2 | 66           | 0        | 3                 |
     And the following "mod_booking > options" exist:
-      | booking     | text           | course | description   | coursestarttime | courseendtime | optiondatestart[0] | optiondateend[0] | optiondatestart[1] | optiondateend[1] | useprice |
-      | BookingCMP  | Test option 1  | C1     | Option desc 1 | ## tomorrow ##  | ## +4 days ## | ## tomorrow ##     | ## +2 days ##    | ## +3 days ##      | ## +4 days ##    | 1        |
-      | BookingCMP  | Test option 2  | C1     | Option desc 2 | ## tomorrow ##  | ## +5 days ## | ## +2 days ##      | ## +3 days ##    | ## +4 days ##      | ## +4 days ##    | 1        |
+      | booking     | text           | course | description   | coursestarttime | courseendtime | optiondatestart[0] | optiondateend[0] | optiondatestart[1] | optiondateend[1] | useprice | customfield_spt1 |
+      | BookingCMP  | Test option 1  | C1     | Option desc 1 | ## tomorrow ##  | ## +4 days ## | ## tomorrow ##     | ## +2 days ##    | ## +3 days ##      | ## +4 days ##    | 1        | tenis            |
+      | BookingCMP  | Test option 2  | C1     | Option desc 2 | ## tomorrow ##  | ## +5 days ## | ## +2 days ##      | ## +3 days ##    | ## +4 days ##      | ## +4 days ##    | 1        | football         |
 
   @javascript
   Scenario: Booking campaings: create booking campain
