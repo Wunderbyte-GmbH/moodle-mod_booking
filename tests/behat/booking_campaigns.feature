@@ -57,7 +57,8 @@ Feature: Create booking campaigns for booking options as admin and booking it as
     And I follow "BookingCMP"
     And I should see "Option-football" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "88.00 EUR" in the ".allbookingoptionstable_r1 .pricecontainer" "css_element"
+    And I should see "/ 2" in the ".allbookingoptionstable_r1 .col-ap-availableplaces" "css_element"
     And I should see "Option-tenis" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "44.00 EUR" in the ".allbookingoptionstable_r2 .pricecontainer" "css_element"
+    And I should see "/ 4" in the ".allbookingoptionstable_r2 .col-ap-availableplaces" "css_element"
     And I log out
-
