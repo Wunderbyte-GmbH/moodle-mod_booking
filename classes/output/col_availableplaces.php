@@ -104,6 +104,14 @@ class col_availableplaces implements renderable, templatable {
         // We need to pop out the first value which is by itself another array containing the information we need.
         $bookinginformation = array_pop($fullbookinginformation);
 
+        // Get maxanswers from cache if exist.
+        // TODO: how about entire option settings?
+        $cache = \cache::make('mod_booking', 'bookingoptionsettings');
+        $cachedoption = $cache->get($settings->id);
+        if (isset($cachedoption->maxanswers)) {
+            $bookinginformation['maxanswers'] = $cachedoption->maxanswers;
+        }
+
         // We need this to render a link to manage bookings in the template.
         if (!empty($this->showmanageresponses) && $this->showmanageresponses == true) {
             if (is_array($bookinginformation)) {
