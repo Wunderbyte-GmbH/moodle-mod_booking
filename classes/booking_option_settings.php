@@ -844,9 +844,9 @@ class booking_option_settings {
      * We will always have them in cache if we have constructed an instance,
      * but just in case we also deal with an empty cache object.
      *
-     * @return stdClass
+     * @return stdClass|null
      */
-    public function return_settings_as_stdclass(): stdClass {
+    public function return_settings_as_stdclass(): ?stdClass {
 
         if (empty($this->id)) {
             return null;
