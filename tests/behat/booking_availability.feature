@@ -429,3 +429,30 @@ Feature: Test booking options avaialbility conditions
     And I should see "/ 1" in the ".allbookingoptionstable_r3 .col-ap-availableplaces" "css_element"
     And I should see "1" in the ".allbookingoptionstable_r3 .col-ap-availableplaces .text-danger" "css_element"
     And I log out
+
+  @javascript
+  Scenario: Configure booking availability by setup invisible booking option
+    Given I log in as "student1"
+    And I am on "Course 1" course homepage
+    And I follow "My booking"
+    And I wait until the page is ready
+    And I should see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
+    ## And I log out
+    And I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I follow "My booking"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I set the field "Visibility" to "Hide from normal users (visible to entitled users only)"
+    And I press "Save and go back"
+    And I wait until the page is ready
+    And I should see "Invisible" in the ".allbookingoptionstable_r1" "css_element"
+    ## And I log out
+    When I log in as "student1"
+    And I am on "Course 1" course homepage
+    And I follow "My booking"
+    And I wait until the page is ready
+    Then I should not see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Option - availability by dates" in the ".allbookingoptionstable_r1" "css_element"
+    And I log out
