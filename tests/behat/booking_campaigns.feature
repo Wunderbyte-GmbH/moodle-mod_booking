@@ -36,7 +36,7 @@ Feature: Create booking campaigns for booking options as admin and booking it as
       | BookingCMP  | Option-football | C1     | Deskr-football | 1            | 2          | ## tomorrow ##  | ## +5 days ## | ## +2 days ##      | ## +3 days ##    | ## +4 days ##      | ## +4 days ##    | 1        | football         |
 
   @javascript
-  Scenario: Booking campaigns: create settings for booking campaign
+  Scenario: Booking campaigns: create settings for booking campaign via UI as admin and edit it
     Given I log in as "admin"
     And I visit "/mod/booking/edit_campaigns.php"
     And I click on "Add campaign" "text"
@@ -59,6 +59,12 @@ Feature: Create booking campaigns for booking options as admin and booking it as
     And I wait until the page is ready
     And I should see "campaign1"
     And I log out
+
+  @javascript
+  Scenario: Booking campaigns: create booking campaign via DB and view as teacher
+    Given the following "mod_booking > campaigns" exist:
+      | name      | type | json                                      | starttime   | endtime        | pricefactor | limitfactor |
+      | campaign2 | 0    | {"fieldname":"spt1","fieldvalue":"tenis"} | ## today ## | ## + 1 year ## | 0.5         | 2           |
     When I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I follow "BookingCMP"
