@@ -177,6 +177,22 @@ class mod_booking_generator extends testing_module_generator {
     }
 
     /**
+     * Function to create a dummy campaign option.
+     *
+     * @param array|stdClass $record
+     * @return stdClass the booking campaign object
+     */
+    public function create_campaign($record = null) {
+        global $DB;
+
+        $record = (object) $record;
+
+        $record->id = $DB->insert_record('booking_campaigns', $record);
+
+        return $record;
+    }
+
+    /**
      * Function, to add user to option
      * @param array|stdClass $record
      * @return stdClass the booking option object
