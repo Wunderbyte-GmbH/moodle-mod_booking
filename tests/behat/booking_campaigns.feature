@@ -50,11 +50,19 @@ Feature: Create booking campaigns for booking options as admin and booking it as
     And I wait "1" seconds
     And I set the field "Value" to "tenis"
     And I click on "Save changes" "button"
+    And I wait until the page is ready
     And I should see "campaing1"
+    And I click on "Edit" "text" in the ".booking-campaigns-list" "css_element"
+    And I wait "1" seconds
+    And I set the field "Custom name for the campaign" to "campaign1"
+    And I click on "Save changes" "button"
+    And I wait until the page is ready
+    And I should see "campaign1"
     And I log out
     When I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I follow "BookingCMP"
+    And I wait until the page is ready
     Then I should see "Option-football" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "88.00 EUR" in the ".allbookingoptionstable_r1 .pricecurrency" "css_element"
     And I should see "/ 2" in the ".allbookingoptionstable_r1 .col-ap-availableplaces" "css_element"
