@@ -1165,7 +1165,6 @@ class booking_option {
             return true;
         }
 
-
         $this->enrol_user_coursestart($user->id);
 
         $event = event\bookingoption_booked::create(

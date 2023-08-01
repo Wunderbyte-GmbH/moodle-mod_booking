@@ -406,7 +406,6 @@ class booking_option_settings {
                 $this->boactions = [];
             }
 
-
             // If the course module id (cmid) is not yet set, we load it. //TODO: bookingid 0 bei option templates berücksichtigen!!
             if (!isset($dbrecord->cmid)) {
                 $cm = get_coursemodule_from_instance('booking', $dbrecord->bookingid);
