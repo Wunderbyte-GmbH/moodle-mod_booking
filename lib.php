@@ -978,7 +978,6 @@ function booking_update_options(object $optionvalues, context_module $context, i
     } else {
         $option->description = "";
     }
-    $option->limitanswers = $optionvalues->limitanswers;
 
     // We add the json key only if there is actually something committed.
     // The reason is that this comes from a different form.

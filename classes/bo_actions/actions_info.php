@@ -160,25 +160,12 @@ class actions_info {
      * @return void
      */
     public static function save_action(stdClass &$data) {
-
-        global $USER;
-
         // We receive the form with the data depending on the used handlers.
         // As we know which handler to call, we only instantiate one action.
         $action = self::get_action($data->action_type);
 
-        // action has to be saved last, because it actually writes to DB.
+        // Action has to be saved last, because it actually writes to DB.
         $action->save_action($data);
-
-        // Every time we save the action, we have to invalidate caches.
-        // Trigger an event that booking option has been updated.
-
-        // $context = context_module::instance($data->cmid);
-        // $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $data->optionid,
-        //         'userid' => $USER->id));
-        // $event->trigger();
-
-        return;
     }
 
     /**
