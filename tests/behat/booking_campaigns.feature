@@ -31,9 +31,9 @@ Feature: Create booking campaigns for booking options as admin and booking it as
       | 2        | discount1  | Disc1 | 77           | 0        | 2                 |
       | 3        | discount2  | Disc2 | 66           | 0        | 3                 |
     And the following "mod_booking > options" exist:
-      | booking     | text            | course | description    | limitanswers | maxanswers | coursestarttime | courseendtime | optiondatestart[0] | optiondateend[0] | optiondatestart[1] | optiondateend[1] | useprice | customfield_spt1 |
-      | BookingCMP  | Option-tenis    | C1     | Deskr-tenis    | 1            | 2          | ## tomorrow ##  | ## +4 days ## | ## tomorrow ##     | ## +2 days ##    | ## +3 days ##      | ## +4 days ##    | 1        | tenis            |
-      | BookingCMP  | Option-football | C1     | Deskr-football | 1            | 2          | ## tomorrow ##  | ## +5 days ## | ## +2 days ##      | ## +3 days ##    | ## +4 days ##      | ## +4 days ##    | 1        | football         |
+      | booking     | text            | course | description    | limitanswers | maxanswers | startendtimeknown | coursestarttime | courseendtime | optiondatestart[0] | optiondateend[0] | optiondatestart[1] | optiondateend[1] | useprice | customfield_spt1 |
+      | BookingCMP  | Option-tenis    | C1     | Deskr-tenis    | 1            | 2          | 1                 | ## tomorrow ##  | ## +4 days ## | ## tomorrow ##     | ## +2 days ##    | ## +3 days ##      | ## +4 days ##    | 1        | tenis            |
+      | BookingCMP  | Option-football | C1     | Deskr-football | 1            | 2          | 1                 | ## tomorrow ##  | ## +5 days ## | ## +2 days ##      | ## +3 days ##    | ## +4 days ##      | ## +4 days ##    | 1        | football         |
 
   @javascript
   Scenario: Booking campaigns: create settings for booking campaign via UI as admin and edit it
