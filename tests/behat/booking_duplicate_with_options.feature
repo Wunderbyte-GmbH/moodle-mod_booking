@@ -23,6 +23,16 @@ Feature: In a booking create booking option with multiple custom options
     And the following "activities" exist:
       | activity | course | name       | intro                  | bookingmanager | eventtype | Default view for booking options | Activate e-mails (confirmations, notifications and more) | Booking option name  |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | All bookings                     | Yes                                                      | New option - Webinar |
+    And the following "custom field categories" exist:
+      | name     | component   | area    | itemid |
+      | SportArt | mod_booking | booking | 0      |
+    And the following "custom fields" exist:
+      | name   | category | type | shortname | configdata[defaultvalue] |
+      | Sport1 | SportArt | text | spt1      | defsport1                |
+    And the following "mod_booking > pricecategories" exist:
+      | ordernum | identifier    | name          | defaultvalue | disabled | pricecatsortorder |
+      | 1        | default       | Base Price    | 70           | 0        | 1                 |
+      | 2        | specialprice  | Special Price | 60           | 0        | 2                 |
     And I create booking option "New option - duplication source" in "My booking"
 
   @javascript
@@ -47,23 +57,7 @@ Feature: In a booking create booking option with multiple custom options
   @javascript
   Scenario: Duplicate booking option with multiple customized settings
     Given I log in as "admin"
-    And I visit "/admin/category.php?category=modbookingfolder"
-    And I follow "Booking: Price categories"
-    And I set the following fields to these values:
-      | Default price category name | Base Price |
-      | Default price value         | 70         |
-      | Sort order (number)         | 1          |
-    And I set the field "Add price category" to "checked"
-    And I set the following fields to these values:
-      | pricecategoryidentifier2 | specialprice  |
-      | pricecategoryname2       | Special Price |
-      | defaultvalue2            | 60            |
-      | pricecatsortorder2       | 2             |
-    And I press "Save changes"
-    Then I should see "Price categories were saved"
-    And I wait "1" seconds
-    Given I am on "Course 1" course homepage
-    Then I should see "My booking"
+    And I am on "Course 1" course homepage
     And I follow "My booking"
     And I should see "New option - duplication source"
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
@@ -73,8 +67,8 @@ Feature: In a booking create booking option with multiple custom options
       | Booking option name | Topic: Statistics     |
       | Description         | Class om Statistics   |
       | Internal annotation | Statistics for medics |
-      | Location    | MI Departmant         |
-      | Institution | Morphology Institute  |
+      | Location            | MI Departmant         |
+      | Institution         | Morphology Institute  |
       | Address             | Ternopil              |
     And I set the field "Limit the number of participants" to "checked"
     And I set the following fields to these values:
@@ -104,29 +98,23 @@ Feature: In a booking create booking option with multiple custom options
     And I set the following fields to these values:
       | pricegroup_default[bookingprice_default]           | 75                            |
       | pricegroup_specialprice[bookingprice_specialprice] | 65                            |
+      | customfield_spt1                                   | tenis                         |
       | Notification message                               | Advanced notification message |
       | Before booked                                      | Before booked message         |
       | After booked                                       | After booked message          |
     And I press "Save and go back"
-    ## Create 1st copy
+    ## Create a copy
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Duplicate this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    When I click on "Duplicate this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I set the field "Booking option name" to "Topic: Statistics - Copy 1"
     And I press "Save and go back"
-    ## Create 2nd copy
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Duplicate this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I set the field "Booking option name" to "Topic: Statistics - Copy 2"
-    And I press "Save and go back"
-    ## Verify name for 1st copy
-    And I should see "Topic: Statistics - Copy 1"
-    And I should see "Topic: Statistics - Copy 2"
-    ## Verify options for 2nd copy
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
+    ## Verify copy and its options
+    Then I should see "Topic: Statistics - Copy 1" in the ".allbookingoptionstable_r2" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
     And the following fields match these values:
       | Prefix              | MIB                        |
-      | Booking option name | Topic: Statistics - Copy 2 |
+      | Booking option name | Topic: Statistics - Copy 1 |
       | Description         | Class om Statistics        |
       | Internal annotation | Statistics for medics      |
       | Address             | Ternopil                   |
@@ -155,6 +143,7 @@ Feature: In a booking create booking option with multiple custom options
       | reoccurringdatestring                 | FR, 13:30 - 14:30             |
       | pricegroup_default[bookingprice_default]           | 75               |
       | pricegroup_specialprice[bookingprice_specialprice] | 65               |
+      | customfield_spt1                      | tenis                         |
       | Notification message                  | Advanced notification message |
       | Before booked                         | Before booked message         |
       | After booked                          | After booked message          |
