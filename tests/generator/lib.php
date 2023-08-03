@@ -192,6 +192,23 @@ class mod_booking_generator extends testing_module_generator {
         return $record;
     }
 
+
+        /**
+     * Function to create a dummy semester option.
+     *
+     * @param array|stdClass $record
+     * @return stdClass the booking semester object
+     */
+    public function create_semester($record = null) {
+        global $DB;
+
+        $record = (object) $record;
+
+        $record->id = $DB->insert_record('booking_semesters', $record);
+
+        return $record;
+    }
+
     /**
      * Function, to add user to option
      * @param array|stdClass $record
