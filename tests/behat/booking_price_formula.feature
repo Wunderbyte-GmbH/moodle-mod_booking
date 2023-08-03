@@ -21,31 +21,16 @@ Feature: As a teacher - configure and use booking's price formula feature.
     And the following "activities" exist:
       | activity | course | name       | intro                  | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | All bookings                     | Yes                      |
+    And the following "mod_booking > semesters" exist:
+      | identifier | name     | startdate                        | enddate                         |
+      | nextmay    | Next May | ## first day of May next year ## | ## last day of May next year ## |
+    And the following "mod_booking > pricecategories" exist:
+      | ordernum | identifier | name       | defaultvalue | disabled | pricecatsortorder |
+      | 1        | default    | Base Price | 70.1         | 0        | 1                 |
     And I create booking option "Price formula option - Dates In timeslot" in "My booking"
     And I create booking option "Price formula option - Dates NOT in timeslot" in "My booking"
     And I create booking option "Price formula option - No unit factor" in "My booking"
     And I log in as "admin"
-    And I visit "/admin/category.php?category=modbookingfolder"
-    And I follow "Booking: Semesters"
-    And I set the following fields to these values:
-      | semesteridentifier[0]   | nextmay            |
-      | semestername[0]         | Next May           |
-      | semesterstart[0][day]   | 1                  |
-      | semesterstart[0][month] | May                |
-      | semesterstart[0][year]  | ## + 1 year ##%Y## |
-      | semesterend[0][day]     | 31                 |
-      | semesterend[0][month]   | May                |
-      | semesterend[0][year]    | ## + 1 year ##%Y## |
-    ## Need to overrider potential bug:
-    And I set the field "semesterend[0][day]" to "31"
-    And I press "Save changes"
-    And I visit "/admin/category.php?category=modbookingfolder"
-    And I follow "Booking: Price categories"
-    And I set the following fields to these values:
-      | Default price category name | Base Price |
-      | Default price value         | 70.1       |
-      | Sort order (number)         | 1          |
-    And I press "Save changes"
     And I visit "/admin/category.php?category=modbookingfolder"
     And I set the following fields to these values:
       | Price formula | [{"timeslot":[{"starttime":"17:00","endtime":"23:00","weekdays":"Mon,Fri","multiplier":"0.5"}]}] |
@@ -53,7 +38,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     And I log out
 
   @javascript
-  Scenario: Option dates not in timeslot of the price formula
+  Scenario: Booking price formula - option dates not in timeslot of the price formula
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     Then I follow "My booking"
@@ -75,7 +60,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     And I should see "285.00 EUR" in the ".allbookingoptionstable_r2 .pricecurrency" "css_element"
 
   @javascript
-  Scenario: Option dates are in timeslot of the price formula
+  Scenario: Booking price formula - option dates are in timeslot of the price formula
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     Then I follow "My booking"
@@ -97,7 +82,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     And I should see "145.00 EUR" in the ".allbookingoptionstable_r1 .pricecurrency" "css_element"
 
   @javascript
-  Scenario: Option dates not in timeslot of the price formula and no unit factor
+  Scenario: Booking price formula - no unit factor and option dates not in timeslot of the price formula
     Given I log in as "admin"
     And I visit "/admin/category.php?category=modbookingfolder"
     And I set the field "Apply unit factor" to ""
@@ -125,7 +110,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     And I should see "215.00 EUR" in the ".allbookingoptionstable_r3 .pricecurrency" "css_element"
 
   @javascript
-  Scenario: Option dates not in timeslot of the price formula and no price rounding
+  Scenario: Booking price formula - no price rounding and option dates not in timeslot of the price formula
     Given I log in as "admin"
     And I visit "/admin/category.php?category=modbookingfolder"
     And I set the field "Apply unit factor" to "checked"
@@ -154,7 +139,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     And I should see "425.60 EUR" in the ".allbookingoptionstable_r3 .pricecurrency" "css_element"
 
   @javascript
-  Scenario: Empty price formula not being applied
+  Scenario: Booking price formula - empty price formula not being applied
     Given I log in as "admin"
     And I visit "/admin/category.php?category=modbookingfolder"
     And I set the field "Price formula" to ""
