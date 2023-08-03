@@ -66,8 +66,11 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             $boinfo = new bo_info($settings);
             list($id, $isavailable, $description) = $boinfo->is_available($optionid, $userid, true);
 
-            // The blocking ID has to be the price id. Else, we abort.
-            if ($id != BO_COND_PRICEISSET) {
+            // The blocking ID has to be the price id.
+            // If its already in the cart, we can also just proceed.
+            // Else, we abort.
+            if ($id != BO_COND_PRICEISSET
+                && $id != BO_COND_ALREADYRESERVED) {
                 return ['error' => 'nopermissiontobook'];
             }
 
