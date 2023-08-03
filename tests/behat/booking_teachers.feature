@@ -28,29 +28,15 @@ Feature: In a booking - create options and assign or substituing teachers
     And the following "activities" exist:
       | activity | course | name       | intro                  | bookingmanager | eventtype | Default view for booking options | Activate e-mails (confirmations, notifications and more) | Booking option name  |
       | booking  | C1     | My booking | My booking description | admin1         | Webinar   | All bookings                     | Yes                                                      | New option - Webinar |
-    And I create booking option "Booking option - Teachers" in "My booking"
-    And I log in as "admin1"
-    When I am on "Course 1" course homepage
-    And I follow "My booking"
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Manage option dates" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I set the following fields to these values:
-      | coursestarttime[day]    | 15                  |
-      | coursestarttime[month]  | March               |
-      | coursestarttime[year]   | ## + 1 year ##%Y##  |
-      | coursestarttime[hour]   | 13                  |
-      | coursestarttime[minute] | 00                  |
-      | endhour                 | 20                  |
-      | endminute               | 00                  |
-    And I press "Save"
-    And I log out
+    And the following "mod_booking > options" exist:
+      | booking    | text                      | course | description  | startendtimeknown | coursestarttime  | courseendtime | optiondatestart[0] | optiondateend[0] | optiondatestart[1] | optiondateend[1] | 
+      | My booking | Booking option - Teachers | C1     | Option deskr | 1                 | ## yesterday ##  | ## +4 days ## | ## tomorrow ##     | ## +2 days ##    | ## +3 days ##      | ## +4 days ##    |
 
   @javascript
   Scenario: Booking option: add and remove single teacher via substitutions
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    And I should see "Booking option - Teachers" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Substitutions / Cancelled dates" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Booking option - Teachers" in the "#region-main" "css_element"
@@ -79,7 +65,6 @@ Feature: In a booking - create options and assign or substituing teachers
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I follow "My booking"
-    And I should see "Booking option - Teachers" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Substitutions / Cancelled dates" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Booking option - Teachers" in the "#region-main" "css_element"
