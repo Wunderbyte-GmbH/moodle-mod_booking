@@ -45,6 +45,10 @@ class behat_mod_booking_generator extends behat_generator_base {
                 'datagenerator' => 'campaign',
                 'required' => ['name', 'type', 'json', 'starttime', 'endtime', 'pricefactor', 'limitfactor'],
             ],
+            'semesters' => [
+                'datagenerator' => 'semester',
+                'required' => ['identifier', 'name', 'startdate', 'enddate'],
+            ],
         ];
     }
 

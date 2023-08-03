@@ -143,9 +143,40 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
   ##  ## And I open the autocomplete suggestions list in the "#id_datesheadercontainer" "css_element"
   ##  And I wait "1" seconds
   ##  And I should see "Next June (nextjune)" in the "#id_datesheadercontainer .form-autocomplete-suggestions" "css_element"
+  @javascript
+  Scenario: Booking settings - use semester in booking option
+    Given I log in as "admin"
+    And the following "mod_booking > semesters" exist:
+      | identifier | name      | startdate                         | enddate                          |
+      | nextjune   | Next June | ## first day of June next year ## | ## last day of June next year ## |
+    When I am on "Course 1" course homepage
+    And I follow "My booking"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I follow "Dates"
+    And I should see "Next June (nextjune)" in the "#id_datesheadercontainer .form-autocomplete-selection" "css_element"
+    And I set the following fields to these values:
+      | Booking option name   | Option - Test Semester |
+      | Select time period    | Next June (nextjune)   |
+      | reoccurringdatestring | Friday, 13:00-14:00    |
+    And I press "Create date series"
+    And I wait "1" seconds
+    And I should see "## + 1 year ##%Y##" in the ".reoccurringdates" "css_element"
+    And I should see "1:00 PM - 2:00 PM" in the ".reoccurringdates" "css_element"
+    And I should see "Friday, 7" in the ".reoccurringdates" "css_element"
+    And I should see "Friday, 14" in the ".reoccurringdates" "css_element"
+    And I press "Save and go back"
+    Then I should see "Option - Test Semester" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Friday, 13:00-14:00" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Show dates" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait "1" seconds
+    And I should see "## + 1 year ##%Y##" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "1:00 PM - 2:00 PM" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "7 June" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "14 June" in the ".allbookingoptionstable_r1" "css_element"
 
   @javascript
-  Scenario: Settings - create semester settings and use it in booking options
+  Scenario: Booking settings - create semester
     Given I log in as "admin"
     And I visit "/admin/category.php?category=modbookingfolder"
     And I follow "Booking: Semesters"
@@ -172,34 +203,6 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
       | semesterend[0][month]   | June               |
       | semesterend[0][year]    | ## + 1 year ##%Y## |
     And I log out
-    Given I log in as "teacher1"
-    When I am on "Course 1" course homepage
-    And I follow "My booking"
-    ## And I follow "New booking option"
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I follow "Dates"
-    And I should see "Next June (nextjune)" in the "#id_datesheadercontainer .form-autocomplete-selection" "css_element"
-    And I set the following fields to these values:
-      | Booking option name   | Option - Test Semester |
-      | Select time period    | Next June (nextjune)   |
-      | reoccurringdatestring | Friday, 13:00-14:00    |
-    And I press "Create date series"
-    And I wait "1" seconds
-    And I should see "## + 1 year ##%Y##" in the ".reoccurringdates" "css_element"
-    And I should see "1:00 PM - 2:00 PM" in the ".reoccurringdates" "css_element"
-    And I should see "Friday, 7" in the ".reoccurringdates" "css_element"
-    And I should see "Friday, 14" in the ".reoccurringdates" "css_element"
-    And I press "Save and go back"
-    Then I should see "Option - Test Semester" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Friday, 13:00-14:00" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Show dates" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait "1" seconds
-    And I should see "## + 1 year ##%Y##" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "1:00 PM - 2:00 PM" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "7 June" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "14 June" in the ".allbookingoptionstable_r1" "css_element"
-    ## And I should see "14 June ## + 1 year ##%Y##, 1:00PM - 2:00PM" in the ".allbookingoptionstable_r1" "css_element"
 
   @javascript
   Scenario: Booking settings - access the teacher pages without login
