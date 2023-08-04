@@ -31,10 +31,8 @@ Feature: As a teacher - configure and use booking's price formula feature.
     And I create booking option "Price formula option - Dates NOT in timeslot" in "My booking"
     And I create booking option "Price formula option - No unit factor" in "My booking"
     And I log in as "admin"
-    And I visit "/admin/category.php?category=modbookingfolder"
-    And I set the following fields to these values:
+    And I set the following administration settings values:
       | Price formula | [{"timeslot":[{"starttime":"17:00","endtime":"23:00","weekdays":"Mon,Fri","multiplier":"0.5"}]}] |
-    And I press "Save changes"
     And I log out
 
   @javascript
@@ -84,10 +82,9 @@ Feature: As a teacher - configure and use booking's price formula feature.
   @javascript
   Scenario: Booking price formula - no unit factor and option dates not in timeslot of the price formula
     Given I log in as "admin"
-    And I visit "/admin/category.php?category=modbookingfolder"
-    And I set the field "Apply unit factor" to ""
-    And I set the field "Round prices (price formula)" to "checked"
-    And I press "Save changes"
+    And I set the following administration settings values:
+      | Apply unit factor | |
+      | Round prices (price formula) | 1 |
     And I log out
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
@@ -112,10 +109,9 @@ Feature: As a teacher - configure and use booking's price formula feature.
   @javascript
   Scenario: Booking price formula - no price rounding and option dates not in timeslot of the price formula
     Given I log in as "admin"
-    And I visit "/admin/category.php?category=modbookingfolder"
-    And I set the field "Apply unit factor" to "checked"
-    And I set the field "Round prices (price formula)" to ""
-    And I press "Save changes"
+    And I set the following administration settings values:
+      | Apply unit factor | 1 |
+      | Round prices (price formula) | |
     And I log out
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
@@ -141,9 +137,8 @@ Feature: As a teacher - configure and use booking's price formula feature.
   @javascript
   Scenario: Booking price formula - empty price formula not being applied
     Given I log in as "admin"
-    And I visit "/admin/category.php?category=modbookingfolder"
-    And I set the field "Price formula" to ""
-    And I press "Save changes"
+    And I set the following administration settings values:
+      | Price formula | |
     And I log out
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
