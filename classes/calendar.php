@@ -325,7 +325,7 @@ class calendar {
             $instance = 0;
             $visible = 1;
 
-            $bookingoption = new \mod_booking\booking_option($this->cmid, $this->optionid, null, null, null, true);
+            $bookingoption = new \mod_booking\booking_option($this->cmid, $this->optionid, [], 0, 0, true);
             // If the user is booked, we have a different kind of description.
             $bookedusers = $bookingoption->get_all_users_booked();
             $forbookeduser = isset($bookedusers[$userid]);
