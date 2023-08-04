@@ -193,7 +193,7 @@ class mod_booking_generator extends testing_module_generator {
     }
 
 
-        /**
+    /**
      * Function to create a dummy semester option.
      *
      * @param array|stdClass $record
