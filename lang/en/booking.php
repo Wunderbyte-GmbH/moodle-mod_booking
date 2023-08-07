@@ -1635,8 +1635,8 @@ $string['collapseshowsettings_desc'] = "To avoid a messy view with too many date
 $string['teachersettings'] = 'Teachers (PRO)';
 $string['teachersettings_desc'] = 'Teacher-specific settings.';
 
-$string['teacherslinkonteacher'] = 'Add links on teacher sites';
-$string['teacherslinkonteacher_desc'] = 'When there are teachers added to a booking options, this setting will add links to an overview page.';
+$string['teacherslinkonteacher'] = 'Add links to teacher pages';
+$string['teacherslinkonteacher_desc'] = 'When there are teachers added to booking options, this setting will add a link to an overview page for each teacher.';
 
 $string['teachersnologinrequired'] = 'Login for teacher pages not necessary';
 $string['teachersnologinrequired_desc'] = 'If you activate this setting, everyone can access the teacher pages, regardless if logged in or not.';

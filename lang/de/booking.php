@@ -1612,7 +1612,7 @@ $string['collapseshowsettings_desc'] = "Um auf der Überblicksseite nicht zu vie
 $string['teachersettings'] = 'Trainer:innen (PRO)';
 $string['teachersettings_desc'] = 'Trainer:innen-spezifische Einstellungen.';
 
-$string['teacherslinkonteacher'] = 'Links auf Trainer Seiten einfügen.';
+$string['teacherslinkonteacher'] = 'Links zu Trainer:innen-Seiten hinzufügen';
 $string['teacherslinkonteacher_desc'] = 'Sind bei einer Buchungsoption Trainer:innen definiert, so werden die Namen automatisch mit einer Überblicksseite für diese Trainer:innen verknüpft.';
 
 $string['teachersnologinrequired'] = 'Einloggen bei Trainer:innen-Seiten nicht notwendig';
