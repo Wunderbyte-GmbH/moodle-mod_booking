@@ -39,6 +39,15 @@ use templatable;
  */
 class semesters_holidays implements renderable, templatable {
 
+    /** @var string $renderedsemestersform */
+    public $renderedsemestersform = '';
+
+    /** @var string $renderedholidaysform */
+    public $renderedholidaysform = '';
+
+    /** @var string $renderedchangesemesterform */
+    public $renderedchangesemesterform = '';
+
     /**
      * Constructor
      *

@@ -122,9 +122,7 @@ class dynamicchangesemesterform extends dynamic_form {
 
         $cmid = optional_param('id', 0, PARAM_INT);
 
-        if (empty($this->bookingsettings)) {
-            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
-        }
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
 
         $mform = $this->_form;
 

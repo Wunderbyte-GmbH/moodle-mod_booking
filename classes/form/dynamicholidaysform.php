@@ -30,6 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
+use cache_helper;
 use context;
 use context_system;
 use core_form\dynamic_form;
@@ -167,6 +168,9 @@ class dynamicholidaysform extends dynamic_form {
                 $DB->delete_records('booking_holidays', ['id' => $existingholidayid]);
             }
         }
+
+        // So we can be sure that we use the right dates.
+        cache_helper::purge_by_event('setbacksemesters');
 
         return $this->get_data();
     }

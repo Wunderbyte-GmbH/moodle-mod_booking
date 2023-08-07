@@ -556,6 +556,9 @@ class dates_handler {
         global $DB;
         // First we delete all optiondates on this instance.
 
+        // So we can be sure that we use the right dates.
+        cache_helper::purge_by_event('setbacksemesters');
+
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
         $bookingid = $booking->id;
 

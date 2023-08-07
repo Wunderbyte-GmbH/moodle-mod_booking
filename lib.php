@@ -700,11 +700,12 @@ function booking_update_instance($booking) {
     // When updating an instance, we need to invalidate the cache for booking instances.
     cache_helper::invalidate_by_event('setbackbookinginstances', [$cm->id]);
 
-    // Also purge caches for options table and booking_option_settings.
+    // Also purge caches for options table, semesters and booking_option_settings.
     cache_helper::purge_by_event('setbackoptionstable');
+    cache_helper::purge_by_event('setbacksemesters');
     cache_helper::purge_by_event('setbackoptionsettings');
 
-    // This is wunderbyte table cache which needs some setback.
+    // We also need to set back Wunderbyte table cache!
     cache_helper::purge_by_event('setbackencodedtables');
 
     return $DB->update_record('booking', $booking);

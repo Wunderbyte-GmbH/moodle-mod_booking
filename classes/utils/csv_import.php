@@ -47,9 +47,14 @@ require_once($CFG->libdir . "/csvlib.class.php");
 class csv_import {
 
     /**
-     * @var booking
+     * @var booking $booking
      */
     protected $booking;
+
+    /**
+     * @var int $cmid
+     */
+    protected $cmid;
 
     /**
      * @var string
@@ -103,6 +108,10 @@ class csv_import {
 
     public function __construct(booking $booking) {
         global $DB, $CFG;
+
+        // Easy access for cmid and booking settings.
+        $this->cmid = $booking->cmid;
+
         $this->columns = $DB->get_columns('booking_options');
         // Unset fields that can not be filled out be users.
         unset($this->columns['id']);
@@ -362,7 +371,7 @@ class csv_import {
                             continue;
                         }
 
-                        $option = singleton_service::get_instance_of_booking_option($this->booking->cm->id, $optionid);
+                        $option = singleton_service::get_instance_of_booking_option($this->cmid, $optionid);
                         if ($option->user_submit_response($user, 0, 0, false, VERIFIED) === false) {
                             $this->add_csverror("The user with username {$user->username} and e-mail {$user->email} was
                             not subscribed to the booking option", $i);
@@ -377,7 +386,7 @@ class csv_import {
                     $user = $DB->get_record('user', array('suspended' => 0, 'deleted' => 0, 'confirmed' => 1,
                         'username' => $userdata['user_username']), 'id', IGNORE_MULTIPLE);
                     if ($user !== false) {
-                        $option = singleton_service::get_instance_of_booking_option($this->booking->cm->id, $optionid);
+                        $option = singleton_service::get_instance_of_booking_option($this->cmid, $optionid);
                         $option->user_submit_response($user, 0, 0, false, VERIFIED);
                     }
                 }
@@ -389,6 +398,8 @@ class csv_import {
 
         // We need to purge all caches to be sure display works correctly.
         cache_helper::purge_by_event('setbackoptionstable');
+        // We also need to set back Wunderbyte table cache!
+        cache_helper::purge_by_event('setbackencodedtables');
 
         return true;
     }
@@ -429,6 +440,8 @@ class csv_import {
      */
     protected function prepare_data($column, $value, &$bookingoption) {
         global $DB;
+
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($this->cmid);
 
         // Prepare custom fields.
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
@@ -472,10 +485,13 @@ class csv_import {
                     break;
                 case 'dayofweektime':
                     // Deal with option dates.
-                    // TODO: get semester from csv file!!!!
-                    $sql = "SELECT MAX(id) AS id FROM {booking_semesters}";
-                    if ($semesterid = $DB->get_field_sql($sql)) {
-                        $msdates = dates_handler::get_optiondate_series($semesterid, $value);
+
+                    // So we can be sure that we use the right dates.
+                    cache_helper::purge_by_event('setbacksemesters');
+
+                    // We need to get the semester from the booking instance!
+                    if (!empty($bookingsettings->semesterid)) {
+                        $msdates = dates_handler::get_optiondate_series($bookingsettings->semesterid, $value);
                         $counter = 1;
                         if (isset($msdates['dates'])) {
                             foreach ($msdates['dates'] as $msdate) {
