@@ -1403,6 +1403,7 @@ function booking_update_options(object $optionvalues, context_module $context, i
                     'oldoptionid' => $optionvalues->copyoptionid
             ];
 
+            $now = time();
             $oldcustomfields = $DB->get_records_sql($sql, $params);
             foreach ($oldcustomfields as $cf) {
                 unset($cf->id);
