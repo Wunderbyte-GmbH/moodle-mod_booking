@@ -129,9 +129,9 @@ Feature: In a booking create booking option with multiple custom options
       | Min. number of participants           | 3                             |
       | duration[number]                      | 2                             |
       | duration[timeunit]                    | hours                         |
-      | coursestarttime[day]                  | 20                            |
-      | coursestarttime[month]                | 7                             |
-      | coursestarttime[year]                 | 2030                          |
+      | coursestarttime[day]                  | ##tomorrow##%d##              |
+      | coursestarttime[month]                | ##tomorrow##%B##              |
+      | coursestarttime[year]                 | ##tomorrow##%Y##              |
       | coursestarttime[hour]                 | 09                            |
       | coursestarttime[minute]               | 00                            |
       | courseendtime[day]                    | ##tomorrow##%d##              |
