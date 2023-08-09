@@ -233,7 +233,13 @@ class teachers_handler {
                 $newentry->optiondateid = $existingoptiondate->id;
                 $newentry->userid = $userid;
                 // 2. Insert the teacher into booking_optiondates_teachers for every optiondate.
-                $DB->insert_record('booking_optiondates_teachers', $newentry);
+
+                // Only do this if the record does not exist already.
+                if (!$DB->record_exists('booking_optiondates_teachers', [
+                    'optiondateid' => $newentry->optiondateid,
+                    'userid' => $newentry->userid])) {
+                        $DB->insert_record('booking_optiondates_teachers', $newentry);
+                    }
             }
             cache_helper::purge_by_event('setbackcachedteachersjournal');
         }

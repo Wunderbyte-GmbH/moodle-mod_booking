@@ -178,7 +178,12 @@ class csv_import {
      * @throws \dml_exception
      */
     public function process_data($csvcontent, $formdata = null) {
-        global $DB;
+
+        global $DB, $CFG;
+
+        // We need the lib for the teacher creation.
+        require_once($CFG->dirroot . '/mod/booking/lib.php');
+
         $this->error = '';
         $this->formdata = $formdata;
         $iid = csv_import_reader::get_new_iid('modbooking');
@@ -321,26 +326,28 @@ class csv_import {
                     $this->prepare_data($userfield, $value, $bookingoption);
                 }
                 if (isset($userdata['teacheremail'])) {
-                    $teacher = $DB->get_record('user', array('suspended' => 0, 'deleted' => 0, 'confirmed' => 1,
-                        'email' => $userdata['teacheremail']), 'id', IGNORE_MULTIPLE);
-                    if (isset($teacher->id)) {
-                        $teacherexists = $DB->record_exists('booking_teachers',
-                            array('bookingid' => $this->booking->id, 'userid' => $teacher->id,
-                                'optionid' => $optionid));
-                        if ($teacherexists === false && $teacher !== false && $teacher->id > 0 && $optionid > 0) {
-                            $newteacher = new stdClass();
-                            $newteacher->bookingid = $this->booking->id;
-                            $newteacher->userid = $teacher->id;
-                            $newteacher->optionid = $optionid;
-                            $DB->insert_record('booking_teachers', $newteacher, true);
 
-                            // When inserting a new teacher, we also need to insert the teacher for each optiondate.
-                            teachers_handler::subscribe_teacher_to_all_optiondates($optionid, $teacher->id);
-                        } else if ($teacherexists === false ) {
-                            $this->add_csverror(get_string('noteacherfound', 'booking', $i), $i);
+                    // First we explode teacheremail, there might be mulitple teachers.
+                    // We always use comma as separator.
+                    $teacheremails = explode(',', $userdata['teacheremail']);
+
+                    foreach ($teacheremails as $teacheremail) {
+
+                        // First, we trim the $teacheremail to make sure there are not whitespaces or linebreaks.
+                        $teacheremail = trim($teacheremail);
+
+                        // Now we check if the email exists as a suer on the platform.
+                        if (!$teacher = $DB->get_record('user', array('suspended' => 0, 'deleted' => 0, 'confirmed' => 1,
+                            'email' => $teacheremail), 'id', IGNORE_MULTIPLE)) {
+
+                                $this->add_csverror(get_string('noteacherfound', 'booking', $i), $i);
+                                continue;
                         }
-                    } else {
-                        $this->add_csverror(get_string('noteacherfound', 'booking', $i), $i);
+
+                        // If we can't add the
+                        if (!subscribe_teacher_to_booking_option($teacher->id, $bookingoption->id, $settings->cmid)) {
+                            $this->add_csverror(get_string('teachercouldntbeadded', 'booking', $i), $i);
+                        }
                     }
                 }
 
