@@ -68,7 +68,7 @@ $bookingid = (int) $cm->instance;
 
 $groupmode = groups_get_activity_groupmode($cm);
 
-if (!$booking = new \mod_booking\booking($cmid)) {
+if (!$booking = singleton_service::get_instance_of_booking_by_cmid($cmid)) {
     throw new invalid_parameter_exception("Course module id is incorrect");
 }
 

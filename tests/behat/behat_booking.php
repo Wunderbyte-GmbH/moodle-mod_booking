@@ -23,6 +23,7 @@
  */
 
 use mod_booking\booking;
+use mod_booking\singleton_service;
 
 /**
  * To create booking specific behat scearios.
@@ -40,7 +41,7 @@ class behat_booking extends behat_base {
 
         $cm = $this->get_cm_by_booking_name($instancename);
 
-        $booking = new booking($cm->id);
+        $booking = singleton_service::get_instance_of_booking_by_cmid($cm->id);
 
         $record = new stdClass();
         $record->bookingid = $booking->id;
@@ -49,8 +50,9 @@ class behat_booking extends behat_base {
         $record->description = 'Test description';
 
         $datagenerator = \testing_util::get_data_generator();
-        $plugingenerator = $datagenerator->get_plugin_generator('mod_booking')->create_option(
-            $record);
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = $datagenerator->get_plugin_generator('mod_booking');
+        $bookingoption1 = $plugingenerator->create_option($record);
     }
 
     /**

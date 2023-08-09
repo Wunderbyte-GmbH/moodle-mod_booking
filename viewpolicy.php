@@ -13,22 +13,22 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-use mod_booking\booking;
+use mod_booking\singleton_service;
 
 require_once(__DIR__ . '/../../config.php');
 require_once("$CFG->dirroot/mod/booking/locallib.php");
-$id = required_param('id', PARAM_INT);
+$cmid = required_param('id', PARAM_INT);
 
-$booking = new booking($id);
+$booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 $booking->apply_tags();
 
 $context = context_course::instance($booking->settings->course);
 
-list($course, $cm) = get_course_and_cm_from_cmid($id);
+list($course, $cm) = get_course_and_cm_from_cmid($cmid);
 
 require_login($course->id, false);
 
-$PAGE->set_url('/mod/booking/viewpolicy.php', array('id' => $id));
+$PAGE->set_url('/mod/booking/viewpolicy.php', array('id' => $cmid));
 $PAGE->set_title(get_string("bookingpolicy", "booking"));
 $PAGE->set_heading(get_string("bookingpolicy", "booking"));
 

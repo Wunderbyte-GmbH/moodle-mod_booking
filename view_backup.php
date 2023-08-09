@@ -52,7 +52,7 @@ list($course, $cm) = get_course_and_cm_from_cmid($id, 'booking');
 require_course_login($course, false, $cm);
 $context = context_module::instance($cm->id);
 
-$booking = new booking($cm->id);
+$booking = singleton_service::get_instance_of_booking_by_cmid($cm->id);
 
 if (!empty($action)) {
     $urlparams['action'] = $action;

@@ -84,7 +84,7 @@ class option_form extends moodleform {
         $optionid = 0;
         if (isset($this->_customdata['cmid'])) {
             $cmid = $this->_customdata['cmid'];
-            $booking = new booking($cmid);
+            $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
         }
         if (isset($this->_customdata['optionid'])) {
             $optionid = $this->_customdata['optionid'];

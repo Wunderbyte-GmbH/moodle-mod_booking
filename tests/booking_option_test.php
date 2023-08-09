@@ -103,7 +103,6 @@ class booking_option_test extends advanced_testcase {
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-
         $option1 = $plugingenerator->create_option($record);
         $record->bookingid = $booking2->id;
 

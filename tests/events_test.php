@@ -82,8 +82,9 @@ class events_test extends advanced_testcase {
         $record->courseid = $course->id;
         $record->description = 'Test description';
 
-        $option = self::getDataGenerator()->get_plugin_generator('mod_booking')->create_option(
-                $record);
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $plugingenerator->create_option($record);
 
         return array($user1, $option, $coursectx);
     }

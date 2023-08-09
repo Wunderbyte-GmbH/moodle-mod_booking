@@ -20,7 +20,6 @@ defined('MOODLE_INTERNAL') || die();
 use context_module;
 use context;
 use mod_booking\booking;
-use mod_booking\booking_option;
 use mod_booking\places;
 use mod_booking\singleton_service;
 use stdClass;
@@ -132,7 +131,7 @@ class mobile {
 
         $context = context_module::instance($cm->id);
 
-        $booking = new booking($cm->id);
+        $booking = singleton_service::get_instance_of_booking_by_cmid($cm->id);
 
         $paging = $booking->settings->paginationnum;
         if (!isset($whichview)) {

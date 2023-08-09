@@ -22,6 +22,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\singleton_service;
+
 require_once(__DIR__ . '/../../config.php');
 require_once("lib.php");
 
@@ -75,7 +77,7 @@ foreach ($modinfo->instances['booking'] as $cm) {
     }
 
     $context = context_module::instance($cm->id);
-    $booking = new mod_booking\booking($cm->id);
+    $booking = singleton_service::get_instance_of_booking_by_cmid($cm->id);
     $bo = $booking->get_user_booking($USER);
 
     $numberofbookings = '';

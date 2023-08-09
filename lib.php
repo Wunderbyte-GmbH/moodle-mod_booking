@@ -153,7 +153,7 @@ define('CAMPAIGN_TYPE_CUSTOMFIELD', 0);
  */
 function booking_get_coursemodule_info($cm) {
     $info = new cached_cm_info();
-    $booking = new mod_booking\booking($cm->id);
+    $booking = singleton_service::get_instance_of_booking_by_cmid($cm->id);
     $booking->apply_tags();
     if (!empty($booking->settings->name)) {
         $info->name = $booking->settings->name;
@@ -2703,7 +2703,7 @@ function booking_subscribed_teachers($course, $optionid, $id, $groupid = 0, $con
 function mod_booking_cm_info_view(cm_info $cm) {
     global $PAGE;
 
-    $booking = new mod_booking\booking($cm->id);
+    $booking = singleton_service::get_instance_of_booking_by_cmid($cm->id);
 
     if (!empty($booking)) {
         $html = '';

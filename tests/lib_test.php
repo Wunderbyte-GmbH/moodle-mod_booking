@@ -73,7 +73,9 @@ class lib_test extends advanced_testcase {
         $record->courseid = $course->id;
         $record->description = 'Test description';
 
-        $option = self::getDataGenerator()->get_plugin_generator('mod_booking')->create_option(
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $plugingenerator->create_option(
                 $record);
 
         $group = $this->getDataGenerator()->create_group(array('courseid' => $course->id));

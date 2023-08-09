@@ -13,8 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-use mod_booking\booking;
 use mod_booking\form\option_form;
+use mod_booking\singleton_service;
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
@@ -34,7 +34,7 @@ require_course_login($course, false, $cm);
 // In Moodle 4.0+ we want to turn the instance description off on every page except view.php.
 $PAGE->activityheader->disable();
 
-if (!$booking = new booking($cm->id)) {
+if (!$booking = singleton_service::get_instance_of_booking_by_cmid($cm->id)) {
     throw new invalid_parameter_exception("Course module id is incorrect");
 }
 
