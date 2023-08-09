@@ -22,6 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\singleton_service;
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/formslib.php');
@@ -65,7 +66,7 @@ class mod_booking_teachers_form extends moodleform {
 
         $buttonarray = array();
         if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
-            $bookingoption = new \mod_booking\booking_option($cm->id, $this->_customdata['option']->id, array(), 0, 0, false);
+            $bookingoption = singleton_service::get_instance_of_booking_option($cm->id, $this->_customdata['option']->id);
 
             $course = $DB->get_record('course', array('id' => $bookingoption->booking->settings->course));
             $completion = new \completion_info($course);

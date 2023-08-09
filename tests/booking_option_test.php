@@ -26,7 +26,7 @@
 namespace mod_booking;
 
 use advanced_testcase;
-use completion_info;
+use mod_booking_generator;
 use context_course;
 use stdClass;
 
@@ -101,62 +101,17 @@ class booking_option_test extends advanced_testcase {
         $record->courseid = $course->id;
         $record->description = 'Test description';
 
-        $option1 = self::getDataGenerator()->get_plugin_generator('mod_booking')->create_option(
-                $record);
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $option1 = $plugingenerator->create_option($record);
         $record->bookingid = $booking2->id;
-        $option2 = self::getDataGenerator()->get_plugin_generator('mod_booking')->create_option(
-                $record);
 
         $cmb1 = get_coursemodule_from_instance('booking', $booking1->id);
-        $cmb2 = get_coursemodule_from_instance('booking', $booking2->id);
 
-        $bookingopttion1 = new \mod_booking\booking_option($cmb1->id, $option1->id);
-        $bookingopttion2 = new \mod_booking\booking_option($cmb2->id, $option2->id);
+        $bookingoption1 = singleton_service::get_instance_of_booking_option($cmb1->id, $option1->id);
 
         $this->setUser($user1);
-        $this->assertEquals(false, $bookingopttion1->can_rate());
-
-        // Disabled as deprecated upon decision.
-        // phpcs:disable
-        /* $bo1 = $DB->get_record('booking', array('id' => $booking1->id));
-        $bo1->ratings = 1;
-        $DB->update_record('booking', $bo1);
-        $bookingopttion1 = new \mod_booking\booking_option($cmb1->id, $option1->id);
-        $this->assertEquals(true, $bookingopttion1->can_rate());
-
-        $bo1->ratings = 2;
-        $DB->update_record('booking', $bo1);
-        $bookingopttion1 = new \mod_booking\booking_option($cmb1->id, $option1->id);
-        $this->assertEquals(false, $bookingopttion1->can_rate());
-
-        $this->assertEquals(true, empty($bookingopttion1->option->shorturl));
-
-        $bookingopttion1->user_submit_response($user1);
-        $bookingopttion2->user_submit_response($user1);
-        $bookingopttion2->user_submit_response($user2);
-
-        $this->assertEquals(true, $bookingopttion1->can_rate());
-
-        $bo1->ratings = 3;
-        $DB->update_record('booking', $bo1);
-        $bookingopttion1 = new \mod_booking\booking_option($cmb1->id, $option1->id);
-
-        $this->assertEquals(false, $bookingopttion1->can_rate());
-
-        $sink = $this->redirectEvents();
-        $this->assertEquals(0, $bookingopttion1->is_activity_completed($user1->id));
-        booking_activitycompletion(array($user1->id), $booking1, $cmb1->id, $option1->id);
-
-        $events = $sink->get_events();
-
-        $completion = new completion_info($course);
-        $completiondata = $completion->get_data($cmb1);
-        $this->assertEquals(1, $bookingopttion1->is_activity_completed($user1->id));
-        $this->assertEquals(true, $bookingopttion1->can_rate());
-
-        $bookingopttion2->delete_responses_activitycompletion();
-
-        $this->assertEquals(1, $DB->count_records('booking_answers', array('optionid' => $option2->id))); */
-        // phpcs:enable
+        $this->assertEquals(false, $bookingoption1->can_rate());
     }
 }

@@ -18,6 +18,7 @@ use mod_booking\all_options;
 use mod_booking\booking;
 use mod_booking\output\business_card;
 use mod_booking\output\instance_description;
+use mod_booking\singleton_service;
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
@@ -148,7 +149,7 @@ $strbookings = get_string('modulenameplural', 'booking');
 if ($action == 'delbooking' && confirm_sesskey() && $confirm == 1 &&
          has_capability('mod/booking:choose', $context) &&
          ($booking->settings->allowupdate || has_capability('mod/booking:deleteresponses', $context))) {
-    $bookingdata = new \mod_booking\booking_option($cm->id, $optionid);
+    $bookingdata = singleton_service::get_instance_of_booking_option($cm->id, $optionid);
     $bookingdata->apply_tags();
 
     if ($bookingdata->user_delete_response($USER->id)) {
@@ -175,7 +176,7 @@ if ($action == 'delbooking' && confirm_sesskey() && $confirm == 1 &&
          ($booking->settings->allowupdate || has_capability('mod/booking:deleteresponses', $context))) {
     echo $OUTPUT->header();
 
-    $bookingdata = new \mod_booking\booking_option($cm->id, $optionid);
+    $bookingdata = singleton_service::get_instance_of_booking_option($cm->id, $optionid);
     $bookingdata->apply_tags();
 
     $options = array('id' => $cm->id, 'action' => 'delbooking', 'confirm' => 1,
@@ -214,7 +215,7 @@ if ($download == '' && $form = data_submitted() && has_capability('mod/booking:c
     $url = new moodle_url("/mod/booking/view.php", array('id' => $cm->id));
     $url->set_anchor("option" . $answer);
     if (!empty($answer)) {
-        $bookingdata = new \mod_booking\booking_option($cm->id, $answer, array(), 0, 0, false);
+        $bookingdata = singleton_service::get_instance_of_booking_option($cm->id, $answer);
         $bookingdata->apply_tags();
         if ($bookingdata->user_submit_response($USER)) {
             $contents = html_writer::tag('p', get_string('bookingsaved', 'booking'));

@@ -25,6 +25,7 @@
 
 use mod_booking\booking_option;
 use mod_booking\output\booked_users;
+use mod_booking\singleton_service;
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
@@ -169,8 +170,7 @@ $PAGE->activityheader->disable();
 
 $context = context_module::instance($cm->id);
 
-$bookingoption = new \mod_booking\booking_option($cm->id, $optionid, $urlparams, $page, 25,
-        false);
+$bookingoption = singleton_service::get_instance_of_booking_option($cm->id, $optionid);
 $bookingoption->urlparams = $urlparams;
 $bookingoption->apply_tags();
 $bookingoption->get_url_params();
@@ -442,7 +442,7 @@ if (!$tableallbookings->is_downloading()) {
                     JOIN {modules} md ON md.id = cm.module
                     JOIN {booking} m ON m.id = cm.instance
                     WHERE md.name = 'booking' AND cm.instance = ?", array($connectedbooking->id));
-            $tmpbooking = new \mod_booking\booking_option($tmpcmid->id, $_POST['selectoptionid']);
+            $tmpbooking = singleton_service::get_instance_of_booking_option($tmpcmid->id, $_POST['selectoptionid']);
 
             foreach ($allselectedusers as $value) {
                 $user = new stdClass();

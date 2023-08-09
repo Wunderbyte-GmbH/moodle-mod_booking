@@ -156,10 +156,6 @@ class bookingoption_description implements renderable, templatable {
 
         global $CFG, $PAGE, $USER;
 
-        // Performance: Last param is set to true so users won't be retrieved from DB.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found,moodle.Commenting.InlineComment.NotCapital
-        // $bookingoption = new booking_option($booking->cm->id, $optionid, [], 0, 0, true);
-
         // Booking answers class uses caching.
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $cmid = $settings->cmid;

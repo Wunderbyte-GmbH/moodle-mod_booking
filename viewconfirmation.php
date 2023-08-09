@@ -26,6 +26,7 @@ require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
 use mod_booking\booking_option;
 use mod_booking\message_controller;
+use mod_booking\singleton_service;
 
 $cmid = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT); // Option ID.
@@ -41,7 +42,7 @@ require_course_login($course, false, $cm);
 // In Moodle 4.0+ we want to turn the instance description off on every page except view.php.
 $PAGE->activityheader->disable();
 
-if (!$bookingoption = new booking_option($cmid, $optionid, array(), 0, 0, false)) {
+if (!$bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid)) {
     throw new invalid_parameter_exception("Course module id is incorrect");
 }
 

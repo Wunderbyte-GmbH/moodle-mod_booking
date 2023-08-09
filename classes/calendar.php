@@ -57,7 +57,7 @@ class calendar {
         $this->optiondateid = $optiondateid;
 
         // It's ok because we use singleton service in the constructor.
-        $bookingoption = new \mod_booking\booking_option($this->cmid, $this->optionid);
+        $bookingoption = singleton_service::get_instance_of_booking_option($this->cmid, $this->optionid);
 
         $optionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
 
@@ -325,7 +325,7 @@ class calendar {
             $instance = 0;
             $visible = 1;
 
-            $bookingoption = new \mod_booking\booking_option($this->cmid, $this->optionid, [], 0, 0, true);
+            $bookingoption = singleton_service::get_instance_of_booking_option($this->cmid, $this->optionid);
             // If the user is booked, we have a different kind of description.
             $bookedusers = $bookingoption->get_all_users_booked();
             $forbookeduser = isset($bookedusers[$userid]);

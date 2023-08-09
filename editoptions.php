@@ -26,14 +26,12 @@ require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 require_once($CFG->libdir . '/formslib.php');
 
-use mod_booking\booking_option;
 use mod_booking\form\option_form;
 use mod_booking\form\modaloptiondateform;
 use core\output\notification;
 use mod_booking\customfield\booking_handler;
 use mod_booking\price;
 use local_entities\entitiesrelation_handler;
-use mod_booking\bo_availability\bo_info;
 use mod_booking\option\dates_handler;
 use mod_booking\singleton_service;
 
@@ -243,7 +241,7 @@ if ($mform->is_cancelled()) {
             }
         }
 
-        $bookingdata = new booking_option($cmid, $nbooking);
+        $bookingdata = singleton_service::get_instance_of_booking_option($cmid, $nbooking);
         $bookingdata->sync_waiting_list();
 
         if (has_capability('mod/booking:addeditownoption', $context) && $optionid == -1 &&
@@ -287,7 +285,7 @@ if ($mform->is_cancelled()) {
                             $nbooking, array('subdirs' => false, 'maxfiles' => 1));
                 }
 
-                $bookingdata = new booking_option($cmid, $nbooking);
+                $bookingdata = singleton_service::get_instance_of_booking_option($cmid, $nbooking);
                 $bookingdata->sync_waiting_list();
 
                 if (has_capability('mod/booking:addeditownoption', $context) && $optionid == -1 &&

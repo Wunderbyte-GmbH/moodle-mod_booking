@@ -26,6 +26,7 @@ require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
 use mod_booking\utils\db;
 use mod_booking\form\confirmactivity;
+use mod_booking\singleton_service;
 
 $id = required_param('id', PARAM_INT); // Course_module ID.
 $optionid = required_param('optionid', PARAM_INT);
@@ -38,7 +39,7 @@ require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 $PAGE->set_context($context);
 
-$bookingoption = new \mod_booking\booking_option($id, $optionid);
+$bookingoption = singleton_service::get_instance_of_booking_option($id, $optionid);
 $url = new moodle_url('/mod/booking/confirmactivity.php', array('id' => $id, 'optionid' => $optionid));
 $backurl = new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid));
 $errorurl = new moodle_url('/mod/booking/view.php', array('id' => $id));

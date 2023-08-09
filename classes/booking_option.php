@@ -20,7 +20,6 @@ use coding_exception;
 use completion_info;
 use context_module;
 use context_system;
-use context_user;
 use dml_exception;
 use Exception;
 use invalid_parameter_exception;
@@ -34,8 +33,6 @@ use mod_booking\teachers_handler;
 use mod_booking\customfield\booking_handler;
 use mod_booking\event\bookinganswer_cancelled;
 use mod_booking\message_controller;
-use mod_booking\output\bookingoption_changes;
-use mod_booking\output\optiondates_only;
 use mod_booking\subbookings\subbookings_info;
 use mod_booking\task\send_completion_mails;
 use moodle_exception;
@@ -93,17 +90,8 @@ class booking_option {
     /** @var ?int number of answers */
     public ?int $numberofanswers = null;
 
-    /** @var array of users filters */
-    public array $filters = array();
-
     /** @var array of all user objects (waitinglist and regular) - filtered */
     public array $users = array();
-
-    /** @var int number of the page starting with 0 */
-    public int $page = 0;
-
-    /** @var int number of bookings displayed on a single page */
-    public int $perpage = 0;
 
     /** @var array filter and other url params */
     public array $urlparams;
@@ -136,17 +124,13 @@ class booking_option {
     public ?int $secondspassed = null;
 
     /**
-     * Creates basic booking option
+     * Booking options should always be created via singleton service.
+     * The only usage of this constructor should therefore be in singleton service.
      *
-     * @param int $cmid cmid
-     * @param int $optionid id of table booking_options
-     * @param array $filters
-     * @param int $page the current page
-     * @param int $perpage options per page
-     * @param bool $getusers Get booked users via DB query
+     * @param int $cmid
+     * @param int $optionid
      */
-    public function __construct(int $cmid, int $optionid, array $filters = array(), int $page = 0, int $perpage = 0,
-            bool $getusers = true) {
+    public function __construct(int $cmid, int $optionid) {
 
         $this->cmid = $cmid;
 
@@ -176,10 +160,6 @@ class booking_option {
         } else {
             $this->optiontimes = '';
         }
-
-        $this->filters = $filters;
-        $this->page = $page;
-        $this->perpage = $perpage;
     }
 
     /**

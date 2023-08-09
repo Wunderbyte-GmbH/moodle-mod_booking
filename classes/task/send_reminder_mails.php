@@ -21,6 +21,7 @@ use mod_booking\booking_option;
 use mod_booking\event\reminder1_sent;
 use mod_booking\event\reminder2_sent;
 use mod_booking\event\reminder_teacher_sent;
+use mod_booking\singleton_service;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -198,7 +199,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
             $bookingid = $record->bookingid;
             $cm = get_coursemodule_from_instance('booking', $bookingid);
             $cmid = $cm->id;
-            $bookingoption = new booking_option($cmid, $optionid);
+            $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
 
             switch ($messageparam) {
                 case MSGPARAM_SESSIONREMINDER:

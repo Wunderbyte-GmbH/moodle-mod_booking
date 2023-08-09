@@ -28,6 +28,7 @@ use mod_booking\booking;
 use stdClass;
 use mod_booking\booking_option;
 use mod_booking\customfield\booking_handler;
+use mod_booking\singleton_service;
 use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
@@ -144,7 +145,7 @@ class webservice_import {
                     AND m.name=:modulename";
             $bookingcmid = $DB->get_field_sql($sql, array('bookingoptionid' => $data->bookingoptionid, 'modulename' => 'booking'));
 
-            return new booking_option($bookingcmid, $data->bookingoptionid);
+            return singleton_service::get_instance_of_booking_option($bookingcmid, $data->bookingoptionid);
         } else {
             // The identifier is unique in every instance, therefore we can find the id by id.
             $sql = "SELECT cm.id as cmid, bo.id as boid
@@ -160,7 +161,7 @@ class webservice_import {
                     'bookingid' => $data->bookingid,
                     'modulename' => 'booking',
                     'identifier' => $data->identifier))) {
-                return new booking_option($result->cmid, $result->boid);
+                return singleton_service::get_instance_of_booking_option($result->cmid, $result->boid);
             }
         }
 

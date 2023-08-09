@@ -32,6 +32,7 @@ use external_single_structure;
 use external_value;
 use external_warnings;
 use mod_booking\booking_option;
+use mod_booking\singleton_service;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -77,7 +78,7 @@ class unenrol_user extends external_api {
         $params = self::validate_parameters(self::execute_parameters(),
                 ['cmid' => $cmid, 'optionid' => $optionid, 'courseid' => $courseid]);
 
-        $bookingdata = new booking_option($cmid, $optionid, [], 0, 0, false);
+        $bookingdata = singleton_service::get_instance_of_booking_option($cmid, $optionid);
         $bookingdata->apply_tags();
 
         if ($bookingdata->user_delete_response($USER->id)) {

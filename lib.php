@@ -1126,7 +1126,7 @@ function booking_update_options(object $optionvalues, context_module $context, i
                 }
 
                 if (!empty($booking->addtogroup) && $option->courseid > 0) {
-                    $bo = new booking_option($context->instanceid, $option->id, array(), 0, 0, false);
+                    $bo = singleton_service::get_instance_of_booking_option($context->instanceid, $option->id);
                     $bo->option->courseid = $option->courseid;
                     $option->groupid = $bo->create_group();
                     $booked = $bo->get_all_users_booked();
@@ -1198,7 +1198,7 @@ function booking_update_options(object $optionvalues, context_module $context, i
             // This is the default behavior but we do not want this when using other update params.
             if ($updateparam == UPDATE_OPTIONS_PARAM_DEFAULT) {
                 if (!empty($booking->addtogroup) && $option->courseid > 0) {
-                    $bo = new booking_option($context->instanceid, $option->id, array(), 0, 0, false);
+                    $bo = singleton_service::get_instance_of_booking_option($context->instanceid, $option->id);
                     $bo->option->courseid = $option->courseid;
                     $option->groupid = $bo->create_group();
                     $booked = $bo->get_all_users_booked();
@@ -1310,7 +1310,7 @@ function booking_update_options(object $optionvalues, context_module $context, i
         // Create group in target course if there is a course specified only.
         if (!empty($option->courseid) && !empty($booking->addtogroup)) {
             $option->id = $optionid;
-            $bo = new booking_option($context->instanceid, $optionid, array(), 0, 0, false);
+            $bo = singleton_service::get_instance_of_booking_option($context->instanceid, $optionid);
             $option->groupid = $bo->create_group($booking, $option);
             $DB->update_record('booking_options', $option);
         }
@@ -1581,7 +1581,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 
     $bookingisteacher = false; // Set to false by default.
     if (!is_null($optionid) && $optionid > 0) {
-        $option = new booking_option($cm->id, $optionid);
+        $option = singleton_service::get_instance_of_booking_option($cm->id, $optionid);
         $bookingisteacher = booking_check_if_teacher ($option->option);
     }
 
@@ -2543,7 +2543,7 @@ function subscribe_teacher_to_booking_option(int $userid, int $optionid, int $cm
 
     global $DB, $USER;
 
-    $option = new booking_option($cmid, $optionid);
+    $option = singleton_service::get_instance_of_booking_option($cmid, $optionid);
     // Get settings of the booking instance (do not confuse with option settings).
     $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
 

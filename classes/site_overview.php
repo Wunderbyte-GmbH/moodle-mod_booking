@@ -106,7 +106,7 @@ class site_overview implements \renderable {
                 foreach ($this->readresponsesprivilegeinstances as $response) {
                     if (!empty($response->optionids)) {
                         foreach ($response->optionids as $id) {
-                            $this->allbookingoptionobjects[$id] = new \mod_booking\booking_option(
+                            $this->allbookingoptionobjects[$id] = singleton_service::get_instance_of_booking_option(
                                     $response->coursemodule, $id);
                         }
                     }
@@ -127,7 +127,7 @@ class site_overview implements \renderable {
         $options = $DB->get_records_sql($sql, array('userid' => $USER->id));
         foreach ($options as $option) {
             $cm = get_coursemodule_from_instance('booking', $option->bookingid);
-            $this->mybookings[$option->optionid] = new \mod_booking\booking_option($cm->id, $option->optionid);
+            $this->mybookings[$option->optionid] = singleton_service::get_instance_of_booking_option($cm->id, $option->optionid);
         }
         return $this->mybookings;
     }
@@ -251,7 +251,7 @@ class site_overview implements \renderable {
                                                 array($booking->id));
                                         $optids = \array_keys($bkngoptionids);
                                         foreach ($optids as $id) {
-                                            $bookingoptionobjects[$id] = new booking_option(
+                                            $bookingoptionobjects[$id] = singleton_service::get_instance_of_booking_option(
                                                     $booking->coursemodule, $id);
                                         }
                                         $booking->options = $bookingoptionobjects;

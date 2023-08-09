@@ -20,6 +20,9 @@
  * @copyright 2014 Andraž Prinčič www.princic.net
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use mod_booking\singleton_service;
+
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
@@ -40,7 +43,7 @@ if (!$context = context_module::instance($cm->id)) {
 
 require_capability('mod/booking:updatebooking', $context);
 
-$option = new \mod_booking\booking_option($id, $optionid);
+$option = singleton_service::get_instance_of_booking_option($id, $optionid);
 
 $PAGE->navbar->add(get_string("editotherbooking", "booking"));
 $PAGE->set_title(format_string(get_string("editotherbooking", "booking")));

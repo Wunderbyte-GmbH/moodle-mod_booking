@@ -28,8 +28,8 @@ require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
 use mod_booking\utils\db;
-use mod_booking\booking_option;
 use mod_booking\form\subscribeusersactivity;
+use mod_booking\singleton_service;
 
 $id = required_param('id', PARAM_INT); // Course_module ID.
 $optionid = required_param('optionid', PARAM_INT);
@@ -42,7 +42,7 @@ require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 $PAGE->set_context($context);
 
-$bookingoption = new booking_option($id, $optionid);
+$bookingoption = singleton_service::get_instance_of_booking_option($id, $optionid);
 $url = new moodle_url('/mod/booking/subscribeusersactivity.php', array('id' => $id, 'optionid' => $optionid));
 $backurl = new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid));
 $errorurl = new moodle_url('/mod/booking/view.php', array('id' => $id));
@@ -61,7 +61,7 @@ if ($mform->is_cancelled()) {
     $dbutill = new db();
     $totransfer = $dbutill->getusersactivity($id, $fromform->bookingoption, false);
 
-    $oldbookingoption = new booking_option($id, $fromform->bookingoption);
+    $oldbookingoption = singleton_service::get_instance_of_booking_option($id, $fromform->bookingoption);
     $oldbookingoption->transfer_users_to_otheroption($optionid, $totransfer);
 
     redirect($backurl, get_string('sucesfullytransfered', 'booking'), 0);

@@ -261,7 +261,7 @@ class mod_booking_observer {
         $cmid = $event->other['cmid'];
         $selecteduserid = $event->relateduserid;
 
-        $bookingoption = new booking_option($cmid, $optionid);
+        $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
 
         if (empty($bookingoption->booking->settings->sendmail)) {
             // If sendmail is not set or not active, we don't do anything.

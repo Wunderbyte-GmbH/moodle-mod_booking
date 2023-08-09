@@ -16,7 +16,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-use mod_booking\booking_option;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\booking_utils;
 use mod_booking\event\bookingoptiondate_created;
@@ -338,7 +337,7 @@ function booking_confirm_booking($optionid, $user, $cm, $url) {
     global $OUTPUT;
     echo $OUTPUT->header();
 
-    $option = new booking_option($cm->id, $optionid, array(), 0, 0, false);
+    $option = singleton_service::get_instance_of_booking_option($cm->id, $optionid);
 
     $optionidarray['answer'] = $optionid;
     $optionidarray['confirm'] = 1;

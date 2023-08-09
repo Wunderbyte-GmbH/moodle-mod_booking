@@ -16,7 +16,6 @@
 
 namespace mod_booking\task;
 
-use mod_booking\booking_option;
 use mod_booking\elective;
 use mod_booking\singleton_service;
 
@@ -63,7 +62,7 @@ class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
                 continue;
             }
 
-            $boption = new booking_option($cm->id, $optionid);
+            $boption = singleton_service::get_instance_of_booking_option($cm->id, $optionid);
 
             $booking = $boption->booking;
             // phpcs:ignore

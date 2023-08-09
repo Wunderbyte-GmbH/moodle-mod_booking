@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 use mod_booking\booking;
 use mod_booking\booking_option;
+use mod_booking\singleton_service;
 
 require_once(__DIR__ . '/../../config.php');
 require_once("lib.php");
@@ -46,7 +47,7 @@ $PAGE->set_title(format_string($booking->settings->name));
 $PAGE->set_heading(get_string('moveoptionto', 'mod_booking'));
 echo $OUTPUT->header();
 if ($targetcmid > 0) {
-    $option = new booking_option($cm->id, $optionid, array(), 0, 0, false);
+    $option = singleton_service::get_instance_of_booking_option($cm->id, $optionid);
     $errorstring = $option->move_option_otherbookinginstance($targetcmid);
     $button = new single_button($returnurl, get_string('continue'), 'get');
     $renderer = $PAGE->get_renderer('core');

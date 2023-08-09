@@ -23,6 +23,7 @@
 
 use local_entities\entitiesrelation_handler;
 use mod_booking\booking_option;
+use mod_booking\booking_utils;
 use mod_booking\calendar;
 use mod_booking\form\optiondatesadd_form;
 use mod_booking\option\dates_handler;
@@ -60,9 +61,9 @@ $optionid = $DB->get_field('booking_options', 'id',
 require_capability('mod/booking:updatebooking', $context);
 
 // Get booking, booking option and booking utils, so we can work with booking utils.
-$booking = new mod_booking\booking($cm->id);
-$bookingoption = new booking_option($cm->id, $optionid);
-$bu = new \mod_booking\booking_utils($booking, $bookingoption);
+$booking = singleton_service::get_instance_of_booking_by_cmid($cm->id);
+$bookingoption = singleton_service::get_instance_of_booking_option($cm->id, $optionid);
+$bu = new booking_utils($booking, $bookingoption);
 
 if ($delete != '') {
     $changes = [];

@@ -21,6 +21,9 @@
  * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use mod_booking\singleton_service;
+
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
@@ -44,7 +47,7 @@ $record->rate = $value;
 
 $isinserted = false;
 
-$bookingdata = new \mod_booking\booking_option($cm->id, $optionid);
+$bookingdata = singleton_service::get_instance_of_booking_option($cm->id, $optionid);
 
 try {
     if ($bookingdata->can_rate()) {
