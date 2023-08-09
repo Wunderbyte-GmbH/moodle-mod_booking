@@ -344,7 +344,7 @@ class csv_import {
                                 continue;
                         }
 
-                        // If we can't add the
+                        // If we can't add the, we add an error.
                         if (!subscribe_teacher_to_booking_option($teacher->id, $bookingoption->id, $settings->cmid)) {
                             $this->add_csverror(get_string('teachercouldntbeadded', 'booking', $i), $i);
                         }

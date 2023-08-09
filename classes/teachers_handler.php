@@ -239,7 +239,7 @@ class teachers_handler {
                     'optiondateid' => $newentry->optiondateid,
                     'userid' => $newentry->userid])) {
                         $DB->insert_record('booking_optiondates_teachers', $newentry);
-                    }
+                }
             }
             cache_helper::purge_by_event('setbackcachedteachersjournal');
         }
