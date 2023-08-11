@@ -352,6 +352,8 @@ $string['organizatorname_help'] = 'You can either enter the organizer name manua
 $string['availableplaces'] = 'Places available: {$a->available} of {$a->maxanswers}';
 $string['pollurl'] = 'Poll url';
 $string['pollurlteachers'] = 'Teachers poll url';
+$string['feedbackurl'] = 'Poll url';
+$string['feedbackurlteachers'] = 'Teachers poll url';
 $string['select'] = 'Selection';
 $string['activebookingoptions'] = 'Active booking options';
 $string['starttimenotset'] = 'Start date not set';
@@ -458,69 +460,11 @@ Please make sure that there are existing e-mail templates in the booking setting
 $string['mailtemplatesinstance'] = 'Use mail templates from this booking instance (default)';
 $string['mailtemplatesglobal'] = 'Use global mail templates from plugin settings';
 
-$string['pollurlteachers_help'] = 'You can use any of the following placeholders in the text:
-<ul>
-<li>{bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option)</li>
-<li>{gotobookingoption} - Link to booking option</li>
-<li>{numberparticipants} - Number of participants (without waiting list)</li>
-<li>{numberwaitinglist} - Number of participants on the waiting list</li>
-<li>{status} - Booking status</li>
-<li>{participant}</li>
-<li>{email} - User email</li>
-<li>{title}</li>
-<li>{duration}</li>
-<li>{starttime}</li>
-<li>{endtime}</li>
-<li>{startdate}</li>
-<li>{enddate}</li>
-<li>{courselink}</li>
-<li>{bookinglink}</li>
-<li>{location}</li>
-<li>{institution}</li>
-<li>{address}</li>
-<li>{eventtype}</li>
-<li>{teacher} - Name of first teacher</li>
-<li>{teachers} - List of all teachers</li>
-<li>{teacherN} - Name of specific teacher, e.g. {teacher1}</li>
-<li>{pollstartdate}</li>
-<li>{qr_id} - Insert QR code with user id</li>
-<li>{qr_username} - Insert QR code with user username</li>
-<li>{dates} - Session times</li>
-<li>{shorturl} - Short URL of option</li>
-<li>{usercalendarurl} - Link to subscribe to user calendar (personal events)</li>
-<li>{coursecalendarurl} - Link to subscribe to course calendar (course events)</li>
-</ul>';
+$string['feedbackurl_help'] = 'Enter a link to a feedback form that should be sent to participants.
+ It can be added to e-mails with the <b>{pollurl}</b> placeholder.';
 
-$string['pollurl_help'] = 'You can use any of the following placeholders in the text:
-<ul>
-<li>{bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option)</li>
-<li>{gotobookingoption} - Link to booking option</li>
-<li>{status} - Booking status</li>
-<li>{participant}</li>
-<li>{email} - User email</li>
-<li>{title}</li>
-<li>{duration}</li>
-<li>{starttime}</li>
-<li>{endtime}</li>
-<li>{startdate}</li>
-<li>{enddate}</li>
-<li>{courselink}</li>
-<li>{bookinglink}</li>
-<li>{location}</li>
-<li>{institution}</li>
-<li>{address}</li>
-<li>{eventtype}</li>
-<li>{teacher} - Name of first teacher</li>
-<li>{teachers} - List of all teachers</li>
-<li>{teacherN} - Name of specific teacher, e.g. {teacher1}</li>
-<li>{pollstartdate}</li>
-<li>{qr_id} - Insert QR code with user id</li>
-<li>{qr_username} - Insert QR code with user username</li>
-<li>{dates} - Session times</li>
-<li>{shorturl} - Short URL of option</li>
-<li>{usercalendarurl} - Link to subscribe to user calendar (personal events)</li>
-<li>{coursecalendarurl} - Link to subscribe to course calendar (course events)</li>
-</ul>';
+$string['feedbackurlteachers_help'] = 'Enter a link to a feedback form that should be sent to teachers.
+ It can be added to e-mails with the <b>{pollurlteachers}</b> placeholder.';
 
 $string['bookedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
@@ -1905,6 +1849,11 @@ $string['cachedef_cachedprices'] = 'Prices in booking (cache)';
 $string['cachedef_cachedbookinginstances'] = 'Booking instances (cache)';
 $string['cachedef_bookingoptionsettings'] = 'Booking option settings (cache)';
 $string['cachedef_cachedsemesters'] = 'Semesters (cache)';
+$string['cachedef_cachedteachersjournal'] = 'Teaches journal (Cache)';
+$string['cachedef_subbookingforms'] = 'Subbooking Forms (Cache)';
+$string['cachedef_conditionforms'] = 'Condition Forms (Cache)';
+$string['cachedef_confirmbooking'] = 'Booking confirmed (Cache)';
+$string['cachedef_electivebookingorder'] = 'Elective booking order (Cache)';
 
 // Dates_handler.php.
 $string['chooseperiod'] = 'Select time period';

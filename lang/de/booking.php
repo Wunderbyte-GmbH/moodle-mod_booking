@@ -344,6 +344,8 @@ $string['organizatorname_help'] = 'Sie können den Namen des Organisators/der Or
 $string['availableplaces'] = 'Verfügbare Plätze: {$a->available} von {$a->maxanswers}';
 $string['pollurl'] = 'Link zur Umfrage';
 $string['pollurlteachers'] = 'Trainer:innen Umfragelink';
+$string['feedbackurl'] = 'Link zur Umfrage';
+$string['feedbackurlteachers'] = 'Trainer:innen Umfragelink';
 $string['select'] = 'Auswahl';
 $string['activebookingoptions'] = 'Aktuelle Buchungsoptionen';
 $string['showallbookingoptions'] = 'Alle Buchungsoptionen';
@@ -450,65 +452,11 @@ wurden. <br><br>Bitte stellen Sie sicher, dass zu allen E-Mail-Typen eine Vorlag
 $string['mailtemplatesinstance'] = 'E-Mail-Vorlagen aus dieser Buchungsinstanz verwenden (Standard)';
 $string['mailtemplatesglobal'] = 'Globale E-Mail-Vorlagen aus den Plugin-Einstellungen verwenden';
 
-$string['pollurlteachers_help'] = 'Folgende Platzhalter können im Text verwendet werden:
-<ul>
-<li>{bookingdetails} - Zusammenfassung der Buchung (inkl. Sessions und Link zur Buchungsoption)</li>
-<li>{gotobookingoption} - Link zur Buchungsoption</li>
-<li>{status} - Buchungsstatus</li>
-<li>{participant}</li>
-<li>{title}</li>
-<li>{duration}</li>
-<li>{starttime}</li>
-<li>{endtime}</li>
-<li>{startdate}</li>
-<li>{enddate}</li>
-<li>{courselink}</li>
-<li>{bookinglink}</li>
-<li>{location}</li>
-<li>{institution}</li>
-<li>{address}</li>
-<li>{eventtype}</li>
-<li>{teacher} - Name der ersten Trainer:in</li>
-<li>{teachers} - Liste aller Trainer:innen</li>
-<li>{teacherN} - Name eines spezifischen Trainers. Z.B. {teacher1}</li>
-<li>{pollstartdate}</li>
-<li>{qr_id} - QR Code der Userid einfügen</li>
-<li>{qr_username} - QR Code des Usernamen einfügen</li>
-<li>{dates} - Sessions (bei mehreren Terminen)</li>
-<li>{shorturl} - Verkürzte URL der Buchungsoption</li>
-<li>{usercalendarurl} - Link zum Abonnieren des User-Kalenders (persönliche Ereignisse)</li>
-<li>{coursecalendarurl} - Link zum Abonnieren des Kurs-Kalenders (Kurs-Ereignisse)</li>
-</ul>';
+$string['feedbackurl_help'] = 'Link zu einem Feedback-Formular, das an Teilnehmer:innen gesendet werden soll.
+ Verwenden Sie in E-Mails den Platzhalter <b>{pollurl}</b>.';
 
-$string['pollurl_help'] = 'Folgende Platzhalter können im Text verwendet werden:
-<ul>
-<li>{bookingdetails} - Zusammenfassung der Buchung (inkl. Sessions und Link zur Buchungsoption)</li>
-<li>{gotobookingoption} - Link zur Buchungsoption</li>
-<li>{status} - Buchungsstatus</li>
-<li>{participant}</li>
-<li>{title}</li>
-<li>{duration}</li>
-<li>{starttime}</li>
-<li>{endtime}</li>
-<li>{startdate}</li>
-<li>{enddate}</li>
-<li>{courselink}</li>
-<li>{bookinglink}</li>
-<li>{location}</li>
-<li>{institution}</li>
-<li>{address}</li>
-<li>{eventtype}</li>
-<li>{teacher} - Name der ersten Trainer:in</li>
-<li>{teachers} - Liste aller Trainer:innen</li>
-<li>{teacherN} - Name eines spezifischen Trainers. Z.B. {teacher1}</li>
-<li>{pollstartdate}</li>
-<li>{qr_id} - QR Code der Userid einfügen</li>
-<li>{qr_username} - QR Code des Usernamen einfügen</li>
-<li>{dates} - Sessions (bei mehreren Terminen)</li>
-<li>{shorturl} - Verkürzte URL der Buchungsoption</li>
-<li>{usercalendarurl} - Link zum Abonnieren des User-Kalenders (persönliche Ereignisse)</li>
-<li>{coursecalendarurl} - Link zum Abonnieren des Kurs-Kalenders (Kurs-Ereignisse)</li>
-</ul>';
+$string['feedbackurlteachers_help'] = 'Link zu einem Feedback-Formular, das an Trainer:innen gesendet werden soll.
+Verwenden Sie in E-Mails den Platzhalter <b>{pollurlteachers}</b>.';
 
 $string['bookedtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
 <ul>
@@ -881,36 +829,6 @@ $string['notificationtext_help'] = 'Lassen Sie dieses Feld leer, um den Standard
 <li>{bookinglink}</li>
 <li>{pollurl}</li>
 <li>{pollurlteachers}</li>
-<li>{location}</li>
-<li>{institution}</li>
-<li>{address}</li>
-<li>{eventtype}</li>
-<li>{teacher} - Name der ersten Trainer:in</li>
-<li>{teachers} - Liste aller Trainer:innen</li>
-<li>{teacherN} - Name eines spezifischen Trainers. Z.B. {teacher1}</li>
-<li>{pollstartdate}</li>
-<li>{qr_id} - QR Code der Userid einfügen</li>
-<li>{qr_username} - QR Code des Usernamen einfügen</li>
-<li>{dates} - Sessions (bei mehreren Terminen)</li>
-<li>{shorturl} - Verkürzte URL der Buchungsoption</li>
-<li>{usercalendarurl} - Link zum Abonnieren des User-Kalenders (persönliche Ereignisse)</li>
-<li>{coursecalendarurl} - Link zum Abonnieren des Kurs-Kalenders (Kurs-Ereignisse)</li>
-</ul>';
-
-$string['pollurl_help'] = 'Folgende Platzhalter können im Text verwendet werden:
-<ul>
-<li>{bookingdetails} - Zusammenfassung der Buchung (inkl. Sessions und Link zur Buchungsoption)</li>
-<li>{gotobookingoption} - Link zur Buchungsoption</li>
-<li>{status} - Buchungsstatus</li>
-<li>{participant}</li>
-<li>{title}</li>
-<li>{duration}</li>
-<li>{starttime}</li>
-<li>{endtime}</li>
-<li>{startdate}</li>
-<li>{enddate}</li>
-<li>{courselink}</li>
-<li>{bookinglink}</li>
 <li>{location}</li>
 <li>{institution}</li>
 <li>{address}</li>
@@ -1819,6 +1737,11 @@ $string['cachedef_cachedprices'] = 'Standardpreise in Booking (Cache)';
 $string['cachedef_cachedbookinginstances'] = 'Buchungsinstanzen (Cache)';
 $string['cachedef_bookingoptionsettings'] = 'Settings für Buchungsoptionen (Cache)';
 $string['cachedef_cachedsemesters'] = 'Semester (Cache)';
+$string['cachedef_cachedteachersjournal'] = 'Vertretungen & Absagen (Cache)';
+$string['cachedef_subbookingforms'] = 'Subbooking Forms (Cache)';
+$string['cachedef_conditionforms'] = 'Condition Forms (Cache)';
+$string['cachedef_confirmbooking'] = 'Buchung bestätigt (Cache)';
+$string['cachedef_electivebookingorder'] = 'Elective booking order (Cache)';
 
 // Dates_handler.php.
 $string['chooseperiod'] = 'Zeitraum auswählen';

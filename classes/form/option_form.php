@@ -374,12 +374,12 @@ class option_form extends moodleform {
 
         $mform->addElement('text', 'pollurl', get_string('bookingpollurl', 'mod_booking'), array('size' => '64'));
         $mform->setType('pollurl', PARAM_TEXT);
-        $mform->addHelpButton('pollurl', 'pollurl', 'mod_booking');
+        $mform->addHelpButton('pollurl', 'feedbackurl', 'mod_booking');
 
         $mform->addElement('text', 'pollurlteachers',
                 get_string('bookingpollurlteachers', 'mod_booking'), array('size' => '64'));
         $mform->setType('pollurlteachers', PARAM_TEXT);
-        $mform->addHelpButton('pollurlteachers', 'pollurlteachers', 'mod_booking');
+        $mform->addHelpButton('pollurlteachers', 'feedbackurlteachers', 'mod_booking');
 
         $mform->addElement('text', 'howmanyusers', get_string('bookotheruserslimit', 'mod_booking'), 0);
         $mform->addRule('howmanyusers', get_string('err_numeric', 'form'), 'numeric', null, 'client');
