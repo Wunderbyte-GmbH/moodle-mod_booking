@@ -266,6 +266,9 @@ class csv_import {
                 // Set the option id again in order to use it in prepare_data for user data.
                 $bookingoption->id = $optionid;
 
+                // Get the booking option settings class.
+                $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
                 // At this point, we can map the custom fields.
                 $handler = booking_handler::create();
                 foreach ($csvrecord as $column => $value) {
@@ -306,8 +309,6 @@ class csv_import {
                             $eroptionhandler->save_entity_relation($optionid, $entity->id);
 
                             // We also need to save the entity relation to the single sessions.
-                            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-
                             if (count($settings->sessions) > 0) {
                                 // If there are booking option dates, we need to run through them.
                                 // We need a new instance from the entities handler with a different area.
@@ -344,8 +345,8 @@ class csv_import {
                                 continue;
                         }
 
-                        // If we can't add the, we add an error.
-                        if (!subscribe_teacher_to_booking_option($teacher->id, $bookingoption->id, $settings->cmid)) {
+                        // If we can't add the teacher, we add an error.
+                        if (!subscribe_teacher_to_booking_option($teacher->id, $optionid, $settings->cmid)) {
                             $this->add_csverror(get_string('teachercouldntbeadded', 'booking', $i), $i);
                         }
                     }
