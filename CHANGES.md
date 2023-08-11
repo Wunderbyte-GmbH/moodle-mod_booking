@@ -1,11 +1,18 @@
+## Version 8.0.28 (2023081100)
+**Improvements:**
+* Improvement: Support mulitple teacheremails in csv import, separated by comma.
+* Improvement: Always use singleton_service instead of instantiation for booking_option.
+* Improvement: Always use singleton_service instead of direct instantiation for booking instances.
+* Improvement: Better strings for feedback URL (pollurl) and teacher's feedback URL (pollurlteachers).
+
+**Bugfixes:**
+* Bugfix: Fix bug where customfields were not shown anymore.
+* Bugfix: Fix page context modifications.
+
 ## Version 8.0.27 (2023080700)
 **Bugfixes:**
 * Bugfix: Allow loading of already loaded item (in case cache was invalidated)
 * Bugfix: Fix semester caching and import of semester-based option date series.
-
-## TODO: Version 8.0.26
-
-## TODO: Version 8.0.25
 
 ## Version 8.0.24 (2023072101)
 **Improvements:**
