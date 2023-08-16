@@ -1,3 +1,6 @@
+8.0.29 (2023081600)
+* Bugfix: Fix exception with $PAGE context modification and move function to new booking_context_helper class.
+
 8.0.28 (2023081100)
 * Improvement: Support mulitple teacheremails in csv import, separated by comma.
 * Improvement: Always use singleton_service instead of instantiation for booking_option.

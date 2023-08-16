@@ -1,3 +1,7 @@
+## Version 8.0.29 (2023081600)
+**Bugfixes:**
+* Bugfix: Fix exception with $PAGE context modification and move function to new booking_context_helper class.
+
 ## Version 8.0.28 (2023081100)
 **Improvements:**
 * Improvement: Support mulitple teacheremails in csv import, separated by comma.
