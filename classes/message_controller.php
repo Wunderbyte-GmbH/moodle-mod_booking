@@ -173,7 +173,7 @@ class message_controller {
             $this->custommessage = $custommessage;
         }
 
-        // Booking_option instance needed to access functions get_all_users_booked and get_all_users_on_waitinglist.
+        // Booking_option instance.
         $this->option = singleton_service::get_instance_of_booking_option($cmid, $optionid);
 
         // Resolve the correct message fieldname.

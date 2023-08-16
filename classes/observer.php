@@ -246,7 +246,7 @@ class mod_booking_observer {
 
         $users = $bookingoption->get_all_users_booked();
         foreach ($users as $user) {
-            new calendar($event->contextinstanceid, $optionid, $user->id, calendar::TYPEOPTIONDATE, $event->objectid, 1);
+            new calendar($event->contextinstanceid, $optionid, $user->userid, calendar::TYPEOPTIONDATE, $event->objectid, 1);
         }
     }
 

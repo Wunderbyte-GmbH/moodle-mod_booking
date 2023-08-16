@@ -69,9 +69,6 @@ class booking_option {
     /** @var ?booking object  */
     public ?booking $booking = null;
 
-    /** @var array of stdClass objects including status: key is booking_answer id $allusers->userid, $allusers->waitinglist */
-    protected array $allusers = array();
-
     /** @var array of the users booked for this option key userid */
     public array $bookedusers = array();
 
@@ -306,53 +303,34 @@ class booking_option {
     }
 
     /**
-     * Get all answers (bookings) as an array of objects
-     * booking_answer id as key, ->userid, ->waitinglist
+     * Get all users (from booking answers object using singleton_service).
      *
      * @return array of objects
      * @throws dml_exception
      */
     public function get_all_users() {
-
         $bookinganswers = singleton_service::get_instance_of_booking_answers($this->settings);
-
-        $this->allusers = $bookinganswers->users;
-
-        return $this->allusers;
+        return $bookinganswers->users;
     }
 
     /**
-     * Get all users on waitinglist as an array of objects
-     * booking_answer id as key, ->userid,
+     * Get all users on waitinglist as an array of objects.
      *
-     * @return array of userobjects $this->allusers key: booking_answers id
+     * @return array users on waiting list as an array of objects
      */
-    public function get_all_users_on_waitinglist() {
-
+    public function get_all_users_on_waitinglist(): array {
         $bookinganswers = singleton_service::get_instance_of_booking_answers($this->settings);
-
         return $bookinganswers->usersonwaitinglist;
     }
 
     /**
-     * Get all users booked users (not on waiting list) as an array of objects
-     * booking_answer id as key, ->userid,
+     * Get all users booked who booked (not on waiting list) as an array of objects
      *
-     * @return array of userobjects $this->allusers key: booking_answers id
+     * @return array users who booked as an array of objects
      */
     public function get_all_users_booked() {
-        $bookedusers = array();
-        if (empty($this->allusers)) {
-            $allusers = $this->get_all_users();
-        } else {
-            $allusers = $this->allusers;
-        }
-        foreach ($allusers as $baid => $user) {
-            if ($user->waitinglist == 0) {
-                $bookedusers[$baid] = $user;
-            }
-        }
-        return $bookedusers;
+        $bookinganswers = singleton_service::get_instance_of_booking_answers($this->settings);
+        return $bookinganswers->usersonlist;
     }
 
     /**

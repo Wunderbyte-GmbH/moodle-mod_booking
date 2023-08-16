@@ -79,7 +79,7 @@ class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
 
                 if ($bookingsettings->iselective
                     && $enforceorder == 1) {
-                    if (!elective::check_if_allowed_to_inscribe($boption, $bookeduser->id)) {
+                    if (!elective::check_if_allowed_to_inscribe($boption, $bookeduser->userid)) {
                         continue;
                     }
                 }
@@ -89,7 +89,7 @@ class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
                 // TODO: check if enrolment successful... (enrol_user needs to return boolean).
 
                 if (!empty($boption->option->courseid)) {
-                    mtrace("The user with the {$bookeduser->id} has been enrolled to the course {$boption->option->courseid}.");
+                    mtrace("The user with the {$bookeduser->userid} has been enrolled to the course {$boption->option->courseid}.");
                 }
 
                 // We update enrolement status of this option only if it's not an elective.

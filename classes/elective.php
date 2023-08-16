@@ -490,7 +490,7 @@ class elective {
 
                 if (!empty($booking->iselective)
                     && $enforceorder == 1) {
-                    if (!self::check_if_allowed_to_inscribe($boption, $bookeduser->id)) {
+                    if (!self::check_if_allowed_to_inscribe($boption, $bookeduser->userid)) {
                         continue;
                     }
                 }
