@@ -26,11 +26,9 @@ namespace mod_booking\output;
 
 use context_module;
 use html_writer;
-use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
-use mod_booking\booking_answers;
 use mod_booking\booking_bookit;
-use mod_booking\booking_option;
+use mod_booking\booking_context_helper;
 use mod_booking\option\dates_handler;
 use mod_booking\price;
 use mod_booking\singleton_service;
@@ -254,13 +252,10 @@ class bookingoption_description implements renderable, templatable {
             }
         }
 
-        // Description from booking option settings formatted as HTML.
         // With shortcodes & webservice we might not have a valid context object.
-        if (!$context = $PAGE->context ?? null) {
-            if (empty($context)) {
-                $PAGE->set_context(context_module::instance($cmid));
-            }
-        }
+        booking_context_helper::fix_booking_page_context($PAGE, $cmid);
+
+        // Description from booking option settings formatted as HTML.
         $this->description = format_text($settings->description, FORMAT_HTML);
 
         // Do the same for internal annotation.

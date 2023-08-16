@@ -18,7 +18,6 @@ namespace mod_booking;
 defined('MOODLE_INTERNAL') || die();
 
 use cache_helper;
-use context_module;
 use stdClass;
 use moodle_exception;
 use core_user;
@@ -31,9 +30,8 @@ use mod_booking\booking_settings;
 use mod_booking\booking_option_settings;
 use mod_booking\output\optiondates_only;
 use mod_booking\output\bookingoption_changes;
-use mod_booking\output\bookingoption_description;
+use mod_booking\output\renderer;
 use mod_booking\task\send_confirmation_mails;
-use moodle_url;
 
 require_once($CFG->dirroot.'/user/profile/lib.php');
 
@@ -104,9 +102,6 @@ class message_controller {
     /** @var string $custommessage for custom messages */
     private $custommessage;
 
-    /** @var renderer_base $output*/
-    private $output;
-
     /**
      * Constructor
      * @param int $msgcontrparam message controller param (send now | queue adhoc)
@@ -134,11 +129,7 @@ class message_controller {
         // It's no use passing the context object either.
 
         // With shortcodes & webservice we might not have a valid context object.
-        if (!$context = $PAGE->context ?? null) {
-            if (empty($context)) {
-                $PAGE->set_context(context_module::instance($cmid));
-            }
-        }
+        booking_context_helper::fix_booking_page_context($PAGE, $cmid);
 
         if (!$bookingid) {
             $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
@@ -150,7 +141,9 @@ class message_controller {
         // Settings.
         $this->bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
         $this->optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        $this->output = $PAGE->get_renderer('mod_booking');
+
+        /** @var renderer $output*/
+        $output = $PAGE->get_renderer('mod_booking');
 
         // For easy access.
         $settings = $this->optionsettings;
@@ -227,21 +220,21 @@ class message_controller {
             }
             // Render optiontimes using a template.
             $data = new optiondates_only($settings);
-            $this->params->dates = $this->output->render_optiondates_only($data);
+            $this->params->dates = $output->render_optiondates_only($data);
             // Rendered session description.
             $this->params->sessiondescription = get_rendered_eventdescription($this->optionid, $this->cmid, DESCRIPTION_CALENDAR);
 
         } else {
             // Render optiontimes using a template.
             $data = new optiondates_only($settings);
-            $this->params->dates = $this->output->render_optiondates_only($data);
+            $this->params->dates = $output->render_optiondates_only($data);
         }
 
         // If there are changes, let's render them.
         // We need the {changes} placeholder for change notifications.
         if (!empty($changes)) {
             $data = new bookingoption_changes($changes, $cmid);
-            $this->params->changes = $this->output->render_bookingoption_changes($data);
+            $this->params->changes = $output->render_bookingoption_changes($data);
         }
 
         // Add a param for the user profile picture so we can show it in e-mails.

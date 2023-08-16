@@ -21,6 +21,7 @@ use context_system;
 use mod_booking\bo_availability\bo_subinfo;
 use mod_booking\output\bookingoption_description;
 use mod_booking\output\bookit_button;
+use mod_booking\output\renderer;
 use mod_booking\subbookings\subbookings_info;
 use moodle_exception;
 
@@ -256,12 +257,9 @@ class booking_subbookit {
         $booking = singleton_service::get_instance_of_booking_by_optionid($itemid);
 
         // With shortcodes & webservice we might not have a valid context object.
-        if (!$context = $PAGE->context ?? null) {
-            if (empty($context)) {
-                $PAGE->set_context(context_module::instance($booking->cmid));
-            }
-        }
+        booking_context_helper::fix_booking_page_context($PAGE, $booking->cmid);
 
+        /** @var renderer $output */
         $output = $PAGE->get_renderer('mod_booking');
         $data = new bookingoption_description($itemid, null, DESCRIPTION_WEBSITE, false, null, $user);
         $description = $output->render_bookingoption_description_cartitem($data);

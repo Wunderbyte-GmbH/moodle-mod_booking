@@ -405,11 +405,7 @@ class booking_option {
         // Notice: For performance reasons, we stopped supporting placeholders here!
 
         // With shortcodes & webservice we might not have a valid context object.
-        if (!$context = $PAGE->context ?? null) {
-            if (empty($context)) {
-                $PAGE->set_context(context_module::instance($this->cmid));
-            }
-        }
+        booking_context_helper::fix_booking_page_context($PAGE, $this->cmid);
 
         $userid = $userid ?? $USER->id;
 

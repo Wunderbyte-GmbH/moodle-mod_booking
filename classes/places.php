@@ -16,7 +16,7 @@
 namespace mod_booking;
 
 /**
- * Util class.
+ * Available places.
  *
  * @package mod_booking
  * @copyright 2018 Andraž Prinčič, David Bogner
