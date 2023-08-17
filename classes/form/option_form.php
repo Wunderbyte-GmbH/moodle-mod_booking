@@ -488,7 +488,7 @@ class option_form extends moodleform {
 
         // TODO: expert/simple mode needs to work with this too!
         // Add availability conditions.
-        bo_info::add_conditions_to_mform($mform, $optionid);
+        bo_info::add_conditions_to_mform($mform, $optionid, $this);
 
         // TODO: expert/simple mode needs to work with this too!
         // Add subbookings options.

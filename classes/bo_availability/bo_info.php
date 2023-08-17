@@ -367,9 +367,10 @@ class bo_info {
      *
      * @param MoodleQuickForm $mform
      * @param int $optionid
+     * @param moodleform $moodleform
      * @return void
      */
-    public static function add_conditions_to_mform(MoodleQuickForm &$mform, int $optionid) {
+    public static function add_conditions_to_mform(MoodleQuickForm &$mform, int $optionid, $moodleform = null) {
         global $DB;
         // Workaround: Only show, if it is not turned off in the option form config.
         // We currently need this, because hideIf does not work with headers.
@@ -392,7 +393,7 @@ class bo_info {
 
         foreach ($conditions as $condition) {
             // For each condition, add the appropriate form fields.
-            $condition->add_condition_to_mform($mform, $optionid);
+            $condition->add_condition_to_mform($mform, $optionid, $moodleform);
         }
     }
 

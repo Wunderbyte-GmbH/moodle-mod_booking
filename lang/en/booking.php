@@ -1979,6 +1979,7 @@ $string['bo_cond_subbooking'] = 'Subbbookings exist';
 $string['bo_cond_bookitbutton'] = 'bookitbutton: Show the normal booking button.';
 $string['bo_cond_isloggedinprice'] = 'isloggedinprice: Show all prices when not logged in.';
 $string['bo_cond_optionhasstarted'] = 'Has already started';
+$string['bo_cond_customform'] = 'Fill out form';
 
 $string['bo_cond_booking_time_available'] = 'Within normal booking times.';
 $string['bo_cond_booking_time_not_available'] = 'Not within normal booking times.';
@@ -2092,6 +2093,12 @@ $string['bo_cond_subbooking_available'] = 'Book it';
 $string['bo_cond_subbooking_full_available'] = 'Booking is possible';
 $string['bo_cond_subbooking_not_available'] = 'Book it';
 $string['bo_cond_subbooking_full_not_available'] = 'Booking is possible';
+
+$string['restrictwithcustomform'] = 'User needs to fill out form before booking';
+$string['bo_cond_customform_available'] = 'Book it';
+$string['bo_cond_customform_full available'] = 'Booking is possible';
+$string['bo_cond_customform_not_available'] = 'Book it';
+$string['bo_cond_customform_full_not_available'] = 'Booking is possible';
 
 // BO conditions in mform.
 $string['selectuserscheckbox'] = 'Only specific user(s) are allowed to book';

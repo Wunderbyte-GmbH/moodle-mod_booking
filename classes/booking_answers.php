@@ -319,6 +319,7 @@ class booking_answers {
 
     /**
      * Returns the number of active bookings for a given user for the whole instance.
+     * This is not cached!
      *
      * @param integer $userid
      * @param integer $bookingid not cmid

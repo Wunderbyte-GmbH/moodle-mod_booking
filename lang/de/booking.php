@@ -1866,6 +1866,7 @@ $string['bo_cond_subbooking_blocks'] = 'Zusatzbuchung blockiert Verfügbarkeit';
 $string['bo_cond_bookitbutton'] = 'bookitbutton: Zeige den normalen Buchen-Button.';
 $string['bo_cond_isloggedinprice'] = 'isloggedinprice: Zeige alle Preise wenn nicht eingelogged.';
 $string['bo_cond_optionhasstarted'] = 'Hat bereits begonnen';
+$string['bo_cond_customform'] = 'Formular ausfüllen';
 
 $string['bo_cond_booking_time_available'] = 'Innerhalb der normalen Buchungszeiten.';
 $string['bo_cond_booking_time_not_available'] = 'Nicht innerhalb der normalen Buchungszeiten.';
@@ -1966,8 +1967,14 @@ $string['bo_cond_selectusers_full_not_available'] = 'Nur die folgenden Nutzer:in
 
 $string['bo_cond_subbookingblocks_available'] = 'Buchen';
 $string['bo_cond_subbookingblocks_full_available'] = 'Buchen möglich';
-$string['bo_cond_subbookingblocks_not_available'] = 'Buchen nicht möglich';
-$string['bo_cond_subbookingblocks_full_not_available'] = 'Eine Zusatzbuchung blockiert diese Buchung.';
+$string['bo_cond_subbookingblocks_not_available'] = 'Buchen';
+$string['bo_cond_subbookingblocks_full_not_available'] = 'Buchen möglich';
+
+$string['restrictwithcustomform'] = 'User needs to fill out form before booking';
+$string['bo_cond_customform_available'] = 'Buchen';
+$string['bo_cond_customform_full available'] = 'Booking is possible';
+$string['bo_cond_customform_not_available'] = 'Buchen';
+$string['bo_cond_customform_full_not_available'] = 'Booking is possible';
 
 // This does not really block, it just handels available subbookings.
 $string['bo_cond_subbooking_available'] = 'Buchen';
