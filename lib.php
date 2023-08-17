@@ -786,7 +786,20 @@ function booking_update_options(object $optionvalues, context_module $context, i
 
     // Unique identifier of the booking option.
     if (empty($optionvalues->identifier)) {
-        $option->identifier = substr(str_shuffle(md5(microtime())), 0, 8);
+        $identifierisunique = false;
+        // First try.
+        $temporaryidentifier = substr(str_shuffle(md5(microtime())), 0, 8);
+        // Make sure it is really unique!
+        while (!$identifierisunique) {
+            if ($DB->get_records('booking_options', ['identifier' => $temporaryidentifier])) {
+                // It already exists, so try again.
+                $temporaryidentifier = substr(str_shuffle(md5(microtime())), 0, 8);
+            } else {
+                // It's finally unique, yay!
+                $identifierisunique = true;
+            }
+        }
+        $option->identifier = $temporaryidentifier;
     } else {
         $option->identifier = $optionvalues->identifier;
     }
