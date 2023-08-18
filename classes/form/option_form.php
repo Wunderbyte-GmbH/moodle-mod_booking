@@ -143,8 +143,10 @@ class option_form extends moodleform {
         $mform->addRule('identifier', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
         $mform->setType('identifier', PARAM_TEXT);
         $mform->addHelpButton('identifier', 'optionidentifier', 'mod_booking');
+
         // By default, a random identifier will be generated.
-        $randomidentifier = substr(str_shuffle(md5(microtime())), 0, 8);
+        $randomidentifier = booking_option::create_truly_unique_option_identifier();
+
         $mform->setDefault('identifier', $randomidentifier);
 
         // Prefix to be shown before the title.

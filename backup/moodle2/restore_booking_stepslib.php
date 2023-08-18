@@ -22,6 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\booking_option;
 use mod_booking\teachers_handler;
 
 /**
@@ -201,7 +202,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $data->calendarid = 0;
 
         // Unique identifier must not be copied, instead we create a new random one.
-        $data->identifier = substr(str_shuffle(md5(microtime())), 0, 8);
+        $data->identifier = booking_option::create_truly_unique_option_identifier();
 
         $newitemid = $DB->insert_record('booking_options', $data);
 

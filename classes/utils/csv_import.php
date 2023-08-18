@@ -228,8 +228,30 @@ class csv_import {
 
             // Fetch a potentially existing booking option which will be updated.
             if (isset($csvrecord['identifier'])) {
-                $optionid = $DB->get_field('booking_options', 'id',
-                ['bookingid' => $this->booking->id, 'identifier' => $csvrecord['identifier']]);
+                $existingoptions = $DB->get_records('booking_options', [
+                    'identifier' => $csvrecord['identifier']
+                ]);
+                if (empty($existingoptions)) {
+                    // It's a new option with a new identifier.
+                    $optionid = false;
+                } else if (count($existingoptions) == 1) {
+                    // Exactly one existing option was found.
+                    $existingoption = array_pop($existingoptions);
+                    // Check if the option is within the correct booking instance.
+                    if ($existingoption->bookingid == $this->booking->id) {
+                        $optionid = $existingoption->id;
+                    } else {
+                        $this->add_csverror(
+                            "Identifier {$csvrecord['identifier']} is already in use within another booking instance!", $i);
+                        $i++;
+                        continue;
+                    }
+                } else if (count($existingoptions) > 1) {
+                    $this->add_csverror("Identifier {$csvrecord['identifier']} is not unique!", $i);
+                    $i++;
+                    continue;
+                }
+
             } else {
                 $optionid = false;
             }
@@ -366,16 +388,19 @@ class csv_import {
                         if ($user->suspended != 0) {
                             $this->add_csverror("The user with username {$user->username} and e-mail {$user->email} was
                             not subscribed to the booking option because of suspension", $i);
+                            $i++;
                             continue;
                         }
                         if ($user->deleted != 0) {
                             $this->add_csverror("The user with username {$user->username} and e-mail {$user->email} was
                             not subscribed to the booking option because of deletion", $i);
+                            $i++;
                             continue;
                         }
                         if ($user->confirmed != 1) {
                             $this->add_csverror("The user with username {$user->username} and e-mail {$user->email} was
                             not subscribed to the booking option because he/she is not confirmed", $i);
+                            $i++;
                             continue;
                         }
 
@@ -399,7 +424,7 @@ class csv_import {
                     }
                 }
             }
-            $i++;
+            $i++; // Increment CSV line counter.
         }
         $cir->cleanup(true);
         $cir->close();
@@ -620,7 +645,7 @@ class csv_import {
         $bookingoption->institution = '';
         $bookingoption->invisible = 0;
         $bookingoption->annotation = '';
-        $bookingoption->identifier = substr(str_shuffle(md5(microtime())), 0, 8);
+        $bookingoption->identifier = '';
         $bookingoption->titleprefix = '';
         $bookingoption->priceformulamultiply = 1;
         $bookingoption->priceformulaadd = 0;
