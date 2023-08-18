@@ -147,7 +147,18 @@ class webservice_import {
 
             return singleton_service::get_instance_of_booking_option($bookingcmid, $data->bookingoptionid);
         } else {
-            // The identifier is unique in every instance, therefore we can find the id by id.
+            // We have to check if the identifier is really unique.
+            if ($DB->get_record_sql("SELECT *
+                FROM {booking_options}
+                WHERE identifier = :identifier
+                AND bookingid <> :bookingid",
+                ['bookingid' => $data->bookingid,
+                'identifier' => $data->identifier])) {
+
+                throw new moodle_exception("Option with identifier $data->identifier could not be imported because the " .
+                    "identifier is already used in another booking instance.", 'mod_booking');
+            }
+
             $sql = "SELECT cm.id as cmid, bo.id as boid
                     FROM {course_modules} cm
                     INNER JOIN {booking_options} bo
