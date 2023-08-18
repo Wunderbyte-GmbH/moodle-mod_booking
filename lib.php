@@ -81,6 +81,7 @@ define('STATUSPARAM_DELETED', 5);
 // Params to define behavior of booking_update_options.
 define('UPDATE_OPTIONS_PARAM_DEFAULT', 1);
 define('UPDATE_OPTIONS_PARAM_REDUCED', 2);
+define('UPDATE_OPTIONS_PARAM_IMPORT', 3);
 
 // Define message controller parameters.
 define('MSGCONTRPARAM_SEND_NOW', 1);
@@ -1117,7 +1118,7 @@ function booking_update_options(object $optionvalues, context_module $context, i
             $option->availability = $optionvalues->availability;
 
             // This is the default behavior but we do not want this when using other update params.
-            if ($updateparam == UPDATE_OPTIONS_PARAM_DEFAULT) {
+            if ($updateparam == UPDATE_OPTIONS_PARAM_DEFAULT || $updateparam == UPDATE_OPTIONS_PARAM_IMPORT) {
                 // Elective.
                 // Save combination arrays to DB.
                 if (!empty($booking->iselective)) {
@@ -1196,7 +1197,7 @@ function booking_update_options(object $optionvalues, context_module $context, i
             $DB->update_record("booking_options", $option);
 
             // This is the default behavior but we do not want this when using other update params.
-            if ($updateparam == UPDATE_OPTIONS_PARAM_DEFAULT) {
+            if ($updateparam == UPDATE_OPTIONS_PARAM_DEFAULT || $updateparam == UPDATE_OPTIONS_PARAM_IMPORT) {
                 if (!empty($booking->addtogroup) && $option->courseid > 0) {
                     $bo = singleton_service::get_instance_of_booking_option($context->instanceid, $option->id);
                     $bo->option->courseid = $option->courseid;
@@ -1232,7 +1233,7 @@ function booking_update_options(object $optionvalues, context_module $context, i
         }
 
         // This is the default behavior but we do not want this when using other update params.
-        if ($updateparam == UPDATE_OPTIONS_PARAM_DEFAULT) {
+        if ($updateparam == UPDATE_OPTIONS_PARAM_DEFAULT || $updateparam == UPDATE_OPTIONS_PARAM_IMPORT) {
 
             // Update start and end date of the option depending on the sessions.
             booking_updatestartenddate($option->id);
@@ -1251,7 +1252,8 @@ function booking_update_options(object $optionvalues, context_module $context, i
             $teachershandler->save_from_form($optionvalues);
 
             // Save relation for each newly created optiondate if checkbox is active.
-            save_entity_relations_for_optiondates_of_option($optionvalues, $option->id);
+            $isimport = $updateparam == UPDATE_OPTIONS_PARAM_IMPORT ? true : false; // For import we need to force this!
+            save_entity_relations_for_optiondates_of_option($optionvalues, $option->id, $isimport);
         }
 
         // We need to purge cache after updating an option.
@@ -1442,7 +1444,8 @@ function booking_update_options(object $optionvalues, context_module $context, i
         booking_updatestartenddate($optionid);
 
         // Save relation for each newly created optiondate if checkbox is active.
-        save_entity_relations_for_optiondates_of_option($optionvalues, $optionid);
+        $isimport = $updateparam == UPDATE_OPTIONS_PARAM_IMPORT ? true : false; // For import we need to force this!
+        save_entity_relations_for_optiondates_of_option($optionvalues, $optionid, $isimport);
 
         // Save the additional JSON conditions (the ones which have been added to the mform).
         bo_info::save_json_conditions_from_form($optionvalues);
@@ -1475,13 +1478,35 @@ function booking_update_options(object $optionvalues, context_module $context, i
  * Helper function to save entity relations for all associated optiondates.
  * @param stdClass &$optionvalues option values from form
  * @param int $optionid
+ * @param bool $isimport for CSV or webservice import this needs to be true
  * */
-function save_entity_relations_for_optiondates_of_option(&$optionvalues, $optionid) {
+function save_entity_relations_for_optiondates_of_option(stdClass &$optionvalues, int $optionid, bool $isimport = false) {
     global $DB;
     if (class_exists('local_entities\entitiesrelation_handler')
-            && !empty($optionvalues->er_saverelationsforoptiondates)) {
+            && (!empty($optionvalues->er_saverelationsforoptiondates) || $isimport)) {
 
         $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
+
+        if ($isimport) {
+            // If we import we still need to fetch the entity from the location field value.
+            // It can be either the entity name or the entity id.
+            if (is_numeric($optionvalues->location)) {
+                // It's the entity id.
+                $entities = $erhandler->get_entities_by_id($optionvalues->location);
+            } else {
+                // It's the entity name (NOT shortname).
+                $entities = $erhandler->get_entities_by_name($optionvalues->location);
+            }
+
+            // If we have exactly one entiity, we create the entities entry.
+            if (count($entities) === 1) {
+                $entity = reset($entities);
+                $optionvalues->local_entities_entityid = $entity->id;
+            } else {
+                throw new moodle_exception("More than one entity found for {$optionvalues->location}.");
+            }
+        }
+
         $optiondateids = $DB->get_fieldset_sql(
             "SELECT id FROM {booking_optiondates} WHERE optionid = :optionid",
             ['optionid' => $optionid]
