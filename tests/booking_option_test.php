@@ -26,9 +26,11 @@
 namespace mod_booking;
 
 use advanced_testcase;
+use coding_exception;
 use mod_booking_generator;
 use context_course;
 use stdClass;
+use mod_booking\utils\csv_import;
 
 class booking_option_test extends advanced_testcase {
 
@@ -112,5 +114,71 @@ class booking_option_test extends advanced_testcase {
 
         $this->setUser($user1);
         $this->assertEquals(false, $bookingoption1->can_rate());
+    }
+
+    /**
+     * Test process_data of CSV import.
+     *
+     * @covers \csv_import->process_data
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
+    public function test_csv_import_process_data() {
+        $bdata = array('name' => 'Test Booking 1', 'eventtype' => 'Test event', 'enablecompletion' => 1,
+            'bookedtext' => array('text' => 'text'), 'waitingtext' => array('text' => 'text'),
+            'notifyemail' => array('text' => 'text'), 'statuschangetext' => array('text' => 'text'),
+            'deletedtext' => array('text' => 'text'), 'pollurltext' => array('text' => 'text'),
+            'pollurlteacherstext' => array('text' => 'text'),
+            'notificationtext' => array('text' => 'text'), 'userleave' => array('text' => 'text'),
+            'bookingpolicy' => 'bookingpolicy', 'tags' => '', 'completion' => 2,
+            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution']);
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course(array('enablecompletion' => 1));
+
+        // Create users.
+        $user1 = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $user1->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+        $this->setUser($user1);
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($user1->id, $course->id);
+
+        $cmb1 = get_coursemodule_from_instance('booking', $booking1->id);
+
+        // Create booking instance.
+        $bookingobj1 = new booking($cmb1->id);
+        // Prepare import options.
+        $formdata = new stdClass;
+        $formdata->delimiter_name = 'comma';
+        $formdata->enclosure = '"';
+        $formdata->encoding = 'utf-8';
+        $formdata->updateexisting = true;
+        $formdata->dateparseformat = 'j.n.Y H:i:s';
+        // Create instance of csv_import class.
+        $bookingcsvimport1 = new csv_import($bookingobj1);
+        // Perform import.
+        // Such as no identifiers in sample - 3 new booking options have to be created.
+        $res = $bookingcsvimport1->process_data(
+                                    file_get_contents($this->get_full_path_of_csv_file('options_noidentifier_coma', '00')),
+                                    $formdata
+                                );
+        // Check success of import process.
+        $this->assertEquals(true, $res);
+        // TODO: check actural recodrs have been created.
+    }
+
+    /**
+     * Get full path of CSV file.
+     *
+     * @param string $setname
+     * @param string $test
+     * @return string full path of file.
+     */
+    protected function get_full_path_of_csv_file(string $setname, string $test): string {
+        return  __DIR__."/fixtures/{$setname}{$test}.csv";
     }
 }
