@@ -50,10 +50,16 @@ class bookinganswer_cancelled extends \core\event\base {
         $relateduserid = $this->data['relateduserid']; // Affected user - the user who was cancelled from the option.
         $optionid = $this->data['objectid']; // The option id.
 
+        $extrainfo = '';
+        if (!empty($this->data['other']['extrainfo'])) {
+            $extrainfo = " NOTE: (" . $this->data['other']['extrainfo'] . ")";
+        }
+
         if ($userid == $relateduserid) {
-            return "The user with id $relateduserid cancelled his booking of the option with id $optionid.";
+            return "The user with id $relateduserid cancelled his booking of the option with id $optionid.$extrainfo";
         } else {
-            return "The user with id $relateduserid was removed from the option with id $optionid by user with id $userid.";
+            return "The user with id $relateduserid was removed from the option with id $optionid by user with id $userid." .
+                $extrainfo;
         }
     }
 

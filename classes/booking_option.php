@@ -748,23 +748,43 @@ class booking_option {
      * "Sync" users on waiting list, based on edited option - if has limit or not.
      */
     public function sync_waiting_list() {
-        global $DB;
+        global $DB, $USER;
 
         /* TODO: We might need to rewrite this function and use the booking_answers class instead of direct DB calls.
         The way it works now, we could run into serious problems - e.g. when combining this functionality with Booking campaigns! */
 
+        // If waiting list is turned off globally, we return right away.
+        if (get_config('booking', 'turnoffwaitinglist')) {
+            return;
+        }
+
+        $context = context_module::instance(($this->cmid));
+
+        $settings = $this->settings;
+
         // If there is no waiting list, we do not do anything!
-        if (!empty($this->option->maxoverbooking) || get_config('booking', 'turnoffwaitinglist')) {
-            if ($this->option->limitanswers && !empty($this->option->maxanswers)) {
+        if (!empty($settings->maxoverbooking)) {
+            if ($settings->limitanswers && !empty($settings->maxanswers)) {
 
                 // If users drop out of the waiting list because of changed limits, delete and inform them.
                 $answerstodelete = $DB->get_records_sql(
                     'SELECT * FROM {booking_answers} WHERE optionid = ? AND waitinglist < 3 ORDER BY timemodified ASC',
-                    array($this->optionid), $this->option->maxoverbooking + $this->option->maxanswers);
+                    array($this->optionid), $settings->maxoverbooking + $settings->maxanswers);
 
                 foreach ($answerstodelete as $answertodelete) {
                     $answertodelete->waitinglist = STATUSPARAM_DELETED;
                     $DB->update_record('booking_answers', $answertodelete);
+
+                    $event = bookinganswer_cancelled::create([
+                        'objectid' => $this->optionid,
+                        'context' => $context,
+                        'userid' => $USER->id, // The user who did cancel.
+                        'relateduserid' => $answertodelete->userid, // Affected user - the user who was cancelled.
+                        'other' => [
+                            'extrainfo' => 'Answer deleted by sync_waiting_list.',
+                        ]
+                    ]);
+                    $event->trigger();
 
                     $messagecontroller = new message_controller(
                         MSGCONTRPARAM_QUEUE_ADHOC, MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM,
@@ -777,7 +797,7 @@ class booking_option {
                 // We include STATUSPARAM_BOOKED STATUSPARAM_WAITINGLIST & STATUSPARAM_RESERVED (all < 3) in this logic.
                 $newbookedanswers = $DB->get_records_sql(
                         'SELECT * FROM {booking_answers} WHERE optionid = ? AND waitinglist < 3 ORDER BY timemodified ASC',
-                        array($this->optionid), 0, $this->option->maxanswers);
+                        array($this->optionid), 0, $settings->maxanswers);
                 foreach ($newbookedanswers as $newbookedanswer) {
                     if ($newbookedanswer->waitinglist == STATUSPARAM_WAITINGLIST) {
                         $newbookedanswer->waitinglist = STATUSPARAM_BOOKED;
@@ -796,7 +816,7 @@ class booking_option {
                 // We include STATUSPARAM_BOOKED STATUSPARAM_WAITINGLIST & STATUSPARAM_RESERVED (all < 3) in this logic.
                 $newwaitinglistanswers = $DB->get_records_sql(
                         'SELECT * FROM {booking_answers} WHERE optionid = ? AND waitinglist < 3 ORDER BY timemodified ASC',
-                        array($this->optionid), $this->option->maxanswers, $this->option->maxoverbooking);
+                        array($this->optionid), $settings->maxanswers, $settings->maxoverbooking);
 
                 foreach ($newwaitinglistanswers as $newwaitinglistanswer) {
                     if ($newwaitinglistanswer->waitinglist == STATUSPARAM_BOOKED) {
