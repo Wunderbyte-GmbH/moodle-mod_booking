@@ -359,7 +359,7 @@ class csv_import {
                         // First, we trim the $teacheremail to make sure there are not whitespaces or linebreaks.
                         $teacheremail = trim($teacheremail);
 
-                        // Now we check if the email exists as a suer on the platform.
+                        // Now we check if the email exists as a user on the platform.
                         if (!$teacher = $DB->get_record('user', array('suspended' => 0, 'deleted' => 0, 'confirmed' => 1,
                             'email' => $teacheremail), 'id', IGNORE_MULTIPLE)) {
 
