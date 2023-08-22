@@ -25,6 +25,7 @@
 namespace mod_booking\shopping_cart;
 
 use context_module;
+use context_system;
 use Exception;
 use local_shopping_cart\local\entities\cartitem;
 use mod_booking\bo_availability\bo_info;
@@ -71,7 +72,10 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             // Else, we abort.
             if ($id != BO_COND_PRICEISSET
                 && $id != BO_COND_ALREADYRESERVED) {
-                return ['error' => 'nopermissiontobook'];
+
+                if (!has_capability('local/shopping_cart:cashier', context_system::instance())) {
+                    return ['error' => 'nopermissiontobook'];
+                }
             }
 
             $item = booking_bookit::answer_booking_option($area, $itemid, STATUSPARAM_RESERVED, $userid);
