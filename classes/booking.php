@@ -833,7 +833,12 @@ class booking {
             // The "Where"-clause is always added so we have to have something here for the sql to work.
             $where = "1=1 ";
         }
-
+        // Add where condition for searchtext.
+        if (!empty($searchtext)) {
+            $where .= " AND " . $DB->sql_like("text", ":searchtext", false);
+            $params['searchtext'] = $searchtext;
+        }
+        // Add where condition for userid.
         if ($userid !== null) {
             $innerfrom .= " JOIN {booking_answers} ba
                           ON ba.optionid=bo.id ";
