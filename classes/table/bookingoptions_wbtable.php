@@ -670,7 +670,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                     array('id' => $this->cmid, 'optionid' => $values->id, 'createfromoptiondates' => 1));
             $ddoptions[] = '<div class="dropdown-item">' .
                     html_writer::link($createfromoptiondateurl,
-                            $OUTPUT->pix_icon('i/users',
+                            $OUTPUT->pix_icon('i/withsubcat',
                                     get_string('createoptionsfromoptiondate', 'mod_booking')) .
                             get_string('createoptionsfromoptiondate', 'mod_booking')) . '</div>';
 
