@@ -1,3 +1,15 @@
+## Version 8.0.30 (2023082200)
+**Improvements:**
+* Improvement: Remove unused code artifacts for cleaner code.
+* Improvement: Use singleton service for get_all_users_booked and make sure we always use the correct user id.
+* Improvement: Create truly unique identifier and CSV import fixes for identifier.
+
+**Bugfixes:**
+* Bugfix: Make sure identifier of booking options is REALLY unique.
+* Bugfix: Create entity relations for each optiondate with importer.
+* Bugfix: Fix waiting list bug which deleted users if option was fully booked.
+* Bugfix: Check if identifier is really unique in webservice importer.
+
 ## Version 8.0.29 (2023081600)
 **Bugfixes:**
 * Bugfix: Fix exception with $PAGE context modification and move function to new booking_context_helper class.
