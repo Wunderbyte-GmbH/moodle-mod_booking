@@ -2142,6 +2142,14 @@ $string['overrideoperator:and'] = 'AND';
 $string['overrideoperator:or'] = 'OR';
 $string['bo_cond_previouslybooked_optionid'] = 'Must be already booked';
 
+$string['noelement'] = "No Element";
+$string['checkbox'] = "Checkbox";
+$string['displaytext'] = "Display text";
+$string['textarea'] = "Textarea";
+$string['shorttext'] = "Shorttext";
+$string['formtype'] = "Type of form";
+$string['bo_cond_customform_label'] = "Label";
+
 // Teacher_performed_units_report.php.
 $string['error:wrongteacherid'] = 'Error: No user could be found for the provided "teacherid".';
 $string['duration:minutes'] = 'Duration (minutes)';

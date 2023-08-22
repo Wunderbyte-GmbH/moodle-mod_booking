@@ -2023,6 +2023,14 @@ $string['overrideoperator:and'] = 'UND';
 $string['overrideoperator:or'] = 'ODER';
 $string['bo_cond_previouslybooked_optionid'] = 'Buchungsoption';
 
+$string['noelement'] = "Kein Element";
+$string['checkbox'] = "Checkbox";
+$string['displaytext'] = "Text anzeigen";
+$string['textarea'] = "Textbereich";
+$string['shorttext'] = "Kurztext";
+$string['formtype'] = "Formulartyp";
+$string['bo_cond_customform_label'] = "Bezeichnung";
+
 // Teacher_performed_units_report.php.
 $string['error:wrongteacherid'] = 'Fehler: Für die angegebene "teacherid" wurde kein:e Nutzer:in gefunden.';
 $string['duration:minutes'] = 'Dauer (Minuten)';

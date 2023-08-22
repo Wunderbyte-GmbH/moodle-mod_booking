@@ -26,6 +26,7 @@
 
 namespace mod_booking\bo_availability\conditions;
 
+use cache;
 use context_system;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
@@ -99,27 +100,16 @@ class customform implements bo_condition {
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
-        if (!isset($this->customsettings->customform)) {
+        if (empty($this->customsettings->formsarray)) {
             $isavailable = true;
         } else {
 
-            /**
-             * If there is a custom form we need to check if the user has already added her values.
-             * This information has to be stored in the booking_answers json. So:
-             * - Instantiate answers
-             * - See if the user already has an answer
-             * - If so, check if the user has provided the necesary values. If so => true.
-             * - If none of the above, return false.
-             */
+            $cache = cache::make('mod_booking', 'customformuserdata');
+            $cachekey = $userid . "_" . $settings->id . '_customform';
 
-             $ba = singleton_service::get_instance_of_booking_answers($settings);
-
-             if ($ba->user_status($userid) < STATUSPARAM_NOTBOOKED) {
-
-
-
-
-             }
+            if ($formdata = $cache->get($cachekey)) {
+                // $isavailable = true;
+            }
         }
 
         // If it's inversed, we inverse.
@@ -149,7 +139,7 @@ class customform implements bo_condition {
         if (has_capability('mod/booking:overrideboconditions', $context)) {
             return false;
         }
-        return true;
+        return false;
     }
 
     /**
@@ -177,7 +167,7 @@ class customform implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full, $settings);
 
-        return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_MYALERT];
+        return [$isavailable, $description, BO_PREPAGE_PREBOOK, BO_BUTTON_INDIFFERENT];
     }
 
     /**
@@ -198,17 +188,56 @@ class customform implements bo_condition {
                     get_string('restrictwithcustomform', 'mod_booking'));
 
             $formelementsarray = [
-                'checkbox' => get_string('checkbox', 'form'),
-                'shorttext' => get_string('shorttext', 'form'),
-                'textarea' => get_string('textare', 'form'),
+                0 => get_string('noelement', 'mod_booking'),
+                'checkbox' => get_string('checkbox', 'mod_booking'),
+                'static' => get_string('displaytext', 'mod_booking'),
+                // phpcs:ignore moodle.Commenting.InlineComment.NotCapital,Squiz.PHP.CommentedOutCode.Found
+                // 'shorttext' => get_string('shorttext', 'mod_booking'),
             ];
 
-            $buttonarray=array();
-            $buttonarray[] =& $mform->createElement('select', 'bo_cond_customform_select', get_string('formtype', 'mod_booking'), $formelementsarray);
-            $buttonarray[] =& $mform->createElement('text', 'bo_cond_customform_label', get_string('label', 'core'), []);
+            // We add four potential elements.
+            $counter = 1;
+            $previous = 0;
+            while ($counter < 3) {
 
-            $mform->addGroup($buttonarray, 'formgroupelement', 'xxx', '', [], false);
-            $mform->hideIf('formgroupelement', 'restrictwithcustomform', 'notchecked');
+                $buttonarray = array();
+
+                if ($counter == 1) {
+                    $formelementsarray = ['static' => get_string('displaytext', 'mod_booking')];
+                } else if ($counter == 2) {
+                    $formelementsarray = ['advcheckbox' => get_string('checkbox', 'mod_booking')];
+                }
+
+                // Create a select to chose which tpye of form element to display.
+                $buttonarray[] =& $mform->createElement('select', 'bo_cond_customform_select_1_' . $counter,
+                    get_string('formtype', 'mod_booking'), $formelementsarray);
+
+                // We need to create all possible elements and hide them via "hideif" right now.
+
+                if ($counter == 1) {
+                    // Here we create the display-text element.
+                    $buttonarray[] =& $mform->createElement('textarea', 'bo_cond_customform_value_1_' . $counter,
+                        get_string('bo_cond_customform_label', 'mod_booking'), []);
+                } else if ($counter == 2) {
+                    $buttonarray[] =& $mform->createElement('text', 'bo_cond_customform_label_1_' . $counter,
+                    get_string('bo_cond_customform_label', 'mod_booking'), []);
+
+                    $mform->setType('bo_cond_customform_label_1_' . $counter, PARAM_TEXT);
+                    // If the select is not currently on this element, we hide it.
+                }
+
+                $mform->addGroup($buttonarray, 'formgroupelement_1_' . $counter, 'Formgroup ' . $counter, '', [], false);
+                $mform->hideIf('formgroupelement_1_' . $counter, 'restrictwithcustomform', 'notchecked');
+
+                if (!empty($previous)) {
+                    $mform->hideIf('formgroupelement_1_' . $counter,
+                    'bo_cond_customform_select_1_' . $previous,
+                    'eq', 0);
+                }
+
+                $previous = $counter;
+                $counter++;
+            }
 
         } else {
             // No PRO license is active.
@@ -244,7 +273,21 @@ class customform implements bo_condition {
      * @return array
      */
     public function render_page(int $optionid, int $userid = 0) {
-        return [];
+
+        $dataarray['data'] = [
+            'optionid' => $optionid,
+            // 'formsarray' => [],
+        ];
+
+        $returnarray = [
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* 'json' => $jsonstring, */
+            'data' => [$dataarray],
+            'template' => 'mod_booking/condition/customform',
+            'buttontype' => 1, // This means that the continue button is disabled.
+        ];
+
+        return $returnarray;
     }
 
     /**
@@ -255,26 +298,55 @@ class customform implements bo_condition {
      */
     public function get_condition_object_for_json(stdClass $fromform): stdClass {
 
+        // Remove the namespace from classname.
+        $classname = __CLASS__;
+        $classnameparts = explode('\\', $classname);
+        $shortclassname = end($classnameparts); // Without namespace.
+
         $conditionobject = new stdClass;
 
-        if (!empty($fromform->restrictwithuserprofilefield)) {
-            // Remove the namespace from classname.
-            $classname = __CLASS__;
-            $classnameparts = explode('\\', $classname);
-            $shortclassname = end($classnameparts); // Without namespace.
+        $conditionobject->id = BO_COND_JSON_CUSTOMFORM;
+        $conditionobject->name = $shortclassname;
+        $conditionobject->class = $classname;
 
-            $conditionobject->id = BO_COND_JSON_USERPROFILEFIELD;
-            $conditionobject->name = $shortclassname;
-            $conditionobject->class = $classname;
-            $conditionobject->profilefield = $fromform->bo_cond_userprofilefield_field;
-            $conditionobject->operator = $fromform->bo_cond_userprofilefield_operator;
-            $conditionobject->value = $fromform->bo_cond_userprofilefield_value;
+        $conditionobject->formsarray = [];
 
-            if (!empty($fromform->bo_cond_userprofilefield_overrideconditioncheckbox)) {
-                $conditionobject->overrides = $fromform->bo_cond_userprofilefield_overridecondition;
-                $conditionobject->overrideoperator = $fromform->bo_cond_userprofilefield_overrideoperator;
+        $formcounter = 1;
+        $counter = 1;
+
+        // In the future, we will allow for more than one custom form.
+        // We create a new form.
+        $newform = [];
+
+        $key = 'bo_cond_customform_select_' . $formcounter . '_' . $counter;
+        while (isset($fromform->{$key})) {
+
+            $formobject = new stdClass();
+
+            $formobject->formtype = $fromform->{$key};
+
+            $key = 'bo_cond_customform_label_' . $formcounter . '_' . $counter;
+            $formobject->label = $fromform->{$key} ?? null;
+
+            $key = 'bo_cond_customform_value_' . $formcounter . '_' . $counter;
+            $formobject->value = $fromform->{$key} ?? null;
+
+            $newform[$counter] = $formobject;
+
+            // If the next key is not there, we increase $formcounter, else $counter;
+            $key = 'bo_cond_customform_select_' . $formcounter . '_' . $counter + 1;
+            if (isset($fromform->{$key})) {
+                $counter++;
+            } else {
+
+                // Make sure we start a new form and save this one.
+                $conditionobject->formsarray[$formcounter] = $newform;
+                $newform = [];
+                $formcounter++;
             }
+
         }
+
         // Might be an empty object.
         return $conditionobject;
     }
@@ -285,16 +357,26 @@ class customform implements bo_condition {
      * @param stdClass $acdefault the condition object from JSON
      */
     public function set_defaults(stdClass &$defaultvalues, stdClass $acdefault) {
-        if (!empty($acdefault->profilefield)) {
-            $defaultvalues->restrictwithuserprofilefield = "1";
-            $defaultvalues->bo_cond_userprofilefield_field = $acdefault->profilefield;
-            $defaultvalues->bo_cond_userprofilefield_operator = $acdefault->operator;
-            $defaultvalues->bo_cond_userprofilefield_value = $acdefault->value;
+
+        if (!empty($acdefault->formsarray)) {
+            $defaultvalues->restrictwithcustomform = 1;
         }
-        if (!empty($acdefault->overrides)) {
-            $defaultvalues->bo_cond_userprofilefield_overrideconditioncheckbox = "1";
-            $defaultvalues->bo_cond_userprofilefield_overridecondition = $acdefault->overrides;
-            $defaultvalues->bo_cond_userprofilefield_overrideoperator = $acdefault->overrideoperator;
+
+        foreach ($acdefault->formsarray as $formcounter => $form) {
+
+            foreach ($form as $counter => $formelement) {
+
+                $key = 'bo_cond_customform_select_' . $formcounter . '_' . $counter;
+                $defaultvalues->{$key} = $formelement->formtype;
+
+                $key = 'bo_cond_customform_label_' . $formcounter . '_' . $counter;
+                $defaultvalues->{$key} = $formelement->label;
+
+                $key = 'bo_cond_customform_value_' . $formcounter . '_' . $counter;
+                $defaultvalues->{$key} = $formelement->value;
+
+            }
+
         }
     }
 

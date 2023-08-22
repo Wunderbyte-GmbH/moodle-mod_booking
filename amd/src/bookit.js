@@ -307,7 +307,7 @@ async function renderTemplatesOnPage(templates, dataarray, element) {
         }
 
         // eslint-disable-next-line no-console
-        console.log('data.data: ', data.data);
+        console.log('data.data: ', template, data.data);
 
         await Templates.renderForPromise(template, data.data).then(({html, js}) => {
 
@@ -319,7 +319,7 @@ async function renderTemplatesOnPage(templates, dataarray, element) {
             return true;
         }).catch(ex => {
             Notification.addNotification({
-                message: 'failed rendering ' + ex,
+                message: 'failed rendering ' + JSON.stringify(ex),
                 type: "danger"
             });
         });
