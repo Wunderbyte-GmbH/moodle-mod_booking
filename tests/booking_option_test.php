@@ -135,8 +135,13 @@ class booking_option_test extends advanced_testcase {
         // Setup test data.
         $course = $this->getDataGenerator()->create_course(array('enablecompletion' => 1));
 
-        // Create users.
-        $user1 = $this->getDataGenerator()->create_user(); // Booking manager.
+        // Create user(s).
+        $useremails = array('reinhold.brunhoelzl@univie.ac.at', 'ulrike.schultes@univie.ac.at');
+        $userdata = new stdClass;
+        $userdata->email = $useremails[0];
+        $user1 = $this->getDataGenerator()->create_user($userdata); // Booking manager and teacher.
+        $userdata->email = $useremails[1];
+        $user1 = $this->getDataGenerator()->create_user($userdata); // Teacher.
 
         $bdata['course'] = $course->id;
         $bdata['bookingmanager'] = $user1->username;
@@ -168,7 +173,34 @@ class booking_option_test extends advanced_testcase {
                                 );
         // Check success of import process.
         $this->assertEquals(true, $res);
-        // TODO: check actural recodrs have been created.
+        // Check actual records count
+        $this->assertEquals(3, $bookingobj1->get_all_options_count());
+        // Get 1st option.
+        $option1 = $bookingobj1->get_all_options(0, 0, "0-Allgemeines Turnen");
+        $this->assertEquals(1, count($option1));
+        // Verify data of 1st option.
+        $option1 = array_shift($option1);
+        $this->assertEquals($bookingobj1->id, $option1->bookingid);
+        $this->assertEquals("Vorwiegend Outdoor", $option1->description);
+        $this->assertEquals("TNMU", $option1->location);
+        $this->assertEquals("Spitalgasse 14 1090 Wien", $option1->institution);
+        $this->assertEquals("MO 17:15 - 19:30", $option1->dayofweektime);
+        $this->assertEquals(1, $option1->limitanswers);
+        $this->assertEquals(10800, $option1->duration);
+        $this->assertEquals("monday", $option1->dayofweek);
+        $this->assertEquals(35, $option1->maxanswers);
+
+        // Create booking option object to get extra detsils.
+        $bookingoptionobj = new booking_option($cmb1->id, $option1->id);
+        // Verify teacher for 1st option.
+        $teacher1 = $bookingoptionobj->get_teachers();
+        $teacher1 = array_shift($teacher1);
+        $this->assertEquals($useremails[0], $teacher1->email);
+        
+        // Bookimg option must have sessions.
+        $this->assertEquals(true, booking_utils::booking_option_has_optiondates($option1->id));
+        //var_dump($bookingoptionobj->optiontimes);
+        //var_dump($bookingoptionobj->return_array_of_sessions());
     }
 
     /**
