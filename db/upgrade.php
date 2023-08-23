@@ -3562,7 +3562,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023061200, 'booking');
     }
 
-    if ($oldversion < 2023082300) {
+    if ($oldversion < 2023082301) {
 
         // Define field json to be added to booking_options.
         $table = new xmldb_table('booking_options');
@@ -3574,7 +3574,7 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2023082300, 'booking');
+        upgrade_mod_savepoint(true, 2023082301, 'booking');
     }
 
     return true;

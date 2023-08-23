@@ -240,6 +240,9 @@ class booking_option_settings {
     /** @var array $electivecombinations */
     public $electivecombinations = null;
 
+    /** @var string $json Is used to store non performance critical data like booking actions */
+    public $json = null;
+
     /** @var stdClass $params */
     public $params = null;
 
@@ -367,6 +370,8 @@ class booking_option_settings {
             // Elecitve.
             $this->credits = $dbrecord->credits;
             $this->sortorder = $dbrecord->sortorder;
+
+            $this->json = $dbrecord->json;
 
             // Price formula: absolute value.
             if (isset($dbrecord->priceformulaadd)) {
