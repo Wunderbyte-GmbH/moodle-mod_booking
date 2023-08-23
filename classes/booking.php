@@ -1019,6 +1019,10 @@ class booking {
 
         global $CFG;
 
+        // See github issue: https://github.com/Wunderbyte-GmbH/moodle-mod_booking/issues/305.
+        // TODO: We currently encode the whole URL, but we should only encode the params.
+        // Encoding the whole URL makes migration to a new WWWROOT impossible.
+
         $encodedurl = base64_encode($moodleurl->out(false));
         $encodedmoodleurl = new \moodle_url($CFG->wwwroot . '/mod/booking/bookingredirect.php', array(
             'encodedurl' => $encodedurl
