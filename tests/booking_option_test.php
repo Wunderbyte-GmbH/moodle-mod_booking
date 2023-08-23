@@ -27,6 +27,7 @@ namespace mod_booking;
 
 use advanced_testcase;
 use coding_exception;
+use mod_booking\option\dates_handler;
 use mod_booking_generator;
 use context_course;
 use stdClass;
@@ -141,7 +142,7 @@ class booking_option_test extends advanced_testcase {
         $userdata->email = $useremails[0];
         $user1 = $this->getDataGenerator()->create_user($userdata); // Booking manager and teacher.
         $userdata->email = $useremails[1];
-        $user1 = $this->getDataGenerator()->create_user($userdata); // Teacher.
+        $user2 = $this->getDataGenerator()->create_user($userdata); // Teacher.
 
         $bdata['course'] = $course->id;
         $bdata['bookingmanager'] = $user1->username;
@@ -154,8 +155,9 @@ class booking_option_test extends advanced_testcase {
 
         $cmb1 = get_coursemodule_from_instance('booking', $booking1->id);
 
-        // Create booking instance.
-        $bookingobj1 = new booking($cmb1->id);
+        // Get booking instance.
+        $bookingobj1 = singleton_service::get_instance_of_booking_by_cmid($cmb1->id);
+
         // Prepare import options.
         $formdata = new stdClass;
         $formdata->delimiter_name = 'comma';
@@ -178,7 +180,7 @@ class booking_option_test extends advanced_testcase {
         // Get 1st option.
         $option1 = $bookingobj1->get_all_options(0, 0, "0-Allgemeines Turnen");
         $this->assertEquals(1, count($option1));
-        // Verify data of 1st option.
+        // Verify general data of 1st option.
         $option1 = array_shift($option1);
         $this->assertEquals("pftr52", $option1->identifier);
         $this->assertEquals($bookingobj1->id, $option1->bookingid);
@@ -193,6 +195,7 @@ class booking_option_test extends advanced_testcase {
 
         // Create booking option object to get extra detsils.
         $bookingoptionobj = new booking_option($cmb1->id, $option1->id);
+
         // Verify teacher for 1st option.
         $teacher1 = $bookingoptionobj->get_teachers();
         $teacher1 = array_shift($teacher1);
@@ -200,6 +203,9 @@ class booking_option_test extends advanced_testcase {
 
         // Bookimg option must have sessions.
         //$this->assertEquals(true, booking_utils::booking_option_has_optiondates($option1->id));
+        //var_dump($bookingoptionobj->return_array_of_sessions());
+        $dates1 = dates_handler::return_array_of_sessions_datestrings($option1->id);
+        //var_dump($dates1);
 
         // Get 3rd option.
         $option3 = $bookingobj1->get_all_options(0, 0, "0-Kondition Mit Musik");
