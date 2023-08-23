@@ -59,6 +59,7 @@ class booking_bookit {
 
         global $PAGE;
 
+        /** @var renderer $output */
         $output = $PAGE->get_renderer('mod_booking');
         list($templates, $datas) = self::render_bookit_template_data($settings, $userid);
 
@@ -67,8 +68,10 @@ class booking_bookit {
         foreach ($templates as $template) {
             $data = array_shift($datas);
 
-            if ($template == 'mod_booking/bookingpage/prepagemodal') {
-                $html .= $output->render_prepagemodal($data);
+            //if ($template == 'mod_booking/bookingpage/prepagemodal') {
+            if ($template == 'mod_booking/bookingpage/prepageinline') {
+                //$html .= $output->render_prepagemodal($data);
+                $html .= $output->render_prepageinline($data);
             } else {
                 $html .= $output->render_bookit_button($data, $template);
             }
@@ -161,7 +164,8 @@ class booking_bookit {
             );
 
             $datas[] = $data;
-            $templates[] = 'mod_booking/bookingpage/prepagemodal';
+            // $templates[] = 'mod_booking/bookingpage/prepagemodal';
+            $templates[] = 'mod_booking/bookingpage/prepageinline';
 
             return [$templates, $datas];
         } else {

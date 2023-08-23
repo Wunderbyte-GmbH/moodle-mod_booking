@@ -30,6 +30,7 @@ var totalbookitpages = {};
 
 var SELECTORS = {
     MODALID: 'sbPrePageModal_',
+    INLINEID: 'sbPrePageInline_',
     INMODALDIV: ' div.modalMainContent',
     MODALHEADER: 'div.modalHeader',
     MODALBUTTONAREA: 'div.modalButtonArea',
@@ -137,6 +138,69 @@ export const initprepagemodal = (optionid, userid, totalnumberofpages, uniquid) 
     // We need to get all prepage modals on this site. Make sure they are initialized.
 
     respondToVisibility(optionid, userid, uniquid, totalnumberofpages, loadPreBookingPage);
+};
+
+/**
+ * Gets called from mustache template.
+ * @param {integer} itemid (optionid)
+ * @param {integer} userid
+ * @param {integer} totalnumberofpages
+ * @param {string} uniquid
+ * @param {string} area
+ */
+export const initprepageinline = (itemid, userid, totalnumberofpages, uniquid, area) => {
+
+    const initselector = SELECTORS.BOOKITBUTTON +
+    '[data-itemid]' +
+    '[data-area]';
+
+    if (!itemid || !area) {
+        const initbuttons = document.querySelectorAll(initselector);
+        initbuttons.forEach(button => {
+            const inititemid = button.dataset.itemid;
+            const initarea = button.dataset.area;
+            initbookitbutton(inititemid, initarea);
+        });
+        return;
+    }
+
+    const selector = SELECTORS.BOOKITBUTTON +
+    '[data-itemid="' + itemid + '"]' +
+    '[data-area="' + area + '"]';
+
+    const buttons = document.querySelectorAll(selector);
+
+    if (!buttons) {
+        return;
+    }
+
+    // We support more than one booking button on the same page.
+    buttons.forEach(button => {
+
+        // We don't run code on disabled buttons.
+        if (button.classList.contains('disabled')) {
+            return;
+        }
+
+        if (!button.dataset.initialized) {
+            button.dataset.initialized = 'true';
+
+            const userid = button.dataset.userid;
+
+            button.addEventListener('click', (e) => {
+
+                // E.stopPropagation();
+
+                const data = button.dataset;
+
+                if (e.target.classList.contains('btn')) {
+                    bookit(itemid, area, userid, data);
+                }
+            });
+        }
+    });
+
+    loadPreBookingPage(itemid, userid, uniquid);
 };
 
 /**
@@ -379,27 +443,21 @@ function bookit(itemid, area, userid, data) {
                     // eslint-disable-next-line no-console
                     console.log('data (arraytoreduce): ', data);
 
-                    // We need to check if this will render the prepagemodal again.
-                    // We never render the prepage modal in the in modal button.
-                    if (!(template === 'mod_booking/bookingpage/prepagemodal'
-                            && button.parentElement.classList.contains('in-modal-button'))) {
+                    const datatorender = data.data ?? data;
 
-                        const datatorender = data.data ?? data;
+                    const promise = Templates.renderForPromise(template, datatorender).then(({html, js}) => {
 
-                        const promise = Templates.renderForPromise(template, datatorender).then(({html, js}) => {
+                        Templates.replaceNode(button, html, js);
 
-                            Templates.replaceNode(button, html, js);
-
-                            return true;
-                        }).catch(ex => {
-                            Notification.addNotification({
-                                message: 'failed rendering ' + ex,
-                                type: "danger"
-                            });
+                        return true;
+                    }).catch(ex => {
+                        Notification.addNotification({
+                            message: 'failed rendering ' + ex,
+                            type: "danger"
                         });
+                    });
 
-                        promises.push(promise);
-                    }
+                    promises.push(promise);
                 });
             });
 
