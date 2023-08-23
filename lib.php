@@ -957,10 +957,10 @@ function booking_update_options(object $optionvalues, context_module $context, i
         $option->enrolmentstatus = 0;
     }
 
-    if (empty($optionvalues->description)) {
-        $option->description = "";
+    if (isset($optionvalues->description)) {
+        $option->description = trim($optionvalues->description);
     } else {
-        $option->description = $optionvalues->description;
+        $option->description = "";
     }
 
     if (isset($optionvalues->beforebookedtext)) {
