@@ -36,8 +36,6 @@ use mod_booking\utils\wb_payment;
 use MoodleQuickForm;
 use stdClass;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * This class takes the configuration from json in the available column of booking_options table.
  *
@@ -102,15 +100,18 @@ class customform implements bo_condition {
 
         if (empty($this->customsettings->formsarray)) {
             $isavailable = true;
-        } else {
+        }
+        // TODO: Fix caching - currently it does not work correctly.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* else {
 
             $cache = cache::make('mod_booking', 'customformuserdata');
             $cachekey = $userid . "_" . $settings->id . '_customform';
 
             if ($formdata = $cache->get($cachekey)) {
-                // $isavailable = true;
+                $isavailable = true;
             }
-        }
+        } */
 
         // If it's inversed, we inverse.
         if ($not) {
@@ -226,7 +227,7 @@ class customform implements bo_condition {
                     // If the select is not currently on this element, we hide it.
                 }
 
-                $mform->addGroup($buttonarray, 'formgroupelement_1_' . $counter, 'Formgroup ' . $counter, '', [], false);
+                $mform->addGroup($buttonarray, 'formgroupelement_1_' . $counter, '', '', [], false);
                 $mform->hideIf('formgroupelement_1_' . $counter, 'restrictwithcustomform', 'notchecked');
 
                 if (!empty($previous)) {
@@ -276,7 +277,8 @@ class customform implements bo_condition {
 
         $dataarray['data'] = [
             'optionid' => $optionid,
-            // 'formsarray' => [],
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* 'formsarray' => [], */
         ];
 
         $returnarray = [
@@ -333,8 +335,8 @@ class customform implements bo_condition {
 
             $newform[$counter] = $formobject;
 
-            // If the next key is not there, we increase $formcounter, else $counter;
-            $key = 'bo_cond_customform_select_' . $formcounter . '_' . $counter + 1;
+            // If the next key is not there, we increase $formcounter, else $counter.
+            $key = 'bo_cond_customform_select_' . $formcounter . '_' . ($counter + 1);
             if (isset($fromform->{$key})) {
                 $counter++;
             } else {

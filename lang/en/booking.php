@@ -31,6 +31,7 @@ $string['close'] = 'Close';
 $string['confirmoptioncreation'] = 'Do you want to split this booking option so that a separate booking option is created
  from each individual date of this booking option?';
 $string['createoptionsfromoptiondate'] = 'For each option date create a new option';
+$string['customformnotchecked'] = 'You didn\'t accept yet.';
 $string['updatebooking'] = 'Update booking';
 $string['booking:manageoptiontemplates'] = "Manage option templates";
 $string['booking:cantoggleformmode'] = 'User can edit all settings';
@@ -420,6 +421,7 @@ $string['page:bookitbutton'] = 'Book';
 $string['page:subbooking'] = 'Supplementary bookings';
 $string['page:confirmation'] = 'Booking complete';
 $string['page:checkout'] = 'Checkout';
+$string['page:customform'] = 'Fill out form';
 
 $string['confirmationmessagesettings'] = 'Confirmation e-mail settings';
 $string['usernameofbookingmanager'] = 'Choose a booking manager';
@@ -2094,7 +2096,7 @@ $string['bo_cond_subbooking_full_available'] = 'Booking is possible';
 $string['bo_cond_subbooking_not_available'] = 'Book it';
 $string['bo_cond_subbooking_full_not_available'] = 'Booking is possible';
 
-$string['restrictwithcustomform'] = 'User needs to fill out form before booking';
+$string['restrictwithcustomform'] = 'Form needs to be filled out before booking';
 $string['bo_cond_customform_available'] = 'Book it';
 $string['bo_cond_customform_full available'] = 'Booking is possible';
 $string['bo_cond_customform_not_available'] = 'Book it';
