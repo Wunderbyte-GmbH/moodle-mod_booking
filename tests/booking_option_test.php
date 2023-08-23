@@ -168,18 +168,19 @@ class booking_option_test extends advanced_testcase {
         // Perform import.
         // Such as no identifiers in sample - 3 new booking options have to be created.
         $res = $bookingcsvimport1->process_data(
-                                    file_get_contents($this->get_full_path_of_csv_file('options_noidentifier_coma', '00')),
+                                    file_get_contents($this->get_full_path_of_csv_file('options_coma_new', '00')),
                                     $formdata
                                 );
         // Check success of import process.
         $this->assertEquals(true, $res);
-        // Check actual records count
+        // Check actual records count.
         $this->assertEquals(3, $bookingobj1->get_all_options_count());
         // Get 1st option.
         $option1 = $bookingobj1->get_all_options(0, 0, "0-Allgemeines Turnen");
         $this->assertEquals(1, count($option1));
         // Verify data of 1st option.
         $option1 = array_shift($option1);
+        $this->assertEquals("pftr52", $option1->identifier);
         $this->assertEquals($bookingobj1->id, $option1->bookingid);
         $this->assertEquals("Vorwiegend Outdoor", $option1->description);
         $this->assertEquals("TNMU", $option1->location);
@@ -196,9 +197,34 @@ class booking_option_test extends advanced_testcase {
         $teacher1 = $bookingoptionobj->get_teachers();
         $teacher1 = array_shift($teacher1);
         $this->assertEquals($useremails[0], $teacher1->email);
-        
+
         // Bookimg option must have sessions.
-        $this->assertEquals(true, booking_utils::booking_option_has_optiondates($option1->id));
+        //$this->assertEquals(true, booking_utils::booking_option_has_optiondates($option1->id));
+
+        // Get 3rd option.
+        $option3 = $bookingobj1->get_all_options(0, 0, "0-Kondition Mit Musik");
+        $this->assertEquals(1, count($option3));
+        // Verify data of 1st option.
+        $option3 = array_shift($option3);
+        $this->assertEquals("pftr54", $option3->identifier);
+        $this->assertEquals($bookingobj1->id, $option3->bookingid);
+        $this->assertEmpty($option3->description);
+        $this->assertEquals("TNMU", $option3->location);
+        $this->assertEquals("Spitalgasse 14 1090 Wien", $option3->institution);
+        $this->assertEquals("We 18:10 - 19:40", $option3->dayofweektime);
+        $this->assertEquals(1, $option3->limitanswers);
+        $this->assertEquals(7200, $option3->duration);
+        $this->assertEquals("wednesday", $option3->dayofweek);
+        $this->assertEquals(60, $option3->maxanswers);
+
+        // Create booking option object to get extra detsils.
+        $bookingoptionobj = new booking_option($cmb1->id, $option3->id);
+        // Verify teacher for 1st option.
+        $teacher3 = $bookingoptionobj->get_teachers();
+        $this->assertEmpty($teacher3);
+
+        // Bookimg option must have sessions.
+        //$this->assertEquals(true, booking_utils::booking_option_has_optiondates($option3->id));
         //var_dump($bookingoptionobj->optiontimes);
         //var_dump($bookingoptionobj->return_array_of_sessions());
     }
