@@ -433,4 +433,37 @@ class customform implements bo_condition {
         }
         return $description;
     }
+
+    /**
+     * This static functions checks if the user has saved something in customform.
+     * If so, we add it to the json column in booking_answers.
+     * @param stdClass $newanswer
+     * @return void
+     */
+    public static function add_json_to_booking_answer(stdClass &$newanswer, int $userid) {
+
+        global $USER;
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($newanswer->optionid);
+
+        $index = strpos( $settings->availability, '"id":16,"name":"customform"');
+
+        if (empty($settings->availability) || $index === false) {
+            return;
+        }
+
+        $cache = cache::make('mod_booking', 'customformuserdata');
+        $cachekey = $userid . "_" . $settings->id . '_customform';
+
+        // Only if we find the form in cache, we save it to the answer.
+        // We can just overwrite any preivous answer.
+        if ($data = $cache->get($cachekey)) {
+
+            $data = (object)[
+                "condition_customform" => $data
+            ];
+
+            $newanswer->json = json_encode($data);
+        }
+    }
 }

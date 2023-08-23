@@ -24,6 +24,7 @@ use dml_exception;
 use Exception;
 use invalid_parameter_exception;
 use local_entities\entitiesrelation_handler;
+use mod_booking\bo_availability\conditions\customform;
 use mod_booking\option\dates_handler;
 use stdClass;
 use moodle_url;
@@ -1020,6 +1021,9 @@ class booking_option {
         $newanswer->timemodified = $now;
         $newanswer->timecreated = $timecreated ?? $now;
         $newanswer->waitinglist = $waitinglist;
+
+        // When a user submits a userform, we need to save this as well.
+        customform::add_json_to_booking_answer($newanswer, $userid);
 
         if (isset($currentanswerid)) {
             $newanswer->id = $currentanswerid;
