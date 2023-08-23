@@ -1,3 +1,14 @@
+## Version 8.0.31 (2023082301)
+**New features:**
+* New feature: Custom forms for individual booking options (via availability condition) - e.g. for individual booking policies.
+
+**Improvements:**
+* Improvement: Better icon for "create options from optiondates" functionality.
+
+**Bugfixes:**
+* Bugfix: Fix add to cart when overbooking.
+* Bugfix: Fix DB for new json column in table booking_options.
+
 ## Version 8.0.30 (2023082200)
 **Improvements:**
 * Improvement: Remove unused code artifacts for cleaner code.
