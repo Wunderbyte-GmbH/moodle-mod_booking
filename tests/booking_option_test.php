@@ -28,6 +28,7 @@ namespace mod_booking;
 use advanced_testcase;
 use coding_exception;
 use mod_booking\option\dates_handler;
+use mod_booking\price;
 use mod_booking_generator;
 use context_course;
 use stdClass;
@@ -100,7 +101,7 @@ class booking_option_test extends advanced_testcase {
 
         $record = new stdClass();
         $record->bookingid = $booking1->id;
-        $record->text = 'Test option';
+        $record->text = 'Test option1';
         $record->courseid = $course->id;
         $record->description = 'Test description';
 
@@ -125,38 +126,63 @@ class booking_option_test extends advanced_testcase {
      * @throws \dml_exception
      */
     public function test_csv_import_process_data() {
-        $bdata = array('name' => 'Test Booking 1', 'eventtype' => 'Test event', 'enablecompletion' => 1,
-            'bookedtext' => array('text' => 'text'), 'waitingtext' => array('text' => 'text'),
-            'notifyemail' => array('text' => 'text'), 'statuschangetext' => array('text' => 'text'),
-            'deletedtext' => array('text' => 'text'), 'pollurltext' => array('text' => 'text'),
-            'pollurlteacherstext' => array('text' => 'text'),
-            'notificationtext' => array('text' => 'text'), 'userleave' => array('text' => 'text'),
-            'bookingpolicy' => 'bookingpolicy', 'tags' => '', 'completion' => 2,
-            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution']);
-        // Setup test data.
+        $this->resetAfterTest();
+        // It is important to set timezone to have all dates correct!
+        $this->setTimezone('Europe/London');
+
+        // Setup course.
         $course = $this->getDataGenerator()->create_course(array('enablecompletion' => 1));
 
         // Create user(s).
         $useremails = array('reinhold.brunhoelzl@univie.ac.at', 'ulrike.schultes@univie.ac.at');
         $userdata = new stdClass;
         $userdata->email = $useremails[0];
+        $userdata->timezone = 'Europe/London';
         $user1 = $this->getDataGenerator()->create_user($userdata); // Booking manager and teacher.
         $userdata->email = $useremails[1];
         $user2 = $this->getDataGenerator()->create_user($userdata); // Teacher.
 
+        // Create booking settings prior create booking module in course: price categories and semester.
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $pricecat1 = $plugingenerator->create_pricecategory(
+                ['ordernum' => '1', 'identifier' => 'default', 'name' => 'Price', 'defaultvalue' => '12']);
+        $pricecat2 = $plugingenerator->create_pricecategory(
+                ['ordernum' => '2', 'identifier' => 'intern', 'name' => 'Intern', 'defaultvalue' => '13']);
+        $testsemester = $plugingenerator->create_semester(
+                ['identifier' => 'fall2023', 'name' => 'Fall 2023', 'startdate' => '1695168000', 'enddate' => '1704067140']);
+        // For tests startdate = bookingopeningtime = 20.09.2023 00:00 and enddate = bookingclosingtime = 31.12.2023 23:59 GMT.
+
+        // Setup booking defaults and create booking course module.
+        $bdata = array('name' => 'Test CSV Import of option', 'eventtype' => 'Test event', 'enablecompletion' => 1,
+        'bookedtext' => array('text' => 'text'), 'waitingtext' => array('text' => 'text'),
+        'notifyemail' => array('text' => 'text'), 'statuschangetext' => array('text' => 'text'),
+        'deletedtext' => array('text' => 'text'), 'pollurltext' => array('text' => 'text'),
+        'pollurlteacherstext' => array('text' => 'text'),
+        'notificationtext' => array('text' => 'text'), 'userleave' => array('text' => 'text'),
+        'bookingpolicy' => 'bookingpolicy', 'tags' => '', 'completion' => 2,
+        'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
+        'optionsfields' =>
+        ['description', 'statusdescription', 'teacher', 'showdates', 'dayofweektime', 'location', 'institution', 'minanswers'],
+        'semesterid' => $testsemester->id);
         $bdata['course'] = $course->id;
         $bdata['bookingmanager'] = $user1->username;
 
         $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        // Finish to configure users.
         $this->setUser($user1);
-        $this->setAdminUser();
 
         $this->getDataGenerator()->enrol_user($user1->id, $course->id);
+        $this->getDataGenerator()->enrol_user($user2->id, $course->id);
 
+        $coursectx = context_course::instance($course->id);
+
+        // Get coursemodule of bookjng instance.
         $cmb1 = get_coursemodule_from_instance('booking', $booking1->id);
 
         // Get booking instance.
-        $bookingobj1 = singleton_service::get_instance_of_booking_by_cmid($cmb1->id);
+        $bookingobj1 = new booking($cmb1->id);
 
         // Prepare import options.
         $formdata = new stdClass;
@@ -167,12 +193,13 @@ class booking_option_test extends advanced_testcase {
         $formdata->dateparseformat = 'j.n.Y H:i:s';
         // Create instance of csv_import class.
         $bookingcsvimport1 = new csv_import($bookingobj1);
-        // Perform import.
-        // Such as no identifiers in sample - 3 new booking options have to be created.
+
+        // Perform import of CSV: 3 new booking options have to be created.
         $res = $bookingcsvimport1->process_data(
                                     file_get_contents($this->get_full_path_of_csv_file('options_coma_new', '00')),
                                     $formdata
                                 );
+
         // Check success of import process.
         $this->assertEquals(true, $res);
         // Check actual records count.
@@ -202,10 +229,24 @@ class booking_option_test extends advanced_testcase {
         $this->assertEquals($useremails[0], $teacher1->email);
 
         // Bookimg option must have sessions.
-        //$this->assertEquals(true, booking_utils::booking_option_has_optiondates($option1->id));
-        //var_dump($bookingoptionobj->return_array_of_sessions());
-        $dates1 = dates_handler::return_array_of_sessions_datestrings($option1->id);
-        //var_dump($dates1);
+        $this->assertEquals(true, booking_utils::booking_option_has_optiondates($option1->id));
+        // phpcs:ignore
+        //$dates1 = $bookingoptionobj->return_array_of_sessions()); // Also works.
+        $dates = dates_handler::return_array_of_sessions_datestrings($option1->id);
+        $this->assertEquals("25 September 2023, 5:15 PM - 7:30 PM", $dates[0]);
+        $this->assertEquals("25 December 2023, 5:15 PM - 7:30 PM", $dates[13]);
+        $this->assertArrayNotHasKey(14, $dates);
+
+        // Check prices.
+        $optionprices = price::get_prices_from_cache_or_db('option', $option1->id);
+        // The 'default' price.
+        $priceoption = array_shift($optionprices);
+        $this->assertEquals($pricecat1->identifier, $priceoption->pricecategoryidentifier);
+        $this->assertEquals('79.00', $priceoption->price);
+        // The 'intern' price.
+        $priceoption = array_shift($optionprices);
+        $this->assertEquals($pricecat2->identifier, $priceoption->pricecategoryidentifier);
+        $this->assertEquals('89.00', $priceoption->price);
 
         // Get 3rd option.
         $option3 = $bookingobj1->get_all_options(0, 0, "0-Kondition Mit Musik");
@@ -230,9 +271,22 @@ class booking_option_test extends advanced_testcase {
         $this->assertEmpty($teacher3);
 
         // Bookimg option must have sessions.
-        //$this->assertEquals(true, booking_utils::booking_option_has_optiondates($option3->id));
-        //var_dump($bookingoptionobj->optiontimes);
-        //var_dump($bookingoptionobj->return_array_of_sessions());
+        $this->assertEquals(true, booking_utils::booking_option_has_optiondates($option3->id));
+        $dates = dates_handler::return_array_of_sessions_datestrings($option3->id);
+        $this->assertEquals("20 September 2023, 6:10 PM - 7:40 PM", $dates[0]);
+        $this->assertEquals("27 December 2023, 6:10 PM - 7:40 PM", $dates[14]);
+        $this->assertArrayNotHasKey(15, $dates);
+
+        // Check prices.
+        $optionprices = price::get_prices_from_cache_or_db('option', $option3->id);
+        // The 'default' price.
+        $priceoption = array_shift($optionprices);
+        $this->assertEquals($pricecat1->identifier, $priceoption->pricecategoryidentifier);
+        $this->assertEquals('79.00', $priceoption->price);
+        // The 'intern' price.
+        $priceoption = array_shift($optionprices);
+        $this->assertEquals($pricecat2->identifier, $priceoption->pricecategoryidentifier);
+        $this->assertEquals('89.00', $priceoption->price);
     }
 
     /**
