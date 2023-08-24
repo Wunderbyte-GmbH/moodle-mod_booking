@@ -1336,7 +1336,7 @@ function booking_update_options(object $optionvalues, context_module $context, i
         }
 
         $event = \mod_booking\event\bookingoption_created::create(array('context' => $context, 'objectid' => $optionid,
-                'userid' => $USER->id));
+                'relateduserid' => $USER->id));
         $event->trigger();
 
         // Save custom fields if there are any.
