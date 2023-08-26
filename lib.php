@@ -1499,19 +1499,11 @@ function save_entity_relations_for_optiondates_of_option(stdClass &$optionvalues
                 $entities = $erhandler->get_entities_by_name($optionvalues->location);
             }
 
-            // Disabled: absence of local_entities_entityid not critical in case of UI tests.
-            //if (empty($entities)) {
-            //    throw new moodle_exception("No entity found for booking option location!");
-            //}
             // If we have exactly one entiity, we create the entities entry.
             if (count($entities) === 1) {
                 $entity = reset($entities);
                 $optionvalues->local_entities_entityid = $entity->id;
-            } 
-            // Disabled: absence of local_entities_entityid not critical in case of UI tests.
-            //else {
-            //    throw new moodle_exception("More than one entity found for {$optionvalues->location}.");
-            //}
+            }
         }
 
         $optiondateids = $DB->get_fieldset_sql(
