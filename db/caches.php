@@ -111,7 +111,7 @@ $definitions = array(
         'invalidationevents' => ['setbackelectivelist']
     ),
     'customformuserdata' => array( // We don't support general invalidation event in this cache. Use userid-optionid as keys.
-        'mode' => cache_store::MODE_APPLICATION, // In order support buy for others, we need to make this Mode Application cache.
+        'mode' => cache_store::MODE_APPLICATION, // In order support buy for others, we need to make this MODE_APPLICATION cache.
         'simplekeys' => true,
         'staticacceleration' => true,
         'staticaccelerationsize' => 1,
