@@ -37,6 +37,10 @@ use mod_booking\singleton_service;
 use mod_booking\teachers_handler;
 use mod_booking\utils\wb_payment;
 
+// Default fields for bookingoptions in view.php and for download.
+define('BOOKINGOPTION_DEFAULTFIELDS', "identifier,titleprefix,text,description,teacher,responsiblecontact," .
+"showdates,dayofweektime,location,institution,course,minanswers,bookings");
+
 // Currently up to 9 different price categories can be set.
 define('MAX_PRICE_CATEGORIES', 9);
 
@@ -466,11 +470,15 @@ function booking_add_instance($booking) {
 
     if (isset($booking->optionsfields) && is_array($booking->optionsfields) && count($booking->optionsfields) > 0) {
         $booking->optionsfields = implode(',', $booking->optionsfields);
+    } else {
+        $booking->optionsfields = BOOKINGOPTION_DEFAULTFIELDS;
     }
 
     if (isset($booking->optionsdownloadfields) && is_array($booking->optionsdownloadfields)
         && count($booking->optionsdownloadfields) > 0) {
         $booking->optionsdownloadfields = implode(',', $booking->optionsdownloadfields);
+    } else {
+        $booking->optionsdownloadfields = BOOKINGOPTION_DEFAULTFIELDS;
     }
 
     if (isset($booking->signinsheetfields) && is_array($booking->signinsheetfields)
@@ -600,11 +608,15 @@ function booking_update_instance($booking) {
 
     if (isset($booking->optionsfields) && is_array($booking->optionsfields) && count($booking->optionsfields) > 0) {
         $booking->optionsfields = implode(',', $booking->optionsfields);
+    } else {
+        $booking->optionsfields = BOOKINGOPTION_DEFAULTFIELDS;
     }
 
     if (isset($booking->optionsdownloadfields) && is_array($booking->optionsdownloadfields)
         && count($booking->optionsdownloadfields) > 0) {
         $booking->optionsdownloadfields = implode(',', $booking->optionsdownloadfields);
+    } else {
+        $booking->optionsdownloadfields = BOOKINGOPTION_DEFAULTFIELDS;
     }
 
     if (isset($booking->categoryid) && count($booking->categoryid) > 0) {

@@ -106,9 +106,9 @@ class booking {
         }
 
         // In the constructur, we call the booking_settings, where we get the values from db or cache.
-        $bosettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
 
-        $this->settings = $bosettings->return_settings_as_stdclass();
+        $this->settings = $bookingsettings->return_settings_as_stdclass();
         $this->id = $this->settings->id;
 
         $this->course = get_course($this->cm->course);
@@ -496,9 +496,9 @@ class booking {
     public function get_bookingoptions_fields(bool $download = false) {
 
         if ($download) {
-            $fields = explode(',', $this->settings->optionsdownloadfields);
+            $fields = explode(',', $this->settings->optionsdownloadfields ?? BOOKINGOPTION_DEFAULTFIELDS);
         } else {
-            $fields = explode(',', $this->settings->optionsfields);
+            $fields = explode(',', $this->settings->optionsfields ?? BOOKINGOPTION_DEFAULTFIELDS);
         }
 
         $columns = [];
