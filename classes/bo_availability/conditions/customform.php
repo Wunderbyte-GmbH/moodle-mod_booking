@@ -444,13 +444,22 @@ class customform implements bo_condition {
      */
     public static function add_json_to_booking_answer(stdClass &$newanswer, int $userid) {
 
-        global $USER;
+        $containscustomformcondition = false;
 
         $settings = singleton_service::get_instance_of_booking_option_settings($newanswer->optionid);
+        if (!empty($settings->availability)) {
+            $jsonconditions = json_decode($settings->availability);
+            if (!empty($jsonconditions)) {
+                foreach ($jsonconditions as $jsoncondition) {
+                    if ($jsoncondition->id == BO_COND_JSON_CUSTOMFORM) {
+                        $containscustomformcondition = true;
+                        break;
+                    }
+                }
+            }
+        }
 
-        $index = strpos( $settings->availability, '"id":16,"name":"customform"');
-
-        if (empty($settings->availability) || $index === false) {
+        if (!$containscustomformcondition) {
             return;
         }
 
