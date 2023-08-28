@@ -57,14 +57,16 @@ class send_confirmation_mails extends \core\task\adhoc_task {
                 if (!empty($taskdata->userto)) {
                     $userdata = $DB->get_record('user', array('id' => $taskdata->userto->id));
                     if (!$userdata->deleted) {
-                        // Hack to support multiple attachments.
-                        if (!message_controller::phpmailer_email_to_user($taskdata->userto, $taskdata->userfrom,
+                        // NOTE: email_to_user does not support multiple attachments.
+                        if (!email_to_user($taskdata->userto, $taskdata->userfrom,
                             $taskdata->subject, $taskdata->messagetext, $taskdata->messagehtml,
-                            $taskdata->attachment ?? '', empty($taskdata->attachment) ? '' : 'booking.ics')) {
+                            $taskdata->attachment->{'booking.ics'} ?? '',
+                            empty($taskdata->attachment->{'booking.ics'}) ? '' : 'booking.ics')) {
 
                             throw new \coding_exception('Confirmation email was not sent');
 
                         } else {
+                            // After sending we can delete the attachment.
                             if (!empty($taskdata->attachment)) {
                                 foreach ($taskdata->attachment as $key => $attached) {
                                     $search = str_replace($CFG->tempdir . '/', '', $attached);

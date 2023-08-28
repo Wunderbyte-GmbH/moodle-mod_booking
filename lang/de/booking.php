@@ -1422,8 +1422,6 @@ $string['googleapikey'] = 'Google API key';
 $string['googleapikey_desc'] = 'API-Schlüssel für den Google URL Shortener. Holen Sie ihn sich hier: https://developers.google.com/url-shortener/v1/getting_started#APIKey';
 $string['numberrows'] = 'Zeilen nummerieren';
 $string['numberrowsdesc'] = 'Nummerierung der Zeilen in der Unterschriftenliste aktivieren. Die Nummer wird links des Namens dargestellt';
-$string['multiicalfiles'] = 'Pro Event/Termin eine iCal-Datei anhängen um Kompatibilität mit MS Outlook 2010 zu gewährleisten.';
-$string['multiicalfilesdesc'] = 'MS Outlook unterstützt keine Mehrfach-Termine in einer-Datei. Um mehrere Termine auch in Outlook importieren zu können, muss pro Termin eine Datei angehängt werden. Es werden dann in einem Mail mehrere iCal-Dateien angehängt.';
 
 $string['availabilityinfotexts_heading'] = 'Beschreibungstexte für verfügbare Buchungs- und Wartelistenplätze';
 $string['availabilityinfotexts_desc'] = 'Nur in der PRO-Version verfügbar.';

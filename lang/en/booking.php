@@ -1473,8 +1473,6 @@ $string['googleapikey'] = 'Google API key';
 $string['googleapikey_desc'] = 'API key for Google URL Shortener. Get it here: https://developers.google.com/url-shortener/v1/getting_started#APIKey';
 $string['numberrows'] = 'Number rows';
 $string['numberrowsdesc'] = 'Number each row of the sign-in sheet. Number will be displayed left of the name in the same column';
-$string['multiicalfiles'] = 'Attach one iCal file per date for MS Outlook 2010 compatibility';
-$string['multiicalfilesdesc'] = 'Only MS Outlook 2010 does not support multiple dates within one iCal file. Previous and later version do support it (Ex. Outlook365). If you want to send MS Outlook compatible dates, then activate this option in order to attach multiple iCal files (one per date/event)';
 
 $string['availabilityinfotexts_heading'] = 'Availability info texts for booking places and waiting list';
 $string['availabilityinfotexts_desc'] = 'Only available in the PRO version.';

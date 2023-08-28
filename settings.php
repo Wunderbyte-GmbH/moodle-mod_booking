@@ -504,10 +504,6 @@ if ($ADMIN->fulltree) {
                     get_string('attachical', 'mod_booking'),
                     get_string('attachicaldesc', 'mod_booking'), 0));
     $settings->add(
-            new admin_setting_configcheckbox('booking/multiicalfiles',
-                    get_string('multiicalfiles', 'mod_booking'),
-                    get_string('multiicalfilesdesc', 'mod_booking'), 0));
-    $settings->add(
             new admin_setting_configcheckbox('booking/attachicalsessions',
                     get_string('attachicalsess', 'mod_booking'),
                     get_string('attachicalsessdesc', 'mod_booking'), 1));

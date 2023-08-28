@@ -64,8 +64,6 @@ class ical {
 
     protected $attachicalsessions = false;
 
-    protected $onefileperevent = false;
-
     protected $individualvevents = array();
 
     /**
@@ -115,7 +113,6 @@ class ical {
             $this->userfullname = \fullname($this->user);
             $this->attachical = \get_config('booking', 'attachical');
             $this->attachicalsessions = \get_config('booking', 'attachicalsessions');
-            $this->onefileperevent = \get_config('booking', 'multiicalfiles');
         }
     }
 
@@ -155,22 +152,11 @@ class ical {
         } else if ($this->attachical && $this->option->coursestarttime) {
             $this->add_vevent($uid, $dtstart, $dtend);
         }
-        if ($this->onefileperevent) {
-            $attachments = array();
-            $i = 1;
-            foreach ($this->individualvevents as $vevent) {
-                $icaldata = $this->generate_ical_string($icalmethod, $vevent);
-                $filepathname = $this->generate_tempfile($icaldata);
-                $attachments["booking0{$i}.ics"] = $filepathname;
-                $i++;
-            }
-            return $attachments;
-        } else {
-            $allvevents = trim(implode("\r\n", $this->individualvevents));
-            $icaldata = $this->generate_ical_string($icalmethod, $allvevents);
-            $filepathname = $this->generate_tempfile($icaldata);
-            return array('booking.ics' => $filepathname);
-        }
+
+        $allvevents = trim(implode("\r\n", $this->individualvevents));
+        $icaldata = $this->generate_ical_string($icalmethod, $allvevents);
+        $filepathname = $this->generate_tempfile($icaldata);
+        return array('booking.ics' => $filepathname);
     }
 
     /**
