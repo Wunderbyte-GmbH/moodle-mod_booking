@@ -282,6 +282,10 @@ class csv_import {
                         $this->prepare_data($column, $value, $bookingoption);
                     }
                 }
+
+                /* NOTE: This line is the reason why booking options will never get updated directly.
+                We'll need to re-write the CSV importer, so updating also works correctly -
+                see issue https://github.com/Wunderbyte-GmbH/moodle-mod_booking/issues/310. */
                 if ($optionid === false) {
                     $optionid = booking_update_options($bookingoption, $this->booking->get_context(), UPDATE_OPTIONS_PARAM_IMPORT);
                 }

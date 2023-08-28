@@ -1500,21 +1500,23 @@ function save_entity_relations_for_optiondates_of_option(stdClass &$optionvalues
 
         $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
 
+        $entities = [];
         if ($isimport) {
             // If we import we still need to fetch the entity from the location field value.
             // It can be either the entity name or the entity id.
-            if (is_numeric($optionvalues->location)) {
-                // It's the entity id.
-                $entities = $erhandler->get_entities_by_id($optionvalues->location);
-            } else {
-                // It's the entity name (NOT shortname).
-                $entities = $erhandler->get_entities_by_name($optionvalues->location);
-            }
-
-            // If we have exactly one entiity, we create the entities entry.
-            if (count($entities) === 1) {
-                $entity = reset($entities);
-                $optionvalues->local_entities_entityid = $entity->id;
+            if (!empty($optionvalues->location)) {
+                if (is_numeric($optionvalues->location)) {
+                    // It's the entity id.
+                    $entities = $erhandler->get_entities_by_id($optionvalues->location);
+                } else {
+                    // It's the entity name (NOT shortname).
+                    $entities = $erhandler->get_entities_by_name($optionvalues->location);
+                }
+                // If we have exactly one entity, we create the entities entry.
+                if (count($entities) === 1) {
+                    $entity = reset($entities);
+                    $optionvalues->local_entities_entityid = $entity->id;
+                }
             }
         }
 
