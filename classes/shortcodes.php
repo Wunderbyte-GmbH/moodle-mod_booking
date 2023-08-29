@@ -93,7 +93,7 @@ class shortcodes {
             $optionsfields = $possibleoptions;
         }
 
-        view::apply_standard_params_for_bookingtable($table, $optionsfields, false, false, false);
+        view::apply_standard_params_for_bookingtable($table, $optionsfields, true, true, true);
 
         unset($table->subcolumns['rightside']);
 
