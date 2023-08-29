@@ -331,7 +331,7 @@ class view implements renderable, templatable {
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
         // Create the table.
-        $mybookingoptionstable = new bookingoptions_wbtable('cmid_' . $cmid . ' mybookingoptionstable', $booking);
+        $mybookingoptionstable = new bookingoptions_wbtable('cmid_' . $cmid . '_userid_' . $USER->id . 'mybookingoptionstable', $booking);
 
         $wherearray = ['bookingid' => (int)$booking->id];
         list($fields, $from, $where, $params, $filter) =
