@@ -960,9 +960,9 @@ class booking_option_settings {
             "'\", \"lastname\":\"'",
             "u.lastname",
             "'\", \"name\":\"'",
-            "u.firstname",
-            "' '",
-            'u.lastname',
+            "u.lastname",
+            "', '",
+            'u.firstname',
             "'\"}'"]);
         $where = '';
         $params = [];
