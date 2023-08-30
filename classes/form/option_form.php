@@ -440,8 +440,8 @@ class option_form extends moodleform {
             'multiple' => false,
             'noselectionstring' => get_string('choose...', 'mod_booking'),
             'valuehtmlcallback' => function($value) {
-                global $DB, $OUTPUT;
-                $user = $DB->get_record('user', ['id' => (int)$value], '*', IGNORE_MISSING);
+                global $OUTPUT;
+                $user = singleton_service::get_instance_of_user((int)$value);
                 if (!$user || !user_can_view_profile($user)) {
                     return false;
                 }
