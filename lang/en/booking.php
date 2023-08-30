@@ -2408,6 +2408,6 @@ $string['boactioncancelbookingvalue'] = "Aktiviere sofortige Ausbuchung";
 $string['boactioncancelbooking_desc'] = "Wird verwendet, wenn eine Option mehrmals gekauft werden können soll.";
 $string['boactionuserprofilefieldvalue'] = 'Value';
 $string['actionoperator:set'] = 'Replace';
-$string['actionoperator:substract'] = 'Subsctract';
+$string['actionoperator:subtract'] = 'Subtract';
 $string['actionoperator'] = 'Action';
 $string['actionoperator:adddate'] = 'Add date';

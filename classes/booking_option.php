@@ -899,7 +899,7 @@ class booking_option {
      *
      * @param stdClass $user
      * @param int $frombookingid
-     * @param int $substractfromlimit this is used for transferring users from one option to
+     * @param int $subtractfromlimit this is used for transferring users from one option to
      *        another
      *        The number of bookings for the user has to be decreased by one, because, the user will
      *        be unsubscribed
@@ -911,7 +911,7 @@ class booking_option {
     public function user_submit_response(
             $user,
             $frombookingid = 0,
-            $substractfromlimit = 0,
+            $subtractfromlimit = 0,
             $addedtocart = false,
             $verified = UNVERIFIED) {
 
@@ -949,7 +949,7 @@ class booking_option {
         // Only if maxperuser is set, the part after the OR is executed.
         $underlimit = ($this->booking->settings->maxperuser == 0);
         $underlimit = $underlimit ||
-                (($this->booking->get_user_booking_count($user) - $substractfromlimit) < $this->booking->settings->maxperuser);
+                (($this->booking->get_user_booking_count($user) - $subtractfromlimit) < $this->booking->settings->maxperuser);
         if (!$underlimit) {
             // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
             /* mtrace("Couldn't subscribe user $user->id because of maxperuser setting <br>"); */

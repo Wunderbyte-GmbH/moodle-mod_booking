@@ -290,7 +290,7 @@ class booking_bookit {
                 $cachekey = $userid . "_" . $settings->id . '_bookwithcredits';
                 $cache->delete($cachekey);
 
-                // Now, before actually booking, we also need to substract the credit from the concerned user.
+                // Now, before actually booking, we also need to subtract the credit from the concerned user.
                 // Get the used custom profile field.
                 if (!$profilefield = get_config('booking', 'bookwithcreditsprofilefield')) {
                     throw new moodle_exception('nocreditsfielddefined', 'mod_booking');

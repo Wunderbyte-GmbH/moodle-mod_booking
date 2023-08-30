@@ -83,7 +83,7 @@ class userprofilefield extends booking_action {
                     $user->{$key} =
                             $number + $actiondata->boactionuserprofilefieldvalue;
                     break;
-                case 'substract':
+                case 'subtract':
                     $number = intval($user->profile[$actiondata->boactionselectuserprofilefield]);
 
                     $user->{$key} =
@@ -143,7 +143,7 @@ class userprofilefield extends booking_action {
         $operatorarray = [
             'set' => get_string('actionoperator:set', 'mod_booking'),
             'add' => get_string('add'),
-            'substract' => get_string('actionoperator:substract', 'mod_booking'),
+            'subtract' => get_string('actionoperator:subtract', 'mod_booking'),
             'adddate' => get_string('actionoperator:adddate', 'mod_booking'),
         ];
 

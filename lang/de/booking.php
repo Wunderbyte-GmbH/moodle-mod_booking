@@ -2287,6 +2287,6 @@ $string['boactioncancelbookingvalue'] = "Activate immediate cancelation";
 $string['boactioncancelbooking_desc'] = "Used for options which can be bought multiple times";
 $string['boactionuserprofilefieldvalue'] = 'Wert';
 $string['actionoperator:set'] = 'Ersetzen';
-$string['actionoperator:substract'] = 'Minus';
+$string['actionoperator:subtract'] = 'Minus';
 $string['actionoperator'] = 'Aktion';
 $string['actionoperator:adddate'] = 'Füge Zeitraum hinzu';
