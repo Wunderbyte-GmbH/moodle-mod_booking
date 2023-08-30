@@ -2094,14 +2094,14 @@ $string['bo_cond_subbooking_full_available'] = 'Booking is possible';
 $string['bo_cond_subbooking_not_available'] = 'Book it';
 $string['bo_cond_subbooking_full_not_available'] = 'Booking is possible';
 
-$string['restrictwithcustomform'] = 'Form needs to be filled out before booking';
+$string['bo_cond_customform_restrict'] = 'Form needs to be filled out before booking';
 $string['bo_cond_customform_available'] = 'Book it';
 $string['bo_cond_customform_full available'] = 'Booking is possible';
 $string['bo_cond_customform_not_available'] = 'Book it';
 $string['bo_cond_customform_full_not_available'] = 'Booking is possible';
 
 // BO conditions in mform.
-$string['selectuserscheckbox'] = 'Only specific user(s) are allowed to book';
+$string['bo_cond_selectusers_restrict'] = 'Only specific user(s) are allowed to book';
 $string['bo_cond_selectusers_userids'] = 'User(s) allowed to book';
 $string['bo_cond_selectusers_userids_help'] = '<p>If you use this condition, only selected people will be able to book this event.</p>
 <p>However, you can also use this condition to allow certain people to bypass other restrictions:</p>
@@ -2113,13 +2113,13 @@ $string['bo_cond_selectusers_userids_help'] = '<p>If you use this condition, onl
 "Only bookable within a certain time" => The selected person is allowed to book also outside the normal booking times.</p>';
 
 $string['userinfofieldoff'] = 'No user profile field selected';
-$string['restrictwithuserprofilefield'] = 'A chosen user profile field should have a certain value';
-$string['previouslybookedcheckbox'] = 'User has previously booked a certain option';
+$string['bo_cond_userprofilefield_1_default_restrict'] = 'A chosen user profile field should have a certain value';
+$string['bo_cond_previouslybooked_restrict'] = 'User has previously booked a certain option';
 $string['bo_cond_userprofilefield_field'] = 'Profile field';
 $string['bo_cond_userprofilefield_value'] = 'Value';
 $string['bo_cond_userprofilefield_operator'] = 'Operator';
 
-$string['restrictwithcustomuserprofilefield'] = 'A custom user profile field should have a certain value';
+$string['bo_cond_userprofilefield_2_custom_restrict'] = 'A custom user profile field should have a certain value';
 $string['bo_cond_customuserprofilefield_field'] = 'Profile field';
 $string['bo_cond_customuserprofilefield_value'] = 'Value';
 $string['bo_cond_customuserprofilefield_operator'] = 'Operator';

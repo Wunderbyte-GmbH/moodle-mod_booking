@@ -267,12 +267,12 @@ class userprofilefield_1_default implements bo_condition {
                     }
                 }
 
-                $mform->addElement('checkbox', 'restrictwithuserprofilefield',
-                    get_string('restrictwithuserprofilefield', 'mod_booking'));
+                $mform->addElement('advcheckbox', 'bo_cond_userprofilefield_1_default_restrict',
+                    get_string('bo_cond_userprofilefield_1_default_restrict', 'mod_booking'));
 
                 $mform->addElement('select', 'bo_cond_userprofilefield_field',
                     get_string('bo_cond_userprofilefield_field', 'mod_booking'), $userprofilefieldsarray);
-                $mform->hideIf('bo_cond_userprofilefield_field', 'restrictwithuserprofilefield', 'notchecked');
+                $mform->hideIf('bo_cond_userprofilefield_field', 'bo_cond_userprofilefield_1_default_restrict', 'notchecked');
 
                 $operators = [
                     '=' => get_string('equals', 'mod_booking'),
@@ -289,18 +289,18 @@ class userprofilefield_1_default implements bo_condition {
                 $mform->addElement('select', 'bo_cond_userprofilefield_operator',
                     get_string('bo_cond_userprofilefield_operator', 'mod_booking'), $operators);
                 $mform->hideIf('bo_cond_userprofilefield_operator', 'bo_cond_userprofilefield_field', 'eq', 0);
-                $mform->hideIf('bo_cond_userprofilefield_operator', 'restrictwithuserprofilefield', 'notchecked');
+                $mform->hideIf('bo_cond_userprofilefield_operator', 'bo_cond_userprofilefield_1_default_restrict', 'notchecked');
 
                 $mform->addElement('text', 'bo_cond_userprofilefield_value',
                     get_string('bo_cond_userprofilefield_value', 'mod_booking'));
                 $mform->setType('bo_cond_userprofilefield_value', PARAM_RAW);
                 $mform->hideIf('bo_cond_userprofilefield_value', 'bo_cond_userprofilefield_field', 'eq', 0);
-                $mform->hideIf('bo_cond_userprofilefield_value', 'restrictwithuserprofilefield', 'notchecked');
+                $mform->hideIf('bo_cond_userprofilefield_value', 'bo_cond_userprofilefield_1_default_restrict', 'notchecked');
 
                 $mform->addElement('checkbox', 'bo_cond_userprofilefield_overrideconditioncheckbox',
                     get_string('overrideconditioncheckbox', 'mod_booking'));
                 $mform->hideIf('bo_cond_userprofilefield_overrideconditioncheckbox', 'bo_cond_userprofilefield_field', 'eq', 0);
-                $mform->hideIf('bo_cond_userprofilefield_overrideconditioncheckbox', 'restrictwithuserprofilefield', 'notchecked');
+                $mform->hideIf('bo_cond_userprofilefield_overrideconditioncheckbox', 'bo_cond_userprofilefield_1_default_restrict', 'notchecked');
 
                 $overrideoperators = [
                     'OR' => get_string('overrideoperator:or', 'mod_booking'),
@@ -358,8 +358,8 @@ class userprofilefield_1_default implements bo_condition {
             }
         } else {
             // No PRO license is active.
-            $mform->addElement('static', 'restrictwithuserprofilefield',
-                get_string('restrictwithuserprofilefield', 'mod_booking'),
+            $mform->addElement('static', 'bo_cond_userprofilefield_1_default_restrict',
+                get_string('bo_cond_userprofilefield_1_default_restrict', 'mod_booking'),
                 get_string('proversiononly', 'mod_booking'));
         }
 
@@ -370,7 +370,7 @@ class userprofilefield_1_default implements bo_condition {
         $formmode = get_user_preferences('optionform_mode');
         if ($formmode !== 'expert') {
             $cfgrestrictwithuserprofilefield = $DB->get_field('booking_optionformconfig', 'active',
-                ['elementname' => 'restrictwithuserprofilefield']);
+                ['elementname' => 'bo_cond_userprofilefield_1_default_restrict']);
             if ($cfgrestrictwithuserprofilefield === "0") {
                 $showhorizontalline = false;
             }
@@ -403,7 +403,7 @@ class userprofilefield_1_default implements bo_condition {
 
         $conditionobject = new stdClass;
 
-        if (!empty($fromform->restrictwithuserprofilefield)) {
+        if (!empty($fromform->bo_cond_userprofilefield_1_default_restrict)) {
             // Remove the namespace from classname.
             $classname = __CLASS__;
             $classnameparts = explode('\\', $classname);
@@ -432,7 +432,7 @@ class userprofilefield_1_default implements bo_condition {
      */
     public function set_defaults(stdClass &$defaultvalues, stdClass $acdefault) {
         if (!empty($acdefault->profilefield)) {
-            $defaultvalues->restrictwithuserprofilefield = "1";
+            $defaultvalues->bo_cond_userprofilefield_1_default_restrict = "1";
             $defaultvalues->bo_cond_userprofilefield_field = $acdefault->profilefield;
             $defaultvalues->bo_cond_userprofilefield_operator = $acdefault->operator;
             $defaultvalues->bo_cond_userprofilefield_value = $acdefault->value;

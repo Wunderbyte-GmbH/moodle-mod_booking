@@ -1970,7 +1970,7 @@ $string['bo_cond_subbookingblocks_full_available'] = 'Buchen möglich';
 $string['bo_cond_subbookingblocks_not_available'] = 'Buchen';
 $string['bo_cond_subbookingblocks_full_not_available'] = 'Buchen möglich';
 
-$string['restrictwithcustomform'] = 'Formular muss vor der Buchung ausgefüllt werden';
+$string['bo_cond_customform_restrict'] = 'Formular muss vor der Buchung ausgefüllt werden';
 $string['bo_cond_customform_available'] = 'Buchen';
 $string['bo_cond_customform_full available'] = 'Booking is possible';
 $string['bo_cond_customform_not_available'] = 'Buchen';
@@ -1983,7 +1983,7 @@ $string['bo_cond_subbooking_not_available'] = 'Buchen';
 $string['bo_cond_subbooking_full_not_available'] = 'Buchen möglich';
 
 // BO conditions in mform.
-$string['selectuserscheckbox'] = 'Nur bestimmte Benutzer:in(nen) dürfen buchen';
+$string['bo_cond_selectusers_restrict'] = 'Nur bestimmte Benutzer:in(nen) dürfen buchen';
 $string['bo_cond_selectusers_userids'] = 'Benutzer:in(nen), die buchen dürfen';
 $string['bo_cond_selectusers_userids_help'] = '<p>Wenn Sie diese Einschränkung verwenden, können nur ausgewählten Personen diese Veranstaltung buchen.</p>
 <p>Sie können diese Einschränkung aber auch verwenden, um es bestimmten Personen zu ermöglichen, andere Einschränkungen zu umgehen:</p>
@@ -1995,13 +1995,13 @@ $string['bo_cond_selectusers_userids_help'] = '<p>Wenn Sie diese Einschränkung 
 "Nur in einer bestimmten Zeit buchbar" => Die ausgewählte Person darf auch außerhalb der normalen Buchungszeiten buchen</p>';
 
 $string['userinfofieldoff'] = 'Kein User-Profilfeld ausgewählt';
-$string['restrictwithuserprofilefield'] = 'Ein ausgewähltes Userprofilfeld soll einen bestimmten Wert haben';
-$string['previouslybookedcheckbox'] = 'User hat früher bereits eine bestimmte Option gebucht';
+$string['bo_cond_userprofilefield_1_default_restrict'] = 'Ein ausgewähltes Userprofilfeld soll einen bestimmten Wert haben';
+$string['bo_cond_previouslybooked_restrict'] = 'User hat früher bereits eine bestimmte Option gebucht';
 $string['bo_cond_userprofilefield_field'] = 'Profilfeld';
 $string['bo_cond_userprofilefield_value'] = 'Wert';
 $string['bo_cond_userprofilefield_operator'] = 'Operator';
 
-$string['restrictwithcustomuserprofilefield'] = 'Ein ausgewähltes benutzerdefiniertes Userprofilfeld soll einen bestimmten Wert haben';
+$string['bo_cond_userprofilefield_2_custom_restrict'] = 'Ein ausgewähltes benutzerdefiniertes Userprofilfeld soll einen bestimmten Wert haben';
 $string['bo_cond_customuserprofilefield_field'] = 'Profilfeld';
 $string['bo_cond_customuserprofilefield_value'] = 'Wert';
 $string['bo_cond_customuserprofilefield_operator'] = 'Operator';

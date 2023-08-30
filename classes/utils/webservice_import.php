@@ -364,7 +364,7 @@ class webservice_import {
             $courses = $DB->get_records_sql($sql, $params);
 
             $data->bo_cond_enrolledincourse_courseids = array_keys($courses);
-            $data->restrictwithenrolledincourse = 1;
+            $data->bo_cond_enrolledincourse_restrict = 1;
             unset($data->boavenrolledincourse);
         }
 

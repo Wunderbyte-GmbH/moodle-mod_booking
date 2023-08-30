@@ -185,8 +185,8 @@ class customform implements bo_condition {
         // Check if PRO version is activated.
         if (wb_payment::pro_version_is_activated()) {
 
-            $mform->addElement('checkbox', 'restrictwithcustomform',
-                    get_string('restrictwithcustomform', 'mod_booking'));
+            $mform->addElement('advcheckbox', 'bo_cond_customform_restrict',
+                    get_string('bo_cond_customform_restrict', 'mod_booking'));
 
             $formelementsarray = [
                 0 => get_string('noelement', 'mod_booking'),
@@ -228,7 +228,7 @@ class customform implements bo_condition {
                 }
 
                 $mform->addGroup($buttonarray, 'formgroupelement_1_' . $counter, '', '', [], false);
-                $mform->hideIf('formgroupelement_1_' . $counter, 'restrictwithcustomform', 'notchecked');
+                $mform->hideIf('formgroupelement_1_' . $counter, 'bo_cond_customform_restrict', 'notchecked');
 
                 if (!empty($previous)) {
                     $mform->hideIf('formgroupelement_1_' . $counter,
@@ -242,8 +242,8 @@ class customform implements bo_condition {
 
         } else {
             // No PRO license is active.
-            $mform->addElement('static', 'restrictwithcustomform',
-                get_string('restrictwithcustomform', 'mod_booking'),
+            $mform->addElement('static', 'bo_cond_customform_restrict',
+                get_string('bo_cond_customform_restrict', 'mod_booking'),
                 get_string('proversiononly', 'mod_booking'));
         }
 
@@ -254,7 +254,7 @@ class customform implements bo_condition {
         $formmode = get_user_preferences('optionform_mode');
         if ($formmode !== 'expert') {
             $cfgrestrictwithcustomform = $DB->get_field('booking_optionformconfig', 'active',
-                ['elementname' => 'restrictwithcustomform']);
+                ['elementname' => 'bo_cond_customform_restrict']);
             if ($cfgrestrictwithcustomform === "0") {
                 $showhorizontalline = false;
             }
@@ -349,6 +349,10 @@ class customform implements bo_condition {
 
         }
 
+        if (empty($conditionobject->formsarray)) {
+            return new stdClass();
+        }
+
         // Might be an empty object.
         return $conditionobject;
     }
@@ -361,7 +365,7 @@ class customform implements bo_condition {
     public function set_defaults(stdClass &$defaultvalues, stdClass $acdefault) {
 
         if (!empty($acdefault->formsarray)) {
-            $defaultvalues->restrictwithcustomform = 1;
+            $defaultvalues->bo_cond_customform_restrict = 1;
         }
 
         foreach ($acdefault->formsarray as $formcounter => $form) {

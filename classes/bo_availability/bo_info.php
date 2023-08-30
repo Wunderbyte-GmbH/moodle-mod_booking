@@ -408,15 +408,32 @@ class bo_info {
         $optionid = $fromform->optionid ?? 0;
 
         if (!empty($optionid) && $optionid > 0) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            $existingconditions = json_decode($settings->availability);
+
             $conditions = self::get_conditions(CONDPARAM_JSON_ONLY);
             $arrayforjson = [];
 
             foreach ($conditions as $condition) {
                 if (!empty($condition)) {
-                    // For each condition, add the appropriate form fields.
-                    $conditionobject = $condition->get_condition_object_for_json($fromform);
-                    if (!empty($conditionobject->class)) {
-                        $arrayforjson[] = $conditionobject;
+                    $fullclassname = get_class($condition); // With namespace.
+                    $classnameparts = explode('\\', $fullclassname);
+                    $shortclassname = end($classnameparts); // Without namespace.
+                    $key = "bo_cond_{$shortclassname}_restrict";
+
+                    if (isset($fromform->{$key})) {
+                        // For each condition, add the appropriate form fields.
+                        $conditionobject = $condition->get_condition_object_for_json($fromform);
+                        if (!empty($conditionobject->class)) {
+                            $arrayforjson[] = $conditionobject;
+                        }
+                        continue;
+                    }
+
+                    foreach ($existingconditions as $existingcondition) {
+                        if ($existingcondition->id == $condition->id) {
+                            $arrayforjson[] = $existingcondition;
+                        }
                     }
                 }
             }

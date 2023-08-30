@@ -204,17 +204,17 @@ class selectusers implements bo_condition {
                 }
             ];
 
-            $mform->addElement('checkbox', 'selectuserscheckbox',
-                    get_string('selectuserscheckbox', 'mod_booking'));
+            $mform->addElement('advcheckbox', 'bo_cond_selectusers_restrict',
+                    get_string('bo_cond_selectusers_restrict', 'mod_booking'));
 
             $mform->addElement('autocomplete', 'bo_cond_selectusers_userids',
                 get_string('bo_cond_selectusers_userids', 'mod_booking'), [], $options);
             $mform->addHelpButton('bo_cond_selectusers_userids', 'bo_cond_selectusers_userids', 'mod_booking');
-            $mform->hideIf('bo_cond_selectusers_userids', 'selectuserscheckbox', 'notchecked');
+            $mform->hideIf('bo_cond_selectusers_userids', 'bo_cond_selectusers_restrict', 'notchecked');
 
             $mform->addElement('checkbox', 'bo_cond_selectusers_overrideconditioncheckbox',
                 get_string('overrideconditioncheckbox', 'mod_booking'));
-            $mform->hideIf('bo_cond_selectusers_overrideconditioncheckbox', 'selectuserscheckbox', 'notchecked');
+            $mform->hideIf('bo_cond_selectusers_overrideconditioncheckbox', 'bo_cond_selectusers_restrict', 'notchecked');
 
             $overrideoperators = [
                 'OR' => get_string('overrideoperator:or', 'mod_booking'),
@@ -271,7 +271,7 @@ class selectusers implements bo_condition {
         } else {
             // No PRO license is active.
             $mform->addElement('static', 'static:selectusers',
-                get_string('selectuserscheckbox', 'mod_booking'),
+                get_string('bo_cond_selectusers_restrict', 'mod_booking'),
                 get_string('proversiononly', 'mod_booking'));
         }
 
@@ -282,7 +282,7 @@ class selectusers implements bo_condition {
         $formmode = get_user_preferences('optionform_mode');
         if ($formmode !== 'expert') {
             $cfgselectusers = $DB->get_field('booking_optionformconfig', 'active',
-                ['elementname' => 'selectuserscheckbox']);
+                ['elementname' => 'bo_cond_selectusers_restrict']);
             if ($cfgselectusers === "0") {
                 $showhorizontalline = false;
             }
@@ -313,9 +313,9 @@ class selectusers implements bo_condition {
      */
     public function get_condition_object_for_json(stdClass $fromform): stdClass {
 
-        $conditionobject = new stdClass;
+        $conditionobject = new stdClass();
 
-        if (!empty($fromform->selectuserscheckbox)) {
+        if (!empty($fromform->bo_cond_selectusers_restrict)) {
             // Remove the namespace from classname.
             $classname = __CLASS__;
             $classnameparts = explode('\\', $classname);
@@ -343,7 +343,7 @@ class selectusers implements bo_condition {
     public function set_defaults(stdClass &$defaultvalues, stdClass $acdefault) {
 
         if (!empty($acdefault->userids)) {
-            $defaultvalues->selectuserscheckbox = "1";
+            $defaultvalues->bo_cond_selectusers_restrict = "1";
             $defaultvalues->bo_cond_selectusers_userids = $acdefault->userids;
         }
         if (!empty($acdefault->overrides)) {
