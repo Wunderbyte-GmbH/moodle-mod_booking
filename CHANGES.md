@@ -1,3 +1,15 @@
+## Version 8.0.33 (2023083100)
+**Improvements:**
+* Improvement: Use singleton service to get users in autocompletes.
+* Improvement: Better availability conditions update process (soft update - do not delete missing conditions).
+  Only if checkbox (advcheckbox) is actually "0" they will be removed.
+* Improvement: Add clean string function - in case we need it to remove special chars.
+
+**Bugfixes:**
+* Bugfix: Separate tablename with space so tests don't fail.
+* Bugfix: Remove institution name from uniqueid of myinstitutiontable as it might contain special chars.
+* Bugfix: Custom form cannot be overridable.
+
 ## Version 8.0.32 (2023083000)
 **Improvements:**
 * Improvement: Teachers filter - Show lastname before firstname and separate with comma.
