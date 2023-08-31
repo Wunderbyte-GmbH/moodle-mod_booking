@@ -17,8 +17,8 @@
 // General strings.
 $string['accept'] = 'Akzeptieren';
 $string['age'] = 'Alter';
-$string['areyousure:book'] = 'Möchten Sie wirklich buchen?';
-$string['areyousure:cancel'] = 'Möchten Sie diese Buchung wirklich stornieren?';
+$string['areyousure:book'] = 'Nochmal klicken, um die Buchung zu bestätigen';
+$string['areyousure:cancel'] = 'Nochmal klicken, um die Buchung zu stornieren';
 $string['assignteachers'] = 'Lehrer:innen zuweisen:';
 $string['alreadypassed'] = 'Bereits vergangen';
 $string['bookingoption'] = 'Buchungsoption';
