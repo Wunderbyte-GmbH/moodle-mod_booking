@@ -58,7 +58,6 @@ Feature: Create booking campaigns for booking options as admin and booking it as
     And I click on "Save changes" "button"
     And I wait until the page is ready
     And I should see "campaign1"
-    And I log out
 
   @javascript
   Scenario: Booking campaigns: create booking campaign via DB and view as teacher
@@ -75,4 +74,4 @@ Feature: Create booking campaigns for booking options as admin and booking it as
     And I should see "Option-tenis" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "44.00 EUR" in the ".allbookingoptionstable_r2 .pricecurrency" "css_element"
     And I should see "/ 4" in the ".allbookingoptionstable_r2 .col-ap-availableplaces" "css_element"
-    And I log out
+
