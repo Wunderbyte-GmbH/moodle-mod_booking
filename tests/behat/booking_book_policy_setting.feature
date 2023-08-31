@@ -21,50 +21,35 @@ Feature: Test of book policy setting in a booking instance
       | student1 | C1     | student        |
       | student2 | C1     | student        |
     And the following "activities" exist:
-      | activity | course | name       | intro                  | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail |
-      | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | All bookings                     | Yes                      |
+      | activity | course | name       | intro                  | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail | bookingpolicy |
+      | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | All bookings                     | Yes                      | Are you sure? |
     And I create booking option "Test option 1" in "My booking"
-    And I create booking option "Test option 2" in "My booking"
 
   @javascript
-  Scenario: Add booking policy promt to the booking instance
+  Scenario: Booking policy: add promt to the booking instance as a teacher via UI
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     Then I follow "My booking"
     And I follow "Settings"
     And I follow "Miscellaneous settings"
-    And I set the field "Booking policy" to "Are you sure?"
+    And I wait until the page is ready
+    And I set the field "Booking policy" to "Confirm booking!"
     And I press "Save and display"
-    And I should see "Test option 1" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until the page is ready
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    Then I should see "Are you sure?" in the ".condition-bookingpolicy-form" "css_element"
-    And I log out
+    Then I should see "Confirm booking!" in the ".condition-bookingpolicy-form" "css_element"
 
   @javascript
-  Scenario: Add booking policy promt as teacher and book option with policy as student
-    Given I log in as "teacher1"
-    When I am on "Course 1" course homepage
-    Then I follow "My booking"
-    And I follow "Settings"
-    And I follow "Miscellaneous settings"
-    And I set the field "Booking policy" to "Are you sure?"
-    And I press "Save and display"
-    And I should see "Test option 1" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    Then I should see "Are you sure?" in the ".condition-bookingpolicy-form" "css_element"
-    And I log out
+  Scenario: Booking policy: book option with policy as student
     Given I am on the "Course 1" course page logged in as student1
-    And I follow "My booking"
-    And I wait "1" seconds
-    And I should see "Test option 1" in the ".allbookingoptionstable_r1" "css_element"
+    When I follow "My booking"
+    And I wait until the page is ready
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     Then I should see "Are you sure?" in the ".condition-bookingpolicy-form" "css_element"
     And I set the field "bookingpolicy_checkbox" to "checked"
     And I follow "Continue"
-    ## And I wait "11" seconds
     And I should see "Book now" in the ".show .modalButtonAreaContainer" "css_element"
     And I click on "Book now" "text" in the ".show .modalButtonAreaContainer" "css_element"
     And I should see "Click again to confirm booking" in the ".show .modalButtonAreaContainer" "css_element"
