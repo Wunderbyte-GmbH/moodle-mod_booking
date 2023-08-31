@@ -61,8 +61,8 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     ## And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     ## Then I should see "Test option 1" in the ".modal-dialog .bookingoption-description-prepagemodal-bookit" "css_element"
     ## And I click on "Book now" "button" in the ".modal-dialog .booking-button-area" "css_element"
-    ## And I should see "Do you really want to book?" in the ".modal-dialog .booking-button-area" "css_element"
-    ## And I click on "Do you really want to book?" "button" in the ".modal-dialog .booking-button-area" "css_element"
+    ## And I should see "Click again to confirm booking" in the ".modal-dialog .booking-button-area" "css_element"
+    ## And I click on "Click again to confirm booking" "button" in the ".modal-dialog .booking-button-area" "css_element"
     ## And I should see "Booked" in the ".modal-dialog .booking-button-area" "css_element"
     ## And I follow "Continue"
     ## The following not implemented for students or teachers but for admins only

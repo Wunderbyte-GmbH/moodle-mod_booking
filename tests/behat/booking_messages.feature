@@ -72,8 +72,8 @@ Feature: Test messaging features in a booking
     And I follow "My booking"
     And I should see "New option - Webinar"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Do you really want to book?" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Do you really want to book?" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
     ## Next step(s) cause faiure (coding error, email was not sent):
     ## Then I trigger cron

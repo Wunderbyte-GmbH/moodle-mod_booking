@@ -67,8 +67,8 @@ Feature: Test of book policy setting in a booking instance
     ## And I wait "11" seconds
     And I should see "Book now" in the ".show .modalButtonAreaContainer" "css_element"
     And I click on "Book now" "text" in the ".show .modalButtonAreaContainer" "css_element"
-    And I should see "Do you really want to book?" in the ".show .modalButtonAreaContainer" "css_element"
-    And I click on "Do you really want to book?" "text" in the ".show .modalButtonAreaContainer" "css_element"
+    And I should see "Click again to confirm booking" in the ".show .modalButtonAreaContainer" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".show .modalButtonAreaContainer" "css_element"
     And I should see "Booked" in the ".show .modalButtonAreaContainer" "css_element"
     And I follow "Continue"
     And I should see "You have successfully booked Test option 1" in the ".condition-confirmation" "css_element"

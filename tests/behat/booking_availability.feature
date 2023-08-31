@@ -149,8 +149,8 @@ Feature: Test booking options avaialbility conditions
     And I should not see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r3" "css_element"
-    And I should see "Do you really want to book?" in the ".allbookingoptionstable_r3" "css_element"
-    And I click on "Do you really want to book?" "text" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Booked" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Not allowed to book" in the ".allbookingoptionstable_r1" "css_element"
@@ -252,8 +252,8 @@ Feature: Test booking options avaialbility conditions
     And I wait "1" seconds
     And I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r3" "css_element"
-    And I should see "Do you really want to book?" in the ".allbookingoptionstable_r3" "css_element"
-    And I click on "Do you really want to book?" "text" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Booked" in the ".allbookingoptionstable_r3" "css_element"
     And I log out
     Given I log in as "student2"
@@ -298,8 +298,8 @@ Feature: Test booking options avaialbility conditions
     And I wait "1" seconds
     Then I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r3" "css_element"
-    And I should see "Do you really want to book?" in the ".allbookingoptionstable_r3" "css_element"
-    And I click on "Do you really want to book?" "text" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Fully booked - You are on the waiting list" in the ".allbookingoptionstable_r3" "css_element"
     And I log out
 
@@ -327,8 +327,8 @@ Feature: Test booking options avaialbility conditions
     And I should see "Fully booked. Booking not possible anymore" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r3" "css_element"
-    And I should see "Do you really want to book?" in the ".allbookingoptionstable_r3" "css_element"
-    And I click on "Do you really want to book?" "text" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Booked" in the ".allbookingoptionstable_r3" "css_element"
 
   @javascript
@@ -362,8 +362,8 @@ Feature: Test booking options avaialbility conditions
     And I should not see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r3" "css_element"
-    And I should see "Do you really want to book?" in the ".allbookingoptionstable_r3" "css_element"
-    And I click on "Do you really want to book?" "text" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Booked" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Cannot be booked yet" in the ".allbookingoptionstable_r1" "css_element"
     And I log out
@@ -398,8 +398,8 @@ Feature: Test booking options avaialbility conditions
     And I wait "1" seconds
     And I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r3" "css_element"
-    And I should see "Do you really want to book?" in the ".allbookingoptionstable_r3" "css_element"
-    And I click on "Do you really want to book?" "text" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Booked" in the ".allbookingoptionstable_r3" "css_element"
     And I log out
     Given I log in as "teacher1"
