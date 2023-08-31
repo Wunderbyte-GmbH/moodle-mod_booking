@@ -409,7 +409,10 @@ class bo_info {
 
         if (!empty($optionid) && $optionid > 0) {
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-            $existingconditions = json_decode($settings->availability);
+            $existingconditions = [];
+            if (!empty($settings->availability)) {
+                $existingconditions = json_decode($settings->availability);
+            }
 
             $conditions = self::get_conditions(CONDPARAM_JSON_ONLY);
             $arrayforjson = [];
