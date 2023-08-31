@@ -218,7 +218,7 @@ class enrolledincourse implements bo_condition {
             $overrideconditionsarray = [];
             foreach ($overrideconditions as $overridecondition) {
                 // We do not combine conditions of same type with each other.
-                if ($overridecondition->id == BO_COND_JSON_ENROLLEDINCOURSE) {
+                if ($overridecondition->id == $this->id) {
                     continue;
                 }
                 // Remove the namespace from classname.
@@ -236,8 +236,12 @@ class enrolledincourse implements bo_condition {
                     $jsonconditions = json_decode($settings->availability);
                     if (!empty($jsonconditions)) {
                         foreach ($jsonconditions as $jsoncondition) {
+                            $currentclassname = $jsoncondition->class;
+                            $currentcondition = new $currentclassname();
                             // Currently conditions of the same type cannot be combined with each other.
-                            if ($jsoncondition->id != BO_COND_JSON_ENROLLEDINCOURSE) {
+                            if ($jsoncondition->id != $this->id
+                                && isset($currentcondition->overridable)
+                                && ($currentcondition->overridable == true)) {
                                 $overrideconditionsarray[$jsoncondition->id] = get_string('bo_cond_' .
                                     $jsoncondition->name, 'mod_booking');
                             }
@@ -245,6 +249,7 @@ class enrolledincourse implements bo_condition {
                     }
                 }
             }
+
             $options = array(
                 'noselectionstring' => get_string('choose...', 'mod_booking'),
                 'tags' => false,
@@ -293,7 +298,7 @@ class enrolledincourse implements bo_condition {
             $classnameparts = explode('\\', $classname);
             $shortclassname = end($classnameparts); // Without namespace.
 
-            $conditionobject->id = BO_COND_JSON_ENROLLEDINCOURSE;
+            $conditionobject->id = $this->id;
             $conditionobject->name = $shortclassname;
             $conditionobject->class = $classname;
             $conditionobject->courseids = $fromform->bo_cond_enrolledincourse_courseids;

@@ -281,7 +281,8 @@ class userprofilefield_2_custom implements bo_condition {
                 $mform->addElement('select', 'bo_cond_customuserprofilefield_operator',
                     get_string('bo_cond_customuserprofilefield_operator', 'mod_booking'), $operators);
                 $mform->hideIf('bo_cond_customuserprofilefield_operator', 'bo_cond_customuserprofilefield_field', 'eq', 0);
-                $mform->hideIf('bo_cond_customuserprofilefield_operator', 'bo_cond_userprofilefield_2_custom_restrict', 'notchecked');
+                $mform->hideIf('bo_cond_customuserprofilefield_operator', 'bo_cond_userprofilefield_2_custom_restrict',
+                    'notchecked');
 
                 $mform->addElement('text', 'bo_cond_customuserprofilefield_value',
                     get_string('bo_cond_customuserprofilefield_value', 'mod_booking'));
@@ -293,8 +294,8 @@ class userprofilefield_2_custom implements bo_condition {
                     get_string('overrideconditioncheckbox', 'mod_booking'));
                 $mform->hideIf('bo_cond_customuserprofilefield_overrideconditioncheckbox', 'bo_cond_customuserprofilefield_field',
                     'eq', 0);
-                $mform->hideIf('bo_cond_customuserprofilefield_overrideconditioncheckbox', 'bo_cond_userprofilefield_2_custom_restrict',
-                    'notchecked');
+                $mform->hideIf('bo_cond_customuserprofilefield_overrideconditioncheckbox',
+                    'bo_cond_userprofilefield_2_custom_restrict', 'notchecked');
 
                 $overrideoperators = [
                     'OR' => get_string('overrideoperator:or', 'mod_booking'),
@@ -309,7 +310,7 @@ class userprofilefield_2_custom implements bo_condition {
                 $overrideconditionsarray = [];
                 foreach ($overrideconditions as $overridecondition) {
                     // We do not combine conditions with each other.
-                    if ($overridecondition->id == BO_COND_JSON_CUSTOMUSERPROFILEFIELD) {
+                    if ($overridecondition->id == $this->id) {
                         continue;
                     }
 
@@ -325,13 +326,15 @@ class userprofilefield_2_custom implements bo_condition {
                 if (!empty($optionid) && $optionid > 0) {
                     $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
                     if (!empty($settings->availability)) {
-
                         $jsonconditions = json_decode($settings->availability);
-
                         if (!empty($jsonconditions)) {
                             foreach ($jsonconditions as $jsoncondition) {
+                                $currentclassname = $jsoncondition->class;
+                                $currentcondition = new $currentclassname();
                                 // Currently conditions of the same type cannot be combined with each other.
-                                if ($jsoncondition->id != BO_COND_JSON_CUSTOMUSERPROFILEFIELD) {
+                                if ($jsoncondition->id != $this->id
+                                    && isset($currentcondition->overridable)
+                                    && ($currentcondition->overridable == true)) {
                                     $overrideconditionsarray[$jsoncondition->id] = get_string('bo_cond_' .
                                         $jsoncondition->name, 'mod_booking');
                                 }
@@ -387,7 +390,7 @@ class userprofilefield_2_custom implements bo_condition {
             $classnameparts = explode('\\', $classname);
             $shortclassname = end($classnameparts); // Without namespace.
 
-            $conditionobject->id = BO_COND_JSON_CUSTOMUSERPROFILEFIELD;
+            $conditionobject->id = $this->id;
             $conditionobject->name = $shortclassname;
             $conditionobject->class = $classname;
             $conditionobject->profilefield = $fromform->bo_cond_customuserprofilefield_field;

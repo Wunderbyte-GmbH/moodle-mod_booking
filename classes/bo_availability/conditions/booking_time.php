@@ -223,8 +223,12 @@ class booking_time implements bo_condition {
                 $jsonconditions = json_decode($settings->availability);
                 if (!empty($jsonconditions)) {
                     foreach ($jsonconditions as $jsoncondition) {
+                        $currentclassname = $jsoncondition->class;
+                        $currentcondition = new $currentclassname();
                         // Currently conditions of the same type cannot be combined with each other.
-                        if ($jsoncondition->id != BO_COND_BOOKING_TIME) {
+                        if ($jsoncondition->id != BO_COND_BOOKING_TIME
+                            && isset($currentcondition->overridable)
+                            && ($currentcondition->overridable == true)) {
                             $overrideconditionsarray[$jsoncondition->id] = get_string('bo_cond_' .
                                 $jsoncondition->name, 'mod_booking');
                         }

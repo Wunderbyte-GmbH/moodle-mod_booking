@@ -430,9 +430,11 @@ class bo_info {
                         continue;
                     }
 
-                    foreach ($existingconditions as $existingcondition) {
-                        if ($existingcondition->id == $condition->id) {
-                            $arrayforjson[] = $existingcondition;
+                    if (!empty($existingconditions)) {
+                        foreach ($existingconditions as $existingcondition) {
+                            if ($existingcondition->id == $condition->id) {
+                                $arrayforjson[] = $existingcondition;
+                            }
                         }
                     }
                 }

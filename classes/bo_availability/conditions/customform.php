@@ -50,8 +50,9 @@ class customform implements bo_condition {
     /** @var int $id Id is set via json during construction but we still need a default ID */
     public $id = BO_COND_JSON_CUSTOMFORM;
 
-    /** @var bool $overridable Indicates if the condition can be overriden. */
-    public $overridable = true;
+    // Do NOT set $overridable here!
+    // If there IS a custom form, then everyone should fill it out!
+    // So it can't be overridable.
 
     /** @var stdClass $customsettings an stdclass coming from the json which passes custom settings */
     public $customsettings = null;

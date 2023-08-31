@@ -300,7 +300,8 @@ class userprofilefield_1_default implements bo_condition {
                 $mform->addElement('checkbox', 'bo_cond_userprofilefield_overrideconditioncheckbox',
                     get_string('overrideconditioncheckbox', 'mod_booking'));
                 $mform->hideIf('bo_cond_userprofilefield_overrideconditioncheckbox', 'bo_cond_userprofilefield_field', 'eq', 0);
-                $mform->hideIf('bo_cond_userprofilefield_overrideconditioncheckbox', 'bo_cond_userprofilefield_1_default_restrict', 'notchecked');
+                $mform->hideIf('bo_cond_userprofilefield_overrideconditioncheckbox', 'bo_cond_userprofilefield_1_default_restrict',
+                    'notchecked');
 
                 $overrideoperators = [
                     'OR' => get_string('overrideoperator:or', 'mod_booking'),
@@ -315,7 +316,7 @@ class userprofilefield_1_default implements bo_condition {
                 $overrideconditionsarray = [];
                 foreach ($overrideconditions as $overridecondition) {
                     // We do not combine conditions with each other.
-                    if ($overridecondition->id == BO_COND_JSON_USERPROFILEFIELD) {
+                    if ($overridecondition->id == $this->id) {
                         continue;
                     }
 
@@ -331,13 +332,15 @@ class userprofilefield_1_default implements bo_condition {
                 if (!empty($optionid) && $optionid > 0) {
                     $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
                     if (!empty($settings->availability)) {
-
                         $jsonconditions = json_decode($settings->availability);
-
                         if (!empty($jsonconditions)) {
                             foreach ($jsonconditions as $jsoncondition) {
+                                $currentclassname = $jsoncondition->class;
+                                $currentcondition = new $currentclassname();
                                 // Currently conditions of the same type cannot be combined with each other.
-                                if ($jsoncondition->id != BO_COND_JSON_USERPROFILEFIELD) {
+                                if ($jsoncondition->id != $this->id
+                                    && isset($currentcondition->overridable)
+                                    && ($currentcondition->overridable == true)) {
                                     $overrideconditionsarray[$jsoncondition->id] = get_string('bo_cond_' .
                                         $jsoncondition->name, 'mod_booking');
                                 }
@@ -409,7 +412,7 @@ class userprofilefield_1_default implements bo_condition {
             $classnameparts = explode('\\', $classname);
             $shortclassname = end($classnameparts); // Without namespace.
 
-            $conditionobject->id = BO_COND_JSON_USERPROFILEFIELD;
+            $conditionobject->id = $this->id;
             $conditionobject->name = $shortclassname;
             $conditionobject->class = $classname;
             $conditionobject->profilefield = $fromform->bo_cond_userprofilefield_field;
