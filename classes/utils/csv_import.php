@@ -224,6 +224,19 @@ class csv_import {
                 // Collect line number with invalid data and track invalid lines.
                 $this->add_csverror('No value set for booking option name (required)', $i);
             }
+
+            // When there is an ID in location, we map it to the correct entity name.
+            if (isset($csvrecord['location']) && is_numeric($csvrecord['location'])) {
+                if (class_exists('local_entities\entitiesrelation_handler')) {
+                    $eroptionhandler = new entitiesrelation_handler('mod_booking', 'option');
+                    $entities = $eroptionhandler->get_entities_by_id($csvrecord['location']);
+                    if (count($entities) === 1) {
+                        $entity = reset($entities);
+                        $csvrecord['location'] = $entity->name; // We store the name in location.
+                    }
+                }
+            }
+
             $this->set_defaults($bookingoption);
 
             // Fetch a potentially existing booking option which will be updated.
@@ -273,6 +286,7 @@ class csv_import {
 
             // Validate data.
             if ($this->validate_data($csvrecord, $i)) {
+
                 // Save validated data to db.
                 $userdata = [];
                 foreach ($csvrecord as $column => $value) {
@@ -319,13 +333,9 @@ class csv_import {
 
                         $eroptionhandler = new entitiesrelation_handler('mod_booking', 'option');
 
-                        if (is_numeric($bookingoption->location)) {
-                            // It's the entity id.
-                            $entities = $eroptionhandler->get_entities_by_id($bookingoption->location);
-                        } else {
-                            // It's the entity name (NOT shortname).
-                            $entities = $eroptionhandler->get_entities_by_name($bookingoption->location);
-                        }
+                        // We already mapped it, so it will ALWAYS be a name (not an ID).
+                        // It's the entity name (NOT shortname).
+                        $entities = $eroptionhandler->get_entities_by_name($bookingoption->location);
 
                         // If we have exactly one entiity, we create the entities entry.
                         if (count($entities) === 1) {
