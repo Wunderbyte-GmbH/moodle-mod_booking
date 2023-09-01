@@ -53,6 +53,9 @@ class rule_daysbefore implements booking_rule {
     /** @var int $days */
     public $days = null;
 
+    /** @var string $datefield */
+    public $datefield = null;
+
     /**
      * Load json data from DB into the object.
      * @param stdClass $record a rule record from DB

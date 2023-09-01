@@ -47,6 +47,9 @@ class enter_userprofilefield implements booking_rule_condition {
     /** @var string $textfield */
     public $textfield = null;
 
+    /** @var string $rulejson a json string for a booking rule */
+    public $rulejson = '';
+
     /**
      * Function to tell if a condition can be combined with a certain booking rule type.
      * @param string $bookingruletype e.g. "rule_daysbefore" or "rule_react_on_event"
