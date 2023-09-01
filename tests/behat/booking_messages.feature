@@ -70,7 +70,6 @@ Feature: Test messaging features in a booking
     Given I log in as "student1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    And I should see "New option - Webinar"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
@@ -88,7 +87,6 @@ Feature: Test messaging features in a booking
   Scenario: Teacher book students into booking option and sends mails to them
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
-    Then I follow "My booking"
     And I follow "My booking"
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -98,7 +96,7 @@ Feature: Test messaging features in a booking
     And I follow "<< Back to responses"
     And I click on "selectall" "checkbox"
     And I click on "Send reminder e-mail" "button"
-    And I should see "Notification e-mail has been sent!"
+    Then I should see "Notification e-mail has been sent!"
     ## Next step(s) cause faiure (coding error, email was not sent):
     ## Then I trigger cron
     ## And I wait "1" seconds

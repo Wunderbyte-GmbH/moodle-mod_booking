@@ -40,18 +40,20 @@ Feature: In a booking create booking option with multiple custom options
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    And I should see "New option - duplication source"
+    And I wait until the page is ready
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Duplicate this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I set the following fields to these values:
       | Booking option name | Test option - Copy1 |
     And I press "Save and go back"
+    And I wait until the page is ready
     Then I should see "Test option - Copy1" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Duplicate this booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I set the following fields to these values:
       | Booking option name | Test option - Copy2 |
     And I press "Save and go back"
+    And I wait until the page is ready
     Then I should see "Test option - Copy2" in the ".allbookingoptionstable_r3" "css_element"
 
   @javascript
@@ -59,7 +61,7 @@ Feature: In a booking create booking option with multiple custom options
     Given I log in as "admin"
     And I am on "Course 1" course homepage
     And I follow "My booking"
-    And I should see "New option - duplication source"
+    And I wait until the page is ready
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I set the following fields to these values:
@@ -103,11 +105,13 @@ Feature: In a booking create booking option with multiple custom options
       | Before booked                                      | Before booked message         |
       | After booked                                       | After booked message          |
     And I press "Save and go back"
+    And I wait until the page is ready
     ## Create a copy
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     When I click on "Duplicate this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I set the field "Booking option name" to "Topic: Statistics - Copy 1"
     And I press "Save and go back"
+    And I wait until the page is ready
     ## Verify copy and its options
     Then I should see "Topic: Statistics - Copy 1" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"

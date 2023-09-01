@@ -22,12 +22,10 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
       | activity | course | name       | intro                  | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | All bookings                     | Yes                      |
     And I create booking option "Test option 1" in "My booking"
-    And I create booking option "Test option 2" in "My booking"
     ## Default - enable subbookings by admin.
     And I log in as "admin"
-    And I visit "/admin/category.php?category=modbookingfolder"
-    And I set the field "s_booking_showsubbookings" to "checked"
-    And I press "Save changes"
+    And I set the following administration settings values:
+      | Activate subbookings | 1 |
     And I log out
 
   @javascript
@@ -47,10 +45,9 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     And I set the field "Describe the additional person booking option" to "You can invite your partner(s):"
     And I press "Save changes"
     And I press "Subbookings"
-    And I should see "Partner(s)" in the ".booking-subbookings-container" "css_element"
+    And I should see "Partner(s)" in the ".booking-subbookings-list" "css_element"
     And I press "Save and go back"
     And I should see "Changes saved"
-    And I log out
     ## The following part should become part of test dedicated to perform subbookings by student
     ## which is not fully implemented yet
     ## Given I am on the "Course 1" course page logged in as student1

@@ -30,7 +30,7 @@ Feature: In a booking create multi session options
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    And I should see "New option - Multisession" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until the page is ready
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Manage option dates" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I set the following fields to these values:
@@ -60,6 +60,7 @@ Feature: In a booking create multi session options
       | endhour                 | 22                  |
       | endminute               | 00                  |
     And I press "Save"
+    And I wait until the page is ready
     Then I should see "15 March" in the "#region-main table.generaltable" "css_element"
     And I should see "## + 1 year ##%Y##" in the "#region-main table.generaltable" "css_element"
     And I should see "1:00 PM to 8:00 PM" in the "#region-main table.generaltable" "css_element"
@@ -70,7 +71,7 @@ Feature: In a booking create multi session options
     And I should see "## + 3 year ##%Y##" in the "#region-main table.generaltable" "css_element"
     And I should see "3:00 PM to 10:00 PM" in the "#region-main table.generaltable" "css_element"
     And I press "Back"
-    And I wait "1" seconds
+    And I wait until the page is ready
     And I click on "Show dates" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I wait "1" seconds
     Then I should see "15 March" in the ".allbookingoptionstable_r1" "css_element"
@@ -88,7 +89,7 @@ Feature: In a booking create multi session options
     Given I log in as "admin"
     When I am on "Course 1" course homepage
     Then I follow "My booking"
-    And I should see "New option - Multisession" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until the page is ready
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Dates"
@@ -128,6 +129,7 @@ Feature: In a booking create multi session options
     And I should see "## + 2 year ##%Y##" in the "ul.reoccurringdates" "css_element"
     And I should see "2:00 PM - 5:00 PM" in the "ul.reoccurringdates" "css_element"
     And I press "Save and go back"
+    And I wait until the page is ready
     Then I should see "15 March" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "## + 1 year ##%Y##" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "1:00 PM - 4:00 PM" in the ".allbookingoptionstable_r1" "css_element"

@@ -40,7 +40,7 @@ Feature: Configure and use booking's pagination and perform filtering - as a tea
     And I wait "1" seconds
     And I set the field "paginationnum" to "3"
     And I press "Save and display"
-    And I wait "1" seconds
+    And I wait until the page is ready
     And "//nav[@aria-label='Page']" "xpath_element" should exist
     And I should see "1" in the ".allbookingoptionstable .pagination" "css_element"
     And I should see "2" in the ".allbookingoptionstable .pagination" "css_element"
@@ -71,7 +71,7 @@ Feature: Configure and use booking's pagination and perform filtering - as a tea
     And I wait "1" seconds
     And I set the field "paginationnum" to "3"
     And I press "Save and display"
-    And I wait "1" seconds
+    And I wait until the page is ready
     And "//nav[@aria-label='Page']" "xpath_element" should exist
     And I should see "1" in the ".allbookingoptionstable .pagination" "css_element"
     And I should see "2" in the ".allbookingoptionstable .pagination" "css_element"

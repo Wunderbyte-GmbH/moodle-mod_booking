@@ -30,7 +30,7 @@ Feature: In a booking delete
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     And I follow "My booking"
-    ## And I follow "My booking"
+    And I wait until the page is ready
     And I should see "New option" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Delete this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -48,15 +48,16 @@ Feature: In a booking delete
   Scenario: Delete user from booking option as teacher
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
-    Then I follow "My booking"
     And I follow "My booking"
+    And I wait until the page is ready
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Student 1 (student1@example.com)" "text"
     And I click on "Student 2 (student2@example.com)" "text"
     And I click on "Add" "button"
     And I follow "<< Back to responses"
-    And I click on "selectall" "checkbox"
+    And I wait until the page is ready
+    Then I click on "selectall" "checkbox"
     And I click on "Delete responses" "button"
     ## Next step(s) cause faiure:
     ## Then I trigger cron

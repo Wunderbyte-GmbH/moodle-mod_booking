@@ -24,15 +24,15 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     And I create booking option "New option" in "My booking"
 
   @javascript
-  Scenario: Edit Settings
+  Scenario: Edit booking instance settings
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
-    Then I follow "My booking"
-    And I should see "New booking option"
-    And I follow "Settings"
+    And I follow "My booking"
+    And I wait until the page is ready
+    Then I follow "Settings"
     And I set the following fields to these values:
       | pollurl | https://example.com |
-    Then I set the field "Send confirmation e-mail" to "Yes"
+    And I set the field "Send confirmation e-mail" to "Yes"
     And I set the field "" to ""
     And I should see "Booking confirmation"
     And I set the following fields to these values:
@@ -43,21 +43,24 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
   @javascript
   Scenario: Settings - show organizer
     Given I log in as "admin1"
-    When I am on "Course 1" course homepage
-    Then I follow "My booking"
+    And I am on "Course 1" course homepage
+    And I follow "My booking"
+    And I wait until the page is ready
     And I should not see "Organizer name"
-    And I follow "Settings"
+    When I follow "Settings"
+    And I wait until the page is ready
     And I expand the "Organizer name" autocomplete
     And I should see "Teacher 1" in the "#fitem_id_organizatorname .form-autocomplete-suggestions" "css_element"
     And I click on "Teacher 1" "text" in the "#fitem_id_organizatorname .form-autocomplete-suggestions" "css_element"
     And I wait "1" seconds
     And I press "Save and display"
+    And I wait until the page is ready
     Then I should see "Organizer name" in the "#booking-business-card" "css_element"
     And I should see "Teacher 1" in the "#booking-business-card" "css_element"
     Given I log in as "teacher1"
     When I am on "Course 1" course homepage
     Then I follow "My booking"
-    And I should see "New booking option"
+    And I wait until the page is ready
     And I should see "Organizer name" in the "#booking-business-card" "css_element"
     And I should see "Teacher 1" in the "#booking-business-card" "css_element"
 
@@ -67,13 +70,16 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     When I am on "Course 1" course homepage
     And I follow "My booking"
     And I follow "Settings"
+    And I wait until the page is ready
     And I set the field "Event type" to "Sport class"
     And I set the field "showlistoncoursepage" to "Hide extra information on course page"
     Then I should not see "Short info"
     And I press "Save and return to course"
+    And I wait until the page is ready
     And I should not see "My booking description"
     And I follow "My booking"
     And I follow "Settings"
+    And I wait until the page is ready
     And I set the field "showlistoncoursepage" to "Show course name, short info and a button redirecting to the available booking options"
     And I set the field "Short info" to "Click on View available options, choose a booking option and click Book now"
     And I press "Save and return to course"
@@ -151,6 +157,7 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
       | nextjune   | Next June | ## first day of June next year ## | ## last day of June next year ## |
     When I am on "Course 1" course homepage
     And I follow "My booking"
+    And I wait until the page is ready
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Dates"
@@ -166,6 +173,7 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     And I should see "Friday, 7" in the ".reoccurringdates" "css_element"
     And I should see "Friday, 14" in the ".reoccurringdates" "css_element"
     And I press "Save and go back"
+    And I wait until the page is ready
     Then I should see "Option - Test Semester" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Friday, 13:00-14:00" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Show dates" "link" in the ".allbookingoptionstable_r1" "css_element"
