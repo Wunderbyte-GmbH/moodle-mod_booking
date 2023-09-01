@@ -401,6 +401,7 @@ $string['connectedbooking_help'] = 'Booking instance eligible for transferring b
 $string['allowbookingafterstart'] = 'Allow booking after course start';
 $string['cancancelmyself'] = 'Allow users to cancel their booking themselves';
 $string['cancancelbookdays'] = 'Disallow users to cancel their booking n days before start. Minus means, that users can still cancel n days AFTER course start.';
+$string['cancancelbookdays:semester'] = 'Disallow users to cancel their booking n days before <b>semester</b> start. Minus means, that users can still cancel n days AFTER semester start.';
 $string['cancancelbookdaysno'] = "Don't limit";
 $string['addtocalendar'] = 'Add to course calendar';
 $string['caleventtype'] = 'Calendar event visibility';
@@ -415,6 +416,8 @@ $string['defaultbookingoption'] = 'Default booking options';
 $string['activatemails'] = 'Activate e-mails (confirmations, notifications and more)';
 $string['sendcopytobookingmanger'] = 'Send confirmation e-mail to booking manager';
 $string['bookingpolicy'] = 'Booking policy';
+
+$string['error:semestermissingbutcancelfromsemesterstartactive'] = 'The setting to calculate cancellation periods from semester start is active but semester is missing!';
 
 $string['page:bookingpolicy'] = 'Booking policy';
 $string['page:bookitbutton'] = 'Book';
@@ -1593,6 +1596,15 @@ $string['teachersallowmailtobookedusers_desc'] = 'If you activate this setting, 
     to all booked users using their own mail client - the e-mail-addresses of all users will be visible.
     <span class="text-danger"><b>Be careful:</b> This might be a privacy issue. Only activate this,
     if you are sure it corresponds with your organization\'s privacy policy.</span>';
+
+$string['cancellationsettings'] = 'Cancellation settings (PRO)';
+$string['cancelfromsemesterstart'] = 'Cancellation period dependent on semester start instead of course start';
+$string['cancelfromsemesterstart_desc'] = 'If you activate this setting, the booking instance setting
+    "Disallow users to cancel their booking n days before start. Minus means, that users can still cancel n
+    days AFTER course start." will not use the start time of the booking option to calculate the cancellation
+    period but the start time of the semester set within the booking instance instead. This can be useful for
+    institutions who organize their courses in semesters where all courses within the semester have the same
+    cancellation period.';
 
 // Mobile.
 $string['next'] = 'Next';

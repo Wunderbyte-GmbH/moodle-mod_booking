@@ -654,10 +654,14 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $mform->addElement('selectyesno', 'cancancelbook', get_string('cancancelmyself', 'mod_booking'));
 
+        $cancancelbookdaysstring = get_config('booking', 'cancelfromsemesterstart') ?
+            get_string('cancancelbookdays:semester', 'mod_booking') :
+            get_string('cancancelbookdays', 'mod_booking');
+
         $opts = array(10000 => get_string('cancancelbookdaysno', 'mod_booking'));
         $extraopts = array_combine(range(-100, 100), range(-100, 100));
         $opts = $opts + $extraopts;
-        $mform->addElement('select', 'allowupdatedays', get_string('cancancelbookdays', 'mod_booking'), $opts);
+        $mform->addElement('select', 'allowupdatedays', $cancancelbookdaysstring, $opts);
         $mform->setDefault('allowupdatedays', 10000); // One million means "no limit".
         $mform->disabledIf('allowupdatedays', 'cancancelbook', 'eq', 0);
 
@@ -1055,6 +1059,11 @@ class mod_booking_mod_form extends moodleform_mod {
     public function validation($data, $files) {
         global $DB;
         $errors = parent::validation($data, $files);
+
+        if (empty($data['semesterid']) && get_config('booking', 'cancelfromsemesterstart')) {
+            $errors['semesterid'] = get_string('error:semestermissingbutcancelfromsemesterstartactive', 'mod_booking');
+        }
+
         if ($DB->count_records('user', array('username' => $data['bookingmanager'])) != 1) {
             $errors['bookingmanager'] = get_string('bookingmanagererror', 'booking');
         }

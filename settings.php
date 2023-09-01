@@ -182,6 +182,26 @@ if ($ADMIN->fulltree) {
                 get_string('infotext:prolicensenecessary', 'mod_booking')));
     }
 
+    // PRO feature: Cancellation settings.
+    if ($proversion) {
+
+        $settings->add(
+            new admin_setting_heading('cancellationsettings',
+                get_string('cancellationsettings', 'mod_booking'), ''));
+
+        // Calculate canceluntil from semester start instead of booking options tart (coursestarttime).
+        $settings->add(
+            new admin_setting_configcheckbox('booking/cancelfromsemesterstart',
+                    get_string('cancelfromsemesterstart', 'mod_booking'),
+                    get_string('cancelfromsemesterstart_desc', 'mod_booking'), 0));
+
+    } else {
+        $settings->add(
+            new admin_setting_heading('cancellationsettings',
+                get_string('cancellationsettings', 'mod_booking'),
+                get_string('infotext:prolicensenecessary', 'mod_booking')));
+    }
+
     // PRO feature.
     if ($proversion) {
 

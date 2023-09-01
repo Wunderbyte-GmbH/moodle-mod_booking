@@ -2715,22 +2715,42 @@ class booking_option {
 
     /**
      * Return the cancel until date for an option.
-     * This is calculated by the corresponding setting in booking instance...
-     * ... and the coursestarttime.
+     * This is calculated by the corresponding setting in booking instance
+     * and the coursestarttime.
+     *
+     * If the config setting booking/cancelfromsemesterstart is set
+     * then we use the semester start instead of coursestarttime.
      *
      * @param integer $optionid
      * @return int
      */
     public static function return_cancel_until_date($optionid) {
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        $booking = singleton_service::get_instance_of_booking_by_cmid($settings->cmid);
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($optionsettings->cmid);
+
         $canceluntil = 0;
 
-        $coursestarttime = $settings->coursestarttime;
+        // If the setting is checked, we use semester start.
+        if (get_config('booking', 'cancelfromsemesterstart')) {
+            if (!empty($bookingsettings->semesterid)) {
+                $semester = new semester($bookingsettings->semesterid);
+                $starttime = $semester->startdate;
+                if (empty($starttime)) {
+                    throw new moodle_exception("Setting 'booking/cancelfromsemesterstart' has been checked " .
+                        "but no semester could be found.");
+                }
+            } else {
+                throw new moodle_exception("Setting 'booking/cancelfromsemesterstart' has been checked " .
+                        "but no semester could be found.");
+            }
+        } else {
+            // Else we use the booking option coursestarttime field.
+            $starttime = $optionsettings->coursestarttime;
+        }
 
-        $allowupdatedays = $booking->settings->allowupdatedays;
-        if (isset($allowupdatedays) && $allowupdatedays != 10000 && !empty($coursestarttime)) {
+        $allowupdatedays = $bookingsettings->allowupdatedays;
+        if (isset($allowupdatedays) && $allowupdatedays != 10000 && !empty($starttime)) {
             // Different string depending on plus or minus.
             if ($allowupdatedays >= 0) {
                 $datestring = " - $allowupdatedays days";
@@ -2738,7 +2758,7 @@ class booking_option {
                 $allowupdatedays = abs($allowupdatedays);
                 $datestring = " + $allowupdatedays days";
             }
-            $canceluntil = strtotime($datestring, $coursestarttime);
+            $canceluntil = strtotime($datestring, $starttime);
         } else {
             $canceluntil = 0;
         }

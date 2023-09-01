@@ -393,6 +393,7 @@ $string['connectedbooking_help'] = 'Buchung von der Teilnehmer:innen übernommen
 $string['allowbookingafterstart'] = 'Buchen nach Kursbeginn erlauben';
 $string['cancancelmyself'] = 'Teilnehmer:innen dürfen Buchungen selbst stornieren';
 $string['cancancelbookdays'] = 'Nutzer:innen können nur bis n Tage vor Kursstart stornieren. Negative Werte meinen n Tage NACH Kursstart.';
+$string['cancancelbookdays:semester'] = 'Nutzer:innen können nur bis n Tage vor <b>Semesterbeginn</b> stornieren. Negative Werte meinen n Tage NACH Semesterbeginn.';
 $string['cancancelbookdaysno'] = 'Kein Limit';
 $string['addtocalendar'] = 'Zum Kurs-Kalender hinzufügen';
 $string['caleventtype'] = 'Kalenderereignis ist sichtbar für';
@@ -407,6 +408,8 @@ $string['defaultbookingoption'] = 'Standardeinstellungen für Buchungsoptionen';
 $string['activatemails'] = 'E-Mails aktivieren (Bestätigungen, Erinnerungen etc.)';
 $string['sendcopytobookingmanger'] = 'Eine Kopie der Bestätigungsmail an den Buchungsverwalter senden';
 $string['bookingpolicy'] = 'Buchungsbedingungen - Booking Policy';
+
+$string['error:semestermissingbutcancelfromsemesterstartactive'] = 'Die Einstellung zur Berechnung der Stornierungsfrist ab Semesterbeginn ist aktiv, aber das Semester fehlt!';
 
 $string['page:bookingpolicy'] = 'Buchungsbedingungen';
 $string['page:bookitbutton'] = 'Buchen';
@@ -1545,6 +1548,14 @@ $string['teachersallowmailtobookedusers_desc'] = 'Wenn Sie diese Einstellung akt
     mit ihrem eigenen Mail-Programm an gebuchte Nutzer:innen senden - die E-Mail-Adressen der gebuchten Nutzer:innen werden dadurch sichtbar.
     <span class="text-danger"><b>Achtung:</b> Dies könnte ein Datenschutz-Problem darstellen. Aktivieren Sie dies nur,
     wenn es die Datenschutzbestimmungen Ihrer Organisation erlauben.</span>';
+
+$string['cancellationsettings'] = 'Stornierungseinstellungen (PRO)';
+$string['cancelfromsemesterstart'] = 'Stornierungsfristen vom Semesterbeginn abhängig machen anstatt vom Kursbeginn';
+$string['cancelfromsemesterstart_desc'] = 'Wenn Sie dieses Häkchen aktivieren, dann bezieht sich die Einstellung
+  "Nutzer:innen können nur bis n Tage vor Kursstart stornieren. Negative Werte meinen n Tage NACH Kursstart."
+  nicht auf den Start der jeweiligen Buchungsoptionen, sondern auf den Start des in der Buchungsinstanz gesetzten Semesters.
+  Diese Einstellung ist für Institutionen sinnvoll, die ihre Kurse in Semestern organisieren, deren Kurse alle
+  dieselben Stornierungsfristen haben.';
 
 // Optiontemplatessettings.php.
 $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';
