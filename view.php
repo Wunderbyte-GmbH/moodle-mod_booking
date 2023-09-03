@@ -35,7 +35,7 @@ require_once($CFG->dirroot . '/comment/lib.php');
 // No guest autologin.
 require_login(0, false);
 
-global $DB, $PAGE, $OUTPUT, $USER;
+global $DB, $PAGE, $OUTPUT, $USER, $CFG;
 
 $cmid = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = optional_param('optionid', 0, PARAM_INT);

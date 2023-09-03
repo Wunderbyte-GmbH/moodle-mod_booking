@@ -142,65 +142,80 @@ export const initprepagemodal = (optionid, userid, totalnumberofpages, uniquid) 
 
 /**
  * Gets called from mustache template.
- * @param {integer} itemid (optionid)
+ * @param {integer} optionid
  * @param {integer} userid
  * @param {integer} totalnumberofpages
  * @param {string} uniquid
- * @param {string} area
  */
-export const initprepageinline = (itemid, userid, totalnumberofpages, uniquid, area) => {
+export const initprepageinline = (optionid, userid, totalnumberofpages, uniquid) => {
 
-    const initselector = SELECTORS.BOOKITBUTTON +
-    '[data-itemid]' +
-    '[data-area]';
+    // eslint-disable-next-line no-console
+    console.log('initprepageinline', optionid, userid, totalnumberofpages, uniquid);
 
-    if (!itemid || !area) {
-        const initbuttons = document.querySelectorAll(initselector);
-        initbuttons.forEach(button => {
-            const inititemid = button.dataset.itemid;
-            const initarea = button.dataset.area;
-            initbookitbutton(inititemid, initarea);
+    if (!optionid || !uniquid || !totalnumberofpages) {
+
+        const elements = document.querySelectorAll("[id^=" + SELECTORS.INLINEID);
+
+        // eslint-disable-next-line no-console
+        console.log(elements);
+
+        elements.forEach(element => {
+            optionid = element.dataset.optionid;
+            uniquid = element.dataset.uniquid;
+            userid = element.dataset.userid;
+            totalnumberofpages = element.dataset.pages;
+            if (optionid && uniquid) {
+                initprepageinline(optionid, userid, totalnumberofpages, uniquid);
+            }
         });
         return;
     }
 
-    const selector = SELECTORS.BOOKITBUTTON +
-    '[data-itemid="' + itemid + '"]' +
-    '[data-area="' + area + '"]';
+    currentbookitpage[optionid] = 0;
+    totalbookitpages[optionid] = totalnumberofpages;
 
-    const buttons = document.querySelectorAll(selector);
+    // Retrieve the right button.
+    const buttons = document.querySelectorAll(
+        '[data-itemid="' + optionid + '"]' +
+        '[data-area="option"]'
+    );
 
-    if (!buttons) {
-        return;
-    }
+    // Add the click listener to the button.
 
-    // We support more than one booking button on the same page.
     buttons.forEach(button => {
 
-        // We don't run code on disabled buttons.
-        if (button.classList.contains('disabled')) {
+        // eslint-disable-next-line no-console
+        console.log(button);
+
+        if (button.dataset.initialized) {
             return;
         }
 
-        if (!button.dataset.initialized) {
-            button.dataset.initialized = 'true';
+        button.dataset.initialized = true;
 
-            const userid = button.dataset.userid;
+        button.addEventListener('click', e => {
 
-            button.addEventListener('click', (e) => {
+            // eslint-disable-next-line no-console
+            console.log(e);
 
-                // E.stopPropagation();
+            // Get the row element.
+            const rowcontainer = e.target.closest('.row');
 
-                const data = button.dataset;
+            // eslint-disable-next-line no-console
+            console.log("rowcontainer", rowcontainer);
 
-                if (e.target.classList.contains('btn')) {
-                    bookit(itemid, area, userid, data);
-                }
-            });
-        }
+            let inlinediv = returnVisibleElement(optionid, uniquid, SELECTORS.INMODALDIV);
+
+            // eslint-disable-next-line no-console
+            console.log(inlinediv);
+
+            rowcontainer.append(inlinediv.closest('.inlineprepagearea'));
+            // inlinediv.remove();
+
+            // We need to get all prepage modals on this site. Make sure they are initialized.
+            loadPreBookingPage(optionid, userid, uniquid);
+        });
     });
-
-    loadPreBookingPage(itemid, userid, uniquid);
 };
 
 /**
@@ -276,6 +291,10 @@ export const loadPreBookingPage = (
     console.log('loadPreBookingPage', optionid, uniquid, userid);
 
     const element = returnVisibleElement(optionid, uniquid, SELECTORS.INMODALDIV);
+
+    // eslint-disable-next-line no-console
+    console.log('element pre loadprebookingpage', element);
+
     if (element) {
         while (element.firstChild) {
             element.removeChild(element.firstChild);
@@ -334,7 +353,7 @@ async function renderTemplatesOnPage(templates, dataarray, element) {
     // eslint-disable-next-line no-console
     console.log('templates: ', templates);
 
-    const modal = element.closest('.modal-body');
+    const modal = element.closest('.prepage-body');
 
     modal.querySelector(SELECTORS.MODALHEADER).innerHTML = '';
     modal.querySelector(SELECTORS.INMODALDIV).innerHTML = '';
@@ -494,7 +513,16 @@ function returnVisibleElement(optionid, uniquid, appendedSelector) {
         selector = "[id^=" + SELECTORS.MODALID + optionid + "].show " + appendedSelector;
     }
 
-    const elements = document.querySelectorAll(selector);
+    let elements = document.querySelectorAll(selector);
+
+    // If the nodelist is empty, we we mgiht use inline.
+    // If so, we need to have a different way of selecting elements.
+    if (elements.length === 0) {
+
+        selector = "[id^=" + SELECTORS.INLINEID + optionid + "] " + appendedSelector;
+        elements = document.querySelectorAll(selector);
+
+    }
 
     let visibleElement = null;
 
@@ -503,7 +531,9 @@ function returnVisibleElement(optionid, uniquid, appendedSelector) {
         // eslint-disable-next-line no-console
         console.log('visibleElement', selector, element);
 
-        visibleElement = element;
+        if (!isHidden(element)) {
+            visibleElement = element;
+        }
     });
 
     return visibleElement;
