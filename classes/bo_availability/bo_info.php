@@ -803,9 +803,9 @@ class bo_info {
 
         $conditionsarray = $prepages['pre'];
         // We might not have a book condition.
-        if ($showbutton) {
-            $conditionsarray[] = $prepages['book'];
-        }
+        // Here, we added the prepages['book'] condition...
+        // .., to have another confirmation of the booking in the prepage.
+
         $conditionsarray = array_merge($conditionsarray, $prepages['post']);
 
         // When there are no pre or post pages, we don't want show the booking page.
