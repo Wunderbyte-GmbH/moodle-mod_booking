@@ -33,9 +33,6 @@
         "buttonhtml": "button HTML"
     }
 }}
-<div>
-    {{{buttonhtml}}}
-</div>
 
 <div class="content w-100 inlineprepagearea">
     <div class="prepage-inline prepage-body"
@@ -47,14 +44,8 @@
       <div class="modalHeader row"></div>
       <div class="modalMainContent row"></div>
       <div class="modalButtonAreaContainer row d-flex justify-content-center">
-          <div class="modalButtonArea w-25">xxy</div>
+          <div class="modalButtonArea w-25"></div>
       </div>
       <div class="modalFooter row"></div>
     </div>
   </div>
-
-{{#js}}
-    require(['mod_booking/bookit'], function(init) {
-    init.initprepageinline({{optionid}}, {{userid}}, {{totalnumberofpages}}, '{{uniquid}}');
-    });
-{{/js}}

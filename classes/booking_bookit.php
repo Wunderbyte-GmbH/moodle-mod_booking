@@ -68,9 +68,9 @@ class booking_bookit {
         foreach ($templates as $template) {
             $data = array_shift($datas);
 
-            //if ($template == 'mod_booking/bookingpage/prepagemodal') {
+            // if ($template == 'mod_booking/bookingpage/prepagemodal') {
             if ($template == 'mod_booking/bookingpage/prepageinline') {
-                //$html .= $output->render_prepagemodal($data);
+                // $html .= $output->render_prepagemodal($data);
                 $html .= $output->render_prepageinline($data);
             } else {
                 $html .= $output->render_bookit_button($data, $template);

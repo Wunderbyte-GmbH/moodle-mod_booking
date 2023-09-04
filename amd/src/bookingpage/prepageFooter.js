@@ -24,6 +24,7 @@ import {reloadAllTables} from 'local_wunderbyte_table/reload';
 
 var SELECTORS = {
     MODALID: 'sbPrePageModal_',
+    INLINEID: 'sbPrePageInline_',
     INMODALDIV: ' div.modalMainContent',
     INMODALFOOTER: ' div.prepage-booking-footer',
     INMODALBUTTON: 'div.in-modal-button',
@@ -50,10 +51,14 @@ export function initFooterButtons(optionid, userid) {
     initBookingButton(optionid);
 
     // First, get all link elements in the footer.
-    const elements = document.querySelectorAll("[id^=" + SELECTORS.MODALID + optionid + "] " + SELECTORS.INMODALFOOTER + " a");
+    let elements = document.querySelectorAll("[id^=" + SELECTORS.MODALID + optionid + "] " + SELECTORS.INMODALFOOTER + " a");
+
+    if (elements.length === 0) {
+        elements = document.querySelectorAll("[id^=" + SELECTORS.INLINEID + optionid + "] " + SELECTORS.INMODALFOOTER + " a");
+    }
 
     // eslint-disable-next-line no-console
-    console.log('elements', elements);
+    console.log('elements', elements, "[id^=" + SELECTORS.INLINEID + optionid + "] " + SELECTORS.INMODALFOOTER + " a");
 
     elements.forEach(element => {
         if (element && !element.dataset.initialized) {
@@ -107,8 +112,22 @@ async function initBookingButton(optionid) {
     let modal = document.querySelector("div.modal.show[id^=" + SELECTORS.MODALID + optionid + "]");
 
     if (!modal) {
-        return;
+
+        // First, we get the right modal.
+        const modals = document.querySelectorAll("div.inlineprepagearea [id^=" + SELECTORS.INLINEID + optionid + "]");
+
+        modals.forEach(el => {
+            if (!isHidden(el)) {
+                modal = el;
+            }
+        });
+        if (!modal) {
+            return;
+        }
     }
+
+    // eslint-disable-next-line no-console
+    console.log('modal', modal);
 
     modal.addEventListener('click', (e) => {
 
@@ -151,4 +170,14 @@ function closeModal(optionid) {
         jQuery(this).modal('hide');
         reloadAllTables();
     });
+}
+
+/**
+ * Function to check visibility of element.
+ * @param {*} el
+ * @returns {boolean}
+ */
+function isHidden(el) {
+    var style = window.getComputedStyle(el);
+    return ((style.display === 'none') || (style.visibility === 'hidden'));
 }

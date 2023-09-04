@@ -26,6 +26,8 @@ namespace mod_booking\bo_availability;
 
 use context_module;
 use html_writer;
+use local_shopping_cart\shopping_cart;
+use mod_booking\booking_bookit;
 use mod_booking\booking_option_settings;
 use mod_booking\output\bookingoption_description;
 use mod_booking\output\button_notifyme;
@@ -545,6 +547,32 @@ class bo_info {
         $conditions = self::return_sorted_conditions($results);
         $condition = self::return_class_of_current_page($conditions, $pagenumber);
 
+
+        // If the current condition doesn't have the "pre" key...
+        // ... then we need to verify if we are already booked.
+        // If not, we need to do it now.
+
+        if (!isset($conditions[$pagenumber]['pre'])) {
+
+            // Every time we load a page which is not "pre", we need to check if we are booked.
+            // First, determine if this is a booking option with a price.
+
+            $hasprice = array_filter($results, fn($a) => $a['id'] == 4);
+
+            // Book this option.
+            if (empty($hasprice)) {
+                $response = booking_bookit::bookit('option', $optionid, $userid);
+                // We need to book twice, as confirmation might be in place.
+                $response = booking_bookit::bookit('option', $optionid, $userid);
+            } else {
+                if (class_exists('local_shopping_cart\shopping_cart')) {
+                    shopping_cart::add_item_to_cart('mod_booking', 'option', $optionid, $userid);
+                } else {
+                    throw new moodle_exception('tousepriceinstallshoppingcart', 'mod_booking');
+                }
+            }
+        }
+
         // We throw an exception if we didn't get a valid pagenumber.
         if (empty($condition)) {
             throw new moodle_exception('wrongpagenumberforprebookingpage', 'mod_booking');
@@ -787,6 +815,7 @@ class bo_info {
                     $prepages['book'] = $newclass;
                     break;
                 case BO_PREPAGE_PREBOOK:
+                    $newclass['pre'] = true;
                     $prepages['pre'][] = $newclass;
                     break;
                 case BO_PREPAGE_POSTBOOK:
