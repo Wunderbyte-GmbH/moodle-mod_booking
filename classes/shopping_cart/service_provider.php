@@ -24,19 +24,15 @@
 
 namespace mod_booking\shopping_cart;
 
-use context_module;
 use context_system;
-use Exception;
 use local_shopping_cart\local\entities\cartitem;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_bookit;
 use mod_booking\booking_option;
 use mod_booking\event\booking_failed;
-use mod_booking\output\bookingoption_description;
-use mod_booking\price;
+use mod_booking\semester;
 use mod_booking\singleton_service;
 use mod_booking\subbookings\subbookings_info;
-use moodle_exception;
 
 /**
  * Shopping_cart subsystem callback implementation for mod_booking.
@@ -64,6 +60,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
             // First, we need to check if we have the right to actually load the item.
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
+
             $boinfo = new bo_info($settings);
             list($id, $isavailable, $description) = $boinfo->is_available($optionid, $userid, true);
 
@@ -80,6 +77,21 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
             $item = booking_bookit::answer_booking_option($area, $itemid, STATUSPARAM_RESERVED, $userid);
 
+            // Initialize.
+            $serviceperiodstart = $item['coursestarttime'];
+            $serviceperiodend = $item['courseendtime'];
+
+            // If cancellation is dependent on semester start, we also use semester start and end dates for the service period.
+            if (get_config('booking', 'cancelfromsemesterstart')) {
+                $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
+                if (!empty($bookingsettings->semesterid)) {
+                    $semester = new semester($bookingsettings->semesterid);
+                    // Now we override.
+                    $serviceperiodstart = $semester->startdate;
+                    $serviceperiodend = $semester->enddate;
+                }
+            }
+
             $cartitem = new cartitem($item['itemid'],
                 $item['title'],
                 $item['price'],
@@ -89,14 +101,32 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 $item['description'],
                 $item['imageurl'],
                 $item['canceluntil'],
-                $item['coursestarttime'],
-                $item['courseendtime']);
+                $serviceperiodstart,
+                $serviceperiodend
+            );
 
             return ['cartitem' => $cartitem];
         } else if (strpos($area, 'subbooking') === 0) {
             // As a subbooking can have different slots, we use the area to provide the subbooking id.
             // The syntax is "subbooking-1" for the subbooking id 1.
             $item = booking_bookit::answer_subbooking_option($area, $itemid, $userid);
+
+            // Initialize.
+            $serviceperiodstart = $item['coursestarttime'];
+            $serviceperiodend = $item['courseendtime'];
+
+            // If cancellation is dependent on semester start, we also use semester start and end dates for the service period.
+            if (get_config('booking', 'cancelfromsemesterstart')) {
+                $subbooking = subbookings_info::get_subbooking_by_area_and_id($area, $itemid);
+                $settings = singleton_service::get_instance_of_booking_option_settings($subbooking->optionid);
+                $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
+                if (!empty($bookingsettings->semesterid)) {
+                    $semester = new semester($bookingsettings->semesterid);
+                    // Now we override.
+                    $serviceperiodstart = $semester->startdate;
+                    $serviceperiodend = $semester->enddate;
+                }
+            }
 
             $cartitem = new cartitem($item['itemid'],
                 $item['name'],
@@ -107,8 +137,9 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 $item['description'],
                 $item['imageurl'] ?? '',
                 $item['canceluntil'],
-                $item['coursestarttime'],
-                $item['courseendtime']);
+                $serviceperiodstart,
+                $serviceperiodend
+            );
 
             return ['cartitem' => $cartitem];
         } else {

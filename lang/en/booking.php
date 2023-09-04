@@ -1602,9 +1602,8 @@ $string['cancelfromsemesterstart'] = 'Cancellation period dependent on semester 
 $string['cancelfromsemesterstart_desc'] = 'If you activate this setting, the booking instance setting
     "Disallow users to cancel their booking n days before start. Minus means, that users can still cancel n
     days AFTER course start." will not use the start time of the booking option to calculate the cancellation
-    period but the start time of the semester set within the booking instance instead. This can be useful for
-    institutions who organize their courses in semesters where all courses within the semester have the same
-    cancellation period.';
+    period but the start time of the semester set within the booking instance instead.<br>
+    Additionally, the <i>service period</i> of courses in shopping cart will be set to semester start and end dates.';
 
 // Mobile.
 $string['next'] = 'Next';

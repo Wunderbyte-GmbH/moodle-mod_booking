@@ -1553,9 +1553,8 @@ $string['cancellationsettings'] = 'Stornierungseinstellungen (PRO)';
 $string['cancelfromsemesterstart'] = 'Stornierungsfristen vom Semesterbeginn abhängig machen anstatt vom Kursbeginn';
 $string['cancelfromsemesterstart_desc'] = 'Wenn Sie dieses Häkchen aktivieren, dann bezieht sich die Einstellung
   "Nutzer:innen können nur bis n Tage vor Kursstart stornieren. Negative Werte meinen n Tage NACH Kursstart."
-  nicht auf den Start der jeweiligen Buchungsoptionen, sondern auf den Start des in der Buchungsinstanz gesetzten Semesters.
-  Diese Einstellung ist für Institutionen sinnvoll, die ihre Kurse in Semestern organisieren, deren Kurse alle
-  dieselben Stornierungsfristen haben.';
+  nicht auf den Start der jeweiligen Buchungsoptionen, sondern auf den Start des in der Buchungsinstanz gesetzten Semesters.<br>
+  Außerdem wird die <i>Serviceperiode</i> von Kursen im Warenkorb auf den Semesterzeitraum festgelegt.';
 
 // Optiontemplatessettings.php.
 $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';
