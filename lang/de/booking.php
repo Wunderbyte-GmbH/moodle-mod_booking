@@ -340,7 +340,7 @@ $string['notbooked'] = 'Noch nicht gebucht';
 $string['onwaitinglist'] = 'Sie sind auf der Warteliste';
 $string['organizatorname'] = 'Name des Organisators';
 $string['organizatorname_help'] = 'Sie können den Namen des Organisators/der Organisatorin manuell eingeben oder aus einer Liste von
-                                    früheren Organisator*innen auswählen. Sie können nur eine/n Organisator/in angeben. Sobald
+                                    früheren Organisator:innen auswählen. Sie können nur eine/n Organisator/in angeben. Sobald
                                     Sie speichern, wird der/die Organisator/in zur Liste hinzugefügt.';
 $string['availableplaces'] = 'Verfügbare Plätze: {$a->available} von {$a->maxanswers}';
 $string['pollurl'] = 'Link zur Umfrage';
@@ -398,7 +398,7 @@ $string['cancancelbookdaysno'] = 'Kein Limit';
 $string['addtocalendar'] = 'Zum Kurs-Kalender hinzufügen';
 $string['caleventtype'] = 'Kalenderereignis ist sichtbar für';
 $string['caldonotadd'] = 'Nicht zum Kurs-Kalender hinzufügen';
-$string['caladdascourseevent'] = 'Zum Kalender hinzufügen (nur für Kursteilnehmer*innen sichtbar)';
+$string['caladdascourseevent'] = 'Zum Kalender hinzufügen (nur für Kursteilnehmer:innen sichtbar)';
 $string['caladdassiteevent'] = 'Zum Kalender hinzufügen (für alle Nutzer:innen sichtbar)';
 $string['limitanswers'] = 'Teilnehmeranzahl beschränken';
 $string['maxparticipantsnumber'] = 'Maximale Teilnehmeranzahl';
@@ -1087,7 +1087,7 @@ $string['bookedtextmessage'] = 'Ihre Buchung wurde registriert:
 {$a->bookingdetails}
 <p>##########################################</p>
 Buchungsstatus: {$a->status}
-Teilnehmer*in:   {$a->participant}
+Teilnehmer:   {$a->participant}
 
 Zur Buchungsübersicht: {$a->bookinglink}
 Hier geht\'s zum dazugehörigen Kurs: {$a->courselink}
@@ -1100,7 +1100,7 @@ $string['waitingtextmessage'] = 'Sie sind nun auf der Warteliste von:
 {$a->bookingdetails}
 <p>##########################################</p>
 Buchungsstatus: {$a->status}
-Teilnehmer*in:   {$a->participant}
+Teilnehmer:   {$a->participant}
 
 Zur Buchungsübersicht: {$a->bookinglink}
 Hier geht\'s zum dazugehörigen Kurs: {$a->courselink}
@@ -1278,7 +1278,7 @@ $string['sessionremindermailmessage'] = '<p>Erinnerung: Sie haben den folgenden 
 <p>{$a->sessiondescription}</p>
 <p>##########################################</p>
 <p>Buchungsstatus: {$a->status}</p>
-<p>Teilnehmer*in: {$a->participant}</p>
+<p>Teilnehmer: {$a->participant}</p>
 ';
 
 // All_users.php.
@@ -1635,7 +1635,7 @@ $string['infoalreadybooked'] = '<div class="infoalreadybooked"><i>Sie haben dies
 $string['infowaitinglist'] = '<div class="infowaitinglist"><i>Sie sind auf der Warteliste für diese Option.</i></div>';
 
 $string['tableheader_text'] = 'Kursbezeichnung';
-$string['tableheader_teacher'] = 'Trainer*in(nen)';
+$string['tableheader_teacher'] = 'Trainer:in(nen)';
 $string['tableheader_maxanswers'] = 'Verfügbare Plätze';
 $string['tableheader_maxoverbooking'] = 'Wartelistenplätze';
 $string['tableheader_minanswers'] = 'Mindestteilnehmerzahl';
@@ -2229,7 +2229,7 @@ $string['electivesbookedsuccess'] = 'Ihre ausgewählten Wahlfächer wurden erfol
 $string['errormultibooking'] = 'Beim Buchen der Wahlfächer ist ein Fehler aufgetreten.';
 $string['showdescription'] = 'Info anzeigen';
 $string['hidedescription'] = 'Info verstecken';
-$string['editteacherslink'] = 'Lehrer*innen bearbeiten';
+$string['editteacherslink'] = 'Lehrer:innen bearbeiten';
 $string['selectelective'] = 'Wahlfach für {$a} Credits auswählen';
 $string['electivedeselectbtn'] = 'Wahlfach abwählen';
 $string['confirmbookingtitle'] = "Buchung bestätigen";
