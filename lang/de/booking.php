@@ -238,6 +238,8 @@ $string['btncacname'] = 'Bezeichnung des Buttons "Aktivitätsabschluss bestätig
 $string['btncancelname'] = 'Bezeichnung des Buttons "Buchung stornieren"';
 $string['description'] = 'Beschreibung';
 $string['disablebookingusers'] = 'Buchung von Teilnehmer:innen deaktivieren - "Jetzt buchen" Button unsichtbar schalten.';
+$string['disablecancel'] = "Stornieren dieser Buchungsoption nicht möglich";
+
 $string['bookotheruserslimit'] = 'Max. Anzahl an Buchungen, die ein:e der Buchungsoption zugewiesene:r Trainer:in vornehmen kann';
 $string['department'] = 'Abteilung';
 $string['institution'] = 'Institution';

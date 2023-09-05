@@ -240,6 +240,8 @@ $string['btncancelname'] = 'Name of button: Cancel booking';
 $string['courseurl'] = 'Course URL';
 $string['description'] = 'Description';
 $string['disablebookingusers'] = 'Disable booking of users - hide Book now button.';
+$string['disablecancel'] = "Disable cancellation of this booking option";
+
 $string['bookotheruserslimit'] = 'Max. number of users a teacher assigned to the option can book';
 $string['department'] = 'Department';
 $string['institution'] = 'Institution';

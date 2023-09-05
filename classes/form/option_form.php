@@ -519,6 +519,9 @@ class option_form extends moodleform {
         $mform->addElement('selectyesno', 'disablebookingusers', get_string('disablebookingusers', 'mod_booking'));
         $mform->setType('disablebookingusers', PARAM_INT);
 
+        $mform->addElement('selectyesno', 'disablecancel', get_string('disablecancel', 'mod_booking'));
+        $mform->setType('disablecancel', PARAM_INT);
+
         $mform->addElement('text', 'shorturl', get_string('shorturl', 'mod_booking'),
                 array('size' => '1333'));
         $mform->setType('shorturl', PARAM_TEXT);
