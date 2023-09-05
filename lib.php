@@ -979,6 +979,15 @@ function booking_update_options(object $optionvalues, context_module $context, i
         $option->description = "";
     }
 
+    // We store the information if a booking option can be cancelled in the JSON.
+    // So this has to happen BEFORE JSON is saved!
+    if (empty($optionvalues->disablecancel)) {
+        // This will store the correct JSON to $optionvalues->json.
+        booking_option::add_data_to_json($optionvalues, "disablecancel", 0);
+    } else {
+        booking_option::add_data_to_json($optionvalues, "disablecancel", $optionvalues->disablecancel);
+    }
+
     // We add the json key only if there is actually something committed.
     // The reason is that this comes from a different form.
     if (!empty($optionvalues->json)) {

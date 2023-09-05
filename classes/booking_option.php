@@ -3114,4 +3114,20 @@ class booking_option {
         }
         return $temporaryidentifier;
     }
+
+    /**
+     * A helper class to add data to the json of a booking option.
+     *
+     * @param stdClass &$data reference to a data object containing the json key
+     * @param string $key - for example: "disablecancel"
+     * @param int|string|stdClass|array|null $value - for example: 1
+     */
+    public static function add_data_to_json(stdClass &$data, string $key, $value) {
+        $jsonobject = new stdClass();
+        if (!empty($data->json)) {
+            $jsonobject = json_decode($data->json);
+        }
+        $jsonobject->{$key} = $value;
+        $data->json = json_encode($jsonobject);
+    }
 }
