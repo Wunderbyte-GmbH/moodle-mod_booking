@@ -184,9 +184,6 @@ export const initprepageinline = (optionid, userid, totalnumberofpages, uniquid)
 
     buttons.forEach(button => {
 
-        // eslint-disable-next-line no-console
-        console.log(button);
-
         if (button.dataset.initialized) {
             return;
         }
@@ -195,18 +192,8 @@ export const initprepageinline = (optionid, userid, totalnumberofpages, uniquid)
 
         button.addEventListener('click', e => {
 
-            // eslint-disable-next-line no-console
-            console.log(e);
-
             // Get the row element.
             let rowcontainer = e.target.closest('.row');
-
-            // eslint-disable-next-line no-console
-            console.log("rowcontainer",
-                rowcontainer,
-                rowcontainer.lastElementChild,
-                rowcontainer.lastElementChild.classList,
-                rowcontainer.lastElementChild.classList.contains('inlineprepagearea'));
 
             const transferarea = !rowcontainer.lastElementChild.classList.contains('inlineprepagearea');
             // We move the inlineprepagearea only if we need to.
@@ -233,13 +220,7 @@ export const initprepageinline = (optionid, userid, totalnumberofpages, uniquid)
  */
 function respondToVisibility(optionid, userid, uniquid, totalnumberofpages, callback) {
 
-    // eslint-disable-next-line no-console
-    console.log('respondToVisibility', optionid, totalnumberofpages, uniquid, userid);
-
     let elements = document.querySelectorAll("[id^=" + SELECTORS.MODALID + optionid + "_" + uniquid + "]");
-
-    // eslint-disable-next-line no-console
-    console.log('elements', "[id^=" + SELECTORS.MODALID + optionid + "_" + uniquid + "]", elements);
 
     elements.forEach(element => {
         if (!element || element.dataset.initialized == 'true') {
@@ -292,13 +273,7 @@ function isHidden(el) {
 export const loadPreBookingPage = (
     optionid, userid = 0, uniquid = '') => {
 
-    // eslint-disable-next-line no-console
-    console.log('loadPreBookingPage', optionid, uniquid, userid);
-
     const element = returnVisibleElement(optionid, uniquid, SELECTORS.INMODALDIV);
-
-    // eslint-disable-next-line no-console
-    console.log('element pre loadprebookingpage', element);
 
     if (element) {
         while (element.firstChild) {
@@ -317,9 +292,6 @@ export const loadPreBookingPage = (
             'pagenumber': currentbookitpage[optionid],
         },
         done: function(res) {
-
-            // eslint-disable-next-line no-console
-            console.log(currentbookitpage[optionid], totalbookitpages[optionid]);
 
             // If we are on the last page, we reset it to 0.
             if (currentbookitpage[optionid] === totalbookitpages[optionid] - 1) {
@@ -355,9 +327,6 @@ export const loadPreBookingPage = (
  */
 async function renderTemplatesOnPage(templates, dataarray, element) {
 
-    // eslint-disable-next-line no-console
-    console.log('templates: ', templates);
-
     const modal = element.closest('.prepage-body');
 
     modal.querySelector(SELECTORS.MODALHEADER).innerHTML = '';
@@ -368,9 +337,6 @@ async function renderTemplatesOnPage(templates, dataarray, element) {
     templates.forEach(async template => {
 
         const data = dataarray.shift();
-
-        // eslint-disable-next-line no-console
-        console.log('data: ', data);
 
         let targetelement = element;
 
@@ -394,13 +360,7 @@ async function renderTemplatesOnPage(templates, dataarray, element) {
                 break;
         }
 
-        // eslint-disable-next-line no-console
-        console.log('data.data: ', template, data.data);
-
         await Templates.renderForPromise(template, data.data).then(({html, js}) => {
-
-            // eslint-disable-next-line no-console
-            console.log('targetelement: ', targetelement);
 
             Templates.replaceNodeContents(targetelement, html, js);
 
@@ -451,9 +411,6 @@ function bookit(itemid, area, userid, data) {
 
             const promises = [];
 
-            // eslint-disable-next-line no-console
-            console.log('buttons:', buttons);
-
             // We run through every button. and render the data.
             buttons.forEach(button => {
 
@@ -463,9 +420,6 @@ function bookit(itemid, area, userid, data) {
                 templates.forEach(template => {
 
                     const data = arraytoreduce.shift();
-
-                    // eslint-disable-next-line no-console
-                    console.log('data (arraytoreduce): ', data);
 
                     const datatorender = data.data ?? data;
 
@@ -535,20 +489,13 @@ function returnVisibleElement(optionid, uniquid, appendedSelector) {
 
         var elementtocheck = element.parentElement.parentElement;
 
-        // eslint-disable-next-line no-console
-        console.log('check for visibleElement', element, elementtocheck);
-
         // We look if we find a hidden parent. If not, we load right away.
         while (elementtocheck !== null) {
             if (!isHidden(elementtocheck)) {
                 elementtocheck = elementtocheck.parentElement;
 
-                // eslint-disable-next-line no-console
-                console.log('is hidden, now treat parent: ', elementtocheck);
             } else {
 
-                // eslint-disable-next-line no-console
-                console.log('hidden element', elementtocheck, elementtocheck.classList);
                 break;
             }
         }
@@ -558,9 +505,6 @@ function returnVisibleElement(optionid, uniquid, appendedSelector) {
             visibleElement = element;
         }
     });
-
-    // eslint-disable-next-line no-console
-    console.log('selected visibleElement', visibleElement);
 
     return visibleElement;
 }
@@ -594,7 +538,6 @@ export function backToPreviousPage(optionid, userid) {
  *  @param {int} optionid
  */
 export function setBackModalVariables(optionid) {
-    // eslint-disable-next-line no-console
-    console.log('setBackModalVariables - optionid: ' + optionid + ' currentbookitpage[optionid]: ' + currentbookitpage[optionid]);
+
     currentbookitpage[optionid] = 0;
 }

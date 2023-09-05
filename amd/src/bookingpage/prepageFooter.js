@@ -130,9 +130,6 @@ export function initFooterButtons(optionid, userid) {
  */
 async function initBookingButton(optionid) {
 
-    // eslint-disable-next-line no-console
-    console.log('initBookingButton');
-
     // First, we get the right modal.
     let modal = document.querySelector("div.modal.show[id^=" + SELECTORS.MODALID + optionid + "]");
 
@@ -151,13 +148,7 @@ async function initBookingButton(optionid) {
         }
     }
 
-    // eslint-disable-next-line no-console
-    console.log('modal', modal);
-
     modal.addEventListener('click', (e) => {
-
-        // eslint-disable-next-line no-console
-        console.log('click on modal', e.target);
 
         let button = e.target;
 
@@ -168,8 +159,6 @@ async function initBookingButton(optionid) {
             button = e.target.closest('.btn');
 
             if (bookingButtonArea && button) {
-                // eslint-disable-next-line no-console
-                console.log('initBookingButton click');
 
                 if ((bookingButtonArea.dataset.action == 'noforward')) {
                     return;
@@ -203,9 +192,6 @@ function closeModal(optionid) {
  */
 function closeInline(optionid) {
 
-    // eslint-disable-next-line no-console
-    console.log('inline', "[id^=" + SELECTORS.INLINEID + optionid + "]");
-
     jQuery.each(jQuery("[id^=" + SELECTORS.INLINEID + optionid + "]"), function() {
         jQuery(this).collapse('toggle');
         reloadAllTables();
@@ -218,18 +204,10 @@ function closeInline(optionid) {
  */
 function listenToCloseInline(optionid) {
 
-    // eslint-disable-next-line no-console
-    console.log('listenToCloseInline', "[id^=" + SELECTORS.INLINEID + optionid + "]");
-
     jQuery.each(jQuery("[id^=" + SELECTORS.INLINEID + optionid + "]"), function() {
-
-        // eslint-disable-next-line no-console
-        console.log('listen to these elements', this);
 
         jQuery(this).on('hide.bs.collapse', function() {
 
-            // eslint-disable-next-line no-console
-            console.log('registered close');
             reloadAllTables();
         });
     });
