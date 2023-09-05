@@ -751,6 +751,7 @@ class view implements renderable, templatable {
         }
 
         $wbtable->tabletemplate = 'mod_booking/table_list';
+        $wbtable->showreloadbutton = true;
 
         // Let's collapse filters per default.
         $wbtable->filteronloadinactive = true;

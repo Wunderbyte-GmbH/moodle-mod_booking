@@ -72,13 +72,20 @@ export function initFooterButtons(optionid, userid) {
 
             switch (action) {
                 // if we find the checkout button, we reload shopping cart.
-                case 'checkout':
-                    import('local_shpping_cart/cart').then(cart => {
+                case 'closeinline':
+
+                    // eslint-disable-next-line no-console
+                    console.log('closeinline');
+
+                    import('local_shopping_cart/cart').then(cart => {
                         cart.reinit();
+                        return;
                     }).catch(e => {
                         // eslint-disable-next-line no-console
                         console.log(e);
                     });
+
+                    listenToCloseInline();
                 break;
             }
 
@@ -202,6 +209,29 @@ function closeInline(optionid) {
     jQuery.each(jQuery("[id^=" + SELECTORS.INLINEID + optionid + "]"), function() {
         jQuery(this).collapse('toggle');
         reloadAllTables();
+    });
+}
+
+/**
+ *
+ * @param {int} optionid
+ */
+function listenToCloseInline(optionid) {
+
+    // eslint-disable-next-line no-console
+    console.log('listenToCloseInline', "[id^=" + SELECTORS.INLINEID + optionid + "]");
+
+    jQuery.each(jQuery("[id^=" + SELECTORS.INLINEID + optionid + "]"), function() {
+
+        // eslint-disable-next-line no-console
+        console.log('listen to these elements', this);
+
+        jQuery(this).on('hide.bs.collapse', function() {
+
+            // eslint-disable-next-line no-console
+            console.log('registered close');
+            reloadAllTables();
+        });
     });
 }
 

@@ -199,21 +199,26 @@ export const initprepageinline = (optionid, userid, totalnumberofpages, uniquid)
             console.log(e);
 
             // Get the row element.
-            const rowcontainer = e.target.closest('.row');
+            let rowcontainer = e.target.closest('.row');
 
             // eslint-disable-next-line no-console
-            console.log("rowcontainer", rowcontainer);
+            console.log("rowcontainer",
+                rowcontainer,
+                rowcontainer.lastElementChild,
+                rowcontainer.lastElementChild.classList,
+                rowcontainer.lastElementChild.classList.contains('inlineprepagearea'));
 
-            let inlinediv = returnVisibleElement(optionid, uniquid, SELECTORS.INMODALDIV);
+            const transferarea = !rowcontainer.lastElementChild.classList.contains('inlineprepagearea');
+            // We move the inlineprepagearea only if we need to.
+            if (transferarea) {
+                let inlinediv = returnVisibleElement(optionid, uniquid, SELECTORS.INMODALDIV);
 
-            // eslint-disable-next-line no-console
-            console.log(inlinediv);
+                rowcontainer.append(inlinediv.closest('.inlineprepagearea'));
+                // inlinediv.remove();
 
-            rowcontainer.append(inlinediv.closest('.inlineprepagearea'));
-            // inlinediv.remove();
-
-            // We need to get all prepage modals on this site. Make sure they are initialized.
-            loadPreBookingPage(optionid, userid, uniquid);
+                // We need to get all prepage modals on this site. Make sure they are initialized.
+                loadPreBookingPage(optionid, userid, uniquid);
+            }
         });
     });
 };
@@ -528,13 +533,34 @@ function returnVisibleElement(optionid, uniquid, appendedSelector) {
 
     elements.forEach(element => {
 
-        // eslint-disable-next-line no-console
-        console.log('visibleElement', selector, element);
+        var elementtocheck = element.parentElement.parentElement;
 
-        if (!isHidden(element)) {
+        // eslint-disable-next-line no-console
+        console.log('check for visibleElement', element, elementtocheck);
+
+        // We look if we find a hidden parent. If not, we load right away.
+        while (elementtocheck !== null) {
+            if (!isHidden(elementtocheck)) {
+                elementtocheck = elementtocheck.parentElement;
+
+                // eslint-disable-next-line no-console
+                console.log('is hidden, now treat parent: ', elementtocheck);
+            } else {
+
+                // eslint-disable-next-line no-console
+                console.log('hidden element', elementtocheck, elementtocheck.classList);
+                break;
+            }
+        }
+        // If after the while, we have still an element, it's hidden.
+        // So we only apply visible if it's null.
+        if (!elementtocheck) {
             visibleElement = element;
         }
     });
+
+    // eslint-disable-next-line no-console
+    console.log('selected visibleElement', visibleElement);
 
     return visibleElement;
 }

@@ -942,7 +942,7 @@ class bo_info {
                 switch ($lastresultid) {
                     case BO_COND_ALREADYRESERVED:
                         $url = new moodle_url('/local/shopping_cart/checkout.php');
-                        $continueaction = empty(get_config('booking', 'turnoffmodals')) ? 'checkout' : 'closeinline';
+                        $continueaction = 'checkout';
                         $continuelabel = get_string('checkout', 'local_shopping_cart');
                         $continuelink = $url->out();
                         $continuebutton = true;
