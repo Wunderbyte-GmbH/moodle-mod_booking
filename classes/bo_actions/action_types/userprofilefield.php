@@ -69,25 +69,25 @@ class userprofilefield extends booking_action {
         profile_load_data($user);
 
         // There are two ways to acces the profile fields, we have to support both.
-        $key = "profile_field_" . $actiondata->boactionselectuserprofile;
-        if (isset($user->profile[$actiondata->boactionselectuserprofile])
+        $key = "profile_field_" . $actiondata->boactionselectuserprofilefield;
+        if (isset($user->profile[$actiondata->boactionselectuserprofilefield])
             || isset($user->{$key})) {
 
             switch ($actiondata->boactionuserprofileoperator) {
                 case 'set':
-                    $user->profile[$actiondata->boactionselectuserprofile] = $actiondata->boactionuserprofilevalue;
+                    $user->profile[$actiondata->boactionselectuserprofilefield] = $actiondata->boactionuserprofilefieldvalue;
                     break;
                 case 'add':
 
-                    $number = intval($user->profile[$actiondata->boactionselectuserprofile]);
+                    $number = intval($user->profile[$actiondata->boactionselectuserprofilefield]);
                     $user->{$key} =
-                            $number + $actiondata->boactionuserprofilevalue;
+                            $number + $actiondata->boactionuserprofilefieldvalue;
                     break;
                 case 'substract':
-                    $number = intval($user->profile[$actiondata->boactionselectuserprofile]);
+                    $number = intval($user->profile[$actiondata->boactionselectuserprofilefield]);
 
                     $user->{$key} =
-                            $number - $actiondata->boactionuserprofilevalue;
+                            $number - $actiondata->boactionuserprofilefieldvalue;
                     break;
                 case 'adddate':
 
@@ -103,7 +103,7 @@ class userprofilefield extends booking_action {
                         $startdate = strtotime($endstring) ?? null;
                     }
 
-                    $enddate = strtotime($actiondata->boactionuserprofilevalue, $startdate);
+                    $enddate = strtotime($actiondata->boactionuserprofilefieldvalue, $startdate);
 
                     if (!empty($startstring)) {
                         $startdate = strtotime($startstring);
@@ -137,7 +137,7 @@ class userprofilefield extends booking_action {
 
         $mform->addElement('text', 'boactionname', get_string('boactionname', 'mod_booking'));
 
-        $mform->addElement('select', 'boactionselectuserprofile', get_string('userprofilefield', 'mod_booking'),
+        $mform->addElement('select', 'boactionselectuserprofilefield', get_string('userprofilefield', 'mod_booking'),
             $userprofilefieldsarray);
 
         $operatorarray = [
@@ -150,7 +150,7 @@ class userprofilefield extends booking_action {
         $mform->addElement('select', 'boactionuserprofileoperator', get_string('actionoperator', 'mod_booking'),
             $operatorarray);
 
-        $mform->addElement('text', 'boactionuserprofilevalue', get_string('boactionuserprofilevalue', 'mod_booking'));
+        $mform->addElement('text', 'boactionuserprofilefieldvalue', get_string('boactionuserprofilefieldvalue', 'mod_booking'));
 
     }
 }

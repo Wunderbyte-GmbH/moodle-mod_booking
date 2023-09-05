@@ -495,8 +495,13 @@ class option_form extends moodleform {
         // Add subbookings options.
         subbookings_info::add_subbookings_to_mform($mform, $this->_customdata);
 
+        // Add elective mform elements..
         elective::instance_option_form_definition($mform, $this->_customdata);
-        actions_info::add_actions_to_mform($mform, $this->_customdata);
+
+        // Actions are not yet finished - so we hide them for now.
+        // Add booking actions mform elements.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* actions_info::add_actions_to_mform($mform, $this->_customdata); */
 
         // Workaround: Only show, if it is not turned off in the option form config.
         // We currently need this, because hideIf does not work with headers.

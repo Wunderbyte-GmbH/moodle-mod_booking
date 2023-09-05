@@ -489,8 +489,10 @@ if ($ADMIN->fulltree) {
                 get_string('infotext:prolicensenecessary', 'mod_booking')));
     }
 
-    // PRO feature: Subbookings.
-    if ($proversion) {
+    // PRO feature: Booking actions.
+    // Booking actions are not yet finished, so we do not show them yet.
+    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+    /*if ($proversion) {
         $settings->add(
             new admin_setting_heading('boactions',
                 get_string('boactions', 'mod_booking'),
@@ -498,13 +500,13 @@ if ($ADMIN->fulltree) {
 
         $settings->add(
             new admin_setting_configcheckbox('booking/showboactions',
-                    get_string('showsubbookings', 'mod_booking'), '', 0));
+                    get_string('showboactions', 'mod_booking'), '', 0));
     } else {
         $settings->add(
-            new admin_setting_heading('subbookings',
+            new admin_setting_heading('boactions',
                 get_string('boactions', 'mod_booking'),
                 get_string('infotext:prolicensenecessary', 'mod_booking')));
-    }
+    }*/
 
     // PRO feature: Progress bars.
     if ($proversion) {
