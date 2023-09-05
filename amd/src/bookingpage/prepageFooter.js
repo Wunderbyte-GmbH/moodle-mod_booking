@@ -66,6 +66,23 @@ export function initFooterButtons(optionid, userid) {
             // Make sure we dont initialize this twice.
             element.dataset.initialized = true;
 
+            const action = element.dataset.action;
+
+            // We might to execute some actions right away.
+
+            switch (action) {
+                // if we find the checkout button, we reload shopping cart.
+                case 'checkout':
+                    import('local_shpping_cart/cart').then(cart => {
+                        cart.reinit();
+                    }).catch(e => {
+                        // eslint-disable-next-line no-console
+                        console.log(e);
+                    });
+                break;
+            }
+
+            // Depending on the action button, we add the right listener.
             element.addEventListener('click', () => {
 
                 if (element.classList.contains('hidden')) {
@@ -76,8 +93,6 @@ export function initFooterButtons(optionid, userid) {
                 if (element.dataset.blocked == 'true') {
                     return;
                 }
-
-                const action = element.dataset.action;
 
                 switch (action) {
                     case 'back':
@@ -93,6 +108,9 @@ export function initFooterButtons(optionid, userid) {
                     case 'closemodal':
                         closeModal(optionid);
                     break;
+                    case 'closeinline':
+                        closeInline(optionid);
+
                 }
             });
         }
@@ -168,6 +186,21 @@ function closeModal(optionid) {
 
     jQuery.each(jQuery("[id^=" + SELECTORS.MODALID + optionid + "]"), function() {
         jQuery(this).modal('hide');
+        reloadAllTables();
+    });
+}
+
+/**
+ *
+ * @param {int} optionid
+ */
+function closeInline(optionid) {
+
+    // eslint-disable-next-line no-console
+    console.log('inline', "[id^=" + SELECTORS.INLINEID + optionid + "]");
+
+    jQuery.each(jQuery("[id^=" + SELECTORS.INLINEID + optionid + "]"), function() {
+        jQuery(this).collapse('toggle');
         reloadAllTables();
     });
 }

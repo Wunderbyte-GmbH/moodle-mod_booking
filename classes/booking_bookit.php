@@ -68,10 +68,14 @@ class booking_bookit {
         foreach ($templates as $template) {
             $data = array_shift($datas);
 
-            // if ($template == 'mod_booking/bookingpage/prepagemodal') {
-            if ($template == 'mod_booking/bookingpage/prepageinline') {
-                // $html .= $output->render_prepagemodal($data);
+            if ($template == 'mod_booking/bookingpage/prepagemodal') {
+
+                $html .= $output->render_prepagemodal($data);
+
+            } else if ($template == 'mod_booking/bookingpage/prepageinline') {
+
                 $html .= $output->render_prepageinline($data);
+
             } else {
                 $html .= $output->render_bookit_button($data, $template);
             }
@@ -164,8 +168,12 @@ class booking_bookit {
             );
 
             $datas[] = $data;
-            // $templates[] = 'mod_booking/bookingpage/prepagemodal';
-            $templates[] = 'mod_booking/bookingpage/prepageinline';
+
+            if (empty(get_config('booking', 'turnoffmodals'))) {
+                $templates[] = 'mod_booking/bookingpage/prepagemodal';
+            } else {
+                $templates[] = 'mod_booking/bookingpage/prepageinline';
+            }
 
             return [$templates, $datas];
         } else {

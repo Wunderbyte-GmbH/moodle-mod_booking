@@ -547,7 +547,6 @@ class bo_info {
         $conditions = self::return_sorted_conditions($results);
         $condition = self::return_class_of_current_page($conditions, $pagenumber);
 
-
         // If the current condition doesn't have the "pre" key...
         // ... then we need to verify if we are already booked.
         // If not, we need to do it now.
@@ -557,10 +556,8 @@ class bo_info {
             // Every time we load a page which is not "pre", we need to check if we are booked.
             // First, determine if this is a booking option with a price.
 
-            $hasprice = array_filter($results, fn($a) => $a['id'] == 4);
-
             // Book this option.
-            if (empty($hasprice)) {
+            if (!self::has_price_set($results)) {
                 $response = booking_bookit::bookit('option', $optionid, $userid);
                 // We need to book twice, as confirmation might be in place.
                 $response = booking_bookit::bookit('option', $optionid, $userid);
@@ -945,7 +942,7 @@ class bo_info {
                 switch ($lastresultid) {
                     case BO_COND_ALREADYRESERVED:
                         $url = new moodle_url('/local/shopping_cart/checkout.php');
-                        $continueaction = 'checkout';
+                        $continueaction = empty(get_config('booking', 'turnoffmodals')) ? 'checkout' : 'closeinline';
                         $continuelabel = get_string('checkout', 'local_shopping_cart');
                         $continuelink = $url->out();
                         $continuebutton = true;
@@ -958,7 +955,7 @@ class bo_info {
                 }
             } else {
                 $continuebutton = true;
-                $continueaction = 'closemodal';
+                $continueaction = empty(get_config('booking', 'turnoffmodals')) ? 'closemodal' : 'closeinline';
                 $continuelabel = get_string('close', 'mod_booking');
             }
         }

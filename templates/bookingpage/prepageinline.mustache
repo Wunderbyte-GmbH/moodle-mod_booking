@@ -34,10 +34,31 @@
     }
 }}
 <div>
-    {{{buttonhtml}}}
+
 </div>
 
-{{> mod_booking/bookingpage/prepagebody }}
+<a class="" data-toggle="collapse" href="#sbPrePageInline_{{optionid}}_{{uniquid}}" role="" aria-expanded="false" aria-controls="collapseExample">
+    {{{buttonhtml}}}
+</a>
+
+
+<div class="content w-100 inlineprepagearea">
+    <div class="collapse prepage-inline prepage-body"
+      id="sbPrePageInline_{{optionid}}_{{uniquid}}"
+      data-uniquid="{{uniquid}}"
+      data-optionid="{{optionid}}"
+      data-userid="{{userid}}"
+      data-pages="{{totalnumberofpages}}">
+      <div class="modalHeader row"></div>
+      <div class="modalMainContent row"></div>
+      <div class="modalButtonAreaContainer row d-flex justify-content-center">
+          <div class="modalButtonArea w-25"></div>
+      </div>
+      <div class="modalFooter row"></div>
+    </div>
+  </div>
+
+
 
 {{#js}}
     require(['mod_booking/bookit'], function(init) {
