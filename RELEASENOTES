@@ -1,3 +1,11 @@
+8.0.34 (2023090600)
+* New feature: Calculate cancel until date from semester start instead of booking option start (coursestarttime).
+* New feature: Use semester dates for service period in shopping cart.
+* Improvement: Always gender using a colon (":").
+* Improvement: Show tags for "PRO" and "Experimental" settings.
+* Bugfix: Fix broken behat tests.
+* Bugfix: Yet another fix for entity import via entity id - store entity name in location, NOT the entity ID (as this does not make sense).
+
 8.0.33 (2023083100)
 * Improvement: Use singleton service to get users in autocompletes.
 * Improvement: Better availability conditions update process (soft update - do not delete missing conditions).
