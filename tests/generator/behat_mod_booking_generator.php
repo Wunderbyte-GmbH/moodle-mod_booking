@@ -35,7 +35,7 @@ class behat_mod_booking_generator extends behat_generator_base {
                 'singular' => 'option',
                 'datagenerator' => 'option',
                 'required' => ['booking', 'text', 'course', 'description'],
-                'switchids' => ['booking' => 'bookingid', 'course' => 'courseid'],
+                'switchids' => ['booking' => 'bookingid', 'course' => 'courseid', 'semester' => 'semesterid'],
             ],
             'pricecategories' => [
                 'datagenerator' => 'pricecategory',
@@ -55,7 +55,7 @@ class behat_mod_booking_generator extends behat_generator_base {
     /**
      * Get the booking CMID using an activity idnumber.
      *
-     * @param string $idnumber
+     * @param string $bookingname
      * @return int The cmid
      */
     protected function get_booking_id(string $bookingname): int {
@@ -66,4 +66,20 @@ class behat_mod_booking_generator extends behat_generator_base {
         }
         return $id;
     }
+
+    /**
+     * Get the semesterID using an identifier.
+     *
+     * @param string $idnumber
+     * @return int The semester id
+     */
+    protected function get_semester_id(string $identifier): int {
+        global $DB;
+
+        if (!$id = $DB->get_field('booking_semesters', 'id', array('identifier' => $identifier))) {
+            throw new Exception('The specified booking semester with name "' . $identifier . '" does not exist');
+        }
+        return $id;
+    }
+
 }
