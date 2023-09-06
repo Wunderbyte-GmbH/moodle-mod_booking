@@ -1,4 +1,4 @@
-@mod @mod_booking @booking_price_formula
+@mod @mod_booking @booking_policy_setting
 Feature: Test of book policy setting in a booking instance
   As a teacher I add the bookig policy prompt
   As a student I book an option with agree on policy.
@@ -27,24 +27,18 @@ Feature: Test of book policy setting in a booking instance
 
   @javascript
   Scenario: Booking policy: add promt to the booking instance as a teacher via UI
-    Given I log in as "teacher1"
-    When I am on "Course 1" course homepage
-    Then I follow "My booking"
+    Given I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
     And I follow "Miscellaneous settings"
-    And I wait until the page is ready
     And I set the field "Booking policy" to "Confirm booking!"
     And I press "Save and display"
-    And I wait until the page is ready
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     Then I should see "Confirm booking!" in the ".condition-bookingpolicy-form" "css_element"
 
   @javascript
   Scenario: Booking policy: book option with policy as student
-    Given I am on the "Course 1" course page logged in as student1
-    When I follow "My booking"
-    And I wait until the page is ready
+    Given I am on the "My booking" Activity page logged in as teacher1
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     Then I should see "Are you sure?" in the ".condition-bookingpolicy-form" "css_element"

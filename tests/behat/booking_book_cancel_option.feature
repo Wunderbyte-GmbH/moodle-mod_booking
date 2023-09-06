@@ -1,4 +1,4 @@
-@mod @mod_booking @booking_price_formula
+@mod @mod_booking @booking_cancel_option
 Feature: In a booking instance
   As a student
   I need to book option and then cancel it.
@@ -28,42 +28,28 @@ Feature: In a booking instance
 
   @javascript
   Scenario: Simple booking of oprion as a student without cancellation
-    Given I log in as "teacher1"
-    When I am on "Course 1" course homepage
-    Then I follow "My booking"
+    Given I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
     And I follow "Miscellaneous settings"
-    And I wait until the page is ready
     And I set the field "Allow users to cancel their booking themselves" to "No"
     And I press "Save and display"
-    ## And I log out
-    Given I am on the "Course 1" course page logged in as student1
-    And I follow "My booking"
-    And I wait until the page is ready
-    Then I should see "Test option 1" in the ".allbookingoptionstable_r1" "css_element"
+    When I am on the "My booking" Activity page logged in as student1
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should not see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
 
   @javascript
   Scenario: Simple booking of oprion as a student with cancellation
-    Given I log in as "teacher1"
-    When I am on "Course 1" course homepage
-    Then I follow "My booking"
+    Given I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
     And I follow "Miscellaneous settings"
-    And I wait until the page is ready
     And I set the field "Allow users to cancel their booking themselves" to "Yes"
     And I press "Save and display"
-    ## And I log out
-    Given I am on the "Course 1" course page logged in as student1
-    And I follow "My booking"
-    And I wait until the page is ready
-    Then I should see "Test option 1" in the ".allbookingoptionstable_r1" "css_element"
+    When I am on the "My booking" Activity page logged in as student1
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
@@ -71,9 +57,7 @@ Feature: In a booking instance
     And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I wait "1" seconds
     And I click on "Undo my booking" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I should see "Click again to confirm cancellation" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Click again to confirm cancellation" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm cancellation" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait "1" seconds
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
