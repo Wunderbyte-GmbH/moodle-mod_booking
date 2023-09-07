@@ -824,6 +824,9 @@ class booking_option {
                         $DB->update_record("booking_answers", $newbookedanswer);
                         $this->enrol_user_coursestart($newbookedanswer->userid);
 
+                        // Before sending, we delete the booking answers cache!
+                        self::purge_cache_for_option($this->optionid);
+
                         $messagecontroller = new message_controller(
                             MSGCONTRPARAM_QUEUE_ADHOC, MSGPARAM_STATUS_CHANGED,
                             $this->cmid, $this->bookingid, $this->optionid, $newbookedanswer->userid
