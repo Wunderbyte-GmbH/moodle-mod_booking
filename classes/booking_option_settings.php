@@ -877,8 +877,8 @@ class booking_option_settings {
                 $dbrecord->boactions = $this->boactions;
             }
         } else {
-            $this->boactions = $dbrecord->boactions;
-            $this->jsonobject = $dbrecord->jsonobject;
+            $this->boactions = $dbrecord->boactions ?? null;
+            $this->jsonobject = $dbrecord->jsonobject ?? null;
         }
     }
 
