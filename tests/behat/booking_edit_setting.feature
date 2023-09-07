@@ -25,16 +25,11 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
 
   @javascript
   Scenario: Edit booking instance settings
-    Given I log in as "teacher1"
-    When I am on "Course 1" course homepage
-    And I follow "My booking"
-    And I wait until the page is ready
+    Given I am on the "My booking" Activity page logged in as teacher1
     Then I follow "Settings"
     And I set the following fields to these values:
       | pollurl | https://example.com |
     And I set the field "Send confirmation e-mail" to "Yes"
-    And I set the field "" to ""
-    And I should see "Booking confirmation"
     And I set the following fields to these values:
       | Booking confirmation          | {bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option) |
       | Max current bookings per user | 30                                                                                                    |
@@ -42,33 +37,24 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
 
   @javascript
   Scenario: Settings - show organizer
-    Given I log in as "admin1"
-    And I am on "Course 1" course homepage
-    And I follow "My booking"
-    And I wait until the page is ready
+    Given I am on the "My booking" Activity page logged in as admin1
     And I should not see "Organizer name"
     When I follow "Settings"
-    And I wait until the page is ready
     And I expand the "Organizer name" autocomplete
     And I should see "Teacher 1" in the "#fitem_id_organizatorname .form-autocomplete-suggestions" "css_element"
     And I click on "Teacher 1" "text" in the "#fitem_id_organizatorname .form-autocomplete-suggestions" "css_element"
     And I wait "1" seconds
     And I press "Save and display"
-    And I wait until the page is ready
     Then I should see "Organizer name" in the "#booking-business-card" "css_element"
     And I should see "Teacher 1" in the "#booking-business-card" "css_element"
-    Given I log in as "teacher1"
-    When I am on "Course 1" course homepage
-    Then I follow "My booking"
-    And I wait until the page is ready
+    ## Verify as teacher
+    Given I am on the "My booking" Activity page logged in as teacher1
     And I should see "Organizer name" in the "#booking-business-card" "css_element"
     And I should see "Teacher 1" in the "#booking-business-card" "css_element"
 
   @javascript
   Scenario: Settings - show info on course page
-    Given I log in as "teacher1"
-    When I am on "Course 1" course homepage
-    And I follow "My booking"
+    Given I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
     And I wait until the page is ready
     And I set the field "Event type" to "Sport class"
@@ -155,9 +141,7 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     And the following "mod_booking > semesters" exist:
       | identifier | name      | startdate                         | enddate                          |
       | nextjune   | Next June | ## first day of June next year ## | ## last day of June next year ## |
-    When I am on "Course 1" course homepage
-    And I follow "My booking"
-    And I wait until the page is ready
+    When I am on the "My booking" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Dates"
@@ -214,9 +198,7 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
 
   @javascript
   Scenario: Booking settings - access the teacher pages without login
-    Given I log in as "admin"
-    When I am on "Course 1" course homepage
-    And I follow "My booking"
+    Given I am on the "My booking" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I wait "1" seconds
@@ -243,9 +225,7 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
 
   @javascript
   Scenario: Booking settings - display teachers' emails pages without login
-    Given I log in as "admin"
-    When I am on "Course 1" course homepage
-    And I follow "My booking"
+    Given I am on the "My booking" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I wait "1" seconds

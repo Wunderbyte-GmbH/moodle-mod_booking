@@ -30,10 +30,7 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
 
   @javascript
   Scenario: Add single subbooking option for a booking option as a teacher
-    Given I log in as "teacher1"
-    When I am on "Course 1" course homepage
-    Then I follow "My booking"
-    And I wait until the page is ready
+    Given I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I wait until the page is ready

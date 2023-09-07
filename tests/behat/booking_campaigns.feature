@@ -59,15 +59,12 @@ Feature: Create booking campaigns for booking options as admin and booking it as
     And I wait until the page is ready
     And I should see "campaign1"
 
-  @javascript
+  ## @javascript - JS no need for this test
   Scenario: Booking campaigns: create booking campaign via DB and view as teacher
     Given the following "mod_booking > campaigns" exist:
       | name      | type | json                                      | starttime   | endtime        | pricefactor | limitfactor |
       | campaign2 | 0    | {"fieldname":"spt1","fieldvalue":"tenis"} | ## today ## | ## + 1 year ## | 0.5         | 2           |
-    When I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "BookingCMP"
-    And I wait until the page is ready
+    When I am on the "BookingCMP" Activity page logged in as teacher1
     Then I should see "Option-football" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "88.00 EUR" in the ".allbookingoptionstable_r1 .pricecurrency" "css_element"
     And I should see "/ 2" in the ".allbookingoptionstable_r1 .col-ap-availableplaces" "css_element"

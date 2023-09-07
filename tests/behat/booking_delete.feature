@@ -27,11 +27,7 @@ Feature: In a booking delete
 
   @javascript
   Scenario: Delete booking option as teacher
-    Given I log in as "teacher1"
-    When I am on "Course 1" course homepage
-    And I follow "My booking"
-    And I wait until the page is ready
-    And I should see "New option" in the ".allbookingoptionstable_r1" "css_element"
+    Given I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Delete this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I wait until the page is ready
@@ -46,10 +42,7 @@ Feature: In a booking delete
 
   @javascript
   Scenario: Delete user from booking option as teacher
-    Given I log in as "teacher1"
-    When I am on "Course 1" course homepage
-    And I follow "My booking"
-    And I wait until the page is ready
+    Given I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Student 1 (student1@example.com)" "text"

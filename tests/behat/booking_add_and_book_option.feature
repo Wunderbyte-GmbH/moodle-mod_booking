@@ -37,12 +37,10 @@ Feature: In a booking instance create booking options
       | Default view for booking options | All booking options                                    |
     And I press "Save and return to course"
     Then I should see "Test booking"
-    And I log out
 
   @javascript
   Scenario: Create booking option as a teacher, see it on activity page and book it as a student
-    Given I am on the "Course 1" course page logged in as teacher1
-    And I follow "My booking"
+    Given I am on the "My booking" Activity page logged in as teacher1
     And I follow "New booking option"
     And I set the following fields to these values:
       | Booking option name | Test option - Webinar |
@@ -63,12 +61,9 @@ Feature: In a booking instance create booking options
       | courseendtime[minute] | 00                   |
     And I press "Save and go back"
     And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
-    And I log out
-    And I am on the "Course 1" course page logged in as student1
-    And I follow "My booking"
-    And I wait "1" seconds
+    When I am on the "My booking" Activity page logged in as student1
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Book now" in the ".allbookingoptionstable_r1" "css_element"

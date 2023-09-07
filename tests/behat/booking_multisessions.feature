@@ -27,10 +27,7 @@ Feature: In a booking create multi session options
 
   @javascript
   Scenario: Boooking option: add multiple session dates via page manage option dates
-    Given I log in as "teacher1"
-    When I am on "Course 1" course homepage
-    And I follow "My booking"
-    And I wait until the page is ready
+    Given I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Manage option dates" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I set the following fields to these values:
@@ -86,10 +83,7 @@ Feature: In a booking create multi session options
 
   @javascript
   Scenario: Boooking option: add multiple session dates by editing booking option
-    Given I log in as "admin"
-    When I am on "Course 1" course homepage
-    Then I follow "My booking"
-    And I wait until the page is ready
+    Given I am on the "My booking" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Dates"

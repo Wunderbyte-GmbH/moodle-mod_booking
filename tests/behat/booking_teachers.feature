@@ -34,9 +34,7 @@ Feature: In a booking - create options and assign or substituing teachers
 
   @javascript
   Scenario: Booking option: add and remove single teacher via substitutions
-    Given I log in as "teacher1"
-    When I am on "Course 1" course homepage
-    And I follow "My booking"
+    Given I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Substitutions / Cancelled dates" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Booking option - Teachers" in the "#region-main" "css_element"
@@ -44,7 +42,7 @@ Feature: In a booking - create options and assign or substituing teachers
     And I click on "Edit" "link" in the "#optiondates_teachers_table_r1 .edit" "css_element"
     And I wait "1" seconds
     And I should see "Teachers" in the ".modal-header" "css_element"
-    And I set the following fields to these values:
+    When I set the following fields to these values:
       | Teachers | teacher1   |
       | Reason   | Assign one |
     And I press "Save changes"
@@ -58,13 +56,10 @@ Feature: In a booking - create options and assign or substituing teachers
     And I wait until the page is ready
     And I should see "No teacher" in the "#optiondates_teachers_table_r1 .teacher" "css_element"
     And I should see "Remove one" in the "#optiondates_teachers_table_r1 .reason" "css_element"
-    And I log out
 
   @javascript
   Scenario: Booking option: add three and remove two teachers via substitutions
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "My booking"
+    Given I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Substitutions / Cancelled dates" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Booking option - Teachers" in the "#region-main" "css_element"
@@ -89,4 +84,3 @@ Feature: In a booking - create options and assign or substituing teachers
     And I wait until the page is ready
     And I should see "Teacher 1" in the "#optiondates_teachers_table_r1 .teacher" "css_element"
     And I should see "Remove two" in the "#optiondates_teachers_table_r1 .reason" "css_element"
-    And I log out

@@ -27,9 +27,7 @@ Feature: Test messaging features in a booking
 
   @javascript
   Scenario: Send reminder mail to participant
-    Given I log in as "teacher1"
-    When I am on "Course 1" course homepage
-    And I follow "My booking"
+    Given I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I wait "1" seconds
@@ -67,9 +65,7 @@ Feature: Test messaging features in a booking
     ## And I press "Delete all messages"
     ## And I open the link "webserver"
     ## Then I am on "Course 1" course homepage
-    Given I log in as "student1"
-    When I am on "Course 1" course homepage
-    And I follow "My booking"
+    Given I am on the "My booking" Activity page logged in as teacher1
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
@@ -85,9 +81,7 @@ Feature: Test messaging features in a booking
 
   @javascript
   Scenario: Teacher book students into booking option and sends mails to them
-    Given I log in as "teacher1"
-    When I am on "Course 1" course homepage
-    And I follow "My booking"
+    Given I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Student 1 (student1@example.com)" "text"

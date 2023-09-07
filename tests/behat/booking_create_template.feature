@@ -24,10 +24,7 @@ Feature: In a booking create a template
 
   @javascript
   Scenario: Booking option template: create one and use it to create new option
-    Given I log in as "teacher1"
-    When I am on "Course 1" course homepage
-    And I should see "My booking"
-    And I follow "My booking"
+    Given I am on the "My booking" Activity page logged in as teacher1
     And I follow "New booking option"
     And I set the following fields to these values:
       | Booking option name | New option - Template |
