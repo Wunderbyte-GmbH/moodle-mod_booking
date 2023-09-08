@@ -54,11 +54,15 @@ export async function init() {
     console.log("container", container);
 
     const id = container.dataset.id;
+    const userid = container.dataset.userid;
 
     const dynamicForm = new DynamicForm(container, 'mod_booking\\form\\condition\\customform_form');
 
     // We need to render the dynamic form right away, so we can acutally have all the necessary elements present.
-    await dynamicForm.load({id: id});
+    await dynamicForm.load({
+        id,
+        userid,
+    });
 
     let continuebutton = container.closest(SELECTOR.PREPAGEBODY).querySelector(SELECTOR.CONTINUEBUTTON);
 

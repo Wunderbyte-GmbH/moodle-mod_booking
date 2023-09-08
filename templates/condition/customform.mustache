@@ -25,11 +25,12 @@
 
     Example context (json):
     {
-       "optionid": "1"
+       "optionid": "1",
+       "userid": "1"
     }
 }}
 
-<div class="condition-customform w-100 m-3 p-3 text-center bg-light border border-secondary rounded" data-id="{{optionid}}">xxx</div>
+<div class="condition-customform w-100 m-3 p-3 text-center bg-light border border-secondary rounded" data-id="{{optionid}}"" data-userid="{{userid}}"></div>
 
 {{#js}}
     require(['mod_booking/condition/customForm'], function(init) {

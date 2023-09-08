@@ -927,10 +927,12 @@ class bo_info {
             int $optionid,
             int $userid) {
 
+        global $USER;
+
         // Standardvalues.
 
         $continuebutton = true;
-        $continueaction = 'continue';
+        $continueaction = 'continuepost';
         $continuelabel = get_string('continue');
         $continuelink = '#';
 
@@ -941,15 +943,25 @@ class bo_info {
                 $lastresultid = array_pop($results)['id'];
                 switch ($lastresultid) {
                     case BO_COND_ALREADYRESERVED:
-                        $url = new moodle_url('/local/shopping_cart/checkout.php');
-                        $continueaction = 'checkout';
-                        $continuelabel = get_string('checkout', 'local_shopping_cart');
-                        $continuelink = $url->out();
-                        $continuebutton = true;
+
+                        // If we are not on the cashier site, do this.
+                        if ($userid == $USER->id) {
+                            $url = new moodle_url('/local/shopping_cart/checkout.php');
+                            $continueaction = 'checkout';
+                            $continuelabel = get_string('checkout', 'local_shopping_cart');
+                            $continuelink = $url->out();
+                            $continuebutton = true;
+                        } else {
+                            $continueaction = empty(get_config('booking', 'turnoffmodals')) ? 'closemodal' : 'closeinline';
+                            $continuelabel = get_string('close', 'mod_booking');
+                            $continuelink = "#checkout";
+                            $continuebutton = true;
+                        }
+
                         break;
                     default:
                         $continuebutton = true;
-                        $continueaction = 'closemodal';
+                        $continueaction = empty(get_config('booking', 'turnoffmodals')) ? 'closemodal' : 'closeinline';
                         $continuelabel = get_string('close', 'mod_booking');
                         break;
                 }

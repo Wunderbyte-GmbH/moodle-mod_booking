@@ -158,7 +158,7 @@ class confirmation implements bo_condition {
     public function render_page(int $optionid, int $userid = 0) {
 
         global $USER;
-        $userid = $USER->id;
+        $userid = empty($userid) ? $USER->id : $userid;
 
         // Get blocking conditions, including prepages$prepages etc.
         $results = bo_info::get_condition_results($optionid, $userid);

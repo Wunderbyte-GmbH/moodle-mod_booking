@@ -71,14 +71,24 @@ export function initFooterButtons(optionid, userid) {
             // We might to execute some actions right away.
 
             switch (action) {
-                // if we find the checkout button, we reload shopping cart.
+                // If we find the checkout button, we reload shopping cart.
                 case 'closeinline':
+                case 'continuepost':
 
                     // eslint-disable-next-line no-console
                     console.log('closeinline');
 
                     import('local_shopping_cart/cart').then(cart => {
-                        cart.reinit();
+
+                        const oncashier = window.location.href.indexOf("cashier.php");
+
+                        // If we are not on cashier, we can just redirect.
+                        if (oncashier > 0) {
+                            cart.reinit(-1);
+                        } else {
+                            cart.reinit();
+                        }
+
                         return;
                     }).catch(e => {
                         // eslint-disable-next-line no-console
@@ -106,6 +116,7 @@ export function initFooterButtons(optionid, userid) {
                         backToPreviousPage(optionid, userid);
                     break;
                     case 'continue':
+                    case 'continuepost':
                         continueToNextPage(optionid, userid);
                     break;
                     case 'checkout':

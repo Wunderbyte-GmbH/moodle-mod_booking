@@ -278,6 +278,7 @@ class customform implements bo_condition {
 
         $dataarray['data'] = [
             'optionid' => $optionid,
+            'userid' => $userid,
             // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
             /* 'formsarray' => [], */
         ];

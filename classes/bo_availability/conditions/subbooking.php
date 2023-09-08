@@ -88,14 +88,6 @@ class subbooking implements bo_condition {
             $isavailable = true;
         }
 
-        if (class_exists('local_shopping_cart\shopping_cart') &&
-            has_capability('local/shopping_cart:cashier', context_system::instance()) &&
-            $userid != $USER->id) {
-            // It's also true, if we have the cashier capability...
-            // ...as the cashier always needs to be able to book for other users.
-            $isavailable = true;
-        }
-
         // If it's inversed, we inverse.
         if ($not) {
             $isavailable = !$isavailable;

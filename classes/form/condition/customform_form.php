@@ -81,9 +81,10 @@ class customform_form extends dynamic_form {
 
         // Todo: get these values.
         $optionid = $formdata['id'];
+        $userid = $formdata['userid'] ?? $USER->id;
 
         $cache = cache::make('mod_booking', 'conditionforms');
-        $userid = $data->userid ?? $USER->id;
+
         $cachekey = $userid . '_' . $optionid . '_customform';
 
         if ($cachedata = $cache->get($cachekey)) {
@@ -123,11 +124,13 @@ class customform_form extends dynamic_form {
         $mform = $this->_form;
 
         $id = $formdata['id'];
+        $userid = $formdata['userid'];
 
         // We have to pass by the option settings.
         $settings = singleton_service::get_instance_of_booking_option_settings((int)$id);
 
         $mform->addElement('hidden', 'id', $id);
+        $mform->addElement('hidden', 'userid', $userid);
 
         $availability = json_decode($settings->availability);
 

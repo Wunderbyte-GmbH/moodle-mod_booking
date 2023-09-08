@@ -14,7 +14,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @module     mod_booking/subbookingAdditionalPerson
+ * @module     mod_booking/condition/subbookingAdditionalPerson
  * @copyright  Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -25,9 +25,8 @@ import {buttoninit} from 'local_shopping_cart/cart';
 import {eventTypes} from 'core_filters/events';
 
 const SELECTOR = {
-    MODALID: 'sbPrePageModal_',
     FORMCONTAINER: '.subbooking-additionalperson-form',
-    MODALBODY: '.modal-body',
+    MODALBODY: '.prepage-body',
     CONTINUECONTAINER: ' div.prepage-booking-footer .continue-container',
     CONTINUEBUTTON: ' div.prepage-booking-footer .continue-button',
     BOOKINGBUTTON: '[data-area="subbooking"][data-userid][data-itemid="',
@@ -104,7 +103,13 @@ function initButtons(id, container, dynamicForm) {
 
     // We always need to get the buttons anew, as they might have been replaced.
 
-    const bookitbutton = container.closest(SELECTOR.MODALBODY).querySelector(SELECTOR.BOOKINGBUTTON + id);
+    const prepagemodal = container.closest(SELECTOR.MODALBODY);
+
+    if (!prepagemodal) {
+        return;
+    }
+
+    const bookitbutton = prepagemodal.querySelector(SELECTOR.BOOKINGBUTTON + id);
 
     // This goes on the bookit button as well as on the shopping cart.
     // It will prevent the action to be triggered.
