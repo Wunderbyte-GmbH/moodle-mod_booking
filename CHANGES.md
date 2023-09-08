@@ -1,3 +1,9 @@
+## Version 8.0.35 (2023090800)
+**Bugfixes:**
+* Bugfix: If boactions or jsonobject are not set, we set them to null.
+* Bugfix: Before sending change notificaiton, we need to purge answer cache, so {status} placeholder will be updated correctly.
+* Bugfix: Catch possible SMTP exceptions with email_to_user so send_confirmation_mails task does not fail anymore.
+
 ## Version 8.0.34 (2023090600)
 **New features:**
 * New feature: Calculate cancel until date from semester start instead of booking option start (coursestarttime).
