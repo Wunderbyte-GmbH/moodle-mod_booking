@@ -21,6 +21,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 use mod_booking\message_controller;
 use context_system;
+use Exception;
 
 global $CFG;
 
@@ -57,38 +58,44 @@ class send_confirmation_mails extends \core\task\adhoc_task {
                 if (!empty($taskdata->userto)) {
                     $userdata = $DB->get_record('user', array('id' => $taskdata->userto->id));
                     if (!$userdata->deleted) {
-                        // NOTE: email_to_user does not support multiple attachments.
-                        if (!email_to_user($taskdata->userto, $taskdata->userfrom,
-                            $taskdata->subject, $taskdata->messagetext, $taskdata->messagehtml,
-                            $taskdata->attachment->{'booking.ics'} ?? '',
-                            empty($taskdata->attachment->{'booking.ics'}) ? '' : 'booking.ics')) {
+                        /* Add try-catch because email_to_user might throw an SMTP exception
+                        when recipient mail address is not found. */
+                        try {
+                            // NOTE: email_to_user does not support multiple attachments.
+                            if (!email_to_user($taskdata->userto, $taskdata->userfrom,
+                                $taskdata->subject, $taskdata->messagetext, $taskdata->messagehtml,
+                                $taskdata->attachment->{'booking.ics'} ?? '',
+                                empty($taskdata->attachment->{'booking.ics'}) ? '' : 'booking.ics')) {
 
-                            throw new \coding_exception('Confirmation email was not sent');
+                                mtrace('Confirmation could not be sent.');
 
-                        } else {
-                            // After sending we can delete the attachment.
-                            if (!empty($taskdata->attachment)) {
-                                foreach ($taskdata->attachment as $key => $attached) {
-                                    $search = str_replace($CFG->tempdir . '/', '', $attached);
-                                    if ($DB->count_records_select('task_adhoc', "customdata LIKE '%$search%'") == 1) {
-                                        if (file_exists($attached)) {
-                                            unlink($attached);
+                            } else {
+                                // After sending we can delete the attachment.
+                                if (!empty($taskdata->attachment)) {
+                                    foreach ($taskdata->attachment as $key => $attached) {
+                                        $search = str_replace($CFG->tempdir . '/', '', $attached);
+                                        if ($DB->count_records_select('task_adhoc', "customdata LIKE '%$search%'") == 1) {
+                                            if (file_exists($attached)) {
+                                                unlink($attached);
+                                            }
                                         }
                                     }
                                 }
-                            }
 
-                            // Use an event to log that a message has been sent.
-                            $event = \mod_booking\event\message_sent::create(array(
-                                'context' => context_system::instance(),
-                                'userid' => $taskdata->userto->id,
-                                'relateduserid' => $taskdata->userfrom->id,
-                                'other' => array(
-                                    'messageparam' => $taskdata->messageparam,
-                                    'subject' => $taskdata->subject
-                                )
-                            ));
-                            $event->trigger();
+                                // Use an event to log that a message has been sent.
+                                $event = \mod_booking\event\message_sent::create(array(
+                                    'context' => context_system::instance(),
+                                    'userid' => $taskdata->userto->id,
+                                    'relateduserid' => $taskdata->userfrom->id,
+                                    'other' => array(
+                                        'messageparam' => $taskdata->messageparam,
+                                        'subject' => $taskdata->subject
+                                    )
+                                ));
+                                $event->trigger();
+                            }
+                        } catch (Exception $e) {
+                            mtrace('Confirmation could not be sent because of the following exception: ' . $e->getMessage());
                         }
                     }
                 } else {
