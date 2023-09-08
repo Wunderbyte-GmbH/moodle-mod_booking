@@ -145,7 +145,7 @@
      {{> local_wunderbyte_table/component_pagination }}
 </div>
 {{/table}}
-
+{{^norecords}}
 {{#js}}
     require(['local_wunderbyte_table/init'], function(init) {
      init.init('{{idstring}}', '{{encodedtable}}');
@@ -181,3 +181,4 @@
       init.initprepageinline(null, null, null, null);
      });
 {{/js}}
+{{/norecords}}
