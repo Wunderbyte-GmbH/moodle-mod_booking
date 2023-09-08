@@ -59,6 +59,9 @@
 
 {{#js}}
     require(['mod_booking/bookit'], function(init) {
-    init.initprepagemodal({{optionid}}, {{userid}}, {{totalnumberofpages}}, '{{uniquid}}');
+        init.initprepagemodal({{optionid}}, {{userid}}, {{totalnumberofpages}}, '{{uniquid}}');
+    });
+    require(['mod_booking/bookit'], function(init) {
+        init.initprepageinline(null, null, null, null);
     });
 {{/js}}
