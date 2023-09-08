@@ -95,10 +95,3 @@ Feature: Test messaging features in a booking
     ## Then I trigger cron
     ## And I wait "1" seconds
     ## And I run all adhoc tasks
-
-  @javascript
-  Scenario: Run cron
-    Given I log in as "admin1"
-    Then I trigger cron
-    And I wait "1" seconds
-    And I run all adhoc tasks

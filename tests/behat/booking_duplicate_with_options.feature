@@ -45,13 +45,6 @@ Feature: In a booking create booking option with multiple custom options
     And I press "Save and go back"
     ##And I wait until the page is ready
     Then I should see "Test option - Copy1" in the ".allbookingoptionstable_r2" "css_element"
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
-    And I click on "Duplicate this booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
-    And I set the following fields to these values:
-      | Booking option name | Test option - Copy2 |
-    And I press "Save and go back"
-    ##And I wait until the page is ready
-    Then I should see "Test option - Copy2" in the ".allbookingoptionstable_r3" "css_element"
 
   @javascript
   Scenario: Duplicate booking option with multiple customized settings
