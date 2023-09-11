@@ -26,6 +26,7 @@
 
 namespace mod_booking;
 
+use core_cohort\reportbuilder\local\entities\cohort;
 use mod_booking\booking;
 use mod_booking\output\view;
 use mod_booking\singleton_service;
@@ -69,6 +70,134 @@ class shortcodes {
 
         list($fields, $from, $where, $params, $filter) =
                 booking::get_options_filter_sql(0, 0, '', null, null, [], $wherearray);
+
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
+
+        // These are all possible options to be displayed in the bookingtable.
+        $possibleoptions = [
+            "description",
+            "statusdescription",
+            "teacher",
+            "responsiblecontact",
+            "showdates",
+            "dayofweektime",
+            "location",
+            "institution",
+            "minanswers",
+        ];
+        // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
+
+        if (isset($args['exclude'])) {
+            $exclude = explode(',', $args['exclude']);
+            $optionsfields = array_diff($possibleoptions, $exclude);
+        } else {
+            $optionsfields = $possibleoptions;
+        }
+
+        view::apply_standard_params_for_bookingtable($table, $optionsfields, true, true, true);
+
+        unset($table->subcolumns['rightside']);
+
+        $out = $table->outhtml($perpage, true);
+
+        return $out;
+    }
+
+    /**
+     * This shortcode covers a special case.
+     * It shows all the booking options of a field of study...
+     * ... regardless if they are in one or many booking instances.
+     * The "field of study" has to be defined in the following way.
+     * All courses of a study field use the cohort sync method with the same cohort.
+     * The list depends on cohorts the user is subscribed to...
+     * ... as well as on the course the user is looking at.
+     * Only in course 1, all the booking options will be shown.
+     * The setting of the course can be overriden via the argument course=5 etc.
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return string
+     */
+    public static function fieldofstudyoptions($shortcode, $args, $content, $env, $next) {
+
+        global $PAGE, $USER, $DB, $CFG;
+
+        $supporteddbs = [
+            'pgsql_native_moodle_database',
+        ];
+
+        if (!in_array(get_class($DB), $supporteddbs)) {
+            return get_string('shortcodenotsupportedonyourdb');
+        }
+
+        if (
+            !isset($args['perpage'])
+            || !is_int((int)$args['perpage'])
+            || !$perpage = ($args['perpage'])
+        ) {
+            $perpage = 1000;
+        }
+
+        // First: determine the cohort we want to use.
+        // If not specified in the shortcode, we take the one the user is subscribed to.
+
+        if (!empty($args['cohort'])) {
+            $cohortids = $DB->get_field('cohort', 'id', ['name' => $args['cohort']]);
+        }
+
+        if (empty($cohortids)) {
+
+            require_once($CFG->dirroot.'/cohort/lib.php');
+
+            $cohorts = cohort_get_user_cohorts($USER->id);
+            if (!empty($cohorts)) {
+                $cohortids = array_map(fn($a) => $a->id, $cohorts);
+            }
+        }
+
+        // If we still have no cohort specified, we will output a warning.
+        if (empty($cohortids)) {
+            return get_string('nofieldofstudyfound', 'mod_booking');
+        }
+
+        list ($inorequal, $params) = $DB->get_in_or_equal($cohortids);
+
+        $sql = "SELECT e.courseid
+                FROM {enrol} e
+                WHERE e.customint1 $inorequal
+                AND e.enrol = 'cohort'";
+
+        $courses = $DB->get_fieldset_sql($sql, $params);
+
+
+        // Second: Get the courses that are affected.
+        // Third: Create the json to obtain the booking options.
+
+        $table = self::init_table_for_courses(null, "courses_" . implode("_", $courses));
+
+        $innerfrom = "
+            FROM (SELECT bos2.*
+            FROM (
+            SELECT bos1.*, json_array_elements_text(bos1.availability1 -> 'courseids')::int bocourseid
+            FROM (
+            SELECT *, json_array_elements(availability::json) availability1
+            FROM {booking_options}) bos1
+            WHERE bos1.availability1 ->>'id' = '" . BO_COND_JSON_ENROLLEDINCOURSE . "'
+            ) bos2
+            LEFT JOIN {enrol} e
+            ON e.courseid = bos2.bocourseid
+            LEFT JOIN {cohort} c
+            ON e.customint1 = c.id
+            WHERE e.enrol = 'cohort'
+            AND bocourseid IN (" . implode(', ', $courses) . ")
+            ) bo
+        ";
+
+        list($fields, $from, $where, $params, $filter) =
+                booking::get_options_filter_sql(0, 0, '', null, null, [], [], null, null, '', $innerfrom);
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 

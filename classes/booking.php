@@ -793,6 +793,7 @@ class booking {
      * @param ?int $userid
      * @param int $bookingparam
      * @param string $additionalwhere
+     * @param string $innerfrom
      * @return void
      */
     public static function get_options_filter_sql($limitfrom = 0,
@@ -804,11 +805,14 @@ class booking {
                                                 $wherearray = [],
                                                 $userid = null,
                                                 $bookingparam = STATUSPARAM_BOOKED,
-                                                $additionalwhere = '') {
+                                                $additionalwhere = '',
+                                                $innerfrom = '') {
 
         global $DB;
 
-        $groupby = " bo.id ";
+        $columns = $DB->get_columns('booking_options', true);
+
+        $offieldsarray = array_map(fn($a) => "bo.$a->name", $columns);
 
         if (empty($fields)) {
             $fields = "DISTINCT s1.*";
@@ -820,10 +824,12 @@ class booking {
 
         $params = [];
 
-        $outerfrom = "(
-                        SELECT DISTINCT bo.* ";
+        $groupby = " " .  implode (", ", $offieldsarray) . " ";
 
-        $innerfrom = "FROM {booking_options} bo";
+        $outerfrom = "(
+                        SELECT DISTINCT $groupby ";
+
+        $innerfrom = empty($innerfrom) ? "FROM {booking_options} bo" : $innerfrom;
 
         // If the user does not have the capability to see invisible options...
         if (!$context || !has_capability('mod/booking:canseeinvisibleoptions', $context)) {

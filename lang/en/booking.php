@@ -2354,6 +2354,9 @@ $string['personnr'] = 'Person n° {$a}';
 
 // Shortcodes.
 $string['recommendedin'] = "Shortcode to show a list of booking options which should be recommended in a given course. To use this, add a booking customfield with the shortname 'recommendedin' and comma separated values with the shortnames of the courses you want to show this recommendations. So: When you want recommend option1 to the participants enroled in Course 1 (course1), then you need to set the customfield 'recommendedin' from within the booking option to 'course1'.";
+$string['fieldofstudyoptions'] = "Shortcode to show all booking options of a field of study. They are defined by a common cohort sync enrolement & the booking availabilty condition of having to be inscribed in one of these courses.";
+$string['nofieldofstudyfound'] = "No field of study could be determined via cohorts";
+$string['shortcodenotsupportedonyourdb'] = "This shortcode is not supported on your DB. It only works on postgres & mariadb";
 
 // Elective.
 $string['elective'] = "Elective";

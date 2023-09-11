@@ -31,4 +31,8 @@ $shortcodes = [
         'callback' => 'mod_booking\shortcodes::recommendedin',
         'description' => 'recommendedin'
     ],
+    'fieldofstudyoptions' => [
+        'callback' => 'mod_booking\shortcodes::fieldofstudyoptions',
+        'description' => 'fieldofstudyoptions'
+    ],
 ];

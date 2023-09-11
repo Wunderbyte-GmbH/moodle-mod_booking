@@ -2233,6 +2233,9 @@ $string['personnr'] = 'Person Nr. {$a}';
 
 // Shortcodes.
 $string['recommendedin'] = "Shortcode um Buchungsoptionen in bestimmten Kursen zu empfehlen. Legen Sie ein neues benutzerdefiniertes Feld für Buchungsoptionen mit dem Kurznamen 'recommendedin' an. In einer Buchungsoption setzen Sie nun den Wert dieses Feldes auf 'course1', wenn Sie die Buchungsoption im Course 1 (course1) empfehlen wollen.";
+$string['fieldofstudyoptions'] = "Shortcode um alle Buchungsoptionen eines Studiengangs anzuzeigen. Ein Zudiengang wird über die gemeinsame Einschreibung über eine globale Gruppe definiert. Außerdem muss in der angezeigten Buchungsoption in der Buchungsvoraussetzung einer der betroffenen Kurse ausgewählt sein.";
+$string['nofieldofstudyfound'] = "Es konnte keine Studienrichtung über die Globalen Gruppen herausgefunden werden.";
+$string['shortcodenotsupportedonyourdb'] = "Dieser Shortcode funktioniert nur auf Postgres & Mariadb Datenbanken.";
 
 // Elective.
 $string['elective'] = "Wahlfach";
