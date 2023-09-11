@@ -526,6 +526,7 @@ class option_form extends moodleform {
 
         $mform->addElement('selectyesno', 'disablecancel', get_string('disablecancel', 'mod_booking'));
         $mform->setType('disablecancel', PARAM_INT);
+        $mform->setDefault('disablecancel', (int) booking_option::get_value_of_json_by_key($optionid, "disablecancel"));
 
         $mform->addElement('text', 'shorturl', get_string('shorturl', 'mod_booking'),
                 array('size' => '1333'));

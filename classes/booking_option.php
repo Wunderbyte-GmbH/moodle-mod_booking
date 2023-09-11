@@ -3130,4 +3130,39 @@ class booking_option {
         $jsonobject->{$key} = $value;
         $data->json = json_encode($jsonobject);
     }
+
+    /**
+     * A helper class to remove a data field from the json of a booking option.
+     *
+     * @param stdClass &$data reference to a data object containing the json key to remove
+     * @param string $key - the key to remove, for example: "disablecancel"
+     */
+    public static function remove_key_from_json(stdClass &$data, string $key) {
+        if (!empty($data->json)) {
+            $jsonobject = json_decode($data->json);
+            if (isset($jsonobject->{$key})) {
+                unset($jsonobject->{$key});
+                $data->json = json_encode($jsonobject);
+            }
+        }
+    }
+
+    /**
+     * A helper class to get the value of a certain key stored in the json DB field of a booking option.
+     *
+     * @param int $optionid
+     * @param string $key - the key to remove, for example: "disablecancel"
+     * @return mixed the value found, false if nothing found
+     */
+    public static function get_value_of_json_by_key(int $optionid, string $key) {
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $json = $settings->json;
+        if (!empty($json)) {
+            $jsonobject = json_decode($json);
+            if (isset($jsonobject->{$key})) {
+                return $jsonobject->{$key};
+            }
+        }
+        return false;
+    }
 }
