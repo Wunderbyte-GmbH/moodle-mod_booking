@@ -770,7 +770,8 @@ class csv_import {
         if ($curencoding == "UTF-8" && mb_check_encoding($instr, "UTF-8")) {
             return $instr;
         } else {
-            return utf8_encode($instr);
+            // Because utf8_encode() has been deprecated since php 8.2 .
+            return mb_convert_encoding($instr, 'UTF-8', 'ISO-8859-1');
         }
     }
 
