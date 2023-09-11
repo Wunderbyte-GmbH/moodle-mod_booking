@@ -201,7 +201,7 @@ export const initprepageinline = (optionid, userid, totalnumberofpages, uniquid)
                 let inlinediv = returnVisibleElement(optionid, uniquid, SELECTORS.INMODALDIV);
 
                 rowcontainer.append(inlinediv.closest('.inlineprepagearea'));
-                // inlinediv.remove();
+                // Inlinediv.remove();
 
                 // We need to get all prepage modals on this site. Make sure they are initialized.
                 loadPreBookingPage(optionid, userid, uniquid);

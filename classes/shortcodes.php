@@ -172,7 +172,6 @@ class shortcodes {
 
         $courses = $DB->get_fieldset_sql($sql, $params);
 
-
         // Second: Get the courses that are affected.
         // Third: Create the json to obtain the booking options.
 
