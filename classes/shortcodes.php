@@ -33,6 +33,10 @@ use mod_booking\singleton_service;
 use mod_booking\table\bookingoptions_wbtable;
 use moodle_url;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/mod/booking/lib.php');
+
 /**
  * Deals with local_shortcodes regarding booking.
  */
