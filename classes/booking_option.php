@@ -389,6 +389,11 @@ class booking_option {
 
         $userid = $userid ?? $USER->id;
 
+        // If there is no user, just return empty string.
+        if (empty($userid)) {
+            return '';
+        }
+
         $text = "";
 
         // New message controller.

@@ -573,6 +573,11 @@ class booking_utils {
      * @return string the subscription link
      */
     public function booking_generate_calendar_subscription_link ($user, $eventparam = 'user') {
+
+        if (!$user) {
+            return '';
+        }
+
         $authtoken = $this->calendar_get_export_token($user);
 
         $linkparams = [
