@@ -131,10 +131,11 @@ class shortcodes {
 
         $supporteddbs = [
             'pgsql_native_moodle_database',
+            'mariadb_native_moodle_database',
         ];
 
         if (!in_array(get_class($DB), $supporteddbs)) {
-            return get_string('shortcodenotsupportedonyourdb');
+            return get_string('shortcodenotsupportedonyourdb', 'mod_booking');
         }
 
         if (
@@ -181,23 +182,7 @@ class shortcodes {
 
         $table = self::init_table_for_courses(null, "courses_" . implode("_", $courses));
 
-        $innerfrom = "
-            FROM (SELECT bos2.*
-            FROM (
-            SELECT bos1.*, json_array_elements_text(bos1.availability1 -> 'courseids')::int bocourseid
-            FROM (
-            SELECT *, json_array_elements(availability::json) availability1
-            FROM {booking_options}) bos1
-            WHERE bos1.availability1 ->>'id' = '" . BO_COND_JSON_ENROLLEDINCOURSE . "'
-            ) bos2
-            LEFT JOIN {enrol} e
-            ON e.courseid = bos2.bocourseid
-            LEFT JOIN {cohort} c
-            ON e.customint1 = c.id
-            WHERE e.enrol = 'cohort'
-            AND bocourseid IN (" . implode(', ', $courses) . ")
-            ) bo
-        ";
+        $innerfrom = booking::get_sql_for_fieldofstudy(get_class($DB), $courses);
 
         list($fields, $from, $where, $params, $filter) =
                 booking::get_options_filter_sql(0, 0, '', null, null, [], [], null, null, '', $innerfrom);

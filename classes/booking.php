@@ -1167,4 +1167,67 @@ class booking {
 
         return $sql;
     }
+
+    /**
+     * As the needed json operators are not cross db compatibile and there is no support in Moodle...
+     * ... we have to create it ourselves.
+     *
+     * @param string $dbname
+     * @param array $courses
+     * @return string|void
+     */
+    public static function get_sql_for_fieldofstudy(string $dbname, array $courses) {
+
+        switch ($dbname) {
+
+            case 'pgsql_native_moodle_database':
+                return "
+                FROM (SELECT bos2.*
+                FROM (
+                SELECT bos1.*, json_array_elements_text(bos1.availability1 -> 'courseids')::int bocourseid
+                FROM (
+                SELECT *, json_array_elements(availability::json) availability1
+                FROM {booking_options}) bos1
+                WHERE bos1.availability1 ->>'id' = '" . BO_COND_JSON_ENROLLEDINCOURSE . "'
+                ) bos2
+                LEFT JOIN {enrol} e
+                ON e.courseid = bos2.bocourseid
+                LEFT JOIN {cohort} c
+                ON e.customint1 = c.id
+                WHERE e.enrol = 'cohort'
+                AND bocourseid IN (" . implode(', ', $courses) . ")
+                ) bo
+            ";
+            break;
+            case 'mariadb_native_moodle_database':
+
+                $where = "";
+                $wherearray = [];
+
+                foreach ($courses as $courseid) {
+
+                    $wherearray[] = " JSON_SEARCH(bos1.boscourseids, 'one', '" . $courseid . "') IS NOT NULL ";
+                }
+
+                if (count($courses) > 0) {
+                    $where = " AND ( ( " . implode(" ) OR ( ", $wherearray) . ") ) ";
+                }
+
+                return "
+                FROM (
+                    SELECT bos1.*
+                FROM (
+                    SELECT *, JSON_EXTRACT(
+                        JSON_UNQUOTE(
+                            JSON_EXTRACT(availability, '$[*].id')), '$[0]') AS boavailid,
+                                JSON_EXTRACT(JSON_UNQUOTE(
+                                    JSON_EXTRACT(availability, '$[*].courseids')), '$[0]') AS boscourseids
+                    FROM m_booking_options
+                ) bos1
+                WHERE bos1.boavailid = '". BO_COND_JSON_ENROLLEDINCOURSE . "'"
+                . $where .
+                " ) bo";
+        }
+
+    }
 }
