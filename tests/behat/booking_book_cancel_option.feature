@@ -30,7 +30,7 @@ Feature: In a booking instance
   Scenario: Simple booking of oprion as a student without cancellation
     Given I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
-    And I follow "Miscellaneous settings"
+    And I follow "Advanced options"
     And I set the field "Allow users to cancel their booking themselves" to "No"
     And I press "Save and display"
     When I am on the "My booking" Activity page logged in as student1
@@ -46,7 +46,7 @@ Feature: In a booking instance
   Scenario: Simple booking of oprion as a student with cancellation
     Given I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
-    And I follow "Miscellaneous settings"
+    And I follow "Advanced options"
     And I set the field "Allow users to cancel their booking themselves" to "Yes"
     And I press "Save and display"
     When I am on the "My booking" Activity page logged in as student1

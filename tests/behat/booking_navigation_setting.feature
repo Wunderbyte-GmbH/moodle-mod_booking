@@ -34,7 +34,7 @@ Feature: Configure and use booking's pagination and perform filtering - as a tea
     And I should see "Booking Option 5" in the ".allbookingoptionstable_r5" "css_element"
     And "//nav[@aria-label='Page']" "xpath_element" should not exist
     When I follow "Settings"
-    And I follow "Miscellaneous settings"
+    And I follow "Advanced options"
     And I wait "1" seconds
     And I set the field "paginationnum" to "3"
     And I press "Save and display"
@@ -63,7 +63,7 @@ Feature: Configure and use booking's pagination and perform filtering - as a tea
     And I should see "Booking Option 4" in the ".allbookingoptionstable_r1" "css_element"
     And I set the field "Search" in the ".allbookingoptionstable" "css_element" to ""
     When I follow "Settings"
-    And I follow "Miscellaneous settings"
+    And I follow "Advanced options"
     And I wait "1" seconds
     And I set the field "paginationnum" to "3"
     And I press "Save and display"

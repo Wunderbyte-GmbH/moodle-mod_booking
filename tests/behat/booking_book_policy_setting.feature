@@ -29,7 +29,7 @@ Feature: Test of book policy setting in a booking instance
   Scenario: Booking policy: add promt to the booking instance as a teacher via UI
     Given I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
-    And I follow "Miscellaneous settings"
+    And I follow "Advanced options"
     And I set the field "Booking policy" to "Confirm booking!"
     And I press "Save and display"
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
