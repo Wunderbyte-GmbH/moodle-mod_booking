@@ -254,7 +254,7 @@ class booking_subbookit {
         // We need to register this action as a booking answer, where we only reserve, not actually book.
 
         $user = singleton_service::get_instance_of_user($userid);
-        $booking = singleton_service::get_instance_of_booking_by_optionid($itemid);
+        $booking = singleton_service::get_instance_of_booking_by_bookingid($settings->bookingid);
 
         // With shortcodes & webservice we might not have a valid context object.
         booking_context_helper::fix_booking_page_context($PAGE, $booking->cmid);

@@ -84,7 +84,7 @@ class max_number_of_bookings implements bo_condition {
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
-        $booking = singleton_service::get_instance_of_booking_by_optionid($settings->id);
+        $booking = singleton_service::get_instance_of_booking_by_bookingid($settings->bookingid);
 
         // This value comes from booking instance settings, not $settings, which would be from booking option.
         $maxperuser = $booking->settings->maxperuser;

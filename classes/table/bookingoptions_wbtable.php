@@ -214,7 +214,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
         }
 
         if (empty($this->booking)) {
-            $this->booking = singleton_service::get_instance_of_booking_by_optionid($values->id, $values);
+            $this->booking = singleton_service::get_instance_of_booking_by_bookingid($values->bookingid, $values);
         }
         if (empty($this->cmid)) {
             $this->cmid = $this->booking->cmid;
