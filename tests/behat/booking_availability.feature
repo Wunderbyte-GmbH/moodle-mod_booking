@@ -367,3 +367,29 @@ Feature: Test booking options avaialbility conditions
     And I should see "You have successfully booked Option - advanced availability" in the ".condition-confirmation" "css_element"
     And I follow "Close"
     And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+
+@javascript
+  Scenario: Configure availability to fill inline agreement form
+    Given I log in as "admin"
+    And I set the following administration settings values:
+      | Turn off modals | 1 |
+    When I am on the "My booking" Activity page logged in as teacher1
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I follow "Availability conditions"
+    And I set the field "Form needs to be filled out before booking" to "checked"
+    And I wait "1" seconds
+    And I set the following fields to these values:
+      | bo_cond_customform_value_1_1 | Confirm your intention |
+      | bo_cond_customform_label_1_2 | Yes                    |
+    And I press "Save and go back"
+    ## Check availability as students
+    Given I am on the "My booking" Activity page logged in as student1
+    Then I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Confirm your intention" in the ".allbookingoptionstable_r1 .condition-customform" "css_element"
+    And I set the field "customform_checkbox_2" to "checked"
+    And I follow "Continue"
+    And I should see "You have successfully booked Option - advanced availability" in the ".allbookingoptionstable_r1 .condition-confirmation" "css_element"
+    And I follow "Close"
+    And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
