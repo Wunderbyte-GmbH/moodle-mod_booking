@@ -657,7 +657,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $mform->addElement('advcheckbox', 'disablecancel', get_string('disablecancelforinstance', 'mod_booking'));
         $mform->setType('disablecancel', PARAM_INT);
-        $mform->setDefault('disablecancel', (int) booking::get_value_of_json_by_key($bookingid, "disablecancel"));
+        $mform->setDefault('disablecancel', (int) booking::get_value_of_json_by_key((int) $bookingid, "disablecancel"));
 
         $mform->addElement('advcheckbox', 'cancancelbook', get_string('cancancelmyself', 'mod_booking'));
         $mform->disabledIf('cancancelbook', 'disablecancel', 'eq', 1);
