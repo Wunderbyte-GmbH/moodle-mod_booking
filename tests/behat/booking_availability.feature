@@ -368,7 +368,7 @@ Feature: Test booking options avaialbility conditions
     And I follow "Close"
     And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
 
-@javascript
+  @javascript
   Scenario: Configure availability to fill inline agreement form
     Given I log in as "admin"
     And I set the following administration settings values:
