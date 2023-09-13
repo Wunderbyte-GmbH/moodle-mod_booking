@@ -27,6 +27,7 @@ require_once($CFG->dirroot .'/course/externallib.php');
 
 use local_entities\entitiesrelation_handler;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\booking_utils;
@@ -573,13 +574,16 @@ function booking_add_instance($booking) {
 /**
  * Given an object containing all the necessary data this will update an existing instance.
  *
- * @param unknown $booking
+ * @param stdClass|booking $booking
  * @return boolean
  */
 function booking_update_instance($booking) {
     global $DB, $CFG;
     // We have to prepare the bookingclosingtimes as an $arrray, currently they are in $booking as $key (string).
     $booking->id = $booking->instance;
+    $bookingid = $booking->id;
+    $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($bookingid);
+
     $booking->timemodified = time();
     $cm = get_coursemodule_from_instance('booking', $booking->id);
     $context = context_module::instance($cm->id);
@@ -686,6 +690,18 @@ function booking_update_instance($booking) {
     $booking->pollurlteacherstext = $booking->pollurlteacherstext['text'];
     $booking->activitycompletiontext = $booking->activitycompletiontext['text'];
     $booking->userleave = $booking->userleave['text'];
+
+    // Get JSON from bookingsettings.
+    $booking->json = $bookingsettings->json;
+
+    // We store the information if a booking option can be cancelled in the JSON.
+    // So this has to happen BEFORE JSON is saved!
+    if (empty($booking->disablecancel)) {
+        // This will store the correct JSON to $optionvalues->json.
+        booking::remove_key_from_json($booking, "disablecancel");
+    } else {
+        booking::add_data_to_json($booking, "disablecancel", 1);
+    }
 
     // Update, delete or insert answers.
     if (!empty($booking->option)) {
@@ -979,19 +995,21 @@ function booking_update_options(object $optionvalues, context_module $context, i
         $option->description = "";
     }
 
-    // We store the information if a booking option can be cancelled in the JSON.
-    // So this has to happen BEFORE JSON is saved!
-    if (empty($optionvalues->disablecancel)) {
-        // This will store the correct JSON to $optionvalues->json.
-        booking_option::remove_key_from_json($optionvalues, "disablecancel");
-    } else {
-        booking_option::add_data_to_json($optionvalues, "disablecancel", 1);
-    }
-
     // We add the json key only if there is actually something committed.
     // The reason is that this comes from a different form.
     if (!empty($optionvalues->json)) {
         $option->json = $optionvalues->json;
+    } else {
+        $option->json = json_encode(new stdClass);
+    }
+
+    // We store the information if a booking option can be cancelled in the JSON.
+    // So this has to happen BEFORE JSON is saved!
+    if (empty($optionvalues->disablecancel)) {
+        // This will store the correct JSON to $optionvalues->json.
+        booking_option::remove_key_from_json($option, "disablecancel");
+    } else {
+        booking_option::add_data_to_json($option, "disablecancel", 1);
     }
 
     if (isset($optionvalues->beforebookedtext)) {
@@ -1170,7 +1188,9 @@ function booking_update_options(object $optionvalues, context_module $context, i
                     }
                 }
 
-                if (!empty($optionvalues->generatenewurl) && $optionvalues->generatenewurl == 1) {
+                // Google URL shortener does not work anymore - let's remove this in the future.
+                // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+                /* if (!empty($optionvalues->generatenewurl) && $optionvalues->generatenewurl == 1) {
                     // URL shortnere - only if API key is entered.
                     $gapik = get_config('booking', 'googleapikey');
                     $googer = new GoogleURLAPI($gapik);
@@ -1183,7 +1203,7 @@ function booking_update_options(object $optionvalues, context_module $context, i
                             $option->shorturl = $shorturl;
                         }
                     }
-                }
+                } */
 
                 // This is needed to create option dates with the webservice importer.
                 deal_with_multisessions($optionvalues, $booking, $option->id, $context);
@@ -1349,9 +1369,12 @@ function booking_update_options(object $optionvalues, context_module $context, i
             $DB->update_record('booking_options', $option);
         }
 
-        // URL shortener - only if API key is entered.
-        $gapik = get_config('booking', 'googleapikey');
         $option->shorturl = '';
+
+        // URL shortener - only if API key is entered.
+        // Google URL shortener does not work anymore - let's remove this in the future.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $gapik = get_config('booking', 'googleapikey');
         if (!empty($gapik)) {
             $googer = new GoogleURLAPI($gapik);
             $onlyoneurl = new moodle_url('/mod/booking/view.php',
@@ -1364,7 +1387,7 @@ function booking_update_options(object $optionvalues, context_module $context, i
                 $option->id = $optionid;
                 $DB->update_record("booking_options", $option);
             }
-        }
+        } */
 
         $event = \mod_booking\event\bookingoption_created::create(array('context' => $context, 'objectid' => $optionid,
                 'relateduserid' => $USER->id));

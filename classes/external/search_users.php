@@ -65,9 +65,9 @@ class search_users extends external_api {
     /**
      * Describes the external function result value.
      *
-     * @return \external_description
+     * @return \external_single_structure
      */
-    public static function execute_returns(): \external_description {
+    public static function execute_returns(): \external_single_structure {
 
         return new \external_single_structure([
             'list' => new \external_multiple_structure(

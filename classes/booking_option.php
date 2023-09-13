@@ -3157,7 +3157,7 @@ class booking_option {
      *
      * @param int $optionid
      * @param string $key - the key to remove, for example: "disablecancel"
-     * @return mixed the value found, false if nothing found
+     * @return mixed|null the value found, false if nothing found
      */
     public static function get_value_of_json_by_key(int $optionid, string $key) {
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
@@ -3168,6 +3168,6 @@ class booking_option {
                 return $jsonobject->{$key};
             }
         }
-        return false;
+        return null;
     }
 }

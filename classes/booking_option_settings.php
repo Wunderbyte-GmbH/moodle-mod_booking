@@ -668,6 +668,7 @@ class booking_option_settings {
      * @param int $optionid
      */
     private function generate_manageresponses_url(int $optionid) {
+        global $CFG;
 
         if (!empty($this->cmid) && !empty($optionid)) {
 
@@ -675,7 +676,13 @@ class booking_option_settings {
                 ['id' => $this->cmid, 'optionid' => $optionid]);
 
             // Use html_entity_decode to convert "&amp;" to a simple "&" character.
-            $this->manageresponsesurl = html_entity_decode($manageresponsesmoodleurl->out());
+            if ($CFG->version >= 2023042400) {
+                // Moodle 4.2 needs second param.
+                $this->manageresponsesurl = html_entity_decode($manageresponsesmoodleurl->out(), ENT_QUOTES);
+            } else {
+                // Moodle 4.1 and older.
+                $this->manageresponsesurl = html_entity_decode($manageresponsesmoodleurl->out(), ENT_COMPAT);
+            }
         }
     }
 
@@ -685,13 +692,20 @@ class booking_option_settings {
      * @param int $optionid option id
      */
     private function generate_optiondatesteachers_url(int $optionid) {
+        global $CFG;
 
         if (!empty($this->cmid) && !empty($optionid)) {
             $optiondatesteachersmoodleurl = new moodle_url('/mod/booking/optiondates_teachers_report.php',
                 ['id' => $this->cmid, 'optionid' => $optionid]);
 
             // Use html_entity_decode to convert "&amp;" to a simple "&" character.
-            $this->optiondatesteachersurl = html_entity_decode($optiondatesteachersmoodleurl->out());
+            if ($CFG->version >= 2023042400) {
+                // Moodle 4.2 needs second param.
+                $this->optiondatesteachersurl = html_entity_decode($optiondatesteachersmoodleurl->out(), ENT_QUOTES);
+            } else {
+                // Moodle 4.1 and older.
+                $this->optiondatesteachersurl = html_entity_decode($optiondatesteachersmoodleurl->out(), ENT_COMPAT);
+            }
         }
     }
 

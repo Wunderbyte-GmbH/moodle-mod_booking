@@ -22,6 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\booking;
 use mod_booking\elective;
 use mod_booking\semester;
 use mod_booking\utils\wb_payment;
@@ -92,6 +93,8 @@ class mod_booking_mod_form extends moodleform_mod {
         // $modulecontext = context_module::instance($this->_cm->id);
 
         $mform = &$this->_form;
+
+        $bookingid = $this->_instance;
 
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
@@ -423,12 +426,12 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('header', 'emailsettings',
                 get_string('emailsettings', 'mod_booking'));
 
-        $mform->addElement('selectyesno', 'sendmail', get_string("activatemails", "mod_booking"));
+        $mform->addElement('advcheckbox', 'sendmail', get_string("activatemails", "mod_booking"));
 
-        $mform->addElement('selectyesno', 'copymail',
+        $mform->addElement('advcheckbox', 'copymail',
                 get_string("sendcopytobookingmanger", "booking"));
 
-        $mform->addElement('selectyesno', 'sendmailtobooker',
+        $mform->addElement('advcheckbox', 'sendmailtobooker',
                 get_string('sendmailtobooker', 'booking'));
         $mform->addHelpButton('sendmailtobooker', 'sendmailtobooker', 'booking');
 
@@ -644,15 +647,20 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->disabledIf('activitycompletiontext', 'mailtemplatessource', 'eq', 1);
 
         $mform->addElement('header', 'miscellaneoussettingshdr',
-                get_string('miscellaneoussettings', 'form'));
+                get_string('advancedoptions', 'mod_booking'));
 
         $mform->addElement('editor', 'bookingpolicy', get_string("bookingpolicy", "booking"), null,
                 null);
         $mform->setType('bookingpolicy', PARAM_CLEANHTML);
 
-        $mform->addElement('selectyesno', 'allowupdate', get_string('allowbookingafterstart', 'mod_booking'));
+        $mform->addElement('advcheckbox', 'allowupdate', get_string('allowbookingafterstart', 'mod_booking'));
 
-        $mform->addElement('selectyesno', 'cancancelbook', get_string('cancancelmyself', 'mod_booking'));
+        $mform->addElement('advcheckbox', 'disablecancel', get_string('disablecancelforinstance', 'mod_booking'));
+        $mform->setType('disablecancel', PARAM_INT);
+        $mform->setDefault('disablecancel', (int) booking::get_value_of_json_by_key($bookingid, "disablecancel"));
+
+        $mform->addElement('advcheckbox', 'cancancelbook', get_string('cancancelmyself', 'mod_booking'));
+        $mform->disabledIf('cancancelbook', 'disablecancel', 'eq', 1);
 
         $cancancelbookdaysstring = get_config('booking', 'cancelfromsemesterstart') ?
             get_string('cancancelbookdays:semester', 'mod_booking') :
@@ -664,12 +672,13 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('select', 'allowupdatedays', $cancancelbookdaysstring, $opts);
         $mform->setDefault('allowupdatedays', 10000); // One million means "no limit".
         $mform->disabledIf('allowupdatedays', 'cancancelbook', 'eq', 0);
+        $mform->disabledIf('allowupdatedays', 'disablecancel', 'eq', 1);
 
-        $mform->addElement('selectyesno', 'autoenrol', get_string('autoenrol', 'booking'));
+        $mform->addElement('advcheckbox', 'autoenrol', get_string('autoenrol', 'booking'));
         $mform->setDefault('autoenrol', 1);
         $mform->addHelpButton('autoenrol', 'autoenrol', 'booking');
 
-        $mform->addElement('selectyesno', 'addtogroup', get_string('addtogroup', 'booking'));
+        $mform->addElement('advcheckbox', 'addtogroup', get_string('addtogroup', 'booking'));
         $mform->addHelpButton('addtogroup', 'addtogroup', 'booking');
 
         $opts = array(0 => get_string('unlimitedplaces', 'mod_booking'));
@@ -679,9 +688,9 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setDefault('maxperuser', 0);
         $mform->addHelpButton('maxperuser', 'maxperuser', 'mod_booking');
 
-        $mform->addElement('selectyesno', 'showinapi', get_string("showinapi", "booking"));
+        $mform->addElement('advcheckbox', 'showinapi', get_string("showinapi", "booking"));
 
-        $mform->addElement('selectyesno', 'numgenerator', get_string("numgenerator", "booking"));
+        $mform->addElement('advcheckbox', 'numgenerator', get_string("numgenerator", "booking"));
 
         $mform->addElement('text', 'paginationnum', get_string('paginationnum', 'booking'), 0);
         $mform->setDefault('paginationnum', PAGINATIONDEF);
@@ -744,7 +753,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('select', 'ratings', get_string('ratings', 'mod_booking'), $opts);
         $mform->setDefault('ratings', 0);
 
-        $mform->addElement('selectyesno', 'removeuseronunenrol', get_string("removeuseronunenrol", "booking"));
+        $mform->addElement('advcheckbox', 'removeuseronunenrol', get_string("removeuseronunenrol", "booking"));
 
         // Booking option text.
         $mform->addElement('header', 'bookingoptiontextheader',
@@ -807,6 +816,8 @@ class mod_booking_mod_form extends moodleform_mod {
             $electivehandler->instance_form_definition($mform);
         }
 
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /*
         // Category.
         $mform->addElement('header', 'categoryheader', get_string('categoryheader', 'booking'));
 
@@ -915,6 +926,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->disabledIf('autcrvalue', 'autcractive');
         $mform->addElement('select', 'autcrtemplate', get_string('optiontemplate', 'booking'), $cftemplates);
         $mform->disabledIf('autcrtemplate', 'autcractive');
+        */
 
         // Standard Moodle form elements.
         $this->standard_grading_coursemodule_elements();

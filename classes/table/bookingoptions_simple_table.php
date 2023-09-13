@@ -109,7 +109,13 @@ class bookingoptions_simple_table extends wunderbyte_table {
                 'optionid' => $values->optionid
             ));
             // Use html_entity_decode to convert "&amp;" to a simple "&" character.
-            $link = html_entity_decode($link->out());
+            if ($CFG->version >= 2023042400) {
+                // Moodle 4.2 needs second param.
+                $link = html_entity_decode($link->out(), ENT_QUOTES);
+            } else {
+                // Moodle 4.1 and older.
+                $link = html_entity_decode($link->out(), ENT_COMPAT);
+            }
 
             if (!$this->is_downloading()) {
                 // Only format as a button if it's not an export.
@@ -161,7 +167,13 @@ class bookingoptions_simple_table extends wunderbyte_table {
             'whichview' => 'showonlyone'
         ));
         // Use html_entity_decode to convert "&amp;" to a simple "&" character.
-        $link = html_entity_decode($link->out());
+        if ($CFG->version >= 2023042400) {
+            // Moodle 4.2 needs second param.
+            $link = html_entity_decode($link->out(), ENT_QUOTES);
+        } else {
+            // Moodle 4.1 and older.
+            $link = html_entity_decode($link->out(), ENT_COMPAT);
+        }
 
         if (!$this->is_downloading()) {
             // Only format as a button if it's not an export.

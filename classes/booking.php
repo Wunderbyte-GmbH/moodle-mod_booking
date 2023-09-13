@@ -1228,6 +1228,45 @@ class booking {
                 . $where .
                 " ) bo";
         }
+    }
 
+    /**
+     * A helper class to add data to the json of a booking instance.
+     *
+     * @param stdClass &$data reference to a data object containing the json key
+     * @param string $key - for example: "disablecancel"
+     * @param int|string|stdClass|array|null $value - for example: 1
+     */
+    public static function add_data_to_json(stdClass &$data, string $key, $value) {
+        booking_option::add_data_to_json($data, $key, $value);
+    }
+
+    /**
+     * A helper class to remove a data field from the json of a booking instance.
+     *
+     * @param stdClass &$data reference to a data object containing the json key to remove
+     * @param string $key - the key to remove, for example: "disablecancel"
+     */
+    public static function remove_key_from_json(stdClass &$data, string $key) {
+        booking_option::remove_key_from_json($data, $key);
+    }
+
+    /**
+     * A helper class to get the value of a certain key stored in the json DB field of a booking instance.
+     *
+     * @param int $bookingid booking instance id - do not confuse with cmid!
+     * @param string $key - the key to remove, for example: "disablecancel"
+     * @return mixed|null the value found, false if nothing found
+     */
+    public static function get_value_of_json_by_key(int $bookingid, string $key) {
+        $settings = singleton_service::get_instance_of_booking_settings_by_bookingid($bookingid);
+        $json = $settings->json;
+        if (!empty($json)) {
+            $jsonobject = json_decode($json);
+            if (isset($jsonobject->{$key})) {
+                return $jsonobject->{$key};
+            }
+        }
+        return null;
     }
 }

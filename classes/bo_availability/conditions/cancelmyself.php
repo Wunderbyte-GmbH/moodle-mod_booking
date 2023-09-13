@@ -26,6 +26,7 @@ namespace mod_booking\bo_availability\conditions;
 
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\price;
@@ -77,19 +78,24 @@ class cancelmyself implements bo_condition {
      */
     public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
 
-        global $DB;
-
         $optionid = $settings->id;
         $now = time();
 
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
+        // If cancelling was disabled in option or for the whole instance...
+        // ...then we do not show the cancel button.
+        if (booking_option::get_value_of_json_by_key($optionid, 'disablecancel')
+            || booking::get_value_of_json_by_key($settings->bookingid, 'disablecancel')) {
+            return true;
+        }
+
         // Get the booking answers for this instance.
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
 
         $bookinginformation = $bookinganswer->return_all_booking_information($userid);
-        $bosettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
 
         $priceitems = price::get_prices_from_cache_or_db('option', $settings->id);
         if (count($priceitems) > 0) {
@@ -98,9 +104,9 @@ class cancelmyself implements bo_condition {
         } else {
             // If the user is not allowed to cancel we never show cancel button.
 
-            if (!empty($bosettings->iselective) && isset($bookinginformation['iamreserved'])) {
+            if (!empty($bookingsettings->iselective) && isset($bookinginformation['iamreserved'])) {
                 $isavailable = false;
-            } else if ($bosettings->cancancelbook != 1 || isset($bookinginformation['notbooked'])) {
+            } else if ($bookingsettings->cancancelbook != 1 || isset($bookinginformation['notbooked'])) {
                 $isavailable = true; // True means cancel button is not shown.
             } else if (isset($bookinginformation['onwaitinglist']) || isset($bookinginformation['iambooked'])) {
                 // If the user is allowed to cancel, we first check if the user is already booked or on the waiting list.

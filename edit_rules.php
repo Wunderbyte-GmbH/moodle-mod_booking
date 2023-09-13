@@ -53,7 +53,7 @@ $PAGE->set_title(
 $output = $PAGE->get_renderer('booking');
 
 echo $output->header();
-echo $output->heading(get_string('bookingrules', 'mod_booking'));
+echo $output->heading(get_string('bookingruleswithbadge', 'mod_booking'));
 
 // Check if PRO version is active.
 if (wb_payment::pro_version_is_activated()) {

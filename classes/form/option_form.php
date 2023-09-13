@@ -512,6 +512,13 @@ class option_form extends moodleform {
             $mform->addElement('header', 'advancedoptions', get_string('advancedoptions', 'mod_booking'));
         }
 
+        $mform->addElement('advcheckbox', 'disablebookingusers', get_string('disablebookingusers', 'mod_booking'));
+        $mform->setType('disablebookingusers', PARAM_INT);
+
+        $mform->addElement('advcheckbox', 'disablecancel', get_string('disablecancel', 'mod_booking'));
+        $mform->setType('disablecancel', PARAM_INT);
+        $mform->setDefault('disablecancel', (int) booking_option::get_value_of_json_by_key($optionid, "disablecancel"));
+
         // Workaround: Only show, if it is not turned off in the option form config.
         // We currently need this, because hideIf does not work with editors.
         // In expert mode, we do not hide anything.
@@ -521,20 +528,15 @@ class option_form extends moodleform {
             $mform->setType('notificationtext', PARAM_CLEANHTML);
         }
 
-        $mform->addElement('selectyesno', 'disablebookingusers', get_string('disablebookingusers', 'mod_booking'));
-        $mform->setType('disablebookingusers', PARAM_INT);
-
-        $mform->addElement('selectyesno', 'disablecancel', get_string('disablecancel', 'mod_booking'));
-        $mform->setType('disablecancel', PARAM_INT);
-        $mform->setDefault('disablecancel', (int) booking_option::get_value_of_json_by_key($optionid, "disablecancel"));
-
         $mform->addElement('text', 'shorturl', get_string('shorturl', 'mod_booking'),
                 array('size' => '1333'));
         $mform->setType('shorturl', PARAM_TEXT);
         $mform->disabledIf('shorturl', 'optionid', 'eq', -1);
 
-        $mform->addElement('checkbox', 'generatenewurl', get_string('generatenewurl', 'mod_booking'));
-        $mform->disabledIf('generatenewurl', 'optionid', 'eq', -1);
+        // Google URL shortener does not work anymore - let's remove this in the future.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $mform->addElement('checkbox', 'generatenewurl', get_string('generatenewurl', 'mod_booking'));
+        $mform->disabledIf('generatenewurl', 'optionid', 'eq', -1); */
 
         // Workaround: Only show, if it is not turned off in the option form config.
         // We currently need this, because hideIf does not work with headers.

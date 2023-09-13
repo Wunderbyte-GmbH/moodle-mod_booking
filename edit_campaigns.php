@@ -56,7 +56,7 @@ $PAGE->set_title(
 $output = $PAGE->get_renderer('mod_booking');
 
 echo $output->header();
-echo $output->heading(get_string('bookingcampaigns', 'mod_booking'));
+echo $output->heading(get_string('bookingcampaignswithbadge', 'mod_booking'));
 echo '<div class="alert alert-secondary alert-dismissible fade show" role="alert">' .
     get_string('bookingcampaignssubtitle', 'mod_booking') .
     '<button type="button" class="close" data-dismiss="alert" aria-label="Close">

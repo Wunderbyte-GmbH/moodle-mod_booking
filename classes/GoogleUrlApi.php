@@ -23,50 +23,58 @@
  */
 class GoogleUrlApi {
 
-    private $apiurl;
+    // NOTE: WE DO NOT USE THIS CLASS ANYMORE.
+    // LET'S REMOVE IT SOON!
 
-    /**
+    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+    /* private $apiurl; */
+
+    /*
      * https://developers.google.com/url-shortener/v1/getting_started#APIKey Get a new key
      * Constructor
      */
-    public function __construct($key, $apiurl = 'https://www.googleapis.com/urlshortener/v1/url') {
+    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+    /* public function __construct($key, $apiurl = 'https://www.googleapis.com/urlshortener/v1/url') {
         // Keep the API Url.
         $this->apiurl = $apiurl . '?key=' . $key;
-    }
+    } */
 
-    /**
+    /*
      * Shorten a URL
      * @param string $url
      * @return boolean|mixed
      */
-    public function shorten($url) {
+    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+    /* public function shorten($url) {
         // Send information along.
         $response = $this->send($url);
         // Return the result.
         return isset($response['id']) ? $response['id'] : false;
-    }
+    } */
 
-    /**
+    /*
      * Expand a URL
      *
      * @param string $url
      * @return boolean|mixed
      */
-    public function expand($url) {
+    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+    /* public function expand($url) {
         // Send information along.
         $response = $this->send($url, false);
         // Return the result.
         return isset($response['longUrl']) ? $response['longUrl'] : false;
-    }
+    } */
 
-    /**
+    /*
      * Send information to Google
      *
      * @param string $url
      * @param boolean $shorten
      * @return mixed
      */
-    public function send($url, $shorten = true) {
+    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+    /* public function send($url, $shorten = true) {
         // Create cURL.
         $ch = curl_init();
         // If we're shortening a URL...
@@ -85,5 +93,5 @@ class GoogleUrlApi {
         curl_close($ch);
         // Return the result.
         return json_decode($result, true);
-    }
+    } */
 }

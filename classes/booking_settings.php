@@ -328,6 +328,9 @@ class booking_settings {
     /** @var user $bookingmanageruser */
     public $bookingmanageruser = null;
 
+    /** @var string $json is used to store non performance critical data like disablecancel */
+    public $json = null;
+
     /**
      * Constructor for the booking settings class.
      *
@@ -486,6 +489,9 @@ class booking_settings {
             $this->maxcredits = $dbrecord->maxcredits;
             $this->enforceorder = $dbrecord->enforceorder;
             $this->enforceteacherorder = $dbrecord->enforceteacherorder;
+
+            // JSON.
+            $this->json = $dbrecord->json;
 
             // If we do not have it yet, we have to load the booking manager's user object from DB.
             if (empty($dbrecord->bookingmanageruser) && !empty($dbrecord->bookingmanager)) {

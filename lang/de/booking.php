@@ -246,7 +246,8 @@ $string['btncancelname'] = 'Bezeichnung des Buttons "Buchung stornieren"';
 $string['description'] = 'Beschreibung';
 $string['disablebookingusers'] = 'Buchung von Teilnehmer:innen deaktivieren - "Jetzt buchen" Button unsichtbar schalten.';
 $string['disablecancel'] = "Stornieren dieser Buchungsoption nicht möglich";
-
+$string['disablecancelforinstance'] = "Stornieren für die gesamte Instanz deaktivieren.
+(Wenn Sie diese Einstellung aktivieren können Buchungsoptionen, die sich in dieser Instanz befinden, nicht storniert werden.)";
 $string['bookotheruserslimit'] = 'Max. Anzahl an Buchungen, die ein:e der Buchungsoption zugewiesene:r Trainer:in vornehmen kann';
 $string['department'] = 'Abteilung';
 $string['institution'] = 'Institution';
@@ -452,7 +453,8 @@ $string['allratings'] = 'Jede/r kann bewerten';
 $string['enrolledratings'] = 'Nur Eingeschriebene können bewerten';
 $string['completedratings'] = 'Nur diejenigen, die Aktivität abgeschlossen haben';
 $string['shorturl'] = 'Verkürzter Link zu dieser Buchungsoption';
-$string['generatenewurl'] = 'Neue Kurz-URL generieren';
+// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+/* $string['generatenewurl'] = 'Neue Kurz-URL generieren'; */
 $string['notes'] = 'Anmerkungen zur Buchung';
 $string['uploadheaderimages'] = 'Header-Bilder für Buchungsoptionen';
 $string['bookingimagescustomfield'] = 'Benutzerdefiniertes Feld von Buchungsoptionen, mit dem die Header-Bilder gematcht werden';
@@ -2072,7 +2074,8 @@ $string['filterenddate'] = 'Bis';
 $string['filterbtn'] = 'Filtern';
 
 // Booking campaigns.
-$string['bookingcampaigns'] = 'Buchung: Kampagnen ' . $string['badge:pro'];
+$string['bookingcampaignswithbadge'] = 'Buchung: Kampagnen ' . $string['badge:pro'];
+$string['bookingcampaigns'] = 'Buchung: Kampagnen (PRO)';
 $string['bookingcampaign'] = 'Kampagne';
 $string['bookingcampaignssubtitle'] = 'Mit Kampagnen können Sie für einen festgelegten Zeitraum die Preise von ausgewählten
  Buchungsoptionen vergünstigen und das Buchungslimit für diesen Zeitraum erhöhen. Damit die Kampagnen funktionieren, muss der
@@ -2109,7 +2112,8 @@ $string['error:campaignstart'] = 'Kampagnenbeginn muss vor dem Kampagnenende lie
 $string['error:campaignend'] = 'Kampagnenende muss nach dem Kampagnenbeginn sein.';
 
 // Booking rules.
-$string['bookingrules'] = 'Buchung: Globale Regeln ' . $string['badge:pro'];
+$string['bookingruleswithbadge'] = 'Buchung: Globale Regeln ' . $string['badge:pro'];
+$string['bookingrules'] = 'Buchung: Globale Regeln (PRO)';
 $string['bookingrule'] = 'Regel';
 $string['addbookingrule'] = 'Regel hinzufügen';
 $string['deletebookingrule'] = 'Regel löschen';

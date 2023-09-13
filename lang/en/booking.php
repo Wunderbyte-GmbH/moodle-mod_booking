@@ -249,7 +249,8 @@ $string['courseurl'] = 'Course URL';
 $string['description'] = 'Description';
 $string['disablebookingusers'] = 'Disable booking of users - hide Book now button.';
 $string['disablecancel'] = "Disable cancellation of this booking option";
-
+$string['disablecancelforinstance'] = "Disable cancellation for the whole booking instance.
+(If you activate this, then it won't be possible to cancel any booking within this instance.)";
 $string['bookotheruserslimit'] = 'Max. number of users a teacher assigned to the option can book';
 $string['department'] = 'Department';
 $string['institution'] = 'Institution';
@@ -462,7 +463,8 @@ $string['allratings'] = 'Everybody can rate';
 $string['enrolledratings'] = 'Only enrolled';
 $string['completedratings'] = 'Only with completed activity';
 $string['shorturl'] = 'Short URL of this option';
-$string['generatenewurl'] = 'Generate new short url';
+// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+/* $string['generatenewurl'] = 'Generate new short url'; */
 $string['notes'] = 'Booking notes';
 $string['uploadheaderimages'] = 'Header images for booking options';
 $string['bookingimagescustomfield'] = 'Booking option custom field to match the header images with';
@@ -2194,7 +2196,8 @@ $string['filterenddate'] = 'Until';
 $string['filterbtn'] = 'Filter';
 
 // Booking campaigns.
-$string['bookingcampaigns'] = 'Booking: Campaigns ' . $string['badge:pro'];
+$string['bookingcampaignswithbadge'] = 'Booking: Campaigns ' . $string['badge:pro'];
+$string['bookingcampaigns'] = 'Booking: Campaigns (PRO)';
 $string['bookingcampaign'] = 'Campaign';
 $string['bookingcampaignssubtitle'] = 'Campaigns allow you to discount the prices of selected booking options
  for a specified period of time and increase the booking limit for that period. For campaigns to work, the
@@ -2229,7 +2232,8 @@ $string['error:campaignstart'] = 'Campaign start has to be before campaign end.'
 $string['error:campaignend'] = 'Campaign end has to be after campaign start.';
 
 // Booking rules.
-$string['bookingrules'] = 'Booking: Global rules ' . $string['badge:pro'];
+$string['bookingruleswithbadge'] = 'Booking: Global rules ' . $string['badge:pro'];
+$string['bookingrules'] = 'Booking: Global rules (PRO)';
 $string['bookingrule'] = 'Rule';
 $string['addbookingrule'] = 'Add rule';
 $string['deletebookingrule'] = 'Delete rule';

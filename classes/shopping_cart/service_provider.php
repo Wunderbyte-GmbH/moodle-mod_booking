@@ -27,6 +27,7 @@ namespace mod_booking\shopping_cart;
 use context_system;
 use local_shopping_cart\local\entities\cartitem;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\booking;
 use mod_booking\booking_bookit;
 use mod_booking\booking_option;
 use mod_booking\event\booking_failed;
@@ -305,6 +306,30 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             $consumedquota = 0;
         }
         return $consumedquota;
+    }
+
+    /**
+     * Callback function to check if an item can be cancelled.
+     *
+     * @param string $area
+     * @param int $itemid An identifier that is known to the plugin
+     *
+     * @return bool true if cancelling is allowed, else false
+     */
+    public static function allowed_to_cancel(string $area, int $itemid): bool {
+        $allowedtocancel = true;
+        // Currently, we only check this for options.
+        // Maybe we will need additional areas in the future.
+        if ($area == 'option') {
+            $optionid = $itemid;
+            $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            $bookingid = $optionsettings->bookingid;
+            if (booking_option::get_value_of_json_by_key($optionid, 'disablecancel') ||
+                booking::get_value_of_json_by_key($bookingid, 'disablecancel')) {
+                $allowedtocancel = false;
+            }
+        }
+        return $allowedtocancel;
     }
 
     /**
