@@ -281,6 +281,24 @@ class singleton_service {
     }
 
     /**
+     * Get the price category for a single user.
+     * @param mixed $user
+     * @return mixed
+     */
+    public static function get_pricecategory_for_user($user) {
+
+        $instance = self::get_instance();
+
+        if (isset($instance->userpricecategory[$user->id])) {
+            return $instance->userpricecategory[$user->id];
+        } else {
+            $category = price::get_pricecategory_for_user($user);
+            $instance->userpricecategory[$user->id] = $category;
+            return $category;
+        }
+    }
+
+    /**
      * Set pricecategory to singleton service.
      *
      * @param string $identifier

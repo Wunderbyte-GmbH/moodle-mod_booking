@@ -611,7 +611,7 @@ class price {
             $user = $USER;
         }
 
-        $categoryidentifier = self::get_pricecategory_for_user($user);
+        $categoryidentifier = singleton_service::get_pricecategory_for_user($user);
 
         $prices = self::get_prices_from_cache_or_db($area, $itemid);
 
@@ -672,7 +672,7 @@ class price {
      * @param stdClass $user
      * @return string
      */
-    private static function get_pricecategory_for_user(stdClass $user) {
+    public static function get_pricecategory_for_user(stdClass $user) {
 
         global $CFG;
 
