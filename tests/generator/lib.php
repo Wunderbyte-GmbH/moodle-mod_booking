@@ -143,6 +143,15 @@ class mod_booking_generator extends testing_module_generator {
             }
         }
 
+        // Process option teachers.
+        if (!empty($record->teachersforoption)) {
+            $teacherarr = explode(',', $record->teachersforoption);
+            $record->teachersforoption = [];
+            foreach ($teacherarr as $teacher) {
+                $record->teachersforoption[] = $this->get_user($teacher);
+            }
+        }
+
         if ($record->id = booking_update_options($record, $context)) {
             $record->optionid = $record->id;
             // Save the prices to option.
@@ -210,11 +219,16 @@ class mod_booking_generator extends testing_module_generator {
     }
 
     /**
-     * Function, to add user to option
-     * @param array|stdClass $record
-     * @return stdClass the booking option object
+     * Function, to get userid
+     * @param string $username
+     * @return int
      */
-    public function add_user($record = null) {
+    private function get_user(string $username) {
+        global $DB;
 
+        if (!$id = $DB->get_field('user', 'id', array('username' => $username))) {
+            throw new Exception('The specified user with username "' . $username . '" does not exist');
+        }
+        return $id;
     }
 }
