@@ -74,6 +74,7 @@ export function initFooterButtons(optionid, userid) {
                 // If we find the checkout button, we reload shopping cart.
                 case 'closeinline':
                 case 'continuepost':
+                case 'checkout':
 
                     // eslint-disable-next-line no-console
                     console.log('closeinline');
