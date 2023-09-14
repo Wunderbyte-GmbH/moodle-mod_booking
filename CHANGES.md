@@ -1,3 +1,32 @@
+## Version 8.0.36 (2023091400)
+**New features:**
+* New feature: It is now possible to turn off modals and book "inline".
+* New feature: New shortcode [fieldofstudy].
+* New feature: Disable cancellation for individual bookings.
+* New feature: Disable cancellation for a whole booking instance.
+* New feature: Disable cancellation of individual booking options or of the whole booking instance.
+
+**Improvements:**
+* Improvement: Create option date series via DB.
+* Improvement: Some adjustments for PHP 8.2 and Moodle 4.2.
+* Improvement: We add the price to every normal button when a) we can't book for others & b) when there is a price.
+* Improvement: Style prices in subarea with h6.
+* Improvement: Improve get_instance_of_booking_by functions (avoid db calls).
+* Improvement: Speed up working of conditions.
+* Improvement: Add singleton service for user price category to speed up things during a single call.
+* Improvement: Code quality.
+
+**Bugfixes:**
+* Bugfix: Only call JS when records are found.
+* Bugfix: Add missing JS and replace <a> with <div>.
+* Bugfix: Fix prepage also for cashier.
+* Bugfix: Shortcodes via webservices need the right imports.
+* Bugfix: Fix errors when no user is found.
+* Bugfix: Recreate build folder (grunt).
+
+**Tests:**
+* Test: Runtime optimizations and fixes for behat tests.
+
 ## Version 8.0.35 (2023090800)
 **Bugfixes:**
 * Bugfix: If boactions or jsonobject are not set, we set them to null.
