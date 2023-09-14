@@ -843,7 +843,8 @@ class booking_option_settings {
             $this->entity = [
                 'id' => $data->id,
                 'name' => $data->name,
-                'shortname' => $data->shortname
+                'shortname' => $data->shortname,
+                'parentname' => $data->parentname,
             ];
         }
     }

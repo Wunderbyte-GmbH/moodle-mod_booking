@@ -1064,7 +1064,7 @@ function booking_update_options(object $optionvalues, context_module $context, i
             $entities = entitiesrelation_handler::get_entities_by_id($optionvalues->local_entities_entityid);
             $option->address = '';
             foreach ($entities as $entity) {
-                $option->location = $entity->name;
+                $option->location = $entity->parentname ?? $entity->name;
                 $option->address .= "$entity->postcode $entity->city $entity->streetname $entity->streetnumber";
                 if (count($entities) > 1) {
                     $option->address .= ', ';
