@@ -1,3 +1,7 @@
+## Version 8.0.37 (2023091401)
+**Improvements:**
+* Improvement: Use entity parent name in location, if existant.
+
 ## Version 8.0.36 (2023091400)
 **New features:**
 * New feature: It is now possible to turn off modals and book "inline".
