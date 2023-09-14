@@ -713,8 +713,6 @@ class bo_info {
             $fullwidthclasses = 'w-100';
         }
 
-
-
         $data = [
             'itemid' => $settings->id,
             'area' => $area,

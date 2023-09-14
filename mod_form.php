@@ -94,7 +94,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $mform = &$this->_form;
 
-        $bookingid = $this->_instance;
+        $bookingid = (int)$this->_instance;
 
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
