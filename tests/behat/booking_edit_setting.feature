@@ -200,7 +200,7 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
   Scenario: Booking settings - access the teacher pages without login
     Given the following "mod_booking > options" exist:
       | booking    | text                      | course | description  | startendtimeknown | coursestarttime  | courseendtime | optiondatestart[0] | optiondateend[0] | teachersforoption |
-      | My booking | Booking option - Teachers | C1     | Option deskr | 1                 | ## yesterday ##  | ## +4 days ## | ## tomorrow ##     | ## +2 days ##    | teacher1,admin1   |
+      | My booking | Booking option - Teachers | C1     | Option deskr | 1                 | ## yesterday ##  | ## +4 days ## | ## tomorrow ##     | ## +2 days ##    | teacher1          |
     And I log in as "admin"
     And I set the following administration settings values:
       | Login for teacher pages not necessary | |
@@ -213,6 +213,7 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
       | Login for teacher pages not necessary | 1 |
     And I log out
     And I visit "/mod/booking/teachers.php"
+    And I wait until the page is ready
     Then I should see "Teacher 1" in the ".page-allteachers-card" "css_element"
     And I follow "Teacher"
     And I should see "Teacher 1" in the ".card-title" "css_element"
@@ -221,13 +222,14 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
   Scenario: Booking settings - display teachers email pages without login
     Given the following "mod_booking > options" exist:
       | booking    | text                      | course | description  | startendtimeknown | coursestarttime  | courseendtime | optiondatestart[0] | optiondateend[0] | teachersforoption |
-      | My booking | Booking option - Teachers | C1     | Option deskr | 1                 | ## yesterday ##  | ## +4 days ## | ## tomorrow ##     | ## +2 days ##    | teacher1,admin1   |
+      | My booking | Booking option - Teachers | C1     | Option deskr | 1                 | ## yesterday ##  | ## +4 days ## | ## tomorrow ##     | ## +2 days ##    | teacher1          |
     And I log in as "admin"
     And I set the following administration settings values:
       | Login for teacher pages not necessary             | 1 |
       | Always show teacher's email addresses to everyone |   |
     And I log out
     When I visit "/mod/booking/teachers.php"
+    And I wait until the page is ready
     Then I should see "Teacher 1" in the ".page-allteachers-card" "css_element"
     And I should not see "Mail" in the ".page-allteachers-card" "css_element"
     And I follow "Teacher"
@@ -239,6 +241,7 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     And I press "Save changes"
     And I log out
     And I visit "/mod/booking/teachers.php"
+    And I wait until the page is ready
     And I should see "Teacher 1" in the ".page-allteachers-card" "css_element"
     And I should see "Mail" in the ".page-allteachers-card" "css_element"
     And I follow "Teacher"
