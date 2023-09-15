@@ -2078,6 +2078,7 @@ $string['bo_cond_previouslybooked_full_not_available'] = 'Only user who have pre
 $string['bo_cond_enrolledincourse_available'] = 'Book it';
 $string['bo_cond_enrolledincourse_full_available'] = 'Booking is possible';
 $string['bo_cond_enrolledincourse_not_available'] = 'Booking not allowed because you are not enrolled in at least one of the following course(s): {$a}';
+$string['bo_cond_enrolledincourse_not_available_and'] = 'Booking not allowed because you are not enrolled in all of the following course(s): {$a}';
 $string['bo_cond_enrolledincourse_full_not_available'] = 'Only user who are enrolled in the following course(s) are allowed to book: {$a}
     <br>But you have the right to book a user anyways.';
 
@@ -2170,6 +2171,8 @@ $string['overrideoperator'] = 'Operator';
 $string['overrideoperator:and'] = 'AND';
 $string['overrideoperator:or'] = 'OR';
 $string['bo_cond_previouslybooked_optionid'] = 'Must be already booked';
+$string['allcoursesmustbefound'] = 'User has to be subscribed to all courses';
+$string['onecoursemustbefound'] = 'User hast to be subscribed to only one of these courses';
 
 $string['noelement'] = "No Element";
 $string['checkbox'] = "Checkbox";

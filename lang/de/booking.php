@@ -1942,6 +1942,7 @@ $string['bo_cond_previouslybooked_full_not_available'] = 'Nur Benutzer:innen, di
 $string['bo_cond_enrolledincourse_available'] = 'Buchen';
 $string['bo_cond_enrolledincourse_full_available'] = 'Buchen möglich';
 $string['bo_cond_enrolledincourse_not_available'] = 'Buchen nicht möglich, da Sie in mindestens einem der folgenden Kurse nicht eingeschrieben sind: {$a}';
+$string['bo_cond_enrolledincourse_not_available_and'] = 'Buchen nicht möglich, da Sie nicht in alle der folgenden Kurse eingeschrieben sind: {$a}';
 $string['bo_cond_enrolledincourse_full_not_available'] = 'Nur Benutzer:innen, die in den/die folgenden Kurs(e) eingeschrieben sind, dürfen buchen: {$a}
     <br>Sie haben aber das Recht dennoch zu buchen.';
 
@@ -2048,6 +2049,8 @@ $string['overrideoperator'] = 'Operator';
 $string['overrideoperator:and'] = 'UND';
 $string['overrideoperator:or'] = 'ODER';
 $string['bo_cond_previouslybooked_optionid'] = 'Buchungsoption';
+$string['allcoursesmustbefound'] = 'Alle Kurse müssen gebucht sein';
+$string['onecoursemustbefound'] = 'Zumindest einer dieser Kurse muss gebucht sein';
 
 $string['noelement'] = "Kein Element";
 $string['checkbox'] = "Checkbox";

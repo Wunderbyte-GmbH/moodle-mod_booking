@@ -100,11 +100,26 @@ class enrolledincourse implements bo_condition {
         } else {
             $courseids = $this->customsettings->courseids;
             $enrolled = true; // We start with true.
-            foreach ($courseids as $courseid) {
-                $context = context_course::instance($courseid);
-                $enrolled = $enrolled && is_enrolled($context, $userid);
-                // We only get true, if the user is enrolled in ALL courses of the condition.
+
+            if (empty($this->customsettings->courseidsoperator) || $this->customsettings->courseidsoperator != 'OR') {
+                foreach ($courseids as $courseid) {
+                    $context = context_course::instance($courseid);
+                    $enrolled = $enrolled && is_enrolled($context, $userid);
+                    // We only get true, if the user is enrolled in ALL courses of the condition.
+                }
+            } else {
+                $enrolled = false;
+                foreach ($courseids as $courseid) {
+                    $context = context_course::instance($courseid);
+                    // As soon as we find an enrollement, we break.
+                    if (is_enrolled($context, $userid)) {
+                        $enrolled = true;
+                        break;
+                    }
+                    // We only get true, if the user is enrolled in ALL courses of the condition.
+                }
             }
+
             $isavailable = $enrolled;
         }
 
@@ -197,18 +212,30 @@ class enrolledincourse implements bo_condition {
                 'tags' => false,
                 'multiple' => true
             ];
-            $mform->addElement('autocomplete', 'bo_cond_enrolledincourse_courseids',
-                get_string('course_s', 'mod_booking'), $coursesarray, $enrolledincourseoptions);
-            $mform->hideIf('bo_cond_enrolledincourse_courseids', 'bo_cond_enrolledincourse_restrict', 'notchecked');
-
-            $mform->addElement('checkbox', 'bo_cond_enrolledincourse_overrideconditioncheckbox',
-                get_string('overrideconditioncheckbox', 'mod_booking'));
-            $mform->hideIf('bo_cond_enrolledincourse_overrideconditioncheckbox', 'bo_cond_enrolledincourse_restrict', 'notchecked');
 
             $overrideoperators = [
                 'OR' => get_string('overrideoperator:or', 'mod_booking'),
                 'AND' => get_string('overrideoperator:and', 'mod_booking'),
             ];
+
+            $courseoperator = [
+                'OR' => get_string('onecoursemustbefound', 'mod_booking'),
+                'AND' => get_string('allcoursesmustbefound', 'mod_booking'),
+            ];
+
+            $mform->addElement('autocomplete', 'bo_cond_enrolledincourse_courseids',
+                get_string('course_s', 'mod_booking'), $coursesarray, $enrolledincourseoptions);
+            $mform->hideIf('bo_cond_enrolledincourse_courseids', 'bo_cond_enrolledincourse_restrict', 'notchecked');
+
+            $mform->addElement('select', 'bo_cond_enrolledincourse_courseids_operator',
+                get_string('overrideoperator', 'mod_booking'), $courseoperator);
+            $mform->setDefault('bo_cond_enrolledincourse_courseids_operator', 'AND');
+            $mform->hideIf('bo_cond_enrolledincourse_courseids_operator', 'bo_cond_enrolledincourse_restrict', 'notchecked');
+
+            $mform->addElement('checkbox', 'bo_cond_enrolledincourse_overrideconditioncheckbox',
+                get_string('overrideconditioncheckbox', 'mod_booking'));
+            $mform->hideIf('bo_cond_enrolledincourse_overrideconditioncheckbox', 'bo_cond_enrolledincourse_restrict', 'notchecked');
+
             $mform->addElement('select', 'bo_cond_enrolledincourse_overrideoperator',
                 get_string('overrideoperator', 'mod_booking'), $overrideoperators);
             $mform->hideIf('bo_cond_enrolledincourse_overrideoperator',
@@ -302,6 +329,7 @@ class enrolledincourse implements bo_condition {
             $conditionobject->name = $shortclassname;
             $conditionobject->class = $classname;
             $conditionobject->courseids = $fromform->bo_cond_enrolledincourse_courseids;
+            $conditionobject->courseidsoperator = $fromform->bo_cond_enrolledincourse_courseids_operator;
 
             if (!empty($fromform->bo_cond_enrolledincourse_overrideconditioncheckbox)) {
                 $conditionobject->overrides = $fromform->bo_cond_enrolledincourse_overridecondition;
@@ -321,6 +349,7 @@ class enrolledincourse implements bo_condition {
         if (!empty($acdefault->courseids)) {
             $defaultvalues->bo_cond_enrolledincourse_restrict = "1";
             $defaultvalues->bo_cond_enrolledincourse_courseids = $acdefault->courseids;
+            $defaultvalues->bo_cond_enrolledincourse_courseids_operator = $acdefault->courseidsoperator;
         }
         if (!empty($acdefault->overrides)) {
             $defaultvalues->bo_cond_enrolledincourse_overrideconditioncheckbox = "1";
@@ -399,9 +428,17 @@ class enrolledincourse implements bo_condition {
             }
             $a = implode(', ', $coursestringsarr);
 
-            $description = $full ? get_string('bo_cond_enrolledincourse_full_not_available',
+            if ($this->customsettings->courseidsoperator == 'OR') {
+                $description = $full ? get_string('bo_cond_enrolledincourse_full_not_available',
                 'mod_booking', $a) :
                 get_string('bo_cond_enrolledincourse_not_available', 'mod_booking', $a);
+            } else {
+                $description = $full ? get_string('bo_cond_enrolledincourse_full_not_available',
+                'mod_booking', $a) :
+                get_string('bo_cond_enrolledincourse_not_available_and', 'mod_booking', $a);
+            }
+
+
         }
 
         return $description;
