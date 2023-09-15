@@ -23,19 +23,22 @@ Feature: Test messaging features in a booking
     And the following "activities" exist:
       | activity | course | name       | intro                  | bookingmanager | eventtype | Default view for booking options | Activate e-mails (confirmations, notifications and more) | Booking option name  |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | All bookings                     | Yes                                                      | New option - Webinar |
-    And I create booking option "New option - Webinar" in "My booking"
+    ##And I create booking option "New option - Webinar" in "My booking"
+    And the following "mod_booking > options" exist:
+      | booking    | text                        | course | description  | startendtimeknown | coursestarttime  | courseendtime | optiondatestart[0] | optiondateend[0] | teachersforoption |
+      | My booking | Option: mail to participant | C1     | Option deskr | 1                 | ## yesterday ##  | ## +4 days ## | ## tomorrow ##     | ## +2 days ##    | teacher1          |
 
   @javascript
-  Scenario: Send reminder mail to participant
+  Scenario: Booking option: send reminder mail to participant
     Given I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait "1" seconds
-    And I press "Teachers"
-    And I wait "1" seconds
-    And I set the field "Assign teachers:" to "Teacher 1"
-    And I press "Save and go back"
-    And I follow "My booking"
+    ##And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    ##And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    ##And I wait "1" seconds
+    ##And I press "Teachers"
+    ##And I wait "1" seconds
+    ##And I set the field "Assign teachers:" to "Teacher 1"
+    ##And I press "Save and go back"
+    ##And I follow "My booking"
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Student 1 (student1@example.com)" "text"
@@ -57,7 +60,7 @@ Feature: Test messaging features in a booking
     # And I should see "Behat test"
 
   @javascript
-  Scenario: Student books a booking option and get email confirmation
+  Scenario: Teacher books a booking option and get email confirmation
     ## URL webserver/_/mail is inacessible
     ## When I log in as "student1"
     ## And I open the link "webserver/_/mail"
