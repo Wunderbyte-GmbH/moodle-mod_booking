@@ -198,9 +198,14 @@ class selectusers implements bo_condition {
                     if (!$user || !user_can_view_profile($user)) {
                         return false;
                     }
-                    $details = user_get_user_details($user);
+                    $details = [
+                        'id' => $user->id,
+                        'email' => $user->email,
+                        'firstname' => $user->firstname,
+                        'lastname' => $user->lastname,
+                    ];
                     return $OUTPUT->render_from_template(
-                            'core_search/form-user-selector-suggestion', $details);
+                            'mod_booking/form-user-selector-suggestion', $details);
                 }
             ];
 
