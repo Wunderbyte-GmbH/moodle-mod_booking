@@ -1259,12 +1259,14 @@ class booking {
      * @return mixed|null the value found, false if nothing found
      */
     public static function get_value_of_json_by_key(int $bookingid, string $key) {
-        $settings = singleton_service::get_instance_of_booking_settings_by_bookingid($bookingid);
-        $json = $settings->json;
-        if (!empty($json)) {
-            $jsonobject = json_decode($json);
-            if (isset($jsonobject->{$key})) {
-                return $jsonobject->{$key};
+        if (!empty($bookingid)) {
+            $settings = singleton_service::get_instance_of_booking_settings_by_bookingid($bookingid);
+            $json = $settings->json;
+            if (!empty($json)) {
+                $jsonobject = json_decode($json);
+                if (isset($jsonobject->{$key})) {
+                    return $jsonobject->{$key};
+                }
             }
         }
         return null;

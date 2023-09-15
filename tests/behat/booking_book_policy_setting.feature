@@ -29,7 +29,7 @@ Feature: Test of book policy setting in a booking instance
   Scenario: Booking policy: add promt to the booking instance as a teacher via UI
     Given I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
-    And I follow "Miscellaneous settings"
+    And I follow "Advanced options"
     And I set the field "Booking policy" to "Confirm booking!"
     And I press "Save and display"
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
@@ -43,12 +43,6 @@ Feature: Test of book policy setting in a booking instance
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     Then I should see "Are you sure?" in the ".condition-bookingpolicy-form" "css_element"
     And I set the field "bookingpolicy_checkbox" to "checked"
-    And I follow "Continue"
-    And I should see "Book now" in the ".show .modalButtonAreaContainer" "css_element"
-    And I click on "Book now" "text" in the ".show .modalButtonAreaContainer" "css_element"
-    And I should see "Click again to confirm booking" in the ".show .modalButtonAreaContainer" "css_element"
-    And I click on "Click again to confirm booking" "text" in the ".show .modalButtonAreaContainer" "css_element"
-    And I should see "Booked" in the ".show .modalButtonAreaContainer" "css_element"
     And I follow "Continue"
     And I should see "You have successfully booked Test option 1" in the ".condition-confirmation" "css_element"
     And I follow "Close"
