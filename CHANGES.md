@@ -1,3 +1,7 @@
+## Version 8.0.38 (2023091500)
+**Improvements:**
+* Bugfix: Usernames were not shown correctly for some user because of missing rights in opiton form
+
 ## Version 8.0.37 (2023091401)
 **Improvements:**
 * Improvement: Use entity parent name in location, if existant.
