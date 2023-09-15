@@ -198,25 +198,19 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
 
   @javascript
   Scenario: Booking settings - access the teacher pages without login
-    Given I am on the "My booking" Activity page logged in as admin
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait "1" seconds
-    And I press "Teachers"
-    And I wait "1" seconds
-    And I set the field "Assign teachers:" to "Teacher 1"
-    And I press "Save and go back"
-    And I visit "/admin/category.php?category=modbookingfolder"
-    And I set the field "s_booking_teachersnologinrequired" to ""
-    And I press "Save changes"
+    Given the following "mod_booking > options" exist:
+      | booking    | text                      | course | description  | startendtimeknown | coursestarttime  | courseendtime | optiondatestart[0] | optiondateend[0] | teachersforoption |
+      | My booking | Booking option - Teachers | C1     | Option deskr | 1                 | ## yesterday ##  | ## +4 days ## | ## tomorrow ##     | ## +2 days ##    | teacher1,admin1   |
+    And I log in as "admin"
+    And I set the following administration settings values:
+      | Login for teacher pages not necessary | |
     And I log out
     And I visit "/mod/booking/teachers.php"
     And I wait to be redirected
     And I should see "Log in to" in the "#region-main" "css_element"
     And I log in as "admin"
-    And I visit "/admin/category.php?category=modbookingfolder"
-    And I set the field "s_booking_teachersnologinrequired" to "checked"
-    And I press "Save changes"
+    And I set the following administration settings values:
+      | Login for teacher pages not necessary | 1 |
     And I log out
     And I visit "/mod/booking/teachers.php"
     Then I should see "Teacher 1" in the ".page-allteachers-card" "css_element"
@@ -224,33 +218,28 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     And I should see "Teacher 1" in the ".card-title" "css_element"
 
   @javascript
-  Scenario: Booking settings - display teachers' emails pages without login
-    Given I am on the "My booking" Activity page logged in as admin
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait "1" seconds
-    And I press "Teachers"
-    And I wait "1" seconds
-    And I set the field "Assign teachers:" to "Teacher 1"
-    And I press "Save and go back"
-    And I visit "/admin/category.php?category=modbookingfolder"
-    And I set the field "s_booking_teachersnologinrequired" to "checked"
-    And I set the field "s_booking_teachersshowemails" to ""
-    And I press "Save changes"
+  Scenario: Booking settings - display teachers email pages without login
+    Given the following "mod_booking > options" exist:
+      | booking    | text                      | course | description  | startendtimeknown | coursestarttime  | courseendtime | optiondatestart[0] | optiondateend[0] | teachersforoption |
+      | My booking | Booking option - Teachers | C1     | Option deskr | 1                 | ## yesterday ##  | ## +4 days ## | ## tomorrow ##     | ## +2 days ##    | teacher1,admin1   |
+    And I log in as "admin"
+    And I set the following administration settings values:
+      | Login for teacher pages not necessary             | 1 |
+      | Always show teacher's email addresses to everyone |   |
     And I log out
-    And I visit "/mod/booking/teachers.php"
+    When I visit "/mod/booking/teachers.php"
     Then I should see "Teacher 1" in the ".page-allteachers-card" "css_element"
     And I should not see "Mail" in the ".page-allteachers-card" "css_element"
     And I follow "Teacher"
     And I should see "Teacher 1" in the ".card-title" "css_element"
     And I should not see "teacher1@example.com" in the ".card-title" "css_element"
     And I log in as "admin"
-    And I visit "/admin/category.php?category=modbookingfolder"
-    And I set the field "s_booking_teachersshowemails" to "checked"
+    And I set the following administration settings values:
+      | Always show teacher's email addresses to everyone | 1 |
     And I press "Save changes"
     And I log out
     And I visit "/mod/booking/teachers.php"
-    Then I should see "Teacher 1" in the ".page-allteachers-card" "css_element"
+    And I should see "Teacher 1" in the ".page-allteachers-card" "css_element"
     And I should see "Mail" in the ".page-allteachers-card" "css_element"
     And I follow "Teacher"
     And I should see "Teacher 1" in the ".card-title" "css_element"
@@ -259,15 +248,11 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
   @javascript
   Scenario: Booking settings - hide branding info
     Given I log in as "admin"
-    When I visit "/admin/category.php?category=modbookingfolder"
-    And I set the field "s_booking_turnoffwunderbytelogo" to ""
-    And I press "Save changes"
-    And I am on "Course 1" course homepage
-    And I follow "My booking"
-    Then I should see "Booking module created by Wunderbyte GmbH" in the "#region-main" "css_element"
-    When I visit "/admin/category.php?category=modbookingfolder"
-    And I set the field "s_booking_turnoffwunderbytelogo" to "checked"
-    And I press "Save changes"
-    And I am on "Course 1" course homepage
-    And I follow "My booking"
+    When I set the following administration settings values:
+      | Do not show Wunderbyte logo und link | |
+    And I am on the "My booking" Activity page
+    And I should see "Booking module created by Wunderbyte GmbH" in the "#region-main" "css_element"
+    And I set the following administration settings values:
+      | Do not show Wunderbyte logo und link | 1 |
+    And I am on the "My booking" Activity page
     Then I should not see "Booking module created by Wunderbyte GmbH" in the "#region-main" "css_element"
