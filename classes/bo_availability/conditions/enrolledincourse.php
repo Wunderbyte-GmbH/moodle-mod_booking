@@ -438,7 +438,6 @@ class enrolledincourse implements bo_condition {
                 get_string('bo_cond_enrolledincourse_not_available_and', 'mod_booking', $a);
             }
 
-
         }
 
         return $description;
