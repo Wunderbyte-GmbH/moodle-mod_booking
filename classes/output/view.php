@@ -551,8 +551,28 @@ class view implements renderable, templatable {
     }
 
 
-    public static function apply_standard_params_for_bookingtable(wunderbyte_table &$wbtable,
-        $optionsfields = [], bool $filter = true, bool $search = true, bool $sort = true) {
+    /**
+     * This standard functions sets important params for booking options.
+     * It should be kept generic to be usable on the view as well as in shortcodes etc.
+     * @param wunderbyte_table $wbtable
+     * @param array $optionsfields
+     * @param bool $filter
+     * @param bool $search
+     * @param bool $sort
+     * @param bool $reload
+     * @param bool $filterinactive
+     * @return void
+     * @throws moodle_exception
+     * @throws coding_exception
+     */
+    public static function apply_standard_params_for_bookingtable(
+        wunderbyte_table &$wbtable,
+        $optionsfields = [],
+        bool $filter = true,
+        bool $search = true,
+        bool $sort = true,
+        bool $reload = true,
+        bool $filterinactive = true) {
         // Activate sorting.
         $wbtable->cardsort = true;
 
@@ -676,7 +696,7 @@ class view implements renderable, templatable {
         $wbtable->pageable(true);
         $wbtable->stickyheader = true;
         $wbtable->showcountlabel = false;
-        $wbtable->showreloadbutton = false;
+        $wbtable->showreloadbutton = $reload;
 
         $wbtable->define_cache('mod_booking', 'bookingoptionstable');
 
@@ -751,10 +771,9 @@ class view implements renderable, templatable {
         }
 
         $wbtable->tabletemplate = 'mod_booking/table_list';
-        $wbtable->showreloadbutton = true;
 
         // Let's collapse filters per default.
-        $wbtable->filteronloadinactive = true;
+        $wbtable->filteronloadinactive = $filterinactive;
     }
 
     /**
