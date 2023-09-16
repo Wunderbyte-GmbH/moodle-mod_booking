@@ -344,6 +344,7 @@ $string['subscribeuser'] = 'Do you really want to enrol the users in the followi
 $string['deleteuserfrombooking'] = 'Do you really want to delete the users from the booking?';
 $string['showallbookingoptions'] = 'All booking options';
 $string['showmybookingsonly'] = 'My booked options';
+$string['showmyfieldofstudyonly'] = "My field of study";
 $string['mailconfirmationsent'] = 'You will shortly receive a confirmation e-mail';
 $string['confirmdeletebookingoption'] = 'Do you really want to delete this booking option?';
 $string['norighttobook'] = 'Booking is not possible for your user role. Please contact the site administrator to give you the appropriate rights or enrol/sign in.';
@@ -2362,8 +2363,10 @@ $string['personnr'] = 'Person n° {$a}';
 // Shortcodes.
 $string['recommendedin'] = "Shortcode to show a list of booking options which should be recommended in a given course. To use this, add a booking customfield with the shortname 'recommendedin' and comma separated values with the shortnames of the courses you want to show this recommendations. So: When you want recommend option1 to the participants enroled in Course 1 (course1), then you need to set the customfield 'recommendedin' from within the booking option to 'course1'.";
 $string['fieldofstudyoptions'] = "Shortcode to show all booking options of a field of study. They are defined by a common cohort sync enrolement & the booking availabilty condition of having to be inscribed in one of these courses.";
+$string['fieldofstudycohortoptions'] = "Shortcode to show all booking options of a field of study. They are defined by a course group with the same name. Booking options are defined by having comma separated shortnames of at least one of theses courses in the recommendedin custom booking options field.";
 $string['nofieldofstudyfound'] = "No field of study could be determined via cohorts";
 $string['shortcodenotsupportedonyourdb'] = "This shortcode is not supported on your DB. It only works on postgres & mariadb";
+$string['definefieldofstudy'] = 'You can show here all booking options from the whole field fo study. To make this work, use  groups with the name of your field of study. In a course which is used in "Psychology" and "Philosophy", you will have two groups, named like these fields of study. Follow this scheme for all your courses. Now add the custom booking field with the shortname "recommendedin", where you add the comma separated shortcodes of those courses, in which a booking option should be recommended. If a user is subscribed to "philosophy", she will see all the booking options in which at least one of the "philosohpy"-courses is recommended.';
 
 // Elective.
 $string['elective'] = "Elective";

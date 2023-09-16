@@ -371,6 +371,7 @@ $string['waitingplacesavailable'] = 'Verfügbare Wartelistenplätze:  {$a->overb
 $string['waitspaceavailable'] = 'Wartelistenplätze verfügbar';
 $string['duplicatebooking'] = 'Diese Buchungsoption duplizieren';
 $string['showmybookingsonly'] = 'Meine Buchungen';
+$string['showmyfieldofstudyonly'] = "Mein Studiengang";
 $string['moveoptionto'] = 'Buchungsoption in andere Buchungsinstanz verschieben';
 
 // Tag templates.
@@ -2240,7 +2241,8 @@ $string['personnr'] = 'Person Nr. {$a}';
 
 // Shortcodes.
 $string['recommendedin'] = "Shortcode um Buchungsoptionen in bestimmten Kursen zu empfehlen. Legen Sie ein neues benutzerdefiniertes Feld für Buchungsoptionen mit dem Kurznamen 'recommendedin' an. In einer Buchungsoption setzen Sie nun den Wert dieses Feldes auf 'course1', wenn Sie die Buchungsoption im Course 1 (course1) empfehlen wollen.";
-$string['fieldofstudyoptions'] = "Shortcode um alle Buchungsoptionen eines Studiengangs anzuzeigen. Ein Zudiengang wird über die gemeinsame Einschreibung über eine globale Gruppe definiert. Außerdem muss in der angezeigten Buchungsoption in der Buchungsvoraussetzung einer der betroffenen Kurse ausgewählt sein.";
+$string['fieldofstudyoptions'] = "Shortcode um alle Buchungsoptionen eines Studiengangs anzuzeigen. Ein Studientgang wird über die gemeinsame Einschreibung über eine globale Gruppe definiert. Außerdem muss in der angezeigten Buchungsoption in der Buchungsvoraussetzung einer der betroffenen Kurse ausgewählt sein.";
+$string['fieldofstudycohortoptions'] = "Shortcode um alle Buchungsoptionen eines Studiengangs anzuzeigen. Wird dadurch definiert, dass die NutzerInnen in allen Kursen in die Gruppe mit dem gleichen Namen eingeschrieben sind. Buchungsoptionen werden über das 'recommendedin' customfield zugeordnet.";
 $string['nofieldofstudyfound'] = "Es konnte keine Studienrichtung über die Globalen Gruppen herausgefunden werden.";
 $string['shortcodenotsupportedonyourdb'] = "Dieser Shortcode funktioniert nur auf Postgres & Mariadb Datenbanken.";
 

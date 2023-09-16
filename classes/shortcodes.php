@@ -138,6 +138,112 @@ class shortcodes {
      */
     public static function fieldofstudyoptions($shortcode, $args, $content, $env, $next) {
 
+        global $COURSE, $USER, $DB, $CFG;
+
+        if (
+            !isset($args['perpage'])
+            || !is_int((int)$args['perpage'])
+            || !$perpage = ($args['perpage'])
+        ) {
+            $perpage = 1000;
+        }
+
+        // First: determine the cohort we want to use.
+        // If not specified in the shortcode, we take the one the user is subscribed to.
+
+        if (empty($args['group'])) {
+            // We see in which the current user is subscribed in thecurrent course.
+
+            $sql = "SELECT DISTINCT g.name, g.courseid
+                    FROM {groups_members} gm
+                    JOIN {groups} g
+                    ON g.id = gm.groupid
+                    WHERE userid = :userid
+                    AND g.courseid = :course";
+            $records = $DB->get_records_sql($sql, ['userid' => $USER->id, 'course' => $COURSE->id]);
+            $groupnames = array_map(fn($a) => $a->name, $records);
+            $courseids = array_map(fn($a) => $a->courseid, $records);
+
+        } else {
+            $courseids = $DB->get_fieldset_select('groups', 'courseid', 'name = :groupname', ['groupname' => $args['group']]);
+        }
+
+        if (empty($courseids)) {
+            return get_string('definefieldofstudy', 'mod_booking');
+        }
+
+        list($inorequal, $params) = $DB->get_in_or_equal($groupnames);
+
+        $sql = "SELECT c.id, c.shortname
+                FROM {course} c
+                JOIN {groups} g
+                ON g.courseid = c.id
+                WHERE g.name $inorequal";
+
+        $courses = $DB->get_records_sql($sql, $params);
+
+        $courseshortnames = array_map(fn($a) => "%$a->shortname%", $courses);
+
+        // Second: Get the courses that are affected.
+        // Third: Create the json to obtain the booking options.
+
+        $table = self::init_table_for_courses(null, "courses_" . implode("_", $courseids));
+
+        list($fields, $from, $where, $params, $filter) =
+                booking::get_options_filter_sql(0, 0, '', null, null, [], ['recommendedin' => $courseshortnames], null, null, '');
+
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
+
+        // These are all possible options to be displayed in the bookingtable.
+        $possibleoptions = [
+            "description",
+            "statusdescription",
+            "teacher",
+            "responsiblecontact",
+            "showdates",
+            "dayofweektime",
+            "location",
+            "institution",
+            "minanswers",
+        ];
+        // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
+
+        if (isset($args['exclude'])) {
+            $exclude = explode(',', $args['exclude']);
+            $optionsfields = array_diff($possibleoptions, $exclude);
+        } else {
+            $optionsfields = $possibleoptions;
+        }
+
+        view::apply_standard_params_for_bookingtable($table, $optionsfields, true, true, true);
+
+        unset($table->subcolumns['rightside']);
+
+        $out = $table->outhtml($perpage, true);
+
+        return $out;
+    }
+
+    /**
+     * This shortcode covers a special case.
+     * It shows all the booking options of a field of study...
+     * ... regardless if they are in one or many booking instances.
+     * The "field of study" has to be defined in the following way.
+     * All courses of a study field use the cohort sync method with the same cohort.
+     * The list depends on cohorts the user is subscribed to...
+     * ... as well as on the course the user is looking at.
+     * Only in course 1, all the booking options will be shown.
+     * The setting of the course can be overriden via the argument course=5 etc.
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return string
+     */
+    public static function fieldofstudycohortoptions($shortcode, $args, $content, $env, $next) {
+
         global $PAGE, $USER, $DB, $CFG;
 
         $supporteddbs = [
@@ -247,139 +353,5 @@ class shortcodes {
         // phpcs:ignore
         //$table->define_columns(['titleprefix']);
         return $table;
-    }
-
-    /**
-     * Define Filter columns
-     *
-     * @param bookingoptions_wbtable $table
-     * @return void
-     */
-    private static function define_filtercolumns(&$table) {
-        $table->define_filtercolumns([
-            'id',
-            'dayofweek' => [
-                'localizedname' => get_string('dayofweek', 'mod_booking'),
-                'monday' => get_string('monday', 'mod_booking'),
-                'tuesday' => get_string('tuesday', 'mod_booking'),
-                'wednesday' => get_string('wednesday', 'mod_booking'),
-                'thursday' => get_string('thursday', 'mod_booking'),
-                'friday' => get_string('friday', 'mod_booking'),
-                'saturday' => get_string('saturday', 'mod_booking'),
-                'sunday' => get_string('sunday', 'mod_booking')
-            ],  'location' => [
-                'localizedname' => get_string('location', 'mod_booking')
-            ]
-        ]);
-    }
-
-    private static function get_booking($args) {
-        // If the id argument was not passed on, we have a fallback in the connfig.
-        if (!isset($args['id'])) {
-            $args['id'] = get_config('mod_booking', 'shortcodessetinstance');
-        }
-
-        // To prevent misconfiguration, id has to be there and int.
-        if (!(isset($args['id']) && $args['id'] && is_int((int)$args['id']))) {
-            return 'Set id of booking instance';
-        }
-
-        if (!$booking = singleton_service::get_instance_of_booking_by_cmid($args['id'])) {
-            return 'Couldn\'t find right booking instance ' . $args['id'];
-        }
-
-        return $booking;
-    }
-
-    /**
-     * Add some information about the table
-     *
-     * @param bookingoptions_wbtable $table
-     * @param array $args
-     * @return void
-     */
-    private static function generate_table_for_list(&$table, $args) {
-        $subcolumnsinfo = ['teacher', 'dayofweektime', 'location', 'bookings'];
-        if (!empty($args['showminanswers'])) {
-            $subcolumnsinfo[] = 'minanswers';
-        }
-        $subcolumnsleftside = ['text'];
-
-        $table->define_cache('mod_booking', 'bookingoptionstable');
-
-        $table->add_subcolumns('top', ['action']);
-        $table->add_subcolumns('leftside', ['text']);
-        $table->add_subcolumns('info', $subcolumnsinfo);
-        // phpcs:ignore
-        /* $table->add_subcolumns('footer', ['botags']); */
-        $table->add_subcolumns('leftside', $subcolumnsleftside);
-
-        $table->add_subcolumns('info', $subcolumnsinfo);
-        // phpcs:ignore
-        //$table->add_subcolumns('footer', ['botags']);
-
-        $table->add_classes_to_subcolumns('top', ['columnkeyclass' => 'd-none']);
-        $table->add_classes_to_subcolumns('top', ['columnclass' => 'text-right col-md-2 position-relative pr-0'], ['action']);
-
-        $table->add_classes_to_subcolumns('leftside', ['columnkeyclass' => 'd-none']);
-        $table->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-left mt-2 mb-2 h3 col-md-auto'], ['text']);
-
-        $table->add_classes_to_subcolumns('info', ['columnkeyclass' => 'd-none']);
-        $table->add_classes_to_subcolumns('info', ['columnclass' => 'text-left text-secondary font-size-sm pr-2']);
-        $table->add_classes_to_subcolumns('info', ['columnvalueclass' => 'd-flex'], ['teacher']);
-        $table->add_classes_to_subcolumns('info', ['columniclassbefore' => 'fa fa-clock-o'], ['dayofweektime']);
-        $table->add_classes_to_subcolumns('info', ['columniclassbefore' => 'fa fa-map-marker'], ['location']);
-        $table->add_classes_to_subcolumns('info', ['columniclassbefore' => 'fa fa-ticket'], ['bookings']);
-        if (!empty($args['showminanswers'])) {
-            $table->add_classes_to_subcolumns('info', ['columniclassbefore' => 'fa fa-arrow-up'], ['minanswers']);
-        }
-
-        // Set additional descriptions.
-        $table->add_classes_to_subcolumns('rightside', ['columnvalueclass' =>
-            'text-right mb-auto align-self-end shortcodes_option_info_invisible '],
-            ['invisibleoption']);
-        $table->add_classes_to_subcolumns('rightside', ['columnclass' =>
-            'text-right mt-auto align-self-end theme-text-color bold ']);
-
-        // Override naming for columns. one could use getstring for localisation here.
-        $table->add_classes_to_subcolumns(
-            'top',
-            ['keystring' => get_string('tableheader_text', 'booking')],
-        );
-        $table->add_classes_to_subcolumns(
-            'leftside',
-            ['keystring' => get_string('tableheader_text', 'booking')],
-            ['text']
-        );
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /*
-        $table->add_classes_to_subcolumns(
-            'leftside',
-            ['keystring' => get_string('tableheader_teacher', 'booking')],
-            ['teacher']
-        );
-        */
-        $table->add_classes_to_subcolumns(
-            'info',
-            ['keystring' => get_string('tableheader_maxanswers', 'booking')],
-            ['maxanswers']
-        );
-        $table->add_classes_to_subcolumns(
-            'info',
-            ['keystring' => get_string('tableheader_maxoverbooking', 'booking')],
-            ['maxoverbooking']
-        );
-        $table->add_classes_to_subcolumns(
-            'info',
-            ['keystring' => get_string('tableheader_coursestarttime', 'booking')],
-            ['coursestarttime']
-        );
-        $table->add_classes_to_subcolumns(
-            'info',
-            ['keystring' => get_string('tableheader_courseendtime', 'booking')],
-            ['courseendtime']
-        );
-
-        $table->is_downloading('', 'List of booking options');
     }
 }

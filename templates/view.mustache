@@ -106,6 +106,14 @@
         </button>
       </li>
     {{/invisibleoptionstable}}
+    {{#fieldofstudytable}}
+      <li class="nav-item mr-1" role="presentation">
+        <button class="nav-link {{#showfieldofstudy}}active{{/showfieldofstudy}}" id="showfieldofstudy-tab" data-toggle="pill" data-target="#showfieldofstudy"
+          type="button" role="tab" aria-controls="showfieldofstudy" aria-selected="true">
+          {{#str}} showmyfieldofstudyonly, mod_booking {{/str}}
+        </button>
+      </li>
+    {{/fieldofstudytable}}
     {{/elective}}
     {{#elective}}
       <li class="nav-item mr-1" role="presentation">
@@ -141,6 +149,9 @@
     {{#invisibleoptionstable}}
       <div class="tab-pane fade {{#invisibleoptions}}show active{{/invisibleoptions}}" id="invisibleoptions" role="tabpanel" aria-labelledby="invisibleoptions-tab">{{{invisibleoptionstable}}}</div>
     {{/invisibleoptionstable}}
+    {{#fieldofstudytable}}
+      <div class="tab-pane fade {{#showfieldofstudy}}show active{{/showfieldofstudy}}" id="showfieldofstudy" role="tabpanel" aria-labelledby="showfieldofstudy-tab">{{{fieldofstudytable}}}</div>
+    {{/fieldofstudytable}}
     {{#elective}}
       {{> mod_booking/elective/component_elective }}
       <div class="tab-pane fade {{#elective}}show active{{/elective}}" id="elective" role="tabpanel" aria-labelledby="elective-tab">{{{electivetable}}}</div>

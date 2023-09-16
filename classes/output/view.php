@@ -25,6 +25,7 @@
 
 namespace mod_booking\output;
 
+use coding_exception;
 use context_module;
 use context_system;
 use local_wunderbyte_table\wunderbyte_table;
@@ -32,6 +33,7 @@ use mod_booking\booking;
 use mod_booking\elective;
 use mod_booking\singleton_service;
 use mod_booking\table\bookingoptions_wbtable;
+use moodle_exception;
 use moodle_url;
 use renderer_base;
 use renderable;
@@ -78,6 +80,9 @@ class view implements renderable, templatable {
     /** @var string $renderedinvisibleoptionstable the rendered table of all options which are invisible */
     private $renderedinvisibleoptionstable = null;
 
+    /** @var string $renderedfieldofstudyoptionstable the rendered table of all options from my field of study */
+    private $renderedfieldofstudyoptionstable = null;
+
     /** @var string $myinstitutionname */
     private $myinstitutionname = null;
 
@@ -104,6 +109,9 @@ class view implements renderable, templatable {
 
     /** @var string $showinvisible */
     private $showinvisible = null;
+
+    /** @var string $showinvisible */
+    private $showfieldofstudy = null;
 
     /** @var string $elective */
     private $renderelectivetable = null;
@@ -174,6 +182,9 @@ class view implements renderable, templatable {
                     $this->showinvisible = true;
                 }
                 break;
+            case 'showfieldofstudy':
+                $this->showfieldofstudy = true;
+                break;
             case 'showall':
             default:
                 $this->showall = true;
@@ -233,6 +244,11 @@ class view implements renderable, templatable {
         // Only show invisible options.
         if (in_array('showinvisible', $showviews) && has_capability('mod/booking:canseeinvisibleoptions', $context)) {
             $this->renderedinvisibleoptionstable = $this->get_rendered_invisible_options_table();
+        }
+
+        // Field of study options.
+        if (in_array('showfieldofstudy', $showviews)) {
+            $this->renderedfieldofstudyoptionstable = format_text('[fieldofstudyoptions]');
         }
     }
 
@@ -792,6 +808,7 @@ class view implements renderable, templatable {
             'myinstitutiontable' => $this->renderedmyinstitutiontable,
             'visibleoptionstable' => $this->renderedvisibleoptionstable,
             'invisibleoptionstable' => $this->renderedinvisibleoptionstable,
+            'fieldofstudytable' => $this->renderedfieldofstudyoptionstable,
             'electivetable' => $this->renderelectivetable,
             'showonlyone' => $this->showonlyone,
             'showactive' => $this->showactive,
@@ -802,6 +819,7 @@ class view implements renderable, templatable {
             'myinstitutionname' => $this->myinstitutionname,
             'showvisible' => $this->showvisible,
             'showinvisible' => $this->showinvisible,
+            'showfieldofstudy' => $this->showfieldofstudy,
             'elective' => empty($this->renderelectivetable) ? false : $this->electivemodal,
         ];
     }

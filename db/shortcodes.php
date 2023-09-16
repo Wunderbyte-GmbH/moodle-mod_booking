@@ -35,4 +35,8 @@ $shortcodes = [
         'callback' => 'mod_booking\shortcodes::fieldofstudyoptions',
         'description' => 'fieldofstudyoptions'
     ],
+    'fieldofstudycohortoptions' => [
+        'callback' => 'mod_booking\shortcodes::fieldofstudycohortoptions',
+        'description' => 'fieldofstudycohortoptions'
+    ],
 ];

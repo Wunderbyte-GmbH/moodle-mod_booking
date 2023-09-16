@@ -936,7 +936,33 @@ class booking {
                 $counter++;
             }
 
-            if (gettype($value) == 'integer') {
+            if (gettype($value) == 'array') {
+
+                $where .= " AND ( ";
+                $orstring = [];
+
+                foreach ($value as $arrayvalue) {
+
+                    if (gettype($arrayvalue) == 'integer') {
+                        $orstring[] = " $key = $arrayvalue ";
+                    } else {
+                        // Be sure to have a lower key string.
+                        $paramsvaluekey = "param";
+                        while (isset($params[$paramsvaluekey])) {
+                            $paramsvaluekey .= $counter;
+                            $counter++;
+                        }
+
+                        $orstring[] = " " . $DB->sql_like("$key", ":$paramsvaluekey", false) . " ";
+                        $params[$paramsvaluekey] = $arrayvalue;
+                    }
+                }
+
+                $where .= implode(' OR ', $orstring);
+
+                $where .= " ) ";
+
+            } else if (gettype($value) == 'integer') {
                 $where .= " AND   $key = $value";
             } else {
                 $where .= " AND " . $DB->sql_like("$key", ":$paramsvaluekey", false);
