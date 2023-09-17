@@ -161,7 +161,7 @@ class page_teacher implements renderable, templatable {
         $teacheroptiontables = [];
 
         $bookingidrecords = $DB->get_records_sql(
-            "SELECT DISTINCT bookingid FROM {booking_teachers} WHERE userid = :teacherid",
+            "SELECT DISTINCT bookingid FROM {booking_teachers} WHERE userid = :teacherid ORDER By bookingid ASC",
             ['teacherid' => $teacherid]
         );
 
@@ -184,13 +184,22 @@ class page_teacher implements renderable, templatable {
 
                 $tablename = preg_replace("/[^a-z]/", '', $booking->settings->name);
 
-                $teacheroptiontables[] = [
+                $newtable =  [
                     'bookingid' => $bookingid,
                     'bookinginstancename' => $booking->settings->name,
                     'tablename' => $tablename,
                     'table' => $out,
                     'class' => $class
                 ];
+
+                // This is a special setting for a special project. Only when this project is installed...
+                // ... the set semester will get precedence over all the other ones.
+                if (class_exists('local_musi\observer')
+                    && ($booking->cmid == get_config('local_musi', 'shortcodessetinstance'))) {
+                        array_unshift($teacheroptiontables, $newtable);
+                } else {
+                    $teacheroptiontables[] = $newtable;
+                }
             }
         }
 
