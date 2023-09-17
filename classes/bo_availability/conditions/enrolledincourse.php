@@ -349,7 +349,7 @@ class enrolledincourse implements bo_condition {
         if (!empty($acdefault->courseids)) {
             $defaultvalues->bo_cond_enrolledincourse_restrict = "1";
             $defaultvalues->bo_cond_enrolledincourse_courseids = $acdefault->courseids;
-            $defaultvalues->bo_cond_enrolledincourse_courseids_operator = $acdefault->courseidsoperator;
+            $defaultvalues->bo_cond_enrolledincourse_courseids_operator = $acdefault->courseidsoperator ?? 'AND';
         }
         if (!empty($acdefault->overrides)) {
             $defaultvalues->bo_cond_enrolledincourse_overrideconditioncheckbox = "1";
@@ -428,7 +428,8 @@ class enrolledincourse implements bo_condition {
             }
             $a = implode(', ', $coursestringsarr);
 
-            if ($this->customsettings->courseidsoperator == 'OR') {
+            if (isset($this->customsettings->courseidsoperator)
+                && $this->customsettings->courseidsoperator == 'OR') {
                 $description = $full ? get_string('bo_cond_enrolledincourse_full_not_available',
                 'mod_booking', $a) :
                 get_string('bo_cond_enrolledincourse_not_available', 'mod_booking', $a);
