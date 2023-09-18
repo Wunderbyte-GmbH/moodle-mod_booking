@@ -26,7 +26,6 @@
 
     Example context (json):
     {
-
        "uniqueid": "tlcuniqueid",
        "showcomponentstoggle": true,
        "showfilterbutton": true,
@@ -81,11 +80,10 @@
      <div class="norecordsfound">{{#str}} norecords, local_wunderbyte_table {{/str}}</div>
 {{/norecords}}
 {{^norecords}}
-     <div class="wunderbyte_table_container_{{idstring}}
-          {{#showfilterbutton}}wunderbyte_table_filter_on{{/showfilterbutton}}
-          {{uniqueid}}
-          {{#filterdeactivated}} inactivefilter {{/filterdeactivated}}
-          {{#nofilteratall}}{{/nofilteratall}} mt-2 px-2">
+     <div class="wunderbyte_table_container_{{idstring}} {{uniqueid}}{{!
+          }}{{#showfilterbutton}} wunderbyte_table_filter_on{{/showfilterbutton}}{{!
+          }}{{#filterdeactivated}} inactivefilter{{/filterdeactivated}}{{!
+          }}{{#nofilteratall}} nofilter{{/nofilteratall}} mt-2 px-2">
           <div class="container-fluid">
                <div class="row mb-2">
                     <div>
@@ -99,20 +97,16 @@
                     </div>
                </div>
           </div>
-
           <div class="wunderbyte_table_container {{uniqueid}}">
-
-               <aside class="wunderbyte_table_components {{^showcomponentstoggle}} inactive {{/showcomponentstoggle}}">
+               <aside class="wunderbyte_table_components {{^showcomponentstoggle}} inactive{{/showcomponentstoggle}}">
                     {{> local_wunderbyte_table/component_filter }}
                     {{> local_wunderbyte_table/component_infinitescroll }}
                </aside>
-
                <div class= "wunderbyteTableClass {{uniqueid}}" id='a{{idstring}}'>
                     {{> mod_booking/table_list }}
                </div>
           </div>
      </div>
-
 {{#js}}
      require(['local_wunderbyte_table/init'], function(init) {
           init.init('{{idstring}}', '{{encodedtable}}');
