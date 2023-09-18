@@ -758,7 +758,7 @@ class view implements renderable, templatable {
                 'localizedname' => get_string('timespan', 'local_wunderbyte_table'),
                 'datepicker' => [
                     'In between' => [
-                        'possibleoperations' => ['within', 'before', 'after'],
+                        'possibleoperations' => ['within', 'before', 'after', 'flexoverlap'],
                         'columntimestart' => 'coursestarttime',
                         'columntimeend' => 'courseendtime',
                         'labelstartvalue' => get_string('coursestarttime', 'mod_booking'),
