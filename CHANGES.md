@@ -1,3 +1,7 @@
+## Version 8.0.40 (2023091801)
+**Bugfixes:**
+* Bugfix: First tab in teachers table is active
+
 ## Version 8.0.39 (2023091800)
 **Improvements:**
 * Improvement: Add "fieldofstudy" tab & corresponding fucntionality.
