@@ -26,10 +26,20 @@
 
     Example context (json):
     {
+
+       "uniqueid": "tlcuniqueid",
+       "showcomponentstoggle": true,
+       "showfilterbutton": true,
+       "nofilteratall": false,
+       "filterdeactivated": true,
+       "idstring": "tlcidstring",
        "listheaderclass" : "listheaderclass",
        "cardheaderclass" : "cardheaderclass",
        "cardfooterclass" : "cardfooterclass",
        "cardimageclass" : "cardimageclass",
+       "rowid" : "rowid",
+       "rowclasses" : "rowclasses",
+       "encodedtable": "fdaskjfdjalsdjfkldsjflsajflksdjfklasdjflkdasjljkdfsalkjfoweijfoeisjgdklyjglky",
        "cardheader": [
           {
             "columnclass" : "columnclass",
@@ -90,7 +100,6 @@
                </div>
           </div>
 
-
           <div class="wunderbyte_table_container {{uniqueid}}">
 
                <aside class="wunderbyte_table_components {{^showcomponentstoggle}} inactive {{/showcomponentstoggle}}">
@@ -106,7 +115,7 @@
 
 {{#js}}
      require(['local_wunderbyte_table/init'], function(init) {
-          init.init('{{idstring}}','{{encodedtable}}');
+          init.init('{{idstring}}', '{{encodedtable}}');
      });
 {{/js}}
 {{/norecords}}
