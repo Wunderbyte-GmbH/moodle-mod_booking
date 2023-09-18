@@ -193,7 +193,7 @@ class page_teacher implements renderable, templatable {
 
                 $tablename = preg_replace("/[^a-z]/", '', $booking->settings->name);
 
-                $newtable =  [
+                $newtable = [
                     'bookingid' => $bookingid,
                     'bookinginstancename' => $booking->settings->name,
                     'tablename' => $tablename,
