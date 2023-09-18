@@ -25,6 +25,7 @@
 namespace mod_booking\output;
 
 use context_system;
+use context_module;
 use mod_booking\singleton_service;
 use moodle_url;
 use renderer_base;
@@ -156,7 +157,7 @@ class page_teacher implements renderable, templatable {
      */
     private function get_option_tables_for_teacher(int $teacherid, $perpage = 1000) {
 
-        global $DB;
+        global $DB, $USER;
 
         $teacheroptiontables = [];
 
@@ -172,8 +173,16 @@ class page_teacher implements renderable, templatable {
 
             if ($booking = singleton_service::get_instance_of_booking_by_bookingid($bookingid)) {
 
-                // We load only the first table directly, the other ones lazy.
+                // If a booking option is set to invisible, we just wont show the instance right away.
+                // This can not replace the check if the user actually has the rights to see it.
+                $modinfo = get_fast_modinfo($booking->course, $USER->id);
+                $cm = $modinfo->get_cm($booking->cmid);
 
+                if (!$cm->uservisible) {
+                    continue;
+                }
+
+                // We load only the first table directly, the other ones lazy.
                 $lazy = $firsttable ? '' : ' lazy="1" ';
 
                 $view = new view($booking->cmid);
@@ -198,6 +207,16 @@ class page_teacher implements renderable, templatable {
                     && ($booking->cmid == get_config('local_musi', 'shortcodessetinstance'))) {
                         array_unshift($teacheroptiontables, $newtable);
                 } else {
+
+                    // Todo: Only show booking options from instance that is available.
+                    // Right now, we don't use it. needs a setting.
+                    if (1 == 2) {
+                        $context = context_module::instance($booking->cmid);
+                        if (!has_capability('mod/booking:choose', $context)) {
+                            continue;
+                        }
+                    }
+
                     $teacheroptiontables[] = $newtable;
                 }
             }
