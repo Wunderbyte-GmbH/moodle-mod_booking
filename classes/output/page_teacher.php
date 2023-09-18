@@ -205,7 +205,14 @@ class page_teacher implements renderable, templatable {
                 // ... the set semester will get precedence over all the other ones.
                 if (class_exists('local_musi\observer')
                     && ($booking->cmid == get_config('local_musi', 'shortcodessetinstance'))) {
-                        array_unshift($teacheroptiontables, $newtable);
+
+                    // If there is already a table in our array, we make it inactive.
+                    if (isset($teacheroptiontables[0])) {
+                        $teacheroptiontables[0]['class'] = '';
+                    }
+                    $newtable['class'] = 'active show';
+                    array_unshift($teacheroptiontables, $newtable);
+
                 } else {
 
                     // Todo: Only show booking options from instance that is available.
