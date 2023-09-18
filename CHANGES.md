@@ -1,5 +1,12 @@
-## Version 8.0.38 (2023091500)
+## Version 8.0.39 (2023091800)
 **Improvements:**
+* Improvement: Add "fieldofstudy" tab & corresponding fucntionality.
+* Improvement: Dont show hidden instances on teachers page.
+* Improvement: Add operator to enrolled in courses condition to decide if at least one or all of them have to be met.
+* Improvement: More behat tests.
+
+## Version 8.0.38 (2023091500)
+**Bugfixes:**
 * Bugfix: Usernames were not shown correctly for some user because of missing rights in opiton form
 
 ## Version 8.0.37 (2023091401)
