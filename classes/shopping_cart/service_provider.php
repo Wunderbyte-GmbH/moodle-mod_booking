@@ -321,10 +321,23 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         // Currently, we only check this for options.
         // Maybe we will need additional areas in the future.
         if ($area == 'option') {
-            $optionid = $itemid;
-            $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+            if (empty($itemid)) {
+                return false;
+            }
+
+            // Whenever we don't find the right optionid or the booking id, we return false.
+            if (!$optionsettings = singleton_service::get_instance_of_booking_option_settings($itemid)) {
+                return false;
+            }
+
+            if (empty($optionsettings->bookingid)) {
+                return false;
+            }
+
             $bookingid = $optionsettings->bookingid;
-            if (booking_option::get_value_of_json_by_key($optionid, 'disablecancel') ||
+
+            if (booking_option::get_value_of_json_by_key($itemid, 'disablecancel') ||
                 booking::get_value_of_json_by_key($bookingid, 'disablecancel')) {
                 $allowedtocancel = false;
             }
