@@ -1,3 +1,26 @@
+8.0.41 (2023092100)
+* New feature: New tab "field of study" (PRO feature).
+* Improvement: Add margins for bookit button areas.
+* Improvement: Show countlabel for filter.
+* Bugfix: No error on non existing option by because of callback.
+* Bugfix: Do not use legacy get_user_status function anymore. We use the booking answers from singleton service now!
+* Bugfix: Use right variablename ($itemid instead of $optionid) in is_available function call.
+
+8.0.40 (2023091801)
+* Bugfix: First tab in teachers table is active
+
+8.0.39 (2023091800)
+* Improvement: Add "fieldofstudy" tab & corresponding fucntionality.
+* Improvement: Dont show hidden instances on teachers page.
+* Improvement: Add operator to enrolled in courses condition to decide if at least one or all of them have to be met.
+* Improvement: More behat tests.
+
+8.0.38 (2023091500)
+* Bugfix: Usernames were not shown correctly for some user because of missing rights in opiton form
+
+8.0.37 (2023091401)
+* Improvement: Use entity parent name in location, if existant.
+
 8.0.36 (2023091400)
 * New feature: It is now possible to turn off modals and book "inline".
 * New feature: New shortcode [fieldofstudy].

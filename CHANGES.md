@@ -1,3 +1,16 @@
+## Version 8.0.41 (2023092100)
+**New features:**
+* New feature: New tab "field of study" (PRO feature).
+
+**Improvements:**
+* Improvement: Add margins for bookit button areas.
+* Improvement: Show countlabel for filter.
+
+**Bugfixes:**
+* Bugfix: No error on non existing option by because of callback.
+* Bugfix: Do not use legacy get_user_status function anymore. We use the booking answers from singleton service now!
+* Bugfix: Use right variablename ($itemid instead of $optionid) in is_available function call.
+
 ## Version 8.0.40 (2023091801)
 **Bugfixes:**
 * Bugfix: First tab in teachers table is active
