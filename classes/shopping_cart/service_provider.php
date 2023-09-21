@@ -63,7 +63,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
 
             $boinfo = new bo_info($settings);
-            list($id, $isavailable, $description) = $boinfo->is_available($optionid, $userid, true);
+            list($id, $isavailable, $description) = $boinfo->is_available($itemid, $userid, true);
 
             // The blocking ID has to be the price id.
             // If its already in the cart, we can also just proceed.
