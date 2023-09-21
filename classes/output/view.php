@@ -711,7 +711,7 @@ class view implements renderable, templatable {
 
         $wbtable->pageable(true);
         $wbtable->stickyheader = true;
-        $wbtable->showcountlabel = false;
+        $wbtable->showcountlabel = true;
         $wbtable->showreloadbutton = $reload;
 
         $wbtable->define_cache('mod_booking', 'bookingoptionstable');
@@ -758,7 +758,7 @@ class view implements renderable, templatable {
                 'localizedname' => get_string('timespan', 'local_wunderbyte_table'),
                 'datepicker' => [
                     'In between' => [
-                        'possibleoperations' => ['within', 'before', 'after', 'flexoverlap'],
+                        'possibleoperations' => ['flexoverlap', 'within', 'before', 'after'],
                         'columntimestart' => 'coursestarttime',
                         'columntimeend' => 'courseendtime',
                         'labelstartvalue' => get_string('coursestarttime', 'mod_booking'),
