@@ -189,14 +189,20 @@ class mod_booking_mod_form extends moodleform_mod {
                 array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 50,
                     'accepted_types' => array('*')));
 
-        $whichviewopts = array('mybooking' => get_string('showmybookingsonly', 'mod_booking'),
+        $whichviewopts = [
+            'mybooking' => get_string('showmybookingsonly', 'mod_booking'),
             'myoptions' => get_string('optionsiteach', 'mod_booking'),
             'showall' => get_string('showallbookingoptions', 'mod_booking'),
             'showactive' => get_string('activebookingoptions', 'mod_booking'),
             'myinstitution' => get_string('myinstitution', 'mod_booking'),
             'showvisible' => get_string('visibleoptions', 'mod_booking'),
             'showinvisible' => get_string('invisibleoptions', 'mod_booking'),
-            'showfieldofstudy' => get_string('showmyfieldofstudyonly', 'mod_booking'));
+        ];
+
+        // The "field of study" tab is a PRO feature.
+        if (wb_payment::pro_version_is_activated()) {
+            $whichviewopts['showfieldofstudy'] = get_string('showmyfieldofstudyonly', 'mod_booking');
+        }
 
         // View selections to show on booking options overview.
         $options = array(

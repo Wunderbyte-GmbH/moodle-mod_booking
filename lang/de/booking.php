@@ -2240,11 +2240,25 @@ $string['subbooking_bookedpersons'] = "Die folgenden Personen werden hinzugefüg
 $string['personnr'] = 'Person Nr. {$a}';
 
 // Shortcodes.
-$string['recommendedin'] = "Shortcode um Buchungsoptionen in bestimmten Kursen zu empfehlen. Legen Sie ein neues benutzerdefiniertes Feld für Buchungsoptionen mit dem Kurznamen 'recommendedin' an. In einer Buchungsoption setzen Sie nun den Wert dieses Feldes auf 'course1', wenn Sie die Buchungsoption im Course 1 (course1) empfehlen wollen.";
-$string['fieldofstudyoptions'] = "Shortcode um alle Buchungsoptionen eines Studiengangs anzuzeigen. Ein Studientgang wird über die gemeinsame Einschreibung über eine globale Gruppe definiert. Außerdem muss in der angezeigten Buchungsoption in der Buchungsvoraussetzung einer der betroffenen Kurse ausgewählt sein.";
-$string['fieldofstudycohortoptions'] = "Shortcode um alle Buchungsoptionen eines Studiengangs anzuzeigen. Wird dadurch definiert, dass die NutzerInnen in allen Kursen in die Gruppe mit dem gleichen Namen eingeschrieben sind. Buchungsoptionen werden über das 'recommendedin' customfield zugeordnet.";
+$string['recommendedin'] = "Shortcode um Buchungsoptionen in bestimmten Kursen zu empfehlen.
+ Legen Sie ein neues benutzerdefiniertes Feld für Buchungsoptionen mit dem Kurznamen 'recommendedin' an.
+ In einer Buchungsoption setzen Sie nun den Wert dieses Feldes auf 'course1', wenn Sie die Buchungsoption
+ im Course 1 (course1) empfehlen wollen.";
+$string['fieldofstudyoptions'] = "Shortcode um alle Buchungsoptionen eines Studiengangs anzuzeigen.
+ Ein Studientgang wird über die gemeinsame Einschreibung über eine globale Gruppe definiert.
+ Außerdem muss in der angezeigten Buchungsoption in der Buchungsvoraussetzung einer der betroffenen
+ Kurse ausgewählt sein.";
+$string['fieldofstudycohortoptions'] = "Shortcode um alle Buchungsoptionen eines Studiengangs anzuzeigen.
+ Wird dadurch definiert, dass die NutzerInnen in allen Kursen in die Gruppe mit dem gleichen Namen
+ eingeschrieben sind. Buchungsoptionen werden über das 'recommendedin' customfield zugeordnet.";
 $string['nofieldofstudyfound'] = "Es konnte keine Studienrichtung über die Globalen Gruppen herausgefunden werden.";
 $string['shortcodenotsupportedonyourdb'] = "Dieser Shortcode funktioniert nur auf Postgres & Mariadb Datenbanken.";
+$string['definefieldofstudy'] = 'Sie können hier alle Buchungsoptionen aus dem gesamten Studienbereich anzeigen lassen. Damit dies funktioniert,
+ verwenden Sie Gruppen mit dem Namen Ihres Studiengangs. Bei einem Kurs, der in "Psychologie" und "Philosophie" verwendet wird,
+ haben Sie zwei Gruppen, die nach diesen Studiengängen benannt sind. Folgen Sie diesem Schema für alle Ihre Kurse.
+ Fügen Sie nun das benutzerdefinierte Buchungsoptionsfeld mit dem Shortname "recommendedin" hinzu, in das Sie die kommagetrennten
+ Shortcodes derjenigen Kurse, in denen eine Buchungsoption empfohlen werden soll, eintragen. Wenn ein:e Benutzer:in Teil der
+ Gruppe "Philosophie" ist, werden ihm:ihr alle Buchungsoptionen aus Kursen angezeigt, in denen mindestens einer der "Philosophie"-Kurse empfohlen wird.';
 
 // Elective.
 $string['elective'] = "Wahlfach";
