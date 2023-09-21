@@ -1121,7 +1121,10 @@ class booking_option {
                 $this->after_successful_booking_routine($user, STATUSPARAM_BOOKED);
                 return true;
             } catch (Exception $e) {
-                return false;
+                // We do not want this to fail if there was an exception.
+                // So we still return true.
+                // TODO: We need a debugging message here or a better strategy.
+                return true;
             }
         } else {
             return false;
@@ -1204,7 +1207,8 @@ class booking_option {
         $user = $DB->get_record('user', array('id' => $user->id));
 
         // Status can be STATUSPARAM_BOOKED (0), STATUSPARAM_NOTBOOKED (4), STATUSPARAM_WAITINGLIST (1).
-        $status = $this->get_user_status($user->id);
+        $ba = singleton_service::get_instance_of_booking_answers($this->settings);
+        $status = $ba->user_status($user->id);
 
         if ($optionchanged) {
 
@@ -2167,57 +2171,6 @@ class booking_option {
         $sendtask = new send_completion_mails();
         $sendtask->set_custom_data($taskdata);
         \core\task\manager::queue_adhoc_task($sendtask);
-    }
-
-    /**
-     * Get the user status parameter of the specified user.
-     * STATUSPARAM_BOOKED (0) ... user has booked the option
-     * STATUSPARAM_WAITINGLIST (1) ... user is on the waiting list
-     * STATUSPARAM_RESERVED (2) ... user is on the waiting list
-     * STATUSPARAM_NOTBOOKED (4) ... user has not booked the option
-     * STATUSPARAM_DELETED (5) ... user answer was deleted
-     *
-     * @param int $userid userid of the user
-     * @return int user status param
-     */
-    public function get_user_status(int $userid): int {
-
-        global $DB;
-
-        $bookinganswers = $DB->get_records_select('booking_answers',
-            "optionid = $this->optionid and waitinglist < 2", array(), 'timemodified', 'userid');
-
-        $sortedanswers = array();
-        if (!empty($bookinganswers)) {
-            foreach ($bookinganswers as $answer) {
-                $sortedanswers[] = $answer->userid;
-            }
-            $useridaskey = array_flip($sortedanswers);
-
-            $maxoverbooking = $this->option->maxoverbooking ?? 0;
-
-            if ($this->option->limitanswers) {
-                if (!isset($useridaskey[$userid])) {
-                    $status = STATUSPARAM_NOTBOOKED;
-                } else if ($useridaskey[$userid] > $this->option->maxanswers + $maxoverbooking) {
-                    $status = "Problem, please contact the admin";
-                } else if (($useridaskey[$userid]) >= $this->option->maxanswers) {
-                    $status = STATUSPARAM_WAITINGLIST;
-                } else if ($useridaskey[$userid] <= $this->option->maxanswers) {
-                    $status = STATUSPARAM_BOOKED;
-                } else {
-                    $status = STATUSPARAM_NOTBOOKED;
-                }
-            } else {
-                if (isset($useridaskey[$userid])) {
-                    $status = STATUSPARAM_BOOKED;
-                } else {
-                    $status = STATUSPARAM_NOTBOOKED;
-                }
-            }
-            return $status;
-        }
-        return STATUSPARAM_NOTBOOKED;
     }
 
     /**
