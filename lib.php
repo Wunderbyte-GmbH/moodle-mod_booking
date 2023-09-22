@@ -1188,23 +1188,6 @@ function booking_update_options(object $optionvalues, context_module $context, i
                     }
                 }
 
-                // Google URL shortener does not work anymore - let's remove this in the future.
-                // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-                /* if (!empty($optionvalues->generatenewurl) && $optionvalues->generatenewurl == 1) {
-                    // URL shortnere - only if API key is entered.
-                    $gapik = get_config('booking', 'googleapikey');
-                    $googer = new GoogleURLAPI($gapik);
-                    if (!empty($gapik)) {
-                        $onlyoneurl = new moodle_url('/mod/booking/view.php',
-                                array('id' => $context->instanceid, 'optionid' => $optionvalues->optionid,
-                                        'whichview' => 'showonlyone'));
-                        $shorturl = $googer->shorten(htmlspecialchars_decode($onlyoneurl->__toString()));
-                        if ($shorturl) {
-                            $option->shorturl = $shorturl;
-                        }
-                    }
-                } */
-
                 // This is needed to create option dates with the webservice importer.
                 deal_with_multisessions($optionvalues, $booking, $option->id, $context);
 
@@ -1370,24 +1353,6 @@ function booking_update_options(object $optionvalues, context_module $context, i
         }
 
         $option->shorturl = '';
-
-        // URL shortener - only if API key is entered.
-        // Google URL shortener does not work anymore - let's remove this in the future.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $gapik = get_config('booking', 'googleapikey');
-        if (!empty($gapik)) {
-            $googer = new GoogleURLAPI($gapik);
-            $onlyoneurl = new moodle_url('/mod/booking/view.php',
-                    array('id' => $context->instanceid, 'optionid' => $optionid,
-                            'whichview' => 'showonlyone'));
-
-            $shorturl = $googer->shorten(htmlspecialchars_decode($onlyoneurl->__toString()));
-            if ($shorturl) {
-                $option->shorturl = $shorturl;
-                $option->id = $optionid;
-                $DB->update_record("booking_options", $option);
-            }
-        } */
 
         $event = \mod_booking\event\bookingoption_created::create(array('context' => $context, 'objectid' => $optionid,
                 'relateduserid' => $USER->id));

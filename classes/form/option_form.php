@@ -1000,7 +1000,7 @@ class option_form extends moodleform {
 
         $link = new moodle_url('/mod/booking/view.php', [
             'optionid' => $fromform->optionid,
-            'id' => $fromform->id,
+            'id' => booking_option::get_cmid_from_optionid($fromform->optionid),
             'whichview' => 'showonlyone']);
 
         foreach ($datestobook as $date) {

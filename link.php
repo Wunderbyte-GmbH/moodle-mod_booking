@@ -83,7 +83,7 @@ $context = context_module::instance($cm->id);
 require_login($course, false, $cm);
 
 $url = new moodle_url('/mod/booking/link.php', [
-        'id' => $id,
+        'id' => booking_option::get_cmid_from_optionid($optionid),
         'action' => 'join',
         'optionid' => $optionid
 ]);
@@ -105,7 +105,11 @@ if (!$explanationstring) {
 }
 
 $contents = html_writer::tag('p', $explanationstring);
-$options = array('id' => $cm->id, 'optionid' => $optionid, 'whichview' => 'showonlyone');
+$options = [
+    'id' => booking_option::get_cmid_from_optionid($optionid),
+    'optionid' => $optionid,
+    'whichview' => 'showonlyone'
+];
 $contents .= $OUTPUT->single_button(new moodle_url('/mod/booking/view.php', $options),
         get_string('continue'), 'get');
 echo $OUTPUT->box($contents, 'box generalbox', 'notice');

@@ -3123,4 +3123,18 @@ class booking_option {
         }
         return null;
     }
+
+    /**
+     * Helper function to get $cmid for $optionid.
+     * @param int $optionid
+     * @return int|null $cmid
+     */
+    public static function get_cmid_from_optionid(int $optionid): int|null {
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        if (!empty($settings->cmid)) {
+            return (int) $settings->cmid;
+        } else {
+            return null;
+        }
+    }
 }

@@ -839,7 +839,8 @@ if (!$tableallbookings->is_downloading()) {
     $tableallbookings->finish_output();
 
     $onlyoneurl = new moodle_url('/mod/booking/view.php',
-            array('id' => $id, 'optionid' => $optionid,
+            array('id' => booking_option::get_cmid_from_optionid($optionid),
+                'optionid' => $optionid,
                 'whichview' => 'showonlyone'));
 
     // PHP 8.1 compatibility with extra safety if poolurl has changed outside option form.
@@ -858,7 +859,7 @@ if (!$tableallbookings->is_downloading()) {
         echo " ({$bookingoption->option->shorturl})";
     }
     echo ' | ' . html_writer::link($onlyoneurl, get_string('copyonlythisbookingurl', 'booking'),
-            array('onclick' => 'copyToClipboard("' . htmlspecialchars_decode($onlyoneurl) . '"); return false;'));
+            array('onclick' => 'copyToClipboard("' . htmlspecialchars_decode($onlyoneurl, ENT_QUOTES) . '"); return false;'));
 
     echo ' | ' . html_writer::link($onlyoneurl, get_string('sign_in_sheet_download', 'booking'),
             array('id' => 'sign_in_sheet_download'));

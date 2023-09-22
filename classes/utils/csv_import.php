@@ -26,6 +26,7 @@ namespace mod_booking\utils;
 
 use cache_helper;
 use csv_import_reader;
+use context_module;
 use mod_booking\booking;
 use stdClass;
 use html_writer;
@@ -301,7 +302,9 @@ class csv_import {
                 We'll need to re-write the CSV importer, so updating also works correctly -
                 see issue https://github.com/Wunderbyte-GmbH/moodle-mod_booking/issues/310. */
                 if ($optionid === false) {
-                    $optionid = booking_update_options($bookingoption, $this->booking->get_context(), UPDATE_OPTIONS_PARAM_IMPORT);
+                    /** @var context_module $context */
+                    $context = $this->booking->get_context();
+                    $optionid = booking_update_options($bookingoption, $context, UPDATE_OPTIONS_PARAM_IMPORT);
                 }
                 // Set the option id again in order to use it in prepare_data for user data.
                 $bookingoption->id = $optionid;

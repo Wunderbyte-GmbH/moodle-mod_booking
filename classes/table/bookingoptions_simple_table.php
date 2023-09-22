@@ -162,7 +162,7 @@ class bookingoptions_simple_table extends wunderbyte_table {
 
         // Add a link to redirect to the booking option.
         $link = new moodle_url($CFG->wwwroot . '/mod/booking/view.php', array(
-            'id' => $values->cmid,
+            'id' => booking_option::get_cmid_from_optionid($values->optionid),
             'optionid' => $values->optionid,
             'whichview' => 'showonlyone'
         ));
