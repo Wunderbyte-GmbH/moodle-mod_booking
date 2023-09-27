@@ -2871,11 +2871,11 @@ class booking_option {
         if (!empty($settings->teachers)) {
             foreach ($settings->teachers as $t) {
                 if (!empty($t->email) && ($t->email != $USER->email)) {
-                    $teachersstring .= "$t->email,";
+                    $teachersstring .= "$t->email;";
                 }
             }
             if ($teachersstring) {
-                $teachersstring = trim($teachersstring, ',');
+                $teachersstring = trim($teachersstring, ';');
                 $teachersstring = "cc=$teachersstring&";
             }
         }
@@ -2884,9 +2884,10 @@ class booking_option {
         foreach ($bookedusers as $bu) {
             $user = singleton_service::get_instance_of_user($bu->userid);
             if (!empty($user->email)) {
-                $emailstring .= "$user->email,";
+                $emailstring .= "$user->email;";
             }
         }
+        $emailstring = trim($emailstring, ';');
 
         if (empty($emailstring)) {
             return '';
