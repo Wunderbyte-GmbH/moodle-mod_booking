@@ -1,3 +1,7 @@
+## Version 8.0.42 (2023092700)
+**Improvements:**
+* Improvement: Make sure that cmid always is the one corresponding with the optionid for "showonlyone" links.
+
 ## Version 8.0.41 (2023092100)
 **New features:**
 * New feature: New tab "field of study" (PRO feature).
