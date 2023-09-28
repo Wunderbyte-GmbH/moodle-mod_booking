@@ -374,8 +374,7 @@ if (!$tableallbookings->is_downloading()) {
                  has_capability('mod/booking:communicate', $context)) {
 
             $sendmessageurl = new moodle_url('/mod/booking/sendmessage.php',
-                    ['id' => $id, 'optionid' => $optionid,
-                        'uids' => json_encode($allselectedusers)]);
+                    ['id' => $id, 'optionid' => $optionid, 'uids' => json_encode($allselectedusers)]);
             redirect($sendmessageurl);
         } else if (isset($_POST['activitycompletion']) && (booking_check_if_teacher(
                 $bookingoption->option) || has_capability('mod/booking:readresponses', $context))) {
@@ -648,8 +647,7 @@ if (!$tableallbookings->is_downloading()) {
         if (has_capability('mod/booking:communicate', $context) && $haspollurl) {
             $linkst[] = html_writer::link(
                     new moodle_url('/mod/booking/report.php',
-                            ['id' => $cm->id, 'optionid' => $optionid,
-                                'action' => 'sendpollurlteachers']),
+                            ['id' => $cm->id, 'optionid' => $optionid, 'action' => 'sendpollurlteachers']),
                     (empty($bookingoption->booking->settings->lblsputtname) ? get_string(
                             'sendpollurltoteachers', 'booking') : $bookingoption->booking->settings->lblsputtname),
                     []);
@@ -723,38 +721,60 @@ if (!$tableallbookings->is_downloading()) {
     }
 
     $row = new html_table_row(
-            [get_string('searchdate', "booking"),
-                $hidden . html_writer::checkbox('searchdate', '1', $checked, '',
-                        ['id' => 'searchdate']) .
-                         html_writer::select_time('days', 'searchdateday', $timestamp, 5) . ' ' .
-                         html_writer::select_time('months', 'searchdatemonth', $timestamp, 5) . ' ' .
-                         html_writer::select_time('years', 'searchdateyear', $timestamp, 5), "", ""]);
+        [
+            get_string('searchdate', "booking"),
+            $hidden . html_writer::checkbox('searchdate', '1', $checked, '',
+            ['id' => 'searchdate']) .
+                 html_writer::select_time('days', 'searchdateday', $timestamp, 5) . ' ' .
+                 html_writer::select_time('months', 'searchdatemonth', $timestamp, 5) . ' ' .
+                 html_writer::select_time('years', 'searchdateyear', $timestamp, 5),
+            "",
+            "",
+        ]
+    );
     $tabledata[] = $row;
     $rowclasses[] = "";
 
     $row = new html_table_row(
-            [get_string('completed', 'mod_booking'),
-                html_writer::select(
-                        ['1' => get_string('no', "booking"),
-                            '2' => get_string('yes', "booking")], 'searchcompleted',
-                        $urlparams['searchcompleted']), "", ""]);
+        [
+            get_string('completed', 'mod_booking'),
+            html_writer::select(
+                ['1' => get_string('no', "booking"), '2' => get_string('yes', "booking")],
+                'searchcompleted',
+                $urlparams['searchcompleted']
+            ),
+            "",
+            "",
+        ],
+    );
     $tabledata[] = $row;
     $rowclasses[] = "";
 
     $row = new html_table_row(
-            [get_string('searchwaitinglist', "booking"),
-                html_writer::select(
-                        ['1' => get_string('no', "booking"),
-                            '2' => get_string('yes', "booking")], 'searchwaitinglist',
-                        $urlparams['searchwaitinglist']), "", ""]);
+        [
+            get_string('searchwaitinglist', "booking"),
+            html_writer::select(
+                ['1' => get_string('no', "booking"), '2' => get_string('yes', "booking")],
+                'searchwaitinglist',
+                $urlparams['searchwaitinglist']
+            ),
+            "",
+            "",
+        ]
+    );
     $tabledata[] = $row;
     $rowclasses[] = "";
 
     $row = new html_table_row(
-            ["",
-                '<div class="singlebutton"><input class="btn btn-primary" type="submit" id="searchButton" value="' .
+        [
+            "",
+            '<div class="singlebutton"><input class="btn btn-primary" type="submit" id="searchButton" value="' .
                 get_string('search') . '"></div><div class="singlebutton"><input class="btn btn-secondary" id="buttonclear"
-                type="button" value="' . get_string('reset', 'booking') . '"></div>', "", ""]);
+                type="button" value="' . get_string('reset', 'booking') . '"></div>',
+            "",
+            "",
+        ]
+    );
     $tabledata[] = $row;
     $rowclasses[] = "";
 
@@ -839,9 +859,12 @@ if (!$tableallbookings->is_downloading()) {
     $tableallbookings->finish_output();
 
     $onlyoneurl = new moodle_url('/mod/booking/view.php',
-            ['id' => booking_option::get_cmid_from_optionid($optionid),
+            [
+                'id' => booking_option::get_cmid_from_optionid($optionid),
                 'optionid' => $optionid,
-                'whichview' => 'showonlyone']);
+                'whichview' => 'showonlyone',
+            ]
+        );
 
     // PHP 8.1 compatibility with extra safety if poolurl has changed outside option form.
     $pollurl = '';

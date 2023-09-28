@@ -77,8 +77,8 @@ foreach ($tags->get_all_tags() as $tag) {
         $OUTPUT->single_button($delete, get_string('delete'), 'get');
 
     $tagstable[] = ["[{$tag->tag}]", nl2br($tag->text),
-        html_writer::tag('span', $button,
-                ['style' => 'text-align: right; display:table-cell;'])];
+                    html_writer::tag('span', $button, ['style' => 'text-align: right; display:table-cell;']),
+                ];
 }
 
 $table->data = $tagstable;

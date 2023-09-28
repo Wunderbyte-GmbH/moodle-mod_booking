@@ -105,8 +105,7 @@ if ($mform->is_cancelled()) {
         foreach ($csvarr as $line) {
             if (count($line) >= 3) {
                 $user = $DB->get_record('booking_answers',
-                        ['bookingid' => $cm->instance, 'userid' => $line[$useridpos],
-                            'optionid' => $line[$optionidpos]]);
+                        ['bookingid' => $cm->instance, 'userid' => $line[$useridpos], 'optionid' => $line[$optionidpos]]);
 
                 if ($user !== false) {
                     $user->completed = $line[$completedpos];

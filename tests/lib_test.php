@@ -54,14 +54,14 @@ class lib_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
         $bdata = ['name' => 'Test Booking', 'eventtype' => 'Test event',
-                        'bookedtext' => ['text' => 'text'], 'waitingtext' => ['text' => 'text'],
-                        'notifyemail' => ['text' => 'text'], 'statuschangetext' => ['text' => 'text'],
-                        'deletedtext' => ['text' => 'text'], 'pollurltext' => ['text' => 'text'],
-                        'pollurlteacherstext' => ['text' => 'text'],
-                        'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
-                        'bookingpolicy' => 'bookingpolicy', 'tags' => '', 'course' => $course->id,
-                        'bookingmanager' => $user->username, 'showviews' =>
-                            ['mybooking, myoptions, showall, showactive, myinstitution']];
+                    'bookedtext' => ['text' => 'text'], 'waitingtext' => ['text' => 'text'],
+                    'notifyemail' => ['text' => 'text'], 'statuschangetext' => ['text' => 'text'],
+                    'deletedtext' => ['text' => 'text'], 'pollurltext' => ['text' => 'text'],
+                    'pollurlteacherstext' => ['text' => 'text'], 'notificationtext' => ['text' => 'text'],
+                    'userleave' => ['text' => 'text'], 'bookingpolicy' => 'bookingpolicy',
+                    'tags' => '', 'course' => $course->id, 'bookingmanager' => $user->username,
+                    'showviews' => ['mybooking, myoptions, showall, showactive, myinstitution'],
+        ];
 
         $booking = $this->getDataGenerator()->create_module('booking', $bdata);
 

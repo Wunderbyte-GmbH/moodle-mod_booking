@@ -292,10 +292,12 @@ class option_form extends moodleform {
         }
 
         // Upload an image for the booking option.
-        $mform->addElement('filemanager', 'bookingoptionimage',
-                get_string('bookingoptionimage', 'mod_booking'), null,
-                ['subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 1,
-                                'accepted_types' => ['image']]);
+        $mform->addElement('filemanager',
+                        'bookingoptionimage',
+                        get_string('bookingoptionimage', 'mod_booking'),
+                        null,
+                        ['subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 1, 'accepted_types' => ['image']]
+                    );
 
         $mform->addElement('checkbox', 'limitanswers', get_string('limitanswers', 'mod_booking'));
         $mform->addHelpButton('limitanswers', 'limitanswers', 'mod_booking');
@@ -393,10 +395,12 @@ class option_form extends moodleform {
         $mform->addRule('removeafterminutes', get_string('err_numeric', 'form'), 'numeric', null, 'client');
         $mform->setType('removeafterminutes', PARAM_INT);
 
-        $mform->addElement('filemanager', 'myfilemanageroption',
-                get_string('bookingattachment', 'mod_booking'), null,
-                ['subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 50,
-                                'accepted_types' => ['*']]);
+        $mform->addElement('filemanager',
+                        'myfilemanageroption',
+                        get_string('bookingattachment', 'mod_booking'),
+                        null,
+                        ['subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 50, 'accepted_types' => ['*']]
+                        );
 
         // Workaround: Only show, if it is not turned off in the option form config.
         // We currently need this, because hideIf does not work with editors.
@@ -780,23 +784,35 @@ class option_form extends moodleform {
             }
         }
 
-        $defaultvalues->description = ['text' => (isset($defaultvalues->description) ?
-            $defaultvalues->description : ''), 'format' => FORMAT_HTML];
+        $defaultvalues->description = [
+                        'text' => (isset($defaultvalues->description) ? $defaultvalues->description : ''),
+                        'format' => FORMAT_HTML,
+                        ];
 
-        $defaultvalues->notificationtext = ['text' => (isset($defaultvalues->notificationtext) ?
-            $defaultvalues->notificationtext : ''), 'format' => FORMAT_HTML];
+        $defaultvalues->notificationtext = [
+                        'text' => (isset($defaultvalues->notificationtext) ? $defaultvalues->notificationtext : ''),
+                        'format' => FORMAT_HTML,
+                        ];
 
-        $defaultvalues->beforebookedtext = ['text' => (isset($defaultvalues->beforebookedtext) ?
-            $defaultvalues->beforebookedtext : ''), 'format' => FORMAT_HTML];
+        $defaultvalues->beforebookedtext = [
+                        'text' => (isset($defaultvalues->beforebookedtext) ? $defaultvalues->beforebookedtext : ''),
+                        'format' => FORMAT_HTML,
+                        ];
 
-        $defaultvalues->beforecompletedtext = ['text' => (isset($defaultvalues->beforecompletedtext) ?
-            $defaultvalues->beforecompletedtext : ''), 'format' => FORMAT_HTML];
+        $defaultvalues->beforecompletedtext = [
+                        'text' => (isset($defaultvalues->beforecompletedtext) ? $defaultvalues->beforecompletedtext : ''),
+                        'format' => FORMAT_HTML,
+                        ];
 
-        $defaultvalues->aftercompletedtext = ['text' => (isset($defaultvalues->aftercompletedtext) ?
-            $defaultvalues->aftercompletedtext : ''), 'format' => FORMAT_HTML];
+        $defaultvalues->aftercompletedtext = [
+                        'text' => (isset($defaultvalues->aftercompletedtext) ? $defaultvalues->aftercompletedtext : ''),
+                        'format' => FORMAT_HTML,
+                        ];
 
-        $defaultvalues->annotation = ['text' => (isset($defaultvalues->annotation) ?
-            $defaultvalues->annotation : ''), 'format' => FORMAT_HTML];
+        $defaultvalues->annotation = [
+                        'text' => (isset($defaultvalues->annotation) ? $defaultvalues->annotation : ''),
+                        'format' => FORMAT_HTML,
+                        ];
 
         if (isset($defaultvalues->bookingclosingtime) && $defaultvalues->bookingclosingtime) {
             $defaultvalues->restrictanswerperiodclosing = "checked";
@@ -809,9 +825,12 @@ class option_form extends moodleform {
         }
 
         $draftitemid = file_get_submitted_draft_itemid('myfilemanageroption');
-        file_prepare_draft_area($draftitemid, $this->_customdata['context']->id, 'mod_booking', 'myfilemanageroption',
-            $this->_customdata['optionid'], ['subdirs' => false, 'maxfiles' => 50, 'accepted_types' => ['*'],
-                'maxbytes' => 0]);
+        file_prepare_draft_area($draftitemid,
+                                $this->_customdata['context']->id,
+                                'mod_booking', 'myfilemanageroption',
+                                $this->_customdata['optionid'],
+                                ['subdirs' => false, 'maxfiles' => 50, 'accepted_types' => ['*'], 'maxbytes' => 0]
+                            );
         $defaultvalues->myfilemanageroption = $draftitemid;
 
         // If we duplicated, we already have an image file with an itemid.
@@ -824,16 +843,24 @@ class option_form extends moodleform {
             AND itemid = :optionid", ['optionid' => $defaultvalues->copyoptionid])) {
 
             $draftimageid = file_get_submitted_draft_itemid('bookingoptionimage');
-            file_prepare_draft_area($draftimageid, $filefromdb->contextid, 'mod_booking', 'bookingoptionimage',
-                $defaultvalues->copyoptionid, ['subdirs' => false, 'maxfiles' => 1,
-                'accepted_types' => ['image', '.webp'], 'maxbytes' => 0]);
+            file_prepare_draft_area($draftimageid,
+                                    $filefromdb->contextid,
+                                    'mod_booking',
+                                    'bookingoptionimage',
+                                    $defaultvalues->copyoptionid,
+                                    ['subdirs' => false, 'maxfiles' => 1, 'accepted_types' => ['image', '.webp'], 'maxbytes' => 0]
+                                );
             $defaultvalues->bookingoptionimage = $draftimageid;
         } else {
             // If an image has already been saved before, load it.
             $draftimageid = file_get_submitted_draft_itemid('bookingoptionimage');
-            file_prepare_draft_area($draftimageid, $this->_customdata['context']->id, 'mod_booking', 'bookingoptionimage',
-                $this->_customdata['optionid'], ['subdirs' => false, 'maxfiles' => 1,
-                    'accepted_types' => ['image', '.webp'], 'maxbytes' => 0]);
+            file_prepare_draft_area($draftimageid,
+                                    $this->_customdata['context']->id,
+                                    'mod_booking',
+                                    'bookingoptionimage',
+                                    $this->_customdata['optionid'],
+                                    ['subdirs' => false, 'maxfiles' => 1, 'accepted_types' => ['image', '.webp'], 'maxbytes' => 0]
+                                );
             $defaultvalues->bookingoptionimage = $draftimageid;
         }
 
@@ -1001,7 +1028,8 @@ class option_form extends moodleform {
         $link = new moodle_url('/mod/booking/view.php', [
             'optionid' => $fromform->optionid,
             'id' => booking_option::get_cmid_from_optionid($fromform->optionid),
-            'whichview' => 'showonlyone']);
+            'whichview' => 'showonlyone',
+        ]);
 
         foreach ($datestobook as $date) {
 

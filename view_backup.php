@@ -179,8 +179,13 @@ if ($action == 'delbooking' && confirm_sesskey() && $confirm == 1 &&
     $bookingdata = singleton_service::get_instance_of_booking_option($cm->id, $optionid);
     $bookingdata->apply_tags();
 
-    $options = ['id' => $cm->id, 'action' => 'delbooking', 'confirm' => 1,
-        'optionid' => $optionid, 'sesskey' => $USER->sesskey];
+    $options = [
+        'id' => $cm->id,
+        'action' => 'delbooking',
+        'confirm' => 1,
+        'optionid' => $optionid,
+        'sesskey' => $USER->sesskey,
+    ];
 
     $deletemessage = format_string($bookingdata->option->text);
 
@@ -454,51 +459,80 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
                 'booking') : $booking->settings->lblsurname);
 
         $row = new html_table_row(
-                [$labelbooking,
+                [
+                    $labelbooking,
                     $hidden . '<input value="' . $urlparams['searchtext'] .
-                             '" type="text" id="searchtext" name="searchtext">', "", ""]);
+                             '" type="text" id="searchtext" name="searchtext">',
+                    "",
+                    "",
+                ]
+            );
         $row->id = 'booking-searchtext-row';
         $tabledata[] = $row;
         $rowclasses[] = "";
 
         $row = new html_table_row(
-                [$labellocation,
+                [
+                    $labellocation,
                     '<input value="' . $urlparams['searchlocation'] .
-                             '" type="text" id="searchlocation" name="searchlocation">', "", ""]);
+                             '" type="text" id="searchlocation" name="searchlocation">',
+                    "",
+                    "",
+                ]
+            );
         $row->id = 'booking-searchlocation-row';
         $tabledata[] = $row;
         $rowclasses[] = "";
 
         $row = new html_table_row(
-                [$labelinstitution,
+                [
+                    $labelinstitution,
                     '<input value="' . $urlparams['searchinstitution'] .
-                             '" type="text" id="searchinstitution" name="searchinstitution">', "",
-                            ""]);
+                             '" type="text" id="searchinstitution" name="searchinstitution">',
+                    "",
+                    "",
+                ]
+            );
         $row->id = 'booking-searchinstitution-row';
         $tabledata[] = $row;
         $rowclasses[] = "";
 
         $row = new html_table_row(
-                [$labelsearchname,
+                [
+                    $labelsearchname,
                     '<input value="' . $urlparams['searchname'] .
-                             '" type="text" id="searchname" name="searchname">', "", ""]);
+                             '" type="text" id="searchname" name="searchname">',
+                    "",
+                    "",
+                ]
+            );
         $row->id = 'booking-searchname-row';
         $tabledata[] = $row;
         $rowclasses[] = "";
 
         $row = new html_table_row(
-                [$labelsearchsurname,
+                [
+                    $labelsearchsurname,
                     '<input value="' . $urlparams['searchsurname'] .
-                             '" type="text" id="searchsurname" name="searchsurname">', "", ""]);
+                             '" type="text" id="searchsurname" name="searchsurname">',
+                    "",
+                    "",
+                ]
+            );
         $row->id = 'booking-searchsurname-row';
         $tabledata[] = $row;
         $rowclasses[] = "";
 
         $row = new html_table_row(
-                ["",
+                [
+                    "",
                     '<input id="searchButton" type="submit" value="' . get_string('search') .
                              '"><input id="buttonclear" type="button" value="' .
-                             get_string('reset', 'booking') . '">', "", ""]);
+                             get_string('reset', 'booking') . '">',
+                    "",
+                    "",
+                ]
+            );
         $tabledata[] = $row;
         $rowclasses[] = "";
 

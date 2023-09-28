@@ -172,11 +172,15 @@ if ($mform->is_cancelled()) {
         $datehandler = new dates_handler($bookingoption->id, $booking->id);
         if ($optiondateid = $datehandler->create_option_date($optiondate)) {
             // Add info that a session has been added (do this only at coursestarttime, we don't need it twice).
-            $changes[] = ['info' => get_string('changeinfosessionadded', 'booking'),
-                    'fieldname' => 'coursestarttime',
-                    'newvalue' => $optiondate->coursestarttime];
-            $changes[] = ['fieldname' => 'courseendtime',
-                    'newvalue' => $optiondate->courseendtime];
+            $changes[] = [
+                'info' => get_string('changeinfosessionadded', 'booking'),
+                'fieldname' => 'coursestarttime',
+                'newvalue' => $optiondate->coursestarttime,
+            ];
+            $changes[] = [
+                'fieldname' => 'courseendtime',
+                'newvalue' => $optiondate->courseendtime,
+            ];
         }
 
         // Retrieve available custom field data.
@@ -197,11 +201,13 @@ if ($mform->is_cancelled()) {
                     $DB->insert_record("booking_customfields", $customfield);
 
                     // Add newly added custom field to changes array.
-                    $changes[] = ['info' => get_string('changeinfocfadded', 'booking'),
-                                  'optionid' => $optionid,
-                                  'optiondateid' => $optiondateid,
-                                  'newname' => $customfield->cfgname,
-                                  'newvalue' => $customfield->value];
+                    $changes[] = [
+                        'info' => get_string('changeinfocfadded', 'booking'),
+                        'optionid' => $optionid,
+                        'optiondateid' => $optiondateid,
+                        'newname' => $customfield->cfgname,
+                        'newvalue' => $customfield->value,
+                    ];
                 }
             }
 
@@ -272,9 +278,12 @@ if ($mform->is_cancelled()) {
         $tmpdate->righttdate = userdate($time->courseendtime,
                 get_string('strftimetime', 'langconfig'));
 
-        $timestable[] = [get_string('leftandrightdate', 'booking', $tmpdate),
+        $timestable[] = [
+            get_string('leftandrightdate', 'booking', $tmpdate),
             html_writer::tag('span', $button . $buttondelete . $buttonduplicate,
-                    ['style' => 'text-align: right; display:table-cell;', 'class' => $editing])];
+                ['style' => 'text-align: right; display:table-cell;', 'class' => $editing]
+            ),
+        ];
     }
     $table->data = $timestable;
     echo html_writer::table($table);

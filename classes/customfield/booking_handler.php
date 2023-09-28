@@ -286,9 +286,11 @@ class booking_handler extends \core_customfield\handler {
         $mform->addHelpButton('configdata[locked]', 'customfield_islocked', 'core_course');
 
         // Field data visibility.
-        $visibilityoptions = [self::VISIBLETOALL => get_string('customfield_visibletoall', 'core_course'),
+        $visibilityoptions = [
+            self::VISIBLETOALL => get_string('customfield_visibletoall', 'core_course'),
             self::VISIBLETOTEACHERS => get_string('customfield_visibletoteachers', 'core_course'),
-            self::NOTVISIBLE => get_string('customfield_notvisible', 'core_course')];
+            self::NOTVISIBLE => get_string('customfield_notvisible', 'core_course'),
+        ];
         $mform->addElement('select', 'configdata[visibility]', get_string('customfield_visibility', 'core_course'),
             $visibilityoptions);
         $mform->addHelpButton('configdata[visibility]', 'customfield_visibility', 'core_course');

@@ -50,9 +50,11 @@ class customfield extends \moodleform {
         $repeatarray[] = $mform->createElement('text', 'customfield',
                 get_string('customfielddef', 'mod_booking'));
         $repeatarray[] = $mform->createElement('hidden', 'customfieldname', '');
-        $optionstype = ['textfield' => get_string('textfield', 'mod_booking'),
+        $optionstype = [
+                        'textfield' => get_string('textfield', 'mod_booking'),
                         'select' => get_string('selectfield', 'mod_booking'),
-                        'multiselect' => get_string('multiselect', 'mod_booking')];
+                        'multiselect' => get_string('multiselect', 'mod_booking'),
+                    ];
         $repeatarray[] = $mform->createElement('select', 'type',
                 get_string('customfieldtype', 'mod_booking'), $optionstype);
         $repeatarray[] = $mform->createElement('textarea', 'options',
@@ -154,8 +156,7 @@ class customfield extends \moodleform {
                 }
             }
 
-            $event = \mod_booking\event\custom_field_changed::create(['objectid' => 0,
-                'context' => \context_system::instance()]);
+            $event = \mod_booking\event\custom_field_changed::create(['objectid' => 0, 'context' => \context_system::instance()]);
             $event->trigger();
         }
         return $data;

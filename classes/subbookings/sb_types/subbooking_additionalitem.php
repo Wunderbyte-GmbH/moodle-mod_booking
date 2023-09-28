@@ -109,7 +109,8 @@ class subbooking_additionalitem implements booking_subbooking {
             'trusttext' => true,
             'subdirs' => true,
             'maxfiles' => 1,
-            'context' => $context];
+            'context' => $context,
+        ];
 
         $mform->addElement(
             'editor',
@@ -182,7 +183,8 @@ class subbooking_additionalitem implements booking_subbooking {
             'trusttext' => true,
             'subdirs' => true,
             'maxfiles' => 1,
-            'context' => $context];
+            'context' => $context,
+        ];
 
         $data = file_postupdate_standard_editor(
             $data,
@@ -232,7 +234,8 @@ class subbooking_additionalitem implements booking_subbooking {
             'trusttext' => true,
             'subdirs' => true,
             'maxfiles' => 1,
-            'context' => $context];
+            'context' => $context,
+        ];
 
         $data = file_prepare_standard_editor(
             $data,

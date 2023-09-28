@@ -50,8 +50,7 @@ if (!booking_check_if_teacher ( $bookingoption->option )) {
     }
 }
 
-$mform = new confirmactivity($url, ['course' => $course,
-    'optionid' => $optionid, 'bookingid' => $bookingoption->booking->id]);
+$mform = new confirmactivity($url, ['course' => $course, 'optionid' => $optionid, 'bookingid' => $bookingoption->booking->id]);
 
 if ($mform->is_cancelled()) {
     redirect($backurl, '', 0);

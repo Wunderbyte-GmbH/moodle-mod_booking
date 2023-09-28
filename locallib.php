@@ -475,7 +475,10 @@ function option_optiondate_update_event(stdClass $option, stdClass $optiondate =
             // If we don't find the event here, we might still be just switching to multisession.
             // Let's create the event anew.
             $bocreatedevent = bookingoptiondate_created::create(['context' => context_module::instance($cmid),
-                'objectid' => $optiondate->id, 'userid' => $USER->id, 'other' => ['optionid' => $option->id]]);
+                                                                'objectid' => $optiondate->id,
+                                                                'userid' => $USER->id,
+                                                                'other' => ['optionid' => $option->id],
+                                                            ]);
             $bocreatedevent->trigger();
 
             // We have to return false if we have switched from multisession to create the right events.

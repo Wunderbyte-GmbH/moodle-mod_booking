@@ -169,8 +169,11 @@ class subbookings_info {
         // Trigger an event that booking option has been updated.
 
         $context = context_module::instance($data->cmid);
-        $event = \mod_booking\event\bookingoption_updated::create(['context' => $context, 'objectid' => $data->optionid,
-                'userid' => $USER->id]);
+        $event = \mod_booking\event\bookingoption_updated::create([
+                                                                    'context' => $context,
+                                                                    'objectid' => $data->optionid,
+                                                                    'userid' => $USER->id,
+                                                                ]);
         $event->trigger();
 
         return;
@@ -388,8 +391,7 @@ class subbookings_info {
                     $itemid,
                     $userid,
                     STATUSPARAM_BOOKED,
-                    [STATUSPARAM_RESERVED,
-                    STATUSPARAM_WAITINGLIST]);
+                    [STATUSPARAM_RESERVED, STATUSPARAM_WAITINGLIST]);
                 break;
             case STATUSPARAM_WAITINGLIST: // We move to the waiting list.
                 // Check if there was a reserved entry before.

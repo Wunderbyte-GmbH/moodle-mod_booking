@@ -607,10 +607,11 @@ class booking_option {
 
         if ($cancelreservation) {
             $DB->delete_records('booking_answers',
-                ['userid' => $userid,
+                    ['userid' => $userid,
                       'optionid' => $this->optionid,
                       'completed' => 0,
-                      'waitinglist' => STATUSPARAM_RESERVED]);
+                      'waitinglist' => STATUSPARAM_RESERVED,
+                    ]);
         } else {
             foreach ($results as $result) {
                 if ($result->waitinglist != STATUSPARAM_DELETED) {
@@ -860,8 +861,10 @@ class booking_option {
                 }
             } else {
                 // If option was set to unlimited, inform all users that have been on the waiting list of the status change.
-                if ($onwaitinglistanswers = $DB->get_records('booking_answers', ['optionid' => $this->optionid,
-                                                                                'waitinglist' => 1])) {
+                if ($onwaitinglistanswers = $DB->get_records('booking_answers',
+                                                            ['optionid' => $this->optionid,
+                                                            'waitinglist' => 1,
+                                                            ])) {
                     foreach ($onwaitinglistanswers as $onwaitinglistanswer) {
 
                         $messagecontroller = new message_controller(
@@ -1160,7 +1163,8 @@ class booking_option {
                 ['objectid' => $this->optionid,
                     'context' => context_module::instance($this->booking->cm->id),
                     'userid' => $user->id,
-                    'relateduserid' => $user->id]);
+                    'relateduserid' => $user->id,
+                ]);
         $event->trigger();
 
         $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
@@ -1267,8 +1271,8 @@ class booking_option {
             return; // No manual enrolment plugin.
         }
         if (!$instances = $DB->get_records('enrol',
-                ['enrol' => 'manual', 'courseid' => $this->option->courseid,
-                    'status' => ENROL_INSTANCE_ENABLED], 'sortorder,id ASC')) {
+                        ['enrol' => 'manual', 'courseid' => $this->option->courseid, 'status' => ENROL_INSTANCE_ENABLED],
+                        'sortorder,id ASC')) {
             return; // No manual enrolment instance on this course.
         }
 
@@ -1334,8 +1338,8 @@ class booking_option {
         }
 
         if (!$instances = $DB->get_records('enrol',
-                ['enrol' => 'manual', 'courseid' => $this->option->courseid,
-                        'status' => ENROL_INSTANCE_ENABLED], 'sortorder,id ASC')) {
+                    ['enrol' => 'manual', 'courseid' => $this->option->courseid, 'status' => ENROL_INSTANCE_ENABLED],
+                    'sortorder,id ASC')) {
             return; // No manual enrolment instance on this course.
         }
         if ($this->booking->settings->addtogroup == 1) {
@@ -1473,8 +1477,7 @@ class booking_option {
               ON ue.eventid = e.id
               WHERE ue.optionid = :optionid";
 
-        $allevents = $DB->get_records_sql($sql, [
-                'optionid' => $this->optionid]);
+        $allevents = $DB->get_records_sql($sql, ['optionid' => $this->optionid]);
 
         // Delete all the events we found associated with a user.
         foreach ($allevents as $item) {
@@ -1486,8 +1489,10 @@ class booking_option {
 
         // Delete comments.
         $DB->delete_records("comments",
-                ['itemid' => $this->optionid, 'commentarea' => 'booking_option',
-                    'contextid' => $this->booking->get_context()->id]);
+                            ['itemid' => $this->optionid,
+                            'commentarea' => 'booking_option',
+                            'contextid' => $this->booking->get_context()->id,
+                            ]);
 
         // Delete entity relation for the booking option.
         if (class_exists('local_entities\entitiesrelation_handler')) {
@@ -1579,9 +1584,11 @@ class booking_option {
             $result = false;
         }
 
-        $event = event\bookingoption_deleted::create(
-                ['context' => $this->booking->get_context(), 'objectid' => $this->optionid,
-                    'userid' => $USER->id]);
+        $event = event\bookingoption_deleted::create([
+                                                    'context' => $this->booking->get_context(),
+                                                    'objectid' => $this->optionid,
+                                                    'userid' => $USER->id,
+                                                    ]);
         $event->trigger();
 
         // At the very last moment, we purge caches for the option.
@@ -1783,8 +1790,7 @@ class booking_option {
 
         if ($bookinganswers->usersonlist[$suser]->completed == 0) {
             $userdata = $DB->get_record('booking_answers',
-            ['optionid' => $this->optionid, 'userid' => $userid,
-                'waitinglist' => STATUSPARAM_BOOKED]);
+                    ['optionid' => $this->optionid, 'userid' => $userid, 'waitinglist' => STATUSPARAM_BOOKED]);
             $userdata->completed = '1';
             $userdata->timemodified = time();
 
@@ -1969,7 +1975,8 @@ class booking_option {
             'filearea' => 'templatefile',     // Usually = table name.
             'itemid' => 0,               // Usually = ID of row in table.
             'filepath' => '/',           // Any path beginning and ending in '/'.
-            'filename' => "{$filename}.{$ext}"]; // Any filename.
+            'filename' => "{$filename}.{$ext}", // Any filename.
+        ];
 
         // Create file containing text 'hello world'.
         $newfile = $fs->create_file_from_string($fullfile, $tbs->Source);
@@ -2499,9 +2506,11 @@ class booking_option {
                 $status = 1;
             } else {
                 // As the deletion here has no further consequences, we can do it directly in DB.
-                $DB->delete_records('booking_answers', ['userid' => $userid,
-                    'optionid' => $optionid,
-                    'waitinglist' => STATUSPARAM_NOTIFYMELIST]);
+                $DB->delete_records('booking_answers',
+                                    ['userid' => $userid,
+                                    'optionid' => $optionid,
+                                    'waitinglist' => STATUSPARAM_NOTIFYMELIST,
+                                    ]);
 
                 // Before returning, we have to set back the answer cache.
                 $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
@@ -2563,8 +2572,11 @@ class booking_option {
 
         if (!$undo) {
             $context = context_module::instance($settings->cmid);
-            $event = \mod_booking\event\bookingoption_cancelled::create(['context' => $context, 'objectid' => $optionid,
-                    'userid' => $USER->id]);
+            $event = \mod_booking\event\bookingoption_cancelled::create([
+                                                                        'context' => $context,
+                                                                        'objectid' => $optionid,
+                                                                        'userid' => $USER->id,
+                                                                        ]);
             $event->trigger();
             // Deletion of booking answers and user events needs to happen in event observer.
         }

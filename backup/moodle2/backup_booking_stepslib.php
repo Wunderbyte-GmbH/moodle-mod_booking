@@ -61,7 +61,8 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                     'signinsheetfields', 'comments', 'ratings', 'removeuseronunenrol', 'teacherroleid', 'allowupdatedays',
                     'templateid', 'showlistoncoursepage', 'coursepageshortinfo', 'bookingimagescustomfield',
                     'defaultoptionsort', 'showviews', 'customtemplateid', 'autcractive', 'autcrprofile', 'autcrvalue',
-                    'autcrtemplate', 'semesterid', 'iselective', 'maxcredits', 'consumeatonce', 'enforceorder']);
+                    'autcrtemplate', 'semesterid', 'iselective', 'maxcredits', 'consumeatonce', 'enforceorder',
+                ]);
 
         $options = new backup_nested_element('options');
         $option = new backup_nested_element('option', ['id'],
@@ -80,7 +81,8 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $answers = new backup_nested_element('answers');
         $answer = new backup_nested_element('answer', ['id'],
                 ['bookingid', 'optionid', 'userid', 'timemodified', 'completed', 'timecreated',
-                    'waitinglist', 'frombookingid', 'numrec', 'status', 'notes']);
+                    'waitinglist', 'frombookingid', 'numrec', 'status', 'notes',
+                ]);
 
         $optiondates = new backup_nested_element('optiondates');
         $optiondate = new backup_nested_element('optiondate', ['id'],

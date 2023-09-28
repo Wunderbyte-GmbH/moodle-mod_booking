@@ -152,8 +152,8 @@ if ($optionid == -1 && $copyoptionid != 0) {
 }
 
 // Create form after duplication data were prepared.
-$mform = new option_form(null, ['bookingid' => $bookingid, 'optionid' => $optionid, 'cmid' => $cmid,
-    'context' => $context]);
+$mform = new option_form(null,
+                        ['bookingid' => $bookingid, 'optionid' => $optionid, 'cmid' => $cmid, 'context' => $context]);
 
 if ($mform->is_cancelled()) {
 
@@ -363,9 +363,9 @@ if ($mform->is_cancelled()) {
         ]);
 
         echo html_writer::link($formmodeurl->out(false),
-            $formmodelabel,
-            ['id' => $cmid, 'optionid' => $optionid,
-                'class' => 'btn btn-secondary float-right']);
+                            $formmodelabel,
+                            ['id' => $cmid, 'optionid' => $optionid, 'class' => 'btn btn-secondary float-right']
+                        );
     }
 
     // Heading.
@@ -399,9 +399,7 @@ $PAGE->requires->js_call_amd(
 $PAGE->requires->js_call_amd(
     'mod_booking/dynamicoptiondateform',
     'initdynamicoptiondateform',
-    [$cmid, $bookingid, $optionid,
-        get_string('modaloptiondateformtitle', 'mod_booking'),
-        modaloptiondateform::class]
+    [$cmid, $bookingid, $optionid, get_string('modaloptiondateformtitle', 'mod_booking'), modaloptiondateform::class]
 );
 
 echo $OUTPUT->footer();

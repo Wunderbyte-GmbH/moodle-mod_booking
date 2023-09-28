@@ -1195,9 +1195,14 @@ function booking_update_options(object $optionvalues, context_module $context, i
                 if (!empty($customfields)) {
                     foreach ($customfields as $fieldcfgname => $field) {
                         if (!empty($optionvalues->$fieldcfgname)) {
-                            $customfieldid = $DB->get_field('booking_customfields', 'id',
-                                    ['bookingid' => $booking->id, 'optionid' => $option->id,
-                                            'cfgname' => $fieldcfgname]);
+                            $customfieldid = $DB->get_field(
+                                    'booking_customfields',
+                                    'id',
+                                    [
+                                        'bookingid' => $booking->id,
+                                        'optionid' => $option->id,
+                                        'cfgname' => $fieldcfgname,
+                                    ]);
                             if ($customfieldid) {
                                 $customfield = new stdClass();
                                 $customfield->id = $customfieldid;
@@ -1325,8 +1330,7 @@ function booking_update_options(object $optionvalues, context_module $context, i
             // Add as template.
             // Fixed: For templates, make sure they won't get inserted twice.
             $dbrecord = $DB->get_record("booking_options",
-                    ['text' => $option->text,
-                            'bookingid' => $option->bookingid]);
+                    ['text' => $option->text, 'bookingid' => $option->bookingid]);
             if (empty($dbrecord)) {
                 $optionid = $DB->insert_record("booking_options", $option);
             } else {
@@ -1354,8 +1358,11 @@ function booking_update_options(object $optionvalues, context_module $context, i
 
         $option->shorturl = '';
 
-        $event = \mod_booking\event\bookingoption_created::create(['context' => $context, 'objectid' => $optionid,
-                'relateduserid' => $USER->id]);
+        $event = \mod_booking\event\bookingoption_created::create([
+            'context' => $context,
+            'objectid' => $optionid,
+            'relateduserid' => $USER->id,
+        ]);
         $event->trigger();
 
         // Save custom fields if there are any.
@@ -1792,9 +1799,13 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         if (has_capability('mod/booking:updatebooking', $context)) {
             $navref->add(get_string('deletethisbookingoption', 'mod_booking'),
                     new moodle_url('/mod/booking/report.php',
-                            ['id' => $cm->id, 'optionid' => $optionid,
-                                'action' => 'deletebookingoption', 'sesskey' => sesskey()]),
-                                navigation_node::TYPE_CUSTOM, null, 'nav_deletebookingoption');
+                        [
+                            'id' => $cm->id,
+                            'optionid' => $optionid,
+                            'action' => 'deletebookingoption',
+                            'sesskey' => sesskey(),
+                        ]),
+                    navigation_node::TYPE_CUSTOM, null, 'nav_deletebookingoption');
         }
     }
 
@@ -1802,9 +1813,13 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         if (!empty($optionid)) {
             $navref->add(get_string('copytotemplate', 'mod_booking'),
                 new moodle_url('/mod/booking/report.php',
-                        ['id' => $cm->id, 'optionid' => $optionid,
-                            'action' => 'copytotemplate', 'sesskey' => sesskey()]),
-                            navigation_node::TYPE_CUSTOM, null, 'nav_copytotemplate');
+                        [
+                            'id' => $cm->id,
+                            'optionid' => $optionid,
+                            'action' => 'copytotemplate',
+                            'sesskey' => sesskey(),
+                        ]),
+                    navigation_node::TYPE_CUSTOM, null, 'nav_copytotemplate');
         }
 
         $navref->add(get_string("manageoptiontemplates", "mod_booking"),
@@ -1812,7 +1827,6 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                 navigation_node::TYPE_CUSTOM, null, 'nav_manageoptiontemplates');
     }
 }
-
 
 /**
  * Check if logged in user is in teachers db.
@@ -1995,8 +2009,13 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
             $userdata->timemodified = time();
 
             // Trigger the completion event, in order to send the notification mail.
-            $event = \mod_booking\event\bookingoption_completed::create(['context' => context_module::instance($cmid),
-                'objectid' => $optionid, 'userid' => $USER->id, 'relateduserid' => $selecteduser, 'other' => ['cmid' => $cmid]]);
+            $event = \mod_booking\event\bookingoption_completed::create([
+                'context' => context_module::instance($cmid),
+                'objectid' => $optionid,
+                'userid' => $USER->id,
+                'relateduserid' => $selecteduser,
+                'other' => ['cmid' => $cmid],
+            ]);
             $event->trigger();
             // Important: userid is the user who triggered, relateduserid is the affected user who completed.
 
@@ -2173,10 +2192,12 @@ function booking_rating_permissions($contextid, $component, $ratingarea) {
         // Know nothing about component/ratingarea: return null for default perms.
         return null;
     }
-    return ['view' => has_capability('mod/booking:viewrating', $context),
+    return [
+        'view' => has_capability('mod/booking:viewrating', $context),
         'viewany' => has_capability('mod/booking:viewanyrating', $context),
         'viewall' => has_capability('mod/booking:viewallratings', $context),
-        'rate' => has_capability('mod/booking:rate', $context)];
+        'rate' => has_capability('mod/booking:rate', $context),
+    ];
 }
 
 /**
@@ -2302,9 +2323,15 @@ function booking_rate($ratings, $params) {
         throw new moodle_exception('ratepermissiondenied', 'rating');
     } else {
         foreach ($ratings as $rating) {
-            $checks = ['context' => $context, 'component' => $component,
-                'ratingarea' => $ratingarea, 'itemid' => $rating->itemid, 'scaleid' => $scaleid,
-                'rating' => $rating->rating, 'rateduserid' => $rating->rateduserid];
+            $checks = [
+                'context' => $context,
+                'component' => $component,
+                'ratingarea' => $ratingarea,
+                'itemid' => $rating->itemid,
+                'scaleid' => $scaleid,
+                'rating' => $rating->rating,
+                'rateduserid' => $rating->rateduserid,
+            ];
             if (!$rm->check_rating_is_valid($checks)) {
                 echo $OUTPUT->header();
                 echo get_string('ratinginvalid', 'rating');
@@ -2620,9 +2647,12 @@ function subscribe_teacher_to_booking_option(int $userid, int $optionid, int $cm
     }
 
     if ($inserted) {
-        $event = \mod_booking\event\teacher_added::create(
-                ['userid' => $USER->id, 'relateduserid' => $userid, 'objectid' => $optionid,
-                    'context' => context_module::instance($cmid)]);
+        $event = \mod_booking\event\teacher_added::create([
+            'userid' => $USER->id,
+            'relateduserid' => $userid,
+            'objectid' => $optionid,
+            'context' => context_module::instance($cmid),
+        ]);
         $event->trigger();
     }
 

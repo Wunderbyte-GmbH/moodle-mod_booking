@@ -64,7 +64,8 @@ $table->head = [
     (empty($option->booking->settings->lblacceptingfrom) ? get_string('otherbookingoptions', 'booking') :
         $option->booking->settings->lblacceptingfrom),
     (empty($option->booking->settings->lblnumofusers) ? get_string('otherbookingnumber', 'booking') :
-        $option->booking->settings->lblnumofusers)];
+        $option->booking->settings->lblnumofusers),
+];
 
 $rules = $DB->get_records_sql(
         "SELECT bo.id, bo.otheroptionid, bo.userslimit, b.text
@@ -79,8 +80,7 @@ foreach ($rules as $rule) {
     $edit = new moodle_url('/mod/booking/otherbookingaddrule.php',
             ['id' => $cm->id, 'optionid' => $optionid, 'bookingotherid' => $rule->id]);
     $delete = new moodle_url('/mod/booking/otherbookingaddrule.php',
-            ['id' => $cm->id, 'optionid' => $optionid, 'bookingotherid' => $rule->id,
-                'delete' => 1]);
+            ['id' => $cm->id, 'optionid' => $optionid, 'bookingotherid' => $rule->id, 'delete' => 1]);
 
     $button = '<div style="width: 100%; text-align: right; display:table;">';
     $buttone = $OUTPUT->single_button($edit, get_string('editrule', 'booking'), 'get');
@@ -92,8 +92,9 @@ foreach ($rules as $rule) {
     $button .= '</div>';
 
     $rulestable[] = ["{$rule->text}", $rule->userslimit,
-        html_writer::tag('span', $button,
-                ['style' => 'text-align: right; display:table-cell;'])];
+                html_writer::tag('span', $button,
+                ['style' => 'text-align: right; display:table-cell;']),
+        ];
 }
 
 $table->data = $rulestable;

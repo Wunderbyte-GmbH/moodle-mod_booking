@@ -28,5 +28,5 @@ $logs = [
     ['module' => 'booking', 'action' => 'add', 'mtable' => 'booking', 'field' => 'name'],
     ['module' => 'booking', 'action' => 'report', 'mtable' => 'booking', 'field' => 'name'],
     ['module' => 'booking', 'action' => 'choose', 'mtable' => 'booking', 'field' => 'name'],
-    ['module' => 'booking', 'action' => 'choose again', 'mtable' => 'booking',
-        'field' => 'name']];
+    ['module' => 'booking', 'action' => 'choose again', 'mtable' => 'booking', 'field' => 'name'],
+];

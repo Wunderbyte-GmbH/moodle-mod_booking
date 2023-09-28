@@ -65,7 +65,8 @@ class booking_option_test extends advanced_testcase {
             'pollurlteacherstext' => ['text' => 'text'],
             'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
             'bookingpolicy' => 'bookingpolicy', 'tags' => '', 'completion' => 2,
-            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution']];
+            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
+        ];
         // Setup test data.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
@@ -155,16 +156,17 @@ class booking_option_test extends advanced_testcase {
 
         // Setup booking defaults and create booking course module.
         $bdata = ['name' => 'Test CSV Import of option', 'eventtype' => 'Test event', 'enablecompletion' => 1,
-        'bookedtext' => ['text' => 'text'], 'waitingtext' => ['text' => 'text'],
-        'notifyemail' => ['text' => 'text'], 'statuschangetext' => ['text' => 'text'],
-        'deletedtext' => ['text' => 'text'], 'pollurltext' => ['text' => 'text'],
-        'pollurlteacherstext' => ['text' => 'text'],
-        'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
-        'bookingpolicy' => 'bookingpolicy', 'tags' => '', 'completion' => 2,
-        'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
-        'optionsfields' =>
-        ['description', 'statusdescription', 'teacher', 'showdates', 'dayofweektime', 'location', 'institution', 'minanswers'],
-        'semesterid' => $testsemester->id];
+            'bookedtext' => ['text' => 'text'], 'waitingtext' => ['text' => 'text'],
+            'notifyemail' => ['text' => 'text'], 'statuschangetext' => ['text' => 'text'],
+            'deletedtext' => ['text' => 'text'], 'pollurltext' => ['text' => 'text'],
+            'pollurlteacherstext' => ['text' => 'text'],
+            'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
+            'bookingpolicy' => 'bookingpolicy', 'tags' => '', 'completion' => 2,
+            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
+            'optionsfields' =>
+            ['description', 'statusdescription', 'teacher', 'showdates', 'dayofweektime', 'location', 'institution', 'minanswers'],
+            'semesterid' => $testsemester->id,
+        ];
         $bdata['course'] = $course->id;
         $bdata['bookingmanager'] = $user1->username;
 

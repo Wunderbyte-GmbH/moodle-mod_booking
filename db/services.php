@@ -136,7 +136,7 @@ $functions = [
 
 $services = [
     'Booking module API' => [ // Very important, don't rename or will break local_bookingapi plugin!!!
-        'functions' =>  ['mod_booking_bookings', 'mod_booking_categories'],
+        'functions' => ['mod_booking_bookings', 'mod_booking_categories'],
         'restrictedusers' => 0,
         'enabled' => 1,
     ],
