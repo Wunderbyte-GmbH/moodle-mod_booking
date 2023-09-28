@@ -83,7 +83,7 @@ class mybookings_table extends table_sql {
         $optionurl = new moodle_url($CFG->wwwroot . '/mod/booking/view.php', [
             'id' => booking_option::get_cmid_from_optionid($values->optionid),
             'optionid' => $values->optionid,
-            'whichview' => 'showonlyone'
+            'whichview' => 'showonlyone',
         ]);
         return "<a href='{$optionurl}'>{$values->text}</a>";
     }

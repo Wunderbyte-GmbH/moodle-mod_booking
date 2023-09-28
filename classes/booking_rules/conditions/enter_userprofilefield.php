@@ -106,7 +106,7 @@ class enter_userprofilefield implements booking_rule_condition {
 
             $operators = [
                 '=' => get_string('equals', 'mod_booking'),
-                '~' => get_string('contains', 'mod_booking')
+                '~' => get_string('contains', 'mod_booking'),
             ];
             $mform->addElement('select', 'condition_enter_userprofilefield_operator',
                 get_string('rule_operator', 'mod_booking'), $operators);

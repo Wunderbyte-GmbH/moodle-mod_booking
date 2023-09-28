@@ -285,7 +285,7 @@ if ($ADMIN->fulltree) {
         '55' => '55 min',
         '50' => '50 min',
         '45' => '45 min',
-        '40' => '40 min'
+        '40' => '40 min',
     ];
     $settings->add(
         new admin_setting_configselect('booking/educationalunitinminutes',
@@ -442,7 +442,7 @@ if ($ADMIN->fulltree) {
             70 => '70%',
             80 => '80%',
             90 => '90%',
-            100 => '100%'
+            100 => '100%',
         ];
 
         $settings->add(
@@ -468,7 +468,7 @@ if ($ADMIN->fulltree) {
             70 => '70%',
             80 => '80%',
             90 => '90%',
-            100 => '100%'
+            100 => '100%',
         ];
 
         $settings->add(

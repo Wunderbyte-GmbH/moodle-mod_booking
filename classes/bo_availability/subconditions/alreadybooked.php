@@ -183,7 +183,7 @@ class alreadybooked implements bo_subcondition {
                 'label' => $label,
                 'class' => 'alert alert-success',
                 'role' => 'alert',
-            ]
+            ],
         ];
 
         if ($fullwidth) {

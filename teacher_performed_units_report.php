@@ -38,7 +38,7 @@ $filterenddate = 0;
 require_login(0, false);
 
 $urlparams = [
-    'teacherid' => $teacherid
+    'teacherid' => $teacherid,
 ];
 
 $context = context_system::instance();
@@ -125,7 +125,7 @@ if (!$teacherperformedunitstable->is_downloading()) {
         get_string('course'),
         get_string('time'),
         get_string('duration:minutes', 'mod_booking'),
-        get_string('duration:units', 'mod_booking', $unitlength)
+        get_string('duration:units', 'mod_booking', $unitlength),
     ]);
 
     // Columns.
@@ -134,7 +134,7 @@ if (!$teacherperformedunitstable->is_downloading()) {
         'optionname',
         'optiondate',
         'duration_min',
-        'duration_units'
+        'duration_units',
     ]);
 
     // Header column.
@@ -173,7 +173,7 @@ if (!$teacherperformedunitstable->is_downloading()) {
         'unitlength' => $unitlength,
         'teacherid' => $teacherid,
         'filterstartdate' => $filterstartdate,
-        'filterenddate' => $filterenddate
+        'filterenddate' => $filterenddate,
     ];
 
     // Now build the table.
@@ -196,7 +196,7 @@ if (!$teacherperformedunitstable->is_downloading()) {
         get_string('optiondatestart', 'mod_booking'),
         get_string('optiondateend', 'mod_booking'),
         get_string('duration:minutes', 'mod_booking'),
-        get_string('duration:units', 'mod_booking', $unitlength)
+        get_string('duration:units', 'mod_booking', $unitlength),
     ]);
 
     // Columns.
@@ -210,7 +210,7 @@ if (!$teacherperformedunitstable->is_downloading()) {
         'coursestarttime',
         'courseendtime',
         'duration_min',
-        'duration_units'
+        'duration_units',
     ]);
 
     // Header column.
@@ -247,7 +247,7 @@ if (!$teacherperformedunitstable->is_downloading()) {
         'unitlength' => (int) $unitlength,
         'teacherid' => $teacherid,
         'filterstartdate' => (int) get_user_preferences('unitsreport_filterstartdate'),
-        'filterenddate' => (int) get_user_preferences('unitsreport_filterenddate')
+        'filterenddate' => (int) get_user_preferences('unitsreport_filterenddate'),
     ];
 
     // Now build the table.

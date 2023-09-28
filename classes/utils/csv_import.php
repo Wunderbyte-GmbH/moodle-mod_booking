@@ -243,7 +243,7 @@ class csv_import {
             // Fetch a potentially existing booking option which will be updated.
             if (isset($csvrecord['identifier'])) {
                 $existingoptions = $DB->get_records('booking_options', [
-                    'identifier' => $csvrecord['identifier']
+                    'identifier' => $csvrecord['identifier'],
                 ]);
                 if (empty($existingoptions)) {
                     // It's a new option with a new identifier.

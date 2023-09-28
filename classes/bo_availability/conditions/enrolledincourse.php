@@ -210,7 +210,7 @@ class enrolledincourse implements bo_condition {
 
             $enrolledincourseoptions = [
                 'tags' => false,
-                'multiple' => true
+                'multiple' => true,
             ];
 
             $overrideoperators = [

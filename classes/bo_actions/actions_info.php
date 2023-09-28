@@ -249,7 +249,7 @@ class actions_info {
             $mform->createElement('submit',
                 'btn_actiontype',
                 get_string('bookingaction', 'mod_booking'),
-                $buttonargs)
+                $buttonargs),
         ];
         $mform->addGroup($categoryselect, 'action_type', get_string('bookingaction', 'mod_booking'), [' '], false);
         $mform->setType('btn_actiontype', PARAM_NOTAGS);

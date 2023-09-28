@@ -666,7 +666,7 @@ class booking_option {
             'objectid' => $this->optionid,
             'context' => \context_module::instance($this->booking->cm->id),
             'userid' => $USER->id, // The user who did cancel.
-            'relateduserid' => $userid // Affected user - the user who was cancelled.
+            'relateduserid' => $userid, // Affected user - the user who was cancelled.
         ]);
         $event->trigger(); // This will trigger the observer function and delete calendar events.
         $this->unenrol_user($user->id);
@@ -807,7 +807,7 @@ class booking_option {
                         'relateduserid' => $answertodelete->userid, // Affected user - the user who was cancelled.
                         'other' => [
                             'extrainfo' => 'Answer deleted by sync_waiting_list.',
-                        ]
+                        ],
                     ]);
                     $event->trigger();
 
@@ -1545,7 +1545,7 @@ class booking_option {
             AND itemid = :optionid";
 
         $imgfileparams = [
-            'optionid' => $this->optionid
+            'optionid' => $this->optionid,
         ];
 
         if ($filerecord = $DB->get_record_sql($imgfilesql, $imgfileparams)) {
@@ -1556,7 +1556,7 @@ class booking_option {
                 'itemid' => $this->optionid,
                 'contextid' => $filerecord->contextid,
                 'filepath' => $filerecord->filepath,
-                'filename' => $filerecord->filename
+                'filename' => $filerecord->filename,
             ];
             // Get file.
             $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
@@ -1570,7 +1570,7 @@ class booking_option {
                     'filearea' => 'bookingoptionimage',
                     'itemid' => $this->optionid,
                     'contextid' => $filerecord->contextid,
-                    'filepath' => $filerecord->filepath
+                    'filepath' => $filerecord->filepath,
                 ]);
             }
         }
@@ -1874,7 +1874,7 @@ class booking_option {
             'duration' => $this->booking->settings->duration,
             'organizatorname' => $this->booking->settings->organizatorname,
             'pollurl' => $this->booking->settings->pollurl,
-            'pollurlteachers' => $this->booking->settings->pollurlteachers
+            'pollurlteachers' => $this->booking->settings->pollurlteachers,
         ];
         $bu = new booking_utils();
         $option = [
@@ -1896,7 +1896,7 @@ class booking_option {
                 $this->option->courseendtime, get_string('strftimedatetime', 'langconfig'))),
             'pollurl' => $this->option->pollurl,
             'pollurlteachers' => $this->option->pollurlteachers,
-            'shorturl' => $this->option->shorturl
+            'shorturl' => $this->option->shorturl,
         ];
 
         $allusers = $this->get_all_users();
@@ -1909,7 +1909,7 @@ class booking_option {
                 'firstname' => $value->firstname,
                 'lastname' => $value->lastname,
                 'email' => $value->email,
-                'institution' => $value->institution
+                'institution' => $value->institution,
             ];
         }
 
@@ -1920,7 +1920,7 @@ class booking_option {
                 'firstname' => $value->firstname,
                 'lastname' => $value->lastname,
                 'email' => $value->email,
-                'institution' => $value->institution
+                'institution' => $value->institution,
             ];
         }
 
@@ -2165,7 +2165,7 @@ class booking_option {
         $taskdata = [
             'userid' => $userid,
             'optionid' => $this->optionid,
-            'cmid' => $this->cmid
+            'cmid' => $this->cmid,
         ];
 
         $sendtask = new send_completion_mails();
@@ -2306,7 +2306,7 @@ class booking_option {
             default:
                 return [
                     'name' => "$field->cfgname: ",
-                    'value' => $field->value
+                    'value' => $field->value,
                 ];
         }
     }
@@ -2341,13 +2341,13 @@ class booking_option {
                         // User is booked, if the user is booked, but event not yet open, we show placeholder with time to start.
                         return [
                                 'name' => null,
-                                'value' => get_string('linknotavailableyet', 'mod_booking')
+                                'value' => get_string('linknotavailableyet', 'mod_booking'),
                         ];
                     }
                     // User is booked and event open, we return the button with the link to access, this is for the website.
                     return [
                             'name' => null,
-                            'value' => "<a href=$field->value class='btn btn-info'>$field->cfgname</a>"
+                            'value' => "<a href=$field->value class='btn btn-info'>$field->cfgname</a>",
                     ];
                 };
             case DESCRIPTION_CALENDAR:
@@ -2361,13 +2361,13 @@ class booking_option {
                                     'optionid' => $this->optionid,
                                     'action' => 'join',
                                     'sessionid' => $sessionid,
-                                    'fieldid' => $field->id
+                                    'fieldid' => $field->id,
                             ]);
                     $encodedlink = booking::encode_moodle_url($moodleurl);
 
                     return [
                             'name' => null,
-                            'value' => "<a href=$encodedlink class='btn btn-info'>$field->cfgname</a>"
+                            'value' => "<a href=$encodedlink class='btn btn-info'>$field->cfgname</a>",
                     ];
                 } else {
                     return [];
@@ -2381,12 +2381,12 @@ class booking_option {
                                 'optionid' => $this->optionid,
                                 'action' => 'join',
                                 'sessionid' => $sessionid,
-                                'fieldid' => $field->id
+                                'fieldid' => $field->id,
                         ]);
                 $link = $link->out(false);
                 return [
                         'name' => null,
-                        'value' => "$field->cfgname: $link"
+                        'value' => "$field->cfgname: $link",
                 ];
             case DESCRIPTION_MAIL:
                 // For the mail placeholder {bookingdetails} no button but link only.
@@ -2397,12 +2397,12 @@ class booking_option {
                         'optionid' => $this->optionid,
                         'action' => 'join',
                         'sessionid' => $sessionid,
-                        'fieldid' => $field->id
+                        'fieldid' => $field->id,
                     ]);
                 $link = $link->out(false);
                 return [
                     'name' => null,
-                    'value' => "$field->cfgname: <a href='$link' target='_blank'>$link</a>"
+                    'value' => "$field->cfgname: <a href='$link' target='_blank'>$link</a>",
                 ];
             default:
                 return [];
@@ -2516,7 +2516,7 @@ class booking_option {
         return [
             'status' => $status,
             'optionid' => $optionid,
-            'error' => $error
+            'error' => $error,
         ];
     }
 
@@ -2944,7 +2944,7 @@ class booking_option {
         $gotobookingoptionlink = new \moodle_url($CFG->wwwroot . '/mod/booking/view.php', [
             'id' => $cmid,
             'optionid' => $optionid,
-            'whichview' => 'showonlyone'
+            'whichview' => 'showonlyone',
         ]);
         $params->gotobookingoption = \html_writer::link($gotobookingoptionlink, $gotobookingoptionlink->out());
 

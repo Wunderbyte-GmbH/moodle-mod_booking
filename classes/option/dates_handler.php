@@ -645,7 +645,7 @@ class dates_handler {
                     'datestring' => self::prettify_optiondates_start_end(
                             $settings->coursestarttime,
                             $settings->courseendtime,
-                            current_language())
+                            current_language()),
             ];
         }
 

@@ -102,7 +102,7 @@ class business_card implements renderable, templatable {
                 'sendmessageurl' => $this->sendmessageurl->out(),
                 'userdescription' => $this->userdescription,
                 'duration' => $this->duration,
-                'points' => $this->points
+                'points' => $this->points,
         ];
     }
 }

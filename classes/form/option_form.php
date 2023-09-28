@@ -218,7 +218,7 @@ class option_form extends moodleform {
         // Visibility.
         $visibilityoptions = [
             0 => get_string('optionvisible', 'mod_booking'),
-            1 => get_string('optioninvisible', 'mod_booking')
+            1 => get_string('optioninvisible', 'mod_booking'),
         ];
         $mform->addElement('select', 'invisible', get_string('optionvisibility', 'mod_booking'), $visibilityoptions);
         $mform->setType('invisible', PARAM_INT);
@@ -256,7 +256,7 @@ class option_form extends moodleform {
 
         $options = [
                 'noselectionstring' => get_string('donotselectlocation', 'mod_booking'),
-                'tags' => true
+                'tags' => true,
         ];
         $mform->addElement('autocomplete', 'location', get_string('location', 'mod_booking'), $locationstrings, $options);
         if (!empty($CFG->formatstringstriptags)) {
@@ -277,7 +277,7 @@ class option_form extends moodleform {
 
         $options = [
                 'noselectionstring' => get_string('donotselectinstitution', 'mod_booking'),
-                'tags' => true
+                'tags' => true,
         ];
         $mform->addElement('autocomplete', 'institution',
             get_string('institution', 'mod_booking'), $institutionstrings, $options);
@@ -358,7 +358,7 @@ class option_form extends moodleform {
         // Add to course calendar dropdown.
         $caleventtypes = [
             0 => get_string('caldonotadd', 'mod_booking'),
-            1 => get_string('caladdascourseevent', 'mod_booking')
+            1 => get_string('caladdascourseevent', 'mod_booking'),
         ];
         $mform->addElement('select', 'addtocalendar', get_string('addtocalendar', 'mod_booking'), $caleventtypes);
         if (!get_config('booking', 'addtocalendar')) {
@@ -454,7 +454,7 @@ class option_form extends moodleform {
                 ];
                 return $OUTPUT->render_from_template(
                         'mod_booking/form-user-selector-suggestion', $details);
-            }
+            },
         ];
         $mform->addElement('autocomplete', 'responsiblecontact',
             get_string('responsiblecontact', 'mod_booking'), [], $options);
@@ -610,7 +610,7 @@ class option_form extends moodleform {
             $howoften = [
                 86400 => get_string('day'),
                 604800 => get_string('week'),
-                2592000 => get_string('month')
+                2592000 => get_string('month'),
             ];
             $mform->addElement('select', 'howoftentorepeat', get_string('howoftentorepeat', 'mod_booking'),
                         $howoften);
@@ -638,7 +638,7 @@ class option_form extends moodleform {
             if ($numberoftemplates < 1 || wb_payment::pro_version_is_activated()) {
                 $addastemplate = [
                         0 => get_string('notemplate', 'mod_booking'),
-                        1 => get_string('asglobaltemplate', 'mod_booking')
+                        1 => get_string('asglobaltemplate', 'mod_booking'),
                 ];
                 $mform->addElement('select', 'addastemplate', get_string('addastemplate', 'mod_booking'),
                         $addastemplate);
@@ -975,7 +975,7 @@ class option_form extends moodleform {
             list($startime, $endtime) = explode('-', $date);
             $returnarray[] = [
                 'starttime' => $startime,
-                'endtime' => $endtime
+                'endtime' => $endtime,
             ];
         }
         return $returnarray;

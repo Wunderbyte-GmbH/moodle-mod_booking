@@ -112,7 +112,7 @@ if ($confirm === 1 && $createfromoptiondates === 1) {
             'id' => $cm->id,
             'optionid' => $optionid,
             'confirm' => 1, // Adding the 'confirm' parameter with value 1 to indicate confirmation.
-            'createfromoptiondates' => 1
+            'createfromoptiondates' => 1,
     ]);
     $confirmbutton = new single_button($confirmurl, get_string('confirm'), 'get');
 
@@ -180,7 +180,7 @@ if ($mform->is_cancelled()) {
             'optionid' => $optionid,
             'cmid' => $cmid,
             'context' => $context,
-            'btn_bookingsubbookingadd' => $data->btn_bookingsubbookingadd
+            'btn_bookingsubbookingadd' => $data->btn_bookingsubbookingadd,
         ];
 
         $mform = new option_form(null, $formdata);
@@ -359,7 +359,7 @@ if ($mform->is_cancelled()) {
         $formmodeurl = new moodle_url('/mod/booking/editoptions.php', [
             'mode' => $togglemode,
             'id' => $cmid,
-            'optionid' => $optionid
+            'optionid' => $optionid,
         ]);
 
         echo html_writer::link($formmodeurl->out(false),

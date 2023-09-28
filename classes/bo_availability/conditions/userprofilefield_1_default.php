@@ -284,7 +284,7 @@ class userprofilefield_1_default implements bo_condition {
                     '[]' => get_string('inarray', 'mod_booking'),
                     '[!]' => get_string('notinarray', 'mod_booking'),
                     '()' => get_string('isempty', 'mod_booking'),
-                    '(!)' => get_string('isnotempty', 'mod_booking')
+                    '(!)' => get_string('isnotempty', 'mod_booking'),
                 ];
                 $mform->addElement('select', 'bo_cond_userprofilefield_operator',
                     get_string('bo_cond_userprofilefield_operator', 'mod_booking'), $operators);

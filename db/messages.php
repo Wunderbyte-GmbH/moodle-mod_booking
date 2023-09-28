@@ -29,6 +29,6 @@ $messageproviders = [
     'bookingconfirmation' => [],
 
     'sendmessages' => [
-        'capability' => 'mod/booking:cansendmessages'
+        'capability' => 'mod/booking:cansendmessages',
     ],
 ];

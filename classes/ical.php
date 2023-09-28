@@ -188,7 +188,7 @@ class ical {
             'PRODID:Data::ICal 0.22',
             'CALSCALE:GREGORIAN',
             $vevents,
-            'END:VCALENDAR'
+            'END:VCALENDAR',
         ];
         return implode("\r\n", $icalparts);
     }
@@ -256,7 +256,7 @@ class ical {
             "ORGANIZER;CN={$fromuseremail}:MAILTO:{$fromuseremail}",
             "ATTENDEE;CUTYPE=INDIVIDUAL;ROLE={$this->role};PARTSTAT=NEEDS-ACTION;RSVP=false;" .
                 "CN={$this->userfullname};LANGUAGE=en:MAILTO:{$this->user->email}",
-            "UID:{$uid}"
+            "UID:{$uid}",
         ];
 
         // If the event has been updated then add SEQUENCE:1 before END:VEVENT.

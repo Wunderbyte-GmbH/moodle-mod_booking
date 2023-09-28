@@ -236,7 +236,7 @@ class subbookings_info {
             $mform->createElement('submit',
                 'btn_subbookingtype',
                 get_string('bookingsubbooking', 'mod_booking'),
-                $buttonargs)
+                $buttonargs),
         ];
         $mform->addGroup($categoryselect, 'subbooking_type', get_string('bookingsubbooking', 'mod_booking'), [' '], false);
         $mform->setType('btn_subbookingtype', PARAM_NOTAGS);

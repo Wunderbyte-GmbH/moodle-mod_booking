@@ -74,7 +74,7 @@ class report_edit_bookingnotes implements renderable, templatable {
             return ['displayvalue' => (string) $this->displayvalue];
         }
 
-        return ['note' => $this->note, 'baid' => $this->baid
+        return ['note' => $this->note, 'baid' => $this->baid,
         ];
     }
 }

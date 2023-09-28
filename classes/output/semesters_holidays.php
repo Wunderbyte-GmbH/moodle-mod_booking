@@ -70,7 +70,7 @@ class semesters_holidays implements renderable, templatable {
 
         $returnarray = [
             'renderedsemestersform' => $this->renderedsemestersform,
-            'renderedholidaysform' => $this->renderedholidaysform
+            'renderedholidaysform' => $this->renderedholidaysform,
         ];
 
         // We only add the key if it's not empty.

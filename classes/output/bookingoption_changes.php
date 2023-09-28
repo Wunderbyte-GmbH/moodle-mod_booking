@@ -66,17 +66,17 @@ class bookingoption_changes implements renderable, templatable {
                         $temparray = [
                             'fieldname' => get_string('coursestarttime', 'booking'),
                             'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime', 'langconfig')),
-                            'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime', 'langconfig'))
+                            'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime', 'langconfig')),
                         ];
                     } else if (isset($entry['newvalue'])) {
                         $temparray = [
                             'fieldname' => get_string('coursestarttime', 'booking'),
-                            'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime', 'langconfig'))
+                            'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime', 'langconfig')),
                         ];
                     } else {
                         $temparray = [
                             'fieldname' => get_string('coursestarttime', 'booking'),
-                            'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime', 'langconfig'))
+                            'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime', 'langconfig')),
                         ];
                     }
                 } else if ($entry['fieldname'] == 'courseendtime') {
@@ -84,24 +84,24 @@ class bookingoption_changes implements renderable, templatable {
                         $temparray = [
                             'fieldname' => get_string('courseendtime', 'booking'),
                             'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime', 'langconfig')),
-                            'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime', 'langconfig'))
+                            'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime', 'langconfig')),
                         ];
                     } else if (isset($entry['newvalue'])) {
                         $temparray = [
                             'fieldname' => get_string('courseendtime', 'booking'),
-                            'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime', 'langconfig'))
+                            'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime', 'langconfig')),
                         ];
                     } else {
                         $temparray = [
                             'fieldname' => get_string('courseendtime', 'booking'),
-                            'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime', 'langconfig'))
+                            'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime', 'langconfig')),
                         ];
                     }
                 } else {
                     $temparray = [
                         'fieldname' => get_string($entry['fieldname'], 'booking'),
                         'oldvalue' => $entry['oldvalue'],
-                        'newvalue' => $entry['newvalue']
+                        'newvalue' => $entry['newvalue'],
                     ];
                 }
 
@@ -136,7 +136,7 @@ class bookingoption_changes implements renderable, templatable {
                             'action' => 'join',
                             'sessionid' => $entry['optiondateid'],
                             'fieldid' => $fieldid,
-                            'meetingtype' => $entry['newname']
+                            'meetingtype' => $entry['newname'],
                         ]);
 
                     $entry['newvalue'] = html_writer::link($link, $link->out());
@@ -148,7 +148,7 @@ class bookingoption_changes implements renderable, templatable {
         }
 
         return [
-            'changes' => $newchangesarray
+            'changes' => $newchangesarray,
         ];
     }
 }

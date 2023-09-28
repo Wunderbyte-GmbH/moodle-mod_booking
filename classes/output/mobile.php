@@ -80,7 +80,7 @@ class mobile {
                 'name' => $value->name,
                 'text' => $value->text,
                 'status' => $status,
-                'coursestarttime' => $coursestarttime
+                'coursestarttime' => $coursestarttime,
             ];
         }
 
@@ -90,11 +90,11 @@ class mobile {
             'templates' => [
                 [
                     'id' => 'main',
-                    'html' => $OUTPUT->render_from_template('mod_booking/mobile_mybookings_list', $data)
-                ]
+                    'html' => $OUTPUT->render_from_template('mod_booking/mobile_mybookings_list', $data),
+                ],
             ],
             'javascript' => '',
-            'otherdata' => ''
+            'otherdata' => '',
         ];
     }
 
@@ -173,9 +173,9 @@ class mobile {
                 'showallbookingoptions' => get_string('showallbookingoptions', 'booking'),
                 'showmybookingsonly' => get_string('showmybookingsonly', 'booking'),
                 'next' => get_string('next', 'booking'),
-                'previous' => get_string('previous', 'booking')
+                'previous' => get_string('previous', 'booking'),
             ], 'btnnp' => self::npbuttons($allpages, $pagnumber), 'bcolorshowall' => $bcolorshowall,
-            'bcolorshowactive' => $bcolorshowactive, 'bcolormybooking' => $bcolormybooking
+            'bcolorshowactive' => $bcolorshowactive, 'bcolormybooking' => $bcolormybooking,
         ];
         return [
 
@@ -183,9 +183,9 @@ class mobile {
 
                 [
                     'id' => 'main',
-                    'html' => $OUTPUT->render_from_template('mod_booking/mobile_view_page', $data)
-                ]
-            ], 'javascript' => '', 'otherdata' => ['searchstring' => $searchstring]
+                    'html' => $OUTPUT->render_from_template('mod_booking/mobile_view_page', $data),
+                ],
+            ], 'javascript' => '', 'otherdata' => ['searchstring' => $searchstring],
 
         ];
     }
@@ -209,7 +209,7 @@ class mobile {
         }
 
         return [
-            'p' => $p, 'n' => $n
+            'p' => $p, 'n' => $n,
         ];
     }
 
@@ -325,7 +325,7 @@ class mobile {
                 $delete = [
                     'text' => $bname,
                                 'args' => "optionid: {$values->option->id}, cmid: {$cm->id}, courseid: {$courseid}",
-                    'cmessage' => "{$cmessage}"
+                    'cmessage' => "{$cmessage}",
                 ];
 
                 if ($values->option->coursestarttime > 0 && $values->booking->allowupdatedays > 0) {
@@ -359,7 +359,7 @@ class mobile {
             $button = [
                 'text' => $bnow,
                             'args' => "answer: {$values->option->id}, id: {$cm->id}, courseid: {$courseid}",
-                'message' => $message
+                'message' => $message,
             ];
         }
 
@@ -392,7 +392,7 @@ class mobile {
 
         return [
             'name' => $values->option->text, 'text' => $text, 'button' => $button,
-            'delete' => $delete
+            'delete' => $delete,
         ];
     }
 }

@@ -87,7 +87,7 @@ class campaignslist implements renderable, templatable {
 
     public function export_for_template(renderer_base $output) {
         return [
-                'campaigns' => $this->campaigns
+                'campaigns' => $this->campaigns,
         ];
     }
 }

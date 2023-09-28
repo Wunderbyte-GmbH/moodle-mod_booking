@@ -627,7 +627,7 @@ class price {
                     "currency" => $pricerecord->currency,
                     "pricecategoryidentifier" => $pricerecord->pricecategoryidentifier,
                     "pricecategoryname" =>
-                        self::get_active_pricecategory_from_cache_or_db($pricerecord->pricecategoryidentifier)->name
+                        self::get_active_pricecategory_from_cache_or_db($pricerecord->pricecategoryidentifier)->name,
                 ];
             }
         }

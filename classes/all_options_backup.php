@@ -131,7 +131,7 @@ class all_options extends table_sql {
                         get_string('undocancelthisbookingoption', 'mod_booking'), ['onclick' =>
                             "require(['mod_booking/confirm_cancel'], function(init) {
                             init.init('" . $values->id . "', '" . $values->bostatus . "');
-                            });"
+                            });",
                             ]) . "</div>";
                 } else {
                     $ddoptions[] = '<div class="dropdown-item">' . html_writer::link('#',
@@ -139,7 +139,7 @@ class all_options extends table_sql {
                         get_string('cancelthisbookingoption', 'mod_booking'), ['onclick' =>
                             "require(['mod_booking/confirm_cancel'], function(init) {
                             init.init('" . $values->id . "', '" . $values->bostatus . "');
-                            });"
+                            });",
                             ]) . "</div>";
                 }
 

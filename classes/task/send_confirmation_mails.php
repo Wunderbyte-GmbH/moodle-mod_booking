@@ -89,8 +89,8 @@ class send_confirmation_mails extends \core\task\adhoc_task {
                                     'relateduserid' => $taskdata->userfrom->id,
                                     'other' => [
                                         'messageparam' => $taskdata->messageparam,
-                                        'subject' => $taskdata->subject
-                                    ]
+                                        'subject' => $taskdata->subject,
+                                    ],
                                 ]);
                                 $event->trigger();
                             }

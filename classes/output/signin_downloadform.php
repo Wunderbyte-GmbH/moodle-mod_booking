@@ -81,7 +81,7 @@ class signin_downloadform implements renderable, templatable {
                     'sessiondateonly' => userdate($session->coursestarttime, get_string('strftimedate', 'langconfig')),
                     'coursestarttime' => userdate($session->coursestarttime, get_string('strftimedatetime', 'langconfig')),
                     'courseendtime' => userdate($session->courseendtime, get_string('strftimedatetime', 'langconfig')),
-                    'id' => $session->id
+                    'id' => $session->id,
                 ];
             }
         }

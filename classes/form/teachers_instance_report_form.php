@@ -53,7 +53,7 @@ class teachers_instance_report_form extends moodleform {
         $mform->setType('cmid', PARAM_INT);
 
         $teachersarr = [
-            0 => get_string('allteachers', 'mod_booking')
+            0 => get_string('allteachers', 'mod_booking'),
         ];
         if ($teacherrecords = $DB->get_records_sql(
             "SELECT DISTINCT u.id, u.firstname, u.lastname, u.email
@@ -68,7 +68,7 @@ class teachers_instance_report_form extends moodleform {
 
         $teacheridoptions = [
             'tags' => false,
-            'multiple' => false
+            'multiple' => false,
         ];
         $mform->addElement('autocomplete', 'teacherid', get_string('teacher', 'mod_booking'), $teachersarr, $teacheridoptions);
         $mform->setType('teacherid', PARAM_INT);

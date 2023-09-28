@@ -70,7 +70,7 @@ class instance_description implements renderable, templatable {
                 'description' => $this->description,
                 'duration' => $this->duration,
                 'points' => $this->points,
-                'organizatorname' => $this->organizatorname
+                'organizatorname' => $this->organizatorname,
         ];
     }
 }

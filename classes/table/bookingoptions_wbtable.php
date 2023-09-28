@@ -582,7 +582,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
             // Add a link to redirect to the booking option.
             $link = new moodle_url($CFG->wwwroot . '/mod/booking/report.php', [
                 'id' => $values->cmid,
-                'optionid' => $values->optionid
+                'optionid' => $values->optionid,
             ]);
             // Use html_entity_decode to convert "&amp;" to a simple "&" character.
             if ($CFG->version >= 2023042400) {
@@ -747,7 +747,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                                 'onclick' =>
                                     "require(['mod_booking/confirm_cancel'], function(init) {
                                         init.init('" . $optionid . "', '" . $values->status . "');
-                                    });"
+                                    });",
                             ]) . "</div>";
 
                     } else {
@@ -763,7 +763,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                                 'onclick' =>
                                     "require(['local_shopping_cart/menu'], function(menu) {
                                         menu.confirmCancelAllUsersAndSetCreditModal('" . $optionid . "', 'mod_booking', 'option');
-                                    });"
+                                    });",
                             ]) . "</div>";
                     }
 
@@ -778,7 +778,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                                 'onclick' =>
                                     "require(['mod_booking/confirm_cancel'], function(init) {
                                         init.init('" . $optionid . "', '" . $values->status . "');
-                                    });"
+                                    });",
                             ]) . "</div>";
                     } else {
                         // Else we show the cancel button.
@@ -789,7 +789,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                                 'onclick' =>
                                     "require(['mod_booking/confirm_cancel'], function(init) {
                                         init.init('" . $optionid . "', '" . $values->status . "');
-                                    });"
+                                    });",
                             ]) . "</div>";
                     }
                 }
@@ -807,7 +807,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                             'action' => 'deletebookingoption',
                             'sesskey' => sesskey(),
                             'returnto' => 'url',
-                            'returnurl' => $returnurl
+                            'returnurl' => $returnurl,
                         ]),
                         $OUTPUT->pix_icon('t/delete', get_string('deletethisbookingoption', 'mod_booking')) .
                             get_string('deletethisbookingoption', 'mod_booking')

@@ -133,7 +133,7 @@ class categories extends external_api {
                 [
                     'id' => new external_value(PARAM_INT, 'Category ID'),
                     'cid' => new external_value(PARAM_INT, 'Subcategory ID'),
-                    'name' => new external_value(PARAM_TEXT, 'Category name')
+                    'name' => new external_value(PARAM_TEXT, 'Category name'),
                 ]
             )
         );

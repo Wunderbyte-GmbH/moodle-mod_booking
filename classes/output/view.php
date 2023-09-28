@@ -766,8 +766,8 @@ class view implements renderable, templatable {
                         'labelendvalue' => get_string('courseendtime', 'mod_booking'),
                         'defaultvalueend' => strtotime('+ 1 year', time()), // Can also be Unix timestamp or string "now".
                         'checkboxlabel' => get_string('apply_filter', 'local_wunderbyte_table'),
-                    ]
-                ]
+                    ],
+                ],
             ];
             $wbtable->define_filtercolumns($filtercolumns);
         }

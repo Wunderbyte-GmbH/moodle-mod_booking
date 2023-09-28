@@ -48,7 +48,7 @@ $context = context_module::instance($cm->id);
 
 // URL params.
 $urlparams = [
-    'id' => $cmid
+    'id' => $cmid,
 ];
 // SQL params.
 $params = [];

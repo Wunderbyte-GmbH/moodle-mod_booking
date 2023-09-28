@@ -477,7 +477,7 @@ class customform implements bo_condition {
         if ($data = $cache->get($cachekey)) {
 
             $data = (object)[
-                "condition_customform" => $data
+                "condition_customform" => $data,
             ];
 
             $newanswer->json = json_encode($data);

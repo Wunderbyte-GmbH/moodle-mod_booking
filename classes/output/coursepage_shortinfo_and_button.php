@@ -96,7 +96,7 @@ class coursepage_shortinfo_and_button implements renderable, templatable {
                 'coursename' => $this->coursename,
                 'eventtype' => $this->eventtype,
                 'buttonurl' => $this->buttonurl,
-                'shortinfo' => $this->shortinfo
+                'shortinfo' => $this->shortinfo,
         ];
     }
 }

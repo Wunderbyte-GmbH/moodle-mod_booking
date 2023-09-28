@@ -82,7 +82,7 @@ class col_coursestarttime implements renderable, templatable {
 
         $returnarr = [
             'optionid' => $this->optionid,
-            'datestrings' => $this->datestrings
+            'datestrings' => $this->datestrings,
         ];
 
         if (!empty($this->showcollapsebtn)) {

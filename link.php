@@ -85,7 +85,7 @@ require_login($course, false, $cm);
 $url = new moodle_url('/mod/booking/link.php', [
         'id' => booking_option::get_cmid_from_optionid($optionid),
         'action' => 'join',
-        'optionid' => $optionid
+        'optionid' => $optionid,
 ]);
 $PAGE->set_url($url);
 
@@ -108,7 +108,7 @@ $contents = html_writer::tag('p', $explanationstring);
 $options = [
     'id' => booking_option::get_cmid_from_optionid($optionid),
     'optionid' => $optionid,
-    'whichview' => 'showonlyone'
+    'whichview' => 'showonlyone',
 ];
 $contents .= $OUTPUT->single_button(new moodle_url('/mod/booking/view.php', $options),
         get_string('continue'), 'get');

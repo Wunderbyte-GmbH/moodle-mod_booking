@@ -282,7 +282,7 @@ class message_controller {
         // List of fieldnames that also have a global template (currently 'activitycompletiontext' has no global template).
         $mailtemplatesfieldnames = [
             'bookedtext', 'waitingtext', 'notifyemail', 'notifyemailteachers', 'statuschangetext', 'userleave',
-            'deletedtext', 'bookingchangedtext', 'pollurltext', 'pollurlteacherstext'
+            'deletedtext', 'bookingchangedtext', 'pollurltext', 'pollurlteacherstext',
         ];
 
         if ($this->messageparam == MSGPARAM_CUSTOM_MESSAGE) {
@@ -443,8 +443,8 @@ class message_controller {
                         'relateduserid' => $this->messagedata->userfrom->id,
                         'other' => [
                             'messageparam' => $this->messageparam,
-                            'subject' => $this->messagedata->subject
-                        ]
+                            'subject' => $this->messagedata->subject,
+                        ],
                     ]);
                     $event->trigger();
 

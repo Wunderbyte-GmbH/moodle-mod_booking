@@ -393,7 +393,7 @@ class elective {
         AND ba.waitinglist =:bookingstatus";
 
         $params = [
-            'bookingstatus' => STATUSPARAM_RESERVED
+            'bookingstatus' => STATUSPARAM_RESERVED,
         ];
 
         $data = $DB->get_records_sql($sql, $params);

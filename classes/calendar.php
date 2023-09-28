@@ -417,7 +417,7 @@ class calendar {
 
         $params = [
             'optionid' => $optionid,
-            'userid' => $userid
+            'userid' => $userid,
         ];
         try {
              // At first delete events themselves.

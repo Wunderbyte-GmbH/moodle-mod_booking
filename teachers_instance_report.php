@@ -33,7 +33,7 @@ $cmid = required_param('cmid', PARAM_INT);
 $download = optional_param('download', '', PARAM_ALPHA);
 
 $urlparams = [
-    'cmid' => $cmid
+    'cmid' => $cmid,
 ];
 
 $params = []; // SQL params.
@@ -126,7 +126,7 @@ if (!$teachersinstancereporttable->is_downloading()) {
         get_string('sum_units', 'mod_booking'),
         get_string('units_courses', 'mod_booking'),
         get_string('missinghours', 'mod_booking'),
-        get_string('substitutions', 'mod_booking')
+        get_string('substitutions', 'mod_booking'),
     ]);
 
     // Columns.
@@ -136,7 +136,7 @@ if (!$teachersinstancereporttable->is_downloading()) {
         'sum_units',
         'units_courses',
         'missinghours',
-        'substitutions'
+        'substitutions',
     ]);
 
     // Header column.
@@ -196,7 +196,7 @@ if (!$teachersinstancereporttable->is_downloading()) {
         get_string('sum_units', 'mod_booking'),
         get_string('units_courses', 'mod_booking'),
         get_string('missinghours', 'mod_booking'),
-        get_string('substitutions', 'mod_booking')
+        get_string('substitutions', 'mod_booking'),
     ]);
 
     // Columns.
@@ -207,7 +207,7 @@ if (!$teachersinstancereporttable->is_downloading()) {
         'sum_units',
         'units_courses',
         'missinghours',
-        'substitutions'
+        'substitutions',
     ]);
 
     // SQL query.

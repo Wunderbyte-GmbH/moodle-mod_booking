@@ -130,7 +130,7 @@ class mod_booking_mod_form extends moodleform_mod {
         if (!empty($semestersarray)) {
             $semesteridoptions = [
                 'tags' => false,
-                'multiple' => false
+                'multiple' => false,
             ];
             $mform->addElement('autocomplete', 'semesterid',
                 get_string('choosesemester', 'mod_booking'), $semestersarray, $semesteridoptions);
@@ -140,7 +140,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $options = [
                 'noselectionstring' => get_string('donotselecteventtype', 'booking'),
-                'tags' => true
+                'tags' => true,
         ];
         $mform->addElement('autocomplete', 'eventtype', get_string('eventtype', 'booking'), $eventstrings, $options);
         if (!empty($CFG->formatstringstriptags)) {
@@ -168,7 +168,7 @@ class mod_booking_mod_form extends moodleform_mod {
         }
 
         $options = [
-                'tags' => true
+                'tags' => true,
         ];
         $mform->addElement('autocomplete', 'organizatorname', get_string('organizatorname', 'booking'), $teachersstring, $options);
         $mform->setType('organizatorname', PARAM_RAW);
@@ -206,7 +206,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         // View selections to show on booking options overview.
         $options = [
-            'multiple' => true
+            'multiple' => true,
         ];
         $mform->addElement('autocomplete', 'showviews',
             get_string('showviews', 'booking'), $whichviewopts, $options);
@@ -278,7 +278,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'waitinglist' => get_string('searchwaitinglist', 'mod_booking'),
             'city' => new lang_string('city'),
             'department' => new lang_string('department'),
-            'notes' => get_string('notes', 'mod_booking')
+            'notes' => get_string('notes', 'mod_booking'),
         ];
 
         $reportfields = ['optionid' => get_string("optionid", "booking"),
@@ -625,7 +625,7 @@ class mod_booking_mod_form extends moodleform_mod {
             get_string('pollurltext', 'booking'), null, $editoroptions);
         $default = [
             'text' => get_string('pollurltextmessage', 'mod_booking', $fieldmapping),
-            'format' => FORMAT_HTML
+            'format' => FORMAT_HTML,
         ];
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('pollurltext', $default);
@@ -636,7 +636,7 @@ class mod_booking_mod_form extends moodleform_mod {
             get_string('pollurlteacherstext', 'booking'), null, $editoroptions);
         $default = [
             'text' => get_string('pollurlteacherstextmessage', 'mod_booking', $fieldmapping),
-            'format' => FORMAT_HTML
+            'format' => FORMAT_HTML,
         ];
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('pollurlteacherstext', $default);
@@ -747,7 +747,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $opts = [0 => get_string('nocomments', 'mod_booking'),
             1 => get_string('allcomments', 'mod_booking'),
             2 => get_string('enrolledcomments', 'mod_booking'),
-            3 => get_string('completedcomments', 'mod_booking')
+            3 => get_string('completedcomments', 'mod_booking'),
         ];
         $mform->addElement('select', 'comments', get_string('comments', 'mod_booking'), $opts);
         $mform->setDefault('comments', 0);
@@ -755,7 +755,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $opts = [0 => get_string('noratings', 'mod_booking'),
                         1 => get_string('allratings', 'mod_booking'),
                         2 => get_string('enrolledratings', 'mod_booking'),
-                        3 => get_string('completedratings', 'mod_booking')
+                        3 => get_string('completedratings', 'mod_booking'),
         ];
         $mform->addElement('select', 'ratings', get_string('ratings', 'mod_booking'), $opts);
         $mform->setDefault('ratings', 0);

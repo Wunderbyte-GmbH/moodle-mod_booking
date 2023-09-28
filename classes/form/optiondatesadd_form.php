@@ -133,14 +133,14 @@ class optiondatesadd_form extends moodleform {
                     null => '',
                     'TeamsMeeting' => 'TeamsMeeting',
                     'ZoomMeeting' => 'ZoomMeeting',
-                    'BigBlueButtonMeeting' => 'BigBlueButtonMeeting'
+                    'BigBlueButtonMeeting' => 'BigBlueButtonMeeting',
                 ];
                 if (!in_array($customfield->cfgname, $cfnames)) {
                     $cfnames[$customfield->cfgname] = $customfield->cfgname;
                 }
                 $options = [
                         'noselectionstring' => get_string('nocfnameselected', 'mod_booking'),
-                        'tags' => true
+                        'tags' => true,
                 ];
                 $element = $mform->createElement('autocomplete', 'customfieldname' . $j,
                     get_string('customfieldname', 'mod_booking'), $cfnames, $options);
@@ -197,11 +197,11 @@ class optiondatesadd_form extends moodleform {
                 null => '',
                 'TeamsMeeting' => 'TeamsMeeting',
                 'ZoomMeeting' => 'ZoomMeeting',
-                'BigBlueButtonMeeting' => 'BigBlueButtonMeeting'
+                'BigBlueButtonMeeting' => 'BigBlueButtonMeeting',
             ];
             $options = [
                     'noselectionstring' => get_string('nocfnameselected', 'mod_booking'),
-                    'tags' => true
+                    'tags' => true,
             ];
             $mform->addElement('autocomplete', 'customfieldname' . $counter,
                 get_string('customfieldname', 'mod_booking'), $cfnames, $options);

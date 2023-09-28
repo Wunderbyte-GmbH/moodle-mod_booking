@@ -720,7 +720,7 @@ class booking {
 
                     $params = [
                         'id' => $this->cm->id,
-                        'optionid' => $nrecid
+                        'optionid' => $nrecid,
                     ];
                     $url = new moodle_url('/mod/booking/report.php', $params);
 
@@ -1062,7 +1062,7 @@ class booking {
 
         $encodedurl = base64_encode($moodleurl->out(false));
         $encodedmoodleurl = new \moodle_url($CFG->wwwroot . '/mod/booking/bookingredirect.php', [
-            'encodedurl' => $encodedurl
+            'encodedurl' => $encodedurl,
         ]);
 
         $encodedlink = $encodedmoodleurl->out(false);

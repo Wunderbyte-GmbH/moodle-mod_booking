@@ -57,7 +57,7 @@ class col_text implements renderable, templatable {
     public function export_for_template(renderer_base $output) {
 
         return [
-            'text' => $this->text
+            'text' => $this->text,
         ];
     }
 }

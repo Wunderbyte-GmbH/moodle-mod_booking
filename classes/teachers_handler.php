@@ -119,7 +119,7 @@ class teachers_handler {
             $optionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
             $optiondatesteachersreporturl = new moodle_url('/mod/booking/optiondates_teachers_report.php', [
                 'id' => $optionsettings->cmid,
-                'optionid' => $this->optionid
+                'optionid' => $this->optionid,
             ]);
             $mform->addElement('static', 'info:teachersforoptiondates', '',
                     get_string('info:teachersforoptiondates', 'mod_booking', $optiondatesteachersreporturl->out()));
@@ -294,7 +294,7 @@ class teachers_handler {
                 // 2. Delete the teacher from every optiondate.
                 $DB->delete_records('booking_optiondates_teachers', [
                     'optiondateid' => $existingoptiondate->id,
-                    'userid' => $userid
+                    'userid' => $userid,
                 ]);
             }
             cache_helper::purge_by_event('setbackcachedteachersjournal');
@@ -336,7 +336,7 @@ class teachers_handler {
                 } else {
                     $DB->delete_records('booking_optiondates_teachers', [
                         'optiondateid' => $existingoptiondate->id,
-                        'userid' => $userid
+                        'userid' => $userid,
                     ]);
                 }
             }

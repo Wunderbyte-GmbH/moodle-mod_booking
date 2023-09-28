@@ -206,7 +206,7 @@ class selectusers implements bo_condition {
                     ];
                     return $OUTPUT->render_from_template(
                             'mod_booking/form-user-selector-suggestion', $details);
-                }
+                },
             ];
 
             $mform->addElement('advcheckbox', 'bo_cond_selectusers_restrict',

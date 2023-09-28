@@ -94,7 +94,7 @@ class enrol_user extends external_api {
             'id' => $id,
             'message' => htmlentities($contents),
             'answer' => $answer,
-            'courseid' => $courseid
+            'courseid' => $courseid,
         ];
     }
 

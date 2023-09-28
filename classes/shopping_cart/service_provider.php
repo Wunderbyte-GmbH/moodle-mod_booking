@@ -232,7 +232,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                         'objectid' => $itemid,
                         'context' => \context_module::instance($bookingoption->cmid),
                         'userid' => $USER->id, // The user who did cancel.
-                        'relateduserid' => $userid // Affected user - the user who was cancelled.
+                        'relateduserid' => $userid, // Affected user - the user who was cancelled.
                     ]);
                     $event->trigger(); // This will trigger the observer function and delete calendar events.
 

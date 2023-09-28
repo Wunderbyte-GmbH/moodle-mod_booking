@@ -92,7 +92,7 @@ class unenrol_user extends external_api {
             'cmid' => $cmid,
             'message' => htmlentities($contents),
             'optionid' => $optionid,
-            'courseid' => $courseid
+            'courseid' => $courseid,
         ];
     }
 

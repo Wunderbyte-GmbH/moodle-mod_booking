@@ -87,7 +87,7 @@ class optiondates_only implements renderable, templatable {
         return [
                 'showsessions' => $this->showsessions,
                 'onesession' => $this->onesession,
-                'sessions' => $this->sessions
+                'sessions' => $this->sessions,
         ];
     }
 }

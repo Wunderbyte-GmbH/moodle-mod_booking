@@ -60,7 +60,7 @@ class bookings extends external_api {
         return new external_function_parameters([
             'courseid' => new external_value(PARAM_TEXT, 'Course id', (bool) VALUE_DEFAULT, '0'),
             'printusers' => new external_value(PARAM_TEXT, 'Print user profiles', (bool) VALUE_DEFAULT, '0'),
-            'days' => new external_value(PARAM_TEXT, 'How old bookings to retrive - in days.', (bool) VALUE_DEFAULT, '0')
+            'days' => new external_value(PARAM_TEXT, 'How old bookings to retrive - in days.', (bool) VALUE_DEFAULT, '0'),
             ]
         );
     }
@@ -222,7 +222,7 @@ class bookings extends external_api {
                     'categories' => new external_multiple_structure(new external_single_structure(
                         [
                             'id' => new external_value(PARAM_INT, 'Category ID'),
-                            'name' => new external_value(PARAM_TEXT, 'Category name')
+                            'name' => new external_value(PARAM_TEXT, 'Category name'),
                         ]
                     )),
                     'options' => new external_multiple_structure(new external_single_structure(
@@ -243,7 +243,7 @@ class bookings extends external_api {
                                     'username' => new external_value(PARAM_TEXT, 'Username'),
                                     'firstname' => new external_value(PARAM_TEXT, 'First name'),
                                     'lastname' => new external_value(PARAM_TEXT, 'First'),
-                                    'email' => new external_value(PARAM_TEXT, 'Email')
+                                    'email' => new external_value(PARAM_TEXT, 'Email'),
                                 ]
                             )),
                             'teachers' => new external_multiple_structure(new external_single_structure(
@@ -252,11 +252,11 @@ class bookings extends external_api {
                                     'username' => new external_value(PARAM_TEXT, 'Username'),
                                     'firstname' => new external_value(PARAM_TEXT, 'First name'),
                                     'lastname' => new external_value(PARAM_TEXT, 'First'),
-                                    'email' => new external_value(PARAM_TEXT, 'Email')
+                                    'email' => new external_value(PARAM_TEXT, 'Email'),
                                 ]
-                            ))
+                            )),
                         ]
-                    ))
+                    )),
                 ]
             )
         );

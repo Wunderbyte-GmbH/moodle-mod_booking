@@ -101,8 +101,8 @@ if ($mform->is_cancelled()) {
                             'relateduserid' => $USER->id,
                             'other' => [
                                 'oldidentifier' => $oldidentifier,
-                                'newidentifier' => $newidentifier
-                            ]
+                                'newidentifier' => $newidentifier,
+                            ],
                         ]
                     );
                     $event->trigger();
@@ -187,6 +187,6 @@ function pricecategories_get_changes($oldpricecategories, $data) {
 
     return [
             'inserts' => $inserts,
-            'updates' => $updates
+            'updates' => $updates,
     ];
 }

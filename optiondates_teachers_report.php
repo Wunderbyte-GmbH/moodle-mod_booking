@@ -37,7 +37,7 @@ require_course_login($course, true, $cm);
 
 $urlparams = [
     'id' => $cmid,
-    'optionid' => $optionid
+    'optionid' => $optionid,
 ];
 
 $context = context_module::instance($cmid);

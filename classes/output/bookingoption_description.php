@@ -238,7 +238,7 @@ class bookingoption_description implements renderable, templatable {
             // Add a link to redirect to the booking option.
             $link = new moodle_url($CFG->wwwroot . '/mod/booking/report.php', [
                 'id' => $cmid,
-                'optionid' => $optionid
+                'optionid' => $optionid,
             ]);
             // Use html_entity_decode to convert "&amp;" to a simple "&" character.
             if ($CFG->version >= 2023042400) {
@@ -313,7 +313,7 @@ class bookingoption_description implements renderable, templatable {
         $moodleurl = new \moodle_url($baseurl . '/mod/booking/view.php', [
             'id' => $cmid,
             'optionid' => $settings->id,
-            'whichview' => 'showonlyone'
+            'whichview' => 'showonlyone',
         ]);
 
         switch ($descriptionparam) {

@@ -593,7 +593,7 @@ class bo_info {
             'data' => [
                 'optionid' => $optionid,
                 'userid' => $userid,
-            ]
+            ],
         ];
 
         // Depending on the circumstances, keys are added to the array.
@@ -723,7 +723,7 @@ class bo_info {
                 'label' => $label,
                 'class' => "$classes $fullwidthclasses text-center",
                 'role' => $role,
-            ]
+            ],
         ];
 
         // Only if the user can not book anyways, we want to show him the price he or she should see.
@@ -809,7 +809,7 @@ class bo_info {
 
             $newclass = [
                 'id' => $result['id'],
-                'classname' => $result['classname']
+                'classname' => $result['classname'],
             ];
 
             if ($result['id'] === BO_COND_CONFIRMATION) {
@@ -886,7 +886,7 @@ class bo_info {
         };
 
         return [
-            'data' => $data
+            'data' => $data,
         ];
     }
 

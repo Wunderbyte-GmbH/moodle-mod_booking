@@ -113,7 +113,7 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
                 if (!in_array($existingteacherid, $teachersforoptiondate)) {
                     $DB->delete_records('booking_optiondates_teachers', [
                         'optiondateid' => $data->optiondateid,
-                        'userid' => $existingteacherid
+                        'userid' => $existingteacherid,
                     ]);
 
                     // Trigger an event so we can use it with booking rules.
@@ -123,8 +123,8 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
                         'userid' => $USER->id,
                         'relateduserid' => $existingteacherid,
                         'other' => [
-                            'cmid' => $data->cmid
-                        ]
+                            'cmid' => $data->cmid,
+                        ],
                     ]);
                     $event->trigger();
                 }
@@ -148,8 +148,8 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
                         'userid' => $USER->id,
                         'relateduserid' => $teacherforoptiondate,
                         'other' => [
-                            'cmid' => $data->cmid
-                        ]
+                            'cmid' => $data->cmid,
+                        ],
                     ]);
                     $event->trigger();
                 }

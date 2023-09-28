@@ -112,7 +112,7 @@ class page_teacher implements renderable, templatable {
             'firstname' => $this->teacher->firstname,
             'lastname' => $this->teacher->lastname,
             'description' => format_text($this->teacher->description, $this->teacher->descriptionformat),
-            'optiontables' => $teacheroptiontables
+            'optiontables' => $teacheroptiontables,
         ];
 
         // If the user has set to hide e-mails, we won't show them.
@@ -198,7 +198,7 @@ class page_teacher implements renderable, templatable {
                     'bookinginstancename' => $booking->settings->name,
                     'tablename' => $tablename,
                     'table' => $out,
-                    'class' => $class
+                    'class' => $class,
                 ];
 
                 // This is a special setting for a special project. Only when this project is installed...
@@ -263,7 +263,7 @@ class page_teacher implements renderable, templatable {
 
         $params = [
             'currentuserid' => $USER->id,
-            'teacherid' => $teacherid
+            'teacherid' => $teacherid,
         ];
 
         if ($commoncourses = $DB->get_records_sql($sql, $params)) {

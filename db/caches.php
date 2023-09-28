@@ -30,77 +30,77 @@ $definitions = [
         'simplekeys' => true,
         'staticacceleration' => true,
         'staticaccelerationsize' => 1,
-        'invalidationevents' => ['setbackbookinginstances']
+        'invalidationevents' => ['setbackbookinginstances'],
     ],
     'cachedprices' => [
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
         'staticacceleration' => true,
         'staticaccelerationsize' => 1,
-        'invalidationevents' => ['setbackprices']
+        'invalidationevents' => ['setbackprices'],
     ],
     'cachedpricecategories' => [
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
         'staticacceleration' => true,
         'staticaccelerationsize' => 1,
-        'invalidationevents' => ['setbackpricecategories']
+        'invalidationevents' => ['setbackpricecategories'],
     ],
     'cachedsemesters' => [
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
         'staticacceleration' => true,
         'staticaccelerationsize' => 1,
-        'invalidationevents' => ['setbacksemesters']
+        'invalidationevents' => ['setbacksemesters'],
     ],
     'cachedteachersjournal' => [
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
         'staticacceleration' => true,
         'staticaccelerationsize' => 1,
-        'invalidationevents' => ['setbackcachedteachersjournal']
+        'invalidationevents' => ['setbackcachedteachersjournal'],
     ],
     'bookingoptionstable' => [ // This cache uses hased sql queries as keys.
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
         'staticacceleration' => true,
         'staticaccelerationsize' => 1,
-        'invalidationevents' => ['setbackoptionstable']
+        'invalidationevents' => ['setbackoptionstable'],
     ],
     'bookingoptionsettings' => [ // This cache uses optionids as keys.
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
         'staticacceleration' => true,
         'staticaccelerationsize' => 1,
-        'invalidationevents' => ['setbackoptionsettings']
+        'invalidationevents' => ['setbackoptionsettings'],
     ],
     'bookingoptionsanswers' => [ // This cache uses optionids as keys.
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
         'staticacceleration' => true,
         'staticaccelerationsize' => 1,
-        'invalidationevents' => ['setbackoptionsanswers']
+        'invalidationevents' => ['setbackoptionsanswers'],
     ],
     'subbookingforms' => [ // This cache uses optionids as keys.
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
         'staticacceleration' => true,
         'staticaccelerationsize' => 1,
-        'invalidationevents' => ['setbacksubbookingforms']
+        'invalidationevents' => ['setbacksubbookingforms'],
     ],
     'conditionforms' => [ // This cache uses optionids as keys.
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
         'staticacceleration' => true,
         'staticaccelerationsize' => 1,
-        'invalidationevents' => ['setbackconditionforms']
+        'invalidationevents' => ['setbackconditionforms'],
     ],
     'confirmbooking' => [ // This cache uses optionids as keys.
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
         'staticacceleration' => true,
         'staticaccelerationsize' => 1,
-        'invalidationevents' => ['setbackconfirms']
+        'invalidationevents' => ['setbackconfirms'],
     ]
     ,
     'electivebookingorder' => [
@@ -108,13 +108,13 @@ $definitions = [
         'simplekeys' => true,
         'staticacceleration' => true,
         'staticaccelerationsize' => 1,
-        'invalidationevents' => ['setbackelectivelist']
+        'invalidationevents' => ['setbackelectivelist'],
     ],
     'customformuserdata' => [ // We don't support general invalidation event in this cache. Use userid-optionid as keys.
         'mode' => cache_store::MODE_APPLICATION, // In order support buy for others, we need to make this MODE_APPLICATION cache.
         'simplekeys' => true,
         'staticacceleration' => true,
         'staticaccelerationsize' => 1,
-    ]
+    ],
 ];
 

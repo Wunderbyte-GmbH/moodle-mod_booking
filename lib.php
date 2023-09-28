@@ -1088,13 +1088,13 @@ function booking_update_options(object $optionvalues, context_module $context, i
 
             if (!empty($category->name)) {
                 $categories = core_course_external::get_categories([
-                        ['key' => 'name', 'value' => $category->name]
+                        ['key' => 'name', 'value' => $category->name],
                 ]);
 
                 if (empty($categories)) {
                     $category->idnumber = $category->name;
                     $categories = [
-                            ['name' => $category->name, 'idnumber' => $category->idnumber, 'parent' => 0]
+                            ['name' => $category->name, 'idnumber' => $category->idnumber, 'parent' => 0],
                     ];
                     $createdcats = core_course_external::create_categories($categories);
                     $categoryid = $createdcats[0]['id'];
@@ -1422,7 +1422,7 @@ function booking_update_options(object $optionvalues, context_module $context, i
                     AND cfd.instanceid = :oldoptionid";
 
             $params = [
-                    'oldoptionid' => $optionvalues->copyoptionid
+                    'oldoptionid' => $optionvalues->copyoptionid,
             ];
 
             $now = time();
@@ -1477,7 +1477,7 @@ function booking_update_options(object $optionvalues, context_module $context, i
                     [
                             'context' => $context,
                             'objectid' => $optionid,
-                            'userid' => $USER->id
+                            'userid' => $USER->id,
                     ]
             );
             $event->trigger();
@@ -2390,7 +2390,7 @@ function booking_delete_instance($id) {
     AND itemid = :bookingid";
 
     $imgfileparams = [
-        'bookingid' => $booking->id
+        'bookingid' => $booking->id,
     ];
 
     if ($imgfilerecords = $DB->get_records_sql($imgfilesql, $imgfileparams)) {
@@ -2402,7 +2402,7 @@ function booking_delete_instance($id) {
                 'itemid' => $booking->id,
                 'contextid' => $imgfilerecord->contextid,
                 'filepath' => $imgfilerecord->filepath,
-                'filename' => $imgfilerecord->filename
+                'filename' => $imgfilerecord->filename,
             ];
             // Get file.
             $imgfile = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
@@ -2416,7 +2416,7 @@ function booking_delete_instance($id) {
                     'filearea' => 'bookingimages',
                     'itemid' => $booking->id,
                     'contextid' => $imgfilerecord->contextid,
-                    'filepath' => $imgfilerecord->filepath
+                    'filepath' => $imgfilerecord->filepath,
                 ]);
             }
         }
@@ -2642,7 +2642,7 @@ function unsubscribe_teacher_from_booking_option(int $userid, int $optionid, int
 
     $event = \mod_booking\event\teacher_removed::create(
             ['userid' => $USER->id, 'relateduserid' => $userid, 'objectid' => $optionid,
-                'context' => context_module::instance($cmid)
+                'context' => context_module::instance($cmid),
             ]);
     $event->trigger();
 
