@@ -69,11 +69,11 @@ $returnurl = optional_param('returnurl', '', PARAM_LOCALURL);
 $aggregation = optional_param('aggregate', '', PARAM_INT);
 $searching = false;
 
-$urlparams = array();
+$urlparams = [];
 $urlparams['id'] = $id;
 $urlparams['page'] = $page;
 
-$sqlvalues = array();
+$sqlvalues = [];
 $addsqlwhere = '';
 
 if ($optionid > 0) {
@@ -285,7 +285,7 @@ if (!$tableallbookings->is_downloading()) {
     }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && confirm_sesskey()) {
-        $allselectedusers = array();
+        $allselectedusers = [];
 
         if (isset($_POST['generaterecnum']) && (($isteacher) || has_capability('mod/booking:updatebooking', $context))) {
             if (isset($_POST['user'])) {
@@ -311,7 +311,7 @@ if (!$tableallbookings->is_downloading()) {
             }
             redirect($url, get_string('delnotificationactivitycompletion', 'booking', $data), 5);
         }
-        $allselectedusers = array();
+        $allselectedusers = [];
 
         if (isset($_POST['user'])) {
             foreach ($_POST['user'] as $value) {
@@ -389,7 +389,7 @@ if (!$tableallbookings->is_downloading()) {
                 $bookingoption->option) || has_capability('moodle/rating:rate', $context))) {
 
             $allusers = $bookingoption->get_all_users();
-            $ratings = array();
+            $ratings = [];
             foreach ($allusers as $userid => $user) {
                 if (in_array($user->userid, $allselectedusers) && $user->userid != $USER->id) {
                     $rating = new stdClass();
@@ -486,8 +486,8 @@ if (!$tableallbookings->is_downloading()) {
         }
     }
 
-    $columns = array();
-    $headers = array();
+    $columns = [];
+    $headers = [];
 
     $columns[] = 'selected';
     $headers[] = '<input type="checkbox" id="usercheckboxall" name="selectall" value="0" />';
@@ -627,7 +627,7 @@ if (!$tableallbookings->is_downloading()) {
                     format_string($bookingoption->booking->settings->name)) . ' > ' .
                         format_string($titlestring), 4);
 
-    $teachers = array();
+    $teachers = [];
 
     foreach ($bookingoption->teachers as $value) {
         $teachers[] = html_writer::link(
@@ -640,7 +640,7 @@ if (!$tableallbookings->is_downloading()) {
     $linkst = '';
     if (has_capability('mod/booking:communicate', $context) ||
              has_capability('mod/booking:updatebooking', $context)) {
-        $linkst = array();
+        $linkst = [];
 
         $haspollurl = (!empty($bookingoption->booking->settings->pollurlteachers) ||
             !empty($bookingoption->option->pollurlteachers));
@@ -652,7 +652,7 @@ if (!$tableallbookings->is_downloading()) {
                                 'action' => 'sendpollurlteachers')),
                     (empty($bookingoption->booking->settings->lblsputtname) ? get_string(
                             'sendpollurltoteachers', 'booking') : $bookingoption->booking->settings->lblsputtname),
-                    array());
+                    []);
         }
 
         $linkst = empty($linkst) ? "" : "(" . implode(", ", $linkst) . ")";
@@ -695,7 +695,7 @@ if (!$tableallbookings->is_downloading()) {
 
     echo "<div class='report-actionbuttons-top'>$actionbuttonstop</div>";
 
-    $links = array();
+    $links = [];
 
     $links[] = '<a href="#" style="float:right;" id="showHideSearch">' . get_string('search') .
              '</a>';
@@ -704,8 +704,8 @@ if (!$tableallbookings->is_downloading()) {
 
     if ($bookingoption->option->courseid != 0) {
         echo '<br>' . html_writer::start_span('') . get_string('associatedcourse', 'booking') . ': ' . html_writer::link(
-                new moodle_url($bookingoption->option->courseurl, array()), $bookingoption->option->urltitle,
-                array()) . html_writer::end_span();
+                new moodle_url($bookingoption->option->courseurl, []), $bookingoption->option->urltitle,
+                []) . html_writer::end_span();
     }
 
     // We call the template render to display how many users are currently reserved.
@@ -791,7 +791,7 @@ if (!$tableallbookings->is_downloading()) {
         $tableallbookings->rawdata = $rm->get_ratings($ratingoptions);
 
         // Hidden input fields for the rating.
-        $ratinginputs = array();
+        $ratinginputs = [];
         $ratinginputs['ratingarea'] = $ratingoptions->ratingarea;
         $ratinginputs['scaleid'] = $ratingoptions->scaleid;
         $ratinginputs['returnurl'] = $ratingoptions->returnurl;
@@ -854,7 +854,7 @@ if (!$tableallbookings->is_downloading()) {
                  ($bookingoption->option->pollsend ? ' &#x2713;' : '') . ' | ';
     }
 
-    echo html_writer::link($onlyoneurl, get_string('onlythisbookingoption', 'booking'), array());
+    echo html_writer::link($onlyoneurl, get_string('onlythisbookingoption', 'booking'), []);
     if (!empty($bookingoption->option->shorturl)) {
         echo " ({$bookingoption->option->shorturl})";
     }
@@ -881,8 +881,8 @@ if (!$tableallbookings->is_downloading()) {
 
     echo $OUTPUT->footer();
 } else {
-    $columns = array();
-    $headers = array();
+    $columns = [];
+    $headers = [];
 
     $customfields = '';
 

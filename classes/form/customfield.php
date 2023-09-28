@@ -33,9 +33,9 @@ class customfield extends \moodleform {
     public function definition() {
         $mform = & $this->_form;
         $i = 0;
-        $defaultvalues = array();
-        $fieldnames = array();
-        $options = array();
+        $defaultvalues = [];
+        $fieldnames = [];
+        $options = [];
         $customfields = \mod_booking\booking_option::get_customfield_settings();
         $repeatno = \count($customfields);
         foreach ($customfields as $customfieldname => $value) {
@@ -46,7 +46,7 @@ class customfield extends \moodleform {
             $i++;
         }
 
-        $repeatarray = array();
+        $repeatarray = [];
         $repeatarray[] = $mform->createElement('text', 'customfield',
                 get_string('customfielddef', 'mod_booking'));
         $repeatarray[] = $mform->createElement('hidden', 'customfieldname', '');
@@ -60,7 +60,7 @@ class customfield extends \moodleform {
         $repeatarray[] = $mform->createElement('checkbox', 'deletefield',
                 \get_string('delcustfield', 'mod_booking'));
 
-        $repeateloptions = array();
+        $repeateloptions = [];
         $repeateloptions['customfieldname']['type'] = PARAM_ALPHANUMEXT;
         $repeateloptions['customfield']['disabledif'] = array('deletefield', 'eq', 1);
         $repeateloptions['type']['disabledif'] = array('deletefield', 'eq', 1);
@@ -87,7 +87,7 @@ class customfield extends \moodleform {
         }
 
         // Buttons.
-        $buttonarray = array();
+        $buttonarray = [];
         $buttonarray[] = &$mform->createElement('submit', 'submitbutton',
                 get_string('savechangesanddisplay'));
         $buttonarray[] = &$mform->createElement('cancel');

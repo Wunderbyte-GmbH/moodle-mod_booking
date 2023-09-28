@@ -67,7 +67,7 @@ class subscribe_cohort_or_group_form extends moodleform {
             'data-contextid' => $context->id,
             'data-includes' => 'all'
         );
-        $mform->addElement('autocomplete', 'cohortids', get_string('scgfselectcohorts', 'booking'), array(), $options);
+        $mform->addElement('autocomplete', 'cohortids', get_string('scgfselectcohorts', 'booking'), [], $options);
         $mform->addRule('cohortids', null, 'required');
 
         $mform->setExpanded('scgfcohortheader', true);
@@ -100,6 +100,6 @@ class subscribe_cohort_or_group_form extends moodleform {
      * Custom validation should be added here.
      */
     public function validation($data, $files) {
-        return array();
+        return [];
     }
 }

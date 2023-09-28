@@ -43,6 +43,6 @@ class importexcel_form extends moodleform {
      * @see moodleform::validation()
      */
     public function validation($data, $files) {
-        return array();
+        return [];
     }
 }

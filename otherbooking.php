@@ -72,7 +72,7 @@ $rules = $DB->get_records_sql(
         LEFT JOIN {booking_options} b ON b.id = bo.otheroptionid
         WHERE bo.optionid = ?", array($optionid));
 
-$rulestable = array();
+$rulestable = [];
 
 foreach ($rules as $rule) {
 

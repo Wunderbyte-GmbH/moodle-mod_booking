@@ -104,7 +104,7 @@ class price {
 
         $defaultexists = false;
         foreach ($this->pricecategories as $pricecategory) {
-            $formgroup = array();
+            $formgroup = [];
 
             $priceelement = $mform->createElement('float', 'bookingprice_' . $pricecategory->identifier);
             $formgroup[] = $priceelement;

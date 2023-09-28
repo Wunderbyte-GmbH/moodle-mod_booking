@@ -1193,7 +1193,7 @@ function xmldb_booking_upgrade($oldversion) {
     if ($oldversion < 2016051703) {
 
         // Course ids from all courses with booking instance.
-        $courseids = $DB->get_fieldset_sql('SELECT DISTINCT course FROM {booking}', array());
+        $courseids = $DB->get_fieldset_sql('SELECT DISTINCT course FROM {booking}', []);
 
         foreach ($courseids as $courseid) {
 

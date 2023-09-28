@@ -37,7 +37,7 @@ class potential_subscriber_selector extends subscriber_selector_base {
     /**
      * Can be used to store existing subscribers so that they can be removed from the potential subscribers list
      */
-    protected $existingsubscribers = array();
+    protected $existingsubscribers = [];
 
     /**
      * Constructor method
@@ -74,7 +74,7 @@ class potential_subscriber_selector extends subscriber_selector_base {
     public function find_users($search) {
         global $DB;
 
-        $whereconditions = array();
+        $whereconditions = [];
 
         list($wherecondition, $params) = $this->search_sql($search, 'u');
         if ($wherecondition) {
@@ -84,7 +84,7 @@ class potential_subscriber_selector extends subscriber_selector_base {
         $whereconditions[] = 'u.suspended = 0';
 
         if (!$this->forcesubscribed) {
-            $existingids = array();
+            $existingids = [];
             foreach ($this->existingsubscribers as $group) {
                 foreach ($group as $user) {
                     $existingids[$user->id] = 1;
@@ -124,7 +124,7 @@ class potential_subscriber_selector extends subscriber_selector_base {
                 array_merge($params, $sortparams));
 
         if (empty($availableusers)) {
-            return array();
+            return [];
         }
 
         if ($this->forcesubscribed) {

@@ -202,7 +202,7 @@ class customform implements bo_condition {
             $previous = 0;
             while ($counter < 3) {
 
-                $buttonarray = array();
+                $buttonarray = [];
 
                 if ($counter == 1) {
                     $formelementsarray = ['static' => get_string('displaytext', 'mod_booking')];

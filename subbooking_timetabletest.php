@@ -29,7 +29,7 @@ $context = \context_system::instance();
 $PAGE->set_context($context);
 require_login();
 
-$PAGE->set_url(new moodle_url('/mod/booking/subbooking_timetabletest.php', array()));
+$PAGE->set_url(new moodle_url('/mod/booking/subbooking_timetabletest.php', []));
 
 $title = "timetabletest";
 $PAGE->set_title($title);

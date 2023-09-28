@@ -637,7 +637,7 @@ class booking_option_settings {
             $this->load_teachers_from_db();
         }
 
-        $data = array();
+        $data = [];
         foreach ($this->teachers as $teacher) {
             $data['teachers'][] = "$teacher->firstname $teacher->lastname";
         }

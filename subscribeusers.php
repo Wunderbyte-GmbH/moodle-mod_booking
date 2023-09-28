@@ -111,8 +111,8 @@ if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
         if ($subscribe) {
             $users = $subscriberselector->get_selected_users();
             $subscribesuccess = true;
-            $subscribedusers = array();
-            $notsubscribedusers = array();
+            $subscribedusers = [];
+            $notsubscribedusers = [];
 
             if (has_capability('mod/booking:subscribeusers', $context) || (booking_check_if_teacher(
                     $bookingoption->option))) {
@@ -138,7 +138,7 @@ if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
                                      AND ba.bookingid = ?', array($user->id, STATUSPARAM_RESERVED, $bookingoption->booking->id));
                             $output .= "{$user->firstname} {$user->lastname}";
                             if (!empty($result)) {
-                                $r = array();
+                                $r = [];
                                 foreach ($result as $v) {
                                     $r[] = $v->text;
                                 }

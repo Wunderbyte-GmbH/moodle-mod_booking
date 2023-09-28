@@ -38,7 +38,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 class mod_booking_mod_form extends moodleform_mod {
 
-    public $options = array();
+    public $options = [];
 
     /**
      * Return an array of categories catid as key and categoryname as value
@@ -65,7 +65,7 @@ class mod_booking_mod_form extends moodleform_mod {
     public function add_completion_rules() {
         $mform = & $this->_form;
 
-        $group = array();
+        $group = [];
         $group[] = & $mform->createElement('checkbox', 'enablecompletionenabled', '',
                 get_string('enablecompletion', 'booking'));
         $group[] = $mform->createElement('text', 'enablecompletion',
@@ -99,7 +99,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
         $bookininstancetemplates = array('' => '');
-        $bookinginstances = $DB->get_records('booking_instancetemplate', array(), '', 'id, name', 0, 0);
+        $bookinginstances = $DB->get_records('booking_instancetemplate', [], '', 'id, name', 0, 0);
 
         foreach ($bookinginstances as $key => $value) {
             $bookininstancetemplates[$value->id] = $value->name;
@@ -231,7 +231,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setDefault('defaultoptionsort', 'text');
 
         // Presence tracking.
-        $menuoptions = array();
+        $menuoptions = [];
         $menuoptions[0] = get_string('disable');
         $menuoptions[1] = get_string('enable');
         $mform->addElement('select', 'enablepresence', get_string('enablepresence', 'booking'),
@@ -246,7 +246,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         // Choose if extra info should be shown right on the course page.
         // Note: "List on course page" is no longer supported.
-        $listoncoursepageoptions = array();
+        $listoncoursepageoptions = [];
         $listoncoursepageoptions[0] = get_string('hidelistoncoursepage', 'booking');
         $listoncoursepageoptions[1] = get_string('showcoursenameandbutton', 'booking');
         $mform->addElement('select', 'showlistoncoursepage',
@@ -266,7 +266,7 @@ class mod_booking_mod_form extends moodleform_mod {
         // Configure fields and columns section.
         $mform->addElement('header', 'configurefields', get_string('configurefields', 'booking'));
 
-        $tmpaddfields = $DB->get_records('user_info_field', array());
+        $tmpaddfields = $DB->get_records('user_info_field', []);
 
         $responsesfields = array('completed' => get_string('completed', 'mod_booking'),
             'status' => get_string('presence', 'mod_booking'),
@@ -504,7 +504,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         // PRO feature: Let the user choose between instance specific or global mail templates.
         if (wb_payment::pro_version_is_activated()) {
-            $mailtemplatessource = array();
+            $mailtemplatessource = [];
             $mailtemplatessource[0] = get_string('mailtemplatesinstance', 'booking');
             $mailtemplatessource[1] = get_string('mailtemplatesglobal', 'booking');
             $mform->addElement('select', 'mailtemplatessource',
@@ -731,7 +731,7 @@ class mod_booking_mod_form extends moodleform_mod {
         }
         $mform->setType('completionmodule', PARAM_INT);
 
-        $options = array();
+        $options = [];
 
         $options[0] = "&nbsp;";
         $categories = $DB->get_records('booking_category',

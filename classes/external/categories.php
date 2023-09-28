@@ -37,11 +37,11 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/externallib.php');
 
 function mod_booking_showsubcategories($catid, $DB, $courseid) {
-    $returns = array();
+    $returns = [];
     $categories = $DB->get_records('booking_category', array('cid' => $catid));
     if (count((array) $categories) > 0) {
         foreach ($categories as $category) {
-            $cat = array();
+            $cat = [];
 
             $cat['id'] = $category->id;
             $cat['cid'] = $category->cid;
@@ -90,12 +90,12 @@ class categories extends external_api {
             'courseid' => $courseid,
         ]);
 
-        $returns = array();
+        $returns = [];
 
         $categories = $DB->get_records('booking_category', array('course' => $courseid, 'cid' => 0));
 
         foreach ($categories as $category) {
-            $cat = array();
+            $cat = [];
 
             $cat['id'] = $category->id;
             $cat['cid'] = $category->cid;
@@ -106,7 +106,7 @@ class categories extends external_api {
             $subcategories = $DB->get_records('booking_category', array('course' => $courseid, 'cid' => $category->id));
             if (count((array)$subcategories) < 0) {
                 foreach ($subcategories as $subcat) {
-                    $cat = array();
+                    $cat = [];
 
                     $cat['id'] = $subcat->id;
                     $cat['cid'] = $subcat->cid;

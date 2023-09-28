@@ -221,7 +221,7 @@ class booking_potential_user_selector extends booking_user_selector_base {
                 array_merge($searchparams, $params, $sortparams));
 
         if (empty($availableusers)) {
-            return array();
+            return [];
         }
 
         if ($this->bookanyone) {
@@ -283,7 +283,7 @@ class booking_existing_user_selector extends booking_user_selector_base {
             $potentialuserids = array_keys ($this->potentialusers);
             list($subscriberssql, $subscribeparams) = $DB->get_in_or_equal($potentialuserids, SQL_PARAMS_NAMED, "in_");
         } else {
-            return array();
+            return [];
         }
 
         $option = new stdClass();
@@ -316,7 +316,7 @@ class booking_existing_user_selector extends booking_user_selector_base {
                 array_merge($searchparams, $sortparams, $subscribeparams));
 
         if (empty($availableusers)) {
-            return array();
+            return [];
         }
 
         return array(get_string("booked", 'booking') => $availableusers);

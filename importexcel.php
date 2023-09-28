@@ -69,7 +69,7 @@ if ($mform->is_cancelled()) {
     $csvfile = $mform->get_file_content('excelfile');
 
     $lines = explode(PHP_EOL, $csvfile);
-    $csvarr = array();
+    $csvarr = [];
     foreach ($lines as $line) {
         $csvarr[] = str_getcsv($line);
     }

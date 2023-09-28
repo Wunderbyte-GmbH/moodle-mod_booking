@@ -604,7 +604,7 @@ if ($ADMIN->fulltree) {
         return $object->name;
     }, $profiles);
     if (!empty($choices)) {
-        $setting = new admin_setting_configmulticheckbox($name, $visiblename, $description, array(),
+        $setting = new admin_setting_configmulticheckbox($name, $visiblename, $description, [],
                 $choices);
         $settings->add($setting);
     }
@@ -613,12 +613,12 @@ if ($ADMIN->fulltree) {
     $visiblename = get_string('showcustomfields', 'mod_booking');
     $description = get_string('showcustomfields_desc', 'mod_booking');
     $customfields = \mod_booking\booking_option::get_customfield_settings();
-    $choices = array();
+    $choices = [];
     if (!empty($customfields)) {
         foreach ($customfields as $cfgname => $value) {
             $choices[$cfgname] = $value['value'];
         }
-        $setting = new admin_setting_configmulticheckbox($name, $visiblename, $description, array(),
+        $setting = new admin_setting_configmulticheckbox($name, $visiblename, $description, [],
                 $choices);
         $settings->add($setting);
     }

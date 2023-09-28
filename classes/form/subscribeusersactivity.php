@@ -38,10 +38,10 @@ class subscribeusersactivity extends \moodleform {
         $bookingoptions = $DB->get_records_list("booking_options", "bookingid", array($this->_customdata['bookingid']), '',
             'id,text,coursestarttime,location', '', '');
 
-        $values = array();
+        $values = [];
 
         foreach ($bookingoptions as $key => $value) {
-            $stringarray = array();
+            $stringarray = [];
             $stringarray[] = $value->text;
             if ($value->coursestarttime != 0) {
                 $stringarray[] = userdate($value->coursestarttime);
@@ -57,7 +57,7 @@ class subscribeusersactivity extends \moodleform {
         // Add elements to your form.
         $mform->addElement('select', 'bookingoption', get_string('bookingoptionsmenu', 'booking'), $values);
 
-        $buttonarray = array();
+        $buttonarray = [];
         $buttonarray[] = $mform->createElement('submit', 'submitbutton', get_string('transefusers', 'booking'));
         $buttonarray[] = $mform->createElement('cancel');
         $mform->addGroup($buttonarray, 'buttonar', '', ' ', false);

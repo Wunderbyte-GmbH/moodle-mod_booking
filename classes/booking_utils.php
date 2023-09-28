@@ -58,7 +58,7 @@ class booking_utils {
 
     private function pretty_duration($seconds) {
         $measures = array('days' => 24 * 60 * 60, 'hours' => 60 * 60, 'minutes' => 60);
-        $durationparts = array();
+        $durationparts = [];
         foreach ($measures as $label => $amount) {
             if ($seconds >= $amount) {
                 $howmany = floor($seconds / $amount);

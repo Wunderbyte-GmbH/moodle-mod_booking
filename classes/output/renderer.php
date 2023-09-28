@@ -44,7 +44,7 @@ class renderer extends plugin_renderer_base {
     public function print_booking_tabs(booking $booking, $urlparams, $current = 'showactive', $mybookings = 0, $myoptions = 0) {
         global $USER;
         // Output tabs.
-        $row = array();
+        $row = [];
 
         unset($urlparams['sort']);
         $tmpurlparams = $urlparams;
@@ -110,7 +110,7 @@ class renderer extends plugin_renderer_base {
     public function subscriber_selection_form(user_selector_base $existinguc,
             user_selector_base $potentialuc, $courseid) {
         $output = '';
-        $formattributes = array();
+        $formattributes = [];
         $formattributes['id'] = 'subscriberform';
         $formattributes['action'] = '';
         $formattributes['method'] = 'post';
@@ -122,17 +122,17 @@ class renderer extends plugin_renderer_base {
         $existingcell->text = $existinguc->display(true);
         $existingcell->attributes['class'] = 'existing';
         $actioncell = new html_table_cell();
-        $actioncell->text = html_writer::start_tag('div', array());
+        $actioncell->text = html_writer::start_tag('div', []);
         $actioncell->text .= html_writer::empty_tag('input',
                 array('type' => 'submit', 'name' => 'subscribe',
                     'value' => $this->page->theme->larrow . ' ' . get_string('add'),
                     'class' => 'actionbutton'));
-        $actioncell->text .= html_writer::empty_tag('br', array());
+        $actioncell->text .= html_writer::empty_tag('br', []);
         $actioncell->text .= html_writer::empty_tag('input',
                 array('type' => 'submit', 'name' => 'unsubscribe',
                     'value' => $this->page->theme->rarrow . ' ' . get_string('remove'),
                     'class' => 'actionbutton'));
-        $actioncell->text .= html_writer::end_tag('div', array());
+        $actioncell->text .= html_writer::end_tag('div', []);
         $actioncell->attributes['class'] = 'actions';
         $potentialcell = new html_table_cell();
         $potentialcell->text = $potentialuc->display(true);
@@ -169,10 +169,10 @@ class renderer extends plugin_renderer_base {
      */
     public function render_bookings_per_user($userbookings) {
         $output = html_writer::div(' ');
-        $items = array();
+        $items = [];
 
         foreach ($userbookings as $userid => $options) {
-            $items = array();
+            $items = [];
 
             foreach ($options as $optionid => $user) {
                 // If the user is visible in only one booking instance, than show the user otherwise do not show.

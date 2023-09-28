@@ -117,8 +117,8 @@ class mod_booking_generator extends testing_module_generator {
         $record = (object) $record;
 
         // Conversion of strings like ["optiondatestart[0]"]=> int(1690792686) into arrays (by ChatGPT).
-        $optiondatestart = array();
-        $optiondateend = array();
+        $optiondatestart = [];
+        $optiondateend = [];
         foreach ($record as $key => $value) {
             if (strpos($key, 'optiondatestart') === 0) {
                 // Get the index from the key.

@@ -246,7 +246,7 @@ if ($mform->is_cancelled()) {
     $times = $DB->get_records('booking_optiondates', array('optionid' => $optionid),
             'coursestarttime ASC');
 
-    $timestable = array();
+    $timestable = [];
 
     foreach ($times as $time) {
         $editing = '';

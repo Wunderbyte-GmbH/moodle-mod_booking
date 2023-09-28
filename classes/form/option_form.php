@@ -191,7 +191,7 @@ class option_form extends moodleform {
                         break;
                     case 'select':
                         $soptions = explode("\n", $customfieldarray['options']);
-                        $soptionselements = array();
+                        $soptionselements = [];
                         $soptionselements[] = '';
                         foreach ($soptions as $key => $value) {
                             $val = trim($value);
@@ -202,7 +202,7 @@ class option_form extends moodleform {
                         break;
                     case 'multiselect':
                         $soptions = explode("\n", $customfieldarray['options']);
-                        $soptionselements = array();
+                        $soptionselements = [];
                         foreach ($soptions as $key => $value) {
                             $val = trim($value);
                             $soptionselements["{$val}"] = $value;
@@ -249,7 +249,7 @@ class option_form extends moodleform {
         $sql = 'SELECT DISTINCT location FROM {booking_options} ORDER BY location';
         $locationarray = $DB->get_fieldset_sql($sql);
 
-        $locationstrings = array();
+        $locationstrings = [];
         foreach ($locationarray as $item) {
             $locationstrings[$item] = $item;
         }
@@ -270,7 +270,7 @@ class option_form extends moodleform {
         $sql = 'SELECT DISTINCT institution FROM {booking_options} ORDER BY institution';
         $institutionarray = $DB->get_fieldset_sql($sql);
 
-        $institutionstrings = array();
+        $institutionstrings = [];
         foreach ($institutionarray as $item) {
             $institutionstrings[$item] = $item;
         }
@@ -314,11 +314,11 @@ class option_form extends moodleform {
         $mform->setType('minanswers', PARAM_INT);
         $mform->setDefault('minanswers', 0);
 
-        $coursearray = array();
+        $coursearray = [];
         $coursearray[0] = get_string('donotselectcourse', 'mod_booking');
         $totalcount = 1;
         // TODO: Using  moodle/course:viewhiddenactivities is not 100% accurate for finding teacher/non-editing teacher at least.
-        $allcourses = get_courses_search(array(), 'c.shortname ASC', 0, 9999999,
+        $allcourses = get_courses_search([], 'c.shortname ASC', 0, 9999999,
             $totalcount, array('enrol/manual:enrol'));
 
         $coursearray[-1] = get_string('newcourse', 'booking');
@@ -663,7 +663,7 @@ class option_form extends moodleform {
         }
 
         // Buttons.
-        $buttonarray = array();
+        $buttonarray = [];
         $buttonarray[] = &$mform->createElement('submit', 'submitbutton',
                 get_string('submitandgoback', 'mod_booking'));
         $buttonarray[] = &$mform->createElement("submit", 'submitandadd',

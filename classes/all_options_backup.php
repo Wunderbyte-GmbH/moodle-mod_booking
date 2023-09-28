@@ -69,7 +69,7 @@ class all_options extends table_sql {
     protected function col_id($values) {
         global $OUTPUT;
 
-        $ddoptions = array();
+        $ddoptions = [];
         $ret = '<div class="menubar" id="action-menu-' . $values->id . '-menubar" role="menubar">';
 
         if ($values->iambooked) {

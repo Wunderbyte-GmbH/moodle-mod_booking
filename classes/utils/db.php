@@ -72,12 +72,12 @@ class db {
         if (!empty($courseid)) {
             $sql = 'SELECT b.id, b.name FROM {badge} b WHERE ' .
                 'b.status = 1 OR b.status = 3 ORDER BY b.name ASC';
-            $params = array();
+            $params = [];
             $params['courseid'] = $courseid;
 
             return $DB->get_records_sql_menu($sql, $params);
         } else {
-            return array();
+            return [];
         }
     }
 
@@ -93,8 +93,8 @@ class db {
     public function getusersactivity($cmid = null, $optionid = null, $completed = false) {
         global $DB;
 
-        $ud = array();
-        $oud = array();
+        $ud = [];
+        $oud = [];
         $users = $DB->get_records('course_modules_completion', array('coursemoduleid' => $cmid));
         $ousers = $DB->get_records('booking_answers', array('optionid' => $optionid));
 
@@ -124,8 +124,8 @@ class db {
     public function getusersbadges($badgeid = null, $optionid = null) {
         global $DB;
 
-        $ud = array();
-        $oud = array();
+        $ud = [];
+        $oud = [];
         $users = $DB->get_records('badge_issued', array('badgeid' => $badgeid));
         $ousers = $DB->get_records('booking_answers', array('optionid' => $optionid));
 

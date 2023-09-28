@@ -180,7 +180,7 @@ class dynamicoptiondateform extends dynamic_form {
      */
     public function validation($data, $files) {
 
-        $errors = array();
+        $errors = [];
 
         // Check if the string is valid.
         if (!dates_handler::reoccurring_datestring_is_correct($data['reoccurringdatestring'])) {

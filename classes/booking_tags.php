@@ -60,8 +60,8 @@ class booking_tags {
     }
 
     private function prepare_replaces() {
-        $keys = array();
-        $values = array();
+        $keys = [];
+        $values = [];
 
         foreach ($this->tags as $tag) {
             $keys[] = "[{$tag->tag}]";

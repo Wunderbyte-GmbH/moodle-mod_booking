@@ -114,11 +114,11 @@ class all_userbookings extends \table_sql {
         if (empty($values->otheroptions)) {
             return html_writer::link(
                     new moodle_url('/user/profile.php', array('id' => $values->userid)),
-                    "{$values->firstname} {$values->lastname} ({$values->username})", array());
+                    "{$values->firstname} {$values->lastname} ({$values->username})", []);
         } else {
             return html_writer::link(
                     new moodle_url('/user/profile.php', array('id' => $values->userid)),
-                    "{$values->firstname} {$values->lastname} ({$values->username})", array()) .
+                    "{$values->firstname} {$values->lastname} ({$values->username})", []) .
                      "&nbsp;({$values->otheroptions})";
         }
     }
@@ -206,7 +206,7 @@ class all_userbookings extends \table_sql {
         if ($this->is_downloading()) {
             return $values->notes;
         }
-        $data = array();
+        $data = [];
         $data['baid'] = $values->id;
         $data['note'] = $values->notes;
         $data['editable'] = true;
@@ -346,9 +346,9 @@ class all_userbookings extends \table_sql {
                     list($insql, $inparams) = $DB->get_in_or_equal($optionids);
                     $options = $DB->get_records_select('booking_options', "id {$insql}",
                             $inparams, '', 'id,text,coursestarttime,location');
-                    $transferto = array();
+                    $transferto = [];
                     foreach ($options as $key => $value) {
-                        $string = array();
+                        $string = [];
                         $string[] = $value->text;
                         if ($value->coursestarttime != 0) {
                             $string[] = userdate($value->coursestarttime);
@@ -396,7 +396,7 @@ class all_userbookings extends \table_sql {
                             "bookingid = {$connectedbooking->id} AND id <> {$this->optionid}", null,
                             'text ASC', 'id, text');
 
-                    $options = array();
+                    $options = [];
 
                     foreach ($result as $value) {
                         $options[$value->id] = $value->text;
@@ -422,7 +422,7 @@ class all_userbookings extends \table_sql {
                             array($connectedbooking->id, $this->optionid));
 
                     if ($alllimits) {
-                        $options = array();
+                        $options = [];
 
                         foreach ($alllimits as $value) {
                             $options[$value->optionid] = $value->text;

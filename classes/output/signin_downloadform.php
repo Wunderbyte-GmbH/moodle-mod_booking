@@ -56,7 +56,7 @@ class signin_downloadform implements renderable, templatable {
     public $baseurl = '';
 
     /** @var array $sessions */
-    public $sessions = array();
+    public $sessions = [];
 
     /** @var boolean $teachersexist */
     public $teachersexist = false;
@@ -73,7 +73,7 @@ class signin_downloadform implements renderable, templatable {
             format_string($bookingoption->settings->text);
         $this->titleoption = format_string($bookingoption->settings->text);
         $this->instanceoption = format_string($bookingoption->booking->settings->name);
-        $this->sessions = array();
+        $this->sessions = [];
 
         if (!empty($bookingoption->settings->sessions)) {
             foreach ($bookingoption->settings->sessions as $session) {

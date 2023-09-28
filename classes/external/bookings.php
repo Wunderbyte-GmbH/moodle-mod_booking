@@ -75,7 +75,7 @@ class bookings extends external_api {
 
         require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
-        $returns = array();
+        $returns = [];
 
         $params = self::validate_parameters(self::execute_parameters(),
             ['courseid' => $courseid, 'printusers' => $printusers, 'days' => $days]);
@@ -84,10 +84,10 @@ class bookings extends external_api {
 
         foreach ($bookings as $booking) {
 
-            $ret = array();
+            $ret = [];
             $cm = get_coursemodule_from_instance('booking', $booking->id);
 
-            $options = array();
+            $options = [];
 
             if ($days > 0) {
                 $timediff = strtotime('-' . $days . ' day');
@@ -123,15 +123,15 @@ class bookings extends external_api {
                     $ret['bookingmanageremail'] = $manager->email;
                     $ret['myfilemanager'] = external_util::get_area_files($context->id,
                         'mod_booking', 'myfilemanager', 0, false);
-                    $ret['categories'] = array();
-                    $ret['options'] = array();
+                    $ret['categories'] = [];
+                    $ret['options'] = [];
 
                     if ($bookingdata->settings->categoryid != '0' && $bookingdata->settings->categoryid != '') {
                         $categoryies = explode(',', $bookingdata->settings->categoryid);
 
                         if (!empty($categoryies) && count($categoryies) > 0) {
                             foreach ($categoryies as $category) {
-                                $cat = array();
+                                $cat = [];
                                 $cat['id'] = $category;
                                 $cat['name'] = $DB->get_field('booking_category', 'name', array('id' => $category));
 
@@ -142,7 +142,7 @@ class bookings extends external_api {
 
                     foreach ($bookingdata->get_all_options(0, 0, '', '*') as $record) {
 
-                        $option = array();
+                        $option = [];
                         $option['id'] = $record->id;
                         $option['text'] = $record->text;
                         $option['timemodified'] = $record->timemodified;
@@ -153,14 +153,14 @@ class bookings extends external_api {
                         $option['location'] = $record->location;
                         $option['institution'] = $record->institution;
                         $option['address'] = $record->address;
-                        $option['users'] = array();
-                        $option['teachers'] = array();
+                        $option['users'] = [];
+                        $option['teachers'] = [];
 
                         if ($printusers) {
                             $users = $DB->get_records('booking_answers',
                                 array('optionid' => $record->id));
                             foreach ($users as $user) {
-                                $tmpuser = array();
+                                $tmpuser = [];
                                 $ruser = $DB->get_record('user', array('id' => $user->userid));
                                 $tmpuser['id'] = $ruser->id;
                                 $tmpuser['username'] = $ruser->username;
@@ -175,7 +175,7 @@ class bookings extends external_api {
                         $users = $DB->get_records('booking_teachers',
                             array('bookingid' => $record->bookingid, 'optionid' => $record->id));
                         foreach ($users as $user) {
-                            $teacher = array();
+                            $teacher = [];
                             $ruser = $DB->get_record('user', array('id' => $user->userid));
                             $teacher['id'] = $ruser->id;
                             $teacher['username'] = $ruser->username;

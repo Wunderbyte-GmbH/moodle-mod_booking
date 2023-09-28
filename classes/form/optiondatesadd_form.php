@@ -81,7 +81,7 @@ class optiondatesadd_form extends moodleform {
             $minutes[$i] = sprintf("%02d", $i);
         }
 
-        $courseendtime = array();
+        $courseendtime = [];
         $courseendtime[] = & $mform->createElement('select', 'endhour', get_string('hour', 'form'),
                 $hours);
         $courseendtime[] = & $mform->createElement('select', 'endminute',
@@ -242,7 +242,7 @@ class optiondatesadd_form extends moodleform {
      * @see moodleform::validation()
      */
     public function validation($data, $files) {
-        $errors = array();
+        $errors = [];
         // Validate start and end time.
         $starttime = $data['coursestarttime'];
         $date = date("Y-m-d", $data['coursestarttime']);

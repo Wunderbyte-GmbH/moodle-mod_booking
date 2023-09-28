@@ -67,7 +67,7 @@ $table->head = array(get_string('tagtag', 'booking'), get_string('tagtext', 'boo
 
 $tags = new booking_tags($cm->course);
 
-$tagstable = array();
+$tagstable = [];
 
 foreach ($tags->get_all_tags() as $tag) {
 

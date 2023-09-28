@@ -636,7 +636,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $isteacherandcanedit = (has_capability('mod/booking:addeditownoption', $context) &&
             booking_check_if_teacher($values));
 
-        $ddoptions = array();
+        $ddoptions = [];
         $ret = '<div class="menubar" id="action-menu-' . $optionid . '-menubar" role="menubar">';
 
         if ($status == STATUSPARAM_BOOKED) {

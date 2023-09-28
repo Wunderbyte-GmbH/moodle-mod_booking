@@ -42,10 +42,10 @@ $searchsurname = optional_param('searchsurname', '', PARAM_TEXT);
 $page = optional_param('page', '0', PARAM_INT);
 
 $perpage = 10;
-$conditions = array();
-$conditionsparams = array();
-$urlparams = array();
-$urlparamssort = array();
+$conditions = [];
+$conditionsparams = [];
+$urlparams = [];
+$urlparamssort = [];
 $urlparams['id'] = $id;
 
 list($course, $cm) = get_course_and_cm_from_cmid($id, 'booking');
@@ -93,7 +93,7 @@ if (strlen($searchinstitution) > 0) {
 $urlparams['searchname'] = "";
 $urlparams['searchsurname'] = "";
 
-$searchnyname = array();
+$searchnyname = [];
 
 if (strlen($searchname) > 0) {
     $urlparams['searchname'] = $searchname;
@@ -317,8 +317,8 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
     }
     $tablealloptions->show_download_buttons_at(array(TABLE_P_BOTTOM));
 
-    $columns = array();
-    $headers = array();
+    $columns = [];
+    $headers = [];
 
     if (!$tablealloptions->is_downloading()) {
         comment::init();
@@ -344,7 +344,7 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
             echo $output->render_instance_description($data);
         }
 
-        $out = array();
+        $out = [];
         $fs = get_file_storage();
         $files = $fs->get_area_files($context->id, 'mod_booking', 'myfilemanager',
                 $booking->settings->id);
@@ -374,12 +374,12 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
             $categoryies = explode(',', $booking->settings->categoryid);
 
             if (count($categoryies) > 0) {
-                $links = array();
+                $links = [];
                 foreach ($categoryies as $category) {
                     $tmpcat = $DB->get_record('booking_category', array('id' => $category));
                     if ($tmpcat) {
                         $surl = new moodle_url('/mod/booking/category.php', array('id' => $id, 'category' => $tmpcat->id));
-                        $links[] = html_writer::link($surl, $tmpcat->name, array());
+                        $links[] = html_writer::link($surl, $tmpcat->name, []);
                     }
                 }
 
@@ -694,7 +694,7 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
         }
 
         // Add teachers to rawdata.
-        $teachers = array();
+        $teachers = [];
         $tachernamesql = $DB->sql_fullname('u.firstname', 'u.lastname');
         $bookingoptionids = array_keys($tablealloptions->rawdata);
         if (!empty($bookingoptionids)) {
@@ -706,7 +706,7 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
                             AND t.optionid $insql";
             $teachers = $DB->get_records_sql($teachersql, $inparams);
 
-            $optionteachers = array();
+            $optionteachers = [];
             foreach ($teachers as $teacher) {
                 if (empty($optionteachers[$teacher->boid])) {
                     $optionteachers[$teacher->boid] = $teacher->teachername;
@@ -758,8 +758,8 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
         }
     } else {
         // Downloading the data as CSV or similar.
-        $columns = array();
-        $headers = array();
+        $columns = [];
+        $headers = [];
 
         $customfields = '';
 

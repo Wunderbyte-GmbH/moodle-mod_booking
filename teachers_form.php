@@ -64,7 +64,7 @@ class mod_booking_teachers_form extends moodleform {
             $mform->addElement('html', '<p>' . get_string('nousers', 'booking') . '</p>');
         }
 
-        $buttonarray = array();
+        $buttonarray = [];
         if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
             $bookingoption = singleton_service::get_instance_of_booking_option($cm->id, $this->_customdata['option']->id);
 

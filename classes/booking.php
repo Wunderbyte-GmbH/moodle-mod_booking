@@ -64,19 +64,19 @@ class booking {
     public $cm = null;
 
     /** @var array of user objects who have capability to book. object contains only id */
-    public $canbookusers = array();
+    public $canbookusers = [];
 
     /** @var array users who are members of the current users group */
-    public $groupmembers = array();
+    public $groupmembers = [];
 
     /** @var stdClass settings of the booking instance */
     public $settings = null;
 
     /** @var array $alloptions option objects indexed by optionid */
-    protected $alloptions = array();
+    protected $alloptions = [];
 
     /** @var array of ids */
-    protected $optionids = array();
+    protected $optionids = [];
 
     /** @var int number of bookings a user has made */
     protected $userbookings = null;
@@ -262,7 +262,7 @@ class booking {
     private function searchparameters($searchtext = '') {
         global $DB;
         $search = '';
-        $params = array();
+        $params = [];
 
         if (!empty($searchtext)) {
             $searchtext = $DB->sql_like_escape($searchtext);
@@ -297,7 +297,7 @@ class booking {
         global $DB;
 
         $search = '';
-        $params = array();
+        $params = [];
 
         $rsearch = $this->searchparameters($searchtext);
 
@@ -347,7 +347,7 @@ class booking {
         global $DB;
 
         $search = '';
-        $params = array();
+        $params = [];
 
         $rsearch = $this->searchparameters($searchtext);
 
@@ -399,7 +399,7 @@ class booking {
         global $DB, $USER;
 
         $search = '';
-        $params = array();
+        $params = [];
 
         $rsearch = $this->searchparameters($searchstring);
 
@@ -576,8 +576,8 @@ class booking {
         $userprofilefields = $DB->get_records_select('user_info_field',
                 'id > 0 AND shortname ' . $addquoted, $addquotedparams, 'id', 'id, shortname, name');
 
-        $columns = array();
-        $headers = array();
+        $columns = [];
+        $headers = [];
 
         foreach ($reportfields as $value) {
             switch ($value) {

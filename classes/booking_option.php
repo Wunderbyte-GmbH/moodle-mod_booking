@@ -72,25 +72,25 @@ class booking_option {
     public ?booking $booking = null;
 
     /** @var array of the users booked for this option key userid */
-    public array $bookedusers = array();
+    public array $bookedusers = [];
 
     /** @var array of booked users visible to the current user (group members) */
-    public array $bookedvisibleusers = array();
+    public array $bookedvisibleusers = [];
 
     /** @var array of users subscribeable to booking option if groups enabled, members of groups user has access to */
-    public array $potentialusers = array();
+    public array $potentialusers = [];
 
     /** @var ?stdClass option config object */
     public ?stdClass $option = null;
 
     /** @var array booking option teachers defined in booking_teachers table */
-    public array $teachers = array();
+    public array $teachers = [];
 
     /** @var ?int number of answers */
     public ?int $numberofanswers = null;
 
     /** @var array of all user objects (waitinglist and regular) - filtered */
-    public array $users = array();
+    public array $users = [];
 
     /** @var array filter and other url params */
     public array $urlparams;
@@ -213,7 +213,7 @@ class booking_option {
 
             $alreadybooked = count($result);
 
-            $keys = array();
+            $keys = [];
 
             foreach ($result as $value) {
                 $keys[] = $value->userid;
@@ -540,8 +540,8 @@ class booking_option {
     public function delete_responses_activitycompletion() {
         global $DB;
 
-        $ud = array();
-        $oud = array();
+        $ud = [];
+        $oud = [];
         $users = $DB->get_records('course_modules_completion',
                 array('coursemoduleid' => $this->booking->settings->completionmodule));
         $ousers = $DB->get_records('booking_answers', array('optionid' => $this->optionid));
@@ -556,7 +556,7 @@ class booking_option {
 
         $todelete = array_intersect($ud, $oud);
 
-        $results = array();
+        $results = [];
         foreach ($todelete as $userid) {
             $results[$userid] = $this->user_delete_response($userid);
         }
@@ -570,8 +570,8 @@ class booking_option {
      * @param array $users array of users
      * @return array
      */
-    public function delete_responses($users = array()) {
-        $results = array();
+    public function delete_responses($users = []) {
+        $results = [];
         if (!is_array($users) || empty($users)) {
             return $results;
         }
@@ -723,8 +723,8 @@ class booking_option {
     public function transfer_users_to_otheroption(int $newoption, array $userids) {
         global $CFG, $DB;
         $transferred = new stdClass();
-        $transferred->yes = array(); // Successfully transferred users.
-        $transferred->no = array(); // Errored users.
+        $transferred->yes = []; // Successfully transferred users.
+        $transferred->no = []; // Errored users.
         $transferred->success = false;
         $otheroption = singleton_service::get_instance_of_booking_option($this->booking->cm->id, $newoption);
         if (!empty($userids) && (has_capability('mod/booking:subscribeusers', $this->booking->get_context()) ||
@@ -1734,7 +1734,7 @@ class booking_option {
      * @return array string[customfieldname][value|type]; empty array if no settings set
      */
     public static function get_customfield_settings() {
-        $values = array();
+        $values = [];
         $bkgconfig = get_config('booking');
         $customfieldvals = \get_object_vars($bkgconfig);
         if (!empty($customfieldvals)) {
@@ -1902,7 +1902,7 @@ class booking_option {
         $allusers = $this->get_all_users();
         $allteachers = $this->get_teachers();
 
-        $users = array();
+        $users = [];
         foreach ($allusers as $key => $value) {
             $users[] = array(
                 'id' => $value->userid,
@@ -1913,7 +1913,7 @@ class booking_option {
             );
         }
 
-        $teachers = array();
+        $teachers = [];
         foreach ($allteachers as $key => $value) {
             $teachers[] = array(
                 'id' => $value->userid,
@@ -2009,11 +2009,11 @@ class booking_option {
      * @return void
      */
     public static function search_all_options_sql($bookingid = 0,
-                                    $filters = array(),
+                                    $filters = [],
                                     $fields = '*',
                                     $from = '',
                                     $where = '',
-                                    $params = array(),
+                                    $params = [],
                                     $order = 'ORDER BY bo.id ASC'): array {
         $from = $from ?? '{booking_options} bo
                         JOIN {customfield_data} cfd

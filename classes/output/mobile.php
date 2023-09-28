@@ -64,7 +64,7 @@ class mobile {
                 name = 'booking')
             WHERE instance = b.id AND ba.userid = {$USER->id} AND cm.visible = 1");
 
-        $outputdata = array();
+        $outputdata = [];
 
         foreach ($mybookings as $key => $value) {
             $status = '';
@@ -225,7 +225,7 @@ class mobile {
      * @throws \coding_exception
      */
     public static function prepare_options_array($bookingoptions, booking $booking, context $context, stdClass $cm, $courseid) {
-        $options = array();
+        $options = [];
 
         foreach ($bookingoptions as $key => $value) {
             $option = singleton_service::get_instance_of_booking_option($cm->id,
@@ -270,7 +270,7 @@ class mobile {
             $text .= format_text($values->option->description);
         }
 
-        $teachers = array();
+        $teachers = [];
         foreach ($values->teachers as $tvalue) {
             $teachers[] = "{$tvalue->firstname} {$tvalue->lastname}";
         }
@@ -284,9 +284,9 @@ class mobile {
                 'teachers', 'booking') : $booking->settings->lblteachname) . ": " . implode(', ',
                 $teachers) : '');
 
-        $delete = array();
+        $delete = [];
         $status = '';
-        $button = array();
+        $button = [];
         $booked = '';
         $inpast = $values->option->courseendtime && ($values->option->courseendtime < time());
 
@@ -330,7 +330,7 @@ class mobile {
 
                 if ($values->option->coursestarttime > 0 && $values->booking->allowupdatedays > 0) {
                     if (time() > strtotime("-{$values->booking->allowupdatedays} day", $values->option->coursestarttime)) {
-                        $delete = array();
+                        $delete = [];
                     }
                 }
             }
@@ -365,13 +365,13 @@ class mobile {
 
         if (($values->option->limitanswers && ($status == "full")) || ($status == "closed") ||
             !$underlimit || $values->option->disablebookingusers) {
-            $button = array();
+            $button = [];
         }
 
         if ($booking->settings->cancancelbook == 0 && $values->option->courseendtime > 0
             && $values->option->courseendtime < time()) {
-            $button = array();
-            $delete = array();
+            $button = [];
+            $delete = [];
         }
 
         if (!empty($booking->settings->banusernames)) {
@@ -379,7 +379,7 @@ class mobile {
 
             foreach ($disabledusernames as $value) {
                 if (strpos($USER->username, trim($value)) !== false) {
-                    $button = array();
+                    $button = [];
                 }
             }
         }

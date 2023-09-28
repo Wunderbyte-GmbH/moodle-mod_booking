@@ -51,7 +51,7 @@ class generator {
      *
      * @var array
      */
-    public $teachers = array();
+    public $teachers = [];
 
     /**
      * add teachers?
@@ -72,7 +72,7 @@ class generator {
      *
      * @var array
      */
-    public $cfgcustfields = array();
+    public $cfgcustfields = [];
 
     /**
      * number of empty rows to add at the end of the pdf
@@ -138,13 +138,13 @@ class generator {
      * user info fields to display in the sign in sheet table
      * @var array
      */
-    public $allfields = array();
+    public $allfields = [];
 
     /**
      * extra columns to display
      * @var array
      */
-    public $extracols = array();
+    public $extracols = [];
 
     /**
      *
@@ -262,7 +262,7 @@ class generator {
      */
     public function download_signinsheet() {
         global $CFG, $DB;
-        $groupparams = array();
+        $groupparams = [];
         $addsqlwhere = '';
 
         if (groups_get_activity_groupmode($this->bookingdata->booking->cm) == SEPARATEGROUPS &&
@@ -375,7 +375,7 @@ class generator {
 
         $profilefields = explode(',', get_config('booking', 'custprofilefields'));
         $profiles = profile_get_custom_fields();
-        $profilefieldnames = array();
+        $profilefieldnames = [];
         if (!empty($profiles)) {
             $profilefieldnames = array_map(
                     function ($object) {
@@ -502,7 +502,7 @@ class generator {
                 return;
             } else if ($this->pdfsessions == 0) {
                 // Show all sessions.
-                $val = array();
+                $val = [];
                 foreach ($this->bookingdata->settings->sessions as $time) {
                     $tmpdate = new \stdClass();
                     $tmpdate->leftdate = userdate($time->coursestarttime,
@@ -540,7 +540,7 @@ class generator {
                 return [];
             } else if ($this->extrasessioncols == 0) {
                 // Add columns for all sessions.
-                $val = array();
+                $val = [];
                 foreach ($this->bookingdata->settings->sessions as $session) {
                     $sessioncolnames[] = userdate($session->coursestarttime,
                         get_string('strftimedateshortmonthabbr', 'langconfig'));

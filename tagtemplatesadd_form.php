@@ -49,7 +49,7 @@ class tagtemplatesadd_form extends moodleform {
      * @see moodleform::validation()
      */
     public function validation($data, $files) {
-        return array();
+        return [];
     }
 
     public function get_data() {

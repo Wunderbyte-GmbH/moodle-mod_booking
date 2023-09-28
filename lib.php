@@ -187,7 +187,7 @@ function booking_get_coursemodule_info($cm) {
  * @throws moodle_exception
  * @throws require_login_exception
  */
-function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = array()) {
+function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = []) {
 
     // Check the contextlevel is as expected - if your plugin is a block.
     // We need context course if wee like to acces template files.
@@ -642,7 +642,7 @@ function booking_update_instance($booking) {
         $booking->assesstimefinish = 0;
     }
 
-    $arr = array();
+    $arr = [];
     core_tag_tag::set_item_tags('mod_booking', 'booking', $booking->id, $context, $booking->tags);
 
     file_save_draft_area_files($booking->signinlogoheader, $context->id, 'mod_booking',
@@ -2474,7 +2474,7 @@ function booking_get_option_text($booking, $id) {
             WHERE bo.bookingid = :bookingid
             AND ba.userid = :userid;",
             array("bookingid" => $booking->id, "userid" => $USER->id))) {
-        $tmptxt = array();
+        $tmptxt = [];
         foreach ($result as $value) {
             $tmptxt[] = $value->text;
         }
@@ -2508,7 +2508,7 @@ function booking_reset_course_form_defaults($course) {
  */
 function booking_pretty_duration($seconds) {
     $measures = array('days' => 24 * 60 * 60, 'hours' => 60 * 60, 'minutes' => 60);
-    $durationparts = array();
+    $durationparts = [];
     foreach ($measures as $label => $amount) {
         if ($seconds >= $amount) {
             $howmany = floor($seconds / $amount);
@@ -2550,7 +2550,7 @@ function booking_pretty_duration($seconds) {
     $context = context_module::instance($cmid);
     $firstuseronwaitinglist = $option->maxanswers + 1;
     $i = 1;
-    $sortedresponses = array();
+    $sortedresponses = [];
     foreach ($allresponses as $answer) {
         if (has_capability('mod/booking:choose', $context, $answer->userid)) {
             $sortedresponses[$i++] = $answer->userid;

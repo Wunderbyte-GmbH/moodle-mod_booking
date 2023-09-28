@@ -64,7 +64,7 @@ class ical {
 
     protected $attachicalsessions = false;
 
-    protected $individualvevents = array();
+    protected $individualvevents = [];
 
     /**
      * Create a new mod_booking\ical instance
@@ -125,7 +125,7 @@ class ical {
     public function get_attachments($cancel = false) {
         global $CFG;
         if (!$this->datesareset) {
-            return array();
+            return [];
         }
 
         // UIDs should be globally unique. @$this->host: Hostname for this moodle installation.
@@ -200,7 +200,7 @@ class ical {
      */
     protected function get_vevents_from_optiondates() {
         global $CFG;
-        $vevents = array();
+        $vevents = [];
         foreach ($this->times as $time) {
             $dtstart = $this->generate_timestamp($time->coursestarttime);
             $dtend = $this->generate_timestamp($time->courseendtime);
