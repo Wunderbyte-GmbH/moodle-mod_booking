@@ -589,7 +589,7 @@ class booking_option {
      * @param bool $cancelreservation
      * @param bool $bookingoptioncancel indicates if the function was called
      *     after the whole booking option was cancelled, false by default
-     * @return true if booking was deleted successfully, otherwise false
+     * @return bool true if booking was deleted successfully, otherwise false
      */
     public function user_delete_response($userid, $cancelreservation = false,
         $bookingoptioncancel = false) {
@@ -3130,7 +3130,7 @@ class booking_option {
      * @param int $optionid
      * @return int|null $cmid
      */
-    public static function get_cmid_from_optionid(int $optionid): int|null {
+    public static function get_cmid_from_optionid(int $optionid): ?int {
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         if (!empty($settings->cmid)) {
             return (int) $settings->cmid;
