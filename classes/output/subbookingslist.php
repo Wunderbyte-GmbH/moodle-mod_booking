@@ -67,10 +67,10 @@ class subbookingslist implements renderable, templatable {
     }
 
     public function export_for_template(renderer_base $output) {
-        return array(
+        return [
                 'cmid' => $this->cmid,
                 'optionid' => $this->optionid,
                 'subbookings' => $this->subbookings,
-        );
+        ];
     }
 }

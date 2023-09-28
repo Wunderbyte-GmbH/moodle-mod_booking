@@ -93,8 +93,8 @@ class dates_handler {
         // We trigger the event, where we take care of events in calendar etc. First we get the context.
         $booking = singleton_service::get_instance_of_booking_by_bookingid($optiondate->bookingid);
         $context = $booking->get_context();
-        $event = \mod_booking\event\bookingoptiondate_created::create(array('context' => $context, 'objectid' => $optiondateid,
-                'userid' => $USER->id, 'other' => ['optionid' => $this->optionid]));
+        $event = \mod_booking\event\bookingoptiondate_created::create(['context' => $context, 'objectid' => $optiondateid,
+                'userid' => $USER->id, 'other' => ['optionid' => $this->optionid]]);
         $event->trigger();
         // Also create new user events (user calendar entries) for all booked users.
         $option = singleton_service::get_instance_of_booking_option($booking->cmid, $this->optionid);
@@ -199,8 +199,8 @@ class dates_handler {
         $records = $DB->get_records('booking_userevents', ['optiondateid' => $id]);
         if (!empty($records)) {
             foreach ($records as $record) {
-                $DB->delete_records('event', array('id' => $record->eventid));
-                $DB->delete_records('booking_userevents', array('id' => $record->id));
+                $DB->delete_records('event', ['id' => $record->eventid]);
+                $DB->delete_records('booking_userevents', ['id' => $record->id]);
             }
         }
 
@@ -616,7 +616,7 @@ class dates_handler {
     public static function optiondate_deletecustomfields($optiondateid) {
         global $DB;
         // Delete all custom fields which belong to this optiondate.
-        $DB->delete_records("booking_customfields", array('optiondateid' => $optiondateid));
+        $DB->delete_records("booking_customfields", ['optiondateid' => $optiondateid]);
     }
 
     /**

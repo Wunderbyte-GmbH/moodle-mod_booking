@@ -76,7 +76,7 @@ class booked_users implements renderable, templatable {
         if ($showreserved) {
             foreach ($ba->usersreserved as $item) {
                 $user = singleton_service::get_instance_of_user($item->id);
-                $url = new moodle_url('/user/profile.php', array('id' => $item->id));
+                $url = new moodle_url('/user/profile.php', ['id' => $item->id]);
 
                 $this->reservedusers[] = [
                     'firstname' => $user->firstname,
@@ -91,7 +91,7 @@ class booked_users implements renderable, templatable {
         if ($showbooked) {
             foreach ($ba->usersonlist as $item) {
                 $user = singleton_service::get_instance_of_user($item->id);
-                $url = new moodle_url('/user/profile.php', array('id' => $item->id));
+                $url = new moodle_url('/user/profile.php', ['id' => $item->id]);
 
                 $this->bookedusers[] = [
                     'firstname' => $user->firstname,
@@ -106,7 +106,7 @@ class booked_users implements renderable, templatable {
         if ($showwaiting) {
             foreach ($ba->usersonwaitinglist as $item) {
                 $user = singleton_service::get_instance_of_user($item->id);
-                $url = new moodle_url('/user/profile.php', array('id' => $item->id));
+                $url = new moodle_url('/user/profile.php', ['id' => $item->id]);
 
                 $this->waitinglist[] = [
                     'firstname' => $user->firstname,
@@ -121,7 +121,7 @@ class booked_users implements renderable, templatable {
         if ($showtonotifiy) {
             foreach ($ba->userstonotify as $item) {
                 $user = singleton_service::get_instance_of_user($item->id);
-                $url = new moodle_url('/user/profile.php', array('id' => $item->id));
+                $url = new moodle_url('/user/profile.php', ['id' => $item->id]);
 
                 $this->userstonotify[] = [
                     'firstname' => $user->firstname,
@@ -136,7 +136,7 @@ class booked_users implements renderable, templatable {
         if ($showdeleted) {
             foreach ($ba->usersdeleted as $item) {
                 $user = singleton_service::get_instance_of_user($item->id);
-                $url = new moodle_url('/user/profile.php', array('id' => $item->id));
+                $url = new moodle_url('/user/profile.php', ['id' => $item->id]);
 
                 $this->deletedusers[] = [
                     'firstname' => $user->firstname,

@@ -71,7 +71,7 @@ class elective {
         $mform->addElement('checkbox', 'consumeatonce', get_string('consumeatonce', 'booking'));
         $mform->addHelpButton('consumeatonce', 'consumeatonce', 'mod_booking');
 
-        $opts = array(0 => get_string('unlimitedcredits', 'mod_booking'));
+        $opts = [0 => get_string('unlimitedcredits', 'mod_booking')];
         $extraopts = array_combine(range(1, 50), range(1, 50));
         $opts = $opts + $extraopts;
         $extraopts = array_combine(range(55, 500, 5), range(55, 500, 5));
@@ -116,13 +116,13 @@ class elective {
         $mform->addElement('select', 'credits', get_string('credits', 'mod_booking'), $opts);
         $mform->addHelpButton('credits', 'credits', 'mod_booking');
 
-        $options = array(
+        $options = [
                 'multiple' => true,
                 'noselectionstring' => get_string('nooptionselected', 'booking'),
-        );
+        ];
 
         // Retrieve all the other Booking options.
-        $alloptions = $DB->get_records('booking_options', array('bookingid' => $customdata['bookingid']));
+        $alloptions = $DB->get_records('booking_options', ['bookingid' => $customdata['bookingid']]);
         $optionsarray = [];
 
         $optionid = $customdata['optionid'];
@@ -200,7 +200,7 @@ class elective {
 
         global $DB;
         // First we need to see if there are already entries in DB.
-        $existingrecords = $DB->get_records('booking_combinations', array('optionid' => $optionid, 'cancombine' => $mustcombine));
+        $existingrecords = $DB->get_records('booking_combinations', ['optionid' => $optionid, 'cancombine' => $mustcombine]);
 
         // Run through the array of selected options and save them to db.
         foreach ($otheroptions as $otheroptionid) {
@@ -231,11 +231,11 @@ class elective {
 
         foreach ($existingrecords as $item) {
             if (!property_exists($item, 'exists')) {
-                $DB->delete_records('booking_combinations', array('id' => $item->id));
+                $DB->delete_records('booking_combinations', ['id' => $item->id]);
 
                 // Also delete the pair.
-                $DB->delete_records('booking_combinations', array('optionid' => $item->otheroptionid,
-                    'otheroptionid' => $item->optionid, 'cancombine' => $mustcombine));
+                $DB->delete_records('booking_combinations', ['optionid' => $item->otheroptionid,
+                    'otheroptionid' => $item->optionid, 'cancombine' => $mustcombine]);
             }
         }
     }
@@ -276,10 +276,10 @@ class elective {
                 AND ba.userid=:userid
                 ORDER BY ba.id ASC";
 
-        $answers = $DB->get_records_sql($sql, array(
+        $answers = $DB->get_records_sql($sql, [
             'bookingid' => $bookingoption->booking->id,
             'userid' => $userid,
-            'waitinglist' => STATUSPARAM_BOOKED));
+            'waitinglist' => STATUSPARAM_BOOKED]);
 
         // We run through the list of options.
         // The sorting order comes from the ids, lower was booked first.
@@ -339,12 +339,12 @@ class elective {
         $outdata->maxcredits = $booking->settings->maxcredits;
 
         $warning .= \html_writer::tag('div', get_string('creditsmessage', 'mod_booking', $outdata),
-            array ('class' => 'alert alert-warning'));
+             ['class' => 'alert alert-warning']);
 
         if ($booking->settings->consumeatonce
             && $outdata->creditsleft > 0) {
             $warning .= \html_writer::tag('div', get_string('consumeatonce', 'mod_booking', $outdata),
-                array ('class' => 'alert alert-warning'));
+                 ['class' => 'alert alert-warning']);
         }
 
         return $warning;

@@ -71,10 +71,10 @@ class report_edit_bookingnotes implements renderable, templatable {
 
     public function export_for_template(renderer_base $output) {
         if (!$this->editable) {
-            return array('displayvalue' => (string) $this->displayvalue);
+            return ['displayvalue' => (string) $this->displayvalue];
         }
 
-        return array('note' => $this->note, 'baid' => $this->baid
-        );
+        return ['note' => $this->note, 'baid' => $this->baid
+        ];
     }
 }

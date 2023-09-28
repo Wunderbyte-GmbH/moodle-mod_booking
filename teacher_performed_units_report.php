@@ -75,7 +75,7 @@ $tablebaseurl->remove_params('page');
 $teacherperformedunitstable->define_baseurl($tablebaseurl);
 $teacherperformedunitstable->sortable(false);
 $teacherperformedunitstable->collapsible(false);
-$teacherperformedunitstable->show_download_buttons_at(array(TABLE_P_TOP));
+$teacherperformedunitstable->show_download_buttons_at([TABLE_P_TOP]);
 
 // Get unit length from config (should be something like 45, 50 or 60 minutes).
 if (!$unitlength = get_config('booking', 'educationalunitinminutes')) {

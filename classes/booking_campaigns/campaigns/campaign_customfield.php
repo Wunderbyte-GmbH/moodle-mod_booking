@@ -144,11 +144,11 @@ class campaign_customfield implements booking_campaign {
             }
         }
 
-        $options = array(
+        $options = [
             'noselectionstring' => get_string('choose...', 'mod_booking'),
             'tags' => true,
             'multiple' => false,
-        );
+        ];
         $mform->addElement('autocomplete', 'fieldvalue',
             get_string('campaignfieldvalue', 'mod_booking'), $fieldvalues, $options);
         $mform->addHelpButton('fieldvalue', 'campaignfieldvalue', 'mod_booking');

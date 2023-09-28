@@ -128,9 +128,9 @@ class potential_subscriber_selector extends subscriber_selector_base {
         }
 
         if ($this->forcesubscribed) {
-            return array(get_string("existingsubscribers", 'booking') => $availableusers);
+            return [get_string("existingsubscribers", 'booking') => $availableusers];
         } else {
-            return array(get_string("potentialsubscribers", 'booking') => $availableusers);
+            return [get_string("potentialsubscribers", 'booking') => $availableusers];
         }
     }
 

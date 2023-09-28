@@ -52,8 +52,8 @@ class restore_booking_activity_task extends restore_activity_task {
     public static function define_decode_contents() {
         $contents = [];
 
-        $contents[] = new restore_decode_content('booking', array('intro'), 'booking');
-        $contents[] = new restore_decode_content('booking_options', array('description'),
+        $contents[] = new restore_decode_content('booking', ['intro'], 'booking');
+        $contents[] = new restore_decode_content('booking_options', ['description'],
                 'booking_option');
 
         return $contents;

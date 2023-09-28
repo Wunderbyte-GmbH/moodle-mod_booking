@@ -35,8 +35,8 @@ global $OUTPUT;
 
 $id = required_param('id', PARAM_INT); // Course Module ID.
 
-$url = new moodle_url('/mod/booking/importoptions.php', array('id' => $id));
-$urlredirect = new moodle_url('/mod/booking/view.php', array('id' => $id));
+$url = new moodle_url('/mod/booking/importoptions.php', ['id' => $id]);
+$urlredirect = new moodle_url('/mod/booking/view.php', ['id' => $id]);
 $PAGE->set_url($url);
 
 list($course, $cm) = get_course_and_cm_from_cmid($id);

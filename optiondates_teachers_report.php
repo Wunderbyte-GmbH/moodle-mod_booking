@@ -76,7 +76,7 @@ $tablebaseurl->remove_params('page');
 $optiondatesteacherstable->define_baseurl($tablebaseurl);
 $optiondatesteacherstable->sortable(false);
 
-$optiondatesteacherstable->show_download_buttons_at(array(TABLE_P_BOTTOM));
+$optiondatesteacherstable->show_download_buttons_at([TABLE_P_BOTTOM]);
 
 // Table will be shown normally.
 echo $OUTPUT->header();

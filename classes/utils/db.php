@@ -56,7 +56,7 @@ class db {
             AND cm.visible = 1
         ORDER BY c.id ASC, b.id ASC , bo.id ASC";
 
-        return $DB->get_records_sql($sql, array($USER->id), 0, 0);
+        return $DB->get_records_sql($sql, [$USER->id], 0, 0);
     }
 
     /**
@@ -95,8 +95,8 @@ class db {
 
         $ud = [];
         $oud = [];
-        $users = $DB->get_records('course_modules_completion', array('coursemoduleid' => $cmid));
-        $ousers = $DB->get_records('booking_answers', array('optionid' => $optionid));
+        $users = $DB->get_records('course_modules_completion', ['coursemoduleid' => $cmid]);
+        $ousers = $DB->get_records('booking_answers', ['optionid' => $optionid]);
 
         foreach ($users as $u) {
             $ud[] = $u->userid;
@@ -126,8 +126,8 @@ class db {
 
         $ud = [];
         $oud = [];
-        $users = $DB->get_records('badge_issued', array('badgeid' => $badgeid));
-        $ousers = $DB->get_records('booking_answers', array('optionid' => $optionid));
+        $users = $DB->get_records('badge_issued', ['badgeid' => $badgeid]);
+        $ousers = $DB->get_records('booking_answers', ['optionid' => $optionid]);
 
         foreach ($users as $u) {
             $ud[] = $u->userid;

@@ -49,6 +49,6 @@ class bookingoption_deleted extends \core\event\base {
     }
 
     public function get_url() {
-        return new \moodle_url('/mod/booking/view.php', array('id' => $this->contextinstanceid));
+        return new \moodle_url('/mod/booking/view.php', ['id' => $this->contextinstanceid]);
     }
 }

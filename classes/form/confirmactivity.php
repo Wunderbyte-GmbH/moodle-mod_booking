@@ -39,7 +39,7 @@ class confirmactivity extends \moodleform {
         $radioarray = [];
         $radioarray[] = $mform->createElement('radio', 'whichtype', '', get_string('badges'), 1, []);
         $radioarray[] = $mform->createElement('radio', 'whichtype', '', get_string('activity'), 0, []);
-        $mform->addGroup($radioarray, 'radioar', get_string('confirmactivtyfrom', 'booking'), array(' '), false);
+        $mform->addGroup($radioarray, 'radioar', get_string('confirmactivtyfrom', 'booking'), [' '], false);
 
         $dbutill = new db();
         $badges = $dbutill->getbadges($this->_customdata['course']->id);

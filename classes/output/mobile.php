@@ -75,27 +75,27 @@ class mobile {
             }
             $status = booking_getoptionstatus($value->coursestarttime, $value->courseendtime);
 
-            $outputdata[] = array(
+            $outputdata[] = [
                 'fullname' => $value->fullname,
                 'name' => $value->name,
                 'text' => $value->text,
                 'status' => $status,
                 'coursestarttime' => $coursestarttime
-            );
+            ];
         }
 
-        $data = array('mybookings' => $outputdata);
+        $data = ['mybookings' => $outputdata];
 
-        return array(
-            'templates' => array(
-                array(
+        return [
+            'templates' => [
+                [
                     'id' => 'main',
                     'html' => $OUTPUT->render_from_template('mod_booking/mobile_mybookings_list', $data)
-                )
-            ),
+                ]
+            ],
             'javascript' => '',
             'otherdata' => ''
-        );
+        ];
     }
 
     /**
@@ -165,29 +165,29 @@ class mobile {
 
         $options = self::prepare_options_array($bookingoptions, $booking, $context, $cm, $args->courseid);
 
-        $data = array(
+        $data = [
             'pagnumber' => $pagnumber, 'courseid' => $args->courseid, 'booking' => $booking,
                         'booking_option' => $options, 'cmid' => $cm->id, 'activeview' => $whichview,
-            'string' => array(
+            'string' => [
                 'showactive' => get_string('activebookingoptions', 'booking'),
                 'showallbookingoptions' => get_string('showallbookingoptions', 'booking'),
                 'showmybookingsonly' => get_string('showmybookingsonly', 'booking'),
                 'next' => get_string('next', 'booking'),
                 'previous' => get_string('previous', 'booking')
-            ), 'btnnp' => self::npbuttons($allpages, $pagnumber), 'bcolorshowall' => $bcolorshowall,
+            ], 'btnnp' => self::npbuttons($allpages, $pagnumber), 'bcolorshowall' => $bcolorshowall,
             'bcolorshowactive' => $bcolorshowactive, 'bcolormybooking' => $bcolormybooking
-        );
-        return array(
+        ];
+        return [
 
-            'templates' => array(
+            'templates' => [
 
-                array(
+                [
                     'id' => 'main',
                     'html' => $OUTPUT->render_from_template('mod_booking/mobile_view_page', $data)
-                )
-            ), 'javascript' => '', 'otherdata' => array('searchstring' => $searchstring)
+                ]
+            ], 'javascript' => '', 'otherdata' => ['searchstring' => $searchstring]
 
-        );
+        ];
     }
 
     /**
@@ -208,9 +208,9 @@ class mobile {
             $n = $pagnumber + 1;
         }
 
-        return array(
+        return [
             'p' => $p, 'n' => $n
-        );
+        ];
     }
 
     /**
@@ -322,11 +322,11 @@ class mobile {
                 $cmessage = get_string('deletebooking', 'booking', $deletemessage);
                 $bname = (empty($values->option->btncancelname) ? get_string('cancelbooking',
                         'booking') : $values->option->btncancelname);
-                $delete = array(
+                $delete = [
                     'text' => $bname,
                                 'args' => "optionid: {$values->option->id}, cmid: {$cm->id}, courseid: {$courseid}",
                     'cmessage' => "{$cmessage}"
-                );
+                ];
 
                 if ($values->option->coursestarttime > 0 && $values->booking->allowupdatedays > 0) {
                     if (time() > strtotime("-{$values->booking->allowupdatedays} day", $values->option->coursestarttime)) {
@@ -356,11 +356,11 @@ class mobile {
             }
             $bnow = (empty($booking->settings->btnbooknowname) ? get_string('booknow', 'booking') :
                 $booking->settings->btnbooknowname);
-            $button = array(
+            $button = [
                 'text' => $bnow,
                             'args' => "answer: {$values->option->id}, id: {$cm->id}, courseid: {$courseid}",
                 'message' => $message
-            );
+            ];
         }
 
         if (($values->option->limitanswers && ($status == "full")) || ($status == "closed") ||
@@ -390,9 +390,9 @@ class mobile {
                     $values->option->maxoverbooking - $values->waiting);
         }
 
-        return array(
+        return [
             'name' => $values->option->text, 'text' => $text, 'button' => $button,
             'delete' => $delete
-        );
+        ];
     }
 }

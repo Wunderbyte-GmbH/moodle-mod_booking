@@ -57,7 +57,7 @@ class booking_utils {
     }
 
     private function pretty_duration($seconds) {
-        $measures = array('days' => 24 * 60 * 60, 'hours' => 60 * 60, 'minutes' => 60);
+        $measures = ['days' => 24 * 60 * 60, 'hours' => 60 * 60, 'minutes' => 60];
         $durationparts = [];
         foreach ($measures as $label => $amount) {
             if ($seconds >= $amount) {
@@ -86,13 +86,13 @@ class booking_utils {
 
         if (!is_null($option)) {
 
-            $teacher = $DB->get_records('booking_teachers', array('optionid' => $option->id));
+            $teacher = $DB->get_records('booking_teachers', ['optionid' => $option->id]);
 
             $i = 1;
 
             foreach ($teacher as $value) {
 
-                $user = $DB->get_record('user', array('id' => $value->userid),
+                $user = $DB->get_record('user', ['id' => $value->userid],
                         'firstname, lastname', IGNORE_MULTIPLE);
                 $params->{"teacher" . $i} = $user->firstname . ' ' . $user->lastname;
 
@@ -116,7 +116,7 @@ class booking_utils {
             $courselink = '';
             if ($option->courseid) {
                 $baseurl = $CFG->wwwroot;
-                $courselink = new moodle_url($baseurl . '/course/view.php', array('id' => $option->courseid));
+                $courselink = new moodle_url($baseurl . '/course/view.php', ['id' => $option->courseid]);
                 $courselink = html_writer::link($courselink, $courselink->out());
             }
 
@@ -238,8 +238,8 @@ class booking_utils {
         // We trigger the event only if we have real changes OR if we set the calendar entry to 1.
         if (count($changes) > 0 || $addtocalendar == 1) {
             // Also, we need to trigger the bookingoption_updated event, in order to update calendar entries.
-            $event = bookingoption_updated::create(array('context' => $context, 'objectid' => $optionid,
-                    'userid' => $USER->id));
+            $event = bookingoption_updated::create(['context' => $context, 'objectid' => $optionid,
+                    'userid' => $USER->id]);
             $event->trigger();
         }
     }

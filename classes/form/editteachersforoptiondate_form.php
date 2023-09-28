@@ -270,7 +270,7 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
             $cmid = $this->optional_param('cmid', '', PARAM_RAW);
         }
 
-        $url = new moodle_url('/mod/booking/optiondates_teachers_report.php' , array('id' => $cmid, 'optionid' => $optionid));
+        $url = new moodle_url('/mod/booking/optiondates_teachers_report.php' , ['id' => $cmid, 'optionid' => $optionid]);
         return $url;
     }
 }

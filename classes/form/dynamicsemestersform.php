@@ -191,7 +191,7 @@ class dynamicsemestersform extends dynamic_form {
         $repeateloptions = [];
 
         $semesterlabel = html_writer::tag('b', get_string('semester', 'booking') . ' {no}',
-            array('class' => 'semesterlabel'));
+            ['class' => 'semesterlabel']);
         $repeatedsemesters[] = $mform->createElement('static', 'semesterlabel', $semesterlabel);
 
         $repeatedsemesters[] = $mform->createElement('text', 'semesteridentifier', get_string('semesteridentifier', 'booking'));

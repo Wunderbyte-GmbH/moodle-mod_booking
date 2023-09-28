@@ -77,12 +77,12 @@ class signin_downloadform implements renderable, templatable {
 
         if (!empty($bookingoption->settings->sessions)) {
             foreach ($bookingoption->settings->sessions as $session) {
-                $this->sessions[] = array(
+                $this->sessions[] = [
                     'sessiondateonly' => userdate($session->coursestarttime, get_string('strftimedate', 'langconfig')),
                     'coursestarttime' => userdate($session->coursestarttime, get_string('strftimedatetime', 'langconfig')),
                     'courseendtime' => userdate($session->courseendtime, get_string('strftimedatetime', 'langconfig')),
                     'id' => $session->id
-                );
+                ];
             }
         }
         $this->baseurl = $url->get_path();

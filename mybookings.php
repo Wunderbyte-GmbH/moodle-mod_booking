@@ -24,7 +24,7 @@ use mod_booking\mybookings_table;
 $url = new moodle_url('/mod/booking/mybookings.php');
 $PAGE->set_url($url);
 
-$course = $DB->get_record('course', array('id' => SITEID), '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => SITEID], '*', MUST_EXIST);
 
 $PAGE->set_context(context_user::instance($USER->id));
 $PAGE->navigation->extend_for_user($USER);

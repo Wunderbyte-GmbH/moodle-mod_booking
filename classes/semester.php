@@ -80,7 +80,7 @@ class semester {
 
         // If we don't get the cached object, we have to fetch it here.
         if (empty($dbrecord)) {
-            $dbrecord = $DB->get_record("booking_semesters", array("id" => $id));
+            $dbrecord = $DB->get_record("booking_semesters", ["id" => $id]);
         }
 
         if ($dbrecord) {

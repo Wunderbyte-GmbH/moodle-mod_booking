@@ -210,7 +210,7 @@ class addbookingoption extends external_api {
                     ): array {
 
         $params = self::validate_parameters(self::execute_parameters(),
-                array(
+                [
                         'name' => $name,
                         'identifier' => $identifier,
                         'titleprefix' => $titleprefix, // Optional prefix to be shown before title.
@@ -257,7 +257,7 @@ class addbookingoption extends external_api {
                         'boavenrolledincourse' => $boavenrolledincourse,
                         'recommendedin' => $recommendedin,
                         'mergeparam' => $mergeparam
-                    ));
+                    ]);
 
         // We want to pass on an object to, so we clean all unnecessary values.
         $cleanedarray = array_filter($params, function($x) {

@@ -57,8 +57,8 @@ class bookingoption_dates implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output) {
 
-        return array(
+        return [
             'dates' => $this->dates
-        );
+        ];
     }
 }

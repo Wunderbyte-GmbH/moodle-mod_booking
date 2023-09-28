@@ -27,7 +27,7 @@ require_once("lib.php");
 $id = required_param('id', PARAM_INT);
 $categoryid = optional_param('category', '', PARAM_INT);
 
-$url = new moodle_url('/mod/booking/category.php', array('id' => $id, 'category' => $categoryid));
+$url = new moodle_url('/mod/booking/category.php', ['id' => $id, 'category' => $categoryid]);
 
 $PAGE->set_url($url);
 
@@ -35,13 +35,13 @@ if (!$cm = get_coursemodule_from_id('booking', $id)) {
     throw new moodle_exception('invalidcoursemodule');
 }
 
-if (!$course = $DB->get_record("course", array("id" => $cm->course))) {
+if (!$course = $DB->get_record("course", ["id" => $cm->course])) {
     throw new moodle_exception('coursemisconf');
 }
 
 require_course_login($course, false, $cm);
 
-$category = $DB->get_record('booking_category', array('id' => $categoryid));
+$category = $DB->get_record('booking_category', ['id' => $categoryid]);
 $PAGE->set_pagelayout('standard');
 
 $PAGE->navbar->add($category->name);
@@ -60,10 +60,10 @@ echo $OUTPUT->box_start('generalbox', 'tag-blogs');
 echo '<ul>';
 
 foreach ($records as $record) {
-    $booking = $DB->get_record('booking', array('id' => $record->id, 'course' => $cm->course));
+    $booking = $DB->get_record('booking', ['id' => $record->id, 'course' => $cm->course]);
     if ($booking) {
         $cmc = get_coursemodule_from_instance('booking', $booking->id);
-        $url = new moodle_url('/mod/booking/view.php', array('id' => $cmc->id));
+        $url = new moodle_url('/mod/booking/view.php', ['id' => $cmc->id]);
         echo '<li><a href="' . $url . '">' . $booking->name . '</a></li>';
     }
 }

@@ -49,15 +49,15 @@ class events_test extends advanced_testcase {
     }
 
     private function returntestdata() {
-        $bdata = array('name' => 'Test Booking',
+        $bdata = ['name' => 'Test Booking',
                         'eventtype' => 'Test event',
-                        'bookedtext' => array('text' => 'text'), 'waitingtext' => array('text' => 'text'),
-                        'notifyemail' => array('text' => 'text'), 'statuschangetext' => array('text' => 'text'),
-                        'deletedtext' => array('text' => 'text'), 'pollurltext' => array('text' => 'text'),
-                        'pollurlteacherstext' => array('text' => 'text'),
-                        'notificationtext' => array('text' => 'text'), 'userleave' => array('text' => 'text'),
+                        'bookedtext' => ['text' => 'text'], 'waitingtext' => ['text' => 'text'],
+                        'notifyemail' => ['text' => 'text'], 'statuschangetext' => ['text' => 'text'],
+                        'deletedtext' => ['text' => 'text'], 'pollurltext' => ['text' => 'text'],
+                        'pollurlteacherstext' => ['text' => 'text'],
+                        'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
                         'bookingpolicy' => 'bookingpolicy', 'tags' => '', 'showviews' =>
-                            ['mybooking,myoptions,showall,showactive,myinstitution']);
+                            ['mybooking,myoptions,showall,showactive,myinstitution']];
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
         $user1 = $this->getDataGenerator()->create_user();
@@ -86,7 +86,7 @@ class events_test extends advanced_testcase {
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
         $option = $plugingenerator->create_option($record);
 
-        return array($user1, $option, $coursectx);
+        return [$user1, $option, $coursectx];
     }
 
     /**
@@ -99,8 +99,8 @@ class events_test extends advanced_testcase {
 
         list($user1, $option, $coursectx) = $this->returntestdata();
 
-        $params = array('relateduserid' => $user1->id, 'objectid' => $option->id,
-            'context' => $coursectx);
+        $params = ['relateduserid' => $user1->id, 'objectid' => $option->id,
+            'context' => $coursectx];
 
         // Create event.
         $event = \mod_booking\event\teacher_added::create($params);
@@ -130,8 +130,8 @@ class events_test extends advanced_testcase {
 
         list($user1, $option, $coursectx) = $this->returntestdata();
 
-        $params = array('relateduserid' => $user1->id, 'objectid' => $option->id,
-            'context' => $coursectx);
+        $params = ['relateduserid' => $user1->id, 'objectid' => $option->id,
+            'context' => $coursectx];
 
         // Create event.
         $event = \mod_booking\event\teacher_removed::create($params);

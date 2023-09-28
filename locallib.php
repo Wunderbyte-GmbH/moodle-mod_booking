@@ -173,7 +173,7 @@ class booking_potential_user_selector extends booking_user_selector_base {
                 'mod/booking:readallinstitutionusers', $this->options['accesscontext'])) {
 
             $institution = $DB->get_record('booking_options',
-                    array('id' => $this->options['optionid']));
+                    ['id' => $this->options['optionid']]);
 
             $searchparams['onlyinstitution'] = $institution->institution;
             $searchcondition .= ' AND u.institution LIKE :onlyinstitution';
@@ -238,7 +238,7 @@ class booking_potential_user_selector extends booking_user_selector_base {
             }
         }
 
-        return array($groupname => $availableusers);
+        return [$groupname => $availableusers];
     }
 }
 
@@ -294,7 +294,7 @@ class booking_existing_user_selector extends booking_user_selector_base {
                 'mod/booking:readallinstitutionusers', $this->options['accesscontext'])) {
 
             $institution = $DB->get_record('booking_options',
-                    array('id' => $this->options['optionid']));
+                    ['id' => $this->options['optionid']]);
 
             $searchparams['onlyinstitution'] = $institution->institution;
             $searchcondition .= ' AND u.institution LIKE :onlyinstitution';
@@ -319,7 +319,7 @@ class booking_existing_user_selector extends booking_user_selector_base {
             return [];
         }
 
-        return array(get_string("booked", 'booking') => $availableusers);
+        return [get_string("booked", 'booking') => $availableusers];
     }
 }
 
@@ -371,7 +371,7 @@ function booking_updatestartenddate($optionid) {
             'SELECT MIN(coursestarttime) AS coursestarttime, MAX(courseendtime) AS courseendtime
              FROM {booking_optiondates}
              WHERE optionid = ?',
-            array($optionid));
+            [$optionid]);
 
         $optionobj = new stdClass();
         $optionobj->id = $optionid;
@@ -450,7 +450,7 @@ function get_rendered_eventdescription(int $optionid, int $cmid,
 function optiondate_duplicatecustomfields($oldoptiondateid, $newoptiondateid) {
     global $DB;
     // Duplicate all custom fields which belong to this optiondate.
-    $customfields = $DB->get_records("booking_customfields", array('optiondateid' => $oldoptiondateid));
+    $customfields = $DB->get_records("booking_customfields", ['optiondateid' => $oldoptiondateid]);
     foreach ($customfields as $customfield) {
         $customfield->optiondateid = $newoptiondateid;
         $DB->insert_record("booking_customfields", $customfield);
@@ -474,8 +474,8 @@ function option_optiondate_update_event(stdClass $option, stdClass $optiondate =
 
             // If we don't find the event here, we might still be just switching to multisession.
             // Let's create the event anew.
-            $bocreatedevent = bookingoptiondate_created::create(array('context' => context_module::instance($cmid),
-                'objectid' => $optiondate->id, 'userid' => $USER->id, 'other' => ['optionid' => $option->id]));
+            $bocreatedevent = bookingoptiondate_created::create(['context' => context_module::instance($cmid),
+                'objectid' => $optiondate->id, 'userid' => $USER->id, 'other' => ['optionid' => $option->id]]);
             $bocreatedevent->trigger();
 
             // We have to return false if we have switched from multisession to create the right events.

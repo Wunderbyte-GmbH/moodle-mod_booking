@@ -35,7 +35,7 @@ class subscribeusersactivity extends \moodleform {
 
         $mform = $this->_form; // Don't forget the underscore!
 
-        $bookingoptions = $DB->get_records_list("booking_options", "bookingid", array($this->_customdata['bookingid']), '',
+        $bookingoptions = $DB->get_records_list("booking_options", "bookingid", [$this->_customdata['bookingid']], '',
             'id,text,coursestarttime,location', '', '');
 
         $values = [];

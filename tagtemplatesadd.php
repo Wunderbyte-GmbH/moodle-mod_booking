@@ -28,8 +28,8 @@ require_once('tagtemplatesadd_form.php');
 $id = required_param('id', PARAM_INT); // Course Module ID.
 $tagid = optional_param('tagid', '', PARAM_INT);
 
-$url = new moodle_url('/mod/booking/tagtemplatesadd.php', array('id' => $id, 'tagid' => $tagid));
-$urlredirect = new moodle_url('/mod/booking/tagtemplates.php', array('id' => $id));
+$url = new moodle_url('/mod/booking/tagtemplatesadd.php', ['id' => $id, 'tagid' => $tagid]);
+$urlredirect = new moodle_url('/mod/booking/tagtemplates.php', ['id' => $id]);
 $PAGE->set_url($url);
 
 list($course, $cm) = get_course_and_cm_from_cmid($id);
@@ -81,10 +81,10 @@ if ($mform->is_cancelled()) {
 
     $defaultvalues = new stdClass();
     if ($tagid != '') {
-        $defaultvalues = $DB->get_record('booking_tags', array('id' => $tagid));
+        $defaultvalues = $DB->get_record('booking_tags', ['id' => $tagid]);
         $defaultvalues->tagid = $tagid;
         unset($defaultvalues->id);
-        $defaultvalues->text = array('text' => $defaultvalues->text, 'format' => FORMAT_HTML);
+        $defaultvalues->text = ['text' => $defaultvalues->text, 'format' => FORMAT_HTML];
     }
 
     // Processed if form is submitted but data not validated & form should be redisplayed OR first display of form.

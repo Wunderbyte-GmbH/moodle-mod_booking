@@ -51,7 +51,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
             LEFT JOIN {booking} b ON b.id = bo.bookingid
             WHERE (b.daystonotify > 0 OR b.daystonotify2 > 0)
             AND bo.coursestarttime > 0  AND bo.coursestarttime > :now
-            AND (bo.sent = 0 OR bo.sent2 = 0)', array('now' => $now));
+            AND (bo.sent = 0 OR bo.sent2 = 0)', ['now' => $now]);
 
         foreach ($toprocess as $record) {
 
@@ -67,10 +67,10 @@ class send_reminder_mails extends \core\task\scheduled_task {
                     $DB->update_record("booking_options", $save);
 
                     // Use an event to log that reminder1 has been sent.
-                    $event = reminder1_sent::create(array(
+                    $event = reminder1_sent::create([
                         'context' => context_system::instance(),
                         'objectid' => $record->optionid
-                    ));
+                    ]);
                     $event->trigger();
                 }
             }
@@ -84,10 +84,10 @@ class send_reminder_mails extends \core\task\scheduled_task {
                     $DB->update_record("booking_options", $save);
 
                     // Use an event to log that reminder2 has been sent.
-                    $event = reminder2_sent::create(array(
+                    $event = reminder2_sent::create([
                         'context' => context_system::instance(),
                         'objectid' => $record->optionid
-                    ));
+                    ]);
                     $event->trigger();
                 }
             }
@@ -115,7 +115,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
             FROM {booking_optiondates} bod
             WHERE bod.daystonotify > 0
             AND sent = 0
-            AND bod.coursestarttime > 0  AND bod.coursestarttime > :now", array('now' => $now));
+            AND bod.coursestarttime > 0  AND bod.coursestarttime > :now", ['now' => $now]);
 
         foreach ($sessionstoprocess as $sessionrecord) {
 
@@ -147,7 +147,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
             LEFT JOIN {booking} b ON b.id = bo.bookingid
             WHERE b.daystonotifyteachers > 0
             AND bo.coursestarttime > 0  AND bo.coursestarttime > :now
-            AND bo.sentteachers = 0", array('now' => $now));
+            AND bo.sentteachers = 0", ['now' => $now]);
 
         if (count($toprocess) > 0) {
             mtrace("send_reminder_mails task: send teacher notifications - START");
@@ -164,15 +164,15 @@ class send_reminder_mails extends \core\task\scheduled_task {
                         $DB->update_record("booking_options", $save);
 
                         // Use an event to log that teacher reminder has been sent.
-                        $event = reminder_teacher_sent::create(array(
+                        $event = reminder_teacher_sent::create([
                             'context' => context_system::instance(),
                             'objectid' => $record->optionid,
-                            'other' => array(
+                            'other' => [
                                 'msgparam' => MSGPARAM_REMINDER_TEACHER,
                                 'record' => $record,
                                 'daystonotifyteachers' => $record->daystonotifyteachers
-                            )
-                        ));
+                            ]
+                        ]);
                         $event->trigger();
                     }
                 }

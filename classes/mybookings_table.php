@@ -47,12 +47,12 @@ class mybookings_table extends table_sql {
         parent::__construct($uniqueid);
 
         // Define the list of columns to show.
-        $columns = array('name', 'text', 'status', 'coursestarttime');
+        $columns = ['name', 'text', 'status', 'coursestarttime'];
         $this->define_columns($columns);
 
         // Define the titles of columns to show in header.
-        $headers = array(get_string('mybookingsbooking', 'booking'), get_string('mybookingsoption', 'booking'),
-            get_string('status', 'booking'), get_string('coursestarttime', 'booking'));
+        $headers = [get_string('mybookingsbooking', 'booking'), get_string('mybookingsoption', 'booking'),
+            get_string('status', 'booking'), get_string('coursestarttime', 'booking')];
         $this->define_headers($headers);
         $this->no_sorting('status');
     }

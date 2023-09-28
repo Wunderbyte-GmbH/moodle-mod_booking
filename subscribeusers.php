@@ -56,8 +56,8 @@ $PAGE->activityheader->disable();
 $bookingoption = singleton_service::get_instance_of_booking_option($cm->id, $optionid);
 $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-$url = new moodle_url('/mod/booking/subscribeusers.php', array('id' => $id, 'optionid' => $optionid, 'agree' => $agree));
-$errorurl = new moodle_url('/mod/booking/view.php', array('id' => $id));
+$url = new moodle_url('/mod/booking/subscribeusers.php', ['id' => $id, 'optionid' => $optionid, 'agree' => $agree]);
+$errorurl = new moodle_url('/mod/booking/view.php', ['id' => $id]);
 
 $PAGE->set_url($url);
 
@@ -87,16 +87,16 @@ if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
     $alright = false;
     $message = "<p><b>" . get_string('bookingpolicyagree', 'booking') . ":</b></p>";
     $message .= "<p>" . format_text($bookingoption->booking->settings->bookingpolicy, FORMAT_HTML) . "<p>";
-    $continueurl = new moodle_url($PAGE->url->out(false, array('agree' => 1)));
+    $continueurl = new moodle_url($PAGE->url->out(false, ['agree' => 1]));
     $continue = new single_button($continueurl, get_string('continue'), 'get');
     $cancel = new single_button($errorurl, get_string('cancel'), 'get');
     echo $OUTPUT->confirm($message, $continue, $cancel);
     echo $OUTPUT->footer();
     die();
 } else {
-    $subscribeduseroptions = array('bookingid' => $cm->instance,
+    $subscribeduseroptions = ['bookingid' => $cm->instance,
                     'accesscontext' => $context, 'optionid' => $optionid, 'cm' => $cm, 'course' => $course,
-                    'potentialusers' => $bookingoption->bookedvisibleusers);
+                    'potentialusers' => $bookingoption->bookedvisibleusers];
     $potentialuseroptions = $subscribeduseroptions;
 
     // Potential users will be selected on instantiation of booking_potential_user_selector.
@@ -135,7 +135,7 @@ if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
                                      FROM {booking_answers} ba
                                      LEFT JOIN {booking_options} bo ON bo.id = ba.optionid
                                      WHERE ba.userid = ? AND ba.waitinglist < ?
-                                     AND ba.bookingid = ?', array($user->id, STATUSPARAM_RESERVED, $bookingoption->booking->id));
+                                     AND ba.bookingid = ?', [$user->id, STATUSPARAM_RESERVED, $bookingoption->booking->id]);
                             $output .= "{$user->firstname} {$user->lastname}";
                             if (!empty($result)) {
                                 $r = [];
@@ -182,13 +182,13 @@ echo $OUTPUT->heading(format_string($optionsettings->get_title_with_prefix()), 3
 
 // Switch to turn booking of anyone ON or OFF.
 if (is_siteadmin() && $bookanyone) {
-    $url = new moodle_url('/mod/booking/subscribeusers.php', array('id' => $id, 'optionid' => $optionid,
-        'agree' => $agree, 'bookanyone' => false));
+    $url = new moodle_url('/mod/booking/subscribeusers.php', ['id' => $id, 'optionid' => $optionid,
+        'agree' => $agree, 'bookanyone' => false]);
     echo '<a class="btn btn-sm btn-light" href="' . $url . '">' . get_string('bookanyoneswitchoff', 'mod_booking') . '</a>';
     echo '<div class="alert alert-warning p-1 mt-1 text-center">' . get_string('bookanyonewarning', 'mod_booking')  . '</div>';
 } else {
-    $url = new moodle_url('/mod/booking/subscribeusers.php', array('id' => $id, 'optionid' => $optionid,
-        'agree' => $agree, 'bookanyone' => true));
+    $url = new moodle_url('/mod/booking/subscribeusers.php', ['id' => $id, 'optionid' => $optionid,
+        'agree' => $agree, 'bookanyone' => true]);
     echo '<a class="btn btn-sm btn-light" href="' . $url . '">' . get_string('bookanyoneswitchon', 'mod_booking') . '</a>';
 }
 
@@ -202,9 +202,9 @@ echo $renderer->render_booked_users($data);
 echo html_writer::tag('div',
         html_writer::link(
                 new moodle_url('/mod/booking/report.php',
-                        array('id' => $cm->id, 'optionid' => $optionid)),
+                        ['id' => $cm->id, 'optionid' => $optionid]),
                 get_string('backtoresponses', 'booking')),
-        array('style' => 'width:100%; font-weight: bold; text-align: right;'));
+        ['style' => 'width:100%; font-weight: bold; text-align: right;']);
 
 if ($subscribesuccess || $unsubscribesuccess) {
     if ($subscribesuccess) {

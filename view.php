@@ -60,7 +60,7 @@ $PAGE->set_context($context);
 
 // Trigger course_module_viewed event.
 $event = \mod_booking\event\course_module_viewed::create(
-    array('objectid' => $cm->instance, 'context' => $context));
+    ['objectid' => $cm->instance, 'context' => $context]);
 $event->add_record_snapshot('course', $course);
 $event->trigger();
 
@@ -99,7 +99,7 @@ $files = $fs->get_area_files($context->id, 'mod_booking', 'myfilemanager',
 if (count($files) > 1) {
     echo html_writer::start_tag('div');
     echo html_writer::tag('label', '<i class="fa fa-paperclip" aria-hidden="true"></i> ' .
-        get_string('attachedfiles', 'mod_booking') . ': ', array('class' => 'ml-3 mt-1 mb-3 bold'));
+        get_string('attachedfiles', 'mod_booking') . ': ', ['class' => 'ml-3 mt-1 mb-3 bold']);
 
     foreach ($files as $file) {
         if ($file->get_filesize() > 0) {

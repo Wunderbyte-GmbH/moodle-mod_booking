@@ -28,7 +28,7 @@ list($course, $cm) = get_course_and_cm_from_cmid($cmid);
 
 require_login($course->id, false);
 
-$PAGE->set_url('/mod/booking/viewpolicy.php', array('id' => $cmid));
+$PAGE->set_url('/mod/booking/viewpolicy.php', ['id' => $cmid]);
 $PAGE->set_title(get_string("bookingpolicy", "booking"));
 $PAGE->set_heading(get_string("bookingpolicy", "booking"));
 

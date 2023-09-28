@@ -60,7 +60,7 @@ if ($link = $bookingoption->show_conference_link($sessionid)) {
 
     // We can find the actual link.
     if (!empty($fieldid)) {
-        $link = $DB->get_field('booking_customfields', 'value', array('id' => $fieldid));
+        $link = $DB->get_field('booking_customfields', 'value', ['id' => $fieldid]);
     } else {
         // If fieldid is not present, we'll use optionid, optiondateid and meetingtype to find the correct link.
         $customfields = $DB->get_records('booking_customfields',

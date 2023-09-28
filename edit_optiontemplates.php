@@ -23,8 +23,8 @@ $id = required_param('id', PARAM_INT);
 $optionid = required_param('optionid', PARAM_INT);
 $sesskey = optional_param('sesskey', '', PARAM_INT);
 
-$url = new moodle_url('/mod/booking/edit_optiontemplate.php', array('optionid' => $optionid, 'id' => $id));
-$redirecturl = new moodle_url('/mod/booking/optiontemplatessettings.php', array('optionid' => $optionid, 'id' => $id));
+$url = new moodle_url('/mod/booking/edit_optiontemplate.php', ['optionid' => $optionid, 'id' => $id]);
+$redirecturl = new moodle_url('/mod/booking/optiontemplatessettings.php', ['optionid' => $optionid, 'id' => $id]);
 $PAGE->set_url($url);
 $PAGE->requires->jquery_plugin('ui-css');
 list($course, $cm) = get_course_and_cm_from_cmid($id);
@@ -46,9 +46,9 @@ if (!has_capability('mod/booking:manageoptiontemplates', $context)) {
     throw new moodle_exception('nopermissions', 'error', '', 'manage booking option templates');
 }
 
-$mform = new option_form(null, array('bookingid' => 0, 'optionid' => $optionid, 'cmid' => $cm->id, 'context' => $context));
+$mform = new option_form(null, ['bookingid' => 0, 'optionid' => $optionid, 'cmid' => $cm->id, 'context' => $context]);
 
-if ($defaultvalues = $DB->get_record('booking_options', array('bookingid' => 0, 'id' => $optionid))) {
+if ($defaultvalues = $DB->get_record('booking_options', ['bookingid' => 0, 'id' => $optionid])) {
     $defaultvalues->optionid = $optionid;
     $defaultvalues->bookingid = 0;
     $defaultvalues->bookingname = $booking->settings->name;
@@ -72,24 +72,24 @@ if ($mform->is_cancelled()) {
 
         if ($draftitemid = file_get_submitted_draft_itemid('myfilemanageroption')) {
             file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'myfilemanageroption',
-                    $nbooking, array('subdirs' => false, 'maxfiles' => 50));
+                    $nbooking, ['subdirs' => false, 'maxfiles' => 50]);
         }
 
         if ($draftimageid = file_get_submitted_draft_itemid('bookingoptionimage')) {
             file_save_draft_area_files($draftimageid, $context->id, 'mod_booking', 'bookingoptionimage',
-                    $nbooking, array('subdirs' => false, 'maxfiles' => 1));
+                    $nbooking, ['subdirs' => false, 'maxfiles' => 1]);
         }
 
-        if (isset($fromform->addastemplate) && in_array($fromform->addastemplate, array(1, 2))) {
+        if (isset($fromform->addastemplate) && in_array($fromform->addastemplate, [1, 2])) {
             if (isset($fromform->submittandaddnew)) {
-                $redirecturl = new moodle_url('/mod/booking/edit_optiontemplates.php', array('id' => $cm->id, 'optionid' => -1));
+                $redirecturl = new moodle_url('/mod/booking/edit_optiontemplates.php', ['id' => $cm->id, 'optionid' => -1]);
             }
 
             redirect($redirecturl, get_string('newtemplatesaved', 'booking'), 0);
         }
 
         if (isset($fromform->submittandaddnew)) {
-            $redirecturl = new moodle_url('/mod/booking/edit_optiontemplates.php', array('id' => $cm->id, 'optionid' => -1));
+            $redirecturl = new moodle_url('/mod/booking/edit_optiontemplates.php', ['id' => $cm->id, 'optionid' => -1]);
             redirect($redirecturl, get_string('newtemplatesaved', 'booking'), 0);
         } else {
             redirect($redirecturl, get_string('changessaved'), 0);

@@ -404,8 +404,8 @@ if ($ADMIN->fulltree) {
         new admin_setting_heading('optiontemplatessettings_heading',
                 get_string('optiontemplatessettings', 'mod_booking'), ''));
 
-    $alltemplates = array('' => get_string('dontuse', 'booking'));
-    $alloptiontemplates = $DB->get_records('booking_options', array('bookingid' => 0), '', $fields = 'id, text', 0, 0);
+    $alltemplates = ['' => get_string('dontuse', 'booking')];
+    $alloptiontemplates = $DB->get_records('booking_options', ['bookingid' => 0], '', $fields = 'id, text', 0, 0);
 
     foreach ($alloptiontemplates as $key => $value) {
             $alltemplates[$value->id] = $value->text;
@@ -556,8 +556,8 @@ if ($ADMIN->fulltree) {
             new admin_setting_configcheckbox('booking/icalcancel',
                     get_string('icalcancel', 'mod_booking'),
                     get_string('icalcanceldesc', 'mod_booking'), 1));
-    $options = array(1 => get_string('courseurl', 'mod_booking'), 2 => get_string('location', 'mod_booking'),
-        3 => get_string('institution', 'mod_booking'), 4 => get_string('address'));
+    $options = [1 => get_string('courseurl', 'mod_booking'), 2 => get_string('location', 'mod_booking'),
+        3 => get_string('institution', 'mod_booking'), 4 => get_string('address')];
     $settings->add(
             new admin_setting_configselect('booking/icalfieldlocation',
                     get_string('icalfieldlocation', 'mod_booking'),
@@ -583,7 +583,7 @@ if ($ADMIN->fulltree) {
     $name = 'booking/signinlogo';
     $title = get_string('signinlogoheader', 'mod_booking');
     $description = $title;
-    $fileoptions = array('maxfiles' => 1, 'accepted_types' => array('image'));
+    $fileoptions = ['maxfiles' => 1, 'accepted_types' => ['image']];
     $setting = new admin_setting_configstoredfile($name, $title, $description,
             'mod_booking_signinlogo', 0, $fileoptions);
     $settings->add($setting);
@@ -591,7 +591,7 @@ if ($ADMIN->fulltree) {
     $name = 'booking/signinlogofooter';
     $title = get_string('signinlogofooter', 'mod_booking');
     $description = $title;
-    $fileoptions = array('maxfiles' => 1, 'accepted_types' => array('image'));
+    $fileoptions = ['maxfiles' => 1, 'accepted_types' => ['image']];
     $setting = new admin_setting_configstoredfile($name, $title, $description,
             'mod_booking_signinlogo_footer', 0, $fileoptions);
     $settings->add($setting);

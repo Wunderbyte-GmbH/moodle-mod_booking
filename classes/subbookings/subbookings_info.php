@@ -169,8 +169,8 @@ class subbookings_info {
         // Trigger an event that booking option has been updated.
 
         $context = context_module::instance($data->cmid);
-        $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $data->optionid,
-                'userid' => $USER->id));
+        $event = \mod_booking\event\bookingoption_updated::create(['context' => $context, 'objectid' => $data->optionid,
+                'userid' => $USER->id]);
         $event->trigger();
 
         return;
@@ -229,7 +229,7 @@ class subbookings_info {
         }
 
         $mform->registerNoSubmitButton('btn_subbookingtype');
-        $buttonargs = array('style' => 'visibility:hidden;');
+        $buttonargs = ['style' => 'visibility:hidden;'];
         $categoryselect = [
             $mform->createElement('select', 'subbooking_type',
             get_string('bookingsubbooking', 'mod_booking'), $subbookingsforselect),

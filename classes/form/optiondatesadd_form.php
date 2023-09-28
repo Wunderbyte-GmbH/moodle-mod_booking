@@ -123,7 +123,7 @@ class optiondatesadd_form extends moodleform {
             $submitbuttonstring = 'save';
         } else {
             // At first loop through already existing custom field records.
-            $customfields = $DB->get_records("booking_customfields", array('optiondateid' => $optiondateid));
+            $customfields = $DB->get_records("booking_customfields", ['optiondateid' => $optiondateid]);
             $j = 1;
             foreach ($customfields as $customfield) {
                 $mform->addElement('hidden', 'customfieldid' . $j, $customfield->id);
@@ -138,10 +138,10 @@ class optiondatesadd_form extends moodleform {
                 if (!in_array($customfield->cfgname, $cfnames)) {
                     $cfnames[$customfield->cfgname] = $customfield->cfgname;
                 }
-                $options = array(
+                $options = [
                         'noselectionstring' => get_string('nocfnameselected', 'mod_booking'),
                         'tags' => true
-                );
+                ];
                 $element = $mform->createElement('autocomplete', 'customfieldname' . $j,
                     get_string('customfieldname', 'mod_booking'), $cfnames, $options);
                 $mform->addElement($element);
@@ -199,10 +199,10 @@ class optiondatesadd_form extends moodleform {
                 'ZoomMeeting' => 'ZoomMeeting',
                 'BigBlueButtonMeeting' => 'BigBlueButtonMeeting'
             ];
-            $options = array(
+            $options = [
                     'noselectionstring' => get_string('nocfnameselected', 'mod_booking'),
                     'tags' => true
-            );
+            ];
             $mform->addElement('autocomplete', 'customfieldname' . $counter,
                 get_string('customfieldname', 'mod_booking'), $cfnames, $options);
             if (!empty($CFG->formatstringstriptags)) {

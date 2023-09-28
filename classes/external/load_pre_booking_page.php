@@ -73,9 +73,9 @@ class load_pre_booking_page extends external_api {
 
         $params = self::validate_parameters(
                 self::execute_parameters(),
-                array('optionid' => $optionid,
+                ['optionid' => $optionid,
                 'userid' => $userid,
-                'pagenumber' => $pagenumber));
+                'pagenumber' => $pagenumber]);
 
         $result = bo_info::load_pre_booking_page($params['optionid'], $params['pagenumber'], $params['userid']);
 

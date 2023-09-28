@@ -19,7 +19,7 @@ require_once($CFG->dirroot . '/tag/lib.php');
 $id = required_param('id', PARAM_INT);
 $tagname = optional_param('tag', '', PARAM_TAG);
 
-$url = new moodle_url('/mod/booking/tag.php', array('id' => $id, 'tag' => $tagname));
+$url = new moodle_url('/mod/booking/tag.php', ['id' => $id, 'tag' => $tagname]);
 
 $PAGE->set_url($url);
 
@@ -40,17 +40,17 @@ echo $OUTPUT->header();
 
 echo $OUTPUT->heading($tagname, 2);
 
-$records = $DB->get_records('tag_instance', array('tagid' => $tag->id, 'itemtype' => 'booking'));
+$records = $DB->get_records('tag_instance', ['tagid' => $tag->id, 'itemtype' => 'booking']);
 
 echo $OUTPUT->box_start('generalbox', 'tag-blogs');
 
 echo '<ul>';
 
 foreach ($records as $record) {
-    $booking = $DB->get_record('booking', array('id' => $record->itemid, 'course' => $cm->course));
+    $booking = $DB->get_record('booking', ['id' => $record->itemid, 'course' => $cm->course]);
     if ($booking) {
         $cmc = get_coursemodule_from_instance('booking', $booking->id);
-        $url = new moodle_url('/mod/booking/view.php', array('id' => $cmc->id));
+        $url = new moodle_url('/mod/booking/view.php', ['id' => $cmc->id]);
         echo '<li><a href="' . $url . '">' . $booking->name . '</a></li>';
     }
 }

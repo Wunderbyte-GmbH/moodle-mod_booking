@@ -272,8 +272,8 @@ class generator {
                     $this->bookingdata->booking->course->id);
             $addsqlwhere .= " AND u.id IN ($groupsql)";
         }
-        $remove = array('signinextracols1', 'signinextracols2', 'signinextracols3', 'fullname',
-            'signature', 'rownumber', 'role');
+        $remove = ['signinextracols1', 'signinextracols2', 'signinextracols3', 'fullname',
+            'signature', 'rownumber', 'role'];
 
         if ($CFG->version >= 2021051700) {
             // This only works in Moodle 3.11 and later.
@@ -298,7 +298,7 @@ class generator {
             WHERE ba.optionid = :optionid AND ba.waitinglist = 0 " .
                          $addsqlwhere . "ORDER BY u.{$this->orderby} ASC",
                         array_merge($groupparams,
-                                array('optionid' => $this->bookingdata->option->id)));
+                                ['optionid' => $this->bookingdata->option->id]));
 
             // Create fake users for adding empty rows.
         if ($this->addemptyrows > 0) {
@@ -340,7 +340,7 @@ class generator {
             WHERE bt.optionid = :optionid ' .
                     $addsqlwhere . "ORDER BY u.{$this->orderby} ASC",
                     array_merge($groupparams,
-                            array('optionid' => $this->bookingdata->option->id)));
+                            ['optionid' => $this->bookingdata->option->id]));
             foreach ($teachers as $teacher) {
                 $teacher->isteacher = true;
                 array_push($users, $teacher);
@@ -619,7 +619,7 @@ class generator {
      *
      * @param array $extracols
      */
-    public function set_page_header($extracols = array ()) {
+    public function set_page_header($extracols =  []) {
         global $DB;
         // Get header and footer logo for signin sheet.
         $this->pdf->SetXY(18, $this->margintop + 13);

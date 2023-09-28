@@ -95,7 +95,7 @@ class business_card implements renderable, templatable {
     }
 
     public function export_for_template(renderer_base $output) {
-        return array(
+        return [
                 'username' => $this->username,
                 'userpictureurl' => $this->userpictureurl->out(),
                 'userprofileurl' => $this->userprofileurl->out(),
@@ -103,6 +103,6 @@ class business_card implements renderable, templatable {
                 'userdescription' => $this->userdescription,
                 'duration' => $this->duration,
                 'points' => $this->points
-        );
+        ];
     }
 }

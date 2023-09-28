@@ -56,7 +56,7 @@ class mod_booking_generator extends testing_module_generator {
 
         $record = (object) (array) $record;
 
-        $defaultsettings = array(
+        $defaultsettings = [
             'assessed' => 0,
             'showviews' => 'mybooking,myoptions,showall,showactive,myinstitution',
             'whichview' => 'showall',
@@ -70,7 +70,7 @@ class mod_booking_generator extends testing_module_generator {
                                 institution,waitinglist,city,department,notes',
             'sendmail' => 1
 
-        );
+        ];
 
         foreach ($defaultsettings as $name => $value) {
             if (!isset($record->{$name})) {
@@ -226,7 +226,7 @@ class mod_booking_generator extends testing_module_generator {
     private function get_user(string $username) {
         global $DB;
 
-        if (!$id = $DB->get_field('user', 'id', array('username' => $username))) {
+        if (!$id = $DB->get_field('user', 'id', ['username' => $username])) {
             throw new Exception('The specified user with username "' . $username . '" does not exist');
         }
         return $id;

@@ -41,7 +41,7 @@ $delete = optional_param('delete', '', PARAM_INT);
 $duplicate = optional_param('duplicate', '', PARAM_INT);
 $edit = optional_param('edit', '', PARAM_INT);
 $split = optional_param('split', false, PARAM_BOOL);
-$url = new moodle_url('/mod/booking/optiondates.php', array('id' => $id, 'optionid' => $optionid));
+$url = new moodle_url('/mod/booking/optiondates.php', ['id' => $id, 'optionid' => $optionid]);
 $PAGE->set_url($url);
 
 list($course, $cm) = get_course_and_cm_from_cmid($id);
@@ -56,7 +56,7 @@ if (!$context = context_module::instance($cm->id)) {
 }
 // Check if optionid is valid.
 $optionid = $DB->get_field('booking_options', 'id',
-        array('id' => $optionid, 'bookingid' => $cm->instance), MUST_EXIST);
+        ['id' => $optionid, 'bookingid' => $cm->instance], MUST_EXIST);
 
 require_capability('mod/booking:updatebooking', $context);
 
@@ -80,7 +80,7 @@ if ($duplicate != '') {
     $oldoptiondateid = $duplicate;
 
     $record = $DB->get_record("booking_optiondates",
-            array('optionid' => $optionid, 'id' => $oldoptiondateid),
+            ['optionid' => $optionid, 'id' => $oldoptiondateid],
             'bookingid, optionid, eventid, coursestarttime, courseendtime');
 
     // Create a new calendar entry for the duplicated event.
@@ -134,7 +134,7 @@ if ($mform->is_cancelled()) {
     if (!empty($optiondateid)) {
 
         // Retrieve the old record and pass it on.
-        $oldoptiondate = $DB->get_record('booking_optiondates', array('id' => $optiondateid));
+        $oldoptiondate = $DB->get_record('booking_optiondates', ['id' => $optiondateid]);
 
         $optiondatechanges = $bu->booking_optiondate_get_changes($oldoptiondate, $optiondate);
         if (!empty($optiondatechanges)) {
@@ -147,7 +147,7 @@ if ($mform->is_cancelled()) {
             $erhandler->instance_form_save($data, $optiondateid);
         }
 
-        $oldcustomfields = $DB->get_records('booking_customfields', array('optiondateid' => $optiondateid));
+        $oldcustomfields = $DB->get_records('booking_customfields', ['optiondateid' => $optiondateid]);
         if ($customfieldchanges = $bu->booking_customfields_get_changes($oldcustomfields, $data)) {
             foreach ($customfieldchanges['updates'] as $record) {
                 $DB->update_record('booking_customfields', $record);
@@ -241,9 +241,9 @@ if ($mform->is_cancelled()) {
     echo $OUTPUT->heading($title, 3, 'helptitle', 'uniqueid');
 
     $table = new html_table();
-    $table->head = array(get_string('optiondatestime', 'mod_booking'), '');
+    $table->head = [get_string('optiondatestime', 'mod_booking'), ''];
 
-    $times = $DB->get_records('booking_optiondates', array('optionid' => $optionid),
+    $times = $DB->get_records('booking_optiondates', ['optionid' => $optionid],
             'coursestarttime ASC');
 
     $timestable = [];
@@ -252,18 +252,18 @@ if ($mform->is_cancelled()) {
         $editing = '';
         if ($edit == $time->id) {
             $button = html_writer::tag('span', get_string('editingoptiondate', 'mod_booking'),
-                    array('class' => 'p-x-2'));
+                    ['class' => 'p-x-2']);
             $editing = 'alert alert-success';
         } else {
             $editurl = new moodle_url('/mod/booking/optiondates.php',
-                    array('id' => $cm->id, 'optionid' => $optionid, 'edit' => $time->id));
+                    ['id' => $cm->id, 'optionid' => $optionid, 'edit' => $time->id]);
             $button = $OUTPUT->single_button($editurl, get_string('edittag', 'mod_booking'), 'get');
         }
         $delete = new moodle_url('/mod/booking/optiondates.php',
-                array('id' => $id, 'optionid' => $optionid, 'delete' => $time->id));
+                ['id' => $id, 'optionid' => $optionid, 'delete' => $time->id]);
         $buttondelete = $OUTPUT->single_button($delete, get_string('delete'), 'get');
         $duplicate = new moodle_url('/mod/booking/optiondates.php',
-                array('id' => $id, 'optionid' => $optionid, 'duplicate' => $time->id));
+                ['id' => $id, 'optionid' => $optionid, 'duplicate' => $time->id]);
         $buttonduplicate = $OUTPUT->single_button($duplicate, get_string('duplicate'), 'get');
 
         $tmpdate = new stdClass();
@@ -272,18 +272,18 @@ if ($mform->is_cancelled()) {
         $tmpdate->righttdate = userdate($time->courseendtime,
                 get_string('strftimetime', 'langconfig'));
 
-        $timestable[] = array(get_string('leftandrightdate', 'booking', $tmpdate),
+        $timestable[] = [get_string('leftandrightdate', 'booking', $tmpdate),
             html_writer::tag('span', $button . $buttondelete . $buttonduplicate,
-                    array('style' => 'text-align: right; display:table-cell;', 'class' => $editing)));
+                    ['style' => 'text-align: right; display:table-cell;', 'class' => $editing])];
     }
     $table->data = $timestable;
     echo html_writer::table($table);
 
-    $cancel = new moodle_url('/mod/booking/view.php', array('id' => $cm->id));
+    $cancel = new moodle_url('/mod/booking/view.php', ['id' => $cm->id]);
     $defaultvalues = new stdClass();
     if ($edit != '') {
         // An existing optiondate is being edited.
-        $defaultvalues = $DB->get_record('booking_optiondates', array('id' => $edit), '*',
+        $defaultvalues = $DB->get_record('booking_optiondates', ['id' => $edit], '*',
                 MUST_EXIST);
         // The id in the form will be course module id, not the optiondate id.
         $defaultvalues->optiondateid = $defaultvalues->id;
@@ -301,6 +301,6 @@ if ($mform->is_cancelled()) {
 
 echo '<div style="width: 100%; text-align: center; display:table;">';
 $button = $OUTPUT->single_button($cancel, get_string('back'), 'get');
-echo html_writer::tag('span', $button, array('style' => 'display:table-cell;'));
+echo html_writer::tag('span', $button, ['style' => 'display:table-cell;']);
 echo '</div>';
 echo $OUTPUT->footer();

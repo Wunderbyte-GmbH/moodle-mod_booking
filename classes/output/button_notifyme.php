@@ -60,11 +60,11 @@ class button_notifyme implements renderable, templatable {
      * @return void
      */
     public function return_as_array() {
-        $returnarray = array(
+        $returnarray = [
             'userid' => $this->userid,
             'itemid' => $this->itemid,
             'area' => 'option',
-        );
+        ];
 
         if ($this->onlist) {
             $returnarray['onlist'] = true;

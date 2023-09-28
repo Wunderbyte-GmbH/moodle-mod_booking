@@ -61,7 +61,7 @@ class behat_mod_booking_generator extends behat_generator_base {
     protected function get_booking_id(string $bookingname): int {
         global $DB;
 
-        if (!$id = $DB->get_field('booking', 'id', array('name' => $bookingname))) {
+        if (!$id = $DB->get_field('booking', 'id', ['name' => $bookingname])) {
             throw new Exception('The specified booking activity with name "' . $bookingname . '" does not exist');
         }
         return $id;
@@ -76,7 +76,7 @@ class behat_mod_booking_generator extends behat_generator_base {
     protected function get_semester_id(string $identifier): int {
         global $DB;
 
-        if (!$id = $DB->get_field('booking_semesters', 'id', array('identifier' => $identifier))) {
+        if (!$id = $DB->get_field('booking_semesters', 'id', ['identifier' => $identifier])) {
             throw new Exception('The specified booking semester with name "' . $identifier . '" does not exist');
         }
         return $id;

@@ -29,7 +29,7 @@ require_once($CFG->dirroot . '/mod/booking/locallib.php');
 $id = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT);
 
-$url = new moodle_url('/mod/booking/otherbooking.php', array('id' => $id, 'optionid' => $optionid));
+$url = new moodle_url('/mod/booking/otherbooking.php', ['id' => $id, 'optionid' => $optionid]);
 $PAGE->set_url($url);
 
 list($course, $cm) = get_course_and_cm_from_cmid($id);
@@ -55,58 +55,58 @@ echo $OUTPUT->heading(get_string("editotherbooking", "booking") . " [{$option->o
         'helptitle', 'uniqueid');
 
 echo html_writer::link(
-        new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid)),
-        get_string('gotomanageresponses', 'booking'), array('style' => 'float:right;'));
+        new moodle_url('/mod/booking/report.php', ['id' => $cm->id, 'optionid' => $optionid]),
+        get_string('gotomanageresponses', 'booking'), ['style' => 'float:right;']);
 echo '<br>';
 
 $table = new html_table();
-$table->head = array(
+$table->head = [
     (empty($option->booking->settings->lblacceptingfrom) ? get_string('otherbookingoptions', 'booking') :
         $option->booking->settings->lblacceptingfrom),
     (empty($option->booking->settings->lblnumofusers) ? get_string('otherbookingnumber', 'booking') :
-        $option->booking->settings->lblnumofusers));
+        $option->booking->settings->lblnumofusers)];
 
 $rules = $DB->get_records_sql(
         "SELECT bo.id, bo.otheroptionid, bo.userslimit, b.text
         FROM {booking_other} bo
         LEFT JOIN {booking_options} b ON b.id = bo.otheroptionid
-        WHERE bo.optionid = ?", array($optionid));
+        WHERE bo.optionid = ?", [$optionid]);
 
 $rulestable = [];
 
 foreach ($rules as $rule) {
 
     $edit = new moodle_url('/mod/booking/otherbookingaddrule.php',
-            array('id' => $cm->id, 'optionid' => $optionid, 'bookingotherid' => $rule->id));
+            ['id' => $cm->id, 'optionid' => $optionid, 'bookingotherid' => $rule->id]);
     $delete = new moodle_url('/mod/booking/otherbookingaddrule.php',
-            array('id' => $cm->id, 'optionid' => $optionid, 'bookingotherid' => $rule->id,
-                'delete' => 1));
+            ['id' => $cm->id, 'optionid' => $optionid, 'bookingotherid' => $rule->id,
+                'delete' => 1]);
 
     $button = '<div style="width: 100%; text-align: right; display:table;">';
     $buttone = $OUTPUT->single_button($edit, get_string('editrule', 'booking'), 'get');
     $button .= html_writer::tag('span', $buttone,
-            array('style' => 'text-align: right; display:table-cell;'));
+            ['style' => 'text-align: right; display:table-cell;']);
     $buttond = $OUTPUT->single_button($delete, get_string('deleterule', 'booking'), 'get');
     $button .= html_writer::tag('span', $buttond,
-            array('style' => 'text-align: left; display:table-cell;'));
+            ['style' => 'text-align: left; display:table-cell;']);
     $button .= '</div>';
 
-    $rulestable[] = array("{$rule->text}", $rule->userslimit,
+    $rulestable[] = ["{$rule->text}", $rule->userslimit,
         html_writer::tag('span', $button,
-                array('style' => 'text-align: right; display:table-cell;')));
+                ['style' => 'text-align: right; display:table-cell;'])];
 }
 
 $table->data = $rulestable;
 echo html_writer::table($table);
 
-$cancel = new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid));
-$addnew = new moodle_url('/mod/booking/otherbookingaddrule.php', array('id' => $cm->id, 'optionid' => $optionid));
+$cancel = new moodle_url('/mod/booking/report.php', ['id' => $cm->id, 'optionid' => $optionid]);
+$addnew = new moodle_url('/mod/booking/otherbookingaddrule.php', ['id' => $cm->id, 'optionid' => $optionid]);
 
 echo '<div style="width: 100%; text-align: center; display:table;">';
 $button = $OUTPUT->single_button($cancel, get_string('cancel', 'core'), 'get');
-echo html_writer::tag('span', $button, array('style' => 'text-align: right; display:table-cell;'));
+echo html_writer::tag('span', $button, ['style' => 'text-align: right; display:table-cell;']);
 $button = $OUTPUT->single_button($addnew, get_string('otherbookingaddrule', 'booking'), 'get');
-echo html_writer::tag('span', $button, array('style' => 'text-align: left; display:table-cell;'));
+echo html_writer::tag('span', $button, ['style' => 'text-align: left; display:table-cell;']);
 echo '</div>';
 
 echo $OUTPUT->footer();

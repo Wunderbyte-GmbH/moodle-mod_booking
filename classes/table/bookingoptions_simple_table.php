@@ -104,10 +104,10 @@ class bookingoptions_simple_table extends wunderbyte_table {
 
         if ($DB->get_records('booking_answers', ['optionid' => $values->optionid])) {
             // Add a link to redirect to the booking option.
-            $link = new moodle_url($CFG->wwwroot . '/mod/booking/report.php', array(
+            $link = new moodle_url($CFG->wwwroot . '/mod/booking/report.php', [
                 'id' => $values->cmid,
                 'optionid' => $values->optionid
-            ));
+            ]);
             // Use html_entity_decode to convert "&amp;" to a simple "&" character.
             if ($CFG->version >= 2023042400) {
                 // Moodle 4.2 needs second param.
@@ -161,11 +161,11 @@ class bookingoptions_simple_table extends wunderbyte_table {
         global $CFG;
 
         // Add a link to redirect to the booking option.
-        $link = new moodle_url($CFG->wwwroot . '/mod/booking/view.php', array(
+        $link = new moodle_url($CFG->wwwroot . '/mod/booking/view.php', [
             'id' => booking_option::get_cmid_from_optionid($values->optionid),
             'optionid' => $values->optionid,
             'whichview' => 'showonlyone'
-        ));
+        ]);
         // Use html_entity_decode to convert "&amp;" to a simple "&" character.
         if ($CFG->version >= 2023042400) {
             // Moodle 4.2 needs second param.

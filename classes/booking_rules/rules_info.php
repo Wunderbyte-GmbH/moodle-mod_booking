@@ -68,7 +68,7 @@ class rules_info {
         $repeateloptions['rule_name']['type'] = PARAM_TEXT;
 
         $mform->registerNoSubmitButton('btn_bookingruletype');
-        $buttonargs = array('class' => 'd-none');
+        $buttonargs = ['class' => 'd-none'];
         $categoryselect = [
             $mform->createElement('select', 'bookingruletype',
             get_string('bookingrule', 'mod_booking'), $rulesforselect),

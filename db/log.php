@@ -22,11 +22,11 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$logs = array(
-    array('module' => 'booking', 'action' => 'view', 'mtable' => 'booking', 'field' => 'name'),
-    array('module' => 'booking', 'action' => 'update', 'mtable' => 'booking', 'field' => 'name'),
-    array('module' => 'booking', 'action' => 'add', 'mtable' => 'booking', 'field' => 'name'),
-    array('module' => 'booking', 'action' => 'report', 'mtable' => 'booking', 'field' => 'name'),
-    array('module' => 'booking', 'action' => 'choose', 'mtable' => 'booking', 'field' => 'name'),
-    array('module' => 'booking', 'action' => 'choose again', 'mtable' => 'booking',
-        'field' => 'name'));
+$logs = [
+    ['module' => 'booking', 'action' => 'view', 'mtable' => 'booking', 'field' => 'name'],
+    ['module' => 'booking', 'action' => 'update', 'mtable' => 'booking', 'field' => 'name'],
+    ['module' => 'booking', 'action' => 'add', 'mtable' => 'booking', 'field' => 'name'],
+    ['module' => 'booking', 'action' => 'report', 'mtable' => 'booking', 'field' => 'name'],
+    ['module' => 'booking', 'action' => 'choose', 'mtable' => 'booking', 'field' => 'name'],
+    ['module' => 'booking', 'action' => 'choose again', 'mtable' => 'booking',
+        'field' => 'name']];

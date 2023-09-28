@@ -16,16 +16,16 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$tasks = array(
-    array('classname' => 'mod_booking\task\remove_activity_completion', 'blocking' => 0,
-        'minute' => '*', 'hour' => '*', 'day' => '*', 'dayofweek' => '*', 'month' => '*'),
-    array('classname' => 'mod_booking\task\enrol_bookedusers_tocourse', 'blocking' => 0,
-        'minute' => '*', 'hour' => '*', 'day' => '*', 'dayofweek' => '*', 'month' => '*'),
-    array('classname' => 'mod_booking\task\send_reminder_mails', 'blocking' => 0,
-        'minute' => '7', 'hour' => '*', 'day' => '*', 'dayofweek' => '*', 'month' => '*'),
-    array('classname' => 'mod_booking\task\send_notification_mails', 'blocking' => 0,
-        'minute' => '7', 'hour' => '4', 'day' => '*', 'dayofweek' => '*', 'month' => '*'),
+$tasks = [
+    ['classname' => 'mod_booking\task\remove_activity_completion', 'blocking' => 0,
+        'minute' => '*', 'hour' => '*', 'day' => '*', 'dayofweek' => '*', 'month' => '*'],
+    ['classname' => 'mod_booking\task\enrol_bookedusers_tocourse', 'blocking' => 0,
+        'minute' => '*', 'hour' => '*', 'day' => '*', 'dayofweek' => '*', 'month' => '*'],
+    ['classname' => 'mod_booking\task\send_reminder_mails', 'blocking' => 0,
+        'minute' => '7', 'hour' => '*', 'day' => '*', 'dayofweek' => '*', 'month' => '*'],
+    ['classname' => 'mod_booking\task\send_notification_mails', 'blocking' => 0,
+        'minute' => '7', 'hour' => '4', 'day' => '*', 'dayofweek' => '*', 'month' => '*'],
     // Clean the DB every sunday at 03:42 (the task removes unncessary artifacts).
-    array('classname' => 'mod_booking\task\clean_booking_db', 'blocking' => 0,
-        'minute' => '42', 'hour' => '3', 'day' => '*', 'dayofweek' => '0', 'month' => '*'),
-);
+    ['classname' => 'mod_booking\task\clean_booking_db', 'blocking' => 0,
+        'minute' => '42', 'hour' => '3', 'day' => '*', 'dayofweek' => '0', 'month' => '*'],
+];

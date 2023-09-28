@@ -47,11 +47,11 @@ class bookinginstancetemplatessettings_table extends table_sql {
         $this->cmid = $cmid;
 
         // Define the list of columns to show.
-        $columns = array('name', 'action');
+        $columns = ['name', 'action'];
         $this->define_columns($columns);
 
         // Define the titles of columns to show in header.
-        $headers = array(get_string('bookinginstancetemplatename', 'mod_booking'), get_string('action'));
+        $headers = [get_string('bookinginstancetemplatename', 'mod_booking'), get_string('action')];
         $this->define_headers($headers);
     }
 
@@ -78,7 +78,7 @@ class bookinginstancetemplatessettings_table extends table_sql {
         $output = '';
         $delete = get_string('delete');
         $url = new moodle_url('/mod/booking/bookinginstancetemplatessettings.php',
-            array('templateid' => $values->id, 'action' => 'delete', 'id' => $this->cmid));
+            ['templateid' => $values->id, 'action' => 'delete', 'id' => $this->cmid]);
         $output .= $OUTPUT->single_button($url, $delete, 'get');
         return $output;
     }

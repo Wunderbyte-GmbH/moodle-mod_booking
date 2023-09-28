@@ -29,7 +29,7 @@ require_login(0, false);
 
 $pageurl = new moodle_url('/mod/booking/customfieldsettings.php');
 $PAGE->set_url($pageurl);
-admin_externalpage_setup('modbookingcustomfield', '', null, '', array('pagelayout' => 'report'));
+admin_externalpage_setup('modbookingcustomfield', '', null, '', ['pagelayout' => 'report']);
 $PAGE->set_title(
         format_string($SITE->shortname) . ': ' . get_string('customfieldconfigure', 'booking'));
 

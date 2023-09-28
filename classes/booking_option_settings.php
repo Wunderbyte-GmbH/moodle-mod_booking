@@ -563,7 +563,7 @@ class booking_option_settings {
             "SELECT id, id optiondateid, coursestarttime, courseendtime
             FROM {booking_optiondates}
             WHERE optionid = ?
-            ORDER BY coursestarttime ASC", array($optionid))) {
+            ORDER BY coursestarttime ASC", [$optionid])) {
 
             // If there are no multisessions, but we still have the option's ...
             // ... coursestarttime and courseendtime, then store them as if they were a session.
@@ -603,7 +603,7 @@ class booking_option_settings {
             'SELECT DISTINCT t.userid, u.firstname, u.lastname, u.email, u.institution
                     FROM {booking_teachers} t
                LEFT JOIN {user} u ON t.userid = u.id
-                   WHERE t.optionid = :optionid', array('optionid' => $this->id));
+                   WHERE t.optionid = :optionid', ['optionid' => $this->id]);
 
         $this->teachers = $teachers;
     }

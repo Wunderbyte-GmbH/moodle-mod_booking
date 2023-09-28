@@ -58,16 +58,16 @@ class booking_option_test extends advanced_testcase {
 
         $CFG->enablecompletion = 1;
 
-        $bdata = array('name' => 'Test Booking 1', 'eventtype' => 'Test event', 'enablecompletion' => 1,
-            'bookedtext' => array('text' => 'text'), 'waitingtext' => array('text' => 'text'),
-            'notifyemail' => array('text' => 'text'), 'statuschangetext' => array('text' => 'text'),
-            'deletedtext' => array('text' => 'text'), 'pollurltext' => array('text' => 'text'),
-            'pollurlteacherstext' => array('text' => 'text'),
-            'notificationtext' => array('text' => 'text'), 'userleave' => array('text' => 'text'),
+        $bdata = ['name' => 'Test Booking 1', 'eventtype' => 'Test event', 'enablecompletion' => 1,
+            'bookedtext' => ['text' => 'text'], 'waitingtext' => ['text' => 'text'],
+            'notifyemail' => ['text' => 'text'], 'statuschangetext' => ['text' => 'text'],
+            'deletedtext' => ['text' => 'text'], 'pollurltext' => ['text' => 'text'],
+            'pollurlteacherstext' => ['text' => 'text'],
+            'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
             'bookingpolicy' => 'bookingpolicy', 'tags' => '', 'completion' => 2,
-            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution']);
+            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution']];
         // Setup test data.
-        $course = $this->getDataGenerator()->create_course(array('enablecompletion' => 1));
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
         // Create users.
         $user1 = $this->getDataGenerator()->create_user();
@@ -82,7 +82,7 @@ class booking_option_test extends advanced_testcase {
         $result = $DB->get_record_sql(
                 'SELECT cm.id, cm.course, cm.module, cm.instance, m.name
                 FROM {course_modules} cm LEFT JOIN {modules} m ON m.id = cm.module WHERE cm.course = ?
-                AND cm.completion > 0 LIMIT 1', array($course->id));
+                AND cm.completion > 0 LIMIT 1', [$course->id]);
 
         $bdata['name'] = 'Test Booking 2';
         unset($bdata['completion']);
@@ -131,10 +131,10 @@ class booking_option_test extends advanced_testcase {
         $this->setTimezone('Europe/London');
 
         // Setup course.
-        $course = $this->getDataGenerator()->create_course(array('enablecompletion' => 1));
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
         // Create user(s).
-        $useremails = array('reinhold.brunhoelzl@univie.ac.at', 'ulrike.schultes@univie.ac.at');
+        $useremails = ['reinhold.brunhoelzl@univie.ac.at', 'ulrike.schultes@univie.ac.at'];
         $userdata = new stdClass;
         $userdata->email = $useremails[0];
         $userdata->timezone = 'Europe/London';
@@ -154,17 +154,17 @@ class booking_option_test extends advanced_testcase {
         // For tests startdate = bookingopeningtime = 20.09.2023 00:00 and enddate = bookingclosingtime = 31.12.2023 23:59 GMT.
 
         // Setup booking defaults and create booking course module.
-        $bdata = array('name' => 'Test CSV Import of option', 'eventtype' => 'Test event', 'enablecompletion' => 1,
-        'bookedtext' => array('text' => 'text'), 'waitingtext' => array('text' => 'text'),
-        'notifyemail' => array('text' => 'text'), 'statuschangetext' => array('text' => 'text'),
-        'deletedtext' => array('text' => 'text'), 'pollurltext' => array('text' => 'text'),
-        'pollurlteacherstext' => array('text' => 'text'),
-        'notificationtext' => array('text' => 'text'), 'userleave' => array('text' => 'text'),
+        $bdata = ['name' => 'Test CSV Import of option', 'eventtype' => 'Test event', 'enablecompletion' => 1,
+        'bookedtext' => ['text' => 'text'], 'waitingtext' => ['text' => 'text'],
+        'notifyemail' => ['text' => 'text'], 'statuschangetext' => ['text' => 'text'],
+        'deletedtext' => ['text' => 'text'], 'pollurltext' => ['text' => 'text'],
+        'pollurlteacherstext' => ['text' => 'text'],
+        'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
         'bookingpolicy' => 'bookingpolicy', 'tags' => '', 'completion' => 2,
         'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
         'optionsfields' =>
         ['description', 'statusdescription', 'teacher', 'showdates', 'dayofweektime', 'location', 'institution', 'minanswers'],
-        'semesterid' => $testsemester->id);
+        'semesterid' => $testsemester->id];
         $bdata['course'] = $course->id;
         $bdata['bookingmanager'] = $user1->username;
 

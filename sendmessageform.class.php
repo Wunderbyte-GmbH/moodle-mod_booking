@@ -27,7 +27,7 @@ class mod_booking_sendmessage_form extends moodleform {
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
         $mform->addElement('text', 'subject', get_string('messagesubject', 'booking'),
-                array('size' => '64'));
+                ['size' => '64']);
         $mform->addRule('subject', null, 'required', null, 'client');
         $mform->setType('subject', PARAM_TEXT);
 

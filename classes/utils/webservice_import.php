@@ -108,7 +108,7 @@ class webservice_import {
 
         $this->add_customfields_to_bookingoption($bookingoptionid, $data);
 
-        return array('status' => 1);
+        return ['status' => 1];
     }
 
     /**
@@ -143,7 +143,7 @@ class webservice_import {
                     ON cm.module=m.id
                     WHERE bo.id=:bookingoptionid
                     AND m.name=:modulename";
-            $bookingcmid = $DB->get_field_sql($sql, array('bookingoptionid' => $data->bookingoptionid, 'modulename' => 'booking'));
+            $bookingcmid = $DB->get_field_sql($sql, ['bookingoptionid' => $data->bookingoptionid, 'modulename' => 'booking']);
 
             return singleton_service::get_instance_of_booking_option($bookingcmid, $data->bookingoptionid);
         } else {
@@ -168,10 +168,10 @@ class webservice_import {
                     WHERE cm.instance=:bookingid
                     AND m.name=:modulename
                     AND bo.identifier=:identifier";
-            if ($result = $DB->get_record_sql($sql, array(
+            if ($result = $DB->get_record_sql($sql, [
                     'bookingid' => $data->bookingid,
                     'modulename' => 'booking',
-                    'identifier' => $data->identifier))) {
+                    'identifier' => $data->identifier])) {
                 return singleton_service::get_instance_of_booking_option($result->cmid, $result->boid);
             }
         }
@@ -194,7 +194,7 @@ class webservice_import {
 
         if (isset($data->bookingcmid)) {
             // If we have received a bookingid, we just take this value.
-            if (!$bookingid = $DB->get_field('course_modules', 'instance', array('id' => $data->bookingcmid))) {
+            if (!$bookingid = $DB->get_field('course_modules', 'instance', ['id' => $data->bookingcmid])) {
                 $bookingid = 0;
             }
         } else if (isset($data->bookingidnumber)) {
@@ -208,7 +208,7 @@ class webservice_import {
                     WHERE m.name=:modulename
                     AND cm.idnumber=:idnumber";
 
-            if (!$bookingid = $DB->get_field_sql($sql, array('idnumber' => $data->bookingidnumber, 'modulename' => 'booking'))) {
+            if (!$bookingid = $DB->get_field_sql($sql, ['idnumber' => $data->bookingidnumber, 'modulename' => 'booking'])) {
                 return 0;
             }
         } else if (isset($data->targetcourseid)) {
@@ -230,11 +230,11 @@ class webservice_import {
             $bookingid = $bookinginstance->instance;
         } else if (isset($data->courseidnumber)) {
             // If we can identify the course via courseidnumber, we do so.
-            $data->targetcourseid = $DB->get_field('course', 'id', array('idnumber' => $data->courseidnumber));
+            $data->targetcourseid = $DB->get_field('course', 'id', ['idnumber' => $data->courseidnumber]);
             $bookingid = $this->return_booking_id($data);
         } else if (isset($data->courseshortname)) {
             // If we can identify the course via course shortname, we do so.
-            $data->targetcourseid = $DB->get_field('course', 'id', array('shortname' => $data->courseshortname));
+            $data->targetcourseid = $DB->get_field('course', 'id', ['shortname' => $data->courseshortname]);
             $bookingid = $this->return_booking_id($data);
         }
 
@@ -341,8 +341,8 @@ class webservice_import {
 
         if (!empty($data->responsiblecontact)) {
 
-            if (!$user = $DB->get_record('user', array('suspended' => 0, 'deleted' => 0, 'confirmed' => 1,
-            'email' => $data->responsiblecontact), 'id', IGNORE_MULTIPLE)) {
+            if (!$user = $DB->get_record('user', ['suspended' => 0, 'deleted' => 0, 'confirmed' => 1,
+            'email' => $data->responsiblecontact], 'id', IGNORE_MULTIPLE)) {
 
                 throw new \moodle_exception('responsiblecontactnotsubscribed', 'mod_booking', null, null,
                 'The contact with email ' . $data->responsiblecontact .
@@ -424,7 +424,7 @@ class webservice_import {
         }
 
         // If a teacher e-mail is provided, but the teacher can't be found in the DB, we throw an error.
-        if (!$userids = $DB->get_fieldset_select('user', 'id', 'email=:email', array('email' => $data->teacheremail))) {
+        if (!$userids = $DB->get_fieldset_select('user', 'id', 'email=:email', ['email' => $data->teacheremail])) {
             throw new \moodle_exception('teachernotsubscribed', 'mod_booking', null, null,
                 'The teacher with email ' . $data->teacheremail .
                 ' does not exist in the target database.');

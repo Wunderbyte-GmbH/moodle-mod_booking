@@ -377,8 +377,8 @@ class csv_import {
                         $teacheremail = trim($teacheremail);
 
                         // Now we check if the email exists as a user on the platform.
-                        if (!$teacher = $DB->get_record('user', array('suspended' => 0, 'deleted' => 0, 'confirmed' => 1,
-                            'email' => $teacheremail), 'id', IGNORE_MULTIPLE)) {
+                        if (!$teacher = $DB->get_record('user', ['suspended' => 0, 'deleted' => 0, 'confirmed' => 1,
+                            'email' => $teacheremail], 'id', IGNORE_MULTIPLE)) {
 
                                 $this->add_csverror(get_string('noteacherfound', 'booking', $i), $i);
                                 continue;
@@ -397,7 +397,7 @@ class csv_import {
                             FROM {user}
                             WHERE LOWER(email)=LOWER(:useremail)";
 
-                    $user = $DB->get_record_sql($sql, array('useremail' => $userdata['useremail']));
+                    $user = $DB->get_record_sql($sql, ['useremail' => $userdata['useremail']]);
 
                     if ($user !== false) {
 
@@ -433,8 +433,8 @@ class csv_import {
                     }
                 }
                 if (isset($userdata['user_username'])) {
-                    $user = $DB->get_record('user', array('suspended' => 0, 'deleted' => 0, 'confirmed' => 1,
-                        'username' => $userdata['user_username']), 'id', IGNORE_MULTIPLE);
+                    $user = $DB->get_record('user', ['suspended' => 0, 'deleted' => 0, 'confirmed' => 1,
+                        'username' => $userdata['user_username']], 'id', IGNORE_MULTIPLE);
                     if ($user !== false) {
                         $option = singleton_service::get_instance_of_booking_option($this->cmid, $optionid);
                         $option->user_submit_response($user, 0, 0, false, VERIFIED);
