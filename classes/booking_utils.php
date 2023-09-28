@@ -238,8 +238,7 @@ class booking_utils {
         // We trigger the event only if we have real changes OR if we set the calendar entry to 1.
         if (count($changes) > 0 || $addtocalendar == 1) {
             // Also, we need to trigger the bookingoption_updated event, in order to update calendar entries.
-            $event = bookingoption_updated::create(['context' => $context, 'objectid' => $optionid,
-                    'userid' => $USER->id]);
+            $event = bookingoption_updated::create(['context' => $context, 'objectid' => $optionid, 'userid' => $USER->id]);
             $event->trigger();
         }
     }
@@ -291,7 +290,8 @@ class booking_utils {
                         // Also add to changes.
                         $changes[] = ['info' => get_string('changeinfocfdeleted', 'booking'),
                                       'oldname' => $oldfield->cfgname,
-                                      'oldvalue' => $oldfield->value];
+                                      'oldvalue' => $oldfield->value,
+                                    ];
 
                         continue;
                     }
@@ -307,7 +307,8 @@ class booking_utils {
                         $currentchange = array_merge($currentchange,
                             ['info' => get_string('changeinfocfchanged', 'booking'),
                              'oldname' => $oldfield->cfgname,
-                             'newname' => $data->{'customfieldname' . $counter}]);
+                             'newname' => $data->{'customfieldname' . $counter},
+                            ]);
                         $haschange = true;
                     } else {
                         // Do not add the old name, if there has been no change.
@@ -321,7 +322,8 @@ class booking_utils {
                         $currentchange = array_merge($currentchange,
                             ['info' => get_string('changeinfocfchanged', 'booking'),
                              'oldvalue' => $oldfield->value,
-                             'newvalue' => $data->{'customfieldvalue' . $counter}]);
+                             'newvalue' => $data->{'customfieldvalue' . $counter},
+                            ]);
                         $haschange = true;
                     } else {
                         // Do not add the old value, if there has been no change.
@@ -334,7 +336,8 @@ class booking_utils {
                         $currentchange = array_merge($currentchange,
                             ['customfieldid' => $value,
                              'optionid' => $this->bookingoption->option->id,
-                             'optiondateid' => $data->optiondateid]);
+                             'optiondateid' => $data->optiondateid,
+                            ]);
 
                         // Add to changes.
                         $changes[] = $currentchange;
@@ -368,7 +371,8 @@ class booking_utils {
                                           'newname' => $data->{'customfieldname' . $counter},
                                           'newvalue' => $data->{'customfieldvalue' . $counter},
                                           'optionid' => $this->bookingoption->option->id,
-                                          'optiondateid' => $data->optiondateid];
+                                          'optiondateid' => $data->optiondateid,
+                                        ];
                         }
                     }
                 }

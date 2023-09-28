@@ -223,7 +223,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
         if ($booking) {
             $url = new moodle_url('/mod/booking/optionview.php', ['optionid' => $optionid,
                                                                   'cmid' => $cmid,
-                                                                  'userid' => $this->buyforuser->id]);
+                                                                  'userid' => $this->buyforuser->id,
+                                                                ]);
         } else {
             $url = '#';
         }
@@ -652,7 +653,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
                     new moodle_url('/mod/booking/editoptions.php',
                         ['id' => $cmid, 'optionid' => $optionid,
                         'returnto' => 'url',
-                        'returnurl' => $returnurl]),
+                        'returnurl' => $returnurl,
+                        ]),
                     $OUTPUT->pix_icon('t/editstring', get_string('editbookingoption', 'mod_booking')) .
                     get_string('editbookingoption', 'mod_booking')) . '</div>';
 
@@ -662,7 +664,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
                     html_writer::link(new moodle_url('/mod/booking/optiondates.php',
                         ['id' => $cmid, 'optionid' => $optionid,
                         'returnto' => 'url',
-                        'returnurl' => $returnurl]),
+                        'returnurl' => $returnurl,
+                        ]),
                         $OUTPUT->pix_icon('i/scheduled',
                             get_string('optiondatesmanager', 'booking')) .
                         get_string('optiondatesmanager', 'booking')) . '</div>';
@@ -676,7 +679,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 $subscribeusersurl = new moodle_url('/mod/booking/subscribeusers.php',
                     ['id' => $cmid, 'optionid' => $optionid,
                     'returnto' => 'url',
-                    'returnurl' => $returnurl]);
+                    'returnurl' => $returnurl,
+                    ]);
                 $ddoptions[] = '<div class="dropdown-item">' .
                     html_writer::link($subscribeusersurl,
                         $OUTPUT->pix_icon('i/users',
@@ -706,8 +710,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
             // Show link to optiondates-teachers-report (teacher substitutions).
             $optiondatesteachersmoodleurl = new moodle_url('/mod/booking/optiondates_teachers_report.php',
-                ['id' => $cmid, 'optionid' => $optionid,
-                'returnto' => 'url', 'returnurl' => $returnurl]);
+                ['id' => $cmid, 'optionid' => $optionid, 'returnto' => 'url', 'returnurl' => $returnurl]);
             $ddoptions[] = '<div class="dropdown-item">' .
                 html_writer::link($optiondatesteachersmoodleurl,
                     $OUTPUT->pix_icon('i/grades',
@@ -716,8 +719,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
             // Show only one option.
             $onlyoneurl = new moodle_url('/mod/booking/view.php',
-                ['id' => $cmid, 'optionid' => $optionid,
-                    'whichview' => 'showonlyone']);
+                ['id' => $cmid, 'optionid' => $optionid, 'whichview' => 'showonlyone']);
             $ddoptions[] = '<div class="dropdown-item">' .
                 html_writer::link($onlyoneurl,
                     $OUTPUT->pix_icon('i/publish',
@@ -796,7 +798,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
                 $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(new moodle_url('/mod/booking/editoptions.php',
                         ['id' => $cmid, 'optionid' => -1, 'copyoptionid' => $optionid,
-                        'returnto' => 'url', 'returnurl' => $returnurl]), $OUTPUT->pix_icon('t/copy',
+                        'returnto' => 'url', 'returnurl' => $returnurl,
+                        ]), $OUTPUT->pix_icon('t/copy',
                             get_string('duplicatebooking', 'mod_booking')) .
                         get_string('duplicatebooking', 'mod_booking')) . '</div>';
 

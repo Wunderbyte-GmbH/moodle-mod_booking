@@ -81,9 +81,11 @@ class calendar {
                     // When we create a user event, we have to keep track of it in our special table.
                     if ($newcalendarid) {
                         // If it's a new user event, then insert.
-                        if (!$userevent = $DB->get_record('booking_userevents', ['userid' => $userid,
+                        if (!$userevent = $DB->get_record('booking_userevents',
+                            ['userid' => $userid,
                             'optionid' => $optionid,
-                            'optiondateid' => null])) {
+                            'optiondateid' => null,
+                            ])) {
                             $data = new stdClass();
                             $data->userid = $userid;
                             $data->optionid = $optionid;
@@ -129,9 +131,11 @@ class calendar {
                             $bookingoption->option, $optiondate, $bookingoption->option->calendarid, $userid);
                         if ($newcalendarid) {
                             // If it's a new user event, then insert.
-                            if (!$userevent = $DB->get_record('booking_userevents', ['userid' => $userid,
-                                                                                           'optionid' => $optionid,
-                                                                                           'optiondateid' => $optiondateid])) {
+                            if (!$userevent = $DB->get_record('booking_userevents',
+                                                                ['userid' => $userid,
+                                                                'optionid' => $optionid,
+                                                                'optiondateid' => $optiondateid,
+                                                                ])) {
                                 $data = new stdClass();
                                 $data->userid = $userid;
                                 $data->optionid = $optionid;

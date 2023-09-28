@@ -195,7 +195,8 @@ class price {
         global $DB;
 
         if (!$pricecategory = $DB->get_record('booking_pricecategories', ['disabled' => 0,
-            'identifier' => $pricecategoryidentifier])) {
+            'identifier' => $pricecategoryidentifier,
+            ])) {
             // We return the 0 price. This will cause the form not to validate, if we try to apply the formula.
             return 0;
         }
@@ -274,7 +275,8 @@ class price {
         global $DB;
 
         if (!$pricecategory = $DB->get_record('booking_pricecategories', ['disabled' => 0,
-            'identifier' => $pricecategoryidentifier])) {
+            'identifier' => $pricecategoryidentifier,
+            ])) {
             // We return the 0 price. This will cause the form not to validate, if we try to apply the formula.
             return 0;
         }
@@ -561,7 +563,8 @@ class price {
 
         // If we retrieve a price record for this entry, we update if necessary.
         if ($data = $DB->get_record('booking_prices', ['area' => $area, 'itemid' => $itemid,
-            'pricecategoryidentifier' => $categoryidentifier])) {
+            'pricecategoryidentifier' => $categoryidentifier,
+            ])) {
             // Check if it's necessary to update.
             if ($data->price != $price
             || $data->pricecategoryidentifier != $categoryidentifier

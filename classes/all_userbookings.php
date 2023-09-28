@@ -250,8 +250,7 @@ class all_userbookings extends \table_sql {
         $ratingoptions = $this->ratingoptions;
         if (!empty($ratingoptions)) {
             foreach ($ratingoptions as $name => $value) {
-                $attributes = ['type' => 'hidden', 'class' => 'ratinginput', 'name' => $name,
-                    'value' => $value];
+                $attributes = ['type' => 'hidden', 'class' => 'ratinginput', 'name' => $name, 'value' => $value];
                 echo html_writer::empty_tag('input', $attributes);
             }
         }
@@ -323,9 +322,12 @@ class all_userbookings extends \table_sql {
             if (has_capability('moodle/rating:rate', \context_module::instance($this->cm->id)) &&
                      $this->bookingdata->booking->settings->assessed != 0) {
                 $ratingbutton = '<div class="singlebutton">' . html_writer::start_tag('span', ['class' => "ratingsubmit"]);
-                $attributes = ['type' => 'submit', 'class' => 'postratingmenusubmit btn btn-secondary',
-                    'id' => 'postratingsubmit', 'name' => 'postratingsubmit',
-                    'value' => s(get_string('rate', 'rating'))];
+                $attributes = ['type' => 'submit',
+                    'class' => 'postratingmenusubmit btn btn-secondary',
+                    'id' => 'postratingsubmit',
+                    'name' => 'postratingsubmit',
+                    'value' => s(get_string('rate', 'rating')),
+                ];
                 $ratingbutton .= html_writer::empty_tag('input', $attributes);
                 $ratingbutton .= html_writer::end_span() . '</div>';
                 echo $ratingbutton;
@@ -363,9 +365,11 @@ class all_userbookings extends \table_sql {
                     echo \html_writer::div(get_string('transferheading', 'mod_booking'));
                     echo $dropdown = \html_writer::select($transferto, 'transferoption');
                     $attributes = ['type' => 'submit',
-                        'class' => 'transfersubmit btn btn-secondary', 'id' => 'transfersubmit',
+                        'class' => 'transfersubmit btn btn-secondary',
+                        'id' => 'transfersubmit',
                         'name' => 'transfersubmit',
-                        'value' => s(get_string('transfer', 'mod_booking'))];
+                        'value' => s(get_string('transfer', 'mod_booking')),
+                    ];
                     $optionbutton .= html_writer::empty_tag('input', $attributes);
                     $optionbutton .= html_writer::end_span() . '</div>';
                     echo $optionbutton;
@@ -452,7 +456,8 @@ class all_userbookings extends \table_sql {
                     1 => get_string('status_complete', 'booking'),
                     2 => get_string('status_incomplete', 'booking'),
                     3 => get_string('status_noshow', 'booking'),
-                    4 => get_string('status_failed', 'booking')];
+                    4 => get_string('status_failed', 'booking'),
+                ];
 
                 echo html_writer::select($presences, 'selectpresencestatus', '');
 

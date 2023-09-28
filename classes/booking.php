@@ -989,7 +989,8 @@ class booking {
     public static function get_all_options_of_teacher_sql(int $teacherid, int $bookingid) {
 
         return self::get_options_filter_sql(0, 0, '', '*', null, [], ['bookingid' => $bookingid,
-            'teacherobjects' => '%"id":' . $teacherid . ',%']);
+            'teacherobjects' => '%"id":' . $teacherid . ',%',
+        ]);
     }
 
     /**
@@ -1013,7 +1014,8 @@ class booking {
         $search = $rsearch['query'];
         $params = array_merge(['bookingid' => $this->id,
                                     'userid' => $USER->id,
-                                    'booked' => STATUSPARAM_BOOKED], $rsearch['params']);
+                                    'booked' => STATUSPARAM_BOOKED,
+                                ], $rsearch['params']);
 
         if ($limitnum != 0) {
             $limit = " LIMIT {$limitfrom} OFFSET {$limitnum}";
@@ -1129,7 +1131,8 @@ class booking {
             $link = new moodle_url('/mod/booking/view.php', [
                 'optionid' => $record->optionid,
                 'id' => $optionsettings->cmid,
-                'whichview' => 'showonlyone']);
+                'whichview' => 'showonlyone',
+            ]);
 
             $newentittydate = new entitydate(
                 $record->instanceid,

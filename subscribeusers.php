@@ -94,9 +94,14 @@ if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
     echo $OUTPUT->footer();
     die();
 } else {
-    $subscribeduseroptions = ['bookingid' => $cm->instance,
-                    'accesscontext' => $context, 'optionid' => $optionid, 'cm' => $cm, 'course' => $course,
-                    'potentialusers' => $bookingoption->bookedvisibleusers];
+    $subscribeduseroptions = [
+        'bookingid' => $cm->instance,
+        'accesscontext' => $context,
+        'optionid' => $optionid,
+        'cm' => $cm,
+        'course' => $course,
+        'potentialusers' => $bookingoption->bookedvisibleusers,
+    ];
     $potentialuseroptions = $subscribeduseroptions;
 
     // Potential users will be selected on instantiation of booking_potential_user_selector.
@@ -182,13 +187,19 @@ echo $OUTPUT->heading(format_string($optionsettings->get_title_with_prefix()), 3
 
 // Switch to turn booking of anyone ON or OFF.
 if (is_siteadmin() && $bookanyone) {
-    $url = new moodle_url('/mod/booking/subscribeusers.php', ['id' => $id, 'optionid' => $optionid,
-        'agree' => $agree, 'bookanyone' => false]);
+    $url = new moodle_url('/mod/booking/subscribeusers.php', ['id' => $id,
+                                                                'optionid' => $optionid,
+                                                                'agree' => $agree,
+                                                                'bookanyone' => false,
+                                                            ]);
     echo '<a class="btn btn-sm btn-light" href="' . $url . '">' . get_string('bookanyoneswitchoff', 'mod_booking') . '</a>';
     echo '<div class="alert alert-warning p-1 mt-1 text-center">' . get_string('bookanyonewarning', 'mod_booking')  . '</div>';
 } else {
-    $url = new moodle_url('/mod/booking/subscribeusers.php', ['id' => $id, 'optionid' => $optionid,
-        'agree' => $agree, 'bookanyone' => true]);
+    $url = new moodle_url('/mod/booking/subscribeusers.php', ['id' => $id,
+                                                                'optionid' => $optionid,
+                                                                'agree' => $agree,
+                                                                'bookanyone' => true,
+                                                            ]);
     echo '<a class="btn btn-sm btn-light" href="' . $url . '">' . get_string('bookanyoneswitchon', 'mod_booking') . '</a>';
 }
 

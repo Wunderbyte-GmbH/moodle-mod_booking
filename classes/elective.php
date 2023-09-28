@@ -234,8 +234,12 @@ class elective {
                 $DB->delete_records('booking_combinations', ['id' => $item->id]);
 
                 // Also delete the pair.
-                $DB->delete_records('booking_combinations', ['optionid' => $item->otheroptionid,
-                    'otheroptionid' => $item->optionid, 'cancombine' => $mustcombine]);
+                $DB->delete_records('booking_combinations',
+                                        ['optionid' => $item->otheroptionid,
+                                        'otheroptionid' => $item->optionid,
+                                        'cancombine' => $mustcombine,
+                                        ]
+                                    );
             }
         }
     }
@@ -276,10 +280,11 @@ class elective {
                 AND ba.userid=:userid
                 ORDER BY ba.id ASC";
 
-        $answers = $DB->get_records_sql($sql, [
-            'bookingid' => $bookingoption->booking->id,
-            'userid' => $userid,
-            'waitinglist' => STATUSPARAM_BOOKED]);
+        $answers = $DB->get_records_sql($sql,
+                                        ['bookingid' => $bookingoption->booking->id,
+                                        'userid' => $userid,
+                                        'waitinglist' => STATUSPARAM_BOOKED,
+                                        ]);
 
         // We run through the list of options.
         // The sorting order comes from the ids, lower was booked first.

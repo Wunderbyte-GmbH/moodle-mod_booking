@@ -762,8 +762,9 @@ class booking_option_settings {
                                  AND LOWER(filename) LIKE :customfieldvaluewithextension
                                  AND filesize > 0
                                  AND source is not null", ['bookingid' => $bookingid,
-                                    'customfieldvaluewithextension' => "$customfieldvalue.%"])) {
-                                        return;
+                                    'customfieldvaluewithextension' => "$customfieldvalue.%",
+                                    ])) {
+                        return;
                     }
 
                     // There might be more than one image, so we only use the first one.
@@ -1018,7 +1019,8 @@ class booking_option_settings {
             "u.lastname",
             "', '",
             'u.firstname',
-            "'\"}'"]);
+            "'\"}'",
+        ]);
         $where = '';
         $params = [];
 
@@ -1069,8 +1071,7 @@ class booking_option_settings {
         $select = ' f.filename ';
 
         $where = '';
-        $params = ['componentname3' => 'mod_booking',
-            'bookingoptionimage' => 'bookingoptionimage'];
+        $params = ['componentname3' => 'mod_booking', 'bookingoptionimage' => 'bookingoptionimage'];
 
         $from = " LEFT JOIN {files} f
             ON f.itemid=bo.id and f.component=:componentname3

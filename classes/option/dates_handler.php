@@ -93,8 +93,11 @@ class dates_handler {
         // We trigger the event, where we take care of events in calendar etc. First we get the context.
         $booking = singleton_service::get_instance_of_booking_by_bookingid($optiondate->bookingid);
         $context = $booking->get_context();
-        $event = \mod_booking\event\bookingoptiondate_created::create(['context' => $context, 'objectid' => $optiondateid,
-                'userid' => $USER->id, 'other' => ['optionid' => $this->optionid]]);
+        $event = \mod_booking\event\bookingoptiondate_created::create(['context' => $context,
+                                                                        'objectid' => $optiondateid,
+                                                                        'userid' => $USER->id,
+                                                                        'other' => ['optionid' => $this->optionid],
+                                                                    ]);
         $event->trigger();
         // Also create new user events (user calendar entries) for all booked users.
         $option = singleton_service::get_instance_of_booking_option($booking->cmid, $this->optionid);
@@ -188,11 +191,12 @@ class dates_handler {
         if ($date->eventid !== null && $date->eventid !== 0) {
             $DB->delete_records('event', ['id' => $date->eventid]);
             // Store the changes so they can be sent in an update mail.
-            $changes[] = ['info' => get_string('changeinfosessiondeleted', 'booking'),
-                    'fieldname' => 'coursestarttime',
-                    'oldvalue' => $date->coursestarttime];
-            $changes[] = ['fieldname' => 'courseendtime',
-                    'oldvalue' => $date->courseendtime];
+            $changes[] = [
+                'info' => get_string('changeinfosessiondeleted', 'booking'),
+                'fieldname' => 'coursestarttime',
+                'oldvalue' => $date->coursestarttime,
+            ];
+            $changes[] = ['fieldname' => 'courseendtime', 'oldvalue' => $date->courseendtime];
         }
 
         // Also, clean all associated user records.
@@ -383,7 +387,8 @@ class dates_handler {
             'do', 'don', 'donnerstag',
             'fre', 'freitag', // Note: 'fr' could be English too!
             'sam', 'samstag', // Note: 'sa' could be English too!
-            'so', 'son', 'sonntag'];
+            'so', 'son', 'sonntag',
+        ];
 
         if (current_language() != 'de' && in_array($daystring, $onlygermandaystrings)) {
             $weekdays = self::get_localized_weekdays('de');

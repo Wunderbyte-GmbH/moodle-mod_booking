@@ -44,9 +44,7 @@ class instancetemplatessettings_table extends table_sql {
         $this->define_columns($columns);
 
         // Define the titles of columns to show in header.
-        $headers = [
-            get_string('bookinginstancetemplatename', 'mod_booking'),
-            get_string('action')];
+        $headers = [get_string('bookinginstancetemplatename', 'mod_booking'), get_string('action')];
         $this->define_headers($headers);
     }
 

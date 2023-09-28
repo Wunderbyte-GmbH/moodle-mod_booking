@@ -330,7 +330,8 @@ class booking_answers {
 
         $params = ['statuswaitinglist' => STATUSPARAM_WAITINGLIST,
                    'bookingid' => $bookingid,
-                   'userid' => $userid];
+                   'userid' => $userid,
+                    ];
 
         $sql = "SELECT COUNT(*)
                 FROM {booking_answers}

@@ -110,8 +110,7 @@ class all_options extends table_sql {
             }
             // Show only one option.
             $onlyoneurl = new moodle_url('/mod/booking/view.php',
-                ['id' => $this->cm->id, 'optionid' => $values->id,
-                    'whichview' => 'showonlyone']);
+                ['id' => $this->cm->id, 'optionid' => $values->id, 'whichview' => 'showonlyone']);
             $ddoptions[] = '<div class="dropdown-item">' .
                 html_writer::link($onlyoneurl,
                     $OUTPUT->pix_icon('i/publish',
@@ -120,8 +119,11 @@ class all_options extends table_sql {
 
             if (has_capability('mod/booking:updatebooking', $this->context)) {
                 $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(new moodle_url('/mod/booking/report.php',
-                        ['id' => $this->cm->id, 'optionid' => $values->id, 'action' => 'deletebookingoption',
-                            'sesskey' => sesskey()]),
+                        ['id' => $this->cm->id,
+                            'optionid' => $values->id,
+                            'action' => 'deletebookingoption',
+                            'sesskey' => sesskey(),
+                        ]),
                         $OUTPUT->pix_icon('t/delete', get_string('deletethisbookingoption', 'mod_booking')) .
                         get_string('deletethisbookingoption', 'mod_booking')) . '</div>';
 

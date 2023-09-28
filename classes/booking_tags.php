@@ -33,12 +33,14 @@ class booking_tags {
     public $replaces;
 
     public $optiontextfields = ['text', 'description', 'location', 'institution', 'address',
-            'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext'];
+                                'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext',
+                                ];
 
     public $bookingtextfields = ['name', 'intro', 'bookingpolicy', 'bookedtext', 'notifyemail',
-            'waitingtext', 'statuschangetext', 'deletedtext', 'bookingchangedtext', 'duration', 'organizatorname',
-            'pollurltext', 'eventtype', 'notificationtext', 'userleave', 'pollurlteacherstext',
-            'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext'];
+                                'waitingtext', 'statuschangetext', 'deletedtext', 'bookingchangedtext', 'duration',
+                                'organizatorname', 'pollurltext', 'eventtype', 'notificationtext', 'userleave',
+                                'pollurlteacherstext', 'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext',
+                                ];
 
     private $option;
 

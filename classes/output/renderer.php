@@ -126,12 +126,14 @@ class renderer extends plugin_renderer_base {
         $actioncell->text .= html_writer::empty_tag('input',
                 ['type' => 'submit', 'name' => 'subscribe',
                     'value' => $this->page->theme->larrow . ' ' . get_string('add'),
-                    'class' => 'actionbutton']);
+                    'class' => 'actionbutton',
+                ]);
         $actioncell->text .= html_writer::empty_tag('br', []);
         $actioncell->text .= html_writer::empty_tag('input',
                 ['type' => 'submit', 'name' => 'unsubscribe',
                     'value' => $this->page->theme->rarrow . ' ' . get_string('remove'),
-                    'class' => 'actionbutton']);
+                    'class' => 'actionbutton',
+                ]);
         $actioncell->text .= html_writer::end_tag('div', []);
         $actioncell->attributes['class'] = 'actions';
         $potentialcell = new html_table_cell();
@@ -282,8 +284,7 @@ class renderer extends plugin_renderer_base {
             $ratinghtml = $formstart . $ratinghtml;
 
             $scalearray = [RATING_UNSET_RATING => $strrate . '...'] + $rating->settings->scale->scaleitems;
-            $scaleattrs = ['class' => 'postratingmenu ratinginput',
-                'id' => 'menurating' . $rating->itemid];
+            $scaleattrs = ['class' => 'postratingmenu ratinginput', 'id' => 'menurating' . $rating->itemid];
             $ratinghtml .= html_writer::label($rating->rating, 'menurating' . $rating->itemid,
                     false, ['class' => 'accesshide']);
             $ratinghtml .= html_writer::select($scalearray, 'rating' . $rating->itemid,

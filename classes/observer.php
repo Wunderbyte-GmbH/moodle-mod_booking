@@ -195,8 +195,7 @@ class mod_booking_observer {
                 WHERE ue.optionid = :optionid AND
                 ue.optiondateid IS NULL";
 
-                $allevents = $DB->get_records_sql($sql, [
-                        'optionid' => $optionid]);
+                $allevents = $DB->get_records_sql($sql, ['optionid' => $optionid]);
 
                 // We delete all userevents and return false.
 

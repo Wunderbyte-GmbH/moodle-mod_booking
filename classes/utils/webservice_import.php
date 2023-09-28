@@ -152,8 +152,8 @@ class webservice_import {
                 FROM {booking_options}
                 WHERE identifier = :identifier
                 AND bookingid <> :bookingid",
-                ['bookingid' => $data->bookingid,
-                'identifier' => $data->identifier])) {
+                ['bookingid' => $data->bookingid, 'identifier' => $data->identifier])
+                ) {
 
                 throw new moodle_exception("Option with identifier $data->identifier could not be imported because the " .
                     "identifier is already used in another booking instance.", 'mod_booking');
@@ -168,10 +168,9 @@ class webservice_import {
                     WHERE cm.instance=:bookingid
                     AND m.name=:modulename
                     AND bo.identifier=:identifier";
-            if ($result = $DB->get_record_sql($sql, [
-                    'bookingid' => $data->bookingid,
-                    'modulename' => 'booking',
-                    'identifier' => $data->identifier])) {
+            if ($result = $DB->get_record_sql($sql,
+                                ['bookingid' => $data->bookingid, 'modulename' => 'booking', 'identifier' => $data->identifier])
+                ) {
                 return singleton_service::get_instance_of_booking_option($result->cmid, $result->boid);
             }
         }
@@ -341,9 +340,10 @@ class webservice_import {
 
         if (!empty($data->responsiblecontact)) {
 
-            if (!$user = $DB->get_record('user', ['suspended' => 0, 'deleted' => 0, 'confirmed' => 1,
-            'email' => $data->responsiblecontact], 'id', IGNORE_MULTIPLE)) {
-
+            if (!$user = $DB->get_record('user',
+                            ['suspended' => 0, 'deleted' => 0, 'confirmed' => 1, 'email' => $data->responsiblecontact],
+                            'id', IGNORE_MULTIPLE)
+                ) {
                 throw new \moodle_exception('responsiblecontactnotsubscribed', 'mod_booking', null, null,
                 'The contact with email ' . $data->responsiblecontact .
                 ' does not exist in the target database.');

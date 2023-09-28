@@ -272,8 +272,7 @@ class generator {
                     $this->bookingdata->booking->course->id);
             $addsqlwhere .= " AND u.id IN ($groupsql)";
         }
-        $remove = ['signinextracols1', 'signinextracols2', 'signinextracols3', 'fullname',
-            'signature', 'rownumber', 'role'];
+        $remove = ['signinextracols1', 'signinextracols2', 'signinextracols3', 'fullname', 'signature', 'rownumber', 'role'];
 
         if ($CFG->version >= 2021051700) {
             // This only works in Moodle 3.11 and later.
