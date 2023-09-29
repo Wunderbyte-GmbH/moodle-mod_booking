@@ -46,7 +46,7 @@ class modaloptiondateform extends \core_form\dynamic_form {
         $repeateloptions = [];
 
         $optiondatelabel = html_writer::tag('b', get_string('optiondate', 'booking') . ' {no}',
-            array('class' => 'optiondatelabel'));
+            ['class' => 'optiondatelabel']);
         $repeatedoptiondates[] = $mform->createElement('static', 'optiondatelabel', $optiondatelabel);
 
         $repeatedoptiondates[] = $mform->createElement('date_time_selector', 'optiondatestart',

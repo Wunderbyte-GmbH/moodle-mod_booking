@@ -64,19 +64,19 @@ class booking {
     public $cm = null;
 
     /** @var array of user objects who have capability to book. object contains only id */
-    public $canbookusers = array();
+    public $canbookusers = [];
 
     /** @var array users who are members of the current users group */
-    public $groupmembers = array();
+    public $groupmembers = [];
 
     /** @var stdClass settings of the booking instance */
     public $settings = null;
 
     /** @var array $alloptions option objects indexed by optionid */
-    protected $alloptions = array();
+    protected $alloptions = [];
 
     /** @var array of ids */
-    protected $optionids = array();
+    protected $optionids = [];
 
     /** @var int number of bookings a user has made */
     protected $userbookings = null;
@@ -250,7 +250,7 @@ class booking {
                        FROM {user} u, {groups_members} gm
                       WHERE u.deleted = 0
                         AND u.id = gm.userid AND gm.groupid $insql";
-        return array($groupsql, $params);
+        return [$groupsql, $params];
     }
 
     /**
@@ -262,7 +262,7 @@ class booking {
     private function searchparameters($searchtext = '') {
         global $DB;
         $search = '';
-        $params = array();
+        $params = [];
 
         if (!empty($searchtext)) {
             $searchtext = $DB->sql_like_escape($searchtext);
@@ -274,7 +274,7 @@ class booking {
             $params['institution'] = "%{$searchtext}%";
         }
 
-        return array('params' => $params, 'query' => $search);
+        return ['params' => $params, 'query' => $search];
     }
 
     /**
@@ -297,12 +297,12 @@ class booking {
         global $DB;
 
         $search = '';
-        $params = array();
+        $params = [];
 
         $rsearch = $this->searchparameters($searchtext);
 
         $search = $rsearch['query'];
-        $params = array_merge(array('bookingid' => $this->id), $rsearch['params']);
+        $params = array_merge(['bookingid' => $this->id], $rsearch['params']);
 
         return $DB->count_records_sql(
             "SELECT COUNT(*) FROM {booking_options} bo WHERE bo.bookingid = :bookingid {$search}", $params);
@@ -331,7 +331,7 @@ class booking {
         $limit = '';
         $rsearch = $this->searchparameters($searchtext);
         $search = $rsearch['query'];
-        $params = array_merge(array('bookingid' => $this->id, 'time' => time()), $rsearch['params']);
+        $params = array_merge(['bookingid' => $this->id, 'time' => time()], $rsearch['params']);
 
         if ($limitnum != 0) {
             $limit = " LIMIT {$limitfrom},{$limitnum}";
@@ -347,12 +347,12 @@ class booking {
         global $DB;
 
         $search = '';
-        $params = array();
+        $params = [];
 
         $rsearch = $this->searchparameters($searchtext);
 
         $search = $rsearch['query'];
-        $params = array_merge(array('bookingid' => $this->id, 'time' => time()), $rsearch['params']);
+        $params = array_merge(['bookingid' => $this->id, 'time' => time()], $rsearch['params']);
 
         return $DB->count_records_sql(
             "SELECT COUNT(*) FROM {booking_options} bo " .
@@ -384,7 +384,7 @@ class booking {
         $limit = '';
         $rsearch = $this->searchparameters($searchtext);
         $search = $rsearch['query'];
-        $params = array_merge(array('bookingid' => $this->id, 'userid' => $USER->id), $rsearch['params']);
+        $params = array_merge(['bookingid' => $this->id, 'userid' => $USER->id], $rsearch['params']);
 
         if ($limitnum != 0) {
             $limit = " LIMIT {$limitfrom},{$limitnum}";
@@ -399,12 +399,12 @@ class booking {
         global $DB, $USER;
 
         $search = '';
-        $params = array();
+        $params = [];
 
         $rsearch = $this->searchparameters($searchstring);
 
         $search = $rsearch['query'];
-        $params = array_merge(array('bookingid' => $this->id, 'userid' => $USER->id), $rsearch['params']);
+        $params = array_merge(['bookingid' => $this->id, 'userid' => $USER->id], $rsearch['params']);
 
         return $DB->count_records_sql(
             "SELECT COUNT(*) FROM {booking_options} bo LEFT JOIN {booking_answers} ba ON ba.optionid = bo.id" .
@@ -442,7 +442,7 @@ class booking {
         $outdata->eventtype = $this->settings->eventtype;
 
         $warning .= html_writer::tag('div', get_string('maxperuserwarning', 'mod_booking', $outdata),
-            array ('class' => 'alert alert-warning'));
+             ['class' => 'alert alert-warning']);
         return $warning;
     }
 
@@ -464,7 +464,7 @@ class booking {
             WHERE ba.bookingid = ?
             AND ba.userid = ?
             AND ba.waitinglist <= ?
-            AND (bo.courseendtime = 0 OR bo.courseendtime > ?)", array($this->id, $user->id, STATUSPARAM_WAITINGLIST, time()));
+            AND (bo.courseendtime = 0 OR bo.courseendtime > ?)", [$this->id, $user->id, STATUSPARAM_WAITINGLIST, time()]);
 
         return (int)$activebookingcount;
     }
@@ -485,7 +485,7 @@ class booking {
                 WHERE bo.bookingid = ?
                 AND ba.userid = ?';
 
-        return $DB->get_records_sql($sql, array($this->settings->id, $user->id));
+        return $DB->get_records_sql($sql, [$this->settings->id, $user->id]);
     }
 
     /**
@@ -576,8 +576,8 @@ class booking {
         $userprofilefields = $DB->get_records_select('user_info_field',
                 'id > 0 AND shortname ' . $addquoted, $addquotedparams, 'id', 'id, shortname, name');
 
-        $columns = array();
-        $headers = array();
+        $columns = [];
+        $headers = [];
 
         foreach ($reportfields as $value) {
             switch ($value) {
@@ -672,7 +672,7 @@ class booking {
                     break;
             }
         }
-        return array($columns, $headers, $userprofilefields);
+        return [$columns, $headers, $userprofilefields];
     }
 
     /**
@@ -690,10 +690,10 @@ class booking {
             if (isset($customfields->{$this->settings->autcrprofile}) &&
                 $customfields->{$this->settings->autcrprofile} == $this->settings->autcrvalue) {
 
-                $nrec = $DB->count_records('booking_teachers', array('userid' => $USER->id, 'bookingid' => $this->id));
+                $nrec = $DB->count_records('booking_teachers', ['userid' => $USER->id, 'bookingid' => $this->id]);
 
                 if ($nrec === 0) {
-                    $bookingoption = $DB->get_record('booking_options', array('id' => $this->settings->autcrtemplate));
+                    $bookingoption = $DB->get_record('booking_options', ['id' => $this->settings->autcrtemplate]);
                     $bookingoption->text = '';
                     if (!empty($USER->institution)) {
                         $bookingoption->text .= "{$USER->institution} - ";
@@ -718,10 +718,10 @@ class booking {
                     // When inserting a new teacher, we also need to insert the teacher for each optiondate.
                     teachers_handler::subscribe_teacher_to_all_optiondates($newteacher->optionid, $newteacher->userid);
 
-                    $params = array(
+                    $params = [
                         'id' => $this->cm->id,
-                        'optionid' => $nrecid
-                    );
+                        'optionid' => $nrecid,
+                    ];
                     $url = new moodle_url('/mod/booking/report.php', $params);
 
                     redirect($url);
@@ -989,7 +989,8 @@ class booking {
     public static function get_all_options_of_teacher_sql(int $teacherid, int $bookingid) {
 
         return self::get_options_filter_sql(0, 0, '', '*', null, [], ['bookingid' => $bookingid,
-            'teacherobjects' => '%"id":' . $teacherid . ',%']);
+            'teacherobjects' => '%"id":' . $teacherid . ',%',
+        ]);
     }
 
     /**
@@ -1011,9 +1012,10 @@ class booking {
         $limit = '';
         $rsearch = $this->searchparameters($searchtext);
         $search = $rsearch['query'];
-        $params = array_merge(array('bookingid' => $this->id,
+        $params = array_merge(['bookingid' => $this->id,
                                     'userid' => $USER->id,
-                                    'booked' => STATUSPARAM_BOOKED), $rsearch['params']);
+                                    'booked' => STATUSPARAM_BOOKED,
+                                ], $rsearch['params']);
 
         if ($limitnum != 0) {
             $limit = " LIMIT {$limitfrom} OFFSET {$limitnum}";
@@ -1061,9 +1063,9 @@ class booking {
         // Encoding the whole URL makes migration to a new WWWROOT impossible.
 
         $encodedurl = base64_encode($moodleurl->out(false));
-        $encodedmoodleurl = new \moodle_url($CFG->wwwroot . '/mod/booking/bookingredirect.php', array(
-            'encodedurl' => $encodedurl
-        ));
+        $encodedmoodleurl = new \moodle_url($CFG->wwwroot . '/mod/booking/bookingredirect.php', [
+            'encodedurl' => $encodedurl,
+        ]);
 
         $encodedlink = $encodedmoodleurl->out(false);
 
@@ -1129,7 +1131,8 @@ class booking {
             $link = new moodle_url('/mod/booking/view.php', [
                 'optionid' => $record->optionid,
                 'id' => $optionsettings->cmid,
-                'whichview' => 'showonlyone']);
+                'whichview' => 'showonlyone',
+            ]);
 
             $newentittydate = new entitydate(
                 $record->instanceid,

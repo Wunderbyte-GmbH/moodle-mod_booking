@@ -150,7 +150,7 @@ class addbookingoption extends external_api {
             'mergeparam' => new external_value(PARAM_INT,
                 'To upload multisession in consecutive steps or to add teachers to option.
                 0 is no multisession, 1 is create ms, 2 is merge with previous, 3 is merge teacher to option',
-                (bool) VALUE_DEFAULT, null)
+                (bool) VALUE_DEFAULT, null),
             ]
         );
     }
@@ -210,7 +210,7 @@ class addbookingoption extends external_api {
                     ): array {
 
         $params = self::validate_parameters(self::execute_parameters(),
-                array(
+                [
                         'name' => $name,
                         'identifier' => $identifier,
                         'titleprefix' => $titleprefix, // Optional prefix to be shown before title.
@@ -256,8 +256,8 @@ class addbookingoption extends external_api {
                         'responsiblecontact' => $responsiblecontact,
                         'boavenrolledincourse' => $boavenrolledincourse,
                         'recommendedin' => $recommendedin,
-                        'mergeparam' => $mergeparam
-                    ));
+                        'mergeparam' => $mergeparam,
+                    ]);
 
         // We want to pass on an object to, so we clean all unnecessary values.
         $cleanedarray = array_filter($params, function($x) {
@@ -276,7 +276,7 @@ class addbookingoption extends external_api {
      */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
-            'status' => new external_value(PARAM_BOOL, 'status: true if success')
+            'status' => new external_value(PARAM_BOOL, 'status: true if success'),
             ]
         );
     }

@@ -44,7 +44,7 @@ class renderer extends plugin_renderer_base {
     public function print_booking_tabs(booking $booking, $urlparams, $current = 'showactive', $mybookings = 0, $myoptions = 0) {
         global $USER;
         // Output tabs.
-        $row = array();
+        $row = [];
 
         unset($urlparams['sort']);
         $tmpurlparams = $urlparams;
@@ -110,29 +110,31 @@ class renderer extends plugin_renderer_base {
     public function subscriber_selection_form(user_selector_base $existinguc,
             user_selector_base $potentialuc, $courseid) {
         $output = '';
-        $formattributes = array();
+        $formattributes = [];
         $formattributes['id'] = 'subscriberform';
         $formattributes['action'] = '';
         $formattributes['method'] = 'post';
         $output .= html_writer::start_tag('form', $formattributes);
         $output .= html_writer::empty_tag('input',
-                array('type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()));
+                ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
 
         $existingcell = new html_table_cell();
         $existingcell->text = $existinguc->display(true);
         $existingcell->attributes['class'] = 'existing';
         $actioncell = new html_table_cell();
-        $actioncell->text = html_writer::start_tag('div', array());
+        $actioncell->text = html_writer::start_tag('div', []);
         $actioncell->text .= html_writer::empty_tag('input',
-                array('type' => 'submit', 'name' => 'subscribe',
+                ['type' => 'submit', 'name' => 'subscribe',
                     'value' => $this->page->theme->larrow . ' ' . get_string('add'),
-                    'class' => 'actionbutton'));
-        $actioncell->text .= html_writer::empty_tag('br', array());
+                    'class' => 'actionbutton',
+                ]);
+        $actioncell->text .= html_writer::empty_tag('br', []);
         $actioncell->text .= html_writer::empty_tag('input',
-                array('type' => 'submit', 'name' => 'unsubscribe',
+                ['type' => 'submit', 'name' => 'unsubscribe',
                     'value' => $this->page->theme->rarrow . ' ' . get_string('remove'),
-                    'class' => 'actionbutton'));
-        $actioncell->text .= html_writer::end_tag('div', array());
+                    'class' => 'actionbutton',
+                ]);
+        $actioncell->text .= html_writer::end_tag('div', []);
         $actioncell->attributes['class'] = 'actions';
         $potentialcell = new html_table_cell();
         $potentialcell->text = $potentialuc->display(true);
@@ -140,7 +142,7 @@ class renderer extends plugin_renderer_base {
 
         $table = new html_table();
         $table->attributes['class'] = 'subscribertable boxaligncenter';
-        $table->data = array(new html_table_row(array($existingcell, $actioncell, $potentialcell)));
+        $table->data = [new html_table_row([$existingcell, $actioncell, $potentialcell])];
         $output .= html_writer::table($table);
 
         $output .= html_writer::end_tag('form');
@@ -169,10 +171,10 @@ class renderer extends plugin_renderer_base {
      */
     public function render_bookings_per_user($userbookings) {
         $output = html_writer::div(' ');
-        $items = array();
+        $items = [];
 
         foreach ($userbookings as $userid => $options) {
-            $items = array();
+            $items = [];
 
             foreach ($options as $optionid => $user) {
                 // If the user is visible in only one booking instance, than show the user otherwise do not show.
@@ -185,9 +187,9 @@ class renderer extends plugin_renderer_base {
                     }
 
                     $bookinginstanceurl = new moodle_url('/mod/booking/view.php',
-                            array('id' => $user->cmid));
+                            ['id' => $user->cmid]);
                     $bookingcourseurl = new moodle_url('/course/view.php',
-                            array('id' => $user->courseid));
+                            ['id' => $user->courseid]);
                     $bookinglink = html_writer::link($bookinginstanceurl,
                             $user->bookingtitle);
                     $courselink = html_writer::link($bookingcourseurl,
@@ -203,9 +205,9 @@ class renderer extends plugin_renderer_base {
                 $content = $this->output->user_picture($user) . " " . fullname($user) . " ";
                 $content .= html_writer::link('mailto:' . $user->email, $user->email);
                 $output .= html_writer::tag('h3', $content);
-                $output .= html_writer::start_tag('div', array ('class' => 'list-group'));
+                $output .= html_writer::start_tag('div',  ['class' => 'list-group']);
                 foreach ($items as $item) {
-                    $output .= html_writer::tag('div', $item, array('class' => 'list-group-item'));
+                    $output .= html_writer::tag('div', $item, ['class' => 'list-group-item']);
                 }
                 $output .= html_writer::end_tag('div');
                 $output .= html_writer::empty_tag('br');
@@ -240,7 +242,7 @@ class renderer extends plugin_renderer_base {
             $aggregatestr = $rating->get_aggregate_string();
 
             $aggregatehtml = html_writer::tag('span', $aggregatestr,
-                    array('id' => 'ratingaggregate' . $rating->itemid, 'class' => 'ratingaggregate')) .
+                    ['id' => 'ratingaggregate' . $rating->itemid, 'class' => 'ratingaggregate']) .
                      ' ';
             if ($rating->count > 0) {
                 $countstr = "({$rating->count})";
@@ -248,10 +250,10 @@ class renderer extends plugin_renderer_base {
                 $countstr = '-';
             }
             $aggregatehtml .= html_writer::tag('span', $countstr,
-                    array('id' => "ratingcount{$rating->itemid}", 'class' => 'ratingcount')) . ' ';
+                    ['id' => "ratingcount{$rating->itemid}", 'class' => 'ratingcount']) . ' ';
 
             $ratinghtml .= html_writer::tag('span', $aggregatelabel,
-                    array('class' => 'rating-aggregate-label'));
+                    ['class' => 'rating-aggregate-label']);
             if ($rating->settings->permissions->viewall &&
                      $rating->settings->pluginpermissions->viewall) {
 
@@ -259,7 +261,7 @@ class renderer extends plugin_renderer_base {
                 $popuplink = $rating->get_view_ratings_url(true);
 
                 $action = new popup_action('click', $popuplink, 'ratings',
-                        array('height' => 400, 'width' => 600));
+                        ['height' => 400, 'width' => 600]);
                 $ratinghtml .= $this->action_link($nonpopuplink, $aggregatehtml, $action);
             } else {
                 $ratinghtml .= $aggregatehtml;
@@ -274,18 +276,17 @@ class renderer extends plugin_renderer_base {
             $rateurl = $rating->get_rate_url();
 
             // Start the rating form.
-            $formstart .= html_writer::start_tag('div', array('class' => 'ratingform'));
+            $formstart .= html_writer::start_tag('div', ['class' => 'ratingform']);
 
             if (empty($ratinghtml)) {
                 $ratinghtml .= $strrate . ': ';
             }
             $ratinghtml = $formstart . $ratinghtml;
 
-            $scalearray = array(RATING_UNSET_RATING => $strrate . '...') + $rating->settings->scale->scaleitems;
-            $scaleattrs = array('class' => 'postratingmenu ratinginput',
-                'id' => 'menurating' . $rating->itemid);
+            $scalearray = [RATING_UNSET_RATING => $strrate . '...'] + $rating->settings->scale->scaleitems;
+            $scaleattrs = ['class' => 'postratingmenu ratinginput', 'id' => 'menurating' . $rating->itemid];
             $ratinghtml .= html_writer::label($rating->rating, 'menurating' . $rating->itemid,
-                    false, array('class' => 'accesshide'));
+                    false, ['class' => 'accesshide']);
             $ratinghtml .= html_writer::select($scalearray, 'rating' . $rating->itemid,
                     $rating->rating, false, $scaleattrs);
 

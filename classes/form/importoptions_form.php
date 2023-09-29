@@ -40,7 +40,7 @@ class importoptions_form extends moodleform {
 
         $mform = $this->_form;
         $mform->addElement('filepicker', 'csvfile', get_string('csvfile', 'booking'), null,
-                array('maxbytes' => $CFG->maxbytes, 'accepted_types' => '*'));
+                ['maxbytes' => $CFG->maxbytes, 'accepted_types' => '*']);
         $mform->addRule('csvfile', null, 'required', null, 'client');
 
         $choices = csv_import_reader::get_delimiter_list();
@@ -74,6 +74,6 @@ class importoptions_form extends moodleform {
      * @see moodleform::validation()
      */
     public function validation($data, $files) {
-        return array();
+        return [];
     }
 }

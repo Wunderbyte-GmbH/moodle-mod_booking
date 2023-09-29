@@ -235,7 +235,7 @@ function xmldb_booking_upgrade($oldversion) {
         $table->add_field('name', XMLDB_TYPE_TEXT, null, null, null, null, null);
 
         // Adding keys to table booking_category.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Conditionally launch create table for booking_category.
         if (!$dbman->table_exists($table)) {
@@ -290,13 +290,13 @@ function xmldb_booking_upgrade($oldversion) {
         $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
 
         // Adding keys to table booking_teachers.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('bookingid', XMLDB_KEY_FOREIGN, array('bookingid'), 'booking', array('id'));
-        $table->add_key('optionid', XMLDB_KEY_FOREIGN, array('optionid'), 'booking_options',
-                array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('bookingid', XMLDB_KEY_FOREIGN, ['bookingid'], 'booking', ['id']);
+        $table->add_key('optionid', XMLDB_KEY_FOREIGN, ['optionid'], 'booking_options',
+                ['id']);
 
         // Adding indexes to table booking_teachers.
-        $table->add_index('userid', XMLDB_INDEX_NOTUNIQUE, array('userid'));
+        $table->add_index('userid', XMLDB_INDEX_NOTUNIQUE, ['userid']);
 
         // Conditionally launch create table for booking_teachers.
         if (!$dbman->table_exists($table)) {
@@ -559,7 +559,7 @@ function xmldb_booking_upgrade($oldversion) {
         $table->add_field('text', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
 
         // Adding keys to table booking_tags.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Conditionally launch create table for booking_tags.
         if (!$dbman->table_exists($table)) {
@@ -853,7 +853,7 @@ function xmldb_booking_upgrade($oldversion) {
         $table->add_field('name', XMLDB_TYPE_TEXT, null, null, null, null, null);
 
         // Adding keys to table booking_institutions.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Conditionally launch create table for booking_institutions.
         if (!$dbman->table_exists($table)) {
@@ -1054,10 +1054,10 @@ function xmldb_booking_upgrade($oldversion) {
         $table->add_field('limit', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
 
         // Adding keys to table booking_other.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Adding indexes to table booking_other.
-        $table->add_index('optionid', XMLDB_INDEX_UNIQUE, array('optionid', 'otheroptionid'));
+        $table->add_index('optionid', XMLDB_INDEX_UNIQUE, ['optionid', 'otheroptionid']);
 
         // Conditionally launch create table for booking_other.
         if (!$dbman->table_exists($table)) {
@@ -1089,10 +1089,10 @@ function xmldb_booking_upgrade($oldversion) {
         $table->add_field('userslimit', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
 
         // Adding keys to table booking_other.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Adding indexes to table booking_other.
-        $table->add_index('optionid', XMLDB_INDEX_NOTUNIQUE, array('optionid', 'otheroptionid'));
+        $table->add_index('optionid', XMLDB_INDEX_NOTUNIQUE, ['optionid', 'otheroptionid']);
 
         // Conditionally launch create table for booking_other.
         if (!$dbman->table_exists($table)) {
@@ -1179,7 +1179,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define index courseid (not unique) to be added to booking_tags.
         $table = new xmldb_table('booking_tags');
-        $index = new xmldb_index('courseid', XMLDB_INDEX_NOTUNIQUE, array('courseid'));
+        $index = new xmldb_index('courseid', XMLDB_INDEX_NOTUNIQUE, ['courseid']);
 
         // Conditionally launch add index courseid.
         if (!$dbman->index_exists($table, $index)) {
@@ -1193,7 +1193,7 @@ function xmldb_booking_upgrade($oldversion) {
     if ($oldversion < 2016051703) {
 
         // Course ids from all courses with booking instance.
-        $courseids = $DB->get_fieldset_sql('SELECT DISTINCT course FROM {booking}', array());
+        $courseids = $DB->get_fieldset_sql('SELECT DISTINCT course FROM {booking}', []);
 
         foreach ($courseids as $courseid) {
 
@@ -1219,7 +1219,7 @@ function xmldb_booking_upgrade($oldversion) {
             // Delete unenrolled and deleted users from booking_answers. This is done via events in the future.
             $coursecontext = context_course::instance($courseid);
             list($enrolsql, $enrolparams) = get_enrolled_sql($coursecontext);
-            $params = array_merge(array('course' => $courseid), $enrolparams);
+            $params = array_merge(['course' => $courseid], $enrolparams);
             $DB->delete_records_select('booking_answers',
                     ' userid NOT IN (' . $enrolsql .
                     ') AND bookingid IN ( SELECT id FROM {booking} WHERE course = :course)',
@@ -1313,10 +1313,10 @@ function xmldb_booking_upgrade($oldversion) {
         $table->add_field('courseendtime', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
 
         // Adding keys to table booking_optiondates.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Adding indexes to table booking_optiondates.
-        $table->add_index('optionid', XMLDB_INDEX_NOTUNIQUE, array('optionid'));
+        $table->add_index('optionid', XMLDB_INDEX_NOTUNIQUE, ['optionid']);
 
         // Conditionally launch create table for booking_optiondates.
         if (!$dbman->table_exists($table)) {
@@ -1409,10 +1409,10 @@ function xmldb_booking_upgrade($oldversion) {
         $table->add_field('value', XMLDB_TYPE_TEXT, 'medium', null, XMLDB_NOTNULL, null, null);
 
         // Adding keys to table booking_other.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('bookingid', XMLDB_KEY_FOREIGN, array('bookingid'), 'booking', array('id'));
-        $table->add_key('optionid', XMLDB_KEY_FOREIGN, array('optionid'), 'booking_options',
-                array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('bookingid', XMLDB_KEY_FOREIGN, ['bookingid'], 'booking', ['id']);
+        $table->add_key('optionid', XMLDB_KEY_FOREIGN, ['optionid'], 'booking_options',
+                ['id']);
 
         // Conditionally launch create table for booking_customfields.
         if (!$dbman->table_exists($table)) {
@@ -1647,8 +1647,8 @@ function xmldb_booking_upgrade($oldversion) {
         $table->add_field('rate', XMLDB_TYPE_INTEGER, '5', null, XMLDB_NOTNULL, null, '1');
 
         // Adding keys to table booking_ratings.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('uniq', XMLDB_KEY_UNIQUE, array('userid', 'optionid'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('uniq', XMLDB_KEY_UNIQUE, ['userid', 'optionid']);
 
         // Conditionally launch create table for booking_ratings.
         if (!$dbman->table_exists($table)) {
@@ -1663,7 +1663,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define index optionid (not unique) to be added to booking_ratings.
         $table = new xmldb_table('booking_ratings');
-        $index = new xmldb_index('optionid', XMLDB_INDEX_NOTUNIQUE, array('optionid'));
+        $index = new xmldb_index('optionid', XMLDB_INDEX_NOTUNIQUE, ['optionid']);
 
         // Conditionally launch add index optionid.
         if (!$dbman->index_exists($table, $index)) {
@@ -1698,7 +1698,7 @@ function xmldb_booking_upgrade($oldversion) {
         while ($records = $DB->get_records_sql($sql)) {
             if (!empty($records)) {
                 foreach ($records as $id => $record) {
-                    $DB->delete_records('booking_customfields', array('id' => $id));
+                    $DB->delete_records('booking_customfields', ['id' => $id]);
                 }
             }
         }
@@ -1937,7 +1937,7 @@ function xmldb_booking_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-        $table->add_index('templateid', XMLDB_INDEX_NOTUNIQUE, array('templateid'));
+        $table->add_index('templateid', XMLDB_INDEX_NOTUNIQUE, ['templateid']);
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2019080303, 'booking');
     }
@@ -2169,7 +2169,7 @@ function xmldb_booking_upgrade($oldversion) {
         $table->add_field('sequencevalue', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
 
         // Adding keys to table booking_category.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Conditionally launch create table for booking_category.
         if (!$dbman->table_exists($table)) {
@@ -2211,7 +2211,7 @@ function xmldb_booking_upgrade($oldversion) {
         $table->add_field('eventid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
 
         // Adding keys to table booking_category.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Conditionally launch create table for booking_category.
         if (!$dbman->table_exists($table)) {
@@ -2320,7 +2320,7 @@ function xmldb_booking_upgrade($oldversion) {
         $table->add_field('currency', XMLDB_TYPE_CHAR, '10', null, null, null, '', 'price');
 
         // Adding keys to table.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Conditionally launch create table.
         if (!$dbman->table_exists($table)) {
@@ -2345,7 +2345,7 @@ function xmldb_booking_upgrade($oldversion) {
         $table->add_field('disabled', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'defaultvalue');
 
         // Adding keys to table.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Conditionally launch create table.
         if (!$dbman->table_exists($table)) {
@@ -2369,7 +2369,7 @@ function xmldb_booking_upgrade($oldversion) {
         $table->add_field('enddate', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'startdate');
 
         // Adding keys to table.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Conditionally launch create table.
         if (!$dbman->table_exists($table)) {
@@ -2480,7 +2480,7 @@ function xmldb_booking_upgrade($oldversion) {
         $table->add_field('enddate', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'startdate');
 
         // Adding keys to table.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
         $table->add_key('fk_eventid', XMLDB_KEY_FOREIGN, ['semesteridentifier'], 'booking_semesters', ['identifier']);
 
         // Conditionally launch create table.

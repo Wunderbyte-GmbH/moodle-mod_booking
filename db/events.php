@@ -26,73 +26,73 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$observers = array(
-    array(
+$observers = [
+    [
         'eventname' => '\core\event\user_created',
         'callback' => 'mod_booking_observer::user_created',
-    ),
-    array(
+    ],
+    [
         'eventname' => '\core\event\user_updated',
         'callback' => 'mod_booking_observer::user_updated',
-    ),
-    array(
+    ],
+    [
         'eventname' => '\core\event\user_deleted',
-        'callback' => 'mod_booking_observer::user_deleted'
-    ),
-    array(
+        'callback' => 'mod_booking_observer::user_deleted',
+    ],
+    [
         'eventname' => '\core\event\user_enrolment_deleted',
-        'callback' => 'mod_booking_observer::user_enrolment_deleted'
-    ),
-    array(
+        'callback' => 'mod_booking_observer::user_enrolment_deleted',
+    ],
+    [
         'eventname' => '\mod_booking\event\bookingoption_created',
-        'callback' => 'mod_booking_observer::bookingoption_created'
-    ),
-    array(
+        'callback' => 'mod_booking_observer::bookingoption_created',
+    ],
+    [
         'eventname' => '\mod_booking\event\bookingoption_updated',
-        'callback' => 'mod_booking_observer::bookingoption_updated'
-    ),
-    array(
+        'callback' => 'mod_booking_observer::bookingoption_updated',
+    ],
+    [
         'eventname' => '\mod_booking\event\bookingoption_cancelled',
-        'callback' => 'mod_booking_observer::bookingoption_cancelled'
-    ),
-    array(
+        'callback' => 'mod_booking_observer::bookingoption_cancelled',
+    ],
+    [
         'eventname' => '\mod_booking\event\bookingoptiondate_created',
-        'callback' => 'mod_booking_observer::bookingoptiondate_created'
-    ),
-    array(
+        'callback' => 'mod_booking_observer::bookingoptiondate_created',
+    ],
+    [
         'eventname' => '\mod_booking\event\bookingoptiondate_deleted',
-        'callback' => 'mod_booking_observer::bookingoptiondate_deleted'
-    ),
-    array(
+        'callback' => 'mod_booking_observer::bookingoptiondate_deleted',
+    ],
+    [
         'eventname' => '\mod_booking\event\teacher_added',
-        'callback' => 'mod_booking_observer::teacher_added'
-    ),
-    array(
+        'callback' => 'mod_booking_observer::teacher_added',
+    ],
+    [
         'eventname' => '\mod_booking\event\teacher_removed',
-        'callback' => 'mod_booking_observer::teacher_removed'
-    ),
-    array(
+        'callback' => 'mod_booking_observer::teacher_removed',
+    ],
+    [
         'eventname' => '\mod_booking\event\custom_field_changed',
-        'callback' => 'mod_booking_observer::custom_field_changed'
-    ),
-    array(
+        'callback' => 'mod_booking_observer::custom_field_changed',
+    ],
+    [
         'eventname' => '\mod_booking\event\bookinganswer_cancelled',
-        'callback' => 'mod_booking_observer::bookinganswer_cancelled'
-    ),
-    array(
+        'callback' => 'mod_booking_observer::bookinganswer_cancelled',
+    ],
+    [
         'eventname' => '\mod_booking\event\bookingoption_completed',
-        'callback' => 'mod_booking_observer::bookingoption_completed'
-    ),
-    array(
+        'callback' => 'mod_booking_observer::bookingoption_completed',
+    ],
+    [
         'eventname' => '\mod_booking\event\pricecategory_changed',
-        'callback' => 'mod_booking_observer::pricecategory_changed'
-    ),
-    array(
+        'callback' => 'mod_booking_observer::pricecategory_changed',
+    ],
+    [
         'eventname' => '*',
-        'callback' => 'mod_booking_observer::execute_rule'
-    ),
-    array(
+        'callback' => 'mod_booking_observer::execute_rule',
+    ],
+    [
         'eventname' => '\core\event\course_completed',
-        'callback' => 'mod_booking_observer::course_completed'
-    ),
-);
+        'callback' => 'mod_booking_observer::course_completed',
+    ],
+];

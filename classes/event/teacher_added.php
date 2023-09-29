@@ -75,7 +75,7 @@ class teacher_added extends \core\event\base {
         return new moodle_url($CFG->wwwroot . '/mod/booking/view.php', [
             'id' => $optionsettings->cmid,
             'optionid' => $optionid,
-            'whichview' => 'showonlyone'
+            'whichview' => 'showonlyone',
         ]);
     }
 }

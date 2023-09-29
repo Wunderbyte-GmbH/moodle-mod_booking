@@ -102,7 +102,7 @@ class rule_daysbefore implements booking_rule {
             15 => '15',
             20 => '20',
             25 => '25',
-            30 => '30'
+            30 => '30',
         ];
 
         // Get a list of allowed option fields (only date fields allowed).
@@ -111,7 +111,7 @@ class rule_daysbefore implements booking_rule {
             'coursestarttime' => get_string('rule_optionfield_coursestarttime', 'mod_booking'),
             'courseendtime' => get_string('rule_optionfield_courseendtime', 'mod_booking'),
             'bookingopeningtime' => get_string('rule_optionfield_bookingopeningtime', 'mod_booking'),
-            'bookingclosingtime' => get_string('rule_optionfield_bookingclosingtime', 'mod_booking')
+            'bookingclosingtime' => get_string('rule_optionfield_bookingclosingtime', 'mod_booking'),
         ];
 
         $mform->addElement('static', 'rule_daysbefore_desc', '',
@@ -275,7 +275,7 @@ class rule_daysbefore implements booking_rule {
 
         $params = [
             'numberofdays' => (int) $ruledata->days,
-            'nowparam' => time()
+            'nowparam' => time(),
         ];
 
         if (!empty($optionid)) {

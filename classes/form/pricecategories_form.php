@@ -214,7 +214,7 @@ class pricecategories_form extends moodleform {
 
         global $DB;
 
-        $errors = array();
+        $errors = [];
 
         // Validate price categories.
         for ($i = 1; $i <= MAX_PRICE_CATEGORIES; $i++) {

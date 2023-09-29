@@ -29,7 +29,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->dirroot . '/user/profile/lib.php');
 
 use mod_booking\price;
-use \mod_booking\utils\wb_payment;
+use mod_booking\utils\wb_payment;
 
 $ADMIN->add('modsettings',
         new admin_category('modbookingfolder', new lang_string('pluginname', 'mod_booking'),
@@ -285,7 +285,7 @@ if ($ADMIN->fulltree) {
         '55' => '55 min',
         '50' => '50 min',
         '45' => '45 min',
-        '40' => '40 min'
+        '40' => '40 min',
     ];
     $settings->add(
         new admin_setting_configselect('booking/educationalunitinminutes',
@@ -404,8 +404,8 @@ if ($ADMIN->fulltree) {
         new admin_setting_heading('optiontemplatessettings_heading',
                 get_string('optiontemplatessettings', 'mod_booking'), ''));
 
-    $alltemplates = array('' => get_string('dontuse', 'booking'));
-    $alloptiontemplates = $DB->get_records('booking_options', array('bookingid' => 0), '', $fields = 'id, text', 0, 0);
+    $alltemplates = ['' => get_string('dontuse', 'booking')];
+    $alloptiontemplates = $DB->get_records('booking_options', ['bookingid' => 0], '', $fields = 'id, text', 0, 0);
 
     foreach ($alloptiontemplates as $key => $value) {
             $alltemplates[$value->id] = $value->text;
@@ -442,7 +442,7 @@ if ($ADMIN->fulltree) {
             70 => '70%',
             80 => '80%',
             90 => '90%',
-            100 => '100%'
+            100 => '100%',
         ];
 
         $settings->add(
@@ -468,7 +468,7 @@ if ($ADMIN->fulltree) {
             70 => '70%',
             80 => '80%',
             90 => '90%',
-            100 => '100%'
+            100 => '100%',
         ];
 
         $settings->add(
@@ -556,8 +556,10 @@ if ($ADMIN->fulltree) {
             new admin_setting_configcheckbox('booking/icalcancel',
                     get_string('icalcancel', 'mod_booking'),
                     get_string('icalcanceldesc', 'mod_booking'), 1));
-    $options = array(1 => get_string('courseurl', 'mod_booking'), 2 => get_string('location', 'mod_booking'),
-        3 => get_string('institution', 'mod_booking'), 4 => get_string('address'));
+    $options = [1 => get_string('courseurl', 'mod_booking'),
+                2 => get_string('location', 'mod_booking'),
+                3 => get_string('institution', 'mod_booking'), 4 => get_string('address'),
+            ];
     $settings->add(
             new admin_setting_configselect('booking/icalfieldlocation',
                     get_string('icalfieldlocation', 'mod_booking'),
@@ -583,7 +585,7 @@ if ($ADMIN->fulltree) {
     $name = 'booking/signinlogo';
     $title = get_string('signinlogoheader', 'mod_booking');
     $description = $title;
-    $fileoptions = array('maxfiles' => 1, 'accepted_types' => array('image'));
+    $fileoptions = ['maxfiles' => 1, 'accepted_types' => ['image']];
     $setting = new admin_setting_configstoredfile($name, $title, $description,
             'mod_booking_signinlogo', 0, $fileoptions);
     $settings->add($setting);
@@ -591,7 +593,7 @@ if ($ADMIN->fulltree) {
     $name = 'booking/signinlogofooter';
     $title = get_string('signinlogofooter', 'mod_booking');
     $description = $title;
-    $fileoptions = array('maxfiles' => 1, 'accepted_types' => array('image'));
+    $fileoptions = ['maxfiles' => 1, 'accepted_types' => ['image']];
     $setting = new admin_setting_configstoredfile($name, $title, $description,
             'mod_booking_signinlogo_footer', 0, $fileoptions);
     $settings->add($setting);
@@ -604,7 +606,7 @@ if ($ADMIN->fulltree) {
         return $object->name;
     }, $profiles);
     if (!empty($choices)) {
-        $setting = new admin_setting_configmulticheckbox($name, $visiblename, $description, array(),
+        $setting = new admin_setting_configmulticheckbox($name, $visiblename, $description, [],
                 $choices);
         $settings->add($setting);
     }
@@ -613,12 +615,12 @@ if ($ADMIN->fulltree) {
     $visiblename = get_string('showcustomfields', 'mod_booking');
     $description = get_string('showcustomfields_desc', 'mod_booking');
     $customfields = \mod_booking\booking_option::get_customfield_settings();
-    $choices = array();
+    $choices = [];
     if (!empty($customfields)) {
         foreach ($customfields as $cfgname => $value) {
             $choices[$cfgname] = $value['value'];
         }
-        $setting = new admin_setting_configmulticheckbox($name, $visiblename, $description, array(),
+        $setting = new admin_setting_configmulticheckbox($name, $visiblename, $description, [],
                 $choices);
         $settings->add($setting);
     }

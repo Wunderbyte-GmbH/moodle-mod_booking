@@ -60,7 +60,7 @@ if ($link = $bookingoption->show_conference_link($sessionid)) {
 
     // We can find the actual link.
     if (!empty($fieldid)) {
-        $link = $DB->get_field('booking_customfields', 'value', array('id' => $fieldid));
+        $link = $DB->get_field('booking_customfields', 'value', ['id' => $fieldid]);
     } else {
         // If fieldid is not present, we'll use optionid, optiondateid and meetingtype to find the correct link.
         $customfields = $DB->get_records('booking_customfields',
@@ -85,7 +85,7 @@ require_login($course, false, $cm);
 $url = new moodle_url('/mod/booking/link.php', [
         'id' => booking_option::get_cmid_from_optionid($optionid),
         'action' => 'join',
-        'optionid' => $optionid
+        'optionid' => $optionid,
 ]);
 $PAGE->set_url($url);
 
@@ -108,7 +108,7 @@ $contents = html_writer::tag('p', $explanationstring);
 $options = [
     'id' => booking_option::get_cmid_from_optionid($optionid),
     'optionid' => $optionid,
-    'whichview' => 'showonlyone'
+    'whichview' => 'showonlyone',
 ];
 $contents .= $OUTPUT->single_button(new moodle_url('/mod/booking/view.php', $options),
         get_string('continue'), 'get');

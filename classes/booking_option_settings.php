@@ -563,7 +563,7 @@ class booking_option_settings {
             "SELECT id, id optiondateid, coursestarttime, courseendtime
             FROM {booking_optiondates}
             WHERE optionid = ?
-            ORDER BY coursestarttime ASC", array($optionid))) {
+            ORDER BY coursestarttime ASC", [$optionid])) {
 
             // If there are no multisessions, but we still have the option's ...
             // ... coursestarttime and courseendtime, then store them as if they were a session.
@@ -603,7 +603,7 @@ class booking_option_settings {
             'SELECT DISTINCT t.userid, u.firstname, u.lastname, u.email, u.institution
                     FROM {booking_teachers} t
                LEFT JOIN {user} u ON t.userid = u.id
-                   WHERE t.optionid = :optionid', array('optionid' => $this->id));
+                   WHERE t.optionid = :optionid', ['optionid' => $this->id]);
 
         $this->teachers = $teachers;
     }
@@ -637,7 +637,7 @@ class booking_option_settings {
             $this->load_teachers_from_db();
         }
 
-        $data = array();
+        $data = [];
         foreach ($this->teachers as $teacher) {
             $data['teachers'][] = "$teacher->firstname $teacher->lastname";
         }
@@ -762,8 +762,9 @@ class booking_option_settings {
                                  AND LOWER(filename) LIKE :customfieldvaluewithextension
                                  AND filesize > 0
                                  AND source is not null", ['bookingid' => $bookingid,
-                                    'customfieldvaluewithextension' => "$customfieldvalue.%"])) {
-                                        return;
+                                    'customfieldvaluewithextension' => "$customfieldvalue.%",
+                                    ])) {
+                        return;
                     }
 
                     // There might be more than one image, so we only use the first one.
@@ -1018,7 +1019,8 @@ class booking_option_settings {
             "u.lastname",
             "', '",
             'u.firstname',
-            "'\"}'"]);
+            "'\"}'",
+        ]);
         $where = '';
         $params = [];
 
@@ -1069,8 +1071,7 @@ class booking_option_settings {
         $select = ' f.filename ';
 
         $where = '';
-        $params = ['componentname3' => 'mod_booking',
-            'bookingoptionimage' => 'bookingoptionimage'];
+        $params = ['componentname3' => 'mod_booking', 'bookingoptionimage' => 'bookingoptionimage'];
 
         $from = " LEFT JOIN {files} f
             ON f.itemid=bo.id and f.component=:componentname3

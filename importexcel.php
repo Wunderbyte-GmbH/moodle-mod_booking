@@ -30,8 +30,8 @@ require_once($CFG->libdir . '/completionlib.php');
 
 $id = required_param('id', PARAM_INT); // Course Module ID.
 
-$url = new moodle_url('/mod/booking/importexcel.php', array('id' => $id));
-$urlredirect = new moodle_url('/mod/booking/view.php', array('id' => $id));
+$url = new moodle_url('/mod/booking/importexcel.php', ['id' => $id]);
+$urlredirect = new moodle_url('/mod/booking/view.php', ['id' => $id]);
 $PAGE->set_url($url);
 
 list($course, $cm) = get_course_and_cm_from_cmid($id);
@@ -69,7 +69,7 @@ if ($mform->is_cancelled()) {
     $csvfile = $mform->get_file_content('excelfile');
 
     $lines = explode(PHP_EOL, $csvfile);
-    $csvarr = array();
+    $csvarr = [];
     foreach ($lines as $line) {
         $csvarr[] = str_getcsv($line);
     }
@@ -105,8 +105,7 @@ if ($mform->is_cancelled()) {
         foreach ($csvarr as $line) {
             if (count($line) >= 3) {
                 $user = $DB->get_record('booking_answers',
-                        array('bookingid' => $cm->instance, 'userid' => $line[$useridpos],
-                            'optionid' => $line[$optionidpos]));
+                        ['bookingid' => $cm->instance, 'userid' => $line[$useridpos], 'optionid' => $line[$optionidpos]]);
 
                 if ($user !== false) {
                     $user->completed = $line[$completedpos];
@@ -114,7 +113,7 @@ if ($mform->is_cancelled()) {
                     $DB->update_record('booking_answers', $user, false);
 
                     $countcompleted = $DB->count_records('booking_answers',
-                        array('bookingid' => $cm->instance, 'userid' => $line[$useridpos], 'completed' => '1'));
+                        ['bookingid' => $cm->instance, 'userid' => $line[$useridpos], 'completed' => '1']);
 
                     if ($completion->is_enabled($cm) && $booking->settings->enablecompletion > $countcompleted) {
                         $completion->update_state($cm, COMPLETION_INCOMPLETE, $user->userid);

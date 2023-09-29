@@ -32,7 +32,7 @@ $cmid = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT); // Option ID.
 
 $url = new moodle_url('/mod/booking/viewconfirmation.php',
-        array('id' => $cmid, 'optionid' => $optionid));
+        ['id' => $cmid, 'optionid' => $optionid]);
 $PAGE->set_url($url);
 
 list($course, $cm) = get_course_and_cm_from_cmid($cmid);
@@ -58,7 +58,7 @@ $PAGE->set_pagelayout('standard');
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string("bookedtext", "booking"), 3, 'helptitle', 'uniqueid');
 
-$user = $DB->get_record('user', array('id' => $USER->id));
+$user = $DB->get_record('user', ['id' => $USER->id]);
 $answer = $DB->get_record_sql(
     "SELECT * FROM {booking_answers}
     WHERE userid = :userid
@@ -67,7 +67,7 @@ $answer = $DB->get_record_sql(
     ['userid' => $USER->id, 'optionid' => $optionid]);
 if (!$answer) {
     echo $OUTPUT->error_text(get_string("notbooked", "booking"));
-    echo $OUTPUT->continue_button(new moodle_url('/course/view.php', array('id' => $course->id)));
+    echo $OUTPUT->continue_button(new moodle_url('/course/view.php', ['id' => $course->id]));
     echo $OUTPUT->footer();
 }
 

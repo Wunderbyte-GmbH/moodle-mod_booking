@@ -199,7 +199,7 @@ class dynamicholidaysform extends dynamic_form {
         // Checkbox for end date.
         $repeatedholidays[] = $mform->createElement('advcheckbox', 'holidayendactive',
             get_string('holidayendactive', 'mod_booking'), null, null, [0, 1]);
-        $repeateloptions['holidayend']['hideif'] = array('holidayendactive', 'eq', 0);
+        $repeateloptions['holidayend']['hideif'] = ['holidayendactive', 'eq', 0];
 
         // Holiday end date.
         $repeatedholidays[] = $mform->createElement('date_selector', 'holidayend', get_string('holidayend', 'mod_booking'));

@@ -63,11 +63,11 @@ class col_action implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output) {
 
-        return array(
+        return [
             'id' => $this->id,
             'label' => $this->label,
             'class' => $this->class,
             'componentname' => 'mod_booking',
-        );
+        ];
     }
 }

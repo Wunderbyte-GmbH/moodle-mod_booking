@@ -89,7 +89,7 @@ class page_allteachers implements renderable, templatable {
                 'firstname' => $teacher->firstname,
                 'lastname' => $teacher->lastname,
                 'orderletter' => substr($teacher->lastname, 0, 1), // First letter of the teacher's last name.
-                'description' => format_text($teacher->description, $teacher->descriptionformat)
+                'description' => format_text($teacher->description, $teacher->descriptionformat),
             ];
 
             if ($teacher->picture) {

@@ -84,10 +84,10 @@ class optiondates_only implements renderable, templatable {
 
     public function export_for_template(renderer_base $output) {
 
-        return array(
+        return [
                 'showsessions' => $this->showsessions,
                 'onesession' => $this->onesession,
-                'sessions' => $this->sessions
-        );
+                'sessions' => $this->sessions,
+        ];
     }
 }

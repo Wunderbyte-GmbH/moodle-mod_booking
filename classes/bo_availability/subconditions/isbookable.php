@@ -184,7 +184,7 @@ class isbookable implements bo_subcondition {
                 'label' => $label,
                 'class' => 'alert alert-danger',
                 'role' => 'alert',
-            ]
+            ],
         ];
 
         if ($fullwidth) {

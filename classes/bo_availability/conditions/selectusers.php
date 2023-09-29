@@ -206,7 +206,7 @@ class selectusers implements bo_condition {
                     ];
                     return $OUTPUT->render_from_template(
                             'mod_booking/form-user-selector-suggestion', $details);
-                }
+                },
             ];
 
             $mform->addElement('advcheckbox', 'bo_cond_selectusers_restrict',
@@ -267,11 +267,11 @@ class selectusers implements bo_condition {
                 }
             }
 
-            $options = array(
+            $options = [
                 'noselectionstring' => get_string('choose...', 'mod_booking'),
                 'tags' => false,
                 'multiple' => true,
-            );
+            ];
             $mform->addElement('autocomplete', 'bo_cond_selectusers_overridecondition',
                 get_string('overridecondition', 'mod_booking'), $overrideconditionsarray, $options);
             $mform->hideIf('bo_cond_selectusers_overridecondition', 'bo_cond_selectusers_overrideconditioncheckbox',

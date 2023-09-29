@@ -20,12 +20,12 @@ $addons = [
         'handlers' => [
             'coursebooking' => [
                     'displaydata' => [
-                    'icon' => $CFG->wwwroot . '/mod/booking/pix/icon.png', 'class' => ''
+                    'icon' => $CFG->wwwroot . '/mod/booking/pix/icon.png', 'class' => '',
                     ],
                     'delegate' => 'CoreCourseModuleDelegate',
                     'method' => 'mobile_course_view',
                     'offlinefunctions' => [
-                    ]
+                    ],
             ],
             'mybookingslist' => [ // Handler unique name (alphanumeric).
                 'displaydata' => [
@@ -37,7 +37,7 @@ $addons = [
                 'method' => 'mobile_mybookings_list', // Main function in \mod_certificate\output\mobile.
                 'offlinefunctions' => [
                 ], // Function that needs to be downloaded for offline.
-            ]
+            ],
         ],
         'lang' => [
             ['pluginname', 'booking'],
@@ -45,7 +45,7 @@ $addons = [
             ['showmybookingsonly', 'booking'],
             ['mybookingsbooking', 'booking'],
             ['status', 'booking'],
-            ['coursestarttime', 'booking']
-        ]
-    ]
+            ['coursestarttime', 'booking'],
+        ],
+    ],
 ];

@@ -56,7 +56,7 @@ class db {
             AND cm.visible = 1
         ORDER BY c.id ASC, b.id ASC , bo.id ASC";
 
-        return $DB->get_records_sql($sql, array($USER->id), 0, 0);
+        return $DB->get_records_sql($sql, [$USER->id], 0, 0);
     }
 
     /**
@@ -72,12 +72,12 @@ class db {
         if (!empty($courseid)) {
             $sql = 'SELECT b.id, b.name FROM {badge} b WHERE ' .
                 'b.status = 1 OR b.status = 3 ORDER BY b.name ASC';
-            $params = array();
+            $params = [];
             $params['courseid'] = $courseid;
 
             return $DB->get_records_sql_menu($sql, $params);
         } else {
-            return array();
+            return [];
         }
     }
 
@@ -93,10 +93,10 @@ class db {
     public function getusersactivity($cmid = null, $optionid = null, $completed = false) {
         global $DB;
 
-        $ud = array();
-        $oud = array();
-        $users = $DB->get_records('course_modules_completion', array('coursemoduleid' => $cmid));
-        $ousers = $DB->get_records('booking_answers', array('optionid' => $optionid));
+        $ud = [];
+        $oud = [];
+        $users = $DB->get_records('course_modules_completion', ['coursemoduleid' => $cmid]);
+        $ousers = $DB->get_records('booking_answers', ['optionid' => $optionid]);
 
         foreach ($users as $u) {
             $ud[] = $u->userid;
@@ -124,10 +124,10 @@ class db {
     public function getusersbadges($badgeid = null, $optionid = null) {
         global $DB;
 
-        $ud = array();
-        $oud = array();
-        $users = $DB->get_records('badge_issued', array('badgeid' => $badgeid));
-        $ousers = $DB->get_records('booking_answers', array('optionid' => $optionid));
+        $ud = [];
+        $oud = [];
+        $users = $DB->get_records('badge_issued', ['badgeid' => $badgeid]);
+        $ousers = $DB->get_records('booking_answers', ['optionid' => $optionid]);
 
         foreach ($users as $u) {
             $ud[] = $u->userid;

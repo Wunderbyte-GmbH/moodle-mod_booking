@@ -158,7 +158,7 @@ class bookitbutton implements bo_subcondition {
                 'label' => $label,
                 'class' => 'btn btn-secondary',
                 'role' => 'button',
-            ]
+            ],
         ];
 
         if ($fullwidth) {

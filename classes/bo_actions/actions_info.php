@@ -242,14 +242,14 @@ class actions_info {
         }
 
         $mform->registerNoSubmitButton('btn_actiontype');
-        $buttonargs = array('style' => 'visibility:hidden;');
+        $buttonargs = ['style' => 'visibility:hidden;'];
         $categoryselect = [
             $mform->createElement('select', 'action_type',
             get_string('bookingaction', 'mod_booking'), $actionsforselect),
             $mform->createElement('submit',
                 'btn_actiontype',
                 get_string('bookingaction', 'mod_booking'),
-                $buttonargs)
+                $buttonargs),
         ];
         $mform->addGroup($categoryselect, 'action_type', get_string('bookingaction', 'mod_booking'), [' '], false);
         $mform->setType('btn_actiontype', PARAM_NOTAGS);

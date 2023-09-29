@@ -649,48 +649,61 @@ class view implements renderable, templatable {
         }
         $wbtable->add_classes_to_subcolumns('footer', ['columnkeyclass' => 'd-none']);
         if (in_array('dayofweektime', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left text-gray pr-2 font-size-sm'],
+            $wbtable->add_classes_to_subcolumns('footer',
+                ['columnclass' => 'text-left text-gray pr-2 font-size-sm'],
                 ['dayofweektime']);
-            $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-clock-o fa-fw text-gray
-                font-size-sm'], ['dayofweektime']);
+            $wbtable->add_classes_to_subcolumns('footer',
+                ['columniclassbefore' => 'fa fa-clock-o fa-fw text-gray font-size-sm'],
+                ['dayofweektime']);
         }
         if (in_array('responsiblecontact', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left pr-2 text-gray font-size-sm'],
+            $wbtable->add_classes_to_subcolumns('footer',
+                ['columnclass' => 'text-left pr-2 text-gray font-size-sm'],
                 ['responsiblecontact']);
-            $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-user fa-fw text-gray
-                font-size-sm'], ['responsiblecontact']);
+            $wbtable->add_classes_to_subcolumns('footer',
+                ['columniclassbefore' => 'fa fa-user fa-fw text-gray font-size-sm'],
+                ['responsiblecontact']);
         }
         if (in_array('showdates', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left pr-2 text-gray font-size-sm'],
+            $wbtable->add_classes_to_subcolumns('footer',
+                ['columnclass' => 'text-left pr-2 text-gray font-size-sm'],
                 ['showdates']);
         }
         if (in_array('location', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left text-gray  pr-2 font-size-sm'],
+            $wbtable->add_classes_to_subcolumns('footer',
+                ['columnclass' => 'text-left text-gray  pr-2 font-size-sm'],
                 ['location']);
-            $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-map-marker fa-fw text-gray
-                font-size-sm'], ['location']);
+            $wbtable->add_classes_to_subcolumns('footer',
+                ['columniclassbefore' => 'fa fa-map-marker fa-fw text-gray font-size-sm'],
+                ['location']);
         }
         if (in_array('institution', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left text-gray  pr-2 font-size-sm'],
+            $wbtable->add_classes_to_subcolumns('footer',
+                ['columnclass' => 'text-left text-gray  pr-2 font-size-sm'],
                 ['institution']);
-            $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-building-o fa-fw text-gray
-                font-size-sm'], ['institution']);
+            $wbtable->add_classes_to_subcolumns('footer',
+                ['columniclassbefore' => 'fa fa-building-o fa-fw text-gray font-size-sm'],
+                ['institution']);
         }
-        $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left text-gray pr-2 font-size-sm'],
+        $wbtable->add_classes_to_subcolumns('footer',
+            ['columnclass' => 'text-left text-gray pr-2 font-size-sm'],
             ['bookings']);
-        $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-ticket fa-fw text-gray
-            font-size-sm'], ['bookings']);
+        $wbtable->add_classes_to_subcolumns('footer',
+            ['columniclassbefore' => 'fa fa-ticket fa-fw text-gray font-size-sm'],
+            ['bookings']);
         if (in_array('minanswers', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left text-gray pr-2 font-size-sm'],
+            $wbtable->add_classes_to_subcolumns('footer',
+                ['columnclass' => 'text-left text-gray pr-2 font-size-sm'],
                 ['minanswers']);
-            $wbtable->add_classes_to_subcolumns('footer', ['columniclassbefore' => 'fa fa-arrow-up fa-fw text-gray
-                font-size-sm'], ['minanswers']);
+            $wbtable->add_classes_to_subcolumns('footer',
+                ['columniclassbefore' => 'fa fa-arrow-up fa-fw text-gray font-size-sm'],
+                ['minanswers']);
         }
         $wbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-right'], ['booknow']);
-        $wbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-left mt-1 text-gray font-size-sm'],
+        $wbtable->add_classes_to_subcolumns('rightside',
+            ['columnclass' => 'text-left mt-1 text-gray font-size-sm'],
             ['progressbar']);
-        $wbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'mt-1'],
-            ['ratings']);
+        $wbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'mt-1'], ['ratings']);
 
         // Override naming for columns.
         $wbtable->add_classes_to_subcolumns(
@@ -766,8 +779,8 @@ class view implements renderable, templatable {
                         'labelendvalue' => get_string('courseendtime', 'mod_booking'),
                         'defaultvalueend' => strtotime('+ 1 year', time()), // Can also be Unix timestamp or string "now".
                         'checkboxlabel' => get_string('apply_filter', 'local_wunderbyte_table'),
-                    ]
-                ]
+                    ],
+                ],
             ];
             $wbtable->define_filtercolumns($filtercolumns);
         }

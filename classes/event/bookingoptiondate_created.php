@@ -49,6 +49,6 @@ class bookingoptiondate_created extends \core\event\base {
 
     public function get_url() {
         return new \moodle_url('/mod/booking/report.php',
-                array('id' => $this->contextinstanceid, 'optiondateid' => $this->objectid));
+                ['id' => $this->contextinstanceid, 'optiondateid' => $this->objectid]);
     }
 }

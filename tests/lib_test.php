@@ -53,15 +53,15 @@ class lib_test extends advanced_testcase {
 
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
-        $bdata = array('name' => 'Test Booking', 'eventtype' => 'Test event',
-                        'bookedtext' => array('text' => 'text'), 'waitingtext' => array('text' => 'text'),
-                        'notifyemail' => array('text' => 'text'), 'statuschangetext' => array('text' => 'text'),
-                        'deletedtext' => array('text' => 'text'), 'pollurltext' => array('text' => 'text'),
-                        'pollurlteacherstext' => array('text' => 'text'),
-                        'notificationtext' => array('text' => 'text'), 'userleave' => array('text' => 'text'),
-                        'bookingpolicy' => 'bookingpolicy', 'tags' => '', 'course' => $course->id,
-                        'bookingmanager' => $user->username, 'showviews' =>
-                            ['mybooking, myoptions, showall, showactive, myinstitution']);
+        $bdata = ['name' => 'Test Booking', 'eventtype' => 'Test event',
+                    'bookedtext' => ['text' => 'text'], 'waitingtext' => ['text' => 'text'],
+                    'notifyemail' => ['text' => 'text'], 'statuschangetext' => ['text' => 'text'],
+                    'deletedtext' => ['text' => 'text'], 'pollurltext' => ['text' => 'text'],
+                    'pollurlteacherstext' => ['text' => 'text'], 'notificationtext' => ['text' => 'text'],
+                    'userleave' => ['text' => 'text'], 'bookingpolicy' => 'bookingpolicy',
+                    'tags' => '', 'course' => $course->id, 'bookingmanager' => $user->username,
+                    'showviews' => ['mybooking, myoptions, showall, showactive, myinstitution'],
+        ];
 
         $booking = $this->getDataGenerator()->create_module('booking', $bdata);
 
@@ -78,11 +78,11 @@ class lib_test extends advanced_testcase {
         $option = $plugingenerator->create_option(
                 $record);
 
-        $group = $this->getDataGenerator()->create_group(array('courseid' => $course->id));
+        $group = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
 
         subscribe_teacher_to_booking_option($user->id, $option->id, $cm->id, $group->id);
 
-        $this->assertEquals(1, $DB->count_records('booking_teachers', array('userid' => $user->id, 'optionid' => $option->id)));
+        $this->assertEquals(1, $DB->count_records('booking_teachers', ['userid' => $user->id, 'optionid' => $option->id]));
 
         $this->assertEquals(true, groups_is_member($group->id, $user->id));
 

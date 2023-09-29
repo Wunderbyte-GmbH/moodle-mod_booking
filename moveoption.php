@@ -24,8 +24,8 @@ $optionid = required_param('optionid', PARAM_INT);
 $targetcmid = optional_param('movetocmid', 0, PARAM_INT);
 require_sesskey();
 
-$url = new moodle_url('/mod/booking/moveoption.php', array('id' => $id, 'optionid' => $optionid));
-$returnurl = new moodle_url('/mod/booking/view.php', array('id' => $id));
+$url = new moodle_url('/mod/booking/moveoption.php', ['id' => $id, 'optionid' => $optionid]);
+$returnurl = new moodle_url('/mod/booking/view.php', ['id' => $id]);
 $PAGE->set_url($url);
 
 list($course, $cm) = get_course_and_cm_from_cmid($id, 'booking');

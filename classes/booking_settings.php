@@ -382,7 +382,7 @@ class booking_settings {
                     WHERE m.name='booking'
                     AND cm.id = :cmid";
 
-            $dbrecord = $DB->get_record_sql($sql, array("cmid" => $cmid));
+            $dbrecord = $DB->get_record_sql($sql, ["cmid" => $cmid]);
 
         }
 

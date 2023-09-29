@@ -32,13 +32,15 @@ class booking_tags {
 
     public $replaces;
 
-    public $optiontextfields = array('text', 'description', 'location', 'institution', 'address',
-            'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext');
+    public $optiontextfields = ['text', 'description', 'location', 'institution', 'address',
+                                'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext',
+                                ];
 
-    public $bookingtextfields = array('name', 'intro', 'bookingpolicy', 'bookedtext', 'notifyemail',
-            'waitingtext', 'statuschangetext', 'deletedtext', 'bookingchangedtext', 'duration', 'organizatorname',
-            'pollurltext', 'eventtype', 'notificationtext', 'userleave', 'pollurlteacherstext',
-            'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext');
+    public $bookingtextfields = ['name', 'intro', 'bookingpolicy', 'bookedtext', 'notifyemail',
+                                'waitingtext', 'statuschangetext', 'deletedtext', 'bookingchangedtext', 'duration',
+                                'organizatorname', 'pollurltext', 'eventtype', 'notificationtext', 'userleave',
+                                'pollurlteacherstext', 'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext',
+                                ];
 
     private $option;
 
@@ -51,7 +53,7 @@ class booking_tags {
     public function __construct($courseid) {
         global $DB;
 
-        $this->tags = $DB->get_records('booking_tags', array('courseid' => $courseid));
+        $this->tags = $DB->get_records('booking_tags', ['courseid' => $courseid]);
         $this->replaces = $this->prepare_replaces();
     }
 
@@ -60,15 +62,15 @@ class booking_tags {
     }
 
     private function prepare_replaces() {
-        $keys = array();
-        $values = array();
+        $keys = [];
+        $values = [];
 
         foreach ($this->tags as $tag) {
             $keys[] = "[{$tag->tag}]";
             $values[] = $tag->text;
         }
 
-        return array('keys' => $keys, 'values' => $values);
+        return ['keys' => $keys, 'values' => $values];
     }
 
     public function get_replaces() {

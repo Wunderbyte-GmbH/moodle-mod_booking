@@ -169,7 +169,7 @@ class dynamicoptiondateform extends dynamic_form {
         if (!$cmid) {
             $cmid = $this->optional_param('cmid', '', PARAM_RAW);
         }
-        return new moodle_url('/mod/booking/editoptions.php', array('id' => $cmid));
+        return new moodle_url('/mod/booking/editoptions.php', ['id' => $cmid]);
     }
 
     /**
@@ -180,7 +180,7 @@ class dynamicoptiondateform extends dynamic_form {
      */
     public function validation($data, $files) {
 
-        $errors = array();
+        $errors = [];
 
         // Check if the string is valid.
         if (!dates_handler::reoccurring_datestring_is_correct($data['reoccurringdatestring'])) {

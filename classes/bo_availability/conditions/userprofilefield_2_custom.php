@@ -276,7 +276,7 @@ class userprofilefield_2_custom implements bo_condition {
                     '[]' => get_string('inarray', 'mod_booking'),
                     '[!]' => get_string('notinarray', 'mod_booking'),
                     '()' => get_string('isempty', 'mod_booking'),
-                    '(!)' => get_string('isnotempty', 'mod_booking')
+                    '(!)' => get_string('isnotempty', 'mod_booking'),
                 ];
                 $mform->addElement('select', 'bo_cond_customuserprofilefield_operator',
                     get_string('bo_cond_customuserprofilefield_operator', 'mod_booking'), $operators);
@@ -343,11 +343,11 @@ class userprofilefield_2_custom implements bo_condition {
                     }
                 }
 
-                $options = array(
+                $options = [
                     'noselectionstring' => get_string('choose...', 'mod_booking'),
                     'tags' => false,
                     'multiple' => true,
-                );
+                ];
                 $mform->addElement('autocomplete', 'bo_cond_customuserprofilefield_overridecondition',
                     get_string('overridecondition', 'mod_booking'), $overrideconditionsarray, $options);
                 $mform->hideIf('bo_cond_customuserprofilefield_overridecondition',

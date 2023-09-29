@@ -156,7 +156,7 @@ class col_price implements renderable, templatable {
             'area' => 'option',
             'description' => $this->cartitem['description'],
             'imageurl' => $this->cartitem['imageurl'],
-            'priceitems' => $this->priceitem
+            'priceitems' => $this->priceitem,
         ];
     }
 }

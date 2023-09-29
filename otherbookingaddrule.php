@@ -30,9 +30,9 @@ $bookingotherid = optional_param('bookingotherid', 0, PARAM_INT);
 $delete = optional_param('delete', 0, PARAM_INT);
 
 $url = new moodle_url('/mod/booking/otherbookingaddrule.php',
-        array('id' => $id, 'optionid' => $optionid, 'bookingotherid' => $bookingotherid));
+        ['id' => $id, 'optionid' => $optionid, 'bookingotherid' => $bookingotherid]);
 $urlredirect = new moodle_url('/mod/booking/otherbooking.php',
-        array('id' => $id, 'optionid' => $optionid));
+        ['id' => $id, 'optionid' => $optionid]);
 $PAGE->set_url($url);
 
 list($course, $cm) = get_course_and_cm_from_cmid($id);
@@ -47,7 +47,7 @@ if (!$context = context_module::instance($cm->id)) {
 require_capability('mod/booking:updatebooking', $context);
 
 if ($delete == 1) {
-    $DB->delete_records("booking_other", array("id" => $bookingotherid));
+    $DB->delete_records("booking_other", ["id" => $bookingotherid]);
     redirect($urlredirect, get_string("deletedrule", "booking"), 5);
 }
 
@@ -57,7 +57,7 @@ $PAGE->set_heading(get_string("otherbookingaddrule", "booking"));
 $PAGE->set_pagelayout('standard');
 
 $mform = new otherbookingaddrule_form($url->out(false),
-        array('bookingotherid' => $bookingotherid, 'optionid' => $optionid));
+        ['bookingotherid' => $bookingotherid, 'optionid' => $optionid]);
 
 if ($mform->is_cancelled()) {
     // Handle form cancel operation, if cancel button is present on form.
@@ -85,7 +85,7 @@ if ($mform->is_cancelled()) {
 
     $defaultvalues = new stdClass();
     if ($bookingotherid > 0) {
-        $defaultvalues = $DB->get_record('booking_other', array('id' => $bookingotherid));
+        $defaultvalues = $DB->get_record('booking_other', ['id' => $bookingotherid]);
         // Must not use course module id here but id of booking_other table.
         $defaultvalues->bookingotherid = $bookingotherid;
         unset ($defaultvalues->id);

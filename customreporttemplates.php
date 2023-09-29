@@ -38,10 +38,10 @@ require_course_login($course, false, $cm);
 // In Moodle 4.0+ we want to turn the instance description off on every page except view.php.
 $PAGE->activityheader->disable();
 
-$pageurl = new moodle_url('/mod/booking/customreporttemplates.php',  array('id' => $id));
+$pageurl = new moodle_url('/mod/booking/customreporttemplates.php',  ['id' => $id]);
 
 if (($action === 'delete') && ($templateid > 0)) {
-    $DB->delete_records('booking_customreport', array('id' => $templateid));
+    $DB->delete_records('booking_customreport', ['id' => $templateid]);
     redirect($pageurl, get_string('templatedeleted', 'booking'), 5);
 }
 
@@ -60,14 +60,14 @@ echo $OUTPUT->heading(get_string('customreporttemplates', 'booking'));
 
 $table->out(25, true);
 
-$cancel = new moodle_url('/mod/booking/view.php', array('id' => $cm->id));
-$addnew = new moodle_url('/mod/booking/customreporttemplatesadd.php', array('id' => $cm->id));
+$cancel = new moodle_url('/mod/booking/view.php', ['id' => $cm->id]);
+$addnew = new moodle_url('/mod/booking/customreporttemplatesadd.php', ['id' => $cm->id]);
 
 echo '<div style="width: 100%; text-align: center; display:table;">';
 $button = $OUTPUT->single_button($cancel, get_string('cancel', 'core'), 'get');
-echo html_writer::tag('span', $button, array('style' => 'text-align: right; display:table-cell;'));
+echo html_writer::tag('span', $button, ['style' => 'text-align: right; display:table-cell;']);
 $button = $OUTPUT->single_button($addnew, get_string('addnewreporttemplate', 'booking'), 'get');
-echo html_writer::tag('span', $button, array('style' => 'text-align: left; display:table-cell;'));
+echo html_writer::tag('span', $button, ['style' => 'text-align: left; display:table-cell;']);
 echo '</div>';
 
 echo $OUTPUT->footer();

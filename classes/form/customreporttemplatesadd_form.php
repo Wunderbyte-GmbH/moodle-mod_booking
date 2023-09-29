@@ -52,8 +52,12 @@ class customreporttemplatesadd_form extends moodleform {
         $mform->addRule('name', null, 'required', null, 'client');
 
         $mform->addElement('filemanager', 'templatefile', get_string('templatefile', 'booking'), null,
-                    array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'areamaxbytes' => 10485760, 'maxfiles' => 1,
-                          'accepted_types' => array('odt', 'ods', 'docx', 'xlsx')));
+                        ['subdirs' => 0,
+                        'maxbytes' => $CFG->maxbytes,
+                        'areamaxbytes' => 10485760,
+                        'maxfiles' => 1,
+                        'accepted_types' => ['odt', 'ods', 'docx', 'xlsx'],
+                        ]);
         $mform->addRule('templatefile', null, 'required', null, 'client');
 
         $this->add_action_buttons();
@@ -65,6 +69,6 @@ class customreporttemplatesadd_form extends moodleform {
      * @see moodleform::validation()
      */
     public function validation($data, $files) {
-        return array();
+        return [];
     }
 }

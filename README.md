@@ -1,6 +1,6 @@
 # Moodle Booking Module (mod_booking)
 
-[![Build Status](https://secure.travis-ci.org/dasistwas/moodle-mod_booking.png)](https://travis-ci.org/dasistwas/moodle-mod_booking/)
+![Moodle Plugin CI](https://github.com/Wunderbyte-GmbH/moodle-mod_booking/actions/workflows/moodle-plugin-ci.yml/badge.svg)
 
 This Moodle plugin allows provides users the possibility to book moodle-courses or other offline courses or any other
 events. It has powerful features in order to manage and create booking options. Please contact info@wunderbyte.at for

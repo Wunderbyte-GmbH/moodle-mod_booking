@@ -207,7 +207,7 @@ class previouslybooked implements bo_condition {
 
             $previouslybookedoptions = [
                 'tags' => false,
-                'multiple' => false
+                'multiple' => false,
             ];
             $mform->addElement('autocomplete', 'bo_cond_previouslybooked_optionid',
                 get_string('bo_cond_previouslybooked_optionid', 'mod_booking'), $bookingoptionarray, $previouslybookedoptions);
@@ -264,11 +264,11 @@ class previouslybooked implements bo_condition {
                 }
             }
 
-            $options = array(
+            $options = [
                 'noselectionstring' => get_string('choose...', 'mod_booking'),
                 'tags' => false,
                 'multiple' => true,
-            );
+            ];
             $mform->addElement('autocomplete', 'bo_cond_previouslybooked_overridecondition',
                 get_string('overridecondition', 'mod_booking'), $overrideconditionsarray, $options);
             $mform->hideIf('bo_cond_previouslybooked_overridecondition',
@@ -408,7 +408,7 @@ class previouslybooked implements bo_condition {
             $settings = singleton_service::get_instance_of_booking_option_settings($this->customsettings->optionid);
             $url = new moodle_url('/mod/booking/optionview.php', [
                 'optionid' => $this->customsettings->optionid,
-                'cmid' => $settings->cmid
+                'cmid' => $settings->cmid,
             ]);
 
             $description = $full ? get_string('bo_cond_previouslybooked_full_not_available',

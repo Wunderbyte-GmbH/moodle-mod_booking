@@ -57,8 +57,8 @@ class booking_utils {
     }
 
     private function pretty_duration($seconds) {
-        $measures = array('days' => 24 * 60 * 60, 'hours' => 60 * 60, 'minutes' => 60);
-        $durationparts = array();
+        $measures = ['days' => 24 * 60 * 60, 'hours' => 60 * 60, 'minutes' => 60];
+        $durationparts = [];
         foreach ($measures as $label => $amount) {
             if ($seconds >= $amount) {
                 $howmany = floor($seconds / $amount);
@@ -86,13 +86,13 @@ class booking_utils {
 
         if (!is_null($option)) {
 
-            $teacher = $DB->get_records('booking_teachers', array('optionid' => $option->id));
+            $teacher = $DB->get_records('booking_teachers', ['optionid' => $option->id]);
 
             $i = 1;
 
             foreach ($teacher as $value) {
 
-                $user = $DB->get_record('user', array('id' => $value->userid),
+                $user = $DB->get_record('user', ['id' => $value->userid],
                         'firstname, lastname', IGNORE_MULTIPLE);
                 $params->{"teacher" . $i} = $user->firstname . ' ' . $user->lastname;
 
@@ -116,7 +116,7 @@ class booking_utils {
             $courselink = '';
             if ($option->courseid) {
                 $baseurl = $CFG->wwwroot;
-                $courselink = new moodle_url($baseurl . '/course/view.php', array('id' => $option->courseid));
+                $courselink = new moodle_url($baseurl . '/course/view.php', ['id' => $option->courseid]);
                 $courselink = html_writer::link($courselink, $courselink->out());
             }
 
@@ -238,8 +238,7 @@ class booking_utils {
         // We trigger the event only if we have real changes OR if we set the calendar entry to 1.
         if (count($changes) > 0 || $addtocalendar == 1) {
             // Also, we need to trigger the bookingoption_updated event, in order to update calendar entries.
-            $event = bookingoption_updated::create(array('context' => $context, 'objectid' => $optionid,
-                    'userid' => $USER->id));
+            $event = bookingoption_updated::create(['context' => $context, 'objectid' => $optionid, 'userid' => $USER->id]);
             $event->trigger();
         }
     }
@@ -291,7 +290,8 @@ class booking_utils {
                         // Also add to changes.
                         $changes[] = ['info' => get_string('changeinfocfdeleted', 'booking'),
                                       'oldname' => $oldfield->cfgname,
-                                      'oldvalue' => $oldfield->value];
+                                      'oldvalue' => $oldfield->value,
+                                    ];
 
                         continue;
                     }
@@ -307,7 +307,8 @@ class booking_utils {
                         $currentchange = array_merge($currentchange,
                             ['info' => get_string('changeinfocfchanged', 'booking'),
                              'oldname' => $oldfield->cfgname,
-                             'newname' => $data->{'customfieldname' . $counter}]);
+                             'newname' => $data->{'customfieldname' . $counter},
+                            ]);
                         $haschange = true;
                     } else {
                         // Do not add the old name, if there has been no change.
@@ -321,7 +322,8 @@ class booking_utils {
                         $currentchange = array_merge($currentchange,
                             ['info' => get_string('changeinfocfchanged', 'booking'),
                              'oldvalue' => $oldfield->value,
-                             'newvalue' => $data->{'customfieldvalue' . $counter}]);
+                             'newvalue' => $data->{'customfieldvalue' . $counter},
+                            ]);
                         $haschange = true;
                     } else {
                         // Do not add the old value, if there has been no change.
@@ -334,7 +336,8 @@ class booking_utils {
                         $currentchange = array_merge($currentchange,
                             ['customfieldid' => $value,
                              'optionid' => $this->bookingoption->option->id,
-                             'optiondateid' => $data->optiondateid]);
+                             'optiondateid' => $data->optiondateid,
+                            ]);
 
                         // Add to changes.
                         $changes[] = $currentchange;
@@ -368,7 +371,8 @@ class booking_utils {
                                           'newname' => $data->{'customfieldname' . $counter},
                                           'newvalue' => $data->{'customfieldvalue' . $counter},
                                           'optionid' => $this->bookingoption->option->id,
-                                          'optiondateid' => $data->optiondateid];
+                                          'optiondateid' => $data->optiondateid,
+                                        ];
                         }
                     }
                 }
@@ -379,7 +383,7 @@ class booking_utils {
                 'changes' => $changes,
                 'inserts' => $inserts,
                 'updates' => $updates,
-                'deletes' => $deletes
+                'deletes' => $deletes,
         ];
     }
 
@@ -399,7 +403,7 @@ class booking_utils {
                     'info' => get_string('bookingoptiontitle', 'booking') . get_string('changeinfochanged', 'booking'),
                     'fieldname' => 'bookingoptiontitle',
                     'oldvalue' => $oldoption->text,
-                    'newvalue' => $newoption->text
+                    'newvalue' => $newoption->text,
             ];
         }
         if (isset($oldoption->coursestarttime)
@@ -408,7 +412,7 @@ class booking_utils {
                     'info' => get_string('coursestarttime', 'booking') . get_string('changeinfochanged', 'booking'),
                     'fieldname' => 'coursestarttime',
                     'oldvalue' => $oldoption->coursestarttime,
-                    'newvalue' => $newoption->coursestarttime
+                    'newvalue' => $newoption->coursestarttime,
             ];
         }
         if (isset($oldoption->courseendtime)
@@ -417,7 +421,7 @@ class booking_utils {
                     'info' => get_string('courseendtime', 'booking') . get_string('changeinfochanged', 'booking'),
                     'fieldname' => 'courseendtime',
                     'oldvalue' => $oldoption->courseendtime,
-                    'newvalue' => $newoption->courseendtime
+                    'newvalue' => $newoption->courseendtime,
             ];
         }
         if (isset($oldoption->location)
@@ -426,7 +430,7 @@ class booking_utils {
                     'info' => get_string('location', 'booking') . get_string('changeinfochanged', 'booking'),
                     'fieldname' => 'location',
                     'oldvalue' => $oldoption->location,
-                    'newvalue' => $newoption->location
+                    'newvalue' => $newoption->location,
             ];
         }
         if (isset($oldoption->institution)
@@ -435,7 +439,7 @@ class booking_utils {
                     'info' => get_string('institution', 'booking') . get_string('changeinfochanged', 'booking'),
                     'fieldname' => 'institution',
                     'oldvalue' => $oldoption->institution,
-                    'newvalue' => $newoption->institution
+                    'newvalue' => $newoption->institution,
             ];
         }
         if (isset($oldoption->address)
@@ -444,7 +448,7 @@ class booking_utils {
                     'info' => get_string('address', 'booking') . get_string('changeinfochanged', 'booking'),
                     'fieldname' => 'address',
                     'oldvalue' => $oldoption->address,
-                    'newvalue' => $newoption->address
+                    'newvalue' => $newoption->address,
             ];
         }
         if (isset($oldoption->description)
@@ -453,7 +457,7 @@ class booking_utils {
                     'info' => get_string('description', 'booking') . get_string('changeinfochanged', 'booking'),
                     'fieldname' => 'description',
                     'oldvalue' => $oldoption->description,
-                    'newvalue' => $newoption->description
+                    'newvalue' => $newoption->description,
             ];
         }
         // We have to check for changed "adtocalendar"-value, because we need to trigger update event (but not send mail).
@@ -462,7 +466,7 @@ class booking_utils {
             $returnarry[] = [
                     'fieldname' => 'addtocalendar',
                     'oldvalue' => $oldoption->addtocalendar,
-                    'newvalue' => $newoption->addtocalendar
+                    'newvalue' => $newoption->addtocalendar,
             ];
         }
         if (count($returnarry) > 0) {
@@ -488,7 +492,7 @@ class booking_utils {
                 'info' => get_string('coursestarttime', 'booking') . get_string('changeinfochanged', 'booking'),
                 'fieldname' => 'coursestarttime',
                 'oldvalue' => $oldoptiondate->coursestarttime,
-                'newvalue' => $newoptiondate->coursestarttime
+                'newvalue' => $newoptiondate->coursestarttime,
             ];
         }
 
@@ -498,12 +502,12 @@ class booking_utils {
                 'info' => get_string('courseendtime', 'booking') . get_string('changeinfochanged', 'booking'),
                 'fieldname' => 'courseendtime',
                 'oldvalue' => $oldoptiondate->courseendtime,
-                'newvalue' => $newoptiondate->courseendtime
+                'newvalue' => $newoptiondate->courseendtime,
             ];
         }
 
         return [
-            'changes' => $changes
+            'changes' => $changes,
         ];
     }
 
@@ -584,7 +588,7 @@ class booking_utils {
             'userid' => $user->id,
             'authtoken' => $authtoken,
             'preset_what' => $eventparam,
-            'preset_time' => 'custom'
+            'preset_time' => 'custom',
         ];
         $subscriptionlink = new moodle_url('/calendar/export_execute.php', $linkparams);
 

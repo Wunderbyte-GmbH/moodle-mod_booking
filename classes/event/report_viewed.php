@@ -67,6 +67,6 @@ class report_viewed extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/booking/report.php', array('id' => $this->contextinstanceid, 'optionid' => $this->objectid));
+        return new \moodle_url('/mod/booking/report.php', ['id' => $this->contextinstanceid, 'optionid' => $this->objectid]);
     }
 }

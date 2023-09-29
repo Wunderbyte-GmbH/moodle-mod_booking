@@ -127,7 +127,7 @@ class dynamicchangesemesterform extends dynamic_form {
         $mform = $this->_form;
 
         $changesemesterlabel = html_writer::tag('b', get_string('changesemester', 'mod_booking'),
-            array('class' => 'changesemesterlabel'));
+            ['class' => 'changesemesterlabel']);
 
         $mform->addElement('static', 'changesemesterlabel', $changesemesterlabel);
 

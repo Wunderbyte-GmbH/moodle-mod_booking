@@ -99,7 +99,7 @@ class match_userprofilefield implements booking_rule_condition {
             '0' => get_string('choose...', 'mod_booking'),
             'text' => get_string('rule_optionfield_text', 'mod_booking'),
             'location' => get_string('rule_optionfield_location', 'mod_booking'),
-            'address' => get_string('rule_optionfield_address', 'mod_booking')
+            'address' => get_string('rule_optionfield_address', 'mod_booking'),
         ];
 
         // Custom user profile field to be checked.
@@ -118,7 +118,7 @@ class match_userprofilefield implements booking_rule_condition {
 
             $operators = [
                 '=' => get_string('equals', 'mod_booking'),
-                '~' => get_string('contains', 'mod_booking')
+                '~' => get_string('contains', 'mod_booking'),
             ];
             $mform->addElement('select', 'condition_match_userprofilefield_operator',
                 get_string('rule_operator', 'mod_booking'), $operators);

@@ -81,9 +81,11 @@ class calendar {
                     // When we create a user event, we have to keep track of it in our special table.
                     if ($newcalendarid) {
                         // If it's a new user event, then insert.
-                        if (!$userevent = $DB->get_record('booking_userevents', ['userid' => $userid,
+                        if (!$userevent = $DB->get_record('booking_userevents',
+                            ['userid' => $userid,
                             'optionid' => $optionid,
-                            'optiondateid' => null])) {
+                            'optiondateid' => null,
+                            ])) {
                             $data = new stdClass();
                             $data->userid = $userid;
                             $data->optionid = $optionid;
@@ -107,7 +109,7 @@ class calendar {
                             $bookingoption->option, $bookingoption->option->calendarid, 0, 2);
                     } else {
                         if ($bookingoption->option->calendarid > 0) {
-                            if ($DB->record_exists("event", array('id' => $bookingoption->option->calendarid))) {
+                            if ($DB->record_exists("event", ['id' => $bookingoption->option->calendarid])) {
                                 // Delete event if exist.
                                 $event = \calendar_event::load($bookingoption->option->calendarid);
                                 $event->delete(true);
@@ -116,7 +118,7 @@ class calendar {
                     }
                     if ($newcalendarid && $newcalendarid != 0) {
                         // Fixed: Only set calendar id, if there is one.
-                        $DB->set_field("booking_options", 'calendarid', $newcalendarid, array('id' => $this->optionid));
+                        $DB->set_field("booking_options", 'calendarid', $newcalendarid, ['id' => $this->optionid]);
                     }
                 }
                 break;
@@ -129,9 +131,11 @@ class calendar {
                             $bookingoption->option, $optiondate, $bookingoption->option->calendarid, $userid);
                         if ($newcalendarid) {
                             // If it's a new user event, then insert.
-                            if (!$userevent = $DB->get_record('booking_userevents', ['userid' => $userid,
-                                                                                           'optionid' => $optionid,
-                                                                                           'optiondateid' => $optiondateid])) {
+                            if (!$userevent = $DB->get_record('booking_userevents',
+                                                                ['userid' => $userid,
+                                                                'optionid' => $optionid,
+                                                                'optiondateid' => $optiondateid,
+                                                                ])) {
                                 $data = new stdClass();
                                 $data->userid = $userid;
                                 $data->optionid = $optionid;
@@ -179,25 +183,25 @@ class calendar {
                     $bookingoption->option, 0, $this->userid);
                 if ($newcalendarid) {
                     $DB->set_field("booking_teachers", 'calendarid', $newcalendarid,
-                        array('userid' => $this->userid, 'optionid' => $this->optionid));
+                        ['userid' => $this->userid, 'optionid' => $this->optionid]);
                 }
                 break;
 
             case $this::TYPETEACHERUPDATE:
                 $calendarid = $DB->get_field('booking_teachers', 'calendarid',
-                    array('userid' => $this->userid, 'optionid' => $this->optionid));
+                    ['userid' => $this->userid, 'optionid' => $this->optionid]);
                 $newcalendarid = $this->booking_option_add_to_cal($bookingoption->booking->settings,
                     $bookingoption->option, $calendarid, $this->userid);
                 $DB->set_field("booking_teachers", 'calendarid', $newcalendarid,
-                    array('userid' => $this->userid, 'optionid' => $this->optionid));
+                    ['userid' => $this->userid, 'optionid' => $this->optionid]);
                 break;
 
             case $this::TYPETEACHERREMOVE:
                 $calendarid = $DB->get_field('booking_teachers', 'calendarid',
-                    array('userid' => $this->userid, 'optionid' => $this->optionid));
+                    ['userid' => $this->userid, 'optionid' => $this->optionid]);
 
                 if ($calendarid > 0) {
-                    if ($DB->record_exists("event", array('id' => $calendarid))) {
+                    if ($DB->record_exists("event", ['id' => $calendarid])) {
                         $event = \calendar_event::load($calendarid);
                         $event->delete(true);
                     }
@@ -286,7 +290,7 @@ class calendar {
         $event->timeduration = $option->courseendtime - $option->coursestarttime;
         $event->timesort = $option->coursestarttime;
 
-        if ($userid == 0 && $calendareventid > 0 && $DB->record_exists("event", array('id' => $event->id))) {
+        if ($userid == 0 && $calendareventid > 0 && $DB->record_exists("event", ['id' => $event->id])) {
             $calendarevent = \calendar_event::load($event->id);
             // Important: Second param needs to be false in order to fix "nopermissiontoupdatecalendar" bug.
             $calendarevent->update($event, false);
@@ -378,7 +382,7 @@ class calendar {
         $event->timesort = $optiondate->coursestarttime;
 
         // Update if the record already exists.
-        if ($userid == 0 && $calendareventid > 0 && $DB->record_exists("event", array('id' => $optiondate->eventid))) {
+        if ($userid == 0 && $calendareventid > 0 && $DB->record_exists("event", ['id' => $optiondate->eventid])) {
             $calendarevent = \calendar_event::load($optiondate->eventid);
             // Important: Second param needs to be false in order to fix "nopermissiontoupdatecalendar" bug.
             $calendarevent->update($event, false);
@@ -417,7 +421,7 @@ class calendar {
 
         $params = [
             'optionid' => $optionid,
-            'userid' => $userid
+            'userid' => $userid,
         ];
         try {
              // At first delete events themselves.

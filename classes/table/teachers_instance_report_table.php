@@ -138,7 +138,7 @@ class teachers_instance_report_table extends table_sql {
 
             $params = [
                 'teacherid' => $values->teacherid,
-                'bookingid' => $this->bookingid
+                'bookingid' => $this->bookingid,
             ];
             $values->unitsrecords = $DB->get_records_sql($sql, $params);
         }
@@ -285,7 +285,7 @@ class teachers_instance_report_table extends table_sql {
 
         $params = [
             'teacherid' => $values->teacherid,
-            'bookingid' => $this->bookingid
+            'bookingid' => $this->bookingid,
         ];
 
         $missinghoursstring = '';
@@ -366,7 +366,7 @@ class teachers_instance_report_table extends table_sql {
 
         $params = [
             'teacherid' => $values->teacherid,
-            'bookingid' => $this->bookingid
+            'bookingid' => $this->bookingid,
         ];
 
         $substitutionsstring = '';

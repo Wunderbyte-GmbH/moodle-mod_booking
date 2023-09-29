@@ -56,7 +56,7 @@ class send_confirmation_mails extends \core\task\adhoc_task {
 
             if ($trimmedmessage != '0') {
                 if (!empty($taskdata->userto)) {
-                    $userdata = $DB->get_record('user', array('id' => $taskdata->userto->id));
+                    $userdata = $DB->get_record('user', ['id' => $taskdata->userto->id]);
                     if (!$userdata->deleted) {
                         /* Add try-catch because email_to_user might throw an SMTP exception
                         when recipient mail address is not found. */
@@ -83,15 +83,15 @@ class send_confirmation_mails extends \core\task\adhoc_task {
                                 }
 
                                 // Use an event to log that a message has been sent.
-                                $event = \mod_booking\event\message_sent::create(array(
+                                $event = \mod_booking\event\message_sent::create([
                                     'context' => context_system::instance(),
                                     'userid' => $taskdata->userto->id,
                                     'relateduserid' => $taskdata->userfrom->id,
-                                    'other' => array(
+                                    'other' => [
                                         'messageparam' => $taskdata->messageparam,
-                                        'subject' => $taskdata->subject
-                                    )
-                                ));
+                                        'subject' => $taskdata->subject,
+                                    ],
+                                ]);
                                 $event->trigger();
                             }
                         } catch (Exception $e) {

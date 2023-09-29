@@ -32,16 +32,16 @@ $delete = optional_param('delete', '', PARAM_INT);
 
 if ($cid != '') {
     $url = new moodle_url('/mod/booking/categoryadd.php',
-            array('courseid' => $courseid, 'cid' => $cid));
+            ['courseid' => $courseid, 'cid' => $cid]);
 } else {
-    $url = new moodle_url('/mod/booking/categoryadd.php', array('courseid' => $courseid));
+    $url = new moodle_url('/mod/booking/categoryadd.php', ['courseid' => $courseid]);
 }
 
 $PAGE->set_url($url);
 
 $context = context_course::instance($courseid);
 
-if (!$course = $DB->get_record("course", array("id" => $courseid))) {
+if (!$course = $DB->get_record("course", ["id" => $courseid])) {
     throw new moodle_exception('coursemisconf');
 }
 
@@ -53,35 +53,35 @@ require_capability('mod/booking:addinstance', $context);
 
 $PAGE->set_pagelayout('standard');
 
-$redirecturl = new moodle_url('/mod/booking/categories.php', array('courseid' => $courseid));
+$redirecturl = new moodle_url('/mod/booking/categories.php', ['courseid' => $courseid]);
 
 if ($delete == 1) {
     $candelete = true;
 
-    $categories = $DB->get_records("booking_category", array("cid" => $cid));
+    $categories = $DB->get_records("booking_category", ["cid" => $cid]);
     if (count((array) $categories) > 0) {
         $candelete = false;
         $delmessage = get_string('deletesubcategory', 'booking');
     }
 
-    $bookings = $DB->get_records("booking", array("categoryid" => $cid));
+    $bookings = $DB->get_records("booking", ["categoryid" => $cid]);
     if (count((array) $bookings) > 0) {
         $candelete = false;
         $delmessage = get_string('usedinbooking', 'booking');
     }
 
     if ($candelete) {
-        $DB->delete_records("booking_category", array("id" => $cid));
+        $DB->delete_records("booking_category", ["id" => $cid]);
         $delmessage = get_string('successfulldeleted', 'booking');
     }
     redirect($redirecturl, $delmessage, 5);
 }
 
-$mform = new mod_booking_categories_form(null, array('courseid' => $courseid, 'cidd' => $cid));
+$mform = new mod_booking_categories_form(null, ['courseid' => $courseid, 'cidd' => $cid]);
 
 $defaultvalues = new stdClass();
 if ($cid != '') {
-    $defaultvalues = $DB->get_record('booking_category', array('id' => $cid));
+    $defaultvalues = $DB->get_record('booking_category', ['id' => $cid]);
 }
 
 $defaultvalues->courseid = $courseid;

@@ -66,7 +66,7 @@ class mod_booking_observer {
     public static function user_deleted(\core\event\user_deleted $event) {
         global $DB;
 
-        $params = array('userid' => $event->relateduserid);
+        $params = ['userid' => $event->relateduserid];
 
         $DB->delete_records_select('booking_answers', 'userid = :userid', $params);
         $DB->delete_records_select('booking_teachers', 'userid = :userid', $params);
@@ -128,10 +128,10 @@ class mod_booking_observer {
         $optionid = $event->objectid;
 
         // If a user is removed from a booking option, we also have to delete his/her user events.
-        $records = $DB->get_records('booking_userevents', array('userid' => $userid, 'optionid' => $optionid));
+        $records = $DB->get_records('booking_userevents', ['userid' => $userid, 'optionid' => $optionid]);
         foreach ($records as $record) {
-            $DB->delete_records('event', array('id' => $record->eventid));
-            $DB->delete_records('booking_userevents', array('id' => $record->id));
+            $DB->delete_records('event', ['id' => $record->eventid]);
+            $DB->delete_records('booking_userevents', ['id' => $record->id]);
         }
     }
 
@@ -180,7 +180,7 @@ class mod_booking_observer {
 
             // Delete course event if we have optiondates (multisession!).
             if ($option->calendarid) {
-                $DB->delete_records('event', array('id' => $option->calendarid));
+                $DB->delete_records('event', ['id' => $option->calendarid]);
                 $data = new stdClass();
                 $data->id = $optionid;
                 $data->calendarid = 0;
@@ -195,14 +195,13 @@ class mod_booking_observer {
                 WHERE ue.optionid = :optionid AND
                 ue.optiondateid IS NULL";
 
-                $allevents = $DB->get_records_sql($sql, [
-                        'optionid' => $optionid]);
+                $allevents = $DB->get_records_sql($sql, ['optionid' => $optionid]);
 
                 // We delete all userevents and return false.
 
                 foreach ($allevents as $eventrecord) {
-                    $DB->delete_records('event', array('id' => $eventrecord->id));
-                    $DB->delete_records('booking_userevents', array('id' => $eventrecord->id));
+                    $DB->delete_records('event', ['id' => $eventrecord->id]);
+                    $DB->delete_records('booking_userevents', ['id' => $eventrecord->id]);
                 }
             }
 
@@ -219,7 +218,7 @@ class mod_booking_observer {
         }
 
         $allteachers = $DB->get_fieldset_select('booking_teachers', 'userid', 'optionid = :optionid AND calendarid > 0',
-            array( 'optionid' => $event->objectid));
+            [ 'optionid' => $event->objectid]);
         foreach ($allteachers as $key => $value) {
             new calendar($event->contextinstanceid, $event->objectid, $value, calendar::TYPETEACHERUPDATE);
         }
@@ -301,13 +300,13 @@ class mod_booking_observer {
                 "SELECT cm.id FROM {course_modules} cm
                 JOIN {modules} md ON md.id = cm.module
                 JOIN {booking} m ON m.id = cm.instance
-                WHERE md.name = 'booking' AND cm.instance = ?", array($value->bookingid)
+                WHERE md.name = 'booking' AND cm.instance = ?", [$value->bookingid]
             );
 
             new calendar($tmpcmid->id, $value->id, 0, calendar::TYPEOPTION);
 
             $allteachers = $DB->get_records_sql("SELECT userid FROM {booking_teachers} WHERE optionid = ? AND calendarid > 0",
-                array($value->id));
+                [$value->id]);
 
             foreach ($allteachers as $keyt => $valuet) {
                 new calendar($tmpcmid->id, $value->id, $valuet->userid, calendar::TYPETEACHERUPDATE);

@@ -135,14 +135,14 @@ class additionalperson_form extends dynamic_form {
         $mform->addElement('static', 'subbookingaddpersondesc', '', get_string('subbooking_additionalperson_desc', 'mod_booking'));
 
         $mform->registerNoSubmitButton('btn_addperson');
-        $buttonargs = array('style' => 'visibility:hidden;');
+        $buttonargs = ['style' => 'visibility:hidden;'];
         $categoryselect = [
             $mform->createElement('select', 'subbooking_addpersons',
             get_string('subbooking_addpersons', 'mod_booking'), [0 => 0, 1 => 1, 2 => 2, 3 => 3, 4 => 4]),
             $mform->createElement('submit',
                 'btn_addperson',
                 get_string('subbooking_addpersons', 'mod_booking'),
-                $buttonargs)
+                $buttonargs),
         ];
         $mform->addGroup($categoryselect, 'subbooking_addpersons', get_string('subbooking_addpersons', 'mod_booking'), ' ', false);
         $mform->setType('btn_addperson', PARAM_NOTAGS);

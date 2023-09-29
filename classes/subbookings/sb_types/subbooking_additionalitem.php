@@ -105,11 +105,12 @@ class subbooking_additionalitem implements booking_subbooking {
         $cmid = $formdata['cmid'];
         $context = context_module::instance($cmid);
 
-        $textfieldoptions = array(
+        $textfieldoptions = [
             'trusttext' => true,
             'subdirs' => true,
             'maxfiles' => 1,
-            'context' => $context);
+            'context' => $context,
+        ];
 
         $mform->addElement(
             'editor',
@@ -178,11 +179,12 @@ class subbooking_additionalitem implements booking_subbooking {
         }
 
         $context = context_module::instance($data->cmid);
-        $textfieldoptions = array(
+        $textfieldoptions = [
             'trusttext' => true,
             'subdirs' => true,
             'maxfiles' => 1,
-            'context' => $context);
+            'context' => $context,
+        ];
 
         $data = file_postupdate_standard_editor(
             $data,
@@ -228,11 +230,12 @@ class subbooking_additionalitem implements booking_subbooking {
         $data->subbooking_additionalitem_descriptionformat = $jsondata->descriptionformat;
 
         $context = context_module::instance($data->cmid);
-        $textfieldoptions = array(
+        $textfieldoptions = [
             'trusttext' => true,
             'subdirs' => true,
             'maxfiles' => 1,
-            'context' => $context);
+            'context' => $context,
+        ];
 
         $data = file_prepare_standard_editor(
             $data,

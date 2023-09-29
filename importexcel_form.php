@@ -31,7 +31,7 @@ class importexcel_form extends moodleform {
         $mform = $this->_form;
 
         $mform->addElement('filepicker', 'excelfile', get_string('excelfile', 'booking'), null,
-                array('maxbytes' => $CFG->maxbytes, 'accepted_types' => '*'));
+                ['maxbytes' => $CFG->maxbytes, 'accepted_types' => '*']);
         $mform->addRule('excelfile', null, 'required', null, 'client');
 
         $this->add_action_buttons(true, get_string('importexceltitle', 'booking'));
@@ -43,6 +43,6 @@ class importexcel_form extends moodleform {
      * @see moodleform::validation()
      */
     public function validation($data, $files) {
-        return array();
+        return [];
     }
 }

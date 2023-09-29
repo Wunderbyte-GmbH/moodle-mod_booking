@@ -180,7 +180,7 @@ class bo_subinfo {
                 'description' => $description,
                 'classname' => $classname,
                 'button' => $button, // This indicates if this condition provides a button.
-                'insertpage' => $insertpage // Bool, only in combination with is available false.
+                'insertpage' => $insertpage, // Bool, only in combination with is available false.
             ];
         }
 
@@ -481,7 +481,7 @@ class bo_subinfo {
 
             $newclass = [
                 'id' => $result['id'],
-                'classname' => $result['classname']
+                'classname' => $result['classname'],
             ];
 
             switch ($result['insertpage']) {

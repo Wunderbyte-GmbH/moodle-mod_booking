@@ -145,7 +145,7 @@ class optiondates_teachers_table extends wunderbyte_table {
                 'data-teachers' => $values->teachers,
                 'data-optiondateid' => $values->optiondateid,
                 'title' => get_string('editteachers', 'mod_booking'),
-                'aria-label' => get_string('editteachers', 'mod_booking')
+                'aria-label' => get_string('editteachers', 'mod_booking'),
             ]));
         }
         return $ret;
@@ -177,7 +177,7 @@ class optiondates_teachers_table extends wunderbyte_table {
             'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
                 'id' => $values->optiondateid,
                 'labelcolumn' => 'username',
-            ]
+            ],
         ];
 
         // This transforms the array to make it easier to use in mustache template.

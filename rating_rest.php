@@ -61,6 +61,6 @@ try {
 $avg = $DB->get_record_sql(
         'SELECT IFNULL(AVG(rate), 1) AS rate
         FROM {booking_ratings}
-        WHERE optionid = ?', array($optionid));
+        WHERE optionid = ?', [$optionid]);
 
-echo json_encode(array('rate' => (int) $avg->rate, 'duplicate' => $isinserted));
+echo json_encode(['rate' => (int) $avg->rate, 'duplicate' => $isinserted]);

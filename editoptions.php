@@ -54,7 +54,7 @@ list($course, $cm) = get_course_and_cm_from_cmid($cmid);
 
 require_course_login($course, false, $cm);
 
-$url = new moodle_url('/mod/booking/editoptions.php', array('id' => $cmid, 'optionid' => $optionid));
+$url = new moodle_url('/mod/booking/editoptions.php', ['id' => $cmid, 'optionid' => $optionid]);
 $PAGE->set_url($url);
 
 // In Moodle 4.0+ we want to turn the instance description off on every page except view.php.
@@ -104,16 +104,16 @@ if ($confirm === 1 && $createfromoptiondates === 1) {
     $option->create_booking_options_from_optiondates();
 
     // Redirect back to the page without the 'confirm' parameter to prevent accidental re-execution.
-    redirect(new moodle_url('/mod/booking/view.php', array('id' => $cm->id, 'optionid' => $optionid)));
+    redirect(new moodle_url('/mod/booking/view.php', ['id' => $cm->id, 'optionid' => $optionid]));
 } else if ($createfromoptiondates === 1 && $confirm === 0) {
     echo $OUTPUT->header();
     // If the user has not confirmed yet, display the confirmation dialog.
-    $confirmurl = new moodle_url('/mod/booking/editoptions.php', array(
+    $confirmurl = new moodle_url('/mod/booking/editoptions.php', [
             'id' => $cm->id,
             'optionid' => $optionid,
             'confirm' => 1, // Adding the 'confirm' parameter with value 1 to indicate confirmation.
-            'createfromoptiondates' => 1
-    ));
+            'createfromoptiondates' => 1,
+    ]);
     $confirmbutton = new single_button($confirmurl, get_string('confirm'), 'get');
 
     // Print the confirmation message and button.
@@ -126,7 +126,7 @@ if ($confirm === 1 && $createfromoptiondates === 1) {
 // Duplicate this booking option.
 if ($optionid == -1 && $copyoptionid != 0) {
     // Adding new booking option - default values.
-    $defaultvalues = $DB->get_record('booking_options', array('id' => $copyoptionid));
+    $defaultvalues = $DB->get_record('booking_options', ['id' => $copyoptionid]);
     $defaultvalues->text = $defaultvalues->text . get_string('copy', 'mod_booking');
     $defaultvalues->optionid = -1;
     $defaultvalues->copyoptionid = $copyoptionid;
@@ -152,15 +152,15 @@ if ($optionid == -1 && $copyoptionid != 0) {
 }
 
 // Create form after duplication data were prepared.
-$mform = new option_form(null, array('bookingid' => $bookingid, 'optionid' => $optionid, 'cmid' => $cmid,
-    'context' => $context));
+$mform = new option_form(null,
+                        ['bookingid' => $bookingid, 'optionid' => $optionid, 'cmid' => $cmid, 'context' => $context]);
 
 if ($mform->is_cancelled()) {
 
     if (!empty($returnurl)) {
         redirect($returnurl);
     } else {
-        $redirecturl = new moodle_url('/mod/booking/view.php', array('id' => $cmid));
+        $redirecturl = new moodle_url('/mod/booking/view.php', ['id' => $cmid]);
         redirect($redirecturl, '', 0);
     }
 } else if ($mform->no_submit_button_pressed()) {
@@ -180,7 +180,7 @@ if ($mform->is_cancelled()) {
             'optionid' => $optionid,
             'cmid' => $cmid,
             'context' => $context,
-            'btn_bookingsubbookingadd' => $data->btn_bookingsubbookingadd
+            'btn_bookingsubbookingadd' => $data->btn_bookingsubbookingadd,
         ];
 
         $mform = new option_form(null, $formdata);
@@ -221,26 +221,26 @@ if ($mform->is_cancelled()) {
 
         if ($draftitemid = file_get_submitted_draft_itemid('myfilemanageroption')) {
             file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'myfilemanageroption',
-                    $nbooking, array('subdirs' => false, 'maxfiles' => 50));
+                    $nbooking, ['subdirs' => false, 'maxfiles' => 50]);
         }
 
         if ($draftimageid = file_get_submitted_draft_itemid('bookingoptionimage')) {
             file_save_draft_area_files($draftimageid, $context->id, 'mod_booking', 'bookingoptionimage',
-                    $nbooking, array('subdirs' => false, 'maxfiles' => 1));
+                    $nbooking, ['subdirs' => false, 'maxfiles' => 1]);
         }
 
         if (isset($fromform->addastemplate) && $fromform->addastemplate == 1) {
             $fromform->bookingid = 0;
             $nbooking = booking_update_options($fromform, $context);
             if ($nbooking === 'BOOKING_OPTION_NOT_CREATED') {
-                $redirecturl = new moodle_url('/mod/booking/editoptions.php', array('id' => $cmid, 'optionid' => -1));
+                $redirecturl = new moodle_url('/mod/booking/editoptions.php', ['id' => $cmid, 'optionid' => -1]);
                 redirect($redirecturl, get_string('option_template_not_saved_no_valid_license', 'mod_booking'), 0,
                     notification::NOTIFY_ERROR);
             } else if (isset($fromform->submittandaddnew)) {
-                $redirecturl = new moodle_url('/mod/booking/editoptions.php', array('id' => $cmid, 'optionid' => -1));
+                $redirecturl = new moodle_url('/mod/booking/editoptions.php', ['id' => $cmid, 'optionid' => -1]);
                 redirect($redirecturl, get_string('newtemplatesaved', 'mod_booking'), 0);
             } else {
-                $redirecturl = new moodle_url('/mod/booking/view.php', array('id' => $cmid));
+                $redirecturl = new moodle_url('/mod/booking/view.php', ['id' => $cmid]);
                 redirect($redirecturl, get_string('newtemplatesaved', 'mod_booking'), 0);
             }
         }
@@ -281,12 +281,12 @@ if ($mform->is_cancelled()) {
 
                 if ($draftitemid = file_get_submitted_draft_itemid('myfilemanageroption')) {
                     file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'myfilemanageroption',
-                            $nbooking, array('subdirs' => false, 'maxfiles' => 50));
+                            $nbooking, ['subdirs' => false, 'maxfiles' => 50]);
                 }
 
                 if ($draftimageid = file_get_submitted_draft_itemid('bookingoptionimage')) {
                     file_save_draft_area_files($draftimageid, $context->id, 'mod_booking', 'bookingoptionimage',
-                            $nbooking, array('subdirs' => false, 'maxfiles' => 1));
+                            $nbooking, ['subdirs' => false, 'maxfiles' => 1]);
                 }
 
                 $bookingdata = singleton_service::get_instance_of_booking_option($cmid, $nbooking);
@@ -321,15 +321,15 @@ if ($mform->is_cancelled()) {
 
         // Redirect after pressing one of the 3 submit buttons.
         if (isset($fromform->submittandaddnew)) {
-            $redirecturl = new moodle_url('/mod/booking/editoptions.php', array('id' => $cmid, 'optionid' => -1));
+            $redirecturl = new moodle_url('/mod/booking/editoptions.php', ['id' => $cmid, 'optionid' => -1]);
         } else if (isset($fromform->submitandstay)) {
-            $redirecturl = new moodle_url('/mod/booking/editoptions.php', array('id' => $cmid, 'optionid' => $fromform->optionid));
+            $redirecturl = new moodle_url('/mod/booking/editoptions.php', ['id' => $cmid, 'optionid' => $fromform->optionid]);
         } else {
 
             if (!empty($returnurl)) {
                 $redirecturl = $returnurl;
             } else {
-                $redirecturl = new moodle_url('/mod/booking/view.php', array('id' => $cmid));
+                $redirecturl = new moodle_url('/mod/booking/view.php', ['id' => $cmid]);
             }
         }
         redirect($redirecturl, get_string('changessaved'), 0);
@@ -359,13 +359,13 @@ if ($mform->is_cancelled()) {
         $formmodeurl = new moodle_url('/mod/booking/editoptions.php', [
             'mode' => $togglemode,
             'id' => $cmid,
-            'optionid' => $optionid
+            'optionid' => $optionid,
         ]);
 
         echo html_writer::link($formmodeurl->out(false),
-            $formmodelabel,
-            ['id' => $cmid, 'optionid' => $optionid,
-                'class' => 'btn btn-secondary float-right']);
+                            $formmodelabel,
+                            ['id' => $cmid, 'optionid' => $optionid, 'class' => 'btn btn-secondary float-right']
+                        );
     }
 
     // Heading.
@@ -392,16 +392,14 @@ if ($mform->is_cancelled()) {
 $PAGE->requires->js_call_amd(
     'mod_booking/institutionautocomplete',
     'init',
-    array($cmid)
+    [$cmid]
 );
 
 // Initialize dynamic optiondate form.
 $PAGE->requires->js_call_amd(
     'mod_booking/dynamicoptiondateform',
     'initdynamicoptiondateform',
-    array($cmid, $bookingid, $optionid,
-        get_string('modaloptiondateformtitle', 'mod_booking'),
-        modaloptiondateform::class)
+    [$cmid, $bookingid, $optionid, get_string('modaloptiondateformtitle', 'mod_booking'), modaloptiondateform::class]
 );
 
 echo $OUTPUT->footer();

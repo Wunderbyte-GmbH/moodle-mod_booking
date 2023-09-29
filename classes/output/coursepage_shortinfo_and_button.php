@@ -92,11 +92,11 @@ class coursepage_shortinfo_and_button implements renderable, templatable {
      * @return array
      */
     public function export_for_template(renderer_base $output) {
-        return array(
+        return [
                 'coursename' => $this->coursename,
                 'eventtype' => $this->eventtype,
                 'buttonurl' => $this->buttonurl,
-                'shortinfo' => $this->shortinfo
-        );
+                'shortinfo' => $this->shortinfo,
+        ];
     }
 }

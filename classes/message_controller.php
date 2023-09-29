@@ -282,7 +282,7 @@ class message_controller {
         // List of fieldnames that also have a global template (currently 'activitycompletiontext' has no global template).
         $mailtemplatesfieldnames = [
             'bookedtext', 'waitingtext', 'notifyemail', 'notifyemailteachers', 'statuschangetext', 'userleave',
-            'deletedtext', 'bookingchangedtext', 'pollurltext', 'pollurlteacherstext'
+            'deletedtext', 'bookingchangedtext', 'pollurltext', 'pollurlteacherstext',
         ];
 
         if ($this->messageparam == MSGPARAM_CUSTOM_MESSAGE) {
@@ -437,15 +437,15 @@ class message_controller {
                 if (message_send($this->messagedata)) {
 
                     // Use an event to log that a message has been sent.
-                    $event = \mod_booking\event\message_sent::create(array(
+                    $event = \mod_booking\event\message_sent::create([
                         'context' => context_system::instance(),
                         'userid' => $this->messagedata->userto->id,
                         'relateduserid' => $this->messagedata->userfrom->id,
-                        'other' => array(
+                        'other' => [
                             'messageparam' => $this->messageparam,
-                            'subject' => $this->messagedata->subject
-                        )
-                    ));
+                            'subject' => $this->messagedata->subject,
+                        ],
+                    ]);
                     $event->trigger();
 
                     return true;

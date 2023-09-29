@@ -32,7 +32,7 @@ class instancetemplateadd_form extends moodleform {
         global $CFG;
         $mform = & $this->_form;
         $mform->addElement('header', '', get_string('instancetemplate', 'booking'));
-        $mform->addElement('text', 'name', get_string('name'), array('size' => '128'));
+        $mform->addElement('text', 'name', get_string('name'), ['size' => '128']);
         $mform->addRule('name', get_string('required'), 'required', null, 'client');
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('name', PARAM_TEXT);

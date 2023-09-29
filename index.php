@@ -29,8 +29,8 @@ require_once("lib.php");
 
 $id = required_param('id', PARAM_INT); // Course id.
 
-$PAGE->set_url('/mod/booking/index.php', array('id' => $id));
-$course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
+$PAGE->set_url('/mod/booking/index.php', ['id' => $id]);
+$course = $DB->get_record('course', ['id' => $id], '*', MUST_EXIST);
 
 require_login($course);
 $PAGE->set_pagelayout('incourse');
@@ -73,7 +73,7 @@ foreach ($modinfo->instances['booking'] as $cm) {
     }
     if ($previoussectionname != $sectionname) {
         $printsection = $sectionname;
-        $table->data[] = array($printsection, '');
+        $table->data[] = [$printsection, ''];
     }
 
     $context = context_module::instance($cm->id);
@@ -99,7 +99,7 @@ foreach ($modinfo->instances['booking'] as $cm) {
         $tthref = "<a href=\"view.php?id=$cm->id\">" . format_string($cm->name, true) . "</a>";
     }
 
-    $table->data[] = array($tthref, $numberofbookings);
+    $table->data[] = [$tthref, $numberofbookings];
 }
 echo "<br />";
 echo html_writer::table($table);

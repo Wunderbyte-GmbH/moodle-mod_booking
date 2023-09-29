@@ -60,7 +60,7 @@ class bookings extends external_api {
         return new external_function_parameters([
             'courseid' => new external_value(PARAM_TEXT, 'Course id', (bool) VALUE_DEFAULT, '0'),
             'printusers' => new external_value(PARAM_TEXT, 'Print user profiles', (bool) VALUE_DEFAULT, '0'),
-            'days' => new external_value(PARAM_TEXT, 'How old bookings to retrive - in days.', (bool) VALUE_DEFAULT, '0')
+            'days' => new external_value(PARAM_TEXT, 'How old bookings to retrive - in days.', (bool) VALUE_DEFAULT, '0'),
             ]
         );
     }
@@ -75,7 +75,7 @@ class bookings extends external_api {
 
         require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
-        $returns = array();
+        $returns = [];
 
         $params = self::validate_parameters(self::execute_parameters(),
             ['courseid' => $courseid, 'printusers' => $printusers, 'days' => $days]);
@@ -84,10 +84,10 @@ class bookings extends external_api {
 
         foreach ($bookings as $booking) {
 
-            $ret = array();
+            $ret = [];
             $cm = get_coursemodule_from_instance('booking', $booking->id);
 
-            $options = array();
+            $options = [];
 
             if ($days > 0) {
                 $timediff = strtotime('-' . $days . ' day');
@@ -106,7 +106,7 @@ class bookings extends external_api {
                     $bookingdata->settings->intro = file_rewrite_pluginfile_urls($bookingdata->settings->intro,
                         'pluginfile.php', $context->id, 'mod_booking', 'intro', 0);
 
-                    $manager = $DB->get_record('user', array('username' => $bookingdata->settings->bookingmanager));
+                    $manager = $DB->get_record('user', ['username' => $bookingdata->settings->bookingmanager]);
 
                     $ret['id'] = $bookingdata->settings->id;
                     $ret['cm'] = $bookingdata->cm->id;
@@ -123,17 +123,17 @@ class bookings extends external_api {
                     $ret['bookingmanageremail'] = $manager->email;
                     $ret['myfilemanager'] = external_util::get_area_files($context->id,
                         'mod_booking', 'myfilemanager', 0, false);
-                    $ret['categories'] = array();
-                    $ret['options'] = array();
+                    $ret['categories'] = [];
+                    $ret['options'] = [];
 
                     if ($bookingdata->settings->categoryid != '0' && $bookingdata->settings->categoryid != '') {
                         $categoryies = explode(',', $bookingdata->settings->categoryid);
 
                         if (!empty($categoryies) && count($categoryies) > 0) {
                             foreach ($categoryies as $category) {
-                                $cat = array();
+                                $cat = [];
                                 $cat['id'] = $category;
-                                $cat['name'] = $DB->get_field('booking_category', 'name', array('id' => $category));
+                                $cat['name'] = $DB->get_field('booking_category', 'name', ['id' => $category]);
 
                                 $ret['categories'][] = $cat;
                             }
@@ -142,7 +142,7 @@ class bookings extends external_api {
 
                     foreach ($bookingdata->get_all_options(0, 0, '', '*') as $record) {
 
-                        $option = array();
+                        $option = [];
                         $option['id'] = $record->id;
                         $option['text'] = $record->text;
                         $option['timemodified'] = $record->timemodified;
@@ -153,15 +153,15 @@ class bookings extends external_api {
                         $option['location'] = $record->location;
                         $option['institution'] = $record->institution;
                         $option['address'] = $record->address;
-                        $option['users'] = array();
-                        $option['teachers'] = array();
+                        $option['users'] = [];
+                        $option['teachers'] = [];
 
                         if ($printusers) {
                             $users = $DB->get_records('booking_answers',
-                                array('optionid' => $record->id));
+                                ['optionid' => $record->id]);
                             foreach ($users as $user) {
-                                $tmpuser = array();
-                                $ruser = $DB->get_record('user', array('id' => $user->userid));
+                                $tmpuser = [];
+                                $ruser = $DB->get_record('user', ['id' => $user->userid]);
                                 $tmpuser['id'] = $ruser->id;
                                 $tmpuser['username'] = $ruser->username;
                                 $tmpuser['firstname'] = $ruser->firstname;
@@ -173,10 +173,10 @@ class bookings extends external_api {
                         }
 
                         $users = $DB->get_records('booking_teachers',
-                            array('bookingid' => $record->bookingid, 'optionid' => $record->id));
+                            ['bookingid' => $record->bookingid, 'optionid' => $record->id]);
                         foreach ($users as $user) {
-                            $teacher = array();
-                            $ruser = $DB->get_record('user', array('id' => $user->userid));
+                            $teacher = [];
+                            $ruser = $DB->get_record('user', ['id' => $user->userid]);
                             $teacher['id'] = $ruser->id;
                             $teacher['username'] = $ruser->username;
                             $teacher['firstname'] = $ruser->firstname;
@@ -204,7 +204,7 @@ class bookings extends external_api {
     public static function execute_returns(): external_multiple_structure {
         return new external_multiple_structure(
             new external_single_structure(
-                array(
+                [
                     'id' => new external_value(PARAM_INT, 'Booking ID'),
                     'cm' => new external_value(PARAM_INT, 'CM'),
                     'timemodified' => new external_value(PARAM_INT, 'Time modified'),
@@ -220,13 +220,13 @@ class bookings extends external_api {
                     'bookingmanageremail' => new external_value(PARAM_TEXT, 'Booking manager e-mail'),
                     'myfilemanager' => new external_files('Attachment', VALUE_OPTIONAL),
                     'categories' => new external_multiple_structure(new external_single_structure(
-                        array(
+                        [
                             'id' => new external_value(PARAM_INT, 'Category ID'),
-                            'name' => new external_value(PARAM_TEXT, 'Category name')
-                        )
+                            'name' => new external_value(PARAM_TEXT, 'Category name'),
+                        ]
                     )),
                     'options' => new external_multiple_structure(new external_single_structure(
-                        array(
+                        [
                             'id' => new external_value(PARAM_INT, 'Option ID'),
                             'text' => new external_value(PARAM_TEXT, 'Description'),
                             'timemodified' => new external_value(PARAM_INT, 'Time modified'),
@@ -238,26 +238,26 @@ class bookings extends external_api {
                             'institution' => new external_value(PARAM_TEXT, 'Institution'),
                             'address' => new external_value(PARAM_TEXT, 'Address'),
                             'users' => new external_multiple_structure(new external_single_structure(
-                                array(
+                                [
                                     'id' => new external_value(PARAM_INT, 'User ID'),
                                     'username' => new external_value(PARAM_TEXT, 'Username'),
                                     'firstname' => new external_value(PARAM_TEXT, 'First name'),
                                     'lastname' => new external_value(PARAM_TEXT, 'First'),
-                                    'email' => new external_value(PARAM_TEXT, 'Email')
-                                )
+                                    'email' => new external_value(PARAM_TEXT, 'Email'),
+                                ]
                             )),
                             'teachers' => new external_multiple_structure(new external_single_structure(
-                                array(
+                                [
                                     'id' => new external_value(PARAM_INT, 'User ID'),
                                     'username' => new external_value(PARAM_TEXT, 'Username'),
                                     'firstname' => new external_value(PARAM_TEXT, 'First name'),
                                     'lastname' => new external_value(PARAM_TEXT, 'First'),
-                                    'email' => new external_value(PARAM_TEXT, 'Email')
-                                )
-                            ))
-                        )
-                    ))
-                )
+                                    'email' => new external_value(PARAM_TEXT, 'Email'),
+                                ]
+                            )),
+                        ]
+                    )),
+                ]
             )
         );
     }

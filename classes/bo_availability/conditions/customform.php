@@ -202,7 +202,7 @@ class customform implements bo_condition {
             $previous = 0;
             while ($counter < 3) {
 
-                $buttonarray = array();
+                $buttonarray = [];
 
                 if ($counter == 1) {
                     $formelementsarray = ['static' => get_string('displaytext', 'mod_booking')];
@@ -477,7 +477,7 @@ class customform implements bo_condition {
         if ($data = $cache->get($cachekey)) {
 
             $data = (object)[
-                "condition_customform" => $data
+                "condition_customform" => $data,
             ];
 
             $newanswer->json = json_encode($data);

@@ -49,6 +49,6 @@ class existing_subscriber_selector extends subscriber_selector_base {
                 WHERE $wherecondition AND s.optionid = :optionid
                 ORDER BY $sort", $params);
 
-        return array(get_string("existingsubscribers", 'booking') => $subscribers);
+        return [get_string("existingsubscribers", 'booking') => $subscribers];
     }
 }

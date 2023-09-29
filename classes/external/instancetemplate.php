@@ -74,7 +74,7 @@ class instancetemplate extends external_api {
         return [
             'id' => $id,
             'name' => $template->name,
-            'template' => $template->template
+            'template' => $template->template,
         ];
     }
 

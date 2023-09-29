@@ -45,12 +45,14 @@ class optiontemplatessettings_table extends table_sql {
         $this->bookinginstances = $DB->get_records_select('booking', 'templateid > 0', [], '', 'id, name, templateid');
 
         // Define the list of columns to show.
-        $columns = array('name', 'options', 'action');
+        $columns = ['name', 'options', 'action'];
         $this->define_columns($columns);
 
         // Define the titles of columns to show in header.
-        $headers = array(get_string('optiontemplatename', 'mod_booking'), get_string('usedinbookinginstances', 'mod_booking'),
-            get_string('action'));
+        $headers = [get_string('optiontemplatename', 'mod_booking'),
+                    get_string('usedinbookinginstances', 'mod_booking'),
+                    get_string('action'),
+                    ];
         $this->define_headers($headers);
     }
 
@@ -93,10 +95,10 @@ class optiontemplatessettings_table extends table_sql {
         $output = '';
         $delete = get_string('delete');
         $url = new moodle_url('/mod/booking/optiontemplatessettings.php',
-            array('optionid' => $values->optionid, 'action' => 'delete', 'id' => $this->cmid));
+            ['optionid' => $values->optionid, 'action' => 'delete', 'id' => $this->cmid]);
         $output .= $OUTPUT->single_button($url, $delete, 'get');
         $edit = get_string('edit');
-        $url = new moodle_url('/mod/booking/edit_optiontemplates.php', array('optionid' => $values->optionid, 'id' => $this->cmid));
+        $url = new moodle_url('/mod/booking/edit_optiontemplates.php', ['optionid' => $values->optionid, 'id' => $this->cmid]);
         $output .= $OUTPUT->single_button($url, $edit, 'get');
         return $output;
     }

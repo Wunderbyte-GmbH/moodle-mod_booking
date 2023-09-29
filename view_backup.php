@@ -42,10 +42,10 @@ $searchsurname = optional_param('searchsurname', '', PARAM_TEXT);
 $page = optional_param('page', '0', PARAM_INT);
 
 $perpage = 10;
-$conditions = array();
-$conditionsparams = array();
-$urlparams = array();
-$urlparamssort = array();
+$conditions = [];
+$conditionsparams = [];
+$urlparams = [];
+$urlparamssort = [];
 $urlparams['id'] = $id;
 
 list($course, $cm) = get_course_and_cm_from_cmid($id, 'booking');
@@ -93,7 +93,7 @@ if (strlen($searchinstitution) > 0) {
 $urlparams['searchname'] = "";
 $urlparams['searchsurname'] = "";
 
-$searchnyname = array();
+$searchnyname = [];
 
 if (strlen($searchname) > 0) {
     $urlparams['searchname'] = $searchname;
@@ -130,14 +130,14 @@ if ($sorto == 1) {
 }
 
 $url = new moodle_url('/mod/booking/view.php', $urlparams);
-$urlcancel = new moodle_url('/mod/booking/view.php', array('id' => $id));
+$urlcancel = new moodle_url('/mod/booking/view.php', ['id' => $id]);
 $sorturl = new moodle_url('/mod/booking/view.php', $urlparamssort);
 $sorturl->set_anchor('goenrol');
 
 $booking->checkautocreate();
 
 $PAGE->set_url($url);
-$PAGE->requires->js_call_amd('mod_booking/view_actions', 'setup', array($id));
+$PAGE->requires->js_call_amd('mod_booking/view_actions', 'setup', [$id]);
 
 $booking->apply_tags();
 $booking->get_url_params();
@@ -155,7 +155,7 @@ if ($action == 'delbooking' && confirm_sesskey() && $confirm == 1 &&
     if ($bookingdata->user_delete_response($USER->id)) {
         echo $OUTPUT->header();
         $contents = html_writer::tag('p', get_string('bookingdeleted', 'booking'));
-        $options = array('id' => $cm->id);
+        $options = ['id' => $cm->id];
         $contents .= $OUTPUT->single_button(new moodle_url('/mod/booking/view.php', $options),
                 get_string('continue'), 'get');
         echo $OUTPUT->box($contents, 'box generalbox', 'notice');
@@ -164,7 +164,7 @@ if ($action == 'delbooking' && confirm_sesskey() && $confirm == 1 &&
     } else {
         echo $OUTPUT->header();
         $contents = get_string('cannotremovesubscriber', 'booking');
-        $options = array('id' => $cm->id);
+        $options = ['id' => $cm->id];
         $contents .= $OUTPUT->single_button(new moodle_url('/mod/booking/view.php', $options),
                 get_string('continue'), 'get');
         echo $OUTPUT->box($contents, 'box generalbox', 'notice');
@@ -179,8 +179,13 @@ if ($action == 'delbooking' && confirm_sesskey() && $confirm == 1 &&
     $bookingdata = singleton_service::get_instance_of_booking_option($cm->id, $optionid);
     $bookingdata->apply_tags();
 
-    $options = array('id' => $cm->id, 'action' => 'delbooking', 'confirm' => 1,
-        'optionid' => $optionid, 'sesskey' => $USER->sesskey);
+    $options = [
+        'id' => $cm->id,
+        'action' => 'delbooking',
+        'confirm' => 1,
+        'optionid' => $optionid,
+        'sesskey' => $USER->sesskey,
+    ];
 
     $deletemessage = format_string($bookingdata->option->text);
 
@@ -212,7 +217,7 @@ if ($download == '' && $form = data_submitted() && has_capability('mod/booking:c
     echo $OUTPUT->header();
     $timenow = time();
 
-    $url = new moodle_url("/mod/booking/view.php", array('id' => $cm->id));
+    $url = new moodle_url("/mod/booking/view.php", ['id' => $cm->id]);
     $url->set_anchor("option" . $answer);
     if (!empty($answer)) {
         $bookingdata = singleton_service::get_instance_of_booking_option($cm->id, $answer);
@@ -245,7 +250,7 @@ if ($download == '' && $form = data_submitted() && has_capability('mod/booking:c
 }
 
 $event = \mod_booking\event\course_module_viewed::create(
-        array('objectid' => $PAGE->cm->instance, 'context' => $PAGE->context));
+        ['objectid' => $PAGE->cm->instance, 'context' => $PAGE->context]);
 $event->add_record_snapshot('course', $PAGE->course);
 $event->trigger();
 
@@ -253,10 +258,10 @@ $event->trigger();
 
 $mybookings = $DB->get_record_sql(
         "SELECT COUNT(*) AS mybookings FROM {booking_answers} WHERE userid = :userid AND bookingid = :bookingid",
-        array('userid' => $USER->id, 'bookingid' => $booking->id));
+        ['userid' => $USER->id, 'bookingid' => $booking->id]);
 $myoptions = $DB->get_record_sql(
         "SELECT COUNT(*) AS myoptions FROM {booking_teachers} WHERE userid = :userid AND bookingid = :bookingid",
-        array('userid' => $USER->id, 'bookingid' => $booking->id));
+        ['userid' => $USER->id, 'bookingid' => $booking->id]);
 
 // Initialise for later if user has already made a selection, show the selected answer.
 $current = false;
@@ -315,10 +320,10 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
     } else {
         $tablealloptions->is_downloadable(false);
     }
-    $tablealloptions->show_download_buttons_at(array(TABLE_P_BOTTOM));
+    $tablealloptions->show_download_buttons_at([TABLE_P_BOTTOM]);
 
-    $columns = array();
-    $headers = array();
+    $columns = [];
+    $headers = [];
 
     if (!$tablealloptions->is_downloading()) {
         comment::init();
@@ -329,7 +334,7 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
         if ($booking->settings->showhelpfullnavigationlinks) {
             echo $html = html_writer::tag('div',
                     '<a id="gotop" href="#goenrol">' . get_string('goenrol', 'booking') . '</a>',
-                    array('style' => 'width:100%; font-weight: bold; text-align: right;'));
+                    ['style' => 'width:100%; font-weight: bold; text-align: right;']);
         }
 
         // If we have specified a teacher as organizer, we show a "busines_card" with photo, else legacy organizer description.
@@ -344,7 +349,7 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
             echo $output->render_instance_description($data);
         }
 
-        $out = array();
+        $out = [];
         $fs = get_file_storage();
         $files = $fs->get_area_files($context->id, 'mod_booking', 'myfilemanager',
                 $booking->settings->id);
@@ -352,7 +357,7 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
         if (count($files) > 0) {
             echo html_writer::start_tag('div');
             echo html_writer::tag('label', get_string("attachedfiles", "booking") . ': ',
-                    array('class' => 'bold'));
+                    ['class' => 'bold']);
 
             foreach ($files as $file) {
                 if ($file->get_filesize() > 0) {
@@ -374,25 +379,25 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
             $categoryies = explode(',', $booking->settings->categoryid);
 
             if (count($categoryies) > 0) {
-                $links = array();
+                $links = [];
                 foreach ($categoryies as $category) {
-                    $tmpcat = $DB->get_record('booking_category', array('id' => $category));
+                    $tmpcat = $DB->get_record('booking_category', ['id' => $category]);
                     if ($tmpcat) {
-                        $surl = new moodle_url('/mod/booking/category.php', array('id' => $id, 'category' => $tmpcat->id));
-                        $links[] = html_writer::link($surl, $tmpcat->name, array());
+                        $surl = new moodle_url('/mod/booking/category.php', ['id' => $id, 'category' => $tmpcat->id]);
+                        $links[] = html_writer::link($surl, $tmpcat->name, []);
                     }
                 }
 
                 echo html_writer::start_tag('div');
                 echo html_writer::tag('label', get_string('categoryheader', 'booking') . ': ',
-                        array('class' => 'bold'));
+                        ['class' => 'bold']);
                 echo html_writer::tag('span', implode(', ', $links));
                 echo html_writer::end_tag('div');
             }
         }
 
         if (strlen($booking->settings->bookingpolicy) > 0) {
-            $link = new moodle_url('/mod/booking/viewpolicy.php', array('id' => $cm->id));
+            $link = new moodle_url('/mod/booking/viewpolicy.php', ['id' => $cm->id]);
             echo $OUTPUT->action_link($link, get_string("bookingpolicy", "booking"),
                     new popup_action('click', $link));
         }
@@ -400,7 +405,7 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
         if ($booking->settings->showhelpfullnavigationlinks) {
             echo $html = html_writer::tag('div',
                     '<a id="goenrol" href="#gotop">' . get_string('gotop', 'booking') . '</a>',
-                    array('style' => 'width:100%; font-weight: bold; text-align: right;'));
+                    ['style' => 'width:100%; font-weight: bold; text-align: right;']);
         }
 
         if ($booking->settings->timeclose != 0) {
@@ -439,7 +444,7 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
         $hidden = "";
 
         foreach ($urlparams as $key => $value) {
-            if (!in_array($key, array('searchtext', 'searchlocation', 'searchinstitution'))) {
+            if (!in_array($key, ['searchtext', 'searchlocation', 'searchinstitution'])) {
                 $hidden .= '<input value="' . $value . '" type="hidden" name="' . $key . '">';
             }
         }
@@ -454,56 +459,85 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
                 'booking') : $booking->settings->lblsurname);
 
         $row = new html_table_row(
-                array($labelbooking,
+                [
+                    $labelbooking,
                     $hidden . '<input value="' . $urlparams['searchtext'] .
-                             '" type="text" id="searchtext" name="searchtext">', "", ""));
+                             '" type="text" id="searchtext" name="searchtext">',
+                    "",
+                    "",
+                ]
+            );
         $row->id = 'booking-searchtext-row';
         $tabledata[] = $row;
         $rowclasses[] = "";
 
         $row = new html_table_row(
-                array($labellocation,
+                [
+                    $labellocation,
                     '<input value="' . $urlparams['searchlocation'] .
-                             '" type="text" id="searchlocation" name="searchlocation">', "", ""));
+                             '" type="text" id="searchlocation" name="searchlocation">',
+                    "",
+                    "",
+                ]
+            );
         $row->id = 'booking-searchlocation-row';
         $tabledata[] = $row;
         $rowclasses[] = "";
 
         $row = new html_table_row(
-                array($labelinstitution,
+                [
+                    $labelinstitution,
                     '<input value="' . $urlparams['searchinstitution'] .
-                             '" type="text" id="searchinstitution" name="searchinstitution">', "",
-                            ""));
+                             '" type="text" id="searchinstitution" name="searchinstitution">',
+                    "",
+                    "",
+                ]
+            );
         $row->id = 'booking-searchinstitution-row';
         $tabledata[] = $row;
         $rowclasses[] = "";
 
         $row = new html_table_row(
-                array($labelsearchname,
+                [
+                    $labelsearchname,
                     '<input value="' . $urlparams['searchname'] .
-                             '" type="text" id="searchname" name="searchname">', "", ""));
+                             '" type="text" id="searchname" name="searchname">',
+                    "",
+                    "",
+                ]
+            );
         $row->id = 'booking-searchname-row';
         $tabledata[] = $row;
         $rowclasses[] = "";
 
         $row = new html_table_row(
-                array($labelsearchsurname,
+                [
+                    $labelsearchsurname,
                     '<input value="' . $urlparams['searchsurname'] .
-                             '" type="text" id="searchsurname" name="searchsurname">', "", ""));
+                             '" type="text" id="searchsurname" name="searchsurname">',
+                    "",
+                    "",
+                ]
+            );
         $row->id = 'booking-searchsurname-row';
         $tabledata[] = $row;
         $rowclasses[] = "";
 
         $row = new html_table_row(
-                array("",
+                [
+                    "",
                     '<input id="searchButton" type="submit" value="' . get_string('search') .
                              '"><input id="buttonclear" type="button" value="' .
-                             get_string('reset', 'booking') . '">', "", ""));
+                             get_string('reset', 'booking') . '">',
+                    "",
+                    "",
+                ]
+            );
         $tabledata[] = $row;
         $rowclasses[] = "";
 
         $table = new html_table();
-        $table->head = array('', '', '', '');
+        $table->head = ['', '', '', ''];
         $table->data = $tabledata;
         $table->id = "tableSearch";
         $table->attributes['class'] = "table table-striped ";
@@ -694,7 +728,7 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
         }
 
         // Add teachers to rawdata.
-        $teachers = array();
+        $teachers = [];
         $tachernamesql = $DB->sql_fullname('u.firstname', 'u.lastname');
         $bookingoptionids = array_keys($tablealloptions->rawdata);
         if (!empty($bookingoptionids)) {
@@ -706,7 +740,7 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
                             AND t.optionid $insql";
             $teachers = $DB->get_records_sql($teachersql, $inparams);
 
-            $optionteachers = array();
+            $optionteachers = [];
             foreach ($teachers as $teacher) {
                 if (empty($optionteachers[$teacher->boid])) {
                     $optionteachers[$teacher->boid] = $teacher->teachername;
@@ -758,8 +792,8 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
         }
     } else {
         // Downloading the data as CSV or similar.
-        $columns = array();
-        $headers = array();
+        $columns = [];
+        $headers = [];
 
         $customfields = '';
 
@@ -865,7 +899,7 @@ if (!$current && $bookingopen && has_capability('mod/booking:choose', $context))
 } else {
     echo $OUTPUT->header();
     echo $OUTPUT->error_text(get_string("norighttobook", "booking"));
-    echo $OUTPUT->continue_button(new moodle_url('/course/view.php', array('id' => $course->id)));
+    echo $OUTPUT->continue_button(new moodle_url('/course/view.php', ['id' => $course->id]));
 }
 echo $OUTPUT->box('<a href="http://www.wunderbyte.at">' . get_string('createdbywunderbyte', 'mod_booking') . "</a>",
         'box mdl-align');

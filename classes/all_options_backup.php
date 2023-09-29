@@ -69,15 +69,15 @@ class all_options extends table_sql {
     protected function col_id($values) {
         global $OUTPUT;
 
-        $ddoptions = array();
+        $ddoptions = [];
         $ret = '<div class="menubar" id="action-menu-' . $values->id . '-menubar" role="menubar">';
 
         if ($values->iambooked) {
             $ret .= html_writer::link(
                 new moodle_url('/mod/booking/viewconfirmation.php',
-                    array('id' => $this->cm->id, 'optionid' => $values->id)),
+                    ['id' => $this->cm->id, 'optionid' => $values->id]),
                 $OUTPUT->pix_icon('t/print', get_string('bookedtext', 'mod_booking')),
-                array('target' => '_blank'));
+                ['target' => '_blank']);
         }
 
         if (has_capability('mod/booking:updatebooking', $this->context) || (has_capability(
@@ -85,14 +85,14 @@ class all_options extends table_sql {
                 booking_check_if_teacher($values))) {
             $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
                     new moodle_url('/mod/booking/editoptions.php',
-                        array('id' => $this->cm->id, 'optionid' => $values->id)),
+                        ['id' => $this->cm->id, 'optionid' => $values->id]),
                     $OUTPUT->pix_icon('t/editstring', get_string('editbookingoption', 'mod_booking')) .
                     get_string('editbookingoption', 'mod_booking')) . '</div>';
 
             // Multiple dates session.
             $ddoptions[] = '<div class="dropdown-item">' .
                 html_writer::link(new moodle_url('/mod/booking/optiondates.php',
-                    array('id' => $this->cm->id, 'optionid' => $values->id)),
+                    ['id' => $this->cm->id, 'optionid' => $values->id]),
                     $OUTPUT->pix_icon('i/scheduled',
                         get_string('optiondatesmanager', 'booking')) .
                     get_string('optiondatesmanager', 'booking')) . '</div>';
@@ -101,7 +101,7 @@ class all_options extends table_sql {
             if (has_capability('mod/booking:subscribeusers', $this->context) ||
                 booking_check_if_teacher($values)) {
                 $onlyoneurl = new moodle_url('/mod/booking/subscribeusers.php',
-                    array('id' => $this->cm->id, 'optionid' => $values->id));
+                    ['id' => $this->cm->id, 'optionid' => $values->id]);
                 $ddoptions[] = '<div class="dropdown-item">' .
                     html_writer::link($onlyoneurl,
                         $OUTPUT->pix_icon('i/users',
@@ -110,8 +110,7 @@ class all_options extends table_sql {
             }
             // Show only one option.
             $onlyoneurl = new moodle_url('/mod/booking/view.php',
-                array('id' => $this->cm->id, 'optionid' => $values->id,
-                    'whichview' => 'showonlyone'));
+                ['id' => $this->cm->id, 'optionid' => $values->id, 'whichview' => 'showonlyone']);
             $ddoptions[] = '<div class="dropdown-item">' .
                 html_writer::link($onlyoneurl,
                     $OUTPUT->pix_icon('i/publish',
@@ -120,8 +119,11 @@ class all_options extends table_sql {
 
             if (has_capability('mod/booking:updatebooking', $this->context)) {
                 $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(new moodle_url('/mod/booking/report.php',
-                        array('id' => $this->cm->id, 'optionid' => $values->id, 'action' => 'deletebookingoption',
-                            'sesskey' => sesskey())),
+                        ['id' => $this->cm->id,
+                            'optionid' => $values->id,
+                            'action' => 'deletebookingoption',
+                            'sesskey' => sesskey(),
+                        ]),
                         $OUTPUT->pix_icon('t/delete', get_string('deletethisbookingoption', 'mod_booking')) .
                         get_string('deletethisbookingoption', 'mod_booking')) . '</div>';
 
@@ -131,7 +133,7 @@ class all_options extends table_sql {
                         get_string('undocancelthisbookingoption', 'mod_booking'), ['onclick' =>
                             "require(['mod_booking/confirm_cancel'], function(init) {
                             init.init('" . $values->id . "', '" . $values->bostatus . "');
-                            });"
+                            });",
                             ]) . "</div>";
                 } else {
                     $ddoptions[] = '<div class="dropdown-item">' . html_writer::link('#',
@@ -139,12 +141,12 @@ class all_options extends table_sql {
                         get_string('cancelthisbookingoption', 'mod_booking'), ['onclick' =>
                             "require(['mod_booking/confirm_cancel'], function(init) {
                             init.init('" . $values->id . "', '" . $values->bostatus . "');
-                            });"
+                            });",
                             ]) . "</div>";
                 }
 
                 $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(new moodle_url('/mod/booking/editoptions.php',
-                        array('id' => $this->cm->id, 'optionid' => -1, 'copyoptionid' => $values->id)), $OUTPUT->pix_icon('t/copy',
+                        ['id' => $this->cm->id, 'optionid' => -1, 'copyoptionid' => $values->id]), $OUTPUT->pix_icon('t/copy',
                             get_string('duplicatebooking', 'mod_booking')) .
                         get_string('duplicatebooking', 'mod_booking')) . '</div>';
             }
@@ -154,7 +156,7 @@ class all_options extends table_sql {
                 $bookinginstances > 1) {
                 $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
                         new moodle_url('/mod/booking/moveoption.php',
-                            array('id' => $this->cm->id, 'optionid' => $values->id, 'sesskey' => sesskey())),
+                            ['id' => $this->cm->id, 'optionid' => $values->id, 'sesskey' => sesskey()]),
                         $OUTPUT->pix_icon('t/move', get_string('moveoptionto', 'booking')) .
                         get_string('moveoptionto', 'booking')) . '</div>';
             }
@@ -163,7 +165,7 @@ class all_options extends table_sql {
             $ret .= '<div class="dropdown d-inline">
                     <a href="' .
                 new moodle_url('/mod/booking/editoptions.php',
-                    array('id' => $this->cm->id, 'optionid' => $values->id)) .
+                    ['id' => $this->cm->id, 'optionid' => $values->id]) .
                 '" id="action-menu-toggle-' . $values->id . '" title="" role="button" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">' . $OUTPUT->pix_icon(
                     't/edit', get_string('settings', 'moodle')) .

@@ -45,9 +45,9 @@ class otherbookingaddrule_form extends moodleform {
                                         LEFT JOIN {booking} b ON bo.bookingid = b.id
                                         WHERE bo.id = ?)
                     ORDER BY text ASC",
-                array($this->_customdata['optionid']));
+                [$this->_customdata['optionid']]);
 
-        $bookingoptionsarray = array();
+        $bookingoptionsarray = [];
 
         foreach ($bookingoptions as $value) {
             $bookingoptionsarray[$value->id] = $value->text;
@@ -78,7 +78,7 @@ class otherbookingaddrule_form extends moodleform {
      * @see moodleform::validation()
      */
     public function validation($data, $files) {
-        return array();
+        return [];
     }
 
     public function get_data() {

@@ -42,7 +42,7 @@ if (!$context = context_system::instance()) {
 
 $PAGE->set_context($context);
 
-$url = new moodle_url('/mod/booking/optionview.php', array('cmid' => $cmid, 'optionid' => $optionid));
+$url = new moodle_url('/mod/booking/optionview.php', ['cmid' => $cmid, 'optionid' => $optionid]);
 $PAGE->set_url($url);
 
 $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);

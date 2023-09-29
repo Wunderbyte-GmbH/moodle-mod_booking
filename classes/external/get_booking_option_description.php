@@ -57,7 +57,7 @@ class get_booking_option_description extends external_api {
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
             'optionid' => new external_value(PARAM_INT, 'Option id'),
-            'userid' => new external_value(PARAM_INT, 'userid')
+            'userid' => new external_value(PARAM_INT, 'userid'),
             ]
         );
     }
@@ -101,7 +101,7 @@ class get_booking_option_description extends external_api {
 
         return [
             'content' => json_encode($data),
-            'template' => 'mod_booking/bookingoption_description'
+            'template' => 'mod_booking/bookingoption_description',
         ];
     }
 

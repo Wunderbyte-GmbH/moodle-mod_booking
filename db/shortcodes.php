@@ -29,14 +29,14 @@ defined('MOODLE_INTERNAL') || die();
 $shortcodes = [
     'recommendedin' => [
         'callback' => 'mod_booking\shortcodes::recommendedin',
-        'description' => 'recommendedin'
+        'description' => 'recommendedin',
     ],
     'fieldofstudyoptions' => [
         'callback' => 'mod_booking\shortcodes::fieldofstudyoptions',
-        'description' => 'fieldofstudyoptions'
+        'description' => 'fieldofstudyoptions',
     ],
     'fieldofstudycohortoptions' => [
         'callback' => 'mod_booking\shortcodes::fieldofstudycohortoptions',
-        'description' => 'fieldofstudycohortoptions'
+        'description' => 'fieldofstudycohortoptions',
     ],
 ];

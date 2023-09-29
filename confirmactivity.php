@@ -40,9 +40,9 @@ $context = context_module::instance($cm->id);
 $PAGE->set_context($context);
 
 $bookingoption = singleton_service::get_instance_of_booking_option($id, $optionid);
-$url = new moodle_url('/mod/booking/confirmactivity.php', array('id' => $id, 'optionid' => $optionid));
-$backurl = new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid));
-$errorurl = new moodle_url('/mod/booking/view.php', array('id' => $id));
+$url = new moodle_url('/mod/booking/confirmactivity.php', ['id' => $id, 'optionid' => $optionid]);
+$backurl = new moodle_url('/mod/booking/report.php', ['id' => $cm->id, 'optionid' => $optionid]);
+$errorurl = new moodle_url('/mod/booking/view.php', ['id' => $id]);
 
 if (!booking_check_if_teacher ( $bookingoption->option )) {
     if (!(has_capability('mod/booking:readresponses', $context) || has_capability('moodle/site:accessallgroups', $context))) {
@@ -50,8 +50,7 @@ if (!booking_check_if_teacher ( $bookingoption->option )) {
     }
 }
 
-$mform = new confirmactivity($url, array('course' => $course,
-    'optionid' => $optionid, 'bookingid' => $bookingoption->booking->id));
+$mform = new confirmactivity($url, ['course' => $course, 'optionid' => $optionid, 'bookingid' => $bookingoption->booking->id]);
 
 if ($mform->is_cancelled()) {
     redirect($backurl, '', 0);

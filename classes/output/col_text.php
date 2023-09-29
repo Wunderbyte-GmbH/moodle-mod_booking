@@ -56,8 +56,8 @@ class col_text implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output) {
 
-        return array(
-            'text' => $this->text
-        );
+        return [
+            'text' => $this->text,
+        ];
     }
 }

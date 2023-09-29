@@ -87,7 +87,7 @@ class booking_answers {
 
         if (!$data) {
 
-            $params = array('optionid' => $optionid);
+            $params = ['optionid' => $optionid];
 
             if ($CFG->version >= 2021051700) {
                 // This only works in Moodle 3.11 and later.
@@ -277,16 +277,16 @@ class booking_answers {
 
         // First check list of booked users.
         if (isset($this->usersonlist[$userid]) && $this->usersonlist[$userid]->waitinglist == STATUSPARAM_BOOKED) {
-            $returnarray = array('iambooked' => $returnarray);
+            $returnarray = ['iambooked' => $returnarray];
         } else if (isset($this->usersreserved[$userid]) && $this->usersreserved[$userid]->waitinglist == STATUSPARAM_RESERVED) {
-            $returnarray = array('iamreserved' => $returnarray);
+            $returnarray = ['iamreserved' => $returnarray];
         } else if (isset($this->usersonwaitinglist[$userid]) &&
             $this->usersonwaitinglist[$userid]->waitinglist == STATUSPARAM_WAITINGLIST) {
             // Now check waiting list.
-            $returnarray = array('onwaitinglist' => $returnarray);
+            $returnarray = ['onwaitinglist' => $returnarray];
         } else {
             // Else it's not booked.
-            $returnarray = array('notbooked' => $returnarray);
+            $returnarray = ['notbooked' => $returnarray];
         }
 
         return $returnarray;
@@ -330,7 +330,8 @@ class booking_answers {
 
         $params = ['statuswaitinglist' => STATUSPARAM_WAITINGLIST,
                    'bookingid' => $bookingid,
-                   'userid' => $userid];
+                   'userid' => $userid,
+                    ];
 
         $sql = "SELECT COUNT(*)
                 FROM {booking_answers}

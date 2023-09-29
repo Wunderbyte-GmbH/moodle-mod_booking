@@ -62,12 +62,12 @@ class conditions_info {
         }
 
         $mform->registerNoSubmitButton('btn_bookingruleconditiontype');
-        $buttonargs = array('style' => 'visibility:hidden;');
+        $buttonargs = ['style' => 'visibility:hidden;'];
         $categoryselect = [
             $mform->createElement('select', 'bookingruleconditiontype',
             get_string('bookingrulecondition', 'mod_booking'), $conditionsforselect),
             $mform->createElement('submit', 'btn_bookingruleconditiontype', get_string('bookingrulecondition', 'mod_booking'),
-                $buttonargs)
+                $buttonargs),
         ];
         $mform->addGroup($categoryselect, 'bookingruleconditiontype', get_string('bookingrulecondition', 'mod_booking'),
             [' '], false);

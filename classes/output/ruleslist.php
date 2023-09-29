@@ -63,8 +63,8 @@ class ruleslist implements renderable, templatable {
     }
 
     public function export_for_template(renderer_base $output) {
-        return array(
-                'rules' => $this->rules
-        );
+        return [
+                'rules' => $this->rules,
+        ];
     }
 }

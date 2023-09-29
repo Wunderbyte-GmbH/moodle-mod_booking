@@ -62,8 +62,8 @@ class boactionslist implements renderable, templatable {
     }
 
     public function export_for_template(renderer_base $output) {
-        return array(
-                'actions' => $this->actions
-        );
+        return [
+                'actions' => $this->actions,
+        ];
     }
 }

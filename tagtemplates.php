@@ -30,8 +30,8 @@ $id = required_param('id', PARAM_INT); // Course Module ID.
 $tagid = optional_param('tagid', 0, PARAM_INT);
 $action = optional_param('action', '', PARAM_ALPHANUM);
 
-$url = new moodle_url('/mod/booking/tagtemplates.php', array('id' => $id));
-$urlredirect = new moodle_url('/mod/booking/view.php', array('id' => $id));
+$url = new moodle_url('/mod/booking/tagtemplates.php', ['id' => $id]);
+$urlredirect = new moodle_url('/mod/booking/view.php', ['id' => $id]);
 $PAGE->set_url($url);
 
 list($course, $cm) = get_course_and_cm_from_cmid($id);
@@ -50,7 +50,7 @@ if (!$context = context_module::instance($cm->id)) {
 require_capability('mod/booking:updatebooking', $context);
 
 if (($action === 'delete') && ($tagid > 0)) {
-    $DB->delete_records('booking_tags', array('id' => $tagid));
+    $DB->delete_records('booking_tags', ['id' => $tagid]);
     redirect($url, get_string('tagdeleted', 'booking'), 5);
 }
 
@@ -63,35 +63,35 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string("tagtemplates", "booking"), 3, 'helptitle', 'uniqueid');
 
 $table = new html_table();
-$table->head = array(get_string('tagtag', 'booking'), get_string('tagtext', 'booking'), '');
+$table->head = [get_string('tagtag', 'booking'), get_string('tagtext', 'booking'), ''];
 
 $tags = new booking_tags($cm->course);
 
-$tagstable = array();
+$tagstable = [];
 
 foreach ($tags->get_all_tags() as $tag) {
 
-    $edit = new moodle_url('/mod/booking/tagtemplatesadd.php', array('id' => $cm->id, 'tagid' => $tag->id));
-    $delete = new moodle_url('/mod/booking/tagtemplates.php', array('id' => $id, 'tagid' => $tag->id, 'action' => 'delete'));
+    $edit = new moodle_url('/mod/booking/tagtemplatesadd.php', ['id' => $cm->id, 'tagid' => $tag->id]);
+    $delete = new moodle_url('/mod/booking/tagtemplates.php', ['id' => $id, 'tagid' => $tag->id, 'action' => 'delete']);
     $button = $OUTPUT->single_button($edit, get_string('edittag', 'booking'), 'get') .
         $OUTPUT->single_button($delete, get_string('delete'), 'get');
 
-    $tagstable[] = array("[{$tag->tag}]", nl2br($tag->text),
-        html_writer::tag('span', $button,
-                array('style' => 'text-align: right; display:table-cell;')));
+    $tagstable[] = ["[{$tag->tag}]", nl2br($tag->text),
+                    html_writer::tag('span', $button, ['style' => 'text-align: right; display:table-cell;']),
+                ];
 }
 
 $table->data = $tagstable;
 echo html_writer::table($table);
 
-$cancel = new moodle_url('/mod/booking/view.php', array('id' => $cm->id));
-$addnew = new moodle_url('/mod/booking/tagtemplatesadd.php', array('id' => $cm->id));
+$cancel = new moodle_url('/mod/booking/view.php', ['id' => $cm->id]);
+$addnew = new moodle_url('/mod/booking/tagtemplatesadd.php', ['id' => $cm->id]);
 
 echo '<div style="width: 100%; text-align: center; display:table;">';
 $button = $OUTPUT->single_button($cancel, get_string('cancel', 'core'), 'get');
-echo html_writer::tag('span', $button, array('style' => 'text-align: right; display:table-cell;'));
+echo html_writer::tag('span', $button, ['style' => 'text-align: right; display:table-cell;']);
 $button = $OUTPUT->single_button($addnew, get_string('addnewtagtemplate', 'booking'), 'get');
-echo html_writer::tag('span', $button, array('style' => 'text-align: left; display:table-cell;'));
+echo html_writer::tag('span', $button, ['style' => 'text-align: left; display:table-cell;']);
 echo '</div>';
 
 echo $OUTPUT->footer();

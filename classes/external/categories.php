@@ -37,11 +37,11 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/externallib.php');
 
 function mod_booking_showsubcategories($catid, $DB, $courseid) {
-    $returns = array();
-    $categories = $DB->get_records('booking_category', array('cid' => $catid));
+    $returns = [];
+    $categories = $DB->get_records('booking_category', ['cid' => $catid]);
     if (count((array) $categories) > 0) {
         foreach ($categories as $category) {
-            $cat = array();
+            $cat = [];
 
             $cat['id'] = $category->id;
             $cat['cid'] = $category->cid;
@@ -90,12 +90,12 @@ class categories extends external_api {
             'courseid' => $courseid,
         ]);
 
-        $returns = array();
+        $returns = [];
 
-        $categories = $DB->get_records('booking_category', array('course' => $courseid, 'cid' => 0));
+        $categories = $DB->get_records('booking_category', ['course' => $courseid, 'cid' => 0]);
 
         foreach ($categories as $category) {
-            $cat = array();
+            $cat = [];
 
             $cat['id'] = $category->id;
             $cat['cid'] = $category->cid;
@@ -103,10 +103,10 @@ class categories extends external_api {
 
             $returns[] = $cat;
 
-            $subcategories = $DB->get_records('booking_category', array('course' => $courseid, 'cid' => $category->id));
+            $subcategories = $DB->get_records('booking_category', ['course' => $courseid, 'cid' => $category->id]);
             if (count((array)$subcategories) < 0) {
                 foreach ($subcategories as $subcat) {
-                    $cat = array();
+                    $cat = [];
 
                     $cat['id'] = $subcat->id;
                     $cat['cid'] = $subcat->cid;
@@ -130,11 +130,11 @@ class categories extends external_api {
     public static function execute_returns(): external_multiple_structure {
         return new external_multiple_structure(
             new external_single_structure(
-                array(
+                [
                     'id' => new external_value(PARAM_INT, 'Category ID'),
                     'cid' => new external_value(PARAM_INT, 'Subcategory ID'),
-                    'name' => new external_value(PARAM_TEXT, 'Category name')
-                )
+                    'name' => new external_value(PARAM_TEXT, 'Category name'),
+                ]
             )
         );
     }

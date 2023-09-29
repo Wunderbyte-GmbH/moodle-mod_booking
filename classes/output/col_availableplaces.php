@@ -85,10 +85,10 @@ class col_availableplaces implements renderable, templatable {
             $this->showmanageresponses = true;
 
             // Add a link to redirect to the booking option.
-            $link = new moodle_url($CFG->wwwroot . '/mod/booking/report.php', array(
+            $link = new moodle_url($CFG->wwwroot . '/mod/booking/report.php', [
                 'id' => $cmid,
-                'optionid' => $optionid
-            ));
+                'optionid' => $optionid,
+            ]);
             // Use html_entity_decode to convert "&amp;" to a simple "&" character.
             if ($CFG->version >= 2023042400) {
                 // Moodle 4.2 needs second param.

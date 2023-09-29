@@ -187,11 +187,11 @@ function booking_get_coursemodule_info($cm) {
  * @throws moodle_exception
  * @throws require_login_exception
  */
-function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = array()) {
+function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = []) {
 
     // Check the contextlevel is as expected - if your plugin is a block.
     // We need context course if wee like to acces template files.
-    if (!in_array($context->contextlevel, array(CONTEXT_MODULE, CONTEXT_COURSE))) {
+    if (!in_array($context->contextlevel, [CONTEXT_MODULE, CONTEXT_COURSE])) {
         return false;
     }
 
@@ -239,7 +239,7 @@ function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedown
 function booking_user_outline($course, $user, $mod, $booking) {
     global $DB;
     if ($answer = $DB->get_record('booking_answers',
-            array('bookingid' => $booking->id, 'userid' => $user->id))) {
+            ['bookingid' => $booking->id, 'userid' => $user->id])) {
         $result = new stdClass();
         $result->info = "'" . format_string(booking_get_option_text($booking, $answer->optionid)) .
                  "'";
@@ -262,7 +262,7 @@ function booking_user_outline($course, $user, $mod, $booking) {
 function booking_user_complete($course, $user, $mod, $booking) {
     global $DB;
     if ($answer = $DB->get_record('booking_answers',
-            array("bookingid" => $booking->id, "userid" => $user->id))) {
+            ["bookingid" => $booking->id, "userid" => $user->id])) {
         $result = new stdClass();
         $result->info = "'" . format_string(booking_get_option_text($booking, $answer->optionid)) .
                  "'";
@@ -315,32 +315,32 @@ function booking_supports($feature) {
 function booking_comment_permissions($commentparam): array {
     global $DB, $USER;
 
-    $odata = $DB->get_record('booking_options', array('id' => $commentparam->itemid));
-    $bdata = $DB->get_record('booking', array('id' => $odata->bookingid));
+    $odata = $DB->get_record('booking_options', ['id' => $commentparam->itemid]);
+    $bdata = $DB->get_record('booking', ['id' => $odata->bookingid]);
 
     switch ($bdata->comments) {
         case 0:
-            return array('post' => false, 'view' => false);
+            return ['post' => false, 'view' => false];
             break;
         case 1:
-            return array('post' => true, 'view' => true);
+            return ['post' => true, 'view' => true];
             break;
         case 2:
             $udata = $DB->get_record('booking_answers',
-                    array('userid' => $USER->id, 'optionid' => $commentparam->itemid));
+                    ['userid' => $USER->id, 'optionid' => $commentparam->itemid]);
             if ($udata) {
-                return array('post' => true, 'view' => true);
+                return ['post' => true, 'view' => true];
             } else {
-                return array('post' => false, 'view' => true);
+                return ['post' => false, 'view' => true];
             }
             break;
         case 3:
             $udata = $DB->get_record('booking_answers',
-                    array('userid' => $USER->id, 'optionid' => $commentparam->itemid));
+                    ['userid' => $USER->id, 'optionid' => $commentparam->itemid]);
             if ($udata && $udata->completed == 1) {
-                return array('post' => true, 'view' => true);
+                return ['post' => true, 'view' => true];
             } else {
-                return array('post' => false, 'view' => true);
+                return ['post' => false, 'view' => true];
             }
             break;
     }
@@ -368,16 +368,16 @@ function booking_comment_validate(stdClass $commentparam): bool {
     if ($commentparam->commentarea != 'booking_option') {
         throw new comment_exception('invalidcommentarea');
     }
-    if (!$record = $DB->get_record('booking_options', array('id' => $commentparam->itemid))) {
+    if (!$record = $DB->get_record('booking_options', ['id' => $commentparam->itemid])) {
         throw new comment_exception('invalidcommentitemid');
     }
     if ($record->id) {
-        $booking = $DB->get_record('booking', array('id' => $record->bookingid));
+        $booking = $DB->get_record('booking', ['id' => $record->bookingid]);
     }
     if (!$booking) {
         throw new comment_exception('invalidid', 'data');
     }
-    if (!$course = $DB->get_record('course', array('id' => $booking->course))) {
+    if (!$course = $DB->get_record('course', ['id' => $booking->course])) {
         throw new comment_exception('coursemisconf');
     }
     if (!$cm = get_coursemodule_from_instance('booking', $booking->id, $course->id)) {
@@ -406,13 +406,13 @@ function booking_get_completion_state($course, $cm, $userid, $type) {
     global $CFG, $DB;
 
     // Get booking details.
-    if (!($booking = $DB->get_record('booking', array('id' => $cm->instance)))) {
+    if (!($booking = $DB->get_record('booking', ['id' => $cm->instance]))) {
         throw new Exception("Can't find booking {$cm->instance}");
     }
 
     if ($booking->enablecompletion > 0) {
         $user = $DB->count_records('booking_answers',
-                array('bookingid' => $booking->id, 'userid' => $userid, 'completed' => '1'));
+                ['bookingid' => $booking->id, 'userid' => $userid, 'completed' => '1']);
 
         if ($booking->enablecompletion <= $user) {
             return true;
@@ -521,22 +521,22 @@ function booking_add_instance($booking) {
 
     if ($draftitemid = file_get_submitted_draft_itemid('myfilemanager')) {
         file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'myfilemanager',
-                $booking->id, array('subdirs' => false, 'maxfiles' => 50));
+                $booking->id, ['subdirs' => false, 'maxfiles' => 50]);
     }
 
     if ($draftitemid = file_get_submitted_draft_itemid('bookingimages')) {
         file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'bookingimages',
-                $booking->id, array('subdirs' => false, 'maxfiles' => 500));
+                $booking->id, ['subdirs' => false, 'maxfiles' => 500]);
     }
 
     if ($draftitemid = file_get_submitted_draft_itemid('signinlogoheader')) {
         file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'signinlogoheader',
-                $booking->id, array('subdirs' => false, 'maxfiles' => 1));
+                $booking->id, ['subdirs' => false, 'maxfiles' => 1]);
     }
 
     if ($draftitemid = file_get_submitted_draft_itemid('signinlogofooter')) {
         file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'signinlogofooter',
-                $booking->id, array('subdirs' => false, 'maxfiles' => 1));
+                $booking->id, ['subdirs' => false, 'maxfiles' => 1]);
     }
 
     if (isset($booking->tags)) {
@@ -642,20 +642,20 @@ function booking_update_instance($booking) {
         $booking->assesstimefinish = 0;
     }
 
-    $arr = array();
+    $arr = [];
     core_tag_tag::set_item_tags('mod_booking', 'booking', $booking->id, $context, $booking->tags);
 
     file_save_draft_area_files($booking->signinlogoheader, $context->id, 'mod_booking',
-            'signinlogoheader', $booking->id, array('subdirs' => false, 'maxfiles' => 1));
+            'signinlogoheader', $booking->id, ['subdirs' => false, 'maxfiles' => 1]);
 
     file_save_draft_area_files($booking->signinlogofooter, $context->id, 'mod_booking',
-            'signinlogofooter', $booking->id, array('subdirs' => false, 'maxfiles' => 1));
+            'signinlogofooter', $booking->id, ['subdirs' => false, 'maxfiles' => 1]);
 
     file_save_draft_area_files($booking->myfilemanager, $context->id, 'mod_booking',
-            'myfilemanager', $booking->id, array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 50));
+            'myfilemanager', $booking->id, ['subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 50]);
 
     file_save_draft_area_files($booking->bookingimages, $context->id, 'mod_booking',
-            'bookingimages', $booking->id, array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 500));
+            'bookingimages', $booking->id, ['subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 500]);
 
     if (empty($booking->timerestrict)) {
         $booking->timeopen = 0;
@@ -719,7 +719,7 @@ function booking_update_instance($booking) {
                 if (!empty($value)) {
                     $DB->update_record("booking_options", $option);
                 } else { // Empty old option - needs to be deleted.
-                    $DB->delete_records("booking_options", array("id" => $option->id));
+                    $DB->delete_records("booking_options", ["id" => $option->id]);
                 }
             } else {
                 if (!empty($value)) {
@@ -763,7 +763,7 @@ function booking_update_options(object $optionvalues, context_module $context, i
     $option->bookingid = $optionvalues->bookingid;
 
     $customfields = booking_option::get_customfield_settings();
-    if (!($booking = $DB->get_record('booking', array('id' => $optionvalues->bookingid)))) {
+    if (!($booking = $DB->get_record('booking', ['id' => $optionvalues->bookingid]))) {
         $booking = new stdClass();
         $booking->id = 0;
     }
@@ -1087,15 +1087,15 @@ function booking_update_options(object $optionvalues, context_module $context, i
             $category->name = $_POST[$cfforcategory];
 
             if (!empty($category->name)) {
-                $categories = core_course_external::get_categories(array(
-                        array('key' => 'name', 'value' => $category->name)
-                ));
+                $categories = core_course_external::get_categories([
+                        ['key' => 'name', 'value' => $category->name],
+                ]);
 
                 if (empty($categories)) {
                     $category->idnumber = $category->name;
-                    $categories = array(
-                            array('name' => $category->name, 'idnumber' => $category->idnumber, 'parent' => 0)
-                    );
+                    $categories = [
+                            ['name' => $category->name, 'idnumber' => $category->idnumber, 'parent' => 0],
+                    ];
                     $createdcats = core_course_external::create_categories($categories);
                     $categoryid = $createdcats[0]['id'];
                 } else {
@@ -1114,7 +1114,7 @@ function booking_update_options(object $optionvalues, context_module $context, i
         // Courses need to have unique shortnames.
         $i = 1;
         $shortname = $fullnamewithprefix;
-        while ($DB->get_record('course', array('shortname' => $shortname))) {
+        while ($DB->get_record('course', ['shortname' => $shortname])) {
             $shortname = $fullnamewithprefix . '_' . $i;
             $i++;
         };
@@ -1122,7 +1122,7 @@ function booking_update_options(object $optionvalues, context_module $context, i
         $newcourse['shortname'] = $shortname;
         $newcourse['categoryid'] = $categoryid;
 
-        $courses = array($newcourse);
+        $courses = [$newcourse];
         $createdcourses = core_course_external::create_courses($courses);
         $option->courseid = $createdcourses[0]['id'];
         $optionvalues->courseid = $option->courseid;
@@ -1146,9 +1146,9 @@ function booking_update_options(object $optionvalues, context_module $context, i
             $option->sortorder = $optionvalues->sortorder ?? 0;
 
             $option->calendarid = $DB->get_field('booking_options', 'calendarid',
-                    array('id' => $option->id));
+                    ['id' => $option->id]);
             $coursestarttime = $DB->get_field('booking_options', 'coursestarttime',
-                    array('id' => $option->id));
+                    ['id' => $option->id]);
 
             if ($coursestarttime != $optionvalues->coursestarttime) {
                 $option->sent = 0;
@@ -1156,11 +1156,11 @@ function booking_update_options(object $optionvalues, context_module $context, i
                 $option->sentteachers = 0;
             } else {
                 $option->sent = $DB->get_field('booking_options', 'sent',
-                        array('id' => $option->id));
+                        ['id' => $option->id]);
                 $option->sent2 = $DB->get_field('booking_options', 'sent2',
-                        array('id' => $option->id));
+                        ['id' => $option->id]);
                 $option->sentteachers = $DB->get_field('booking_options', 'sentteachers',
-                        array('id' => $option->id));
+                        ['id' => $option->id]);
             }
 
             // Save the additional JSON conditions (the ones which have been added to the mform).
@@ -1195,9 +1195,14 @@ function booking_update_options(object $optionvalues, context_module $context, i
                 if (!empty($customfields)) {
                     foreach ($customfields as $fieldcfgname => $field) {
                         if (!empty($optionvalues->$fieldcfgname)) {
-                            $customfieldid = $DB->get_field('booking_customfields', 'id',
-                                    array('bookingid' => $booking->id, 'optionid' => $option->id,
-                                            'cfgname' => $fieldcfgname));
+                            $customfieldid = $DB->get_field(
+                                    'booking_customfields',
+                                    'id',
+                                    [
+                                        'bookingid' => $booking->id,
+                                        'optionid' => $option->id,
+                                        'cfgname' => $fieldcfgname,
+                                    ]);
                             if ($customfieldid) {
                                 $customfield = new stdClass();
                                 $customfield->id = $customfieldid;
@@ -1325,8 +1330,7 @@ function booking_update_options(object $optionvalues, context_module $context, i
             // Add as template.
             // Fixed: For templates, make sure they won't get inserted twice.
             $dbrecord = $DB->get_record("booking_options",
-                    ['text' => $option->text,
-                            'bookingid' => $option->bookingid]);
+                    ['text' => $option->text, 'bookingid' => $option->bookingid]);
             if (empty($dbrecord)) {
                 $optionid = $DB->insert_record("booking_options", $option);
             } else {
@@ -1354,8 +1358,11 @@ function booking_update_options(object $optionvalues, context_module $context, i
 
         $option->shorturl = '';
 
-        $event = \mod_booking\event\bookingoption_created::create(array('context' => $context, 'objectid' => $optionid,
-                'relateduserid' => $USER->id));
+        $event = \mod_booking\event\bookingoption_created::create([
+            'context' => $context,
+            'objectid' => $optionid,
+            'relateduserid' => $USER->id,
+        ]);
         $event->trigger();
 
         // Save custom fields if there are any.
@@ -1422,7 +1429,7 @@ function booking_update_options(object $optionvalues, context_module $context, i
                     AND cfd.instanceid = :oldoptionid";
 
             $params = [
-                    'oldoptionid' => $optionvalues->copyoptionid
+                    'oldoptionid' => $optionvalues->copyoptionid,
             ];
 
             $now = time();
@@ -1474,11 +1481,11 @@ function booking_update_options(object $optionvalues, context_module $context, i
         // Trigger an event that booking option has been updated - only if it is NOT a template.
         if (!isset($optionvalues->addastemplate) || $optionvalues->addastemplate == 0) {
             $event = \mod_booking\event\bookingoption_updated::create(
-                    array(
+                    [
                             'context' => $context,
                             'objectid' => $optionid,
-                            'userid' => $USER->id
-                    )
+                            'userid' => $USER->id,
+                    ]
             );
             $event->trigger();
         }
@@ -1638,7 +1645,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         $navref->add(
             get_string('createnewbookingoption', 'booking'),
             // For a new booking option, optionid needs to be empty.
-            new moodle_url('/mod/booking/editoptions.php', array('id' => $cm->id, 'optionid' => '')),
+            new moodle_url('/mod/booking/editoptions.php', ['id' => $cm->id, 'optionid' => '']),
                 navigation_node::TYPE_CUSTOM, null, 'nav_createnewbookingoption'
         );
     }
@@ -1654,17 +1661,17 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             if (empty($optionid)) {
                 // We only want to show this in instance mode.
                 $navref->add(get_string('saveinstanceastemplate', 'mod_booking'),
-                    new moodle_url('/mod/booking/instancetemplateadd.php', array('id' => $cm->id)),
+                    new moodle_url('/mod/booking/instancetemplateadd.php', ['id' => $cm->id]),
                         navigation_node::TYPE_CUSTOM, null, 'nav_saveinstanceastemplate');
 
                 $navref->add(get_string("managecustomreporttemplates", "mod_booking"),
-                    new moodle_url('/mod/booking/customreporttemplates.php', array('id' => $cm->id)),
+                    new moodle_url('/mod/booking/customreporttemplates.php', ['id' => $cm->id]),
                         navigation_node::TYPE_CUSTOM, null, 'nav_managecustomreporttemplates');
             }
         }
     }
 
-    $urlparam = array('id' => $cm->id, 'optionid' => -1);
+    $urlparam = ['id' => $cm->id, 'optionid' => -1];
     if (!$templatedid = $DB->get_field('booking', 'templateid', ['id' => $cm->instance])) {
         $templatedid = get_config('booking', 'defaulttemplate');
     }
@@ -1674,20 +1681,20 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 
     if (has_capability('mod/booking:updatebooking', $context)) {
         $navref->add(get_string('importcsvbookingoption', 'mod_booking'),
-                new moodle_url('/mod/booking/importoptions.php', array('id' => $cm->id)),
+                new moodle_url('/mod/booking/importoptions.php', ['id' => $cm->id]),
                 navigation_node::TYPE_CUSTOM, null, 'nav_importcsvbookingoption');
         $navref->add(get_string('tagtemplates', 'mod_booking'),
-                new moodle_url('/mod/booking/tagtemplates.php', array('id' => $cm->id)),
+                new moodle_url('/mod/booking/tagtemplates.php', ['id' => $cm->id]),
                 navigation_node::TYPE_CUSTOM, null, 'nav_tagtemplates');
         $navref->add(get_string('importexcelbutton', 'mod_booking'),
-                new moodle_url('/mod/booking/importexcel.php', array('id' => $cm->id)),
+                new moodle_url('/mod/booking/importexcel.php', ['id' => $cm->id]),
                 navigation_node::TYPE_CUSTOM, null, 'nav_importexcelbutton');
         // TODO: Add capability for changesemester. Only admins should be allowed to do this!
         $navref->add(get_string('changesemester', 'mod_booking'),
-                new moodle_url('/mod/booking/semesters.php', array('id' => $cm->id)),
+                new moodle_url('/mod/booking/semesters.php', ['id' => $cm->id]),
                 navigation_node::TYPE_CUSTOM, null, 'nav_changesemester');
         $navref->add(get_string('recalculateprices', 'mod_booking'),
-                new moodle_url('/mod/booking/recalculateprices.php', array('id' => $cm->id)),
+                new moodle_url('/mod/booking/recalculateprices.php', ['id' => $cm->id]),
                 navigation_node::TYPE_CUSTOM, null, 'nav_recalculateprices');
         $navref->add(get_string('teachers_instance_report', 'mod_booking') . " ($bookingsettings->name)",
                 new moodle_url('/mod/booking/teachers_instance_report.php', ['cmid' => $cm->id]),
@@ -1717,30 +1724,30 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             }
         } */
 
-        $option = $DB->get_record('booking_options', array('id' => $optionid));
-        $booking = $DB->get_record('booking', array('id' => $option->bookingid));
+        $option = $DB->get_record('booking_options', ['id' => $optionid]);
+        $booking = $DB->get_record('booking', ['id' => $option->bookingid]);
 
         if (has_capability('mod/booking:updatebooking', $context) ||
             has_capability('mod/booking:addeditownoption', $context)) {
             $navref->add(get_string('editbookingoption', 'mod_booking'),
                     new moodle_url('/mod/booking/editoptions.php',
-                        array('id' => $cm->id, 'optionid' => $optionid)),
+                        ['id' => $cm->id, 'optionid' => $optionid]),
                         navigation_node::TYPE_CUSTOM, null, 'nav_edit');
             $navref->add(get_string('manageresponses', 'mod_booking'),
                     new moodle_url('/mod/booking/report.php',
-                        array('id' => $cm->id, 'optionid' => $optionid)),
+                        ['id' => $cm->id, 'optionid' => $optionid]),
                         navigation_node::TYPE_CUSTOM, null, 'nav_manageresponses');
         }
         if (has_capability('mod/booking:updatebooking', $context)) {
             $navref->add(get_string('duplicatebooking', 'booking'),
                     new moodle_url('/mod/booking/editoptions.php',
-                        array('id' => $cm->id, 'optionid' => -1, 'copyoptionid' => $optionid)),
+                        ['id' => $cm->id, 'optionid' => -1, 'copyoptionid' => $optionid]),
                         navigation_node::TYPE_CUSTOM, null, 'nav_duplicatebooking');
 
             if (has_capability('mod/booking:manageoptiondates', $context)) {
                 $navref->add(get_string('optiondatesmanager', 'booking'),
                         new moodle_url('/mod/booking/optiondates.php',
-                            array('id' => $cm->id, 'optionid' => $optionid)),
+                            ['id' => $cm->id, 'optionid' => $optionid]),
                             navigation_node::TYPE_CUSTOM, null, 'nav_optiondatesmanager');
             }
         }
@@ -1748,13 +1755,13 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         if (has_capability ( 'mod/booking:subscribeusers', $context )) {
             $navref->add(get_string('bookotherusers', 'booking'),
                     new moodle_url('/mod/booking/subscribeusers.php',
-                            array('id' => $cm->id, 'optionid' => $optionid)),
+                            ['id' => $cm->id, 'optionid' => $optionid]),
                             navigation_node::TYPE_CUSTOM, null, 'nav_bookotherusers');
             $completion = new \completion_info($course);
             if ($completion->is_enabled($cm)) {
                 $navref->add(get_string('bookuserswithoutcompletedactivity', 'booking'),
                         new moodle_url('/mod/booking/subscribeusersactivity.php',
-                                array('id' => $cm->id, 'optionid' => $optionid)),
+                                ['id' => $cm->id, 'optionid' => $optionid]),
                                 navigation_node::TYPE_CUSTOM, null, 'nav_bookuserswithoutcompletedactivity');
             }
         }
@@ -1778,7 +1785,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                 ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC ||
                 $completion->is_enabled($cm) == COMPLETION_TRACKING_MANUAL)) {
                 $navref->add(get_string('confirmuserswith', 'booking'),
-                    new moodle_url('/mod/booking/confirmactivity.php', array('id' => $cm->id, 'optionid' => $optionid)),
+                    new moodle_url('/mod/booking/confirmactivity.php', ['id' => $cm->id, 'optionid' => $optionid]),
                     navigation_node::TYPE_CUSTOM, null, 'nav_confirmuserswith');
             }
         }
@@ -1786,15 +1793,19 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                 $booking->conectedbooking > 0) {
             $navref->add(get_string('editotherbooking', 'booking'),
                     new moodle_url('/mod/booking/otherbooking.php',
-                        array('id' => $cm->id, 'optionid' => $optionid)),
+                        ['id' => $cm->id, 'optionid' => $optionid]),
                     navigation_node::TYPE_CUSTOM, null, 'nav_editotherbooking');
         }
         if (has_capability('mod/booking:updatebooking', $context)) {
             $navref->add(get_string('deletethisbookingoption', 'mod_booking'),
                     new moodle_url('/mod/booking/report.php',
-                            array('id' => $cm->id, 'optionid' => $optionid,
-                                'action' => 'deletebookingoption', 'sesskey' => sesskey())),
-                                navigation_node::TYPE_CUSTOM, null, 'nav_deletebookingoption');
+                        [
+                            'id' => $cm->id,
+                            'optionid' => $optionid,
+                            'action' => 'deletebookingoption',
+                            'sesskey' => sesskey(),
+                        ]),
+                    navigation_node::TYPE_CUSTOM, null, 'nav_deletebookingoption');
         }
     }
 
@@ -1802,17 +1813,20 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         if (!empty($optionid)) {
             $navref->add(get_string('copytotemplate', 'mod_booking'),
                 new moodle_url('/mod/booking/report.php',
-                        array('id' => $cm->id, 'optionid' => $optionid,
-                            'action' => 'copytotemplate', 'sesskey' => sesskey())),
-                            navigation_node::TYPE_CUSTOM, null, 'nav_copytotemplate');
+                        [
+                            'id' => $cm->id,
+                            'optionid' => $optionid,
+                            'action' => 'copytotemplate',
+                            'sesskey' => sesskey(),
+                        ]),
+                    navigation_node::TYPE_CUSTOM, null, 'nav_copytotemplate');
         }
 
         $navref->add(get_string("manageoptiontemplates", "mod_booking"),
-            new moodle_url('/mod/booking/optiontemplatessettings.php', array('id' => $cm->id)),
+            new moodle_url('/mod/booking/optiontemplatessettings.php', ['id' => $cm->id]),
                 navigation_node::TYPE_CUSTOM, null, 'nav_manageoptiontemplates');
     }
 }
-
 
 /**
  * Check if logged in user is in teachers db.
@@ -1860,14 +1874,14 @@ function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $o
         foreach ($uid as $ui) {
             // TODO: Optimization of db query: instead of loop, one get_records query.
             $userdata = $DB->get_record('booking_teachers',
-                    array('optionid' => $optionid, 'userid' => $ui));
+                    ['optionid' => $optionid, 'userid' => $ui]);
 
             if ($userdata->completed == '1') {
                 $userdata->completed = '0';
 
                 $DB->update_record('booking_teachers', $userdata);
                 $countcomplete = $DB->count_records('booking_teachers',
-                    array('bookingid' => $booking->id, 'userid' => $ui, 'completed' => '1'));
+                    ['bookingid' => $booking->id, 'userid' => $ui, 'completed' => '1']);
 
                 if ($completion->is_enabled($cm) && $booking->enablecompletion > $countcomplete) {
                     $completion->update_state($cm, COMPLETION_INCOMPLETE, $ui);
@@ -1877,7 +1891,7 @@ function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $o
 
                 $DB->update_record('booking_teachers', $userdata);
                 $countcomplete = $DB->count_records('booking_teachers',
-                    array('bookingid' => $booking->id, 'userid' => $ui, 'completed' => '1'));
+                    ['bookingid' => $booking->id, 'userid' => $ui, 'completed' => '1']);
 
                 if ($completion->is_enabled($cm) && $booking->enablecompletion <= $countcomplete) {
                     $completion->update_state($cm, COMPLETION_COMPLETE, $ui);
@@ -1966,7 +1980,7 @@ function booking_generatenewnumbers($bookingdatabooking, $cmid, $optionid, $alls
 function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) {
     global $DB, $CFG, $USER;
 
-    $course = $DB->get_record('course', array('id' => $booking->course));
+    $course = $DB->get_record('course', ['id' => $booking->course]);
     require_once($CFG->libdir . '/completionlib.php');
     $completion = new \completion_info($course);
 
@@ -1985,7 +1999,7 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
 
             $DB->update_record('booking_answers', $userdata);
             $countcomplete = $DB->count_records('booking_answers',
-                    array('bookingid' => $booking->id, 'userid' => $selecteduser, 'completed' => '1'));
+                    ['bookingid' => $booking->id, 'userid' => $selecteduser, 'completed' => '1']);
 
             if ($completion->is_enabled($cm) && $booking->enablecompletion > $countcomplete) {
                 $completion->update_state($cm, COMPLETION_INCOMPLETE, $selecteduser);
@@ -1995,14 +2009,19 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
             $userdata->timemodified = time();
 
             // Trigger the completion event, in order to send the notification mail.
-            $event = \mod_booking\event\bookingoption_completed::create(array('context' => context_module::instance($cmid),
-                'objectid' => $optionid, 'userid' => $USER->id, 'relateduserid' => $selecteduser, 'other' => ['cmid' => $cmid]));
+            $event = \mod_booking\event\bookingoption_completed::create([
+                'context' => context_module::instance($cmid),
+                'objectid' => $optionid,
+                'userid' => $USER->id,
+                'relateduserid' => $selecteduser,
+                'other' => ['cmid' => $cmid],
+            ]);
             $event->trigger();
             // Important: userid is the user who triggered, relateduserid is the affected user who completed.
 
             $DB->update_record('booking_answers', $userdata);
             $countcomplete = $DB->count_records('booking_answers',
-                    array('bookingid' => $booking->id, 'userid' => $selecteduser, 'completed' => '1'));
+                    ['bookingid' => $booking->id, 'userid' => $selecteduser, 'completed' => '1']);
 
             if ($completion->is_enabled($cm) && $booking->enablecompletion <= $countcomplete) {
                 $completion->update_state($cm, COMPLETION_COMPLETE, $selecteduser);
@@ -2090,7 +2109,7 @@ function booking_grade_item_update($booking, $grades = null) {
         require_once($CFG->libdir . '/gradelib.php');
     }
 
-    $params = array('itemname' => $booking->name, 'idnumber' => $booking->cmidnumber);
+    $params = ['itemname' => $booking->name, 'idnumber' => $booking->cmidnumber];
 
     if (!$booking->assessed || $booking->scale == 0) {
         $params['gradetype'] = GRADE_TYPE_NONE;
@@ -2123,7 +2142,7 @@ function booking_grade_item_delete($booking) {
     require_once($CFG->libdir . '/gradelib.php');
 
     return grade_update('mod/booking', $booking->course, 'mod', 'booking', $booking->id, 0, null,
-            array('deleted' => 1));
+            ['deleted' => 1]);
 }
 
 /**
@@ -2136,7 +2155,7 @@ function booking_grade_item_delete($booking) {
 function booking_scale_used($bookingid, $scaleid) {
     global $DB;
     $return = false;
-    $rec = $DB->get_record("booking", array("id" => $bookingid, "scale" => "-$scaleid"));
+    $rec = $DB->get_record("booking", ["id" => $bookingid, "scale" => "-$scaleid"]);
 
     if (!empty($rec) && !empty($scaleid)) {
         $return = true;
@@ -2154,7 +2173,7 @@ function booking_scale_used($bookingid, $scaleid) {
  */
 function booking_scale_used_anywhere($scaleid) {
     global $DB;
-    if ($scaleid && $DB->record_exists('booking', array('scale' => -$scaleid))) {
+    if ($scaleid && $DB->record_exists('booking', ['scale' => -$scaleid])) {
         return true;
     } else {
         return false;
@@ -2173,10 +2192,12 @@ function booking_rating_permissions($contextid, $component, $ratingarea) {
         // Know nothing about component/ratingarea: return null for default perms.
         return null;
     }
-    return array('view' => has_capability('mod/booking:viewrating', $context),
+    return [
+        'view' => has_capability('mod/booking:viewrating', $context),
         'viewany' => has_capability('mod/booking:viewanyrating', $context),
         'viewall' => has_capability('mod/booking:viewallratings', $context),
-        'rate' => has_capability('mod/booking:rate', $context));
+        'rate' => has_capability('mod/booking:rate', $context),
+    ];
 }
 
 /**
@@ -2216,9 +2237,9 @@ function booking_rating_validate($params) {
 
     // Fetch all the related records.
     $answer = $DB->get_record('booking_answers',
-            array('id' => $params['itemid'], 'userid' => $params['rateduserid']), '*', MUST_EXIST);
-    $booking = $DB->get_record('booking', array('id' => $answer->bookingid), '*', MUST_EXIST);
-    $course = $DB->get_record('course', array('id' => $booking->course), '*', MUST_EXIST);
+            ['id' => $params['itemid'], 'userid' => $params['rateduserid']], '*', MUST_EXIST);
+    $booking = $DB->get_record('booking', ['id' => $answer->bookingid], '*', MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $booking->course], '*', MUST_EXIST);
     $cm = get_coursemodule_from_instance('booking', $booking->id, $course->id, false, MUST_EXIST);
     $context = context_module::instance($cm->id);
 
@@ -2248,7 +2269,7 @@ function booking_rating_validate($params) {
     // Upper limit.
     if ($booking->scale < 0) {
         // It is a custom scale.
-        $scalerecord = $DB->get_record('scale', array('id' => -$booking->scale));
+        $scalerecord = $DB->get_record('scale', ['id' => -$booking->scale]);
         if ($scalerecord) {
             $scalearray = explode(',', $scalerecord->scale);
             if ($params['rating'] > count($scalearray)) {
@@ -2302,9 +2323,15 @@ function booking_rate($ratings, $params) {
         throw new moodle_exception('ratepermissiondenied', 'rating');
     } else {
         foreach ($ratings as $rating) {
-            $checks = array('context' => $context, 'component' => $component,
-                'ratingarea' => $ratingarea, 'itemid' => $rating->itemid, 'scaleid' => $scaleid,
-                'rating' => $rating->rating, 'rateduserid' => $rating->rateduserid);
+            $checks = [
+                'context' => $context,
+                'component' => $component,
+                'ratingarea' => $ratingarea,
+                'itemid' => $rating->itemid,
+                'scaleid' => $scaleid,
+                'rating' => $rating->rating,
+                'rateduserid' => $rating->rateduserid,
+            ];
             if (!$rm->check_rating_is_valid($checks)) {
                 echo $OUTPUT->header();
                 echo get_string('ratinginvalid', 'rating');
@@ -2337,7 +2364,7 @@ function booking_rate($ratings, $params) {
     }
     if (!empty($cm) && $context->contextlevel == CONTEXT_MODULE) {
         // Tell the module that its grades have changed.
-        $modinstance = $DB->get_record($cm->modname, array('id' => $cm->instance), '*', MUST_EXIST);
+        $modinstance = $DB->get_record($cm->modname, ['id' => $cm->instance], '*', MUST_EXIST);
         $modinstance->cmidnumber = $cm->id; // MDL-12961.
         $functionname = $cm->modname . '_update_grades';
         require_once($CFG->dirroot . "/mod/{$cm->modname}/lib.php");
@@ -2359,7 +2386,7 @@ function booking_rate($ratings, $params) {
 function booking_delete_instance($id) {
     global $DB;
 
-    if (!$booking = $DB->get_record("booking", array("id" => "$id"))) {
+    if (!$booking = $DB->get_record("booking", ["id" => "$id"])) {
         return false;
     }
 
@@ -2390,7 +2417,7 @@ function booking_delete_instance($id) {
     AND itemid = :bookingid";
 
     $imgfileparams = [
-        'bookingid' => $booking->id
+        'bookingid' => $booking->id,
     ];
 
     if ($imgfilerecords = $DB->get_records_sql($imgfilesql, $imgfileparams)) {
@@ -2402,7 +2429,7 @@ function booking_delete_instance($id) {
                 'itemid' => $booking->id,
                 'contextid' => $imgfilerecord->contextid,
                 'filepath' => $imgfilerecord->filepath,
-                'filename' => $imgfilerecord->filename
+                'filename' => $imgfilerecord->filename,
             ];
             // Get file.
             $imgfile = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
@@ -2416,17 +2443,17 @@ function booking_delete_instance($id) {
                     'filearea' => 'bookingimages',
                     'itemid' => $booking->id,
                     'contextid' => $imgfilerecord->contextid,
-                    'filepath' => $imgfilerecord->filepath
+                    'filepath' => $imgfilerecord->filepath,
                 ]);
             }
         }
     }
 
-    if (!$DB->delete_records("booking_answers", array("bookingid" => "$booking->id"))) {
+    if (!$DB->delete_records("booking_answers", ["bookingid" => "$booking->id"])) {
         $result = false;
     }
 
-    if (!$DB->delete_records('booking_optiondates', array("bookingid" => "$booking->id"))) {
+    if (!$DB->delete_records('booking_optiondates', ["bookingid" => "$booking->id"])) {
         $result = false;
     } else {
         // If optiondates are deleted we also have to delete the associated entries in booking_optiondates_teachers.
@@ -2435,7 +2462,7 @@ function booking_delete_instance($id) {
     }
 
     // We also need to delete the booking teachers in the booking_teachers table!
-    if (!$DB->delete_records('booking_teachers', array("bookingid" => "$booking->id"))) {
+    if (!$DB->delete_records('booking_teachers', ["bookingid" => "$booking->id"])) {
         $result = false;
     }
 
@@ -2447,11 +2474,11 @@ function booking_delete_instance($id) {
         }
     }
 
-    if (!$DB->delete_records("event", array("instance" => "$booking->id"))) {
+    if (!$DB->delete_records("event", ["instance" => "$booking->id"])) {
         $result = false;
     }
 
-    if (!$DB->delete_records("booking", array("id" => "$booking->id"))) {
+    if (!$DB->delete_records("booking", ["id" => "$booking->id"])) {
         $result = false;
     }
 
@@ -2473,8 +2500,8 @@ function booking_get_option_text($booking, $id) {
             LEFT JOIN {booking_answers} ba ON ba.optionid = bo.id
             WHERE bo.bookingid = :bookingid
             AND ba.userid = :userid;",
-            array("bookingid" => $booking->id, "userid" => $USER->id))) {
-        $tmptxt = array();
+            ["bookingid" => $booking->id, "userid" => $USER->id])) {
+        $tmptxt = [];
         foreach ($result as $value) {
             $tmptxt[] = $value->text;
         }
@@ -2499,7 +2526,7 @@ function booking_reset_course_form_definition(&$mform) {
  * Course reset form defaults.
  */
 function booking_reset_course_form_defaults($course) {
-    return array('reset_booking' => 1);
+    return ['reset_booking' => 1];
 }
 
 /**
@@ -2507,8 +2534,8 @@ function booking_reset_course_form_defaults($course) {
  * @param int $seconds
  */
 function booking_pretty_duration($seconds) {
-    $measures = array('days' => 24 * 60 * 60, 'hours' => 60 * 60, 'minutes' => 60);
-    $durationparts = array();
+    $measures = ['days' => 24 * 60 * 60, 'hours' => 60 * 60, 'minutes' => 60];
+    $durationparts = [];
     foreach ($measures as $label => $amount) {
         if ($seconds >= $amount) {
             $howmany = floor($seconds / $amount);
@@ -2550,7 +2577,7 @@ function booking_pretty_duration($seconds) {
     $context = context_module::instance($cmid);
     $firstuseronwaitinglist = $option->maxanswers + 1;
     $i = 1;
-    $sortedresponses = array();
+    $sortedresponses = [];
     foreach ($allresponses as $answer) {
         if (has_capability('mod/booking:choose', $context, $answer->userid)) {
             $sortedresponses[$i++] = $answer->userid;
@@ -2570,7 +2597,7 @@ function booking_pretty_duration($seconds) {
  * Returns all other caps used in module
  */
 function booking_get_extra_capabilities() {
-    return array('moodle/site:accessallgroups');
+    return ['moodle/site:accessallgroups'];
 }
 
 /**
@@ -2601,7 +2628,7 @@ function subscribe_teacher_to_booking_option(int $userid, int $optionid, int $cm
         which indicates that a teacher has been enrolled into a Moodle course. */
     }
 
-    if ($DB->record_exists("booking_teachers", array("userid" => $userid, "optionid" => $optionid))) {
+    if ($DB->record_exists("booking_teachers", ["userid" => $userid, "optionid" => $optionid])) {
         return true;
     }
 
@@ -2620,9 +2647,12 @@ function subscribe_teacher_to_booking_option(int $userid, int $optionid, int $cm
     }
 
     if ($inserted) {
-        $event = \mod_booking\event\teacher_added::create(
-                array('userid' => $USER->id, 'relateduserid' => $userid, 'objectid' => $optionid,
-                    'context' => context_module::instance($cmid)));
+        $event = \mod_booking\event\teacher_added::create([
+            'userid' => $USER->id,
+            'relateduserid' => $userid,
+            'objectid' => $optionid,
+            'context' => context_module::instance($cmid),
+        ]);
         $event->trigger();
     }
 
@@ -2641,21 +2671,21 @@ function unsubscribe_teacher_from_booking_option(int $userid, int $optionid, int
     global $DB, $USER;
 
     $event = \mod_booking\event\teacher_removed::create(
-            array('userid' => $USER->id, 'relateduserid' => $userid, 'objectid' => $optionid,
-                'context' => context_module::instance($cmid)
-            ));
+            ['userid' => $USER->id, 'relateduserid' => $userid, 'objectid' => $optionid,
+                'context' => context_module::instance($cmid),
+            ]);
     $event->trigger();
 
     // Also delete the teacher from every optiondate.
     teachers_handler::remove_teacher_from_all_optiondates($optionid, $userid);
 
     return ($DB->delete_records('booking_teachers',
-            array('userid' => $userid, 'optionid' => $optionid)));
+            ['userid' => $userid, 'optionid' => $optionid]));
 }
 
 function booking_show_subcategories($catid, $courseid) {
     global $DB;
-    $categories = $DB->get_records('booking_category', array('cid' => $catid));
+    $categories = $DB->get_records('booking_category', ['cid' => $catid]);
     if (count((array) $categories) > 0) {
         echo '<ul>';
         foreach ($categories as $category) {
@@ -2807,7 +2837,7 @@ function get_list_of_booking_events() {
  * @return string|string[]|null
  */
 function clean_string(string $text) {
-    $utf8 = array(
+    $utf8 = [
         '/[áàâãªä]/u'   => 'a',
         '/[ÁÀÂÃÄ]/u'    => 'A',
         '/[ÍÌÎÏ]/u'     => 'I',
@@ -2826,6 +2856,6 @@ function clean_string(string $text) {
         '/[\'’‘‹›‚]/u'  => ' ', // Single quote.
         '/[\"“”«»„]/u'  => ' ', // Double quote.
         '/ /'           => ' ', // Nonbreaking space (equiv. to 0x160).
-    );
+    ];
     return preg_replace(array_keys($utf8), array_values($utf8), $text);
 }

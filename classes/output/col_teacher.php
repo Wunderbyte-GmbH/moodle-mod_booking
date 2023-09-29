@@ -71,8 +71,8 @@ class col_teacher implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output) {
 
-        return array(
-            'teachers' => $this->teachers
-        );
+        return [
+            'teachers' => $this->teachers,
+        ];
     }
 }

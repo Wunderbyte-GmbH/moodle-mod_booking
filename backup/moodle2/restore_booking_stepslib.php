@@ -39,7 +39,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
      * @throws dml_exception
      */
     protected function define_structure() {
-        $paths = array();
+        $paths = [];
         $userinfo = $this->get_setting_value('userinfo');
 
         $paths[] = new restore_path_element('booking', '/activity/booking');
@@ -129,7 +129,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
                         AND itemid = :oldbookingid";
 
             $params = [
-                'oldbookingid' => $oldbookingid
+                'oldbookingid' => $oldbookingid,
             ];
 
             $fs = get_file_storage();
@@ -146,7 +146,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
                     'userid' => $oldimagefile->userid,
                     'source' => $oldimagefile->source,
                     'author' => $oldimagefile->author,
-                    'license' => $oldimagefile->license
+                    'license' => $oldimagefile->license,
                 ];
 
                 // Get file.
@@ -219,7 +219,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
             AND cfd.instanceid = :oldid";
 
         $params = [
-            'oldid' => $oldid
+            'oldid' => $oldid,
         ];
 
         $oldcustomfields = $DB->get_records_sql($sql, $params);
@@ -241,7 +241,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
             AND itemid = :oldoptionid";
 
         $params = [
-            'oldoptionid' => $oldid
+            'oldoptionid' => $oldid,
         ];
 
         $fs = get_file_storage();
@@ -258,7 +258,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
                 'userid' => $oldimagefile->userid,
                 'source' => $oldimagefile->source,
                 'author' => $oldimagefile->author,
-                'license' => $oldimagefile->license
+                'license' => $oldimagefile->license,
             ];
 
             // Get file.

@@ -133,7 +133,7 @@ class optionformconfig_form extends \moodleform {
     public function validation($data, $files) {
 
         // We need not validation in this form.
-        $errors = array();
+        $errors = [];
         return $errors;
     }
 

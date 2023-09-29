@@ -73,7 +73,7 @@ class col_text_with_description implements renderable, templatable {
         $returnarr = [
             'optionid' => $this->optionid,
             'text' => $this->text,
-            'description' => $this->description
+            'description' => $this->description,
         ];
 
         // Only add titleprefix if it exists.

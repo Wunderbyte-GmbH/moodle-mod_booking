@@ -88,7 +88,7 @@ class update_bookingnotes extends external_api {
             'note' => $note,
             'baid' => $baid,
             'warnings' => $warnings,
-            'status' => $success
+            'status' => $success,
         ];
     }
 

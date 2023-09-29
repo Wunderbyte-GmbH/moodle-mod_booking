@@ -243,7 +243,7 @@ class rule_react_on_event implements booking_rule {
         $params = [
             'optionid' => $optionid,
             'userid' => $userid,
-            'json' => $this->rulejson
+            'json' => $this->rulejson,
         ];
 
         $sql = new stdClass();

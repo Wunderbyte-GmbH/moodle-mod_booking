@@ -51,6 +51,6 @@ class optiondates_teacher_added extends \core\event\base {
 
     public function get_url() {
         return new \moodle_url('/mod/booking/optiondates_teachers_report.php',
-                array('id' => $this->other['cmid'], 'optionid' => $this->objectid));
+                ['id' => $this->other['cmid'], 'optionid' => $this->objectid]);
     }
 }

@@ -74,7 +74,7 @@ class optiontemplate extends external_api {
         return [
             'id' => $id,
             'name' => $template->text,
-            'template' => json_encode($template)
+            'template' => json_encode($template),
         ];
     }
 

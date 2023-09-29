@@ -56,7 +56,7 @@ class signin_downloadform implements renderable, templatable {
     public $baseurl = '';
 
     /** @var array $sessions */
-    public $sessions = array();
+    public $sessions = [];
 
     /** @var boolean $teachersexist */
     public $teachersexist = false;
@@ -73,16 +73,16 @@ class signin_downloadform implements renderable, templatable {
             format_string($bookingoption->settings->text);
         $this->titleoption = format_string($bookingoption->settings->text);
         $this->instanceoption = format_string($bookingoption->booking->settings->name);
-        $this->sessions = array();
+        $this->sessions = [];
 
         if (!empty($bookingoption->settings->sessions)) {
             foreach ($bookingoption->settings->sessions as $session) {
-                $this->sessions[] = array(
+                $this->sessions[] = [
                     'sessiondateonly' => userdate($session->coursestarttime, get_string('strftimedate', 'langconfig')),
                     'coursestarttime' => userdate($session->coursestarttime, get_string('strftimedatetime', 'langconfig')),
                     'courseendtime' => userdate($session->courseendtime, get_string('strftimedatetime', 'langconfig')),
-                    'id' => $session->id
-                );
+                    'id' => $session->id,
+                ];
             }
         }
         $this->baseurl = $url->get_path();

@@ -51,7 +51,7 @@ class generator {
      *
      * @var array
      */
-    public $teachers = array();
+    public $teachers = [];
 
     /**
      * add teachers?
@@ -72,7 +72,7 @@ class generator {
      *
      * @var array
      */
-    public $cfgcustfields = array();
+    public $cfgcustfields = [];
 
     /**
      * number of empty rows to add at the end of the pdf
@@ -138,13 +138,13 @@ class generator {
      * user info fields to display in the sign in sheet table
      * @var array
      */
-    public $allfields = array();
+    public $allfields = [];
 
     /**
      * extra columns to display
      * @var array
      */
-    public $extracols = array();
+    public $extracols = [];
 
     /**
      *
@@ -262,7 +262,7 @@ class generator {
      */
     public function download_signinsheet() {
         global $CFG, $DB;
-        $groupparams = array();
+        $groupparams = [];
         $addsqlwhere = '';
 
         if (groups_get_activity_groupmode($this->bookingdata->booking->cm) == SEPARATEGROUPS &&
@@ -272,8 +272,7 @@ class generator {
                     $this->bookingdata->booking->course->id);
             $addsqlwhere .= " AND u.id IN ($groupsql)";
         }
-        $remove = array('signinextracols1', 'signinextracols2', 'signinextracols3', 'fullname',
-            'signature', 'rownumber', 'role');
+        $remove = ['signinextracols1', 'signinextracols2', 'signinextracols3', 'fullname', 'signature', 'rownumber', 'role'];
 
         if ($CFG->version >= 2021051700) {
             // This only works in Moodle 3.11 and later.
@@ -298,7 +297,7 @@ class generator {
             WHERE ba.optionid = :optionid AND ba.waitinglist = 0 " .
                          $addsqlwhere . "ORDER BY u.{$this->orderby} ASC",
                         array_merge($groupparams,
-                                array('optionid' => $this->bookingdata->option->id)));
+                                ['optionid' => $this->bookingdata->option->id]));
 
             // Create fake users for adding empty rows.
         if ($this->addemptyrows > 0) {
@@ -340,7 +339,7 @@ class generator {
             WHERE bt.optionid = :optionid ' .
                     $addsqlwhere . "ORDER BY u.{$this->orderby} ASC",
                     array_merge($groupparams,
-                            array('optionid' => $this->bookingdata->option->id)));
+                            ['optionid' => $this->bookingdata->option->id]));
             foreach ($teachers as $teacher) {
                 $teacher->isteacher = true;
                 array_push($users, $teacher);
@@ -375,7 +374,7 @@ class generator {
 
         $profilefields = explode(',', get_config('booking', 'custprofilefields'));
         $profiles = profile_get_custom_fields();
-        $profilefieldnames = array();
+        $profilefieldnames = [];
         if (!empty($profiles)) {
             $profilefieldnames = array_map(
                     function ($object) {
@@ -502,7 +501,7 @@ class generator {
                 return;
             } else if ($this->pdfsessions == 0) {
                 // Show all sessions.
-                $val = array();
+                $val = [];
                 foreach ($this->bookingdata->settings->sessions as $time) {
                     $tmpdate = new \stdClass();
                     $tmpdate->leftdate = userdate($time->coursestarttime,
@@ -540,7 +539,7 @@ class generator {
                 return [];
             } else if ($this->extrasessioncols == 0) {
                 // Add columns for all sessions.
-                $val = array();
+                $val = [];
                 foreach ($this->bookingdata->settings->sessions as $session) {
                     $sessioncolnames[] = userdate($session->coursestarttime,
                         get_string('strftimedateshortmonthabbr', 'langconfig'));
@@ -619,7 +618,7 @@ class generator {
      *
      * @param array $extracols
      */
-    public function set_page_header($extracols = array ()) {
+    public function set_page_header($extracols =  []) {
         global $DB;
         // Get header and footer logo for signin sheet.
         $this->pdf->SetXY(18, $this->margintop + 13);

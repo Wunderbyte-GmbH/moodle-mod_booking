@@ -24,7 +24,7 @@ $optionid = required_param('optionid', PARAM_INT);
 $uids = required_param('uids', PARAM_RAW);
 
 $url = new moodle_url('/mod/booking/sendmessage.php',
-        array('id' => $id, 'optionid' => $optionid, 'uids' => $uids));
+        ['id' => $id, 'optionid' => $optionid, 'uids' => $uids]);
 $PAGE->set_url($url);
 
 list($course, $cm) = get_course_and_cm_from_cmid($id);
@@ -45,7 +45,7 @@ $defaultvalues->optionid = $optionid;
 $defaultvalues->id = $id;
 $defaultvalues->uids = $uids;
 
-$redirecturl = new moodle_url('/mod/booking/report.php', array('id' => $id, 'optionid' => $optionid));
+$redirecturl = new moodle_url('/mod/booking/report.php', ['id' => $id, 'optionid' => $optionid]);
 
 $mform = new mod_booking_sendmessage_form();
 
@@ -86,8 +86,8 @@ echo $OUTPUT->footer();
 function send_custom_message(int $optionid, string $subject, string $message, array $selecteduserids) {
     global $DB;
 
-    $option = $DB->get_record('booking_options', array('id' => $optionid));
-    $booking = $DB->get_record('booking', array('id' => $option->bookingid));
+    $option = $DB->get_record('booking_options', ['id' => $optionid]);
+    $booking = $DB->get_record('booking', ['id' => $option->bookingid]);
     $cm = get_coursemodule_from_instance('booking', $booking->id);
 
     foreach ($selecteduserids as $currentuserid) {
