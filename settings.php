@@ -29,7 +29,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->dirroot . '/user/profile/lib.php');
 
 use mod_booking\price;
-use \mod_booking\utils\wb_payment;
+use mod_booking\utils\wb_payment;
 
 $ADMIN->add('modsettings',
         new admin_category('modbookingfolder', new lang_string('pluginname', 'mod_booking'),
