@@ -54,6 +54,7 @@ $string['responsible'] = 'Responsible';
 $string['responsiblecontact'] = 'Responsible contact person';
 $string['responsiblecontact_help'] = 'Choose a person who is responsible for this booking option. This is not supposed to be the teacher!';
 $string['reviewed'] = 'Reviewed';
+$string['rowupdated'] = 'Row was updated.';
 $string['search'] = 'Search...';
 $string['sendmailtoallbookedusers'] = 'Send e-mail to all booked users';
 $string['teachers'] = 'Teachers';

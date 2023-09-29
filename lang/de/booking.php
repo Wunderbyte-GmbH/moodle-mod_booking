@@ -54,6 +54,7 @@ $string['responsible'] = 'Zuständig';
 $string['responsiblecontact'] = 'Zuständige Kontaktperson';
 $string['responsiblecontact_help'] = 'Geben Sie eine zuständige Kontaktperson an. Dies sollte jemand anderer als der/die Lehrer/in sein.';
 $string['reviewed'] = 'Kontrolliert';
+$string['rowupdated'] = 'Zeile wurde aktualisiert.';
 $string['search'] = 'Suche...';
 $string['sendmailtoallbookedusers'] = 'E-Mail an alle gebuchten Nutzer:innen senden';
 $string['teachers'] = 'Trainer:innen';

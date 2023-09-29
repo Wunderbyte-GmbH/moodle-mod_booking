@@ -211,6 +211,9 @@ class optiondates_teachers_table extends wunderbyte_table {
             cache_helper::purge_by_event('setbackcachedteachersjournal');
         }
 
-        return [];
+        return [
+            'success' => 1,
+            'message' => get_string('rowupdated', 'mod_booking'),
+        ];
     }
 }
