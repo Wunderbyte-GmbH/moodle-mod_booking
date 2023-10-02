@@ -137,6 +137,9 @@ class bookingoption_description implements renderable, templatable {
     /** @var string $manageresponsesurl */
     private $manageresponsesurl = null;
 
+    /** @var string $responsiblecontact */
+    private $responsiblecontact = null;
+
     /**
      * Constructor.
      * @param int $optionid
@@ -276,13 +279,15 @@ class bookingoption_description implements renderable, templatable {
         $this->dates = $bookingoption->return_array_of_sessions($bookingevent,
                 $descriptionparam, $withcustomfields, $forbookeduser);
 
-        $teachers = $settings->teachers;
+        $col_teachers = new col_teacher($optionid, $settings);
+        print_r($col_teachers->teachers);
+        $this->teachers = $col_teachers->teachers;
 
-        $teachernames = [];
-        foreach ($teachers as $teacher) {
-            $teachernames[] = "$teacher->firstname $teacher->lastname";
+        $responsiblecontact = $settings->responsiblecontact;
+
+        if(!empty($responsiblecontact)) {
+            $this->responsiblecontact = $responsiblecontact;
         }
-        $this->teachers = $teachernames;
 
         if (isset($settings->customfields)) {
             $this->customfields = $settings->customfields;
@@ -394,6 +399,7 @@ class bookingoption_description implements renderable, templatable {
             'dates' => $this->dates,
             'booknowbutton' => $this->booknowbutton,
             'teachers' => $this->teachers,
+            'responsiblecontact' => $this->responsiblecontact,
             'price' => $this->price,
             'priceformulaadd' => $this->priceformulaadd,
             'priceformulamultiply' => $this->priceformulamultiply,

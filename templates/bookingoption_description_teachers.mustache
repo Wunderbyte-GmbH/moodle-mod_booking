@@ -36,7 +36,7 @@
     <ul>
         {{#teachers}}
             <li>
-                {{.}}
+                {{#teacherurl}}<a href="{{teacherurl}}">{{/teacherurl}}{{firstname}} {{lastname}}{{#teacherurl}}</a>{{/teacherurl}}&nbsp;
             </li>
         {{/teachers}}
     </ul>
