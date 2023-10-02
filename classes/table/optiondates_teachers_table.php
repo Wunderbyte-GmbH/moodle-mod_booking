@@ -137,7 +137,7 @@ class optiondates_teachers_table extends wunderbyte_table {
     public function col_edit(object $values): string {
 
         $ret = '';
-        if (!$this->is_downloading()) {
+        if (!$this->is_downloading() && !$values->reviewed == 1) {
             $ret .= html_writer::div(html_writer::link('#', "<h5><i class='icon fa fa-edit'></i></h5>",
                 ['class' => 'btn-modal-edit-teachers',
                 'data-cmid' => $_GET['id'],
@@ -213,7 +213,7 @@ class optiondates_teachers_table extends wunderbyte_table {
 
         return [
             'success' => 1,
-            'message' => get_string('rowupdated', 'mod_booking'),
+            'message' => '',
         ];
     }
 }
