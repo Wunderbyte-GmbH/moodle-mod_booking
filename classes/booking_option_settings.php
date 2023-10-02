@@ -302,7 +302,7 @@ class booking_option_settings {
      * @return stdClass|null
      */
     private function set_values(int $optionid, object $dbrecord = null) {
-        global $DB, $USER;
+        global $DB;
 
         // If we don't get the cached object, we have to fetch it here.
         if ($dbrecord === null) {

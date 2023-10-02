@@ -280,7 +280,6 @@ class bookingoption_description implements renderable, templatable {
                 $descriptionparam, $withcustomfields, $forbookeduser);
 
         $col_teachers = new col_teacher($optionid, $settings);
-        print_r($col_teachers->teachers);
         $this->teachers = $col_teachers->teachers;
 
         $responsiblecontact = $settings->responsiblecontact;
