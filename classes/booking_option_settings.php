@@ -302,7 +302,7 @@ class booking_option_settings {
      * @return stdClass|null
      */
     private function set_values(int $optionid, object $dbrecord = null) {
-        global $DB;
+        global $DB, $USER;
 
         // If we don't get the cached object, we have to fetch it here.
         if ($dbrecord === null) {
@@ -319,6 +319,10 @@ class booking_option_settings {
 
             $dbrecord = $DB->get_record_sql($sql, $params, IGNORE_MISSING);
 
+        }
+        $responsiblecontact = null;
+        if($dbrecord->responsiblecontact){
+            $responsiblecontact = $DB->get_record('user', array('id' => $dbrecord->responsiblecontact), '*', MUST_EXIST);
         }
 
         if ($dbrecord) {
@@ -371,7 +375,7 @@ class booking_option_settings {
             $this->dayofweek = $dbrecord->dayofweek;
             $this->availability = $dbrecord->availability;
             $this->status = $dbrecord->status;
-            $this->responsiblecontact = $dbrecord->responsiblecontact;
+            $this->responsiblecontact = $responsiblecontact;
 
             // Elecitve.
             $this->credits = $dbrecord->credits;
