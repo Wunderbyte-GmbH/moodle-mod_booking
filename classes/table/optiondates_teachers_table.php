@@ -135,9 +135,8 @@ class optiondates_teachers_table extends wunderbyte_table {
      * @throws dml_exception
      */
     public function col_edit(object $values): string {
-
         $ret = '';
-        if (!$this->is_downloading()) {
+        if (!$this->is_downloading() && !$values->reviewed == 1) {
             $ret .= html_writer::div(html_writer::link('#', "<h5><i class='icon fa fa-edit'></i></h5>",
                 ['class' => 'btn-modal-edit-teachers',
                 'data-cmid' => $_GET['id'],
@@ -147,6 +146,8 @@ class optiondates_teachers_table extends wunderbyte_table {
                 'title' => get_string('editteachers', 'mod_booking'),
                 'aria-label' => get_string('editteachers', 'mod_booking'),
             ]));
+        } else if ($values->reviewed == 1) {
+            $ret .= "<h5 style='color: #D3D3D3; cursor: not-allowed;'><i class='icon fa fa-edit'></i></h5>";
         }
         return $ret;
     }
@@ -194,7 +195,7 @@ class optiondates_teachers_table extends wunderbyte_table {
      * @return array
      */
     public function togglecheckbox(int $optiondateid, string $data):array {
-        global $DB;
+        global $DB, $PAGE;
 
         if (!has_capability('mod/booking:canreviewsubstitutions', context_system::instance())) {
             return [
@@ -213,7 +214,7 @@ class optiondates_teachers_table extends wunderbyte_table {
 
         return [
             'success' => 1,
-            'message' => get_string('rowupdated', 'mod_booking'),
+            'message' => '',
         ];
     }
 }

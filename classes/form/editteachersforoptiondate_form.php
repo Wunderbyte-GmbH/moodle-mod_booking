@@ -18,7 +18,6 @@ namespace mod_booking\form;
 
 use cache_helper;
 use context;
-use context_module;
 use context_system;
 use mod_booking\event\optiondates_teacher_added;
 use mod_booking\event\optiondates_teacher_deleted;
@@ -47,8 +46,7 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
      * @return context
      */
     protected function get_context_for_dynamic_submission(): context {
-        $cmid = $this->_ajaxformdata['cmid'];
-        return context_module::instance($cmid);
+        return context_system::instance();
     }
 
     /**

@@ -1,0 +1,60 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/tabtable_list_row
+    Template which defines a mooduell view page.
+    Classes required for JS:
+    * none
+    Data attributes required for JS:
+    * none
+    Context variables required for this template:
+    * statistics - array: An array with values.
+    * opengames - array: empty array, will be filled with JS.
+    * finishedgames - array: empty array, will be filled with JS.
+    * highscores - array: empty array, will be filled with JS.
+
+    Example context (json):
+    {
+       "rowid" : "rowid",
+       "rowclasses" : "rowclasses",
+       "datafields": [
+          {
+            "key" : "daya-key",
+            "value" : "data-value"
+          }
+       ],
+       "cardbody": [
+          {
+            "columnclass" : "columnclass",
+            "columnkeyclass" : "columnkeyclass",
+            "key" : "columnname",
+            "keystring" : "localized column name",
+            "columnvalueclass" : "columnvalueclass",
+            "columniclassbefore": "columniclassbefore",
+            "value" : "value"
+          }
+       ]
+    }
+}}
+
+<tr id="{{rowid}}" class="{{rowclasses}}" {{#datafields}} data-{{key}}="{{value}}" {{/datafields}}>
+      {{#cardbody}}
+        {{#columnclass}}<td class="{{.}} {{key}} {{^value}}novalue{{/value}}" data-label="{{key}}" data-localized="{{localized}}">{{/columnclass}}
+                    {{{value}}}
+          {{#columniclassbefore}}
+            <i class="{{.}}" aria-hidden="true"></i>
+          {{/columniclassbefore}}
+        {{#columnclass}}</td>{{/columnclass}}
+      {{/cardbody}}
+</tr>

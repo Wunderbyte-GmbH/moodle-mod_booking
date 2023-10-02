@@ -1,0 +1,102 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/optiondatesteacherstable_list
+    Template which defines a mooduell view page.
+    Classes required for JS:
+    * none
+    Data attributes required for JS:
+    * none
+    Context variables required for this template:
+    * TODO
+
+    Example context (json):
+    {
+          "todo": "todo",
+     }
+}}
+{{#norecords}}
+    <div class="norecordsfound">
+        <div class="alert alert-warning" role="alert">{{#str}} norecords, local_wunderbyte_table {{/str}}</div>
+    </div>
+{{/norecords}}
+{{^norecords}}
+     {{#table}}
+
+     {{#infinitescroll}}
+          <div>
+          {{> local_wunderbyte_table/component_actionbutton }}
+          </div>
+     {{/infinitescroll}}
+     {{#displayelementsontop}}
+          <div>
+          {{> local_wunderbyte_table/component_actionbutton }}
+          </div>
+          <br>
+          <div>
+               {{> local_wunderbyte_table/component_pagination }}
+               <div class="float-right">{{> local_wunderbyte_table/component_selectrows }}</div>
+          </div>
+     {{/displayelementsontop}}
+     <div class="wunderbyte-table-table {{moodleversionminfourtwo}}">
+          {{> local_wunderbyte_table/component_countlabel }}
+          <div {{#stickyheader}} class="scroll-y" {{/stickyheader}} {{#tableheight}}
+          style="height: {{tableheight}};" {{/tableheight}}>
+               <table class="table" id="{{uniqueid}}">
+                    <thead>
+                         <tr>
+                              {{#header}}
+                                   {{#headers}}
+                                        <th class="{{key}} wb-table-column {{sortclass}}"
+                                        data-columnname="{{key}}"
+                                        {{#sortable}}
+                                        data-sortable="{{sortable}}"
+                                        {{/sortable}}>
+                                             {{{localized}}}
+                                        </th>
+                                   {{/headers}}
+                              {{/header}}
+                         </tr>
+                    </thead>
+                    <tbody class="rows-container">
+                         {{#rows}}
+                              {{> mod_booking/optiondatesteacherstable_list_row }}
+                         {{/rows}}
+                    </tbody>
+               </table>
+          </div>
+     </div>
+     {{/table}}
+{{#js}}
+    require(['local_wunderbyte_table/init'], function(fn) {
+        fn.init('{{idstring}}', '{{encodedtable}}');
+    });
+    require(['mod_booking/editteachersforoptiondate_form'], function(fn) {
+        fn.initbuttons();
+    });
+{{/js}}
+{{/norecords}}
+
+{{^infinitescroll}}
+{{^displayelementsontop}}
+<div class="float-right">{{> local_wunderbyte_table/component_selectrows }}</div>
+          {{> local_wunderbyte_table/component_pagination }}
+          {{> local_wunderbyte_table/component_actionbutton }}
+{{/displayelementsontop}}
+{{/infinitescroll}}
+{{#errormessage}}
+     <div class="alert alert-danger" role="alert">
+          {{errormessage}}
+     </div>
+{{/errormessage}}

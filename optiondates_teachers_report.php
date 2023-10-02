@@ -107,14 +107,6 @@ $columns = [
     'reviewed' => get_string('reviewed', 'mod_booking'),
 ];
 
-// phpcs:disable
-/* if (has_capability('mod/booking:updatebooking', $context)
-    || has_capability('mod/booking:addeditownoption', $context)) {
-    $columns['edit'] = get_string('edit');
-}
- */
-// phpcs:enable
-
 $columns['edit'] = get_string('edit');
 
 // Header.
@@ -158,12 +150,9 @@ $optiondatesteacherstable->collapsible(false);
 
 // Now build the table.
 $optiondatesteacherstable->set_sql($fields, $from, $where, $params);
-$optiondatesteacherstable->out(TABLE_SHOW_ALL_PAGE_SIZE, false);
 
-// Require JS.
-$PAGE->requires->js_call_amd(
-    'mod_booking/editteachersforoptiondate_form',
-    'initbuttons'
-);
+$optiondatesteacherstable->tabletemplate = 'mod_booking/optiondatesteacherstable_list';
+
+$optiondatesteacherstable->out(TABLE_SHOW_ALL_PAGE_SIZE, false);
 
 echo $OUTPUT->footer();

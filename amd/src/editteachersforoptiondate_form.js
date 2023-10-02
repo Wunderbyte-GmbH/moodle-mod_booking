@@ -35,6 +35,10 @@ export const initbuttons = () => {
     let buttons = document.querySelectorAll('.btn-modal-edit-teachers');
 
     buttons.forEach(button => {
+        if (button.dataset.initialized) {
+            return;
+        }
+        button.dataset.initialized = true;
         button.addEventListener('click', (e) => {
             // E.preventDefault();
             openEditTeachersModal(button, e);
