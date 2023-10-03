@@ -1,3 +1,10 @@
+## Version 8.0.43 (2023100300)
+**Bugfixes:**
+* Bugfix: Use semicolon in mailto function, not comma - for compatibility with some mail clients.
+* Bugfix: Fix return type declaration for PHP7.4
+* Bugfix: Linting: Switch to short array syntax [] instead of array().
+* Bugfix: No more error message when a teacher substitution is reviewed.
+
 ## Version 8.0.42 (2023092700)
 **Improvements:**
 * Improvement: Make sure that cmid always is the one corresponding with the optionid for "showonlyone" links.
