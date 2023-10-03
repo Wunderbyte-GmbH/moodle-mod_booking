@@ -132,6 +132,13 @@ $functions = [
             'capabilities' => '',
             'ajax' => 1,
     ],
+    'mod_booking_search_teachers' => [
+        'classname' => 'mod_booking\external\search_teachers',
+        'description' => 'Search a list of booking teachers',
+        'type' => 'read',
+        'capabilities' => '',
+        'ajax' => 1,
+    ],
 ];
 
 $services = [
