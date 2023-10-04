@@ -31,12 +31,14 @@
         ]
     }
 }}
-<div {{^teachers}} style="display:none"{{/teachers}}>
+<div {{^teachers}}style="display:none"{{/teachers}}>
     <b>{{#str}} teachers, mod_booking {{/str}}:</b>
     <ul>
         {{#teachers}}
             <li>
-                {{#teacherurl}}<a href="{{teacherurl}}">{{/teacherurl}}{{firstname}} {{lastname}}{{#teacherurl}}</a>{{/teacherurl}}&nbsp;
+                {{#teacherurl}}<a href="{{.}}" target="_blank">{{/teacherurl}}
+                {{firstname}} {{lastname}}
+                {{#teacherurl}}</a>{{/teacherurl}}
             </li>
         {{/teachers}}
     </ul>

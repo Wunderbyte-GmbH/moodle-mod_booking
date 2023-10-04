@@ -231,6 +231,9 @@ class booking_option_settings {
     /** @var int $responsiblecontact userid of the responsible contact person */
     public $responsiblecontact = null;
 
+    /** @var stdClass $responsiblecontactuser user object for the responsible contact person */
+    public $responsiblecontactuser = null;
+
     /** @var int $credits */
     public $credits = null;
 
@@ -318,11 +321,6 @@ class booking_option_settings {
                     WHERE $where";
 
             $dbrecord = $DB->get_record_sql($sql, $params, IGNORE_MISSING);
-
-        }
-        $responsiblecontact = null;
-        if($dbrecord->responsiblecontact){
-            $responsiblecontact = $DB->get_record('user', array('id' => $dbrecord->responsiblecontact), '*', MUST_EXIST);
         }
 
         if ($dbrecord) {
@@ -375,7 +373,15 @@ class booking_option_settings {
             $this->dayofweek = $dbrecord->dayofweek;
             $this->availability = $dbrecord->availability;
             $this->status = $dbrecord->status;
-            $this->responsiblecontact = $responsiblecontact;
+            $this->responsiblecontact = $dbrecord->responsiblecontact;
+
+            // If we have a responsible contact id, we load the corresponding user object.
+            if (!isset($dbrecord->responsiblecontactuser)) {
+                $this->load_responsiblecontactuser();
+                $dbrecord->responsiblecontactuser = $this->responsiblecontactuser;
+            } else {
+                $this->responsiblecontactuser = $dbrecord->responsiblecontactuser;
+            }
 
             // Elecitve.
             $this->credits = $dbrecord->credits;
@@ -610,6 +616,16 @@ class booking_option_settings {
                    WHERE t.optionid = :optionid', ['optionid' => $this->id]);
 
         $this->teachers = $teachers;
+    }
+
+    /**
+     * Function to load the responsible contact user object.
+     */
+    private function load_responsiblecontactuser() {
+        if (empty($this->responsiblecontact)) {
+            return null;
+        }
+        $this->responsiblecontactuser = singleton_service::get_instance_of_user((int) $this->responsiblecontact);
     }
 
     /**

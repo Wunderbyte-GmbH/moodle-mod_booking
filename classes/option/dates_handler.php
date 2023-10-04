@@ -718,8 +718,7 @@ class dates_handler {
         }
 
         $minutes = (strtotime('today ' . $dayinfo['endtime']) - strtotime('today ' . $dayinfo['starttime'])) / 60;
-        $units = number_format($minutes / $unitlength, 1, $decimalseparator, $thousandsseparator);
-        $unitstring = $units;
+        $unitstring = number_format($minutes / $unitlength, 1, $decimalseparator, $thousandsseparator);
 
         if (!empty($unitstring)) {
             return $unitstring;
