@@ -225,8 +225,7 @@ class bookingoption_description implements renderable, templatable {
 
         // Set the number of educational units (calculated with dayofweektime string).
         if (!empty($settings->dayofweektime)) {
-            $units = dates_handler::calculate_and_render_educational_units($settings->dayofweektime);
-            $this->unitstring = get_string('units', 'mod_booking') . ": $units";
+            $this->unitstring = dates_handler::calculate_and_render_educational_units($settings->dayofweektime);
         }
 
         // We got the array of all the booking information.
