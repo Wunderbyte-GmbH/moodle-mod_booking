@@ -30,8 +30,8 @@
        "rowclasses" : "rowclasses",
        "datafields": [
           {
-            "key" : "daya-key",
-            "value" : "data-value"
+            "key" : "key",
+            "value" : "value"
           }
        ],
        "cardbody": [
@@ -47,11 +47,10 @@
        ]
     }
 }}
-
 <tr id="{{rowid}}" class="{{rowclasses}}" {{#datafields}} data-{{key}}="{{value}}" {{/datafields}}>
       {{#cardbody}}
         {{#columnclass}}<td class="{{.}} {{key}} {{^value}}novalue{{/value}}" data-label="{{key}}" data-localized="{{localized}}">{{/columnclass}}
-                    {{{value}}}
+          {{{value}}}
           {{#columniclassbefore}}
             <i class="{{.}}" aria-hidden="true"></i>
           {{/columniclassbefore}}
