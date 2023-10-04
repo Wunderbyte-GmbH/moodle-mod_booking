@@ -518,7 +518,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         $units = null;
         if (!empty($settings->dayofweektime)) {
-            $units = dates_handler::calculate_and_render_educational_units($settings->dayofweektime);
+            $unitsnumber = dates_handler::calculate_and_render_educational_units($settings->dayofweektime);
+            $units = get_string('units', 'mod_booking') . ": $unitsnumber";
         }
 
         if (!empty($settings->dayofweektime)) {
