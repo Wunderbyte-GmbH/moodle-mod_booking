@@ -28,7 +28,7 @@ use mod_booking\table\optiondates_teachers_table;
 
 require_once(__DIR__ . '/../../config.php');
 
-$cmid = required_param('id', PARAM_INT); // Course module id.
+$cmid = required_param('cmid', PARAM_INT); // Course module id.
 $optionid = required_param('optionid', PARAM_INT);
 $download = optional_param('download', '', PARAM_ALPHA);
 
@@ -36,7 +36,7 @@ list($course, $cm) = get_course_and_cm_from_cmid($cmid);
 require_course_login($course, true, $cm);
 
 $urlparams = [
-    'id' => $cmid,
+    'cmid' => $cmid,
     'optionid' => $optionid,
 ];
 

@@ -716,7 +716,7 @@ class booking_option_settings {
 
         if (!empty($this->cmid) && !empty($optionid)) {
             $optiondatesteachersmoodleurl = new moodle_url('/mod/booking/optiondates_teachers_report.php',
-                ['id' => $this->cmid, 'optionid' => $optionid]);
+                ['cmid' => $this->cmid, 'optionid' => $optionid]);
 
             // Use html_entity_decode to convert "&amp;" to a simple "&" character.
             if ($CFG->version >= 2023042400) {

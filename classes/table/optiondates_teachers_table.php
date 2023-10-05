@@ -38,6 +38,9 @@ defined('MOODLE_INTERNAL') || die();
  */
 class optiondates_teachers_table extends wunderbyte_table {
 
+    /** @var int $cmid */
+    public $cmid = null;
+
     /**
      * Constructor
      * @param string $uniqueid all tables have to have a unique id, this is used
@@ -47,6 +50,7 @@ class optiondates_teachers_table extends wunderbyte_table {
 
         global $PAGE;
         $this->baseurl = $PAGE->url;
+        $this->cmid = $_GET['cmid'] ?? $this->cmid;
 
         // Columns and headers are not defined in constructor, in order to keep things as generic as possible.
     }
@@ -139,7 +143,7 @@ class optiondates_teachers_table extends wunderbyte_table {
         if (!$this->is_downloading() && !$values->reviewed == 1) {
             $ret .= html_writer::div(html_writer::link('#', "<h5><i class='icon fa fa-edit'></i></h5>",
                 ['class' => 'btn-modal-edit-teachers',
-                'data-cmid' => $_GET['id'],
+                'data-cmid' => $this->cmid,
                 'data-optionid' => $values->optionid,
                 'data-teachers' => $values->teachers,
                 'data-optiondateid' => $values->optiondateid,

@@ -711,7 +711,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
             // Show link to optiondates-teachers-report (teacher substitutions).
             $optiondatesteachersmoodleurl = new moodle_url('/mod/booking/optiondates_teachers_report.php',
-                ['id' => $cmid, 'optionid' => $optionid, 'returnto' => 'url', 'returnurl' => $returnurl]);
+                ['cmid' => $cmid, 'optionid' => $optionid, 'returnto' => 'url', 'returnurl' => $returnurl]);
             $ddoptions[] = '<div class="dropdown-item">' .
                 html_writer::link($optiondatesteachersmoodleurl,
                     $OUTPUT->pix_icon('i/grades',

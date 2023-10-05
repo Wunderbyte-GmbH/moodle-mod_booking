@@ -78,7 +78,8 @@ export const initbuttons = () => {
     // Listen to events if you want to execute something on form submit.
     // Event detail will contain everything the process() function returned:
     modalForm.addEventListener(modalForm.events.FORM_SUBMITTED, () => {
-        window.location.reload();
+        window.location.reload(true);
+        // Use true, so we actually reload and do not lose cmid (we get it with $_GET in PHP).
     });
 
     // Show the form.

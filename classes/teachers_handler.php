@@ -118,7 +118,7 @@ class teachers_handler {
         if (!empty($this->optionid) && $this->optionid > 0) {
             $optionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
             $optiondatesteachersreporturl = new moodle_url('/mod/booking/optiondates_teachers_report.php', [
-                'id' => $optionsettings->cmid,
+                'cmid' => $optionsettings->cmid,
                 'optionid' => $this->optionid,
             ]);
             $mform->addElement('static', 'info:teachersforoptiondates', '',

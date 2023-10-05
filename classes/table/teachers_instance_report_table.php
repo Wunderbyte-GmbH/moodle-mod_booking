@@ -179,7 +179,7 @@ class teachers_instance_report_table extends table_sql {
                 }
                 if (!$this->is_downloading()) {
                     $optionurl = new moodle_url('/mod/booking/optiondates_teachers_report.php',
-                        ['id' => $this->cmid, 'optionid' => $record->optionid]);
+                        ['cmid' => $this->cmid, 'optionid' => $record->optionid]);
                     $optionswithdurations .= "<b><a href='$optionurl' target='_blank'>";
                 }
                 if (!empty($record->titleprefix)) {
@@ -295,7 +295,7 @@ class teachers_instance_report_table extends table_sql {
                 if (!$this->is_downloading()) {
                     $missinghoursstring .= '<hr/>';
                     $optionurl = new moodle_url('/mod/booking/optiondates_teachers_report.php',
-                        ['id' => $this->cmid, 'optionid' => $record->optionid]);
+                        ['cmid' => $this->cmid, 'optionid' => $record->optionid]);
                     $missinghoursstring .= "<a href='$optionurl' target='_blank'>";
                 }
                 if (!empty($record->titleprefix)) {
@@ -376,7 +376,7 @@ class teachers_instance_report_table extends table_sql {
                 if (!$this->is_downloading()) {
                     $substitutionsstring .= '<hr/>';
                     $optionurl = new moodle_url('/mod/booking/optiondates_teachers_report.php',
-                        ['id' => $this->cmid, 'optionid' => $record->optionid]);
+                        ['cmid' => $this->cmid, 'optionid' => $record->optionid]);
                     $substitutionsstring .= "<a href='$optionurl' target='_blank'>";
                 }
                 if (!empty($record->titleprefix)) {
