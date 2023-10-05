@@ -67,7 +67,8 @@ $bookingoptionname = $settings->text;
 // File name and sheet name.
 $fileandsheetname = $bookingoptionname . "_teachers";
 
-$optiondatesteacherstable = new optiondates_teachers_table('optiondates_teachers_table');
+// Important: We have to add $optionid here, so the cache gets not overwritten by the next table.
+$optiondatesteacherstable = new optiondates_teachers_table('optiondates_teachers_table_' . $optionid);
 
 $optiondatesteacherstable->is_downloading($download, $fileandsheetname, $fileandsheetname);
 
