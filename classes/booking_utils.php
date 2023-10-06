@@ -205,8 +205,6 @@ class booking_utils {
             return;
         }
 
-        $bo = singleton_service::get_instance_of_booking_option($cmid, $optionid);
-
         // If changes concern only the add to calendar_field, we don't want to send a mail.
         $index = null;
         $addtocalendar = 0;
@@ -220,9 +218,12 @@ class booking_utils {
             array_splice($changes, $key, 1);
         }
 
+        $bo = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+        $sendmail = $bookingsettings->sendmail ?? false;
+
         // If we still have changes, we can send the confirmation mail.
-        if (count($changes) > 0
-                && $bo->booking->settings->sendmail) {
+        if (count($changes) > 0 && $sendmail) {
             $bookinganswers = $bo->get_all_users_booked();
             if (!empty($bookinganswers)) {
                 foreach ($bookinganswers as $bookinganswer) {
