@@ -21,8 +21,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
 use coding_exception;
-use comment;
-use context_course;
+use context_system;
 use context_module;
 use dml_exception;
 use html_writer;
@@ -472,7 +471,6 @@ class bookingoptions_wbtable extends wunderbyte_table {
         global $USER;
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
-        $context = context_module::instance($settings->cmid);
 
         $ret = '';
 
@@ -487,13 +485,14 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $status = $answersobject->user_status($USER->id);
 
         $isteacherofthisoption = booking_check_if_teacher($values);
-
         if (!empty($settings->courseid) && (
-                $status == STATUSPARAM_BOOKED ||
-                has_capability('mod/booking:updatebooking', $context) ||
-                (has_capability('mod/booking:addeditownoption', $context) && $isteacherofthisoption) ||
-                (has_capability('mod/booking:limitededitownoption', $context) && $isteacherofthisoption)
-        )) {
+            $status == STATUSPARAM_BOOKED ||
+            has_capability('mod/booking:updatebooking', context_system::instance()) ||
+            $isteacherofthisoption)) {
+            // The link will be shown to everyone who...
+            // ...has booked this option.
+            // ...is a teacher of this option.
+            // ...has the "updatebooking" capability (admins).
             $gotomoodlecourse = get_string('gotomoodlecourse', 'mod_booking');
             $ret = "<a href='$courseurl' target='_self' class='btn btn-primary mt-2 mb-2 w-100'>
                 <i class='fa fa-graduation-cap fa-fw' aria-hidden='true'></i>&nbsp;&nbsp;$gotomoodlecourse
