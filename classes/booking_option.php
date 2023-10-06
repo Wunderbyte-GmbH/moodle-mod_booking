@@ -2873,7 +2873,7 @@ class booking_option {
         $bookedusers = $answers->usersonlist;
 
         // Use the booking option title as subject.
-        $subject = $settings->get_title_with_prefix();
+        $subject = str_replace(' ', '%20', $settings->get_title_with_prefix());
 
         if (empty($bookedusers)) {
             return '';
@@ -2906,7 +2906,9 @@ class booking_option {
         }
 
         // We put all teachers in CC and all participants in BCC.
-        return "mailto:$USER->email?$teachersstring" . "bcc=$emailstring&subject=$subject";
+        return str_replace('amp;', '',
+            htmlspecialchars("mailto:$USER->email?$teachersstring" . "bcc=$emailstring&subject=$subject",
+            ENT_QUOTES));
     }
 
     /**
