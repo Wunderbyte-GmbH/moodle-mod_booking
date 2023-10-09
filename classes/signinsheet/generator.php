@@ -424,7 +424,7 @@ class generator {
                         $w = 10;
                         break;
                     case 'fullname':
-                        $name = "{$user->firstname} {$user->lastname}{$profiletext}";
+                        $name = "{$user->lastname}, {$user->firstname}";
                         break;
                     case 'institution':
                         $name = $user->institution;
