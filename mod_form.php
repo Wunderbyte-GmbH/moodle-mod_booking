@@ -24,6 +24,7 @@
 
 use mod_booking\booking;
 use mod_booking\elective;
+use mod_booking\output\eventslist;
 use mod_booking\semester;
 use mod_booking\utils\wb_payment;
 
@@ -85,7 +86,7 @@ class mod_booking_mod_form extends moodleform_mod {
     }
 
     public function definition() {
-        global $CFG, $DB, $COURSE, $USER, $PAGE;
+        global $CFG, $DB, $COURSE, $USER, $PAGE, $OUTPUT;
 
         $systemcontext = context_system::instance();
         $coursecontext = context_course::instance($COURSE->id);
@@ -952,6 +953,11 @@ class mod_booking_mod_form extends moodleform_mod {
         $this->standard_grading_coursemodule_elements();
         $this->standard_coursemodule_elements();
         $this->add_action_buttons();
+
+        $data = new eventslist($this->_cm->id, ['bookinginstance_updated']);
+
+        $html = $OUTPUT->render_from_template('mod_booking/eventslist', $data);
+        $mform->addElement('static', 'eventslist', '', $html);
 
         $PAGE->requires->js_call_amd('mod_booking/bookinginstancetemplateselect', 'init');
     }

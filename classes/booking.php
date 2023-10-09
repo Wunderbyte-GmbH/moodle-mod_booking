@@ -1326,6 +1326,47 @@ class booking {
     }
 
     /**
+     * Return the sql for the event logs of booking component.
+     *
+     * @param string $component
+     * @param array $eventnames
+     *
+     * @return array
+     *
+     */
+    public static function return_sql_for_event_logs(
+            string $component = 'mod_booking',
+            array $eventnames = []) {
+        global $DB;
+
+        $select = "*";
+
+        $from = "(
+                    SELECT lsl.id as uniqueid, " .
+                    $DB->sql_concat("u.firstname", "' '", "u.lastname") . " as username,
+                    lsl.*
+                    FROM {logstore_standard_log} lsl
+                    LEFT JOIN {user} u
+                    ON u.id = lsl.userid
+                ) as s1";
+
+        $where = 'component = :component ';
+
+        if (!empty($eventnames)) {
+            list($inorequal, $params) = $DB->get_in_or_equal($eventnames);
+            $where .= " AND eventname " . $inorequal;
+        }
+
+        $filter = '';
+
+        $params = [
+            'component' => $component,
+        ];
+
+        return [$select, $from, $where, $filter, $params];
+    }
+
+    /**
      * A helper class to add data to the json of a booking instance.
      *
      * @param stdClass &$data reference to a data object containing the json key

@@ -733,6 +733,13 @@ function booking_update_instance($booking) {
 
     booking_grade_item_update($booking);
 
+    // We trigger the right event.
+    $event = \mod_booking\event\bookinginstance_updated::create([
+        'context' => $context,
+        'objectid' => $cm->id,
+    ]);
+    $event->trigger();
+
     // When updating an instance, we need to invalidate the cache for booking instances.
     cache_helper::invalidate_by_event('setbackbookinginstances', [$cm->id]);
 
@@ -743,6 +750,7 @@ function booking_update_instance($booking) {
 
     // We also need to set back Wunderbyte table cache!
     cache_helper::purge_by_event('setbackencodedtables');
+    cache_helper::purge_by_event('setbackeventlogtable');
 
     return $DB->update_record('booking', $booking);
 }

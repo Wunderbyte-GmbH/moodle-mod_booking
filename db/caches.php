@@ -116,5 +116,11 @@ $definitions = [
         'staticacceleration' => true,
         'staticaccelerationsize' => 1,
     ],
+    'eventlogtable' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 1,
+        'invalidationevents' => ['setbackeventlogtable'],
+    ],
 ];
-
