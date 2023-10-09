@@ -1,3 +1,23 @@
+8.0.44 (2023100900)
+* New feature: Lock editing of substitution once the "reviewed" checkbox has been clicked.
+* Improvement: New function to lazy load teacher list for autocomplete.
+* Improvement: New template for smaller user suggestions in autocomplete.
+* Improvement: Add responsible contact to booking option description.
+* Improvement: Return educational units without label.
+* Improvement: Access restrictions for "Go to Moodle course" now make more sense.
+* Improvement: Add optiondatesteacherstable templates to mustache ignore list.
+* Improvement: Make sure mailto link gets encoded correctly.
+* Improvement: Fix signin sheets, only Lastname, Firstname, No profiletext anymore.
+* Bugfix: Fixes for GH-325 (Pull request).
+* Bugfix: Fix bug in event description.
+* Bugfix: New teacher syntax.
+* Bugfix: We need module context in the teacher substitutions form!
+* Bugfix: Fix caching bug with substitutions table (optiondates teachers report).
+* Bugfix: Fix some bugs with cmid and reloading of substitution report (optiondates teachers report).
+* Bugfix: Fix broken behat tests (because of changed CSS selector).
+* Bugfix: Fix warning if sendmail is not set.
+* Bugfix: Use table row not table header in behat tests for substitutions.
+
 8.0.43 (2023100300)
 * Bugfix: Use semicolon in mailto function, not comma - for compatibility with some mail clients.
 * Bugfix: Fix return type declaration for PHP7.4
