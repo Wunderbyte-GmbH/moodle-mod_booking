@@ -954,10 +954,13 @@ class mod_booking_mod_form extends moodleform_mod {
         $this->standard_coursemodule_elements();
         $this->add_action_buttons();
 
-        $data = new eventslist($this->_cm->id, ['bookinginstance_updated']);
+        $data = new eventslist(
+            $this->_cm->id,
+            ['\mod_booking\event\bookinginstance_updated']
+        );
 
         $html = $OUTPUT->render_from_template('mod_booking/eventslist', $data);
-        $mform->addElement('static', 'eventslist', '', $html);
+        $mform->addElement('static', 'eventslist', get_string('eventslist', 'mod_booking'), $html);
 
         $PAGE->requires->js_call_amd('mod_booking/bookinginstancetemplateselect', 'init');
     }

@@ -1341,6 +1341,8 @@ class booking {
 
         $select = "*";
 
+        $params = [];
+
         $from = "(
                     SELECT lsl.id as uniqueid, " .
                     $DB->sql_concat("u.firstname", "' '", "u.lastname") . " as username,
@@ -1353,15 +1355,14 @@ class booking {
         $where = 'component = :component ';
 
         if (!empty($eventnames)) {
-            list($inorequal, $params) = $DB->get_in_or_equal($eventnames);
+            list($inorequal, $params) = $DB->get_in_or_equal($eventnames, SQL_PARAMS_NAMED);
+
             $where .= " AND eventname " . $inorequal;
         }
 
         $filter = '';
 
-        $params = [
-            'component' => $component,
-        ];
+        $params['component'] = $component;
 
         return [$select, $from, $where, $filter, $params];
     }

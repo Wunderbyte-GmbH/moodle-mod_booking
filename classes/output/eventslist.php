@@ -96,8 +96,7 @@ class eventslist implements renderable, templatable {
         $table->pageable(true);
 
         $table->showcountlabel = true;
-        // $table->showdownloadbutton = false;
-        $table->showreloadbutton = true;
+
         $table->showrowcountselect = true;
 
         $table->filteronloadinactive = true;

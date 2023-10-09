@@ -23,6 +23,7 @@
  */
 
 namespace mod_booking\form;
+use mod_booking\output\eventslist;
 
 defined('MOODLE_INTERNAL') || die();
 require_once("$CFG->libdir/formslib.php");
@@ -51,7 +52,7 @@ class option_form extends moodleform {
     public $formmode = null;
 
     public function definition() {
-        global $CFG, $COURSE, $DB, $PAGE;
+        global $CFG, $COURSE, $DB, $PAGE, $OUTPUT;
 
         /* At first get the option form configuration from DB.
         Unfortunately, we need this, because hideIf does not work with
@@ -677,6 +678,14 @@ class option_form extends moodleform {
         $buttonarray[] = &$mform->createElement('cancel');
         $mform->addGroup($buttonarray, 'buttonar', '', [' '], false);
         $mform->closeHeaderBefore('buttonar');
+
+        $data = new eventslist(
+            $optionid,
+            ['\mod_booking\event\bookingoption_updated']
+        );
+
+        $html = $OUTPUT->render_from_template('mod_booking/eventslist', $data);
+        $mform->addElement('static', 'eventslist', get_string('eventslist', 'mod_booking'), $html);
 
         $PAGE->requires->js_call_amd('mod_booking/optionstemplateselect', 'init');
     }
