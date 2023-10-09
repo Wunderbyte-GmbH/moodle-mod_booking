@@ -1495,9 +1495,15 @@ function booking_update_options(object $optionvalues, context_module $context, i
                             'context' => $context,
                             'objectid' => $optionid,
                             'userid' => $USER->id,
+                            'other' => [
+                                'changes' => $changes ?? '',
+                            ],
                     ]
             );
             $event->trigger();
+
+            cache_helper::purge_by_event('setbackeventlogtable');
+
         }
         // Finally, we need to check if any existing booking rules are affected.
         if ($option->bookingid != 0) {

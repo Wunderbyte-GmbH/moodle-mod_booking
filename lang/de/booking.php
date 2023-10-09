@@ -425,6 +425,7 @@ $string['sendcopytobookingmanger'] = 'Eine Kopie der Bestätigungsmail an den Bu
 $string['bookingpolicy'] = 'Buchungsbedingungen - Booking Policy';
 
 $string['eventslist'] = 'Letzte Bearbeitungen';
+$string['showrecentupdates'] = 'Zeige die letzten Bearbeitungen';
 
 $string['error:semestermissingbutcancelfromsemesterstartactive'] = 'Die Einstellung zur Berechnung der Stornierungsfrist ab Semesterbeginn ist aktiv, aber das Semester fehlt!';
 

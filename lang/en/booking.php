@@ -435,6 +435,7 @@ $string['sendcopytobookingmanger'] = 'Send confirmation e-mail to booking manage
 $string['bookingpolicy'] = 'Booking policy';
 
 $string['eventslist'] = 'Recent updates';
+$string['showrecentupdates'] = 'Show recent updates';
 
 $string['error:semestermissingbutcancelfromsemesterstartactive'] = 'The setting to calculate cancellation periods from semester start is active but semester is missing!';
 

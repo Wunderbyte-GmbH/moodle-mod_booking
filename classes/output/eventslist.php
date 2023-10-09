@@ -103,7 +103,8 @@ class eventslist implements renderable, templatable {
 
         $table->define_baseurl(new moodle_url('/mod/booking/downloads/download.php'));
 
-        $this->eventstable = $table->outhtml(10, true);
+        list($idstring, $tablecachehash, $html) = $table->lazyouthtml(10, true);
+        $this->eventstable = $html;
     }
 
     /**

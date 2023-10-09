@@ -35,4 +35,13 @@
     }
 }}
 
-{{{eventstable}}}
+<p>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#showEventList" aria-expanded="false" aria-controls="showEventList">
+        {{#str}} showrecentupdates, mod_booking {{/str}}
+    </button>
+</p>
+<div class="collapse" id="showEventList">
+<div class="card card-body">
+    {{{eventstable}}}
+</div>
+</div>

@@ -16,6 +16,7 @@
 
 namespace mod_booking;
 
+use cache_helper;
 use html_writer;
 use mod_booking\utils\wb_payment;
 use mod_booking\event\bookingoption_updated;
@@ -239,8 +240,19 @@ class booking_utils {
         // We trigger the event only if we have real changes OR if we set the calendar entry to 1.
         if (count($changes) > 0 || $addtocalendar == 1) {
             // Also, we need to trigger the bookingoption_updated event, in order to update calendar entries.
-            $event = bookingoption_updated::create(['context' => $context, 'objectid' => $optionid, 'userid' => $USER->id]);
+            $event = bookingoption_updated::create(
+                [
+                        'context' => $context,
+                        'objectid' => $optionid,
+                        'userid' => $USER->id,
+                        'other' => [
+                            'changes' => $changes ?? '',
+                        ],
+                ]
+            );
             $event->trigger();
+
+            cache_helper::purge_by_event('setbackeventlogtable');
         }
     }
 

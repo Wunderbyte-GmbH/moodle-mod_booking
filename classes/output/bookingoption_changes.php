@@ -48,10 +48,10 @@ class bookingoption_changes implements renderable, templatable {
     /**
      * Constructor
      *
-     * @param array $changesarray
+     * @param \stdClass $changesarray
      */
     public function __construct($changesarray, $cmid) {
-        $this->changesarray = $changesarray;
+        $this->changesarray = $changesarray->changes;
         $this->cmid = $cmid;
     }
 
@@ -60,6 +60,8 @@ class bookingoption_changes implements renderable, templatable {
 
         $newchangesarray = [];
         foreach ($this->changesarray as $entry) {
+
+            $entry = (array)$entry;
             if (isset($entry['fieldname'])) {
                 if ($entry['fieldname'] == 'coursestarttime') {
                     if (isset($entry['oldvalue']) && isset($entry['newvalue'])) {
