@@ -2099,6 +2099,18 @@ $string['campaignfieldvalue'] = 'Wert';
 $string['campaignstart'] = 'Beginn der Kampagne';
 $string['campaignend'] = 'Ende der Kampagne';
 
+$string['campaign_blockbooking'] = 'Buchungen werden abhängig von bestimmten Parametern im Kampagnenzeitraum blockiert';
+$string['campaign_blockbooking_descriptiontext'] = 'Betrifft: Benutzerdefiniertes Buchungsoptionsfeld "{$a->fieldname}"
+mit dem Wert "{$a->fieldvalue}".';
+
+$string['blockoperator'] = 'Operator';
+$string['blockabove'] = 'Blockiere über';
+$string['blockbelow'] = 'Blockiere unter';
+$string['percentageavailableplaces'] = 'Prozent der verfügbaren Plätze';
+$string['hascapabability'] = 'Außer mit dieser Fähikgeit';
+$string['blockinglabel'] = 'Nachricht beim Blockieren';
+$string['blockinglabel_help'] = 'Für Lokalisierungen, bitte den entsprechenden Filter verwenden.';
+
 // Booking campaign help buttons.
 $string['campaign_name_help'] = 'Geben Sie einen beliebigen Namen für die Kampagne an - z.B. "Weihnachtsaktion 2023" oder "Oster-Rabatt 2023".';
 $string['campaignfieldname_help'] = 'Wählen Sie das benutzerdefinierte Buchungsoptionsfeld aus, dessen Wert verglichen werden soll.';
@@ -2111,7 +2123,7 @@ $string['limitfactor_help'] = 'Geben Sie einen Wert an, mit dem das Buchungslimi
 // Booking campaign errors.
 $string['error:pricefactornotbetween0and1'] = 'Sie müssen einen Wert zwischen 0 und 1 eingeben. Um die Preise z.B. um 10% zu reduzieren,
  geben Sie den Wert 0,9 ein.';
-$string['error:limitfactornotbetween1and2'] = 'Sie müssen einen Wert zwischen 1 und 2 eingeben. Um das Buchungslimit z.B. um 20% zu erhöhen,
+$string['error:limitfactornotbetween1and2'] = 'Sie müssen einen Wert zwischen 0 und 2 eingeben. Um das Buchungslimit z.B. um 20% zu erhöhen,
  geben Sie den Wert 1,2 ein.';
 $string['error:campaignstart'] = 'Kampagnenbeginn muss vor dem Kampagnenende liegen.';
 $string['error:campaignend'] = 'Kampagnenende muss nach dem Kampagnenbeginn sein.';

@@ -24,8 +24,11 @@
  */
 namespace mod_booking\booking_campaigns;
 
+use cache_helper;
+use core_component;
 use mod_booking\output\campaignslist;
 use mod_booking\booking_campaigns\booking_campaign;
+use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
 
@@ -87,7 +90,7 @@ class campaigns_info {
 
         // If campaign is empty, we use the default campaign.
         if (empty($campaign)) {
-            $campaign = self::get_campaign_by_type(CAMPAIGN_TYPE_CUSTOMFIELD);
+            $campaign = self::get_campaign_by_type(CAMPAIGN_TYPE_BLOCKBOOKING);
         }
 
         $campaign->add_campaign_to_mform($mform, $ajaxformdata);
@@ -100,25 +103,12 @@ class campaigns_info {
     public static function get_campaigns() {
         global $CFG;
 
-        // First, we get all the available campaigns from our directory.
-        $path = $CFG->dirroot . '/mod/booking/classes/booking_campaigns/campaigns/*.php';
-        $filelist = glob($path);
+        $campaigns = core_component::get_component_classes_in_namespace(
+            "mod_booking",
+            'booking_campaigns\campaigns'
+        );
 
-        $campaigns = [];
-
-        // We just want filenames, as they are also the classnames.
-        foreach ($filelist as $filepath) {
-            $path = pathinfo($filepath);
-            $filename = 'mod_booking\\booking_campaigns\\campaigns\\' . $path['filename'];
-
-            // We instantiate all the classes, because we need some information.
-            if (class_exists($filename)) {
-                $instance = new $filename();
-                $campaigns[] = $instance;
-            }
-        }
-
-        return $campaigns;
+        return array_map(fn($a) => new $a, array_keys($campaigns));
     }
 
     /**
@@ -132,6 +122,9 @@ class campaigns_info {
         switch($campaigntype) {
             case CAMPAIGN_TYPE_CUSTOMFIELD:
                 $campaignname = 'campaign_customfield';
+                break;
+            case CAMPAIGN_TYPE_BLOCKBOOKING:
+                $campaignname = 'campaign_blockbooking';
                 break;
         }
 
@@ -194,6 +187,11 @@ class campaigns_info {
         $campaign = self::get_campaign_by_name($data->bookingcampaigntype);
         $campaign->save_campaign($data);
 
+        // Every time when we save a campaign, we have to purge data right away.
+        cache_helper::purge_by_event('setbackoptionstable');
+        cache_helper::purge_by_event('setbackoptionsettings');
+        cache_helper::purge_by_event('setbackprices');
+
         return;
     }
 
@@ -223,10 +221,8 @@ class campaigns_info {
      */
     private static function get_list_of_saved_campaigns():array {
         global $DB;
-        if (!$campaigns = $DB->get_records('booking_campaigns')) {
-            $campaigns = [];
-        }
-        return $campaigns;
+
+        return singleton_service::get_all_campaigns();
     }
 
     /**

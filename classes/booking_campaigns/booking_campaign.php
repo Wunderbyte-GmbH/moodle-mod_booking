@@ -24,6 +24,7 @@
  */
 namespace mod_booking\booking_campaigns;
 
+use mod_booking\booking_option_settings;
 use MoodleQuickForm;
 use stdClass;
 
@@ -75,10 +76,10 @@ interface booking_campaign {
      * Function to check if a campaign is currently active
      * for a specific booking option.
      * @param int $optionid
+     * @param booking_option_settings $settings
      * @return bool true if the campaign is currently active
      */
-    public function campaign_is_active(int $optionid):bool;
-
+    public function campaign_is_active(int $optionid, booking_option_settings $settings):bool;
     /**
      * Function to apply the campaign price factor.
      * @param float $price the original price
@@ -87,9 +88,16 @@ interface booking_campaign {
     public function get_campaign_price(float $price):float;
 
     /**
-     * Function to apply the booking limit factor.
-     * @param int $limit the original booking limit
-     * @return int the new booking limit
+     * Function to apply the logic of the particular campaign.
+     * @param booking_option_settings $settings the booking option settings class
+     * @param stdClass $dbrecord The record with the new data.
      */
-    public function get_campaign_limit(int $limit):int;
+    public function apply_logic(booking_option_settings &$settings, stdClass &$dbrecord);
+
+    /**
+     * Check if particular campaign is blocking right now.
+     * @param booking_option_settings $settings the booking option settings class
+     * @return array
+     */
+    public function is_blocking(booking_option_settings $settings):array;
 }

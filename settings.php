@@ -497,8 +497,7 @@ if ($ADMIN->fulltree) {
 
     // PRO feature: Booking actions.
     // Booking actions are not yet finished, so we do not show them yet.
-    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-    /*if ($proversion) {
+    if ($proversion) {
         $settings->add(
             new admin_setting_heading('boactions',
                 get_string('boactions', 'mod_booking'),
@@ -512,7 +511,7 @@ if ($ADMIN->fulltree) {
             new admin_setting_heading('boactions',
                 get_string('boactions', 'mod_booking'),
                 get_string('infotext:prolicensenecessary', 'mod_booking')));
-    }*/
+    }
 
     // PRO feature: Progress bars.
     if ($proversion) {

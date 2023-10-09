@@ -2221,6 +2221,18 @@ $string['campaignfieldvalue'] = 'Value';
 $string['campaignstart'] = 'Start of campaign';
 $string['campaignend'] = 'End of campaign';
 
+$string['campaign_blockbooking'] = 'Booking options will be blocked depending on certain params';
+$string['campaign_blockbooking_descriptiontext'] = 'Affects: Booking option custom field "{$a->fieldname}"
+having the value "{$a->fieldvalue}".';
+
+$string['blockoperator'] = 'Operator';
+$string['blockabove'] = 'Block above';
+$string['blockbelow'] = 'Block below';
+$string['percentageavailableplaces'] = 'Percentage of available places';
+$string['hascapabability'] = 'Except has capability';
+$string['blockinglabel'] = 'Message when blocking';
+$string['blockinglabel_help'] = 'Please use the filter for lokalization.';
+
 // Booking campaign help buttons.
 $string['campaign_name_help'] = 'Specify any name for the campaign - for example, "Christmas Campaign 2023" or "Easter Discount 2023".';
 $string['campaignfieldname_help'] = 'Select the custom booking option field whose value is to be compared.';
@@ -2232,7 +2244,7 @@ $string['limitfactor_help'] = 'Specify a value by which to multiply the booking 
 
 // Booking campaign errors.
 $string['error:pricefactornotbetween0and1'] = 'You need to enter a value between 0 and 1, e.g. 0.9 to reduce prices by 10%.';
-$string['error:limitfactornotbetween1and2'] = 'You need to enter a value between 1 and 2, e.g. 1.2 to add 20% more bookable places.';
+$string['error:limitfactornotbetween1and2'] = 'You need to enter a value between 0 and 2, e.g. 1.2 to add 20% more bookable places.';
 $string['error:campaignstart'] = 'Campaign start has to be before campaign end.';
 $string['error:campaignend'] = 'Campaign end has to be after campaign start.';
 

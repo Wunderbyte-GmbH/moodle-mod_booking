@@ -62,6 +62,17 @@ class campaignslist implements renderable, templatable {
                     $campaign->localizedstart = $this->render_localized_timestamp($campaign->starttime, current_language());
                     $campaign->localizedend = $this->render_localized_timestamp($campaign->endtime, current_language());
                     break;
+                case CAMPAIGN_TYPE_BLOCKBOOKING:
+                    $campaign->bookingcampaigntype = 'campaign_blockbooking';
+                    $campaignobj = json_decode($campaign->json);
+                    $a = new stdClass;
+                    $a->fieldname = $campaignobj->fieldname;
+                    $a->fieldvalue = $campaignobj->fieldvalue;
+                    $campaign->description = get_string('campaign_blockbooking_descriptiontext', 'mod_booking', $a);
+                    $campaign->localizedtype = get_string('campaign_blockbooking', 'mod_booking');
+                    $campaign->localizedstart = $this->render_localized_timestamp($campaign->starttime, current_language());
+                    $campaign->localizedend = $this->render_localized_timestamp($campaign->endtime, current_language());
+                    break;
             }
 
             $this->campaigns[] = (array)$campaign;

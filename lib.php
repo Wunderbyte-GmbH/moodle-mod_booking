@@ -112,6 +112,7 @@ define('BO_COND_BOOKING_TIME', 60);
 define('BO_COND_BOOKINGPOLICY', 50);
 define('BO_COND_SUBBOOKINGBLOCKS', 45);
 define('BO_COND_SUBBOOKING', 40);
+define('BO_COND_CAMPAIGN_BLOCKBOOKING', 35);
 
 define('BO_COND_JSON_CUSTOMFORM', 16);
 define('BO_COND_JSON_ENROLLEDINCOURSE', 15);
@@ -157,6 +158,7 @@ define('PAGINATIONDEF', 25);
 
 // Define campaign types.
 define('CAMPAIGN_TYPE_CUSTOMFIELD', 0);
+define('CAMPAIGN_TYPE_BLOCKBOOKING', 1);
 
 /**
  * @param stdClass $cm

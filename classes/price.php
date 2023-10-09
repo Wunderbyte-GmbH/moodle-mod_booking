@@ -26,6 +26,7 @@ use local_shopping_cart\shopping_cart;
 use mod_booking\booking_option_settings;
 use local_entities\entitiesrelation_handler;
 use mod_booking\booking_campaigns\campaigns_info;
+use mod_booking\booking_campaigns\booking_campaign;
 use User;
 
 /**
@@ -727,10 +728,11 @@ class price {
                 // Check if there are active campaigns.
                 // If yes, we need to apply the price factor.
                 $campaigns = campaigns_info::get_all_campaigns();
+                $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
                 foreach ($campaigns as $camp) {
                     /** @var booking_campaign $campaign */
                     $campaign = $camp;
-                    if ($campaign->campaign_is_active($itemid)) {
+                    if ($campaign->campaign_is_active($itemid, $settings)) {
                         foreach ($prices as &$price) {
                             $price->price = $campaign->get_campaign_price($price->price);
                             // Render all prices to 2 fixed decimals.

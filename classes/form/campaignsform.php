@@ -121,7 +121,7 @@ class campaignsform extends dynamic_form {
             $errors['pricefactor'] = get_string('error:pricefactornotbetween0and1', 'mod_booking');
         }
 
-        if ($data['limitfactor'] < 1 || $data['limitfactor'] > 2) {
+        if ($data['limitfactor'] < 0 || $data['limitfactor'] > 2) {
             $errors['limitfactor'] = get_string('error:limitfactornotbetween1and2', 'mod_booking');
         }
 
