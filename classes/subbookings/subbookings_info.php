@@ -412,7 +412,7 @@ class subbookings_info {
                     [STATUSPARAM_WAITINGLIST, STATUSPARAM_RESERVED]);
                 break;
             case STATUSPARAM_NOTBOOKED: // We only want to delete the shortterm reservation.
-                // Check if there was a reserved or waiting list entry before.
+                // Check if there was a reserved entry before.
                 self::update_or_insert_answer(
                     $subbooking,
                     $itemid,
