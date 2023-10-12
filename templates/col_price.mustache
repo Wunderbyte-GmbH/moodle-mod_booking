@@ -47,7 +47,9 @@
 {{/priceitems}}
 {{/price}}
 {{^price}}
+    <div class="allprices ml-5 mt-3">
     {{#priceitems}}
         <div class="pricecurrency"> {{price}} {{currency}} <i>{{pricecategoryname}}</i></div>
     {{/priceitems}}
+    </div>
 {{/price}}

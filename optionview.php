@@ -24,13 +24,13 @@
 use mod_booking\output\bookingoption_description;
 use mod_booking\singleton_service;
 
-require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/../../config.php'); // phpcs:ignore moodle.Files.RequireLogin.Missing
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
 global $DB, $PAGE, $OUTPUT, $USER;
 
-// No guest autologin.
-require_login(0, false);
+// We do not want to check login here...
+// ...as this page should also be available for not logged in users!
 
 $cmid = required_param('cmid', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT);
