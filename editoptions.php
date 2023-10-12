@@ -77,7 +77,7 @@ if (!$context = context_module::instance($cmid)) {
 }
 
 if ((has_capability('mod/booking:updatebooking', $context) || (has_capability(
-    'mod/booking:addeditownoption', $context) && booking_check_if_teacher($values))) == false) {
+    'mod/booking:addeditownoption', $context) && booking_check_if_teacher($optionid))) == false) {
 
     throw new moodle_exception('nopermissions');
 }
@@ -141,7 +141,9 @@ if ($optionid == -1 && $copyoptionid != 0) {
     unset($defaultvalues->identifier);
 
     // Create a new duplicate of the old booking option.
-    $optionid = booking_update_options($defaultvalues, $fromoption->context);
+    /** @var context_module $fromoptioncontext */
+    $fromoptioncontext = $fromoption->context;
+    $optionid = booking_update_options($defaultvalues, $fromoptioncontext);
     // There is an optionid now. So it has to be used later on instead of -1.
     $defaultvalues->optionid = $optionid;
     unset($defaultvalues->copyoptionid);

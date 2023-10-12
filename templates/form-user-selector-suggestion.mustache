@@ -48,9 +48,7 @@
         ]
     }
 }}
-{{#email}}
-<div>
-    <div class="user-suggestion font-weight-bold text-dark">{{firstname}} {{lastname}}<small> ID: {{id}}</small></div>
-    <div><small>{{email}}</small></div>
-</div>
-{{/email}}
+<small>
+    <span class="user-suggestion font-weight-bold text-dark">{{firstname}} {{lastname}} (ID: {{id}})</span>
+    <div>{{email}}</div>
+</small>

@@ -23,6 +23,7 @@ use mod_booking\event\optiondates_teacher_added;
 use mod_booking\event\optiondates_teacher_deleted;
 use moodle_exception;
 use moodle_url;
+use mod_booking\singleton_service;
 use stdClass;
 
 /**
@@ -191,10 +192,16 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
             $teachers = $DB->get_records_sql($sql, $inparams);
 
             foreach ($teachers as $teacher) {
+                $details = [
+                    'id' => $teacher->id,
+                    'email' => $teacher->email,
+                    'firstname' => $teacher->firstname,
+                    'lastname' => $teacher->lastname,
+                ];
                 $list[$teacher->id] =
                     $OUTPUT->render_from_template(
                         'mod_booking/form-user-selector-suggestion',
-                        ['email' => [(array)$teacher]]);
+                        $details);
             }
         }
 
@@ -215,6 +222,18 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
             'multiple' => true,
             'noselectionstring' => '',
             'ajax' => 'mod_booking/form_users_selector',
+            'valuehtmlcallback' => function($value) {
+                global $OUTPUT;
+                $user = singleton_service::get_instance_of_user((int)$value);
+                $details = [
+                    'id' => $user->id,
+                    'email' => $user->email,
+                    'firstname' => $user->firstname,
+                    'lastname' => $user->lastname,
+                ];
+                return $OUTPUT->render_from_template(
+                        'mod_booking/form-user-selector-suggestion', $details);
+            },
         ];
         /* Important note: Currently, all users can be added as teachers for optiondates.
         In the future, there might be a user profile field defining users which are allowed
