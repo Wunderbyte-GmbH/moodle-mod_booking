@@ -1830,13 +1830,13 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 
 /**
  * Check if logged in user is in teachers db.
- * @param object $option optional option class
+ * @param mixed $option optional option class or optionid
  * @return true if is assigned as teacher otherwise return false
  */
-function booking_check_if_teacher(object $option = null) {
+function booking_check_if_teacher(mixed $optionoroptionid = null) {
     global $DB, $USER;
 
-    if (empty($option)) {
+    if (empty($optionoroptionid)) {
         // If we have no option, we check, if the teacher is a teacher of ANY option.
         $user = $DB->get_records('booking_teachers',
             ['userid' => $USER->id]);
@@ -1846,7 +1846,14 @@ function booking_check_if_teacher(object $option = null) {
             return true;
         }
     } else {
-        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        if (is_object($optionoroptionid)) {
+            $optionid = (int) $optionoroptionid->id;
+        } else if (is_number($optionoroptionid)) {
+            $optionid = (int) $optionoroptionid;
+        } else {
+            return false;
+        }
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         if (in_array($USER->id, $settings->teacherids)) {
             return true;
         } else {
