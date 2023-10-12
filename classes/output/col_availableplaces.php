@@ -26,6 +26,7 @@
 namespace mod_booking\output;
 
 use context_module;
+use context_system;
 use mod_booking\booking_answers;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
@@ -77,10 +78,12 @@ class col_availableplaces implements renderable, templatable {
         $cmid = $settings->cmid;
         $optionid = $settings->id;
 
-        $context = context_module::instance($cmid);
-
-        if (has_capability('mod/booking:updatebooking', $context) || (has_capability('mod/booking:addeditownoption', $context)
-            && booking_check_if_teacher($values))) {
+        $syscontext = context_system::instance();
+        $modcontext = context_module::instance($cmid);
+        $isteacher = booking_check_if_teacher($values);
+        if (has_capability('mod/booking:updatebooking', $modcontext) || has_capability('mod/booking:updatebooking', $syscontext)
+            || (has_capability('mod/booking:addeditownoption', $modcontext) && $isteacher)
+            || (has_capability('mod/booking:addeditownoption', $syscontext) && $isteacher)) {
 
             $this->showmanageresponses = true;
 
@@ -126,56 +129,8 @@ class col_availableplaces implements renderable, templatable {
             }
         }
 
-        // PRO feature: Info texts instead of the actual booking numbers.
-        // Booking places.
-        if (!has_capability('mod/booking:updatebooking', $context) &&
-            get_config('booking', 'bookingplacesinfotexts')
-            && !empty($bookinginformation['maxanswers'])) {
-
-            $bookinginformation['showbookingplacesinfotext'] = true;
-
-            $bookingplaceslowpercentage = get_config('booking', 'bookingplaceslowpercentage');
-            $actualpercentage = ($bookinginformation['freeonlist'] / $bookinginformation['maxanswers']) * 100;
-
-            if ($bookinginformation['freeonlist'] == 0) {
-                // No places left.
-                $bookinginformation['bookingplacesinfotext'] = get_string('bookingplacesfullmessage', 'mod_booking');
-                $bookinginformation['bookingplacesclass'] = 'text-danger';
-            } else if ($actualpercentage <= $bookingplaceslowpercentage) {
-                // Only a few places left.
-                $bookinginformation['bookingplacesinfotext'] = get_string('bookingplaceslowmessage', 'mod_booking');
-                $bookinginformation['bookingplacesclass'] = 'text-danger';
-            } else {
-                // Still enough places left.
-                $bookinginformation['bookingplacesinfotext'] = get_string('bookingplacesenoughmessage', 'mod_booking');
-                $bookinginformation['bookingplacesclass'] = 'text-success';
-            }
-        }
-        // Waiting list places.
-        if (!has_capability('mod/booking:updatebooking', $context) &&
-            get_config('booking', 'waitinglistinfotexts')
-            && !empty($bookinginformation['maxoverbooking'])) {
-
-            $bookinginformation['showwaitinglistplacesinfotext'] = true;
-
-            $waitinglistlowpercentage = get_config('booking', 'waitinglistlowpercentage');
-            $actualwlpercentage = ($bookinginformation['freeonwaitinglist'] /
-                $bookinginformation['maxoverbooking']) * 100;
-
-            if ($bookinginformation['freeonwaitinglist'] == 0) {
-                // No places left.
-                $bookinginformation['waitinglistplacesinfotext'] = get_string('waitinglistfullmessage', 'mod_booking');
-                $bookinginformation['waitinglistplacesclass'] = 'text-danger';
-            } else if ($actualwlpercentage <= $waitinglistlowpercentage) {
-                // Only a few places left.
-                $bookinginformation['waitinglistplacesinfotext'] = get_string('waitinglistlowmessage', 'mod_booking');
-                $bookinginformation['waitinglistplacesclass'] = 'text-danger';
-            } else {
-                // Still enough places left.
-                $bookinginformation['waitinglistplacesinfotext'] = get_string('waitinglistenoughmessage', 'mod_booking');
-                $bookinginformation['waitinglistplacesclass'] = 'text-success';
-            }
-        }
+        // Here we add the availability info texts to the $bookinginformation array.
+        booking_answers::add_availability_info_texts_to_booking_information($bookinginformation);
 
         $this->bookinginformation = $bookinginformation;
     }

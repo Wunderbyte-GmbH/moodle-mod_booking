@@ -25,8 +25,10 @@
 namespace mod_booking\output;
 
 use context_module;
+use context_system;
 use html_writer;
 use mod_booking\booking;
+use mod_booking\booking_answers;
 use mod_booking\booking_bookit;
 use mod_booking\booking_context_helper;
 use mod_booking\option\dates_handler;
@@ -233,9 +235,13 @@ class bookingoption_description implements renderable, templatable {
         // We need to pop out the first value which is by itself another array containing the information we need.
         $this->bookinginformation = array_pop($fullbookinginformation);
 
-        $context = context_module::instance($cmid);
-        if (has_capability('mod/booking:updatebooking', $context) ||
-             has_capability('mod/booking:addeditownoption', $context)) {
+        $syscontext = context_system::instance();
+        $modcontext = context_module::instance($cmid);
+        $isteacher = booking_check_if_teacher($optionid);
+        if (has_capability('mod/booking:updatebooking', $modcontext) || has_capability('mod/booking:updatebooking', $syscontext)
+            || (has_capability('mod/booking:addeditownoption', $modcontext) && $isteacher)
+            || (has_capability('mod/booking:addeditownoption', $syscontext) && $isteacher)) {
+
             $this->showmanageresponses = true;
 
             // Add a link to redirect to the booking option.
@@ -353,7 +359,9 @@ class bookingoption_description implements renderable, templatable {
 
             case DESCRIPTION_OPTIONVIEW:
                 // Get the availability information for this booking option.
-                // boinfo contains availability information, description, visibility information etc.
+
+                // Add availability info texts to $bookinginformation.
+                booking_answers::add_availability_info_texts_to_booking_information($this->bookinginformation);
 
                 // We set usertobuyfor here for better performance.
                 $this->usertobuyfor = price::return_user_to_buy_for();

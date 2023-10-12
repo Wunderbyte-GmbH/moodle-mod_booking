@@ -16,6 +16,8 @@
 
 namespace mod_booking;
 
+use context_system;
+use dml_exception;
 use mod_booking\singleton_service;
 
 defined('MOODLE_INTERNAL') || die();
@@ -368,6 +370,64 @@ class booking_answers {
             return $record->status;
         } else {
             return STATUSPARAM_NOTBOOKED;
+        }
+    }
+
+    /**
+     * Helper function to add availability info texts for available places and waiting list.
+     * @param  array &$bookinginformation reference to booking information array.
+     */
+    public static function add_availability_info_texts_to_booking_information(array &$bookinginformation) {
+        // PRO feature: Availability info texts for booking places and waiting list.
+        // Booking places.
+        $context = context_system::instance();
+        if (!has_capability('mod/booking:updatebooking', $context) &&
+            get_config('booking', 'bookingplacesinfotexts')
+            && !empty($bookinginformation['maxanswers'])) {
+
+            $bookinginformation['showbookingplacesinfotext'] = true;
+
+            $bookingplaceslowpercentage = get_config('booking', 'bookingplaceslowpercentage');
+            $actualpercentage = ($bookinginformation['freeonlist'] / $bookinginformation['maxanswers']) * 100;
+
+            if ($bookinginformation['freeonlist'] == 0) {
+                // No places left.
+                $bookinginformation['bookingplacesinfotext'] = get_string('bookingplacesfullmessage', 'mod_booking');
+                $bookinginformation['bookingplacesclass'] = 'text-danger';
+            } else if ($actualpercentage <= $bookingplaceslowpercentage) {
+                // Only a few places left.
+                $bookinginformation['bookingplacesinfotext'] = get_string('bookingplaceslowmessage', 'mod_booking');
+                $bookinginformation['bookingplacesclass'] = 'text-danger';
+            } else {
+                // Still enough places left.
+                $bookinginformation['bookingplacesinfotext'] = get_string('bookingplacesenoughmessage', 'mod_booking');
+                $bookinginformation['bookingplacesclass'] = 'text-success';
+            }
+        }
+        // Waiting list places.
+        if (!has_capability('mod/booking:updatebooking', $context) &&
+            get_config('booking', 'waitinglistinfotexts')
+            && !empty($bookinginformation['maxoverbooking'])) {
+
+            $bookinginformation['showwaitinglistplacesinfotext'] = true;
+
+            $waitinglistlowpercentage = get_config('booking', 'waitinglistlowpercentage');
+            $actualwlpercentage = ($bookinginformation['freeonwaitinglist'] /
+                $bookinginformation['maxoverbooking']) * 100;
+
+            if ($bookinginformation['freeonwaitinglist'] == 0) {
+                // No places left.
+                $bookinginformation['waitinglistplacesinfotext'] = get_string('waitinglistfullmessage', 'mod_booking');
+                $bookinginformation['waitinglistplacesclass'] = 'text-danger';
+            } else if ($actualwlpercentage <= $waitinglistlowpercentage) {
+                // Only a few places left.
+                $bookinginformation['waitinglistplacesinfotext'] = get_string('waitinglistlowmessage', 'mod_booking');
+                $bookinginformation['waitinglistplacesclass'] = 'text-danger';
+            } else {
+                // Still enough places left.
+                $bookinginformation['waitinglistplacesinfotext'] = get_string('waitinglistenoughmessage', 'mod_booking');
+                $bookinginformation['waitinglistplacesclass'] = 'text-success';
+            }
         }
     }
 
