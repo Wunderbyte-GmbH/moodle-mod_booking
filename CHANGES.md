@@ -1,3 +1,16 @@
+## Version 8.0.45 (2023101300)
+**Improvements:**
+* Improvement: booking_check_if_teacher function can now be used with optionid too.
+* Improvement: Better user selectors for teachers.
+* Improvement: Availability info texts now work on optionview.php (booking option detail page) too.
+* Improvement: Booking option detail page (optionview.php) can now be accessed without login.
+
+**Code quality:**
+* Linting: Example context for col_availableplaces and better param documentation for booking_check_if_teacher.
+* Linting: Fix example context for col_availableplaces.
+* Linting: No trailing comma allowed in JSON.
+* Linting: Fix form-user-selector-suggestion.mustache for github actions.
+
 ## Version 8.0.44 (2023100900)
 **New features:**
 * New feature: Lock editing of substitution once the "reviewed" checkbox has been clicked.
