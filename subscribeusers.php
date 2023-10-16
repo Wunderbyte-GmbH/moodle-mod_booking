@@ -37,7 +37,9 @@ $optionid = required_param('optionid', PARAM_INT);
 $subscribe = optional_param('subscribe', false, PARAM_BOOL);
 $unsubscribe = optional_param('unsubscribe', false, PARAM_BOOL);
 $agree = optional_param('agree', false, PARAM_BOOL);
-$bookanyone = optional_param('bookanyone', false, PARAM_BOOL);
+
+// Get the bookanyone setting from user preferences.
+$bookanyone = get_user_preferences('bookanyone', '0');
 
 list($course, $cm) = get_course_and_cm_from_cmid($id);
 
@@ -76,7 +78,7 @@ if (!booking_check_if_teacher ($bookingoption->option)) {
     }
 }
 
-$bookingoption->update_booked_users($bookanyone);
+$bookingoption->update_booked_users();
 $bookingoption->apply_tags();
 
 $PAGE->set_title(get_string('modulename', 'booking'));
@@ -109,7 +111,7 @@ if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
 
     $bookingoutput = $PAGE->get_renderer('mod_booking');
     $existingselector = new booking_existing_user_selector('removeselect', $subscribeduseroptions);
-    $subscriberselector = new booking_potential_user_selector('addselect', $potentialuseroptions, $bookanyone);
+    $subscriberselector = new booking_potential_user_selector('addselect', $potentialuseroptions);
 
     if (data_submitted()) {
         require_sesskey();
@@ -176,7 +178,7 @@ if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
         }
         $subscriberselector->invalidate_selected_users();
         $existingselector->invalidate_selected_users();
-        $bookingoption->update_booked_users($bookanyone);
+        $bookingoption->update_booked_users();
         $subscriberselector->set_potential_users($bookingoption->potentialusers);
         $existingselector->set_potential_users($bookingoption->bookedvisibleusers);
     }
@@ -187,18 +189,20 @@ echo $OUTPUT->heading(format_string($optionsettings->get_title_with_prefix()), 3
 
 // Switch to turn booking of anyone ON or OFF.
 if (is_siteadmin() && $bookanyone) {
+    // Turn it off.
+    set_user_preference('bookanyone', '1');
     $url = new moodle_url('/mod/booking/subscribeusers.php', ['id' => $id,
                                                                 'optionid' => $optionid,
                                                                 'agree' => $agree,
-                                                                'bookanyone' => false,
                                                             ]);
     echo '<a class="btn btn-sm btn-light" href="' . $url . '">' . get_string('bookanyoneswitchoff', 'mod_booking') . '</a>';
     echo '<div class="alert alert-warning p-1 mt-1 text-center">' . get_string('bookanyonewarning', 'mod_booking')  . '</div>';
 } else {
+    // Turn it on.
+    set_user_preference('bookanyone', '0');
     $url = new moodle_url('/mod/booking/subscribeusers.php', ['id' => $id,
                                                                 'optionid' => $optionid,
                                                                 'agree' => $agree,
-                                                                'bookanyone' => true,
                                                             ]);
     echo '<a class="btn btn-sm btn-light" href="' . $url . '">' . get_string('bookanyoneswitchon', 'mod_booking') . '</a>';
 }

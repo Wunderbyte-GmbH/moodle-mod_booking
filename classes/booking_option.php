@@ -444,11 +444,11 @@ class booking_option {
      * Updates canbookusers and bookedusers does not check the status (booked or waitinglist)
      * Just gets the registered booking from database
      * Calculates the potential users (bookers able to book, but not yet booked)
-     *
-     * @param bool $bookanyone if true, any user can be booked (also not enrolled users)
      */
-    public function update_booked_users(bool $bookanyone = false) {
+    public function update_booked_users() {
         global $CFG, $DB, $USER;
+
+        $bookanyone = get_user_preferences('bookanyone', '0');
 
         if (empty($this->booking->canbookusers)) {
             $this->booking->get_canbook_userids();

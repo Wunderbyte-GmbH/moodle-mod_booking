@@ -131,18 +131,16 @@ class booking_potential_user_selector extends booking_user_selector_base {
     /** @var array $options */
     public $options;
 
-    /** @var bool $bookanyone */
-    public $bookanyone;
-
-    public function __construct($name, $options, $bookanyone = false) {
+    public function __construct($name, $options) {
 
         $this->options = $options;
-        $this->bookanyone = $bookanyone;
         parent::__construct($name, $options);
     }
 
     public function find_users($search) {
         global $DB;
+
+        $bookanyone = get_user_preferences('bookanyone', false);
 
         $onlygroupmembers = false;
         if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS &&
@@ -181,7 +179,7 @@ class booking_potential_user_selector extends booking_user_selector_base {
 
         // If true, anyone can be booked - even users not enrolled.
         // Only SITE admins are allowed to do this!
-        if ($this->bookanyone && is_siteadmin()) {
+        if ($bookanyone && is_siteadmin()) {
             $enrolledsqlpart = '';
         } else {
             $enrolledsqlpart = "AND u.id IN (
@@ -224,7 +222,7 @@ class booking_potential_user_selector extends booking_user_selector_base {
             return [];
         }
 
-        if ($this->bookanyone) {
+        if ($bookanyone) {
             if ($search) {
                 $groupname = get_string('usersmatching', 'mod_booking');
             } else {
