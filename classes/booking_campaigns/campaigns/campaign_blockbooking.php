@@ -198,12 +198,6 @@ class campaign_blockbooking implements booking_campaign {
         $mform->setType('blockinglabel', PARAM_TEXT);
         $mform->addHelpButton('blockinglabel', 'blockinglabel', 'mod_booking');
 
-        /*
-        $mform->addElement('text', 'hascapabability', get_string('hascapabability', 'mod_booking'), null);
-        $mform->setType('hascapabability', PARAM_TEXT);
-        $mform->setDefault('hascapabability', 'local/shopping_cart:cashier');
-        $mform->addHelpButton('hascapabability', 'hascapabability', 'mod_booking');
-         */
     }
 
     /**

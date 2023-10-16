@@ -34,20 +34,6 @@ use local_wunderbyte_table\wunderbyte_table;
 
 class event_log_table extends wunderbyte_table {
 
-
-    /**
-     * Constructor
-     * @param string $uniqueid all tables have to have a unique id, this is used
-     *      as a key when storing table properties like sort order in the session.
-     * @param int $catscaleid
-     * @param int $contextid
-     */
-    public function __construct(string $uniqueid) {
-
-        parent::__construct($uniqueid);
-
-    }
-
     /**
      * Overrides the output for this column.
      * @param object $values

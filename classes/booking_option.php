@@ -3169,7 +3169,7 @@ class booking_option {
 
         return [
             'status' => false,
-            'label' => ''
+            'label' => '',
         ];
     }
 }
