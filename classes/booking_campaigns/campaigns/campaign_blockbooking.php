@@ -95,7 +95,7 @@ class campaign_blockbooking implements booking_campaign {
         $this->fieldvalue = $jsonobj->fieldvalue;
         $this->blockoperator = $jsonobj->blockoperator;
         $this->blockinglabel = $jsonobj->blockinglabel;
-        $this->hascapability = $jsonobj->hascapabability;
+        $this->hascapability = $jsonobj->hascapability;
     }
 
     /**
@@ -229,7 +229,7 @@ class campaign_blockbooking implements booking_campaign {
         $jsonobject->fieldvalue = $data->fieldvalue;
         $jsonobject->blockoperator = $data->blockoperator;
         $jsonobject->blockinglabel = $data->blockinglabel;
-        $jsonobject->hascapabability = $data->hascapabability;
+        $jsonobject->hascapability = $data->hascapability;
         $record->json = json_encode($jsonobject);
 
         $record->name = $data->name;
@@ -277,7 +277,7 @@ class campaign_blockbooking implements booking_campaign {
                     $data->fieldvalue = $jsonboject->fieldvalue;
                     $data->blockoperator = $jsonboject->blockoperator;
                     $data->blockinglabel = $jsonboject->blockinglabel;
-                    $data->hascapabability = $jsonboject->hascapabability;
+                    $data->hascapability = $jsonboject->hascapability;
                     break;
             }
         }

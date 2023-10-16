@@ -2233,7 +2233,7 @@ $string['blockoperator'] = 'Operator';
 $string['blockabove'] = 'Block above';
 $string['blockbelow'] = 'Block below';
 $string['percentageavailableplaces'] = 'Percentage of available places';
-$string['hascapabability'] = 'Except has capability';
+$string['hascapability'] = 'Except has capability';
 $string['blockinglabel'] = 'Message when blocking';
 $string['blockinglabel_help'] = 'Please use the filter for lokalization.';
 

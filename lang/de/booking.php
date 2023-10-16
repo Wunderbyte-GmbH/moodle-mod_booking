@@ -2111,7 +2111,7 @@ $string['blockoperator'] = 'Operator';
 $string['blockabove'] = 'Blockiere über';
 $string['blockbelow'] = 'Blockiere unter';
 $string['percentageavailableplaces'] = 'Prozent der verfügbaren Plätze';
-$string['hascapabability'] = 'Außer mit dieser Fähikgeit';
+$string['hascapability'] = 'Außer mit dieser Fähikgeit';
 $string['blockinglabel'] = 'Nachricht beim Blockieren';
 $string['blockinglabel_help'] = 'Für Lokalisierungen, bitte den entsprechenden Filter verwenden.';
 
