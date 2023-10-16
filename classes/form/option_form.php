@@ -685,7 +685,7 @@ class option_form extends moodleform {
         );
 
         $html = $OUTPUT->render_from_template('mod_booking/eventslist', $data);
-        $mform->addElement('static', 'eventslist', get_string('eventslist', 'mod_booking'), $html);
+        $mform->addElement('static', 'eventslist', '', $html);
 
         $PAGE->requires->js_call_amd('mod_booking/optionstemplateselect', 'init');
     }
