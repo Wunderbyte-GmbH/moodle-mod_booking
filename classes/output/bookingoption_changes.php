@@ -133,14 +133,22 @@ class bookingoption_changes implements renderable, templatable {
                         $fieldid = null;
                     }
 
-                    $link = new moodle_url($baseurl . '/mod/booking/link.php',
-                        ['id' => $this->cmid,
+                    if (!empty($entry['optionid'])) {
+                        $link = new moodle_url($baseurl . '/mod/booking/view.php',
+                        [
+                            'id' => $this->cmid,
+                        ]);
+                    } else {
+                        $link = new moodle_url($baseurl . '/mod/booking/link.php',
+                        [
+                            'id' => $this->cmid,
                             'optionid' => $entry['optionid'],
                             'action' => 'join',
                             'sessionid' => $entry['optiondateid'],
                             'fieldid' => $fieldid,
                             'meetingtype' => $entry['newname'],
                         ]);
+                    }
 
                     $entry['newvalue'] = html_writer::link($link, $link->out());
                 }

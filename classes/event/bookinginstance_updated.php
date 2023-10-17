@@ -23,6 +23,8 @@
  */
 
 namespace mod_booking\event;
+use mod_booking\output\bookingoption_changes;
+use mod_booking\singleton_service;
 
 /**
  * The bookingoption_updated event class.
@@ -45,7 +47,26 @@ class bookinginstance_updated extends \core\event\base {
     }
 
     public function get_description() {
-        return "User with id '{$this->userid}' updated 'booking instance' with id '{$this->objectid}'.";
+
+        global $PAGE;
+
+        $data = $this->get_data();
+
+        $jsonstring = isset($data['other']) ? $data['other'] : '[]';
+
+        if (gettype($jsonstring) == 'string') {
+            $changes = (array) json_decode($jsonstring);
+        }
+
+        if (!empty($changes) && !empty($data['objectid'])) {
+            $data = new bookingoption_changes($changes, $data['objectid']);
+            $renderer = $PAGE->get_renderer('mod_booking');
+            $html = $renderer->render_bookingoption_changes($data);
+        } else {
+            $html = '';
+        }
+
+        return "User with id '{$this->userid}' updated 'booking instance' with cmid '{$this->objectid}'." . $html;
     }
 
     public function get_url() {

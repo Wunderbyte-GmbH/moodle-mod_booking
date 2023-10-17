@@ -773,7 +773,7 @@ class booking {
 
                     $nrecid = $DB->insert_record('booking_options', $bookingoption, true, false);
 
-                    $newteacher = new \stdClass;
+                    $newteacher = new stdClass;
                     $newteacher->bookingid = $this->id;
                     $newteacher->userid = $USER->id;
                     $newteacher->optionid = $nrecid;
@@ -860,7 +860,7 @@ class booking {
      * @param int $bookingparam
      * @param string $additionalwhere
      * @param string $innerfrom
-     * @return void
+     * @return array
      */
     public static function get_options_filter_sql($limitfrom = 0,
                                                 $limitnum = 0,
@@ -1129,7 +1129,7 @@ class booking {
         // Encoding the whole URL makes migration to a new WWWROOT impossible.
 
         $encodedurl = base64_encode($moodleurl->out(false));
-        $encodedmoodleurl = new \moodle_url($CFG->wwwroot . '/mod/booking/bookingredirect.php', [
+        $encodedmoodleurl = new moodle_url($CFG->wwwroot . '/mod/booking/bookingredirect.php', [
             'encodedurl' => $encodedurl,
         ]);
 
@@ -1293,7 +1293,7 @@ class booking {
                 AND bocourseid IN (" . implode(', ', $courses) . ")
                 ) bo
             ";
-            break;
+
             case 'mariadb_native_moodle_database':
 
                 $where = "";
@@ -1336,7 +1336,8 @@ class booking {
      */
     public static function return_sql_for_event_logs(
             string $component = 'mod_booking',
-            array $eventnames = []) {
+            array $eventnames = [],
+            int $objectid = 0) {
         global $DB;
 
         $select = "*";
@@ -1358,6 +1359,12 @@ class booking {
             list($inorequal, $params) = $DB->get_in_or_equal($eventnames, SQL_PARAMS_NAMED);
 
             $where .= " AND eventname " . $inorequal;
+        }
+
+        if (!empty($objectid)) {
+
+            $where .= " AND objectid = :objectid ";
+            $params['objectid'] = $objectid;
         }
 
         $filter = '';
@@ -1407,5 +1414,54 @@ class booking {
             }
         }
         return null;
+    }
+
+    /**
+     * Helper function to return an array containing all relevant instance update changes.
+     *
+     * @param $oldoption stdClass the original booking option object
+     * @param $newoption stdClass the new booking option object
+     * @return array an array containing the changes that have been made
+     */
+    public static function booking_instance_get_changes($oldoption, $newoption) {
+
+        $keystoexclude = [
+            'introformat',
+            'customtemplateid',
+            'timemodified',
+        ];
+
+        $keyslocalization = [
+            'name' => get_string('bookingname', 'mod_booking'),
+            'defaultoptionsort' => get_string('sortby'),
+            'optionsfield' => get_string('defaultoptionsort', 'mod_booking'),
+        ];
+
+        $returnarry = [];
+
+        foreach ($newoption as $key => $value) {
+
+            if (in_array($key, $keystoexclude)) {
+                continue;
+            }
+
+            if (isset($oldoption->{$key})
+                && $oldoption->{$key} != $value) {
+
+                $localizedstring = $keyslocalization[$key] ?? get_string($key, 'mod_booking');
+                $returnarry[] = [
+                    'info' => $localizedstring . get_string('changeinfochanged', 'booking'),
+                    'fieldname' => 'bookinginstancetitle',
+                    'oldvalue' => $oldoption->{$key},
+                    'newvalue' => $value,
+                ];
+            }
+        }
+
+        if (count($returnarry) > 0) {
+            return $returnarry;
+        } else {
+            return [];
+        }
     }
 }

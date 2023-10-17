@@ -53,8 +53,9 @@ class bookingoption_updated extends \core\event\base {
         $data = $this->get_data();
 
         $jsonstring = isset($data['other']) ? $data['other'] : '[]';
-
-        $changes = (array) json_decode($jsonstring);
+        if (gettype($jsonstring) == 'string') {
+            $changes = (array) json_decode($jsonstring);
+        }
 
         if (!empty($changes) && !empty($data['objectid'])) {
             $settings = singleton_service::get_instance_of_booking_option_settings($data['objectid']);

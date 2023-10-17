@@ -67,7 +67,7 @@ class eventslist implements renderable, templatable {
 
         global $DB;
 
-        list($select, $from, $where, $filter, $params) = booking::return_sql_for_event_logs('mod_booking', $eventnames);
+        list($select, $from, $where, $filter, $params) = booking::return_sql_for_event_logs('mod_booking', $eventnames, $id);
 
         $tablenamestring = "eventlogtable" . $id . implode('-', $eventnames);
 

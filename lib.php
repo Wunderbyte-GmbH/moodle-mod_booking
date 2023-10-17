@@ -733,10 +733,16 @@ function booking_update_instance($booking) {
 
     booking_grade_item_update($booking);
 
+    $oldrecord = $DB->get_record('booking', ['id' => $booking->id]);
+    $changes = booking::booking_instance_get_changes($oldrecord, $booking);
+
     // We trigger the right event.
     $event = \mod_booking\event\bookinginstance_updated::create([
         'context' => $context,
         'objectid' => $cm->id,
+        'other' => [
+            'changes' => $changes ?? '',
+        ],
     ]);
     $event->trigger();
 
