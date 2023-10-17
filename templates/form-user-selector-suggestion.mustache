@@ -40,6 +40,5 @@
     }
 }}
 <span class="user-suggestion font-weight-bold text-dark">
-    <small><b>{{firstname}} {{lastname}}</b> (ID: {{id}})
-    {{#email}}<br>{{.}}{{/email}}</small>
-</span>
+    {{firstname}} {{lastname}} (ID: {{id}}){{#email}} | {{.}}{{/email}}
+</span><br>
