@@ -52,7 +52,7 @@ class bookingoption_changes implements renderable, templatable {
      * @param int $cmid course module id
      */
     public function __construct(array $changesarray, int $cmid) {
-        $this->changesarray = $changesarray['changes'];
+        $this->changesarray = $changesarray['changes'] ?? [];
         $this->cmid = $cmid;
     }
 
