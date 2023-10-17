@@ -126,9 +126,9 @@ class campaign_blockbooking implements booking_campaign {
             $fieldnames[$record->shortname] = $record->name;
         }
 
-        $mform->addElement('select', 'fieldname',
+        $mform->addElement('select', 'bbfieldname',
             get_string('campaignfieldname', 'mod_booking'), $fieldnames);
-        $mform->addHelpButton('fieldname', 'campaignfieldname', 'mod_booking');
+        $mform->addHelpButton('bbfieldname', 'campaignfieldname', 'mod_booking');
 
         // Custom field value.
         $sql = "SELECT DISTINCT cd.value
@@ -143,8 +143,8 @@ class campaign_blockbooking implements booking_campaign {
             AND cf.shortname = :fieldname";
 
         $params = ['fieldname' => ''];
-        if (!empty($ajaxformdata["fieldname"])) {
-            $params['fieldname'] = $ajaxformdata["fieldname"];
+        if (!empty($ajaxformdata["bbfieldname"])) {
+            $params['fieldname'] = $ajaxformdata["bbfieldname"];
         }
         $records = $DB->get_fieldset_sql($sql, $params);
 
