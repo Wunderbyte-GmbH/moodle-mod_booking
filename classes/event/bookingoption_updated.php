@@ -54,7 +54,7 @@ class bookingoption_updated extends \core\event\base {
 
         $jsonstring = isset($data['other']) ? $data['other'] : '[]';
 
-        $changes = json_decode($jsonstring);
+        $changes = (array) json_decode($jsonstring);
 
         if (!empty($changes) && !empty($data['objectid'])) {
             $settings = singleton_service::get_instance_of_booking_option_settings($data['objectid']);

@@ -48,10 +48,11 @@ class bookingoption_changes implements renderable, templatable {
     /**
      * Constructor
      *
-     * @param \stdClass $changesarray
+     * @param array $changesarray an array containing fieldname, oldvalue and newvalue of changes
+     * @param int $cmid course module id
      */
-    public function __construct($changesarray, $cmid) {
-        $this->changesarray = $changesarray->changes;
+    public function __construct(array $changesarray, int $cmid) {
+        $this->changesarray = $changesarray['changes'];
         $this->cmid = $cmid;
     }
 
