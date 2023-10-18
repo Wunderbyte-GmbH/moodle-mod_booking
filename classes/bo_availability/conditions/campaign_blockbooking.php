@@ -29,6 +29,7 @@ namespace mod_booking\bo_availability\conditions;
 use context_system;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\booking_context_helper;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
@@ -145,7 +146,7 @@ class campaign_blockbooking implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        $description = $this->get_description_string($isavailable, $full);
+        $description = $this->get_description_string($isavailable, $full, $settings);
 
         return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_MYALERT];
     }
@@ -194,7 +195,7 @@ class campaign_blockbooking implements bo_condition {
             $this->is_available($settings, $userid);
         }
 
-        $label = $this->get_description_string(false, $full);
+        $label = $this->get_description_string(false, $full, $settings);
 
         return bo_info::render_button($settings, $userid, $label, 'alert alert-warning', true, $fullwidth, 'alert', 'option');
     }
@@ -204,17 +205,15 @@ class campaign_blockbooking implements bo_condition {
      *
      * @param bool $isavailable
      * @param bool $full
+     * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string($isavailable, $full) {
+    private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
         if ($isavailable) {
             $description = '';
         } else {
             global $PAGE;
-            $context = context_system::instance();
-            if (!isset($PAGE->context)) {
-                $PAGE->set_context($context);
-            }
+            booking_context_helper::fix_booking_page_context($PAGE, $settings->cmid);
             $description = format_text($this->blockinglabel);
         }
         return $description;

@@ -257,15 +257,23 @@ class campaign_customfield implements booking_campaign {
      * @param booking_option_settings $settings
      * @return bool true if the campaign is currently active
      */
-    public function campaign_is_active(int $optionid, booking_option_settings $settings):bool {
+    public function campaign_is_active(int $optionid, booking_option_settings $settings): bool {
 
         $now = time();
         if ($this->starttime <= $now && $now <= $this->endtime) {
 
-            if (!empty($settings->customfields[$this->fieldname])
-                && ($settings->customfields[$this->fieldname] == $this->fieldvalue ||
-                in_array($this->fieldvalue, $settings->customfields[$this->fieldname]))) {
-                return true;
+            if (!empty($settings->customfields[$this->fieldname])) {
+                if (is_string($settings->customfields[$this->fieldname])
+                    && $settings->customfields[$this->fieldname] === $this->fieldvalue) {
+                    // It's a string so we can compare directly.
+                    return true;
+                } else if (is_array($settings->customfields[$this->fieldname])
+                    && in_array($this->fieldvalue, $settings->customfields[$this->fieldname])) {
+                    // It's an array, so we check with in_array.
+                    return true;
+                } else {
+                    return false;
+                }
             } else {
                 return false;
             }
