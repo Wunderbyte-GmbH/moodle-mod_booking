@@ -2111,12 +2111,18 @@ $string['campaign_blockbooking_descriptiontext'] = 'Betrifft: Benutzerdefinierte
 mit dem Wert "{$a->fieldvalue}".';
 
 $string['blockoperator'] = 'Operator';
+$string['blockoperator_help'] = '<b>Blockiere über</b> ... Sobald der angegebene Prozentsatz an Buchungen erreicht ist, wird das Online-Buchen geblockt,
+es kann dann nur noch an der Kassa oder durch einen Admin gebucht werden.<br>
+<b>Blockiere unter</b> ... Das Buchen wird geblockt bis der angegebene Prozentsatz an Buchungen erreicht ist,
+bis dahin kann nur an der Kassa oder durch einen Admin gebucht werden.';
 $string['blockabove'] = 'Blockiere über';
 $string['blockbelow'] = 'Blockiere unter';
 $string['percentageavailableplaces'] = 'Prozent der verfügbaren Plätze';
 $string['hascapability'] = 'Außer mit dieser Fähikgeit';
 $string['blockinglabel'] = 'Nachricht beim Blockieren';
-$string['blockinglabel_help'] = 'Für Lokalisierungen, bitte den entsprechenden Filter verwenden.';
+$string['blockinglabel_help'] = 'Geben Sie die Nachricht ein, die angezeigt werden soll, wenn Buchungen blockiert werden.
+Wenn Sie die Nachricht lokalisieren wollen, verwenden Sie die
+<a href="https://docs.moodle.org/403/en/Multi-language_content_filter" target="_blank">Moodle-Sprachfilter</a>.';
 
 // Booking campaign help buttons.
 $string['campaign_name_help'] = 'Geben Sie einen beliebigen Namen für die Kampagne an - z.B. "Weihnachtsaktion 2023" oder "Oster-Rabatt 2023".';
@@ -2132,6 +2138,7 @@ $string['error:pricefactornotbetween0and1'] = 'Sie müssen einen Wert zwischen 0
  geben Sie den Wert 0,9 ein.';
 $string['error:limitfactornotbetween1and2'] = 'Sie müssen einen Wert zwischen 0 und 2 eingeben. Um das Buchungslimit z.B. um 20% zu erhöhen,
  geben Sie den Wert 1,2 ein.';
+ $string['error:percentageavailableplaces'] = 'Geben Sie einen gültigen Prozentsatz zwischen 0% and 100% an.';
 $string['error:campaignstart'] = 'Kampagnenbeginn muss vor dem Kampagnenende liegen.';
 $string['error:campaignend'] = 'Kampagnenende muss nach dem Kampagnenbeginn sein.';
 

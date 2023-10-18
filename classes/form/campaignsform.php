@@ -105,6 +105,24 @@ class campaignsform extends dynamic_form {
                 if (empty($data['fieldvalue'])) {
                     $errors['fieldvalue'] = get_string('error:choosevalue', 'mod_booking');
                 }
+                if ($data['pricefactor'] < 0 || $data['pricefactor'] > 1) {
+                    $errors['pricefactor'] = get_string('error:pricefactornotbetween0and1', 'mod_booking');
+                }
+                if ($data['limitfactor'] < 0 || $data['limitfactor'] > 2) {
+                    $errors['limitfactor'] = get_string('error:limitfactornotbetween1and2', 'mod_booking');
+                }
+                break;
+            case 'campaign_blockbooking':
+                if ($data['fieldname'] == '0') {
+                    $errors['fieldname'] = get_string('error:choosevalue', 'mod_booking');
+                }
+                if (empty($data['fieldvalue'])) {
+                    $errors['fieldvalue'] = get_string('error:choosevalue', 'mod_booking');
+                }
+                if ($data['percentageavailableplaces'] <= 0 || $data['percentageavailableplaces'] >= 100) {
+                    $errors['percentageavailableplaces'] = get_string('error:percentageavailableplaces', 'mod_booking');
+                }
+                break;
                 break;
         }
 
@@ -115,14 +133,6 @@ class campaignsform extends dynamic_form {
         if ($data['starttime'] >= $data['endtime']) {
             $errors['starttime'] = get_string('error:campaignstart', 'mod_booking');
             $errors['endtime'] = get_string('error:campaignend', 'mod_booking');
-        }
-
-        if ($data['pricefactor'] < 0 || $data['pricefactor'] > 1) {
-            $errors['pricefactor'] = get_string('error:pricefactornotbetween0and1', 'mod_booking');
-        }
-
-        if ($data['limitfactor'] < 0 || $data['limitfactor'] > 2) {
-            $errors['limitfactor'] = get_string('error:limitfactornotbetween1and2', 'mod_booking');
         }
 
         return $errors;

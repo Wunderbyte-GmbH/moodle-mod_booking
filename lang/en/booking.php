@@ -2233,12 +2233,18 @@ $string['campaign_blockbooking_descriptiontext'] = 'Affects: Booking option cust
 having the value "{$a->fieldvalue}".';
 
 $string['blockoperator'] = 'Operator';
+$string['blockoperator_help'] = '<b>Block above</b> ... Online booking will be blocked once the given percentage
+of bookings is reached. Booking will only be possible for a cashier or admin afterwards.<br>
+<b>Block below</b> ... Online booking will be blocked until the given percentage
+of bookings is reached. Before that happens, booking is only possible for cashier or admin.';
 $string['blockabove'] = 'Block above';
 $string['blockbelow'] = 'Block below';
 $string['percentageavailableplaces'] = 'Percentage of available places';
 $string['hascapability'] = 'Except has capability';
 $string['blockinglabel'] = 'Message when blocking';
-$string['blockinglabel_help'] = 'Please use the filter for lokalization.';
+$string['blockinglabel_help'] = 'Enter the message that should be shown, when booking is blocked.
+If you want to localize this message, you can use
+<a href="https://docs.moodle.org/403/en/Multi-language_content_filter" target="_blank">language filters</a>.';
 
 // Booking campaign help buttons.
 $string['campaign_name_help'] = 'Specify any name for the campaign - for example, "Christmas Campaign 2023" or "Easter Discount 2023".';
@@ -2252,6 +2258,7 @@ $string['limitfactor_help'] = 'Specify a value by which to multiply the booking 
 // Booking campaign errors.
 $string['error:pricefactornotbetween0and1'] = 'You need to enter a value between 0 and 1, e.g. 0.9 to reduce prices by 10%.';
 $string['error:limitfactornotbetween1and2'] = 'You need to enter a value between 0 and 2, e.g. 1.2 to add 20% more bookable places.';
+$string['error:percentageavailableplaces'] = 'You need to enter a valid percentage beween 0% and 100%.';
 $string['error:campaignstart'] = 'Campaign start has to be before campaign end.';
 $string['error:campaignend'] = 'Campaign end has to be after campaign start.';
 

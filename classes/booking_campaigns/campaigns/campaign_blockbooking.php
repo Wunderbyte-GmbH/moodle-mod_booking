@@ -58,8 +58,8 @@ class campaign_blockbooking implements booking_campaign {
     /** @var float $pricefactor */
     public $pricefactor = 1.0;
 
-    /** @var float $limitfactor */
-    public $limitfactor = 1.0;
+    /** @var float $percentageavailableplaces */
+    public $percentageavailableplaces = 50.0;
 
     // From JSON.
     /** @var string $blockoperator */
@@ -87,7 +87,7 @@ class campaign_blockbooking implements booking_campaign {
         $this->starttime = $record->starttime ?? 0;
         $this->endtime = $record->endtime ?? 0;
         $this->pricefactor = $record->pricefactor ?? 1.0;
-        $this->limitfactor = $record->limitfactor ?? 1.0;
+        $this->percentageavailableplaces = $record->percentageavailableplaces ?? 50.0;
 
         // Set additional data stored in JSON.
         $jsonobj = json_decode($record->json);
@@ -186,9 +186,9 @@ class campaign_blockbooking implements booking_campaign {
         $mform->addHelpButton('blockoperator', 'blockoperator', 'mod_booking');
 
         // Limit factor (multiplier).
-        $mform->addElement('float', 'limitfactor', get_string('percentageavailableplaces', 'mod_booking'), null);
-        $mform->setDefault('limitfactor', 0.5);
-        $mform->addHelpButton('limitfactor', 'percentageavailableplaces', 'mod_booking');
+        $mform->addElement('float', 'percentageavailableplaces', get_string('percentageavailableplaces', 'mod_booking'), null);
+        $mform->setDefault('percentageavailableplaces', 50.0);
+        $mform->addHelpButton('percentageavailableplaces', 'percentageavailableplaces', 'mod_booking');
 
         $mform->addElement(
             'textarea',
@@ -236,7 +236,7 @@ class campaign_blockbooking implements booking_campaign {
         $record->starttime = $data->starttime;
         $record->endtime = $data->endtime;
         $record->pricefactor = $data->pricefactor;
-        $record->limitfactor = $data->limitfactor;
+        $record->percentageavailableplaces = $data->percentageavailableplaces;
 
         // We need to create two adhoc tasks to purge caches - one at start time and one at end time.
         $purgetaskstart = new purge_campaign_caches();
@@ -268,7 +268,7 @@ class campaign_blockbooking implements booking_campaign {
         $data->starttime = $record->starttime;
         $data->endtime = $record->endtime;
         $data->pricefactor = $record->pricefactor;
-        $data->limitfactor = $record->limitfactor;
+        $data->percentageavailableplaces = $record->percentageavailableplaces;
 
         if ($jsonboject = json_decode($record->json)) {
             switch ($record->type) {
@@ -360,11 +360,11 @@ class campaign_blockbooking implements booking_campaign {
         switch ($this->blockoperator) {
 
             case 'blockbelow':
-                $blocking = ($settings->maxanswers * $this->limitfactor) > count($ba->usersonlist);
+                $blocking = ($settings->maxanswers * $this->percentageavailableplaces * 0.01) > count($ba->usersonlist);
                 break;
 
             case 'blockabove':
-                $blocking = ($settings->maxanswers * $this->limitfactor) < count($ba->usersonlist);
+                $blocking = ($settings->maxanswers * $this->percentageavailableplaces * 0.01) < count($ba->usersonlist);
                 break;
         }
 
