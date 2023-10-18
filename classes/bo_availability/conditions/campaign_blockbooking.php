@@ -210,6 +210,11 @@ class campaign_blockbooking implements bo_condition {
         if ($isavailable) {
             $description = '';
         } else {
+            global $PAGE;
+            $context = context_system::instance();
+            if (!isset($PAGE->context)) {
+                $PAGE->set_context($context);
+            }
             $description = format_text($this->blockinglabel);
         }
         return $description;
