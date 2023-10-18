@@ -2220,7 +2220,7 @@ $string['addbookingcampaign'] = 'Add campaign';
 $string['deletebookingcampaign'] = 'Delete campaign';
 $string['deletebookingcampaign_confirmtext'] = 'Do you really want to delete the following campaign?';
 $string['campaign_name'] = 'Custom name for the campaign';
-$string['campaign_customfield'] = 'Booking option custom field has a specific value';
+$string['campaign_customfield'] = 'Change price or booking limit';
 $string['campaign_customfield_descriptiontext'] = 'Affects: Booking option custom field "{$a->cffieldname}"
  having the value "{$a->fieldvalue}".';
 $string['campaignfieldname'] = 'Field';
@@ -2228,7 +2228,7 @@ $string['campaignfieldvalue'] = 'Value';
 $string['campaignstart'] = 'Start of campaign';
 $string['campaignend'] = 'End of campaign';
 
-$string['campaign_blockbooking'] = 'Booking options will be blocked depending on certain params';
+$string['campaign_blockbooking'] = 'Block certain booking options';
 $string['campaign_blockbooking_descriptiontext'] = 'Affects: Booking option custom field "{$a->bbfieldname}"
 having the value "{$a->fieldvalue}".';
 
