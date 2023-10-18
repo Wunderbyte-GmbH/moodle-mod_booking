@@ -2099,7 +2099,7 @@ $string['deletebookingcampaign'] = 'Kampagne löschen';
 $string['deletebookingcampaign_confirmtext'] = 'Wollen Sie die folgende Kampagne wirklich löschen?';
 $string['campaign_name'] = 'Eigener Name der Kampagne';
 $string['campaign_customfield'] = 'Preis oder Buchungslimit anpassen';
-$string['campaign_customfield_descriptiontext'] = 'Betrifft: Benutzerdefiniertes Buchungsoptionsfeld "{$a->cffieldname}"
+$string['campaign_customfield_descriptiontext'] = 'Betrifft: Benutzerdefiniertes Buchungsoptionsfeld "{$a->fieldname}"
  mit dem Wert "{$a->fieldvalue}".';
 $string['campaignfieldname'] = 'Feld';
 $string['campaignfieldvalue'] = 'Wert';
@@ -2107,7 +2107,7 @@ $string['campaignstart'] = 'Beginn der Kampagne';
 $string['campaignend'] = 'Ende der Kampagne';
 
 $string['campaign_blockbooking'] = 'Bestimmte Buchungen blockieren';
-$string['campaign_blockbooking_descriptiontext'] = 'Betrifft: Benutzerdefiniertes Buchungsoptionsfeld "{$a->bbfieldname}"
+$string['campaign_blockbooking_descriptiontext'] = 'Betrifft: Benutzerdefiniertes Buchungsoptionsfeld "{$a->fieldname}"
 mit dem Wert "{$a->fieldvalue}".';
 
 $string['blockoperator'] = 'Operator';

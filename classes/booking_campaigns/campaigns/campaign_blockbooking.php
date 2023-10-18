@@ -62,8 +62,8 @@ class campaign_blockbooking implements booking_campaign {
     /** @var string $blockoperator */
     public $blockoperator = '';
 
-    /** @var string $bbfieldname */
-    public $bbfieldname = '';
+    /** @var string $fieldname */
+    public $fieldname = '';
 
     /** @var string $fieldvalue */
     public $fieldvalue = '';
@@ -86,7 +86,7 @@ class campaign_blockbooking implements booking_campaign {
 
         // Set additional data stored in JSON.
         $jsonobj = json_decode($record->json);
-        $this->bbfieldname = $jsonobj->bbfieldname;
+        $this->fieldname = $jsonobj->fieldname;
         $this->fieldvalue = $jsonobj->fieldvalue;
         $this->blockoperator = $jsonobj->blockoperator;
         $this->blockinglabel = $jsonobj->blockinglabel;
@@ -122,9 +122,9 @@ class campaign_blockbooking implements booking_campaign {
             $fieldnames[$record->shortname] = $record->name;
         }
 
-        $mform->addElement('select', 'bbfieldname',
+        $mform->addElement('select', 'fieldname',
             get_string('campaignfieldname', 'mod_booking'), $fieldnames);
-        $mform->addHelpButton('bbfieldname', 'campaignfieldname', 'mod_booking');
+        $mform->addHelpButton('fieldname', 'campaignfieldname', 'mod_booking');
 
         // Custom field value.
         $sql = "SELECT DISTINCT cd.value
@@ -136,11 +136,11 @@ class campaign_blockbooking implements booking_campaign {
             WHERE cc.area = 'booking'
             AND cd.value IS NOT NULL
             AND cd.value <> ''
-            AND cf.shortname = :bbfieldname";
+            AND cf.shortname = :fieldname";
 
-        $params = ['bbfieldname' => ''];
-        if (!empty($ajaxformdata["bbfieldname"])) {
-            $params['bbfieldname'] = $ajaxformdata["bbfieldname"];
+        $params = ['fieldname' => ''];
+        if (!empty($ajaxformdata["fieldname"])) {
+            $params['fieldname'] = $ajaxformdata["fieldname"];
         }
         $records = $DB->get_fieldset_sql($sql, $params);
 
@@ -221,7 +221,7 @@ class campaign_blockbooking implements booking_campaign {
             $jsonobject = json_decode($data->json);
         }
 
-        $jsonobject->bbfieldname = $data->bbfieldname;
+        $jsonobject->fieldname = $data->fieldname;
         $jsonobject->fieldvalue = $data->fieldvalue;
         $jsonobject->blockoperator = $data->blockoperator;
         $jsonobject->blockinglabel = $data->blockinglabel;
@@ -266,7 +266,7 @@ class campaign_blockbooking implements booking_campaign {
         if ($jsonboject = json_decode($record->json)) {
             switch ($record->type) {
                 case CAMPAIGN_TYPE_BLOCKBOOKING:
-                    $data->bbfieldname = $jsonboject->bbfieldname;
+                    $data->fieldname = $jsonboject->fieldname;
                     $data->fieldvalue = $jsonboject->fieldvalue;
                     $data->blockoperator = $jsonboject->blockoperator;
                     $data->blockinglabel = $jsonboject->blockinglabel;
@@ -289,9 +289,9 @@ class campaign_blockbooking implements booking_campaign {
         $now = time();
         if ($this->starttime <= $now && $now <= $this->endtime) {
 
-            if (!empty($settings->customfields[$this->bbfieldname])
-                && ($settings->customfields[$this->bbfieldname] === $this->fieldvalue ||
-                in_array($this->fieldvalue, $settings->customfields[$this->bbfieldname]))) {
+            if (!empty($settings->customfields[$this->fieldname])
+                && ($settings->customfields[$this->fieldname] === $this->fieldvalue ||
+                in_array($this->fieldvalue, $settings->customfields[$this->fieldname]))) {
                 return true;
             } else {
                 return false;

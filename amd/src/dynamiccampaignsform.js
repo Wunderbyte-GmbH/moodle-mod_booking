@@ -111,8 +111,7 @@ function editCampaignsModal(element) {
                 return;
             }
             if (e.target.name == 'bookingcampaigntype'
-                || e.target.name == 'cffieldname'
-                || e.target.name == 'bbfieldname') {
+                || e.target.name == 'fieldname') {
                 window.skipClientValidation = true;
                 let button = document.querySelector('[name="btn_bookingcampaigntype"]');
                 modalForm.processNoSubmitButton(button);

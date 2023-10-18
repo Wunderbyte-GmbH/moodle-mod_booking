@@ -99,8 +99,8 @@ class campaignsform extends dynamic_form {
 
         switch ($data['bookingcampaigntype']) {
             case 'campaign_customfield':
-                if ($data['cffieldname'] == '0') {
-                    $errors['cffieldname'] = get_string('error:choosevalue', 'mod_booking');
+                if ($data['fieldname'] == '0') {
+                    $errors['fieldname'] = get_string('error:choosevalue', 'mod_booking');
                 }
                 if ($data['pricefactor'] < 0 || $data['pricefactor'] > 1) {
                     $errors['pricefactor'] = get_string('error:pricefactornotbetween0and1', 'mod_booking');
@@ -110,8 +110,8 @@ class campaignsform extends dynamic_form {
                 }
                 break;
             case 'campaign_blockbooking':
-                if ($data['bbfieldname'] == '0') {
-                    $errors['bbfieldname'] = get_string('error:choosevalue', 'mod_booking');
+                if ($data['fieldname'] == '0') {
+                    $errors['fieldname'] = get_string('error:choosevalue', 'mod_booking');
                 }
                 if ($data['percentageavailableplaces'] <= 0 || $data['percentageavailableplaces'] >= 100) {
                     $errors['percentageavailableplaces'] = get_string('error:percentageavailableplaces', 'mod_booking');
@@ -198,11 +198,11 @@ class campaignsform extends dynamic_form {
                     case CAMPAIGN_TYPE_CUSTOMFIELD:
                         $ajaxformdata["pricefactor"] = $record->pricefactor;
                         $ajaxformdata["limitfactor"] = $record->limitfactor;
-                        $ajaxformdata["cffieldname"] = $jsonboject->cffieldname;
+                        $ajaxformdata["fieldname"] = $jsonboject->fieldname;
                         $ajaxformdata["fieldvalue"] = $jsonboject->fieldvalue;
                         break;
                     case CAMPAIGN_TYPE_BLOCKBOOKING:
-                        $ajaxformdata["bbfieldname"] = $jsonboject->cffieldname;
+                        $ajaxformdata["fieldname"] = $jsonboject->fieldname;
                         $ajaxformdata["fieldvalue"] = $jsonboject->fieldvalue;
                         $ajaxformdata["blockoperator"] = $jsonboject->blockoperator;
                         $ajaxformdata["blockinglabel"] = $jsonboject->blockinglabel;
