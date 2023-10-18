@@ -1277,22 +1277,22 @@ class booking {
 
             case 'pgsql_native_moodle_database':
                 return "
-                FROM (SELECT bos2.*
-                FROM (
-                SELECT bos1.*, json_array_elements_text(bos1.availability1 -> 'courseids')::int bocourseid
-                FROM (
-                SELECT *, json_array_elements(availability::json) availability1
-                FROM {booking_options}) bos1
-                WHERE bos1.availability1 ->>'id' = '" . BO_COND_JSON_ENROLLEDINCOURSE . "'
-                ) bos2
-                LEFT JOIN {enrol} e
-                ON e.courseid = bos2.bocourseid
-                LEFT JOIN {cohort} c
-                ON e.customint1 = c.id
-                WHERE e.enrol = 'cohort'
-                AND bocourseid IN (" . implode(', ', $courses) . ")
-                ) bo
-            ";
+                    FROM (SELECT bos2.*
+                    FROM (
+                    SELECT bos1.*, json_array_elements_text(bos1.availability1 -> 'courseids')::int bocourseid
+                    FROM (
+                    SELECT *, json_array_elements(availability::json) availability1
+                    FROM {booking_options}) bos1
+                    WHERE bos1.availability1 ->>'id' = '" . BO_COND_JSON_ENROLLEDINCOURSE . "'
+                    ) bos2
+                    LEFT JOIN {enrol} e
+                    ON e.courseid = bos2.bocourseid
+                    LEFT JOIN {cohort} c
+                    ON e.customint1 = c.id
+                    WHERE e.enrol = 'cohort'
+                    AND bocourseid IN (" . implode(', ', $courses) . ")
+                    ) bo
+                ";
 
             case 'mariadb_native_moodle_database':
 
@@ -1309,19 +1309,19 @@ class booking {
                 }
 
                 return "
-                FROM (
-                    SELECT bos1.*
-                FROM (
-                    SELECT *, JSON_EXTRACT(
-                        JSON_UNQUOTE(
-                            JSON_EXTRACT(availability, '$[*].id')), '$[0]') AS boavailid,
-                                JSON_EXTRACT(JSON_UNQUOTE(
-                                    JSON_EXTRACT(availability, '$[*].courseids')), '$[0]') AS boscourseids
-                    FROM m_booking_options
-                ) bos1
-                WHERE bos1.boavailid = '". BO_COND_JSON_ENROLLEDINCOURSE . "'"
-                . $where .
-                " ) bo";
+                    FROM (
+                        SELECT bos1.*
+                        FROM (
+                            SELECT *, JSON_EXTRACT(
+                                JSON_UNQUOTE(
+                                    JSON_EXTRACT(availability, '$[*].id')), '$[0]') AS boavailid,
+                                        JSON_EXTRACT(JSON_UNQUOTE(
+                                            JSON_EXTRACT(availability, '$[*].courseids')), '$[0]'
+                            ) AS boscourseids
+                            FROM m_booking_options
+                        ) bos1
+                        WHERE bos1.boavailid = '". BO_COND_JSON_ENROLLEDINCOURSE . "'"
+                    . $where . " ) bo";
         }
     }
 
@@ -1434,7 +1434,7 @@ class booking {
         $keyslocalization = [
             'name' => get_string('bookingname', 'mod_booking'),
             'defaultoptionsort' => get_string('sortby'),
-            'optionsfield' => get_string('defaultoptionsort', 'mod_booking'),
+            'optionsfield' => get_string('optionsfield', 'mod_booking'),
         ];
 
         $returnarry = [];
