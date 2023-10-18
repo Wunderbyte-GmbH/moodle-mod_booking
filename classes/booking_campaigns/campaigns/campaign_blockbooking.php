@@ -55,9 +55,6 @@ class campaign_blockbooking implements booking_campaign {
     /** @var int $endtime */
     public $endtime = 0;
 
-    /** @var float $pricefactor */
-    public $pricefactor = 1.0;
-
     /** @var float $percentageavailableplaces */
     public $percentageavailableplaces = 50.0;
 
@@ -65,8 +62,8 @@ class campaign_blockbooking implements booking_campaign {
     /** @var string $blockoperator */
     public $blockoperator = '';
 
-    /** @var string $fieldname */
-    public $fieldname = '';
+    /** @var string $bbfieldname */
+    public $bbfieldname = '';
 
     /** @var string $fieldvalue */
     public $fieldvalue = '';
@@ -86,16 +83,15 @@ class campaign_blockbooking implements booking_campaign {
         $this->name = $record->name ?? '';
         $this->starttime = $record->starttime ?? 0;
         $this->endtime = $record->endtime ?? 0;
-        $this->pricefactor = $record->pricefactor ?? 1.0;
-        $this->percentageavailableplaces = $record->percentageavailableplaces ?? 50.0;
 
         // Set additional data stored in JSON.
         $jsonobj = json_decode($record->json);
-        $this->fieldname = $jsonobj->fieldname;
+        $this->bbfieldname = $jsonobj->bbfieldname;
         $this->fieldvalue = $jsonobj->fieldvalue;
         $this->blockoperator = $jsonobj->blockoperator;
         $this->blockinglabel = $jsonobj->blockinglabel;
         $this->hascapability = $jsonobj->hascapability;
+        $this->percentageavailableplaces = $jsonobj->percentageavailableplaces ?? 50.0;
     }
 
     /**
@@ -140,11 +136,11 @@ class campaign_blockbooking implements booking_campaign {
             WHERE cc.area = 'booking'
             AND cd.value IS NOT NULL
             AND cd.value <> ''
-            AND cf.shortname = :fieldname";
+            AND cf.shortname = :bbfieldname";
 
-        $params = ['fieldname' => ''];
+        $params = ['bbfieldname' => ''];
         if (!empty($ajaxformdata["bbfieldname"])) {
-            $params['fieldname'] = $ajaxformdata["bbfieldname"];
+            $params['bbfieldname'] = $ajaxformdata["bbfieldname"];
         }
         $records = $DB->get_fieldset_sql($sql, $params);
 
@@ -225,18 +221,17 @@ class campaign_blockbooking implements booking_campaign {
             $jsonobject = json_decode($data->json);
         }
 
-        $jsonobject->fieldname = $data->fieldname;
+        $jsonobject->bbfieldname = $data->bbfieldname;
         $jsonobject->fieldvalue = $data->fieldvalue;
         $jsonobject->blockoperator = $data->blockoperator;
         $jsonobject->blockinglabel = $data->blockinglabel;
         $jsonobject->hascapability = $data->hascapability;
+        $jsonobject->percentageavailableplaces = $data->percentageavailableplaces;
         $record->json = json_encode($jsonobject);
 
         $record->name = $data->name;
         $record->starttime = $data->starttime;
         $record->endtime = $data->endtime;
-        $record->pricefactor = $data->pricefactor;
-        $record->percentageavailableplaces = $data->percentageavailableplaces;
 
         // We need to create two adhoc tasks to purge caches - one at start time and one at end time.
         $purgetaskstart = new purge_campaign_caches();
@@ -267,17 +262,16 @@ class campaign_blockbooking implements booking_campaign {
         $data->name = $record->name;
         $data->starttime = $record->starttime;
         $data->endtime = $record->endtime;
-        $data->pricefactor = $record->pricefactor;
-        $data->percentageavailableplaces = $record->percentageavailableplaces;
 
         if ($jsonboject = json_decode($record->json)) {
             switch ($record->type) {
                 case CAMPAIGN_TYPE_BLOCKBOOKING:
-                    $data->fieldname = $jsonboject->fieldname;
+                    $data->bbfieldname = $jsonboject->bbfieldname;
                     $data->fieldvalue = $jsonboject->fieldvalue;
                     $data->blockoperator = $jsonboject->blockoperator;
                     $data->blockinglabel = $jsonboject->blockinglabel;
                     $data->hascapability = $jsonboject->hascapability;
+                    $data->percentageavailableplaces = $jsonboject->percentageavailableplaces;
                     break;
             }
         }
@@ -295,8 +289,9 @@ class campaign_blockbooking implements booking_campaign {
         $now = time();
         if ($this->starttime <= $now && $now <= $this->endtime) {
 
-            if (!empty($settings->customfields[$this->fieldname])
-                && $settings->customfields[$this->fieldname] == $this->fieldvalue) {
+            if (!empty($settings->customfields[$this->bbfieldname])
+                && ($settings->customfields[$this->bbfieldname] === $this->fieldvalue ||
+                in_array($this->fieldvalue, $settings->customfields[$this->bbfieldname]))) {
                 return true;
             } else {
                 return false;
@@ -306,25 +301,16 @@ class campaign_blockbooking implements booking_campaign {
     }
 
     /**
-     * In this class, function doesn't do anything except applying rounding rules, if necessary.
+     * Does not apply for this campaign type.
      * @param float $price the original price
      * @return float the new price
      */
     public function get_campaign_price(float $price):float {
-        $campaignprice = $price;
-
-        $discountprecision = 2;
-
-        // If local_shopping_cart is present, we can actually turn rounding on and off.
-        if (class_exists('local_shopping_cart\shopping_cart')) {
-            $discountprecision = get_config('local_shopping_cart', 'rounddiscounts') ? 0 : 2;
-        }
-
-        return round($campaignprice, $discountprecision);
+        return $price;
     }
 
     /**
-     * In this class, function does not change the campaign's booking limit factor.
+     * Does not apply for this campaign type.
      * @param int $limit the original booking limit
      * @return int the new booking limit
      */

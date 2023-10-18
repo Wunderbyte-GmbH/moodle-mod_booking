@@ -55,7 +55,7 @@ class campaignslist implements renderable, templatable {
                     $campaign->bookingcampaigntype = 'campaign_customfield';
                     $campaignobj = json_decode($campaign->json);
                     $a = new stdClass;
-                    $a->fieldname = $campaignobj->fieldname;
+                    $a->cffieldname = $campaignobj->cffieldname;
                     $a->fieldvalue = $campaignobj->fieldvalue;
                     $campaign->description = get_string('campaign_customfield_descriptiontext', 'mod_booking', $a);
                     $campaign->localizedtype = get_string('campaign_customfield', 'mod_booking');
@@ -66,7 +66,7 @@ class campaignslist implements renderable, templatable {
                     $campaign->bookingcampaigntype = 'campaign_blockbooking';
                     $campaignobj = json_decode($campaign->json);
                     $a = new stdClass;
-                    $a->fieldname = $campaignobj->fieldname;
+                    $a->bbfieldname = $campaignobj->bbfieldname;
                     $a->fieldvalue = $campaignobj->fieldvalue;
                     $campaign->description = get_string('campaign_blockbooking_descriptiontext', 'mod_booking', $a);
                     $campaign->localizedtype = get_string('campaign_blockbooking', 'mod_booking');

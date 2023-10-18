@@ -2221,7 +2221,7 @@ $string['deletebookingcampaign'] = 'Delete campaign';
 $string['deletebookingcampaign_confirmtext'] = 'Do you really want to delete the following campaign?';
 $string['campaign_name'] = 'Custom name for the campaign';
 $string['campaign_customfield'] = 'Booking option custom field has a specific value';
-$string['campaign_customfield_descriptiontext'] = 'Affects: Booking option custom field "{$a->fieldname}"
+$string['campaign_customfield_descriptiontext'] = 'Affects: Booking option custom field "{$a->cffieldname}"
  having the value "{$a->fieldvalue}".';
 $string['campaignfieldname'] = 'Field';
 $string['campaignfieldvalue'] = 'Value';
@@ -2229,7 +2229,7 @@ $string['campaignstart'] = 'Start of campaign';
 $string['campaignend'] = 'End of campaign';
 
 $string['campaign_blockbooking'] = 'Booking options will be blocked depending on certain params';
-$string['campaign_blockbooking_descriptiontext'] = 'Affects: Booking option custom field "{$a->fieldname}"
+$string['campaign_blockbooking_descriptiontext'] = 'Affects: Booking option custom field "{$a->bbfieldname}"
 having the value "{$a->fieldvalue}".';
 
 $string['blockoperator'] = 'Operator';
@@ -2240,6 +2240,7 @@ of bookings is reached. Before that happens, booking is only possible for cashie
 $string['blockabove'] = 'Block above';
 $string['blockbelow'] = 'Block below';
 $string['percentageavailableplaces'] = 'Percentage of available places';
+$string['percentageavailableplaces_help'] = 'You need to enter a valid percentage beween 0 and 100 (without %-sign!).';
 $string['hascapability'] = 'Except has capability';
 $string['blockinglabel'] = 'Message when blocking';
 $string['blockinglabel_help'] = 'Enter the message that should be shown, when booking is blocked.
@@ -2258,7 +2259,8 @@ $string['limitfactor_help'] = 'Specify a value by which to multiply the booking 
 // Booking campaign errors.
 $string['error:pricefactornotbetween0and1'] = 'You need to enter a value between 0 and 1, e.g. 0.9 to reduce prices by 10%.';
 $string['error:limitfactornotbetween1and2'] = 'You need to enter a value between 0 and 2, e.g. 1.2 to add 20% more bookable places.';
-$string['error:percentageavailableplaces'] = 'You need to enter a valid percentage beween 0% and 100%.';
+$string['error:missingblockinglabel'] = 'Please enter the message to show when booking is blocked.';
+$string['error:percentageavailableplaces'] = 'You need to enter a valid percentage beween 0 and 100 (without %-sign!).';
 $string['error:campaignstart'] = 'Campaign start has to be before campaign end.';
 $string['error:campaignend'] = 'Campaign end has to be after campaign start.';
 

@@ -60,8 +60,8 @@ class campaign_customfield implements booking_campaign {
     public $limitfactor = 1.0;
 
     // From JSON.
-    /** @var string $fieldname */
-    public $fieldname = '';
+    /** @var string $cffieldname */
+    public $cffieldname = '';
 
     /** @var string $fieldvalue */
     public $fieldvalue = '';
@@ -80,7 +80,7 @@ class campaign_customfield implements booking_campaign {
 
         // Set additional data stored in JSON.
         $jsonobj = json_decode($record->json);
-        $this->fieldname = $jsonobj->fieldname;
+        $this->cffieldname = $jsonobj->cffieldname;
         $this->fieldvalue = $jsonobj->fieldvalue;
     }
 
@@ -126,11 +126,11 @@ class campaign_customfield implements booking_campaign {
             WHERE cc.area = 'booking'
             AND cd.value IS NOT NULL
             AND cd.value <> ''
-            AND cf.shortname = :fieldname";
+            AND cf.shortname = :cffieldname";
 
-        $params = ['fieldname' => ''];
+        $params = ['cffieldname' => ''];
         if (!empty($ajaxformdata["cffieldname"])) {
-            $params['fieldname'] = $ajaxformdata["cffieldname"];
+            $params['cffieldname'] = $ajaxformdata["cffieldname"];
         }
         $records = $DB->get_fieldset_sql($sql, $params);
 
@@ -198,7 +198,7 @@ class campaign_customfield implements booking_campaign {
             $jsonobject = json_decode($data->json);
         }
 
-        $jsonobject->fieldname = $data->fieldname;
+        $jsonobject->cffieldname = $data->cffieldname;
         $jsonobject->fieldvalue = $data->fieldvalue;
         $record->json = json_encode($jsonobject);
 
@@ -243,7 +243,7 @@ class campaign_customfield implements booking_campaign {
         if ($jsonboject = json_decode($record->json)) {
             switch ($record->type) {
                 case CAMPAIGN_TYPE_CUSTOMFIELD:
-                    $data->fieldname = $jsonboject->fieldname;
+                    $data->cffieldname = $jsonboject->cffieldname;
                     $data->fieldvalue = $jsonboject->fieldvalue;
                     break;
             }
@@ -262,8 +262,9 @@ class campaign_customfield implements booking_campaign {
         $now = time();
         if ($this->starttime <= $now && $now <= $this->endtime) {
 
-            if (!empty($settings->customfields[$this->fieldname])
-                && $settings->customfields[$this->fieldname] == $this->fieldvalue) {
+            if (!empty($settings->customfields[$this->cffieldname])
+                && ($settings->customfields[$this->cffieldname] == $this->fieldvalue ||
+                in_array($this->fieldvalue, $settings->customfields[$this->cffieldname]))) {
                 return true;
             } else {
                 return false;

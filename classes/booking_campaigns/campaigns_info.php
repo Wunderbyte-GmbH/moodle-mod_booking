@@ -90,7 +90,7 @@ class campaigns_info {
 
         // If campaign is empty, we use the default campaign.
         if (empty($campaign)) {
-            $campaign = self::get_campaign_by_type(CAMPAIGN_TYPE_BLOCKBOOKING);
+            $campaign = self::get_campaign_by_type(CAMPAIGN_TYPE_CUSTOMFIELD);
         }
 
         $campaign->add_campaign_to_mform($mform, $ajaxformdata);
@@ -101,7 +101,6 @@ class campaigns_info {
      * @return array an array of booking campaigns (instances of class booking_campaign).
      */
     public static function get_campaigns() {
-        global $CFG;
 
         $campaigns = core_component::get_component_classes_in_namespace(
             "mod_booking",

@@ -2099,7 +2099,7 @@ $string['deletebookingcampaign'] = 'Kampagne löschen';
 $string['deletebookingcampaign_confirmtext'] = 'Wollen Sie die folgende Kampagne wirklich löschen?';
 $string['campaign_name'] = 'Eigener Name der Kampagne';
 $string['campaign_customfield'] = 'Benutzerdefiniertes Buchungsoptionsfeld hat einen bestimmten Wert';
-$string['campaign_customfield_descriptiontext'] = 'Betrifft: Benutzerdefiniertes Buchungsoptionsfeld "{$a->fieldname}"
+$string['campaign_customfield_descriptiontext'] = 'Betrifft: Benutzerdefiniertes Buchungsoptionsfeld "{$a->cffieldname}"
  mit dem Wert "{$a->fieldvalue}".';
 $string['campaignfieldname'] = 'Feld';
 $string['campaignfieldvalue'] = 'Wert';
@@ -2107,7 +2107,7 @@ $string['campaignstart'] = 'Beginn der Kampagne';
 $string['campaignend'] = 'Ende der Kampagne';
 
 $string['campaign_blockbooking'] = 'Buchungen werden abhängig von bestimmten Parametern im Kampagnenzeitraum blockiert';
-$string['campaign_blockbooking_descriptiontext'] = 'Betrifft: Benutzerdefiniertes Buchungsoptionsfeld "{$a->fieldname}"
+$string['campaign_blockbooking_descriptiontext'] = 'Betrifft: Benutzerdefiniertes Buchungsoptionsfeld "{$a->bbfieldname}"
 mit dem Wert "{$a->fieldvalue}".';
 
 $string['blockoperator'] = 'Operator';
@@ -2118,11 +2118,12 @@ bis dahin kann nur an der Kassa oder durch einen Admin gebucht werden.';
 $string['blockabove'] = 'Blockiere über';
 $string['blockbelow'] = 'Blockiere unter';
 $string['percentageavailableplaces'] = 'Prozent der verfügbaren Plätze';
+$string['percentageavailableplaces_help'] = 'Geben Sie einen gültigen Prozentsatz zwischen 0 und 100 an (ohne %-Zeichen!).';
 $string['hascapability'] = 'Außer mit dieser Fähikgeit';
 $string['blockinglabel'] = 'Nachricht beim Blockieren';
 $string['blockinglabel_help'] = 'Geben Sie die Nachricht ein, die angezeigt werden soll, wenn Buchungen blockiert werden.
 Wenn Sie die Nachricht lokalisieren wollen, verwenden Sie die
-<a href="https://docs.moodle.org/403/en/Multi-language_content_filter" target="_blank">Moodle-Sprachfilter</a>.';
+<a href="https://docs.moodle.org/403/de/Mehrsprachiger_Inhalt" target="_blank">Moodle-Sprachfilter</a>.';
 
 // Booking campaign help buttons.
 $string['campaign_name_help'] = 'Geben Sie einen beliebigen Namen für die Kampagne an - z.B. "Weihnachtsaktion 2023" oder "Oster-Rabatt 2023".';
@@ -2138,7 +2139,8 @@ $string['error:pricefactornotbetween0and1'] = 'Sie müssen einen Wert zwischen 0
  geben Sie den Wert 0,9 ein.';
 $string['error:limitfactornotbetween1and2'] = 'Sie müssen einen Wert zwischen 0 und 2 eingeben. Um das Buchungslimit z.B. um 20% zu erhöhen,
  geben Sie den Wert 1,2 ein.';
- $string['error:percentageavailableplaces'] = 'Geben Sie einen gültigen Prozentsatz zwischen 0% and 100% an.';
+ $string['error:missingblockinglabel'] = 'Geben Sie die Nachricht ein, die angezeigt werden soll, wenn Buchungen blockiert werden.';
+ $string['error:percentageavailableplaces'] = 'Geben Sie einen gültigen Prozentsatz zwischen 0 und 100 an (ohne %-Zeichen!).';
 $string['error:campaignstart'] = 'Kampagnenbeginn muss vor dem Kampagnenende liegen.';
 $string['error:campaignend'] = 'Kampagnenende muss nach dem Kampagnenbeginn sein.';
 
