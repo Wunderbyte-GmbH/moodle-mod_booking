@@ -242,7 +242,7 @@ if ($ADMIN->fulltree) {
                 new admin_setting_configselect('booking/newcoursecategorycfield',
                         get_string('newcoursecategorycfield', 'mod_booking'),
                         get_string('newcoursecategorycfielddesc', 'mod_booking'),
-                        1, $options));
+                        1, $options ?? []));
         }
     } else {
         $settings->add(
