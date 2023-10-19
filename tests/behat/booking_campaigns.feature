@@ -40,7 +40,7 @@ Feature: Create booking campaigns for booking options as admin and booking it as
     Given I log in as "admin"
     And I visit "/mod/booking/edit_campaigns.php"
     And I click on "Add campaign" "text"
-    And I set the field "Campaign type" to "Booking option custom field has a specific value"
+    And I set the field "Campaign type" to "Change price or booking limit"
     And I set the following fields to these values:
       | Custom name for the campaign | campaing1          |
       | endtime[year]                | ## + 1 year ##%Y## |
