@@ -51,7 +51,6 @@ class campaignsform extends dynamic_form {
         // If we open an existing campaign, we need to save the id right away.
         if (!empty($ajaxformdata['id'])) {
             $mform->addElement('hidden', 'id', $ajaxformdata['id']);
-            $this->prepare_ajaxformdata($ajaxformdata);
         }
 
         campaigns_info::add_campaigns_to_mform($mform, $ajaxformdata);
@@ -162,54 +161,5 @@ class campaignsform extends dynamic_form {
     protected function check_access_for_dynamic_submission(): void {
         // Perhaps we will need a specific campaigns capability.
         require_capability('moodle/site:config', context_system::instance());
-    }
-
-    /**
-     * Prepare the ajax form data with all the information...
-     * ... we need to load the form with the right handlers.
-     *
-     * @param array $ajaxformdata
-     * @return void
-     */
-    private function prepare_ajaxformdata(array &$ajaxformdata) {
-
-        global $DB;
-
-        /* if (!empty($ajaxformdata["bookingcampaigntype"])) {
-            switch ($ajaxformdata["bookingcampaigntype"]) {
-                case "campaign_customfield":
-                    $ajaxformdata["type"] = CAMPAIGN_TYPE_CUSTOMFIELD;
-                    break;
-                case "campaign_blockbooking":
-                    $ajaxformdata["type"] = CAMPAIGN_TYPE_BLOCKBOOKING;
-                    break;
-            }
-        }
-
-        // If we have an ID, we retrieve the right campaign from DB.
-        if (!empty($ajaxformdata['id'])) {
-            if ($record = $DB->get_record('booking_campaigns', ['id' => $ajaxformdata['id']])) {
-
-                $ajaxformdata["name"] = $record->name;
-                $ajaxformdata["starttime"] = $record->starttime;
-                $ajaxformdata["endtime"] = $record->endtime;
-                $jsonboject = json_decode($record->json);
-                switch ($ajaxformdata["type"]) {
-                    case CAMPAIGN_TYPE_CUSTOMFIELD:
-                        $ajaxformdata["pricefactor"] = $record->pricefactor;
-                        $ajaxformdata["limitfactor"] = $record->limitfactor;
-                        $ajaxformdata["fieldname"] = $jsonboject->fieldname;
-                        $ajaxformdata["fieldvalue"] = $jsonboject->fieldvalue;
-                        break;
-                    case CAMPAIGN_TYPE_BLOCKBOOKING:
-                        $ajaxformdata["fieldname"] = $jsonboject->fieldname;
-                        $ajaxformdata["fieldvalue"] = $jsonboject->fieldvalue;
-                        $ajaxformdata["blockoperator"] = $jsonboject->blockoperator;
-                        $ajaxformdata["blockinglabel"] = $jsonboject->blockinglabel;
-                        $ajaxformdata["percentageavailableplaces"] = $jsonboject->percentageavailableplaces;
-                        break;
-                }
-            }
-        } */
     }
 }
