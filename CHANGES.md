@@ -1,3 +1,23 @@
+## Version 8.0.46 (2023102000)
+**New features:**
+* New feature: Add new blocking campaign which allows to block booking for students depending on booking status (e.g. half of places gone).
+* New feature: Actions logs for booking options.
+* New feature: Actions logs for booking instances.
+
+**Improvements:**
+* Improvement: Show users and teachers in autocomplete in one single line.
+* Improvement: Better campaign strings.
+* Improvement: Complete re-writing of sync_waiting_list with singleton, etc.
+* Improvement: Missing hours and substitutions for teachers in instance report work better now.
+
+**Bugfixes:**
+* Bugfix: Booking of any users feature was broken - used user preferences to fix it.
+* Bugfix: Fix broken automatic loading of custom field values in campaign modal.
+* Bugfix: Fix some strings for github actions.
+* Bugfix: Make sure we have a string to replace, for str_replace in message_controller.
+* Bugfix: When we use format_text, we need to set $PAGE->context first!
+* Bugfix: Empty select on settings.php.
+
 ## Version 8.0.45 (2023101300)
 **Improvements:**
 * Improvement: booking_check_if_teacher function can now be used with optionid too.
@@ -519,7 +539,7 @@
 * Bugfix: Fix and improve option templates, menu entries and checkbox for limit answers.
 * Bugfix: Delete booking_teachers artifacts when a booking instance gets deleted.
 * Bugfix: Fixed a bug where users could not be booked for unlimited options and a wrong error message was shown.
-* Bugfix: Bugfix: waitinglist < 2 for booking answers in viewconfirmation.php
+* Bugfix: waitinglist < 2 for booking answers in viewconfirmation.php
 * Bugfix: Fixed an issue with external functions.
 * Bugfix: Fix faulty upgrade of subbooking answer table.
 * Bugfix: Fix booking_time condition.
