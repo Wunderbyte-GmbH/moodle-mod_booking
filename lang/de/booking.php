@@ -41,6 +41,8 @@ $string['courses'] = 'Kurse';
 $string['course_s'] = 'Kurs(e)';
 $string['date_s'] = 'Termin(e)';
 $string['dayofweek'] = 'Wochentag';
+$string['deduction'] = 'Abzug';
+$string['deductionreason'] = 'Grund für den Abzug';
 $string['doyouwanttobook'] = 'Wollen Sie <b>{$a}</b> buchen?';
 $string['gotomanageresponses'] = '&lt;&lt; Buchungen verwalten';
 $string['gotomoodlecourse'] = 'Zum Moodle-Kurs';
@@ -1823,6 +1825,7 @@ $string['reason'] = 'Grund';
 $string['error:reasonfornoteacher'] = 'Geben Sie einen Grund an, warum an diesem Termin kein/e Trainer/in anwesend war.';
 $string['error:reasontoolong'] = 'Grund ist zu lange, geben Sie einen kürzeren Text ein.';
 $string['error:reasonforsubstituteteacher'] = 'Geben Sie einen Grund für die Vertretung an.';
+$string['error:reasonfordeduction'] = 'Geben Sie einen Grund für den Abzug an.';
 
 // Teachers_instance_report.php.
 $string['teachers_instance_report'] = 'Trainer:innen-Gesamtbericht';

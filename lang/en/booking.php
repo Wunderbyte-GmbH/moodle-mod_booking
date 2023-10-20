@@ -41,6 +41,8 @@ $string['courses'] = 'Courses';
 $string['course_s'] = 'Kurs(e)';
 $string['date_s'] = 'Date(s)';
 $string['dayofweek'] = 'Weekday';
+$string['deduction'] = 'Deduction';
+$string['deductionreason'] = 'Reason for the deduction';
 $string['doyouwanttobook'] = 'Do you want to book <b>{$a}</b>?';
 $string['gotomanageresponses'] = '&lt;&lt; Manage bookings';
 $string['gotomoodlecourse'] = 'Go to Moodle course';
@@ -1938,6 +1940,7 @@ $string['reason'] = 'Reason';
 $string['error:reasonfornoteacher'] = 'Enter a reason why no teachers were present at this date.';
 $string['error:reasontoolong'] = 'Reason is too long, enter a shorter text.';
 $string['error:reasonforsubstituteteacher'] = 'Enter a reason for the substitute teacher(s).';
+$string['error:reasonfordeduction'] = 'Enter a reason for the deduction.';
 
 // Teachers_instance_report.php.
 $string['teachers_instance_report'] = 'Teachers report';
