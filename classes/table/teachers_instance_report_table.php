@@ -320,7 +320,7 @@ class teachers_instance_report_table extends table_sql {
                         'optiondateid' => $record->optiondateid,
                         'userid' => $values->teacherid,
                     ])) {
-                        $missinghoursstring .= '<i class="fa fa-minus-circle" aria-hidden="true"></i>&nbsp;' .
+                        $missinghoursstring .= '<i class="fa fa-minus-square-o" aria-hidden="true"></i>&nbsp;' .
                             get_string('deduction', 'mod_booking') . ' | ' .
                             get_string('deductionreason', 'mod_booking') . ': ' .
                             $deductionrecord->reason . '<br/>';

@@ -173,7 +173,7 @@ class optiondates_teachers_table extends wunderbyte_table {
             foreach ($deductions as $ded) {
                 $teacher = singleton_service::get_instance_of_user($ded->userid);
                 if (!$this->is_downloading()) {
-                    $ret .= '<i class="fa fa-minus-circle" aria-hidden="true"></i>&nbsp;';
+                    $ret .= '<i class="fa fa-minus-square-o" aria-hidden="true"></i>&nbsp;';
                     $ret .= "<b>$teacher->firstname $teacher->lastname</b>";
                 } else {
                     $ret .= "$teacher->firstname $teacher->lastname";
