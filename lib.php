@@ -945,7 +945,7 @@ function booking_update_options(object $optionvalues, context_module $context, i
     }
 
     // Responsible contact person.
-    if (isset($optionvalues->responsiblecontact)) {
+    if (!empty($optionvalues->responsiblecontact)) {
         $option->responsiblecontact = $optionvalues->responsiblecontact;
     } else {
         $option->responsiblecontact = null;

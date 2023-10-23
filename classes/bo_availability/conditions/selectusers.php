@@ -189,7 +189,7 @@ class selectusers implements bo_condition {
         if (wb_payment::pro_version_is_activated()) {
 
             $options = [
-                'ajax' => 'core_search/form-search-user-selector',
+                'ajax' => 'mod_booking/form_users_selector',
                 'multiple' => true,
                 'noselectionstring' => get_string('choose...', 'mod_booking'),
                 'valuehtmlcallback' => function($value) {

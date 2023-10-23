@@ -17,6 +17,7 @@
 namespace mod_booking\booking_rules\conditions;
 
 use mod_booking\booking_rules\booking_rule_condition;
+use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
 
@@ -80,22 +81,27 @@ class select_users implements booking_rule_condition {
      * @return void
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, array &$ajaxformdata = null) {
-        global $DB;
-
-        $users = get_users();
-
-        foreach ($users as $user) {
-            $listofusers[$user->id] = "$user->firstname $user->lastname ($user->email)";
-
-        }
 
         $options = [
+            'ajax' => 'mod_booking/form_users_selector',
             'multiple' => true,
-            'noselectionstring' => get_string('allareas', 'search'),
+            'noselectionstring' => get_string('choose...', 'mod_booking'),
+            'valuehtmlcallback' => function($value) {
+                global $OUTPUT;
+                $user = singleton_service::get_instance_of_user((int)$value);
+                $details = [
+                    'id' => $user->id,
+                    'email' => $user->email,
+                    'firstname' => $user->firstname,
+                    'lastname' => $user->lastname,
+                ];
+                return $OUTPUT->render_from_template(
+                        'mod_booking/form-user-selector-suggestion', $details);
+            },
         ];
 
         $mform->addElement('autocomplete', 'condition_select_users_userids',
-            get_string('condition_select_users_userids', 'mod_booking'), $listofusers, $options);
+            get_string('condition_select_users_userids', 'mod_booking'), [], $options);
 
     }
 

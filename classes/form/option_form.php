@@ -442,7 +442,7 @@ class option_form extends moodleform {
         }
         // Responsible contact person - autocomplete.
         $options = [
-            'ajax' => 'core_search/form-search-user-selector',
+            'ajax' => 'mod_booking/form_users_selector',
             'multiple' => false,
             'noselectionstring' => get_string('choose...', 'mod_booking'),
             'valuehtmlcallback' => function($value) {
