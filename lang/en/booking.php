@@ -43,6 +43,7 @@ $string['date_s'] = 'Date(s)';
 $string['dayofweek'] = 'Weekday';
 $string['deduction'] = 'Deduction';
 $string['deductionreason'] = 'Reason for the deduction';
+$string['deductionnotpossible'] = 'All teachers were present at this date. So no deduction can be logged.';
 $string['doyouwanttobook'] = 'Do you want to book <b>{$a}</b>?';
 $string['gotomanageresponses'] = '&lt;&lt; Manage bookings';
 $string['gotomoodlecourse'] = 'Go to Moodle course';

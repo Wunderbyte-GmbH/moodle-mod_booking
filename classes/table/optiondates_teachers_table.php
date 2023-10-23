@@ -29,6 +29,7 @@ use html_writer;
 use local_wunderbyte_table\output\table;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\option\dates_handler;
+use mod_booking\singleton_service;
 use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
@@ -152,6 +153,36 @@ class optiondates_teachers_table extends wunderbyte_table {
             ]));
         } else if ($values->reviewed == 1) {
             $ret .= "<h5 style='color: #D3D3D3; cursor: not-allowed;'><i class='icon fa fa-edit'></i></h5>";
+        }
+        return $ret;
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * deduction value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string $string Rendered name (text) of the booking option.
+     * @throws dml_exception
+     */
+    public function col_deduction(object $values): string {
+        global $DB;
+        $optiondateid = $values->optiondateid;
+        $ret = '';
+        if ($deductions = $DB->get_records('booking_odt_deductions', ['optiondateid' => $optiondateid])) {
+            foreach ($deductions as $ded) {
+                $teacher = singleton_service::get_instance_of_user($ded->userid);
+                if (!$this->is_downloading()) {
+                    $ret .= '<i class="fa fa-minus-circle" aria-hidden="true"></i>&nbsp;';
+                    $ret .= "<b>$teacher->firstname $teacher->lastname</b>";
+                } else {
+                    $ret .= "$teacher->firstname $teacher->lastname";
+                }
+                if (!empty($ded->reason)) {
+                    $ret .= " | " . get_string('deductionreason', 'mod_booking') . ": $ded->reason";
+                }
+                $ret .= "<br/>";
+            }
         }
         return $ret;
     }

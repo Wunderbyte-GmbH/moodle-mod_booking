@@ -43,6 +43,7 @@ $string['date_s'] = 'Termin(e)';
 $string['dayofweek'] = 'Wochentag';
 $string['deduction'] = 'Abzug';
 $string['deductionreason'] = 'Grund für den Abzug';
+$string['deductionnotpossible'] = 'Da alle Trainer:innen bei diesem Termin anwesend waren kann kein Abzug eingetragen werden.';
 $string['doyouwanttobook'] = 'Wollen Sie <b>{$a}</b> buchen?';
 $string['gotomanageresponses'] = '&lt;&lt; Buchungen verwalten';
 $string['gotomoodlecourse'] = 'Zum Moodle-Kurs';

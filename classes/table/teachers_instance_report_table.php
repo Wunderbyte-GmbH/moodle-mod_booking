@@ -316,11 +316,28 @@ class teachers_instance_report_table extends table_sql {
                         '</a> (<b>' . dates_handler::prettify_optiondates_start_end($record->coursestarttime,
                         $record->courseendtime, current_language()) . '</b>) | ' . get_string('reason', 'mod_booking') . ': ' .
                         $record->reason . '<br/>';
+                    if ($deductionrecord = $DB->get_record('booking_odt_deductions', [
+                        'optiondateid' => $record->optiondateid,
+                        'userid' => $values->teacherid,
+                    ])) {
+                        $missinghoursstring .= '<i class="fa fa-minus-circle" aria-hidden="true"></i>&nbsp;' .
+                            get_string('deduction', 'mod_booking') . ' | ' .
+                            get_string('deductionreason', 'mod_booking') . ': ' .
+                            $deductionrecord->reason . '<br/>';
+                    }
                 } else {
                     $missinghoursstring .= $record->text .
                         ' (' . dates_handler::prettify_optiondates_start_end($record->coursestarttime, $record->courseendtime,
                         current_language()) . ') | ' . get_string('reason', 'mod_booking') . ': ' .
                         $record->reason . PHP_EOL;
+                    if ($deductionrecord = $DB->get_record('booking_odt_deductions', [
+                        'optiondateid' => $record->optiondateid,
+                        'userid' => $values->teacherid,
+                    ])) {
+                        $missinghoursstring .= get_string('deduction', 'mod_booking') . ' | ' .
+                            get_string('deductionreason', 'mod_booking') . ': ' .
+                            $deductionrecord->reason . PHP_EOL;
+                    }
                 }
             }
         }
@@ -399,8 +416,7 @@ class teachers_instance_report_table extends table_sql {
                         foreach ($substitutionsrecords as $sub) {
                             $substitutionsstring .= "<br/><b>$sub->firstname $sub->lastname</b> ($sub->email)";
                         }
-                        $substitutionsstring .= '<br/>' . get_string('reason', 'mod_booking') . ': ' .
-                            $record->reason . '<br/>';
+                        $substitutionsstring .= '<br/>';
                     } else {
                         $substitutionsstring .= $record->text .
                             ' (' . dates_handler::prettify_optiondates_start_end($record->coursestarttime, $record->courseendtime,
@@ -408,8 +424,7 @@ class teachers_instance_report_table extends table_sql {
                         foreach ($substitutionsrecords as $sub) {
                             $substitutionsstring .= "<br/>$sub->firstname $sub->lastname ($sub->email)";
                         }
-                        $substitutionsstring .= '<br/>' . get_string('reason', 'mod_booking') . ': ' .
-                            $record->reason . PHP_EOL;
+                        $substitutionsstring .= PHP_EOL;
                     }
                 }
             }

@@ -195,6 +195,8 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
                     $existingdeductionrecord->timemodified = $now;
                     // Record already exists, so we update.
                     $DB->update_record('booking_odt_deductions', $existingdeductionrecord);
+                    // Important: Purge cache here!
+                    cache_helper::purge_by_event('setbackcachedteachersjournal');
                 } else {
                     $deductionrecord = new stdClass();
                     $deductionrecord->optiondateid = $data->optiondateid;
@@ -205,6 +207,8 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
                     $deductionrecord->timemodified = $now;
                     // It's a new record, so we insert.
                     $DB->insert_record('booking_odt_deductions', $deductionrecord);
+                    // Important: Purge cache here!
+                    cache_helper::purge_by_event('setbackcachedteachersjournal');
                 }
             } else if ($data->{'deduction-teacherid-' . $teacher->userid} == 0 &&
                 ($existingdeductionrecord = $DB->get_record('booking_odt_deductions', [
@@ -216,6 +220,8 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
                     'optiondateid' => $data->optiondateid,
                     'userid' => $teacher->userid,
                 ]);
+                // Important: Purge cache here!
+                cache_helper::purge_by_event('setbackcachedteachersjournal');
             }
         }
 
@@ -302,13 +308,30 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
         if (has_capability('mod/booking:canreviewsubstitutions', context_system::instance())) {
             $mform->addElement('header', 'deductionheader', get_string('deduction', 'mod_booking'));
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            $deductableteachers = [];
             foreach ($settings->teachers as $teacher) {
-                $mform->addElement('advcheckbox', 'deduction-teacherid-' . $teacher->userid,
-                    $teacher->firstname . " " . $teacher->lastname);
-                $mform->addElement('text', 'deductionreason-teacherid-' . $teacher->userid,
-                    get_string('deductionreason', 'mod_booking'));
-                $mform->hideIf('deductionreason-teacherid-' . $teacher->userid,
-                    'deduction-teacherid-' . $teacher->userid);
+                // If the teacher was present at the date, we cannot log a deduction!
+                if ($DB->get_record('booking_optiondates_teachers', [
+                    'optiondateid' => $optiondateid,
+                    'userid' => $teacher->userid,
+                ])) {
+                    continue;
+                } else {
+                    $deductableteachers[] = $teacher;
+                }
+            }
+            if (!empty($deductableteachers)) {
+                foreach ($deductableteachers as $teacher) {
+                    $mform->addElement('advcheckbox', 'deduction-teacherid-' . $teacher->userid,
+                        $teacher->firstname . " " . $teacher->lastname);
+                    $mform->addElement('text', 'deductionreason-teacherid-' . $teacher->userid,
+                        get_string('deductionreason', 'mod_booking'));
+                    $mform->hideIf('deductionreason-teacherid-' . $teacher->userid,
+                        'deduction-teacherid-' . $teacher->userid);
+                }
+            } else {
+                $mform->addElement('html', '<div class="alert alert-light">' .
+                    get_string('deductionnotpossible', 'mod_booking') . '</div>');
             }
         }
     }
