@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+global $CFG;
+
 // General strings.
 $string['accept'] = 'Accept';
 $string['age'] = 'Age';
@@ -1442,7 +1444,7 @@ $string['bookingsettings'] = 'Booking: Main settings';
 $string['globalcurrency'] = 'Currency';
 $string['globalcurrencydesc'] = 'Choose the currency for booking option prices';
 $string['globalmailtemplates'] = 'Global mail templates ' . $string['badge:pro'];
-$string['globalmailtemplates_desc'] = 'Only available in the PRO version. After activation, you can go to the settings of a booking instance and set the source of mail templates to global.';
+$string['globalmailtemplates_desc'] = 'After activation, you can go to the settings of a booking instance and set the source of mail templates to global.';
 $string['globalbookedtext'] = 'Booking confirmation (global template)';
 $string['globalwaitingtext'] = 'Waiting list confirmation (global template)';
 $string['globalnotifyemail'] = 'Participant notification before start (global template)';
@@ -1499,13 +1501,10 @@ $string['btnviewavailable'] = "View available options";
 $string['signinextracols_heading'] = 'Additional columns on the sign-in sheet';
 $string['signinextracols'] = 'Additional column';
 $string['signinextracols_desc'] = 'You can print up to 3 additional columns on the sign-in sheet. Fill in the column title or leave it blank for no additional column';
-$string['googleapikey'] = 'Google API key';
-$string['googleapikey_desc'] = 'API key for Google URL Shortener. Get it here: https://developers.google.com/url-shortener/v1/getting_started#APIKey';
 $string['numberrows'] = 'Number rows';
 $string['numberrowsdesc'] = 'Number each row of the sign-in sheet. Number will be displayed left of the name in the same column';
 
 $string['availabilityinfotexts_heading'] = 'Availability info texts for booking places and waiting list ' . $string['badge:pro'];
-$string['availabilityinfotexts_desc'] = 'Only available in the PRO version.';
 $string['bookingplacesinfotexts'] = 'Show availability info texts for booking places';
 $string['bookingplacesinfotexts_info'] = 'Show short info messages instead of the number of available booking places.';
 $string['waitinglistinfotexts'] = 'Show availability info texts for waiting list';
@@ -1802,7 +1801,7 @@ $string['priceformulainfo'] = '<a data-toggle="collapse" href="#priceformula" ro
 <div class="collapse" id="priceformula">
 <samp>{$a->formula}</samp>
 </div><br>
-<a href="/admin/settings.php?section=modsettingbooking" target="_blank"><i class="fa fa-edit"></i> Edit formula...</a><br><br>
+<a href="' . $CFG->wwwroot . '/admin/settings.php?section=modsettingbooking" target="_blank"><i class="fa fa-edit"></i> Edit formula...</a><br><br>
 Below, you can additionally add a manual factor (multiplication) and an absolute value (addition) to be added to the formula.';
 $string['priceformulamultiply'] = 'Manual factor';
 $string['priceformulamultiply_help'] = 'Additional value to <strong>multiply</strong> the result with.';
@@ -1948,7 +1947,7 @@ $string['teachers_instance_report'] = 'Teachers report';
 $string['error:invalidcmid'] = 'The report cannot be opened because no valid course module ID (cmid) was provided. It needs to be the cmid of a booking instance!';
 $string['teachingreportforinstance'] = 'Teaching overview report for ';
 $string['teachersinstancereport:subtitle'] = '<strong>Hint:</strong> The number of units of a course (booking option) is calculated by the duration of an educational unit
- which you can <a href="/admin/settings.php?section=modsettingbooking" target="_blank">set in the booking settings</a> and the specified date series string (e.g. "Tue, 16:00-17:30").
+ which you can <a href="' . $CFG->wwwroot . '/admin/settings.php?section=modsettingbooking" target="_blank">set in the booking settings</a> and the specified date series string (e.g. "Tue, 16:00-17:30").
  For blocked events or booking options missing this string, the number of units cannot be calculated!';
 $string['units'] = 'Units';
 $string['sum_units'] = 'Sum of units';
@@ -2201,7 +2200,7 @@ $string['duration:minutes'] = 'Duration (minutes)';
 $string['duration:units'] = 'Units ({$a} min)';
 $string['teachingreportfortrainer:subtitle'] = '<strong>Hint:</strong> You can change the duration of
 an educational unit in the plugin settings (e.g. 45 instead of 60 minutes).<br/>
-<a href="/admin/settings.php?section=modsettingbooking" target="_blank">
+<a href="' . $CFG->wwwroot . '/admin/settings.php?section=modsettingbooking" target="_blank">
 &gt;&gt; Go to plugin settings...
 </a>';
 $string['error:missingteacherid'] = 'Error: Report cannot be loaded because of missing teacherid.';

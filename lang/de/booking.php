@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+global $CFG;
+
 // General strings.
 $string['accept'] = 'Akzeptieren';
 $string['age'] = 'Alter';
@@ -1392,7 +1394,7 @@ $string['bookingsettings'] = 'Buchung: Einstellungen';
 $string['globalcurrency'] = 'Währung';
 $string['globalcurrencydesc'] = 'Wählen Sie die Währung für Preise von Buchungsoptionen aus';
 $string['globalmailtemplates'] = 'Globale Mailvorlagen ' . $string['badge:pro'];
-$string['globalmailtemplates_desc'] = 'Nur in der PRO-Version verfügbar. Nach der Aktivierung können Sie in den Einstellungen jeder beliebigen Buchungsinstanz die Quelle der Mailvorlagen auf global setzen.';
+$string['globalmailtemplates_desc'] = 'Nach der Aktivierung können Sie in den Einstellungen jeder beliebigen Buchungsinstanz die Quelle der Mailvorlagen auf global setzen.';
 $string['globalbookedtext'] = 'Buchungsbestätigung (globale Vorlage)';
 $string['globalwaitingtext'] = 'Wartelistenbestätigung (globale Vorlage)';
 $string['globalnotifyemail'] = 'Teilnehmer:innen-Benachrichtigung vor dem Beginn (globale Vorlage)';
@@ -1446,13 +1448,10 @@ $string['btnviewavailable'] = "Verfügbare Optionen anzeigen";
 $string['signinextracols_heading'] = 'Zusätzliche Spalten auf der Unterschriftenliste';
 $string['signinextracols'] = 'Extra Spalte auf der Unterschriftenliste';
 $string['signinextracols_desc'] = 'Sie können bis zu 3 extra Spalten auf der Unterschriftenliste abbilden. Geben Sie den Titel der Spalte ein, oder lassen Sie das Feld leer, um keine extra Spalte anzuzeigen';
-$string['googleapikey'] = 'Google API key';
-$string['googleapikey_desc'] = 'API-Schlüssel für den Google URL Shortener. Holen Sie ihn sich hier: https://developers.google.com/url-shortener/v1/getting_started#APIKey';
 $string['numberrows'] = 'Zeilen nummerieren';
 $string['numberrowsdesc'] = 'Nummerierung der Zeilen in der Unterschriftenliste aktivieren. Die Nummer wird links des Namens dargestellt';
 
 $string['availabilityinfotexts_heading'] = 'Beschreibungstexte für verfügbare Buchungs- und Wartelistenplätze ' . $string['badge:pro'];
-$string['availabilityinfotexts_desc'] = 'Nur in der PRO-Version verfügbar.';
 $string['bookingplacesinfotexts'] = 'Beschreibungstexte für verfügbare Buchungsplätze anzeigen';
 $string['bookingplacesinfotexts_info'] = 'Kurze Infotexte anstatt der konkreten Zahl verfügbarer Buchungsplätze anzeigen.';
 $string['waitinglistinfotexts'] = 'Beschreibungstexte für verfügbare Wartelistenplätze anzeigen';
@@ -1481,6 +1480,10 @@ $string['bookwithcreditsactive_desc'] = "Nutzer:innen mit Guthaben/Credits sehen
 $string['bookwithcreditsprofilefield'] = "Benutzerdefiniertes Profilfeld für Guthaben/Credits";
 $string['bookwithcreditsprofilefield_desc'] = "Um die Funktion nutzen zu können, muss es ein Profilfeld geben, in dem die Credits der Nutzer:innen hiinterlegt werden können.
 <span class='text-danger'><b>Achtung:</b> Dieses Feld sollte von den Nutzer:innen nicht bearbeitet werden können.</span>";
+
+$string['costcentercustomfield'] = "Benutzerdefiniertes Buchungsoptionsfeld für die Kostenstelle";
+$string['costcentercustomfield_desc'] = "Wenn Sie Kostenstellen verwenden, müssen Sie hier angeben,
+in welchem benutzerdefinierten Buchungsoptionsfeld diese gespeichert wird.";
 
 $string['priceisalwayson'] = 'Preise immer aktiviert';
 $string['priceisalwayson_desc'] = 'Wenn Sie dieses Häkchen aktivieren, können Preise für einzelne Buchungsoptionen NICHT abgeschalten werden.
@@ -1687,7 +1690,7 @@ $string['priceformulainfo'] = '<a data-toggle="collapse" href="#priceformula" ro
 <div class="collapse" id="priceformula">
 <samp>{$a->formula}</samp>
 </div><br>
-<a href="/admin/settings.php?section=modsettingbooking" target="_blank"><i class="fa fa-edit"></i> Formel bearbeiten...</a><br><br>
+<a href="' . $CFG->wwwroot . '/admin/settings.php?section=modsettingbooking" target="_blank"><i class="fa fa-edit"></i> Formel bearbeiten...</a><br><br>
 Unterhalb können Sie zusätzlich einen manuellen Faktor (Multiplikation) und einen Absolutwert (Addition) hinzufügen.';
 $string['priceformulamultiply'] = 'Manueller Faktor';
 $string['priceformulamultiply_help'] = 'Zusätzlicher Wert mit dem das Ergebnis <strong>multipliziert</strong> werden soll.';
@@ -1833,7 +1836,7 @@ $string['teachers_instance_report'] = 'Trainer:innen-Gesamtbericht';
 $string['error:invalidcmid'] = 'Der Bericht kann nicht geöffnet werden, weil keine gültige Kursmodul-ID (cmid) übergeben wurde. Die cmid muss auf eine Buchungsinstanz verweisen!';
 $string['teachingreportforinstance'] = 'Trainer:innen-Gesamtbericht für ';
 $string['teachersinstancereport:subtitle'] = '<strong>Hinweis:</strong> Die Anzahl der UE berechnet sich anhand des gesetzten Terminserien-Textfeldes (z.B. "Mo, 16:00-17:30")
- und der in den <a href="/admin/settings.php?section=modsettingbooking" target="_blank">Einstellungen festgelegten Dauer</a> einer UE. Für Blockveranstaltungen oder
+ und der in den <a href="' . $CFG->wwwroot . '/admin/settings.php?section=modsettingbooking" target="_blank">Einstellungen festgelegten Dauer</a> einer UE. Für Blockveranstaltungen oder
  Buchungsoptionen bei denen das Feld nicht gesetzt ist, können die UE nicht berechnet werden!';
 $string['units'] = 'UE';
 $string['sum_units'] = 'Summe UE';
@@ -2079,7 +2082,7 @@ $string['duration:minutes'] = 'Dauer (Minuten)';
 $string['duration:units'] = 'Einheiten ({$a} min)';
 $string['teachingreportfortrainer:subtitle'] = '<strong>Hinweis:</strong> Sie können die Dauer einer Unterrichtseinheit
 in den Einstellungen anpassen. (Z.B. 45 statt 60 Minuten).<br/>
-<a href="/admin/settings.php?section=modsettingbooking" target="_blank">
+<a href="' . $CFG->wwwroot . '/admin/settings.php?section=modsettingbooking" target="_blank">
 &gt;&gt; Zu den Einstellungen...
 </a>';
 $string['error:missingteacherid'] = 'Fehler: Report kann nicht geladen werden, da die teacherid fehlt.';
