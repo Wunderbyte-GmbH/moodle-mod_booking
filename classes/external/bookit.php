@@ -49,7 +49,7 @@ require_once($CFG->libdir . '/externallib.php');
 class bookit extends external_api {
 
     /**
-     * Describes the parameters for add_item_to_cart.
+     * Describes the parameters for bookit.
      *
      * @return external_function_parameters
      */

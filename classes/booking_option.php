@@ -1757,8 +1757,8 @@ class booking_option {
                     $type = $customfieldname . "type";
                     $options = $customfieldname . "options";
                     $values[$customfieldname]['value'] = $bkgconfig->$customfieldname;
-                    $values[$customfieldname]['type'] = $bkgconfig->$type;
-                    $values[$customfieldname]['options'] = (isset($bkgconfig->$options) ? $bkgconfig->$options : '');
+                    $values[$customfieldname]['type'] = $bkgconfig->$type ?? '';
+                    $values[$customfieldname]['options'] = $bkgconfig->$options ?? '';
                 }
             }
         }

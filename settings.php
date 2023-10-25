@@ -228,22 +228,20 @@ if ($ADMIN->fulltree) {
                 get_string('automaticcoursecreation', 'mod_booking'),
                 ''));
 
-        $sql = "SELECT cff.shortname FROM {customfield_category} cfc
-        LEFT JOIN {customfield_field} cff ON cfc.id = cff.categoryid
+        $sql = "SELECT cff.name, cff.shortname FROM {customfield_category} cfc
+        JOIN {customfield_field} cff ON cfc.id = cff.categoryid
         WHERE cfc.component = 'mod_booking'";
 
         $records = $DB->get_records_sql($sql);
+        $customfieldsarray["-1"] = get_string('choose...', 'mod_booking');
         foreach ($records as $record) {
-            $options[$record->shortname] = $record->shortname;
+            $customfieldsarray[$record->shortname] = "$record->name ($record->shortname)";
         }
-
-        if (isset($options)) {
-            $settings->add(
-                new admin_setting_configselect('booking/newcoursecategorycfield',
-                        get_string('newcoursecategorycfield', 'mod_booking'),
-                        get_string('newcoursecategorycfielddesc', 'mod_booking'),
-                        1, $options ?? []));
-        }
+        $settings->add(
+            new admin_setting_configselect('booking/newcoursecategorycfield',
+                    get_string('newcoursecategorycfield', 'mod_booking'),
+                    get_string('newcoursecategorycfielddesc', 'mod_booking'),
+                    "-1", $customfieldsarray ?? []));
     } else {
         $settings->add(
             new admin_setting_heading('newcoursecategorycfieldheading',
@@ -347,6 +345,12 @@ if ($ADMIN->fulltree) {
             get_string('bookwithcreditsprofilefield', 'mod_booking'),
             get_string('bookwithcreditsprofilefield_desc', 'mod_booking'),
             0, $userprofilefieldsarray ?? []));
+
+    $settings->add(
+        new admin_setting_configselect('booking/cfcostcenter',
+            get_string('cfcostcenter', 'mod_booking'),
+            get_string('cfcostcenter_desc', 'mod_booking'),
+            "-1", $customfieldsarray ?? []));
 
 
     // PRO feature: Progress bars.

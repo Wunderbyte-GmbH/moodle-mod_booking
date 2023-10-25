@@ -261,6 +261,9 @@ class booking_option_settings {
     /** @var array $campaigns An array of campaign classes. */
     public $campaigns = [];
 
+    /** @var string $costcenter Cost center which is stored in a booking option custom field. */
+    public $costcenter = ''; // Default is an empty string.
+
     /**
      * Constructor for the booking option settings class.
      * The constructor can take the dbrecord stdclass which is the initial DB request for this option.
@@ -510,6 +513,15 @@ class booking_option_settings {
                 $dbrecord->customfields = $this->customfields;
             } else {
                 $this->customfields = $dbrecord->customfields;
+            }
+
+            // If a cost center is defined in plugin settings, we load it directly into the booking option settings.
+            $costcenterfield = get_config('booking', 'cfcostcenter');
+            if (!empty($costcenterfield) && $costcenterfield != "-1") {
+                if (isset($this->customfields[$costcenterfield])) {
+                    $this->costcenter = $this->customfields[$costcenterfield];
+                    $dbrecord->costcenter = $this->costcenter;
+                }
             }
 
             // If the key "entity" is not yet set, we need to load them via handler first.
@@ -1221,6 +1233,7 @@ class booking_option_settings {
             'canceluntil' => $canceluntil ?? 0,
             'coursestarttime' => $this->coursestarttime ?? 0,
             'courseendtime' => $this->courseendtime ?? 0,
+            'costcenter' => $this->costcenter ?? '',
         ];
 
         return $returnarray;

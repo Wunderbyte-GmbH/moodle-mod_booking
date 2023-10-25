@@ -1534,8 +1534,8 @@ $string['bookwithcreditsprofilefield'] = "User profile field for credits";
 $string['bookwithcreditsprofilefield_desc'] = "To use this functionality, please define a user profile field where credits are stored.
 <span class='text-danger'><b>Be careful:</b> You should create this field in a way that your users can't set a credit themselves.</span>";
 
-$string['costcentercustomfield'] = "Custom booking option field for cost center";
-$string['costcentercustomfield_desc'] = "If you use cost centers, you have to specify which custom
+$string['cfcostcenter'] = "Custom booking option field for cost center";
+$string['cfcostcenter_desc'] = "If you use cost centers, you have to specify which custom
 booking option field is used to store the cost center.";
 
 $string['priceisalwayson'] = 'Prices always active';

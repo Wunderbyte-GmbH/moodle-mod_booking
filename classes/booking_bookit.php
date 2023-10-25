@@ -583,6 +583,7 @@ class booking_bookit {
             'canceluntil' => $canceluntil,
             'coursestarttime' => $settings->coursestarttime ?? null,
             'courseendtime' => $settings->courseendtime ?? null,
+            'costcenter' => $settings->costcenter ?? '',
         ];
 
         return $item;

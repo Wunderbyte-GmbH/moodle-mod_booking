@@ -93,7 +93,8 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 }
             }
 
-            $cartitem = new cartitem($item['itemid'],
+            $cartitem = new cartitem(
+                $item['itemid'],
                 $item['title'],
                 $item['price'],
                 $item['currency'],
@@ -103,7 +104,9 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 $item['imageurl'],
                 $item['canceluntil'],
                 $serviceperiodstart,
-                $serviceperiodend
+                $serviceperiodend,
+                null, 0,
+                $settings->costcenter ?? null
             );
 
             return ['cartitem' => $cartitem];
@@ -139,7 +142,9 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 $item['imageurl'] ?? '',
                 $item['canceluntil'],
                 $serviceperiodstart,
-                $serviceperiodend
+                $serviceperiodend,
+                null, 0,
+                $settings->costcenter ?? null
             );
 
             return ['cartitem' => $cartitem];

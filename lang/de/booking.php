@@ -1481,9 +1481,9 @@ $string['bookwithcreditsprofilefield'] = "Benutzerdefiniertes Profilfeld für Gu
 $string['bookwithcreditsprofilefield_desc'] = "Um die Funktion nutzen zu können, muss es ein Profilfeld geben, in dem die Credits der Nutzer:innen hiinterlegt werden können.
 <span class='text-danger'><b>Achtung:</b> Dieses Feld sollte von den Nutzer:innen nicht bearbeitet werden können.</span>";
 
-$string['costcentercustomfield'] = "Benutzerdefiniertes Buchungsoptionsfeld für die Kostenstelle";
-$string['costcentercustomfield_desc'] = "Wenn Sie Kostenstellen verwenden, müssen Sie hier angeben,
-in welchem benutzerdefinierten Buchungsoptionsfeld diese gespeichert wird.";
+$string['cfcostcenter'] = "Benutzerdefiniertes Buchungsoptionsfeld für die Kostenstelle";
+$string['cfcostcenter_desc'] = "Wenn Sie Kostenstellen verwenden, müssen Sie hier angeben,
+in welchem benutzerdefinierten Buchungsoptionsfeld diese gespeichert werden.";
 
 $string['priceisalwayson'] = 'Preise immer aktiviert';
 $string['priceisalwayson_desc'] = 'Wenn Sie dieses Häkchen aktivieren, können Preise für einzelne Buchungsoptionen NICHT abgeschalten werden.
