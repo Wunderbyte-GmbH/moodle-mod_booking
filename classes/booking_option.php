@@ -969,7 +969,6 @@ class booking_option {
         if (isset($bookinganswers->users[$user->id]) && ($currentanswer = $bookinganswers->users[$user->id])) {
             switch($currentanswer->waitinglist) {
                 case STATUSPARAM_DELETED:
-                    $currentanswerid = $currentanswer->baid;
                     break;
                 case STATUSPARAM_BOOKED:
                     // If we come from sync_waiting_list it might be possible that someone is moved from booked to waiting list.
@@ -978,8 +977,6 @@ class booking_option {
                         return true;
                     }
                     // Else, we might move from booked to waitinglist, we just continue.
-                    $currentanswerid = $currentanswer->baid;
-                    $timecreated = $currentanswer->timecreated;
                     break;
                 case STATUSPARAM_RESERVED:
                     // If the old and the new value is reserved, we just return true, we don't need to do anything.
@@ -987,23 +984,20 @@ class booking_option {
                         return true;
                     }
                     // Else, we might move from reserved to booked, we just continue.
-                    $currentanswerid = $currentanswer->baid;
                     break;
                 case STATUSPARAM_WAITINGLIST:
                     if ($waitinglist == STATUSPARAM_WAITINGLIST) {
                         return true;
                     }
                     // Else, we might move from waitinglist to booked, we just continue.
-                    $currentanswerid = $currentanswer->baid;
-                    $timecreated = $currentanswer->timecreated;
                     break;
                 case STATUSPARAM_NOTIFYMELIST:
                     // If we have a notification...
                     // ... we override it here, because all alternatives are higher.
-                    $currentanswerid = $currentanswer->baid;
-                    // We don't pass the creation date on, as it is not interesting in this case.
                     break;
             }
+            $currentanswerid = $currentanswer->baid;
+            $timecreated = $currentanswer->timecreated;
         } else {
             $currentanswerid = null;
             $timecreated = null;
