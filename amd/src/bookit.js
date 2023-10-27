@@ -24,6 +24,7 @@ import Templates from 'core/templates';
 import Notification from 'core/notification';
 
 import {reloadAllTables} from 'local_wunderbyte_table/reload';
+import {addItemShowNotification} from 'local_shopping_cart/cart';
 
 var currentbookitpage = {};
 var totalbookitpages = {};
@@ -131,12 +132,9 @@ export const initprepagemodal = (optionid, userid, totalnumberofpages, uniquid) 
         });
         return;
     }
-
     currentbookitpage[optionid] = 0;
     totalbookitpages[optionid] = totalnumberofpages;
-
     // We need to get all prepage modals on this site. Make sure they are initialized.
-
     respondToVisibility(optionid, userid, uniquid, totalnumberofpages, loadPreBookingPage);
 };
 
@@ -202,6 +200,8 @@ export const initprepageinline = (optionid, userid, totalnumberofpages, uniquid)
 
                 rowcontainer.append(inlinediv.closest('.inlineprepagearea'));
                 // Inlinediv.remove();
+
+                //
 
                 // We need to get all prepage modals on this site. Make sure they are initialized.
                 loadPreBookingPage(optionid, userid, uniquid);
@@ -270,54 +270,79 @@ function isHidden(el) {
  * @param {integer} userid
  * @param {string} uniquid
  */
-export const loadPreBookingPage = (
-    optionid, userid = 0, uniquid = '') => {
+export async function loadPreBookingPage(
+    optionid, userid = 0, uniquid = '') {
 
-    const element = returnVisibleElement(optionid, uniquid, SELECTORS.INMODALDIV);
+        const element = returnVisibleElement(optionid, uniquid, SELECTORS.INMODALDIV);
 
-    if (element) {
-        while (element.firstChild) {
-            element.removeChild(element.firstChild);
-        }
-    } else {
-        // eslint-disable-next-line no-console
-        console.error('didnt find element');
-    }
-
-    Ajax.call([{
-        methodname: "mod_booking_load_pre_booking_page",
-        args: {
-            optionid,
-            userid,
-            'pagenumber': currentbookitpage[optionid],
-        },
-        done: function(res) {
-
-            // If we are on the last page, we reset it to 0.
-            if (currentbookitpage[optionid] === totalbookitpages[optionid] - 1) {
-                currentbookitpage[optionid] = 0;
+        if (element) {
+            while (element.firstChild) {
+                element.removeChild(element.firstChild);
             }
-
-            const jsonobject = JSON.parse(res.json);
-
-            // We support more than one template, they will be seperated by comma.
-            // We have a data key in the json
-            const templates = res.template.split(',');
-            let dataarray = jsonobject;
-            // Const buttontype = res.buttontype;
-
-            renderTemplatesOnPage(templates, dataarray, element);
-
-            // ShowRightButton(optionid, buttontype);
-
-            return true;
-        },
-        fail: function(err) {
+        } else {
             // eslint-disable-next-line no-console
-            console.log(err);
+            console.error('didnt find element');
         }
-    }]);
-};
+
+        Ajax.call([{
+            methodname: "mod_booking_load_pre_booking_page",
+            args: {
+                optionid,
+                userid,
+                'pagenumber': currentbookitpage[optionid],
+            },
+            done: function(res) {
+
+                // If we are on the last page, we reset it to 0.
+                if (currentbookitpage[optionid] === totalbookitpages[optionid] - 1) {
+                    currentbookitpage[optionid] = 0;
+                }
+
+                const jsonobject = JSON.parse(res.json);
+
+                // We support more than one template, they will be seperated by comma.
+                // We have a data key in the json
+                const templates = res.template.split(',');
+                let dataarray = jsonobject;
+                // Const buttontype = res.buttontype;
+
+                Ajax.call([{
+                    methodname: "mod_booking_allow_add_item_to_cart",
+                    args: {
+                        'itemid': optionid,
+                        userid,
+                    },
+                    done: function(response) {
+                        response.userid = userid;
+
+                        if (response.success == 1) {
+
+                            // The actual code on success.
+                            renderTemplatesOnPage(templates, dataarray, element);
+
+                            return true;
+                        } else {
+                            addItemShowNotification(response);
+                            return true;
+                        }
+                    },
+                    fail: function(err) {
+                        // eslint-disable-next-line no-console
+                        console.log(err);
+                    }
+                }]);
+
+                // ShowRightButton(optionid, buttontype);
+
+                return true;
+            },
+            fail: function(err) {
+                // eslint-disable-next-line no-console
+                console.log(err);
+            }
+        }]);
+        return true;
+}
 
 /**
  *
