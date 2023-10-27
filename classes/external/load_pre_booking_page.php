@@ -86,9 +86,9 @@ class load_pre_booking_page extends external_api {
     /**
      * Returns description of method result value.
      *
-     * @return external_single_structure
+     * @return external_function_parameters
      */
-    public static function execute_returns(): external_single_structure {
+    public static function execute_returns(): external_function_parameters {
         return new external_function_parameters(
                 [
                     'json' => new external_value(
