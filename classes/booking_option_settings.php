@@ -850,7 +850,7 @@ class booking_option_settings {
     private function load_customfields(int $optionid) {
         $handler = booking_handler::create();
 
-        $datas = $handler->get_instance_data($optionid);
+        $datas = $handler->get_instance_data($optionid, true);
 
         foreach ($datas as $data) {
 
