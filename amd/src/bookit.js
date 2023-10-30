@@ -22,9 +22,15 @@
 import Ajax from 'core/ajax';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
+import {showNotification} from 'mod_booking/notifications';
+
+import ModalFactory from 'core/modal_factory';
+import {
+    get_strings as getStrings,
+    get_string as getString
+} from 'core/str';
 
 import {reloadAllTables} from 'local_wunderbyte_table/reload';
-import {addItemShowNotification} from 'local_shopping_cart/cart';
 
 var currentbookitpage = {};
 var totalbookitpages = {};
@@ -132,9 +138,12 @@ export const initprepagemodal = (optionid, userid, totalnumberofpages, uniquid) 
         });
         return;
     }
+
     currentbookitpage[optionid] = 0;
     totalbookitpages[optionid] = totalnumberofpages;
+
     // We need to get all prepage modals on this site. Make sure they are initialized.
+
     respondToVisibility(optionid, userid, uniquid, totalnumberofpages, loadPreBookingPage);
 };
 
@@ -200,8 +209,6 @@ export const initprepageinline = (optionid, userid, totalnumberofpages, uniquid)
 
                 rowcontainer.append(inlinediv.closest('.inlineprepagearea'));
                 // Inlinediv.remove();
-
-                //
 
                 // We need to get all prepage modals on this site. Make sure they are initialized.
                 loadPreBookingPage(optionid, userid, uniquid);
@@ -270,79 +277,72 @@ function isHidden(el) {
  * @param {integer} userid
  * @param {string} uniquid
  */
-export async function loadPreBookingPage(
-    optionid, userid = 0, uniquid = '') {
+export const loadPreBookingPage = (
+    optionid, userid = 0, uniquid = '') => {
 
-        const element = returnVisibleElement(optionid, uniquid, SELECTORS.INMODALDIV);
+    const element = returnVisibleElement(optionid, uniquid, SELECTORS.INMODALDIV);
 
-        if (element) {
-            while (element.firstChild) {
-                element.removeChild(element.firstChild);
-            }
-        } else {
-            // eslint-disable-next-line no-console
-            console.error('didnt find element');
+    if (element) {
+        while (element.firstChild) {
+            element.removeChild(element.firstChild);
         }
+    } else {
+        // eslint-disable-next-line no-console
+        console.error('didnt find element');
+    }
 
-        Ajax.call([{
-            methodname: "mod_booking_load_pre_booking_page",
-            args: {
-                optionid,
-                userid,
-                'pagenumber': currentbookitpage[optionid],
-            },
-            done: function(res) {
+    Ajax.call([{
+        methodname: "mod_booking_allow_add_item_to_cart",
+        args: {
+            'itemid': optionid,
+            'userid': userid,
+        },
+        done: function(response) {
 
-                // If we are on the last page, we reset it to 0.
-                if (currentbookitpage[optionid] === totalbookitpages[optionid] - 1) {
-                    currentbookitpage[optionid] = 0;
-                }
-
-                const jsonobject = JSON.parse(res.json);
-
-                // We support more than one template, they will be seperated by comma.
-                // We have a data key in the json
-                const templates = res.template.split(',');
-                let dataarray = jsonobject;
-                // Const buttontype = res.buttontype;
-
+            if (response.success == 1) {
                 Ajax.call([{
-                    methodname: "mod_booking_allow_add_item_to_cart",
+                    methodname: "mod_booking_load_pre_booking_page",
                     args: {
-                        'itemid': optionid,
+                        optionid,
                         userid,
+                        'pagenumber': currentbookitpage[optionid],
                     },
-                    done: function(response) {
-                        response.userid = userid;
-
-                        if (response.success == 1) {
-
-                            // The actual code on success.
-                            renderTemplatesOnPage(templates, dataarray, element);
-
-                            return true;
-                        } else {
-                            addItemShowNotification(response);
-                            return true;
+                    done: function(res) {
+                        // If we are on the last page, we reset it to 0.
+                        if (currentbookitpage[optionid] === totalbookitpages[optionid] - 1) {
+                            currentbookitpage[optionid] = 0;
                         }
+
+                        const jsonobject = JSON.parse(res.json);
+
+                        // We support more than one template, they will be seperated by comma.
+                        // We have a data key in the json
+                        const templates = res.template.split(',');
+                        let dataarray = jsonobject;
+                        // Const buttontype = res.buttontype;
+
+                        renderTemplatesOnPage(templates, dataarray, element);
+
+                        // ShowRightButton(optionid, buttontype);
+
+                        return true;
                     },
                     fail: function(err) {
                         // eslint-disable-next-line no-console
                         console.log(err);
                     }
                 }]);
-
-                // ShowRightButton(optionid, buttontype);
-
-                return true;
-            },
-            fail: function(err) {
-                // eslint-disable-next-line no-console
-                console.log(err);
+            } else {
+                addItemShowNotification(response);
             }
-        }]);
-        return true;
-}
+            return true;
+        },
+        fail: function(err) {
+            // eslint-disable-next-line no-console
+            console.log(err);
+        }
+    }]);
+};
 
 /**
  *
@@ -565,4 +565,91 @@ export function backToPreviousPage(optionid, userid) {
 export function setBackModalVariables(optionid) {
 
     currentbookitpage[optionid] = 0;
+}
+
+/**
+ * Function to show notifications when items are added.
+ * @param {*} data
+ */
+export function addItemShowNotification(data) {
+    const CARTPARAM_ALREADYINCART = 0; // Already in cart.
+    const CARTPARAM_SUCCESS = 1; // Item added to cart successfully.
+    const CARTPARAM_CARTISFULL = 2; // Item added to cart successfully.
+    const CARTPARAM_COSTCENTER = 3; // Item added to cart successfully.
+
+    switch (data.success) {
+        case CARTPARAM_ALREADYINCART:
+            return;
+        case CARTPARAM_SUCCESS:
+            getString('addedtocart', 'local_shopping_cart', data.itemname).then(message => {
+                showNotification(message, 'success');
+                return;
+            }).catch(e => {
+                // eslint-disable-next-line no-console
+                console.log(e);
+            });
+            return;
+        case CARTPARAM_CARTISFULL:
+            getStrings([
+                {key: 'cartisfull', component: 'local_shopping_cart'},
+                {key: 'ok', component: 'core'},
+            ]).then(strings => {
+                ModalFactory.create({type: ModalFactory.types.SAVE_CANCEL}).then(modal => {
+                    modal.setBody(strings[0]);
+                    modal.setSaveButtonText(strings[1]);
+                    modal.show();
+                    return modal;
+                }).catch(e => {
+                    // eslint-disable-next-line no-console
+                    console.log(e);
+                });
+                return true;
+            }).catch(e => {
+                // eslint-disable-next-line no-console
+                console.log(e);
+            });
+            return;
+        case CARTPARAM_COSTCENTER:
+            getStrings([
+                {key: 'error:costcentertitle', component: 'local_shopping_cart'},
+                {key: 'error:costcentersdonotmatch', component: 'local_shopping_cart'},
+                {key: 'ok', component: 'core'},
+            ]).then(strings => {
+                ModalFactory.create({type: ModalFactory.types.SAVE_CANCEL}).then(modal => {
+                    modal.setTitle(strings[0]);
+                    modal.setBody(strings[1]);
+                    modal.setSaveButtonText(strings[2]);
+                    modal.show();
+                    return modal;
+                }).catch(e => {
+                    // eslint-disable-next-line no-console
+                    console.log(e);
+                });
+                return true;
+            }).catch(e => {
+                // eslint-disable-next-line no-console
+                console.log(e);
+            });
+            return;
+        default:
+            getStrings([
+                {key: 'error:generalcarterror', component: 'local_shopping_cart'},
+                {key: 'ok', component: 'core'},
+            ]).then(strings => {
+                ModalFactory.create({type: ModalFactory.types.SAVE_CANCEL}).then(modal => {
+                    modal.setBody(strings[0]);
+                    modal.setSaveButtonText(strings[1]);
+                    modal.show();
+                    return modal;
+                }).catch(e => {
+                    // eslint-disable-next-line no-console
+                    console.log(e);
+                });
+                return true;
+            }).catch(e => {
+                // eslint-disable-next-line no-console
+                console.log(e);
+            });
+            return;
+    }
 }
