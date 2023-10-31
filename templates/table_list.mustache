@@ -151,38 +151,38 @@
    {{/table}}
 
    {{#js}}
-      require(['local_wunderbyte_table/init'], function(init) {
-      init.init('{{idstring}}', '{{encodedtable}}');
+      require(['local_wunderbyte_table/init'], function(fn) {
+         fn.init('{{idstring}}', '{{encodedtable}}');
       });
 
       require(['mod_booking/view_actions'], function(fn) {
-      fn.setup();
+         fn.setup();
       });
 
       {{#shoppingcartisavailable}}
       require(['local_shopping_cart/cart'], function(cart) {
-      cart.buttoninit(null, 'mod_booking');
+         cart.buttoninit(null, 'mod_booking');
       });
       {{/shoppingcartisavailable}}
 
-      require(['mod_booking/modal_init'], function(init) {
-      init.init();
+      require(['mod_booking/modal_init'], function(fn) {
+         fn.init();
       });
 
-      require(['mod_booking/button_notifyme'], function(init) {
-      init.init();
+      require(['mod_booking/button_notifyme'], function(fn) {
+         fn.init();
       });
 
-      require(['mod_booking/bookit'], function(init) {
-      init.initbookitbutton(null, null);
+      require(['mod_booking/bookit'], function(fn) {
+         fn.initbookitbutton(null, null);
       });
 
-      require(['mod_booking/bookit'], function(init) {
-      init.initprepagemodal(null, null, null, null);
+      require(['mod_booking/bookit'], function(fn) {
+         fn.initprepagemodal(null, null, null, null);
       });
 
-      require(['mod_booking/bookit'], function(init) {
-         init.initprepageinline(null, null, null, null);
+      require(['mod_booking/bookit'], function(fn) {
+         fn.initprepageinline(null, null, null, null);
       });
    {{/js}}
 {{/norecords}}

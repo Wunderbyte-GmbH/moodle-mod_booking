@@ -315,10 +315,6 @@ export const loadPreBookingPage = (
                         // Const buttontype = res.buttontype;
 
                         renderTemplatesOnPage(templates, dataarray, element);
-
-                        // ShowRightButton(optionid, buttontype);
-
-                        return true;
                     },
                     fail: function(err) {
                         // eslint-disable-next-line no-console
@@ -329,20 +325,22 @@ export const loadPreBookingPage = (
                 setTimeout(() => {
                     document.querySelector('div.modal.show').click();
                 }, 500);
-                // If it's not 1, we can be quite sure that shopping cart is installed.
-                import('local_shopping_cart/cart')
+            }
+
+            import('local_shopping_cart/cart')
                 // eslint-disable-next-line promise/always-return
                 .then(shoppingcart => {
                     const addItemShowNotification = shoppingcart.addItemShowNotification;
                     // Now you can use the specific function
+                    response.userid = userid;
                     addItemShowNotification(response);
                 })
                 .catch(err => {
                     // Handle any errors, including if the module doesn't exist
                     // eslint-disable-next-line no-console
                     console.log(err);
-                });
-            }
+            });
+
             return true;
         },
         fail: function(err) {
