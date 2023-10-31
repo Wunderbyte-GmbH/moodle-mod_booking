@@ -32,6 +32,7 @@ use external_function_parameters;
 use external_value;
 use external_single_structure;
 use local_shopping_cart\shopping_cart;
+use mod_booking\singleton_service;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -76,9 +77,10 @@ class allow_add_item_to_cart extends external_api {
             return shopping_cart::allow_add_item_to_cart('mod_booking', 'option', $itemid, $userid);
         } else {
             // If shopping cart is not installed, we want to continue.
+            $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
             return [
                 'success' => CARTPARAM_SUCCESS,
-                'itemname' => '', // Not needed here.
+                'itemname' => $settings->get_title_with_prefix(),
             ];
         }
     }

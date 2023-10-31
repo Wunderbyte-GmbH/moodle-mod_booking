@@ -22,13 +22,6 @@
 import Ajax from 'core/ajax';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
-import {showNotification} from 'mod_booking/notifications';
-
-import ModalFactory from 'core/modal_factory';
-import {
-    get_strings as getStrings,
-    get_string as getString
-} from 'core/str';
 
 import {reloadAllTables} from 'local_wunderbyte_table/reload';
 
@@ -298,7 +291,7 @@ export const loadPreBookingPage = (
             'userid': userid,
         },
         done: function(response) {
-
+            // Will always be 1, if shopping cart is not installed!
             if (response.success == 1) {
                 Ajax.call([{
                     methodname: "mod_booking_load_pre_booking_page",
@@ -333,7 +326,22 @@ export const loadPreBookingPage = (
                     }
                 }]);
             } else {
-                addItemShowNotification(response);
+                setTimeout(() => {
+                    document.querySelector('div.modal.show').click();
+                }, 500);
+                // If it's not 1, we can be quite sure that shopping cart is installed.
+                import('local_shopping_cart/cart')
+                // eslint-disable-next-line promise/always-return
+                .then(shoppingcart => {
+                    const addItemShowNotification = shoppingcart.addItemShowNotification;
+                    // Now you can use the specific function
+                    addItemShowNotification(response);
+                })
+                .catch(err => {
+                    // Handle any errors, including if the module doesn't exist
+                    // eslint-disable-next-line no-console
+                    console.log(err);
+                });
             }
             return true;
         },
@@ -565,91 +573,4 @@ export function backToPreviousPage(optionid, userid) {
 export function setBackModalVariables(optionid) {
 
     currentbookitpage[optionid] = 0;
-}
-
-/**
- * Function to show notifications when items are added.
- * @param {*} data
- */
-export function addItemShowNotification(data) {
-    const CARTPARAM_ALREADYINCART = 0; // Already in cart.
-    const CARTPARAM_SUCCESS = 1; // Item added to cart successfully.
-    const CARTPARAM_CARTISFULL = 2; // Item added to cart successfully.
-    const CARTPARAM_COSTCENTER = 3; // Item added to cart successfully.
-
-    switch (data.success) {
-        case CARTPARAM_ALREADYINCART:
-            return;
-        case CARTPARAM_SUCCESS:
-            getString('addedtocart', 'local_shopping_cart', data.itemname).then(message => {
-                showNotification(message, 'success');
-                return;
-            }).catch(e => {
-                // eslint-disable-next-line no-console
-                console.log(e);
-            });
-            return;
-        case CARTPARAM_CARTISFULL:
-            getStrings([
-                {key: 'cartisfull', component: 'local_shopping_cart'},
-                {key: 'ok', component: 'core'},
-            ]).then(strings => {
-                ModalFactory.create({type: ModalFactory.types.SAVE_CANCEL}).then(modal => {
-                    modal.setBody(strings[0]);
-                    modal.setSaveButtonText(strings[1]);
-                    modal.show();
-                    return modal;
-                }).catch(e => {
-                    // eslint-disable-next-line no-console
-                    console.log(e);
-                });
-                return true;
-            }).catch(e => {
-                // eslint-disable-next-line no-console
-                console.log(e);
-            });
-            return;
-        case CARTPARAM_COSTCENTER:
-            getStrings([
-                {key: 'error:costcentertitle', component: 'local_shopping_cart'},
-                {key: 'error:costcentersdonotmatch', component: 'local_shopping_cart'},
-                {key: 'ok', component: 'core'},
-            ]).then(strings => {
-                ModalFactory.create({type: ModalFactory.types.SAVE_CANCEL}).then(modal => {
-                    modal.setTitle(strings[0]);
-                    modal.setBody(strings[1]);
-                    modal.setSaveButtonText(strings[2]);
-                    modal.show();
-                    return modal;
-                }).catch(e => {
-                    // eslint-disable-next-line no-console
-                    console.log(e);
-                });
-                return true;
-            }).catch(e => {
-                // eslint-disable-next-line no-console
-                console.log(e);
-            });
-            return;
-        default:
-            getStrings([
-                {key: 'error:generalcarterror', component: 'local_shopping_cart'},
-                {key: 'ok', component: 'core'},
-            ]).then(strings => {
-                ModalFactory.create({type: ModalFactory.types.SAVE_CANCEL}).then(modal => {
-                    modal.setBody(strings[0]);
-                    modal.setSaveButtonText(strings[1]);
-                    modal.show();
-                    return modal;
-                }).catch(e => {
-                    // eslint-disable-next-line no-console
-                    console.log(e);
-                });
-                return true;
-            }).catch(e => {
-                // eslint-disable-next-line no-console
-                console.log(e);
-            });
-            return;
-    }
 }
