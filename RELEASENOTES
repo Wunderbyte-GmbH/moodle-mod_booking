@@ -1,3 +1,7 @@
+8.0.47 (2023110200)
+* New feature: Introduce a new setting to tell booking which booking option custom field is used to store the cost center for each booking option.
+In shopping cart, a new setting can then be activated to avoid booking of items with different cost centers.
+
 8.0.46 (2023102000)
 * New feature: Add new blocking campaign which allows to block booking for students depending on booking status (e.g. half of places gone).
 * New feature: Actions logs for booking options.
