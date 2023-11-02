@@ -14,7 +14,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @module     mod_booking/prepageFooter
+ * @module     mod_booking/bookingpage/prepageFooter
  * @copyright  Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -190,7 +190,7 @@ async function initBookingButton(optionid) {
  *
  * @param {int} optionid
  */
-function closeModal(optionid) {
+export function closeModal(optionid) {
 
     jQuery.each(jQuery("[id^=" + SELECTORS.MODALID + optionid + "]"), function() {
         jQuery(this).modal('hide');
@@ -202,7 +202,7 @@ function closeModal(optionid) {
  *
  * @param {int} optionid
  */
-function closeInline(optionid) {
+export function closeInline(optionid) {
 
     jQuery.each(jQuery("[id^=" + SELECTORS.INLINEID + optionid + "]"), function() {
         jQuery(this).collapse('toggle');

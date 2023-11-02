@@ -24,6 +24,7 @@ import Templates from 'core/templates';
 import Notification from 'core/notification';
 
 import {reloadAllTables} from 'local_wunderbyte_table/reload';
+import {closeModal, closeInline} from 'mod_booking/bookingpage/prepageFooter';
 
 var currentbookitpage = {};
 var totalbookitpages = {};
@@ -323,23 +324,27 @@ export const loadPreBookingPage = (
                 }]);
             } else {
                 setTimeout(() => {
-                    document.querySelector('div.modal.show').click();
+                    closeModal(optionid);
+                    closeInline(optionid);
                 }, 500);
+                import('local_shopping_cart/cart')
+                    // eslint-disable-next-line promise/always-return
+                    .then(shoppingcart => {
+                        const addItemShowNotification = shoppingcart.addItemShowNotification;
+                        // Now you can use the specific function
+                        response.userid = userid;
+                        addItemShowNotification(response);
+                    })
+                    .catch(err => {
+                        // Handle any errors, including if the module doesn't exist
+                        // eslint-disable-next-line no-console
+                        console.log(err);
+                });
+                reloadAllTables();
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2500);
             }
-
-            import('local_shopping_cart/cart')
-                // eslint-disable-next-line promise/always-return
-                .then(shoppingcart => {
-                    const addItemShowNotification = shoppingcart.addItemShowNotification;
-                    // Now you can use the specific function
-                    response.userid = userid;
-                    addItemShowNotification(response);
-                })
-                .catch(err => {
-                    // Handle any errors, including if the module doesn't exist
-                    // eslint-disable-next-line no-console
-                    console.log(err);
-            });
 
             return true;
         },
