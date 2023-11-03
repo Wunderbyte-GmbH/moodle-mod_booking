@@ -3170,4 +3170,16 @@ class booking_option {
             'label' => '',
         ];
     }
+
+    /**
+     * Helper function to check if a booking option has a price set or not.
+     * @param int $optionid
+     * @param int $userid
+     * @return bool true if a price is set, else false
+     */
+    public static function has_price_set(int $optionid, int $userid) {
+        $user = singleton_service::get_instance_of_user($userid);
+        $optionprice = price::get_price('option', $optionid, $user);
+        return !empty($optionprice);
+    }
 }

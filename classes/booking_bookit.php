@@ -324,7 +324,7 @@ class booking_bookit {
                 require_once("$CFG->dirroot/user/profile/lib.php");
                 profile_save_custom_fields($userid, [$profilefield => $user->profile[$profilefield]]);
 
-                // This means we can actuall book.
+                // This means we can actually book.
                 $isavailable = true;
 
             } else if ($id === BO_COND_ALREADYBOOKED || $id === BO_COND_ONWAITINGLIST) {

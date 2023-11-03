@@ -321,10 +321,8 @@ class bo_info {
             return false;
         });
 
-        ksort(($results));
-
+        ksort($results);
         return $results;
-
     }
 
     /**
