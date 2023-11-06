@@ -1191,6 +1191,7 @@ class booking_option_settings {
             'canceluntil' => $canceluntil ?? 0,
             'coursestarttime' => $this->coursestarttime ?? 0,
             'courseendtime' => $this->courseendtime ?? 0,
+            'costcenter' => $this->costcenter ?? '',
         ];
 
         return $returnarray;

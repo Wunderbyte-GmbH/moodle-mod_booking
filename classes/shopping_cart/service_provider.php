@@ -60,10 +60,6 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
         if ($area === 'option') {
 
-            if (!booking_option::has_price_set($itemid, $userid)) {
-                return ['error' => 'nopriceisset'];
-            }
-
             // First, we need to check if we have the right to actually load the item.
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
 
@@ -397,88 +393,39 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
     public static function allow_add_item_to_cart(string $area, int $itemid,
         int $userid = 0): array {
 
-        global $USER;
+        if ($area == "option") {
 
-        $component = "local_shopping_cart";
-
-        // If there is no user specified, we determine it automatically.
-        if ($userid < 0 || $userid == shopping_cart::return_buy_for_userid()) {
-            $context = context_system::instance();
-            if (has_capability('local/shopping_cart:cashier', $context)) {
-                $userid = shopping_cart::return_buy_for_userid();
-            }
-        } else {
-            // As we are not on cashier anymore, we delete buy for user.
-            shopping_cart::buy_for_user(0);
-        }
-        if ($userid < 1) {
-            $userid = $USER->id;
-        }
-
-        // Check the cache for items in cart.
-        $maxitems = get_config('local_shopping_cart', 'maxitems');
-        $cache = \cache::make('local_shopping_cart', 'cacheshopping');
-        $cachekey = $userid . '_shopping_cart';
-
-        $cachedrawdata = $cache->get($cachekey);
-        $cacheitemkey = $component . '-' . $area . '-' . $itemid;
-
-        // Check if maxitems is exceeded.
-        if (isset($maxitems) && isset($cachedrawdata['items']) && (count($cachedrawdata['items']) >= $maxitems)) {
-            return [
-                'success' => CARTPARAM_CARTISFULL,
-                'itemname' => '',
-            ];
-        }
-
-        // If we have nothing in our cart and we are not about...
-        // ... to add the booking fee...
-        // ... we add the booking fee.
-        if (empty($cachedrawdata['items'])
-            && $area != 'bookingfee') {
-            $cachedrawdata = $cache->get($cachekey);
-        }
-
-        // Todo: Admin setting could allow for more than one item. Right now, only one.
-        if (isset($cachedrawdata['items'][$cacheitemkey])) {
-            return [
-                'success' => CARTPARAM_ALREADYINCART,
-                'itemname' => '',
-            ];
-        }
-
-        if ($area == "option" && get_config('local_shopping_cart', 'samecostcenter')) {
-            // If the setting 'samecostcenter' ist turned on...
-            // ... then we do not allow to add items with different cost centers.
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
-            $currentcostcenter = $settings->costcenter ?? '';
-            $costcenterincart = '';
-            if (!empty($cachedrawdata['items'])) {
-                foreach ($cachedrawdata['items'] as $itemincart) {
-                    if ($itemincart['area'] == 'bookingfee') {
-                        // We only need to check for "real" items, booking fee does not apply.
-                        continue;
-                    } else {
-                        $costcenterincart = $itemincart['costcenter'] ?? '';
-                        if ($currentcostcenter != $costcenterincart) {
-                            return [
-                                'success' => CARTPARAM_COSTCENTER,
-                                'itemname' => $settings->get_title_with_prefix() ?? '',
-                            ];
-                        }
-                        break;
-                    }
-                }
+            if (!booking_option::has_price_set($itemid, $userid)) {
+                return [
+                    'allow' => true,
+                    'info' => 'nopriceisset',
+                    'itemname' => $settings->get_title_with_prefix() ?? '',
+                ];
             }
-            return [
-                'success' => CARTPARAM_SUCCESS,
-                'itemname' => $settings->get_title_with_prefix() ?? '',
-            ];
-        }
 
-        // Default.
+            $user = singleton_service::get_instance_of_user($userid);
+            $item = $settings->return_booking_option_information($user);
+            $cartitem = new cartitem($itemid,
+                $item['title'],
+                $item['price'],
+                $item['currency'],
+                'mod_booking',
+                'option',
+                $item['description'],
+                $item['imageurl'],
+                $item['canceluntil'],
+                $item['serviceperiodstart'],
+                $item['serviceperiodend'],
+                null,
+                0,
+                $item['costcenter']
+            );
+            return $cartitem->as_array() ?? [];
+        }
         return [
-            'success' => CARTPARAM_SUCCESS,
+            'allow' => true,
+            'info' => 'notabookingoption',
             'itemname' => '',
         ];
     }

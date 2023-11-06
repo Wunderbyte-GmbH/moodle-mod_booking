@@ -74,7 +74,7 @@ class allow_add_item_to_cart extends external_api {
         ]);
 
         if (class_exists('local_shopping_cart\shopping_cart')) {
-            return shopping_cart::allow_add_item_to_cart('local_shopping_cart', 'option', $itemid, $userid);
+            return shopping_cart::allow_add_item_to_cart('mod_booking', 'option', $itemid, $userid);
         } else {
             // If shopping cart is not installed, we want to continue.
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
