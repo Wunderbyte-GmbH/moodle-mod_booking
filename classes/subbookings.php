@@ -59,12 +59,12 @@ class subbookings {
     /**
      * This function is used to deal with responses from the user. We use the naming from booking_option class.
      *
-     * @param integer $userid
-     * @param integer $sboid // booking_subbooking_options id
+     * @param int $userid
+     * @param int $sboid // booking_subbooking_options id
      * @param string $json
-     * @param integer $timestart
-     * @param integer $timeend
-     * @param boolean $addedtocart
+     * @param int $timestart
+     * @param int $timeend
+     * @param bool $addedtocart
      * @return void
      */
     public function user_submit_response(

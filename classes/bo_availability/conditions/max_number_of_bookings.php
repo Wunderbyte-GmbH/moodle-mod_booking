@@ -119,8 +119,8 @@ class max_number_of_bookings implements bo_condition {
      * Hard block is only checked if is_available already returns false.
      *
      * @param booking_option_settings $booking_option_settings
-     * @param integer $userid
-     * @return boolean
+     * @param int $userid
+     * @return bool
      */
     public function hard_block(booking_option_settings $settings, $userid):bool {
 

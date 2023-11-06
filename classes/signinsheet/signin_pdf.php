@@ -30,7 +30,7 @@ class signin_pdf extends \pdf {
     /**
      *
      * @param $h (float) Cell height. Default value: 0.
-     * @return boolean
+     * @return bool
      */
     public function go_to_newline($h) {
         return $this->checkPageBreak($h, '', true);

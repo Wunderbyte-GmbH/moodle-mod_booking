@@ -50,8 +50,8 @@ class booking_subbookit {
      * This also includes a top and a bottom section which can be rendered seperately.
      *
      * @param booking_option_settings $settings
-     * @param integer $subbookingid
-     * @param integer $userid
+     * @param int $subbookingid
+     * @param int $userid
      * @return string
      */
     public static function render_bookit_button(booking_option_settings $settings, int $subbookingid, int $userid = 0) {
@@ -77,8 +77,8 @@ class booking_subbookit {
      * This is used to get template name & data as an array to render bookit-button (component).
      *
      * @param booking_option_settings $settings
-     * @param integer $subbookingid
-     * @param integer $userid
+     * @param int $subbookingid
+     * @param int $userid
      * @param bool $renderprepagemodal
      * @return array
      */
@@ -152,8 +152,8 @@ class booking_subbookit {
      * Handles booking via the webservice. Checks access and right area to execute functions.
      *
      * @param string $area
-     * @param integer $itemid
-     * @param integer $userid
+     * @param int $itemid
+     * @param int $userid
      * @return array
      */
     public static function bookit(string $area, int $itemid, int $userid = 0) {
@@ -184,9 +184,9 @@ class booking_subbookit {
      * Helper function to create cartitem for optionid.
      *
      * @param string $area
-     * @param integer $itemid
-     * @param integer $status
-     * @param integer $userid
+     * @param int $itemid
+     * @param int $status
+     * @param int $userid
      * @return array
      */
     public static function answer_booking_option(string $area, int $itemid, int $status, int $userid = 0):array {
@@ -290,9 +290,9 @@ class booking_subbookit {
      * Helper function to create cartitem for subbooking.
      *
      * @param string $area
-     * @param integer $itemid
-     * @param integer $status
-     * @param integer $userid
+     * @param int $itemid
+     * @param int $status
+     * @param int $userid
      * @return array
      */
     public static function answer_subbooking_option(string $area, int $itemid, int $status, int $userid = 0):array {

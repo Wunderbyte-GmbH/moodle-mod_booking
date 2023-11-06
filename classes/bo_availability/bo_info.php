@@ -142,9 +142,9 @@ class bo_info {
     /**
      * Central function to check all available conditions.
      *
-     * @param integer|null $optionid
-     * @param integer $userid
-     * @param boolean $onlyhardblock
+     * @param int|null $optionid
+     * @param int $userid
+     * @param bool $onlyhardblock
      * @return array
      */
     public static function get_condition_results(int $optionid = null, int $userid = 0, bool $onlyhardblock = false):array {
@@ -675,7 +675,7 @@ class bo_info {
      * They can still alter the returned array.
      *
      * @param booking_option_settings $settings
-     * @param integer $userid
+     * @param int $userid
      * @param string $label
      * @param string $classes
      * @param bool $includeprice
@@ -861,7 +861,7 @@ class bo_info {
      * This returns the data of the
      *
      * @param array $conditionsarray
-     * @param integer $pagenumber
+     * @param int $pagenumber
      * @return array
      */
     private static function return_data_for_steps(array $conditionsarray, int $pagenumber):array {
@@ -893,7 +893,7 @@ class bo_info {
      * ... and returns the classname as string of current page.
      *
      * @param array $conditionsarray
-     * @param integer $pagenumber
+     * @param int $pagenumber
      * @return string
      */
     private static function return_class_of_current_page(array $conditionsarray, int $pagenumber) {
@@ -906,7 +906,7 @@ class bo_info {
      * Go through conditions classes to see if somewhere a price is set.
      *
      * @param array $results
-     * @return boolean
+     * @return bool
      */
     private static function has_price_set(array $results):bool {
         foreach ($results as $result) {
@@ -995,8 +995,8 @@ class bo_info {
      * @param array $footerdata
      * @param array $conditions
      * @param array $results
-     * @param integer $pagenumber
-     * @param integer $totalpages
+     * @param int $pagenumber
+     * @param int $totalpages
      * @return void
      */
     private static function add_back_button(

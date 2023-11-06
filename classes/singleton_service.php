@@ -75,7 +75,7 @@ class singleton_service {
      * When invalidating the cache, we need to also destroy the booking_answer_object.
      * As we batch handle a lot of users, they always need a "clean" booking answers object.
      *
-     * @param integer $optionid
+     * @param int $optionid
      * @return void
      */
     public static function destroy_booking_answers($optionid) {

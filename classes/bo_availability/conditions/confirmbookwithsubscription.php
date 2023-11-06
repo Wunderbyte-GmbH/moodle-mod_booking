@@ -114,8 +114,8 @@ class confirmbookwithsubscription implements bo_condition {
      * Hard block is only checked if is_available already returns false.
      *
      * @param booking_option_settings $booking_option_settings
-     * @param integer $userid
-     * @return boolean
+     * @param int $userid
+     * @return bool
      */
     public function hard_block(booking_option_settings $settings, $userid):bool {
         return true;
@@ -165,7 +165,7 @@ class confirmbookwithsubscription implements bo_condition {
      * Not all bo_conditions need to take advantage of this. But eg a condition which requires...
      * ... the acceptance of a booking policy would render the policy with this function.
      *
-     * @param integer $optionid
+     * @param int $optionid
      * @return array
      */
     public function render_page(int $optionid, int $userid = 0) {

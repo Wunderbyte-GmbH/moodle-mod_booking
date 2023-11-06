@@ -429,7 +429,7 @@ class booking {
     /**
      * Get all booking option ids as an array of numbers - only where is teacher.
      *
-     * @param integer bookingid
+     * @param int bookingid
      * @return array of ids
      */
     public static function get_all_optionids_of_teacher($bookingid) {
@@ -827,8 +827,8 @@ class booking {
      * No prefixes for the columsn we retrieve, so *, id, etc.
      * If we don't pass on the context object, invisible options are excluded.
      *
-     * @param integer $limitfrom
-     * @param integer $limitnum
+     * @param int $limitfrom
+     * @param int $limitnum
      * @param string $searchtext
      * @param string $fields
      * @param object $context
@@ -1062,8 +1062,8 @@ class booking {
     /**
      * Genereate SQL and params array to fetch my options.
      *
-     * @param integer $limitfrom
-     * @param integer $limitnum
+     * @param int $limitfrom
+     * @param int $limitnum
      * @param string $searchtext
      * @param string $fields
      * @return void

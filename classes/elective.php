@@ -518,7 +518,7 @@ class elective {
      * Check if booking is alloowed in this combination
      *
      * @param booking_option_settings $settings
-     * @return boolean
+     * @return bool
      */
     public static function is_bookable(booking_option_settings $settings): bool {
 
@@ -549,7 +549,7 @@ class elective {
     /**
      * Return an array of allowed and not allowed combinations.
      *
-     * @param integer $optionid
+     * @param int $optionid
      * @return array
      */
     public static function load_combinations(int $optionid) {
@@ -590,7 +590,7 @@ class elective {
      * Checks currently selected booking options if they can be combined.
      *
      * @param booking_settings $booking
-     * @return boolean
+     * @return bool
      */
     public static function is_bookable_combination(booking_settings $booking):bool {
 
@@ -619,7 +619,7 @@ class elective {
     /**
      * Get sorted array of options from cache.
      *
-     * @param integer $cmid
+     * @param int $cmid
      * @return array
      */
     public static function return_sorted_array_of_options_from_cache(int $cmid):array {
@@ -642,7 +642,7 @@ class elective {
     /**
      * Get array of ints from cache and instantiate them.
      *
-     * @param integer $cmid
+     * @param int $cmid
      * @return array
      */
     public static function get_options_from_cache(int $cmid):array {

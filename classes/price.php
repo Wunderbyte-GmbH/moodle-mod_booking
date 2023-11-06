@@ -644,7 +644,7 @@ class price {
      * Return right user from userid.
      * If there is no userid provided, we look in shopping cart cache, there might be a userid stored.
      * If not, we use USER.
-     * @param integer $userid
+     * @param int $userid
      * @return stdClass
      */
     public static function return_user_to_buy_for(int $userid = 0) {
@@ -820,7 +820,7 @@ class price {
      * Check for weekdays & time to be in certain range
      * @param array $dayinfo
      * @param object $rangeinfo
-     * @return boolean
+     * @return bool
      */
     public static function is_in_time_scope(array $dayinfo, object $rangeinfo) {
 

@@ -121,7 +121,7 @@ class subbooking_timeslot implements booking_subbooking {
 
     /**
      * Get the name of the subbooking.
-     * @param boolean $localized
+     * @param bool $localized
      * @return string
      */
     public function get_name_of_subbooking($localized = true):string {
@@ -245,7 +245,7 @@ class subbooking_timeslot implements booking_subbooking {
      * ... where itemids would be slotids.
      * But normally the itemid here is the same as the subboooking it.
      *
-     * @param integer $itemid
+     * @param int $itemid
      * @param object $user
      * @return array
      */
@@ -286,7 +286,7 @@ class subbooking_timeslot implements booking_subbooking {
      * When a subbooking is booked, we might need some supplementary values saved.
      * Evey subbooking type can decide what to store in the answer json.
      *
-     * @param integer $itemid
+     * @param int $itemid
      * @param object $user
      * @return string
      */
@@ -299,7 +299,7 @@ class subbooking_timeslot implements booking_subbooking {
      * Returns all the answers as array for a given subbooking.
      * It is possible to specify an itemid. In most subbooking types...
      * ... this would just be the same as $this->id.
-     * @param integer $itemid
+     * @param int $itemid
      * @return array
      */
     public function return_answers($itemid = 0):array {
@@ -429,7 +429,7 @@ class subbooking_timeslot implements booking_subbooking {
      * Marks the booked arrays and those which are booked by the current user.
      *
      * @param array $slots
-     * @param integer $userid
+     * @param int $userid
      * @return array
      */
     public function add_booking_information_to_slots(array $slots, int $userid = 0) {

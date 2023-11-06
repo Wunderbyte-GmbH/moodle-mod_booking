@@ -52,7 +52,7 @@ interface booking_subbooking {
 
     /**
      * Gets the human-readable name of a subbooking (localized).
-     * @param boolean $localized
+     * @param bool $localized
      * @return string the name of the subbooking
      */
     public function get_name_of_subbooking($localized = true):string;
@@ -105,7 +105,7 @@ interface booking_subbooking {
      * ... where itemids would be slotids.
      * But normally the itemid here is the same as the subboooking it.
      *
-     * @param integer $itemid
+     * @param int $itemid
      *
      * @return array
      */
@@ -115,7 +115,7 @@ interface booking_subbooking {
      * When a subbooking is booked, we might need some supplementary values saved.
      * Evey subbooking type can decide what to store in the answer json.
      *
-     * @param integer $itemid
+     * @param int $itemid
      * @param object $user
      * @return string
      */

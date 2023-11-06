@@ -53,7 +53,7 @@ interface booking_rule_action {
 
     /**
      * Gets the human-readable name of a rule action (localized).
-     * @param boolean $localized
+     * @param bool $localized
      * @return string the name of the rule action
      */
     public function get_name_of_action($localized = true);

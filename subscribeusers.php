@@ -43,8 +43,8 @@ $bookanyone = get_user_preferences('bookanyone', '0');
 
 list($course, $cm) = get_course_and_cm_from_cmid($id);
 
-(boolean) $subscribesuccess = false;
-(boolean) $unsubscribesuccess = false;
+(bool) $subscribesuccess = false;
+(bool) $unsubscribesuccess = false;
 
 require_login($course, true, $cm);
 

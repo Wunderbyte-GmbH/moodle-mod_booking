@@ -58,7 +58,7 @@ class signin_downloadform implements renderable, templatable {
     /** @var array $sessions */
     public $sessions = [];
 
-    /** @var boolean $teachersexist */
+    /** @var bool $teachersexist */
     public $teachersexist = false;
 
     /**

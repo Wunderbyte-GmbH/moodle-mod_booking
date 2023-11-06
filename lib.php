@@ -357,7 +357,7 @@ function booking_comment_permissions($commentparam): array {
  *                                  cm => stdClass course module object
  *                                  commentarea => string comment area
  *                                  itemid => int itemid }
- * @return boolean
+ * @return bool
  * @throws coding_exception
  * @throws comment_exception
  * @throws dml_exception
@@ -577,7 +577,7 @@ function booking_add_instance($booking) {
  * Given an object containing all the necessary data this will update an existing instance.
  *
  * @param stdClass|booking $booking
- * @return boolean
+ * @return bool
  */
 function booking_update_instance($booking) {
     global $DB, $CFG;
@@ -767,7 +767,7 @@ function booking_update_instance($booking) {
  * @param object $optionvalues
  * @param context_module $context
  * @param int $updateparam optional param to define behavior
- * @return boolean|number optionid
+ * @return bool|number optionid
  */
 function booking_update_options(object $optionvalues, context_module $context, int $updateparam = UPDATE_OPTIONS_PARAM_DEFAULT) {
     global $DB, $CFG, $PAGE, $USER;
@@ -2100,7 +2100,7 @@ function booking_get_user_grades($booking, $userid = 0) {
  * @category grade
  * @param stdClass $booking
  * @param int $userid specific user only, 0 means all
- * @param boolean $nullifnone return null if grade does not exist
+ * @param bool $nullifnone return null if grade does not exist
  * @return void
  */
 function booking_update_grades($booking, $userid = 0, $nullifnone = true) {
@@ -2198,7 +2198,7 @@ function booking_scale_used($bookingid, $scaleid) {
  *
  * @global object
  * @param $scaleid int
- * @return boolean True if the scale is used by any booking instance
+ * @return bool True if the scale is used by any booking instance
  */
 function booking_scale_used_anywhere($scaleid) {
     global $DB;
@@ -2241,7 +2241,7 @@ function booking_rating_permissions($contextid, $component, $ratingarea) {
  * rateduserid => int the id of the user whose items have been rated.
  *      NOT the user who submitted the ratings. 0 to update all. [required]
  * aggregation => int the aggregation method to apply when calculating grades i.e. RATING_AGGREGATE_AVERAGE [required]
- * @return boolean true if the rating is valid. Will throw rating_exception if not
+ * @return bool true if the rating is valid. Will throw rating_exception if not
  * @throws coding_exception
  * @throws dml_exception
  * @throws rating_exception
@@ -2410,7 +2410,7 @@ function booking_rate($ratings, $params) {
  * Given an ID of an instance of this module, will permanently delete the instance and data.
  *
  * @param int $id this is the bookingid - not the cmid!
- * @return boolean
+ * @return bool
  */
 function booking_delete_instance($id) {
     global $DB;
@@ -2736,7 +2736,7 @@ function booking_show_subcategories($catid, $courseid) {
  * @global object
  * @param object $course the course
  * @param booking $booking the booking
- * @param integer $groupid group id, or 0 for all.
+ * @param int $groupid group id, or 0 for all.
  * @param object $context the booking context, to save re-fetching it where possible.
  * @param string $fields requested user fields (with "u." table prefix)
  * @return array list of users.

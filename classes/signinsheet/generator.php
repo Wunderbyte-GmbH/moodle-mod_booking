@@ -56,7 +56,7 @@ class generator {
     /**
      * add teachers?
      *
-     * @var boolean
+     * @var bool
      */
     public $includeteachers = false;
 
@@ -111,7 +111,7 @@ class generator {
     /**
      * show row numbers left of name in first column
      *
-     * @var boolean
+     * @var bool
      */
     public $showrownumbers = false;
 
@@ -124,13 +124,13 @@ class generator {
 
     /**
      * Use header logo or not
-     * @var boolean
+     * @var bool
      */
     protected $uselogo = false;
 
     /**
      * Teachers are being processed
-     * @var boolean
+     * @var bool
      */
     protected $processteachers = false;
 
@@ -154,7 +154,7 @@ class generator {
 
     /**
      * Title to choose: 1 = instancename + optiontext, 2 = optiontext only
-     * @var integer
+     * @var int
      */
     protected $title = 1;
 
@@ -558,7 +558,7 @@ class generator {
      * Get logo in header for signin sheet and include it in PDF return true if logo is used
      * otherwise false
      *
-     * @return boolean true if image is used false if not
+     * @return bool true if image is used false if not
      */
     public function get_signinsheet_logo() {
         $fs = get_file_storage();
@@ -592,7 +592,7 @@ class generator {
      * Get logo in footer for signin sheet and include it in PDF return true if logo is used
      * otherwise false
      *
-     * @return boolean true if image is used false if not
+     * @return bool true if image is used false if not
      */
     public function get_signinsheet_logo_footer() {
         $fileuse = false;

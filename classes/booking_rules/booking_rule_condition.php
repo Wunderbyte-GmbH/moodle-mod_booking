@@ -59,7 +59,7 @@ interface booking_rule_condition {
 
     /**
      * Gets the human-readable name of a rule condition (localized).
-     * @param boolean $localized
+     * @param bool $localized
      * @return string the name of the rule condition
      */
     public function get_name_of_condition($localized = true);

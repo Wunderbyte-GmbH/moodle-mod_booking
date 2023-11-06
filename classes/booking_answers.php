@@ -238,7 +238,7 @@ class booking_answers {
      * - booked
      * - onwaitinglist
      *
-     * @param integer $userid
+     * @param int $userid
      * @return array
      */
     public function return_all_booking_information(int $userid) {
@@ -297,7 +297,7 @@ class booking_answers {
     /**
      * Verify if a user is actually on the booked list or not.
      *
-     * @param integer $userid
+     * @param int $userid
      * @return void
      */
     public function user_on_notificationlist(int $userid) {
@@ -323,9 +323,9 @@ class booking_answers {
      * Returns the number of active bookings for a given user for the whole instance.
      * This is not cached!
      *
-     * @param integer $userid
-     * @param integer $bookingid not cmid
-     * @return integer
+     * @param int $userid
+     * @param int $bookingid not cmid
+     * @return int
      */
     public static function number_of_active_bookings_for_user(int $userid, int $bookingid) {
         global $DB;
@@ -347,9 +347,9 @@ class booking_answers {
     /**
      * Uncached function to get booking status of user regarding the subbooking.
      *
-     * @param integer $subbookingid
-     * @param integer $userid
-     * @return integer
+     * @param int $subbookingid
+     * @param int $userid
+     * @return int
      */
     public function subbooking_user_status(int $subbookingid, int $userid = 0) {
         global $DB;

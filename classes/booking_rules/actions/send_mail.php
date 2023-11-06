@@ -96,7 +96,7 @@ class send_mail implements booking_rule_action {
 
     /**
      * Get the name of the rule action
-     * @param boolean $localized
+     * @param bool $localized
      * @return string the name of the rule action
      */
     public function get_name_of_action($localized = true) {

@@ -78,7 +78,7 @@ class bo_subinfo {
     /**
      * Constructs with item details.
      * @param booking_option_settings $settings
-     * @param integer $subbookingid
+     * @param int $subbookingid
      */
     public function __construct(booking_option_settings $settings, int $subbookingid) {
 
@@ -142,9 +142,9 @@ class bo_subinfo {
     /**
      * Checks all the available conditions for a given subbooking to check it's availability.
      *
-     * @param integer $optionid
-     * @param integer $subbookingid
-     * @param integer $userid
+     * @param int $optionid
+     * @param int $subbookingid
+     * @param int $userid
      * @return array
      */
     public static function get_subcondition_results(int $optionid, int $subbookingid, int $userid = 0):array {
@@ -224,7 +224,7 @@ class bo_subinfo {
      *
      * @param bool $full Set true if this is the 'full information' view
      * @param booking_option_settings $settings Item we're checking
-     * @param integer $subbookingid
+     * @param int $subbookingid
      * @param int $userid User ID to check availability for
      * @param bool $not Set true if we are inverting the condition
      * @return array availability and Information string (for admin) about all restrictions on
@@ -441,7 +441,7 @@ class bo_subinfo {
      * ... and returns the classname as string of current page.
      *
      * @param array $results
-     * @param integer $pagenumber
+     * @param int $pagenumber
      * @return string
      */
     private static function return_class_of_current_page(array $results, int $pagenumber) {

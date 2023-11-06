@@ -225,8 +225,8 @@ class rule_react_on_event implements booking_rule {
      * This helperfunction builds the sql with the help of the condition and returns the records.
      * Testmode means that we don't limit by now timestamp.
      *
-     * @param integer $optionid
-     * @param integer $userid
+     * @param int $optionid
+     * @param int $userid
      * @param bool $testmode
      * @return array
      */

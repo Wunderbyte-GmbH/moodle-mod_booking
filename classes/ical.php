@@ -290,7 +290,7 @@ class ical {
 
     /**
      * Format timestamp.
-     * @param integer $timestamp
+     * @param int $timestamp
      * @return string
      */
     protected function generate_timestamp($timestamp) {

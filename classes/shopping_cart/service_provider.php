@@ -171,8 +171,8 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      * This function unloads item from card. Plugin has to make sure it's available again.
      *
      * @param string $area
-     * @param integer $itemid
-     * @param integer $userid
+     * @param int $itemid
+     * @param int $userid
      * @return array
      */
     public static function unload_cartitem( string $area, int $itemid, int $userid = 0): array {
@@ -215,12 +215,12 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
     /**
      * Callback function that handles inscripiton after fee was paid.
      * @param string $area
-     * @param integer $itemid
-     * @param integer $paymentid
-     * @param integer $userid
-     * @return boolean
+     * @param int $itemid
+     * @param int $paymentid
+     * @param int $userid
+     * @return bool
      */
-    public static function successful_checkout(string $area, int $itemid, int $paymentid, int $userid):bool {
+    public static function successful_checkout(string $area, int $itemid, int $paymentid, int $userid): bool {
         global $USER, $CFG;
 
         require_once($CFG->dirroot . '/mod/booking/lib.php');
@@ -277,9 +277,9 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
     /**
      * This cancels an already booked course.
      * @param string $area
-     * @param integer $itemid
-     * @param integer $userid
-     * @return boolean
+     * @param int $itemid
+     * @param int $userid
+     * @return bool
      */
     public static function cancel_purchase(string $area, int $itemid, int $userid = 0): bool {
         global $CFG;
@@ -367,8 +367,8 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      * Function to unload subbooking from cart.
      *
      * @param string $area
-     * @param integer $itemid
-     * @param integer $userid
+     * @param int $itemid
+     * @param int $userid
      * @return array
      */
     private static function unload_subbooking(string $area, int $itemid, int $userid = 0): array {
@@ -386,8 +386,8 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      * Callback to check if adding item to cart is allowed.
      *
      * @param string $area
-     * @param integer $itemid
-     * @param integer $userid
+     * @param int $itemid
+     * @param int $userid
      * @return array
      */
     public static function allow_add_item_to_cart(string $area, int $itemid,

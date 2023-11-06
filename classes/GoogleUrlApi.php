@@ -42,7 +42,7 @@ class GoogleUrlApi {
     /*
      * Shorten a URL
      * @param string $url
-     * @return boolean|mixed
+     * @return bool|mixed
      */
     // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
     /* public function shorten($url) {
@@ -56,7 +56,7 @@ class GoogleUrlApi {
      * Expand a URL
      *
      * @param string $url
-     * @return boolean|mixed
+     * @return bool|mixed
      */
     // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
     /* public function expand($url) {
@@ -70,7 +70,7 @@ class GoogleUrlApi {
      * Send information to Google
      *
      * @param string $url
-     * @param boolean $shorten
+     * @param bool $shorten
      * @return mixed
      */
     // phpcs:ignore Squiz.PHP.CommentedOutCode.Found

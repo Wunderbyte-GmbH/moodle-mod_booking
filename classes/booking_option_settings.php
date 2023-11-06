@@ -307,7 +307,7 @@ class booking_option_settings {
      * Set all the values from DB, if necessary.
      * If we have passed on the cached object, we use this one.
      *
-     * @param integer $optionid
+     * @param int $optionid
      * @return stdClass|null
      */
     private function set_values(int $optionid, object $dbrecord = null) {
@@ -889,7 +889,7 @@ class booking_option_settings {
     /**
      * Load subbookings
      *
-     * @param integer $optionid
+     * @param int $optionid
      * @return void
      */
     private function load_subbookings(int $optionid) {
@@ -899,7 +899,7 @@ class booking_option_settings {
     /**
      * Load elective combinations
      *
-     * @param integer $optionid
+     * @param int $optionid
      * @return void
      */
     private function load_elective_combinations(int $optionid) {
@@ -1201,7 +1201,7 @@ class booking_option_settings {
      * Especially to create a shopping cart and such...
      * ... we want one central function where we always get all the necessary keys.
      *
-     * @param integer $subbookingid
+     * @param int $subbookingid
      * @param object $user
      * @return array
      */

@@ -92,7 +92,7 @@ class get_booking_option_description extends external_api {
 
         $data = new bookingoption_description($optionid, null, DESCRIPTION_WEBSITE, true, $forbookeduser, $user);
 
-        // Fix invisible attribute, by converting to boolean.
+        // Fix invisible attribute, by converting to bool.
         if (isset($data->invisible) && $data->invisible == 1) {
             $data->invisible = true;
         } else {

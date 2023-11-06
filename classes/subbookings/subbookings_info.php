@@ -300,7 +300,7 @@ class subbookings_info {
      * Load all the available subbookings for a specific ID and return them as array.
      * We return the instantiated classes to be able to call functions on them.
      *
-     * @param integer $optionid
+     * @param int $optionid
      * @return array
      */
     public static function load_subbookings(int $optionid) {
@@ -324,7 +324,7 @@ class subbookings_info {
      * The ID might actually come from the area.
      *
      * @param string $area
-     * @param integer $itemid
+     * @param int $itemid
      * @return object
      */
     public static function get_subbooking_by_area_and_id(string $area, int $itemid) {
@@ -360,10 +360,10 @@ class subbookings_info {
      * We can provide a status which will then decide what actually happens.
      *
      * @param string $area
-     * @param integer $itemid
-     * @param integer $userid
-     * @param integer $status
-     * @return boolean
+     * @param int $itemid
+     * @param int $userid
+     * @param int $status
+     * @return bool
      */
     public static function save_response(string $area, int $itemid, int $status, $userid = 0):bool {
 
@@ -438,9 +438,9 @@ class subbookings_info {
      * Also, it creates a new answer record if necessary.
      *
      * @param object $subbooking
-     * @param integer $itemid
-     * @param integer $userid
-     * @param integer $newstatus
+     * @param int $itemid
+     * @param int $userid
+     * @param int $newstatus
      * @param array $oldstatus
      * @return bool
      */
@@ -488,10 +488,10 @@ class subbookings_info {
     /**
      * Returns all answer records for a certain PARAMSTATUS if defined.
      *
-     * @param integer $sboid
-     * @param integer $itemid
-     * @param integer $optionid
-     * @param integer $userid
+     * @param int $sboid
+     * @param int $itemid
+     * @param int $optionid
+     * @param int $userid
      * @param array $status
      * @return array
      */
@@ -532,7 +532,7 @@ class subbookings_info {
     /**
      * Returns an array of area and itemid, written for unloading subbookings from shopping cart.
      *
-     * @param integer $optionid
+     * @param int $optionid
      * @return array
      */
     public static function return_array_of_subbookings(int $optionid): array {

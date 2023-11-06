@@ -55,7 +55,7 @@ class subbooking_timeslot_output implements renderable, templatable {
      *
      * @param booking_option_settings $settings
      * @param bool $includebookinginformation
-     * @param integer $userid
+     * @param int $userid
      */
     public function __construct(
         booking_option_settings $settings,

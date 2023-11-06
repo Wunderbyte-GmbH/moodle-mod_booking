@@ -47,7 +47,7 @@ class col_teacher implements renderable, templatable {
     /**
      * Constructor
      *
-     * @param integer $optionid
+     * @param int $optionid
      * @param booking_option_settings $settings
      */
     public function __construct(int $optionid, booking_option_settings $settings) {

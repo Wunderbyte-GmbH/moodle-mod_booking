@@ -86,7 +86,7 @@ class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
 
                 $boption->enrol_user($bookeduser->userid);
 
-                // TODO: check if enrolment successful... (enrol_user needs to return boolean).
+                // TODO: check if enrolment successful... (enrol_user needs to return bool).
 
                 if (!empty($boption->option->courseid)) {
                     mtrace("The user with the {$bookeduser->userid} has been enrolled to the course {$boption->option->courseid}.");

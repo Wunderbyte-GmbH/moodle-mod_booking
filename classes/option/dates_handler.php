@@ -777,7 +777,7 @@ class dates_handler {
      *
      * @param booking_option_settings $settings
      * @param string $lang
-     * @param boolean $showweekdays
+     * @param bool $showweekdays
      * @return array
      */
     public static function return_dates_with_strings(booking_option_settings $settings,
@@ -819,8 +819,8 @@ class dates_handler {
     /**
      * Undocumented function
      *
-     * @param integer $starttime
-     * @param integer $endtime
+     * @param int $starttime
+     * @param int $endtime
      * @param string $lang
      * @param bool $showweekdays
      * @return stdClass

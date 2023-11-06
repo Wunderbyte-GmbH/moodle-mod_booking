@@ -506,7 +506,7 @@ class renderer extends plugin_renderer_base {
      * Render a bookingoptions_wbtable using wunderbyte_table plugin.
      *
      * @param templatable $bookingoptionswbtable
-     * @return string|boolean
+     * @return string|bool
      */
     public function render_bookingoptions_wbtable(templatable $bookingoptionswbtable) {
         $data = $bookingoptionswbtable->export_for_template($this);

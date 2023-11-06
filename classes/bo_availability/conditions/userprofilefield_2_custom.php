@@ -62,7 +62,7 @@ class userprofilefield_2_custom implements bo_condition {
     /**
      * Constructor.
      *
-     * @param integer $id
+     * @param int $id
      * @return void
      */
     public function __construct(int $id = null) {
@@ -196,8 +196,8 @@ class userprofilefield_2_custom implements bo_condition {
      * Hard block is only checked if is_available already returns false.
      *
      * @param booking_option_settings $booking_option_settings
-     * @param integer $userid
-     * @return boolean
+     * @param int $userid
+     * @return bool
      */
     public function hard_block(booking_option_settings $settings, $userid):bool {
 
@@ -433,8 +433,8 @@ class userprofilefield_2_custom implements bo_condition {
      *
      * @param booking_option_settings $settings
      * @param int $userid
-     * @param boolean $full
-     * @param boolean $not
+     * @param bool $full
+     * @param bool $not
      * @return array
      */
     public function render_button(booking_option_settings $settings,

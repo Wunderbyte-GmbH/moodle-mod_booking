@@ -47,7 +47,7 @@ class booking_tags {
     /**
      * Booking_tags constructor.
      *
-     * @param integer $courseid
+     * @param int $courseid
      * @throws \dml_exception
      */
     public function __construct($courseid) {
