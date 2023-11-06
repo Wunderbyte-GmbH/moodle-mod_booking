@@ -362,6 +362,7 @@ Feature: Test booking options avaialbility conditions
     Given I am on the "My booking" Activity page logged in as student1
     Then I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait "1" seconds
     Then I should see "Confirm your intention" in the ".condition-customform" "css_element"
     And I set the field "customform_checkbox_2" to "checked"
     And I follow "Continue"
@@ -389,6 +390,7 @@ Feature: Test booking options avaialbility conditions
     Given I am on the "My booking" Activity page logged in as student1
     Then I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait "1" seconds
     Then I should see "Confirm your intention" in the ".allbookingoptionstable_r1 .condition-customform" "css_element"
     And I set the field "customform_checkbox_2" to "checked"
     And I follow "Continue"
