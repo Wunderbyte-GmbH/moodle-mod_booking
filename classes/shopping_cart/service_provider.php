@@ -26,6 +26,7 @@ namespace mod_booking\shopping_cart;
 
 use context_system;
 use local_shopping_cart\local\entities\cartitem;
+use local_shopping_cart\shopping_cart;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
 use mod_booking\booking_bookit;
@@ -374,7 +375,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      * @param integer $userid
      * @return array
      */
-    private static function unload_subbooking(string $area, int $itemid, int $userid = 0):array {
+    private static function unload_subbooking(string $area, int $itemid, int $userid = 0): array {
 
         // We unreserve this subbooking option.
         subbookings_info::save_response($area, $itemid, STATUSPARAM_NOTBOOKED, $userid);
@@ -393,22 +394,22 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      * @param integer $userid
      * @return array
      */
-    private static function allow_add_item_to_cart(string $area, int $itemid,
+    public static function allow_add_item_to_cart(string $area, int $itemid,
         int $userid = 0): array {
 
         global $USER;
 
-        $component = "mod_booking";
+        $component = "local_shopping_cart";
 
         // If there is no user specified, we determine it automatically.
-        if ($userid < 0 || $userid == self::return_buy_for_userid()) {
+        if ($userid < 0 || $userid == shopping_cart::return_buy_for_userid()) {
             $context = context_system::instance();
             if (has_capability('local/shopping_cart:cashier', $context)) {
-                $userid = self::return_buy_for_userid();
+                $userid = shopping_cart::return_buy_for_userid();
             }
         } else {
             // As we are not on cashier anymore, we delete buy for user.
-            self::buy_for_user(0);
+            shopping_cart::buy_for_user(0);
         }
         if ($userid < 1) {
             $userid = $USER->id;
