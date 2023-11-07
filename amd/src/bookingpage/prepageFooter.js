@@ -38,8 +38,9 @@ var SELECTORS = {
  * Add the click listener to a prepage modal button.
  * @param {integer} optionid
  * @param {integer} userid
+ * @param {boolean} shoppingcartisinstalled
  */
-export function initFooterButtons(optionid, userid) {
+export function initFooterButtons(optionid, userid, shoppingcartisinstalled) {
 
     // Everytime we close the modal, we want to reset to the first prepage.
     jQuery.each(jQuery("[id^=" + SELECTORS.MODALID + optionid + "]"), function() {
@@ -75,17 +76,15 @@ export function initFooterButtons(optionid, userid) {
                 case 'closeinline':
                 case 'continuepost':
                 case 'checkout':
-
                     // eslint-disable-next-line no-console
                     console.log('closeinline');
-                    try {
-                        loadModule('local_shopping_cart/cart')
+                    if (shoppingcartisinstalled) {
+                        import('local_shopping_cart/cart')
                         .then(cart => {
                             // eslint-disable-next-line no-console
                             console.log(cart);
 
                             const oncashier = window.location.href.indexOf("cashier.php");
-
                             // If we are not on cashier, we can just redirect.
                             if (oncashier > 0) {
                                 cart.reinit(-1);
@@ -98,9 +97,6 @@ export function initFooterButtons(optionid, userid) {
                             // eslint-disable-next-line no-console
                             console.log('local_shopping_cart/cart could not be loaded');
                         });
-                    } catch (e) {
-                        // eslint-disable-next-line no-console
-                        console.log(e);
                     }
                     listenToCloseInline();
                 break;
@@ -239,16 +235,4 @@ function listenToCloseInline(optionid) {
 function isHidden(el) {
     var style = window.getComputedStyle(el);
     return ((style.display === 'none') || (style.visibility === 'hidden'));
-}
-
-/**
- * Function to dynamically load a module.
- * @param {*} modulePath the path of the module to import
- */
-async function loadModule(modulePath) {
-    try {
-        return await import(modulePath);
-    } catch (e) {
-        throw new Error(`${modulePath} could not be imported.`);
-    }
 }
