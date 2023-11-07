@@ -356,7 +356,6 @@ Feature: Test booking options avaialbility conditions
     And I set the following fields to these values:
       | bo_cond_customform_value_1_1 | Confirm your intention |
       | bo_cond_customform_label_1_2 | Yes                    |
-
     And I press "Save and go back"
     ## Check availability as students
     Given I am on the "My booking" Activity page logged in as student1
@@ -365,9 +364,11 @@ Feature: Test booking options avaialbility conditions
     Then I should see "Confirm your intention" in the ".condition-customform" "css_element"
     And I set the field "customform_checkbox_2" to "checked"
     And I follow "Continue"
+    And I wait "1" seconds
     And I should see "You have successfully booked Option - advanced availability" in the ".condition-confirmation" "css_element"
     And I follow "Close"
-    And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait "1" seconds
+    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
 
   @javascript
   Scenario: Configure availability to fill inline agreement form
