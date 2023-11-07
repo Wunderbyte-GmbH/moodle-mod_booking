@@ -78,25 +78,30 @@ export function initFooterButtons(optionid, userid) {
 
                     // eslint-disable-next-line no-console
                     console.log('closeinline');
-                    loadModule('local_shopping_cart/cart')
-                    .then(cart => {
-                        // eslint-disable-next-line no-console
-                        console.log(cart);
+                    try {
+                        loadModule('local_shopping_cart/cart')
+                        .then(cart => {
+                            // eslint-disable-next-line no-console
+                            console.log(cart);
 
-                        const oncashier = window.location.href.indexOf("cashier.php");
+                            const oncashier = window.location.href.indexOf("cashier.php");
 
-                        // If we are not on cashier, we can just redirect.
-                        if (oncashier > 0) {
-                            cart.reinit(-1);
-                        } else {
-                            cart.reinit();
-                        }
-                        return;
-                    })
-                    .catch(() => {
+                            // If we are not on cashier, we can just redirect.
+                            if (oncashier > 0) {
+                                cart.reinit(-1);
+                            } else {
+                                cart.reinit();
+                            }
+                            return;
+                        })
+                        .catch(() => {
+                            // eslint-disable-next-line no-console
+                            console.log('local_shopping_cart/cart could not be loaded');
+                        });
+                    } catch (e) {
                         // eslint-disable-next-line no-console
-                        console.log('local_shopping_cart/cart could not be loaded');
-                    });
+                        console.log(e);
+                    }
                     listenToCloseInline();
                 break;
             }
@@ -244,8 +249,6 @@ async function loadModule(modulePath) {
     try {
         return await import(modulePath);
     } catch (e) {
-        // eslint-disable-next-line no-console
-        console.log(`"${modulePath}" could not be loaded!`);
-        return null;
+        throw new Error(`${modulePath} could not be imported.`);
     }
 }
