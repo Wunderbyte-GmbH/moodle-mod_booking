@@ -60,7 +60,7 @@ export function initFooterButtons(optionid, userid) {
     // eslint-disable-next-line no-console
     console.log('elements', elements, "[id^=" + SELECTORS.INLINEID + optionid + "] " + SELECTORS.INMODALFOOTER + " a");
 
-    elements.forEach(element => {
+    elements.forEach(async element => {
         if (element && !element.dataset.initialized) {
 
             // Make sure we dont initialize this twice.
@@ -78,8 +78,10 @@ export function initFooterButtons(optionid, userid) {
 
                     // eslint-disable-next-line no-console
                     console.log('closeinline');
-
-                    import('local_shopping_cart/cart').then(cart => {
+                    loadModule('local_shopping_cart/cart')
+                    .then(cart => {
+                        // eslint-disable-next-line no-console
+                        console.log(cart);
 
                         const oncashier = window.location.href.indexOf("cashier.php");
 
@@ -89,13 +91,12 @@ export function initFooterButtons(optionid, userid) {
                         } else {
                             cart.reinit();
                         }
-
                         return;
-                    }).catch(e => {
+                    })
+                    .catch(() => {
                         // eslint-disable-next-line no-console
-                        console.log(e);
+                        console.log('local_shopping_cart/cart could not be loaded');
                     });
-
                     listenToCloseInline();
                 break;
             }
@@ -233,4 +234,18 @@ function listenToCloseInline(optionid) {
 function isHidden(el) {
     var style = window.getComputedStyle(el);
     return ((style.display === 'none') || (style.visibility === 'hidden'));
+}
+
+/**
+ * Function to dynamically load a module.
+ * @param {*} modulePath the path of the module to import
+ */
+async function loadModule(modulePath) {
+    try {
+        return await import(modulePath);
+    } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log(`"${modulePath}" could not be loaded!`);
+        return null;
+    }
 }
