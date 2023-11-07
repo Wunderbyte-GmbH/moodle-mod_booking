@@ -391,12 +391,6 @@ if ($mform->is_cancelled()) {
     $mform->display();
 }
 
-$PAGE->requires->js_call_amd(
-    'mod_booking/institutionautocomplete',
-    'init',
-    [$cmid]
-);
-
 // Initialize dynamic optiondate form.
 $PAGE->requires->js_call_amd(
     'mod_booking/dynamicoptiondateform',
