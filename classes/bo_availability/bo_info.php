@@ -591,7 +591,7 @@ class bo_info {
             'data' => [
                 'optionid' => $optionid,
                 'userid' => $userid,
-                'shoppingcartisinstalled' => class_exists('local_shopping_cart\shopping_cart') ? true : null,
+                'shoppingcartisinstalled' => class_exists('local_shopping_cart\shopping_cart') ? true : false,
             ],
         ];
 
