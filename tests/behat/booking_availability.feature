@@ -367,8 +367,7 @@ Feature: Test booking options avaialbility conditions
     And I wait "1" seconds
     And I should see "You have successfully booked Option - advanced availability" in the ".condition-confirmation" "css_element"
     And I follow "Close"
-    And I wait "1" seconds
-    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
 
   @javascript
   Scenario: Configure availability to fill inline agreement form
