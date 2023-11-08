@@ -415,8 +415,8 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 $item['description'],
                 $item['imageurl'],
                 $item['canceluntil'],
-                $item['serviceperiodstart'],
-                $item['serviceperiodend'],
+                $item['coursestarttime'],
+                $item['courseendtime'],
                 null,
                 0,
                 $item['costcenter']
