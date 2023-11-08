@@ -364,7 +364,6 @@ Feature: Test booking options avaialbility conditions
     Then I should see "Confirm your intention" in the ".condition-customform" "css_element"
     And I set the field "customform_checkbox_2" to "checked"
     And I follow "Continue"
-    And I wait "1" seconds
     And I should see "You have successfully booked Option - advanced availability" in the ".condition-confirmation" "css_element"
     And I follow "Close"
     And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
