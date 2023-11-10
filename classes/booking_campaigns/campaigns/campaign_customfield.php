@@ -18,6 +18,7 @@ namespace mod_booking\booking_campaigns\campaigns;
 
 use mod_booking\booking_campaigns\booking_campaign;
 use mod_booking\booking_option_settings;
+use mod_booking\singleton_service;
 use mod_booking\task\purge_campaign_caches;
 use MoodleQuickForm;
 use stdClass;
@@ -301,12 +302,36 @@ class campaign_customfield implements booking_campaign {
 
     /**
      * Function to apply the campaign's booking limit factor.
+     * If there are more booked users as the set limit (overbooked), we use that nr as base.
      * @param int $limit the original booking limit
      * @return int the new booking limit
      */
-    private function get_campaign_limit(int $limit):int {
+    private function get_campaign_limit(int $limit, booking_option_settings $settings):int {
+
+        if (empty($settings->maxanswers)) {
+            return 0;
+        }
+
+        // Retrieve all the bookings.
+        $ba = singleton_service::get_instance_of_booking_answers($settings);
+
+        // Filter for the bookin answers created before campaign started.
+        $nrofbookedusers = 0;
+        foreach ($ba->usersonlist as $answer) {
+            if ($answer->timecreated < $this->starttime) {
+                $nrofbookedusers++;
+            }
+        }
+
         $campaignlimit = $limit * $this->limitfactor;
-        return (int)round($campaignlimit, 0);
+
+        // If we are overbooked, we need to adjust the max value.
+        if ($nrofbookedusers > $limit) {
+            $campaignlimit = $campaignlimit - $limit + $nrofbookedusers;
+        }
+
+        // We always round up.
+        return (int)ceil($campaignlimit);
     }
 
     /**
@@ -315,7 +340,7 @@ class campaign_customfield implements booking_campaign {
      * @param stdClass $dbrecord The record with the new data.
      */
     public function apply_logic(booking_option_settings &$settings, stdClass &$dbrecord) {
-        $dbrecord->maxanswers = $this->get_campaign_limit($settings->maxanswers);
+        $dbrecord->maxanswers = $this->get_campaign_limit($settings->maxanswers, $settings);
         $settings->maxanswers = $dbrecord->maxanswers;
     }
 
