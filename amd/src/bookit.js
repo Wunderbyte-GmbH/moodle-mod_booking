@@ -123,19 +123,6 @@ export const initprepagemodal = (optionid, userid, totalnumberofpages, uniquid) 
 
         elements.forEach(element => {
 
-            if (element.dataset.initialized) {
-
-                // eslint-disable-next-line no-console
-                console.log('allready initialized');
-
-                return;
-            }
-
-            // eslint-disable-next-line no-console
-            console.log('not yet initialized', element);
-
-            element.dataset.initialized = true;
-
             optionid = element.dataset.optionid;
             uniquid = element.dataset.uniquid;
             userid = element.dataset.userid;
@@ -237,6 +224,7 @@ function respondToVisibility(optionid, userid, uniquid, totalnumberofpages, call
     let elements = document.querySelectorAll("[id^=" + SELECTORS.MODALID + optionid + "_" + uniquid + "]");
 
     elements.forEach(element => {
+
         if (!element || element.dataset.initialized == 'true') {
             return;
         }
@@ -249,8 +237,6 @@ function respondToVisibility(optionid, userid, uniquid, totalnumberofpages, call
 
                 // Because of the modal animation, "isHIdden" is also true on hiding modal.
                 if (element.classList.contains('show')) {
-                    // eslint-disable-next-line no-console
-                    console.log('Mutation observer kicks in');
 
                     // Todo: Make sure it's not triggered on close.
                     callback(optionid, userid, uniquid, totalnumberofpages);
