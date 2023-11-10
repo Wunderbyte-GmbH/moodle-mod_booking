@@ -315,7 +315,7 @@ class campaign_customfield implements booking_campaign {
         // Retrieve all the bookings.
         $ba = singleton_service::get_instance_of_booking_answers($settings);
 
-        // Filter for the bookin answers created before campaign started.
+        // Filter for the booking answers created before campaign started.
         $nrofbookedusers = 0;
         foreach ($ba->usersonlist as $answer) {
             if ($answer->timecreated < $this->starttime) {
