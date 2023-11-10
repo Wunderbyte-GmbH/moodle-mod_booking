@@ -191,9 +191,9 @@ async function initBookingButton(optionid) {
 /**
  *
  * @param {int} optionid
- * @param {bool} reloadAllTables
+ * @param {bool} reloadTables
  */
-export function closeModal(optionid, reloadAllTables = true) {
+export function closeModal(optionid, reloadTables = true) {
 
     jQuery.each(jQuery("[id^=" + SELECTORS.MODALID + optionid + "]"), async function() {
 
@@ -209,7 +209,7 @@ export function closeModal(optionid, reloadAllTables = true) {
 
             jQuery(this).modal('hide');
 
-            if (reloadAllTables) {
+            if (reloadTables) {
                 reloadAllTables();
             }
         });
@@ -217,7 +217,7 @@ export function closeModal(optionid, reloadAllTables = true) {
         // Now we run hide anyways, just to be sure.
         jQuery(this).modal('hide');
 
-        if (reloadAllTables) {
+        if (reloadTables) {
             reloadAllTables();
         }
     });
