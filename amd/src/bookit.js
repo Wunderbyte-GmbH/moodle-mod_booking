@@ -122,6 +122,20 @@ export const initprepagemodal = (optionid, userid, totalnumberofpages, uniquid) 
         const elements = document.querySelectorAll("[id^=" + SELECTORS.MODALID);
 
         elements.forEach(element => {
+
+            if (element.dataset.initialized) {
+
+                // eslint-disable-next-line no-console
+                console.log('allready initialized');
+
+                return;
+            }
+
+            // eslint-disable-next-line no-console
+            console.log('not yet initialized', element);
+
+            element.dataset.initialized = true;
+
             optionid = element.dataset.optionid;
             uniquid = element.dataset.uniquid;
             userid = element.dataset.userid;
@@ -137,7 +151,6 @@ export const initprepagemodal = (optionid, userid, totalnumberofpages, uniquid) 
     totalbookitpages[optionid] = totalnumberofpages;
 
     // We need to get all prepage modals on this site. Make sure they are initialized.
-
     respondToVisibility(optionid, userid, uniquid, totalnumberofpages, loadPreBookingPage);
 };
 
@@ -231,9 +244,17 @@ function respondToVisibility(optionid, userid, uniquid, totalnumberofpages, call
         element.dataset.initialized = true;
 
         var observer = new MutationObserver(function() {
+
             if (!isHidden(element)) {
-                // Todo: Make sure it's not triggered on close.
-                callback(optionid, userid, uniquid, totalnumberofpages);
+
+                // Because of the modal animation, "isHIdden" is also true on hiding modal.
+                if (element.classList.contains('show')) {
+                    // eslint-disable-next-line no-console
+                    console.log('Mutation observer kicks in');
+
+                    // Todo: Make sure it's not triggered on close.
+                    callback(optionid, userid, uniquid, totalnumberofpages);
+                }
             }
         });
 
@@ -323,10 +344,12 @@ export const loadPreBookingPage = (
                     }
                 }]);
             } else {
-                setTimeout(() => {
-                    closeModal(optionid);
-                    closeInline(optionid);
-                }, 500);
+
+                closeModal(optionid, false);
+                closeInline(optionid, false);
+
+                // Make sure that the prepage modal is actually closed.
+
                 import('local_shopping_cart/cart')
                     // eslint-disable-next-line promise/always-return
                     .then(shoppingcart => {
@@ -340,10 +363,6 @@ export const loadPreBookingPage = (
                         // eslint-disable-next-line no-console
                         console.log(err);
                 });
-                reloadAllTables();
-                setTimeout(() => {
-                    window.location.reload();
-                }, 2500);
             }
 
             return true;

@@ -191,12 +191,35 @@ async function initBookingButton(optionid) {
 /**
  *
  * @param {int} optionid
+ * @param {bool} reloadAllTables
  */
-export function closeModal(optionid) {
+export function closeModal(optionid, reloadAllTables = true) {
 
-    jQuery.each(jQuery("[id^=" + SELECTORS.MODALID + optionid + "]"), function() {
+    jQuery.each(jQuery("[id^=" + SELECTORS.MODALID + optionid + "]"), async function() {
+
+        // We don't have a good way to check if the modal is ready to execute hide.
+        // So first we attach a listener to this modal to close it after show.
+
+        // It might be that the modal in question is not shown yet.
+        jQuery(this).on('shown.bs.modal', e => {
+
+            jQuery(e.currentTarget).off('shown.bs.modal');
+            // eslint-disable-next-line no-console
+            console.log('modal hide after shown', e);
+
+            jQuery(this).modal('hide');
+
+            if (reloadAllTables) {
+                reloadAllTables();
+            }
+        });
+
+        // Now we run hide anyways, just to be sure.
         jQuery(this).modal('hide');
-        reloadAllTables();
+
+        if (reloadAllTables) {
+            reloadAllTables();
+        }
     });
 }
 
