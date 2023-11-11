@@ -33,7 +33,7 @@ export const init = (optionid = null) => {
     if (optionid === null) {
         spinners = document.querySelectorAll('[id^=bo_modal_spinner]');
     } else {
-        spinners = [document.querySelector('[id^=bo_modal_spinner_' + optionid + ']')];
+        spinners = [document.querySelector('[id^="bo_modal_spinner_' + optionid + '_"]')];
     }
     spinners.forEach((spinner) => {
         const optionid = spinner.dataset.optionid;

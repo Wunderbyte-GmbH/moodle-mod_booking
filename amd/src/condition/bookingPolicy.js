@@ -31,10 +31,18 @@ const SELECTOR = {
 
 /**
  * Init function.
+ * @param {*} elementid
+ * @returns
  */
-export async function init() {
+export async function init(elementid) {
 
-    let container = document.querySelector("div.modal.show " + SELECTOR.FORMCONTAINER);
+    // eslint-disable-next-line no-console
+    console.log(elementid);
+
+    let container = document.querySelector("#" + elementid + " " + SELECTOR.FORMCONTAINER);
+
+    // eslint-disable-next-line no-console
+    console.log(elementid, container);
 
     // If we don't find the container like this, we use the inline form.
     if (!container) {
@@ -71,6 +79,9 @@ export async function init() {
 
                 continuebutton.dataset.blocked = 'false';
                 continuebutton.click();
+
+                // eslint-disable-next-line no-console
+                console.log('just clicked continue', continuebutton);
             }
         }
     });

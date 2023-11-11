@@ -25,7 +25,8 @@
 
     Example context (json):
     {
-       "optionid": "1"
+       "optionid": "1",
+       "elementid": "sbPrePageInline_1_2189518b7c0370c9e1c75f8a868330af"
     }
 }}
 
@@ -33,6 +34,6 @@
 
 {{#js}}
     require(['mod_booking/condition/bookingPolicy'], function(init) {
-    init.init();
+    init.init('{{elementid}}');
     });
 {{/js}}
