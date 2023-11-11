@@ -117,10 +117,10 @@ class bookit extends external_api {
      */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
-            'status' => new external_value(PARAM_INT, '1 for success', (bool) VALUE_DEFAULT, 0),
-            'message' => new external_value(PARAM_RAW, 'Message if any', (bool) VALUE_DEFAULT, ''),
-            'template' => new external_value(PARAM_TEXT, 'Button template', (bool) VALUE_DEFAULT, ''),
-            'json' => new external_value(PARAM_RAW, 'Data as json', (bool) VALUE_DEFAULT, ''),
+            'status' => new external_value(PARAM_INT, '1 for success', VALUE_DEFAULT, 0),
+            'message' => new external_value(PARAM_RAW, 'Message if any', VALUE_DEFAULT, ''),
+            'template' => new external_value(PARAM_TEXT, 'Button template', VALUE_DEFAULT, ''),
+            'json' => new external_value(PARAM_RAW, 'Data as json', VALUE_DEFAULT, ''),
             ]
         );
     }

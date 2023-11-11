@@ -58,9 +58,9 @@ class bookings extends external_api {
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'courseid' => new external_value(PARAM_TEXT, 'Course id', (bool) VALUE_DEFAULT, '0'),
-            'printusers' => new external_value(PARAM_TEXT, 'Print user profiles', (bool) VALUE_DEFAULT, '0'),
-            'days' => new external_value(PARAM_TEXT, 'How old bookings to retrive - in days.', (bool) VALUE_DEFAULT, '0'),
+            'courseid' => new external_value(PARAM_TEXT, 'Course id', VALUE_DEFAULT, ''),
+            'printusers' => new external_value(PARAM_TEXT, 'Print user profiles', VALUE_DEFAULT, ''),
+            'days' => new external_value(PARAM_TEXT, 'How old bookings to retrive - in days.', VALUE_DEFAULT, ''),
             ]
         );
     }

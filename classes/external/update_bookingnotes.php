@@ -55,7 +55,7 @@ class update_bookingnotes extends external_api {
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
             'baid' => new external_value(PARAM_INT, 'ID of the booking answer'),
-            'note' => new external_value(PARAM_TEXT, 'Note added to the booking answer', (bool) VALUE_DEFAULT, ''),
+            'note' => new external_value(PARAM_TEXT, 'Note added to the booking answer', VALUE_DEFAULT, ''),
             ]
         );
     }
@@ -71,7 +71,7 @@ class update_bookingnotes extends external_api {
     public static function execute(int $baid, string $note = ''): array {
         global $DB;
 
-        $params = self::validate_parameters(self::execute_parameters(), ['baid' => $baid, 'note' => $note]);
+        $params = external_api::validate_parameters(self::execute_parameters(), ['baid' => $baid, 'note' => $note]);
 
         $dataobject = new stdClass();
         $dataobject->id = $baid;

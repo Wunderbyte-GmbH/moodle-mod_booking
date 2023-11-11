@@ -73,7 +73,7 @@ class categories extends external_api {
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'courseid' => new external_value(PARAM_TEXT, 'Course id', (bool) VALUE_DEFAULT, '0'),
+            'courseid' => new external_value(PARAM_TEXT, 'Course id', VALUE_DEFAULT, ''),
             ]
         );
     }
