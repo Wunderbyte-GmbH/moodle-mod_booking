@@ -71,7 +71,7 @@ class toggle_notify_user extends external_api {
      */
     public static function execute(int $userid, int $optionid): array {
 
-        $params = self::validate_parameters(self::execute_parameters(),
+        $params = external_api::validate_parameters(self::execute_parameters(),
                 ['userid' => $userid, 'optionid' => $optionid]);
 
         $result = booking_option::toggle_notify_user($params['userid'], $params['optionid']);

@@ -67,7 +67,7 @@ class optiontemplate extends external_api {
     public static function execute(int $id): array {
         global $DB;
 
-        $params = self::validate_parameters(self::execute_parameters(), ['id' => $id]);
+        $params = external_api::validate_parameters(self::execute_parameters(), ['id' => $id]);
 
         $template = $DB->get_record("booking_options", ['id' => $id], '*', IGNORE_MISSING);
 

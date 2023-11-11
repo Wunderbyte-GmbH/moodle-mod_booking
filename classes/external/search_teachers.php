@@ -56,7 +56,7 @@ class search_teachers extends external_api {
     public static function execute(string $query): array {
         global $DB, $CFG;
 
-        $params = self::validate_parameters(self::execute_parameters(), [
+        $params = external_api::validate_parameters(self::execute_parameters(), [
             'query' => $query,
         ]);
 

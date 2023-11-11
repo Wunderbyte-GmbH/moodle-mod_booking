@@ -67,7 +67,7 @@ class init_comments extends external_api {
     public static function execute(): array {
 
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $params = self::validate_parameters(self::execute_parameters(), ['page' => $page]); */
+        /* $params = external_api::validate_parameters(self::execute_parameters(), ['page' => $page]); */
 
         // TODO: Unfortunately, this is not enough to fix comments with wunderbyte table.
         // We still need to figure out how we can fix comments in combination with wb-table-search.

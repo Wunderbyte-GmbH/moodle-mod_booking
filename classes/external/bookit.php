@@ -74,7 +74,7 @@ class bookit extends external_api {
      * @return array
      */
     public static function execute(string $area, int $itemid, int $userid, string $data): array {
-        $params = self::validate_parameters(self::execute_parameters(), [
+        $params = external_api::validate_parameters(self::execute_parameters(), [
             'itemid' => $itemid,
             'area' => $area,
             'userid' => $userid,

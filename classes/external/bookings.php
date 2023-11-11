@@ -77,7 +77,7 @@ class bookings extends external_api {
 
         $returns = [];
 
-        $params = self::validate_parameters(self::execute_parameters(),
+        $params = external_api::validate_parameters(self::execute_parameters(),
             ['courseid' => $courseid, 'printusers' => $printusers, 'days' => $days]);
 
         $bookings = $DB->get_records_select("booking", "course = {$courseid}");

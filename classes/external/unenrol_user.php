@@ -75,7 +75,7 @@ class unenrol_user extends external_api {
     public static function execute(int $cmid, int $optionid, int $courseid): array {
         global $USER;
 
-        $params = self::validate_parameters(self::execute_parameters(),
+        $params = external_api::validate_parameters(self::execute_parameters(),
                 ['cmid' => $cmid, 'optionid' => $optionid, 'courseid' => $courseid]);
 
         $bookingdata = singleton_service::get_instance_of_booking_option($cmid, $optionid);
