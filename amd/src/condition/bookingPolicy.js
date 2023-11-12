@@ -32,7 +32,6 @@ const SELECTOR = {
 /**
  * Init function.
  * @param {*} elementid
- * @returns
  */
 export async function init(elementid) {
 
