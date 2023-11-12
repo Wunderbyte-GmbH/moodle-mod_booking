@@ -68,7 +68,7 @@ class allow_add_item_to_cart extends external_api {
      * @return array
      */
     public static function execute(int $itemid, int $userid): array {
-        $params = external_api::validate_parameters(self::execute_parameters(), [
+        $params = self::validate_parameters(self::execute_parameters(), [
             'itemid' => $itemid,
             'userid' => $userid,
         ]);

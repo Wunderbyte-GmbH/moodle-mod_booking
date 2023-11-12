@@ -72,7 +72,7 @@ class get_booking_option_description extends external_api {
      */
     public static function execute(int $optionid, int $userid): array {
 
-        $params = external_api::validate_parameters(self::execute_parameters(),
+        $params = self::validate_parameters(self::execute_parameters(),
                 ['optionid' => $optionid, 'userid' => $userid]);
 
         $booking = singleton_service::get_instance_of_booking_by_optionid($optionid);

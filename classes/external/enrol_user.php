@@ -75,7 +75,7 @@ class enrol_user extends external_api {
     public static function execute(int $id, int $answer, int $courseid): array {
         global $USER;
 
-        $params = external_api::validate_parameters(self::execute_parameters(),
+        $params = self::validate_parameters(self::execute_parameters(),
                 ['id' => $id, 'answer' => $answer, 'courseid' => $courseid]);
 
         $bookingdata = singleton_service::get_instance_of_booking_option($id, $answer);

@@ -71,7 +71,7 @@ class load_pre_booking_page extends external_api {
     public static function execute(int $optionid, int $userid, int $pagenumber): array {
         global $USER;
 
-        $params = external_api::validate_parameters(
+        $params = self::validate_parameters(
                 self::execute_parameters(),
                 ['optionid' => $optionid,
                 'userid' => $userid,

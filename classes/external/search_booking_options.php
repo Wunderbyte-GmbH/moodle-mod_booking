@@ -55,7 +55,7 @@ class search_booking_options extends external_api {
      */
     public static function execute(string $query): array {
 
-        $params = external_api::validate_parameters(self::execute_parameters(), [
+        $params = self::validate_parameters(self::execute_parameters(), [
             'query' => $query,
         ]);
 

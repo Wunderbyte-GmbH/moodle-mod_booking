@@ -86,7 +86,7 @@ class categories extends external_api {
     public static function execute($courseid = '0'): array {
         global $DB;
 
-        $params = external_api::validate_parameters(self::execute_parameters(), [
+        $params = self::validate_parameters(self::execute_parameters(), [
             'courseid' => $courseid,
         ]);
 
