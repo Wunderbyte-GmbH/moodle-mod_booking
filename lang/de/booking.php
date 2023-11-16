@@ -76,6 +76,9 @@ Sie wurden zur Warteliste von <b>{$a}</b> hinzugefügt. Sollte jemand ausfallen,
 $string['thankyouerror'] = '<i class="fa fa-3x fa-frown-o text-danger" aria-hidden="true"></i><br>
 Leider ist bei der Buchung von <b>{$a}</b> ein Fehler aufgetreten.';
 $string['toomanytoshow'] = 'Zu viele gefunden...';
+$string['unsubscribe:successnotificationlist'] = 'Sie wurden erfolgreich von den E-Mail-Benachrichtigungen für "{$a}" abgemeldet.';
+$string['unsubscribe:errorotheruser'] = 'Es ist nicht erlaubt, E-Mail-Abmeldungen für fremde Benutzer:innen durchzuführen!';
+$string['unsubscribe:alreadyunsubscribed'] = 'Sie sind bereits abgemeldet.';
 $string['userprofilefield'] = "Profilfeld";
 $string['usersmatching'] = 'Gefundene Nutzer:innen';
 $string['allmoodleusers'] = 'Alle Nutzer:innen dieser Website';
@@ -1864,7 +1867,8 @@ $string['task_clean_booking_db'] = 'Booking: Datenbank aufräumen';
 $string['task_purge_campaign_caches'] = 'Booking: Caches für Buchungskampagne leeren';
 $string['optionbookabletitle'] = '{$a->title} wieder buchbar';
 $string['optionbookablebody'] = 'Sie können {$a->title} ab sofort wieder buchen. Klicken Sie <a href="{$a->url}">hier</a>, um direkt zur Buchungsoption zu gelangen.<br><br>
-(Sie erhalten diese Nachricht, da Sie bei der Buchungsoption auf den Benachrichtigungs-Button geklickt haben.)';
+(Sie erhalten diese Nachricht, da Sie bei der Buchungsoption auf den Benachrichtigungs-Button geklickt haben.)<br><br>
+<a href="{$a->unsubscribelink}">Von Erinnerungs-E-Mails für "{$a->title}" abmelden.</a>';
 
 // Calculate prices.
 $string['recalculateprices'] = 'Preise mit Formel neu berechnen';

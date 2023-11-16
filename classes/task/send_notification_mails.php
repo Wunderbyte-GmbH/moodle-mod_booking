@@ -43,7 +43,7 @@ class send_notification_mails extends \core\task\scheduled_task {
      */
     public function execute() {
 
-        global $DB;
+        global $CFG, $DB;
 
         $results = $DB->get_records('booking_answers', ['waitinglist' => STATUSPARAM_NOTIFYMELIST]);
 
@@ -65,8 +65,21 @@ class send_notification_mails extends \core\task\scheduled_task {
 
             $option = new stdClass();
             $option->title = $settings->get_title_with_prefix();
-            $url = new moodle_url('/mod/booking/optionview.php', ['cmid' => $booking->cmid, 'optionid' => $result->optionid]);
+            $url = new moodle_url($CFG->wwwroot . '/mod/booking/optionview.php', [
+                'cmid' => $booking->cmid,
+                'optionid' => $result->optionid,
+            ]);
             $option->url = $url->out(false);
+
+            $unsubscribemoodleurl = new moodle_url($CFG->wwwroot . '/mod/booking/unsubscribe.php', [
+                'action' => 'notification',
+                'optionid' => $result->optionid,
+                'userid' => $result->userid,
+            ]);
+            $option->unsubscribelink = $unsubscribemoodleurl->out(false);
+
+            $messagetitle = get_string('optionbookabletitle', 'mod_booking', $option);
+            $messagebody = get_string('optionbookablebody', 'mod_booking', $option);
 
             // Use message controller to send the completion message.
             $messagecontroller = new message_controller(
@@ -78,8 +91,8 @@ class send_notification_mails extends \core\task\scheduled_task {
                     $result->userid,
                     null,
                     null,
-                    get_string('optionbookabletitle', 'mod_booking', $option),
-                    get_string('optionbookablebody', 'mod_booking', $option),
+                    $messagetitle,
+                    $messagebody
             );
 
             if ($messagecontroller->send_or_queue()) {

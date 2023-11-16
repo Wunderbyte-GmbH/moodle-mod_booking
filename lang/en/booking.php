@@ -77,6 +77,9 @@ $string['thankyouwaitinglist'] = '<i class="fa fa-3x fa-clock-o text-primary" ar
 $string['thankyouerror'] = '<i class="fa fa-3x fa-frown-o text-danger" aria-hidden="true"></i><br>
 Unfortunately, there was an error when booking <b>{$a}</b>.';
 $string['toomanytoshow'] = 'Too many records found...';
+$string['unsubscribe:successnotificationlist'] = 'You were unsubscribed successfully from e-mail notifications for "{$a}".';
+$string['unsubscribe:errorotheruser'] = 'You are not allowed to unsubscribe a different user than yourself!';
+$string['unsubscribe:alreadyunsubscribed'] = 'You are already unsubscribed.';
 $string['userprofilefield'] = "Profile field";
 $string['usersmatching'] = 'Matching users';
 $string['allmoodleusers'] = 'All users of this site';
@@ -1978,7 +1981,8 @@ $string['task_clean_booking_db'] = 'Booking: Clean database';
 $string['task_purge_campaign_caches'] = 'Booking: Clean caches for booking campaigns';
 $string['optionbookabletitle'] = '{$a->title} is available again';
 $string['optionbookablebody'] = '{$a->title} is now available again. <a href="{$a->url}">Click here</a> to directly go there.<br><br>
-(You receive this mail because you have clicked on the notification button for this option.)';
+(You receive this mail because you have clicked on the notification button for this option.)<br><br>
+<a href="{$a->unsubscribelink}">Unsubscribe from notification e-mails for "{$a->title}".</a>';
 
 // Calculate prices.
 $string['recalculateprices'] = 'Calculate all prices from instance with formula';
