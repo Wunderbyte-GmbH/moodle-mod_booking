@@ -4,6 +4,7 @@
 project.xml
 project.properties
 .DS_Store
+._*
 .idea
 amd/Gruntfile.js
 amd/package.json
