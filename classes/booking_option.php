@@ -2510,10 +2510,7 @@ class booking_option {
                                     'waitinglist' => STATUSPARAM_NOTIFYMELIST,
                                     ]);
 
-                // Before returning, we have to set back the answer cache.
-                $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
-                $cache->delete($optionid);
-                // We also purge caches for the option in general.
+                // Do not forget to purge cache afterwards.
                 self::purge_cache_for_option($optionid);
 
                 $status = 0;

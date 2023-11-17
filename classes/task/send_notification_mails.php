@@ -16,6 +16,7 @@
 
 namespace mod_booking\task;
 
+use mod_booking\booking_option;
 use mod_booking\message_controller;
 use mod_booking\singleton_service;
 use moodle_url;
@@ -48,14 +49,35 @@ class send_notification_mails extends \core\task\scheduled_task {
         $results = $DB->get_records('booking_answers', ['waitinglist' => STATUSPARAM_NOTIFYMELIST]);
 
         foreach ($results as $result) {
+            $bookingid = $result->bookingid;
+            $userid = $result->userid;
+            $optionid = $result->optionid;
 
-            mtrace('send_notification_mails task: sending mail to user with id: ' . $result->userid );
+            mtrace("send_notification_mails task: sending mail to user with id $userid for option with id $optionid.");
 
-            $booking = singleton_service::get_instance_of_booking_by_bookingid($result->bookingid);
-            $settings = singleton_service::get_instance_of_booking_option_settings($result->optionid);
+            $booking = singleton_service::get_instance_of_booking_by_bookingid($bookingid);
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+            $now = time();
+            if (!empty($settings->courseendtime) && $now > $settings->courseendtime) {
+                // If the booking option lies in the past, we remove the user from notification list...
+                // ...and we do not send a notification anymore.
+                $DB->delete_records('booking_answers',
+                    ['userid' => $userid,
+                    'optionid' => $optionid,
+                    'waitinglist' => STATUSPARAM_NOTIFYMELIST,
+                ]);
+                // Do not forget to purge cache afterwards.
+                booking_option::purge_cache_for_option($optionid);
+
+                mtrace("send_notification_mails task: Option $optionid is already over, " .
+                    "so notification was not sent and user $userid was removed from the notification list.");
+                // Return, so message won't be sent!
+                return;
+            }
 
             $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
-            $bookingstatus = $bookinganswer->return_all_booking_information($result->userid);
+            $bookingstatus = $bookinganswer->return_all_booking_information($userid);
 
             $bookingstatus = reset($bookingstatus);
 
@@ -67,14 +89,14 @@ class send_notification_mails extends \core\task\scheduled_task {
             $option->title = $settings->get_title_with_prefix();
             $url = new moodle_url($CFG->wwwroot . '/mod/booking/optionview.php', [
                 'cmid' => $booking->cmid,
-                'optionid' => $result->optionid,
+                'optionid' => $optionid,
             ]);
             $option->url = $url->out(false);
 
             $unsubscribemoodleurl = new moodle_url($CFG->wwwroot . '/mod/booking/unsubscribe.php', [
                 'action' => 'notification',
-                'optionid' => $result->optionid,
-                'userid' => $result->userid,
+                'optionid' => $optionid,
+                'userid' => $userid,
             ]);
             $option->unsubscribelink = $unsubscribemoodleurl->out(false);
 
@@ -87,8 +109,8 @@ class send_notification_mails extends \core\task\scheduled_task {
                     MSGPARAM_CUSTOM_MESSAGE,
                     $booking->cmid,
                     null,
-                    $result->optionid,
-                    $result->userid,
+                    $optionid,
+                    $userid,
                     null,
                     null,
                     $messagetitle,
@@ -97,12 +119,11 @@ class send_notification_mails extends \core\task\scheduled_task {
 
             if ($messagecontroller->send_or_queue()) {
                 mtrace('send_notification_mails task: mail successfully sent to user with userid: '
-                        . $result->userid);
+                        . $userid);
             } else {
                 mtrace('send_notification_mails task: mail could not be sent to user with userid: '
-                        . $result->userid);
+                        . $userid);
             }
-
         }
     }
 }

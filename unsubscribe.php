@@ -78,11 +78,7 @@ switch ($action) {
                 get_string('unsubscribe:successnotificationlist', 'mod_booking', $settings->get_title_with_prefix()) .
                 "</div>";
 
-            // Before returning, we have to set back the answer cache.
-            $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
-            $cache->delete($optionid);
-
-            // We also purge caches for the option in general.
+            // Do not forget to purge cache afterwards.
             booking_option::purge_cache_for_option($optionid);
         } else {
             $messagetoshow = "<div class='alert alert-info'>" . get_string('unsubscribe:alreadyunsubscribed', 'mod_booking') .
