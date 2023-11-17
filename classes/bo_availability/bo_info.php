@@ -25,7 +25,7 @@
 namespace mod_booking\bo_availability;
 
 use context_module;
-use html_writer;
+use context_system;
 use local_shopping_cart\shopping_cart;
 use mod_booking\booking_bookit;
 use mod_booking\booking_option_settings;
@@ -129,6 +129,10 @@ class bo_info {
             foreach ($results as $result) {
                 // If no Id has been defined or if id is higher, we take the descpription to return.
                 if ($id === 0 || $result['id'] > $id) {
+                    if (has_capability('local/shopping_cart:cashier', context_system::instance()) &&
+                        $result['button'] == BO_BUTTON_MYALERT) {
+                        continue;
+                    }
                     $description = $result['description'];
                     $id = $result['id'];
                 }
