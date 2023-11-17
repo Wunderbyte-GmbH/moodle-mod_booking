@@ -76,7 +76,7 @@ class singleton_service {
      * As we batch handle a lot of users, they always need a "clean" booking answers object.
      *
      * @param int $optionid
-     * @return void
+     * @return bool
      */
     public static function destroy_booking_answers($optionid) {
         $instance = self::get_instance();
@@ -93,9 +93,9 @@ class singleton_service {
      * Service to create and return singleton instance of booking by cmid.
      *
      * @param int $cmid
-     * @return booking
+     * @return booking|null
      */
-    public static function get_instance_of_booking_by_cmid(int $cmid): booking {
+    public static function get_instance_of_booking_by_cmid(int $cmid): ?booking {
 
         $instance = self::get_instance();
 
@@ -189,9 +189,9 @@ class singleton_service {
      *
      * @param int $cmid
      * @param int $optionid
-     * @return booking_option
+     * @return booking_option|null
      */
-    public static function get_instance_of_booking_option(int $cmid, int $optionid) {
+    public static function get_instance_of_booking_option(int $cmid, int $optionid): ?booking_option {
         $instance = self::get_instance();
 
         if (isset($instance->bookingoptions[$optionid])) {
@@ -249,7 +249,7 @@ class singleton_service {
      * Service to create and return singleton instance of price class.
      *
      * @param int $optionid
-     * @return user
+     * @return price
      */
     public static function get_instance_of_price($optionid) {
         $instance = self::get_instance();
@@ -268,7 +268,7 @@ class singleton_service {
      * This function does not automatically get the right category but needs the setter function below to be useful.
      *
      * @param string $identifier
-     * @return stdClass
+     * @return stdClass|null
      */
     public static function get_price_category($identifier) {
         $instance = self::get_instance();
