@@ -228,7 +228,7 @@ class customform implements bo_condition {
                     // If the select is not currently on this element, we hide it.
                 }
 
-                $mform->addGroup($buttonarray, 'formgroupelement_1_' . $counter, '', '', [], false);
+                $mform->addGroup($buttonarray, 'formgroupelement_1_' . $counter, '', '', false, []);
                 $mform->hideIf('formgroupelement_1_' . $counter, 'bo_cond_customform_restrict', 'notchecked');
 
                 if (!empty($previous)) {
