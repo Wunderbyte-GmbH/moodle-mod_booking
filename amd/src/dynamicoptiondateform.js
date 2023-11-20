@@ -180,8 +180,8 @@ export const initmodaloptiondateform = (modalTitle, formClass) => {
             // If necessary extend functionality by overriding class methods, for example:
             modalform.addEventListener(modalform.events.FORM_SUBMITTED, (e) => {
                 const response = e.detail;
-
-                Templates.renderForPromise('mod_booking/bookingoption_dates_custom_list_items', // eslint-disable-line promise/no-nesting
+                const tname1 = 'mod_booking/bookingoption_dates_custom_list_items';
+                Templates.renderForPromise(tname1, // eslint-disable-line promise/no-nesting
                     response)
                 // It returns a promise that needs to be resolved.
                 .then(({html, js}) => {
@@ -191,7 +191,8 @@ export const initmodaloptiondateform = (modalTitle, formClass) => {
                 // Deal with this exception (Using core/notify exception function is recommended).
                 .catch(ex => displayException(ex));
 
-                Templates.renderForPromise('mod_booking/bookingoption_dates_custom_hidden_inputs', // eslint-disable-line promise/no-nesting
+                const tname2 = 'mod_booking/bookingoption_dates_custom_hidden_inputs';
+                Templates.renderForPromise(tname2, // eslint-disable-line promise/no-nesting
                      response)
                 // It returns a promise that needs to be resolved.
                 .then(({html, js}) => {
