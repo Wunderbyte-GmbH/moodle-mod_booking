@@ -1292,6 +1292,7 @@ $string['enablecompletiongroup'] = 'Aktivitätsabschluss';
 $string['messagesend'] = 'Die Nachricht wurde erfolgreich versandt.';
 $string['messagesubject'] = 'Betreff';
 $string['messagetext'] = 'Nachricht';
+$string['sendmessage'] = 'Nachricht senden';
 
 // Teachers_handler.php.
 $string['teachersforoption'] = 'Trainer:innen';

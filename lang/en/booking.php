@@ -1344,6 +1344,7 @@ $string['enablecompletiongroup'] = 'Require entries';
 $string['messagesend'] = 'Your message has been sent.';
 $string['messagesubject'] = 'Subject';
 $string['messagetext'] = 'Message';
+$string['sendmessage'] = 'Send message';
 
 // Teachers_handler.php.
 $string['teachersforoption'] = 'Teachers';
