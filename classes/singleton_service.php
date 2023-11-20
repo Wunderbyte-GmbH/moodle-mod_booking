@@ -35,7 +35,49 @@ use stdClass;
  */
 class singleton_service {
     // Hold the class instance of the singleton service.
+
+    /** @var singleton_service $instance */
     private static $instance = null;
+
+    /** @var array $bookinganswers */
+    public array $bookinganswers = [];
+
+    /** @var array $bookingsbycmid */
+    public array $bookingsbycmid = [];
+
+    /** @var array $bookingsbybookingid */
+    public array $bookingsbybookingid = [];
+
+    /** @var array $bookingsettingsbycmid */
+    public array $bookingsettingsbycmid = [];
+
+    /** @var array $bookingsettingsbybookingid */
+    public array $bookingsettingsbybookingid = [];
+
+    /** @var array $bookingoptions */
+    public array $bookingoptions = [];
+
+    /** @var array $bookingoptionsettings */
+    public array $bookingoptionsettings = [];
+
+    /** @var array $users */
+    public array $users = [];
+
+    /** @var array $prices */
+    public array $prices = [];
+
+    /** @var array $pricecategory */
+    public array $pricecategory = [];
+
+    /** @var array $userpricecategory */
+    public array $userpricecategory = [];
+
+    /** @var array $renderer */
+    public array $renderer = [];
+
+    /** @var array $campaigns */
+    public array $campaigns = [];
+
 
     // The constructor is private
     // to prevent initiation with outer code.
