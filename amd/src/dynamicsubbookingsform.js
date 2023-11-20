@@ -1,5 +1,3 @@
-/* eslint-disable promise/always-return */
-/* eslint-disable promise/catch-or-return */
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
