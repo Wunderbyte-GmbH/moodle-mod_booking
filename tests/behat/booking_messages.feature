@@ -52,7 +52,7 @@ Feature: Test messaging features in a booking
     And I set the following fields to these values:
       | Subject | Behat test                                                     |
       | Message | Dear, Firstly, I would like to thank you for booking my Course |
-    And I press "Save changes"
+    And I press "Send message"
     And I should see "Your message has been sent."
     # And I run all adhoc tasks
     # And I open the link "webserver/_/mail"

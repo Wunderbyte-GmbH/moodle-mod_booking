@@ -69,9 +69,9 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     And I set the field "showlistoncoursepage" to "Show course name, short info and a button redirecting to the available booking options"
     And I set the field "Short info" to "Click on View available options, choose a booking option and click Book now"
     And I press "Save and return to course"
-    Then I should see "Course 1" in the ".modtype_booking .description .coursename" "css_element"
-    And I should see "Sport class" in the ".modtype_booking .description .eventtype" "css_element"
-    And I should see "Click on View available options, choose a booking option and click Book now" in the ".modtype_booking .description .shortinfo" "css_element"
+    Then I should see "Course 1" in the ".section .modtype_booking .coursename" "css_element"
+    And I should see "Sport class" in the ".section .modtype_booking .eventtype" "css_element"
+    And I should see "Click on View available options, choose a booking option and click Book now" in the ".section .modtype_booking .shortinfo" "css_element"
 
   ##@javascript
   ##Scenario: Settings - create two semester settings and see it in booking options
