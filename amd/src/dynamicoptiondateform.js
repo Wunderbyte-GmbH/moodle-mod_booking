@@ -43,7 +43,6 @@ export const initdynamicoptiondateform = (cmid, bookingid, optionid, modalTitle,
         return;
     })
     // Deal with this exception (Using core/notify exception function is recommended).
-    // eslint-disable-next-line no-undef
     .catch(ex => displayException(ex));
 
     optiondateForm.addEventListener(optiondateForm.events.SERVER_VALIDATION_ERROR, () => {
@@ -75,7 +74,8 @@ export const initdynamicoptiondateform = (cmid, bookingid, optionid, modalTitle,
             e.preventDefault();
             const response = e.detail;
 
-            Templates.renderForPromise('mod_booking/bookingoption_dates', response)
+            Templates.renderForPromise('mod_booking/bookingoption_dates',
+                response) // eslint-disable-line promise/no-nesting
             // It returns a promise that needs to be resolved.
             .then(({html, js}) => {
 
@@ -84,7 +84,6 @@ export const initdynamicoptiondateform = (cmid, bookingid, optionid, modalTitle,
                 return;
             })
             // Deal with this exception (Using core/notify exception function is recommended).
-            // eslint-disable-next-line no-undef
             .catch(ex => displayException(ex));
 
             var oldlists = document.getElementsByClassName('optiondates-list');
@@ -108,7 +107,6 @@ export const initdynamicoptiondateform = (cmid, bookingid, optionid, modalTitle,
             return;
         })
         // Deal with this exception (Using core/notify exception function is recommended).
-        // eslint-disable-next-line no-undef
         .catch(ex => displayException(ex));
     });
 };
@@ -183,7 +181,8 @@ export const initmodaloptiondateform = (modalTitle, formClass) => {
             modalform.addEventListener(modalform.events.FORM_SUBMITTED, (e) => {
                 const response = e.detail;
 
-                Templates.renderForPromise('mod_booking/bookingoption_dates_custom_list_items', response)
+                Templates.renderForPromise('mod_booking/bookingoption_dates_custom_list_items',
+                    response) // eslint-disable-line promise/no-nesting
                 // It returns a promise that needs to be resolved.
                 .then(({html, js}) => {
                     Templates.appendNodeContents('ul.reoccurringdates', html, js);
@@ -193,7 +192,8 @@ export const initmodaloptiondateform = (modalTitle, formClass) => {
                 // eslint-disable-next-line no-undef
                 .catch(ex => displayException(ex));
 
-                Templates.renderForPromise('mod_booking/bookingoption_dates_custom_hidden_inputs', response)
+                Templates.renderForPromise('mod_booking/bookingoption_dates_custom_hidden_inputs',
+                     response) // eslint-disable-line promise/no-nesting
                 // It returns a promise that needs to be resolved.
                 .then(({html, js}) => {
                     Templates.appendNodeContents('div.optiondates-list', html, js);
