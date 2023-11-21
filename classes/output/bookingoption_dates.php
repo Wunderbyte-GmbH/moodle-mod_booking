@@ -40,6 +40,9 @@ use templatable;
  */
 class bookingoption_dates implements renderable, templatable {
 
+    /** @var array of the users booked for this option key userid */
+    public array $dates = [];
+
     /**
      * Constructor
      *
