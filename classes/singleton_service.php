@@ -384,7 +384,7 @@ class singleton_service {
 
         $instance = self::get_instance();
 
-        if (!isset($instance->campaigns)) {
+        if (empty($instance->campaigns)) {
             $campaigns = $DB->get_records('booking_campaigns');
 
             if (!$campaigns || empty($campaigns)) {
