@@ -208,6 +208,9 @@ if ($ADMIN->fulltree) {
                 get_string('infotext:prolicensenecessary', 'mod_booking')));
     }
 
+    // Will be needed more than once. So initialize here.
+    $customfieldsarray["-1"] = get_string('choose...', 'mod_booking');
+
     // PRO feature.
     if ($proversion) {
 
@@ -233,7 +236,6 @@ if ($ADMIN->fulltree) {
         WHERE cfc.component = 'mod_booking'";
 
         $records = $DB->get_records_sql($sql);
-        $customfieldsarray["-1"] = get_string('choose...', 'mod_booking');
         foreach ($records as $record) {
             $customfieldsarray[$record->shortname] = "$record->name ($record->shortname)";
         }
@@ -241,7 +243,7 @@ if ($ADMIN->fulltree) {
             new admin_setting_configselect('booking/newcoursecategorycfield',
                     get_string('newcoursecategorycfield', 'mod_booking'),
                     get_string('newcoursecategorycfielddesc', 'mod_booking'),
-                    "-1", $customfieldsarray ?? []));
+                    "-1", $customfieldsarray));
     } else {
         $settings->add(
             new admin_setting_heading('newcoursecategorycfieldheading',
@@ -302,11 +304,10 @@ if ($ADMIN->fulltree) {
                 get_string('priceisalwayson_desc', 'mod_booking'), 0));
 
     // Choose the user profile field which is used to store each user's price category.
+    $userprofilefieldsarray[0] = get_string('userprofilefieldoff', 'mod_booking');
     $userprofilefields = profile_get_custom_fields();
     if (!empty($userprofilefields)) {
         $userprofilefieldsarray = [];
-        $userprofilefieldsarray[0] = get_string('pricecategoryfieldoff', 'mod_booking');
-
         // Create an array of key => value pairs for the dropdown.
         foreach ($userprofilefields as $userprofilefield) {
             $userprofilefieldsarray[$userprofilefield->shortname] = $userprofilefield->name;
@@ -317,13 +318,12 @@ if ($ADMIN->fulltree) {
         new admin_setting_configselect('booking/pricecategoryfield',
             get_string('pricecategoryfield', 'mod_booking'),
             get_string('pricecategoryfielddesc', 'mod_booking'),
-            0, $userprofilefieldsarray ?? []));
+            0, $userprofilefieldsarray));
 
     // Currency dropdown.
     $currenciesobjects = price::get_possible_currencies();
 
-    $currencies = ['EUR' => 'Euro (EUR)'];
-
+    $currencies['EUR'] = 'Euro (EUR)';
     foreach ($currenciesobjects as $currenciesobject) {
         $currencyidentifier = $currenciesobject->get_identifier();
         $currencies[$currencyidentifier] = $currenciesobject->out(current_language()) . ' (' . $currencyidentifier . ')';
@@ -344,13 +344,13 @@ if ($ADMIN->fulltree) {
         new admin_setting_configselect('booking/bookwithcreditsprofilefield',
             get_string('bookwithcreditsprofilefield', 'mod_booking'),
             get_string('bookwithcreditsprofilefield_desc', 'mod_booking'),
-            0, $userprofilefieldsarray ?? []));
+            0, $userprofilefieldsarray));
 
     $settings->add(
         new admin_setting_configselect('booking/cfcostcenter',
             get_string('cfcostcenter', 'mod_booking'),
             get_string('cfcostcenter_desc', 'mod_booking'),
-            "-1", $customfieldsarray ?? []));
+            "-1", $customfieldsarray));
 
 
     // PRO feature: Progress bars.
@@ -408,11 +408,11 @@ if ($ADMIN->fulltree) {
         new admin_setting_heading('optiontemplatessettings_heading',
                 get_string('optiontemplatessettings', 'mod_booking'), ''));
 
-    $alltemplates = ['' => get_string('dontuse', 'booking')];
+    $alltemplates = ['0' => get_string('dontuse', 'booking')];
     $alloptiontemplates = $DB->get_records('booking_options', ['bookingid' => 0], '', $fields = 'id, text', 0, 0);
 
     foreach ($alloptiontemplates as $key => $value) {
-            $alltemplates[$value->id] = $value->text;
+        $alltemplates[$value->id] = $value->text;
     }
 
     $settings->add(

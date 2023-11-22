@@ -1534,6 +1534,7 @@ $string['bookingpricesettings_desc'] = 'Here you can customize booking prices.';
 $string['bookwithcreditsactive'] = "Book with credits";
 $string['bookwithcreditsactive_desc'] = "Users with credits can book directly without paying a price.";
 
+$string['bookwithcreditsprofilefieldoff'] = 'Do not show';
 $string['bookwithcreditsprofilefield'] = "User profile field for credits";
 $string['bookwithcreditsprofilefield_desc'] = "To use this functionality, please define a user profile field where credits are stored.
 <span class='text-danger'><b>Be careful:</b> You should create this field in a way that your users can't set a credit themselves.</span>";
@@ -1552,7 +1553,7 @@ $string['bookingpricecategory_info'] = 'Define the name of the category, eg "stu
 $string['addpricecategory'] = 'Add price category';
 $string['addpricecategory_info'] = 'You can add another price category';
 
-$string['pricecategoryfieldoff'] = 'Do not show';
+$string['userprofilefieldoff'] = 'Do not show';
 $string['pricecategoryfield'] = 'User profile field for price category';
 $string['pricecategoryfielddesc'] = 'Choose the user profile field, which stores the price category identifier for each user.';
 

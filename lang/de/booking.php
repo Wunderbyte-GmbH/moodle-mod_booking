@@ -1481,6 +1481,7 @@ $string['bookingpricesettings_desc'] = 'Individuelle Einstellungen für die Prei
 $string['bookwithcreditsactive'] = "Buchen mit Guthaben/Credits";
 $string['bookwithcreditsactive_desc'] = "Nutzer:innen mit Guthaben/Credits sehen keinen Preis, sondern können mit ihren Credits buchen.";
 
+$string['bookwithcreditsprofilefieldoff'] = 'Nicht anzeigen';
 $string['bookwithcreditsprofilefield'] = "Benutzerdefiniertes Profilfeld für Guthaben/Credits";
 $string['bookwithcreditsprofilefield_desc'] = "Um die Funktion nutzen zu können, muss es ein Profilfeld geben, in dem die Credits der Nutzer:innen hiinterlegt werden können.
 <span class='text-danger'><b>Achtung:</b> Dieses Feld sollte von den Nutzer:innen nicht bearbeitet werden können.</span>";
@@ -1499,7 +1500,7 @@ $string['bookingpricecategory_info'] = 'Definieren Sie den Namen der Preiskatego
 $string['addpricecategory'] = 'Neue Preiskategorie hinzufügen';
 $string['addpricecategory_info'] = 'Sie können eine weitere Preiskategorie definieren.';
 
-$string['pricecategoryfieldoff'] = 'Nicht anzeigen';
+$string['userprofilefieldoff'] = 'Nicht anzeigen';
 $string['pricecategoryfield'] = 'Nutzerprofilfeld für die Preiskategorie';
 $string['pricecategoryfielddesc'] = 'Wählen Sie ein Nutzerprofilfeld aus, in dem für jede/n Nutzer/in der Identifikator der Preiskategorie gesichert wird.';
 

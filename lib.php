@@ -1694,11 +1694,11 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     }
 
     $urlparam = ['id' => $cm->id, 'optionid' => -1];
-    if (!$templatedid = $DB->get_field('booking', 'templateid', ['id' => $cm->instance])) {
-        $templatedid = get_config('booking', 'defaulttemplate');
+    if (!$templateid = $DB->get_field('booking', 'templateid', ['id' => $cm->instance])) {
+        $templateid = get_config('booking', 'defaulttemplate');
     }
-    if (!empty($templatedid) && $DB->record_exists('booking_options', ['id' => $templatedid])) {
-        $urlparam['copyoptionid'] = $templatedid;
+    if (!empty($templateid) && $DB->record_exists('booking_options', ['id' => $templateid])) {
+        $urlparam['copyoptionid'] = $templateid;
     }
 
     if (has_capability('mod/booking:updatebooking', $context)) {
