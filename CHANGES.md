@@ -1,3 +1,7 @@
+## Version 8.0.50 (2023112201)
+**Bugfixes:**
+* Bugfix: Fix potential empty arrays in settings.php.
+
 ## Version 8.0.49 (2023112200)
 **New features:**
 * New feature: Show unsubscribe link in notification mails.
