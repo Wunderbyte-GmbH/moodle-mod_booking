@@ -1,3 +1,14 @@
+## Version 8.0.49 (2023112200)
+**New features:**
+* New feature: Show unsubscribe link in notification mails.
+
+**Improvements:**
+* Improvement: Added support for Moodle 4.3 and PHP 8.2.
+* Improvement: Do not send notification mails and remove user from notification list if booking option is already over.
+
+**Bugfixes:**
+* Bugfix: Cashier always has to be able to book options without prices - even when blocked by a condition.
+
 ## Version 8.0.48 (2023111300)
 **New features:**
 * New feature: Campaign Limits take into account overbooking at the time of campaign start and add overbooked places to limit.
