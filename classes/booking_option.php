@@ -412,22 +412,22 @@ class booking_option {
             $ac = $bookinganswers->is_activity_completed($userid);
             if ($ac == 1) {
                 if (!empty($this->option->aftercompletedtext)) {
-                    $text = format_text($this->option->aftercompletedtext, FORMAT_HTML, $this->booking->course->id);
+                    $text = format_text($this->option->aftercompletedtext);
                 } else if (!empty($this->booking->settings->aftercompletedtext)) {
-                    $text = format_text($this->booking->settings->aftercompletedtext, FORMAT_HTML, $this->booking->course->id);
+                    $text = format_text($this->booking->settings->aftercompletedtext);
                 }
             } else {
                 if (!empty($this->option->beforecompletedtext)) {
-                    $text = format_text($this->option->beforecompletedtext, FORMAT_HTML, $this->booking->course->id);
+                    $text = format_text($this->option->beforecompletedtext);
                 } else if (!empty($this->booking->settings->beforecompletedtext)) {
-                    $text = format_text($this->booking->settings->beforecompletedtext, FORMAT_HTML, $this->booking->course->id);
+                    $text = format_text($this->booking->settings->beforecompletedtext);
                 }
             }
         } else {
             if (!empty($this->option->beforebookedtext)) {
-                $text = format_text($this->option->beforebookedtext, FORMAT_HTML, $this->booking->course->id);
+                $text = format_text($this->option->beforebookedtext);
             } else if (!empty($this->booking->settings->beforebookedtext)) {
-                $text = format_text($this->booking->settings->beforebookedtext, FORMAT_HTML, $this->booking->course->id);
+                $text = format_text($this->booking->settings->beforebookedtext);
             }
         }
 
