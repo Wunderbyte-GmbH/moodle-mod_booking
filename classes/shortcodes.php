@@ -68,7 +68,9 @@ class shortcodes {
             $perpage = 1000;
         }
 
-        $table = self::init_table_for_courses(null, $course->shortname);
+        $pageurl = $course->shortname . $PAGE->url->out();
+
+        $table = self::init_table_for_courses(null, md5($pageurl));
 
         $wherearray['recommendedin'] = "%$course->shortname%";
 
