@@ -1725,14 +1725,15 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 
     // We currently never show these entries as we are not sure if they work correctly.
     // Filters, Permissions, Backup, Restore - will not be shown in "More..." menu.
-    $keys = $navref->get_children_key_list();
+    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+    /* $keys = $navref->get_children_key_list();
     foreach ($keys as $key => $name) {
-        if ($name == 'roleassign' || $name == 'roleoverride' ||
-                    $name == 'rolecheck' || $name == 'filtermanage' || $name == 'logreport' ||
-                    $name == 'backup' || $name == 'restore') {
+        if ($name == 'roleassign' || $name == 'roleoverride' || $name == 'rolecheck' ||
+            $name == 'filtermanage' || $name == 'logreport' ||
+            $name == 'backup' || $name == 'restore') {
             $navref->get($name)->remove();
         }
-    }
+    } */
 
     if (!is_null($optionid) && $optionid > 0) {
         // In previous booking versions Filters, Permissions, Backup, Restore where only hidden for booking options.
