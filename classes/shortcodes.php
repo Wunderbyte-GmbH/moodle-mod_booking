@@ -98,9 +98,21 @@ class shortcodes {
             $optionsfields = $possibleoptions;
         }
 
+        $defaultorder = SORT_ASC; // Default.
+        if (!empty($args['sortorder'])) {
+            if (strtolower($args['sortorder']) === "desc") {
+                $defaultorder = SORT_DESC;
+            }
+        }
+        if (!empty($args['sortby'])) {
+            $table->sortable(true, $args['sortby'], $defaultorder);
+        } else {
+            $table->sortable(true, 'text', $defaultorder);
+        }
+
         $showfilter = !empty($args['filter']) ? true : false;
         $showsort = !empty($args['sort']) ? true : false;
-        $showsearch = !empty($args['sort']) ? true : false;
+        $showsearch = !empty($args['search']) ? true : false;
 
         view::apply_standard_params_for_bookingtable(
             $table,
