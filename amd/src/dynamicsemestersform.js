@@ -33,9 +33,12 @@ import DynamicForm from 'core_form/dynamicform';
 import {get_string as getString} from 'core/str';
 import Notification from 'core/notification';
 
-export const init = (selector, formClass, existingsemesters) => {
+export const init = (selector, formClass) => {
 
-    const form = new DynamicForm(document.querySelector(selector), formClass);
+    const formelement = document.querySelector(selector);
+    const existingsemesters = JSON.parse(formelement.dataset.data);
+
+    const form = new DynamicForm(formelement, formClass);
 
     form.addEventListener(form.events.FORM_SUBMITTED, (e) => {
         e.preventDefault();

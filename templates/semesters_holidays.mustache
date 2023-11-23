@@ -22,12 +22,14 @@
 
     Data attributes required for JS:
     * data-region
- 
+
     Example context (json):
     [
         {
-            "renderedchangesemesterform": "HTNL form",
-            "renderedholidaysform": "HTNL form"
+            "renderedchangesemesterform": "HTML form",
+            "renderedholidaysform": "HTML form"
+            "existingsemesters": "{json}",
+            "existingholidays": "{json}",
         }
     ]
 }}
@@ -53,10 +55,10 @@
   </div>
 </nav>
 <div class="tab-content" id="nav-tabContent">
-  <div data-region="semestersformcontainer" class="tab-pane fade {{^renderedchangesemesterform}}show active{{/renderedchangesemesterform}}" id="semestersform" role="tabpanel" aria-labelledby="semesters-tab">
+  <div data-region="semestersformcontainer" data-data="{{{existingsemesters}}}" class="tab-pane fade {{^renderedchangesemesterform}}show active{{/renderedchangesemesterform}}" id="semestersform" role="tabpanel" aria-labelledby="semesters-tab">
     {{{ renderedsemestersform }}}
   </div>
-  <div data-region="holidaysformcontainer" class="tab-pane fade" id="holidaysform" role="tabpanel" aria-labelledby="holidays-tab">
+  <div data-region="holidaysformcontainer" data-data="{{{existingholidays}}}" class="tab-pane fade" id="holidaysform" role="tabpanel" aria-labelledby="holidays-tab">
     {{{ renderedholidaysform }}}
   </div>
   {{#renderedchangesemesterform}}

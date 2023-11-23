@@ -51,9 +51,17 @@ $PAGE->set_title(
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('semesters', 'mod_booking'));
 
+
+
+
 $semestersform = new dynamicsemestersform();
 $semestersform->set_data_for_dynamic_submission();
 $renderedsemestersform = $semestersform->render();
+
+
+
+
+
 
 $holidaysform = new dynamicholidaysform();
 $holidaysform->set_data_for_dynamic_submission();
@@ -72,18 +80,16 @@ $output = $PAGE->get_renderer('mod_booking');
 $data = new semesters_holidays($renderedsemestersform, $renderedholidaysform, $renderedchangesemesterform);
 echo $output->render_semesters_holidays($data);
 
-$existingsemesters = $DB->get_records('booking_semesters');
 $PAGE->requires->js_call_amd(
     'mod_booking/dynamicsemestersform',
     'init',
-    ['[data-region=semestersformcontainer]', dynamicsemestersform::class, $existingsemesters]
+    ['[data-region=semestersformcontainer]', dynamicsemestersform::class]
 );
 
-$existingholidays = $DB->get_records('booking_holidays');
 $PAGE->requires->js_call_amd(
     'mod_booking/dynamicholidaysform',
     'init',
-    ['[data-region=holidaysformcontainer]', dynamicholidaysform::class, $existingholidays]
+    ['[data-region=holidaysformcontainer]', dynamicholidaysform::class]
 );
 
 if ($cmid) {

@@ -144,6 +144,8 @@ class dynamicchangesemesterform extends dynamic_form {
             $mform->setDefault('choosesemester', $bookingsettings->semesterid);
         }
 
+        $mform->addElement('advcheckbox', 'confirmchangesemester', get_string('confirmchangesemester', 'mod_booking'));
+
         // Buttons.
         $this->add_action_buttons();
     }
@@ -156,6 +158,10 @@ class dynamicchangesemesterform extends dynamic_form {
      */
     public function validation($data, $files): array {
         $errors = [];
+
+        if (empty($data['confirmchangesemester'])) {
+            $errors['confirmchangesemester'] = get_string('error:confirmchangesemester', 'mod_booking');
+        }
 
         return $errors;
     }

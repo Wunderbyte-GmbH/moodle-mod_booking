@@ -48,6 +48,12 @@ class semesters_holidays implements renderable, templatable {
     /** @var string $renderedchangesemesterform */
     public $renderedchangesemesterform = '';
 
+    /** @var string $existingsemesters */
+    public $existingsemesters = '';
+
+    /** @var string $existingholidays */
+    public $existingholidays = '';
+
     /**
      * Constructor
      *
@@ -56,9 +62,17 @@ class semesters_holidays implements renderable, templatable {
      */
     public function __construct(string $renderedsemestersform, string $renderedholidaysform, string $renderedchangesemesterform) {
 
+        global $DB;
+
         $this->renderedsemestersform = $renderedsemestersform;
         $this->renderedholidaysform = $renderedholidaysform;
         $this->renderedchangesemesterform = $renderedchangesemesterform;
+
+        $existingsemesters = $DB->get_records('booking_semesters');
+        $existingholidays = $DB->get_records('booking_holidays');
+
+        $this->existingsemesters = json_encode($existingsemesters);
+        $this->existingholidays = json_encode($existingholidays);
     }
 
     /**
@@ -71,6 +85,8 @@ class semesters_holidays implements renderable, templatable {
         $returnarray = [
             'renderedsemestersform' => $this->renderedsemestersform,
             'renderedholidaysform' => $this->renderedholidaysform,
+            'existingsemesters' => $this->existingsemesters,
+            'existingholidays' => $this->existingholidays,
         ];
 
         // We only add the key if it's not empty.
