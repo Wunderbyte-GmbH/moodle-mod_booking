@@ -33,7 +33,8 @@ import DynamicForm from 'core_form/dynamicform';
 export const init = (selector, formClass) => {
 
     const formelement = document.querySelector(selector);
-    const existingholidays = JSON.parse(formelement.dataset.data);
+    const jsonstring = window.atob(formelement.dataset.data);
+    const existingholidays = JSON.parse(jsonstring);
 
     const form = new DynamicForm(formelement, formClass);
 

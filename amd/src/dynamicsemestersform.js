@@ -36,7 +36,8 @@ import Notification from 'core/notification';
 export const init = (selector, formClass) => {
 
     const formelement = document.querySelector(selector);
-    const existingsemesters = JSON.parse(formelement.dataset.data);
+    const jsonstring = window.atob(formelement.dataset.data);
+    const existingsemesters = JSON.parse(jsonstring);
 
     const form = new DynamicForm(formelement, formClass);
 

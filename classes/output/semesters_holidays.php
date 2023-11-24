@@ -71,8 +71,8 @@ class semesters_holidays implements renderable, templatable {
         $existingsemesters = $DB->get_records('booking_semesters');
         $existingholidays = $DB->get_records('booking_holidays');
 
-        $this->existingsemesters = json_encode($existingsemesters);
-        $this->existingholidays = json_encode($existingholidays);
+        $this->existingsemesters = base64_encode(json_encode($existingsemesters));
+        $this->existingholidays = base64_encode(json_encode($existingholidays));
     }
 
     /**

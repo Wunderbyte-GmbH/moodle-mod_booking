@@ -51,17 +51,9 @@ $PAGE->set_title(
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('semesters', 'mod_booking'));
 
-
-
-
 $semestersform = new dynamicsemestersform();
 $semestersform->set_data_for_dynamic_submission();
 $renderedsemestersform = $semestersform->render();
-
-
-
-
-
 
 $holidaysform = new dynamicholidaysform();
 $holidaysform->set_data_for_dynamic_submission();
