@@ -48,8 +48,8 @@
       {{#str}} holidays, mod_booking {{/str}}
     </a>
     {{#renderedchangesemesterform}}
-    <a class="nav-link active" id="choosesemester-tab" data-toggle="tab" href="#choosesemesterform" role="tab" aria-controls="choosesemesterform" aria-selected="false">
-      {{#str}} choosesemester, mod_booking {{/str}}
+    <a class="nav-link active" id="changesemester-tab" data-toggle="tab" href="#changesemesterform" role="tab" aria-controls="changesemesterform" aria-selected="false">
+      {{#str}} changesemester, mod_booking {{/str}}
     </a>
     {{/renderedchangesemesterform}}
   </div>
@@ -62,7 +62,7 @@
     {{{ renderedholidaysform }}}
   </div>
   {{#renderedchangesemesterform}}
-    <div data-region="changesemestercontainer" class="tab-pane fade show active" id="choosesemesterform" role="tabpanel" aria-labelledby="choosesemesters-tab">
+    <div data-region="changesemestercontainer" class="tab-pane fade show active" id="changesemesterform" role="tabpanel" aria-labelledby="changesemester-tab">
       {{{ renderedchangesemesterform }}}
     </div>
   {{/renderedchangesemesterform}}

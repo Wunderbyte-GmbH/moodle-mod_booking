@@ -38,6 +38,7 @@ $string['updatebooking'] = 'Update Buchung';
 $string['booking:manageoptiontemplates'] = "Buchungsoptionsvorlagen verwalten";
 $string['booking:cantoggleformmode'] = 'Nutzer:in darf alle Einstellungen verwalten';
 $string['booking:overrideboconditions'] = 'Nutzer:in darf buchen auch wenn Verfügbarkeit false zurückliefert.';
+$string['confirmchangesemester'] = 'JA, ich möchte wirklich alle Termine der Buchungsinstanz löschen und neue erstellen.';
 $string['course'] = 'Moodle-Kurs';
 $string['courses'] = 'Kurse';
 $string['course_s'] = 'Kurs(e)';
@@ -89,8 +90,10 @@ $string['nopriceisset'] = 'Kein Preis vorhanden';
 $string['badge:pro'] = '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['badge:experimental'] = '<span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimentell</span>';
 
-// General errors.
+// Errors.
 $string['error:choosevalue'] = 'Sie müssen hier einen Wert auswählen.';
+$string['error:confirmthatyouaresure'] = 'Bitte bestätigen Sie, dass Sie wissen, was Sie tun.';
+$string['error:taskalreadystarted'] = 'Sie haben bereits einen Task gestartet!';
 $string['error:entervalue'] = 'Sie müssen hier einen Wert eingeben.';
 $string['error:negativevaluenotallowed'] = 'Bitte einen positiven Wert eingeben.';
 $string['error:pricemissing'] = 'Bitte geben Sie einen Preis ein.';
@@ -1026,10 +1029,10 @@ $string['importcsvbookingoption'] = 'Buchungsoptionen via CSV-Datei importieren'
 $string['importexcelbutton'] = 'Aktivitätsabschluss importieren';
 $string['activitycompletiontext'] = 'Nachricht an Nutzer/in, wenn Buchungsoption abgeschlossen ist';
 $string['activitycompletiontextsubject'] = 'Buchungsoption abgeschlossen';
-$string['changesemester'] = 'Ändere Semester';
+$string['changesemester'] = 'Termine für Semester neu erstellen';
 $string['changesemester:warning'] = '<strong>Achtung:</strong> Durch Klicken auf "Änderungen speichern" werden alle bisherigen Termine gelöscht und durch die Termine
- im ausgewählten Semester ersetzt.';
-$string['choosesemester'] = 'Wähle Semester';
+im ausgewählten Semester ersetzt.';
+$string['changesemesteradhoctaskstarted'] = 'Erfolg. Sobald CRON das nächste Mal läuft, werden die Termine neu erstellt. Dies kann einige Minuten dauern.';
 $string['activitycompletiontextmessage'] = 'Sie haben die folgende Buchungsoption abgeschlossen:
 
 {$a->bookingdetails}
@@ -1858,6 +1861,7 @@ $string['optionformconfigsubtitle'] = '<p>Hier können Sie nicht benötigte Funk
 $string['optionformconfig:nobooking'] = 'Sie müssen zumindest eine Buchungsinstanz anlegen, bevor Sie dieses Formular nutzen können!';
 
 // Tasks.
+$string['task_adhoc_reset_optiondates_for_semester'] = 'Adhoc task: Termine zurücksetzen und neu erstellen';
 $string['task_remove_activity_completion'] = 'Booking: Activitätsabschluss entfernen';
 $string['task_enrol_bookedusers_tocourse'] = 'Booking: Gebuchte User in Kurs einschreiben';
 $string['task_send_completion_mails'] = 'Booking: Abschluss-Mails versenden';

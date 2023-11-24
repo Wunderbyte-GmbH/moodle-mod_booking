@@ -47,22 +47,19 @@ export const init = (selector, formClass) => {
         const response = e.detail;
         form.load({...existingsemesters, response});
 
-         // eslint-disable-next-line no-console
-         console.log(e.detail);
+        // eslint-disable-next-line no-console
+        console.log(e.detail);
 
-         getString('allchangessaved', 'mod_booking').then(message => {
-
+        getString('allchangessaved', 'mod_booking').then(message => {
             Notification.addNotification({
                 message: message,
                 type: "success"
             });
-
             return;
         }).catch(e => {
             // eslint-disable-next-line no-console
             console.log(e);
         });
-
     });
 
     // Cancel button does not make much sense in such forms but since it's there we'll just reload.

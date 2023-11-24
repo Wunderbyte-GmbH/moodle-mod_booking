@@ -29,6 +29,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 import DynamicForm from 'core_form/dynamicform';
+import {get_string as getString} from 'core/str';
+import Notification from 'core/notification';
 
 export const init = (selector, formClass, existingsemester) => {
 
@@ -39,6 +41,17 @@ export const init = (selector, formClass, existingsemester) => {
 
     form.addEventListener(form.events.FORM_SUBMITTED, (e) => {
         e.preventDefault();
+
+        getString('changesemesteradhoctaskstarted', 'mod_booking').then(message => {
+            Notification.addNotification({
+                message: message,
+                type: "success"
+            });
+            return;
+        }).catch(e => {
+            // eslint-disable-next-line no-console
+            console.log(e);
+        });
     });
 
     // Cancel button does not make much sense in such forms but since it's there we'll just reload.

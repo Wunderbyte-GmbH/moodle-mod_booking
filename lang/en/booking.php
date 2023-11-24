@@ -38,6 +38,7 @@ $string['updatebooking'] = 'Update booking';
 $string['booking:manageoptiontemplates'] = "Manage option templates";
 $string['booking:cantoggleformmode'] = 'User can edit all settings';
 $string['booking:overrideboconditions'] = 'User can book even when conditions return false.';
+$string['confirmchangesemester'] = 'YES, I really want to delete all existing dates of the booking instance and generate new ones.';
 $string['course'] = 'Moodle course';
 $string['courses'] = 'Courses';
 $string['course_s'] = 'Kurs(e)';
@@ -90,8 +91,10 @@ $string['nopriceisset'] = 'No price has been set';
 $string['badge:pro'] = '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['badge:experimental'] = '<span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimental</span>';
 
-// General errors.
+// Errors.
 $string['error:choosevalue'] = 'You have to choose a value here.';
+$string['error:confirmthatyouaresure'] = 'Please confirm that you are sure.';
+$string['error:taskalreadystarted'] = 'You have already started a task!';
 $string['error:entervalue'] = 'You have to enter a value here.';
 $string['error:negativevaluenotallowed'] = 'Please enter a positive value.';
 $string['error:pricemissing'] = 'Please enter a price.';
@@ -1046,10 +1049,10 @@ $string['importcsvbookingoption'] = 'Import CSV with booking options';
 $string['importexcelbutton'] = 'Import activity completion';
 $string['activitycompletiontext'] = 'Message to be sent to user when booking option is completed';
 $string['activitycompletiontextsubject'] = 'Booking option completed';
-$string['changesemester'] = 'Change Semester';
+$string['changesemester'] = 'Reset and create dates for semester';
 $string['changesemester:warning'] = '<strong>Be careful:</strong> By clicking "Save changes" all dates will be deleted
- and be replaced with dates of the chosen semester.';
-$string['choosesemester'] = 'Choose Semester';
+and be replaced with dates of the chosen semester.';
+$string['changesemesteradhoctaskstarted'] = 'Success. The dates will be re-generated the next time CRON is running. This may take several minutes.';
 $string['activitycompletiontextmessage'] = 'You have completed the following booking option:
 
 {$a->bookingdetails}
@@ -1972,6 +1975,7 @@ $string['optionformconfigsubtitle'] = '<p>Turn off features you do not need, in 
 $string['optionformconfig:nobooking'] = 'You need to create at least one booking instance before you can use this form!';
 
 // Tasks.
+$string['task_adhoc_reset_optiondates_for_semester'] = 'Adhoc task: Reset and generate new optiondates for semester';
 $string['task_remove_activity_completion'] = 'Booking: Remove activity completion';
 $string['task_enrol_bookedusers_tocourse'] = 'Booking: Enrol booked users to course';
 $string['task_send_completion_mails'] = 'Booking: Send completion mails';

@@ -1300,7 +1300,10 @@ function booking_update_options(object $optionvalues, context_module $context, i
                 $optiondateshandler->save_from_form($optionvalues);
             } else {
                 // Delete optiondates.
-                $optiondateshandler->delete_all_option_dates();
+                // Quickfix: We cannot do this, if we have multisession keys.
+                if (!isset($optionvalues->ms1starttime)) {
+                    $optiondateshandler->delete_all_option_dates();
+                }
             }
 
             // Save teachers using handler.
@@ -1482,9 +1485,6 @@ function booking_update_options(object $optionvalues, context_module $context, i
 
         // Deal with multiple option dates (multisessions).
         deal_with_multisessions($optionvalues, $booking, $optionid, $context);
-
-        // Update start and end date of the option depending on the sessions.
-        booking_updatestartenddate($optionid);
 
         // Save relation for each newly created optiondate if checkbox is active.
         $isimport = $updateparam == UPDATE_OPTIONS_PARAM_IMPORT ? true : false; // For import we need to force this!
