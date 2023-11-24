@@ -98,13 +98,15 @@ if (has_capability('mod/booking:cantoggleformmode', $context)) {
 
 // New code.
 
-// In this example the form has arguments ['arg1' => 'val1'].
-$form = new mod_booking\form\option_form1(null, null, 'post', '', [], true, [
+$params = [
     'cmid' => $cmid,
     'optionid' => $optionid,
     'bookingid' => $bookingid,
     'copyoptionid' => $copyoptionid,
-]);
+];
+
+// In this example the form has arguments ['arg1' => 'val1'].
+$form = new mod_booking\form\option_form1(null, null, 'post', '', [], true, $params);
 // Set the form data with the same method that is called when loaded from JS.
 // It should correctly set the data for the supplied arguments.
 $form->set_data_for_dynamic_submission();
@@ -113,7 +115,7 @@ echo $OUTPUT->header();
 
 // Render the form in a specific container, there should be nothing else in the same container.
 echo html_writer::div($form->render(), '', ['id' => 'editoptionsformcontainer']);
-
+$PAGE->requires->js_call_amd('mod_booking/dynamiceditoptionform', 'init', $params);
 
 echo $OUTPUT->footer();
 return;

@@ -31,6 +31,7 @@ use file_exception;
 use mod_booking\output\eventslist;
 use context;
 use context_module;
+use context_system;
 
 defined('MOODLE_INTERNAL') || die();
 require_once("$CFG->libdir/formslib.php");
@@ -118,6 +119,9 @@ class option_form1 extends dynamic_form {
         // Hidden elements.
         $mform->addElement('hidden', 'id', $cmid);
         $mform->setType('id', PARAM_INT);
+
+        $mform->addElement('hidden', 'cmid', $cmid);
+        $mform->setType('cmid', PARAM_INT);
 
         $mform->addElement('hidden', 'bookingid', $formdata['bookingid']);
         $mform->setType('bookingid', PARAM_INT);
@@ -427,7 +431,7 @@ class option_form1 extends dynamic_form {
             // Datesection for Dynamic Load.
             $mform->addElement('header', 'datesheader', get_string('dates', 'mod_booking'));
 
-            dates::instance_form_definition($mform);
+            dates::instance_form_definition($mform, $formdata);
 
             $mform->addElement('html', '<div id="optiondates-form"></div>');
 

@@ -2513,3 +2513,8 @@ $string['actionoperator:set'] = 'Replace';
 $string['actionoperator:subtract'] = 'Subtract';
 $string['actionoperator'] = 'Action';
 $string['actionoperator:adddate'] = 'Add date';
+
+// Dates class
+$string['adddatebutton'] = "Add date";
+$string['nodatesstring'] = "There are currently no dates associated with this booking option";
+$string['nodatesstring_desc'] = "no dates";
