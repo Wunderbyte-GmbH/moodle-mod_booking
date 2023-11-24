@@ -106,13 +106,15 @@
                 </div>
                 <div class="card-footer">
                     <nav>
-                    <div class="nav nav-pills mb-3" id="nav-tab" role="tablist">
+                    <ul class="nav nav-tabs" id="nav-tab" role="tablist">
                         {{#optiontables}}
-                        <a class="nav-link rounded {{class}}" id="nav-tab-{{tablename}}" data-toggle="tab" href="#nav-table-{{tablename}}" role="tab" aria-controls="nav-tab-{{tablename}}">
-                            {{#str}}courses, mod_booking{{/str}} - {{bookinginstancename}}
-                        </a>
+                        <li class="nav-item">
+                            <a class="nav-link {{class}}" id="nav-tab-{{tablename}}" data-toggle="tab" href="#nav-table-{{tablename}}" role="tab" aria-controls="nav-tab-{{tablename}}">
+                                {{bookinginstancename}}
+                            </a>
+                        </li>
                         {{/optiontables}}
-                    </div>
+                    </ul>
                     </nav>
                     <div class="tab-content" id="nav-tabContent">
                         {{#optiontables}}

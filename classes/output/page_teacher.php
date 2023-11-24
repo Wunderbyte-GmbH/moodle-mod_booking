@@ -178,7 +178,7 @@ class page_teacher implements renderable, templatable {
                 $modinfo = get_fast_modinfo($booking->course, $USER->id);
                 $cm = $modinfo->get_cm($booking->cmid);
 
-                if (!$cm->uservisible) {
+                if (!$cm->visible) {
                     continue;
                 }
 
