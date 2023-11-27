@@ -79,7 +79,8 @@ class allow_add_item_to_cart extends external_api {
             // If shopping cart is not installed, we want to continue.
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
             return [
-                'success' => 1, // CARTPARAM_SUCCESS needs to be hardcoded here as shopping cart might not be installed!
+                'success' => 1, /* LOCAL_SHOPPING_CART_CARTPARAM_SUCCESS needs to be hardcoded here
+                    as shopping cart might not be installed! */
                 'itemname' => $settings->get_title_with_prefix(),
             ];
         }
