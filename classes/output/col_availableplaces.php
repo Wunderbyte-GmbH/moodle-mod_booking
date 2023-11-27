@@ -81,9 +81,13 @@ class col_availableplaces implements renderable, templatable {
         $syscontext = context_system::instance();
         $modcontext = context_module::instance($cmid);
         $isteacher = booking_check_if_teacher($values);
-        if (has_capability('mod/booking:updatebooking', $modcontext) || has_capability('mod/booking:updatebooking', $syscontext)
+        if (
+            has_capability('mod/booking:updatebooking', $modcontext)
+            || has_capability('mod/booking:updatebooking', $syscontext)
+            || has_capability('mod/booking:viewreports', $syscontext)
             || (has_capability('mod/booking:addeditownoption', $modcontext) && $isteacher)
-            || (has_capability('mod/booking:addeditownoption', $syscontext) && $isteacher)) {
+            || (has_capability('mod/booking:addeditownoption', $syscontext) && $isteacher)
+        ) {
 
             $this->showmanageresponses = true;
 
