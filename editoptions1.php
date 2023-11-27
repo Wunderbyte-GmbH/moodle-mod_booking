@@ -95,6 +95,8 @@ if (has_capability('mod/booking:cantoggleformmode', $context)) {
     set_user_preference('optionform_mode', 'simple');
 }
 
+$settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+$datescounter = count($settings->sessions);
 
 // New code.
 
@@ -103,6 +105,7 @@ $params = [
     'optionid' => $optionid,
     'bookingid' => $bookingid,
     'copyoptionid' => $copyoptionid,
+    'datescounter' => $datescounter,
 ];
 
 // In this example the form has arguments ['arg1' => 'val1'].

@@ -354,50 +354,6 @@ class option_form1 extends dynamic_form {
         $mform->addElement('autocomplete', 'courseid', get_string("choosecourse", "booking"), $coursearray, $options);
         $mform->addHelpButton('courseid', 'choosecourse', 'mod_booking');
 
-        $mform->addElement('duration', 'duration', get_string('bookingduration', 'mod_booking'));
-        $mform->setType('duration', PARAM_INT);
-        $mform->setDefault('duration', 0);
-
-        $mform->addElement('checkbox', 'startendtimeknown',
-                get_string('startendtimeknown', 'mod_booking'));
-
-        $mform->addElement('date_time_selector', 'coursestarttime',
-                get_string("coursestarttime", "booking"));
-        $mform->setType('coursestarttime', PARAM_INT);
-        $mform->disabledIf('coursestarttime', 'startendtimeknown', 'notchecked');
-
-        $mform->addElement('advcheckbox', 'enrolmentstatus', get_string('enrolmentstatus', 'mod_booking'),
-            '', ['group' => 1], [2, 0]);
-        $mform->setType('enrolmentstatus', PARAM_INT);
-        $mform->setDefault('enrolmentstatus', 2);
-        $mform->addHelpButton('enrolmentstatus', 'enrolmentstatus', 'mod_booking');
-        $mform->disabledIf('enrolmentstatus', 'startendtimeknown', 'notchecked');
-
-        $mform->addElement('date_time_selector', 'courseendtime',
-            get_string("courseendtime", "booking"));
-        $mform->setType('courseendtime', PARAM_INT);
-        $mform->disabledIf('courseendtime', 'startendtimeknown', 'notchecked');
-
-        // Add to course calendar dropdown.
-        $caleventtypes = [
-            0 => get_string('caldonotadd', 'mod_booking'),
-            1 => get_string('caladdascourseevent', 'mod_booking'),
-        ];
-        $mform->addElement('select', 'addtocalendar', get_string('addtocalendar', 'mod_booking'), $caleventtypes);
-        if (!get_config('booking', 'addtocalendar')) {
-            $addtocalendar = 0;
-        } else {
-            $addtocalendar = 1;
-        }
-        $mform->setDefault('addtocalendar', $addtocalendar);
-        if (get_config('booking', 'addtocalendar_locked')) {
-            // If the setting is locked in settings.php it will be frozen.
-            $mform->freeze('addtocalendar');
-        } else {
-            // Otherwise, we have the usual behavior depending on the startendtimeknown checkbox.
-            $mform->disabledIf('addtocalendar', 'startendtimeknown', 'notchecked');
-        }
-
         $mform->addElement('text', 'pollurl', get_string('bookingpollurl', 'mod_booking'), ['size' => '64']);
         $mform->setType('pollurl', PARAM_TEXT);
         $mform->addHelpButton('pollurl', 'feedbackurl', 'mod_booking');
@@ -430,6 +386,7 @@ class option_form1 extends dynamic_form {
             !isset($optionformconfig['datesheader']) || $optionformconfig['datesheader'] == 1) {
             // Datesection for Dynamic Load.
             $mform->addElement('header', 'datesheader', get_string('dates', 'mod_booking'));
+            $mform->setExpanded('datesheader');
 
             dates::instance_form_definition($mform, $formdata);
 
@@ -449,6 +406,54 @@ class option_form1 extends dynamic_form {
                 '<input type="text" data-fieldtype="text" class="d-none felement" id="dayofweektime" name="dayofweektime" value="' .
                 $dayofweektime . '"></input>');
         }
+
+
+        // $mform->addElement('duration', 'duration', get_string('bookingduration', 'mod_booking'));
+        // $mform->setType('duration', PARAM_INT);
+        // $mform->setDefault('duration', 0);
+
+        // $mform->addElement('checkbox', 'startendtimeknown',
+        //         get_string('startendtimeknown', 'mod_booking'));
+
+        // $mform->addElement('date_time_selector', 'coursestarttime',
+        //         get_string("coursestarttime", "booking"));
+        // $mform->setType('coursestarttime', PARAM_INT);
+        // $mform->disabledIf('coursestarttime', 'startendtimeknown', 'notchecked');
+
+        // $mform->addElement('advcheckbox', 'enrolmentstatus', get_string('enrolmentstatus', 'mod_booking'),
+        //     '', ['group' => 1], [2, 0]);
+        // $mform->setType('enrolmentstatus', PARAM_INT);
+        // $mform->setDefault('enrolmentstatus', 2);
+        // $mform->addHelpButton('enrolmentstatus', 'enrolmentstatus', 'mod_booking');
+        // $mform->disabledIf('enrolmentstatus', 'startendtimeknown', 'notchecked');
+
+        // $mform->addElement('date_time_selector', 'courseendtime',
+        //     get_string("courseendtime", "booking"));
+        // $mform->setType('courseendtime', PARAM_INT);
+        // $mform->disabledIf('courseendtime', 'startendtimeknown', 'notchecked');
+
+        // // Add to course calendar dropdown.
+        // $caleventtypes = [
+        //     0 => get_string('caldonotadd', 'mod_booking'),
+        //     1 => get_string('caladdascourseevent', 'mod_booking'),
+        // ];
+        // $mform->addElement('select', 'addtocalendar', get_string('addtocalendar', 'mod_booking'), $caleventtypes);
+        // if (!get_config('booking', 'addtocalendar')) {
+        //     $addtocalendar = 0;
+        // } else {
+        //     $addtocalendar = 1;
+        // }
+        // $mform->setDefault('addtocalendar', $addtocalendar);
+        // if (get_config('booking', 'addtocalendar_locked')) {
+        //     // If the setting is locked in settings.php it will be frozen.
+        //     $mform->freeze('addtocalendar');
+        // } else {
+        //     // Otherwise, we have the usual behavior depending on the startendtimeknown checkbox.
+        //     $mform->disabledIf('addtocalendar', 'startendtimeknown', 'notchecked');
+        // }
+
+
+
 
         // Add teachers.
         $teacherhandler = new teachers_handler($optionid);

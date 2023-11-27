@@ -64,22 +64,21 @@ class dates {
          */
 
         $elements = [];
+        $optionid = $formdata['optionid'];
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $datescounter = $formdata['datescounter'];
+        $sessions = $settings->sessions;
 
-        $sessions = [];
+        // The datescounter is the first element we add to the form.
+        $element = $mform->addElement(
+            'hidden',
+            'datescounter',
+            $datescounter,
+        );
+        $mform->setType('datescounter', PARAM_INT);
 
+        // First we check if we have submitted data.
         $data = $mform->getSubmitValues();
-
-        // We have no submission yet, first loading the form.
-        if (empty($data)) {
-            if ($optionid = $formdata['optionid']) {
-                $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-                $sessions = $settings->sessions;
-                $datescounter = count($sessions);
-            }
-        } else {
-            // If there is a submission, we need to use the already submitted values.
-            $datescounter = $data['datescounter'] ?? 0;
-        }
 
         // If we have clicked the no submit button to add a date...
         if (isset($data['adddatebutton'])) {
@@ -87,35 +86,25 @@ class dates {
         } else {
 
             // We might have clicked a delete nosubmit button.
-
             foreach ($data as $key => $value) {
                 if (strpos($key, 'deletedate_') > 0) {
                     $datescounter--;
                 }
             }
-
         }
 
-        $element = $mform->addElement(
-            'hidden',
-            'datescounter',
-            0);
-        $mform->setType('datescounter', PARAM_INT);
-
-        $datescounter = $formdata['datescounter'];
-
-        $elements[] = $mform->addElement(
-            'static',
-            'nodatesstring',
-            get_string('nodatesstring', 'mod_booking'),
-            get_string('nodatesstring_desc', 'mod_booking'));
-
-        $element = $mform->addElement(
-            'hidden',
-            'datescounter',
-            $datescounter);
+        // After the correction of the dates counter, we can set the value.
         $element->setValue($datescounter);
         $elements[] = $element;
+
+        if (empty($datescounter)) {
+            $elements[] = $mform->addElement(
+                'static',
+                'nodatesstring',
+                get_string('nodatesstring', 'mod_booking'),
+                get_string('nodatesstring_desc', 'mod_booking'),
+            );
+        }
 
         $elements[] = $mform->addElement('submit', 'adddatebutton', get_string('adddatebutton', 'mod_booking'),
             [
@@ -143,6 +132,7 @@ class dates {
             }
 
             $elements[] = $mform->addElement('hidden', 'optiondateid_' . $counter, 0);
+            $mform->setType('optiondateid_' . $counter, PARAM_INT);
 
             $elements[] =& $mform->addElement('date_time_selector', 'coursestarttime_' . $counter,
             get_string("coursestarttime", "booking"));
@@ -192,16 +182,6 @@ class dates {
     }
 
     public static function definition_after_data(MoodleQuickForm &$mform) {
-
-
-
-
-
-        foreach ($elements as $element) {
-            $value = $element->getValue();
-            $element = $mform->insertElementBefore($mform->removeElement($element->getName()), 'datesfieldmarker');
-            $element->setValue($value);
-        }
 
     }
 
