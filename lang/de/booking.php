@@ -19,6 +19,7 @@ global $CFG;
 // General strings.
 $string['accept'] = 'Akzeptieren';
 $string['age'] = 'Alter';
+$string['allowupdatedays'] = 'Tage vor Referenzdatum';
 $string['areyousure:book'] = 'Nochmal klicken, um die Buchung zu bestätigen';
 $string['areyousure:cancel'] = 'Nochmal klicken, um die Buchung zu stornieren';
 $string['assignteachers'] = 'Lehrer:innen zuweisen:';
@@ -425,7 +426,9 @@ $string['connectedbooking_help'] = 'Buchung von der Teilnehmer:innen übernommen
 $string['allowbookingafterstart'] = 'Buchen nach Kursbeginn erlauben';
 $string['cancancelbook'] = 'Teilnehmer:innen dürfen Buchungen selbst stornieren';
 $string['cancancelbookdays'] = 'Nutzer:innen können nur bis n Tage vor Kursstart stornieren. Negative Werte meinen n Tage NACH Kursstart.';
-$string['cancancelbookdays:semester'] = 'Nutzer:innen können nur bis n Tage vor <b>Semesterbeginn</b> stornieren. Negative Werte meinen n Tage NACH Semesterbeginn.';
+$string['cancancelbookdays:semesterstart'] = 'Nutzer:innen können nur bis n Tage vor <b>Semesterbeginn</b> stornieren. Negative Werte meinen n Tage NACH Semesterbeginn.';
+$string['cancancelbookdays:bookingopeningtime'] = 'Nutzer:innen können nur bis n Tage vor <b>Anmeldebeginn (Buchungsbeginn)</b> stornieren. Negative Werte meinen n Tage NACH Anmeldebeginn.';
+$string['cancancelbookdays:bookingclosingtime'] = 'Nutzer:innen können nur bis n Tage vor <b>Anmeldeschluss (Buchungsende)</b> stornieren. Negative Werte meinen n Tage NACH Anmeldeschluss.';
 $string['cancancelbookdaysno'] = 'Kein Limit';
 $string['addtocalendar'] = 'Zum Kurs-Kalender hinzufügen';
 $string['caleventtype'] = 'Kalenderereignis ist sichtbar für';
@@ -444,7 +447,8 @@ $string['bookingpolicy'] = 'Buchungsbedingungen - Booking Policy';
 $string['eventslist'] = 'Letzte Bearbeitungen';
 $string['showrecentupdates'] = 'Zeige die letzten Bearbeitungen';
 
-$string['error:semestermissingbutcancelfromsemesterstartactive'] = 'Die Einstellung zur Berechnung der Stornierungsfrist ab Semesterbeginn ist aktiv, aber das Semester fehlt!';
+$string['error:semestermissingbutcanceldependentonsemester'] = 'Die Einstellung zur Berechnung der
+Stornierungsfrist ab Semesterbeginn ist aktiv, aber das Semester fehlt!';
 
 $string['page:bookingpolicy'] = 'Buchungsbedingungen';
 $string['page:bookitbutton'] = 'Buchen';
@@ -1592,11 +1596,15 @@ $string['teachersallowmailtobookedusers_desc'] = 'Wenn Sie diese Einstellung akt
     wenn es die Datenschutzbestimmungen Ihrer Organisation erlauben.</span>';
 
 $string['cancellationsettings'] = 'Stornierungseinstellungen ' . $string['badge:pro'];
-$string['cancelfromsemesterstart'] = 'Stornierungsfristen vom Semesterbeginn abhängig machen anstatt vom Kursbeginn';
-$string['cancelfromsemesterstart_desc'] = 'Wenn Sie dieses Häkchen aktivieren, dann bezieht sich die Einstellung
-  "Nutzer:innen können nur bis n Tage vor Kursstart stornieren. Negative Werte meinen n Tage NACH Kursstart."
-  nicht auf den Start der jeweiligen Buchungsoptionen, sondern auf den Start des in der Buchungsinstanz gesetzten Semesters.<br>
-  Außerdem wird die <i>Serviceperiode</i> von Kursen im Warenkorb auf den Semesterzeitraum festgelegt.';
+$string['canceldependenton'] = 'Stornierungsfristen abhängig von';
+$string['canceldependenton_desc'] = 'Wählen Sie aus, auf welches Datumsfeld sich die Einstellung
+"Nutzer:innen können nur bis n Tage vor Kursstart stornieren. Negative Werte meinen n Tage NACH Kursstart."
+beziehen soll.<br>Dadurch wird auch die <i>Serviceperiode</i> von Kursen im Warenkorb entsprechend festgelegt
+(wenn Shopping Cart installiert ist).';
+$string['cdo:coursestarttime'] = 'Beginn der Buchungsoption (coursestarttime)';
+$string['cdo:semesterstart'] = 'Semesterstart';
+$string['cdo:bookingopeningtime'] = 'Buchungsbeginn (bookingopeningtime)';
+$string['cdo:bookingclosingtime'] = 'Anmeldeschluss (bookingclosingtime)';
 
 // Optiontemplatessettings.php.
 $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';

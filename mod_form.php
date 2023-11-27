@@ -694,9 +694,19 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('advcheckbox', 'cancancelbook', get_string('cancancelbook', 'mod_booking'));
         $mform->disabledIf('cancancelbook', 'disablecancel', 'eq', 1);
 
-        $cancancelbookdaysstring = get_config('booking', 'cancelfromsemesterstart') ?
-            get_string('cancancelbookdays:semester', 'mod_booking') :
-            get_string('cancancelbookdays', 'mod_booking');
+        $cancancelbookdaysstring = get_string('cancancelbookdays', 'mod_booking');
+        $canceldependenton = get_config('booking', 'canceldependenton');
+        switch ($canceldependenton) {
+            case 'semesterstart':
+                $cancancelbookdaysstring = get_string('cancancelbookdays:semesterstart', 'mod_booking');
+                break;
+            case 'bookingopeningtime':
+                $cancancelbookdaysstring = get_string('cancancelbookdays:bookingopeningtime', 'mod_booking');
+                break;
+            case 'bookingclosingtime':
+                $cancancelbookdaysstring = get_string('cancancelbookdays:bookingclosingtime', 'mod_booking');
+                break;
+        }
 
         $opts = [10000 => get_string('cancancelbookdaysno', 'mod_booking')];
         $extraopts = array_combine(range(-100, 100), range(-100, 100));
@@ -1140,8 +1150,8 @@ class mod_booking_mod_form extends moodleform_mod {
         global $DB;
         $errors = parent::validation($data, $files);
 
-        if (empty($data['semesterid']) && get_config('booking', 'cancelfromsemesterstart')) {
-            $errors['semesterid'] = get_string('error:semestermissingbutcancelfromsemesterstartactive', 'mod_booking');
+        if (empty($data['semesterid']) && (get_config('booking', 'canceldependenton') == "semesterstart")) {
+            $errors['semesterid'] = get_string('error:semestermissingbutcanceldependentonsemester', 'mod_booking');
         }
 
         if ($DB->count_records('user', ['username' => $data['bookingmanager']]) != 1) {

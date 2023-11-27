@@ -84,7 +84,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             $serviceperiodend = $item['courseendtime'];
 
             // If cancellation is dependent on semester start, we also use semester start and end dates for the service period.
-            if (get_config('booking', 'cancelfromsemesterstart')) {
+            if (get_config('booking', 'canceldependenton') == "semesterstart") {
                 $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
                 if (!empty($bookingsettings->semesterid)) {
                     $semester = new semester($bookingsettings->semesterid);
@@ -92,6 +92,12 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                     $serviceperiodstart = $semester->startdate;
                     $serviceperiodend = $semester->enddate;
                 }
+            } else if (get_config('booking', 'canceldependenton') == "bookingopeningtime"
+                || get_config('booking', 'canceldependenton') == "bookingclosingtime") {
+                // If cancellation is either dependent on bookingopeningtime or bookingclosingtime...
+                // ...we use the full registration period as service period.
+                $serviceperiodstart = $settings->bookingopeningtime ?? $item['coursestarttime'];
+                $serviceperiodend = $settings->bookingclosingtime ?? $item['courseendtime'];
             }
 
             // Make sure we have a valid cost center.
@@ -127,7 +133,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             $serviceperiodend = $item['courseendtime'];
 
             // If cancellation is dependent on semester start, we also use semester start and end dates for the service period.
-            if (get_config('booking', 'cancelfromsemesterstart')) {
+            if (get_config('booking', 'canceldependenton')) {
                 $subbooking = subbookings_info::get_subbooking_by_area_and_id($area, $itemid);
                 $settings = singleton_service::get_instance_of_booking_option_settings($subbooking->optionid);
                 $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);

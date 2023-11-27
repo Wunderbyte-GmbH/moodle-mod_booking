@@ -195,11 +195,19 @@ if ($ADMIN->fulltree) {
             new admin_setting_heading('cancellationsettings',
                 get_string('cancellationsettings', 'mod_booking'), ''));
 
-        // Calculate canceluntil from semester start instead of booking options tart (coursestarttime).
+        // Calculate canceluntil from chosen date field.
+        $canceldependentonarr = [
+            'coursestarttime' => get_string('cdo:coursestarttime', 'mod_booking'),
+            'semesterstart' => get_string('cdo:semesterstart', 'mod_booking'),
+            'bookingopeningtime' => get_string('cdo:bookingopeningtime', 'mod_booking'),
+            'bookingclosingtime' => get_string('cdo:bookingclosingtime', 'mod_booking'),
+        ];
         $settings->add(
-            new admin_setting_configcheckbox('booking/cancelfromsemesterstart',
-                    get_string('cancelfromsemesterstart', 'mod_booking'),
-                    get_string('cancelfromsemesterstart_desc', 'mod_booking'), 0));
+            new admin_setting_configselect('booking/canceldependenton',
+                    get_string('canceldependenton', 'mod_booking'),
+                    get_string('canceldependenton_desc', 'mod_booking'),
+                    'coursestarttime',
+                    $canceldependentonarr));
 
     } else {
         $settings->add(

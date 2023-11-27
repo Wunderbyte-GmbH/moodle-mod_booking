@@ -2716,7 +2716,7 @@ class booking_option {
      * This is calculated by the corresponding setting in booking instance
      * and the coursestarttime.
      *
-     * If the config setting booking/cancelfromsemesterstart is set
+     * If the config setting booking/canceldependenton is set to "semesterstart"
      * then we use the semester start instead of coursestarttime.
      *
      * @param int $optionid
@@ -2729,22 +2729,28 @@ class booking_option {
 
         $canceluntil = 0;
 
-        // If the setting is checked, we use semester start.
-        if (get_config('booking', 'cancelfromsemesterstart')) {
+        // Default: We use the booking option coursestarttime field.
+        $starttime = $optionsettings->coursestarttime;
+
+        // We check on which date field it's dependent on.
+        if (get_config('booking', 'canceldependenton') == "semesterstart") {
             if (!empty($bookingsettings->semesterid)) {
                 $semester = new semester($bookingsettings->semesterid);
                 $starttime = $semester->startdate;
                 if (empty($starttime)) {
-                    throw new moodle_exception("Setting 'booking/cancelfromsemesterstart' has been checked " .
+                    throw new moodle_exception("Setting 'booking/canceldependenton' is dependent on semester start " .
                         "but no semester could be found.");
                 }
             } else {
-                throw new moodle_exception("Setting 'booking/cancelfromsemesterstart' has been checked " .
+                throw new moodle_exception("Setting 'booking/canceldependenton' is dependent on semester start " .
                         "but no semester could be found.");
             }
-        } else {
-            // Else we use the booking option coursestarttime field.
-            $starttime = $optionsettings->coursestarttime;
+        } else if (get_config('booking', 'canceldependenton') == "bookingopeningtime"
+            && !empty($optionsettings->bookingopeningtime)) {
+            $starttime = $optionsettings->bookingopeningtime;
+        } else if (get_config('booking', 'canceldependenton') == "bookingclosingtime"
+            && !empty($optionsettings->bookingclosingtime)) {
+            $starttime = $optionsettings->bookingclosingtime;
         }
 
         $allowupdatedays = $bookingsettings->allowupdatedays;

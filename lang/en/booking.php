@@ -19,6 +19,7 @@ global $CFG;
 // General strings.
 $string['accept'] = 'Accept';
 $string['age'] = 'Age';
+$string['allowupdatedays'] = 'Days before reference date';
 $string['areyousure:book'] = 'Click again to confirm booking';
 $string['areyousure:cancel'] = 'Click again to confirm cancellation';
 $string['assignteachers'] = 'Assign teachers:';
@@ -435,7 +436,9 @@ $string['connectedbooking_help'] = 'Booking instance eligible for transferring b
 $string['allowbookingafterstart'] = 'Allow booking after course start';
 $string['cancancelbook'] = 'Allow users to cancel their booking themselves';
 $string['cancancelbookdays'] = 'Disallow users to cancel their booking n days before start. Minus means, that users can still cancel n days AFTER course start.';
-$string['cancancelbookdays:semester'] = 'Disallow users to cancel their booking n days before <b>semester</b> start. Minus means, that users can still cancel n days AFTER semester start.';
+$string['cancancelbookdays:semesterstart'] = 'Disallow users to cancel their booking n days before <b>semester</b> start. Minus means, that users can still cancel n days AFTER semester start.';
+$string['cancancelbookdays:bookingopeningtime'] = 'Disallow users to cancel their booking n days before <b>registration start</b> (booking opening time). Minus means, that users can still cancel n days AFTER registration start.';
+$string['cancancelbookdays:bookingclosingtime'] = 'Disallow users to cancel their booking n days before <b>registration end</b> (booking closing time). Minus means, that users can still cancel n days AFTER registration end.';
 $string['cancancelbookdaysno'] = "Don't limit";
 $string['addtocalendar'] = 'Add to course calendar';
 $string['caleventtype'] = 'Calendar event visibility';
@@ -454,7 +457,7 @@ $string['bookingpolicy'] = 'Booking policy';
 $string['eventslist'] = 'Recent updates';
 $string['showrecentupdates'] = 'Show recent updates';
 
-$string['error:semestermissingbutcancelfromsemesterstartactive'] = 'The setting to calculate cancellation periods from semester start is active but semester is missing!';
+$string['error:semestermissingbutcanceldependentonsemester'] = 'The setting to calculate cancellation periods from semester start is active but semester is missing!';
 
 $string['page:bookingpolicy'] = 'Booking policy';
 $string['page:bookitbutton'] = 'Book';
@@ -1641,12 +1644,15 @@ $string['teachersallowmailtobookedusers_desc'] = 'If you activate this setting, 
     if you are sure it corresponds with your organization\'s privacy policy.</span>';
 
 $string['cancellationsettings'] = 'Cancellation settings ' . $string['badge:pro'];
-$string['cancelfromsemesterstart'] = 'Cancellation period dependent on semester start instead of course start';
-$string['cancelfromsemesterstart_desc'] = 'If you activate this setting, the booking instance setting
-    "Disallow users to cancel their booking n days before start. Minus means, that users can still cancel n
-    days AFTER course start." will not use the start time of the booking option to calculate the cancellation
-    period but the start time of the semester set within the booking instance instead.<br>
-    Additionally, the <i>service period</i> of courses in shopping cart will be set to semester start and end dates.';
+$string['canceldependenton'] = 'Cancellation period dependent on';
+$string['canceldependenton_desc'] = 'Choose the date that should be used as "start" for the setting
+"Disallow users to cancel their booking n days before start. Minus means, that users can still cancel n
+days AFTER course start.".<br>
+This will also set the <i>service period</i> of courses in shopping cart accordingly (if shopping cart is installed).';
+$string['cdo:coursestarttime'] = 'Start of the booking option (coursestarttime)';
+$string['cdo:semesterstart'] = 'Semester start';
+$string['cdo:bookingopeningtime'] = 'Booking registration start (bookingopeningtime)';
+$string['cdo:bookingclosingtime'] = 'Booking registration end (bookingclosingtime)';
 
 // Mobile.
 $string['next'] = 'Next';
