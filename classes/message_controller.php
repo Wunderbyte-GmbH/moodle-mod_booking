@@ -419,7 +419,9 @@ class message_controller {
     public function send_or_queue(): bool {
 
         // If user entered "0" as template, then mails are turned off for this type of messages.
-        if ($this->messagebody === "0") {
+        if ($this->messagebody === "0"
+            // Make sure, we don't send anything, if booking option is hidden.
+            || $this->optionsettings->invisible == 1) {
             $this->msgcontrparam = MSGCONTRPARAM_DO_NOT_SEND;
         }
 
