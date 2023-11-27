@@ -1434,6 +1434,7 @@ class booking {
         $keyslocalization = [
             'name' => get_string('bookingname', 'mod_booking'),
             'defaultoptionsort' => get_string('sortby'),
+            'defaultsortorder' => get_string('sortorder', 'mod_booking'),
             'optionsfield' => get_string('optionsfield', 'mod_booking'),
         ];
 

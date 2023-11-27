@@ -66,6 +66,9 @@ $string['reviewed'] = 'Kontrolliert';
 $string['rowupdated'] = 'Zeile wurde aktualisiert.';
 $string['search'] = 'Suche...';
 $string['sendmailtoallbookedusers'] = 'E-Mail an alle gebuchten Nutzer:innen senden';
+$string['sortorder'] = 'Sortierreihenfolge';
+$string['sortorder:asc'] = 'A&rarr;Z';
+$string['sortorder:desc'] = 'Z&rarr;A';
 $string['teachers'] = 'Trainer:innen';
 $string['thankyoubooked'] = '<i class="fa fa-3x fa-calendar-check-o text-success" aria-hidden="true"></i><br><br>
 Vielen Dank! Sie haben <b>{$a}</b> erfolgreich gebucht.';

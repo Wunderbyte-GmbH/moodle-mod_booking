@@ -3619,5 +3619,17 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023102001, 'booking');
     }
 
+    if ($oldversion < 2023112701) {
+        // Add field for default sort order to booking instance table.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('defaultsortorder', XMLDB_TYPE_CHAR, '4', null, null, null, 'asc', 'defaultoptionsort');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2023112701, 'booking');
+    }
+
     return true;
 }

@@ -60,8 +60,8 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                     'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext',
                     'signinsheetfields', 'comments', 'ratings', 'removeuseronunenrol', 'teacherroleid', 'allowupdatedays',
                     'templateid', 'showlistoncoursepage', 'coursepageshortinfo', 'bookingimagescustomfield',
-                    'defaultoptionsort', 'showviews', 'customtemplateid', 'autcractive', 'autcrprofile', 'autcrvalue',
-                    'autcrtemplate', 'semesterid', 'iselective', 'maxcredits', 'consumeatonce', 'enforceorder',
+                    'defaultoptionsort', 'defaultsortorder', 'showviews', 'customtemplateid', 'autcractive', 'autcrprofile',
+                    'autcrvalue', 'autcrtemplate', 'semesterid', 'iselective', 'maxcredits', 'consumeatonce', 'enforceorder',
                 ]);
 
         $options = new backup_nested_element('options');

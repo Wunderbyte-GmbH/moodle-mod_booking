@@ -56,6 +56,9 @@ class view implements renderable, templatable {
     /** @var int $defaultoptionsort */
     private $defaultoptionsort = null;
 
+    /** @var int $defaultsortorder */
+    private $defaultsortorder = null;
+
     /** @var string $renderedactiveoptionstable the rendered active options table */
     private $renderedactiveoptionstable = null;
 
@@ -134,8 +137,9 @@ class view implements renderable, templatable {
         $context = context_system::instance();
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
 
-        // Default sort order from booking settings.
+        // Default sort column and sort order from booking settings.
         $this->defaultoptionsort = $bookingsettings->defaultoptionsort;
+        $this->defaultsortorder = $bookingsettings->defaultsortorder;
 
         // If we do not have a whichview from URL, we use the default from instance settings.
         if (empty($whichview)) {
@@ -527,32 +531,34 @@ class view implements renderable, templatable {
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($this->cmid);
         $optionsfields = explode(',', $bookingsettings->optionsfields);
 
+        $sortorder = $bookingsettings->defaultsortorder === "desc" ? SORT_DESC : SORT_ASC;
+
         // Set default sort order.
         switch ($this->defaultoptionsort) {
             case 'titleprefix':
-                $wbtable->sortable(true, 'titleprefix', SORT_ASC);
+                $wbtable->sortable(true, 'titleprefix', $sortorder);
                 break;
             case 'coursestarttime':
                 // Show newest first.
-                $wbtable->sortable(true, 'coursestarttime', SORT_DESC);
+                $wbtable->sortable(true, 'coursestarttime', $sortorder);
                 break;
             case 'location':
                 if (in_array('location', $optionsfields)) {
-                    $wbtable->sortable(true, 'location', SORT_ASC);
+                    $wbtable->sortable(true, 'location', $sortorder);
                 } else {
-                    $wbtable->sortable(true, 'text', SORT_ASC); // Fallback.
+                    $wbtable->sortable(true, 'text', $sortorder); // Fallback.
                 }
                 break;
             case 'institution':
                 if (in_array('institution', $optionsfields)) {
-                    $wbtable->sortable(true, 'institution', SORT_ASC);
+                    $wbtable->sortable(true, 'institution', $sortorder);
                 } else {
-                    $wbtable->sortable(true, 'text', SORT_ASC); // Fallback.
+                    $wbtable->sortable(true, 'text', $sortorder); // Fallback.
                 }
                 break;
             case 'text':
             default:
-                $wbtable->sortable(true, 'text', SORT_ASC);
+                $wbtable->sortable(true, 'text', $sortorder);
                 break;
         }
 

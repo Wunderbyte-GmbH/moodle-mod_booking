@@ -92,6 +92,7 @@
         <FIELD NAME="coursepageshortinfo" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="bookingimagescustomfield" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="defaultoptionsort" TYPE="char" LENGTH="255" NOTNULL="false" DEFAULT="text" SEQUENCE="false"/>
+        <FIELD NAME="defaultsortorder" TYPE="char" LENGTH="4" NOTNULL="false" DEFAULT="text" SEQUENCE="false"/>
         <FIELD NAME="showviews" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="mybooking,myoptions,showall,showactive,myinstitution" SEQUENCE="false" COMMENT="Which views are shown in view.php"/>
         <FIELD NAME="customtemplateid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="autcractive" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Active auto create option feature."/>

@@ -66,6 +66,9 @@ $string['reviewed'] = 'Reviewed';
 $string['rowupdated'] = 'Row was updated.';
 $string['search'] = 'Search...';
 $string['sendmailtoallbookedusers'] = 'Send e-mail to all booked users';
+$string['sortorder'] = 'Sort order';
+$string['sortorder:asc'] = 'A&rarr;Z';
+$string['sortorder:desc'] = 'Z&rarr;A';
 $string['teachers'] = 'Teachers';
 $string['assignteachers'] = 'Assign teachers:';
 $string['thankyoubooked'] = '<i class="fa fa-3x fa-calendar-check-o text-success" aria-hidden="true"></i><br><br>

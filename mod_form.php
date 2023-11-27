@@ -219,7 +219,7 @@ class mod_booking_mod_form extends moodleform_mod {
             $whichviewopts);
         $mform->setType('whichview', PARAM_TAGLIST);
 
-        // Select default sort order for options overview.
+        // Select default sort column for options overview.
         $sortposibilities = [];
         $sortposibilities['coursestarttime'] = get_string('optiondatestart', 'mod_booking');
         $sortposibilities['titleprefix'] = get_string('titleprefix', 'mod_booking');
@@ -229,6 +229,15 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('select', 'defaultoptionsort', get_string('sortby'),
             $sortposibilities);
         $mform->setDefault('defaultoptionsort', 'text');
+
+        // Select default sort order.
+        $sortorderoptions = [
+            'asc' => get_string('sortorder:asc', 'mod_booking'),
+            'desc' => get_string('sortorder:desc', 'mod_booking'),
+        ];
+        $mform->addElement('select', 'defaultsortorder', get_string('sortorder', 'mod_booking'),
+            $sortorderoptions);
+        $mform->setDefault('defaultsortorder', 'asc');
 
         // Presence tracking.
         $menuoptions = [];

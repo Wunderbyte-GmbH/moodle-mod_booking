@@ -62,6 +62,7 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             // TODO: Views to show in the booking options overview.
                             $('#id_whichview').val(obj.whichview);
                             $('#id_defaultoptionsort').val(obj.defaultoptionsort);
+                            $('#id_defaultsortorder').val(obj.defaultsortorder);
                             $('#id_enablepresence').val(obj.enablepresence);
                             $('#id_templateid').val(obj.templateid);
                             $('#id_showlistoncoursepage').val(obj.showlistoncoursepage);
