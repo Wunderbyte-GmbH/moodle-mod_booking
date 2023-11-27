@@ -1,3 +1,14 @@
+8.0.51 (2023112700)
+* Improvement: Add sortby and sortorder to recommendedin shortcode.
+* Improvement: Stop hiding default Moodle menu entries.
+* Improvement: Fixed and improved functionality to create new dates for a semester.
+* Improvement: Add capability "viewreports" to manage responses.
+* Bugfix: Recommended table doesn't lose sorting etc.
+* Bugfix: Fix format_text so filters will work with text depending on option status.
+* Bugfix: Refactor pass data to js.
+* Bugfix: Pass JSON using base64 encoding.
+* Bugfix: If a booking instance is hidden, we do not show it on teacher pages.
+
 8.0.50 (2023112201)
 * Bugfix: Fix potential empty arrays in settings.php.
 
