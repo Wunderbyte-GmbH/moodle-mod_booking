@@ -90,7 +90,7 @@ class campaigns_info {
 
         // If campaign is empty, we use the default campaign.
         if (empty($campaign)) {
-            $campaign = self::get_campaign_by_type(CAMPAIGN_TYPE_CUSTOMFIELD);
+            $campaign = self::get_campaign_by_type(MOD_BOOKING_CAMPAIGN_TYPE_CUSTOMFIELD);
         }
 
         $campaign->add_campaign_to_mform($mform, $ajaxformdata);
@@ -119,10 +119,10 @@ class campaigns_info {
 
         $campaignname = '';
         switch($campaigntype) {
-            case CAMPAIGN_TYPE_CUSTOMFIELD:
+            case MOD_BOOKING_CAMPAIGN_TYPE_CUSTOMFIELD:
                 $campaignname = 'campaign_customfield';
                 break;
-            case CAMPAIGN_TYPE_BLOCKBOOKING:
+            case MOD_BOOKING_CAMPAIGN_TYPE_BLOCKBOOKING:
                 $campaignname = 'campaign_blockbooking';
                 break;
         }

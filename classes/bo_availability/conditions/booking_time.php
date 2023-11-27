@@ -50,7 +50,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 class booking_time implements bo_condition {
 
     /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = BO_COND_BOOKING_TIME;
+    public $id = MOD_BOOKING_BO_COND_BOOKING_TIME;
 
     /** @var bool $overridable Indicates if the condition can be overriden. */
     public $overridable = true;
@@ -157,7 +157,7 @@ class booking_time implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full, $settings);
 
-        return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_MYALERT];
+        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_MYALERT];
     }
 
     /**
@@ -200,11 +200,11 @@ class booking_time implements bo_condition {
         $mform->hideIf('bo_cond_booking_time_overrideoperator', 'bo_cond_booking_time_overrideconditioncheckbox',
             'notchecked');
 
-        $overrideconditions = bo_info::get_conditions(CONDPARAM_CANBEOVERRIDDEN);
+        $overrideconditions = bo_info::get_conditions(MOD_BOOKING_CONDPARAM_CANBEOVERRIDDEN);
         $overrideconditionsarray = [];
         foreach ($overrideconditions as $overridecondition) {
             // We do not combine conditions with each other.
-            if ($overridecondition->id == BO_COND_BOOKING_TIME) {
+            if ($overridecondition->id == MOD_BOOKING_BO_COND_BOOKING_TIME) {
                 continue;
             }
 
@@ -226,7 +226,7 @@ class booking_time implements bo_condition {
                         $currentclassname = $jsoncondition->class;
                         $currentcondition = new $currentclassname();
                         // Currently conditions of the same type cannot be combined with each other.
-                        if ($jsoncondition->id != BO_COND_BOOKING_TIME
+                        if ($jsoncondition->id != MOD_BOOKING_BO_COND_BOOKING_TIME
                             && isset($currentcondition->overridable)
                             && ($currentcondition->overridable == true)) {
                             $overrideconditionsarray[$jsoncondition->id] = get_string('bo_cond_' .
@@ -352,7 +352,7 @@ class booking_time implements bo_condition {
     private function get_booking_opening_and_closing_time(booking_option_settings $settings) {
 
         // This condition is either hardcoded with the standard booking opening or booking closing time, or its customized.
-        if ($this->id == BO_COND_BOOKING_TIME) {
+        if ($this->id == MOD_BOOKING_BO_COND_BOOKING_TIME) {
             $openingtime = $settings->bookingopeningtime ?? null;
             $closingtime = $settings->bookingclosingtime ?? null;
         } else {
@@ -388,7 +388,7 @@ class booking_time implements bo_condition {
             $classnameparts = explode('\\', $classname);
             $shortclassname = end($classnameparts); // Without namespace.
 
-            $conditionobject->id = BO_COND_BOOKING_TIME;
+            $conditionobject->id = MOD_BOOKING_BO_COND_BOOKING_TIME;
             $conditionobject->name = $shortclassname;
             $conditionobject->class = $classname;
 

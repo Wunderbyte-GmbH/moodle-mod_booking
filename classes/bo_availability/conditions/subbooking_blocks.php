@@ -46,7 +46,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 class subbooking_blocks implements bo_condition {
 
     /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = BO_COND_SUBBOOKINGBLOCKS;
+    public $id = MOD_BOOKING_BO_COND_SUBBOOKINGBLOCKS;
 
     /**
      * Needed to see if class can take JSON.
@@ -137,7 +137,7 @@ class subbooking_blocks implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full);
 
-        return [$isavailable, $description, BO_PREPAGE_PREBOOK, BO_BUTTON_NOBUTTON];
+        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_PREBOOK, MOD_BOOKING_BO_BUTTON_NOBUTTON];
     }
 
     /**

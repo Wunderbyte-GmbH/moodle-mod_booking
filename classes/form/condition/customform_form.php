@@ -136,7 +136,7 @@ class customform_form extends dynamic_form {
 
         // Right now, we can only have one condition of type custom field.
         foreach ($availability as $condition) {
-            if ($condition->id == BO_COND_JSON_CUSTOMFORM) {
+            if ($condition->id == MOD_BOOKING_BO_COND_JSON_CUSTOMFORM) {
                 $customform = $condition;
             }
         }

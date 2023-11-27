@@ -51,7 +51,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 class priceisset implements bo_condition {
 
     /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = BO_COND_PRICEISSET;
+    public $id = MOD_BOOKING_BO_COND_PRICEISSET;
 
     /**
      * Needed to see if class can take JSON.
@@ -146,10 +146,10 @@ class priceisset implements bo_condition {
         $context = context_module::instance($settings->cmid);
         if (!class_exists('local_shopping_cart\shopping_cart') &&
             has_capability('mod/booking:bookforothers', $context)) {
-            return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_MYALERT];
+            return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_MYALERT];
         }
 
-        return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_MYBUTTON];
+        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_MYBUTTON];
     }
 
     /**

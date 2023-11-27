@@ -64,33 +64,33 @@ class message_sent extends \core\event\base {
     private function transform_msgparam(int $msgparam): string {
 
         switch ($msgparam) {
-            case MSGPARAM_CONFIRMATION:
+            case MOD_BOOKING_MSGPARAM_CONFIRMATION:
                 return 'Booking confirmation';
-            case MSGPARAM_WAITINGLIST:
+            case MOD_BOOKING_MSGPARAM_WAITINGLIST:
                 return 'Waiting list confirmation';
-            case MSGPARAM_REMINDER_PARTICIPANT:
+            case MOD_BOOKING_MSGPARAM_REMINDER_PARTICIPANT:
                 return 'Reminder';
-            case MSGPARAM_REMINDER_TEACHER:
+            case MOD_BOOKING_MSGPARAM_REMINDER_TEACHER:
                 return 'Teacher reminder';
-            case MSGPARAM_STATUS_CHANGED:
+            case MOD_BOOKING_MSGPARAM_STATUS_CHANGED:
                 return 'Status change';
-            case MSGPARAM_CANCELLED_BY_PARTICIPANT:
+            case MOD_BOOKING_MSGPARAM_CANCELLED_BY_PARTICIPANT:
                 return 'Option cancelled by participant';
-            case MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM:
+            case MOD_BOOKING_MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM:
                 return 'Option cancelled by teacher or system';
-            case MSGPARAM_CHANGE_NOTIFICATION:
+            case MOD_BOOKING_MSGPARAM_CHANGE_NOTIFICATION:
                 return 'Change notification';
-            case MSGPARAM_POLLURL_PARTICIPANT:
+            case MOD_BOOKING_MSGPARAM_POLLURL_PARTICIPANT:
                 return 'Poll URL message';
-            case MSGPARAM_POLLURL_TEACHER:
+            case MOD_BOOKING_MSGPARAM_POLLURL_TEACHER:
                 return 'Teacher\'s poll URL message';
-            case MSGPARAM_COMPLETED:
+            case MOD_BOOKING_MSGPARAM_COMPLETED:
                 return 'Booking option completion';
-            case MSGPARAM_SESSIONREMINDER:
+            case MOD_BOOKING_MSGPARAM_SESSIONREMINDER:
                 return 'Session reminder';
-            case MSGPARAM_REPORTREMINDER:
+            case MOD_BOOKING_MSGPARAM_REPORTREMINDER:
                 return 'Reminder sent from report';
-            case MSGPARAM_CUSTOM_MESSAGE:
+            case MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE:
                 return 'Custom message';
             default:
                 return 'Unknown message type';

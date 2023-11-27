@@ -106,10 +106,10 @@ class bookit_price implements renderable, templatable {
             $userstatus = $bookinganswers->user_status($buyforuser->id);
 
             switch ($userstatus) {
-                case STATUSPARAM_RESERVED:
-                case STATUSPARAM_NOTBOOKED:
-                case STATUSPARAM_DELETED:
-                case STATUSPARAM_NOTIFYMELIST:
+                case MOD_BOOKING_STATUSPARAM_RESERVED:
+                case MOD_BOOKING_STATUSPARAM_NOTBOOKED:
+                case MOD_BOOKING_STATUSPARAM_DELETED:
+                case MOD_BOOKING_STATUSPARAM_NOTIFYMELIST:
                     if ($this->priceitem = price::get_price('option', $settings->id, $buyforuser)) {
 
                         $cartitem = new cartitem($settings->id,

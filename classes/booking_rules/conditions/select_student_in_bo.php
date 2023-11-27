@@ -89,10 +89,10 @@ class select_student_in_bo implements booking_rule_condition {
 
         $courseroles = [
             -1 => get_string('choose...', 'mod_booking'),
-            STATUSPARAM_BOOKED => get_string('studentbooked', 'mod_booking'),
-            STATUSPARAM_WAITINGLIST => get_string('studentwaitinglist', 'mod_booking'),
-            STATUSPARAM_NOTIFYMELIST => get_string('studentnotificationlist', 'mod_booking'),
-            STATUSPARAM_DELETED => get_string('studentdeleted', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_BOOKED => get_string('studentbooked', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_WAITINGLIST => get_string('studentwaitinglist', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_NOTIFYMELIST => get_string('studentnotificationlist', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_DELETED => get_string('studentdeleted', 'mod_booking'),
         ];
 
         $mform->addElement('select', 'condition_select_student_in_bo_borole',

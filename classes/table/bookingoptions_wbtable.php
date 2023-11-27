@@ -486,7 +486,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         $isteacherofthisoption = booking_check_if_teacher($values);
         if (!empty($settings->courseid) && (
-            $status == STATUSPARAM_BOOKED ||
+            $status == MOD_BOOKING_STATUSPARAM_BOOKED ||
             has_capability('mod/booking:updatebooking', context_system::instance()) ||
             $isteacherofthisoption)) {
             // The link will be shown to everyone who...
@@ -640,7 +640,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $ddoptions = [];
         $ret = '<div class="menubar" id="action-menu-' . $optionid . '-menubar" role="menubar">';
 
-        if ($status == STATUSPARAM_BOOKED) {
+        if ($status == MOD_BOOKING_STATUSPARAM_BOOKED) {
             $ret .= html_writer::link(
                 new moodle_url('/mod/booking/viewconfirmation.php',
                     ['id' => $cmid, 'optionid' => $optionid]),

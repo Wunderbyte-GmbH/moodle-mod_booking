@@ -46,7 +46,7 @@ class send_notification_mails extends \core\task\scheduled_task {
 
         global $CFG, $DB;
 
-        $results = $DB->get_records('booking_answers', ['waitinglist' => STATUSPARAM_NOTIFYMELIST]);
+        $results = $DB->get_records('booking_answers', ['waitinglist' => MOD_BOOKING_STATUSPARAM_NOTIFYMELIST]);
 
         foreach ($results as $result) {
             $bookingid = $result->bookingid;
@@ -65,7 +65,7 @@ class send_notification_mails extends \core\task\scheduled_task {
                 $DB->delete_records('booking_answers',
                     ['userid' => $userid,
                     'optionid' => $optionid,
-                    'waitinglist' => STATUSPARAM_NOTIFYMELIST,
+                    'waitinglist' => MOD_BOOKING_STATUSPARAM_NOTIFYMELIST,
                 ]);
                 // Do not forget to purge cache afterwards.
                 booking_option::purge_cache_for_option($optionid);
@@ -105,8 +105,8 @@ class send_notification_mails extends \core\task\scheduled_task {
 
             // Use message controller to send the completion message.
             $messagecontroller = new message_controller(
-                    MSGCONTRPARAM_SEND_NOW,
-                    MSGPARAM_CUSTOM_MESSAGE,
+                    MOD_BOOKING_MSGCONTRPARAM_SEND_NOW,
+                    MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE,
                     $booking->cmid,
                     null,
                     $optionid,

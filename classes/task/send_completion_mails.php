@@ -56,7 +56,8 @@ class send_completion_mails extends \core\task\adhoc_task {
 
             // Use message controller to send the completion message.
             $messagecontroller = new message_controller(
-                MSGCONTRPARAM_SEND_NOW, MSGPARAM_COMPLETED, $taskdata->cmid, null, $taskdata->optionid, $taskdata->userid
+                MOD_BOOKING_MSGCONTRPARAM_SEND_NOW, MOD_BOOKING_MSGPARAM_COMPLETED,
+                $taskdata->cmid, null, $taskdata->optionid, $taskdata->userid
             );
 
             if ($messagecontroller->send_or_queue()) {

@@ -38,18 +38,18 @@ use MoodleQuickForm;
 use stdClass;
 
 // The blocking condition can return a value to define which button to use.
-define('BO_BUTTON_INDIFFERENT', 0);
-define('BO_BUTTON_MYBUTTON', 1); // Used for price or book it.
-define('BO_BUTTON_NOBUTTON', 2); // Forces no button (Eg special subbookings).
-define('BO_BUTTON_MYALERT', 3); // Alert is a weaker form of MYBUTTON. With special rights, Button is still shown.
-define('BO_BUTTON_JUSTMYALERT', 4); // A strong Alert which also prevents buttons to be displayed.
+define('MOD_BOOKING_BO_BUTTON_INDIFFERENT', 0);
+define('MOD_BOOKING_BO_BUTTON_MYBUTTON', 1); // Used for price or book it.
+define('MOD_BOOKING_BO_BUTTON_NOBUTTON', 2); // Forces no button (Eg special subbookings).
+define('MOD_BOOKING_BO_BUTTON_MYALERT', 3); // Alert is a weaker form of MYBUTTON. With special rights, Button is still shown.
+define('MOD_BOOKING_BO_BUTTON_JUSTMYALERT', 4); // A strong Alert which also prevents buttons to be displayed.
 
 // Define if there are sites and if so, if they are prepend, postpend or booking relevant.
-define('BO_PREPAGE_NONE', 0); // This condition provides no page.
-define('BO_PREPAGE_BOOK', 1); // This condition does only provide a booking page (button or price).
+define('MOD_BOOKING_BO_PREPAGE_NONE', 0); // This condition provides no page.
+define('MOD_BOOKING_BO_PREPAGE_BOOK', 1); // This condition does only provide a booking page (button or price).
                               // It's only used when there are other pages as well.
-define('BO_PREPAGE_PREBOOK', 2); // This should be before the bookit button.
-define('BO_PREPAGE_POSTBOOK', 3); // This should be after the bookit button.
+define('MOD_BOOKING_BO_PREPAGE_PREBOOK', 2); // This should be before the bookit button.
+define('MOD_BOOKING_BO_PREPAGE_POSTBOOK', 3); // This should be after the bookit button.
 
 /**
  * class for conditional availability information of a booking option
@@ -261,7 +261,7 @@ class bo_subinfo {
                 get_string('availabilityconditions', 'mod_booking'));
         }
 
-        $conditions = self::get_subconditions(CONDPARAM_MFORM_ONLY);
+        $conditions = self::get_subconditions(MOD_BOOKING_CONDPARAM_MFORM_ONLY);
 
         foreach ($conditions as $condition) {
             // For each condition, add the appropriate form fields.
@@ -280,7 +280,7 @@ class bo_subinfo {
         $optionid = $fromform->optionid;
 
         if (!empty($optionid) && $optionid > 0) {
-            $conditions = self::get_subconditions(CONDPARAM_JSON_ONLY);
+            $conditions = self::get_subconditions(MOD_BOOKING_CONDPARAM_JSON_ONLY);
             $arrayforjson = [];
 
             foreach ($conditions as $condition) {
@@ -471,11 +471,11 @@ class bo_subinfo {
         $showbutton = true;
 
         // First, sort all the pages according to this system:
-        // Depending on the BO_PREPAGE_x constant, we order them pre or post the real booking button.
+        // Depending on the MOD_BOOKING_BO_PREPAGE_x constant, we order them pre or post the real booking button.
         foreach ($results as $result) {
 
             // One no button condition tetermines this for all.
-            if ($result['button'] === BO_BUTTON_NOBUTTON) {
+            if ($result['button'] === MOD_BOOKING_BO_BUTTON_NOBUTTON) {
                 $showbutton = false;
             }
 
@@ -485,13 +485,13 @@ class bo_subinfo {
             ];
 
             switch ($result['insertpage']) {
-                case BO_PREPAGE_BOOK:
+                case MOD_BOOKING_BO_PREPAGE_BOOK:
                     $prepages['book'] = $newclass;
                     break;
-                case BO_PREPAGE_PREBOOK:
+                case MOD_BOOKING_BO_PREPAGE_PREBOOK:
                     $prepages['pre'][] = $newclass;
                     break;
-                case BO_PREPAGE_POSTBOOK:
+                case MOD_BOOKING_BO_PREPAGE_POSTBOOK:
                     $prepages['post'][] = $newclass;
                     break;
             }

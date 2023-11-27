@@ -47,7 +47,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 class subbooking implements bo_condition {
 
     /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = BO_COND_SUBBOOKING;
+    public $id = MOD_BOOKING_BO_COND_SUBBOOKING;
 
     /* Important: Soft subbookings are not overridable as they need to do
     a "soft block" so they appear in prepage modals but do not block the
@@ -144,7 +144,7 @@ class subbooking implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full);
 
-        return [$isavailable, $description, BO_PREPAGE_POSTBOOK, BO_BUTTON_INDIFFERENT];
+        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_POSTBOOK, MOD_BOOKING_BO_BUTTON_INDIFFERENT];
     }
 
     /**

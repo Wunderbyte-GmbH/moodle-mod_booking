@@ -22,7 +22,7 @@ use stdClass;
  * Contains methods for license verification and more.
  */
 class wb_payment {
-    const PUBLIC_KEY = "-----BEGIN PUBLIC KEY-----
+    const MOD_BOOKING_PUBLIC_KEY = "-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu8vRBnPDug2pKoGY9wQS
 KNTK1SzrPuU0KC8xm22GPQZQM1XkPpvNwBp8CmXUN29r/qiPxapDNVmIH5Ectvb+
 NA7EsuVSS8xV6HfjV0tNZKIfFA4b1JD7t6l4gGDLuoppvKQV9n1JP/uZhQlFZ8Dg
@@ -44,7 +44,7 @@ pwIDAQAB
         $encryptedlicensekey = base64_decode($encryptedlicensekey);
 
         // Step 2: Decrypt using public key.
-        openssl_public_decrypt($encryptedlicensekey, $licensekey, self::PUBLIC_KEY);
+        openssl_public_decrypt($encryptedlicensekey, $licensekey, self::MOD_BOOKING_PUBLIC_KEY);
 
         // Step 3: Do another base64 decode and decrypt using wwwroot.
         $c = base64_decode($licensekey);

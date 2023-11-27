@@ -53,7 +53,7 @@ require_once($CFG->dirroot . '/user/profile/lib.php');
 class selectusers implements bo_condition {
 
     /** @var int $id Id is set via json during construction but we still need a default ID */
-    public $id = BO_COND_JSON_SELECTUSERS;
+    public $id = MOD_BOOKING_BO_COND_JSON_SELECTUSERS;
 
     /** @var bool $overridable Indicates if the condition can be overriden. */
     public $overridable = true;
@@ -172,7 +172,7 @@ class selectusers implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full, $settings);
 
-        return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_MYALERT];
+        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_MYALERT];
     }
 
     /**
@@ -230,7 +230,7 @@ class selectusers implements bo_condition {
             $mform->hideIf('bo_cond_selectusers_overrideoperator', 'bo_cond_selectusers_overrideconditioncheckbox',
                 'notchecked');
 
-            $overrideconditions = bo_info::get_conditions(CONDPARAM_CANBEOVERRIDDEN);
+            $overrideconditions = bo_info::get_conditions(MOD_BOOKING_CONDPARAM_CANBEOVERRIDDEN);
             $overrideconditionsarray = [];
             foreach ($overrideconditions as $overridecondition) {
                 // We do not combine conditions with each other.

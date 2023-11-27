@@ -49,7 +49,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 class confirmcancel implements bo_condition {
 
     /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = BO_COND_CONFIRMCANCEL;
+    public $id = MOD_BOOKING_BO_COND_CONFIRMCANCEL;
 
     /**
      * Needed to see if class can take JSON.
@@ -93,7 +93,7 @@ class confirmcancel implements bo_condition {
             $cachekey = $userid . "_" . $settings->id . '_cancel';
 
             $blocktime = $cache->get($cachekey);
-            if (!$blocktime || $blocktime < strtotime('- ' . TIME_TO_CONFIRM . ' seconds', time())) {
+            if (!$blocktime || $blocktime < strtotime('- ' . MOD_BOOKING_TIME_TO_CONFIRM . ' seconds', time())) {
                 $isavailable = true;
             }
         }
@@ -148,7 +148,7 @@ class confirmcancel implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full);
 
-        return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_CANCEL];
+        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_CANCEL];
     }
 
     /**

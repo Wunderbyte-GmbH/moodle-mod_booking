@@ -415,7 +415,7 @@ if (!$tableallbookings->is_downloading()) {
                  has_capability('mod/booking:communicate', $context)) {
 
             // Send a custom reminder email.
-            $bookingoption->sendmessage_notification(MSGPARAM_REPORTREMINDER, $allselectedusers);
+            $bookingoption->sendmessage_notification(MOD_BOOKING_MSGPARAM_REPORTREMINDER, $allselectedusers);
 
             redirect($url, get_string('sendreminderemailsuccess', 'booking'), 5);
         } else if (isset($_POST['booktootherbooking']) && (booking_check_if_teacher(
@@ -446,7 +446,7 @@ if (!$tableallbookings->is_downloading()) {
             foreach ($allselectedusers as $value) {
                 $user = new stdClass();
                 $user->id = $value;
-                if (!$tmpbooking->user_submit_response($user, $optionid)) {
+                if (!$tmpbooking->user_submit_response($user, $optionid, 0, false, MOD_BOOKING_VERIFIED)) {
                     redirect($url, get_string('bookingfulldidntregister', 'mod_booking'), 5);
                 }
             }

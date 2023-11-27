@@ -103,7 +103,7 @@ class dates_handler {
         $option = singleton_service::get_instance_of_booking_option($booking->cmid, $this->optionid);
         $users = $option->get_all_users();
         foreach ($users as $user) {
-            new calendar($booking->cmid, $this->optionid, $user->id, calendar::TYPEOPTIONDATE, $optiondateid, 1);
+            new calendar($booking->cmid, $this->optionid, $user->id, calendar::MOD_BOOKING_TYPEOPTIONDATE, $optiondateid, 1);
         }
         return $optiondateid;
     }

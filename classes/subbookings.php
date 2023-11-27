@@ -79,7 +79,7 @@ class subbookings {
 
         $now = time();
 
-        $status = $addedtocart ? STATUSPARAM_BOOKED : STATUSPARAM_RESERVED;
+        $status = $addedtocart ? MOD_BOOKING_STATUSPARAM_BOOKED : MOD_BOOKING_STATUSPARAM_RESERVED;
 
         $record = (object)[
             'sboptionid' => $sboid,

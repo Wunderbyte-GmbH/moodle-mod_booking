@@ -190,7 +190,7 @@ class actions_info {
 
             $context = context_module::instance($data->cmid);
 
-            booking_update_options($optionvalues, $context, UPDATE_OPTIONS_PARAM_REDUCED);
+            booking_update_options($optionvalues, $context, MOD_BOOKING_UPDATE_OPTIONS_PARAM_REDUCED);
         }
 
     }

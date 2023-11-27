@@ -68,7 +68,7 @@ if ($settings = singleton_service::get_instance_of_booking_option_settings($opti
     // This needs to be fixed.
 
     $output = $PAGE->get_renderer('mod_booking');
-    $data = new bookingoption_description($settings->id, null, DESCRIPTION_OPTIONVIEW, true, null, $user);
+    $data = new bookingoption_description($settings->id, null, MOD_BOOKING_DESCRIPTION_OPTIONVIEW, true, null, $user);
 
     if ($data->is_invisible()) {
         // If the user does have the capability to see invisible options...

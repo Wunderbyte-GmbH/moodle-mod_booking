@@ -88,9 +88,9 @@ class get_booking_option_description extends external_api {
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
 
         // Check if user is booked.
-        $forbookeduser = $bookinganswer->user_status($userid) == STATUSPARAM_BOOKED ? true : false;
+        $forbookeduser = $bookinganswer->user_status($userid) == MOD_BOOKING_STATUSPARAM_BOOKED ? true : false;
 
-        $data = new bookingoption_description($optionid, null, DESCRIPTION_WEBSITE, true, $forbookeduser, $user);
+        $data = new bookingoption_description($optionid, null, MOD_BOOKING_DESCRIPTION_WEBSITE, true, $forbookeduser, $user);
 
         // Fix invisible attribute, by converting to bool.
         if (isset($data->invisible) && $data->invisible == 1) {

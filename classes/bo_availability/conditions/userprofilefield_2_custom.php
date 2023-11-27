@@ -51,7 +51,7 @@ require_once($CFG->dirroot . '/user/profile/lib.php');
 class userprofilefield_2_custom implements bo_condition {
 
     /** @var int $id Id is set via json during construction */
-    public $id = BO_COND_JSON_CUSTOMUSERPROFILEFIELD;
+    public $id = MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD;
 
     /** @var bool $overridable Indicates if the condition can be overriden. */
     public $overridable = true;
@@ -233,7 +233,7 @@ class userprofilefield_2_custom implements bo_condition {
 
         $description = self::get_description_string($isavailable, $full, $settings);
 
-        return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_MYALERT];
+        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_MYALERT];
     }
 
     /**
@@ -306,7 +306,7 @@ class userprofilefield_2_custom implements bo_condition {
                 $mform->hideIf('bo_cond_customuserprofilefield_overrideoperator',
                     'bo_cond_customuserprofilefield_overrideconditioncheckbox', 'notchecked');
 
-                $overrideconditions = bo_info::get_conditions(CONDPARAM_CANBEOVERRIDDEN);
+                $overrideconditions = bo_info::get_conditions(MOD_BOOKING_CONDPARAM_CANBEOVERRIDDEN);
                 $overrideconditionsarray = [];
                 foreach ($overrideconditions as $overridecondition) {
                     // We do not combine conditions with each other.

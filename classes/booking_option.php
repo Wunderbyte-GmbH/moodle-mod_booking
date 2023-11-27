@@ -354,7 +354,8 @@ class booking_option {
         }
 
         if ($this->booking->settings->ratings == 2) {
-            if (in_array($bookinganswers->user_status($USER->id), [STATUSPARAM_BOOKED, STATUSPARAM_WAITINGLIST])) {
+            if (in_array($bookinganswers->user_status($USER->id),
+                [MOD_BOOKING_STATUSPARAM_BOOKED, MOD_BOOKING_STATUSPARAM_WAITINGLIST])) {
                 return true;
             } else {
                 return false;
@@ -398,8 +399,8 @@ class booking_option {
 
         // New message controller.
         $messagecontroller = new message_controller(
-            MSGCONTRPARAM_DO_NOT_SEND, // We do not want to send anything here.
-            MSGPARAM_CONFIRMATION,
+            MOD_BOOKING_MSGCONTRPARAM_DO_NOT_SEND, // We do not want to send anything here.
+            MOD_BOOKING_MSGPARAM_CONFIRMATION,
             $this->booking->cm->id,
             $this->bookingid,
             $this->optionid,
@@ -408,7 +409,8 @@ class booking_option {
         // Get the email params from message controller.
         $params = $messagecontroller->get_params();
 
-        if (in_array($bookinganswers->user_status($userid), [STATUSPARAM_BOOKED, STATUSPARAM_WAITINGLIST])) {
+        if (in_array($bookinganswers->user_status($userid),
+            [MOD_BOOKING_STATUSPARAM_BOOKED, MOD_BOOKING_STATUSPARAM_WAITINGLIST])) {
             $ac = $bookinganswers->is_activity_completed($userid);
             if ($ac == 1) {
                 if (!empty($this->option->aftercompletedtext)) {
@@ -612,12 +614,12 @@ class booking_option {
                     ['userid' => $userid,
                       'optionid' => $this->optionid,
                       'completed' => 0,
-                      'waitinglist' => STATUSPARAM_RESERVED,
+                      'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED,
                     ]);
         } else {
             foreach ($results as $result) {
-                if ($result->waitinglist != STATUSPARAM_DELETED) {
-                    $result->waitinglist = STATUSPARAM_DELETED;
+                if ($result->waitinglist != MOD_BOOKING_STATUSPARAM_DELETED) {
+                    $result->waitinglist = MOD_BOOKING_STATUSPARAM_DELETED;
                     $result->timemodified = time();
                     // We mark all the booking answers as deleted.
 
@@ -646,7 +648,7 @@ class booking_option {
 
         foreach ($subbookings as $subbooking) {
             // We delete this subbooking option.
-            subbookings_info::save_response($subbooking->area, $subbooking->itemid, STATUSPARAM_DELETED, $userid);
+            subbookings_info::save_response($subbooking->area, $subbooking->itemid, MOD_BOOKING_STATUSPARAM_DELETED, $userid);
         }
 
         if ($cancelreservation) {
@@ -681,10 +683,10 @@ class booking_option {
 
             if ($userid == $USER->id) {
                 // Participant cancelled the booking herself.
-                $msgparam = MSGPARAM_CANCELLED_BY_PARTICIPANT;
+                $msgparam = MOD_BOOKING_MSGPARAM_CANCELLED_BY_PARTICIPANT;
             } else {
                 // An admin user cancelled the booking.
-                $msgparam = MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM;
+                $msgparam = MOD_BOOKING_MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM;
             }
 
             // Before sending an e-mail, we make sure that caches are purged.
@@ -692,7 +694,7 @@ class booking_option {
 
             // Let's send the cancel e-mails by using adhoc tasks.
             $messagecontroller = new message_controller(
-                MSGCONTRPARAM_QUEUE_ADHOC, $msgparam,
+                MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC, $msgparam,
                 $this->cmid, $this->bookingid, $this->optionid, $userid
             );
             $messagecontroller->send_or_queue();
@@ -755,7 +757,7 @@ class booking_option {
                 ORDER BY ba.timecreated ASC';
             $users = $DB->get_records_sql($sql, $inparams);
             foreach ($users as $user) {
-                if ($otheroption->user_submit_response($user, 0, 1, false, true)) {
+                if ($otheroption->user_submit_response($user, 0, 1, false, MOD_BOOKING_VERIFIED)) {
                     $transferred->yes[] = $user;
                 } else {
                     $transferred->no[] = $user;
@@ -802,13 +804,13 @@ class booking_option {
                 while (!empty($usersonwaitinglist)) {
                     $currentanswer = array_shift($usersonwaitinglist);
                     $user = singleton_service::get_instance_of_user($currentanswer->userid);
-                    $this->user_submit_response($user, 0, 0, false, true);
+                    $this->user_submit_response($user, 0, 0, false, MOD_BOOKING_VERIFIED);
                     $this->enrol_user_coursestart($currentanswer->userid);
 
                     // Before sending, we delete the booking answers cache!
                     self::purge_cache_for_option($this->optionid);
                     $messagecontroller = new message_controller(
-                        MSGCONTRPARAM_QUEUE_ADHOC, MSGPARAM_STATUS_CHANGED,
+                        MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC, MOD_BOOKING_MSGPARAM_STATUS_CHANGED,
                         $this->cmid, $this->bookingid, $this->optionid, $currentanswer->userid
                     );
                     $messagecontroller->send_or_queue();
@@ -823,13 +825,13 @@ class booking_option {
                 array_push($usersonwaitinglist, $currentanswer);
 
                 $user = singleton_service::get_instance_of_user($currentanswer->userid);
-                $this->user_submit_response($user, 0, 0, false, true);
+                $this->user_submit_response($user, 0, 0, false, MOD_BOOKING_VERIFIED);
                 $this->unenrol_user($currentanswer->userid);
 
                 // Before sending, we delete the booking answers cache!
                 self::purge_cache_for_option($this->optionid);
                 $messagecontroller = new message_controller(
-                    MSGCONTRPARAM_QUEUE_ADHOC, MSGPARAM_STATUS_CHANGED,
+                    MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC, MOD_BOOKING_MSGPARAM_STATUS_CHANGED,
                     $this->cmid, $this->bookingid, $this->optionid, $currentanswer->userid
                 );
                 $messagecontroller->send_or_queue();
@@ -855,7 +857,7 @@ class booking_option {
                 // Before sending, we delete the booking answers cache!
                 self::purge_cache_for_option($this->optionid);
                 $messagecontroller = new message_controller(
-                    MSGCONTRPARAM_QUEUE_ADHOC, MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM,
+                    MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC, MOD_BOOKING_MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM,
                     $this->cmid, $this->bookingid, $this->optionid, $currentanswer->userid
                 );
                 $messagecontroller->send_or_queue();
@@ -865,13 +867,13 @@ class booking_option {
             // If option was set to unlimited, we book all users that have been on the waiting list and inform them.
             foreach ($ba->usersonwaitinglist as $currentanswer) {
                 $user = singleton_service::get_instance_of_user($currentanswer->userid);
-                $this->user_submit_response($user, 0, 0, false, true);
+                $this->user_submit_response($user, 0, 0, false, MOD_BOOKING_VERIFIED);
                 $this->enrol_user_coursestart($currentanswer->userid);
 
                 // Before sending, we delete the booking answers cache!
                 self::purge_cache_for_option($this->optionid);
                 $messagecontroller = new message_controller(
-                    MSGCONTRPARAM_QUEUE_ADHOC, MSGPARAM_STATUS_CHANGED,
+                    MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC, MOD_BOOKING_MSGPARAM_STATUS_CHANGED,
                     $this->cmid, $this->bookingid, $this->optionid, $currentanswer->userid
                 );
                 $messagecontroller->send_or_queue();
@@ -921,7 +923,7 @@ class booking_option {
             $frombookingid = 0,
             $subtractfromlimit = 0,
             $addedtocart = false,
-            $verified = UNVERIFIED) {
+            $verified = MOD_BOOKING_UNVERIFIED) {
 
         // First check, we only accept verified submissions.
         // This function always needs to be called with the verified param.
@@ -951,7 +953,7 @@ class booking_option {
             /* echo "Couldn't subscribe user $user->id because of full waitinglist <br>";*/
             return false;
         } else if ($addedtocart) {
-            $waitinglist = STATUSPARAM_RESERVED;
+            $waitinglist = MOD_BOOKING_STATUSPARAM_RESERVED;
         }
 
         // Only if maxperuser is set, the part after the OR is executed.
@@ -968,30 +970,30 @@ class booking_option {
 
         if (isset($bookinganswers->users[$user->id]) && ($currentanswer = $bookinganswers->users[$user->id])) {
             switch($currentanswer->waitinglist) {
-                case STATUSPARAM_DELETED:
+                case MOD_BOOKING_STATUSPARAM_DELETED:
                     break;
-                case STATUSPARAM_BOOKED:
+                case MOD_BOOKING_STATUSPARAM_BOOKED:
                     // If we come from sync_waiting_list it might be possible that someone is moved from booked to waiting list.
                     // If we are already booked, we don't do anything.
-                    if ($waitinglist == STATUSPARAM_BOOKED) {
+                    if ($waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED) {
                         return true;
                     }
                     // Else, we might move from booked to waitinglist, we just continue.
                     break;
-                case STATUSPARAM_RESERVED:
+                case MOD_BOOKING_STATUSPARAM_RESERVED:
                     // If the old and the new value is reserved, we just return true, we don't need to do anything.
-                    if ($waitinglist == STATUSPARAM_RESERVED) {
+                    if ($waitinglist == MOD_BOOKING_STATUSPARAM_RESERVED) {
                         return true;
                     }
                     // Else, we might move from reserved to booked, we just continue.
                     break;
-                case STATUSPARAM_WAITINGLIST:
-                    if ($waitinglist == STATUSPARAM_WAITINGLIST) {
+                case MOD_BOOKING_STATUSPARAM_WAITINGLIST:
+                    if ($waitinglist == MOD_BOOKING_STATUSPARAM_WAITINGLIST) {
                         return true;
                     }
                     // Else, we might move from waitinglist to booked, we just continue.
                     break;
-                case STATUSPARAM_NOTIFYMELIST:
+                case MOD_BOOKING_STATUSPARAM_NOTIFYMELIST:
                     // If we have a notification...
                     // ... we override it here, because all alternatives are higher.
                     break;
@@ -1086,7 +1088,7 @@ class booking_option {
         foreach ($ba->answers as $answer) {
             if ($answer->optionid == $this->settings->id
                     && $answer->userid == $user->id
-                    && $answer->waitinglist == STATUSPARAM_RESERVED) {
+                    && $answer->waitinglist == MOD_BOOKING_STATUSPARAM_RESERVED) {
                 $currentanswers[] = $answer;
             }
         }
@@ -1099,11 +1101,12 @@ class booking_option {
         foreach ($currentanswers as $currentanswer) {
             // This should never happen, but if we have more than one reservation, we just confirm the first and delete the rest.
             if ($counter > 0) {
-                $DB->delete_records('booking_answers', ['id' => $currentanswer->id, 'waitinglist' => STATUSPARAM_RESERVED]);
+                $DB->delete_records('booking_answers',
+                    ['id' => $currentanswer->id, 'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED]);
             } else {
                 // When it's the first reserveration, we just confirm it.
                 $currentanswer->timemodified = time();
-                $currentanswer->waitinglist = STATUSPARAM_BOOKED;
+                $currentanswer->waitinglist = MOD_BOOKING_STATUSPARAM_BOOKED;
 
                 self::write_user_answer_to_db($this->settings->bookingid,
                                                $currentanswer->frombookingid ?? 0,
@@ -1119,7 +1122,7 @@ class booking_option {
 
         if ($counter > 0) {
             try {
-                $this->after_successful_booking_routine($user, STATUSPARAM_BOOKED);
+                $this->after_successful_booking_routine($user, MOD_BOOKING_STATUSPARAM_BOOKED);
                 return true;
             } catch (Exception $e) {
                 // We do not want this to fail if there was an exception.
@@ -1144,7 +1147,7 @@ class booking_option {
         global $DB;
 
         // If we have only put the option in the shopping card (reserved) we will skip the rest of the fucntion here.
-        if ($waitinglist == STATUSPARAM_RESERVED) {
+        if ($waitinglist == MOD_BOOKING_STATUSPARAM_RESERVED) {
 
             return true;
         }
@@ -1208,24 +1211,25 @@ class booking_option {
 
         $user = $DB->get_record('user', ['id' => $user->id]);
 
-        // Status can be STATUSPARAM_BOOKED (0), STATUSPARAM_NOTBOOKED (4), STATUSPARAM_WAITINGLIST (1).
+        /* Status can be MOD_BOOKING_STATUSPARAM_BOOKED (0), MOD_BOOKING_STATUSPARAM_NOTBOOKED (4),
+        MOD_BOOKING_STATUSPARAM_WAITINGLIST (1). */
         $ba = singleton_service::get_instance_of_booking_answers($this->settings);
         $status = $ba->user_status($user->id);
 
         if ($optionchanged) {
 
             // Change notification.
-            $msgparam = MSGPARAM_CHANGE_NOTIFICATION;
+            $msgparam = MOD_BOOKING_MSGPARAM_CHANGE_NOTIFICATION;
 
-        } else if ($status == STATUSPARAM_BOOKED) {
+        } else if ($status == MOD_BOOKING_STATUSPARAM_BOOKED) {
 
             // Booking confirmation.
-            $msgparam = MSGPARAM_CONFIRMATION;
+            $msgparam = MOD_BOOKING_MSGPARAM_CONFIRMATION;
 
-        } else if ($status == STATUSPARAM_WAITINGLIST) {
+        } else if ($status == MOD_BOOKING_STATUSPARAM_WAITINGLIST) {
 
             // Waiting list confirmation.
-            $msgparam = MSGPARAM_WAITINGLIST;
+            $msgparam = MOD_BOOKING_MSGPARAM_WAITINGLIST;
 
         } else {
             // Error: No message can be sent.
@@ -1234,7 +1238,8 @@ class booking_option {
 
         // Use message controller to send the message.
         $messagecontroller = new message_controller(
-            MSGCONTRPARAM_QUEUE_ADHOC, $msgparam, $this->cmid, $this->bookingid, $this->optionid, $user->id, null, $changes
+            MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC, $msgparam, $this->cmid, $this->bookingid,
+            $this->optionid, $user->id, null, $changes
         );
         $messagecontroller->send_or_queue();
 
@@ -1277,7 +1282,7 @@ class booking_option {
         $bookinganswers = booking_answers::get_instance_from_optionid($this->optionid);
 
         $instance = reset($instances); // Use the first manual enrolment plugin in the course.
-        if ($bookinganswers->user_status($userid) == STATUSPARAM_BOOKED || $isteacher) {
+        if ($bookinganswers->user_status($userid) == MOD_BOOKING_STATUSPARAM_BOOKED || $isteacher) {
 
             // If a semester is set for the booking option...
             // ...then we only want to enrol from semester startdate to semester enddate.
@@ -1654,12 +1659,12 @@ class booking_option {
         // Therefore, we take the one array which actually is present.
         if ($bookingstatus = reset($bookingstatus)) {
             if (isset($bookingstatus['fullybooked']) && !$bookingstatus['fullybooked']) {
-                return STATUSPARAM_BOOKED;
+                return MOD_BOOKING_STATUSPARAM_BOOKED;
             } else if (isset($bookingstatus['freeonwaitinglist']) && $bookingstatus['freeonwaitinglist'] > 0) {
-                return STATUSPARAM_WAITINGLIST;
+                return MOD_BOOKING_STATUSPARAM_WAITINGLIST;
             } else {
                 if ($allowoverbooking) {
-                    return STATUSPARAM_BOOKED;
+                    return MOD_BOOKING_STATUSPARAM_BOOKED;
                 } else {
                     return false;
                 }
@@ -1716,7 +1721,7 @@ class booking_option {
         $failed = [];
         foreach ($users as $user) {
             $this->user_delete_response($user->userid);
-            if (!$newoption->user_submit_response($user, 0, 0, false, VERIFIED)) {
+            if (!$newoption->user_submit_response($user, 0, 0, false, MOD_BOOKING_VERIFIED)) {
                 $failed[$user->userid] = $user->firstname . ' ' . $user->lastname . ' (' . $user->email . ')';
             }
         }
@@ -1788,7 +1793,7 @@ class booking_option {
 
         if ($bookinganswers->usersonlist[$suser]->completed == 0) {
             $userdata = $DB->get_record('booking_answers',
-                    ['optionid' => $this->optionid, 'userid' => $userid, 'waitinglist' => STATUSPARAM_BOOKED]);
+                    ['optionid' => $this->optionid, 'userid' => $userid, 'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED]);
             $userdata->completed = '1';
             $userdata->timemodified = time();
 
@@ -2060,7 +2065,7 @@ class booking_option {
 
             // Use message controller to send the Poll URL to every selected user.
             $messagecontroller = new message_controller(
-                MSGCONTRPARAM_SEND_NOW, MSGPARAM_POLLURL_PARTICIPANT,
+                MOD_BOOKING_MSGCONTRPARAM_SEND_NOW, MOD_BOOKING_MSGPARAM_POLLURL_PARTICIPANT,
                 $this->cmid, $this->bookingid, $this->optionid, $userid
             );
             $messagecontroller->send_or_queue();
@@ -2094,7 +2099,7 @@ class booking_option {
 
             // Use message controller to send the Poll URL to teacher(s).
             $messagecontroller = new message_controller(
-                MSGCONTRPARAM_SEND_NOW, MSGPARAM_POLLURL_TEACHER,
+                MOD_BOOKING_MSGCONTRPARAM_SEND_NOW, MOD_BOOKING_MSGPARAM_POLLURL_TEACHER,
                 $this->cmid, $this->bookingid, $this->optionid, $teacher->userid
             );
             $messagecontroller->send_or_queue();
@@ -2127,7 +2132,7 @@ class booking_option {
             // Also make sure that teacher reminders won't be send to booked users.
             $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
             $answers = singleton_service::get_instance_of_booking_answers($settings);
-            if (!empty($answers->usersonlist) && $messageparam !== MSGPARAM_REMINDER_TEACHER) {
+            if (!empty($answers->usersonlist) && $messageparam !== MOD_BOOKING_MSGPARAM_REMINDER_TEACHER) {
                 foreach ($answers->usersonlist as $currentuser) {
                     $tmpuser = new stdClass();
                     $tmpuser->id = $currentuser->userid;
@@ -2141,7 +2146,7 @@ class booking_option {
         foreach ($allusers as $user) {
 
             $messagecontroller = new message_controller(
-                MSGCONTRPARAM_SEND_NOW, $messageparam, $this->cmid,
+                MOD_BOOKING_MSGCONTRPARAM_SEND_NOW, $messageparam, $this->cmid,
                 $this->bookingid, $this->optionid, $user->id, $optiondateid
             );
             $messagecontroller->send_or_queue();
@@ -2194,13 +2199,13 @@ class booking_option {
         }
 
         switch ($statusparam) {
-            case STATUSPARAM_BOOKED:
+            case MOD_BOOKING_STATUSPARAM_BOOKED:
                 $status = get_string('booked', 'booking');
                 break;
-            case STATUSPARAM_NOTBOOKED:
+            case MOD_BOOKING_STATUSPARAM_NOTBOOKED:
                 $status = get_string('notbooked', 'booking');
                 break;
-            case STATUSPARAM_WAITINGLIST:
+            case MOD_BOOKING_STATUSPARAM_WAITINGLIST:
                 $status = get_string('onwaitinglist', 'booking');
                 break;
             default:
@@ -2335,8 +2340,8 @@ class booking_option {
 
         switch ($descriptionparam) {
 
-            case DESCRIPTION_WEBSITE:
-            case DESCRIPTION_OPTIONVIEW:
+            case MOD_BOOKING_DESCRIPTION_WEBSITE:
+            case MOD_BOOKING_DESCRIPTION_OPTIONVIEW:
                 // We don't want to show these Buttons at all if the user is not booked.
                 if (!$forbookeduser) {
                     return [];
@@ -2355,7 +2360,7 @@ class booking_option {
                             'value' => "<a href=$field->value class='btn btn-info'>$field->cfgname</a>",
                     ];
                 };
-            case DESCRIPTION_CALENDAR:
+            case MOD_BOOKING_DESCRIPTION_CALENDAR:
                 // Calendar is static, so we don't have to check for booked or not.
                 // In all cases, we return the Teams-Button, going by the link.php.
                 if ($forbookeduser) {
@@ -2377,7 +2382,7 @@ class booking_option {
                 } else {
                     return [];
                 }
-            case DESCRIPTION_ICAL:
+            case MOD_BOOKING_DESCRIPTION_ICAL:
                 // User is booked, for ical no button but link only.
                 // For ical, we don't check for booked as it's always booked only.
                 $cm = $this->booking->cm;
@@ -2393,7 +2398,7 @@ class booking_option {
                         'name' => null,
                         'value' => "$field->cfgname: $link",
                 ];
-            case DESCRIPTION_MAIL:
+            case MOD_BOOKING_DESCRIPTION_MAIL:
                 // For the mail placeholder {bookingdetails} no button but link only.
                 // However, we can use HTML links in mails.
                 $cm = $this->booking->cm;
@@ -2430,7 +2435,7 @@ class booking_option {
         // First check if user is really booked.
         $bookinganswers = booking_answers::get_instance_from_optionid($this->optionid);
 
-        if ($bookinganswers->user_status($USER->id) != STATUSPARAM_BOOKED) {
+        if ($bookinganswers->user_status($USER->id) != MOD_BOOKING_STATUSPARAM_BOOKED) {
                 return false;
         }
 
@@ -2491,7 +2496,7 @@ class booking_option {
             // If the user does this for herself or she has the right to do it for others, we toggle the state.
 
             // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-            /* booking_bookit::answer_booking_option('option', $optionid, STATUSPARAM_NOTIFYMELIST, $userid); */
+            /* booking_bookit::answer_booking_option('option', $optionid, MOD_BOOKING_STATUSPARAM_NOTIFYMELIST, $userid); */
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
             $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
 
@@ -2500,14 +2505,14 @@ class booking_option {
                                                     0,
                                                     $userid,
                                                     $optionid,
-                                                    STATUSPARAM_NOTIFYMELIST);
+                                                    MOD_BOOKING_STATUSPARAM_NOTIFYMELIST);
                 $status = 1;
             } else {
                 // As the deletion here has no further consequences, we can do it directly in DB.
                 $DB->delete_records('booking_answers',
                                     ['userid' => $userid,
                                     'optionid' => $optionid,
-                                    'waitinglist' => STATUSPARAM_NOTIFYMELIST,
+                                    'waitinglist' => MOD_BOOKING_STATUSPARAM_NOTIFYMELIST,
                                     ]);
 
                 // Do not forget to purge cache afterwards.
@@ -2782,7 +2787,7 @@ class booking_option {
                 with an "OR" operator, we want to allow overbooking. */
                 if (isset($ac->id)
                     && isset($ac->overrideoperator) && $ac->overrideoperator === 'OR'
-                    && isset($ac->overrides) && in_array("" . BO_COND_FULLYBOOKED . "", $ac->overrides)) {
+                    && isset($ac->overrides) && in_array("" . MOD_BOOKING_BO_COND_FULLYBOOKED . "", $ac->overrides)) {
                     return true;
                 }
             }

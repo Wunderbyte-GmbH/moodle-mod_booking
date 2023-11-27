@@ -454,8 +454,8 @@ class subbooking_timeslot implements booking_subbooking {
                 }
                 // If the answer relevant for our status.
                 switch ($answer->status) {
-                    case STATUSPARAM_BOOKED:
-                    case STATUSPARAM_RESERVED:
+                    case MOD_BOOKING_STATUSPARAM_BOOKED:
+                    case MOD_BOOKING_STATUSPARAM_RESERVED:
                         $slot['free'] = false;
                         if ($answer->userid == $userid) {
                             $slot['tag'] = get_string('booked', 'mod_booking');

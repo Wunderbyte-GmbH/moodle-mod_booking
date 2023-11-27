@@ -50,7 +50,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 class cancelmyself implements bo_condition {
 
     /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = BO_COND_CANCELMYSELF;
+    public $id = MOD_BOOKING_BO_COND_CANCELMYSELF;
 
     /**
      * Needed to see if class can take JSON.
@@ -169,7 +169,7 @@ class cancelmyself implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full);
 
-        return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_CANCEL];
+        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_CANCEL];
     }
 
     /**

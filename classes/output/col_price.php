@@ -90,10 +90,10 @@ class col_price implements renderable, templatable {
             // When deleted, we can book again.
 
             switch ($bookinganswers->user_status($buyforuser->id)) {
-                case STATUSPARAM_RESERVED:
-                case STATUSPARAM_NOTBOOKED:
-                case STATUSPARAM_DELETED:
-                case STATUSPARAM_NOTIFYMELIST:
+                case MOD_BOOKING_STATUSPARAM_RESERVED:
+                case MOD_BOOKING_STATUSPARAM_NOTBOOKED:
+                case MOD_BOOKING_STATUSPARAM_DELETED:
+                case MOD_BOOKING_STATUSPARAM_NOTIFYMELIST:
                     if ($this->priceitem = price::get_price('option', $values->id, $buyforuser)) {
 
                         $cartitem = new cartitem($values->id,

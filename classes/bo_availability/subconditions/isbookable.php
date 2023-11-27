@@ -50,7 +50,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 class isbookable implements bo_subcondition {
 
     /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = BO_COND_ISBOOKABLE;
+    public $id = MOD_BOOKING_BO_COND_ISBOOKABLE;
 
     /**
      * Needed to see if class can take JSON.
@@ -93,8 +93,8 @@ class isbookable implements bo_subcondition {
 
         // If the user is not yet booked in the option we return fasle.
         switch ($bookinganswer->user_status($userid)) {
-            case STATUSPARAM_BOOKED:
-            case STATUSPARAM_RESERVED:
+            case MOD_BOOKING_STATUSPARAM_BOOKED:
+            case MOD_BOOKING_STATUSPARAM_RESERVED:
                 $isavailable = true;
                 break;
             default:
@@ -136,7 +136,7 @@ class isbookable implements bo_subcondition {
 
         $description = $this->get_description_string($isavailable, $full);
 
-        return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_JUSTMYALERT];
+        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_JUSTMYALERT];
     }
 
     /**

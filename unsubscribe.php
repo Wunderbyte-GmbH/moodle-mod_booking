@@ -67,12 +67,12 @@ switch ($action) {
         if ($DB->record_exists('booking_answers',
             ['userid' => $userid,
             'optionid' => $optionid,
-            'waitinglist' => STATUSPARAM_NOTIFYMELIST,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_NOTIFYMELIST,
         ])) {
             $DB->delete_records('booking_answers',
                 ['userid' => $userid,
                 'optionid' => $optionid,
-                'waitinglist' => STATUSPARAM_NOTIFYMELIST,
+                'waitinglist' => MOD_BOOKING_STATUSPARAM_NOTIFYMELIST,
             ]);
             $messagetoshow = "<div class='alert alert-success'><i class='fa fa-bell-slash-o' aria-hidden='true'></i>&nbsp;" .
                 get_string('unsubscribe:successnotificationlist', 'mod_booking', $settings->get_title_with_prefix()) .

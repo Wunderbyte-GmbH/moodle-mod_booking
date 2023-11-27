@@ -39,126 +39,119 @@ use mod_booking\teachers_handler;
 use mod_booking\utils\wb_payment;
 
 // Default fields for bookingoptions in view.php and for download.
-define('BOOKINGOPTION_DEFAULTFIELDS', "identifier,titleprefix,text,description,teacher,responsiblecontact," .
+define('MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS', "identifier,titleprefix,text,description,teacher,responsiblecontact," .
 "showdates,dayofweektime,location,institution,course,minanswers,bookings");
 
 // Currently up to 9 different price categories can be set.
-define('MAX_PRICE_CATEGORIES', 9);
-
-// Currently up to 20 different semesters can be created.
-define('MAX_SEMESTERS', 20);
+define('MOD_BOOKING_MAX_PRICE_CATEGORIES', 9);
 
 // Time to confirm booking or cancellation in seconds.
-define('TIME_TO_CONFIRM', 20);
+define('MOD_BOOKING_TIME_TO_CONFIRM', 20);
 
 // Define description parameters.
-define('DESCRIPTION_WEBSITE', 1); // Shows link button with text "book now" and no link to TeamsMeeting etc.
-define('DESCRIPTION_CALENDAR', 2); // Shows link button with text "go to bookingoption" and meeting links via link.php.
-define('DESCRIPTION_ICAL', 3); // Shows link with text "go to bookingoption" and meeting links via link.php for iCal.
-define('DESCRIPTION_MAIL', 4); // Shows link with text "go to bookingoption" and meeting links via link.php...
+define('MOD_BOOKING_DESCRIPTION_WEBSITE', 1); // Shows link button with text "book now" and no link to TeamsMeeting etc.
+define('MOD_BOOKING_DESCRIPTION_CALENDAR', 2); // Shows link button with text "go to bookingoption" and meeting links via link.php.
+define('MOD_BOOKING_DESCRIPTION_ICAL', 3); // Shows link with text "go to bookingoption" and meeting links via link.php for iCal.
+define('MOD_BOOKING_DESCRIPTION_MAIL', 4); // Shows link with text "go to bookingoption" and meeting links via link.php...
                             // ...for mail placeholder {bookingdetails}.
-define('DESCRIPTION_OPTIONVIEW', 5); // Description for booking option preview page.
+define('MOD_BOOKING_DESCRIPTION_OPTIONVIEW', 5); // Description for booking option preview page.
 
 // Define message parameters.
-define('MSGPARAM_CONFIRMATION', 1);
-define('MSGPARAM_WAITINGLIST', 2);
-define('MSGPARAM_REMINDER_PARTICIPANT', 3);
-define('MSGPARAM_REMINDER_TEACHER', 4);
-define('MSGPARAM_STATUS_CHANGED', 5);
-define('MSGPARAM_CANCELLED_BY_PARTICIPANT', 6);
-define('MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM', 7);
-define('MSGPARAM_CHANGE_NOTIFICATION', 8);
-define('MSGPARAM_POLLURL_PARTICIPANT', 9);
-define('MSGPARAM_POLLURL_TEACHER', 10);
-define('MSGPARAM_COMPLETED', 11);
-define('MSGPARAM_SESSIONREMINDER', 12);
-define('MSGPARAM_REPORTREMINDER', 13); // Reminder sent from report.php.
-define('MSGPARAM_CUSTOM_MESSAGE', 14);
+define('MOD_BOOKING_MSGPARAM_CONFIRMATION', 1);
+define('MOD_BOOKING_MSGPARAM_WAITINGLIST', 2);
+define('MOD_BOOKING_MSGPARAM_REMINDER_PARTICIPANT', 3);
+define('MOD_BOOKING_MSGPARAM_REMINDER_TEACHER', 4);
+define('MOD_BOOKING_MSGPARAM_STATUS_CHANGED', 5);
+define('MOD_BOOKING_MSGPARAM_CANCELLED_BY_PARTICIPANT', 6);
+define('MOD_BOOKING_MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM', 7);
+define('MOD_BOOKING_MSGPARAM_CHANGE_NOTIFICATION', 8);
+define('MOD_BOOKING_MSGPARAM_POLLURL_PARTICIPANT', 9);
+define('MOD_BOOKING_MSGPARAM_POLLURL_TEACHER', 10);
+define('MOD_BOOKING_MSGPARAM_COMPLETED', 11);
+define('MOD_BOOKING_MSGPARAM_SESSIONREMINDER', 12);
+define('MOD_BOOKING_MSGPARAM_REPORTREMINDER', 13); // Reminder sent from report.php.
+define('MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE', 14);
 
 // Define booking status parameters.
-define('STATUSPARAM_BOOKED', 0);
-define('STATUSPARAM_WAITINGLIST', 1);
-define('STATUSPARAM_RESERVED', 2);
-define('STATUSPARAM_NOTIFYMELIST', 3); // Get message when place is open.
-define('STATUSPARAM_NOTBOOKED', 4);
-define('STATUSPARAM_DELETED', 5);
+define('MOD_BOOKING_STATUSPARAM_BOOKED', 0);
+define('MOD_BOOKING_STATUSPARAM_WAITINGLIST', 1);
+define('MOD_BOOKING_STATUSPARAM_RESERVED', 2);
+define('MOD_BOOKING_STATUSPARAM_NOTIFYMELIST', 3); // Get message when place is open.
+define('MOD_BOOKING_STATUSPARAM_NOTBOOKED', 4);
+define('MOD_BOOKING_STATUSPARAM_DELETED', 5);
 
 // Params to define behavior of booking_update_options.
-define('UPDATE_OPTIONS_PARAM_DEFAULT', 1);
-define('UPDATE_OPTIONS_PARAM_REDUCED', 2);
-define('UPDATE_OPTIONS_PARAM_IMPORT', 3);
+define('MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT', 1);
+define('MOD_BOOKING_UPDATE_OPTIONS_PARAM_REDUCED', 2);
+define('MOD_BOOKING_UPDATE_OPTIONS_PARAM_IMPORT', 3);
 
 // Define message controller parameters.
-define('MSGCONTRPARAM_SEND_NOW', 1);
-define('MSGCONTRPARAM_QUEUE_ADHOC', 2);
-define('MSGCONTRPARAM_DO_NOT_SEND', 3);
-define('MSGCONTRPARAM_VIEW_CONFIRMATION', 4);
+define('MOD_BOOKING_MSGCONTRPARAM_SEND_NOW', 1);
+define('MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC', 2);
+define('MOD_BOOKING_MSGCONTRPARAM_DO_NOT_SEND', 3);
+define('MOD_BOOKING_MSGCONTRPARAM_VIEW_CONFIRMATION', 4);
 
 // Define booking availability condition ids.
-define('BO_COND_ISLOGGEDINPRICE', 190);
-define('BO_COND_ISLOGGEDIN', 180);
-define('BO_COND_CONFIRMCANCEL', 170);
-define('BO_COND_CANCELMYSELF', 105);
-define('BO_COND_ALREADYBOOKED', 150);
-define('BO_COND_ALREADYRESERVED', 140);
-define('BO_COND_ISCANCELLED', 130);
-define('BO_COND_ISBOOKABLE', 120);
-define('BO_COND_ONWAITINGLIST', 110);
-define('BO_COND_NOTIFYMELIST', 100);
-define('BO_COND_FULLYBOOKED', 90);
-define('BO_COND_MAX_NUMBER_OF_BOOKINGS', 80);
-define('BO_COND_OPTIONHASSTARTED', 70);
-define('BO_COND_BOOKING_TIME', 60);
-define('BO_COND_BOOKINGPOLICY', 50);
-define('BO_COND_SUBBOOKINGBLOCKS', 45);
-define('BO_COND_SUBBOOKING', 40);
-define('BO_COND_CAMPAIGN_BLOCKBOOKING', 35);
+define('MOD_BOOKING_BO_COND_ISLOGGEDINPRICE', 190);
+define('MOD_BOOKING_BO_COND_ISLOGGEDIN', 180);
+define('MOD_BOOKING_BO_COND_CONFIRMCANCEL', 170);
+define('MOD_BOOKING_BO_COND_CANCELMYSELF', 105);
+define('MOD_BOOKING_BO_COND_ALREADYBOOKED', 150);
+define('MOD_BOOKING_BO_COND_ALREADYRESERVED', 140);
+define('MOD_BOOKING_BO_COND_ISCANCELLED', 130);
+define('MOD_BOOKING_BO_COND_ISBOOKABLE', 120);
+define('MOD_BOOKING_BO_COND_ONWAITINGLIST', 110);
+define('MOD_BOOKING_BO_COND_NOTIFYMELIST', 100);
+define('MOD_BOOKING_BO_COND_FULLYBOOKED', 90);
+define('MOD_BOOKING_BO_COND_MAX_NUMBER_OF_BOOKINGS', 80);
+define('MOD_BOOKING_BO_COND_OPTIONHASSTARTED', 70);
+define('MOD_BOOKING_BO_COND_BOOKING_TIME', 60);
+define('MOD_BOOKING_BO_COND_BOOKINGPOLICY', 50);
+define('MOD_BOOKING_BO_COND_SUBBOOKINGBLOCKS', 45);
+define('MOD_BOOKING_BO_COND_SUBBOOKING', 40);
+define('MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING', 35);
 
-define('BO_COND_JSON_CUSTOMFORM', 16);
-define('BO_COND_JSON_ENROLLEDINCOURSE', 15);
-define('BO_COND_JSON_SELECTUSERS', 14);
-define('BO_COND_JSON_PREVIOUSLYBOOKED', 13);
-define('BO_COND_JSON_CUSTOMUSERPROFILEFIELD', 12);
-define('BO_COND_JSON_USERPROFILEFIELD', 11);
+define('MOD_BOOKING_BO_COND_JSON_CUSTOMFORM', 16);
+define('MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE', 15);
+define('MOD_BOOKING_BO_COND_JSON_SELECTUSERS', 14);
+define('MOD_BOOKING_BO_COND_JSON_PREVIOUSLYBOOKED', 13);
+define('MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD', 12);
+define('MOD_BOOKING_BO_COND_JSON_USERPROFILEFIELD', 11);
 
-define('BO_COND_ELECTIVENOTBOOKABLE', 10);
-define('BO_COND_ELECTIVEBOOKITBUTTON', 9);
+define('MOD_BOOKING_BO_COND_ELECTIVENOTBOOKABLE', 10);
+define('MOD_BOOKING_BO_COND_ELECTIVEBOOKITBUTTON', 9);
 
-define('BO_COND_CONFIRMBOOKWITHSUBSCRIPTION', 8);
-define('BO_COND_BOOKWITHSUBSCRIPTION', 7);
+define('MOD_BOOKING_BO_COND_CONFIRMBOOKWITHSUBSCRIPTION', 8);
+define('MOD_BOOKING_BO_COND_BOOKWITHSUBSCRIPTION', 7);
 
-define('BO_COND_CONFIRMBOOKWITHCREDITS', 6);
-define('BO_COND_BOOKWITHCREDITS', 5);
+define('MOD_BOOKING_BO_COND_CONFIRMBOOKWITHCREDITS', 6);
+define('MOD_BOOKING_BO_COND_BOOKWITHCREDITS', 5);
 
-define('BO_COND_NOSHOPPINGCART', 4);
-define('BO_COND_PRICEISSET', 3);
+define('MOD_BOOKING_BO_COND_NOSHOPPINGCART', 4);
+define('MOD_BOOKING_BO_COND_PRICEISSET', 3);
 
-define('BO_COND_CONFIRMBOOKIT', 2);
-define('BO_COND_BOOKITBUTTON', 1); // This is only used to show the book it button.
-define('BO_COND_CONFIRMATION', 0); // This is the last page after booking.
-
-// Define booking options status.
-define('BO_STATUS_NORMAL', 0);
-define('BO_STATUS_CANCELLED_AND_VISIBLE', 1);
+define('MOD_BOOKING_BO_COND_CONFIRMBOOKIT', 2);
+define('MOD_BOOKING_BO_COND_BOOKITBUTTON', 1); // This is only used to show the book it button.
+define('MOD_BOOKING_BO_COND_CONFIRMATION', 0); // This is the last page after booking.
 
 // Define conditions parameters.
-define('CONDPARAM_ALL', 0);
-define('CONDPARAM_HARDCODED_ONLY', 1);
-define('CONDPARAM_JSON_ONLY', 2);
-define('CONDPARAM_MFORM_ONLY', 3);
-define('CONDPARAM_CANBEOVERRIDDEN', 4);
+define('MOD_BOOKING_CONDPARAM_ALL', 0);
+define('MOD_BOOKING_CONDPARAM_HARDCODED_ONLY', 1);
+define('MOD_BOOKING_CONDPARAM_JSON_ONLY', 2);
+define('MOD_BOOKING_CONDPARAM_MFORM_ONLY', 3);
+define('MOD_BOOKING_CONDPARAM_CANBEOVERRIDDEN', 4);
 
 // Define status for booking & subbooking options.
-define('UNVERIFIED', 0);
-define('PENDING', 1);
-define('VERIFIED', 1);
+define('MOD_BOOKING_UNVERIFIED', 0);
+define('MOD_BOOKING_PENDING', 1);
+define('MOD_BOOKING_VERIFIED', 2);
 
 // Define common bookin settings.
-define('PAGINATIONDEF', 25);
+define('MOD_BOOKING_PAGINATIONDEF', 25);
 
 // Define campaign types.
-define('CAMPAIGN_TYPE_CUSTOMFIELD', 0);
-define('CAMPAIGN_TYPE_BLOCKBOOKING', 1);
+define('MOD_BOOKING_CAMPAIGN_TYPE_CUSTOMFIELD', 0);
+define('MOD_BOOKING_CAMPAIGN_TYPE_BLOCKBOOKING', 1);
 
 /**
  * @param stdClass $cm
@@ -478,14 +471,14 @@ function booking_add_instance($booking) {
     if (isset($booking->optionsfields) && is_array($booking->optionsfields) && count($booking->optionsfields) > 0) {
         $booking->optionsfields = implode(',', $booking->optionsfields);
     } else {
-        $booking->optionsfields = BOOKINGOPTION_DEFAULTFIELDS;
+        $booking->optionsfields = MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS;
     }
 
     if (isset($booking->optionsdownloadfields) && is_array($booking->optionsdownloadfields)
         && count($booking->optionsdownloadfields) > 0) {
         $booking->optionsdownloadfields = implode(',', $booking->optionsdownloadfields);
     } else {
-        $booking->optionsdownloadfields = BOOKINGOPTION_DEFAULTFIELDS;
+        $booking->optionsdownloadfields = MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS;
     }
 
     if (isset($booking->signinsheetfields) && is_array($booking->signinsheetfields)
@@ -619,14 +612,14 @@ function booking_update_instance($booking) {
     if (isset($booking->optionsfields) && is_array($booking->optionsfields) && count($booking->optionsfields) > 0) {
         $booking->optionsfields = implode(',', $booking->optionsfields);
     } else {
-        $booking->optionsfields = BOOKINGOPTION_DEFAULTFIELDS;
+        $booking->optionsfields = MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS;
     }
 
     if (isset($booking->optionsdownloadfields) && is_array($booking->optionsdownloadfields)
         && count($booking->optionsdownloadfields) > 0) {
         $booking->optionsdownloadfields = implode(',', $booking->optionsdownloadfields);
     } else {
-        $booking->optionsdownloadfields = BOOKINGOPTION_DEFAULTFIELDS;
+        $booking->optionsdownloadfields = MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS;
     }
 
     if (isset($booking->categoryid) && count($booking->categoryid) > 0) {
@@ -769,7 +762,8 @@ function booking_update_instance($booking) {
  * @param int $updateparam optional param to define behavior
  * @return bool|number optionid
  */
-function booking_update_options(object $optionvalues, context_module $context, int $updateparam = UPDATE_OPTIONS_PARAM_DEFAULT) {
+function booking_update_options(object $optionvalues, context_module $context,
+    int $updateparam = MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT) {
     global $DB, $CFG, $PAGE, $USER;
 
     require_once("$CFG->dirroot/mod/booking/locallib.php");
@@ -1184,7 +1178,8 @@ function booking_update_options(object $optionvalues, context_module $context, i
             $option->availability = $optionvalues->availability;
 
             // This is the default behavior but we do not want this when using other update params.
-            if ($updateparam == UPDATE_OPTIONS_PARAM_DEFAULT || $updateparam == UPDATE_OPTIONS_PARAM_IMPORT) {
+            if ($updateparam == MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT ||
+                $updateparam == MOD_BOOKING_UPDATE_OPTIONS_PARAM_IMPORT) {
                 // Elective.
                 // Save combination arrays to DB.
                 if (!empty($booking->iselective)) {
@@ -1253,7 +1248,8 @@ function booking_update_options(object $optionvalues, context_module $context, i
             $DB->update_record("booking_options", $option);
 
             // This is the default behavior but we do not want this when using other update params.
-            if ($updateparam == UPDATE_OPTIONS_PARAM_DEFAULT || $updateparam == UPDATE_OPTIONS_PARAM_IMPORT) {
+            if ($updateparam == MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT ||
+                $updateparam == MOD_BOOKING_UPDATE_OPTIONS_PARAM_IMPORT) {
                 if (!empty($booking->addtogroup) && $option->courseid > 0) {
                     $bo = singleton_service::get_instance_of_booking_option($context->instanceid, $option->id);
                     $bo->option->courseid = $option->courseid;
@@ -1289,7 +1285,7 @@ function booking_update_options(object $optionvalues, context_module $context, i
         }
 
         // This is the default behavior but we do not want this when using other update params.
-        if ($updateparam == UPDATE_OPTIONS_PARAM_DEFAULT || $updateparam == UPDATE_OPTIONS_PARAM_IMPORT) {
+        if ($updateparam == MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT || $updateparam == MOD_BOOKING_UPDATE_OPTIONS_PARAM_IMPORT) {
 
             // Update start and end date of the option depending on the sessions.
             booking_updatestartenddate($option->id);
@@ -1311,7 +1307,7 @@ function booking_update_options(object $optionvalues, context_module $context, i
             $teachershandler->save_from_form($optionvalues);
 
             // Save relation for each newly created optiondate if checkbox is active.
-            $isimport = $updateparam == UPDATE_OPTIONS_PARAM_IMPORT ? true : false; // For import we need to force this!
+            $isimport = $updateparam == MOD_BOOKING_UPDATE_OPTIONS_PARAM_IMPORT ? true : false; // For import we need to force this!
             save_entity_relations_for_optiondates_of_option($optionvalues, $option->id, $isimport);
         }
 
@@ -1487,7 +1483,7 @@ function booking_update_options(object $optionvalues, context_module $context, i
         deal_with_multisessions($optionvalues, $booking, $optionid, $context);
 
         // Save relation for each newly created optiondate if checkbox is active.
-        $isimport = $updateparam == UPDATE_OPTIONS_PARAM_IMPORT ? true : false; // For import we need to force this!
+        $isimport = $updateparam == MOD_BOOKING_UPDATE_OPTIONS_PARAM_IMPORT ? true : false; // For import we need to force this!
         save_entity_relations_for_optiondates_of_option($optionvalues, $optionid, $isimport);
 
         // Save the additional JSON conditions (the ones which have been added to the mform).

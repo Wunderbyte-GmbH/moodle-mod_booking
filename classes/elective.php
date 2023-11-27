@@ -283,7 +283,7 @@ class elective {
         $answers = $DB->get_records_sql($sql,
                                         ['bookingid' => $bookingoption->booking->id,
                                         'userid' => $userid,
-                                        'waitinglist' => STATUSPARAM_BOOKED,
+                                        'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
                                         ]);
 
         // We run through the list of options.
@@ -398,7 +398,7 @@ class elective {
         AND ba.waitinglist =:bookingstatus";
 
         $params = [
-            'bookingstatus' => STATUSPARAM_RESERVED,
+            'bookingstatus' => MOD_BOOKING_STATUSPARAM_RESERVED,
         ];
 
         $data = $DB->get_records_sql($sql, $params);
@@ -530,7 +530,7 @@ class elective {
 
         list($inorequal, $params) = $DB->get_in_or_equal($settings->electivecombinations['mustnotcombine'], SQL_PARAMS_NAMED);
 
-        $params['reserved'] = STATUSPARAM_RESERVED;
+        $params['reserved'] = MOD_BOOKING_STATUSPARAM_RESERVED;
 
         $sql = "SELECT *
                 FROM {booking_answers} ba

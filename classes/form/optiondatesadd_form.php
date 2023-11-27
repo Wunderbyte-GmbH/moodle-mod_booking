@@ -34,7 +34,7 @@ use local_entities\entitiesrelation_handler;
 use moodleform;
 use stdClass;
 
-const MAX_CUSTOM_FIELDS = 3;
+const MOD_BOOKING_MAX_CUSTOM_FIELDS = 3;
 
 /**
  * Add option date form.
@@ -166,7 +166,7 @@ class optiondatesadd_form extends moodleform {
                 $j++;
             }
             // Now, if there are less than the maximum number of custom fields allow adding additional ones.
-            if (count($customfields) < MAX_CUSTOM_FIELDS) {
+            if (count($customfields) < MOD_BOOKING_MAX_CUSTOM_FIELDS) {
                 // Between one to three custom fields are supported.
                 $start = count($customfields) + 1;
                 $this->addcustomfields($mform, $start);
@@ -187,7 +187,7 @@ class optiondatesadd_form extends moodleform {
         // Add checkbox to add first customfield.
         $mform->addElement('checkbox', 'addcustomfield' . $counter, get_string('addcustomfield', 'mod_booking'));
 
-        while ($counter <= MAX_CUSTOM_FIELDS) {
+        while ($counter <= MOD_BOOKING_MAX_CUSTOM_FIELDS) {
             // New elements have a default customfieldid of 0.
             $mform->addElement('hidden', 'customfieldid' . $counter, 0);
             $mform->setType('customfieldid' . $counter, PARAM_INT);
@@ -226,7 +226,7 @@ class optiondatesadd_form extends moodleform {
             $mform->setType('deletecustomfield' . $counter, PARAM_INT);
 
             // Show checkbox to add a custom field.
-            if ($counter < MAX_CUSTOM_FIELDS) {
+            if ($counter < MOD_BOOKING_MAX_CUSTOM_FIELDS) {
                 $mform->addElement('checkbox', 'addcustomfield' . ($counter + 1), get_string('addcustomfield', 'mod_booking'));
                 $mform->hideIf('addcustomfield' . ($counter + 1), 'addcustomfield' . $counter, 'notchecked');
             }
@@ -256,7 +256,7 @@ class optiondatesadd_form extends moodleform {
         }
 
         // Validate custom fields.
-        for ($i = 1; $i <= MAX_CUSTOM_FIELDS; $i++) {
+        for ($i = 1; $i <= MOD_BOOKING_MAX_CUSTOM_FIELDS; $i++) {
             $customfieldnamex = $data['customfieldname' . $i];
             $customfieldvaluex = $data['customfieldvalue' . $i];
             // The field name is not allowed to be empty if there is a value.

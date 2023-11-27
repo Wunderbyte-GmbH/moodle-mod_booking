@@ -32,12 +32,12 @@ require_once($CFG->dirroot.'/calendar/lib.php');
  */
 class calendar {
 
-    const TYPEOPTION = 1;
-    const TYPEUSER = 2;
-    const TYPETEACHERADD = 3;
-    const TYPETEACHERREMOVE = 4;
-    const TYPETEACHERUPDATE = 5;
-    const TYPEOPTIONDATE = 6;
+    const MOD_BOOKING_TYPEOPTION = 1;
+    const MOD_BOOKING_TYPEUSER = 2;
+    const MOD_BOOKING_TYPETEACHERADD = 3;
+    const MOD_BOOKING_TYPETEACHERREMOVE = 4;
+    const MOD_BOOKING_TYPETEACHERUPDATE = 5;
+    const MOD_BOOKING_TYPEOPTIONDATE = 6;
 
     private $optionid;
     private $userid;
@@ -66,14 +66,14 @@ class calendar {
         if (count($optionsettings->sessions) == 1) {
             $onlysession = array_pop($optionsettings->sessions);
             if ($onlysession->id == 0) {
-                $this->type = $this::TYPEOPTION;
+                $this->type = $this::MOD_BOOKING_TYPEOPTION;
             }
         }
 
         $newcalendarid = 0;
 
         switch ($this->type) {
-            case $this::TYPEOPTION:
+            case $this::MOD_BOOKING_TYPEOPTION:
                 if ($justbooked) {
                     // A user has just booked an option. The event will be created as USER event.
                     $newcalendarid = $this->booking_option_add_to_cal($bookingoption->booking->settings,
@@ -122,7 +122,7 @@ class calendar {
                     }
                 }
                 break;
-            case $this::TYPEOPTIONDATE:
+            case $this::MOD_BOOKING_TYPEOPTIONDATE:
                 if ($justbooked) {
                     // A user has just booked. The events will be created as USER events.
 
@@ -175,10 +175,10 @@ class calendar {
                 }
                 break;
 
-            case $this::TYPEUSER:
+            case $this::MOD_BOOKING_TYPEUSER:
                 break;
 
-            case $this::TYPETEACHERADD:
+            case $this::MOD_BOOKING_TYPETEACHERADD:
                 $newcalendarid = $this->booking_option_add_to_cal($bookingoption->booking->settings,
                     $bookingoption->option, 0, $this->userid);
                 if ($newcalendarid) {
@@ -187,7 +187,7 @@ class calendar {
                 }
                 break;
 
-            case $this::TYPETEACHERUPDATE:
+            case $this::MOD_BOOKING_TYPETEACHERUPDATE:
                 $calendarid = $DB->get_field('booking_teachers', 'calendarid',
                     ['userid' => $this->userid, 'optionid' => $this->optionid]);
                 $newcalendarid = $this->booking_option_add_to_cal($bookingoption->booking->settings,
@@ -196,7 +196,7 @@ class calendar {
                     ['userid' => $this->userid, 'optionid' => $this->optionid]);
                 break;
 
-            case $this::TYPETEACHERREMOVE:
+            case $this::MOD_BOOKING_TYPETEACHERREMOVE:
                 $calendarid = $DB->get_field('booking_teachers', 'calendarid',
                     ['userid' => $this->userid, 'optionid' => $this->optionid]);
 
@@ -241,13 +241,13 @@ class calendar {
             $courseid = 0;
             $instance = 0;
             $visible = 1;
-            $fulldescription = get_rendered_eventdescription($option->id, $this->cmid, DESCRIPTION_CALENDAR);
+            $fulldescription = get_rendered_eventdescription($option->id, $this->cmid, MOD_BOOKING_DESCRIPTION_CALENDAR);
         } else {
             // Event calendar.
             $courseid = !empty($booking->course) ? $booking->course : 0;
             $instance = $option->bookingid;
             $visible = instance_is_visible('booking', $booking);
-            $fulldescription = get_rendered_eventdescription($option->id, $this->cmid, DESCRIPTION_CALENDAR);
+            $fulldescription = get_rendered_eventdescription($option->id, $this->cmid, MOD_BOOKING_DESCRIPTION_CALENDAR);
         }
 
         $event = new stdClass();
@@ -333,13 +333,14 @@ class calendar {
             // If the user is booked, we have a different kind of description.
             $bookedusers = $bookingoption->get_all_users_booked();
             $forbookeduser = isset($bookedusers[$userid]);
-            $fulldescription = get_rendered_eventdescription($option->id, $this->cmid, DESCRIPTION_CALENDAR, $forbookeduser);
+            $fulldescription = get_rendered_eventdescription($option->id, $this->cmid,
+                MOD_BOOKING_DESCRIPTION_CALENDAR, $forbookeduser);
         } else {
             // Event calendar.
             $courseid = !empty($booking->course) ? $booking->course : 0;
             $instance = $option->bookingid;
             $visible = instance_is_visible('booking', $booking);
-            $fulldescription = get_rendered_eventdescription($option->id, $this->cmid, DESCRIPTION_CALENDAR);
+            $fulldescription = get_rendered_eventdescription($option->id, $this->cmid, MOD_BOOKING_DESCRIPTION_CALENDAR);
         }
 
         $event = new stdClass();

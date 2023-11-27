@@ -51,7 +51,7 @@ class campaignslist implements renderable, templatable {
 
         foreach ($campaigns as $campaign) {
             switch ($campaign->type) {
-                case CAMPAIGN_TYPE_CUSTOMFIELD:
+                case MOD_BOOKING_CAMPAIGN_TYPE_CUSTOMFIELD:
                     $campaign->bookingcampaigntype = 'campaign_customfield';
                     $campaignobj = json_decode($campaign->json);
                     $a = new stdClass;
@@ -62,7 +62,7 @@ class campaignslist implements renderable, templatable {
                     $campaign->localizedstart = $this->render_localized_timestamp($campaign->starttime, current_language());
                     $campaign->localizedend = $this->render_localized_timestamp($campaign->endtime, current_language());
                     break;
-                case CAMPAIGN_TYPE_BLOCKBOOKING:
+                case MOD_BOOKING_CAMPAIGN_TYPE_BLOCKBOOKING:
                     $campaign->bookingcampaigntype = 'campaign_blockbooking';
                     $campaignobj = json_decode($campaign->json);
                     $a = new stdClass;

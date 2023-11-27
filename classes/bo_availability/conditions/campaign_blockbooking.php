@@ -49,7 +49,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 class campaign_blockbooking implements bo_condition {
 
     /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = BO_COND_CAMPAIGN_BLOCKBOOKING;
+    public $id = MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING;
 
     /** @var string $blockinglabel String to display when blocking. */
     private $blockinglabel = '';
@@ -148,7 +148,7 @@ class campaign_blockbooking implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full, $settings);
 
-        return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_MYALERT];
+        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_MYALERT];
     }
 
     /**

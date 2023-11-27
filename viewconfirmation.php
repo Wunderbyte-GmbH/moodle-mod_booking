@@ -72,14 +72,14 @@ if (!$answer) {
 }
 
 if ($answer->waitinglist == 1) {
-    $msgparam = MSGPARAM_WAITINGLIST;
+    $msgparam = MOD_BOOKING_MSGPARAM_WAITINGLIST;
 } else {
-    $msgparam = MSGPARAM_CONFIRMATION;
+    $msgparam = MOD_BOOKING_MSGPARAM_CONFIRMATION;
 }
 
 // New message controller.
 $messagecontroller = new message_controller(
-    MSGCONTRPARAM_VIEW_CONFIRMATION,
+    MOD_BOOKING_MSGCONTRPARAM_VIEW_CONFIRMATION,
     $msgparam,
     $cmid,
     $bookingoption->bookingid,

@@ -46,7 +46,7 @@ use stdClass;
 class enrolledincourse implements bo_condition {
 
     /** @var int $id set via json during construction */
-    public $id = BO_COND_JSON_ENROLLEDINCOURSE;
+    public $id = MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE;
 
     /** @var bool $overridable Indicates if the condition can be overridden. */
     public $overridable = true;
@@ -179,7 +179,7 @@ class enrolledincourse implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full, $settings);
 
-        return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_MYALERT];
+        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_MYALERT];
     }
 
     /**
@@ -241,7 +241,7 @@ class enrolledincourse implements bo_condition {
             $mform->hideIf('bo_cond_enrolledincourse_overrideoperator',
                 'bo_cond_enrolledincourse_overrideconditioncheckbox', 'notchecked');
 
-            $overrideconditions = bo_info::get_conditions(CONDPARAM_CANBEOVERRIDDEN);
+            $overrideconditions = bo_info::get_conditions(MOD_BOOKING_CONDPARAM_CANBEOVERRIDDEN);
             $overrideconditionsarray = [];
             foreach ($overrideconditions as $overridecondition) {
                 // We do not combine conditions of same type with each other.

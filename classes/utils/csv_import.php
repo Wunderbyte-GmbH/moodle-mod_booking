@@ -304,7 +304,7 @@ class csv_import {
                 if ($optionid === false) {
                     /** @var context_module $context */
                     $context = $this->booking->get_context();
-                    $optionid = booking_update_options($bookingoption, $context, UPDATE_OPTIONS_PARAM_IMPORT);
+                    $optionid = booking_update_options($bookingoption, $context, MOD_BOOKING_UPDATE_OPTIONS_PARAM_IMPORT);
                 }
                 // Set the option id again in order to use it in prepare_data for user data.
                 $bookingoption->id = $optionid;
@@ -422,7 +422,7 @@ class csv_import {
                         }
 
                         $option = singleton_service::get_instance_of_booking_option($this->cmid, $optionid);
-                        if ($option->user_submit_response($user, 0, 0, false, VERIFIED) === false) {
+                        if ($option->user_submit_response($user, 0, 0, false, MOD_BOOKING_VERIFIED) === false) {
                             $this->add_csverror("The user with username {$user->username} and e-mail {$user->email} was
                             not subscribed to the booking option", $i);
                         }
@@ -439,7 +439,7 @@ class csv_import {
                                 IGNORE_MULTIPLE);
                     if ($user !== false) {
                         $option = singleton_service::get_instance_of_booking_option($this->cmid, $optionid);
-                        $option->user_submit_response($user, 0, 0, false, VERIFIED);
+                        $option->user_submit_response($user, 0, 0, false, MOD_BOOKING_VERIFIED);
                     }
                 }
             }

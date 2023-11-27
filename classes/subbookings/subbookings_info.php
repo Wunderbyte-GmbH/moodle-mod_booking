@@ -384,50 +384,50 @@ class subbookings_info {
         // Do we need to update and if so, which records?
 
         switch ($status) {
-            case STATUSPARAM_BOOKED: // We actually book.
+            case MOD_BOOKING_STATUSPARAM_BOOKED: // We actually book.
                 // Check if there was a reserved or waiting list entry before.
                 self::update_or_insert_answer(
                     $subbooking,
                     $itemid,
                     $userid,
-                    STATUSPARAM_BOOKED,
-                    [STATUSPARAM_RESERVED, STATUSPARAM_WAITINGLIST]);
+                    MOD_BOOKING_STATUSPARAM_BOOKED,
+                    [MOD_BOOKING_STATUSPARAM_RESERVED, MOD_BOOKING_STATUSPARAM_WAITINGLIST]);
                 break;
-            case STATUSPARAM_WAITINGLIST: // We move to the waiting list.
+            case MOD_BOOKING_STATUSPARAM_WAITINGLIST: // We move to the waiting list.
                 // Check if there was a reserved entry before.
                 self::update_or_insert_answer(
                     $subbooking,
                     $itemid,
                     $userid,
-                    STATUSPARAM_WAITINGLIST,
-                    [STATUSPARAM_RESERVED]);
+                    MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+                    [MOD_BOOKING_STATUSPARAM_RESERVED]);
                 break;
-            case STATUSPARAM_RESERVED: // We only want to use shortterm reservation.
+            case MOD_BOOKING_STATUSPARAM_RESERVED: // We only want to use shortterm reservation.
                 // Check if there was a reserved or waiting list entry before.
                 self::update_or_insert_answer(
                     $subbooking,
                     $itemid,
                     $userid,
-                    STATUSPARAM_RESERVED,
-                    [STATUSPARAM_WAITINGLIST, STATUSPARAM_RESERVED]);
+                    MOD_BOOKING_STATUSPARAM_RESERVED,
+                    [MOD_BOOKING_STATUSPARAM_WAITINGLIST, MOD_BOOKING_STATUSPARAM_RESERVED]);
                 break;
-            case STATUSPARAM_NOTBOOKED: // We only want to delete the shortterm reservation.
+            case MOD_BOOKING_STATUSPARAM_NOTBOOKED: // We only want to delete the shortterm reservation.
                 // Check if there was a reserved entry before.
                 self::update_or_insert_answer(
                     $subbooking,
                     $itemid,
                     $userid,
-                    STATUSPARAM_NOTBOOKED,
-                    [STATUSPARAM_RESERVED]);
+                    MOD_BOOKING_STATUSPARAM_NOTBOOKED,
+                    [MOD_BOOKING_STATUSPARAM_RESERVED]);
                 break;
-            case STATUSPARAM_DELETED: // We delete the existing subscription.
+            case MOD_BOOKING_STATUSPARAM_DELETED: // We delete the existing subscription.
                 // Check if there was a booked entry before.
                 self::update_or_insert_answer(
                     $subbooking,
                     $itemid,
                     $userid,
-                    STATUSPARAM_DELETED,
-                    [STATUSPARAM_BOOKED]);
+                    MOD_BOOKING_STATUSPARAM_DELETED,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED]);
                 break;
         };
         return true;
@@ -455,7 +455,7 @@ class subbookings_info {
             while (count($records) > 0) {
                 $record = array_pop($records);
                 // We already popped one record, so count has to be 0.
-                if (count($records) == 0 && $newstatus !== STATUSPARAM_NOTBOOKED) {
+                if (count($records) == 0 && $newstatus !== MOD_BOOKING_STATUSPARAM_NOTBOOKED) {
                     $record->timemodified = $now;
                     $record->status = $newstatus;
                     $DB->update_record('booking_subbooking_answers', $record);
@@ -464,7 +464,7 @@ class subbookings_info {
                     $DB->delete_records('booking_subbooking_answers', ['id' => $record->id]);
                 }
             }
-        } else if ($newstatus !== STATUSPARAM_DELETED || $newstatus !== STATUSPARAM_NOTBOOKED) {
+        } else if ($newstatus !== MOD_BOOKING_STATUSPARAM_DELETED || $newstatus !== MOD_BOOKING_STATUSPARAM_NOTBOOKED) {
 
             $data = $subbooking->return_subbooking_information($itemid, $userid);
             $record = (object)[

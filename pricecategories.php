@@ -58,7 +58,7 @@ if ($mform->is_cancelled()) {
     if (empty($existingpricecategories)) {
         // There are no price categories yet.
         // Currently there can be up to nine price categories.
-        for ($i = 1; $i <= MAX_PRICE_CATEGORIES; $i++) {
+        for ($i = 1; $i <= MOD_BOOKING_MAX_PRICE_CATEGORIES; $i++) {
 
             $pricecategoryordernumx = 'pricecategoryordernum' . $i;
             $pricecategoryidentifierx = 'pricecategoryidentifier' . $i;

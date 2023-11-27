@@ -211,7 +211,7 @@ class mod_booking_observer {
             }
         } else { // This means that there are no multisessions.
             // This is for the course event.
-            new calendar($event->contextinstanceid, $optionid, 0, calendar::TYPEOPTION);
+            new calendar($event->contextinstanceid, $optionid, 0, calendar::MOD_BOOKING_TYPEOPTION);
 
             // This is for the user events.
             option_optiondate_update_event($option, null, $cmid);
@@ -220,7 +220,7 @@ class mod_booking_observer {
         $allteachers = $DB->get_fieldset_select('booking_teachers', 'userid', 'optionid = :optionid AND calendarid > 0',
             [ 'optionid' => $event->objectid]);
         foreach ($allteachers as $key => $value) {
-            new calendar($event->contextinstanceid, $event->objectid, $value, calendar::TYPETEACHERUPDATE);
+            new calendar($event->contextinstanceid, $event->objectid, $value, calendar::MOD_BOOKING_TYPETEACHERUPDATE);
         }
 
         // At the very last moment, when everything is done, we invalidate the table cache.
@@ -238,14 +238,15 @@ class mod_booking_observer {
         $optionid = $event->other['optionid'];
 
         new calendar($event->contextinstanceid, $optionid, 0,
-            calendar::TYPEOPTIONDATE, $event->objectid);
+            calendar::MOD_BOOKING_TYPEOPTIONDATE, $event->objectid);
 
         $cmid = $event->contextinstanceid;
         $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
 
         $users = $bookingoption->get_all_users_booked();
         foreach ($users as $user) {
-            new calendar($event->contextinstanceid, $optionid, $user->userid, calendar::TYPEOPTIONDATE, $event->objectid, 1);
+            new calendar($event->contextinstanceid, $optionid, $user->userid,
+                calendar::MOD_BOOKING_TYPEOPTIONDATE, $event->objectid, 1);
         }
     }
 
@@ -303,13 +304,13 @@ class mod_booking_observer {
                 WHERE md.name = 'booking' AND cm.instance = ?", [$value->bookingid]
             );
 
-            new calendar($tmpcmid->id, $value->id, 0, calendar::TYPEOPTION);
+            new calendar($tmpcmid->id, $value->id, 0, calendar::MOD_BOOKING_TYPEOPTION);
 
             $allteachers = $DB->get_records_sql("SELECT userid FROM {booking_teachers} WHERE optionid = ? AND calendarid > 0",
                 [$value->id]);
 
             foreach ($allteachers as $keyt => $valuet) {
-                new calendar($tmpcmid->id, $value->id, $valuet->userid, calendar::TYPETEACHERUPDATE);
+                new calendar($tmpcmid->id, $value->id, $valuet->userid, calendar::MOD_BOOKING_TYPETEACHERUPDATE);
             }
         }
     }
@@ -320,7 +321,7 @@ class mod_booking_observer {
      * @param \mod_booking\event\teacher_added $event
      */
     public static function teacher_added(\mod_booking\event\teacher_added $event) {
-        new calendar($event->contextinstanceid, $event->objectid, $event->relateduserid, calendar::TYPETEACHERADD);
+        new calendar($event->contextinstanceid, $event->objectid, $event->relateduserid, calendar::MOD_BOOKING_TYPETEACHERADD);
     }
 
     /**
@@ -329,7 +330,7 @@ class mod_booking_observer {
      * @param \mod_booking\event\teacher_removed $event
      */
     public static function teacher_removed(\mod_booking\event\teacher_removed $event) {
-        new calendar($event->contextinstanceid, $event->objectid, $event->relateduserid, calendar::TYPETEACHERREMOVE);
+        new calendar($event->contextinstanceid, $event->objectid, $event->relateduserid, calendar::MOD_BOOKING_TYPETEACHERREMOVE);
     }
 
     /**

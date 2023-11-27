@@ -67,11 +67,11 @@ class booking_answers {
      * The booking answers class is instantiated for all users alike.
      * But it returns information for the individual users.
      *
-     * STATUSPARAM_BOOKED (0) ... user has booked the option
-     * STATUSPARAM_WAITINGLIST (1) ... user is on the waiting list
-     * STATUSPARAM_RESERVED (2) ... user is on the waiting list
-     * STATUSPARAM_NOTBOOKED (4) ... user has not booked the option
-     * STATUSPARAM_DELETED (5) ... user answer was deleted
+     * MOD_BOOKING_STATUSPARAM_BOOKED (0) ... user has booked the option
+     * MOD_BOOKING_STATUSPARAM_WAITINGLIST (1) ... user is on the waiting list
+     * MOD_BOOKING_STATUSPARAM_RESERVED (2) ... user is on the waiting list
+     * MOD_BOOKING_STATUSPARAM_NOTBOOKED (4) ... user has not booked the option
+     * MOD_BOOKING_STATUSPARAM_DELETED (5) ... user answer was deleted
      *
      * @param int $optionid Booking option id.
      * @throws dml_exception
@@ -133,18 +133,18 @@ class booking_answers {
             foreach ($answers as $answer) {
 
                 // A user might have one or more 'deleted' entries, but else, there should be only one.
-                if ($answer->waitinglist != STATUSPARAM_DELETED) {
+                if ($answer->waitinglist != MOD_BOOKING_STATUSPARAM_DELETED) {
                     $this->users[$answer->userid] = $answer;
                 }
 
                 switch ($answer->waitinglist) {
-                    case STATUSPARAM_BOOKED:
+                    case MOD_BOOKING_STATUSPARAM_BOOKED:
                         $this->usersonlist[$answer->userid] = $answer;
                         break;
-                    case STATUSPARAM_WAITINGLIST:
+                    case MOD_BOOKING_STATUSPARAM_WAITINGLIST:
                         $this->usersonwaitinglist[$answer->userid] = $answer;
                         break;
-                    case STATUSPARAM_RESERVED:
+                    case MOD_BOOKING_STATUSPARAM_RESERVED:
                         if (count($this->usersonlist) < $this->bookingoptionsettings->maxanswers) {
                             $this->usersonlist[$answer->userid] = $answer;
                         } else {
@@ -152,10 +152,10 @@ class booking_answers {
                         }
                         $this->usersreserved[$answer->userid] = $answer;
                         break;
-                    case STATUSPARAM_DELETED:
+                    case MOD_BOOKING_STATUSPARAM_DELETED:
                         $this->usersdeleted[$answer->userid] = $answer;
                         break;
-                    case STATUSPARAM_NOTIFYMELIST:
+                    case MOD_BOOKING_STATUSPARAM_NOTIFYMELIST:
                         $this->userstonotify[$answer->userid] = $answer;
                         break;
                 }
@@ -188,7 +188,7 @@ class booking_answers {
      * The return value of this function is not equal to the former user_status in booking_option.
      *
      * @param int $userid
-     * @return int const STATUSPARAM_* for booking status.
+     * @return int const MOD_BOOKING_STATUSPARAM_* for booking status.
      */
     public function user_status(int $userid = 0) {
         global $USER;
@@ -198,15 +198,15 @@ class booking_answers {
         }
 
         if (isset($this->usersreserved[$userid])) {
-            return STATUSPARAM_RESERVED;
+            return MOD_BOOKING_STATUSPARAM_RESERVED;
         } else if (isset($this->userstonotify[$userid])) {
-            return STATUSPARAM_NOTIFYMELIST;
+            return MOD_BOOKING_STATUSPARAM_NOTIFYMELIST;
         } else if (isset($this->usersonwaitinglist[$userid])) {
-            return STATUSPARAM_WAITINGLIST;
+            return MOD_BOOKING_STATUSPARAM_WAITINGLIST;
         } else if (isset($this->usersonlist[$userid])) {
-            return STATUSPARAM_BOOKED;
+            return MOD_BOOKING_STATUSPARAM_BOOKED;
         } else {
-            return STATUSPARAM_NOTBOOKED;
+            return MOD_BOOKING_STATUSPARAM_NOTBOOKED;
         }
     }
 
@@ -278,12 +278,12 @@ class booking_answers {
         }
 
         // First check list of booked users.
-        if (isset($this->usersonlist[$userid]) && $this->usersonlist[$userid]->waitinglist == STATUSPARAM_BOOKED) {
+        if (isset($this->usersonlist[$userid]) && $this->usersonlist[$userid]->waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED) {
             $returnarray = ['iambooked' => $returnarray];
-        } else if (isset($this->usersreserved[$userid]) && $this->usersreserved[$userid]->waitinglist == STATUSPARAM_RESERVED) {
+        } else if (isset($this->usersreserved[$userid]) && $this->usersreserved[$userid]->waitinglist == MOD_BOOKING_STATUSPARAM_RESERVED) {
             $returnarray = ['iamreserved' => $returnarray];
         } else if (isset($this->usersonwaitinglist[$userid]) &&
-            $this->usersonwaitinglist[$userid]->waitinglist == STATUSPARAM_WAITINGLIST) {
+            $this->usersonwaitinglist[$userid]->waitinglist == MOD_BOOKING_STATUSPARAM_WAITINGLIST) {
             // Now check waiting list.
             $returnarray = ['onwaitinglist' => $returnarray];
         } else {
@@ -330,7 +330,7 @@ class booking_answers {
     public static function number_of_active_bookings_for_user(int $userid, int $bookingid) {
         global $DB;
 
-        $params = ['statuswaitinglist' => STATUSPARAM_WAITINGLIST,
+        $params = ['statuswaitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
                    'bookingid' => $bookingid,
                    'userid' => $userid,
                     ];
@@ -363,13 +363,13 @@ class booking_answers {
         $params = [
             'subbookingid' => $subbookingid,
             'optionid' => $this->optionid,
-            'statusparam' => STATUSPARAM_RESERVED,
+            'statusparam' => MOD_BOOKING_STATUSPARAM_RESERVED,
         ];
 
         if ($record = $DB->get_record_sql($sql, $params)) {
             return $record->status;
         } else {
-            return STATUSPARAM_NOTBOOKED;
+            return MOD_BOOKING_STATUSPARAM_NOTBOOKED;
         }
     }
 

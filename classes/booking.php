@@ -155,7 +155,8 @@ class booking {
      * @return int
      */
     public function get_pagination_setting():int {
-        $paginationnum = (int) $this->settings->paginationnum > 0 ? (int) $this->settings->paginationnum : PAGINATIONDEF;
+        $paginationnum = (int) $this->settings->paginationnum > 0 ? (int) $this->settings->paginationnum :
+            MOD_BOOKING_PAGINATIONDEF;
         return $paginationnum;
     }
 
@@ -530,7 +531,8 @@ class booking {
             WHERE ba.bookingid = ?
             AND ba.userid = ?
             AND ba.waitinglist <= ?
-            AND (bo.courseendtime = 0 OR bo.courseendtime > ?)", [$this->id, $user->id, STATUSPARAM_WAITINGLIST, time()]);
+            AND (bo.courseendtime = 0 OR bo.courseendtime > ?)",
+            [$this->id, $user->id, MOD_BOOKING_STATUSPARAM_WAITINGLIST, time()]);
 
         return (int)$activebookingcount;
     }
@@ -562,9 +564,9 @@ class booking {
     public function get_bookingoptions_fields(bool $download = false) {
 
         if ($download) {
-            $fields = explode(',', $this->settings->optionsdownloadfields ?? BOOKINGOPTION_DEFAULTFIELDS);
+            $fields = explode(',', $this->settings->optionsdownloadfields ?? MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS);
         } else {
-            $fields = explode(',', $this->settings->optionsfields ?? BOOKINGOPTION_DEFAULTFIELDS);
+            $fields = explode(',', $this->settings->optionsfields ?? MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS);
         }
 
         $columns = [];
@@ -870,7 +872,7 @@ class booking {
                                                 $filterarray = [],
                                                 $wherearray = [],
                                                 $userid = null,
-                                                $bookingparam = STATUSPARAM_BOOKED,
+                                                $bookingparam = MOD_BOOKING_STATUSPARAM_BOOKED,
                                                 $additionalwhere = '',
                                                 $innerfrom = '') {
 
@@ -1080,7 +1082,7 @@ class booking {
         $search = $rsearch['query'];
         $params = array_merge(['bookingid' => $this->id,
                                     'userid' => $USER->id,
-                                    'booked' => STATUSPARAM_BOOKED,
+                                    'booked' => MOD_BOOKING_STATUSPARAM_BOOKED,
                                 ], $rsearch['params']);
 
         if ($limitnum != 0) {
@@ -1283,7 +1285,7 @@ class booking {
                     FROM (
                     SELECT *, json_array_elements(availability::json) availability1
                     FROM {booking_options}) bos1
-                    WHERE bos1.availability1 ->>'id' = '" . BO_COND_JSON_ENROLLEDINCOURSE . "'
+                    WHERE bos1.availability1 ->>'id' = '" . MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE . "'
                     ) bos2
                     LEFT JOIN {enrol} e
                     ON e.courseid = bos2.bocourseid
@@ -1320,7 +1322,7 @@ class booking {
                             ) AS boscourseids
                             FROM m_booking_options
                         ) bos1
-                        WHERE bos1.boavailid = '". BO_COND_JSON_ENROLLEDINCOURSE . "'"
+                        WHERE bos1.boavailid = '". MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE . "'"
                     . $where . " ) bo";
         }
     }

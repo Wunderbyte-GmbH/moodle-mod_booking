@@ -43,7 +43,7 @@ class campaign_customfield implements booking_campaign {
     public $name = '';
 
     /** @var int $type */
-    public $type = CAMPAIGN_TYPE_CUSTOMFIELD;
+    public $type = MOD_BOOKING_CAMPAIGN_TYPE_CUSTOMFIELD;
 
     /** @var string $bookingcampaigntype */
     public $bookingcampaigntype = 'campaign_customfield';
@@ -191,7 +191,7 @@ class campaign_customfield implements booking_campaign {
         global $DB;
 
         $record = new stdClass();
-        $record->type = CAMPAIGN_TYPE_CUSTOMFIELD;
+        $record->type = MOD_BOOKING_CAMPAIGN_TYPE_CUSTOMFIELD;
 
         if (!isset($data->json)) {
             $jsonobject = new stdClass();
@@ -243,7 +243,7 @@ class campaign_customfield implements booking_campaign {
 
         if ($jsonboject = json_decode($record->json)) {
             switch ($record->type) {
-                case CAMPAIGN_TYPE_CUSTOMFIELD:
+                case MOD_BOOKING_CAMPAIGN_TYPE_CUSTOMFIELD:
                     $data->fieldname = $jsonboject->fieldname;
                     $data->fieldvalue = $jsonboject->fieldvalue;
                     break;

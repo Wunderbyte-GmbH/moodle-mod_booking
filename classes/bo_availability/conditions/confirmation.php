@@ -50,7 +50,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 class confirmation implements bo_condition {
 
     /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = BO_COND_CONFIRMATION;
+    public $id = MOD_BOOKING_BO_COND_CONFIRMATION;
 
     /**
      * Needed to see if class can take JSON.
@@ -132,7 +132,7 @@ class confirmation implements bo_condition {
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         /* $description = $this->get_description_string($isavailable, $full); */
 
-        return [$isavailable, $description, BO_PREPAGE_POSTBOOK, BO_BUTTON_INDIFFERENT];
+        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_POSTBOOK, MOD_BOOKING_BO_BUTTON_INDIFFERENT];
     }
 
     /**
@@ -164,17 +164,17 @@ class confirmation implements bo_condition {
         $results = bo_info::get_condition_results($optionid, $userid);
         $lastresultid = array_pop($results)['id'];
 
-        $data = new bookingoption_description($optionid, null, DESCRIPTION_WEBSITE, true, false);
+        $data = new bookingoption_description($optionid, null, MOD_BOOKING_DESCRIPTION_WEBSITE, true, false);
         $bodata = $data->get_returnarray();
 
         switch ($lastresultid) {
-            case BO_COND_ALREADYBOOKED:
+            case MOD_BOOKING_BO_COND_ALREADYBOOKED:
                 $bodata['alreadybooked'] = true;
                 break;
-            case BO_COND_ALREADYRESERVED:
+            case MOD_BOOKING_BO_COND_ALREADYRESERVED:
                 $bodata['alreadyreserved'] = true;
                 break;
-            case BO_COND_ONWAITINGLIST:
+            case MOD_BOOKING_BO_COND_ONWAITINGLIST:
                 $bodata['onwaitinglist'] = true;
                 break;
             default:

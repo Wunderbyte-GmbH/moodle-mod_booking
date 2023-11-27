@@ -51,7 +51,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 class max_number_of_bookings implements bo_condition {
 
     /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = BO_COND_MAX_NUMBER_OF_BOOKINGS;
+    public $id = MOD_BOOKING_BO_COND_MAX_NUMBER_OF_BOOKINGS;
 
     /**
      * Needed to see if class can take JSON.
@@ -92,7 +92,7 @@ class max_number_of_bookings implements bo_condition {
         if (empty($maxperuser)) {
             $isavailable = true;
         } else {
-            // Get the number of bookings, either STATUSPARAM_BOOKED or STATUSPARAM_WAITINGLIST.
+            // Get the number of bookings, either MOD_BOOKING_STATUSPARAM_BOOKED or MOD_BOOKING_STATUSPARAM_WAITINGLIST.
             $numberofbookings = booking_answers::number_of_active_bookings_for_user($userid, $settings->bookingid);
 
             // If the $maxperuser-value is smaller then the value we are looking for, we return true.
@@ -157,7 +157,7 @@ class max_number_of_bookings implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full);
 
-        return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_MYALERT];
+        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_MYALERT];
     }
 
     /**

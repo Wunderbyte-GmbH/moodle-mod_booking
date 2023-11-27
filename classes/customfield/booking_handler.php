@@ -51,11 +51,11 @@ class booking_handler extends \core_customfield\handler {
     protected $parentcontext;
 
     /** @var int Field is visible to everybody */
-    const VISIBLETOALL = 2;
+    const MOD_BOOKING_VISIBLETOALL = 2;
     /** @var int Field is only for teachers */
-    const VISIBLETOTEACHERS = 1;
+    const MOD_BOOKING_VISIBLETOTEACHERS = 1;
     /** @var int Field is not displayed  */
-    const NOTVISIBLE = 0;
+    const MOD_BOOKING_NOTVISIBLE = 0;
 
     /**
      * Returns a singleton
@@ -200,9 +200,9 @@ class booking_handler extends \core_customfield\handler {
      */
     public function can_view(field_controller $field, int $instanceid) : bool {
         $visibility = $field->get_configdata_property('visibility');
-        if ($visibility == self::NOTVISIBLE) {
+        if ($visibility == self::MOD_BOOKING_NOTVISIBLE) {
             return false;
-        } else if ($visibility == self::VISIBLETOTEACHERS) {
+        } else if ($visibility == self::MOD_BOOKING_VISIBLETOTEACHERS) {
             return has_capability('mod/booking:addeditownoption', $this->get_instance_context($instanceid));
         } else {
             return true;
@@ -287,9 +287,9 @@ class booking_handler extends \core_customfield\handler {
 
         // Field data visibility.
         $visibilityoptions = [
-            self::VISIBLETOALL => get_string('customfield_visibletoall', 'core_course'),
-            self::VISIBLETOTEACHERS => get_string('customfield_visibletoteachers', 'core_course'),
-            self::NOTVISIBLE => get_string('customfield_notvisible', 'core_course'),
+            self::MOD_BOOKING_VISIBLETOALL => get_string('customfield_visibletoall', 'core_course'),
+            self::MOD_BOOKING_VISIBLETOTEACHERS => get_string('customfield_visibletoteachers', 'core_course'),
+            self::MOD_BOOKING_NOTVISIBLE => get_string('customfield_notvisible', 'core_course'),
         ];
         $mform->addElement('select', 'configdata[visibility]', get_string('customfield_visibility', 'core_course'),
             $visibilityoptions);

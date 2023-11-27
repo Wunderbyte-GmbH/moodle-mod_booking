@@ -48,7 +48,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 class confirmbookwithcredits implements bo_condition {
 
     /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = BO_COND_CONFIRMBOOKWITHCREDITS;
+    public $id = MOD_BOOKING_BO_COND_CONFIRMBOOKWITHCREDITS;
 
     /**
      * Needed to see if class can take JSON.
@@ -88,7 +88,7 @@ class confirmbookwithcredits implements bo_condition {
         if (!$blocktime = $cache->get($cachekey)) {
             $isavailable = true;
         } else {
-            $limittime = strtotime('- ' . TIME_TO_CONFIRM . ' seconds', time());
+            $limittime = strtotime('- ' . MOD_BOOKING_TIME_TO_CONFIRM . ' seconds', time());
             if ($limittime > $blocktime) {
                 $isavailable = true;
             }
@@ -144,7 +144,7 @@ class confirmbookwithcredits implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full);
 
-        return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_MYBUTTON];
+        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_MYBUTTON];
     }
 
     /**

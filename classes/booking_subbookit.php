@@ -98,10 +98,10 @@ class booking_subbookit {
         foreach ($results as $result) {
 
             switch ($result['button'] ) {
-                case BO_BUTTON_MYBUTTON:
+                case MOD_BOOKING_BO_BUTTON_MYBUTTON:
                     $buttoncondition = $result['classname'];
                     break;
-                case BO_BUTTON_MYALERT;
+                case MOD_BOOKING_BO_BUTTON_MYALERT;
                     // Here we could use a more sophisticated way of rights management.
                     // Right now, the logic is just linked to one right.
                     $context = context_module::instance(($settings->cmid));
@@ -112,7 +112,7 @@ class booking_subbookit {
                         $buttoncondition = $result['classname'];
                     }
                     break;
-                case BO_BUTTON_JUSTMYALERT:
+                case MOD_BOOKING_BO_BUTTON_JUSTMYALERT:
                     // The JUST MY ALERT prevents other buttons to be displayed.
                     $justmyalert = true;
                     $buttoncondition = $result['classname'];
@@ -171,7 +171,7 @@ class booking_subbookit {
         if (strpos($area, 'subbooking') === 0) {
             // As a subbooking can have different slots, we use the area to provide the subbooking id.
             // The syntax is "subbooking-1" for the subbooking id 1.
-            return self::answer_subbooking_option($area, $itemid, STATUSPARAM_BOOKED, $userid);
+            return self::answer_subbooking_option($area, $itemid, MOD_BOOKING_STATUSPARAM_BOOKED, $userid);
         } else {
             return [
                 'status' => 0,
@@ -224,27 +224,27 @@ class booking_subbookit {
 
         // Now we reserve the place for the user.
         switch ($status) {
-            case STATUSPARAM_BOOKED:
-                if (!$bookingoption->user_submit_response($user, 0, 0, false, true)) {
+            case MOD_BOOKING_STATUSPARAM_BOOKED:
+                if (!$bookingoption->user_submit_response($user, 0, 0, false, MOD_BOOKING_VERIFIED)) {
                     return [];
                 }
                 break;
-            case STATUSPARAM_RESERVED:
-                if (!$bookingoption->user_submit_response($user, 0, 0, true, true)) {
+            case MOD_BOOKING_STATUSPARAM_RESERVED:
+                if (!$bookingoption->user_submit_response($user, 0, 0, true, MOD_BOOKING_VERIFIED)) {
                     return [];
                 }
                 break;
-            case STATUSPARAM_NOTBOOKED:
+            case MOD_BOOKING_STATUSPARAM_NOTBOOKED:
                 if (!$bookingoption->user_delete_response($user->id, true)) {
                     return [];
                 }
                 break;
-            case STATUSPARAM_DELETED:
+            case MOD_BOOKING_STATUSPARAM_DELETED:
                 if (!$bookingoption->user_delete_response($user->id)) {
                     return [];
                 }
                 break;
-            case STATUSPARAM_NOTIFYMELIST:
+            case MOD_BOOKING_STATUSPARAM_NOTIFYMELIST:
                 if (!$bookingoption::toggle_notify_user($user->id, $itemid)) {
                     return [];
                 }
@@ -261,7 +261,7 @@ class booking_subbookit {
 
         /** @var renderer $output */
         $output = $PAGE->get_renderer('mod_booking');
-        $data = new bookingoption_description($itemid, null, DESCRIPTION_WEBSITE, false, null, $user);
+        $data = new bookingoption_description($itemid, null, MOD_BOOKING_DESCRIPTION_WEBSITE, false, null, $user);
         $description = $output->render_bookingoption_description_cartitem($data);
 
         $optiontitle = $bookingoption->option->text;

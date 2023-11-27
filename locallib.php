@@ -202,7 +202,7 @@ class booking_potential_user_selector extends booking_user_selector_base {
             AND waitinglist <> :statusparamdeleted
         )";
 
-        $searchparams['statusparamdeleted'] = STATUSPARAM_DELETED;
+        $searchparams['statusparamdeleted'] = MOD_BOOKING_STATUSPARAM_DELETED;
 
         list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
         $order = ' ORDER BY ' . $sort;
@@ -415,7 +415,7 @@ function get_rendered_customfields($optiondateid) {
  * @return string The rendered HTML of the full description.
  */
 function get_rendered_eventdescription(int $optionid, int $cmid,
-    int $descriptionparam = DESCRIPTION_WEBSITE, bool $forbookeduser = false): string {
+    int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE, bool $forbookeduser = false): string {
 
     global $PAGE;
 
@@ -427,13 +427,13 @@ function get_rendered_eventdescription(int $optionid, int $cmid,
     $data = new bookingoption_description($optionid, null, $descriptionparam, true, $forbookeduser);
     $output = $PAGE->get_renderer('mod_booking');
 
-    if ($descriptionparam == DESCRIPTION_ICAL) {
+    if ($descriptionparam == MOD_BOOKING_DESCRIPTION_ICAL) {
         // If this is for ical.
         return $output->render_bookingoption_description_ical($data);
-    } else if ($descriptionparam == DESCRIPTION_MAIL) {
+    } else if ($descriptionparam == MOD_BOOKING_DESCRIPTION_MAIL) {
         // If this is used for a mail - placeholder {bookingdetails}.
         return $output->render_bookingoption_description_mail($data);
-    } else if ($descriptionparam == DESCRIPTION_CALENDAR) {
+    } else if ($descriptionparam == MOD_BOOKING_DESCRIPTION_CALENDAR) {
         // If this is used for an event.
         return $output->render_bookingoption_description_event($data);
     }
@@ -530,9 +530,9 @@ function option_optiondate_update_event(stdClass $option, stdClass $optiondate =
     // We use $data here for $option and $optiondate, the necessary keys are the same.
     foreach ($allevents as $eventrecord) {
         if ($eventrecord->eventtype == 'user') {
-            $eventrecord->description = get_rendered_eventdescription($option->id, $cmid, DESCRIPTION_CALENDAR, true);
+            $eventrecord->description = get_rendered_eventdescription($option->id, $cmid, MOD_BOOKING_DESCRIPTION_CALENDAR, true);
         } else {
-            $eventrecord->description = get_rendered_eventdescription($option->id, $cmid, DESCRIPTION_CALENDAR, false);
+            $eventrecord->description = get_rendered_eventdescription($option->id, $cmid, MOD_BOOKING_DESCRIPTION_CALENDAR, false);
         }
         $eventrecord->name = $option->text;
         $eventrecord->timestart = $data->coursestarttime;

@@ -44,7 +44,7 @@ class campaign_blockbooking implements booking_campaign {
     public $name = '';
 
     /** @var int $type */
-    public $type = CAMPAIGN_TYPE_BLOCKBOOKING;
+    public $type = MOD_BOOKING_CAMPAIGN_TYPE_BLOCKBOOKING;
 
     /** @var string $bookingcampaigntype */
     public $bookingcampaigntype = 'campaign_blockbooking';
@@ -213,7 +213,7 @@ class campaign_blockbooking implements booking_campaign {
         global $DB;
 
         $record = new stdClass();
-        $record->type = CAMPAIGN_TYPE_BLOCKBOOKING;
+        $record->type = MOD_BOOKING_CAMPAIGN_TYPE_BLOCKBOOKING;
 
         if (!isset($data->json)) {
             $jsonobject = new stdClass();
@@ -265,7 +265,7 @@ class campaign_blockbooking implements booking_campaign {
 
         if ($jsonboject = json_decode($record->json)) {
             switch ($record->type) {
-                case CAMPAIGN_TYPE_BLOCKBOOKING:
+                case MOD_BOOKING_CAMPAIGN_TYPE_BLOCKBOOKING:
                     $data->fieldname = $jsonboject->fieldname;
                     $data->fieldvalue = $jsonboject->fieldvalue;
                     $data->blockoperator = $jsonboject->blockoperator;

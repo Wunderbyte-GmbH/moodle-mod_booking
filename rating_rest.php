@@ -27,8 +27,8 @@ use mod_booking\singleton_service;
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
-if (!defined('AJAX_SCRIPT')) {
-    define('AJAX_SCRIPT', true);
+if (!defined('MOD_BOOKING_RATING_AJAX_SCRIPT')) {
+    define('MOD_BOOKING_RATING_AJAX_SCRIPT', true);
 }
 
 $id = required_param('id', PARAM_INT); // Course Module ID.

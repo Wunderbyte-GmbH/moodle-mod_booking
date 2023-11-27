@@ -168,7 +168,7 @@ class message_controller {
         $this->changes = $changes;
 
         // For custom messages only.
-        if ($this->messageparam == MSGPARAM_CUSTOM_MESSAGE) {
+        if ($this->messageparam == MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE) {
             $this->customsubject = $customsubject;
             $this->custommessage = $custommessage;
         }
@@ -191,24 +191,24 @@ class message_controller {
 
         // Now we add e-mail specific params.
         switch ($this->msgcontrparam) {
-            case MSGCONTRPARAM_SEND_NOW:
-            case MSGCONTRPARAM_QUEUE_ADHOC:
+            case MOD_BOOKING_MSGCONTRPARAM_SEND_NOW:
+            case MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC:
                 // We overwrite {bookingdetails} here, so we have a description for e-mails (website description is default).
                 // Add placeholder {bookingdetails} so we can add the detailed option description (similar to calendar, modal...
                 // ... and ical) to mails.
-                $this->params->bookingdetails = get_rendered_eventdescription($optionid, $cmid, DESCRIPTION_MAIL);
+                $this->params->bookingdetails = get_rendered_eventdescription($optionid, $cmid, MOD_BOOKING_DESCRIPTION_MAIL);
                 break;
-            case MSGCONTRPARAM_VIEW_CONFIRMATION:
+            case MOD_BOOKING_MSGCONTRPARAM_VIEW_CONFIRMATION:
                 // For viewconfirmation.php.
-                $this->params->bookingdetails = get_rendered_eventdescription($optionid, $cmid, DESCRIPTION_WEBSITE);
+                $this->params->bookingdetails = get_rendered_eventdescription($optionid, $cmid, MOD_BOOKING_DESCRIPTION_WEBSITE);
                 break;
-            case MSGCONTRPARAM_DO_NOT_SEND:
+            case MOD_BOOKING_MSGCONTRPARAM_DO_NOT_SEND:
             default:
                 break;
         }
 
         // Params for session reminders.
-        if ($this->messageparam == MSGPARAM_SESSIONREMINDER) {
+        if ($this->messageparam == MOD_BOOKING_MSGPARAM_SESSIONREMINDER) {
             // For session reminders we only have ONE session.
             $sessions = [];
             foreach ($settings->sessions as $session) {
@@ -222,7 +222,9 @@ class message_controller {
             $data = new optiondates_only($settings);
             $this->params->dates = $output->render_optiondates_only($data);
             // Rendered session description.
-            $this->params->sessiondescription = get_rendered_eventdescription($this->optionid, $this->cmid, DESCRIPTION_CALENDAR);
+            $this->params->sessiondescription = get_rendered_eventdescription(
+                $this->optionid, $this->cmid,
+                MOD_BOOKING_DESCRIPTION_CALENDAR);
 
         } else {
             // Render optiontimes using a template.
@@ -265,7 +267,7 @@ class message_controller {
         $this->messagebody = $this->get_email_body();
 
         // For adhoc task mails, we need to prepare data differently.
-        if ($this->msgcontrparam == MSGCONTRPARAM_QUEUE_ADHOC) {
+        if ($this->msgcontrparam == MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC) {
             $this->messagedata = $this->get_message_data_queue_adhoc();
         } else {
             $this->messagedata = $this->get_message_data_send_now();
@@ -285,7 +287,7 @@ class message_controller {
             'deletedtext', 'bookingchangedtext', 'pollurltext', 'pollurlteacherstext',
         ];
 
-        if ($this->messageparam == MSGPARAM_CUSTOM_MESSAGE) {
+        if ($this->messageparam == MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE) {
             // For custom messages, we already have a message body.
             $text = $this->custommessage;
         } else if (isset($this->bookingsettings->mailtemplatessource) && $this->bookingsettings->mailtemplatessource == 1
@@ -337,7 +339,7 @@ class message_controller {
         $messagedata->userto = $this->user;
         $messagedata->modulename = 'booking';
 
-        if ($this->messageparam == MSGPARAM_CUSTOM_MESSAGE) {
+        if ($this->messageparam == MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE) {
             // For custom messages use the custom subject.
             $messagedata->subject = $this->customsubject;
         } else {
@@ -375,7 +377,7 @@ class message_controller {
 
         $messagedata->modulename = 'booking';
 
-        if ($this->messageparam == MSGPARAM_CUSTOM_MESSAGE) {
+        if ($this->messageparam == MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE) {
             // For custom messages use the custom subject.
             $messagedata->subject = $this->customsubject;
         } else {
@@ -395,7 +397,7 @@ class message_controller {
             $messagedata->userto = $this->user;
         }
 
-        if ($this->messageparam == MSGPARAM_CHANGE_NOTIFICATION) {
+        if ($this->messageparam == MOD_BOOKING_MSGPARAM_CHANGE_NOTIFICATION) {
             $updated = true;
         } else {
             $updated = false;
@@ -422,15 +424,15 @@ class message_controller {
         if ($this->messagebody === "0"
             // Make sure, we don't send anything, if booking option is hidden.
             || $this->optionsettings->invisible == 1) {
-            $this->msgcontrparam = MSGCONTRPARAM_DO_NOT_SEND;
+            $this->msgcontrparam = MOD_BOOKING_MSGCONTRPARAM_DO_NOT_SEND;
         }
 
         // Only send if we have message data and if the user hasn't been deleted.
-        // Also, do not send, if the param MSGCONTRPARAM_DO_NOT_SEND has been set.
-        if ($this->msgcontrparam != MSGCONTRPARAM_DO_NOT_SEND
+        // Also, do not send, if the param MOD_BOOKING_MSGCONTRPARAM_DO_NOT_SEND has been set.
+        if ($this->msgcontrparam != MOD_BOOKING_MSGCONTRPARAM_DO_NOT_SEND
             && !empty( $this->messagedata ) && !$this->user->deleted) {
 
-            if ($this->msgcontrparam == MSGCONTRPARAM_QUEUE_ADHOC) {
+            if ($this->msgcontrparam == MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC) {
 
                 return $this->send_mail_with_adhoc_task();
 
@@ -483,12 +485,13 @@ class message_controller {
             // then also send a copy to the booking manager.
             // DO NOT send copies of change notifications to booking managers.
             if (!empty($bookingsettings->copymail) &&
-                $this->messageparam != MSGPARAM_CHANGE_NOTIFICATION
+                $this->messageparam != MOD_BOOKING_MSGPARAM_CHANGE_NOTIFICATION
             ) {
                 // Get booking manager from booking instance settings.
                 $this->messagedata->userto = $bookingsettings->bookingmanageruser;
 
-                if ($this->messageparam == MSGPARAM_CONFIRMATION || $this->messageparam == MSGPARAM_WAITINGLIST) {
+                if ($this->messageparam == MOD_BOOKING_MSGPARAM_CONFIRMATION ||
+                    $this->messageparam == MOD_BOOKING_MSGPARAM_WAITINGLIST) {
                     $this->messagedata->subject = get_string($this->messagefieldname . 'subjectbookingmanager',
                         'mod_booking', $this->params);
                 }
@@ -513,8 +516,8 @@ class message_controller {
         $attachments = null;
         $attachname = '';
 
-        if ($this->messageparam == MSGPARAM_CANCELLED_BY_PARTICIPANT
-            || $this->messageparam == MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM) {
+        if ($this->messageparam == MOD_BOOKING_MSGPARAM_CANCELLED_BY_PARTICIPANT
+            || $this->messageparam == MOD_BOOKING_MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM) {
             // Check if setting to send a cancel ical is enabled.
             if (get_config('booking', 'icalcancel')) {
                 $ical = new ical($this->bookingsettings, $this->optionsettings, $this->user, $this->bookingmanager, false);
@@ -561,46 +564,46 @@ class message_controller {
     private function get_message_fieldname() {
 
         switch ($this->messageparam) {
-            case MSGPARAM_CONFIRMATION:
+            case MOD_BOOKING_MSGPARAM_CONFIRMATION:
                 $fieldname = 'bookedtext';
                 break;
-            case MSGPARAM_WAITINGLIST:
+            case MOD_BOOKING_MSGPARAM_WAITINGLIST:
                 $fieldname = 'waitingtext';
                 break;
-            case MSGPARAM_REMINDER_PARTICIPANT:
+            case MOD_BOOKING_MSGPARAM_REMINDER_PARTICIPANT:
                 $fieldname = 'notifyemail';
                 break;
-            case MSGPARAM_REMINDER_TEACHER:
+            case MOD_BOOKING_MSGPARAM_REMINDER_TEACHER:
                 $fieldname = 'notifyemailteachers';
                 break;
-            case MSGPARAM_STATUS_CHANGED:
+            case MOD_BOOKING_MSGPARAM_STATUS_CHANGED:
                 $fieldname = 'statuschangetext';
                 break;
-            case MSGPARAM_CANCELLED_BY_PARTICIPANT:
+            case MOD_BOOKING_MSGPARAM_CANCELLED_BY_PARTICIPANT:
                 $fieldname = 'userleave';
                 break;
-            case MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM:
+            case MOD_BOOKING_MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM:
                 $fieldname = 'deletedtext';
                 break;
-            case MSGPARAM_CHANGE_NOTIFICATION:
+            case MOD_BOOKING_MSGPARAM_CHANGE_NOTIFICATION:
                 $fieldname = 'bookingchangedtext';
                 break;
-            case MSGPARAM_POLLURL_PARTICIPANT:
+            case MOD_BOOKING_MSGPARAM_POLLURL_PARTICIPANT:
                 $fieldname = 'pollurltext';
                 break;
-            case MSGPARAM_POLLURL_TEACHER:
+            case MOD_BOOKING_MSGPARAM_POLLURL_TEACHER:
                 $fieldname = 'pollurlteacherstext';
                 break;
-            case MSGPARAM_COMPLETED:
+            case MOD_BOOKING_MSGPARAM_COMPLETED:
                 $fieldname = 'activitycompletiontext';
                 break;
-            case MSGPARAM_SESSIONREMINDER:
+            case MOD_BOOKING_MSGPARAM_SESSIONREMINDER:
                 $fieldname = 'sessionremindermail';
                 break;
-            case MSGPARAM_REPORTREMINDER:
+            case MOD_BOOKING_MSGPARAM_REPORTREMINDER:
                 $fieldname = 'reportreminder';
                 break;
-            case MSGPARAM_CUSTOM_MESSAGE:
+            case MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE:
                 $fieldname = 'custommessage';
                 break;
             default:

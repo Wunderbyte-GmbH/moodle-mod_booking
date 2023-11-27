@@ -54,7 +54,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 class bookitbutton implements bo_condition {
 
     /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = BO_COND_BOOKITBUTTON;
+    public $id = MOD_BOOKING_BO_COND_BOOKITBUTTON;
 
     /**
      * Needed to see if class can take JSON.
@@ -131,7 +131,7 @@ class bookitbutton implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full);
 
-        return [$isavailable, $description, BO_PREPAGE_BOOK, BO_BUTTON_MYBUTTON];
+        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_BOOK, MOD_BOOKING_BO_BUTTON_MYBUTTON];
     }
 
     /**
@@ -160,7 +160,7 @@ class bookitbutton implements bo_condition {
             $user = singleton_service::get_instance_of_user($userid);
         }
 
-        $data1 = new bookingoption_description($optionid, null, DESCRIPTION_WEBSITE, true, false, $user ?? null);
+        $data1 = new bookingoption_description($optionid, null, MOD_BOOKING_DESCRIPTION_WEBSITE, true, false, $user ?? null);
 
         $template = 'mod_booking/bookingoption_description_prepagemodal_bookit';
 
@@ -188,7 +188,7 @@ class bookitbutton implements bo_condition {
         // Inactive Continue Button.
         // We don't use this functionality right now.
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* if ($bookinganswer->user_status($USER->id) == STATUSPARAM_NOTBOOKED) {
+        /* if ($bookinganswer->user_status($USER->id) == MOD_BOOKING_STATUSPARAM_NOTBOOKED) {
             $buttontype = 1;
         } else {
             $buttontype = 0;

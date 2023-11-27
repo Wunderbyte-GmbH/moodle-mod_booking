@@ -673,7 +673,7 @@ class booking_utils {
                         $notenrolledusersarray[] = $user;
                         continue;
                     }
-                    if (!$bookingoption->user_submit_response($user)) {
+                    if (!$bookingoption->user_submit_response($user, 0, 0, false, MOD_BOOKING_VERIFIED)) {
                         // Track users where subscription failed because of different reasons.
                         $notsubscribedusersarray[] = $user;
                     } else {
@@ -706,7 +706,7 @@ class booking_utils {
                         $notenrolledusersarray[] = $user;
                         continue;
                     }
-                    if (!$bookingoption->user_submit_response($user)) {
+                    if (!$bookingoption->user_submit_response($user, 0, 0, false, MOD_BOOKING_VERIFIED)) {
                         // Track users where subscription failed because of different reasons.
                         $notsubscribedusersarray[] = $user;
                     } else {

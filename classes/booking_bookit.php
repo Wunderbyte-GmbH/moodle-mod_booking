@@ -108,10 +108,10 @@ class booking_bookit {
         foreach ($results as $result) {
 
             switch ($result['button'] ) {
-                case BO_BUTTON_MYBUTTON:
+                case MOD_BOOKING_BO_BUTTON_MYBUTTON:
                     $buttoncondition = $result['classname'];
                     break;
-                case BO_BUTTON_MYALERT;
+                case MOD_BOOKING_BO_BUTTON_MYALERT;
                     // Here we could use a more sophisticated way of rights management.
                     // Right now, the logic is just linked to one right.
                     $context = context_module::instance(($settings->cmid));
@@ -122,19 +122,19 @@ class booking_bookit {
                         $buttoncondition = $result['classname'];
                     }
                     break;
-                case BO_BUTTON_NOBUTTON:
+                case MOD_BOOKING_BO_BUTTON_NOBUTTON:
                     // The no button marker can override all the other conditions.
                     // It is only relevant for the modal, not the rest.
                     $showinmodalbutton = false;
                     break;
-                case BO_BUTTON_JUSTMYALERT:
+                case MOD_BOOKING_BO_BUTTON_JUSTMYALERT:
                     // The JUST MY ALERT prevents other buttons to be displayed.
                     if ($justmyalert === null) {
                         $justmyalert = true;
                     }
                     $buttoncondition = $result['classname'];
                     break;
-                case BO_BUTTON_CANCEL:
+                case MOD_BOOKING_BO_BUTTON_CANCEL:
                     $justmyalert = false;
                     $extrabuttoncondition = $result['classname'];
                     $renderprepagemodal = false;
@@ -258,7 +258,7 @@ class booking_bookit {
              Second the reaction code should be included in the condition classes themselves, to improve maintainability. */
             if ($id < 1) {
                 $isavailable = true;
-            } else if ($id === BO_COND_BOOKITBUTTON) {
+            } else if ($id === MOD_BOOKING_BO_COND_BOOKITBUTTON) {
 
                 $cache = cache::make('mod_booking', 'confirmbooking');
                 $cachekey = $userid . "_" . $settings->id . "_bookit";
@@ -267,7 +267,7 @@ class booking_bookit {
 
                 $isavailable = false;
 
-            } else if ($id === BO_COND_BOOKWITHCREDITS) {
+            } else if ($id === MOD_BOOKING_BO_COND_BOOKWITHCREDITS) {
 
                 $cache = cache::make('mod_booking', 'confirmbooking');
                 $cachekey = $userid . "_" . $settings->id . "_bookwithcredits";
@@ -276,7 +276,7 @@ class booking_bookit {
 
                 $isavailable = false;
 
-            } else if ($id === BO_COND_BOOKWITHSUBSCRIPTION) {
+            } else if ($id === MOD_BOOKING_BO_COND_BOOKWITHSUBSCRIPTION) {
 
                 $cache = cache::make('mod_booking', 'confirmbooking');
                 $cachekey = $userid . "_" . $settings->id . "_bookwithsubscription";
@@ -285,7 +285,7 @@ class booking_bookit {
 
                 $isavailable = false;
 
-            } else if ($id === BO_COND_CONFIRMBOOKIT) {
+            } else if ($id === MOD_BOOKING_BO_COND_CONFIRMBOOKIT) {
 
                 // Make sure cache is not blocking anymore.
                 $cache = cache::make('mod_booking', 'confirmbooking');
@@ -295,7 +295,7 @@ class booking_bookit {
                 // This means we can actuall book.
                 $isavailable = true;
 
-            } else if ($id === BO_COND_CONFIRMBOOKWITHCREDITS) {
+            } else if ($id === MOD_BOOKING_BO_COND_CONFIRMBOOKWITHCREDITS) {
 
                 // Make sure cache is not blocking anymore.
                 $cache = cache::make('mod_booking', 'confirmbooking');
@@ -327,7 +327,7 @@ class booking_bookit {
                 // This means we can actually book.
                 $isavailable = true;
 
-            } else if ($id === BO_COND_ALREADYBOOKED || $id === BO_COND_ONWAITINGLIST) {
+            } else if ($id === MOD_BOOKING_BO_COND_ALREADYBOOKED || $id === MOD_BOOKING_BO_COND_ONWAITINGLIST) {
 
                 // If the cancel condition is blocking here, we can actually mark the option for cancelation.
                 $cache = cache::make('mod_booking', 'confirmbooking');
@@ -335,10 +335,10 @@ class booking_bookit {
                 $now = time();
                 $cache->set($cachekey, $now);
 
-            } else if ($id === BO_COND_CONFIRMCANCEL) {
+            } else if ($id === MOD_BOOKING_BO_COND_CONFIRMCANCEL) {
 
                 // Here we are already one step further and only confirm the cancelation.
-                self::answer_booking_option($area, $itemid, STATUSPARAM_DELETED, $userid);
+                self::answer_booking_option($area, $itemid, MOD_BOOKING_STATUSPARAM_DELETED, $userid);
 
                 // Make sure cache is not blocking anymore.
                 $cache = cache::make('mod_booking', 'confirmbooking');
@@ -349,14 +349,14 @@ class booking_bookit {
                     'status' => 1,
                     'message' => 'cancelled',
                 ];
-            } else if ($id === BO_COND_ALREADYRESERVED) {
+            } else if ($id === MOD_BOOKING_BO_COND_ALREADYRESERVED) {
 
                 // We only react on this if we are in cancelation.
                 $booking = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
 
                 if (!empty($booking->iselective)) {
                     // Here we are already one step further and only confirm the cancelation.
-                    self::answer_booking_option($area, $itemid, STATUSPARAM_NOTBOOKED, $userid);
+                    self::answer_booking_option($area, $itemid, MOD_BOOKING_STATUSPARAM_NOTBOOKED, $userid);
 
                     $cmid = (int)$booking->cmid;
                     $cache = cache::make('mod_booking', 'electivebookingorder');
@@ -386,10 +386,10 @@ class booking_bookit {
                     ];
                 }
 
-            } else if ($id === BO_COND_ELECTIVEBOOKITBUTTON) {
+            } else if ($id === MOD_BOOKING_BO_COND_ELECTIVEBOOKITBUTTON) {
 
                 // Here we are already one step further and only confirm the cancelation.
-                self::answer_booking_option($area, $itemid, STATUSPARAM_RESERVED, $userid);
+                self::answer_booking_option($area, $itemid, MOD_BOOKING_STATUSPARAM_RESERVED, $userid);
 
                 // For the elective, we need to record the booking order.
 
@@ -423,12 +423,12 @@ class booking_bookit {
                     'message' => 'notallowedtobook',
                 ];
             }
-            return array_merge(self::answer_booking_option($area, $itemid, STATUSPARAM_BOOKED, $userid),
+            return array_merge(self::answer_booking_option($area, $itemid, MOD_BOOKING_STATUSPARAM_BOOKED, $userid),
                                 ['status' => 1, 'message' => 'booked']);
         } else if (strpos($area, 'subbooking') === 0) {
             // As a subbooking can have different slots, we use the area to provide the subbooking id.
             // The syntax is "subbooking-1" for the subbooking id 1.
-            return array_merge(self::answer_subbooking_option($area, $itemid, STATUSPARAM_BOOKED, $userid),
+            return array_merge(self::answer_subbooking_option($area, $itemid, MOD_BOOKING_STATUSPARAM_BOOKED, $userid),
                                 ['status' => 1, 'message' => 'booked']);
         } else if ($area === 'elective') {
             $jsonobject = json_decode($data);
@@ -459,10 +459,10 @@ class booking_bookit {
             foreach ($arrayofoptions as $item) {
 
                 // We need to delete the previous entry.
-                self::answer_booking_option('option', $item, STATUSPARAM_NOTBOOKED, $userid);
+                self::answer_booking_option('option', $item, MOD_BOOKING_STATUSPARAM_NOTBOOKED, $userid);
 
                 // Book it again.
-                self::answer_booking_option('option', $item, STATUSPARAM_BOOKED, $userid);
+                self::answer_booking_option('option', $item, MOD_BOOKING_STATUSPARAM_BOOKED, $userid);
 
             }
 
@@ -526,27 +526,27 @@ class booking_bookit {
 
         // Now we reserve the place for the user.
         switch ($status) {
-            case STATUSPARAM_BOOKED:
-                if (!$bookingoption->user_submit_response($user, 0, 0, false, true)) {
+            case MOD_BOOKING_STATUSPARAM_BOOKED:
+                if (!$bookingoption->user_submit_response($user, 0, 0, false, MOD_BOOKING_VERIFIED)) {
                     return [];
                 }
                 break;
-            case STATUSPARAM_RESERVED:
-                if (!$bookingoption->user_submit_response($user, 0, 0, true, true)) {
+            case MOD_BOOKING_STATUSPARAM_RESERVED:
+                if (!$bookingoption->user_submit_response($user, 0, 0, true, MOD_BOOKING_VERIFIED)) {
                     return [];
                 }
                 break;
-            case STATUSPARAM_NOTBOOKED:
+            case MOD_BOOKING_STATUSPARAM_NOTBOOKED:
                 if (!$bookingoption->user_delete_response($user->id, true)) {
                     return [];
                 }
                 break;
-            case STATUSPARAM_DELETED:
+            case MOD_BOOKING_STATUSPARAM_DELETED:
                 if (!$bookingoption->user_delete_response($user->id)) {
                     return [];
                 }
                 break;
-            case STATUSPARAM_NOTIFYMELIST:
+            case MOD_BOOKING_STATUSPARAM_NOTIFYMELIST:
                 if (!$bookingoption::toggle_notify_user($user->id, $itemid)) {
                     return [];
                 }
@@ -563,7 +563,7 @@ class booking_bookit {
 
         /** @var renderer $output */
         $output = $PAGE->get_renderer('mod_booking');
-        $data = new bookingoption_description($itemid, null, DESCRIPTION_WEBSITE, false, null, $user);
+        $data = new bookingoption_description($itemid, null, MOD_BOOKING_DESCRIPTION_WEBSITE, false, null, $user);
         $description = $output->render_bookingoption_description_cartitem($data);
 
         $optiontitle = $bookingoption->option->text;

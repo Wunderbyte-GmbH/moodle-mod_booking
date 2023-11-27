@@ -29,10 +29,6 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
-const MAIL_NOTIFICATION_PARTICIPANTS = 1;
-const MAIL_NOTIFICATION_PARTICIPANTS_SESSIONS = 2;
-const MAIL_NOTIFICATION_TEACHERS = 3;
-
 class send_reminder_mails extends \core\task\scheduled_task {
 
     public function get_name() {
@@ -60,7 +56,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
             // Check if first notification is sent already.
             if ($record->sent == 0) {
 
-                if ($this->send_notification(MSGPARAM_REMINDER_PARTICIPANT, $record, $record->daystonotify)) {
+                if ($this->send_notification(MOD_BOOKING_MSGPARAM_REMINDER_PARTICIPANT, $record, $record->daystonotify)) {
                     $save = new stdClass();
                     $save->id = $record->optionid;
                     $save->sent = 1;
@@ -77,7 +73,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
 
             // Check if second notification is sent already.
             if ($record->sent2 == 0) {
-                if ($this->send_notification(MSGPARAM_REMINDER_PARTICIPANT, $record, $record->daystonotify2)) {
+                if ($this->send_notification(MOD_BOOKING_MSGPARAM_REMINDER_PARTICIPANT, $record, $record->daystonotify2)) {
                     $save = new stdClass();
                     $save->id = $record->optionid;
                     $save->sent2 = 1;
@@ -124,7 +120,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
             // Check if session notification has been sent already.
             if ($sessionrecord->sent == 0) {
 
-                if ($this->send_notification(MSGPARAM_SESSIONREMINDER, $sessionrecord, $sessionrecord->daystonotify)) {
+                if ($this->send_notification(MOD_BOOKING_MSGPARAM_SESSIONREMINDER, $sessionrecord, $sessionrecord->daystonotify)) {
                     $save = new stdClass();
                     $save->id = $sessionrecord->optiondateid;
                     $save->sent = 1;
@@ -157,7 +153,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
 
                 // Check if teacher notification has been sent already.
                 if ($record->sentteachers == 0) {
-                    if ($this->send_notification(MSGPARAM_REMINDER_TEACHER, $record, $record->daystonotifyteachers)) {
+                    if ($this->send_notification(MOD_BOOKING_MSGPARAM_REMINDER_TEACHER, $record, $record->daystonotifyteachers)) {
                         $save = new stdClass();
                         $save->id = $record->optionid;
                         $save->sentteachers = 1;
@@ -168,7 +164,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
                             'context' => context_system::instance(),
                             'objectid' => $record->optionid,
                             'other' => [
-                                'msgparam' => MSGPARAM_REMINDER_TEACHER,
+                                'msgparam' => MOD_BOOKING_MSGPARAM_REMINDER_TEACHER,
                                 'record' => $record,
                                 'daystonotifyteachers' => $record->daystonotifyteachers,
                             ],
@@ -202,12 +198,12 @@ class send_reminder_mails extends \core\task\scheduled_task {
             $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
 
             switch ($messageparam) {
-                case MSGPARAM_SESSIONREMINDER:
+                case MOD_BOOKING_MSGPARAM_SESSIONREMINDER:
                     $optiondateid = $record->optiondateid;
                     $bookingoption->sendmessage_notification($messageparam, [], $optiondateid);
                     break;
 
-                case MSGPARAM_REMINDER_TEACHER:
+                case MOD_BOOKING_MSGPARAM_REMINDER_TEACHER:
                     // Get an array of teacher ids for the booking option.
                     $teachers = $DB->get_records('booking_teachers', ['optionid' => $optionid]);
                     $teacherids = [];
@@ -221,7 +217,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
                     }
                     break;
 
-                case MSGPARAM_REMINDER_PARTICIPANT:
+                case MOD_BOOKING_MSGPARAM_REMINDER_PARTICIPANT:
                 default:
                     $bookingoption->sendmessage_notification($messageparam, []);
                     break;

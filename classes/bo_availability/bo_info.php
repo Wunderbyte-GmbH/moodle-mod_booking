@@ -42,19 +42,19 @@ use MoodleQuickForm;
 use stdClass;
 
 // The blocking condition can return a value to define which button to use.
-define('BO_BUTTON_INDIFFERENT', 0);
-define('BO_BUTTON_MYBUTTON', 1); // Used for price or book it.
-define('BO_BUTTON_NOBUTTON', 2); // Forces no button (Eg special subbookings).
-define('BO_BUTTON_MYALERT', 3); // Alert is a weaker form of MYBUTTON. With special rights, Button is still shown.
-define('BO_BUTTON_JUSTMYALERT', 4); // A strong Alert which also prevents buttons to be displayed.
-define('BO_BUTTON_CANCEL', 5); // The Cancel button is shown next to MYALERT.
+define('MOD_BOOKING_BO_BUTTON_INDIFFERENT', 0);
+define('MOD_BOOKING_BO_BUTTON_MYBUTTON', 1); // Used for price or book it.
+define('MOD_BOOKING_BO_BUTTON_NOBUTTON', 2); // Forces no button (Eg special subbookings).
+define('MOD_BOOKING_BO_BUTTON_MYALERT', 3); // Alert is a weaker form of MYBUTTON. With special rights, Button is still shown.
+define('MOD_BOOKING_BO_BUTTON_JUSTMYALERT', 4); // A strong Alert which also prevents buttons to be displayed.
+define('MOD_BOOKING_BO_BUTTON_CANCEL', 5); // The Cancel button is shown next to MYALERT.
 
 // Define if there are sites and if so, if they are prepend, postpend or booking relevant.
-define('BO_PREPAGE_NONE', 0); // This condition provides no page.
-define('BO_PREPAGE_BOOK', 1); // This condition does only provide a booking page (button or price).
+define('MOD_BOOKING_BO_PREPAGE_NONE', 0); // This condition provides no page.
+define('MOD_BOOKING_BO_PREPAGE_BOOK', 1); // This condition does only provide a booking page (button or price).
     // Only used when there are other pages as well.
-define('BO_PREPAGE_PREBOOK', 2); // This should be before the bookit button.
-define('BO_PREPAGE_POSTBOOK', 3); // This should be after the bookit button.
+define('MOD_BOOKING_BO_PREPAGE_PREBOOK', 2); // This should be before the bookit button.
+define('MOD_BOOKING_BO_PREPAGE_POSTBOOK', 3); // This should be after the bookit button.
 
 /**
  * class for conditional availability information of a booking option
@@ -130,7 +130,7 @@ class bo_info {
                 // If no Id has been defined or if id is higher, we take the descpription to return.
                 if ($id === 0 || $result['id'] > $id) {
                     if (has_capability('local/shopping_cart:cashier', context_system::instance()) &&
-                        $result['button'] == BO_BUTTON_MYALERT) {
+                        $result['button'] == MOD_BOOKING_BO_BUTTON_MYALERT) {
                         continue;
                     }
                     $description = $result['description'];
@@ -162,7 +162,7 @@ class bo_info {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        $conditions = self::get_conditions(CONDPARAM_HARDCODED_ONLY);
+        $conditions = self::get_conditions(MOD_BOOKING_CONDPARAM_HARDCODED_ONLY);
 
         if (!empty($settings->availability)) {
 
@@ -393,7 +393,7 @@ class bo_info {
                 get_string('availabilityconditions', 'mod_booking'));
         }
 
-        $conditions = self::get_conditions(CONDPARAM_MFORM_ONLY);
+        $conditions = self::get_conditions(MOD_BOOKING_CONDPARAM_MFORM_ONLY);
 
         foreach ($conditions as $condition) {
             // For each condition, add the appropriate form fields.
@@ -418,7 +418,7 @@ class bo_info {
                 $existingconditions = json_decode($settings->availability);
             }
 
-            $conditions = self::get_conditions(CONDPARAM_JSON_ONLY);
+            $conditions = self::get_conditions(MOD_BOOKING_CONDPARAM_JSON_ONLY);
             $arrayforjson = [];
 
             foreach ($conditions as $condition) {
@@ -461,7 +461,7 @@ class bo_info {
      *  2 ... customizable conditions only
      * @return array
      */
-    public static function get_conditions(int $condparam = CONDPARAM_ALL): array {
+    public static function get_conditions(int $condparam = MOD_BOOKING_CONDPARAM_ALL): array {
 
         global $CFG;
 
@@ -481,27 +481,27 @@ class bo_info {
                 $instance = new $filename();
 
                 switch ($condparam) {
-                    case CONDPARAM_HARDCODED_ONLY:
+                    case MOD_BOOKING_CONDPARAM_HARDCODED_ONLY:
                         if ($instance->is_json_compatible() === false) {
                             $conditions[] = $instance;
                         }
                         break;
-                    case CONDPARAM_JSON_ONLY:
+                    case MOD_BOOKING_CONDPARAM_JSON_ONLY:
                         if ($instance->is_json_compatible() === true) {
                             $conditions[] = $instance;
                         }
                         break;
-                    case CONDPARAM_MFORM_ONLY:
+                    case MOD_BOOKING_CONDPARAM_MFORM_ONLY:
                         if ($instance->is_shown_in_mform()) {
                             $conditions[] = $instance;
                         }
                         break;
-                    case CONDPARAM_CANBEOVERRIDDEN:
+                    case MOD_BOOKING_CONDPARAM_CANBEOVERRIDDEN:
                         if (isset($instance->overridable) && $instance->overridable === true) {
                             $conditions[] = $instance;
                         }
                         break;
-                    case CONDPARAM_ALL:
+                    case MOD_BOOKING_CONDPARAM_ALL:
                     default:
                         $conditions[] = $instance;
                         break;
@@ -797,16 +797,16 @@ class bo_info {
         $showcheckout = false;
 
         // First, sort all the pages according to this system:
-        // Depending on the BO_PREPAGE_x constant, we order them pre or post the real booking button.
+        // Depending on the MOD_BOOKING_BO_PREPAGE_x constant, we order them pre or post the real booking button.
         foreach ($results as $result) {
 
-            if ($result['id'] === BO_COND_PRICEISSET &&
+            if ($result['id'] === MOD_BOOKING_BO_COND_PRICEISSET &&
                 class_exists('local_shopping_cart\shopping_cart')) {
                 $showcheckout = true;
             }
 
             // One no button condition tetermines this for all.
-            if ($result['button'] === BO_BUTTON_NOBUTTON) {
+            if ($result['button'] === MOD_BOOKING_BO_BUTTON_NOBUTTON) {
                 $showbutton = false;
             }
 
@@ -815,7 +815,7 @@ class bo_info {
                 'classname' => $result['classname'],
             ];
 
-            if ($result['id'] === BO_COND_CONFIRMATION) {
+            if ($result['id'] === MOD_BOOKING_BO_COND_CONFIRMATION) {
                 $confirmation = $newclass;
                 /* We use 'showcheckout' to differentiate between "Booking complete"
                 and "Proceed to checkout" confirmation. */
@@ -824,14 +824,14 @@ class bo_info {
             }
 
             switch ($result['insertpage']) {
-                case BO_PREPAGE_BOOK:
+                case MOD_BOOKING_BO_PREPAGE_BOOK:
                     $prepages['book'] = $newclass;
                     break;
-                case BO_PREPAGE_PREBOOK:
+                case MOD_BOOKING_BO_PREPAGE_PREBOOK:
                     $newclass['pre'] = true;
                     $prepages['pre'][] = $newclass;
                     break;
-                case BO_PREPAGE_POSTBOOK:
+                case MOD_BOOKING_BO_PREPAGE_POSTBOOK:
                     $prepages['post'][] = $newclass;
                     break;
             }
@@ -952,13 +952,13 @@ class bo_info {
         $continuelabel = get_string('continue');
         $continuelink = '#';
 
-        if ($conditions[$pagenumber]['id'] === BO_COND_CONFIRMATION) {
+        if ($conditions[$pagenumber]['id'] === MOD_BOOKING_BO_COND_CONFIRMATION) {
             // We need to decide if we want to show on the last page a "go to checkout" button.
             if (self::has_price_set($results)) {
                 $results = self::get_condition_results($optionid, $userid);
                 $lastresultid = array_pop($results)['id'];
                 switch ($lastresultid) {
-                    case BO_COND_ALREADYRESERVED:
+                    case MOD_BOOKING_BO_COND_ALREADYRESERVED:
 
                         // If we are not on the cashier site, do this.
                         if ($userid == $USER->id) {
@@ -1017,7 +1017,7 @@ class bo_info {
         $backlabel = get_string('back');
 
         if ($pagenumber == 0 // If we are on the first page.
-            || $conditions[$pagenumber]['id'] === BO_COND_CONFIRMATION) { // If we are on the confirmation page.
+            || $conditions[$pagenumber]['id'] === MOD_BOOKING_BO_COND_CONFIRMATION) { // If we are on the confirmation page.
             $backbutton = false;
         }
 

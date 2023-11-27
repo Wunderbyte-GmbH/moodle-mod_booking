@@ -725,7 +725,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('advcheckbox', 'numgenerator', get_string("numgenerator", "booking"));
 
         $mform->addElement('text', 'paginationnum', get_string('paginationnum', 'booking'), 0);
-        $mform->setDefault('paginationnum', PAGINATIONDEF);
+        $mform->setDefault('paginationnum', MOD_BOOKING_PAGINATIONDEF);
         $mform->setType('paginationnum', PARAM_INT);
 
         $mform->addElement('text', 'banusernames', get_string('banusernames', 'booking'), 0);

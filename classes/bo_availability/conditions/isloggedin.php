@@ -46,7 +46,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 class isloggedin implements bo_condition {
 
     /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = BO_COND_ISLOGGEDIN;
+    public $id = MOD_BOOKING_BO_COND_ISLOGGEDIN;
 
     /**
      * Needed to see if class can take JSON.
@@ -133,7 +133,7 @@ class isloggedin implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full);
 
-        return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_JUSTMYALERT];
+        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_JUSTMYALERT];
     }
 
     /**

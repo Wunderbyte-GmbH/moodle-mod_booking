@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking;
 
-const DESCRIPTION_ICAL = 3;
+const MOD_BOOKING_DESCRIPTION_ICAL = 3;
 
 /**
  * Support class for generating ical items Note - this code is based on the ical code from mod_facetoface
@@ -223,10 +223,10 @@ class ical {
         $eventid = false;
         if ($time) {
             // If it's an option date (a session), use the option date's eventid.
-            $fulldescription = get_rendered_eventdescription($this->option->id, $this->booking->cmid, DESCRIPTION_ICAL);
+            $fulldescription = get_rendered_eventdescription($this->option->id, $this->booking->cmid, MOD_BOOKING_DESCRIPTION_ICAL);
         } else {
             // Use calendarid of the option if it's an option event.
-            $fulldescription = get_rendered_eventdescription($this->option->id, $this->booking->cmid, DESCRIPTION_ICAL);
+            $fulldescription = get_rendered_eventdescription($this->option->id, $this->booking->cmid, MOD_BOOKING_DESCRIPTION_ICAL);
         }
 
         // Make sure we have not tags in full description.
