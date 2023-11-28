@@ -1320,7 +1320,7 @@ class booking {
                                         JSON_EXTRACT(JSON_UNQUOTE(
                                             JSON_EXTRACT(availability, '$[*].courseids')), '$[0]'
                             ) AS boscourseids
-                            FROM m_booking_options
+                            FROM {booking_options}
                         ) bos1
                         WHERE bos1.boavailid = '". MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE . "'"
                     . $where . " ) bo";
