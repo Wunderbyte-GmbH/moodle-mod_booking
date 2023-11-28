@@ -280,7 +280,8 @@ class booking_answers {
         // First check list of booked users.
         if (isset($this->usersonlist[$userid]) && $this->usersonlist[$userid]->waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED) {
             $returnarray = ['iambooked' => $returnarray];
-        } else if (isset($this->usersreserved[$userid]) && $this->usersreserved[$userid]->waitinglist == MOD_BOOKING_STATUSPARAM_RESERVED) {
+        } else if (isset($this->usersreserved[$userid])
+            && $this->usersreserved[$userid]->waitinglist == MOD_BOOKING_STATUSPARAM_RESERVED) {
             $returnarray = ['iamreserved' => $returnarray];
         } else if (isset($this->usersonwaitinglist[$userid]) &&
             $this->usersonwaitinglist[$userid]->waitinglist == MOD_BOOKING_STATUSPARAM_WAITINGLIST) {

@@ -139,11 +139,14 @@ if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
                         foreach ($notsubscribedusers as $user) {
                             $result = $DB->get_records_sql(
                                     'SELECT ba.id answerid, bo.text
-                                     FROM {booking_answers} ba
-                                     LEFT JOIN {booking_options} bo ON bo.id = ba.optionid
-                                     WHERE ba.userid = ? AND ba.waitinglist < ?
-                                     AND ba.bookingid = ?', [$user->id, MOD_BOOKING_STATUSPARAM_RESERVED,
-                                     $bookingoption->booking->id]);
+                                    FROM {booking_answers} ba
+                                    LEFT JOIN {booking_options} bo ON bo.id = ba.optionid
+                                    WHERE ba.userid = ? AND ba.waitinglist < ?
+                                    AND ba.bookingid = ?', [
+                                        $user->id,
+                                        MOD_BOOKING_STATUSPARAM_RESERVED,
+                                        $bookingoption->booking->id,
+                                    ]);
                             $output .= "{$user->firstname} {$user->lastname}";
                             if (!empty($result)) {
                                 $r = [];
