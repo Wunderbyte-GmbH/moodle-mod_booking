@@ -395,6 +395,8 @@ class view implements renderable, templatable {
         // In the future, we can parametrize this function so we can use it on many different places.
         $this->wbtable_initialize_list_layout($teacheroptionstable, $tfilter, $tsearch, $tsort);
 
+        $teacheroptionstable->showreloadbutton = false; // No reload button on teacher pages.
+        $teacheroptionstable->requirelogin = false; // Teacher pages need to be accessible without login.
         $out = $teacheroptionstable->outhtml($booking->get_pagination_setting(), true);
 
         return $out;
