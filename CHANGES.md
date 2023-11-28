@@ -1,3 +1,15 @@
+## Version 8.0.52 (2023112800)
+**New features:**
+* New feature: Add possibility to set default sort order for booking instances.
+* New feature: Choose date field for cancellation period, new fields: bookingopeningtime, bookingclosingtime.
+
+**Improvements:**
+* Improvement: Make sure, we never send mails for invisible booking options.
+
+**Bugfixes:**
+* Bugfix: All plugin constants must start with uppercase frankenstyle prefix.
+* Bugfix: Remove table prefix and use curly brackets.
+
 ## Version 8.0.51 (2023112700)
 **Improvements:**
 * Improvement: Add sortby and sortorder to recommendedin shortcode.

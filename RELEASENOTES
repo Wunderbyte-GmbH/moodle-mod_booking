@@ -1,3 +1,10 @@
+8.0.52 (2023112800)
+* New feature: Add possibility to set default sort order for booking instances.
+* New feature: Choose date field for cancellation period, new fields: bookingopeningtime, bookingclosingtime.
+* Improvement: Make sure, we never send mails for invisible booking options.
+* Bugfix: All plugin constants must start with uppercase frankenstyle prefix.
+* Bugfix: Remove table prefix and use curly brackets.
+
 8.0.51 (2023112700)
 * Improvement: Add sortby and sortorder to recommendedin shortcode.
 * Improvement: Stop hiding default Moodle menu entries.
