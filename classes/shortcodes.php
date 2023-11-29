@@ -90,6 +90,8 @@ class shortcodes {
             "location",
             "institution",
             "minanswers",
+            "bookingopeningtime",
+            "bookingclosingtime",
         ];
         // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
 
@@ -219,6 +221,8 @@ class shortcodes {
             "location",
             "institution",
             "minanswers",
+            "bookingopeningtime",
+            "bookingclosingtime",
         ];
         // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
 
@@ -331,6 +335,8 @@ class shortcodes {
             "location",
             "institution",
             "minanswers",
+            "bookingopeningtime",
+            "bookingclosingtime",
         ];
         // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
 

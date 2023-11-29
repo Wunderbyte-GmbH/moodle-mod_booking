@@ -430,3 +430,7 @@ if there only was one booking option. */
     margin: 7px 7px;
     text-align: center;
 }
+
+#page-mod-booking-optionview ul.infolist {
+    padding-inline-start: 10px;
+}

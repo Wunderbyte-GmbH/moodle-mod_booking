@@ -202,7 +202,7 @@
                                 <i class="fa fa-fw fa-map-marker" aria-hidden="true"></i>
                             </span>
                             <span class="d-md-none">
-                                {{#str}} location, mod_booking {{/str}}
+                                {{#str}} location, mod_booking {{/str}}:
                             </span>
                             <span>
                                 {{{.}}}
@@ -215,13 +215,52 @@
                                 <i class="fa fa-fw fa-building-o" aria-hidden="true"></i>
                             </span>
                             <span class="d-md-none">
-                                {{#str}} institution, mod_booking {{/str}}
+                                {{#str}} institution, mod_booking {{/str}}:
                             </span>
                             <span>
                                 {{{.}}}
                             </span>
                         </li>
                         {{/institution}}
+                        {{#responsiblecontactuser}}
+                        <li>
+                            <span>
+                                <i class="fa fa-fw fa-user" aria-hidden="true"></i>
+                            </span>
+                            <span class="d-md-none">
+                                {{#str}} responsible, mod_booking {{/str}}:
+                            </span>
+                            <span>
+                                {{#str}} responsible, mod_booking {{/str}}: <a href="{{link}}" target="_blank">{{firstname}} {{lastname}}</a>
+                            </span>
+                        </li>
+                        {{/responsiblecontactuser}}
+                        {{#bookingopeningtime}}
+                        <li>
+                            <span>
+                                <i class="fa fa-fw fa-play" aria-hidden="true"></i>
+                            </span>
+                            <span class="d-md-none">
+                                {{#str}} bookingopeningtime, mod_booking {{/str}}:
+                            </span>
+                            <span>
+                                {{#str}} bookingopeningtime, mod_booking {{/str}}: {{{.}}}
+                            </span>
+                        </li>
+                        {{/bookingopeningtime}}
+                        {{#bookingclosingtime}}
+                        <li>
+                            <span>
+                                <i class="fa fa-fw fa-step-forward" aria-hidden="true"></i>
+                            </span>
+                            <span class="d-md-none">
+                                {{#str}} bookingclosingtime, mod_booking {{/str}}:
+                            </span>
+                            <span>
+                                {{#str}} bookingclosingtime, mod_booking {{/str}}: {{{.}}}
+                            </span>
+                        </li>
+                        {{/bookingclosingtime}}
                         {{#bookinginformation}}
                         <li>
                             <div class="col-ap-availableplaces">

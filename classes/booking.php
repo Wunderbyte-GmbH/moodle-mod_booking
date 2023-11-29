@@ -626,6 +626,14 @@ class booking {
                     $headers[] = get_string('bookings', 'mod_booking');
                     $columns[] = 'bookings';
                     break;
+                case 'bookingopeningtime':
+                    $headers[] = get_string('bookingopeningtime', 'mod_booking');
+                    $columns[] = 'bookingopeningtime';
+                    break;
+                case 'bookingclosingtime':
+                    $headers[] = get_string('bookingclosingtime', 'mod_booking');
+                    $columns[] = 'bookingclosingtime';
+                    break;
             }
         }
         return [$headers, $columns];

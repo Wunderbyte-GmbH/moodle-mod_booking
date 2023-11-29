@@ -915,4 +915,66 @@ class bookingoptions_wbtable extends wunderbyte_table {
         }
         return $ret;
     }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * "bookingopeningtime" value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string a string containing the booking opening time
+     * @throws coding_exception
+     */
+    public function col_bookingopeningtime($values) {
+        $bookingopeningtime = $values->bookingopeningtime;
+        if (empty($bookingopeningtime)) {
+            return '';
+        }
+
+        switch (current_language()) {
+            case 'de':
+                $renderedbookingopeningtime = date('d.m.Y, H:i', $bookingopeningtime);
+                break;
+            default:
+                $renderedbookingopeningtime = date('M d, Y, H:i', $bookingopeningtime);
+                break;
+        }
+
+        if ($this->is_downloading()) {
+            $ret = $renderedbookingopeningtime;
+        } else {
+            $ret = get_string('bookingopeningtime', 'mod_booking') . ": " . $renderedbookingopeningtime;
+        }
+        return $ret;
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * "col_bookingclosingtime" value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string a string containing the booking closing time
+     * @throws coding_exception
+     */
+    public function col_bookingclosingtime($values) {
+        $bookingclosingtime = $values->bookingclosingtime;
+        if (empty($bookingclosingtime)) {
+            return '';
+        }
+
+        switch (current_language()) {
+            case 'de':
+                $renderedbookingclosingtime = date('d.m.Y, H:i', $bookingclosingtime);
+                break;
+            default:
+                $renderedbookingclosingtime = date('M d, Y, H:i', $bookingclosingtime);
+                break;
+        }
+
+        if ($this->is_downloading()) {
+            $ret = $renderedbookingclosingtime;
+        } else {
+            $ret = get_string('bookingclosingtime', 'mod_booking') . ": " . $renderedbookingclosingtime;
+        }
+        return $ret;
+    }
 }

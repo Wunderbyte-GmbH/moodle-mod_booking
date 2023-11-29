@@ -318,6 +318,8 @@ class mod_booking_mod_form extends moodleform_mod {
             'location' => get_string('location', 'mod_booking'),
             'institution' => get_string('institution', 'mod_booking'),
             'minanswers' => get_string('minanswers', 'mod_booking'),
+            'bookingopeningtime' => get_string('bookingopeningtime', 'mod_booking'),
+            'bookingclosingtime' => get_string('bookingclosingtime', 'mod_booking'),
         ];
 
         $optionsdownloadfields = [
@@ -334,6 +336,8 @@ class mod_booking_mod_form extends moodleform_mod {
             'course' => get_string('course', 'core'),
             'minanswers' => get_string('minanswers', 'mod_booking'),
             'bookings' => get_string('bookings', 'mod_booking'),
+            'bookingopeningtime' => get_string('bookingopeningtime', 'mod_booking'),
+            'bookingclosingtime' => get_string('bookingclosingtime', 'mod_booking'),
         ];
 
         $signinsheetfields = ['fullname' => get_string('fullname', 'mod_booking'),

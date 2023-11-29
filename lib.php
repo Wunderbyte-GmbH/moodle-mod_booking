@@ -40,7 +40,7 @@ use mod_booking\utils\wb_payment;
 
 // Default fields for bookingoptions in view.php and for download.
 define('MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS', "identifier,titleprefix,text,description,teacher,responsiblecontact," .
-"showdates,dayofweektime,location,institution,course,minanswers,bookings");
+"showdates,dayofweektime,location,institution,course,minanswers,bookings,bookingopeningtime,bookingclosingtime");
 
 // Currently up to 9 different price categories can be set.
 define('MOD_BOOKING_MAX_PRICE_CATEGORIES', 9);
@@ -807,18 +807,19 @@ function booking_update_options(object $optionvalues, context_module $context,
         $option->semesterid = $optionvalues->semesterid;
     }
 
-    if (!empty($optionvalues->dayofweektime)) {
+    if (empty($optionvalues->dayofweektime)) {
+        $option->dayofweektime = '';
+        $option->dayofweek = '';
+    } else {
         // Possible improvement: We could add the dates_handler::reoccurring_datestring_is_correct check here...
         // ...and only store if the string is correct, if this is needed.
         $option->dayofweektime = $optionvalues->dayofweektime;
 
         // This is only for sql filtering, but we need the weekday in an extra column.
-
         $dayinfo = dates_handler::prepare_day_info($optionvalues->dayofweektime);
         if (!empty($dayinfo['day'])) {
             $option->dayofweek = $dayinfo['day'];
         }
-
     }
 
     // Prefix to be shown before title of the booking option.

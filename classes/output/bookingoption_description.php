@@ -142,6 +142,12 @@ class bookingoption_description implements renderable, templatable {
     /** @var stdClass $responsiblecontactuser */
     private $responsiblecontactuser = null;
 
+    /** @var string $bookingopeningtime */
+    private $bookingopeningtime = '';
+
+    /** @var string $bookingclosingtime */
+    private $bookingclosingtime = '';
+
     /**
      * Constructor.
      * @param int $optionid
@@ -294,6 +300,35 @@ class bookingoption_description implements renderable, templatable {
 
         // User object of the responsible contact.
         $this->responsiblecontactuser = $settings->responsiblecontactuser ?? null;
+        if (!empty($this->responsiblecontactuser)) {
+            $this->responsiblecontactuser->link = new moodle_url('/user/profile.php', ['id' => $this->responsiblecontactuser->id]);
+        }
+
+        if (empty($settings->bookingopeningtime)) {
+            $this->bookingopeningtime = null;
+        } else {
+            switch (current_language()) {
+                case 'de':
+                    $this->bookingopeningtime = date('d.m.Y, H:i', $settings->bookingopeningtime);
+                    break;
+                default:
+                    $this->bookingopeningtime = date('M d, Y, H:i', $settings->bookingopeningtime);
+                    break;
+            }
+        }
+
+        if (empty($settings->bookingclosingtime)) {
+            $this->bookingclosingtime = null;
+        } else {
+            switch (current_language()) {
+                case 'de':
+                    $this->bookingclosingtime = date('d.m.Y, H:i', $settings->bookingclosingtime);
+                    break;
+                default:
+                    $this->bookingclosingtime = date('M d, Y, H:i', $settings->bookingclosingtime);
+                    break;
+            }
+        }
 
         if (isset($settings->customfields)) {
             $this->customfields = $settings->customfields;
@@ -416,6 +451,8 @@ class bookingoption_description implements renderable, templatable {
             'dayofweektime' => $this->dayofweektime,
             'bookinginformation' => $this->bookinginformation,
             'bookitsection' => $this->bookitsection,
+            'bookingopeningtime' => $this->bookingopeningtime,
+            'bookingclosingtime' => $this->bookingclosingtime,
         ];
 
         if (!empty($this->unitstring)) {

@@ -173,14 +173,14 @@ class booking_time implements bo_condition {
         $mform->addElement('checkbox', 'restrictanswerperiodopening',
                 get_string('restrictanswerperiodopening', 'mod_booking'));
 
-        $mform->addElement('date_time_selector', 'bookingopeningtime', get_string('bookingopeningtime', 'mod_booking'));
+        $mform->addElement('date_time_selector', 'bookingopeningtime', get_string('from', 'mod_booking'));
         $mform->setType('bookingopeningtime', PARAM_INT);
         $mform->hideIf('bookingopeningtime', 'restrictanswerperiodopening', 'notchecked');
 
         $mform->addElement('checkbox', 'restrictanswerperiodclosing',
                 get_string('restrictanswerperiodclosing', 'mod_booking'));
 
-        $mform->addElement('date_time_selector', 'bookingclosingtime', get_string('bookingclosingtime', 'mod_booking'));
+        $mform->addElement('date_time_selector', 'bookingclosingtime', get_string('until', 'mod_booking'));
         $mform->setType('bookingclosingtime', PARAM_INT);
         $mform->hideIf('bookingclosingtime', 'restrictanswerperiodclosing', 'notchecked');
 

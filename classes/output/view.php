@@ -636,6 +636,12 @@ class view implements renderable, templatable {
         if (in_array('responsiblecontact', $optionsfields)) {
             $columnsfooter[] = 'responsiblecontact';
         }
+        if (in_array('bookingopeningtime', $optionsfields)) {
+            $columnsfooter[] = 'bookingopeningtime';
+        }
+        if (in_array('bookingclosingtime', $optionsfields)) {
+            $columnsfooter[] = 'bookingclosingtime';
+        }
         if (in_array('showdates', $optionsfields)) {
             $columnsfooter[] = 'showdates';
         }
@@ -671,6 +677,22 @@ class view implements renderable, templatable {
             $wbtable->add_classes_to_subcolumns('footer',
                 ['columniclassbefore' => 'fa fa-user fa-fw text-gray font-size-sm'],
                 ['responsiblecontact']);
+        }
+        if (in_array('bookingopeningtime', $optionsfields)) {
+            $wbtable->add_classes_to_subcolumns('footer',
+                ['columnclass' => 'text-left pr-2 text-gray font-size-sm d-block'],
+                ['bookingopeningtime']);
+            $wbtable->add_classes_to_subcolumns('footer',
+                ['columniclassbefore' => 'fa fa-play fa-fw text-gray font-size-sm'],
+                ['bookingopeningtime']);
+        }
+        if (in_array('bookingclosingtime', $optionsfields)) {
+            $wbtable->add_classes_to_subcolumns('footer',
+                ['columnclass' => 'text-left pr-2 text-gray font-size-sm d-block'],
+                ['bookingclosingtime']);
+            $wbtable->add_classes_to_subcolumns('footer',
+                ['columniclassbefore' => 'fa fa-step-forward fa-fw text-gray font-size-sm'],
+                ['bookingclosingtime']);
         }
         if (in_array('showdates', $optionsfields)) {
             $wbtable->add_classes_to_subcolumns('footer',
@@ -803,6 +825,12 @@ class view implements renderable, templatable {
             }
             if (in_array('institution', $optionsfields)) {
                 $sortablecolumns['institution'] = get_string('institution', 'mod_booking');
+            }
+            if (in_array('bookingopeningtime', $optionsfields)) {
+                $sortablecolumns['bookingopeningtime'] = get_string('bookingopeningtime', 'mod_booking');
+            }
+            if (in_array('bookingclosingtime', $optionsfields)) {
+                $sortablecolumns['bookingclosingtime'] = get_string('bookingclosingtime', 'mod_booking');
             }
             $wbtable->define_sortablecolumns($sortablecolumns);
         }
