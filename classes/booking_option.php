@@ -2924,7 +2924,7 @@ class booking_option {
      */
     public static function get_placeholder_params(int $optionid, int $userid = 0) {
 
-        global $CFG, $PAGE, $USER;
+        global $CFG, $USER;
 
         $params = new stdClass();
 
