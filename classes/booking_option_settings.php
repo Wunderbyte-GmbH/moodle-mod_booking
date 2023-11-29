@@ -675,7 +675,9 @@ class booking_option_settings {
 
         $data = [];
         foreach ($this->teachers as $teacher) {
-            $data['teachers'][] = "$teacher->firstname $teacher->lastname";
+            $t['firstname'] = $teacher->firstname;
+            $t['lastname'] = $teacher->lastname;
+            $data['teachers'][] = $t;
         }
 
         $renderedlistofteachers = $output->render_bookingoption_description_teachers($data);

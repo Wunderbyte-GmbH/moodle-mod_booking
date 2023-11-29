@@ -35,11 +35,9 @@
     <b>{{#str}} teachers, mod_booking {{/str}}:</b>
     <ul>
         {{#teachers}}
-            <li>
-                {{#teacherurl}}<a href="{{.}}" target="_blank">{{/teacherurl}}
-                {{firstname}} {{lastname}}
-                {{#teacherurl}}</a>{{/teacherurl}}
-            </li>
+        <li>
+            {{#teacherurl}}<a href="{{.}}" target="_blank">{{/teacherurl}}{{firstname}} {{lastname}}{{#teacherurl}}</a>{{/teacherurl}}
+        </li>
         {{/teachers}}
     </ul>
 </div>
