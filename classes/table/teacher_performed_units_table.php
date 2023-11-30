@@ -33,6 +33,12 @@ defined('MOODLE_INTERNAL') || die();
  */
 class teacher_performed_units_table extends table_sql {
 
+    /** @var string $decimalseparator */
+    public $decimalseparator = ".";
+
+    /** @var string $decimalseparator */
+    public $thousandsseparator = ",";
+
     /**
      * Constructor
      * @param string $uniqueid all tables have to have a unique id, this is used
@@ -45,12 +51,12 @@ class teacher_performed_units_table extends table_sql {
 
         // For German use "," as comma and " " as thousands separator.
         if (current_language() == "de") {
-            $this->decimal_separator = ",";
-            $this->thousands_separator = " ";
+            $this->decimalseparator = ",";
+            $this->thousandsseparator = " ";
         } else {
             // In all other cases, we use the default separators.
-            $this->decimal_separator = ".";
-            $this->thousands_separator = ",";
+            $this->decimalseparator = ".";
+            $this->thousandsseparator = ",";
         }
 
         // Columns and headers are not defined in constructor, in order to keep things as generic as possible.
@@ -135,6 +141,6 @@ class teacher_performed_units_table extends table_sql {
      * @throws coding_exception
      */
     public function col_duration_units($values) {
-        return number_format($values->duration_units, 1, $this->decimal_separator, $this->thousands_separator);
+        return number_format($values->duration_units, 1, $this->decimalseparator, $this->thousandsseparator);
     }
 }

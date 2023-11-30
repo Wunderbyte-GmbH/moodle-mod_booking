@@ -601,7 +601,7 @@ class view implements renderable, templatable {
         $wbtable->cardsort = true;
 
         // Without defining sorting won't work!
-        $wbtable->define_columns(['titleprefix', 'coursestarttime']);
+        $wbtable->define_columns(['titleprefix', 'coursestarttime', 'courseendtime']);
 
         $columnsleftside = [];
         $columnsleftside[] = 'invisibleoption';
@@ -683,7 +683,7 @@ class view implements renderable, templatable {
                 ['columnclass' => 'text-left pr-2 text-gray font-size-sm d-block'],
                 ['bookingopeningtime']);
             $wbtable->add_classes_to_subcolumns('footer',
-                ['columniclassbefore' => 'fa fa-play fa-fw text-gray font-size-sm'],
+                ['columniclassbefore' => 'fa fa-forward fa-fw text-gray font-size-sm'],
                 ['bookingopeningtime']);
         }
         if (in_array('bookingclosingtime', $optionsfields)) {
@@ -798,15 +798,30 @@ class view implements renderable, templatable {
             }
 
             $filtercolumns['coursestarttime'] = [
-                'localizedname' => get_string('timespan', 'local_wunderbyte_table'),
+                'localizedname' => get_string('timefilter:coursetime', 'mod_booking'),
                 'datepicker' => [
                     'In between' => [
-                        'possibleoperations' => ['flexoverlap', 'within', 'before', 'after'],
+                        'possibleoperations' => ['within', 'flexoverlap', 'before', 'after'],
                         'columntimestart' => 'coursestarttime',
                         'columntimeend' => 'courseendtime',
                         'labelstartvalue' => get_string('coursestarttime', 'mod_booking'),
                         'defaultvaluestart' => 'now', // Can also be Unix timestamp or string "now".
                         'labelendvalue' => get_string('courseendtime', 'mod_booking'),
+                        'defaultvalueend' => strtotime('+ 1 year', time()), // Can also be Unix timestamp or string "now".
+                        'checkboxlabel' => get_string('apply_filter', 'local_wunderbyte_table'),
+                    ],
+                ],
+            ];
+            $filtercolumns['bookingopeningtime'] = [
+                'localizedname' => get_string('timefilter:bookingtime', 'mod_booking'),
+                'datepicker' => [
+                    'In between' => [
+                        'possibleoperations' => ['within', 'flexoverlap', 'before', 'after'],
+                        'columntimestart' => 'bookingopeningtime',
+                        'columntimeend' => 'bookingclosingtime',
+                        'labelstartvalue' => get_string('bookingopeningtime', 'mod_booking'),
+                        'defaultvaluestart' => 'now', // Can also be Unix timestamp or string "now".
+                        'labelendvalue' => get_string('bookingclosingtime', 'mod_booking'),
                         'defaultvalueend' => strtotime('+ 1 year', time()), // Can also be Unix timestamp or string "now".
                         'checkboxlabel' => get_string('apply_filter', 'local_wunderbyte_table'),
                     ],

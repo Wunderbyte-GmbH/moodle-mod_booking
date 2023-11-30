@@ -511,23 +511,11 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @throws coding_exception
      */
     public function col_dayofweektime($values) {
-
         $ret = '';
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
-
-        $units = null;
-        if (!empty($settings->dayofweektime)) {
-            $unitsnumber = dates_handler::calculate_and_render_educational_units($settings->dayofweektime);
-            $units = get_string('units', 'mod_booking') . ": $unitsnumber";
-        }
-
         if (!empty($settings->dayofweektime)) {
             $ret = $settings->dayofweektime;
-            if (!$this->is_downloading() && !empty($units)) {
-                $ret .= " ($units)";
-            }
         }
-
         return $ret;
     }
 
