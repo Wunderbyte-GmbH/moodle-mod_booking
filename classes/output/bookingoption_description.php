@@ -207,9 +207,6 @@ class bookingoption_description implements renderable, templatable {
         if (!empty($settings->entity)) {
             $entityurl = new moodle_url('/local/entities/view.php', ['id' => $settings->entity['id']]);
             $entityfullname = $settings->entity['name'];
-            if (!empty($settings->entity['shortname'])) {
-                $entityfullname .= " (" . $settings->entity['shortname'] . ")";
-            }
             $this->location = html_writer::tag('a', $entityfullname, ['href' => $entityurl->out(false)]);
         } else {
             $this->location = $settings->location;
