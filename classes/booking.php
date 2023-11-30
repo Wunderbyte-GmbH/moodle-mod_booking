@@ -1155,11 +1155,11 @@ class booking {
      * @param array $areas
      * @return array
      */
-    public static function return_array_of_dates(array $areas): array {
+    public static function return_array_of_entity_dates(array $areas): array {
 
         // TODO: Now that the SQL has been changed, we need to fix this function!
 
-        global $DB;
+        global $DB, $USER;
 
         // Get the SQL to retrieve all the right IDs.
         $sql = self::return_sql_for_options_dates($areas);
@@ -1204,10 +1204,10 @@ class booking {
             $optionsettings = singleton_service::get_instance_of_booking_option_settings($record->optionid);
 
             // Link is always the same.
-            $link = new moodle_url('/mod/booking/view.php', [
+            $link = new moodle_url('/mod/booking/optionview.php', [
                 'optionid' => $record->optionid,
-                'id' => $optionsettings->cmid,
-                'whichview' => 'showonlyone',
+                'cmid' => $optionsettings->cmid,
+                'userid' => $USER->id,
             ]);
 
             $newentittydate = new entitydate(

@@ -34,10 +34,10 @@ class service_provider implements CallbackService_provider {
      * @param array $areas
      * @return array
      */
-    public static function return_array_of_dates(array $areas): array {
+    public static function return_array_of_entity_dates(array $areas): array {
 
         // We just call the right class to return the array of dates.
-        $itemsarray = booking::return_array_of_dates($areas);
+        $itemsarray = booking::return_array_of_entity_dates($areas);
 
         return $itemsarray;
     }
