@@ -384,13 +384,9 @@ class option_form1 extends dynamic_form {
         // In expert mode, we do not hide anything.
         if ($this->formmode == 'expert' ||
             !isset($optionformconfig['datesheader']) || $optionformconfig['datesheader'] == 1) {
-            // Datesection for Dynamic Load.
-            $mform->addElement('header', 'datesheader', get_string('dates', 'mod_booking'));
-            $mform->setExpanded('datesheader');
 
-            dates::instance_form_definition($mform, $formdata);
-
-            $mform->addElement('html', '<div id="optiondates-form"></div>');
+            $mform->addElement('hidden', 'datesmarker', 0);
+            $mform->setType('datesmarker', PARAM_INT);
 
             $semesterid = null;
             $dayofweektime = '';
@@ -896,7 +892,9 @@ class option_form1 extends dynamic_form {
 
         // If there are no date to book (no optiondates)...
         // ... we need to take into account the single dates.
-        if (count($fromform->datestobook) < 1) {
+        if ((count($fromform->datestobook) < 1)
+            && !empty($fromform->coursestarttime
+            && !empty($fromform->courseendtime))) {
 
             $fromform->datestobook[] = new entitydate(
                 $fromform->optionid ?? 0,
@@ -910,11 +908,17 @@ class option_form1 extends dynamic_form {
         }
     }
 
+    /**
+     * Definition after data.
+     * @return void
+     * @throws coding_exception
+     */
     public function definition_after_data() {
 
         $mform = $this->_form;
+        $formdata = $this->_customdata ?? $this->_ajaxformdata;
 
-        dates::definition_after_data($mform);
+        dates::definition_after_data($mform, $formdata);
 
     }
 
@@ -941,7 +945,10 @@ class option_form1 extends dynamic_form {
      */
     public function set_data_for_dynamic_submission(): void {
 
-        $data = (object)[];
+        $data = (object)$this->_ajaxformdata ?? $this->_customdata;
+
+        // We need to modify the data we set for dates.
+        $data = dates::set_data($data);
 
         $this->set_data($data);
     }

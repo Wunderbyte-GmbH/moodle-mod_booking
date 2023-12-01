@@ -63,107 +63,11 @@ class dates {
          *
          */
 
-        $elements = [];
-        $optionid = $formdata['optionid'];
-        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        $datescounter = $formdata['datescounter'];
-        $sessions = $settings->sessions;
-
-        // The datescounter is the first element we add to the form.
-        $element = $mform->addElement(
-            'hidden',
-            'datescounter',
-            $datescounter,
-        );
-        $mform->setType('datescounter', PARAM_INT);
-
-        // First we check if we have submitted data.
-        $data = $mform->getSubmitValues();
-
-        // If we have clicked the no submit button to add a date...
-        if (isset($data['adddatebutton'])) {
-            $datescounter++;
-        } else {
-
-            // We might have clicked a delete nosubmit button.
-            foreach ($data as $key => $value) {
-                if (strpos($key, 'deletedate_') > 0) {
-                    $datescounter--;
-                }
-            }
-        }
-
-        // After the correction of the dates counter, we can set the value.
-        $element->setValue($datescounter);
-        $elements[] = $element;
-
-        if (empty($datescounter)) {
-            $elements[] = $mform->addElement(
-                'static',
-                'nodatesstring',
-                get_string('nodatesstring', 'mod_booking'),
-                get_string('nodatesstring_desc', 'mod_booking'),
-            );
-        }
-
-        $elements[] = $mform->addElement('submit', 'adddatebutton', get_string('adddatebutton', 'mod_booking'),
-            [
-            'data-action' => 'adddatebutton',
-        ]);
-        // Button to attach JavaScript to reload the form.
-        $mform->registerNoSubmitButton('adddatebutton');
-
-        $elements[] = $mform->addElement('checkbox', 'startendtimeknown',
-            get_string('startendtimeknown', 'mod_booking'));
-
-        $counter = 0;
-
         /**
          * Every optiondate consists of the optiondateid, which is the id in the bookiging_optiondates table.
          * Plus coursestarttime and courseendtime.
          */
 
-        while ($counter < $datescounter) {
-            $counter++;
-            $session = null;
-
-            if (count($sessions) > 0) {
-                $session = array_shift($sessions);
-            }
-
-            $elements[] = $mform->addElement('hidden', 'optiondateid_' . $counter, 0);
-            $mform->setType('optiondateid_' . $counter, PARAM_INT);
-
-            $elements[] =& $mform->addElement('date_time_selector', 'coursestarttime_' . $counter,
-            get_string("coursestarttime", "booking"));
-            $mform->setType('coursestarttime_' . $counter, PARAM_INT);
-            $mform->disabledIf('coursestarttime_' . $counter, 'startendtimeknown', 'notchecked');
-
-            $elements[] =& $mform->addElement('date_time_selector', 'courseendtime_' . $counter,
-                get_string("courseendtime", "booking"));
-            $mform->setType('courseendtime_' . $counter, PARAM_INT);
-            $mform->disabledIf('courseendtime_' . $counter, 'startendtimeknown', 'notchecked');
-
-            $buttonarray = array();
-            $buttonarray[] =& $mform->createElement('submit', 'deletedate_' . $counter, get_string('savechanges'));
-            $buttonarray[] =& $mform->createElement('submit', 'deletedate_' . $counter, get_string('cancel'));
-            $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
-
-            $elements[] = $mform->addElement('submit', 'deletedate_' . $counter,
-                get_string("delete"));
-
-
-            if (!empty($session)) {
-                // $element = $mform->getElement('coursestarttime_' . $counter);
-                // $element->setValue('yesno',  0);($session->coursestarttime);
-
-                // $element = $mform->getElement('courseendtime_' . $counter);
-                // $element->setDefault('yesno',  0);($session->courseendtime);
-
-                $mform->setDefault('coursestarttime_' . $counter, $session->coursestarttime);
-                $mform->setDefault('courseendtime_' . $counter, $session->courseendtime);
-            }
-        }
 
 
 
@@ -172,16 +76,62 @@ class dates {
         // Export Values would not work here, because the Elements we need are not yet in the form.
         // They are added only in definition after data.
         // But we can get the correct values via $_POST, because they are submitted via nosubmit button.
-        $datescounter = optional_param('datescounter', 0, PARAM_INT);
 
-        $counter = 0;
-        while ($counter <= $datescounter) {
-            $mform->registerNoSubmitButton('deletedate_' . $counter);
-            $counter++;
-        }
+
+
     }
 
-    public static function definition_after_data(MoodleQuickForm &$mform) {
+    /**
+     *
+     * @param MoodleQuickForm $mform
+     * @param array $formdata
+     * @return void
+     * @throws coding_exception
+     */
+    public static function definition_after_data(MoodleQuickForm &$mform, array $formdata) {
+
+        // The default values are those we have just set via set_data.
+        $defaultvalues = $mform->_defaultValues;
+
+        // Here we take a look in all the transmitted information and sort out how many dates we will have.
+        list($dates, $highestidx) = self::get_list_of_submitted_dates($defaultvalues);
+
+        // Datesection for Dynamic Load.
+        $elements[] = $mform->addElement('header', 'datesheader', get_string('dates', 'mod_booking'));
+        $mform->setExpanded('datesheader');
+
+        $datescounter = $defaultvalues["datescounter"];
+
+        // The datescounter is the first element we add to the form.
+        $element = $mform->addElement(
+            'hidden',
+            'datescounter',
+            $datescounter,
+        );
+        $mform->setType('datescounter', PARAM_INT);
+        $element->setValue($datescounter);
+        $elements[] = $element;
+
+        $now = time();
+
+        // If we want to show more dates than we currently have...
+        // ... we add them here.
+        while ($datescounter > count($dates)) {
+            $highestidx++;
+            $dates[] = [
+                'index' => $highestidx,
+                'coursestarttime' => $now,
+                'courseendtime' => $now,
+            ];
+        }
+
+        if ($datescounter > 0) {
+            self::add_dates_to_form($mform, $elements, $dates, $formdata);
+        } else {
+            self::add_no_dates_yet_to_form($mform, $elements, $dates, $formdata);
+        }
+
+        self::move_form_elements_to_the_right_place($mform, $elements);
 
     }
 
@@ -193,47 +143,258 @@ class dates {
     public static function set_data(stdClass &$defaultvalues) {
 
         // The currently saved optiondates are already in the singleton. we can therefore access it via bo settings.
+        // But we do this only when first loading the form.
+        // When a nosubmit button is pressed (add, delete, edit) we only use data from the form.
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($defaultvalues->optionid);
+        $datescounter = $defaultvalues->datescounter ?? 0;
 
-        $counter = 0;
+        // First we modify the datescounter
+        if (isset($defaultvalues->adddatebutton)) {
+            $datescounter++;
+        } else {
 
-        foreach ($settings->sessions as $session) {
-            $counter++;
-            $key = 'optiondateid_' . $counter;
-            $defaultvalues->{$key} = $session->optiondateid;
-            $key = 'coursestarttime_' . $counter;
-            $defaultvalues->{$key} = $session->coursestarttime;
-            $key = 'courseendtime_' . $counter;
-            $defaultvalues->{$key} = $session->courseendtime;
+            // We might have clicked a delete nosubmit button.
+            foreach ($defaultvalues as $key => $value) {
+                if (strpos($key, 'deletedate_') !== false) {
+
+                    // We want to show one element less.
+                    $datescounter--;
+                    break;
+                    // We also need to delete the precise data.
+                    list($name, $idx) = explode('_', $key);
+
+                    unset($defaultvalues->{'optiondateid_' . $idx});
+                    unset($defaultvalues->{'coursestarttime_' . $idx});
+                    unset($defaultvalues->{'courseendtime_' . $idx});
+                    break;
+                }
+            }
         }
 
-        $defaultvalues->datescounter = $counter;
+        $defaultvalues->datescounter = $datescounter;
 
+        // If we load the form the first time datesmarker is not yet set.
+        // Then we have to load the elements from the form.
+        if (!isset($defaultvalues->datesmarker)) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($defaultvalues->optionid);
+
+            $counter = 0;
+
+            foreach ($settings->sessions as $session) {
+                $counter++;
+                $key = 'optiondateid_' . $counter;
+                $defaultvalues->{$key} = $session->optiondateid;
+                $key = 'coursestarttime_' . $counter;
+                $defaultvalues->{$key} = $session->coursestarttime;
+                $key = 'courseendtime_' . $counter;
+                $defaultvalues->{$key} = $session->courseendtime;
+            }
+
+            $defaultvalues->datescounter = $counter;
+        }
+
+        return $defaultvalues;
     }
 
     public static function data_preprocessing($defaultvalues) {
-        $settings = singleton_service::get_instance_of_booking_option_settings($defaultvalues->optionid);
 
-        $counter = 0;
+    }
 
-        $loadedvalues = new stdClass();
+    /**
+     * A way to get all the submitted course dates. Only supports up to 100.
+     * @param mixed $formvalues
+     * @return array
+     */
+    public static function get_list_of_submitted_dates($formvalues) {
 
-        foreach ($settings->sessions as $session) {
+        $counter = 1;
+        $dates = [];
+        $highesindex = 1;
+
+        // We can have up to 100 dates.
+        while ($counter < 100) {
+            if (isset($formvalues['optiondateid_' . $counter])) {
+                $dates[] = [
+                    'index' => $counter,
+                    'coursestarttime' => $formvalues['coursestarttime_' . $counter],
+                    'courseendtime' => $formvalues['courseendtime_' . $counter],
+                ];
+                $highesindex = $counter;
+            }
             $counter++;
-            $key = 'optiondateid_' . $counter;
-            $loadedvalues->{$key} = $session->optiondateid;
-            $key = 'coursestarttime_' . $counter;
-            $loadedvalues->{$key} = $session->coursestarttime;
-            $key = 'courseendtime_' . $counter;
-            $loadedvalues->{$key} = $session->courseendtime;
         }
 
-        $loadedvalues->datescounter = $counter;
+        return [$dates, $highesindex];
+    }
 
-        foreach ($loadedvalues as $key => $value) {
-            $_POST[$key] = $value;
+    /**
+     *
+     * @param MoodleQuickForm $mform
+     * @param array $elements
+     * @param array $date
+     * @return void
+     * @throws coding_exception
+     */
+    private static function add_date_form(MoodleQuickForm &$mform, array &$elements, array $date) {
+
+        $idx = $date['index'];
+
+        // Even when we don't have the edit button, we need to add this nosubmit...
+        // Because of the switches in the form between edit & nonedit mode.
+        $mform->registerNoSubmitButton('editdate_' . $idx);
+
+        $elements[] =& $mform->addElement('date_time_selector', 'coursestarttime_' . $idx,
+            get_string("coursestarttime", "booking"));
+            $mform->setType('coursestarttime_' . $idx, PARAM_INT);
+            $mform->disabledIf('coursestarttime_' . $idx, 'startendtimeknown', 'notchecked');
+
+            $elements[] =& $mform->addElement('date_time_selector', 'courseendtime_' . $idx,
+                get_string("courseendtime", "booking"));
+            $mform->setType('courseendtime_' . $idx, PARAM_INT);
+            $mform->disabledIf('courseendtime_' . $idx, 'startendtimeknown', 'notchecked');
+
+            $mform->registerNoSubmitButton('deletedate_' . $idx);
+            $elements[] = $mform->addElement(
+                'submit',
+                'deletedate_' . $idx,
+                get_string("delete"), [
+                    'data-action' => 'deletedatebutton',
+                ],
+            );
+    }
+
+    /**
+     *
+     * @param MoodleQuickForm $mform
+     * @param array $elements
+     * @param array $date
+     * @return void
+     * @throws coding_exception
+     */
+    private static function add_date_as_string(MoodleQuickForm &$mform, array &$elements, array $date) {
+
+        $idx = $date['index'];
+
+        if (gettype($date['coursestarttime']) == 'array') {
+            $starttime = make_timestamp(...$date['coursestarttime']);
+            $endtime = make_timestamp(...$date['courseendtime']);
+        } else {
+            $starttime = !empty($date['coursestarttime']) ? $date['coursestarttime'] : time();
+            $endtime = !empty($date['courseendtime']) ? $date['courseendtime'] : time();
+        }
+
+        $datearray = array();
+        $datearray[] = $mform->createElement(
+            'static',
+            'datetext_' . $idx, '',
+            dates_handler::prettify_optiondates_start_end($starttime, $endtime)
+        );
+        // We need to add these hidden elements to make sure we have the values on reload and save.
+        $element = $mform->addElement('hidden', 'coursestarttime_' . $idx, $starttime);
+        $element->setValue($starttime);
+        $elements[] = $element;
+        $element = $mform->addElement('hidden', 'courseendtime_' . $idx, $endtime);
+        $element->setValue($endtime);
+        $elements[] = $element;
+
+        $mform->registerNoSubmitButton('editdate_' . $idx);
+        $datearray[] =& $mform->createElement('submit', 'editdate_' . $idx, get_string('edit'));
+        $mform->registerNoSubmitButton('deletedate_' . $idx);
+        $datearray[] =& $mform->createElement('submit', 'deletedate_' . $idx, get_string('delete'));
+        $elements[] =& $mform->addGroup($datearray, 'datearr_' . $idx, '', array(' '), false);
+
+    }
+
+    /**
+     * Elements are added after data, therefore they have to be moved to the right place in the form.
+     * @param MoodleQuickForm $mform
+     * @param array $elements
+     * @return void
+     */
+    private static function move_form_elements_to_the_right_place(MoodleQuickForm &$mform, array $elements) {
+        foreach ($elements as $formelement) {
+
+            $name = $formelement->getName();
+            $value = $formelement->getValue();
+            $formelement = $mform->insertElementBefore($mform->removeElement($name, false), 'datesmarker');
+            if ($value !== null) {
+                $formelement->setValue($value);
+            }
         }
     }
 
+    /**
+     *
+     * @param MoodleQuickForm $mform
+     * @param array $dates
+     * @param array $elements
+     * @return void
+     * @throws coding_exception
+     */
+    private static function add_dates_to_form(MoodleQuickForm &$mform, array &$elements, array $dates, array $formdata) {
+
+        // We only want to open one date for editing at a time.
+        $editted = false;
+
+        // The default values are those we have just set via set_data.
+        $defaultvalues = $mform->_defaultValues;
+
+        foreach ($dates as $key => $date) {
+
+            $idx = $date['index'];
+
+            // If we just wanted to delete this date, just dont create the items for it.
+            if (isset($defaultvalues['deletedate_' . $idx])) {
+
+                $mform->registerNoSubmitButton('deletedate_' . $idx);
+
+                continue;
+            }
+
+            $elements[] = $mform->addElement('hidden', 'optiondateid_' . $idx, 0);
+            $mform->setType('optiondateid_' . $idx, PARAM_INT);
+
+            // If we are on the last element and we just clicked "add", we print the form.
+            if ((isset($defaultvalues['adddatebutton'])
+                && (array_key_last($dates) == $key)
+                && !$editted)
+                || isset($defaultvalues['editdate_' . $idx])) {
+                self::add_date_form($mform, $elements, $date);
+                $editted = true;
+            } else {
+                self::add_date_as_string($mform, $elements, $date);
+            }
+
+        }
+
+        // Button to attach JavaScript to reload the form.
+        $mform->registerNoSubmitButton('adddatebutton');
+        $elements[] = $mform->addElement('submit', 'adddatebutton', get_string('adddatebutton', 'mod_booking'),
+            [
+            'data-action' => 'adddatebutton',
+        ]);
+    }
+
+    private static function add_no_dates_yet_to_form(MoodleQuickForm &$mform, array &$elements, array $dates, array $formdata) {
+
+        $elements[] = $mform->addElement('static', 'nodatesmessage', '', get_string('nodates', 'mod_booking'));
+
+        // After deleting, we still need to register the right no delete button.
+        // The default values are those we have just set via set_data.
+        $defaultvalues = $mform->_defaultValues;
+        foreach ($dates as $key => $date) {
+            $idx = $date['index'];
+            // If we just wanted to delete this date, just dont create the items for it.
+            if (isset($defaultvalues['deletedate_' . $idx])) {
+                $mform->registerNoSubmitButton('deletedate_' . $idx);
+            }
+        }
+
+        // Button to attach JavaScript to reload the form.
+        $mform->registerNoSubmitButton('adddatebutton');
+        $elements[] = $mform->addElement('submit', 'adddatebutton', get_string('adddatebutton', 'mod_booking'),
+            [
+            'data-action' => 'adddatebutton',
+        ]);
+    }
 }
