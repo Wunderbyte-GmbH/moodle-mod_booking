@@ -32,6 +32,7 @@ use mod_booking\output\eventslist;
 use context;
 use context_module;
 use context_system;
+use core_component;
 
 defined('MOODLE_INTERNAL') || die();
 require_once("$CFG->libdir/formslib.php");
@@ -141,12 +142,21 @@ class option_form1 extends dynamic_form {
         $mform->addElement('hidden', 'scrollpos');
         $mform->setType('scrollpos', PARAM_INT);
 
+        $fields = core_component::get_component_classes_in_namespace(
+            "mod_booking",
+            'option\fields'
+        );
 
+        $classes = [];
+        foreach (array_keys($fields) as $classname) {
+            $classes[$classname::$id] = $classname;
+        }
 
+        ksort($classes);
 
-
-
-
+        foreach ($classes as $class) {
+            $class::instance_form_definition($mform, $formdata, $optionformconfig);
+        }
 
         // Institution.
         $sql = 'SELECT DISTINCT institution FROM {booking_options} ORDER BY institution';

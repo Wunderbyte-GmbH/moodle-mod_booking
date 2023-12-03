@@ -43,7 +43,7 @@ class institution extends field_base {
      * This ID is used for sorting execution.
      * @var int
      */
-    public $id = MOD_BOOKING_OPTION_FIELD_LOCATION;
+    public static $id = MOD_BOOKING_OPTION_FIELD_LOCATION;
 
     /**
      * Some fields are saved with the booking option...
@@ -51,13 +51,13 @@ class institution extends field_base {
      * Some can be saved only post save (when they need the option id).
      * @var int
      */
-    public $save = MOD_BOOKING_EXECUTION_NORMAL;
+    public static $save = MOD_BOOKING_EXECUTION_NORMAL;
 
     /**
      * This identifies the header under which this particular field should be displayed.
      * @var string
      */
-    public $header = MOD_BOOKING_HEADER_GENERAL;
+    public static $header = MOD_BOOKING_HEADER_GENERAL;
 
     /**
      * This function interprets the value from the form and, if useful...
