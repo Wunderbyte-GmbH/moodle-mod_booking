@@ -97,6 +97,9 @@ class option_form1 extends dynamic_form {
             $this->formmode = 'simple';
         }
 
+        // We add the formmode to the optionformconfig.
+        $optionformconfig['formmode'] = $this->formmode;
+
         $mform = & $this->_form;
 
         $cmid = 0;
@@ -138,154 +141,12 @@ class option_form1 extends dynamic_form {
         $mform->addElement('hidden', 'scrollpos');
         $mform->setType('scrollpos', PARAM_INT);
 
-        // Header "General".
-        $mform->addElement('header', 'general', get_string('general', 'form'));
 
-        // Option templates.
-        $optiontemplates = ['' => ''];
-        $alloptiontemplates = $DB->get_records('booking_options', ['bookingid' => 0], '', $fields = 'id, text', 0, 0);
 
-        // If there is no license key and there is more than one template, we only use the first one.
-        if (count($alloptiontemplates) > 1 && !wb_payment::pro_version_is_activated()) {
-            $alloptiontemplates = [reset($alloptiontemplates)];
-            $mform->addElement('static', 'nolicense', get_string('licensekeycfg', 'mod_booking'),
-                get_string('licensekeycfgdesc', 'mod_booking'));
-        }
 
-        foreach ($alloptiontemplates as $key => $value) {
-            $optiontemplates[$value->id] = $value->text;
-        }
 
-        $mform->addElement('select', 'optiontemplateid', get_string('populatefromtemplate', 'mod_booking'),
-            $optiontemplates);
 
-        // Booking option identifier.
-        $mform->addElement('text', 'identifier', get_string('optionidentifier', 'mod_booking'), ['size' => '10']);
-        $mform->addRule('identifier', get_string('required'), 'required', null, 'client');
-        $mform->addRule('identifier', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
-        $mform->setType('identifier', PARAM_TEXT);
-        $mform->addHelpButton('identifier', 'optionidentifier', 'mod_booking');
 
-        // By default, a random identifier will be generated.
-        $randomidentifier = booking_option::create_truly_unique_option_identifier();
-
-        $mform->setDefault('identifier', $randomidentifier);
-
-        // Prefix to be shown before the title.
-        $mform->addElement('text', 'titleprefix', get_string('titleprefix', 'mod_booking'), ['size' => '10']);
-        $mform->addRule('titleprefix', get_string('maximumchars', '', 10), 'maxlength', 10, 'client');
-        $mform->setType('titleprefix', PARAM_TEXT);
-        $mform->addHelpButton('titleprefix', 'titleprefix', 'mod_booking');
-        if (!empty($bookingoptionsettings)) {
-            $mform->setDefault('titleprefix', $bookingoptionsettings->titleprefix);
-        }
-
-        // Booking option name.
-        $mform->addElement('text', 'text', get_string('bookingoptionname', 'mod_booking'), ['size' => '64']);
-        $mform->addRule('text', get_string('required'), 'required', null, 'client');
-        $mform->addRule('text', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
-        if (!empty($CFG->formatstringstriptags)) {
-            $mform->setType('text', PARAM_TEXT);
-        } else {
-            $mform->setType('text', PARAM_CLEANHTML);
-        }
-        // Add standard name here.
-        $eventtype = $booking->settings->eventtype;
-        if ($eventtype && strlen($eventtype) > 0) {
-            $eventtype = "- $eventtype ";
-        } else {
-            $eventtype = '';
-        }
-        $boptionname = "$COURSE->fullname $eventtype";
-        $mform->setDefault('text', $boptionname);
-
-        // Add custom fields here.
-        $customfields = booking_option::get_customfield_settings();
-        if (!empty($customfields)) {
-            foreach ($customfields as $customfieldname => $customfieldarray) {
-                // TODO: Only textfield yet defined, extend when there are more types.
-                switch ($customfieldarray['type']) {
-                    case 'textfield':
-                        $mform->addElement('text', $customfieldname, $customfieldarray['value'],
-                        ['size' => '64']);
-                        $mform->setType($customfieldname, PARAM_NOTAGS);
-                        break;
-                    case 'select':
-                        $soptions = explode("\n", $customfieldarray['options']);
-                        $soptionselements = [];
-                        $soptionselements[] = '';
-                        foreach ($soptions as $key => $value) {
-                            $val = trim($value);
-                            $soptionselements["{$val}"] = $value;
-                        }
-                        $mform->addElement('select', $customfieldname, $customfieldarray['value'], $soptionselements);
-                        $mform->setType("{$customfieldname}", PARAM_TEXT);
-                        break;
-                    case 'multiselect':
-                        $soptions = explode("\n", $customfieldarray['options']);
-                        $soptionselements = [];
-                        foreach ($soptions as $key => $value) {
-                            $val = trim($value);
-                            $soptionselements["{$val}"] = $value;
-                        }
-                        $ms = $mform->addElement('select', $customfieldname, $customfieldarray['value'], $soptionselements);
-                        $ms->setMultiple(true);
-                        $mform->setType("{$customfieldname}", PARAM_TEXT);
-                        break;
-                }
-            }
-        }
-
-        // Visibility.
-        $visibilityoptions = [
-            0 => get_string('optionvisible', 'mod_booking'),
-            1 => get_string('optioninvisible', 'mod_booking'),
-        ];
-        $mform->addElement('select', 'invisible', get_string('optionvisibility', 'mod_booking'), $visibilityoptions);
-        $mform->setType('invisible', PARAM_INT);
-        $mform->setDefault('invisible', 0);
-        $mform->addHelpButton('invisible', 'optionvisibility', 'mod_booking');
-
-        // Workaround: Only show, if it is not turned off in the option form config.
-        // We currently need this, because hideIf does not work with editors.
-        // In expert mode, we do not hide anything.
-        if ($this->formmode == 'expert' ||
-            !isset($optionformconfig['description']) || $optionformconfig['description'] == 1) {
-            $mform->addElement('editor', 'description', get_string('description'));
-            $mform->setType('description', PARAM_CLEANHTML);
-        }
-
-        // Internal annotation.
-        // Workaround: Only show, if it is not turned off in the option form config.
-        // We currently need this, because hideIf does not work with editors.
-        // In expert mode, we do not hide anything.
-        if ($this->formmode == 'expert' ||
-            !isset($optionformconfig['annotation']) || $optionformconfig['annotation'] == 1) {
-            $mform->addElement('editor', 'annotation', get_string('optionannotation', 'mod_booking'));
-            $mform->setType('annotation', PARAM_CLEANHTML);
-            $mform->addHelpButton('annotation', 'optionannotation', 'mod_booking');
-        }
-
-        // Location.
-        $sql = 'SELECT DISTINCT location FROM {booking_options} ORDER BY location';
-        $locationarray = $DB->get_fieldset_sql($sql);
-
-        $locationstrings = [];
-        foreach ($locationarray as $item) {
-            $locationstrings[$item] = $item;
-        }
-
-        $options = [
-                'noselectionstring' => get_string('donotselectlocation', 'mod_booking'),
-                'tags' => true,
-        ];
-        $mform->addElement('autocomplete', 'location', get_string('location', 'mod_booking'), $locationstrings, $options);
-        if (!empty($CFG->formatstringstriptags)) {
-            $mform->setType('location', PARAM_TEXT);
-        } else {
-            $mform->setType('location', PARAM_CLEANHTML);
-        }
-        $mform->addHelpButton('location', 'location', 'mod_booking');
 
         // Institution.
         $sql = 'SELECT DISTINCT institution FROM {booking_options} ORDER BY institution';
@@ -785,7 +646,7 @@ class option_form1 extends dynamic_form {
             $fromform = (object)$data;
 
             $erhandler = new entitiesrelation_handler('mod_booking', 'option');
-            self::order_all_dates_to_book_in_form($fromform);
+            ///self::order_all_dates_to_book_in_form($fromform);
             $erhandler->instance_form_validation((array)$fromform, $errors);
         }
 
@@ -862,7 +723,7 @@ class option_form1 extends dynamic_form {
      * @return void
      */
     private static function order_all_dates_to_book_in_form(stdClass &$fromform) {
-        dates_handler::add_values_from_post_to_form($fromform);
+        // dates_handler::add_values_from_post_to_form($fromform);
 
         // For the form validation, we need to pass the values to book in a special form.
         // We only need those timestamps which are new.
@@ -924,10 +785,12 @@ class option_form1 extends dynamic_form {
 
     /**
      * Get context for dynamic submission.
-     * @return context
+     * @return context_module
      */
     protected function get_context_for_dynamic_submission(): context {
-        return context_system::instance();
+
+        $optionid = $this->_ajaxformdata['optionid'];
+        return context_module::instance($optionid);
     }
 
     /**
@@ -958,11 +821,14 @@ class option_form1 extends dynamic_form {
      * @return stdClass|null
      */
     public function process_dynamic_submission(): stdClass {
-        global $PAGE;
 
+        // Get data from form.
         $data = $this->get_data();
 
-        // Do sth here.
+        // Pass data to update.
+        $context = $this->get_context_for_dynamic_submission();
+
+        booking_option::update($data, $context);
 
         return $data;
     }

@@ -161,6 +161,38 @@ define('MOD_BOOKING_PAGINATIONDEF', 25);
 define('MOD_BOOKING_CAMPAIGN_TYPE_CUSTOMFIELD', 0);
 define('MOD_BOOKING_CAMPAIGN_TYPE_BLOCKBOOKING', 1);
 
+// Define IDs of Fields.
+define('MOD_BOOKING_OPTION_FIELD_TEMPLATE', 10);
+define('MOD_BOOKING_OPTION_FIELD_TEXT', 20);
+define('MOD_BOOKING_OPTION_FIELD_IDENTIFIER', 30);
+define('MOD_BOOKING_OPTION_FIELD_TITLEPREFIX', 40);
+define('MOD_BOOKING_OPTION_FIELD_DESCRIPTION', 50);
+define('MOD_BOOKING_OPTION_FIELD_INVISIBLE', 60);
+define('MOD_BOOKING_OPTION_FIELD_ANNOTATION', 70);
+define('MOD_BOOKING_OPTION_FIELD_LOCATION', 80);
+define('MOD_BOOKING_OPTION_FIELD_INSTITUTION', 90);
+define('MOD_BOOKING_OPTION_FIELD_OPTIONDATES', 700);
+
+// To define execution of field methods.
+define('MOD_BOOKING_EXECUTION_NORMAL', 0);
+define('MOD_BOOKING_EXECUTION_POSTSAVE', 1);
+
+// Definition of Header sections in option form.
+define('MOD_BOOKING_HEADER_GENERAL', 'general');
+define('MOD_BOOKING_HEADER_DATES', 'datesheader');
+define('MOD_BOOKING_HEADER_TEACHERS', 'bookingoptionteachers');
+define('MOD_BOOKING_HEADER_RESPONSIBLECONTACT', 'responsiblecontactheader');
+define('MOD_BOOKING_HEADER_ADVANCEDOPTIONS', 'advancedoptions');
+define('MOD_BOOKING_HEADER_BOOKINGOPTIONTEXT', 'bookingoptiontextheader');
+define('MOD_BOOKING_HEADER_RECURRINGOPTION', 'recurringheader');
+define('MOD_BOOKING_HEADER_TEMPLATES', 'templateheader');
+define('MOD_BOOKING_HEADER_PRICE', 'bookingoptionprice');
+define('MOD_BOOKING_HEADER_ELECTIVE', 'electivesettings');
+define('MOD_BOOKING_HEADER_ACTIONS', 'bookingactionsheader');
+define('MOD_BOOKING_HEADER_AVAILABILITY', 'availabilityconditions');
+define('MOD_BOOKING_HEADER_SUBBOOKINGS', 'bookingsubbookingsheader');
+define('MOD_BOOKING_HEADER_CUSTOMFIELDS', 'category_'); // There can be multiple headers, with custom names.
+
 /**
  * Booking get coursemodule info.
  *

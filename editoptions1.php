@@ -254,7 +254,7 @@ if ($mform->is_cancelled()) {
             $fromform->limitanswers = 0;
         }
 
-        dates_handler::add_values_from_post_to_form($fromform);
+        // dates_handler::add_values_from_post_to_form($fromform);
 
         // Todo: Should nbooking be renamed to $optionid?
         $nbooking = booking_update_options($fromform, $context);
