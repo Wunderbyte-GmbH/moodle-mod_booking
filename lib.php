@@ -1060,9 +1060,6 @@ function booking_update_options(object $optionvalues, context_module $context,
     if (isset($optionvalues->addtocalendar) && $optionvalues->addtocalendar == 1) {
         // 1 ... Add to calendar as COURSE event.
         $option->addtocalendar = 1;
-    } else if (isset($optionvalues->addtocalendar) && $optionvalues->addtocalendar == 2) {
-        // 2 ... Add to calendar as SITE event.
-        $option->addtocalendar = 2;
     } else {
         // 0 ... Do not add to calendar.
         $option->addtocalendar = 0;
