@@ -24,9 +24,8 @@
 
 namespace mod_booking\option\fields;
 
-use mod_booking\dates;
-use mod_booking\option\fields;
 use mod_booking\option\fields_info;
+use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
 
@@ -37,13 +36,13 @@ use stdClass;
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class optiondates extends field_base {
+class addtogroup extends field_base {
 
     /**
      * This ID is used for sorting execution.
      * @var int
      */
-    public static $id = MOD_BOOKING_OPTION_FIELD_OPTIONDATES;
+    public static $id = MOD_BOOKING_OPTION_FIELD_ADDTOGROUP;
 
     /**
      * Some fields are saved with the booking option...
@@ -51,13 +50,13 @@ class optiondates extends field_base {
      * Some can be saved only post save (when they need the option id).
      * @var int
      */
-    public static $save = MOD_BOOKING_EXECUTION_POSTSAVE;
+    public static $save = MOD_BOOKING_EXECUTION_NORMAL;
 
     /**
      * This identifies the header under which this particular field should be displayed.
      * @var string
      */
-    public static $header = MOD_BOOKING_HEADER_DATES;
+    public static $header = MOD_BOOKING_HEADER_GENERAL;
 
     /**
      * This function interprets the value from the form and, if useful...
@@ -71,24 +70,8 @@ class optiondates extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        mixed $returnvalue = ''): string {
+        $returnvalue = 0): string {
 
-        // Run through all dates to make sure we don't have an array.
-        // We need to transform dates to timestamps.
-        list($dates, $highesindex) = dates::get_list_of_submitted_dates((array)$formdata);
-
-        foreach ($dates as $date) {
-
-            if (gettype($date['coursestarttime']) == 'array') {
-                $newoption->{'coursestarttime_' . $date['index']} = make_timestamp(...$date['coursestarttime']);
-                $newoption->{'courseendtime_' . $date['index']} = make_timestamp(...$date['courseendtime']);
-            } else {
-                $newoption->{'coursestarttime_' . $date['index']} = $date['coursestarttime'];
-                $newoption->{'courseendtime_' . $date['index']} = $date['courseendtime'];
-            }
-        }
-
-        // We can return a warning message here.
         return '';
     }
 
@@ -101,15 +84,6 @@ class optiondates extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
-        // Workaround: Only show, if it is not turned off in the option form config.
-        // We currently need this, because hideIf does not work with editors.
-        // In expert mode, we do not hide anything.
-        if ($optionformconfig['formmode'] == 'expert' ||
-            !isset($optionformconfig['datesheader']) || $optionformconfig['datesheader'] == 1) {
-
-            $mform->addElement('hidden', 'datesmarker', 0);
-            $mform->setType('datesmarker', PARAM_INT);
-        }
     }
 
     /**
@@ -126,7 +100,16 @@ class optiondates extends field_base {
 
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
-        // This is needed to create option dates with the webservice importer.
-        deal_with_multisessions($optionvalues, $booking, $option->id, $booking->context);
+        if (!empty($booking->settings->addtogroup) && $option->courseid > 0) {
+            $bo = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+            $bo->option->courseid = $option->courseid;
+            $option->groupid = $bo->create_group();
+            $booked = $bo->get_all_users_booked();
+            if (!empty($booked) && $booking->settings->autoenrol) {
+                foreach ($booked as $bookinganswer) {
+                    $bo->enrol_user($bookinganswer->userid);
+                }
+            }
+        }
     }
 }

@@ -43,7 +43,7 @@ class institution extends field_base {
      * This ID is used for sorting execution.
      * @var int
      */
-    public static $id = MOD_BOOKING_OPTION_FIELD_LOCATION;
+    public static $id = MOD_BOOKING_OPTION_FIELD_INSTITUTION;
 
     /**
      * Some fields are saved with the booking option...
@@ -85,27 +85,29 @@ class institution extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
-        global $DB, $CFG;
+        global $DB;
 
-        // Location.
-        $sql = 'SELECT DISTINCT location FROM {booking_options} ORDER BY location';
-        $locationarray = $DB->get_fieldset_sql($sql);
+        // We don't show the location and address fields if we have entities installed.
+        if (!class_exists('local_entities\entitiesrelation_handler')) {
+            // Standardfunctionality to add a header to the mform (only if its not yet there).
+            fields_info::add_header_to_mform($mform, self::$header);
 
-        $locationstrings = [];
-        foreach ($locationarray as $item) {
-            $locationstrings[$item] = $item;
+            // Institution.
+            $sql = 'SELECT DISTINCT institution FROM {booking_options} ORDER BY institution';
+            $institutionarray = $DB->get_fieldset_sql($sql);
+
+            $institutionstrings = [];
+            foreach ($institutionarray as $item) {
+                $institutionstrings[$item] = $item;
+            }
+
+            $options = [
+                    'noselectionstring' => get_string('donotselectinstitution', 'mod_booking'),
+                    'tags' => true,
+            ];
+            $mform->addElement('autocomplete', 'institution',
+                get_string('institution', 'mod_booking'), $institutionstrings, $options);
+            $mform->addHelpButton('institution', 'institution', 'mod_booking');
         }
-
-        $options = [
-                'noselectionstring' => get_string('donotselectlocation', 'mod_booking'),
-                'tags' => true,
-        ];
-        $mform->addElement('autocomplete', 'location', get_string('location', 'mod_booking'), $locationstrings, $options);
-        if (!empty($CFG->formatstringstriptags)) {
-            $mform->setType('location', PARAM_TEXT);
-        } else {
-            $mform->setType('location', PARAM_CLEANHTML);
-        }
-        $mform->addHelpButton('location', 'location', 'mod_booking');
     }
 }

@@ -85,6 +85,9 @@ class titleprefix extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
+        // Standardfunctionality to add a header to the mform (only if its not yet there).
+        fields_info::add_header_to_mform($mform, self::$header);
+
         // Prefix to be shown before the title.
         $mform->addElement('text', 'titleprefix', get_string('titleprefix', 'mod_booking'), ['size' => '10']);
         $mform->addRule('titleprefix', get_string('maximumchars', '', 10), 'maxlength', 10, 'client');

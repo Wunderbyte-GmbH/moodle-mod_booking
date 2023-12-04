@@ -96,4 +96,26 @@ class field_base implements fields {
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
     }
+
+    /**
+     * This function adds error keys for form validation.
+     * @param array $data
+     * @param array $files
+     * @return void
+     */
+    public static function validation(array $data, array $files, array &$errors) {
+
+        return $errors;
+    }
+
+    /**
+     *
+     * @param array $formdata
+     * @param stdClass $option
+     * @return void
+     * @throws dml_exception
+     */
+    public static function save_data(array &$formdata, stdClass &$option) {
+
+    }
 }

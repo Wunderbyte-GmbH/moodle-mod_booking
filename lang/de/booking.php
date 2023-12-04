@@ -274,6 +274,7 @@ $string['scgfselectgroups'] = 'Gruppe(n) auswählen';
 
 // Bookingform.
 $string['address'] = 'Adresse';
+$string['general'] = 'Allgemein';
 $string['advancedoptions'] = 'Erweiterte Einstellungen';
 $string['btnbooknowname'] = 'Bezeichnung des Buttons "Jetzt buchen"';
 $string['btncacname'] = 'Bezeichnung des Buttons "Aktivitätsabschluss bestätigen"';

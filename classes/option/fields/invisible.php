@@ -84,6 +84,9 @@ class invisible extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
+        // Standardfunctionality to add a header to the mform (only if its not yet there).
+        fields_info::add_header_to_mform($mform, self::$header);
+
         // Visibility.
         $visibilityoptions = [
             0 => get_string('optionvisible', 'mod_booking'),

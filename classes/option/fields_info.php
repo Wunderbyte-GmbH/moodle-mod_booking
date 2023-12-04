@@ -140,4 +140,58 @@ class fields_info {
             $class::instance_form_definition($mform, $formdata, $optionformconfig);
         }
     }
+
+    /**
+     *
+     * @param array $data
+     * @param array $files
+     * @param array $errors
+     * @return void
+     */
+    public static function validation(array $data, array $files, array &$errors) {
+        $fields = core_component::get_component_classes_in_namespace(
+            "mod_booking",
+            'option\fields'
+        );
+
+        $classes = [];
+        foreach (array_keys($fields) as $classname) {
+            $classes[$classname::$id] = $classname;
+        }
+
+        ksort($classes);
+
+        foreach ($classes as $class) {
+            $class::validation($data, $files, $errors);
+        }
+    }
+
+    /**
+     *
+     * @param stdClass $formdata
+     * @param stdClass $newoption
+     * @param int $updateparam
+     * @return array
+     */
+    public static function save_fields_post(stdClass &$formdata, stdClass &$option, int $updateparam) {
+
+        $fields = core_component::get_component_classes_in_namespace(
+            "mod_booking",
+            'option\fields'
+        );
+
+        $classes = [];
+        foreach (array_keys($fields) as $classname) {
+            if ($classname::$save === MOD_BOOKING_EXECUTION_POSTSAVE) {
+                continue;
+            }
+            $classes[$classname::$id] = $classname;
+        }
+
+        ksort($classes);
+
+        foreach ($classes as $class) {
+            $class::save_data($formdata, $option);
+        }
+    }
 }

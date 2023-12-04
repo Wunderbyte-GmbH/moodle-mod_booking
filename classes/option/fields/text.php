@@ -87,6 +87,9 @@ class text extends field_base {
 
         global $CFG, $COURSE;
 
+        // Standardfunctionality to add a header to the mform (only if its not yet there).
+        fields_info::add_header_to_mform($mform, self::$header);
+
         $booking = singleton_service::get_instance_of_booking_by_bookingid($formdata['bookingid']);
 
         // Booking option name.

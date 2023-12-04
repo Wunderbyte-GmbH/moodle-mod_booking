@@ -85,6 +85,9 @@ class identifier extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
+        // Standardfunctionality to add a header to the mform (only if its not yet there).
+        fields_info::add_header_to_mform($mform, self::$header);
+
         // Booking option identifier.
         $mform->addElement('text', 'identifier', get_string('optionidentifier', 'mod_booking'), ['size' => '10']);
         $mform->addRule('identifier', get_string('required'), 'required', null, 'client');
@@ -95,5 +98,23 @@ class identifier extends field_base {
         // By default, a random identifier will be generated.
         $randomidentifier = booking_option::create_truly_unique_option_identifier();
         $mform->setDefault('identifier', $randomidentifier);
+    }
+
+    /**
+     * This function adds error keys for form validation.
+     * @param array $data
+     * @param array $files
+     * @return void
+     */
+    public static function validation(array $data, array $files, array &$errors) {
+        global $DB;
+
+        if (isset($data['identifier'])) {
+            $sql = "SELECT id FROM {booking_options} WHERE id <> :optionid AND identifier = :identifier";
+            $params = ['optionid' => $data['optionid'], 'identifier' => $data['identifier']];
+            if ($DB->get_records_sql($sql, $params)) {
+                $errors['identifier'] = get_string('error:identifierexists', 'mod_booking');
+            }
+        }
     }
 }

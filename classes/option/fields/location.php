@@ -87,25 +87,31 @@ class location extends field_base {
 
         global $DB, $CFG;
 
-        // Location.
-        $sql = 'SELECT DISTINCT location FROM {booking_options} ORDER BY location';
-        $locationarray = $DB->get_fieldset_sql($sql);
+        // We don't show the location and address fields if we have entities installed.
+        if (!class_exists('local_entities\entitiesrelation_handler')) {
+            // Standardfunctionality to add a header to the mform (only if its not yet there).
+            fields_info::add_header_to_mform($mform, self::$header);
 
-        $locationstrings = [];
-        foreach ($locationarray as $item) {
-            $locationstrings[$item] = $item;
-        }
+            // Location.
+            $sql = 'SELECT DISTINCT location FROM {booking_options} ORDER BY location';
+            $locationarray = $DB->get_fieldset_sql($sql);
 
-        $options = [
-                'noselectionstring' => get_string('donotselectlocation', 'mod_booking'),
-                'tags' => true,
-        ];
-        $mform->addElement('autocomplete', 'location', get_string('location', 'mod_booking'), $locationstrings, $options);
-        if (!empty($CFG->formatstringstriptags)) {
-            $mform->setType('location', PARAM_TEXT);
-        } else {
-            $mform->setType('location', PARAM_CLEANHTML);
+            $locationstrings = [];
+            foreach ($locationarray as $item) {
+                $locationstrings[$item] = $item;
+            }
+
+            $options = [
+                    'noselectionstring' => get_string('donotselectlocation', 'mod_booking'),
+                    'tags' => true,
+            ];
+            $mform->addElement('autocomplete', 'location', get_string('location', 'mod_booking'), $locationstrings, $options);
+            if (!empty($CFG->formatstringstriptags)) {
+                $mform->setType('location', PARAM_TEXT);
+            } else {
+                $mform->setType('location', PARAM_CLEANHTML);
+            }
+            $mform->addHelpButton('location', 'location', 'mod_booking');
         }
-        $mform->addHelpButton('location', 'location', 'mod_booking');
     }
 }

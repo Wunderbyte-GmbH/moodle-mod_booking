@@ -87,12 +87,16 @@ class template extends field_base {
 
         global $DB;
 
-        // Standardfunctionality to add a header to the mform (only if its not yet there).
-        fields_info::add_header_to_mform($mform, self::$header);
-
         // Option templates.
         $optiontemplates = ['' => ''];
         $alloptiontemplates = $DB->get_records('booking_options', ['bookingid' => 0], '', $fields = 'id, text', 0, 0);
+
+        if (empty($alloptiontemplates)) {
+            return;
+        }
+
+        // Standardfunctionality to add a header to the mform (only if its not yet there).
+        fields_info::add_header_to_mform($mform, self::$header);
 
         // If there is no license key and there is more than one template, we only use the first one.
         if (count($alloptiontemplates) > 1 && !wb_payment::pro_version_is_activated()) {
