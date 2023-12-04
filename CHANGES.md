@@ -1,3 +1,17 @@
+## Version 8.0.53 (2023120400)
+**New features:**
+* New feature: Show booking opening and closing time in all relevant views and add possibility to sort by them.
+* New feature: Filters for booking time and course time.
+
+**Improvements:**
+* Improvement: No reload button on teacher page and no login required for table.
+* Improvement: Links in entity calendar now point to preview page (optionview.php).
+* Improvement: No entity shortname on booking option preview page (optionview.php).
+
+**Bugfixes:**
+* Bugfix: Fix {teachers} placeholder.
+* Bugfix: Add some fixes for course calendar events and refactor some legacy code.
+
 ## Version 8.0.52 (2023112800)
 **New features:**
 * New feature: Add possibility to set default sort order for booking instances.
