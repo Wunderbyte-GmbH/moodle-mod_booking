@@ -51,6 +51,7 @@ use mod_booking\dates;
 use mod_booking\subbookings\subbookings_info;
 use mod_booking\option\dates_handler;
 use mod_booking\elective;
+use mod_booking\option\fields_info;
 use mod_booking\teachers_handler;
 use moodle_exception;
 use moodle_url;
@@ -142,21 +143,8 @@ class option_form1 extends dynamic_form {
         $mform->addElement('hidden', 'scrollpos');
         $mform->setType('scrollpos', PARAM_INT);
 
-        $fields = core_component::get_component_classes_in_namespace(
-            "mod_booking",
-            'option\fields'
-        );
-
-        $classes = [];
-        foreach (array_keys($fields) as $classname) {
-            $classes[$classname::$id] = $classname;
-        }
-
-        ksort($classes);
-
-        foreach ($classes as $class) {
-            $class::instance_form_definition($mform, $formdata, $optionformconfig);
-        }
+        // Add all available fields in the right order.
+        fields_info::instance_form_definition($mform, $formdata, $optionformconfig);
 
         // Institution.
         $sql = 'SELECT DISTINCT institution FROM {booking_options} ORDER BY institution';

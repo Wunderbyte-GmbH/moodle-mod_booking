@@ -114,4 +114,30 @@ class fields_info {
                 break;
         }
     }
+
+    /**
+     * Add all available fields in the right order.
+     * @param MoodleQuickForm $mform
+     * @param array $formdata
+     * @param array $optionformconfig
+     * @return void
+     */
+    public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array &$optionformconfig) {
+
+        $fields = core_component::get_component_classes_in_namespace(
+            "mod_booking",
+            'option\fields'
+        );
+
+        $classes = [];
+        foreach (array_keys($fields) as $classname) {
+            $classes[$classname::$id] = $classname;
+        }
+
+        ksort($classes);
+
+        foreach ($classes as $class) {
+            $class::instance_form_definition($mform, $formdata, $optionformconfig);
+        }
+    }
 }
