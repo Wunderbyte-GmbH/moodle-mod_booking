@@ -26,8 +26,13 @@ namespace mod_booking\option;
 
 use coding_exception;
 use core_component;
+use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
+
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
  * Control and manage booking dates.
@@ -50,12 +55,10 @@ class fields_info {
 
         $warnings = [];
         $error = [];
-        $fields = core_component::get_component_classes_in_namespace(
-            "mod_booking",
-            'option\fields'
-        );
 
-        foreach (array_keys($fields) as $classname) {
+        $classes = self::get_field_classes();
+
+        foreach ($classes as $classname) {
             if (class_exists($classname)) {
 
                 // Execute the prepare function of every field.
@@ -124,17 +127,7 @@ class fields_info {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array &$optionformconfig) {
 
-        $fields = core_component::get_component_classes_in_namespace(
-            "mod_booking",
-            'option\fields'
-        );
-
-        $classes = [];
-        foreach (array_keys($fields) as $classname) {
-            $classes[$classname::$id] = $classname;
-        }
-
-        ksort($classes);
+        $classes = self::get_field_classes();
 
         foreach ($classes as $class) {
             $class::instance_form_definition($mform, $formdata, $optionformconfig);
@@ -149,17 +142,8 @@ class fields_info {
      * @return void
      */
     public static function validation(array $data, array $files, array &$errors) {
-        $fields = core_component::get_component_classes_in_namespace(
-            "mod_booking",
-            'option\fields'
-        );
 
-        $classes = [];
-        foreach (array_keys($fields) as $classname) {
-            $classes[$classname::$id] = $classname;
-        }
-
-        ksort($classes);
+        $classes = self::get_field_classes();
 
         foreach ($classes as $class) {
             $class::validation($data, $files, $errors);
@@ -175,6 +159,43 @@ class fields_info {
      */
     public static function save_fields_post(stdClass &$formdata, stdClass &$option, int $updateparam) {
 
+        $classes = self::get_field_classes(MOD_BOOKING_EXECUTION_POSTSAVE);
+
+        foreach ($classes as $class) {
+            $class::save_data($formdata, $option);
+        }
+    }
+
+    /**
+     *
+     * @param stdClass $data
+     * @return void
+     */
+    public static function set_data(stdClass &$data) {
+
+        $optionid = $data->optionid ?? 0;
+
+        if (!empty($optionid)) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        } else {
+            $settings = new booking_option_settings();
+        }
+
+        $classes = self::get_field_classes();
+
+        foreach ($classes as $classname) {
+            $classname::set_data($data, $settings);
+        }
+
+    }
+
+    /**
+     * Get all classes function.
+     * Save param allows to filter for all (default) or special save logic.
+     * @param int $save
+     * @return array
+     */
+    private static function get_field_classes(int $save = -1) {
         $fields = core_component::get_component_classes_in_namespace(
             "mod_booking",
             'option\fields'
@@ -182,16 +203,25 @@ class fields_info {
 
         $classes = [];
         foreach (array_keys($fields) as $classname) {
-            if ($classname::$save === MOD_BOOKING_EXECUTION_POSTSAVE) {
-                continue;
+
+            // We might only want postsave classes.
+            if ($save === MOD_BOOKING_EXECUTION_POSTSAVE) {
+                if ($classname::$save !== MOD_BOOKING_EXECUTION_POSTSAVE) {
+                    continue;
+                }
             }
+            // We might only want only normal save classes.
+            if ($save === MOD_BOOKING_EXECUTION_NORMAL) {
+                if ($classname::$save !== MOD_BOOKING_EXECUTION_NORMAL) {
+                    continue;
+                }
+            }
+
             $classes[$classname::$id] = $classname;
         }
 
         ksort($classes);
 
-        foreach ($classes as $class) {
-            $class::save_data($formdata, $option);
-        }
+        return $classes;
     }
 }

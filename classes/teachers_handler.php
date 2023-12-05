@@ -163,6 +163,24 @@ class teachers_handler {
     }
 
     /**
+     * Load existing teachers into mform.
+     *
+     * @param stdClass &$data reference to data
+     */
+    public function set_data(stdClass &$data) {
+
+        if (!empty($this->optionid) && $this->optionid > 0) {
+            $optionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+            $teachers = $optionsettings->teachers;
+            $teacherids = [];
+            foreach ($teachers as $teacher) {
+                $teacherids[] = $teacher->userid;
+            }
+            $data->teachersforoption = $teacherids;
+        }
+    }
+
+    /**
      * Subscribe new teachers and / or unsubscribe removed teachers from booking option.
      *
      * @param stdClass $formdata formdata

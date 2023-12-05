@@ -25,6 +25,7 @@
 namespace mod_booking\option\fields;
 
 use mod_booking\booking_option;
+use mod_booking\booking_option_settings;
 use mod_booking\option\fields;
 use mod_booking\option\fields_info;
 use MoodleQuickForm;
@@ -37,7 +38,7 @@ use stdClass;
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class field_base implements fields {
+abstract class field_base implements fields {
 
     /**
      * This ID is used for sorting execution.
@@ -109,13 +110,36 @@ class field_base implements fields {
     }
 
     /**
-     *
-     * @param array $formdata
+     * The save data function is very specific only for those values that should be saved...
+     * ... after saving the option. This is so, when we need an option id for saving (because of other table).
+     * @param stdClass $formdata
      * @param stdClass $option
      * @return void
      * @throws dml_exception
      */
-    public static function save_data(array &$formdata, stdClass &$option) {
+    public static function save_data(stdClass &$formdata, stdClass &$option) {
 
+        // $key = fields_info::get_class_name(static::class);
+        // $option->{$key} = $formdata[$key];
+    }
+
+    /**
+     * Standard function to transfer stored value to form.
+     * @param stdClass $data
+     * @param booking_option_settings $settings
+     * @return void
+     * @throws dml_exception
+     */
+    public static function set_data(stdClass &$data, booking_option_settings $settings) {
+
+        $key = fields_info::get_class_name(static::class);
+        // Normally, we don't call set data after the first time loading.
+        if (isset($data->{$key})) {
+            return;
+        }
+
+        $value = $settings->{$key} ?? null;
+
+        $data->{$key} = $value;
     }
 }

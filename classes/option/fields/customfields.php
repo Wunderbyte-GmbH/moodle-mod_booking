@@ -24,6 +24,8 @@
 
 namespace mod_booking\option\fields;
 
+use mod_booking\booking_option;
+use mod_booking\booking_option_settings;
 use mod_booking\customfield\booking_handler;
 use mod_booking\option\fields_info;
 use MoodleQuickForm;
@@ -101,6 +103,20 @@ class customfields extends field_base {
 
         $cfhandler = booking_handler::create();
         $errors = array_merge($errors, $cfhandler->instance_form_validation($data, $files));
+
+    }
+
+    /**
+     * Standard function to transfer stored value to form.
+     * @param stdClass $data
+     * @param booking_option_settings $settings
+     * @return void
+     * @throws dml_exception
+     */
+    public static function set_data(stdClass &$data, booking_option_settings $settings) {
+
+        $handler = booking_handler::create();
+        $handler->instance_form_before_set_data($data);
 
     }
 }

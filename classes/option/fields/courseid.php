@@ -77,11 +77,11 @@ class courseid extends field_base {
         // TODO: Create function for new course.
         /* Create a new course and put it either in a new course category
         or in an already existing one. */
-        if ($newoption->courseid == -1) {
+        if ($formdata->courseid == -1) {
             $categoryid = 1; // By default, we use the first category.
             if (!empty(get_config('booking', 'newcoursecategorycfield'))) {
-                // FEATURE add more settingfields add customfield_ ...
-                // ... to settingsvalue from customfields allwo only Textfields or Selects.
+                // FEATURE add more settingfields add customfield_ to ...
+                // ... settingsvalue from customfields allwo only Textfields or Selects.
                 $cfforcategory = 'customfield_' . get_config('booking', 'newcoursecategorycfield');
                 $category = new stdClass();
                 $category->name = $_POST[$cfforcategory];
@@ -106,10 +106,10 @@ class courseid extends field_base {
 
             // Create course.
             $fullnamewithprefix = '';
-            if (!empty($newoption->titleprefix)) {
-                $fullnamewithprefix .= $newoption->titleprefix . ' - ';
+            if (!empty($formdata->titleprefix)) {
+                $fullnamewithprefix .= $formdata->titleprefix . ' - ';
             }
-            $fullnamewithprefix .= $newoption->text;
+            $fullnamewithprefix .= $formdata->text;
 
             // Courses need to have unique shortnames.
             $i = 1;
@@ -125,10 +125,9 @@ class courseid extends field_base {
             $courses = [$newcourse];
             $createdcourses = core_course_external::create_courses($courses);
             $newoption->courseid = $createdcourses[0]['id'];
-            $formdata->courseid = $newoption->courseid;
+        } else {
+            return parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
         }
-
-        return '';
     }
 
     /**

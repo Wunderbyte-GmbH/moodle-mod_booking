@@ -24,6 +24,7 @@
 
 namespace mod_booking\option\fields;
 
+use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use MoodleQuickForm;
 use stdClass;
@@ -71,7 +72,22 @@ class annotation extends field_base {
         int $updateparam,
         $returnvalue = 0): string {
 
-        return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
+        $key = fields_info::get_class_name(static::class);
+        $value = $formdata->{$key} ?? null;
+
+        if (!empty($value)) {
+            // The form comes in the form of an array.
+            if (gettype($value) === 'array') {
+                $newoption->annotation = $value['text'];
+            } else {
+                $newoption->{$key} = $value;
+            }
+        } else {
+            $newoption->{$key} = '';
+        }
+
+        // We can return an warning message here.
+        return '';
     }
 
     /**
@@ -83,18 +99,39 @@ class annotation extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
-        // Standardfunctionality to add a header to the mform (only if its not yet there).
-        fields_info::add_header_to_mform($mform, self::$header);
-
         // Internal annotation.
         // Workaround: Only show, if it is not turned off in the option form config.
         // We currently need this, because hideIf does not work with editors.
         // In expert mode, we do not hide anything.
         if ($optionformconfig['formmode'] == 'expert' ||
             !isset($optionformconfig['annotation']) || $optionformconfig['annotation'] == 1) {
+
+            // Standardfunctionality to add a header to the mform (only if its not yet there).
+            fields_info::add_header_to_mform($mform, self::$header);
+
             $mform->addElement('editor', 'annotation', get_string('optionannotation', 'mod_booking'));
             $mform->setType('annotation', PARAM_CLEANHTML);
             $mform->addHelpButton('annotation', 'optionannotation', 'mod_booking');
         }
+    }
+
+    /**
+     * Standard function to transfer stored value to form.
+     * @param stdClass $data
+     * @param booking_option_settings $settings
+     * @return void
+     * @throws dml_exception
+     */
+    public static function set_data(stdClass &$data, booking_option_settings $settings) {
+
+        $key = fields_info::get_class_name(static::class);
+        // Normally, we don't call set data after the first time loading.
+        if (isset($data->{$key})) {
+            return;
+        }
+
+        $value = $settings->{$key} ?? null;
+
+        $data->{$key} = ['text' => $value];
     }
 }

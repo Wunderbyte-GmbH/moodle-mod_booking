@@ -162,6 +162,7 @@ define('MOD_BOOKING_CAMPAIGN_TYPE_CUSTOMFIELD', 0);
 define('MOD_BOOKING_CAMPAIGN_TYPE_BLOCKBOOKING', 1);
 
 // Define IDs of Fields.
+define('MOD_BOOKING_OPTION_FIELD_ID', 1);
 define('MOD_BOOKING_OPTION_FIELD_TEMPLATE', 10);
 define('MOD_BOOKING_OPTION_FIELD_TEXT', 20);
 define('MOD_BOOKING_OPTION_FIELD_IDENTIFIER', 30);
@@ -1670,62 +1671,6 @@ function save_entity_relations_for_optiondates_of_option(stdClass &$optionvalues
             } else {
                 // If entity was deleted from the option, we delete it form optiondates too.
                 $erhandler->delete_relation($optiondateid);
-            }
-        }
-    }
-}
-
-/**
- * Helper function to deal with the creation of multisessions (optiondates).
- *
- * @param stdClass $optionvalues
- * @param object $booking
- * @param int $optionid
- * @param stdClass $context
- *
- * @return void
- *
- */
-function deal_with_multisessions(&$optionvalues, $booking, $optionid, $context) {
-
-    global $DB;
-
-    // Deal with new optiondates (Multisessions).
-    // TODO: We should have an optiondates class to deal with all of this.
-    // As of now, we do it the hacky way.
-    for ($i = 1; $i < 100; ++$i) {
-
-        $starttimekey = 'ms' . $i . 'starttime';
-        $endtimekey = 'ms' . $i . 'endtime';
-        $daystonotify = 'ms' . $i . 'nt';
-
-        if (!empty($optionvalues->$starttimekey) && !empty($optionvalues->$endtimekey)) {
-            $optiondate = new stdClass();
-            $optiondate->bookingid = $booking->id;
-            $optiondate->optionid = $optionid;
-            $optiondate->coursestarttime = $optionvalues->$starttimekey;
-            $optiondate->courseendtime = $optionvalues->$endtimekey;
-            if (!empty($optionvalues->$daystonotify)) {
-                $optiondate->daystonotify = $optionvalues->$daystonotify;
-            }
-            $dateshandler = new dates_handler($optionid, $booking->id);
-            $optiondateid = $dateshandler->create_option_date($optiondate);
-
-            for ($j = 1; $j < 4; ++$j) {
-                $cfname = 'ms' . $i . 'cf' . $j . 'name';
-                $cfvalue = 'ms' . $i . 'cf'. $j . 'value';
-
-                if (!empty($optionvalues->$cfname)
-                    && !empty($optionvalues->$cfvalue)) {
-
-                    $customfield = new stdClass();
-                    $customfield->bookingid = $booking->id;
-                    $customfield->optionid = $optionid;
-                    $customfield->optiondateid = $optiondateid;
-                    $customfield->cfgname = $optionvalues->$cfname;
-                    $customfield->value = $optionvalues->$cfvalue;
-                    $DB->insert_record("booking_customfields", $customfield);
-                }
             }
         }
     }

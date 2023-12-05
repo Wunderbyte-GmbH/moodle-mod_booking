@@ -71,7 +71,7 @@ class responsiblecontact extends field_base {
         int $updateparam,
         $returnvalue = 0): string {
 
-        return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
+        return parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
     }
 
     /**

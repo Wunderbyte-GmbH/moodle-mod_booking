@@ -24,9 +24,12 @@
 
 namespace mod_booking\option\fields;
 
+use mod_booking\booking_option;
+use mod_booking\booking_option_settings;
 use mod_booking\dates;
 use mod_booking\option\fields;
 use mod_booking\option\fields_info;
+use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
 
@@ -114,19 +117,32 @@ class optiondates extends field_base {
 
     /**
      *
-     * @param array $formdata
+     * @param stdClass $formdata
      * @param stdClass $option
      * @return void
      * @throws dml_exception
      */
-    public static function save_data(array &$formdata, stdClass &$option) {
+    public static function save_data(stdClass &$formdata, stdClass &$option) {
 
-        $cmid = $formdata['cmid'];
-        $optionid = $formdata['optionid'];
+        $cmid = $formdata->cmid;
+        $optionid = $formdata->optionid;
 
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
         // This is needed to create option dates with the webservice importer.
-        deal_with_multisessions($optionvalues, $booking, $option->id, $booking->context);
+        booking_option::deal_with_multisessions($formdata, $booking, $option->id, $booking->context);
+    }
+
+    /**
+     * Standard function to transfer stored value to form.
+     * @param stdClass $data
+     * @param booking_option_settings $settings
+     * @return void
+     * @throws dml_exception
+     */
+    public static function set_data(stdClass &$data, booking_option_settings $settings) {
+
+        // We need to modify the data we set for dates.
+        $data = dates::set_data($data);
     }
 }

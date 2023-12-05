@@ -799,15 +799,7 @@ class option_form extends moodleform {
 
     public function set_data($defaultvalues) {
         global $DB;
-        $customfields = booking_option::get_customfield_settings();
-        if (!empty($customfields)) {
-            foreach ($customfields as $customfieldname => $customfieldarray) {
-                if ($customfieldarray['type'] == 'multiselect') {
-                    $defaultvalues->$customfieldname = explode("\n", (isset($defaultvalues->$customfieldname) ?
-                        $defaultvalues->$customfieldname : ''));
-                }
-            }
-        }
+
 
         $defaultvalues->description = [
                         'text' => (isset($defaultvalues->description) ? $defaultvalues->description : ''),
@@ -891,8 +883,7 @@ class option_form extends moodleform {
 
         if (isset($defaultvalues->optionid) && $defaultvalues->optionid > 0) {
             // Defaults for teachers.
-            $teacherhandler = new teachers_handler($defaultvalues->optionid);
-            $teacherhandler->instance_form_before_set_data($this->_form);
+
 
             // Defaults for customfields.
             $cfdefaults = $DB->get_records('booking_customfields', ['optionid' => $defaultvalues->optionid]);
@@ -916,21 +907,7 @@ class option_form extends moodleform {
             }
         }
 
-        // To handle costumfields correctly.
-        // We use instanceid for optionid.
-        // But cf always uses the id key. we can't override it completly though.
-        // Therefore, we change it to optionid just for the defaultvalues creation.
-        if (isset($defaultvalues->id) && isset($defaultvalues->optionid)) {
-            $handler = booking_handler::create();
-            $id = $defaultvalues->id;
-            $defaultvalues->id = $defaultvalues->optionid;
-            $handler->instance_form_before_set_data($defaultvalues);
-            if (class_exists('local_entities\entitiesrelation_handler')) {
-                $erhandler = new entitiesrelation_handler('mod_booking', 'option');
-                $erhandler->instance_form_before_set_data($this->_form, $defaultvalues, $defaultvalues->optionid);
-            }
-            $defaultvalues->id = $id;
-        }
+
 
         elective::option_form_set_data($defaultvalues);
 

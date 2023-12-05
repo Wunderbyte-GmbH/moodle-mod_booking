@@ -24,10 +24,9 @@
 
 namespace mod_booking\option\fields;
 
-use mod_booking\booking_option_settings;
-use mod_booking\option\fields;
+use mod_booking\bo_actions\actions_info;
 use mod_booking\option\fields_info;
-use mod_booking\singleton_service;
+use mod_booking\subbookings\subbookings_info;
 use MoodleQuickForm;
 use stdClass;
 
@@ -38,13 +37,13 @@ use stdClass;
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class text extends field_base {
+class id extends field_base {
 
     /**
      * This ID is used for sorting execution.
      * @var int
      */
-    public static $id = MOD_BOOKING_OPTION_FIELD_TEXT;
+    public static $id = MOD_BOOKING_OPTION_FIELD_ID;
 
     /**
      * Some fields are saved with the booking option...
@@ -74,7 +73,7 @@ class text extends field_base {
         int $updateparam,
         $returnvalue = 0): string {
 
-        return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
+        return parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
     }
 
     /**
@@ -86,53 +85,22 @@ class text extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
-        global $CFG, $COURSE;
+        $cmid = $formdata['cmid'];
 
-        // Standardfunctionality to add a header to the mform (only if its not yet there).
-        fields_info::add_header_to_mform($mform, self::$header);
+        $id = $formdata['optionid'] ?? 0;
 
-        $booking = singleton_service::get_instance_of_booking_by_bookingid($formdata['bookingid']);
+        // Id & optionid are the same here.
+        $mform->addElement('hidden', 'id', $id);
+        $mform->setType('id', PARAM_INT);
 
-        // Booking option name.
-        $mform->addElement('text', 'text', get_string('bookingoptionname', 'mod_booking'), ['size' => '64']);
-        $mform->addRule('text', get_string('required'), 'required', null, 'client');
-        $mform->addRule('text', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
-        if (!empty($CFG->formatstringstriptags)) {
-            $mform->setType('text', PARAM_TEXT);
-        } else {
-            $mform->setType('text', PARAM_CLEANHTML);
-        }
-    }
+        // Id & optionid are the same here.
+        $mform->addElement('hidden', 'optionid', $id);
+        $mform->setType('optionid', PARAM_INT);
 
-    /**
-     * Standard function to transfer stored value to form.
-     * @param stdClass $data
-     * @param booking_option_settings $settings
-     * @return void
-     * @throws dml_exception
-     */
-    public static function set_data(stdClass &$data, booking_option_settings $settings) {
+        $mform->addElement('hidden', 'cmid', $cmid);
+        $mform->setType('cmid', PARAM_INT);
 
-        global $COURSE;
-
-        // Normally, we don't call set data after the first time loading.
-        // The ID will only be emtpy on creating a new booking option.
-        if (empty($data->id)) {
-            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($data->cmid);
-            // Add standard name here.
-            $eventtype = $bookingsettings->eventtype;
-            if ($eventtype && strlen($eventtype) > 0) {
-                $eventtype = "- $eventtype ";
-            } else {
-                $eventtype = '';
-            }
-            $value = "$COURSE->fullname $eventtype";
-            $data->text = $value;
-        } else if (!isset($data->text)) {
-            // We only set name from settings if text was not already transmitted.
-            $key = fields_info::get_class_name(static::class);
-            $value = $settings->text ?? null;
-            $data->{$key} = $value;
-        }
+        $mform->addElement('hidden', 'bookingid', $formdata['bookingid']);
+        $mform->setType('bookingid', PARAM_INT);
     }
 }

@@ -69,6 +69,7 @@ class option_form1 extends dynamic_form {
         // We need context on this.
         $context = context_module::instance($formdata['cmid']);
         $formdata['context'] = $context;
+        $optionid = $formdata['optionid'];
 
         // Get the form mode, which can be 'simple' or 'expert'.
         if (isset($formdata['formmode'])) {
@@ -90,39 +91,6 @@ class option_form1 extends dynamic_form {
         $optionformconfig['formmode'] = $this->formmode;
 
         $mform = & $this->_form;
-
-        $cmid = 0;
-        $optionid = 0;
-        if (isset($formdata['cmid'])) {
-            $cmid = $formdata['cmid'];
-            $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
-        }
-        if (isset($formdata['optionid'])) {
-            $optionid = $formdata['optionid'];
-        }
-
-        // Get booking option settings from cache or DB via singleton service.
-        if ($optionid > 0) {
-            $bookingoptionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        } else {
-            $bookingoptionsettings = null;
-        }
-
-        // Hidden elements.
-        $mform->addElement('hidden', 'id', $cmid);
-        $mform->setType('id', PARAM_INT);
-
-        $mform->addElement('hidden', 'cmid', $cmid);
-        $mform->setType('cmid', PARAM_INT);
-
-        $mform->addElement('hidden', 'bookingid', $formdata['bookingid']);
-        $mform->setType('bookingid', PARAM_INT);
-
-        $mform->addElement('hidden', 'optionid', $formdata['optionid']);
-        $mform->setType('optionid', PARAM_INT);
-
-        $mform->addElement('hidden', 'bookingname');
-        $mform->setType('bookingname', PARAM_TEXT);
 
         $mform->addElement('hidden', 'returnurl');
         $mform->setType('returnurl', PARAM_LOCALURL);
@@ -353,8 +321,7 @@ class option_form1 extends dynamic_form {
 
         $data = (object)$this->_ajaxformdata ?? $this->_customdata;
 
-        // We need to modify the data we set for dates.
-        $data = dates::set_data($data);
+        fields_info::set_data($data);
 
         $this->set_data($data);
     }

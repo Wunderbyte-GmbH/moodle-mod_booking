@@ -24,6 +24,7 @@
 
 namespace mod_booking\option\fields;
 
+use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\teachers_handler;
 use MoodleQuickForm;
@@ -90,4 +91,19 @@ class teachers extends field_base {
         $teacherhandler = new teachers_handler($formdata['optionid'] ?? 0);
         $teacherhandler->add_to_mform($mform);
     }
+
+    /**
+     * Standard function to transfer stored value to form.
+     * @param stdClass $data
+     * @param booking_option_settings $settings
+     * @return void
+     * @throws dml_exception
+     */
+    public static function set_data(stdClass &$data, booking_option_settings $settings) {
+
+        $teacherhandler = new teachers_handler($data->optionid);
+        $teacherhandler->set_data($data);
+    }
 }
+
+

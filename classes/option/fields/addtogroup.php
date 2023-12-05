@@ -88,12 +88,12 @@ class addtogroup extends field_base {
 
     /**
      *
-     * @param array $formdata
+     * @param stdClass $formdata
      * @param stdClass $option
      * @return void
      * @throws dml_exception
      */
-    public static function save_data(array &$formdata, stdClass &$option) {
+    public static function save_data(stdClass &$formdata, stdClass &$option) {
 
         $cmid = $formdata['cmid'];
         $optionid = $formdata['optionid'];

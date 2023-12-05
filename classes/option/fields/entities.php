@@ -25,6 +25,7 @@
 namespace mod_booking\option\fields;
 
 use local_entities\entitiesrelation_handler;
+use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use MoodleQuickForm;
 use stdClass;
@@ -137,6 +138,21 @@ class entities extends field_base {
             $erhandler = new entitiesrelation_handler('mod_booking', 'option');
             // self::order_all_dates_to_book_in_form($fromform);
             $erhandler->instance_form_validation((array)$fromform, $errors);
+        }
+    }
+
+    /**
+     * Standard function to transfer stored value to form.
+     * @param stdClass $data
+     * @param booking_option_settings $settings
+     * @return void
+     * @throws dml_exception
+     */
+    public static function set_data(stdClass &$data, booking_option_settings $settings) {
+
+        if (class_exists('local_entities\entitiesrelation_handler')) {
+            $erhandler = new entitiesrelation_handler('mod_booking', 'option');
+            $erhandler->values_for_set_data($data, $data->optionid);
         }
     }
 }

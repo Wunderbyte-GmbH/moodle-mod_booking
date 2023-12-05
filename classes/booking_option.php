@@ -3237,62 +3237,54 @@ class booking_option {
         fields_info::prepare_save_fields($formdata, $newoption, $updateparam);
 
         // Save the changes to DB.
-        $DB->update_record("booking_options", $newoption);
+        if (!$DB->update_record("booking_options", $newoption)) {
+            throw new moodle_exception('updateofoptionwentwrong', 'mod_booking');
+        }
 
         fields_info::save_fields_post($formdata, $newoption, $updateparam);
 
-        // This is the default behavior but we do not want this when using other update params.
-        if ($updateparam == MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT ||
-            $updateparam == MOD_BOOKING_UPDATE_OPTIONS_PARAM_IMPORT) {
+        // If there have been changes to significant fields, we have to resend an e-mail with the updated ical attachment.
+        $bu = new booking_utils();
+        if ($changes = $bu->booking_option_get_changes($originaloption, $newoption)) {
 
-
-            // If there have been changes to significant fields, we have to resend an e-mail with the updated ical attachment.
-            $bu = new booking_utils();
-            if ($changes = $bu->booking_option_get_changes($originaloption, $newoption)) {
-
-                // Fix a bug where $PAGE->cm->id is not set for webservice importer.
-                if (!empty($PAGE->cm->id)) {
-                    $cmid = $PAGE->cm->id;
-                } else {
-                    $cm = context_module::instance($context->instanceid);
-                    if (!empty($cm->id)) {
-                        $cmid = $cm->id;
-                    }
-                }
-                // If we have no cmid, it's most possibly a template.
-                if (!empty($cmid) && $newoption->bookingid != 0) {
-                    // We only react on changes, if a cmid exists.
-                    $bu->react_on_changes($cmid, $context, $newoption->id, $changes);
-                }
-            }
-        }
-
-        // This is the default behavior but we do not want this when using other update params.
-        if ($updateparam == MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT || $updateparam == MOD_BOOKING_UPDATE_OPTIONS_PARAM_IMPORT) {
-
-            // Update start and end date of the option depending on the sessions.
-            booking_updatestartenddate($newoption->id);
-
-            $optiondateshandler = new dates_handler($optionvalues->optionid, $optionvalues->bookingid);
-            if (!empty($optionvalues->newoptiondates) || !empty($optionvalues->stillexistingdates)) {
-                // Save the optiondates.
-                $optiondateshandler->save_from_form($optionvalues);
+            // Fix a bug where $PAGE->cm->id is not set for webservice importer.
+            if (!empty($PAGE->cm->id)) {
+                $cmid = $PAGE->cm->id;
             } else {
-                // Delete optiondates.
-                // Quickfix: We cannot do this, if we have multisession keys.
-                if (!isset($optionvalues->ms1starttime)) {
-                    $optiondateshandler->delete_all_option_dates();
+                $cm = context_module::instance($context->instanceid);
+                if (!empty($cm->id)) {
+                    $cmid = $cm->id;
                 }
             }
-
-            // Save teachers using handler.
-            $teachershandler = new teachers_handler($newoption->id);
-            $teachershandler->save_from_form($optionvalues);
-
-            // Save relation for each newly created optiondate if checkbox is active.
-            $isimport = $updateparam == MOD_BOOKING_UPDATE_OPTIONS_PARAM_IMPORT ? true : false; // For import we need to force this!
-            save_entity_relations_for_optiondates_of_option($optionvalues, $newoption->id, $isimport);
+            // If we have no cmid, it's most possibly a template.
+            if (!empty($cmid) && $newoption->bookingid != 0) {
+                // We only react on changes, if a cmid exists.
+                $bu->react_on_changes($cmid, $context, $newoption->id, $changes);
+            }
         }
+
+        // Update start and end date of the option depending on the sessions.
+        booking_updatestartenddate($newoption->id);
+
+        $optiondateshandler = new dates_handler($newoption->optionid, $newoption->bookingid);
+        if (!empty($newoption->newoptiondates) || !empty($newoption->stillexistingdates)) {
+            // Save the optiondates.
+            $optiondateshandler->save_from_form($formdata);
+        } else {
+            // Delete optiondates.
+            // Quickfix: We cannot do this, if we have multisession keys.
+            if (!isset($newoption->ms1starttime)) {
+                $optiondateshandler->delete_all_option_dates();
+            }
+        }
+
+        // Save teachers using handler.
+        $teachershandler = new teachers_handler($newoption->id);
+        $teachershandler->save_from_form($optionvalues);
+
+        // Save relation for each newly created optiondate if checkbox is active.
+        $isimport = $updateparam == MOD_BOOKING_UPDATE_OPTIONS_PARAM_IMPORT ? true : false; // For import we need to force this!
+        save_entity_relations_for_optiondates_of_option($optionvalues, $newoption->id, $isimport);
 
         // We need to purge cache after updating an option.
         self::purge_cache_for_option($newoption->id);
@@ -3306,5 +3298,53 @@ class booking_option {
 
     public static function create() {
 
+    }
+
+    /**
+     * Helper function to deal with the creation of multisessions (optiondates).
+     */
+    public static function deal_with_multisessions(&$optionvalues, $booking, $optionid, $context) {
+
+        global $DB;
+
+        // Deal with new optiondates (Multisessions).
+        // TODO: We should have an optiondates class to deal with all of this.
+        // As of now, we do it the hacky way.
+        for ($i = 1; $i < 100; ++$i) {
+
+            $starttimekey = 'ms' . $i . 'starttime';
+            $endtimekey = 'ms' . $i . 'endtime';
+            $daystonotify = 'ms' . $i . 'nt';
+
+            if (!empty($optionvalues->$starttimekey) && !empty($optionvalues->$endtimekey)) {
+                $optiondate = new stdClass();
+                $optiondate->bookingid = $booking->id;
+                $optiondate->optionid = $optionid;
+                $optiondate->coursestarttime = $optionvalues->$starttimekey;
+                $optiondate->courseendtime = $optionvalues->$endtimekey;
+                if (!empty($optionvalues->$daystonotify)) {
+                    $optiondate->daystonotify = $optionvalues->$daystonotify;
+                }
+                $dateshandler = new dates_handler($optionid, $booking->id);
+                $optiondateid = $dateshandler->create_option_date($optiondate);
+
+                for ($j = 1; $j < 4; ++$j) {
+                    $cfname = 'ms' . $i . 'cf' . $j . 'name';
+                    $cfvalue = 'ms' . $i . 'cf'. $j . 'value';
+
+                    if (!empty($optionvalues->$cfname)
+                        && !empty($optionvalues->$cfvalue)) {
+
+                        $customfield = new stdClass();
+                        $customfield->bookingid = $booking->id;
+                        $customfield->optionid = $optionid;
+                        $customfield->optiondateid = $optiondateid;
+                        $customfield->cfgname = $optionvalues->$cfname;
+                        $customfield->value = $optionvalues->$cfvalue;
+                        $DB->insert_record("booking_customfields", $customfield);
+                    }
+                }
+            }
+        }
     }
 }

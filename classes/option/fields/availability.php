@@ -75,7 +75,7 @@ class availability extends field_base {
         // Save the additional JSON conditions (the ones which have been added to the mform).
         bo_info::save_json_conditions_from_form($formdata);
 
-        $newoption->availability = $formdata;
+        $newoption->availability = $formdata->availability;
 
         return '';
     }

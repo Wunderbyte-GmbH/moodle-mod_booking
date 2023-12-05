@@ -24,6 +24,7 @@
 
 namespace mod_booking\option\fields;
 
+use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use MoodleQuickForm;
 use stdClass;
@@ -71,7 +72,28 @@ class pollurl extends field_base {
         int $updateparam,
         $returnvalue = 0): string {
 
-        return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
+        $key = fields_info::get_class_name(static::class);
+        $value = $formdata->{$key} ?? null;
+
+        if (!empty($value)) {
+            $newoption->{$key} = $value;
+        } else {
+            $newoption->{$key} = '';
+        }
+
+        // We also need to take care of pollurlteachers.
+
+        $key = 'pollurlteachers';
+        $value = $formdata->{$key} ?? null;
+
+        if (!empty($value)) {
+            $newoption->{$key} = $value;
+        } else {
+            $newoption->{$key} = '';
+        }
+
+        // We can return an warning message here.
+        return '';
     }
 
     /**
@@ -118,5 +140,27 @@ class pollurl extends field_base {
         }
 
         return $errors;
+    }
+
+    /**
+     * Standard function to transfer stored value to form.
+     * @param stdClass $data
+     * @param booking_option_settings $settings
+     * @return void
+     * @throws dml_exception
+     */
+    public static function set_data(stdClass &$data, booking_option_settings $settings) {
+
+        $key = fields_info::get_class_name(static::class);
+        // Normally, we don't call set data after the first time loading.
+        if (isset($data->{$key})) {
+            return;
+        }
+
+        $value = $settings->{$key} ?? null;
+        $data->{$key} = $value;
+
+        $value = $settings->pollurlteachers ?? null;
+        $data->pollurlteachers = $value;
     }
 }
