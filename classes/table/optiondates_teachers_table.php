@@ -236,7 +236,7 @@ class optiondates_teachers_table extends wunderbyte_table {
             return [
                 'success' => 0,
                 'message' => get_string('error:missingcapability', 'mod_booking'),
-             ];
+            ];
         }
 
         $dataobject = json_decode($data);
