@@ -3213,6 +3213,23 @@ class booking_option {
 
         global $DB, $PAGE;
 
+        /**
+         * Todo:
+         * - Integrate customfields and more settings to option dates.
+        * - implement saving and loading of templates.
+         * - implement returnurl
+         * - implement entities for optiondates
+         * - Test csv importer
+         * - test webservice importer
+         * - test availability
+         * - test actions
+         * - test subbookings
+         * - test events
+         * - test caches
+         * - test rules
+         * - rename everything and make it the only way to go.
+         */
+
         // 1. Step: Gather save data we will always find.
         $optionid = $formdata->optionid ?? 0;
         $booking = singleton_service::get_instance_of_booking_by_bookingid($formdata->bookingid);
