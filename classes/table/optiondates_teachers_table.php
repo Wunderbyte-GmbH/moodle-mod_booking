@@ -206,7 +206,7 @@ class optiondates_teachers_table extends wunderbyte_table {
             'label' => get_string('reviewed', 'mod_booking'), // Name of your action button.
             'class' => 'optiondates-teachers-reviewed-checkbox',
             'id' => $values->optiondateid,
-            'methodname' => 'action_togglecheckbox', // The method needs to be added to your child of wunderbyte_table class.
+            'methodname' => 'togglecheckbox', // The method needs to be added to your child of wunderbyte_table class.
             'ischeckbox' => true,
             'checked' => $values->reviewed == 1,
             'disabled' => !has_capability('mod/booking:canreviewsubstitutions', context_system::instance()),
