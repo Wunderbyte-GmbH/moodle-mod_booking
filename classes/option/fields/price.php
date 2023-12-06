@@ -24,6 +24,7 @@
 
 namespace mod_booking\option\fields;
 
+use mod_booking\option\field_base;
 use mod_booking\price as Mod_bookingPrice;
 use MoodleQuickForm;
 use stdClass;
@@ -49,7 +50,7 @@ class price extends field_base {
      * Some can be saved only post save (when they need the option id).
      * @var int
      */
-    public static $save = MOD_BOOKING_EXECUTION_NORMAL;
+    public static $save = MOD_BOOKING_EXECUTION_POSTSAVE;
 
     /**
      * This identifies the header under which this particular field should be displayed.
@@ -96,26 +97,23 @@ class price extends field_base {
      */
     public static function validation(array $data, array $files, array &$errors) {
 
-        global $DB;
+        // Save the prices.
+        $price = new Mod_bookingPrice('option', $data['id']);
+        $price->validation($data, $errors);
+    }
 
-        // Price validation.
-        if ($data["useprice"] == 1) {
-            $pricecategories = $DB->get_records_sql("SELECT * FROM {booking_pricecategories} WHERE disabled = 0");
-            foreach ($pricecategories as $pricecategory) {
-                // Check for negative prices, they are not allowed.
-                if (isset($data["pricegroup_$pricecategory->identifier"]["bookingprice_$pricecategory->identifier"]) &&
-                    $data["pricegroup_$pricecategory->identifier"]["bookingprice_$pricecategory->identifier"] < 0) {
-                    $errors["pricegroup_$pricecategory->identifier"] =
-                        get_string('error:negativevaluenotallowed', 'mod_booking');
-                }
-                // If checkbox to use prices is turned on, we do not allow empty strings as prices!
-                if (isset($data["pricegroup_$pricecategory->identifier"]["bookingprice_$pricecategory->identifier"]) &&
-                    $data["pricegroup_$pricecategory->identifier"]["bookingprice_$pricecategory->identifier"] === "") {
-                    $errors["pricegroup_$pricecategory->identifier"] =
-                        get_string('error:pricemissing', 'mod_booking');
-                }
-            }
-        }
+    /**
+     * The save data function is very specific only for those values that should be saved...
+     * ... after saving the option. This is so, when we need an option id for saving (because of other table).
+     * @param stdClass $formdata
+     * @param stdClass $option
+     * @return void
+     * @throws dml_exception
+     */
+    public static function save_data(stdClass &$formdata, stdClass &$option) {
 
+        // Save the prices.
+        $price = new Mod_bookingPrice('option', $option->id);
+        $price->save_from_form($formdata);
     }
 }

@@ -26,6 +26,7 @@ namespace mod_booking\option;
 
 use coding_exception;
 use core_component;
+use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
@@ -178,7 +179,7 @@ class fields_info {
         if (!empty($optionid)) {
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         } else {
-            $settings = new booking_option_settings();
+            $settings = new booking_option_settings(0);
         }
 
         $classes = self::get_field_classes();

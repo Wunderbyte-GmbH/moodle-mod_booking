@@ -44,6 +44,7 @@ use mod_booking\dates;
 use mod_booking\option\fields_info;
 use moodle_exception;
 use moodle_url;
+use required_capability_exception;
 use stdClass;
 
 class option_form1 extends dynamic_form {
@@ -296,12 +297,12 @@ class option_form1 extends dynamic_form {
 
     /**
      * Get context for dynamic submission.
-     * @return context_module
+     * @return context
      */
     protected function get_context_for_dynamic_submission(): context {
 
-        $optionid = $this->_ajaxformdata['optionid'];
-        return context_module::instance($optionid);
+        $cmid = $this->_ajaxformdata['cmid'];
+        return context_module::instance($cmid);
     }
 
     /**
@@ -309,7 +310,13 @@ class option_form1 extends dynamic_form {
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
-        require_capability('moodle/site:config', context_system::instance());
+
+        $context = $this->get_context_for_dynamic_submission();
+
+        if (!has_capability('mod/booking:addeditownoption', $context)
+            && !has_capability('mod/booking:updatebooking', $context)) {
+                throw new required_capability_exception($context, '', 'cant access edit form', '');
+        }
     }
 
 

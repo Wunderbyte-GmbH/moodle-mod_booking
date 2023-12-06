@@ -26,6 +26,7 @@ namespace mod_booking\option\fields;
 
 use core_course_external;
 use mod_booking\option\fields_info;
+use mod_booking\option\field_base;
 use MoodleQuickForm;
 use stdClass;
 

@@ -28,6 +28,7 @@ use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\customfield\booking_handler;
 use mod_booking\option\fields_info;
+use mod_booking\option\field_base;
 use MoodleQuickForm;
 use stdClass;
 
@@ -104,6 +105,23 @@ class customfields extends field_base {
         $cfhandler = booking_handler::create();
         $errors = array_merge($errors, $cfhandler->instance_form_validation($data, $files));
 
+    }
+
+    /**
+     * The save data function is very specific only for those values that should be saved...
+     * ... after saving the option. This is so, when we need an option id for saving (because of other table).
+     * @param stdClass $formdata
+     * @param stdClass $option
+     * @return void
+     * @throws dml_exception
+     */
+    public static function save_data(stdClass &$formdata, stdClass &$option) {
+
+        // This is to save customfield data
+        // The id key has to be set to option id.
+        $optionid = $option->id;
+        $handler = booking_handler::create();
+        $handler->instance_form_save($formdata, $optionid == -1);
     }
 
     /**

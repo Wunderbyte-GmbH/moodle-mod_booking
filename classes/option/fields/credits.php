@@ -25,6 +25,7 @@
 namespace mod_booking\option\fields;
 
 use mod_booking\option\fields_info;
+use mod_booking\option\field_base;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;

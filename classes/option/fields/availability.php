@@ -26,6 +26,7 @@ namespace mod_booking\option\fields;
 
 use mod_booking\bo_availability\bo_info;
 use mod_booking\option\fields_info;
+use mod_booking\option\field_base;
 use MoodleQuickForm;
 use stdClass;
 

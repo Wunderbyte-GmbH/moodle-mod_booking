@@ -29,6 +29,7 @@ use mod_booking\booking_option_settings;
 use mod_booking\dates;
 use mod_booking\option\fields;
 use mod_booking\option\fields_info;
+use mod_booking\option\field_base;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
@@ -82,13 +83,8 @@ class optiondates extends field_base {
 
         foreach ($dates as $date) {
 
-            if (gettype($date['coursestarttime']) == 'array') {
-                $newoption->{'coursestarttime_' . $date['index']} = make_timestamp(...$date['coursestarttime']);
-                $newoption->{'courseendtime_' . $date['index']} = make_timestamp(...$date['courseendtime']);
-            } else {
-                $newoption->{'coursestarttime_' . $date['index']} = $date['coursestarttime'];
-                $newoption->{'courseendtime_' . $date['index']} = $date['courseendtime'];
-            }
+            $newoption->{'coursestarttime_' . $date['index']} = $date['coursestarttime'];
+            $newoption->{'courseendtime_' . $date['index']} = $date['courseendtime'];
         }
 
         // We can return a warning message here.
@@ -125,12 +121,14 @@ class optiondates extends field_base {
     public static function save_data(stdClass &$formdata, stdClass &$option) {
 
         $cmid = $formdata->cmid;
-        $optionid = $formdata->optionid;
+        $optionid = $option->id;
 
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
+        dates::save_optiondates_from_form($formdata, $option);
+
         // This is needed to create option dates with the webservice importer.
-        booking_option::deal_with_multisessions($formdata, $booking, $option->id, $booking->context);
+        // booking_option::deal_with_multisessions($formdata, $booking, $optionid, $booking->context);
     }
 
     /**

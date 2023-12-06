@@ -25,6 +25,7 @@
 namespace mod_booking\option\fields;
 
 use mod_booking\option\fields_info;
+use mod_booking\option\field_base;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
@@ -50,7 +51,7 @@ class addtogroup extends field_base {
      * Some can be saved only post save (when they need the option id).
      * @var int
      */
-    public static $save = MOD_BOOKING_EXECUTION_NORMAL;
+    public static $save = MOD_BOOKING_EXECUTION_POSTSAVE;
 
     /**
      * This identifies the header under which this particular field should be displayed.
@@ -95,8 +96,8 @@ class addtogroup extends field_base {
      */
     public static function save_data(stdClass &$formdata, stdClass &$option) {
 
-        $cmid = $formdata['cmid'];
-        $optionid = $formdata['optionid'];
+        $cmid = $formdata->cmid;
+        $optionid = $option->id;
 
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 

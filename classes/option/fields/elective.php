@@ -25,8 +25,10 @@
 namespace mod_booking\option\fields;
 
 use dml_exception;
+use mod_booking\booking_option_settings;
 use mod_booking\elective as Mod_bookingElective;
 use mod_booking\option\fields_info;
+use mod_booking\option\field_base;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
@@ -71,7 +73,32 @@ class elective extends field_base {
         int $updateparam,
         $returnvalue = 0): string {
 
-        return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
+        $value = $formdata->mustcombine ?? null;
+
+        if (!empty($value)) {
+            $newoption->mustcombine = $value;
+        } else {
+            $newoption->mustcombine = '';
+        }
+
+        $value = $formdata->mustnotcombine ?? null;
+
+        if (!empty($value)) {
+            $newoption->mustnotcombine = $value;
+        } else {
+            $newoption->mustnotcombine = '';
+        }
+
+        $value = $formdata->sortorder ?? null;
+
+        if (!empty($value)) {
+            $newoption->sortorder = $value;
+        } else {
+            $newoption->sortorder = 0;
+        }
+
+        // We can return an warning message here.
+        return '';
     }
 
     /**
@@ -89,6 +116,21 @@ class elective extends field_base {
     }
 
     /**
+     * Standard function to transfer stored value to form.
+     * @param stdClass $data
+     * @param booking_option_settings $settings
+     * @return void
+     * @throws dml_exception
+     */
+    public static function set_data(stdClass &$data, booking_option_settings $settings) {
+
+        $value = $settings->sortorder ?? null;
+        $data->sortorder = $value;
+
+        Mod_bookingElective::option_form_set_data($data);
+    }
+
+    /**
      *
      * @param stdClass $formdata
      * @param stdClass $option
@@ -101,8 +143,8 @@ class elective extends field_base {
 
         // Save combination arrays to DB.
         if (!empty($booking->settings->iselective)) {
-            Mod_bookingElective::addcombinations($option->id, $option->mustcombine, 1);
-            Mod_bookingElective::addcombinations($option->id, $option->mustnotcombine, 0);
+            Mod_bookingElective::addcombinations($option->id, $formdata->mustcombine, 1);
+            Mod_bookingElective::addcombinations($option->id, $formdata->mustnotcombine, 0);
         }
     }
 }

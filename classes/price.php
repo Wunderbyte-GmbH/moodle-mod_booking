@@ -541,6 +541,30 @@ class price {
         }
     }
 
+    public function validation(array $data, array &$errors) {
+
+        global $DB;
+
+        // Price validation.
+        if ($data["useprice"] == 1) {
+            $pricecategories = $DB->get_records_sql("SELECT * FROM {booking_pricecategories} WHERE disabled = 0");
+            foreach ($pricecategories as $pricecategory) {
+                // Check for negative prices, they are not allowed.
+                if (isset($data["pricegroup_$pricecategory->identifier"]["bookingprice_$pricecategory->identifier"]) &&
+                    $data["pricegroup_$pricecategory->identifier"]["bookingprice_$pricecategory->identifier"] < 0) {
+                    $errors["pricegroup_$pricecategory->identifier"] =
+                        get_string('error:negativevaluenotallowed', 'mod_booking');
+                }
+                // If checkbox to use prices is turned on, we do not allow empty strings as prices!
+                if (isset($data["pricegroup_$pricecategory->identifier"]["bookingprice_$pricecategory->identifier"]) &&
+                    $data["pricegroup_$pricecategory->identifier"]["bookingprice_$pricecategory->identifier"] === "") {
+                    $errors["pricegroup_$pricecategory->identifier"] =
+                        get_string('error:pricemissing', 'mod_booking');
+                }
+            }
+        }
+    }
+
 
     /**
      * Add or update price to DB.

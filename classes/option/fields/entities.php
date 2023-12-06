@@ -27,6 +27,7 @@ namespace mod_booking\option\fields;
 use local_entities\entitiesrelation_handler;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
+use mod_booking\option\field_base;
 use MoodleQuickForm;
 use stdClass;
 
@@ -51,7 +52,7 @@ class entities extends field_base {
      * Some can be saved only post save (when they need the option id).
      * @var int
      */
-    public static $save = MOD_BOOKING_EXECUTION_NORMAL;
+    public static $save = MOD_BOOKING_EXECUTION_POSTSAVE;
 
     /**
      * This identifies the header under which this particular field should be displayed.
@@ -138,6 +139,24 @@ class entities extends field_base {
             $erhandler = new entitiesrelation_handler('mod_booking', 'option');
             // self::order_all_dates_to_book_in_form($fromform);
             $erhandler->instance_form_validation((array)$fromform, $errors);
+        }
+    }
+
+    /**
+     * The save data function is very specific only for those values that should be saved...
+     * ... after saving the option. This is so, when we need an option id for saving (because of other table).
+     * @param stdClass $formdata
+     * @param stdClass $option
+     * @return void
+     * @throws dml_exception
+     */
+    public static function save_data(stdClass &$formdata, stdClass &$option) {
+
+        // This is to save entity relation data.
+        // The id key has to be set to option id.
+        if (class_exists('local_entities\entitiesrelation_handler')) {
+            $erhandler = new entitiesrelation_handler('mod_booking', 'option');
+            $erhandler->instance_form_save($formdata, $option->id);
         }
     }
 

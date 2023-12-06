@@ -15,9 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking;
 
-use cache;
 use coding_exception;
 use mod_booking\option\dates_handler;
+use mod_booking\option\optiondate;
+use moodle_exception;
 use MoodleQuickForm;
 use stdClass;
 
@@ -36,48 +37,6 @@ class dates {
      *
      */
     public function __construct() {
-
-    }
-
-    /**
-     *
-     * @param MoodleQuickForm $mform
-     * @param array $formdata
-     * @return void
-     * @throws coding_exception
-     */
-    public static function instance_form_definition(MoodleQuickForm &$mform, array $formdata) {
-
-        // We add a coursestarttime & courseendtime button.
-        /**
-         * If there is no option date, we just have a "add date" button and a label which says: this course has no date yet.
-         * When we click on "add date", we add an option date.
-         * We can also remove the option date with a delete button.
-         *
-         * If there is no Semester defined, we don#t show the semester button elements.
-         * If there is, we offer the create date series button and the weekday start end button.
-         *
-         *
-         *
-         *
-         *
-         */
-
-        /**
-         * Every optiondate consists of the optiondateid, which is the id in the bookiging_optiondates table.
-         * Plus coursestarttime and courseendtime.
-         */
-
-
-
-
-        // At this point, there is no otherway to intercept a nosubmit value here.
-        // But we need to register nosubmit buttons, as they won't register in definition after data.
-        // Export Values would not work here, because the Elements we need are not yet in the form.
-        // They are added only in definition after data.
-        // But we can get the correct values via $_POST, because they are submitted via nosubmit button.
-
-
 
     }
 
@@ -202,10 +161,11 @@ class dates {
 
     /**
      * A way to get all the submitted course dates. Only supports up to 100.
-     * @param mixed $formvalues
+     * Sorted for coursestarttime.
+     * @param array $formvalues
      * @return array
      */
-    public static function get_list_of_submitted_dates($formvalues) {
+    public static function get_list_of_submitted_dates(array $formvalues) {
 
         $counter = 1;
         $dates = [];
@@ -214,17 +174,29 @@ class dates {
         // We can have up to 100 dates.
         while ($counter < 100) {
             if (isset($formvalues['optiondateid_' . $counter])) {
-                $dates[] = [
+
+                if (is_array($formvalues['coursestarttime_' . $counter])) {
+                    $coursestarttime = make_timestamp(...$formvalues['coursestarttime_' . $counter]);
+                    $courseendtime = make_timestamp(...$formvalues['courseendtime_' . $counter]);
+                } else {
+                    $coursestarttime = $formvalues['coursestarttime_' . $counter];
+                    $courseendtime = $formvalues['courseendtime_' . $counter];
+                }
+
+                $dates[$coursestarttime] = [
                     'index' => $counter,
-                    'coursestarttime' => $formvalues['coursestarttime_' . $counter],
-                    'courseendtime' => $formvalues['courseendtime_' . $counter],
+                    'optiondateid' => $formvalues['optiondateid_' . $counter],
+                    'coursestarttime' => $coursestarttime,
+                    'courseendtime' => $courseendtime,
                 ];
                 $highesindex = $counter;
             }
             $counter++;
         }
 
-        return [$dates, $highesindex];
+        ksort($dates);
+
+        return [array_values($dates), $highesindex];
     }
 
     /**
@@ -261,6 +233,60 @@ class dates {
                     'data-action' => 'deletedatebutton',
                 ],
             );
+    }
+
+    /**
+     *
+     * @param stdClass $formdata
+     * @param stdClass $option
+     * @return void
+     */
+    public static function save_optiondates_from_form(stdClass $formdata, stdClass &$option) {
+
+        global $DB;
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        list($newoptiondates, $highesindex) = self::get_list_of_submitted_dates((array)$formdata);
+        $olddates = $settings->sessions;
+
+        $datestosave = [];
+        $datestodelete = [];
+
+        foreach ($newoptiondates as $optiondate) {
+
+            if (empty($optiondate['optiondateid'])) {
+                $datestosave[] = $optiondate;
+            } else if (isset($olddates[$optiondate['optiondateid']])) {
+
+                $oldoptiondate = $olddates[$optiondate['optiondateid']];
+
+                // If the dates are not exactly the same, we delete the old and save the new.
+                // Else, we do nothing.
+                if (!optiondate::compare_optiondates((array)$oldoptiondate, $optiondate)) {
+                    // If one of the dates is not exactly the same, we need to delete the current option and add a new one.
+                    $datestosave[] = $optiondate;
+                    $datestodelete[] = $oldoptiondate;
+                }
+                unset($olddates[$oldoptiondate->id]);
+
+            } else {
+                // This would be sign of an error, sth went wrong.
+                throw new moodle_exception('savingoptiondatewentwrong', 'mod_booking');
+            }
+        }
+
+        $datestodelete = array_merge($olddates, $datestodelete);
+
+        foreach ($datestodelete as $date) {
+            $DB->delete_records('booking_optiondates', ['id' => $date['optiondateid']]);
+        }
+
+        foreach ($datestosave as $date) {
+            optiondate::save(
+                $option->id,
+                $date['coursestarttime'],
+                $date['courseendtime']);
+        }
     }
 
     /**
@@ -377,7 +403,7 @@ class dates {
 
     private static function add_no_dates_yet_to_form(MoodleQuickForm &$mform, array &$elements, array $dates, array $formdata) {
 
-        $elements[] = $mform->addElement('static', 'nodatesmessage', '', get_string('nodates', 'mod_booking'));
+        $elements[] = $mform->addElement('static', 'nodatesmessage', '', get_string('nodateset', 'mod_booking'));
 
         // After deleting, we still need to register the right no delete button.
         // The default values are those we have just set via set_data.

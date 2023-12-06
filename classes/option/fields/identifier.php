@@ -27,6 +27,7 @@ namespace mod_booking\option\fields;
 use mod_booking\booking_option;
 use mod_booking\option\fields;
 use mod_booking\option\fields_info;
+use mod_booking\option\field_base;
 use MoodleQuickForm;
 use stdClass;
 
@@ -111,7 +112,7 @@ class identifier extends field_base {
 
         if (isset($data['identifier'])) {
             $sql = "SELECT id FROM {booking_options} WHERE id <> :optionid AND identifier = :identifier";
-            $params = ['optionid' => $data['optionid'], 'identifier' => $data['identifier']];
+            $params = ['optionid' => $data['id'], 'identifier' => $data['identifier']];
             if ($DB->get_records_sql($sql, $params)) {
                 $errors['identifier'] = get_string('error:identifierexists', 'mod_booking');
             }

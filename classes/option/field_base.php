@@ -22,9 +22,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_booking\option\fields;
+namespace mod_booking\option;
 
-use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields;
 use mod_booking\option\fields_info;

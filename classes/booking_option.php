@@ -3236,9 +3236,18 @@ class booking_option {
 
         fields_info::prepare_save_fields($formdata, $newoption, $updateparam);
 
-        // Save the changes to DB.
-        if (!$DB->update_record("booking_options", $newoption)) {
-            throw new moodle_exception('updateofoptionwentwrong', 'mod_booking');
+        if (!empty($newoption->id)) {
+            // Save the changes to DB.
+            if (!$DB->update_record("booking_options", $newoption)) {
+                throw new moodle_exception('updateofoptionwentwrong', 'mod_booking');
+            }
+        } else {
+            // Save the changes to DB.
+            if (!$optionid = $DB->insert_record("booking_options", $newoption)) {
+                throw new moodle_exception('creationofoptionwentwrong', 'mod_booking');
+            }
+            // Some legacy weight still left.
+            $newoption->id = $optionid;
         }
 
         fields_info::save_fields_post($formdata, $newoption, $updateparam);
@@ -3246,16 +3255,7 @@ class booking_option {
         // If there have been changes to significant fields, we have to resend an e-mail with the updated ical attachment.
         $bu = new booking_utils();
         if ($changes = $bu->booking_option_get_changes($originaloption, $newoption)) {
-
-            // Fix a bug where $PAGE->cm->id is not set for webservice importer.
-            if (!empty($PAGE->cm->id)) {
-                $cmid = $PAGE->cm->id;
-            } else {
-                $cm = context_module::instance($context->instanceid);
-                if (!empty($cm->id)) {
-                    $cmid = $cm->id;
-                }
-            }
+            $cmid = $formdata->cmid;
             // If we have no cmid, it's most possibly a template.
             if (!empty($cmid) && $newoption->bookingid != 0) {
                 // We only react on changes, if a cmid exists.
@@ -3266,7 +3266,9 @@ class booking_option {
         // Update start and end date of the option depending on the sessions.
         booking_updatestartenddate($newoption->id);
 
-        $optiondateshandler = new dates_handler($newoption->optionid, $newoption->bookingid);
+        return $newoption->id;
+
+        $optiondateshandler = new dates_handler($newoption->id, $newoption->bookingid);
         if (!empty($newoption->newoptiondates) || !empty($newoption->stillexistingdates)) {
             // Save the optiondates.
             $optiondateshandler->save_from_form($formdata);
@@ -3277,10 +3279,6 @@ class booking_option {
                 $optiondateshandler->delete_all_option_dates();
             }
         }
-
-        // Save teachers using handler.
-        $teachershandler = new teachers_handler($newoption->id);
-        $teachershandler->save_from_form($optionvalues);
 
         // Save relation for each newly created optiondate if checkbox is active.
         $isimport = $updateparam == MOD_BOOKING_UPDATE_OPTIONS_PARAM_IMPORT ? true : false; // For import we need to force this!
