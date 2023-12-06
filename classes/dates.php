@@ -278,6 +278,7 @@ class dates {
         $datestodelete = array_merge($olddates, $datestodelete);
 
         foreach ($datestodelete as $date) {
+            $date = (array)$date;
             $DB->delete_records('booking_optiondates', ['id' => $date['optiondateid']]);
         }
 
