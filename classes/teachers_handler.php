@@ -240,7 +240,8 @@ class teachers_handler {
         global $DB;
 
         if (empty($optionid) || empty ($userid)) {
-            throw new moodle_exception('Could not connect teacher to optiondates because of missing userid or optionid.');
+            debugging('Could not connect teacher to optiondates because of missing userid or optionid.');
+            return;
         }
 
         // 1. Get all currently existing optiondates of the option.
@@ -270,9 +271,10 @@ class teachers_handler {
         global $DB;
 
         if (empty($optiondateid)) {
-            throw new moodle_exception(
+            debugging(
                 'Could not subscribe existing teacher(s) to the new optiondate because of missing optiondateid.'
             );
+            return;
         }
 
         if ($optiondate = $DB->get_record('booking_optiondates', ['id' => $optiondateid])) {

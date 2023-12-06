@@ -337,9 +337,22 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $data->bookingid = $this->get_new_parentid('booking');
         $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
         // Only change userid, if a mapped id could be found.
-        if ($this->get_mappingid('user', $data->userid)) {
-            $data->userid = $this->get_mappingid('user', $data->userid);
+        $data->userid = $this->get_mappingid('user', $data->userid, $data->userid);
+
+        // If one ID is missing, we show a debug message and return.
+        if (empty($data->bookingid)) {
+            debugging('process_booking_teacher - bookingid missing for $data: ' . json_encode($data));
+            return;
         }
+        if (empty($data->optionid)) {
+            debugging('process_booking_teacher - optionid missing for $data: ' . json_encode($data));
+            return;
+        }
+        if (empty($data->userid)) {
+            debugging('process_booking_teacher - userid missing for $data: ' . json_encode($data));
+            return;
+        }
+
         $DB->insert_record('booking_teachers', $data);
 
         // When inserting a new teacher, we also need to insert the teacher for each optiondate.
