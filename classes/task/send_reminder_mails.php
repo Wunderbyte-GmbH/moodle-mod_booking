@@ -188,7 +188,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
     private function send_notification(int $messageparam, stdClass $record, int $daystonotify) {
         global $DB;
         $now = time();
-        $timetosend = strtotime('-' . $daystonotify . ' day', $record->coursestarttime);
+        $timetosend = strtotime('-' . $daystonotify . ' days', $record->coursestarttime);
         if ($timetosend < $now) {
 
             $optionid = $record->optionid;
