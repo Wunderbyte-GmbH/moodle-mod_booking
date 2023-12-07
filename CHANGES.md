@@ -1,3 +1,11 @@
+## Version 8.0.54 (2023120700)
+**Improvements:**
+* Improvement: Refactor action names for wbtable.
+* Improvement: Make sure wbtable container is aligned left by adding left margin of 0 (ml-0).
+
+**Bugfixes:**
+* Bugfix: Fix bug with duplication of booking instances when optionid or userid of teacher is missing or cannot be mapped.
+
 ## Version 8.0.53 (2023120400)
 **New features:**
 * New feature: Show booking opening and closing time in all relevant views and add possibility to sort by them.
