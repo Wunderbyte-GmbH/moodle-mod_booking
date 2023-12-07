@@ -291,8 +291,7 @@ class option_form1 extends dynamic_form {
         $mform = $this->_form;
         $formdata = $this->_customdata ?? $this->_ajaxformdata;
 
-        dates::definition_after_data($mform, $formdata);
-
+        fields_info::definition_after_data($mform, $formdata);
     }
 
     /**

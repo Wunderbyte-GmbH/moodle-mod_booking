@@ -141,4 +141,15 @@ abstract class field_base implements fields {
 
         $data->{$key} = $value;
     }
+
+    /**
+     * Definition after data callback
+     * @param MoodleQuickForm $mform
+     * @param mixed $formdata
+     * @return void
+     * @throws coding_exception
+     */
+    public static function definition_after_data(MoodleQuickForm &$mform, $formdata) {
+
+    }
 }

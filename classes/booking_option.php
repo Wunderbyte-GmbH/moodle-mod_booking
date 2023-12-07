@@ -3281,7 +3281,7 @@ class booking_option {
         }
 
         // Update start and end date of the option depending on the sessions.
-        booking_updatestartenddate($newoption->id);
+        // booking_updatestartenddate($newoption->id);
 
         return $newoption->id;
 

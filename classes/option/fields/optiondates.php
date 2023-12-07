@@ -24,6 +24,7 @@
 
 namespace mod_booking\option\fields;
 
+use coding_exception;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\dates;
@@ -85,10 +86,28 @@ class optiondates extends field_base {
 
             $newoption->{'coursestarttime_' . $date['index']} = $date['coursestarttime'];
             $newoption->{'courseendtime_' . $date['index']} = $date['courseendtime'];
+            $newoption->{'optiondateid_' . $date['index']} = $date['optiondateid'];
         }
+
+        $newoption->dayofweektime = $formdata->dayofweektime;
+        $newoption->semesterid = $formdata->semesterid;
 
         // We can return a warning message here.
         return '';
+    }
+
+    /**
+     * This function adds error keys for form validation.
+     * @param array $data
+     * @param array $files
+     * @return void
+     */
+    public static function validation(array $data, array $files, array &$errors) {
+
+        // Run through all dates to make sure we don't have an array.
+        // We need to transform dates to timestamps.
+        list($dates, $highesindex) = dates::get_list_of_submitted_dates($data);
+
     }
 
     /**
@@ -142,5 +161,17 @@ class optiondates extends field_base {
 
         // We need to modify the data we set for dates.
         $data = dates::set_data($data);
+    }
+
+    /**
+     * Definition after data callback
+     * @param MoodleQuickForm $mform
+     * @param mixed $formdata
+     * @return void
+     * @throws coding_exception
+     */
+    public static function definition_after_data(MoodleQuickForm &$mform, $formdata) {
+
+        dates::definition_after_data($mform, $formdata);
     }
 }

@@ -59,6 +59,57 @@ class dates {
         $elements[] = $mform->addElement('header', 'datesheader', get_string('dates', 'mod_booking'));
         $mform->setExpanded('datesheader');
 
+        $bookingid = $formdata['bookingid'];
+        $optionid = $formdata['optionid'];
+
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($bookingid);
+        $bookingoptionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        $semestersarray = semester::get_semesters_id_name_array();
+
+        // We check if there are semsters at all...
+        // ... and if on this particular instance a semesterid is set.
+        if ((count($semestersarray) > 1) && !empty($bookingsettings->semesterid)) {
+
+            $semesterid = null;
+            $dayofweektime = '';
+            if ($bookingoptionsettings) {
+                $semesterid = $bookingoptionsettings->semesterid;
+                $dayofweektime = $bookingoptionsettings->dayofweektime;
+            }
+
+            $semesteridoptions = [
+                'tags' => false,
+                'multiple' => false,
+            ];
+
+            $element = $mform->addElement('autocomplete', 'semesterid', get_string('chooseperiod', 'mod_booking'), $semestersarray, $semesteridoptions);
+            $mform->addHelpButton('semesterid', 'chooseperiod', 'mod_booking');
+            $mform->setType('semesterid', PARAM_INT);
+            $element->setValue($semesterid);
+            $elements[] = $element;
+
+            $element = $mform->addElement('text', 'dayofweektime', get_string('reoccurringdatestring', 'mod_booking'));
+            $mform->addHelpButton('dayofweektime', 'reoccurringdatestring', 'mod_booking');
+            $mform->setType('dayofweektime', PARAM_TEXT);
+            $element->setValue($dayofweektime);
+            $elements[] = $element;
+
+            // Button to attach JavaScript to reload the form.
+            $mform->registerNoSubmitButton('addoptiondateseries');
+            $elements[] = $mform->addElement('submit', 'addoptiondateseries', get_string('add_optiondate_series', 'mod_booking'),
+                [
+                'data-action' => 'addoptiondateseries',
+            ]);
+
+        }
+        // If there are semesters defined (more than 0)
+        // AND If instance has semesters
+        // Semester selection is shown and prefilled with instance
+        // AND weekdaystring is shown
+        // AND create date series is shown.
+
+
         $datescounter = $defaultvalues["datescounter"];
 
         // The datescounter is the first element we add to the form.
@@ -107,6 +158,29 @@ class dates {
 
         $datescounter = $defaultvalues->datescounter ?? 0;
 
+        // If we have clicked on the create option date series, we recreate all option dates.
+        if (isset($defaultvalues->addoptiondateseries)) {
+
+            $newoptiondates = dates_handler::get_optiondate_series($defaultvalues->semesterid, $defaultvalues->dayofweektime);
+
+            if (!empty($newoptiondates)) {
+                $sessions = array_map(fn($a) =>
+                (object)[
+                    'optiondateid' => 0,
+                    'coursestarttime' => $a->starttimestamp,
+                    'courseendtime' => $a->endtimestamp,
+                ], $newoptiondates['dates']);
+            } else {
+                $sessions = [];
+            }
+
+            $defaultvalues->datescounter = count($sessions);
+        } else {
+            $settings = singleton_service::get_instance_of_booking_option_settings($defaultvalues->optionid);
+            $sessions = $settings->sessions;
+            $defaultvalues->datescounter = $datescounter;
+        }
+
         // First we modify the datescounter
         if (isset($defaultvalues->adddatebutton)) {
             $datescounter++;
@@ -130,16 +204,15 @@ class dates {
             }
         }
 
-        $defaultvalues->datescounter = $datescounter;
-
         // If we load the form the first time datesmarker is not yet set.
+        // Or if the create series is called.
         // Then we have to load the elements from the form.
-        if (!isset($defaultvalues->datesmarker)) {
-            $settings = singleton_service::get_instance_of_booking_option_settings($defaultvalues->optionid);
+        if (!isset($defaultvalues->datesmarker)
+            || isset($defaultvalues->addoptiondateseries)) {
 
             $counter = 0;
 
-            foreach ($settings->sessions as $session) {
+            foreach ($sessions as $session) {
                 $counter++;
                 $key = 'optiondateid_' . $counter;
                 $defaultvalues->{$key} = $session->optiondateid;
@@ -183,7 +256,7 @@ class dates {
                     $courseendtime = $formvalues['courseendtime_' . $counter];
                 }
 
-                $dates[$coursestarttime] = [
+                $dates[] = [
                     'index' => $counter,
                     'optiondateid' => $formvalues['optiondateid_' . $counter],
                     'coursestarttime' => $coursestarttime,
@@ -194,7 +267,7 @@ class dates {
             $counter++;
         }
 
-        ksort($dates);
+        usort($dates, fn($a, $b) => $a['coursestarttime'] < $b['coursestarttime'] ? -1 : 1);
 
         return [array_values($dates), $highesindex];
     }
@@ -220,19 +293,19 @@ class dates {
             $mform->setType('coursestarttime_' . $idx, PARAM_INT);
             $mform->disabledIf('coursestarttime_' . $idx, 'startendtimeknown', 'notchecked');
 
-            $elements[] =& $mform->addElement('date_time_selector', 'courseendtime_' . $idx,
-                get_string("courseendtime", "booking"));
-            $mform->setType('courseendtime_' . $idx, PARAM_INT);
-            $mform->disabledIf('courseendtime_' . $idx, 'startendtimeknown', 'notchecked');
+        $elements[] =& $mform->addElement('date_time_selector', 'courseendtime_' . $idx,
+            get_string("courseendtime", "booking"));
+        $mform->setType('courseendtime_' . $idx, PARAM_INT);
+        $mform->disabledIf('courseendtime_' . $idx, 'startendtimeknown', 'notchecked');
 
-            $mform->registerNoSubmitButton('deletedate_' . $idx);
-            $elements[] = $mform->addElement(
-                'submit',
-                'deletedate_' . $idx,
-                get_string("delete"), [
-                    'data-action' => 'deletedatebutton',
-                ],
-            );
+        $mform->registerNoSubmitButton('deletedate_' . $idx);
+        $elements[] = $mform->addElement(
+            'submit',
+            'deletedate_' . $idx,
+            get_string("delete"), [
+                'data-action' => 'deletedatebutton',
+            ],
+        );
     }
 
     /**

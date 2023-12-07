@@ -191,6 +191,21 @@ class fields_info {
     }
 
     /**
+     *
+     * @param MoodleQuickForm $mform
+     * @param array $formdata
+     * @return void
+     */
+    public static function definition_after_data(MoodleQuickForm &$mform, array &$formdata) {
+
+        $classes = self::get_field_classes();
+
+        foreach ($classes as $classname) {
+            $classname::definition_after_data($mform, $formdata);
+        }
+    }
+
+    /**
      * Get all classes function.
      * Save param allows to filter for all (default) or special save logic.
      * @param int $save
