@@ -93,9 +93,6 @@ class option_form1 extends dynamic_form {
 
         $mform = & $this->_form;
 
-        $mform->addElement('hidden', 'returnurl');
-        $mform->setType('returnurl', PARAM_LOCALURL);
-
         $mform->addElement('hidden', 'scrollpos');
         $mform->setType('scrollpos', PARAM_INT);
 
@@ -344,7 +341,7 @@ class option_form1 extends dynamic_form {
         // Pass data to update.
         $context = $this->get_context_for_dynamic_submission();
 
-        booking_option::update($data, $context);
+        $data = booking_option::update($data, $context);
 
         return $data;
     }

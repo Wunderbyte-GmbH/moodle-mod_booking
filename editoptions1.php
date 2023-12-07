@@ -106,6 +106,7 @@ $params = [
     'bookingid' => $bookingid,
     'copyoptionid' => $copyoptionid,
     'datescounter' => $datescounter,
+    'returnurl' => $returnurl,
 ];
 
 // In this example the form has arguments ['arg1' => 'val1'].

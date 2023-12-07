@@ -20,6 +20,7 @@ use coding_exception;
 use completion_info;
 use context_module;
 use context_system;
+use context;
 use dml_exception;
 use Exception;
 use invalid_parameter_exception;
@@ -3208,7 +3209,7 @@ class booking_option {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function update(stdClass $formdata, context_module $context,
+    public static function update(stdClass $formdata, context $context,
         int $updateparam = MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT) {
 
         global $DB, $PAGE;
@@ -3228,6 +3229,8 @@ class booking_option {
          * - test caches
          * - test rules
          * - rename everything and make it the only way to go.
+         * - save and add new
+         * - save and stay
          */
 
         // 1. Step: Gather save data we will always find.
@@ -3283,7 +3286,7 @@ class booking_option {
         // Update start and end date of the option depending on the sessions.
         // booking_updatestartenddate($newoption->id);
 
-        return $newoption->id;
+        return $newoption;
 
         $optiondateshandler = new dates_handler($newoption->id, $newoption->bookingid);
         if (!empty($newoption->newoptiondates) || !empty($newoption->stillexistingdates)) {
@@ -3307,7 +3310,7 @@ class booking_option {
         // Now check, if there are rules to execute.
         rules_info::execute_rules_for_option($newoption->id);
 
-        return $newoption->id;
+        return $newoption;
     }
 
 

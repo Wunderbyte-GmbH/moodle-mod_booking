@@ -47,6 +47,10 @@ export const init = () => {
         e.preventDefault();
         const response = e.detail;
 
+        if (response.returnurl && response.returnurl.length > 0) {
+            window.location.href = response.returnurl;
+        }
+
         // eslint-disable-next-line no-console
         console.log(response);
         // It is recommended to reload the form after submission because the elements may change.
