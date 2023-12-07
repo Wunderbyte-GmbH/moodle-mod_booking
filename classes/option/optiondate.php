@@ -164,7 +164,8 @@ class optiondate {
     public static function compare_optiondates(array $oldoptiondate, array $newoptiondate):bool {
         if (($oldoptiondate['optiondateid'] != $newoptiondate['optiondateid'])
             || ($oldoptiondate['coursestarttime'] != $newoptiondate['coursestarttime'])
-            || $oldoptiondate['courseendtime'] != $newoptiondate['courseendtime']) {
+            || $oldoptiondate['courseendtime'] != $newoptiondate['courseendtime']
+            || $oldoptiondate['daystonotify'] != $newoptiondate['daystonotify']) {
             // If one of the dates is not exactly the same, we need to delete the current option and add a new one.
             return false;
         }

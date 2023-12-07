@@ -87,6 +87,7 @@ class optiondates extends field_base {
             $newoption->{'coursestarttime_' . $date['index']} = $date['coursestarttime'];
             $newoption->{'courseendtime_' . $date['index']} = $date['courseendtime'];
             $newoption->{'optiondateid_' . $date['index']} = $date['optiondateid'];
+            $newoption->{'daystonotify_' . $date['index']} = $date['daystonotify'];
         }
 
         $newoption->dayofweektime = $formdata->dayofweektime;
@@ -108,6 +109,9 @@ class optiondates extends field_base {
         // We need to transform dates to timestamps.
         list($dates, $highesindex) = dates::get_list_of_submitted_dates($data);
 
+        $problems = array_filter($dates, fn($a) => $a['coursestarttime'] < $a['courseendtime']);
+
+        // Todo: Return the errors for the problems.
     }
 
     /**

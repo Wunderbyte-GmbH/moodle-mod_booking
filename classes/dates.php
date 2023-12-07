@@ -169,6 +169,7 @@ class dates {
                     'optiondateid' => 0,
                     'coursestarttime' => $a->starttimestamp,
                     'courseendtime' => $a->endtimestamp,
+                    'daystonotify' => $a->daystonotify,
                 ], $newoptiondates['dates']);
             } else {
                 $sessions = [];
@@ -220,6 +221,8 @@ class dates {
                 $defaultvalues->{$key} = $session->coursestarttime;
                 $key = 'courseendtime_' . $counter;
                 $defaultvalues->{$key} = $session->courseendtime;
+                $key = 'daystonotify_' . $counter;
+                $defaultvalues->{$key} = $session->daystonotify;
             }
 
             $defaultvalues->datescounter = $counter;
@@ -261,6 +264,7 @@ class dates {
                     'optiondateid' => $formvalues['optiondateid_' . $counter],
                     'coursestarttime' => $coursestarttime,
                     'courseendtime' => $courseendtime,
+                    'daystonotify' => $formvalues['daystonotify_' . $counter],
                 ];
                 $highesindex = $counter;
             }
@@ -359,7 +363,8 @@ class dates {
             optiondate::save(
                 $option->id,
                 $date['coursestarttime'],
-                $date['courseendtime']);
+                $date['courseendtime'],
+                $date['daystonotify']);
         }
     }
 
@@ -373,6 +378,8 @@ class dates {
      */
     private static function add_date_as_string(MoodleQuickForm &$mform, array &$elements, array $date) {
 
+        global $OUTPUT;
+
         $idx = $date['index'];
 
         if (gettype($date['coursestarttime']) == 'array') {
@@ -383,25 +390,49 @@ class dates {
             $endtime = !empty($date['courseendtime']) ? $date['courseendtime'] : time();
         }
 
-        $datearray = array();
-        $datearray[] = $mform->createElement(
-            'static',
-            'datetext_' . $idx, '',
-            dates_handler::prettify_optiondates_start_end($starttime, $endtime)
-        );
-        // We need to add these hidden elements to make sure we have the values on reload and save.
-        $element = $mform->addElement('hidden', 'coursestarttime_' . $idx, $starttime);
-        $element->setValue($starttime);
-        $elements[] = $element;
-        $element = $mform->addElement('hidden', 'courseendtime_' . $idx, $endtime);
-        $element->setValue($endtime);
+        $headername = dates_handler::prettify_optiondates_start_end($starttime, $endtime);
+        $headerid = 'booking_optiondate_' . $idx;
+        $collapseid = 'booking_optiondate_collapse' . $idx;
+        $accordionid = 'accordion_optionid_' . $idx;
+        $headerdata = [
+            'headername' => $headername,
+            'headerid' => $headerid,
+            'collapseid' => $collapseid,
+            'accordionid' => $accordionid,
+        ];
+
+        $html2 = $OUTPUT->render_from_template('mod_booking/option/option_collapsible_close', []);
+        $html1 = $OUTPUT->render_from_template('mod_booking/option/option_collapsible_open', $headerdata);
+
+        $element = $mform->createElement('html', $html1);
+        $element->setName('header_accordion_start_optiondate_' . $idx);
+        $mform->addElement($element);
         $elements[] = $element;
 
-        $mform->registerNoSubmitButton('editdate_' . $idx);
-        $datearray[] =& $mform->createElement('submit', 'editdate_' . $idx, get_string('edit'));
+        $elements[] =& $mform->addElement('date_time_selector', 'coursestarttime_' . $idx,
+            get_string("coursestarttime", "booking"));
+            $mform->setType('coursestarttime_' . $idx, PARAM_INT);
+            $mform->disabledIf('coursestarttime_' . $idx, 'startendtimeknown', 'notchecked');
+
+        $elements[] =& $mform->addElement('date_time_selector', 'courseendtime_' . $idx,
+            get_string("courseendtime", "booking"));
+        $mform->setType('courseendtime_' . $idx, PARAM_INT);
+        $mform->disabledIf('courseendtime_' . $idx, 'startendtimeknown', 'notchecked');
+
+        $elements[] =& $mform->addElement('text', 'daystonotify_' . $idx, get_string('daystonotifysession', 'mod_booking'));
+        $mform->setType('daystonotify_' . $idx, PARAM_INT);
+        $mform->addHelpButton('daystonotify_' . $idx, 'daystonotifysession', 'mod_booking');
+
+        // $mform->registerNoSubmitButton('editdate_' . $idx);
+        // $datearray[] =& $mform->createElement('submit', 'editdate_' . $idx, get_string('edit'));
         $mform->registerNoSubmitButton('deletedate_' . $idx);
         $datearray[] =& $mform->createElement('submit', 'deletedate_' . $idx, get_string('delete'));
         $elements[] =& $mform->addGroup($datearray, 'datearr_' . $idx, '', array(' '), false);
+
+        $element = $mform->createElement('html', $html2);
+        $element->setName('header_accordion_end_optiondate_' . $idx);
+        $mform->addElement($element);
+        $elements[] = $element;
 
     }
 
