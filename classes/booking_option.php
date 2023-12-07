@@ -3216,9 +3216,9 @@ class booking_option {
 
         /**
          * Todo:
-         * - Integrate customfields and more settings to option dates.
+         * - Integrate customfields and more settings to option dates - half done.
         * - implement saving and loading of templates.
-         * - implement returnurl
+         * - implement returnurl - done
          * - implement entities for optiondates
          * - Test csv importer
          * - test webservice importer
@@ -3229,8 +3229,8 @@ class booking_option {
          * - test caches
          * - test rules
          * - rename everything and make it the only way to go.
-         * - save and add new
-         * - save and stay
+         * - fix save and add new
+         * - fix save and stay
          */
 
         // 1. Step: Gather save data we will always find.
