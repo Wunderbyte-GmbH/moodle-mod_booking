@@ -29,8 +29,8 @@ namespace mod_booking\event;
  * An event indicating that the teacher reminder has been sent for an option.
  *
  * @package mod_booking
- * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
- * @author Bernhard Fischer
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Bernhard Fischer-Sengseis
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class reminder_teacher_sent extends \core\event\base {
@@ -38,10 +38,11 @@ class reminder_teacher_sent extends \core\event\base {
     protected function init() {
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_TEACHING;
+        $this->data['objecttable'] = 'booking_options';
     }
 
     public static function get_name() {
-        return get_string('reminder_teacher_sent', 'booking');
+        return get_string('reminder_teacher_sent', 'mod_booking');
     }
 
     public function get_description() {
