@@ -69,6 +69,7 @@ $string['responsiblecontact_help'] = 'Geben Sie eine zuständige Kontaktperson a
 $string['reviewed'] = 'Kontrolliert';
 $string['rowupdated'] = 'Zeile wurde aktualisiert.';
 $string['search'] = 'Suche...';
+$string['semesterid'] = 'SemesterID';
 $string['sendmailtoallbookedusers'] = 'E-Mail an alle gebuchten Nutzer:innen senden';
 $string['sortorder'] = 'Sortierreihenfolge';
 $string['sortorder:asc'] = 'A&rarr;Z';
