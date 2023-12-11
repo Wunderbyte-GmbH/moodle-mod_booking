@@ -74,8 +74,9 @@ class dates {
             $semesterid = null;
             $dayofweektime = '';
             if ($bookingoptionsettings) {
-                $semesterid = $bookingoptionsettings->semesterid;
-                $dayofweektime = $bookingoptionsettings->dayofweektime;
+                // We only get it from bookingoptionsettings if it does not come via form data.
+                $semesterid = $formdata['semesterid'] ?? $bookingoptionsettings->semesterid;
+                $dayofweektime = $formdata['dayofweektime'] ?? $bookingoptionsettings->dayofweektime;
             }
 
             $semesteridoptions = [
