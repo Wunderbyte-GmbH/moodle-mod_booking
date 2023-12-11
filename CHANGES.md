@@ -1,3 +1,8 @@
+## Version 8.0.55 (2023121100)
+**Bugfixes:**
+* Bugfix: Add missing string 'semesterid'.
+* Bugfix: Fix a bug that lead to teacher notifications not being sent anymore.
+
 ## Version 8.0.54 (2023120700)
 **Improvements:**
 * Improvement: Refactor action names for wbtable.

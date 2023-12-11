@@ -1,3 +1,7 @@
+8.0.55 (2023121100)
+* Bugfix: Add missing string 'semesterid'.
+* Bugfix: Fix a bug that lead to teacher notifications not being sent anymore.
+
 8.0.54 (2023120700)
 * Improvement: Refactor action names for wbtable.
 * Improvement: Make sure wbtable container is aligned left by adding left margin of 0 (ml-0).
