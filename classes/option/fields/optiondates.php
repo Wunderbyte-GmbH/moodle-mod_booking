@@ -88,6 +88,19 @@ class optiondates extends field_base {
             $newoption->{'courseendtime_' . $date['index']} = $date['courseendtime'];
             $newoption->{'optiondateid_' . $date['index']} = $date['optiondateid'];
             $newoption->{'daystonotify_' . $date['index']} = $date['daystonotify'];
+
+            // We want to set the coursestarttime to the first coursestarttime.
+            if (!isset($newoption->coursestarttime)) {
+                $newoption->coursestarttime = $date['coursestarttime'];
+            }
+            // We want to set the courseendtime to the last courseendtime.
+            $newoption->courseendtime = $date['courseendtime'];;
+        }
+
+        // If there is no date left, we delete courestartdate & courseenddate.
+        if (empty($dates)) {
+            $newoption->coursestarttime = null;
+            $newoption->courseendtime = null;
         }
 
         $newoption->dayofweektime = $formdata->dayofweektime;

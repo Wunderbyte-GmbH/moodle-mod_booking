@@ -25,6 +25,7 @@
       "collapseid": "catquiz_feedback_collapse_2",
       "accordionid": "accordion_header_scaleid_2",
       "headername": "Mathematik"
+      "expanded": true
     }
 }}
 
@@ -35,7 +36,7 @@
             <span class="btn btn-link"
               data-toggle="collapse"
               data-target="#{{collapseid}}"
-              aria-expanded="false"
+              aria-expanded="{{expanded}}"
               aria-controls="{{collapseid}}">
               {{headername}}
           </span>
@@ -43,7 +44,7 @@
       </div>
 
   <div id="{{collapseid}}"
-      class="collapse"
+      class="collapse {{#expanded}}show{{/expanded}}"
       aria-labelledby="{{headerid}}"
       data-parent="#{{accordionid}}">
   <div class="card-body">

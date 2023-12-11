@@ -133,6 +133,7 @@ class dates {
                 'index' => $highestidx,
                 'coursestarttime' => $now,
                 'courseendtime' => $now,
+                'daystonotify' => 0,
             ];
         }
 
@@ -186,6 +187,7 @@ class dates {
         // First we modify the datescounter
         if (isset($defaultvalues->adddatebutton)) {
             $datescounter++;
+            $defaultvalues->datescounter = $datescounter;
         } else {
 
             // We might have clicked a delete nosubmit button.
@@ -194,6 +196,7 @@ class dates {
 
                     // We want to show one element less.
                     $datescounter--;
+                    $defaultvalues->datescounter = $datescounter;
                     break;
                     // We also need to delete the precise data.
                     list($name, $idx) = explode('_', $key);
@@ -217,7 +220,7 @@ class dates {
             foreach ($sessions as $session) {
                 $counter++;
                 $key = 'optiondateid_' . $counter;
-                $defaultvalues->{$key} = $session->optiondateid;
+                $defaultvalues->{$key} = $session->optiondateid ?? 0;
                 $key = 'coursestarttime_' . $counter;
                 $defaultvalues->{$key} = $session->coursestarttime;
                 $key = 'courseendtime_' . $counter;
@@ -357,7 +360,10 @@ class dates {
 
         foreach ($datestodelete as $date) {
             $date = (array)$date;
-            $DB->delete_records('booking_optiondates', ['id' => $date['optiondateid']]);
+
+            if (!empty($date['optiondateid'])) {
+                $DB->delete_records('booking_optiondates', ['id' => $date['optiondateid']]);
+            }
         }
 
         foreach ($datestosave as $date) {
@@ -377,7 +383,11 @@ class dates {
      * @return void
      * @throws coding_exception
      */
-    private static function add_date_as_string(MoodleQuickForm &$mform, array &$elements, array $date) {
+    private static function add_date_as_string(
+        MoodleQuickForm &$mform,
+        array &$elements,
+        array $date,
+        bool $expanded = false) {
 
         global $OUTPUT;
 
@@ -400,6 +410,7 @@ class dates {
             'headerid' => $headerid,
             'collapseid' => $collapseid,
             'accordionid' => $accordionid,
+            'expanded' => $expanded,
         ];
 
         $html2 = $OUTPUT->render_from_template('mod_booking/option/option_collapsible_close', []);
@@ -420,12 +431,14 @@ class dates {
         $mform->setType('courseendtime_' . $idx, PARAM_INT);
         $mform->disabledIf('courseendtime_' . $idx, 'startendtimeknown', 'notchecked');
 
-        $elements[] =& $mform->addElement('text', 'daystonotify_' . $idx, get_string('daystonotifysession', 'mod_booking'));
+        $element = $mform->addElement('text', 'daystonotify_' . $idx, get_string('daystonotifysession', 'mod_booking'));
         $mform->setType('daystonotify_' . $idx, PARAM_INT);
+        $element->setValue($date['daystonotify']);
         $mform->addHelpButton('daystonotify_' . $idx, 'daystonotifysession', 'mod_booking');
+        $elements[] = $element;
 
-        // $mform->registerNoSubmitButton('editdate_' . $idx);
-        // $datearray[] =& $mform->createElement('submit', 'editdate_' . $idx, get_string('edit'));
+        $mform->registerNoSubmitButton('applydate_' . $idx);
+        $datearray[] =& $mform->createElement('submit', 'applydate_' . $idx, get_string('apply'));
         $mform->registerNoSubmitButton('deletedate_' . $idx);
         $datearray[] =& $mform->createElement('submit', 'deletedate_' . $idx, get_string('delete'));
         $elements[] =& $mform->addGroup($datearray, 'datearr_' . $idx, '', array(' '), false);
@@ -489,13 +502,11 @@ class dates {
             // If we are on the last element and we just clicked "add", we print the form.
             if ((isset($defaultvalues['adddatebutton'])
                 && (array_key_last($dates) == $key)
-                && !$editted)
-                || isset($defaultvalues['editdate_' . $idx])) {
-                self::add_date_form($mform, $elements, $date);
+                && !$editted)) {
                 $editted = true;
-            } else {
-                self::add_date_as_string($mform, $elements, $date);
             }
+
+            self::add_date_as_string($mform, $elements, $date, $editted);
 
         }
 

@@ -594,10 +594,16 @@ class booking_option_settings {
             // If there are no multisessions, but we still have the option's ...
             // ... coursestarttime and courseendtime, then store them as if they were a session.
             if (!empty($this->coursestarttime) && !empty($this->courseendtime)) {
+
+                // Days to notify comes from the booking instance.
+
+                $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
+
                 $singlesession = new stdClass;
                 $singlesession->id = 0;
                 $singlesession->coursestarttime = $this->coursestarttime;
                 $singlesession->courseendtime = $this->courseendtime;
+                $singlesession->daystonotify = $bookingsettings->daystonotify ?? 0;
                 $this->sessions[] = $singlesession;
             } else {
                 // Else we have no sessions.
