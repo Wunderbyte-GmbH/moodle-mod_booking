@@ -109,9 +109,12 @@ class optiondates extends field_base {
         // We need to transform dates to timestamps.
         list($dates, $highesindex) = dates::get_list_of_submitted_dates($data);
 
-        $problems = array_filter($dates, fn($a) => $a['coursestarttime'] < $a['courseendtime']);
+        $problems = array_filter($dates, fn($a) => $a['coursestarttime'] > $a['courseendtime']);
 
-        // Todo: Return the errors for the problems.
+        foreach ($problems as $problem) {
+            // TODO: Make it nice.https://tracker.moodle.org/browse/CONTRIB-9279a
+            $errors['courseendtime_' . $problem['index']] = get_string('problemwithdate', 'mod_booking');
+        }
     }
 
     /**
