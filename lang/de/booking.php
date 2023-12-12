@@ -1076,6 +1076,11 @@ $string['toggleformmode_expert'] = '<i class="fa fa-expand" aria-hidden="true"><
 $string['bookingoptionimage'] = 'Bild hochladen';
 $string['submitandgoback'] = 'Speichern und zurück';
 $string['bookingoptionprice'] = 'Preis';
+$string['er_saverelationsforoptiondates'] = 'Entity auch für jeden Termin speichern';
+$string['confirm:er_saverelationsforoptiondates'] = '<span class="text-danger">
+<b>Achtung:</b> Diese Buchungsoption hat Termine mit unterschiedlichen Entities.
+Wollen Sie wirklich ALLE Termine mit der ausgewählten Entity überschreiben?</span>';
+$string['error:er_saverelationsforoptiondates'] = 'Bitte bestätigen Sie, dass Sie abweichende Entities überschreiben wollen.';
 $string['pricecategory'] = 'Preiskategorie';
 $string['pricecurrency'] = 'Währung';
 $string['optionvisibility'] = 'Sichtbarkeit';

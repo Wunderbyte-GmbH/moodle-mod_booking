@@ -1097,6 +1097,11 @@ $string['toggleformmode_expert'] = '<i class="fa fa-expand" aria-hidden="true"><
 $string['bookingoptionimage'] = 'Upload an image';
 $string['submitandgoback'] = 'Save and go back';
 $string['bookingoptionprice'] = 'Price';
+$string['er_saverelationsforoptiondates'] = 'Save entity for each date too';
+$string['confirm:er_saverelationsforoptiondates'] = '<span class="text-danger">
+<b>Be careful:</b> This booking option has dates with various entities.
+Do you really want to set this entity for ALL dates?</span>';
+$string['error:er_saverelationsforoptiondates'] = 'Please confirm that you want to overwrite deviating entities.';
 $string['pricecategory'] = 'Price category';
 $string['pricecurrency'] = 'Currency';
 $string['optionvisibility'] = 'Visibility';

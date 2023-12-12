@@ -483,13 +483,18 @@ class option_form extends moodleform {
             // This checkbox is specific to mod_booking which is why it...
             // ...cannot be put directly into instance_form_definition of entitiesrelation_handler.
             $mform->addElement('advcheckbox', 'er_saverelationsforoptiondates',
-                get_string('er_saverelationsforoptiondates', 'local_entities'));
-            if ($optionid == 0) {
-                // If it's a new option, we set the default to checked.
-                $mform->setDefault('er_saverelationsforoptiondates', 1);
-            } else {
-                // If we edit an existing option, we do not check by default.
-                $mform->setDefault('er_saverelationsforoptiondates', 0);
+                get_string('er_saverelationsforoptiondates', 'mod_booking'));
+
+            // Important: "Save entity for each date too" must be checked by default.
+            $mform->setDefault('er_saverelationsforoptiondates', 1);
+            // But: In validation we need to check, if there are optiondates that have "outlier" entities.
+            // If so, the outliers must be changed to the main entity before all relations can be saved.
+
+            // If we have "outliers" (deviating entities), we show a confirm box...
+            // ...so a user does not overwrite them accidentally.
+            if (self::option_has_dates_with_entity_outliers($optionid)) {
+                $mform->addElement('advcheckbox', 'confirm:er_saverelationsforoptiondates',
+                    get_string('confirm:er_saverelationsforoptiondates', 'mod_booking'));
             }
         }
 
@@ -726,6 +731,8 @@ class option_form extends moodleform {
         global $DB;
         $errors = parent::validation($data, $files);
 
+        $optionid = $this->_customdata['optionid'];
+
         if (isset($data['pollurl']) && strlen($data['pollurl']) > 0) {
             if (!filter_var($data['pollurl'], FILTER_VALIDATE_URL)) {
                 $errors['pollurl'] = get_string('entervalidurl', 'mod_booking');
@@ -754,6 +761,15 @@ class option_form extends moodleform {
             $erhandler = new entitiesrelation_handler('mod_booking', 'option');
             self::order_all_dates_to_book_in_form($fromform);
             $erhandler->instance_form_validation((array)$fromform, $errors);
+
+            // In validation we need to check, if there are optiondates that have "outlier" entities.
+            // If so, the outliers must be changed to the main entity before all relations can be saved.
+            if (!empty($data['er_saverelationsforoptiondates']) &&
+                self::option_has_dates_with_entity_outliers($optionid) &&
+                empty($data['confirm:er_saverelationsforoptiondates'])) {
+                    $errors['confirm:er_saverelationsforoptiondates'] =
+                        get_string('error:er_saverelationsforoptiondates', 'mod_booking');
+            }
         }
 
         // Price validation.
@@ -1069,4 +1085,28 @@ class option_form extends moodleform {
         }
     }
 
+    /**
+     * Helper function to check if there are dates with "entity outliers"
+     * (e.g. if all dates have set "Classroom" but there is a date that is
+     * happening outside and has set "Park").
+     * @param int $optionid
+     * @return bool true if there are outliers, false if not
+     */
+    private static function option_has_dates_with_entity_outliers(int $optionid): bool {
+        global $DB;
+        // If we have "outliers" (deviating entities), we show a confirm box...
+        // ...so a user does not overwrite them accidentally.
+        $sql = "SELECT COUNT(DISTINCT er.entityid) numberofentities
+                FROM {local_entities_relations} er
+                JOIN {booking_optiondates} bod
+                ON bod.id = er.instanceid
+                WHERE er.area = 'optiondate'
+                AND bod.optionid = :optionid";
+        $params = ['optionid' => $optionid];
+        $numberofentities = $DB->get_field_sql($sql, $params);
+        if (!empty($numberofentities) && $numberofentities > 1) {
+            return true;
+        }
+        return false;
+    }
 }
