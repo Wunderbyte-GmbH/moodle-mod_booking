@@ -2699,7 +2699,6 @@ class booking_option {
     public static function purge_cache_for_option(int $optionid) {
 
         cache_helper::purge_by_event('setbackoptionstable');
-        cache_helper::purge_by_event('setbackencodedtables'); // Wunderbyte table cache!
         cache_helper::invalidate_by_event('setbackoptionsettings', [$optionid]);
 
         // Set back the answer cache.

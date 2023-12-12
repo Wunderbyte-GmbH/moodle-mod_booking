@@ -1312,6 +1312,9 @@ function booking_update_options(object $optionvalues, context_module $context,
         // We need to purge cache after updating an option.
         booking_option::purge_cache_for_option($option->id);
 
+        // Also set back Wunderbyte Table cache!
+        cache_helper::purge_by_event('setbackencodedtables');
+
         // Now check, if there are rules to execute.
         rules_info::execute_rules_for_option($option->id);
 
