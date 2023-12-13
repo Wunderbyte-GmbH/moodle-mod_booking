@@ -116,6 +116,18 @@ class entities extends field_base {
             // ...cannot be put directly into instance_form_definition of entitiesrelation_handler.
             $mform->addElement('advcheckbox', 'er_saverelationsforoptiondates',
                 get_string('er_saverelationsforoptiondates', 'mod_booking'));
+
+            // Important: "Save entity for each date too" must be checked by default.
+            $mform->setDefault('er_saverelationsforoptiondates', 1);
+            // But: In validation we need to check, if there are optiondates that have "outlier" entities.
+            // If so, the outliers must be changed to the main entity before all relations can be saved.
+
+            // If we have "outliers" (deviating entities), we show a confirm box...
+            // ...so a user does not overwrite them accidentally.
+            if (entitiesrelation_handler::option_has_dates_with_entity_outliers($optionid)) {
+                $mform->addElement('advcheckbox', 'confirm:er_saverelationsforoptiondates',
+                    get_string('confirm:er_saverelationsforoptiondates', 'mod_booking'));
+            }
         }
     }
 
@@ -131,7 +143,8 @@ class entities extends field_base {
             // This constant change between object and array is stupid, but comes from the mform handler.
             $fromform = (object)$data;
 
-            $erhandler = new entitiesrelation_handler('mod_booking', 'option');
+            $erhandler = new entitiesrelation_handler('mod_booking', 'option', $data['optionid']);
+            /* self::order_all_dates_to_book_in_form($fromform); */ // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
             $erhandler->instance_form_validation((array)$fromform, $errors);
         }
     }
