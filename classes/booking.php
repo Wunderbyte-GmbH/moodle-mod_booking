@@ -1459,10 +1459,32 @@ class booking {
             if (isset($oldoption->{$key})
                 && $oldoption->{$key} != $value) {
 
-                $localizedstring = $keyslocalization[$key] ?? get_string($key, 'mod_booking');
+                switch ($key) {
+                    case 'name':
+                        $fieldname = 'bookingname';
+                        break;
+                    case 'duration':
+                        $fieldname = 'bookingduration';
+                        break;
+                    case 'points':
+                        $fieldname = 'bookingpoints';
+                        break;
+                    case 'intro':
+                        $fieldname = 'description';
+                        break;
+                    case 'defaultsortorder':
+                        $fieldname = 'sortorder';
+                        break;
+                    default:
+                        $fieldname = $key;
+                        break;
+                }
+
+                $localizedstring = $keyslocalization[$key] ?? get_string($fieldname, 'mod_booking');
+
                 $returnarry[] = [
                     'info' => $localizedstring . get_string('changeinfochanged', 'booking'),
-                    'fieldname' => 'bookinginstancetitle',
+                    'fieldname' => $fieldname,
                     'oldvalue' => $oldoption->{$key},
                     'newvalue' => $value,
                 ];
