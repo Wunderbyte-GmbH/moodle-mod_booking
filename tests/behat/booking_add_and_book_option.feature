@@ -29,7 +29,7 @@ Feature: In a booking instance create booking options
     And I am on "Course 1" course homepage with editing mode on
     And I add a "Booking" to section "0"
     And I set the following fields to these values:
-      | Booking name                     | Test booking                                           |
+      | Booking instance name            | Test booking                                           |
       | Event type                       | Webinar                                                |
       | Booking text                     | This is the description for the test booking instance. |
       | Organizer name                   | Teacher 1                                              |

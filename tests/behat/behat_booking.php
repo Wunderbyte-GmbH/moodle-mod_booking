@@ -66,9 +66,9 @@ class behat_booking extends behat_base {
     }
 
     /**
-     * Get a booking by name.
+     * Get a booking by booking instance name.
      *
-     * @param string $name booking name.
+     * @param string $name booking instance name.
      * @return stdClass the corresponding DB row.
      */
     protected function get_booking_by_name(string $name): stdClass {
