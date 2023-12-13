@@ -16,6 +16,7 @@
 namespace mod_booking;
 
 use coding_exception;
+use local_entities\entitiesrelation_handler;
 use mod_booking\option\dates_handler;
 use mod_booking\option\optiondate;
 use moodle_exception;
@@ -104,12 +105,6 @@ class dates {
             ]);
 
         }
-        // If there are semesters defined (more than 0)
-        // AND If instance has semesters
-        // Semester selection is shown and prefilled with instance
-        // AND weekdaystring is shown
-        // AND create date series is shown.
-
 
         $datescounter = $defaultvalues["datescounter"];
 
@@ -383,7 +378,7 @@ class dates {
      * @return void
      * @throws coding_exception
      */
-    private static function add_date_as_string(
+    private static function add_date_as_collapsible(
         MoodleQuickForm &$mform,
         array &$elements,
         array $date,
@@ -436,6 +431,13 @@ class dates {
         $element->setValue($date['daystonotify']);
         $mform->addHelpButton('daystonotify_' . $idx, 'daystonotifysession', 'mod_booking');
         $elements[] = $element;
+
+        // Add entities.
+        if (class_exists('local_entities\entitiesrelation_handler')) {
+            $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
+            $entitieselements = $erhandler->instance_form_definition($mform, $idx, 'noheader');
+            $elements = array_merge($elements, $entitieselements);
+        }
 
         $mform->registerNoSubmitButton('applydate_' . $idx);
         $datearray[] =& $mform->createElement('submit', 'applydate_' . $idx, get_string('apply'));
@@ -506,7 +508,7 @@ class dates {
                 $editted = true;
             }
 
-            self::add_date_as_string($mform, $elements, $date, $editted);
+            self::add_date_as_collapsible($mform, $elements, $date, $editted);
 
         }
 

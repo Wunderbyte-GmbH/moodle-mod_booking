@@ -159,11 +159,6 @@ class optiondates extends field_base {
      */
     public static function save_data(stdClass &$formdata, stdClass &$option) {
 
-        $cmid = $formdata->cmid;
-        $optionid = $option->id;
-
-        $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
-
         dates::save_optiondates_from_form($formdata, $option);
 
         // This is needed to create option dates with the webservice importer.
