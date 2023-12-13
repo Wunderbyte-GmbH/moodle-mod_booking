@@ -23,6 +23,8 @@ use moodle_exception;
 use MoodleQuickForm;
 use stdClass;
 
+define('MOD_BOOKING_MAX_CUSTOM_FIELDS', 3);
+
 /**
  * Handle dates
  * This class provides the form to handle dates (option dates)
@@ -379,13 +381,9 @@ class dates {
             $date = (array)$date;
 
             if (!empty($date['optiondateid'])) {
-                $DB->delete_records('booking_optiondates', ['id' => $date['optiondateid']]);
 
-                // We might need to delete entities relation.
-                if (class_exists('local_entities\entitiesrelation_handler')) {
-                    $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
-                    $erhandler->delete_relation($date['optiondateid']);
-                }
+                optiondate::delete($date['optiondateid']);
+
             }
         }
 
@@ -394,12 +392,12 @@ class dates {
                 $option->id,
                 $date['coursestarttime'],
                 $date['courseendtime'],
-                $date['daystonotify']);
-            // We might need to save entities relation.
-            if (class_exists('local_entities\entitiesrelation_handler')) {
-                $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
-                $erhandler->save_entity_relation($optiondate->id, $date['entityid']);
-            }
+                $date['daystonotify'],
+                0,
+                0,
+                '',
+                0,
+                $date['entityid']);
         }
     }
 
@@ -471,6 +469,8 @@ class dates {
             $entitieselements = $erhandler->instance_form_definition($mform, $idx, 'noheader');
             $elements = array_merge($elements, $entitieselements);
         }
+
+        self::addcustomfields($mform, $elements, 1, $idx);
 
         $mform->registerNoSubmitButton('applydate_' . $idx);
         $datearray[] =& $mform->createElement('submit', 'applydate_' . $idx, get_string('apply'));
@@ -574,5 +574,69 @@ class dates {
             [
             'data-action' => 'adddatebutton',
         ]);
+    }
+
+    /**
+     * Helper function to create form elements for adding custom fields.
+     * @param int $counter if there already are existing custom fields start with the succeeding number
+     */
+    public static function addcustomfields(&$mform, array &$elements, $counter = 1, $index = 0) {
+        global $CFG;
+
+        // Add checkbox to add first customfield.
+        $elements[] = $mform->addElement('checkbox', 'addcustomfield' . $counter, get_string('addcustomfield', 'mod_booking'));
+
+        // Add Autocomplete with TeamsMeeting etc.
+        $cfnames = [
+            null => '',
+            'TeamsMeeting' => 'TeamsMeeting',
+            'ZoomMeeting' => 'ZoomMeeting',
+            'BigBlueButtonMeeting' => 'BigBlueButtonMeeting',
+        ];
+        $options = [
+                'noselectionstring' => get_string('nocfnameselected', 'mod_booking'),
+                'tags' => true,
+        ];
+
+        while ($counter <= MOD_BOOKING_MAX_CUSTOM_FIELDS) {
+
+            $identifier = $counter . '_' . $index;
+
+            // New elements have a default customfieldid of 0.
+            $elements[] = $mform->addElement('hidden', 'customfieldid' . $identifier, 0);
+            $mform->setType('customfieldid' . $identifier, PARAM_INT);
+
+            $elements[] = $mform->addElement('autocomplete', 'customfieldname' . $identifier,
+                get_string('customfieldname', 'mod_booking'), $cfnames, $options);
+            if (!empty($CFG->formatstringstriptags)) {
+                $mform->setType('customfieldname' . $identifier, PARAM_TEXT);
+            } else {
+                $mform->setType('customfieldname' . $identifier, PARAM_CLEANHTML);
+            }
+            $mform->setDefault('customfieldname' . $identifier, null);
+            $mform->addHelpButton('customfieldname' . $identifier, 'customfieldname', 'booking');
+            $mform->hideIf('customfieldname' . $identifier, 'addcustomfield' . $identifier, 'notchecked');
+
+            $elements[] = $mform->addElement('textarea', 'customfieldvalue' . $identifier,
+                get_string('customfieldvalue', 'mod_booking'), 'wrap="virtual" rows="1" cols="65"');
+            $mform->setType('customfieldvalue' . $identifier, PARAM_RAW);
+            $mform->setDefault('customfieldvalue' . $identifier, '');
+            $mform->addHelpButton('customfieldvalue' . $identifier, 'customfieldvalue', 'booking');
+            $mform->hideIf('customfieldvalue' . $identifier, 'addcustomfield' . $identifier, 'notchecked');
+
+            // Set delete parameter to 0 for newly created fields, so they won't be deleted.
+            $elements[] = $mform->addElement('hidden', 'deletecustomfield' . $identifier, 0);
+            $mform->setType('deletecustomfield' . $identifier, PARAM_INT);
+
+            // Show checkbox to add a custom field.
+            if ($counter < MOD_BOOKING_MAX_CUSTOM_FIELDS) {
+
+                $nextidentifier = ($counter + 1) . '_' . $index;
+
+                $elements[] = $mform->addElement('checkbox', 'addcustomfield' . $nextidentifier, get_string('addcustomfield', 'mod_booking'));
+                $mform->hideIf('addcustomfield' . $nextidentifier, 'addcustomfield' . $identifier, 'notchecked');
+            }
+            ++$counter;
+        }
     }
 }

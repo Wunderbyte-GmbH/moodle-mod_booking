@@ -113,6 +113,7 @@ class optiondate {
     /**
      * Save a specific optiondate by providing all necessary values.
      * The instantiated optiondate class is returned.
+     * Also saves entities, if there are any.
      * @param int $optionid
      * @param int $coursestarttime
      * @param int $courseendtime
@@ -121,6 +122,7 @@ class optiondate {
      * @param int $sent
      * @param string $reason
      * @param int $reviewed
+     * @param int $entityid
      * @return optiondate
      * @throws dml_exception
      */
@@ -132,7 +134,8 @@ class optiondate {
         int $eventid = 0,
         int $sent = 0,
         string $reason = '',
-        int $reviewed = 0):optiondate {
+        int $reviewed = 0,
+        int $entityid = 0):optiondate {
 
         global $DB;
 
@@ -150,6 +153,12 @@ class optiondate {
         ];
 
         $id = $DB->insert_record('booking_optiondates', $data);
+
+        // We might need to save entities relation.
+        if (class_exists('local_entities\entitiesrelation_handler')) {
+            $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
+            $erhandler->save_entity_relation($id, $entityid);
+        }
 
         $data = array_merge(['id' => $id], $data);
 
@@ -184,5 +193,23 @@ class optiondate {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Delete function, takes care of entities as well.
+     * @param mixed $optiondateid
+     * @return void
+     * @throws dml_exception
+     */
+    public static function delete($optiondateid) {
+        global $DB;
+
+        $DB->delete_records('booking_optiondates', ['id' => $optiondateid]);
+
+        // We might need to delete entities relation.
+        if (class_exists('local_entities\entitiesrelation_handler')) {
+            $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
+            $erhandler->delete_relation($optiondateid);
+        }
     }
 }
