@@ -1318,8 +1318,8 @@ $string['sendmessage'] = 'Nachricht senden';
 
 // Teachers_handler.php.
 $string['teachersforoption'] = 'Trainer:innen';
-$string['teachersforoption_help'] = '<b>ACHTUNG:</b> Wenn Sie hier Trainer:innen hinzufügen werden diese im Training-Journal <b>zu JEDEM EINZELNEN Termin hinzugefügt</b>.
-Wenn Sie hier Trainer:innen löschen, werden diese im Training-Journal <b>von JEDEM EINZELNEN Termin entfernt</b>.';
+$string['teachersforoption_help'] = '<b>ACHTUNG:</b> Wenn Sie hier Trainer:innen hinzufügen werden diese im Training-Journal <b>zu JEDEM ZUKÜNFTIGEN Termin hinzugefügt</b>.
+Wenn Sie hier Trainer:innen löschen, werden diese im Training-Journal <b>von JEDEM ZUKÜNFTIGEN Termin entfernt</b>.';
 $string['info:teachersforoptiondates'] = 'Wechseln Sie zum <a href="{$a}" target="_self">Trainingsjournal</a>, um die Trainer:innen für spezifische Termine zu protokollieren.';
 
 // Lib.php.

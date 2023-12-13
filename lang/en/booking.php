@@ -1369,8 +1369,8 @@ $string['sendmessage'] = 'Send message';
 
 // Teachers_handler.php.
 $string['teachersforoption'] = 'Teachers';
-$string['teachersforoption_help'] = '<b>BE CAREFUL: </b>When adding teachers here, they will also be <b>added to EACH date</b> in the teaching report.
-When deleting teachers here, they will be <b>removed from EACH date</b> in the teaching report!';
+$string['teachersforoption_help'] = '<b>BE CAREFUL: </b>When adding teachers here, they will also be <b>added to each date in the future</b> in the teaching report.
+When deleting teachers here, they will be <b>removed from each date in the future</b> in the teaching report!';
 $string['info:teachersforoptiondates'] = 'Go to the <a href="{$a}" target="_self">teaching journal</a>, to manage teachers for specific dates.';
 
 // Lib.php.
