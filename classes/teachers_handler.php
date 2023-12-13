@@ -235,8 +235,10 @@ class teachers_handler {
      * optiondate of an option.
      * @param int $optionid the booking option id
      * @param int $userid the user id of the teacher
+     * @param int $timestamp if supplied, the teacher will be added only to optiondates AFTER this date
      */
-    public static function subscribe_teacher_to_all_optiondates(int $optionid, int $userid) {
+    public static function subscribe_teacher_to_all_optiondates(int $optionid, int $userid, int $timestamp = 0) {
+
         global $DB;
 
         if (empty($optionid) || empty ($userid)) {
@@ -245,9 +247,15 @@ class teachers_handler {
         }
 
         // 1. Get all currently existing optiondates of the option.
-        $existingoptiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid], '', 'id');
+        $existingoptiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid]);
         if (!empty($existingoptiondates)) {
             foreach ($existingoptiondates as $existingoptiondate) {
+
+                // If a timestamp was supplied, then we only add the teacher...
+                // ...to optiondates AFTER this timestamp.
+                if (!empty($timestamp) && $existingoptiondate->coursestarttime < $timestamp) {
+                    continue;
+                }
                 $newentry = new stdClass;
                 $newentry->optiondateid = $existingoptiondate->id;
                 $newentry->userid = $userid;
@@ -298,8 +306,9 @@ class teachers_handler {
      * optiondate of an option.
      * @param int $optionid the booking option id
      * @param int $userid the user id of the teacher
+     * @param int $timestamp if supplied, the teacher will be removed only from optiondates AFTER this date
      */
-    public static function remove_teacher_from_all_optiondates(int $optionid, int $userid) {
+    public static function remove_teacher_from_all_optiondates(int $optionid, int $userid, int $timestamp = 0) {
         global $DB;
 
         if (empty($optionid) || empty ($userid)) {
@@ -307,9 +316,15 @@ class teachers_handler {
         }
 
         // 1. Get all currently existing optiondates of the option.
-        $existingoptiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid], '', 'id');
+        $existingoptiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid]);
         if (!empty($existingoptiondates)) {
             foreach ($existingoptiondates as $existingoptiondate) {
+
+                // If we have a timestamp set, we only remove the teacher from optiondates AFTER this timestamp.
+                if (!empty($timestamp) && $existingoptiondate->coursestarttime < $timestamp) {
+                    continue;
+                }
+
                 // 2. Delete the teacher from every optiondate.
                 $DB->delete_records('booking_optiondates_teachers', [
                     'optiondateid' => $existingoptiondate->id,

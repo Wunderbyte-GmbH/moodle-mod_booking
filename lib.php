@@ -2666,8 +2666,10 @@ function subscribe_teacher_to_booking_option(int $userid, int $optionid, int $cm
 
     $inserted = $DB->insert_record("booking_teachers", $newteacherrecord);
 
-    // When inserting a new teacher, we also need to insert the teacher for each optiondate.
-    teachers_handler::subscribe_teacher_to_all_optiondates($optionid, $userid);
+    // When inserting a new teacher, we also need to insert the teacher for each future optiondate.
+    // We do not add the teacher to optiondates in the past as they are already over.
+    // If needed, the teacher can still be added manually via teachers journal.
+    teachers_handler::subscribe_teacher_to_all_optiondates($optionid, $userid, time());
 
     if (!empty($groupid)) {
         groups_add_member($groupid, $userid);
@@ -2703,8 +2705,10 @@ function unsubscribe_teacher_from_booking_option(int $userid, int $optionid, int
             ]);
     $event->trigger();
 
-    // Also delete the teacher from every optiondate.
-    teachers_handler::remove_teacher_from_all_optiondates($optionid, $userid);
+    // Also delete the teacher from every optiondate in the future.
+    // We do not remove the teacher from dates in the past as (s)he might have been present.
+    // If needed, the entries can be removed manually via teachers journal.
+    teachers_handler::remove_teacher_from_all_optiondates($optionid, $userid, time());
 
     return ($DB->delete_records('booking_teachers',
             ['userid' => $userid, 'optionid' => $optionid]));
