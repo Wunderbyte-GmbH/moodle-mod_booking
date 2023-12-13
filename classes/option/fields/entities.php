@@ -75,10 +75,10 @@ class entities extends field_base {
         $returnvalue = 0): string {
 
         // Every time we save an entity, we want to make sure that the name of the entity is stored in location.
-        if (!empty($formdata->local_entities_entityid)) {
+        if (!empty($formdata->local_entities_entityid_0)) {
             // We might have more than one address, this will lead to more than one record which comes back.
             if (class_exists('local_entities\entitiesrelation_handler')) {
-                $entities = entitiesrelation_handler::get_entities_by_id($formdata->local_entities_entityid);
+                $entities = entitiesrelation_handler::get_entities_by_id($formdata->local_entities_entityid_0);
                 $newoption->address = '';
                 foreach ($entities as $entity) {
                     $newoption->location = $entity->parentname ?? $entity->name;
@@ -108,12 +108,12 @@ class entities extends field_base {
         // Add entities.
         if (class_exists('local_entities\entitiesrelation_handler')) {
             $erhandler = new entitiesrelation_handler('mod_booking', 'option');
-            $erhandler->instance_form_definition($mform, $optionid, $optionformconfig['formmode']);
+            $erhandler->instance_form_definition($mform, 0, $optionformconfig['formmode']);
 
             // This checkbox is specific to mod_booking which is why it...
             // ...cannot be put directly into instance_form_definition of entitiesrelation_handler.
             $mform->addElement('advcheckbox', 'er_saverelationsforoptiondates',
-                get_string('er_saverelationsforoptiondates', 'local_entities'));
+                get_string('er_saverelationsforoptiondates', 'mod_booking'));
             if ($optionid == 0) {
                 // If it's a new option, we set the default to checked.
                 $mform->setDefault('er_saverelationsforoptiondates', 1);
@@ -150,13 +150,13 @@ class entities extends field_base {
      * @return void
      * @throws dml_exception
      */
-    public static function save_data(stdClass &$formdata, stdClass &$option) {
+    public static function save_data(stdClass &$formdata, stdClass &$option, int $index = 0) {
 
         // This is to save entity relation data.
         // The id key has to be set to option id.
         if (class_exists('local_entities\entitiesrelation_handler')) {
             $erhandler = new entitiesrelation_handler('mod_booking', 'option');
-            $erhandler->instance_form_save($formdata, $option->id);
+            $erhandler->instance_form_save($formdata, $option->id, $index);
         }
     }
 

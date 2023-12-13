@@ -213,6 +213,9 @@ class dates {
             $counter = 0;
 
             foreach ($sessions as $session) {
+
+                // We might have entity relations for every session:
+
                 $counter++;
                 $key = 'optiondateid_' . $counter;
                 $defaultvalues->{$key} = $session->optiondateid ?? 0;
@@ -222,6 +225,18 @@ class dates {
                 $defaultvalues->{$key} = $session->courseendtime;
                 $key = 'daystonotify_' . $counter;
                 $defaultvalues->{$key} = $session->daystonotify;
+
+                // We might need to delete entities relation.
+                if (class_exists('local_entities\entitiesrelation_handler')) {
+                    $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
+                    $entityid = $erhandler->get_entityid_by_instanceid($session->optiondateid) ?? 0;
+
+                    $key = 'local_entities_entityid_' . $counter;
+                    $defaultvalues->{$key} = $entityid;
+
+                    $key = 'local_entities_entityarea_' . $counter;
+                    $defaultvalues->{$key} = 'optiondate';
+                }
             }
 
             $defaultvalues->datescounter = $counter;
@@ -258,12 +273,19 @@ class dates {
                     $courseendtime = $formvalues['courseendtime_' . $counter];
                 }
 
+                // We might have entitites added.
+
+                $entityid = $formvalues['local_entities_entityid_' . $counter] ?? '';
+                $entityarea = $formvalues['local_entities_entityarea_' . $counter] ?? '';
+
                 $dates[] = [
                     'index' => $counter,
                     'optiondateid' => $formvalues['optiondateid_' . $counter],
                     'coursestarttime' => $coursestarttime,
                     'courseendtime' => $courseendtime,
                     'daystonotify' => $formvalues['daystonotify_' . $counter],
+                    'entityid' => $entityid,
+                    'entityarea' => $entityarea,
                 ];
                 $highesindex = $counter;
             }
@@ -358,15 +380,26 @@ class dates {
 
             if (!empty($date['optiondateid'])) {
                 $DB->delete_records('booking_optiondates', ['id' => $date['optiondateid']]);
+
+                // We might need to delete entities relation.
+                if (class_exists('local_entities\entitiesrelation_handler')) {
+                    $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
+                    $erhandler->delete_relation($date['optiondateid']);
+                }
             }
         }
 
         foreach ($datestosave as $date) {
-            optiondate::save(
+            $optiondate = optiondate::save(
                 $option->id,
                 $date['coursestarttime'],
                 $date['courseendtime'],
                 $date['daystonotify']);
+            // We might need to save entities relation.
+            if (class_exists('local_entities\entitiesrelation_handler')) {
+                $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
+                $erhandler->save_entity_relation($optiondate->id, $date['entityid']);
+            }
         }
     }
 

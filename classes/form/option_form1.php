@@ -333,7 +333,7 @@ class option_form1 extends dynamic_form {
      * Process dynamic submission.
      * @return stdClass|null
      */
-    public function process_dynamic_submission(): stdClass {
+    public function process_dynamic_submission() {
 
         // Get data from form.
         $data = $this->get_data();

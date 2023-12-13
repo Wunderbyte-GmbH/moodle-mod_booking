@@ -16,6 +16,7 @@
 namespace mod_booking\option;
 
 use dml_exception;
+use local_entities\entitiesrelation_handler;
 use mod_booking\singleton_service;
 
 
@@ -79,7 +80,7 @@ class optiondate {
         $reason,
         $reviewed
         ) {
-
+        $this->id = $id;
         $this->optionid = $optionid;
         $this->coursestarttime = $coursestarttime;
         $this->courseendtime = $courseendtime;
@@ -162,10 +163,23 @@ class optiondate {
      * @return bool
      */
     public static function compare_optiondates(array $oldoptiondate, array $newoptiondate):bool {
+
+        // For the old option date, we might need the entity ids.
+
+        if (class_exists('local_entities\entitiesrelation_handler')) {
+            $handler = new entitiesrelation_handler('mod_booking', 'optiondate');
+            if ($data = $handler->get_instance_data($oldoptiondate['optiondateid'])) {
+                $entityid = $data->id;
+                $entityarea = $data->area;
+            }
+        }
+
         if (($oldoptiondate['optiondateid'] != $newoptiondate['optiondateid'])
             || ($oldoptiondate['coursestarttime'] != $newoptiondate['coursestarttime'])
             || $oldoptiondate['courseendtime'] != $newoptiondate['courseendtime']
-            || $oldoptiondate['daystonotify'] != $newoptiondate['daystonotify']) {
+            || $oldoptiondate['daystonotify'] != $newoptiondate['daystonotify']
+            || $entityid != $newoptiondate['entityid']
+            || $entityarea != $newoptiondate['entityarea']) {
             // If one of the dates is not exactly the same, we need to delete the current option and add a new one.
             return false;
         }

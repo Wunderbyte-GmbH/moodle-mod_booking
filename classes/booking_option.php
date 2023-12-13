@@ -3219,6 +3219,9 @@ class booking_option {
          * - Integrate customfields and more settings to option dates - half done.
         * - implement saving and loading of templates.
          * - implement returnurl - done
+         * - implement cancel
+         * - implement save and stay
+         * - implement save and add new
          * - implement entities for optiondates
          * - Test csv importer
          * - test webservice importer
