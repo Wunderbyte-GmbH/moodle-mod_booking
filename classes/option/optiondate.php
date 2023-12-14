@@ -19,7 +19,7 @@ use dml_exception;
 use local_entities\entitiesrelation_handler;
 use mod_booking\customfield\optiondate_cfields;
 use mod_booking\singleton_service;
-
+use stdClass;
 
 /**
  * Optiondate class
@@ -173,23 +173,6 @@ class optiondate {
                     // We found a difference to the old record, so we need to update it.
                     $DB->update_record('booking_optiondates', $newdata);
                 }
-                // Now we compare the old record and the new record for entites.
-                $newdata['entityid'] = $entityid;
-                $newdata['entityarea'] = 'optiondate';
-                if (!self::compare_optiondates((array)$oldrecord, $newdata, 2)) {
-
-                    // We need to save entities relation.
-                    if (class_exists('local_entities\entitiesrelation_handler')) {
-                        $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
-                        $erhandler->save_entity_relation($id, $entityid);
-                    }
-                }
-
-                $newdata['customfields'] = $customfields;
-                // Last we compare the cfields to see if we need to update them.
-                if (!self::compare_optiondates((array)$oldrecord, $newdata, 3)) {
-                    optiondate_cfields::save_fields($settings->id, $id, $customfields);
-                }
             } else {
                 // If we don't find the record, we insert it.
                 unset($data['id']);
@@ -197,6 +180,25 @@ class optiondate {
             }
         } else {
             $id = $DB->insert_record('booking_optiondates', $data);
+        }
+
+        $oldrecord = empty($oldrecord->optiondateid) ? new stdClass() : $oldrecord;
+        // Now we compare the old record and the new record for entites.
+        $newdata['entityid'] = $entityid;
+        $newdata['entityarea'] = 'optiondate';
+        if (!self::compare_optiondates((array)$oldrecord, $newdata, 2)) {
+
+            // We need to save entities relation.
+            if (class_exists('local_entities\entitiesrelation_handler')) {
+                $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
+                $erhandler->save_entity_relation($id, $entityid);
+            }
+        }
+
+        $newdata['customfields'] = $customfields;
+        // Last we compare the cfields to see if we need to update them.
+        if (!self::compare_optiondates((array)$oldrecord, $newdata, 3)) {
+            optiondate_cfields::save_fields($settings->id, $id, $customfields);
         }
 
         $data = array_merge(['id' => $id], $data);
@@ -224,11 +226,11 @@ class optiondate {
         }
 
         if ($mode == 0 || $mode == 2) {
-            if (class_exists('local_entities\entitiesrelation_handler')) {
+            if (class_exists('local_entities\entitiesrelation_handler') && !empty($oldoptiondate['optiondateid'])) {
                 $handler = new entitiesrelation_handler('mod_booking', 'optiondate');
                 if ($data = $handler->get_instance_data($oldoptiondate['optiondateid'])) {
-                    $oldoptiondate['entityid'] = $data->id;
-                    $oldoptiondate['entityarea'] = $data->area;
+                    $oldoptiondate['entityid'] = $data->id ?? 0;
+                    $oldoptiondate['entityarea'] = $data->area ?? '';
                 }
             }
             if (!entitiesrelation_handler::compare_items($oldoptiondate, $newoptiondate)) {
@@ -237,7 +239,10 @@ class optiondate {
         }
 
         if ($mode == 0 || $mode == 3) {
-            $oldoptiondate['customfields'] = optiondate_cfields::return_customfields_for_optiondate($oldoptiondate['optiondateid']);
+            if (!empty($oldoptiondate['optiondateid'])) {
+                $oldoptiondate['customfields'] = optiondate_cfields::return_customfields_for_optiondate($oldoptiondate['optiondateid']);
+            }
+
             if (!optiondate_cfields::compare_items($oldoptiondate, $newoptiondate)) {
                 return false;
             }

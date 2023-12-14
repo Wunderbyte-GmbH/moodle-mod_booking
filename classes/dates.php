@@ -278,7 +278,7 @@ class dates {
 
         if (!$optiondates = preg_grep('/^optiondateid_/', array_keys($formvalues))) {
             // For performance.
-            return;
+            return [[], 0];
         }
 
         foreach ($optiondates as $optiondate) {
