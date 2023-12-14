@@ -17,6 +17,7 @@ namespace mod_booking;
 
 use coding_exception;
 use local_entities\entitiesrelation_handler;
+use mod_booking\customfield\optiondate_cfields;
 use mod_booking\option\dates_handler;
 use mod_booking\option\optiondate;
 use moodle_exception;
@@ -212,20 +213,20 @@ class dates {
         if (!isset($defaultvalues->datesmarker)
             || isset($defaultvalues->addoptiondateseries)) {
 
-            $counter = 0;
+            $idx = 0;
 
             foreach ($sessions as $session) {
 
                 // We might have entity relations for every session:
 
-                $counter++;
-                $key = 'optiondateid_' . $counter;
+                $idx++;
+                $key = 'optiondateid_' . $idx;
                 $defaultvalues->{$key} = $session->optiondateid ?? 0;
-                $key = 'coursestarttime_' . $counter;
+                $key = 'coursestarttime_' . $idx;
                 $defaultvalues->{$key} = $session->coursestarttime;
-                $key = 'courseendtime_' . $counter;
+                $key = 'courseendtime_' . $idx;
                 $defaultvalues->{$key} = $session->courseendtime;
-                $key = 'daystonotify_' . $counter;
+                $key = 'daystonotify_' . $idx;
                 $defaultvalues->{$key} = $session->daystonotify;
 
                 // We might need to delete entities relation.
@@ -233,15 +234,17 @@ class dates {
                     $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
                     $entityid = $erhandler->get_entityid_by_instanceid($session->optiondateid) ?? 0;
 
-                    $key = 'local_entities_entityid_' . $counter;
+                    $key = 'local_entities_entityid_' . $idx;
                     $defaultvalues->{$key} = $entityid;
 
-                    $key = 'local_entities_entityarea_' . $counter;
+                    $key = 'local_entities_entityarea_' . $idx;
                     $defaultvalues->{$key} = 'optiondate';
                 }
+
+                optiondate_cfields::set_data($defaultvalues, $session->optiondateid, $idx);
             }
 
-            $defaultvalues->datescounter = $counter;
+            $defaultvalues->datescounter = $idx;
         }
 
         return $defaultvalues;
@@ -263,8 +266,14 @@ class dates {
         $dates = [];
         $highesindex = 1;
 
-        // We can have up to 100 dates.
-        while ($counter < 100) {
+        if (!$optiondates = preg_grep('/^optiondateid_/', array_keys($formvalues))) {
+            // For performance.
+            return;
+        }
+
+        foreach ($optiondates as $optiondate) {
+            list($a, $counter) = explode('_', $optiondate);
+
             if (isset($formvalues['optiondateid_' . $counter])) {
 
                 if (is_array($formvalues['coursestarttime_' . $counter])) {
@@ -276,9 +285,11 @@ class dates {
                 }
 
                 // We might have entitites added.
-
                 $entityid = $formvalues['local_entities_entityid_' . $counter] ?? '';
                 $entityarea = $formvalues['local_entities_entityarea_' . $counter] ?? '';
+
+                // We might have cfields, we need to add them to our dates array here.
+                $cffields = optiondate_cfields::get_list_of_submitted_cfields($formvalues, $counter);
 
                 $dates[] = [
                     'index' => $counter,
@@ -288,10 +299,10 @@ class dates {
                     'daystonotify' => $formvalues['daystonotify_' . $counter],
                     'entityid' => $entityid,
                     'entityarea' => $entityarea,
+                    'customfields' => $cffields,
                 ];
-                $highesindex = $counter;
+                $highesindex = $highesindex < $counter ? $counter : $highesindex;
             }
-            $counter++;
         }
 
         usort($dates, fn($a, $b) => $a['coursestarttime'] < $b['coursestarttime'] ? -1 : 1);
@@ -351,6 +362,7 @@ class dates {
 
         $datestosave = [];
         $datestodelete = [];
+        $datestoupdate = [];
 
         foreach ($newoptiondates as $optiondate) {
 
@@ -364,8 +376,7 @@ class dates {
                 // Else, we do nothing.
                 if (!optiondate::compare_optiondates((array)$oldoptiondate, $optiondate)) {
                     // If one of the dates is not exactly the same, we need to delete the current option and add a new one.
-                    $datestosave[] = $optiondate;
-                    $datestodelete[] = $oldoptiondate;
+                    $datestoupdate[] = $optiondate;
                 }
                 unset($olddates[$oldoptiondate->id]);
 
@@ -387,17 +398,23 @@ class dates {
             }
         }
 
+        // Saving and updating uses the same routines anyway.
+
+        $datestosave = array_merge($datestosave, $datestoupdate);
+
         foreach ($datestosave as $date) {
             $optiondate = optiondate::save(
-                $option->id,
-                $date['coursestarttime'],
-                $date['courseendtime'],
-                $date['daystonotify'],
+                (int)$date['optiondateid'] ?? 0,
+                (int)$option->id,
+                (int)$date['coursestarttime'],
+                (int)$date['courseendtime'],
+                (int)$date['daystonotify'],
                 0,
                 0,
                 '',
                 0,
-                $date['entityid']);
+                (int)$date['entityid'] ?? 0,
+                $date['customfields'] ?? []);
         }
     }
 
@@ -470,7 +487,7 @@ class dates {
             $elements = array_merge($elements, $entitieselements);
         }
 
-        self::addcustomfields($mform, $elements, 1, $idx);
+        optiondate_cfields::instance_form_definition($mform, $elements, 1, $idx);
 
         $mform->registerNoSubmitButton('applydate_' . $idx);
         $datearray[] =& $mform->createElement('submit', 'applydate_' . $idx, get_string('apply'));
@@ -574,69 +591,5 @@ class dates {
             [
             'data-action' => 'adddatebutton',
         ]);
-    }
-
-    /**
-     * Helper function to create form elements for adding custom fields.
-     * @param int $counter if there already are existing custom fields start with the succeeding number
-     */
-    public static function addcustomfields(&$mform, array &$elements, $counter = 1, $index = 0) {
-        global $CFG;
-
-        // Add checkbox to add first customfield.
-        $elements[] = $mform->addElement('checkbox', 'addcustomfield' . $counter, get_string('addcustomfield', 'mod_booking'));
-
-        // Add Autocomplete with TeamsMeeting etc.
-        $cfnames = [
-            null => '',
-            'TeamsMeeting' => 'TeamsMeeting',
-            'ZoomMeeting' => 'ZoomMeeting',
-            'BigBlueButtonMeeting' => 'BigBlueButtonMeeting',
-        ];
-        $options = [
-                'noselectionstring' => get_string('nocfnameselected', 'mod_booking'),
-                'tags' => true,
-        ];
-
-        while ($counter <= MOD_BOOKING_MAX_CUSTOM_FIELDS) {
-
-            $identifier = $counter . '_' . $index;
-
-            // New elements have a default customfieldid of 0.
-            $elements[] = $mform->addElement('hidden', 'customfieldid' . $identifier, 0);
-            $mform->setType('customfieldid' . $identifier, PARAM_INT);
-
-            $elements[] = $mform->addElement('autocomplete', 'customfieldname' . $identifier,
-                get_string('customfieldname', 'mod_booking'), $cfnames, $options);
-            if (!empty($CFG->formatstringstriptags)) {
-                $mform->setType('customfieldname' . $identifier, PARAM_TEXT);
-            } else {
-                $mform->setType('customfieldname' . $identifier, PARAM_CLEANHTML);
-            }
-            $mform->setDefault('customfieldname' . $identifier, null);
-            $mform->addHelpButton('customfieldname' . $identifier, 'customfieldname', 'booking');
-            $mform->hideIf('customfieldname' . $identifier, 'addcustomfield' . $identifier, 'notchecked');
-
-            $elements[] = $mform->addElement('textarea', 'customfieldvalue' . $identifier,
-                get_string('customfieldvalue', 'mod_booking'), 'wrap="virtual" rows="1" cols="65"');
-            $mform->setType('customfieldvalue' . $identifier, PARAM_RAW);
-            $mform->setDefault('customfieldvalue' . $identifier, '');
-            $mform->addHelpButton('customfieldvalue' . $identifier, 'customfieldvalue', 'booking');
-            $mform->hideIf('customfieldvalue' . $identifier, 'addcustomfield' . $identifier, 'notchecked');
-
-            // Set delete parameter to 0 for newly created fields, so they won't be deleted.
-            $elements[] = $mform->addElement('hidden', 'deletecustomfield' . $identifier, 0);
-            $mform->setType('deletecustomfield' . $identifier, PARAM_INT);
-
-            // Show checkbox to add a custom field.
-            if ($counter < MOD_BOOKING_MAX_CUSTOM_FIELDS) {
-
-                $nextidentifier = ($counter + 1) . '_' . $index;
-
-                $elements[] = $mform->addElement('checkbox', 'addcustomfield' . $nextidentifier, get_string('addcustomfield', 'mod_booking'));
-                $mform->hideIf('addcustomfield' . $nextidentifier, 'addcustomfield' . $identifier, 'notchecked');
-            }
-            ++$counter;
-        }
     }
 }

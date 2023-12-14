@@ -27,6 +27,7 @@ namespace mod_booking\option\fields;
 use coding_exception;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
+use mod_booking\customfield\optiondate_cfields;
 use mod_booking\dates;
 use mod_booking\option\fields;
 use mod_booking\option\fields_info;
