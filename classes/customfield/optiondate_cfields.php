@@ -67,7 +67,7 @@ class optiondate_cfields {
             $identifier = $index . '_' . $counter;
 
             // New elements have a default customfieldid of 0.
-            $elements[] = $mform->addElement('hidden', 'customfieldid_' . $identifier, 0);
+            $elements[] = $mform->addElement('hidden', 'customfieldid_' . $identifier);
             $mform->setType('customfieldid_' . $identifier, PARAM_INT);
 
             $elements[] = $mform->addElement('autocomplete', 'customfieldname_' . $identifier,
@@ -139,7 +139,7 @@ class optiondate_cfields {
                 'value' => $cfvalue,
                 'bookingid' => $bookingid,
                 'optionid' => $optionid,
-                'optiondateid' => $optiondateid ?? 0,
+                'optiondateid' => $formdata['optiondateid_' . $index] ?? 0,
             ];
             if (!empty($id)) {
                 $cffield['id'] = $id;
@@ -266,17 +266,17 @@ class optiondate_cfields {
                 return false;
             }
 
-            if (isset($olditem['customfields'][$cfield['optiondateid']])) {
+            if (isset($olditem['customfields'][$cfield['id']])) {
 
-                $oldcfield = $olditem['customfields'][$cfield['optiondateid']];
+                $oldcfield = $olditem['customfields'][$cfield['id']];
 
                 // If we find the item, we iterate over all the values.
                 foreach ($oldcfield as $key => $value) {
-                    if ($newitem['key'] != $value) {
+                    if ($cfield[$key] != $value) {
                         $changed = true;
                     }
                 }
-                unset($olditem['customfields'][$cfield['optiondateid']]);
+                unset($olditem['customfields'][$cfield['id']]);
             } else {
                 // If we don't find the cffield, obviously it's changed.
                 $changed = true;

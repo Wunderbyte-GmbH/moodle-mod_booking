@@ -135,6 +135,13 @@ class dates {
             ];
         }
 
+        // Before we add the other forms, we need to add the nosubmit in case of we just deleted an optiondate.
+        $datestodelete = preg_grep('/^deletedate_/', array_keys((array)$defaultvalues));
+        foreach ($datestodelete as $name) {
+            list($name, $idx) = explode('_', $name);
+            $mform->registerNoSubmitButton('deletedate_' . $idx);
+        }
+
         if ($datescounter > 0) {
             self::add_dates_to_form($mform, $elements, $dates, $formdata);
         } else {
@@ -182,6 +189,10 @@ class dates {
             $defaultvalues->datescounter = $datescounter;
         }
 
+        $optiondates = preg_grep('/^optiondateid_/', array_keys((array)$defaultvalues));
+        $datescounter = count($optiondates);
+        $defaultvalues->datescounter = $datescounter;
+
         // First we modify the datescounter
         if (isset($defaultvalues->adddatebutton)) {
             $datescounter++;
@@ -189,21 +200,20 @@ class dates {
         } else {
 
             // We might have clicked a delete nosubmit button.
-            foreach ($defaultvalues as $key => $value) {
-                if (strpos($key, 'deletedate_') !== false) {
 
-                    // We want to show one element less.
-                    $datescounter--;
-                    $defaultvalues->datescounter = $datescounter;
-                    break;
-                    // We also need to delete the precise data.
-                    list($name, $idx) = explode('_', $key);
+            $datestodelete = preg_grep('/^deletedate_/', array_keys((array)$defaultvalues));
 
-                    unset($defaultvalues->{'optiondateid_' . $idx});
-                    unset($defaultvalues->{'coursestarttime_' . $idx});
-                    unset($defaultvalues->{'courseendtime_' . $idx});
-                    break;
-                }
+            foreach ($datestodelete as $name) {
+                // We want to show one element less.
+                $datescounter--;
+                $defaultvalues->datescounter = $datescounter;
+                // We also need to delete the precise data.
+                list($name, $idx) = explode('_', $name);
+
+                unset($defaultvalues->{'optiondateid_' . $idx});
+                unset($defaultvalues->{'coursestarttime_' . $idx});
+                unset($defaultvalues->{'courseendtime_' . $idx});
+                unset($defaultvalues->{'daystonotify_' . $idx});
             }
         }
 
@@ -292,6 +302,7 @@ class dates {
                 $cffields = optiondate_cfields::get_list_of_submitted_cfields($formvalues, $counter);
 
                 $dates[] = [
+                    'id' => $formvalues['optiondateid_' . $counter],
                     'index' => $counter,
                     'optiondateid' => $formvalues['optiondateid_' . $counter],
                     'coursestarttime' => $coursestarttime,
@@ -308,42 +319,6 @@ class dates {
         usort($dates, fn($a, $b) => $a['coursestarttime'] < $b['coursestarttime'] ? -1 : 1);
 
         return [array_values($dates), $highesindex];
-    }
-
-    /**
-     *
-     * @param MoodleQuickForm $mform
-     * @param array $elements
-     * @param array $date
-     * @return void
-     * @throws coding_exception
-     */
-    private static function add_date_form(MoodleQuickForm &$mform, array &$elements, array $date) {
-
-        $idx = $date['index'];
-
-        // Even when we don't have the edit button, we need to add this nosubmit...
-        // Because of the switches in the form between edit & nonedit mode.
-        $mform->registerNoSubmitButton('editdate_' . $idx);
-
-        $elements[] =& $mform->addElement('date_time_selector', 'coursestarttime_' . $idx,
-            get_string("coursestarttime", "booking"));
-            $mform->setType('coursestarttime_' . $idx, PARAM_INT);
-            $mform->disabledIf('coursestarttime_' . $idx, 'startendtimeknown', 'notchecked');
-
-        $elements[] =& $mform->addElement('date_time_selector', 'courseendtime_' . $idx,
-            get_string("courseendtime", "booking"));
-        $mform->setType('courseendtime_' . $idx, PARAM_INT);
-        $mform->disabledIf('courseendtime_' . $idx, 'startendtimeknown', 'notchecked');
-
-        $mform->registerNoSubmitButton('deletedate_' . $idx);
-        $elements[] = $mform->addElement(
-            'submit',
-            'deletedate_' . $idx,
-            get_string("delete"), [
-                'data-action' => 'deletedatebutton',
-            ],
-        );
     }
 
     /**
@@ -371,6 +346,7 @@ class dates {
             } else if (isset($olddates[$optiondate['optiondateid']])) {
 
                 $oldoptiondate = $olddates[$optiondate['optiondateid']];
+                $oldoptiondate->customfields = optiondate_cfields::return_customfields_for_optiondate($optiondate['optiondateid']);
 
                 // If the dates are not exactly the same, we delete the old and save the new.
                 // Else, we do nothing.
@@ -539,14 +515,6 @@ class dates {
         foreach ($dates as $key => $date) {
 
             $idx = $date['index'];
-
-            // If we just wanted to delete this date, just dont create the items for it.
-            if (isset($defaultvalues['deletedate_' . $idx])) {
-
-                $mform->registerNoSubmitButton('deletedate_' . $idx);
-
-                continue;
-            }
 
             $elements[] = $mform->addElement('hidden', 'optiondateid_' . $idx, 0);
             $mform->setType('optiondateid_' . $idx, PARAM_INT);

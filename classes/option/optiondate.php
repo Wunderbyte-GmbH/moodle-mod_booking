@@ -195,6 +195,8 @@ class optiondate {
                 unset($data['id']);
                 $id = $DB->insert_record('booking_optiondates', $data);
             }
+        } else {
+            $id = $DB->insert_record('booking_optiondates', $data);
         }
 
         $data = array_merge(['id' => $id], $data);

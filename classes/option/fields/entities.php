@@ -116,10 +116,10 @@ class entities extends field_base {
                 get_string('er_saverelationsforoptiondates', 'mod_booking'));
             if ($optionid == 0) {
                 // If it's a new option, we set the default to checked.
-                $mform->setDefault('er_saverelationsforoptiondates', 1);
+                // $mform->setDefault('er_saverelationsforoptiondates', 1);
             } else {
                 // If we edit an existing option, we do not check by default.
-                $mform->setDefault('er_saverelationsforoptiondates', 0);
+                // $mform->setDefault('er_saverelationsforoptiondates', 0);
             }
         }
     }
