@@ -75,7 +75,8 @@ class customfields extends field_base {
         int $updateparam,
         $returnvalue = 0): string {
 
-        return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
+        // No need to do anything here.
+        return '';
     }
 
     /**

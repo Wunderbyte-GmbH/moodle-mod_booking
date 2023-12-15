@@ -1,0 +1,2 @@
+componentid;status;qtype;name;attempts;lastattempttime;model;difficulty;discrimination;guessing;label;catscalename;parentscalenames;componentname;timecreated;timemodified;catscaleid
+0;4;"Multiple-Choice";"Aus welchem Land stammt Riccardo Muti?";548;"Wednesday, 27 October 2021, 11:59 PM";raschbirnbaumb;-4.45;5.92;0.0000;SIMA01-00;SimA01;Simulation|SimA;question;1689323865;1689323865;3

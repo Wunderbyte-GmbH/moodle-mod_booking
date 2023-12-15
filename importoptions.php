@@ -31,6 +31,8 @@ use mod_booking\utils\csv_import;
 use moodle_url;
 use context_module;
 use html_writer;
+use mod_booking\importer\bookingoptionsimporter;
+
 global $OUTPUT;
 
 $id = required_param('id', PARAM_INT); // Course Module ID.
@@ -56,42 +58,19 @@ $booking = singleton_service::get_instance_of_booking_by_cmid($cm->id);
 $PAGE->set_title(format_string($booking->settings->name));
 $PAGE->set_heading($course->fullname);
 $PAGE->set_pagelayout('standard');
-$importer = new csv_import($booking);
-$mform = new importoptions_form($url, ['importer' => $importer]);
 
-// Form processing and displaying is done here.
-if ($mform->is_cancelled()) {
-    // Handle form cancel operation, if cancel button is present on form.
-    redirect($urlredirect, '', 0);
-    die();
-} else if ($fromform = $mform->get_data()) {
+$PAGE->requires->js_call_amd('mod_booking/csvimport', 'init');
 
-    echo $OUTPUT->header();
-    echo $OUTPUT->heading(get_string("importcsvtitle", "mod_booking"), 3, 'helptitle', 'uniqueid');
-    $continue = $OUTPUT->single_button($urlredirect, get_string("continue"), 'get');
-    $csvfile = $mform->get_file_content('csvfile');
+$inputform = new \mod_booking\form\csvimport(null, null, 'post', '', [], true, bookingoptionsimporter::return_ajaxformdata());
 
-    if ($importer->process_data($csvfile, $fromform)) {
-        echo $OUTPUT->notification(get_string('importfinished', 'booking'), 'notifysuccess');
-        if (!empty($importer->get_line_errors())) {
-            $output = get_string('import_partial', 'mod_booking');
-            $output .= html_writer::div($importer->get_line_errors());
-            echo $OUTPUT->notification($output);
-        }
-        echo $continue;
-    } else {
-        // Not ok, write error.
-        $output = get_string('import_failed', 'booking');
-        $output .= $importer->get_error() . '<br>';
-        echo $OUTPUT->notification($output);
-        echo $continue;
-    }
+// Set the form data with the same method that is called when loaded from JS.
+// It should correctly set the data for the supplied arguments.
+$inputform->set_data_for_dynamic_submission();
 
-    // In this case you process validated data. $mform->get_data() returns data posted in form.
-} else {
-    echo $OUTPUT->header();
-    echo $OUTPUT->heading(get_string("importcsvtitle", "booking"), 3, 'helptitle', 'uniqueid');
-    $mform->display();
-}
+echo $OUTPUT->header();
+echo $OUTPUT->heading(get_string("importcsvtitle", "booking"), 3, 'helptitle', 'uniqueid');
+
+// Render the form in a specific container, there should be nothing else in the same container.
+echo html_writer::div($inputform->render(), '', ['id' => 'mbo_csv_import_form']);
 
 echo $OUTPUT->footer();

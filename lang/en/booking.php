@@ -1145,6 +1145,53 @@ $string['import_failed'] = 'The import failed due to following reason: ';
 $string['import_partial'] = 'The import was only partially completed. There were problems with following lines and they were not imported: ';
 $string['importinfo'] = 'Import info: You can use the following columns in the csv upload (Explanation in parenthesis)';
 
+// New importer.
+// TODO: Translate.
+$string['importcsv'] = 'CSV Importer';
+$string['import_identifier'] = 'Einzigartiger Identifikator einer Buchungsoption';
+$string['import_tileprefix'] = 'Prefix (z.b. Kursnummer)';
+$string['import_title'] = 'Titel einer Buchungsoption';
+$string['import_text'] = 'Titel einer Buchungsoption (Synonym zu text)';
+$string['import_location'] = 'Ort einer Buchungsoption. Wird automatisch bei 100% Übereinstimmung mit dem Klarnamen einer "Entity" (local_entities) verknüpft. Auch die ID Nummer einer Entity kann hier eingegeben werden.';
+$string['import_identifier'] = 'Einzigartiger Identifikator einer Buchungsoption';
+$string['import_maxanswers'] = 'Maximale Anzahl von Buchungen pro Buchungsoption';
+$string['import_maxoverbooking'] = 'Maximale Anzahl an Wartelistenplätzen pro Buchungsoption';
+$string['import_coursenumber'] = 'Moodle ID Nummer eines Moodle Kurses, in den die Buchenden eingeschrieben werden';
+$string['import_courseshortname'] = 'Kurzname eines Moodle Kurses, in den die Buchenden eingeschrieben werden';
+$string['import_addtocalendar'] = 'Zum Moodle Kalender hinzufügen';
+$string['import_dayofweek'] = 'Wochentag einer Buchungsoption, z.B. Montag';
+$string['import_dayofweektime'] = 'Wochentag und Zeit einer Buchungsoption, z.B. Montag, 10:00 - 12:00';
+$string['import_dayofweekstarttime'] = 'Anfangszeit eines Kurses, z.B. 10:00';
+$string['import_dayofweekendtime'] = 'Endzeit eines Kurses, z.B. 12:00';
+$string['import_description'] = 'Beschreibung der Buchungsoption';
+$string['import_default'] = 'Standardpreis einer Buchungsoption. Nur wenn der Standardpreis gesetzt ist, können weitere Preise angegeben werden. Die Spalten müssen dafür den Kurznamen der Buchungskategorien entsprechen.';
+$string['import_teacheremail'] = 'E-Mail Adressen von Nutzerinnen auf der Plattform, die als LehrerInnen in den Buchungsoptionen hinterlegt werden können. Bei mehreren e-mail Adressen Komma als Trennzeichen verwenden (aufpassen auf "Escape" bei Komma getrennten CSV!)';
+$string['import_useremail'] = 'E-Mail Adressen von Nutzerinnen auf der Plattform, die diese Buchungsoption gebucht haben. Bei mehreren e-mail Adressen Komma als Trennzeichen verwenden (aufpassen auf "Escape" bei Komma getrennten CSV!)';
+
+$string['importsuccess'] = 'Import was successful. {$a} record(s) treated.';
+$string['importfailed'] = 'Import failed';
+$string['dateparseformat'] = 'Date parse format';
+$string['dateparseformat_help'] = 'Please, use date format like specified in CSV file. Help with <a href="http://php.net/manual/en/function.date.php">this</a> resource for options.';
+$string['defaultdateformat'] = 'j.n.Y H:i:s';
+$string['importcolumnsinfos'] = 'Informations about columns to be imported:';
+$string['mandatory'] = 'mandatory';
+$string['optional'] = 'optional';
+$string['format'] = 'format';
+$string['openformat'] = 'open format';
+$string['downloaddemofile'] = 'Download demofile';
+$string['updatedrecords'] = '{$a} record(s) updated.';
+$string['addedrecords'] = '{$a} record(s) added.';
+$string['callbackfunctionnotdefined'] = 'Callback function is not defined.';
+$string['callbackfunctionnotapplied'] = 'Callback function could not be applied.';
+$string['ifdefinedusedtomatch'] = 'If defined, will be used to match.';
+$string['fieldnamesdontmatch'] = "The imported fieldnames don't match the defined fieldnames.";
+$string['checkdelimiteroremptycontent'] = 'Check if data is given and separated via the selected symbol.';
+$string['wronglabels'] = 'Imported CSV not containing the right labels. Column {$a} can not be imported.';
+$string['missinglabel'] = 'Imported CSV does not contain mandatory column {$a}. Data can not be imported.';
+$string['nolabels'] = 'No column labels defined in settings object.';
+$string['checkdelimiter'] = 'Check if data is separated via the selected symbol.';
+$string['dataincomplete'] = 'Record with componentid {$a->id} is incomplete and could not be treated entirely. Check field "{$a->field}".';
+
 // Confirmation mail.
 $string['days'] = '{$a} days';
 $string['hours'] = '{$a} hours';

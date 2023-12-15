@@ -1124,6 +1124,53 @@ $string['import_failed'] = 'Der CSV-Import wurde aufgrund folgendes Fehlers nich
 $string['import_partial'] = 'Der CSV-Import wurde nur teilweise durchgeführt. Bei folgenden Zeilen traten Fehler auf und sie wurden nicht importiert: ';
 $string['importinfo'] = 'Import info: Folgende Spalten können importiert werden (Erklärung des Spaltennamens in Klammern)';
 
+// New importer.
+$string['importcsv'] = 'CSV Importer';
+$string['import_identifier'] = 'Einzigartiger Identifikator einer Buchungsoption';
+$string['import_tileprefix'] = 'Prefix (z.b. Kursnummer)';
+$string['import_title'] = 'Titel einer Buchungsoption';
+$string['import_text'] = 'Titel einer Buchungsoption (Synonym zu text)';
+$string['import_location'] = 'Ort einer Buchungsoption. Wird automatisch bei 100% Übereinstimmung mit dem Klarnamen einer "Entity" (local_entities) verknüpft. Auch die ID Nummer einer Entity kann hier eingegeben werden.';
+$string['import_identifier'] = 'Einzigartiger Identifikator einer Buchungsoption';
+$string['import_maxanswers'] = 'Maximale Anzahl von Buchungen pro Buchungsoption';
+$string['import_maxoverbooking'] = 'Maximale Anzahl an Wartelistenplätzen pro Buchungsoption';
+$string['import_coursenumber'] = 'Moodle ID Nummer eines Moodle Kurses, in den die Buchenden eingeschrieben werden';
+$string['import_courseshortname'] = 'Kurzname eines Moodle Kurses, in den die Buchenden eingeschrieben werden';
+$string['import_addtocalendar'] = 'Zum Moodle Kalender hinzufügen';
+$string['import_dayofweek'] = 'Wochentag einer Buchungsoption, z.B. Montag';
+$string['import_dayofweektime'] = 'Wochentag und Zeit einer Buchungsoption, z.B. Montag, 10:00 - 12:00';
+$string['import_dayofweekstarttime'] = 'Anfangszeit eines Kurses, z.B. 10:00';
+$string['import_dayofweekendtime'] = 'Endzeit eines Kurses, z.B. 12:00';
+$string['import_description'] = 'Beschreibung der Buchungsoption';
+$string['import_default'] = 'Standardpreis einer Buchungsoption. Nur wenn der Standardpreis gesetzt ist, können weitere Preise angegeben werden. Die Spalten müssen dafür den Kurznamen der Buchungskategorien entsprechen.';
+$string['import_teacheremail'] = 'E-Mail Adressen von Nutzerinnen auf der Plattform, die als LehrerInnen in den Buchungsoptionen hinterlegt werden können. Bei mehreren e-mail Adressen Komma als Trennzeichen verwenden (aufpassen auf "Escape" bei Komma getrennten CSV!)';
+$string['import_useremail'] = 'E-Mail Adressen von Nutzerinnen auf der Plattform, die diese Buchungsoption gebucht haben. Bei mehreren e-mail Adressen Komma als Trennzeichen verwenden (aufpassen auf "Escape" bei Komma getrennten CSV!)';
+
+$string['importsuccess'] = 'Import war erfolgreich. Es wurden {$a} Datensatz/Datensätze bearbeitet.';
+$string['importfailed'] = 'Import fehlgeschlagen.';
+$string['dateparseformat'] = 'Format des Datums';
+$string['dateparseformat_help'] = 'Bitte Datum so wie es im CSV definiert wurde verwenden. Hilfe unter <a href="http://php.net/manual/en/function.date.php">Datumsdokumentation</a> für diese Einstellung.';
+$string['defaultdateformat'] = 'j.n.Y H:i:s';
+$string['importcolumnsinfos'] = 'Informationen zu Importfeldern:';
+$string['mandatory'] = 'verpflichtend';
+$string['optional'] = 'optional';
+$string['format'] = 'Format';
+$string['openformat'] = 'offenes Format';
+$string['downloaddemofile'] = 'Demofile herunterladen';
+$string['updatedrecords'] = '{$a} Eintrag/Einträge aktualisiert.';
+$string['addedrecords'] = '{$a} Eintrag/Einträge hinzugefügt.';
+$string['callbackfunctionnotdefined'] = 'Callback Funktion nicht definiert.';
+$string['callbackfunctionnotapplied'] = 'Callback Funktion konnte nicht angewandt werden.';
+$string['ifdefinedusedtomatch'] = 'Wenn angegeben findet der Abgleich über diesen Wert statt.';
+$string['fieldnamesdontmatch'] = 'Die importierten Spaltennamen entsprechen nicht der Vorgabe.';
+$string['checkdelimiteroremptycontent'] = 'Überprüfen Sie ob Daten vorhanden und durch das angegebene Zeichen getrennt sind.';
+$string['wronglabels'] = 'Die importierten Spaltennamen entsprechen nicht der Vorgabe. {$a} kann nicht importiert werden.';
+$string['missinglabel'] = 'Im importierten File fehlt die verpflichtede Spalte {$a}. Daten können nicht importiert werden.';
+$string['nolabels'] = 'Keine Spaltennamen definiert.';
+$string['checkdelimiter'] = 'Überprüfen Sie die Spaltennamen durch das angegebene Zeichen getrennt sind.';
+$string['dataincomplete'] = 'Der Datensatz mit "componentid" {$a->id} ist unvollständig und konnte nicht gänzlich eingefügt werden. Überprüfen Sie das Feld "{$a->field}".';
+$string['modelinformation'] = 'Dieses Feld ist notwendig, um Fragen vollständig zu erfassen. Ist das Feld leer, kann die Frage lediglich einer Skala zugeordnet werden.';
+
 // Confirmation mail.
 $string['days'] = '{$a} Tage';
 $string['hours'] = '{$a} Stunden';

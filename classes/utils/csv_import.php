@@ -31,6 +31,7 @@ use mod_booking\booking;
 use stdClass;
 use html_writer;
 use local_entities\entitiesrelation_handler;
+use mod_booking\booking_option;
 use mod_booking\customfield\booking_handler;
 use mod_booking\option\dates_handler;
 use mod_booking\price;
@@ -238,7 +239,7 @@ class csv_import {
                 }
             }
 
-            $this->set_defaults($bookingoption);
+            // $this->set_defaults($bookingoption);
 
             // Fetch a potentially existing booking option which will be updated.
             if (isset($csvrecord['identifier'])) {
@@ -270,20 +271,7 @@ class csv_import {
                 $optionid = false;
             }
 
-            if ($optionid) {
-                $bookingoption->id = $optionid;
-                // Unset all option fields in order to skip validation as existing data is used.
-                foreach ($this->columns as $columname => $column) {
 
-                    if ($columname == 'text') {
-                        continue;
-                    }
-
-                    if (isset($csvrecord[$columname])) {
-                        unset($csvrecord[$columname]);
-                    }
-                }
-            }
 
             // Validate data.
             if ($this->validate_data($csvrecord, $i)) {
@@ -298,16 +286,12 @@ class csv_import {
                     }
                 }
 
-                /* NOTE: This line is the reason why booking options will never get updated directly.
-                We'll need to re-write the CSV importer, so updating also works correctly -
-                see issue https://github.com/Wunderbyte-GmbH/moodle-mod_booking/issues/310. */
-                if ($optionid === false) {
-                    /** @var context_module $context */
-                    $context = $this->booking->get_context();
-                    $optionid = booking_update_options($bookingoption, $context, MOD_BOOKING_UPDATE_OPTIONS_PARAM_IMPORT);
-                }
-                // Set the option id again in order to use it in prepare_data for user data.
-                $bookingoption->id = $optionid;
+                // Call the central function booking_option::update();
+                // Replace functions before and after with the new fields logic.
+
+                $context = $this->booking->get_context();
+                booking_option::update((object)$csvrecord, $context);
+                continue;
 
                 // Get the booking option settings class.
                 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
