@@ -38,7 +38,7 @@ export const init = () => {
 
     // eslint-disable-next-line no-console
     console.log(element);
-    const dynamicForm = new DynamicForm(element, 'mod_booking\\form\\option_form1');
+    const dynamicForm = new DynamicForm(element, 'mod_booking\\form\\option_form');
 
     // eslint-disable-next-line no-console
     console.log(dynamicForm);

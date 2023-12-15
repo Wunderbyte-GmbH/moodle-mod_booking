@@ -28,6 +28,7 @@ use local_entities\entitiesrelation_handler;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\option\dates_handler;
 use mod_booking\bo_actions\actions_info;
+use mod_booking\booking_rules\rules_info;
 use stdClass;
 use moodle_url;
 use mod_booking\booking_utils;
@@ -3288,24 +3289,6 @@ class booking_option {
 
         // Update start and end date of the option depending on the sessions.
         // booking_updatestartenddate($newoption->id);
-
-        return $newoption;
-
-        $optiondateshandler = new dates_handler($newoption->id, $newoption->bookingid);
-        if (!empty($newoption->newoptiondates) || !empty($newoption->stillexistingdates)) {
-            // Save the optiondates.
-            $optiondateshandler->save_from_form($formdata);
-        } else {
-            // Delete optiondates.
-            // Quickfix: We cannot do this, if we have multisession keys.
-            if (!isset($newoption->ms1starttime)) {
-                $optiondateshandler->delete_all_option_dates();
-            }
-        }
-
-        // Save relation for each newly created optiondate if checkbox is active.
-        $isimport = $updateparam == MOD_BOOKING_UPDATE_OPTIONS_PARAM_IMPORT ? true : false; // For import we need to force this!
-        save_entity_relations_for_optiondates_of_option($optionvalues, $newoption->id, $isimport);
 
         // We need to purge cache after updating an option.
         self::purge_cache_for_option($newoption->id);

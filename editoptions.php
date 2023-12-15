@@ -65,7 +65,6 @@ $PAGE->add_body_class('limitedwidth');
 
 // Initialize bookingid.
 $bookingid = (int) $cm->instance;
-
 $groupmode = groups_get_activity_groupmode($cm);
 
 if (!$booking = singleton_service::get_instance_of_booking_by_cmid($cmid)) {
@@ -78,7 +77,6 @@ if (!$context = context_module::instance($cmid)) {
 
 if ((has_capability('mod/booking:updatebooking', $context) || (has_capability(
     'mod/booking:addeditownoption', $context) && booking_check_if_teacher($optionid))) == false) {
-
     throw new moodle_exception('nopermissions');
 }
 
@@ -96,6 +94,47 @@ if (has_capability('mod/booking:cantoggleformmode', $context)) {
     // Without the capability, we always use simple mode.
     set_user_preference('optionform_mode', 'simple');
 }
+
+$settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+$datescounter = count($settings->sessions);
+
+// New code.
+
+$params = [
+    'cmid' => $cmid,
+    'optionid' => $optionid,
+    'bookingid' => $bookingid,
+    'copyoptionid' => $copyoptionid,
+    'datescounter' => $datescounter,
+    'returnurl' => $returnurl,
+];
+
+// In this example the form has arguments ['arg1' => 'val1'].
+$form = new mod_booking\form\option_form(null, null, 'post', '', [], true, $params);
+// Set the form data with the same method that is called when loaded from JS.
+// It should correctly set the data for the supplied arguments.
+$form->set_data_for_dynamic_submission();
+
+echo $OUTPUT->header();
+
+// Render the form in a specific container, there should be nothing else in the same container.
+echo html_writer::div($form->render(), '', ['id' => 'editoptionsformcontainer']);
+$PAGE->requires->js_call_amd('mod_booking/dynamiceditoptionform', 'init', $params);
+
+echo $OUTPUT->footer();
+return;
+// End new code.
+
+
+
+
+
+
+
+
+
+
+
 
 // Create booking options form option dates.
 if ($confirm === 1 && $createfromoptiondates === 1) {
@@ -216,7 +255,7 @@ if ($mform->is_cancelled()) {
             $fromform->limitanswers = 0;
         }
 
-        dates_handler::add_values_from_post_to_form($fromform);
+        // dates_handler::add_values_from_post_to_form($fromform);
 
         // Todo: Should nbooking be renamed to $optionid?
         $nbooking = booking_update_options($fromform, $context);
@@ -304,9 +343,7 @@ if ($mform->is_cancelled()) {
         // Make sure we have the option id in the fromform.
         $fromform->optionid = $nbooking ?? $optionid;
 
-        // Save the prices.
-        $price = new price('option', $fromform->optionid);
-        $price->save_from_form($fromform);
+
 
         // This is to save entity relation data.
         // The id key has to be set to option id.
