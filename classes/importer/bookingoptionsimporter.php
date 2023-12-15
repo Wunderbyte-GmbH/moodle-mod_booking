@@ -99,6 +99,7 @@ class bookingoptionsimporter {
     private static function define_settings(
         array $definedcolumns,
         string $callbackfunction = null,
+        bool $acceptunknowncolumns = false,
         string $delimiter = null,
         string $encoding = null,
         string $dateformat = null
@@ -108,6 +109,10 @@ class bookingoptionsimporter {
 
         if (!empty($callbackfunction)) {
             $settings->set_callback($callbackfunction);
+        }
+
+        if (!empty($acceptunknowncolumns)) {
+            $settings->set_acceptunknowncolumns($acceptunknowncolumns);
         }
 
         if (!empty($delimiter)) {

@@ -122,6 +122,10 @@ class fileparser {
      */
     protected $records = [];
 
+    /**
+     * @var bool acceptunknowncolumns
+     */
+    protected $acceptunknowncolumns = false;
 
     /**
      * Instantioate attributes.
@@ -156,6 +160,7 @@ class fileparser {
         $this->delimiter = !empty($this->settings->delimiter) ? $this->settings->delimiter : 'comma';
         $this->enclosure = !empty($this->settings->enclosure) ? $this->settings->enclosure : '"';
         $this->encoding = !empty($this->settings->encoding) ? $this->settings->encoding : 'utf-8';
+        $this->acceptunknowncolumns = !empty($this->settings->acceptunknowncolumns) ? $this->settings->acceptunknowncolumns : false;
     }
 
     /**
@@ -451,12 +456,15 @@ class fileparser {
             }
         }
 
+        // This check is only performed if we don't accept unknown columns.
+        if (!$this->acceptunknowncolumns) {
             foreach ($this->fieldnames as $fieldname) {
                 if (!in_array($fieldname, array_keys($this->columns))) {
                     $error .= get_string('wronglabels', 'mod_booking', $fieldname);
                     break;
                 }
             }
+        }
 
         return $error;
     }
