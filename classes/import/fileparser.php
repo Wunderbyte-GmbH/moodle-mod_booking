@@ -216,6 +216,11 @@ class fileparser {
         $this->records = [];
         while ($line = $cir->next()) {
             $csvrecord = array_combine($fieldnames, $line);
+
+            // Add static values from settings.
+            foreach ($this->settings->columnswithvalues as $key => $value) {
+                $csvrecord[$key] = $value;
+            }
             // We treat each line, if validation is successfull.
             if ($this->validate_data($csvrecord, $line)) {
                 $data = [];
@@ -384,6 +389,11 @@ class fileparser {
                         $value = $this->cast_string_to_float($value);
                         if (is_string($value)) {
                             $this->add_csvwarnings("$value is not a valid float in $column", $linevalues);
+                        }
+                        break;
+                    case PARAM_ALPHANUM:
+                        if (!ctype_alnum($value)) {
+                            $this->add_csvwarnings("$value is not a valid alphanum in $column", $linevalues);
                         }
                         break;
                     default:

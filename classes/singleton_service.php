@@ -276,6 +276,10 @@ class singleton_service {
     public static function get_instance_of_booking_option_settings($optionid, stdClass $dbrecord = null): booking_option_settings {
         $instance = self::get_instance();
 
+        if (empty($optionid)) {
+            return new booking_option_settings(0);
+        }
+
         if (isset($instance->bookingoptionsettings[$optionid])) {
             return $instance->bookingoptionsettings[$optionid];
         } else {

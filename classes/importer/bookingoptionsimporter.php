@@ -53,6 +53,9 @@ class bookingoptionsimporter {
             $data->dateparseformat,
         );
 
+        // Every entry should have this value here.
+        $settings->set_columnswithvalues(['cmid' => $data->cmid]);
+
         $parser = new fileparser($settings);
 
         return $parser->process_csv_data($content);
@@ -79,7 +82,7 @@ class bookingoptionsimporter {
      *
      */
     private static function get_callbackfunction() {
-        return "mod_booking\local\model\model_item_param_list::save_or_update_testitem_in_db";
+        return "mod_booking\booking_option::update";
     }
 
     /**

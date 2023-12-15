@@ -170,8 +170,30 @@ class entities extends field_base {
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
         if (class_exists('local_entities\entitiesrelation_handler')) {
+
             $erhandler = new entitiesrelation_handler('mod_booking', 'option');
-            $erhandler->values_for_set_data($data, $data->optionid);
+            // The following possibilites we have to set entities here.
+            // A) In location, we find an int. this will be considered an entityid.
+            // B) The string in Location corresponds to an entityid.
+            // C) We load the saved entityid.
+            if (!empty($data->importing) && is_numeric($data->location)) {
+
+                $entities = $erhandler->get_entities_by_id($data->location);
+                if (count($entities) === 1) {
+                    $entity = reset($entities);
+                    $data->location = $entity->name; // We store the name in location.
+                    $data->entityid = $entity->id;
+                }
+            } else if (!empty($data->importing) && !empty($data->location)) {
+                $entities = $erhandler->get_entities_by_name($data->location);
+                if (count($entities) === 1) {
+                    $entity = reset($entities);
+                    $data->location = $entity->name; // We store the name in location.
+                    $data->entityid = $entity->id;
+                }
+            } else {
+                $erhandler->values_for_set_data($data, $data->optionid);
+            }
         }
     }
 }

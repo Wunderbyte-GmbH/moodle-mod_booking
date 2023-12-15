@@ -56,6 +56,11 @@ class csvimport extends dynamic_form {
             $mform->setType('id', PARAM_INT);
         }
 
+        if (isset($data->cmid)) {
+            $mform->addElement('hidden', 'cmid', $data->cmid);
+            $mform->setType('cmid', PARAM_INT);
+        }
+
         if (isset($data->settingscallback)) {
             $mform->addElement('hidden', 'settingscallback', $data->settingscallback);
             $mform->setType('settingscallback', PARAM_TEXT); // Check which type applies here!

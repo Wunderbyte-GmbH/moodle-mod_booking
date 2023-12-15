@@ -24,10 +24,11 @@
 
 namespace mod_booking\option\fields;
 
+use core_course_external;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
-use mod_booking\teachers_handler;
+use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
 
@@ -38,13 +39,13 @@ use stdClass;
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class teachers extends field_base {
+class prepare_import extends field_base {
 
     /**
      * This ID is used for sorting execution.
      * @var int
      */
-    public static $id = MOD_BOOKING_OPTION_FIELD_TEACHERS;
+    public static $id = MOD_BOOKING_OPTION_FIELD_PREPARE_IMPORT;
 
     /**
      * Some fields are saved with the booking option...
@@ -52,13 +53,13 @@ class teachers extends field_base {
      * Some can be saved only post save (when they need the option id).
      * @var int
      */
-    public static $save = MOD_BOOKING_EXECUTION_POSTSAVE;
+    public static $save = MOD_BOOKING_EXECUTION_NORMAL;
 
     /**
      * This identifies the header under which this particular field should be displayed.
      * @var string
      */
-    public static $header = MOD_BOOKING_HEADER_TEACHERS;
+    public static $header = MOD_BOOKING_HEADER_GENERAL;
 
     /**
      * This function interprets the value from the form and, if useful...
@@ -74,7 +75,7 @@ class teachers extends field_base {
         int $updateparam,
         $returnvalue = 0): string {
 
-        return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
+        return '';
     }
 
     /**
@@ -86,11 +87,6 @@ class teachers extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
-        global $CFG;
-
-        // Add teachers.
-        $teacherhandler = new teachers_handler($formdata['optionid'] ?? 0);
-        $teacherhandler->add_to_mform($mform);
     }
 
     /**
@@ -102,24 +98,28 @@ class teachers extends field_base {
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
-        if (!empty($data->optionid)) {
-            $teacherhandler = new teachers_handler($data->optionid);
-            $teacherhandler->set_data($data);
+        global $DB;
+
+        // Here, we determine if we need fetch data from an existing booking option.
+        // We can only do that if we have an identifier.
+        // Coming from the form, we'll have even with a new option id set to 0.
+        if (!isset($data->id) && !empty($data->identifier)) {
+            $data->importing = true;
+            if ($record = $DB->get_record('booking_options', ['identifier' => $data->identifier])) {
+
+                foreach ($record as $key => $value) {
+                    // We only want to set those values that are not uploaded.
+                    if (!isset($data->{$key})) {
+                        $data->{$key} = $value;
+                    }
+                }
+            } else if (!empty($data->cmid)) {
+                // In this case, we import via CSV but have to create a new option.
+                $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($data->cmid);
+                $data->bookingid = $bookingsettings->id;
+                $data->id = 0;
+            }
+
         }
     }
-
-    /**
-     *
-     * @param stdClass $formdata
-     * @param stdClass $option
-     * @return void
-     * @throws dml_exception
-     */
-    public static function save_data(stdClass &$data, stdClass &$option) {
-
-        $teacherhandler = new teachers_handler($data->optionid);
-        $teacherhandler->save_from_form($data);
-    }
 }
-
-

@@ -61,7 +61,8 @@ $PAGE->set_pagelayout('standard');
 
 $PAGE->requires->js_call_amd('mod_booking/csvimport', 'init');
 
-$inputform = new \mod_booking\form\csvimport(null, null, 'post', '', [], true, bookingoptionsimporter::return_ajaxformdata());
+$ajaxformdata = array_merge(bookingoptionsimporter::return_ajaxformdata(), ['cmid' => $id]);
+$inputform = new \mod_booking\form\csvimport(null, null, 'post', '', [], true, $ajaxformdata);
 
 // Set the form data with the same method that is called when loaded from JS.
 // It should correctly set the data for the supplied arguments.

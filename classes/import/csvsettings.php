@@ -67,6 +67,11 @@ class csvsettings {
      */
     public $acceptunknowncolumn = false;
 
+    /**
+     * @var array
+     */
+    public $columnswithvalues = [];
+
 
     /**
      * @var string
@@ -240,5 +245,14 @@ class csvsettings {
      */
     public function set_acceptunknowncolumns($acceptunknowncolumns) {
         $this->acceptunknowncolumns = $acceptunknowncolumns;
+    }
+
+    /**
+     * Set columnswithvalues.
+     *
+     * @param bool $columnswithvalues
+     */
+    public function set_columnswithvalues($columnswithvalues) {
+        $this->columnswithvalues = $columnswithvalues;
     }
 }

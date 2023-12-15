@@ -49,6 +49,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/calendar/lib.php');
 require_once($CFG->libdir . '/completionlib.php');
+require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
  * Managing a single booking option
@@ -3202,18 +3203,38 @@ class booking_option {
      * We don't want to accidentally delete values in the process of updating.
      * On the other hand, connected tables and values need to be updated after an optionid is there.
      * This concerns customfields, entities, prices, optiondates etc.
-     * @param stdClass $formdata // New transmitted values via form, csv or webservice.
-     * @param context_module $context // Context class.
+     * @param array|stdClass $formdata // New transmitted values via form, csv or webservice.
+     * @param null|context_module $context // Context class.
      * @param int $updateparam // The update param allows for fine tuning.
      * @return void
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function update(stdClass $formdata, context $context,
+    public static function update($formdata, context $context = null,
         int $updateparam = MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT) {
 
-        global $DB, $PAGE;
+        global $DB;
+
+        // When we come here, we have the following possibilities:
+        // A) Normal saving via Form of an existing option.
+        // B) Normal saving via Form of a new option.
+        // C) CSV update of an existing option
+        // D) CSV creation of a new option
+        // E) Webservice update of an existing option
+        // F) Webservice creation of a new option.
+
+        // While A) & B) will already have called set_data...
+        // ... that's not the case for C to F.
+
+        // If $formdata is an array, we need to run set_data.
+        if (is_array($formdata)) {
+            $formdata = (object)$formdata;
+            fields_info::set_data($formdata);
+        }
+
+        $newoption = new stdClass();
+        fields_info::prepare_save_fields($formdata, $newoption, $updateparam);
 
         /**
          * Todo:
@@ -3241,6 +3262,8 @@ class booking_option {
         $optionid = $formdata->optionid ?? 0;
         $booking = singleton_service::get_instance_of_booking_by_bookingid($formdata->bookingid);
 
+        $context = $booking->context;
+
         switch (true) {
             case $optionid < 0:
                 // Optionid is negative.
@@ -3257,8 +3280,9 @@ class booking_option {
         }
 
         $newoption = new stdClass();
-
         fields_info::prepare_save_fields($formdata, $newoption, $updateparam);
+
+        $errors = fields_info::validation((array)$newoption, [], []);
 
         if (!empty($newoption->id)) {
             // Save the changes to DB.
@@ -3297,11 +3321,6 @@ class booking_option {
         rules_info::execute_rules_for_option($newoption->id);
 
         return $newoption;
-    }
-
-
-    public static function create() {
-
     }
 
     /**
