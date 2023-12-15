@@ -52,7 +52,7 @@ class teachers extends field_base {
      * Some can be saved only post save (when they need the option id).
      * @var int
      */
-    public static $save = MOD_BOOKING_EXECUTION_NORMAL;
+    public static $save = MOD_BOOKING_EXECUTION_POSTSAVE;
 
     /**
      * This identifies the header under which this particular field should be displayed.
@@ -104,6 +104,19 @@ class teachers extends field_base {
 
         $teacherhandler = new teachers_handler($data->optionid);
         $teacherhandler->set_data($data);
+    }
+
+    /**
+     *
+     * @param stdClass $formdata
+     * @param stdClass $option
+     * @return void
+     * @throws dml_exception
+     */
+    public static function save_data(stdClass &$data, stdClass &$option) {
+
+        $teacherhandler = new teachers_handler($data->optionid);
+        $teacherhandler->save_from_form($data);
     }
 }
 
