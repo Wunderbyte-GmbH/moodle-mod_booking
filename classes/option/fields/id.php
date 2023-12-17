@@ -28,6 +28,7 @@ use mod_booking\bo_actions\actions_info;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use mod_booking\singleton_service;
 use mod_booking\subbookings\subbookings_info;
 use MoodleQuickForm;
 use stdClass;
@@ -77,9 +78,13 @@ class id extends field_base {
 
         if (!empty($formdata->id)) {
             $newoption->id = $formdata->id;
+        } else {
+            $newoption->id = 0;
         }
-        $newoption->bookingid = $formdata->bookingid;
-        $newoption->id = $formdata->id;
+        if (empty($formdata->bookingid) && !empty($formdata->cmid)) {
+            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($formdata->cmid);
+            $newoption->bookingid = $bookingsettings->id;
+        }
 
         // We can return an warning message here.
         return '';
