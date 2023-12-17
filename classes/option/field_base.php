@@ -118,8 +118,6 @@ abstract class field_base implements fields {
      */
     public static function save_data(stdClass &$formdata, stdClass &$option) {
 
-        // $key = fields_info::get_class_name(static::class);
-        // $option->{$key} = $formdata[$key];
     }
 
     /**

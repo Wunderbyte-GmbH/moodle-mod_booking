@@ -88,7 +88,13 @@ class dates {
                 'multiple' => false,
             ];
 
-            $element = $mform->addElement('autocomplete', 'semesterid', get_string('chooseperiod', 'mod_booking'), $semestersarray, $semesteridoptions);
+            $element = $mform->addElement(
+                'autocomplete',
+                'semesterid',
+                get_string('chooseperiod', 'mod_booking'),
+                $semestersarray,
+                $semesteridoptions);
+
             $mform->addHelpButton('semesterid', 'chooseperiod', 'mod_booking');
             $mform->setType('semesterid', PARAM_INT);
             $element->setValue($semesterid);
@@ -193,7 +199,7 @@ class dates {
         $datescounter = count($optiondates);
         $defaultvalues->datescounter = $datescounter;
 
-        // First we modify the datescounter
+        // First we modify the datescounter.
         if (isset($defaultvalues->adddatebutton)) {
             $datescounter++;
             $defaultvalues->datescounter = $datescounter;
@@ -227,7 +233,7 @@ class dates {
 
             foreach ($sessions as $session) {
 
-                // We might have entity relations for every session:
+                // We might have entity relations for every session.
 
                 $idx++;
                 $key = 'optiondateid_' . $idx;
@@ -469,7 +475,7 @@ class dates {
         $datearray[] =& $mform->createElement('submit', 'applydate_' . $idx, get_string('apply'));
         $mform->registerNoSubmitButton('deletedate_' . $idx);
         $datearray[] =& $mform->createElement('submit', 'deletedate_' . $idx, get_string('delete'));
-        $elements[] =& $mform->addGroup($datearray, 'datearr_' . $idx, '', array(' '), false);
+        $elements[] =& $mform->addGroup($datearray, 'datearr_' . $idx, '', [' '], false);
 
         $element = $mform->createElement('html', $html2);
         $element->setName('header_accordion_end_optiondate_' . $idx);

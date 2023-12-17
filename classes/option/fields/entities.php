@@ -114,13 +114,6 @@ class entities extends field_base {
             // ...cannot be put directly into instance_form_definition of entitiesrelation_handler.
             $mform->addElement('advcheckbox', 'er_saverelationsforoptiondates',
                 get_string('er_saverelationsforoptiondates', 'mod_booking'));
-            if ($optionid == 0) {
-                // If it's a new option, we set the default to checked.
-                // $mform->setDefault('er_saverelationsforoptiondates', 1);
-            } else {
-                // If we edit an existing option, we do not check by default.
-                // $mform->setDefault('er_saverelationsforoptiondates', 0);
-            }
         }
     }
 
@@ -137,7 +130,6 @@ class entities extends field_base {
             $fromform = (object)$data;
 
             $erhandler = new entitiesrelation_handler('mod_booking', 'option');
-            // self::order_all_dates_to_book_in_form($fromform);
             $erhandler->instance_form_validation((array)$fromform, $errors);
         }
     }

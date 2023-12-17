@@ -2447,7 +2447,7 @@ $string['actionoperator:subtract'] = 'Minus';
 $string['actionoperator'] = 'Aktion';
 $string['actionoperator:adddate'] = 'Füge Zeitraum hinzu';
 
-// Dates class
+// Dates class.
 $string['adddatebutton'] = "Füge Datum hinzu";
 $string['nodatesstring'] = "Aktuell gibt es keine Daten zu dieser Buchungsoption";
 $string['nodatesstring_desc'] = "no dates";

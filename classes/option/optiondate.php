@@ -153,7 +153,7 @@ class optiondate {
             'eventid' => $eventid,
             'sent' => $sent,
             'reason' => $reason,
-            'reviewed' => $reviewed
+            'reviewed' => $reviewed,
         ];
 
         // Before we insert a record, we want to know if we can also update.
@@ -240,7 +240,10 @@ class optiondate {
 
         if ($mode == 0 || $mode == 3) {
             if (!empty($oldoptiondate['optiondateid'])) {
-                $oldoptiondate['customfields'] = optiondate_cfields::return_customfields_for_optiondate($oldoptiondate['optiondateid']);
+                $oldoptiondate['customfields']
+                    = optiondate_cfields::return_customfields_for_optiondate(
+                        $oldoptiondate['optiondateid']
+                    );
             }
 
             if (!optiondate_cfields::compare_items($oldoptiondate, $newoptiondate)) {

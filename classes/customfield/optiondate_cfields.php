@@ -42,13 +42,20 @@ class optiondate_cfields {
      * Helper function to create form elements for adding custom fields.
      * @param int $counter if there already are existing custom fields start with the succeeding number
      */
-    public static function instance_form_definition(&$mform, array &$elements, $counter = 1, $index = 0) {
+    public static function instance_form_definition(
+        &$mform,
+        array &$elements,
+        $counter = 1,
+        $index = 0) {
         global $CFG;
 
         $identifier = $index . '_' . $counter;
 
         // Add checkbox to add first customfield.
-        $elements[] = $mform->addElement('checkbox', 'addcustomfield_' . $identifier, get_string('addcustomfield', 'mod_booking'));
+        $elements[] = $mform->addElement(
+            'checkbox',
+            'addcustomfield_' . $identifier,
+            get_string('addcustomfield', 'mod_booking'));
 
         // Add Autocomplete with TeamsMeeting etc.
         $cfnames = [
@@ -114,7 +121,7 @@ class optiondate_cfields {
 
         $regexstring = '/^customfieldname_' . $index . '/';
         if (!$cfnames = preg_grep($regexstring, array_keys($formdata))) {
-            // For performance.formdata
+            // For performance.
             return;
         }
 

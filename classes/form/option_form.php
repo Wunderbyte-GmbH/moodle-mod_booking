@@ -225,60 +225,6 @@ class option_form extends dynamic_form {
     }
 
     /**
-     * This function creates the entitydate instances in an array under the datestobook key.
-     * The entitiesrelation handlers we use to validate and save expects a certain structure.
-     *
-     * @param stdClass $fromform
-     * @return void
-     */
-    private static function order_all_dates_to_book_in_form(stdClass &$fromform) {
-        // dates_handler::add_values_from_post_to_form($fromform);
-
-        // For the form validation, we need to pass the values to book in a special form.
-        // We only need those timestamps which are new.
-        // But it might be advisable to also check the key stillexistingdates in the future.
-        $datestobook = self::return_timestamps(array_merge($fromform->newoptiondates, $fromform->stillexistingdates));
-
-        $fromform->datestobook = [];
-
-        $link = new moodle_url('/mod/booking/view.php', [
-            'optionid' => $fromform->optionid,
-            'id' => booking_option::get_cmid_from_optionid($fromform->optionid),
-            'whichview' => 'showonlyone',
-        ]);
-
-        foreach ($datestobook as $date) {
-
-            $fromform->datestobook[] = new entitydate(
-                $fromform->optionid ?? 0,
-                'mod_booking',
-                'optiondate',
-                $fromform->text,
-                $date['starttime'],
-                $date['endtime'],
-                1,
-                $link);
-        }
-
-        // If there are no date to book (no optiondates)...
-        // ... we need to take into account the single dates.
-        if ((count($fromform->datestobook) < 1)
-            && !empty($fromform->coursestarttime
-            && !empty($fromform->courseendtime))) {
-
-            $fromform->datestobook[] = new entitydate(
-                $fromform->optionid ?? 0,
-                'mod_booking',
-                'optiondate',
-                $fromform->text,
-                $fromform->coursestarttime,
-                $fromform->courseendtime,
-                1,
-                $link);
-        }
-    }
-
-    /**
      * Definition after data.
      * @return void
      * @throws coding_exception
