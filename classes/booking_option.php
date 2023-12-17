@@ -1865,7 +1865,7 @@ class booking_option {
                 unset($newoption->optiondate);
                 unset($newoption->identifier);
             }
-            booking_option::update($newoption, $context);
+            self::update($newoption, $context);
             $firstrun = false;
         }
     }
@@ -3261,27 +3261,26 @@ class booking_option {
 
         fields_info::save_fields_post($formdata, $newoption, $updateparam);
 
-        /**
-         * Todo:
-         * - Integrate customfields and more settings to option dates - half done.
-        * - implement saving and loading of templates.
-         * - implement returnurl - done
-         * - implement cancel
-         * - implement save and stay
-         * - implement save and add new
-         * - implement entities for optiondates
-         * - Test csv importer
-         * - test webservice importer
-         * - test availability
-         * - test actions
-         * - test subbookings
-         * - test events
-         * - test caches
-         * - test rules
-         * - rename everything and make it the only way to go.
-         * - fix save and add new
-         * - fix save and stay
-         */
+        // Todo:
+        // - Integrate customfields and more settings to option dates - half done.
+        // - implement saving and loading of templates.
+        // - implement returnurl - done
+        // - implement cancel
+        // - implement save and stay
+        // - implement save and add new
+        // - implement entities for optiondates
+        // - Test csv importer
+        // - test webservice importer
+        // - test availability
+        // - test actions
+        // - test subbookings
+        // - test events
+        // - test caches
+        // - test rules
+        // - rename everything and make it the only way to go.
+        // - fix save and add new
+        // - fix save and stay.
+
 
         // // If there have been changes to significant fields, we have to resend an e-mail with the updated ical attachment.
         // $bu = new booking_utils();
@@ -3293,9 +3292,6 @@ class booking_option {
         //         $bu->react_on_changes($cmid, $context, $newoption->id, $changes);
         //     }
         // }
-
-        // Update start and end date of the option depending on the sessions.
-        // booking_updatestartenddate($newoption->id);
 
         // We need to purge cache after updating an option.
         self::purge_cache_for_option($newoption->id);

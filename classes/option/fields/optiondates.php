@@ -126,7 +126,7 @@ class optiondates extends field_base {
         $problems = array_filter($dates, fn($a) => $a['coursestarttime'] > $a['courseendtime']);
 
         foreach ($problems as $problem) {
-            // TODO: Make it nice.https://tracker.moodle.org/browse/CONTRIB-9279a
+            // TODO: Make it nice.
             $errors['courseendtime_' . $problem['index']] = get_string('problemwithdate', 'mod_booking');
         }
     }
@@ -161,9 +161,6 @@ class optiondates extends field_base {
     public static function save_data(stdClass &$formdata, stdClass &$option) {
 
         dates::save_optiondates_from_form($formdata, $option);
-
-        // This is needed to create option dates with the webservice importer.
-        // booking_option::deal_with_multisessions($formdata, $booking, $optionid, $booking->context);
     }
 
     /**

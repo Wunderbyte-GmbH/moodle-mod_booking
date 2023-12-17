@@ -112,7 +112,7 @@ jobs:
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
           CODECHECKER_IGNORE_PATHS: OpenTBS, TinyButStrong
           PHPDOCCHECKER_IGNORE_PATHS: OpenTBS, TinyButStrong
-          MUSTACHE_IGNORE_NAMES: 'bookingoption_dates_custom_list_items.mustache,form_booking_options_selector_suggestion.mustache,table_list_container.mustache,optiondatesteacherstable_list.mustache,optiondatesteacherstable_list_row.mustache,optiondatesteacherstable_list_container.mustache'
+          MUSTACHE_IGNORE_NAMES: 'bookingoption_dates_custom_list_items.mustache,form_booking_options_selector_suggestion.mustache,table_list_container.mustache,optiondatesteacherstable_list.mustache,optiondatesteacherstable_list_row.mustache,optiondatesteacherstable_list_container.mustache,option_collapsible_close.mustache,option_collapsible_open.mustache'
 
       - name: PHP Lint
         if: ${{ !cancelled() }} # prevents CI run stopping if step failed.

@@ -104,7 +104,10 @@ class optiondate_cfields {
 
                 $nextidentifier = $index . '_' . ($counter + 1);
 
-                $elements[] = $mform->addElement('checkbox', 'addcustomfield_' . $nextidentifier, get_string('addcustomfield', 'mod_booking'));
+                $elements[] = $mform->addElement(
+                    'checkbox',
+                    'addcustomfield_' . $nextidentifier,
+                    get_string('addcustomfield', 'mod_booking'));
                 $mform->hideIf('addcustomfield_' . $nextidentifier, 'addcustomfield_' . $identifier, 'notchecked');
             }
             ++$counter;
