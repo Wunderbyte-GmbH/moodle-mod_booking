@@ -175,6 +175,30 @@ class optiondates extends field_base {
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
+        if (!empty($data->importing)) {
+            if (!empty($data->dayofweektime)) {
+                // This is needed to create the new values from dayofweekstring.
+                $data->addoptiondateseries = 1;
+                // We need this on import, to not overrule import via settings.
+                $data->datesmarker = 1;
+
+                if (!empty($data->cmid)) {
+                    $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($data->cmid);
+                }
+
+                $data->semesterid = $data->semesterid ?? $settings->semesterid ?? $bookingsettings->semesterid ?? 0;
+
+                // If there is not semesterid to be found at this point, we abort.
+                if (empty($data->semesterid)) {
+
+                    // Todo: Make a meaningful error message to the cause of this abortion.
+                    return;
+                }
+
+            }
+        }
+
+
         // We need to modify the data we set for dates.
         $data = dates::set_data($data);
     }

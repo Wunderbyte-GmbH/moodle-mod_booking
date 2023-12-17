@@ -286,7 +286,9 @@ class fileparser {
             throw new moodle_exception('callbackfunctionnotdefined', 'mod_booking');
         };
         try {
-            $result = $callback($data);
+            $optionid = $callback($data);
+
+            $result = ['success' => 1, 'message' => ''];
             if ($result['success'] != 1 && $result['success'] != 2) {
                 return [
                     'success' => 0,
