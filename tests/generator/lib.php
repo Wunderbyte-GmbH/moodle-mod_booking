@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
+use mod_booking\booking_option;
 use mod_booking\price;
 use mod_booking\customfield\booking_handler;
 
@@ -170,7 +171,7 @@ class mod_booking_generator extends testing_module_generator {
             }
         }
 
-        if ($record->id = booking_update_options($record, $context)) {
+        if ($record->id = booking_option::update($record, $context)) {
             $record->optionid = $record->id;
             // Save the prices to option.
             $price = new price('option', $record->optionid);

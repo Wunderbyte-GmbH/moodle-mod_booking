@@ -100,7 +100,7 @@ class webservice_import {
             $context = $bookingoption->booking->context;
         }
 
-        $bookingoptionid = booking_update_options($data, $context);
+        $bookingoptionid = booking_option::update($data, $context);
 
         // Now that we have the option id, also from new users, we can add the teacher.
 

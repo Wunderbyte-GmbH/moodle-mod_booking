@@ -598,7 +598,7 @@ class dates_handler {
                 }
             }
             $context = context_module::instance($cmid);
-            booking_update_options($optionvalues, $context);
+            booking_option::update($optionvalues, $context);
         }
 
         // Lastly, we also need to change the semester for the booking instance itself!

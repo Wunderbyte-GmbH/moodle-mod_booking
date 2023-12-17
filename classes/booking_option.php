@@ -1459,7 +1459,11 @@ class booking_option {
         }
 
         foreach ($this->get_teachers() as $teacher) {
-            unsubscribe_teacher_from_booking_option($teacher->userid, $this->optionid, $this->booking->cm->id);
+            $teacherhandler = new teachers_handler($this->optionid);
+            $teacherhandler->unsubscribe_teacher_from_booking_option(
+                $teacher->userid,
+                $this->optionid,
+                $this->booking->cm->id);
         }
 
         // Delete calendar entry, if any.
@@ -1717,7 +1721,7 @@ class booking_option {
         $newoption = $this->option;
         $newoption->id = -1;
         $newoption->bookingid = $targetbooking->id;
-        $newoptionid = booking_update_options($newoption, $targetcontext);
+        $newoptionid = self::update($newoption, $targetcontext);
         // Subscribe users.
         $newoption = singleton_service::get_instance_of_booking_option($targetcmid, $newoptionid);
         $users = $this->get_all_users();
@@ -1861,7 +1865,7 @@ class booking_option {
                 unset($newoption->optiondate);
                 unset($newoption->identifier);
             }
-            booking_update_options($newoption, $context);
+            booking_option::update($newoption, $context);
             $firstrun = false;
         }
     }
@@ -3206,7 +3210,7 @@ class booking_option {
      * @param array|stdClass $formdata // New transmitted values via form, csv or webservice.
      * @param null|context_module $context // Context class.
      * @param int $updateparam // The update param allows for fine tuning.
-     * @return array
+     * @return int
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
@@ -3299,10 +3303,7 @@ class booking_option {
         // Now check, if there are rules to execute.
         rules_info::execute_rules_for_option($newoption->id);
 
-        return [
-            'success' => 1,
-            'message' => $errors,
-        ];
+        return $newoption->id;
     }
 
     /**

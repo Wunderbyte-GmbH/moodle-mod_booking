@@ -28,6 +28,7 @@ namespace mod_booking\bo_actions;
 use context_module;
 use core_analytics\action;
 use core_component;
+use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\output\actionslist;
 use mod_booking\singleton_service;
@@ -190,7 +191,7 @@ class actions_info {
 
             $context = context_module::instance($data->cmid);
 
-            booking_update_options($optionvalues, $context, MOD_BOOKING_UPDATE_OPTIONS_PARAM_REDUCED);
+            booking_option::update($optionvalues, $context, MOD_BOOKING_UPDATE_OPTIONS_PARAM_REDUCED);
         }
 
     }
