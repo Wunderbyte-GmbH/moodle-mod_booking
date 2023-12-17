@@ -104,8 +104,8 @@ class optiondates extends field_base {
             $newoption->courseendtime = null;
         }
 
-        $newoption->dayofweektime = $formdata->dayofweektime;
-        $newoption->semesterid = $formdata->semesterid;
+        $newoption->dayofweektime = $formdata->dayofweektime ?? '';
+        $newoption->semesterid = $formdata->semesterid ?? 0;
 
         // We can return a warning message here.
         return '';

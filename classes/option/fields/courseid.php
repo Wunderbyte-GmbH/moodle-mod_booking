@@ -78,7 +78,7 @@ class courseid extends field_base {
         // TODO: Create function for new course.
         /* Create a new course and put it either in a new course category
         or in an already existing one. */
-        if ($formdata->courseid == -1) {
+        if (!empty($formdata->courseid) && $formdata->courseid == -1) {
             $categoryid = 1; // By default, we use the first category.
             if (!empty(get_config('booking', 'newcoursecategorycfield'))) {
                 // FEATURE add more settingfields add customfield_ to ...
