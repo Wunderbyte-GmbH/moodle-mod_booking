@@ -201,6 +201,8 @@ $string['bookingoption_created'] = 'Buchungsoption angelegt';
 $string['bookingoption_updated'] = 'Buchungsoption upgedatet';
 $string['bookingoption_deleted'] = 'Buchungsoption gelöscht';
 $string['bookinginstance_updated'] = 'Buchungsinstanz upgedated';
+$string['records_imported'] = 'Buchungsoptionen importiert via CSV';
+$string['records_imported_description'] = '{$a} Buchungsoptionen importiert via CSV';
 
 $string['eventreport_viewed'] = 'Report angesehen';
 $string['eventuserprofilefields_updated'] = 'Nutzerprofil aktualisiert';

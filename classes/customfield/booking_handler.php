@@ -346,4 +346,34 @@ class booking_handler extends \core_customfield\handler {
 
         return $errors;
     }
+
+    /**
+     * When importing, we only want to load stored values when they are not present in import.
+     *
+     * Example:
+     *   $instance = $DB->get_record(...);
+     *   // .... prepare editor, filemanager, add tags, etc.
+     *   $handler->instance_form_before_set_data($instance);
+     *   $form->set_data($instance);
+     *
+     * @param stdClass $instance the instance that has custom fields, if 'id' attribute is present the custom
+     *    fields for this instance will be added, otherwise the default values will be added.
+     */
+    public function instance_form_before_set_data_on_import(stdClass $instance) {
+        $instanceid = !empty($instance->id) ? $instance->id : 0;
+        $fields = api::get_instance_fields_data($this->get_editable_fields($instanceid), $instanceid);
+
+        foreach ($fields as $formfield) {
+
+            $shortname = $formfield->get_field()->get('shortname');
+            if (isset($instance->{$shortname})) {
+                $instance->{$formfield->get_form_element_name()} = $instance->{$shortname};
+                unset($instance->{$shortname});
+            } else {
+                // If it's not set, we can go on with the stored values.
+                $formfield->instance_form_before_set_data($instance);
+            }
+        }
+    }
+
 }

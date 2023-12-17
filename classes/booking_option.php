@@ -3206,7 +3206,7 @@ class booking_option {
      * @param array|stdClass $formdata // New transmitted values via form, csv or webservice.
      * @param null|context_module $context // Context class.
      * @param int $updateparam // The update param allows for fine tuning.
-     * @return void
+     * @return array
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
@@ -3231,10 +3231,31 @@ class booking_option {
         if (is_array($formdata)) {
             $formdata = (object)$formdata;
             fields_info::set_data($formdata);
+
+            $errors = [];
+
+            // This is a possibility to return validation errors to the importer.
+            fields_info::validation((array)$formdata, [], $errors);
         }
 
         $newoption = new stdClass();
         fields_info::prepare_save_fields($formdata, $newoption, $updateparam);
+
+        if (!empty($newoption->id)) {
+            // Save the changes to DB.
+            if (!$DB->update_record("booking_options", $newoption)) {
+                throw new moodle_exception('updateofoptionwentwrong', 'mod_booking');
+            }
+        } else {
+            // Save the changes to DB.
+            if (!$optionid = $DB->insert_record("booking_options", $newoption)) {
+                throw new moodle_exception('creationofoptionwentwrong', 'mod_booking');
+            }
+            // Some legacy weight still left.
+            $newoption->id = $optionid;
+        }
+
+        fields_info::save_fields_post($formdata, $newoption, $updateparam);
 
         /**
          * Todo:
@@ -3258,58 +3279,16 @@ class booking_option {
          * - fix save and stay
          */
 
-        // 1. Step: Gather save data we will always find.
-        $optionid = $formdata->optionid ?? 0;
-        $booking = singleton_service::get_instance_of_booking_by_bookingid($formdata->bookingid);
-
-        $context = $booking->context;
-
-        switch (true) {
-            case $optionid < 0:
-                // Optionid is negative.
-
-                break;
-            case $optionid == 0:
-                // Optionid is 0.
-                $originaloption = new stdClass();
-                break;
-            case $optionid > 0:
-                // We have an optionid.
-                $originaloption = singleton_service::get_instance_of_booking_option_settings($optionid);
-                break;
-        }
-
-        $newoption = new stdClass();
-        fields_info::prepare_save_fields($formdata, $newoption, $updateparam);
-
-        $errors = fields_info::validation((array)$newoption, [], []);
-
-        if (!empty($newoption->id)) {
-            // Save the changes to DB.
-            if (!$DB->update_record("booking_options", $newoption)) {
-                throw new moodle_exception('updateofoptionwentwrong', 'mod_booking');
-            }
-        } else {
-            // Save the changes to DB.
-            if (!$optionid = $DB->insert_record("booking_options", $newoption)) {
-                throw new moodle_exception('creationofoptionwentwrong', 'mod_booking');
-            }
-            // Some legacy weight still left.
-            $newoption->id = $optionid;
-        }
-
-        fields_info::save_fields_post($formdata, $newoption, $updateparam);
-
-        // If there have been changes to significant fields, we have to resend an e-mail with the updated ical attachment.
-        $bu = new booking_utils();
-        if ($changes = $bu->booking_option_get_changes($originaloption, $newoption)) {
-            $cmid = $formdata->cmid;
-            // If we have no cmid, it's most possibly a template.
-            if (!empty($cmid) && $newoption->bookingid != 0) {
-                // We only react on changes, if a cmid exists.
-                $bu->react_on_changes($cmid, $context, $newoption->id, $changes);
-            }
-        }
+        // // If there have been changes to significant fields, we have to resend an e-mail with the updated ical attachment.
+        // $bu = new booking_utils();
+        // if ($changes = $bu->booking_option_get_changes($originaloption, $newoption)) {
+        //     $cmid = $formdata->cmid;
+        //     // If we have no cmid, it's most possibly a template.
+        //     if (!empty($cmid) && $newoption->bookingid != 0) {
+        //         // We only react on changes, if a cmid exists.
+        //         $bu->react_on_changes($cmid, $context, $newoption->id, $changes);
+        //     }
+        // }
 
         // Update start and end date of the option depending on the sessions.
         // booking_updatestartenddate($newoption->id);
@@ -3320,7 +3299,10 @@ class booking_option {
         // Now check, if there are rules to execute.
         rules_info::execute_rules_for_option($newoption->id);
 
-        return $newoption;
+        return [
+            'success' => 1,
+            'message' => $errors,
+        ];
     }
 
     /**

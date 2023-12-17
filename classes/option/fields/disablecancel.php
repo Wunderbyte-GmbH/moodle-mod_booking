@@ -93,7 +93,7 @@ class disablecancel extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
-        $optionid = $formdata['optionid'];
+        $optionid = $formdata['id'];
 
         // Standardfunctionality to add a header to the mform (only if its not yet there).
         fields_info::add_header_to_mform($mform, self::$header);

@@ -174,7 +174,7 @@ class fields_info {
      */
     public static function set_data(stdClass &$data) {
 
-        $optionid = $data->optionid ?? 0;
+        $optionid = $data->id ?? 0;
 
         if (!empty($optionid)) {
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);

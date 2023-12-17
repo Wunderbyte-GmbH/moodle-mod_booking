@@ -244,10 +244,10 @@ class dates {
                     $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
                     $entityid = $erhandler->get_entityid_by_instanceid($session->optiondateid) ?? 0;
 
-                    $key = 'local_entities_entityid_' . $idx;
+                    $key = LOCAL_ENTITIES_FORM_ENTITYID . $idx;
                     $defaultvalues->{$key} = $entityid;
 
-                    $key = 'local_entities_entityarea_' . $idx;
+                    $key = LOCAL_ENTITIES_FORM_ENTITYAREA . $idx;
                     $defaultvalues->{$key} = 'optiondate';
                 }
 
@@ -295,8 +295,8 @@ class dates {
                 }
 
                 // We might have entitites added.
-                $entityid = $formvalues['local_entities_entityid_' . $counter] ?? '';
-                $entityarea = $formvalues['local_entities_entityarea_' . $counter] ?? '';
+                $entityid = $formvalues[LOCAL_ENTITIES_FORM_ENTITYID . $counter] ?? '';
+                $entityarea = $formvalues[LOCAL_ENTITIES_FORM_ENTITYAREA . $counter] ?? '';
 
                 // We might have cfields, we need to add them to our dates array here.
                 $cffields = optiondate_cfields::get_list_of_submitted_cfields($formvalues, $counter);

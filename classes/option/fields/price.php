@@ -24,6 +24,7 @@
 
 namespace mod_booking\option\fields;
 
+use mod_booking\booking_option_settings;
 use mod_booking\option\field_base;
 use mod_booking\price as Mod_bookingPrice;
 use MoodleQuickForm;
@@ -85,7 +86,7 @@ class price extends field_base {
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
         // Add price.
-        $price = new Mod_bookingPrice('option', $formdata['optionid']);
+        $price = new Mod_bookingPrice('option', $formdata['id']);
         $price->add_price_to_mform($mform);
     }
 
@@ -115,5 +116,52 @@ class price extends field_base {
         // Save the prices.
         $price = new Mod_bookingPrice('option', $option->id);
         $price->save_from_form($formdata);
+    }
+
+    /**
+     * Standard function to transfer stored value to form.
+     * @param stdClass $data
+     * @param booking_option_settings $settings
+     * @return void
+     * @throws dml_exception
+     */
+    public static function set_data(stdClass &$data, booking_option_settings $settings) {
+
+        // While importing, we need to set the imported prices.
+        // Therefore, we first get the pricecategories.
+
+        // Right now, the price handler still sets prices via default in the definition, NOT via set data.
+        // This has to be fixed.
+
+        if (!empty($data->importing)) {
+
+            $pricehanlder = new Mod_bookingPrice('option', $data->id);
+
+            if (!is_array($pricehanlder->pricecategories)) {
+                return;
+            }
+
+            foreach ($pricehanlder->pricecategories as $category) {
+
+                // If we have an imported value, we use it here.
+                // To do this, we look in data for the price category identifier.
+                if (!empty($data->{$category->identifier}) && is_numeric($data->{$category->identifier})) {
+                    $price = $data->{$category->identifier};
+                    // We don't want this value to be used elsewhere.
+                    unset($data->{$category->identifier});
+                } else {
+                    $price = $category->defaultvalue ?? 0;
+                }
+
+                $pricegroup = MOD_BOOKING_FORM_PRICEGROUP . $category->identifier;
+                $priceidentifier = MOD_BOOKING_FORM_PRICE . $category->identifier;
+
+                $data->{$pricegroup}[$priceidentifier] = $price;
+
+                // If we have at least one price during import, we set useprice to 1.
+                $data->useprice = 1;
+            }
+
+        }
     }
 }

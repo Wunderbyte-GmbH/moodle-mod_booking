@@ -96,7 +96,7 @@ class id extends field_base {
 
         $cmid = $formdata['cmid'];
 
-        $id = $formdata['optionid'] ?? 0;
+        $id = $formdata['id'] ?? 0;
 
         // Id & optionid are the same here.
         $mform->addElement('hidden', 'id', $id);
@@ -122,6 +122,6 @@ class id extends field_base {
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
-        $data->id = $data->optionid;
+        $data->id = $data->id ?? $data->optionid;
     }
 }

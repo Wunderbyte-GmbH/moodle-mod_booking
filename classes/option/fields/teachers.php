@@ -89,7 +89,7 @@ class teachers extends field_base {
         global $CFG;
 
         // Add teachers.
-        $teacherhandler = new teachers_handler($formdata['optionid'] ?? 0);
+        $teacherhandler = new teachers_handler($formdata['id'] ?? 0);
         $teacherhandler->add_to_mform($mform);
     }
 
@@ -102,8 +102,8 @@ class teachers extends field_base {
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
-        if (!empty($data->optionid)) {
-            $teacherhandler = new teachers_handler($data->optionid);
+        if (!empty($data->id)) {
+            $teacherhandler = new teachers_handler($data->id);
             $teacherhandler->set_data($data);
         }
     }
@@ -117,7 +117,7 @@ class teachers extends field_base {
      */
     public static function save_data(stdClass &$data, stdClass &$option) {
 
-        $teacherhandler = new teachers_handler($data->optionid);
+        $teacherhandler = new teachers_handler($data->id);
         $teacherhandler->save_from_form($data);
     }
 }

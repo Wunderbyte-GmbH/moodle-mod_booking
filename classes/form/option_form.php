@@ -341,7 +341,7 @@ class option_form extends dynamic_form {
         // Pass data to update.
         $context = $this->get_context_for_dynamic_submission();
 
-        $data = booking_option::update($data, $context);
+        $result = booking_option::update($data, $context);
 
         return $data;
     }

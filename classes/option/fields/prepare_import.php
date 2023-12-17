@@ -119,7 +119,10 @@ class prepare_import extends field_base {
                 $data->bookingid = $bookingsettings->id;
                 $data->id = 0;
             }
-
+        }
+        // We will always set id to 0, if it's not set yet.
+        if (!isset($data->id)) {
+            $data->id = 0;
         }
     }
 }

@@ -29,6 +29,8 @@ use mod_booking\booking_campaigns\campaigns_info;
 use mod_booking\booking_campaigns\booking_campaign;
 use User;
 
+define('MOD_BOOKING_FORM_PRICEGROUP', 'pricegroup_');
+define('MOD_BOOKING_FORM_PRICE', 'bookingprice_');
 /**
  * Price class.
  *
@@ -107,17 +109,17 @@ class price {
         foreach ($this->pricecategories as $pricecategory) {
             $formgroup = [];
 
-            $priceelement = $mform->createElement('float', 'bookingprice_' . $pricecategory->identifier);
+            $priceelement = $mform->createElement('float', MOD_BOOKING_FORM_PRICE . $pricecategory->identifier);
             $formgroup[] = $priceelement;
 
             $currencyelement = $mform->createElement('static', 'bookingpricecurrency', '', get_config('booking', 'globalcurrency'));
             $formgroup[] = $currencyelement;
 
-            $mform->addGroup($formgroup, 'pricegroup_' . $pricecategory->identifier, $pricecategory->name);
-            $mform->disabledIf('pricegroup_' . $pricecategory->identifier, 'useprice', 'neq', 1);
+            $mform->addGroup($formgroup, MOD_BOOKING_FORM_PRICEGROUP . $pricecategory->identifier, $pricecategory->name);
+            $mform->disabledIf(MOD_BOOKING_FORM_PRICEGROUP . $pricecategory->identifier, 'useprice', 'neq', 1);
             // Determine the correct array identifier.
-            $pricearrayidentifier = 'pricegroup_' . $pricecategory->identifier .
-                '[' . 'bookingprice_' . $pricecategory->identifier . ']';
+            $pricearrayidentifier = MOD_BOOKING_FORM_PRICEGROUP . $pricecategory->identifier .
+                '[' . MOD_BOOKING_FORM_PRICE . $pricecategory->identifier . ']';
 
             if (!empty($this->itemid) && $existingprice = $DB->get_field('booking_prices', 'price',
                 ['area' => $this->area, 'itemid' => $this->itemid, 'pricecategoryidentifier' => $pricecategory->identifier])) {
@@ -525,10 +527,10 @@ class price {
                 $price += $fromform->priceformulaadd;
 
             } else {
-                if (isset($fromform->{'pricegroup_' . $pricecategory->identifier})) {
+                if (isset($fromform->{MOD_BOOKING_FORM_PRICEGROUP . $pricecategory->identifier})) {
                     // Price formula is not active, just save the values from form.
-                    $pricegroup = $fromform->{'pricegroup_' . $pricecategory->identifier};
-                    $price = $pricegroup['bookingprice_' . $pricecategory->identifier];
+                    $pricegroup = $fromform->{MOD_BOOKING_FORM_PRICEGROUP . $pricecategory->identifier};
+                    $price = $pricegroup[MOD_BOOKING_FORM_PRICE . $pricecategory->identifier];
                 }
             }
 

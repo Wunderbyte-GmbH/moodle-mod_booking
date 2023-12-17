@@ -75,10 +75,10 @@ class entities extends field_base {
         $returnvalue = 0): string {
 
         // Every time we save an entity, we want to make sure that the name of the entity is stored in location.
-        if (!empty($formdata->local_entities_entityid_0)) {
+        if (!empty($formdata->{LOCAL_ENTITIES_FORM_ENTITYID . 0})) {
             // We might have more than one address, this will lead to more than one record which comes back.
             if (class_exists('local_entities\entitiesrelation_handler')) {
-                $entities = entitiesrelation_handler::get_entities_by_id($formdata->local_entities_entityid_0);
+                $entities = entitiesrelation_handler::get_entities_by_id($formdata->{LOCAL_ENTITIES_FORM_ENTITYID . 0});
                 $newoption->address = '';
                 foreach ($entities as $entity) {
                     $newoption->location = $entity->parentname ?? $entity->name;
@@ -104,7 +104,7 @@ class entities extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
-        $optionid = $formdata['optionid'];
+        $optionid = $formdata['id'];
         // Add entities.
         if (class_exists('local_entities\entitiesrelation_handler')) {
             $erhandler = new entitiesrelation_handler('mod_booking', 'option');
@@ -182,17 +182,17 @@ class entities extends field_base {
                 if (count($entities) === 1) {
                     $entity = reset($entities);
                     $data->location = $entity->name; // We store the name in location.
-                    $data->entityid = $entity->id;
+                    $data->{LOCAL_ENTITIES_FORM_ENTITYID . 0} = $entity->id; // 0 means for option, not option date.
                 }
             } else if (!empty($data->importing) && !empty($data->location)) {
                 $entities = $erhandler->get_entities_by_name($data->location);
                 if (count($entities) === 1) {
                     $entity = reset($entities);
                     $data->location = $entity->name; // We store the name in location.
-                    $data->entityid = $entity->id;
+                    $data->{LOCAL_ENTITIES_FORM_ENTITYID . 0} = $entity->id; // 0 means for option, not option date.
                 }
             } else {
-                $erhandler->values_for_set_data($data, $data->optionid);
+                $erhandler->values_for_set_data($data, $data->id);
             }
         }
     }

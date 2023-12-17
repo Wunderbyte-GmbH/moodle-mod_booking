@@ -88,7 +88,7 @@ class customfields extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
-        $optionid = $formdata['optionid'];
+        $optionid = $formdata['id'];
 
         // Add custom fields.
         $handler = booking_handler::create();
@@ -134,8 +134,16 @@ class customfields extends field_base {
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
-        $handler = booking_handler::create();
-        $handler->instance_form_before_set_data($data);
+        // If we are not importing, we can just run the normal routine.
+        if (empty($data->importing)) {
+            $handler = booking_handler::create();
+            $handler->instance_form_before_set_data($data);
+        } else {
+            // If we are importing, we need to make sure to correctly override the fields from the import..
+            // But not touch those fields that are not present in the import.
+            $handler = booking_handler::create();
+            $handler->instance_form_before_set_data_on_import($data);
+        }
 
     }
 }

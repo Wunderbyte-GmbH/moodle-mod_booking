@@ -90,7 +90,7 @@ class availability extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
-        $optionid = $formdata['optionid'];
+        $optionid = $formdata['id'];
 
         // TODO: expert/simple mode needs to work with this too!
         // Add availability conditions.

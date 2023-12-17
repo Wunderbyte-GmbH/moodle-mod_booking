@@ -80,12 +80,14 @@ class description extends field_base {
             // The form comes in the form of an array.
             if (gettype($value) === 'array') {
                 $newoption->description = $value['text'];
-                $newoption->descriptionformat = $value['format'];
+                $newoption->descriptionformat = $value['format'] ?? FORMAT_HTML;
             } else {
                 $newoption->{$key} = $value;
+                $newoption->descriptionformat = FORMAT_HTML;
             }
         } else {
             $newoption->{$key} = '';
+            $newoption->descriptionformat = FORMAT_HTML;
         }
 
         // We can return an warning message here.

@@ -205,6 +205,8 @@ $string['bookingoption_created'] = 'Booking option created';
 $string['bookingoption_updated'] = 'Booking option updated';
 $string['bookingoption_deleted'] = 'Booking option deleted';
 $string['bookinginstance_updated'] = 'Booking instance updated';
+$string['records_imported'] = 'Booking options imported via csv';
+$string['records_imported_description'] = '{$a} booking options imported via csv';
 
 $string['eventreport_viewed'] = 'Report viewed';
 $string['eventuserprofilefields_updated'] = 'Userprofile updated';

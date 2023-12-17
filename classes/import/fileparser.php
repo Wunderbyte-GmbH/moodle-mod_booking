@@ -28,6 +28,7 @@ use csv_import_reader;
 use DateTime;
 use Exception;
 use html_writer;
+use mod_booking\event\records_imported;
 use mod_booking\event\testitem_imported;
 use moodle_exception;
 use stdClass;
@@ -153,7 +154,7 @@ class fileparser {
         if (!empty($this->settings->columns)) {
             $this->columns = $this->settings->columns;
         } else {
-            $this->errors[] = get_string('nolabels', 'local catquiz');
+            $this->errors[] = get_string('nolabels', 'mod_booking');
             return false;
         }
 
@@ -318,7 +319,7 @@ class fileparser {
             $this->records['numberofsuccessfullyupdatedrecords'] = count($this->records) - 1;
             // If data was parsed successfully, return 1, else return 0.
             $this->records['success'] = 1;
-            $this->trigger_testitem_imported_event(count($this->records) - 1);
+            $this->trigger_records_imported_event(count($this->records) - 1);
 
         } else {
             $this->records['success'] = 0;
@@ -598,11 +599,11 @@ class fileparser {
     }
 
     /**
-     * Trigger event for testitem imported.
+     * Trigger event for records to be imported.
      * @param int $numberofimporteditems
      */
-    private function trigger_testitem_imported_event($numberofimporteditems) {
-        $event = testitem_imported::create([
+    private function trigger_records_imported_event($numberofimporteditems) {
+        $event = records_imported::create([
             'context' => \context_system::instance(),
             'other' => [
                 'itemcount' => $numberofimporteditems,
