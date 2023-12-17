@@ -104,7 +104,14 @@ class teachers extends field_base {
 
         if (!empty($data->id)) {
             $teacherhandler = new teachers_handler($data->id);
-            $teacherhandler->set_data($data);
+
+            if (empty($data->importing)) {
+                $teacherhandler->set_data($data);
+            } else {
+                // Todo: collect errors on import.
+                $data->{MOD_BOOKING_FORM_TEACHERS} = teachers_handler::get_teacherids_from_form($data);
+            }
+
         }
     }
 

@@ -2670,144 +2670,10 @@ function booking_pretty_duration($seconds) {
 }
 
 /**
- * THIS FUNCTION IS NEVER USED. CAN WE DELETE IT?
- *
- * Checks if user on waitinglist gets normal place if a user is deleted
- *
- * @param $optionid id of booking option
- * @param $booking booking object
- * @param $cancelleduserid user id that was deleted form booking option
- * @param $cmid course module id
- * @return mixed false if no user gets from waitinglist to booked list or userid of user now on booked list
- */
-// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-/*function booking_check_statuschange($optionid, $booking, $cancelleduserid, $cmid) {
-    global $DB;
-    if (booking_get_user_status($cancelleduserid, $optionid, $booking->id, $cmid) !== get_string('booked', 'booking')) {
-        return false;
-    }
-    // Backward compatibility hack TODO: remove.
-    if (!isset($booking->option[$optionid])) {
-        $option = $DB->get_record('booking_options',
-                array('bookingid' => $booking->id, 'id' => $optionid));
-    } else {
-        $option = $booking->option[$optionid];
-    }
-    if ($option->maxanswers == 0) {
-        return false; // No limit on bookings => no waiting list to manage.
-    }
-    $allresponses = $DB->get_records('booking_answers', array('optionid' => $optionid), 'timemodified', 'userid');
-    $context = context_module::instance($cmid);
-    $firstuseronwaitinglist = $option->maxanswers + 1;
-    $i = 1;
-    $sortedresponses = [];
-    foreach ($allresponses as $answer) {
-        if (has_capability('mod/booking:choose', $context, $answer->userid)) {
-            $sortedresponses[$i++] = $answer->userid;
-        }
-    }
-    if (count($sortedresponses) <= $option->maxanswers) {
-        return false;
-    } else if (isset($sortedresponses[$firstuseronwaitinglist])) {
-        return $sortedresponses[$firstuseronwaitinglist];
-    } else {
-        return false;
-    }
-}
-*/
-
-/**
  * Returns all other caps used in module
  */
 function booking_get_extra_capabilities() {
     return ['moodle/site:accessallgroups'];
-}
-
-/**
- * Adds user as teacher (booking manager) to a booking option
- *
- * @param int $userid
- * @param int $optionid
- * @param int $cmid
- * @param mixed $groupid the group object or group id
- * @param bool $doenrol true if we want to enrol the teacher into the relevant course
- * @return bool true if teacher was subscribed
- */
-function subscribe_teacher_to_booking_option(int $userid, int $optionid, int $cmid, $groupid = null,
-    bool $doenrol = true) {
-
-    global $DB, $USER;
-
-    $option = singleton_service::get_instance_of_booking_option($cmid, $optionid);
-    // Get settings of the booking instance (do not confuse with option settings).
-    $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
-
-    // Event if teacher already exists in DB, we still might want to enrol it into a new course.
-    if ($doenrol) {
-        // We enrol teacher with the type defined in settings.
-        $option->enrol_user($userid, true, $bookingsettings->teacherroleid, true);
-
-        /* NOTE: In the future, we might need a teacher_enrolled event here (or inside enrol_user)
-        which indicates that a teacher has been enrolled into a Moodle course. */
-    }
-
-    if ($DB->record_exists("booking_teachers", ["userid" => $userid, "optionid" => $optionid])) {
-        return true;
-    }
-
-    $newteacherrecord = new stdClass();
-    $newteacherrecord->userid = $userid;
-    $newteacherrecord->optionid = $optionid;
-    $newteacherrecord->bookingid = $bookingsettings->id;
-
-    $inserted = $DB->insert_record("booking_teachers", $newteacherrecord);
-
-    // When inserting a new teacher, we also need to insert the teacher for each future optiondate.
-    // We do not add the teacher to optiondates in the past as they are already over.
-    // If needed, the teacher can still be added manually via teachers journal.
-    teachers_handler::subscribe_teacher_to_all_optiondates($optionid, $userid, time());
-
-    if (!empty($groupid)) {
-        groups_add_member($groupid, $userid);
-    }
-
-    if ($inserted) {
-        $event = \mod_booking\event\teacher_added::create([
-            'userid' => $USER->id,
-            'relateduserid' => $userid,
-            'objectid' => $optionid,
-            'context' => context_module::instance($cmid),
-        ]);
-        $event->trigger();
-    }
-
-    return $inserted;
-}
-
-/**
- * Removes teacher from the subscriber list.
- *
- * @param int $userid
- * @param int $optionid
- * @param int $cmid
- * @return bool true if successful
- */
-function unsubscribe_teacher_from_booking_option(int $userid, int $optionid, int $cmid) {
-    global $DB, $USER;
-
-    $event = \mod_booking\event\teacher_removed::create(
-            ['userid' => $USER->id, 'relateduserid' => $userid, 'objectid' => $optionid,
-                'context' => context_module::instance($cmid),
-            ]);
-    $event->trigger();
-
-    // Also delete the teacher from every optiondate in the future.
-    // We do not remove the teacher from dates in the past as (s)he might have been present.
-    // If needed, the entries can be removed manually via teachers journal.
-    teachers_handler::remove_teacher_from_all_optiondates($optionid, $userid, time());
-
-    return ($DB->delete_records('booking_teachers',
-            ['userid' => $userid, 'optionid' => $optionid]));
 }
 
 /**
@@ -2853,57 +2719,57 @@ function booking_subscribed_teachers($course, $optionid, $id, $groupid = 0, $con
         $fields = null) {
     global $CFG, $DB;
 
-    if (empty($context)) {
-        $cm = get_coursemodule_from_id('booking', $id);
-        $context = context_module::instance($cm->id);
-    }
+//     if (empty($context)) {
+//         $cm = get_coursemodule_from_id('booking', $id);
+//         $context = context_module::instance($cm->id);
+//     }
 
-    if ($CFG->version >= 2021051700) {
-        // This only works in Moodle 3.11 and later.
-        $allnames = \core_user\fields::for_identity($context)->with_userpic()->get_sql('u')->selects;
-        $allnames = trim($allnames, ', ');
-    } else {
-        // This is deprecated in Moodle 3.11 and later.
-        $extrauserfields = get_extra_user_fields($context);
-        $allnames = user_picture::fields('u', $extrauserfields);
-    }
+//     if ($CFG->version >= 2021051700) {
+//         // This only works in Moodle 3.11 and later.
+//         $allnames = \core_user\fields::for_identity($context)->with_userpic()->get_sql('u')->selects;
+//         $allnames = trim($allnames, ', ');
+//     } else {
+//         // This is deprecated in Moodle 3.11 and later.
+//         $extrauserfields = get_extra_user_fields($context);
+//         $allnames = user_picture::fields('u', $extrauserfields);
+//     }
 
-    if (empty($fields)) {
-        $fields = "u.id,
-                u.username,
-                $allnames,
-                u.maildisplay,
-                u.mailformat,
-                u.maildigest,
-                u.imagealt,
-                u.email,
-                u.emailstop,
-                u.city,
-                u.country,
-                u.lastaccess,
-                u.lastlogin,
-                u.picture,
-                u.timezone,
-                u.theme,
-                u.lang,
-                u.trackforums,
-                u.mnethostid";
-    }
+//     if (empty($fields)) {
+//         $fields = "u.id,
+//                 u.username,
+//                 $allnames,
+//                 u.maildisplay,
+//                 u.mailformat,
+//                 u.maildigest,
+//                 u.imagealt,
+//                 u.email,
+//                 u.emailstop,
+//                 u.city,
+//                 u.country,
+//                 u.lastaccess,
+//                 u.lastlogin,
+//                 u.picture,
+//                 u.timezone,
+//                 u.theme,
+//                 u.lang,
+//                 u.trackforums,
+//                 u.mnethostid";
+//     }
 
-    // Only active enrolled users or everybody on the frontpage.
-    $params['optionid'] = $optionid;
-    $results = $DB->get_records_sql(
-            "SELECT $fields
-                    FROM {user} u
-                    JOIN {booking_teachers} s ON s.userid = u.id
-                    WHERE s.optionid = :optionid
-                    ORDER BY u.email ASC", $params);
+//     // Only active enrolled users or everybody on the frontpage.
+//     $params['optionid'] = $optionid;
+//     $results = $DB->get_records_sql(
+//             "SELECT $fields
+//                     FROM {user} u
+//                     JOIN {booking_teachers} s ON s.userid = u.id
+//                     WHERE s.optionid = :optionid
+//                     ORDER BY u.email ASC", $params);
 
-    // Guest user should never be subscribed to a forum.
-    unset($results[$CFG->siteguest]);
+//     // Guest user should never be subscribed to a forum.
+//     unset($results[$CFG->siteguest]);
 
-    return $results;
-}
+//     return $results;
+// }
 
 
 /**

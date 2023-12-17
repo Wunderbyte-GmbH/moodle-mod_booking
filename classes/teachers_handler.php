@@ -27,11 +27,16 @@ namespace mod_booking;
 
 defined('MOODLE_INTERNAL') || die();
 
+define('MOD_BOOKING_FORM_TEACHERS', 'teachersforoption');
+
 global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
 use cache_helper;
+use coding_exception;
 use context_course;
+use context_module;
+use dml_exception;
 use moodle_exception;
 use moodle_url;
 use MoodleQuickForm;
@@ -176,7 +181,7 @@ class teachers_handler {
             foreach ($teachers as $teacher) {
                 $teacherids[] = $teacher->userid;
             }
-            $data->teachersforoption = $teacherids;
+            $data->{MOD_BOOKING_FORM_TEACHERS} = $teacherids;
         }
     }
 
@@ -227,7 +232,7 @@ class teachers_handler {
             }
             if ($dosubscribe) {
                 // It's a new teacher or the teacher was not enrolled into the course.
-                if (!subscribe_teacher_to_booking_option($newteacherid, $this->optionid, $optionsettings->cmid, null, $doenrol)) {
+                if (!self::subscribe_teacher_to_booking_option($newteacherid, $this->optionid, $optionsettings->cmid, null, $doenrol)) {
                     // Add teacher to group not yet implemented! (Third parameter of the function).
                     throw new moodle_exception('cannotaddsubscriber', 'booking', '', null,
                         'Cannot add subscriber with id: ' . $newteacherid);
@@ -238,12 +243,99 @@ class teachers_handler {
         foreach ($oldteacherids as $oldteacherid) {
             if (!in_array($oldteacherid, $teacherids)) {
                 // The teacher has been removed.
-                if (!unsubscribe_teacher_from_booking_option($oldteacherid, $this->optionid, $optionsettings->cmid)) {
+                if (!self::unsubscribe_teacher_from_booking_option($oldteacherid, $this->optionid, $optionsettings->cmid)) {
                     throw new moodle_exception('cannotremovesubscriber', 'booking', '', null,
                         'Cannot remove subscriber with id: ' . $oldteacherid);
                 }
             }
         }
+    }
+
+    /**
+     * Adds user as teacher (booking manager) to a booking option
+     *
+     * @param int $userid
+     * @param int $optionid
+     * @param int $cmid
+     * @param mixed $groupid the group object or group id
+     * @param bool $doenrol true if we want to enrol the teacher into the relevant course
+     * @return bool true if teacher was subscribed
+     */
+    public function subscribe_teacher_to_booking_option(int $userid, int $optionid, int $cmid, $groupid = null,
+        bool $doenrol = true) {
+
+        global $DB, $USER;
+
+        $option = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+        // Get settings of the booking instance (do not confuse with option settings).
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+
+        // Event if teacher already exists in DB, we still might want to enrol it into a new course.
+        if ($doenrol) {
+            // We enrol teacher with the type defined in settings.
+            $option->enrol_user($userid, true, $bookingsettings->teacherroleid, true);
+
+            /* NOTE: In the future, we might need a teacher_enrolled event here (or inside enrol_user)
+            which indicates that a teacher has been enrolled into a Moodle course. */
+        }
+
+        if ($DB->record_exists("booking_teachers", ["userid" => $userid, "optionid" => $optionid])) {
+            return true;
+        }
+
+        $newteacherrecord = new stdClass();
+        $newteacherrecord->userid = $userid;
+        $newteacherrecord->optionid = $optionid;
+        $newteacherrecord->bookingid = $bookingsettings->id;
+
+        $inserted = $DB->insert_record("booking_teachers", $newteacherrecord);
+
+        // When inserting a new teacher, we also need to insert the teacher for each future optiondate.
+        // We do not add the teacher to optiondates in the past as they are already over.
+        // If needed, the teacher can still be added manually via teachers journal.
+        self::subscribe_teacher_to_all_optiondates($optionid, $userid, time());
+
+        if (!empty($groupid)) {
+            groups_add_member($groupid, $userid);
+        }
+
+        if ($inserted) {
+            $event = \mod_booking\event\teacher_added::create([
+                'userid' => $USER->id,
+                'relateduserid' => $userid,
+                'objectid' => $optionid,
+                'context' => context_module::instance($cmid),
+            ]);
+            $event->trigger();
+        }
+
+        return $inserted;
+    }
+
+    /**
+     * Removes teacher from the subscriber list.
+     *
+     * @param int $userid
+     * @param int $optionid
+     * @param int $cmid
+     * @return bool true if successful
+     */
+    public function unsubscribe_teacher_from_booking_option(int $userid, int $optionid, int $cmid) {
+        global $DB, $USER;
+
+        $event = \mod_booking\event\teacher_removed::create(
+                ['userid' => $USER->id, 'relateduserid' => $userid, 'objectid' => $optionid,
+                    'context' => context_module::instance($cmid),
+                ]);
+        $event->trigger();
+
+        // Also delete the teacher from every optiondate in the future.
+        // We do not remove the teacher from dates in the past as (s)he might have been present.
+        // If needed, the entries can be removed manually via teachers journal.
+        self::remove_teacher_from_all_optiondates($optionid, $userid, time());
+
+        return ($DB->delete_records('booking_teachers',
+                ['userid' => $userid, 'optionid' => $optionid]));
     }
 
     // TODO: diese Functions aus dates_handler rausnehmen und von hier aus verwenden!
@@ -415,6 +507,39 @@ class teachers_handler {
                 $DB->delete_records('booking_optiondates_teachers', ['optiondateid' => $existingoptiondate->id]);
             }
             cache_helper::purge_by_event('setbackcachedteachersjournal');
+        }
+    }
+
+    /**
+     * Get teacher ids.
+     * @param stdClass $data
+     * @return array|void
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public static function get_teacherids_from_form(stdClass $data) {
+
+        global $DB;
+
+        if (isset($data->teacheremail)) {
+
+            // First we explode teacheremail, there might be mulitple teachers.
+            // We always use comma as separator.
+            $teacheremails = explode(',', $data->teacheremail);
+
+            list($inorequal, $params) = $DB->get_in_or_equal($teacheremails, SQL_PARAMS_NAMED);
+
+            $sql = "SELECT id
+                    FROM {user}
+                    WHERE " . $DB->sql_equal('suspended', 0)
+                    . " AND " . $DB->sql_equal('deleted', 0)
+                    . " AND " . $DB->sql_equal('confirmed', 1)
+                    . " AND email $inorequal
+            ";
+
+            $teacherids = $DB->get_fieldset_sql($sql, $params);
+
+            return $teacherids;
         }
     }
 }
