@@ -195,7 +195,6 @@ class optiondates extends field_base {
             }
         }
 
-
         // We need to modify the data we set for dates.
         $data = dates::set_data($data);
     }

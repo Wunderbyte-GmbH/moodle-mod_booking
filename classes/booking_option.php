@@ -3281,17 +3281,7 @@ class booking_option {
         // - fix save and add new
         // - fix save and stay.
 
-
-        // // If there have been changes to significant fields, we have to resend an e-mail with the updated ical attachment.
-        // $bu = new booking_utils();
-        // if ($changes = $bu->booking_option_get_changes($originaloption, $newoption)) {
-        //     $cmid = $formdata->cmid;
-        //     // If we have no cmid, it's most possibly a template.
-        //     if (!empty($cmid) && $newoption->bookingid != 0) {
-        //         // We only react on changes, if a cmid exists.
-        //         $bu->react_on_changes($cmid, $context, $newoption->id, $changes);
-        //     }
-        // }
+        // Todo: Add the react on changes call.
 
         // We need to purge cache after updating an option.
         self::purge_cache_for_option($newoption->id);
