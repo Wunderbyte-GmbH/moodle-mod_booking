@@ -409,7 +409,7 @@ class bo_info {
      */
     public static function save_json_conditions_from_form(stdClass &$fromform) {
 
-        $optionid = $fromform->optionid ?? 0;
+        $optionid = $fromform->id ?? 0;
         $arrayforjson = [];
 
         if (!empty($optionid) && $optionid > 0) {
