@@ -14,6 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Plugin internal classes, functions and constants are defined here.
+ *
+ * @package     mod_booking
+ * @copyright   2013 David Bogner <david.bogner@wunderbyte.at>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 defined('MOODLE_INTERNAL') || die();
 
 use mod_booking\booking_rules\rules_info;
@@ -100,7 +108,13 @@ abstract class booking_user_selector_base extends user_selector_base {
         }
     }
 
-    protected function get_options() {
+    /**
+     * Get options.
+     *
+     * @return array
+     *
+     */
+    protected function get_options(): array {
         $options = parent::get_options();
         $options['file'] = 'mod/booking/locallib.php';
         $options['bookingid'] = $this->bookingid;
@@ -122,21 +136,39 @@ abstract class booking_user_selector_base extends user_selector_base {
     }
 }
 
-
 /**
- * User selector for booking other users
+ * Сlass used by гser selector for booking other users
+ *
+ * @package mod_booking
+ * @copyright 2013 David Bogner
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_potential_user_selector extends booking_user_selector_base {
 
     /** @var array $options */
     public $options;
 
+    /**
+     * Constructor
+     *
+     * @param string $name
+     * @param array $options
+     *
+     */
     public function __construct($name, $options) {
 
         $this->options = $options;
         parent::__construct($name, $options);
     }
 
+    /**
+     * Find users.
+     *
+     * @param string $search
+     *
+     * @return array
+     *
+     */
     public function find_users($search) {
         global $DB;
 
@@ -250,10 +282,27 @@ class booking_potential_user_selector extends booking_user_selector_base {
  */
 class booking_existing_user_selector extends booking_user_selector_base {
 
+    /**
+     * $potentialusers
+     *
+     * @var mixed
+     */
     public $potentialusers;
 
+    /**
+     * $options
+     *
+     * @var array
+     */
     public $options;
 
+    /**
+     * Constructor
+     *
+     * @param string $name
+     * @param array $options
+     *
+     */
     public function __construct($name, $options) {
         $this->potentialusers = $options['potentialusers'];
         $this->options = $options;
@@ -324,12 +373,13 @@ class booking_existing_user_selector extends booking_user_selector_base {
 /**
  * Outputs a confirm button on a separate page to confirm a booking.
  *
- * @param $optionid
- * @param $user
- * @param $cm
- * @param $url
- * @throws coding_exception
- * @throws moodle_exception
+ * @param int $optionid
+ * @param object $user
+ * @param object $cm
+ * @param string $url
+ *
+ * @return void
+ *
  */
 function booking_confirm_booking($optionid, $user, $cm, $url) {
     global $OUTPUT;
@@ -443,7 +493,12 @@ function get_rendered_eventdescription(int $optionid, int $cmid,
 
 /**
  * Helper function to duplicate custom fields belonging to an option date.
- * @param int $optiondateid id of the option date for which all custom fields will be duplicated.
+ *
+ * @param int $oldoptiondateid id of the option date for which all custom fields will be duplicated.
+ * @param int $newoptiondateid
+ *
+ * @return void
+ *
  */
 function optiondate_duplicatecustomfields($oldoptiondateid, $newoptiondateid) {
     global $DB;
