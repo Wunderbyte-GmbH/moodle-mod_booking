@@ -25,6 +25,7 @@
 namespace mod_booking\option\fields;
 
 use core_course_external;
+use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use MoodleQuickForm;
@@ -132,6 +133,25 @@ class courseid extends field_base {
     }
 
     /**
+     * This function adds error keys for form validation.
+     * @param array $data
+     * @param array $files
+     * @return void
+     */
+    public static function validation(array $data, array $files, array &$errors) {
+
+        global $DB;
+        // -1 means we need to create a new course, that's ok.
+        if (!empty($data['courseid']) && $data['courseid'] != -1) {
+            if (!$DB->record_exists('course', ['id' => $data['courseid']])) {
+                $errors['courseid'] = get_string('coursedoesnotexist', 'mod_booking', $data['courseid']);
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
      *
      * @param MoodleQuickForm $mform
      * @param array $formdata
@@ -159,5 +179,32 @@ class courseid extends field_base {
         ];
         $mform->addElement('autocomplete', 'courseid', get_string("choosecourse", "booking"), $coursearray, $options);
         $mform->addHelpButton('courseid', 'choosecourse', 'mod_booking');
+    }
+
+    /**
+     * Standard function to transfer stored value to form.
+     * @param stdClass $data
+     * @param booking_option_settings $settings
+     * @return void
+     * @throws dml_exception
+     */
+    public static function set_data(stdClass &$data, booking_option_settings $settings) {
+
+        if (!empty($data->importing)) {
+            // We might import the courseid with a different key.
+            if (!empty($data->coursenumber) && is_numeric($data->coursenumber)) {
+
+                $data->courseid = $data->coursenumber;
+            }
+        } else {
+            $key = fields_info::get_class_name(static::class);
+            // Normally, we don't call set data after the first time loading.
+            if (isset($data->{$key})) {
+                return;
+            }
+
+            $value = $settings->{$key} ?? null;
+            $data->{$key} = $value;
+        }
     }
 }
