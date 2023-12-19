@@ -173,6 +173,7 @@ class optiondates extends field_base {
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
         if (!empty($data->importing)) {
+            // If we have a dayofweektime, we need to setup the semester.
             if (!empty($data->dayofweektime)) {
                 // This is needed to create the new values from dayofweekstring.
                 $data->addoptiondateseries = 1;
@@ -191,6 +192,14 @@ class optiondates extends field_base {
                     // Todo: Make a meaningful error message to the cause of this abortion.
                     return;
                 }
+
+            } else if (!empty($data->starttime) && !empty($data->endtime)) {
+                // If there is no dayofweektime, we might have a single coursestartdate and courseeneddate.
+
+                $data->{MOD_BOOKING_FORM_OPTIONDATEID . 0} = 0;
+                $data->{MOD_BOOKING_FORM_COURSESTARTTIME . 0} = strtotime($data->starttime);
+                $data->{MOD_BOOKING_FORM_COURSEENDTIME . 0} = strtotime($data->endtime);
+                $data->{MOD_BOOKING_FORM_DAYSTONOTIFY . 0} = 0;
 
             }
         }

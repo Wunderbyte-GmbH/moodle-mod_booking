@@ -25,6 +25,11 @@ use MoodleQuickForm;
 use stdClass;
 
 define('MOD_BOOKING_MAX_CUSTOM_FIELDS', 3);
+define('MOD_BOOKING_FORM_OPTIONDATEID', 'optiondateid_');
+define('MOD_BOOKING_FORM_DAYSTONOTIFY', 'daystonotify_');
+define('MOD_BOOKING_FORM_COURSESTARTTIME', 'coursestarttime_');
+define('MOD_BOOKING_FORM_COURSEENDTIME', 'courseendtime_');
+define('MOD_BOOKING_FORM_DELETEDATE', 'deletedate_');
 
 /**
  * Handle dates
@@ -141,11 +146,12 @@ class dates {
             ];
         }
 
+        $regexkey = '/^' . MOD_BOOKING_FORM_DELETEDATE . '/';
         // Before we add the other forms, we need to add the nosubmit in case of we just deleted an optiondate.
-        $datestodelete = preg_grep('/^deletedate_/', array_keys((array)$defaultvalues));
+        $datestodelete = preg_grep($regexkey, array_keys((array)$defaultvalues));
         foreach ($datestodelete as $name) {
             list($name, $idx) = explode('_', $name);
-            $mform->registerNoSubmitButton('deletedate_' . $idx);
+            $mform->registerNoSubmitButton(MOD_BOOKING_FORM_DELETEDATE . $idx);
         }
 
         if ($datescounter > 0) {
@@ -170,6 +176,7 @@ class dates {
         // When a nosubmit button is pressed (add, delete, edit) we only use data from the form.
 
         $datescounter = $defaultvalues->datescounter ?? 0;
+        $sessions = [];
 
         // If we have clicked on the create option date series, we recreate all option dates.
         if (isset($defaultvalues->addoptiondateseries)) {
@@ -182,20 +189,19 @@ class dates {
                     'optiondateid' => 0,
                     'coursestarttime' => $a->starttimestamp,
                     'courseendtime' => $a->endtimestamp,
-                    'daystonotify' => $a->daystonotify,
+                    'daystonotify' => $a->daystonotify ?? 0,
                 ], $newoptiondates['dates']);
-            } else {
-                $sessions = [];
             }
 
             $defaultvalues->datescounter = count($sessions);
-        } else {
-            $settings = singleton_service::get_instance_of_booking_option_settings($defaultvalues->optionid);
+        } else if (!empty($defaultvalues->id)) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($defaultvalues->id);
             $sessions = $settings->sessions;
             $defaultvalues->datescounter = $datescounter;
         }
 
-        $optiondates = preg_grep('/^optiondateid_/', array_keys((array)$defaultvalues));
+        $regexkey = '/^' . MOD_BOOKING_FORM_OPTIONDATEID . '/';
+        $optiondates = preg_grep($regexkey, array_keys((array)$defaultvalues));
         $datescounter = count($optiondates);
         $defaultvalues->datescounter = $datescounter;
 
@@ -207,7 +213,8 @@ class dates {
 
             // We might have clicked a delete nosubmit button.
 
-            $datestodelete = preg_grep('/^deletedate_/', array_keys((array)$defaultvalues));
+            $regexkey = '/^' . MOD_BOOKING_FORM_DELETEDATE . '/';
+            $datestodelete = preg_grep($regexkey, array_keys((array)$defaultvalues));
 
             foreach ($datestodelete as $name) {
                 // We want to show one element less.
@@ -216,10 +223,10 @@ class dates {
                 // We also need to delete the precise data.
                 list($name, $idx) = explode('_', $name);
 
-                unset($defaultvalues->{'optiondateid_' . $idx});
-                unset($defaultvalues->{'coursestarttime_' . $idx});
-                unset($defaultvalues->{'courseendtime_' . $idx});
-                unset($defaultvalues->{'daystonotify_' . $idx});
+                unset($defaultvalues->{MOD_BOOKING_FORM_OPTIONDATEID . $idx});
+                unset($defaultvalues->{MOD_BOOKING_FORM_COURSESTARTTIME . $idx});
+                unset($defaultvalues->{MOD_BOOKING_FORM_COURSEENDTIME . $idx});
+                unset($defaultvalues->{MOD_BOOKING_FORM_DAYSTONOTIFY . $idx});
             }
         }
 
@@ -236,13 +243,13 @@ class dates {
                 // We might have entity relations for every session.
 
                 $idx++;
-                $key = 'optiondateid_' . $idx;
+                $key = MOD_BOOKING_FORM_OPTIONDATEID . $idx;
                 $defaultvalues->{$key} = $session->optiondateid ?? 0;
-                $key = 'coursestarttime_' . $idx;
+                $key = MOD_BOOKING_FORM_COURSESTARTTIME . $idx;
                 $defaultvalues->{$key} = $session->coursestarttime;
-                $key = 'courseendtime_' . $idx;
+                $key = MOD_BOOKING_FORM_COURSEENDTIME . $idx;
                 $defaultvalues->{$key} = $session->courseendtime;
-                $key = 'daystonotify_' . $idx;
+                $key = MOD_BOOKING_FORM_DAYSTONOTIFY . $idx;
                 $defaultvalues->{$key} = $session->daystonotify;
 
                 // We might need to delete entities relation.
@@ -290,14 +297,14 @@ class dates {
         foreach ($optiondates as $optiondate) {
             list($a, $counter) = explode('_', $optiondate);
 
-            if (isset($formvalues['optiondateid_' . $counter])) {
+            if (isset($formvalues[MOD_BOOKING_FORM_OPTIONDATEID . $counter])) {
 
-                if (is_array($formvalues['coursestarttime_' . $counter])) {
-                    $coursestarttime = make_timestamp(...$formvalues['coursestarttime_' . $counter]);
-                    $courseendtime = make_timestamp(...$formvalues['courseendtime_' . $counter]);
+                if (is_array($formvalues[MOD_BOOKING_FORM_COURSESTARTTIME . $counter])) {
+                    $coursestarttime = make_timestamp(...$formvalues[MOD_BOOKING_FORM_COURSESTARTTIME . $counter]);
+                    $courseendtime = make_timestamp(...$formvalues[MOD_BOOKING_FORM_COURSEENDTIME . $counter]);
                 } else {
-                    $coursestarttime = $formvalues['coursestarttime_' . $counter];
-                    $courseendtime = $formvalues['courseendtime_' . $counter];
+                    $coursestarttime = $formvalues[MOD_BOOKING_FORM_COURSESTARTTIME . $counter];
+                    $courseendtime = $formvalues[MOD_BOOKING_FORM_COURSEENDTIME . $counter];
                 }
 
                 // We might have entitites added.
@@ -308,12 +315,12 @@ class dates {
                 $cffields = optiondate_cfields::get_list_of_submitted_cfields($formvalues, $counter);
 
                 $dates[] = [
-                    'id' => $formvalues['optiondateid_' . $counter],
+                    'id' => $formvalues[MOD_BOOKING_FORM_OPTIONDATEID . $counter],
                     'index' => $counter,
-                    'optiondateid' => $formvalues['optiondateid_' . $counter],
+                    'optiondateid' => $formvalues[MOD_BOOKING_FORM_OPTIONDATEID . $counter],
                     'coursestarttime' => $coursestarttime,
                     'courseendtime' => $courseendtime,
-                    'daystonotify' => $formvalues['daystonotify_' . $counter],
+                    'daystonotify' => $formvalues[MOD_BOOKING_FORM_DAYSTONOTIFY . $counter],
                     'entityid' => $entityid,
                     'entityarea' => $entityarea,
                     'customfields' => $cffields,
@@ -446,20 +453,20 @@ class dates {
         $mform->addElement($element);
         $elements[] = $element;
 
-        $elements[] =& $mform->addElement('date_time_selector', 'coursestarttime_' . $idx,
+        $elements[] =& $mform->addElement('date_time_selector', MOD_BOOKING_FORM_COURSESTARTTIME . $idx,
             get_string("coursestarttime", "booking"));
-            $mform->setType('coursestarttime_' . $idx, PARAM_INT);
-            $mform->disabledIf('coursestarttime_' . $idx, 'startendtimeknown', 'notchecked');
+            $mform->setType(MOD_BOOKING_FORM_COURSESTARTTIME . $idx, PARAM_INT);
+            $mform->disabledIf(MOD_BOOKING_FORM_COURSESTARTTIME . $idx, 'startendtimeknown', 'notchecked');
 
-        $elements[] =& $mform->addElement('date_time_selector', 'courseendtime_' . $idx,
+        $elements[] =& $mform->addElement('date_time_selector', MOD_BOOKING_FORM_COURSEENDTIME . $idx,
             get_string("courseendtime", "booking"));
-        $mform->setType('courseendtime_' . $idx, PARAM_INT);
-        $mform->disabledIf('courseendtime_' . $idx, 'startendtimeknown', 'notchecked');
+        $mform->setType(MOD_BOOKING_FORM_COURSEENDTIME . $idx, PARAM_INT);
+        $mform->disabledIf(MOD_BOOKING_FORM_COURSEENDTIME . $idx, 'startendtimeknown', 'notchecked');
 
-        $element = $mform->addElement('text', 'daystonotify_' . $idx, get_string('daystonotifysession', 'mod_booking'));
-        $mform->setType('daystonotify_' . $idx, PARAM_INT);
+        $element = $mform->addElement('text', MOD_BOOKING_FORM_DAYSTONOTIFY . $idx, get_string('daystonotifysession', 'mod_booking'));
+        $mform->setType(MOD_BOOKING_FORM_DAYSTONOTIFY . $idx, PARAM_INT);
         $element->setValue($date['daystonotify']);
-        $mform->addHelpButton('daystonotify_' . $idx, 'daystonotifysession', 'mod_booking');
+        $mform->addHelpButton(MOD_BOOKING_FORM_DAYSTONOTIFY . $idx, 'daystonotifysession', 'mod_booking');
         $elements[] = $element;
 
         // Add entities.
@@ -473,8 +480,8 @@ class dates {
 
         $mform->registerNoSubmitButton('applydate_' . $idx);
         $datearray[] =& $mform->createElement('submit', 'applydate_' . $idx, get_string('apply'));
-        $mform->registerNoSubmitButton('deletedate_' . $idx);
-        $datearray[] =& $mform->createElement('submit', 'deletedate_' . $idx, get_string('delete'));
+        $mform->registerNoSubmitButton(MOD_BOOKING_FORM_DELETEDATE . $idx);
+        $datearray[] =& $mform->createElement('submit', MOD_BOOKING_FORM_DELETEDATE . $idx, get_string('delete'));
         $elements[] =& $mform->addGroup($datearray, 'datearr_' . $idx, '', [' '], false);
 
         $element = $mform->createElement('html', $html2);
@@ -522,8 +529,8 @@ class dates {
 
             $idx = $date['index'];
 
-            $elements[] = $mform->addElement('hidden', 'optiondateid_' . $idx, 0);
-            $mform->setType('optiondateid_' . $idx, PARAM_INT);
+            $elements[] = $mform->addElement('hidden', MOD_BOOKING_FORM_OPTIONDATEID . $idx, 0);
+            $mform->setType(MOD_BOOKING_FORM_OPTIONDATEID . $idx, PARAM_INT);
 
             // If we are on the last element and we just clicked "add", we print the form.
             if ((isset($defaultvalues['adddatebutton'])
@@ -554,8 +561,8 @@ class dates {
         foreach ($dates as $key => $date) {
             $idx = $date['index'];
             // If we just wanted to delete this date, just dont create the items for it.
-            if (isset($defaultvalues['deletedate_' . $idx])) {
-                $mform->registerNoSubmitButton('deletedate_' . $idx);
+            if (isset($defaultvalues[MOD_BOOKING_FORM_DELETEDATE . $idx])) {
+                $mform->registerNoSubmitButton(MOD_BOOKING_FORM_DELETEDATE . $idx);
             }
         }
 

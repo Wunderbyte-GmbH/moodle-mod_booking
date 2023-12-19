@@ -1125,6 +1125,7 @@ $string['nouserfound'] = 'Kein/e User/in gefunden: ';
 $string['import_failed'] = 'Der CSV-Import wurde aufgrund folgendes Fehlers nicht durchgeführt: ';
 $string['import_partial'] = 'Der CSV-Import wurde nur teilweise durchgeführt. Bei folgenden Zeilen traten Fehler auf und sie wurden nicht importiert: ';
 $string['importinfo'] = 'Import info: Folgende Spalten können importiert werden (Erklärung des Spaltennamens in Klammern)';
+$string['coursedoesnotexist'] = 'Die Kursnummer {$a} existiert nicht';
 
 // New importer.
 $string['importcsv'] = 'CSV Importer';

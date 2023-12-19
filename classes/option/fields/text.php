@@ -118,22 +118,27 @@ class text extends field_base {
 
         // Normally, we don't call set data after the first time loading.
         // The ID will only be emtpy on creating a new booking option.
-        if (empty($data->id)) {
-            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($data->cmid);
-            // Add standard name here.
-            $eventtype = $bookingsettings->eventtype;
-            if ($eventtype && strlen($eventtype) > 0) {
-                $eventtype = "- $eventtype ";
-            } else {
-                $eventtype = '';
+        if (empty($data->importing)) {
+            if (empty($data->id)) {
+                $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($data->cmid);
+                // Add standard name here.
+                $eventtype = $bookingsettings->eventtype;
+                if ($eventtype && strlen($eventtype) > 0) {
+                    $eventtype = "- $eventtype ";
+                } else {
+                    $eventtype = '';
+                }
+                $value = "$COURSE->fullname $eventtype";
+                $data->text = $value;
+            } else if (!isset($data->text)) {
+                // We only set name from settings if text was not already transmitted.
+                $key = fields_info::get_class_name(static::class);
+                $value = $settings->text ?? null;
+                $data->{$key} = $value;
             }
-            $value = "$COURSE->fullname $eventtype";
-            $data->text = $value;
-        } else if (!isset($data->text)) {
-            // We only set name from settings if text was not already transmitted.
+        } else {
             $key = fields_info::get_class_name(static::class);
-            $value = $settings->text ?? null;
-            $data->{$key} = $value;
+            $data->{$key} = $data->text ?? $data->title ?? get_string('novalidtitlefound', 'mod_booking');
         }
     }
 }

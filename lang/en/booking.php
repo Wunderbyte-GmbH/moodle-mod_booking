@@ -1146,6 +1146,7 @@ $string['nouserfound'] = 'No user found: ';
 $string['import_failed'] = 'The import failed due to following reason: ';
 $string['import_partial'] = 'The import was only partially completed. There were problems with following lines and they were not imported: ';
 $string['importinfo'] = 'Import info: You can use the following columns in the csv upload (Explanation in parenthesis)';
+$string['coursedoesnotexist'] = 'The Coursenumber {$a} does not exist';
 
 // New importer.
 // TODO: Translate.

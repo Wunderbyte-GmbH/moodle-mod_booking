@@ -113,12 +113,13 @@ class prepare_import extends field_base {
                         $data->{$key} = $value;
                     }
                 }
-            } else if (!empty($data->cmid)) {
-                // In this case, we import via CSV but have to create a new option.
-                $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($data->cmid);
-                $data->bookingid = $bookingsettings->id;
-                $data->id = 0;
             }
+        }
+
+        // If there is no bookingid but there is the cmid, we can work with that.
+        if (empty($data->bookingid) && !empty($data->cmid)) {
+            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($data->cmid);
+            $data->bookingid = $bookingsettings->id;
         }
         // We will always set id to 0, if it's not set yet.
         if (!isset($data->id)) {

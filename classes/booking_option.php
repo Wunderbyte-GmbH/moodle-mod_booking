@@ -3257,6 +3257,7 @@ class booking_option {
             }
             // Some legacy weight still left.
             $newoption->id = $optionid;
+            $formdata->id = $optionid;
         }
 
         fields_info::save_fields_post($formdata, $newoption, $updateparam);

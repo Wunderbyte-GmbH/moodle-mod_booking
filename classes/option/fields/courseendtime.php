@@ -24,29 +24,29 @@
 
 namespace mod_booking\option\fields;
 
-use mod_booking\bo_actions\actions_info;
+use core_course_external;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
-use mod_booking\singleton_service;
-use mod_booking\subbookings\subbookings_info;
 use MoodleQuickForm;
 use stdClass;
 
 /**
  * Class to handle one property of the booking_option_settings class.
+ * Courseendtime is fully replaced with the optiondates class.
+ * Its only here as a placeholder.
  *
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class id extends field_base {
+class courseendtime extends field_base {
 
     /**
      * This ID is used for sorting execution.
      * @var int
      */
-    public static $id = MOD_BOOKING_OPTION_FIELD_ID;
+    public static $id = MOD_BOOKING_OPTION_FIELD_COURSEENDTIME;
 
     /**
      * Some fields are saved with the booking option...
@@ -76,20 +76,18 @@ class id extends field_base {
         int $updateparam,
         $returnvalue = 0): string {
 
-        if (!empty($formdata->id)) {
-            $newoption->id = $formdata->id;
-        } else {
-            $newoption->id = 0;
-        }
-        if (empty($formdata->bookingid) && !empty($formdata->cmid)) {
-            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($formdata->cmid);
-            $formdata->bookingid = $bookingsettings->id;
-        }
-
-        $newoption->bookingid = $formdata->bookingid;
-
-        // We can return an warning message here.
         return '';
+    }
+
+    /**
+     * This function adds error keys for form validation.
+     * @param array $data
+     * @param array $files
+     * @return void
+     */
+    public static function validation(array $data, array $files, array &$errors) {
+
+        return $errors;
     }
 
     /**
@@ -101,23 +99,6 @@ class id extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
-        $cmid = $formdata['cmid'];
-
-        $id = $formdata['id'] ?? 0;
-
-        // Id & optionid are the same here.
-        $mform->addElement('hidden', 'id', $id);
-        $mform->setType('id', PARAM_INT);
-
-        // Id & optionid are the same here.
-        $mform->addElement('hidden', 'optionid', $id);
-        $mform->setType('optionid', PARAM_INT);
-
-        $mform->addElement('hidden', 'cmid', $cmid);
-        $mform->setType('cmid', PARAM_INT);
-
-        $mform->addElement('hidden', 'bookingid', $formdata['bookingid']);
-        $mform->setType('bookingid', PARAM_INT);
     }
 
     /**
@@ -129,6 +110,5 @@ class id extends field_base {
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
-        $data->id = $data->id ?? $data->optionid;
     }
 }

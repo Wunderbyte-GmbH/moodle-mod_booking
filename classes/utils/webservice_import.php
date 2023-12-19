@@ -29,6 +29,7 @@ use stdClass;
 use mod_booking\booking_option;
 use mod_booking\customfield\booking_handler;
 use mod_booking\singleton_service;
+use mod_booking\teachers_handler;
 use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
@@ -437,7 +438,8 @@ class webservice_import {
         $userid = reset($userids);
 
         // Try to subscribe teacher to booking option and throw an error if not successful.
-        if (!subscribe_teacher_to_booking_option($userid, $optionid, $this->cm->id)) {
+        $teacherhandler = new teachers_handler($optionid);
+        if (!$teacherhandler->subscribe_teacher_to_booking_option($userid, $optionid, $this->cm->id)) {
             throw new \moodle_exception('teachernotsubscribed', 'mod_booking', null, null,
                 'The teacher with e-mail ' . $data->teacheremail .
                 ' could not be subscribed to the option with optionid ' . $optionid);
