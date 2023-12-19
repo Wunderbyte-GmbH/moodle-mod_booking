@@ -410,6 +410,7 @@ class bo_info {
     public static function save_json_conditions_from_form(stdClass &$fromform) {
 
         $optionid = $fromform->optionid ?? 0;
+        $arrayforjson = [];
 
         if (!empty($optionid) && $optionid > 0) {
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
@@ -419,7 +420,6 @@ class bo_info {
             }
 
             $conditions = self::get_conditions(MOD_BOOKING_CONDPARAM_JSON_ONLY);
-            $arrayforjson = [];
 
             foreach ($conditions as $condition) {
                 if (!empty($condition)) {
@@ -446,9 +446,9 @@ class bo_info {
                     }
                 }
             }
-            // This will be saved in the table booking_options in the 'availability' field.
-            $fromform->availability = json_encode($arrayforjson);
         }
+        // This will be saved in the table booking_options in the 'availability' field.
+        $fromform->availability = json_encode($arrayforjson);
         // Without an optionid we do nothing.
     }
 
