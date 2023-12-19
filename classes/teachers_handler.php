@@ -528,23 +528,38 @@ class teachers_handler {
 
         if (isset($data->teacheremail)) {
 
-            // First we explode teacheremail, there might be mulitple teachers.
-            // We always use comma as separator.
-            $teacheremails = explode(',', $data->teacheremail);
-
-            list($inorequal, $params) = $DB->get_in_or_equal($teacheremails, SQL_PARAMS_NAMED);
-
-            $sql = "SELECT id
-                    FROM {user}
-                    WHERE " . $DB->sql_equal('suspended', 0)
-                    . " AND " . $DB->sql_equal('deleted', 0)
-                    . " AND " . $DB->sql_equal('confirmed', 1)
-                    . " AND email $inorequal
-            ";
-
-            $teacherids = $DB->get_fieldset_sql($sql, $params);
-
-            return $teacherids;
+            return self::get_user_ids_from_string($data->teacheremail);
         }
+    }
+
+    /**
+     * This function can retrieve the userids from a string with either emails or usernames.
+     *
+     * @param mixed $userstring
+     * @param bool $email // if false, it's usernames, not usermails.
+     * @return void
+     */
+    public static function get_user_ids_from_string($userstring, $email = true) {
+
+        global $DB;
+        // First we explode teacheremail, there might be mulitple teachers.
+        // We always use comma as separator.
+        $teacheremails = explode(',', $userstring);
+
+        $column = $email ? 'email' : 'username';
+
+        list($inorequal, $params) = $DB->get_in_or_equal($teacheremails, SQL_PARAMS_NAMED);
+
+        $sql = "SELECT id
+                FROM {user}
+                WHERE " . $DB->sql_equal('suspended', 0)
+                . " AND " . $DB->sql_equal('deleted', 0)
+                . " AND " . $DB->sql_equal('confirmed', 1)
+                . " AND $column $inorequal
+        ";
+
+        $teacherids = $DB->get_fieldset_sql($sql, $params);
+
+        return $teacherids;
     }
 }
