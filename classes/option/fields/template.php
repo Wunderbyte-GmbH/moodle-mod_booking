@@ -137,9 +137,6 @@ class template extends field_base {
         if (isset($data->btn_changetemplate)) {
             // First, retrieve the template we want to use.
 
-            $settings = singleton_service::get_instance_of_booking_option_settings($data->optiontemplateid);
-            $datescounter = count($settings->sessions);
-
             // Now, we need to create the data for this option the same way we would create it otherwise...
             $templateoption = (object)[
                 'cmid' => $data->cmid,
@@ -147,7 +144,6 @@ class template extends field_base {
                 'optionid' => $data->optiontemplateid, // Just kept on for legacy reasons.
                 'bookingid' => $data->bookingid,
                 'copyoptionid' => 0,
-                'datescounter' => $datescounter,
                 'returnurl' => '',
             ];
 
@@ -163,10 +159,17 @@ class template extends field_base {
                 'returnurl',
                 'identifier',
                 'sesskey',
-                'datescounter',
+                //'datescounter',
             ];
 
             foreach ($templateoption as $key => $value) {
+
+                if (strpos($key, MOD_BOOKING_FORM_OPTIONDATEID)) {
+
+                    $data->{$key} = 0;
+
+                }
+
                 if (!in_array($key, $excluded)) {
                     $data->{$key} = $value;
                 }

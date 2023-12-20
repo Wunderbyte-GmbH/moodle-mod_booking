@@ -65,7 +65,6 @@ class elective {
         $mform->addHelpButton('enforceorder', 'enforceorder', 'mod_booking');
 
         $mform->addElement('advcheckbox', 'enforceteacherorder', get_string('enforceteacherorder', 'booking'));
-        $mform->setDefault('enforceteacherorder', 0);
         $mform->addHelpButton('enforceteacherorder', 'enforceteacherorder', 'mod_booking');
 
         $mform->addElement('checkbox', 'consumeatonce', get_string('consumeatonce', 'booking'));

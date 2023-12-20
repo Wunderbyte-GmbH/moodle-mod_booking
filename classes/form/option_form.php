@@ -252,29 +252,9 @@ class option_form extends dynamic_form {
 
         $data = (object)$this->_ajaxformdata ?? $this->_customdata;
 
-        $newdata = clone($data);
         fields_info::set_data($data);
 
-        $dontreplace = [
-            'datescounter',
-        ];
-
-        foreach ($data as $key => $value) {
-
-            if (!in_array($key, $dontreplace)) {
-                $newdata->{$key} = $value;
-            }
-        }
-
-        // foreach ($newdata as $key => $value) {
-        //     if ($data->{$key} != $value) {
-        //         $changedkeysb[$key] = ['nv' => $value, 'ov' => $data->{$key}];
-        //     }
-        // }
-
-        // $data->text = 'xyz';
-
-        $this->set_data($newdata);
+        $this->set_data($data);
     }
 
     /**

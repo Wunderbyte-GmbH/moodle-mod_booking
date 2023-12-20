@@ -120,7 +120,7 @@ class dates {
 
         }
 
-        $datescounter = $defaultvalues["datescounter"];
+        $datescounter = $defaultvalues["datescounter"] ?? 0;
 
         // The datescounter is the first element we add to the form.
         $element = $mform->addElement(
@@ -129,7 +129,7 @@ class dates {
             $datescounter,
         );
         $mform->setType('datescounter', PARAM_INT);
-        $element->setValue($datescounter);
+        // $element->setValue($datescounter);
         $elements[] = $element;
 
         $now = time();

@@ -99,7 +99,6 @@ $params = [
     'optionid' => $optionid, // Just kept on for legacy reasons.
     'bookingid' => $bookingid,
     'copyoptionid' => $copyoptionid,
-    'datescounter' => $datescounter,
     'returnurl' => $returnurl,
 ];
 
