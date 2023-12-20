@@ -15,12 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Module Booking.
  *
  * @package mod_booking
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>,
  * @author David Bogner, Georg Maißer, Bernhard Fischer, Andraž Prinčič
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->version = 2023122000;

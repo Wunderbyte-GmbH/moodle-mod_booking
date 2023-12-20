@@ -26,8 +26,25 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/formslib.php');
 
+/**
+ * Class for handling categories form
+ *
+ * @package mod_booking
+ * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class mod_booking_categories_form extends moodleform {
 
+    /**
+     * Show sub categories.
+     *
+     * @param int $catid
+     * @param string $dashes
+     * @param array $options
+     *
+     * @return array
+     *
+     */
     private function show_sub_categories($catid, $dashes = '', $options = []) {
         global $DB;
         $dashes .= '&nbsp;&nbsp;';
@@ -41,6 +58,12 @@ class mod_booking_categories_form extends moodleform {
         return $options;
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     * @see moodleform::definition()
+     *
+     */
     public function definition() {
         global $DB, $COURSE;
 

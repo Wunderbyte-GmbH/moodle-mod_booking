@@ -18,7 +18,7 @@
  * Module setup form
  *
  * @package mod_booking
- * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -36,17 +36,29 @@ require_once($CFG->dirroot . '/course/moodleform_mod.php');
 require_once($CFG->libdir . '/formslib.php');
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
-
+/**
+ * Class to handle booking module setup form
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class mod_booking_mod_form extends moodleform_mod {
 
+    /**
+     * $options
+     *
+     * @var array
+     */
     public $options = [];
 
     /**
      * Return an array of categories catid as key and categoryname as value
      *
-     * @param int $cat_id
+     * @param int $catid
      * @param string $dashes
      * @param array $options
+     *
      * @return array of course category names indexed by category id
      */
     public function show_sub_categories($catid, $dashes = '', $options = []) {
@@ -63,6 +75,12 @@ class mod_booking_mod_form extends moodleform_mod {
         return $options;
     }
 
+    /**
+     * Add completion rules.
+     *
+     * @return array
+     *
+     */
     public function add_completion_rules() {
         $mform = & $this->_form;
 
@@ -81,10 +99,23 @@ class mod_booking_mod_form extends moodleform_mod {
         return ['enablecompletiongroup'];
     }
 
+    /**
+     * Completion rule enabled.
+     *
+     * @param array $data
+     *
+     * @return bool
+     *
+     */
     public function completion_rule_enabled($data) {
         return !empty($data['enablecompletion'] != 0);
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     * @see moodleform_mod::definition()
+     */
     public function definition() {
         global $CFG, $DB, $COURSE, $USER, $PAGE, $OUTPUT;
 
@@ -1150,6 +1181,15 @@ class mod_booking_mod_form extends moodleform_mod {
         }
     }
 
+    /**
+     * Form validation.
+     *
+     * @param array $data
+     * @param array $files
+     *
+     * @return array
+     *
+     */
     public function validation($data, $files) {
         global $DB;
         $errors = parent::validation($data, $files);
@@ -1206,6 +1246,12 @@ class mod_booking_mod_form extends moodleform_mod {
         // TODO: ... if mailtemplatessource is set to 1 on saving.
     }
 
+    /**
+     * Get form data.
+     *
+     * @return object
+     *
+     */
     public function get_data() {
         $data = parent::get_data();
         if ($data) {

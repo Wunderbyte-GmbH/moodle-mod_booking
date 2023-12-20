@@ -13,11 +13,26 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Handling importexcel form
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once("$CFG->libdir/formslib.php");
 
-
+/**
+ * Class to handle importexcel form
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class importexcel_form extends moodleform {
 
     /**
@@ -38,9 +53,13 @@ class importexcel_form extends moodleform {
     }
 
     /**
+     * Form validation
      *
-     * {@inheritDoc}
-     * @see moodleform::validation()
+     * @param array $data
+     * @param array $files
+     *
+     * @return array
+     *
      */
     public function validation($data, $files) {
         return [];

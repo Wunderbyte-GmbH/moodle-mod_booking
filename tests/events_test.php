@@ -18,7 +18,8 @@
  * Tests for booking events.
  *
  * @package mod_booking
- * @copyright 2017 Andraž Prinčič <atletek@gmail.com>
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Andraž Prinčič
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -33,7 +34,7 @@ use stdClass;
  *
  * @package mod_booking
  * @category test
- * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class events_test extends advanced_testcase {
@@ -45,9 +46,21 @@ class events_test extends advanced_testcase {
         $this->resetAfterTest();
     }
 
+    /**
+     * Tear Down.
+     *
+     * @return void
+     *
+     */
     public function tearDown():void {
     }
 
+    /**
+     * Return test data.
+     *
+     * @return array
+     *
+     */
     private function returntestdata() {
         $bdata = ['name' => 'Test Booking', 'eventtype' => 'Test event',
                     'bookedtext' => ['text' => 'text'], 'waitingtext' => ['text' => 'text'],

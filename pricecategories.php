@@ -135,8 +135,9 @@ if ($mform->is_cancelled()) {
  * Helper function to return arrays containing all relevant pricecategories update changes.
  * The returned arrays will have the prepared stdClasses for update and insert in booking_pricecategories table.
  *
- * @param $oldpricecategories the existing price categories
- * @param $data the form data
+ * @param mixed $oldpricecategories the existing price categories
+ * @param array $data the form data
+ *
  * @return array
  */
 function pricecategories_get_changes($oldpricecategories, $data) {

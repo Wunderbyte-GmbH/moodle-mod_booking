@@ -19,7 +19,8 @@
  *
  * @package   mod_booking
  * @category  test
- * @copyright 2023 Andrii Semenets
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Andrii Semenets
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class behat_mod_booking_generator extends behat_generator_base {
@@ -70,7 +71,7 @@ class behat_mod_booking_generator extends behat_generator_base {
     /**
      * Get the semesterID using an identifier.
      *
-     * @param string $idnumber
+     * @param string $identifier
      * @return int The semester id
      */
     protected function get_semester_id(string $identifier): int {

@@ -19,7 +19,8 @@
  *
  * @package mod_booking
  * @category test
- * @copyright 2017 Andraž Prinčič <atletek@gmail.com>
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author 2017 Andraž Prinčič
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -34,6 +35,14 @@ use context_course;
 use stdClass;
 use mod_booking\utils\csv_import;
 
+/**
+ * Class handling tests for booking options.
+ *
+ * @package mod_booking
+ * @category test
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class booking_option_test extends advanced_testcase {
 
     /**
@@ -43,6 +52,12 @@ class booking_option_test extends advanced_testcase {
         $this->resetAfterTest();
     }
 
+    /**
+     * Tear Down.
+     *
+     * @return void
+     *
+     */
     public function tearDown():void {
     }
 

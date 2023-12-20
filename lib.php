@@ -2828,13 +2828,15 @@ function booking_show_subcategories($catid, $courseid) {
 /**
  * Returns list of user objects that are subscribed to this booking
  *
- * @param stdClass $course the course
- * @param booking $booking the booking
+ * @param stdClass $course
+ * @param int $optionid
  * @param int $id
  * @param int $groupid group id, or 0 for all.
  * @param stdClass $context the booking context, to save re-fetching it where possible.
  * @param string $fields requested user fields (with "u." table prefix)
+ *
  * @return array list of users.
+ *
  */
 function booking_subscribed_teachers($course, $optionid, $id, $groupid = 0, $context = null,
         $fields = null) {

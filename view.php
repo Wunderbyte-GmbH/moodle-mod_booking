@@ -15,8 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This is the main entrance point for the booking plugin
- * showing a table of all booking options.
+ * This is the main entrance point for the booking plugin showing a table of all booking options.
+ *
  * Completely rebuilt in January 2023.
  *
  * @package mod_booking

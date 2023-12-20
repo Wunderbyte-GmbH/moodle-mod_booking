@@ -26,7 +26,13 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once("$CFG->libdir/formslib.php");
 
-
+/**
+ * Class to hanfling other booking add role form
+ *
+ * @package mod_booking
+ * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class otherbookingaddrule_form extends moodleform {
 
     /**
@@ -73,14 +79,23 @@ class otherbookingaddrule_form extends moodleform {
     }
 
     /**
+     * Form validation.
      *
-     * {@inheritDoc}
-     * @see moodleform::validation()
+     * @param array $data
+     * @param mixed $files
+     *
+     * @return array
+     *
      */
     public function validation($data, $files) {
         return [];
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     * @see moodleform::get_data()
+     */
     public function get_data() {
         $data = parent::get_data();
 

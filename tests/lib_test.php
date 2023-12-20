@@ -14,6 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Module booking tests common fuctions
+ *
+ * @package mod_booking
+ * @category test
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Andraž Prinčič {@link https://www.princic.net}
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking;
 
 defined('MOODLE_INTERNAL') || die();
@@ -25,12 +35,30 @@ global $CFG;
 
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
+/**
+ * Class to handle module booking tests common fuctions
+ *
+ * @package mod_booking
+ * @category test
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Andraž Prinčič {@link https://www.princic.net}
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class lib_test extends advanced_testcase {
 
+    /**
+     * Tests set up.
+     */
     public function setUp():void {
 
     }
 
+    /**
+     * Tear Down.
+     *
+     * @return void
+     *
+     */
     public function tearDown():void {
 
     }

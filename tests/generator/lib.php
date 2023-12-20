@@ -14,6 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Module booking data generator
+ *
+ * @package mod_booking
+ * @category test
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -22,14 +31,14 @@ use mod_booking\price;
 use mod_booking\customfield\booking_handler;
 
 /**
- * mod_booking data generator
+ * Class to handle module booking data generator
  *
  * @package mod_booking
  * @category test
- * @copyright 2017 Andraž Prinčič {@link https://www.princic.net}
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author 2023 Andrii Semenets
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 class mod_booking_generator extends testing_module_generator {
 
     /**
@@ -49,6 +58,15 @@ class mod_booking_generator extends testing_module_generator {
         parent::reset();
     }
 
+    /**
+     * Create booking instance
+     *
+     * @param mixed|null $record
+     * @param array|null $options
+     *
+     * @return stdClass
+     *
+     */
     public function create_instance($record = null, array $options = null) {
         global $CFG;
 

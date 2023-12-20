@@ -30,8 +30,20 @@ require_once($CFG->libdir . '/formslib.php');
 // No guest autologin.
 require_login(0, false);
 
+/**
+ * Class to handling Teachers form
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class mod_booking_teachers_form extends moodleform {
 
+    /**
+     *
+     * {@inheritDoc}
+     * @see moodleform::definition()
+     */
     public function definition() {
         global $DB, $CFG;
 
