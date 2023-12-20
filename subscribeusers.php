@@ -19,9 +19,9 @@
  *
  * TODO: upgrade logging, add logging for added/deleted users
  *
- * @author David Bogner davidbogner@gmail.com
  * @package mod_booking
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author David Bogner davidbogner@gmail.com
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */

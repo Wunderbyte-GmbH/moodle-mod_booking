@@ -21,7 +21,8 @@ namespace mod_booking\signinsheet;
  *
  * @package mod_booking
  * @since Moodle 3.0
- * @copyright 2017 David Bogner
+ * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author David Bogner
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */

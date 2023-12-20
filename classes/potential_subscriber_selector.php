@@ -36,6 +36,8 @@ class potential_subscriber_selector extends subscriber_selector_base {
 
     /**
      * Can be used to store existing subscribers so that they can be removed from the potential subscribers list
+     *
+     * @var array
      */
     protected $existingsubscribers = [];
 
@@ -145,6 +147,11 @@ class potential_subscriber_selector extends subscriber_selector_base {
 
     /**
      * Sets this booking as force subscribed or not
+     *
+     * @param bool $setting
+     *
+     * @return void
+     *
      */
     public function set_force_subscribed($setting = true) {
         $this->forcesubscribed = true;

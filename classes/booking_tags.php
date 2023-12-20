@@ -23,25 +23,50 @@ use stdClass;
  *
  * @package mod_booking
  * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
- * @author 2014 Andraž Prinčič
+ * @author Andraž Prinčič
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_tags {
 
+    /**
+     * $tags
+     *
+     * @var array
+     */
     public $tags;
 
+    /**
+     * $replaces
+     *
+     * @var array
+     */
     public $replaces;
 
+    /**
+     * $optiontextfields
+     *
+     * @var array
+     */
     public $optiontextfields = ['text', 'description', 'location', 'institution', 'address',
                                 'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext',
                                 ];
 
+    /**
+     * $bookingtextfields
+     *
+     * @var array
+     */
     public $bookingtextfields = ['name', 'intro', 'bookingpolicy', 'bookedtext', 'notifyemail',
                                 'waitingtext', 'statuschangetext', 'deletedtext', 'bookingchangedtext', 'duration',
                                 'organizatorname', 'pollurltext', 'eventtype', 'notificationtext', 'userleave',
                                 'pollurlteacherstext', 'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext',
                                 ];
 
+    /**
+     * $option
+     *
+     * @var mixed
+     */
     private $option;
 
     /**
@@ -57,11 +82,23 @@ class booking_tags {
         $this->replaces = $this->prepare_replaces();
     }
 
+    /**
+     * Get all tags
+     *
+     * @return array
+     *
+     */
     public function get_all_tags() {
         return $this->tags;
     }
 
-    private function prepare_replaces() {
+    /**
+     * Prepare replaces
+     *
+     * @return array
+     *
+     */
+    private function prepare_replaces(): array {
         $keys = [];
         $values = [];
 
@@ -73,14 +110,36 @@ class booking_tags {
         return ['keys' => $keys, 'values' => $values];
     }
 
-    public function get_replaces() {
+    /**
+     * Get replaces
+     *
+     * @return array
+     *
+     */
+    public function get_replaces(): array {
         return $this->replaces;
     }
 
+    /**
+     * Tag replaces
+     *
+     * @param mixed $text
+     *
+     * @return mixed
+     *
+     */
     public function tag_replaces($text) {
         return str_replace($this->replaces['keys'], $this->replaces['values'], $text);
     }
 
+    /**
+     * Booking replace
+     *
+     * @param stdClass|null $settings
+     *
+     * @return stdClass
+     *
+     */
     public function booking_replace(stdClass $settings = null): stdClass {
         $newsettings = clone $settings;
         foreach ($newsettings as $key => $value) {
@@ -91,6 +150,14 @@ class booking_tags {
         return $newsettings;
     }
 
+    /**
+     * Option replace
+     *
+     * @param stdClass|null $optionsettings
+     *
+     * @return stdClass
+     *
+     */
     public function option_replace(stdClass $optionsettings = null): stdClass {
         $newoptionsettings = clone $optionsettings;
         foreach ($newoptionsettings as $key => $value) {

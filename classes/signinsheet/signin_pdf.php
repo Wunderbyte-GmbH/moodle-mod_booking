@@ -13,6 +13,18 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Handling signin pdf - extend the TCPDF
+ *
+ * @package mod_booking
+ * @since Moodle 3.0
+ * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author David Bogner
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ */
+
 namespace mod_booking\signinsheet;
 
 defined('MOODLE_INTERNAL') || die();
@@ -20,16 +32,27 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/pdflib.php');
 /**
  * Extend the TCPDF class in order to add custom page break
+ *
+ * @package mod_booking
+ * @since Moodle 3.0
+ * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
  * @author David Bogner
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
 class signin_pdf extends \pdf {
 
+    /**
+     * $file
+     *
+     * @var object
+     */
     private $file = false;
 
     /**
+     * Go to new line.
      *
-     * @param $h (float) Cell height. Default value: 0.
+     * @param float $h Cell height. Default value: 0.
      * @return bool
      */
     public function go_to_newline($h) {
@@ -60,6 +83,14 @@ class signin_pdf extends \pdf {
         }
     }
 
+    /**
+     * Set footer image
+     *
+     * @param object $file
+     *
+     * @return void
+     *
+     */
     public function setfooterimage($file) {
         $this->file = $file;
     }

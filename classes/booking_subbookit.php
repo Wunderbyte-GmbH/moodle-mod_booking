@@ -14,6 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Handling the booking process for subbookings.
+ *
+ * @package mod_booking
+ * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Georg Maißer
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking;
 
 use context_module;
@@ -31,6 +40,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
  * Class for handling the booking process for subbookings.
+ *
  * In the most simple case, this class provides a button for a user to book a subbooking option.
  * But this class handles the process, together with bo_conditions, prices and further functionalities...
  * ... as an integrative process.

@@ -30,7 +30,8 @@ use stdClass;
  *
  * @package mod_booking
  * @since Moodle 3.11
- * @copyright 2021 Georg Maißer
+ * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class singleton_service {
@@ -79,14 +80,24 @@ class singleton_service {
     public array $campaigns = [];
 
 
-    // The constructor is private
-    // to prevent initiation with outer code.
+
+    /**
+     * Constructor
+     *
+     * The constructor is private to prevent initiation with outer code.
+     *
+     * @return void
+     */
     private function __construct() {
         // The expensive process (e.g.,db connection) goes here.
     }
 
-    // The object is created from within the class itself
-    // only if the class has no instance.
+    /**
+     * The object is created from within the class itself only if the class has no instance.
+     *
+     * @return singleton_service
+     *
+     */
     public static function get_instance() {
         if (self::$instance == null) {
             self::$instance = new singleton_service();
@@ -179,7 +190,8 @@ class singleton_service {
     /**
      * Service to create and return singleton instance of booking.
      *
-     * @param int $cmid
+     * @param int $optionid
+     *
      * @return booking
      */
     public static function get_instance_of_booking_by_optionid(int $optionid): booking {
@@ -193,6 +205,7 @@ class singleton_service {
      * Service to create and return singleton instance of booking by cmid.
      *
      * @param int $cmid
+     *
      * @return booking_settings
      */
     public static function get_instance_of_booking_settings_by_cmid(int $cmid): booking_settings {
@@ -211,6 +224,7 @@ class singleton_service {
      * Service to create and return singleton instance of booking by bookingid.
      *
      * @param int $bookingid
+     *
      * @return booking_settings
      */
     public static function get_instance_of_booking_settings_by_bookingid(int $bookingid): booking_settings {
@@ -231,6 +245,7 @@ class singleton_service {
      *
      * @param int $cmid
      * @param int $optionid
+     *
      * @return booking_option|null
      */
     public static function get_instance_of_booking_option(int $cmid, int $optionid): ?booking_option {
@@ -255,6 +270,7 @@ class singleton_service {
      *
      * @param int $optionid
      * @param stdClass $dbrecord
+     *
      * @return booking_option_settings
      */
     public static function get_instance_of_booking_option_settings($optionid, stdClass $dbrecord = null): booking_option_settings {
@@ -273,6 +289,7 @@ class singleton_service {
      * Service to create and return singleton instance of Moodle user.
      *
      * @param int $userid
+     *
      * @return stdClass
      */
     public static function get_instance_of_user(int $userid) {
@@ -291,6 +308,7 @@ class singleton_service {
      * Service to create and return singleton instance of price class.
      *
      * @param int $optionid
+     *
      * @return price
      */
     public static function get_instance_of_price($optionid) {
@@ -310,6 +328,7 @@ class singleton_service {
      * This function does not automatically get the right category but needs the setter function below to be useful.
      *
      * @param string $identifier
+     *
      * @return stdClass|null
      */
     public static function get_price_category($identifier) {
@@ -325,6 +344,7 @@ class singleton_service {
     /**
      * Get the price category for a single user.
      * @param mixed $user
+     *
      * @return mixed
      */
     public static function get_pricecategory_for_user($user) {
@@ -345,6 +365,7 @@ class singleton_service {
      *
      * @param string $identifier
      * @param stdClass $pricecategory
+     *
      * @return bool
      */
     public static function set_price_category($identifier, $pricecategory) {
@@ -358,7 +379,7 @@ class singleton_service {
      * Sets and gets renderer instance.
      *
      * @param string $renderername
-     * @return renderer
+     * @return singleton_service::$renderer
      */
     public static function get_renderer(string $renderername) {
 

@@ -147,7 +147,7 @@ class teachers_handler {
     /**
      * Load existing teachers into mform.
      *
-     * @param MoodleQuickForm &$mform reference to mform
+     * @param MoodleQuickForm $mform reference to mform
      */
     public function instance_form_before_set_data(MoodleQuickForm &$mform) {
 
@@ -165,7 +165,7 @@ class teachers_handler {
     /**
      * Subscribe new teachers and / or unsubscribe removed teachers from booking option.
      *
-     * @param stdClass &$formdata formdata
+     * @param stdClass $formdata formdata
      * @param bool $doenrol true if we want to enrol teachers into course
      */
     public function save_from_form(stdClass &$formdata, bool $doenrol = true) {
