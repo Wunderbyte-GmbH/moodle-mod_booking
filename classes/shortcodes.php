@@ -77,12 +77,14 @@ class shortcodes {
         list($fields, $from, $where, $params, $filter) =
                 booking::get_options_filter_sql(0, 0, '', null, null, [], $wherearray);
 
-        $table->set_filter_sql($fields, $from, $where, $filter, $params);
-
-        if (empty($args['all'])) {
+        // By default, we do not show booking options that lie in the past.
+        // Shortcode arg values get transmitted as string, so also check for "false" and "0".
+        if (empty($args['all']) || $args['all'] == "false" || $args['all'] == "0") {
             $now = time();
-            $where .= " coursestarttime > $now ";
+            $where .= " AND courseendtime > $now ";
         }
+
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
         // These are all possible options to be displayed in the bookingtable.
         $possibleoptions = [
@@ -100,7 +102,7 @@ class shortcodes {
         ];
         // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
 
-        if (isset($args['exclude'])) {
+        if (!empty($args['exclude'])) {
             $exclude = explode(',', $args['exclude']);
             $optionsfields = array_diff($possibleoptions, $exclude);
         } else {
@@ -132,7 +134,10 @@ class shortcodes {
             false,
         );
 
-        unset($table->subcolumns['rightside']);
+        // If "rightside" is in the "exclude" array, then we do not show the rightside area (containing the "Book now" button).
+        if (!empty($exclude) && in_array('rightside', $exclude)) {
+            unset($table->subcolumns['rightside']);
+        }
 
         $out = $table->outhtml($perpage, true);
 
