@@ -1,3 +1,20 @@
+## Version 8.0.56 (2023122000)
+**New features:**
+* New feature: Shortcode [recommendedin] - Better default settings and new params for configuration.
+
+**Improvements:**
+* Improvement: If we have dates with "entity outliers" we show an additional checkbox to confirm overwriting.
+* Improvement: Add and remove teachers only from future dates, but keep them in past dates - so we have a valid history.
+* Improvement: Change string for changed behavior (teachers only added/removed for FUTURE optiondates).
+* Improvement: Recommendedin show only options where coursesendtime is > $now. (arg 'all' to turn off)
+* Improvement: Remove RELEASENOTES as it is redundant to CHANGES.md.
+
+**Bugfixes:**
+* Bugfix: Also purge encoded tables (wunderbyte table cache) when purging cache for a specific option.
+* Bugfix: Only purge wbtable cache when a booking option gets updated. Not generally.
+* Bugfix: Fix some strings for booking instance action logs.
+* Bugfix: Fix behat.
+
 ## Version 8.0.55 (2023121100)
 **Bugfixes:**
 * Bugfix: Add missing string 'semesterid'.
@@ -78,8 +95,8 @@
 **Bugfixes:**
 * Bugfix: Make sure that booking and cancelling of options without a price is possible even when shopping cart is installed.
 * Bugfix: Fix bugs with prepages (both modal and inline) in combination with new cost center feature.
-* Bufix: Fix behat tests and issues related to prepages (both modal and inline).
-* Bufix: Fix error "Exception - Warning: Undefined array key "serviceperiodstart".
+* Bugfix: Fix behat tests and issues related to prepages (both modal and inline).
+* Bugfix: Fix error "Exception - Warning: Undefined array key "serviceperiodstart".
 * Bugfix: Fix Javascript for Prepage Modals.
 * Bugfix: Add shoppingcartisinstalled to example json.
 * Bugfix: Fix normal booking button js.
