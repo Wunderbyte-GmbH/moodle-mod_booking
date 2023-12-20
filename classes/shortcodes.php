@@ -79,6 +79,11 @@ class shortcodes {
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
+        if (empty($args['all'])) {
+            $now = time();
+            $where .= " coursestarttime > $now ";
+        }
+
         // These are all possible options to be displayed in the bookingtable.
         $possibleoptions = [
             "description",
