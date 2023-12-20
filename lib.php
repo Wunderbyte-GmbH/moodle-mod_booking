@@ -14,6 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Library of common module functions and constants.
+ *
+ * @package     mod_booking
+ * @copyright   2023 Georg Maißer <georg.maisser@wunderbyte.at>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -154,6 +162,8 @@ define('MOD_BOOKING_CAMPAIGN_TYPE_CUSTOMFIELD', 0);
 define('MOD_BOOKING_CAMPAIGN_TYPE_BLOCKBOOKING', 1);
 
 /**
+ * Booking get coursemodule info.
+ *
  * @param stdClass $cm
  * @return cached_cm_info
  */
@@ -168,16 +178,19 @@ function booking_get_coursemodule_info($cm) {
 }
 
 /**
- *  Callback checking permissions and preparing the file for serving plugin files, see File API.
+ * Serves the booking / option files.
  *
- * @param $course
- * @param $cm
- * @param $context
- * @param $filearea
- * @param $args
- * @param $forcedownload
- * @param array $options
- * @return bool
+ * @package  mod_booking
+ * @category files
+ * @param stdClass $course course object
+ * @param stdClass $cm course module object
+ * @param stdClass $context context object
+ * @param string $filearea file area
+ * @param array $args extra arguments
+ * @param bool $forcedownload whether or not force download
+ * @param array $options additional options affecting the file serving
+ * @return bool false if file not found, does not return if found - justsend the file
+ *
  * @throws coding_exception
  * @throws moodle_exception
  * @throws require_login_exception
@@ -231,6 +244,17 @@ function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedown
     send_stored_file($file, null, 0, true, $options);
 }
 
+/**
+ * Booking user outline.
+ *
+ * @param object $course
+ * @param object $user
+ * @param object $mod
+ * @param object $booking
+ *
+ * @return stdClass|null
+ *
+ */
 function booking_user_outline($course, $user, $mod, $booking) {
     global $DB;
     if ($answer = $DB->get_record('booking_answers',
@@ -247,12 +271,15 @@ function booking_user_outline($course, $user, $mod, $booking) {
 /**
  * Callback for the "Complete" report - prints the activity summary for the given user.
  *
- * @param $course
- * @param $user
- * @param $mod
- * @param $booking
+ * @param stdClass $course
+ * @param stdClass $user
+ * @param stdClass $mod
+ * @param object $booking
+ *
  * @throws coding_exception
  * @throws dml_exception
+ *
+ * @return void
  */
 function booking_user_complete($course, $user, $mod, $booking) {
     global $DB;
@@ -269,6 +296,14 @@ function booking_user_complete($course, $user, $mod, $booking) {
     }
 }
 
+/**
+ * Booking supports.
+ *
+ * @param bool $feature
+ *
+ * @return bool|null
+ *
+ */
 function booking_supports($feature) {
     switch ($feature) {
         case FEATURE_GROUPS:
@@ -303,8 +338,11 @@ function booking_supports($feature) {
  *
  * @package mod_booking
  * @category comment
- * @param $commentparam
+ *
+ * @param object $commentparam
+ *
  * @return array
+ *
  * @throws dml_exception
  */
 function booking_comment_permissions($commentparam): array {
@@ -390,11 +428,13 @@ function booking_comment_validate(stdClass $commentparam): bool {
 /**
  * Calculate completion state.
  *
- * @param $course
- * @param $cm
- * @param $userid
- * @param $type
+ * @param stdClass $course
+ * @param stdClass $cm
+ * @param int $userid
+ * @param bool $type
+ *
  * @return bool
+ *
  * @throws dml_exception
  */
 function booking_get_completion_state($course, $cm, $userid, $type) {
@@ -1522,9 +1562,12 @@ function booking_update_options(object $optionvalues, context_module $context,
 
 /**
  * Helper function to save entity relations for all associated optiondates.
- * @param stdClass &$optionvalues option values from form
+ *
+ * @param stdClass $optionvalues option values from form
  * @param int $optionid
  * @param bool $isimport for CSV or webservice import this needs to be true
+ *
+ * @return void
  * */
 function save_entity_relations_for_optiondates_of_option(stdClass &$optionvalues, int $optionid, bool $isimport = false) {
     global $DB;
@@ -1570,6 +1613,14 @@ function save_entity_relations_for_optiondates_of_option(stdClass &$optionvalues
 
 /**
  * Helper function to deal with the creation of multisessions (optiondates).
+ *
+ * @param stdClass $optionvalues
+ * @param object $booking
+ * @param int $optionid
+ * @param stdClass $context
+ *
+ * @return void
+ *
  */
 function deal_with_multisessions(&$optionvalues, $booking, $optionid, $context) {
 
@@ -1618,6 +1669,14 @@ function deal_with_multisessions(&$optionvalues, $booking, $optionid, $context) 
 
 /**
  * Extend booking user navigation
+ *
+ * @param core_user\output\myprofile\tree $tree
+ * @param stdClass $user
+ * @param bool $iscurrentuser
+ * @param stdClass $course
+ *
+ * @return void
+ *
  */
 function booking_myprofile_navigation(core_user\output\myprofile\tree $tree, $user, $iscurrentuser, $course) {
     if ($iscurrentuser) {
@@ -2065,7 +2124,6 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
 /**
  * Return grade for given user or all users.
  *
- * @global object
  * @param stdClass $booking
  * @param int $userid optional user id, 0 means all users
  * @return array array of grades, false if none
@@ -2161,8 +2219,10 @@ function booking_grade_item_update($booking, $grades = null) {
 /**
  * Delete grade item
  *
- * @category grade
- * @return grade_item
+ * @param object $booking
+ *
+ * @return int
+ *
  */
 function booking_grade_item_delete($booking) {
     global $CFG;
@@ -2175,9 +2235,11 @@ function booking_grade_item_delete($booking) {
 /**
  * This function returns if a scale is being used by the booking instance
  *
- * @global object
+ * @param int $bookingid
  * @param int $scaleid negative number
+ *
  * @return bool
+ *
  */
 function booking_scale_used($bookingid, $scaleid) {
     global $DB;
@@ -2194,8 +2256,8 @@ function booking_scale_used($bookingid, $scaleid) {
 /**
  * Checks if scale is being used by any instance of forum This is used to find out if scale used anywhere
  *
- * @global object
- * @param $scaleid int
+ * @param int $scaleid
+ *
  * @return bool True if the scale is used by any booking instance
  */
 function booking_scale_used_anywhere($scaleid) {
@@ -2210,8 +2272,12 @@ function booking_scale_used_anywhere($scaleid) {
 /**
  * Return rating related permissions
  *
- * @param string $options the context id
- * @return array an associative array of the user's rating permissions
+ * @param int $contextid
+ * @param string $component
+ * @param string $ratingarea
+ *
+ * @return array|null an associative array of the user's rating permissions
+ *
  */
 function booking_rating_permissions($contextid, $component, $ratingarea) {
     $context = context::instance_by_id($contextid, MUST_EXIST);
@@ -2519,6 +2585,15 @@ function booking_delete_instance($id) {
     return $result;
 }
 
+/**
+ * Booking get option text.
+ *
+ * @param object $booking
+ * @param int $id
+ *
+ * @return string
+ *
+ */
 function booking_get_option_text($booking, $id) {
     global $DB, $USER;
     // Returns text string which is the answer that matches the id.
@@ -2542,7 +2617,9 @@ function booking_get_option_text($booking, $id) {
  * Implementation of the function for printing the form elements that control whether the course reset
  * functionality affects the booking.
  *
- * @param $mform form passed by reference
+ * @param object $mform form passed by reference
+ *
+ * @return void
  */
 function booking_reset_course_form_definition(&$mform) {
     $mform->addElement('header', 'bookingheader', get_string('modulenameplural', 'booking'));
@@ -2551,14 +2628,22 @@ function booking_reset_course_form_definition(&$mform) {
 
 /**
  * Course reset form defaults.
+ *
+ * @param stdClass $course
+ *
+ * @return array
+ *
  */
 function booking_reset_course_form_defaults($course) {
     return ['reset_booking' => 1];
 }
 
 /**
+ * Booking pretty duration.
  *
  * @param int $seconds
+ *
+ * @return string
  */
 function booking_pretty_duration($seconds) {
     $measures = ['days' => 24 * 60 * 60, 'hours' => 60 * 60, 'minutes' => 60];
@@ -2714,6 +2799,15 @@ function unsubscribe_teacher_from_booking_option(int $userid, int $optionid, int
             ['userid' => $userid, 'optionid' => $optionid]));
 }
 
+/**
+ * Booking show subcategories.
+ *
+ * @param int $catid
+ * @param int $courseid
+ *
+ * @return void
+ *
+ */
 function booking_show_subcategories($catid, $courseid) {
     global $DB;
     $categories = $DB->get_records('booking_category', ['cid' => $catid]);
@@ -2734,12 +2828,11 @@ function booking_show_subcategories($catid, $courseid) {
 /**
  * Returns list of user objects that are subscribed to this booking
  *
- * @global object
- * @global object
- * @param object $course the course
+ * @param stdClass $course the course
  * @param booking $booking the booking
+ * @param int $id
  * @param int $groupid group id, or 0 for all.
- * @param object $context the booking context, to save re-fetching it where possible.
+ * @param stdClass $context the booking context, to save re-fetching it where possible.
  * @param string $fields requested user fields (with "u." table prefix)
  * @return array list of users.
  */
@@ -2834,7 +2927,9 @@ function mod_booking_cm_info_view(cm_info $cm) {
 
 /**
  * Helper function to check if a string is valid JSON.
- * @param $string the string to check
+ *
+ * @param string $string the string to check
+ *
  * @return bool true if valid json
  */
 function is_json($string) {
