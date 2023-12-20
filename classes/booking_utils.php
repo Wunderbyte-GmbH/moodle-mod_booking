@@ -14,6 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Booking utils.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Andraž Prinčič, 2021 onwards - Wunderbyte GmbH
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking;
 
 use cache_helper;
@@ -24,10 +33,11 @@ use moodle_url;
 use stdClass;
 
 /**
- * Booking utils.
+ * Class for booking utils.
  *
  * @package mod_booking
- * @copyright 2014 Andraž Prinčič, 2021 onwards - Wunderbyte GmbH
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Andraž Prinčič, 2021 onwards - Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_utils {
@@ -42,6 +52,13 @@ class booking_utils {
      */
     public $bookingoption = null;
 
+    /**
+     * [Description for Constructor
+     *
+     * @param object $booking
+     * @param object $bookingoption
+     *
+     */
     public function __construct($booking = null, $bookingoption = null) {
 
         if ($booking) {
@@ -53,10 +70,26 @@ class booking_utils {
 
     }
 
+    /**
+     * [Description for Get pretty duration
+     *
+     * @param mixed $seconds
+     *
+     * @return string
+     *
+     */
     public function get_pretty_duration($seconds) {
         return $this->pretty_duration($seconds);
     }
 
+    /**
+     * [Description for Pretty duration
+     *
+     * @param mixed $seconds
+     *
+     * @return string
+     *
+     */
     private function pretty_duration($seconds) {
         $measures = ['days' => 24 * 60 * 60, 'hours' => 60 * 60, 'minutes' => 60];
         $durationparts = [];
@@ -176,6 +209,8 @@ class booking_utils {
      * @param object $booking the booking activity object
      * @param string $fieldname the name of the field that contains the custom text
      * @param object $params the booking details
+     * @param bool $urlencode
+     *
      * @return string
      */
     public function get_body($booking, $fieldname, $params, $urlencode = false) {
@@ -194,8 +229,14 @@ class booking_utils {
 
     /**
      * Function to define reaction on changes of booking options and its sessions.
-     * @param $option
-     * @param $changes
+     *
+     * @param int $cmid
+     * @param stdClass $context
+     * @param int $optionid
+     * @param mixed $changes
+     *
+     * @return void
+     *
      * @throws \coding_exception
      */
     public function react_on_changes($cmid, $context, $optionid, $changes) {
@@ -258,8 +299,11 @@ class booking_utils {
 
     /**
      * Helper function to check if a booking option has associated sessions (optiondates).
-     * @param $optionid int The id of a booking option.
+     *
+     * @param int $optionid int The id of a booking option.
+     *
      * @return bool
+     *
      * @throws \dml_exception
      */
     public static function booking_option_has_optiondates(int $optionid) {
@@ -276,10 +320,14 @@ class booking_utils {
 
     /**
      * Helper function to return a string and arrays containing all relevant customfields update changes.
+     *
      * The string will be used to replace the {changes} placeholder in update mails.
      * The returned arrays will have the prepared stdclasses for update and insert in booking_customfields table.
-     * @param $oldcustomfields
-     * @param $newcustomfields
+     *
+     * @param mixed $oldcustomfields
+     * @param mixed $data
+     *
+     * @return array
      */
     public function booking_customfields_get_changes($oldcustomfields, $data) {
 
@@ -403,8 +451,9 @@ class booking_utils {
     /**
      * Helper function to return an array containing all relevant option update changes.
      *
-     * @param $oldoption stdClass the original booking option object
-     * @param $newoption stdClass the new booking option object
+     * @param object $oldoption stdClass the original booking option object
+     * @param object $newoption stdClass the new booking option object
+     *
      * @return array an array containing the changes that have been made
      */
     public function booking_option_get_changes($oldoption, $newoption) {
@@ -492,8 +541,9 @@ class booking_utils {
     /**
      * Helper function to return an array containing all relevant session update changes.
      *
-     * @param $oldoptiondate stdClass the original session object
-     * @param $newoptiondate stdClass the new session object
+     * @param stdClass $oldoptiondate the original session object
+     * @param stdClass $newoptiondate the new session object
+     *
      * @return array an array containing the changes that have been made
      */
     public function booking_optiondate_get_changes($oldoptiondate, $newoptiondate) {
@@ -524,6 +574,14 @@ class booking_utils {
         ];
     }
 
+    /**
+     * Col status
+     *
+     * @param mixed $values
+     *
+     * @return string
+     *
+     */
     private function col_status($values) {
         switch ($values->status) {
             case 1:
@@ -546,7 +604,12 @@ class booking_utils {
 
     /**
      * Helper function to hide all option user events.
+     *
      * We need this if we switch from option to multisession.
+     *
+     * @param int $optionid
+     *
+     * @return bool
      */
     public function booking_hide_option_userevents ($optionid) {
         global $DB;
@@ -560,11 +623,17 @@ class booking_utils {
                 return false;
             }
         }
+
+        return true;
     }
 
     /**
      * Helper function to show all option user events.
      * We need this if we switch from multisession to option.
+     *
+     * @param int $optionid
+     *
+     * @return bool
      */
     public function booking_show_option_userevents ($optionid) {
         global $DB;
@@ -578,15 +647,19 @@ class booking_utils {
                 return false;
             }
         }
+
+        return true;
     }
 
     /**
      * Helper function to generate a subscription link to the Moodle calendar.
+     *
      * The calendar export time range can be set in Site_admin > Appearance > Calendar.
      * Use $eventparam to specify the event type to be exported (user events are the default).
      *
      * @param stdClass $user the user the calendar link is for
      * @param string $eventparam ('all' | 'categories' | 'courses' | 'groups' | 'user')
+     *
      * @return string the subscription link
      */
     public function booking_generate_calendar_subscription_link ($user, $eventparam = 'user') {
@@ -620,7 +693,8 @@ class booking_utils {
      *
      * @param stdClass $fromform
      * @param booking_option $bookingoption
-     * @param $context
+     * @param stdClass $context
+     *
      * @return stdClass
      * @throws \coding_exception
      * @throws \dml_exception
@@ -728,7 +802,9 @@ class booking_utils {
 
     /**
      * Copied from core_calendar > lib.php.
+     *
      * Get the auth token for exporting the given user calendar.
+     *
      * @param stdClass $user The user to export the calendar for
      *
      * @return string The export token.
