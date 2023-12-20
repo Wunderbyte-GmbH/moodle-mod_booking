@@ -3269,8 +3269,8 @@ class booking_option {
         // - implement cancel
         // - implement save and stay
         // - implement save and add new
-        // - implement entities for optiondates
-        // - Test csv importer
+        // - implement entities for optiondates - done
+        // - Test csv importer - done
         // - test webservice importer
         // - test availability
         // - test actions

@@ -58,4 +58,16 @@ export const init = () => {
         // that you passed when you rendered the form on the page.
         dynamicForm.load(e.detail);
     });
+
+    dynamicForm.addEventListener('change', e => {
+        // eslint-disable-next-line no-console
+        console.log(e);
+
+        if (e.target.name == 'optiontemplateid') {
+            window.skipClientValidation = true;
+            let button = document.querySelector('[name="btn_changetemplate"]');
+            dynamicForm.processNoSubmitButton(button);
+        }
+
+    });
 };

@@ -28,6 +28,7 @@ use coding_exception;
 use core_component;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
+use moodle_exception;
 use MoodleQuickForm;
 use stdClass;
 
@@ -184,10 +185,15 @@ class fields_info {
 
         $classes = self::get_field_classes();
 
-        foreach ($classes as $classname) {
-            $classname::set_data($data, $settings);
+        try {
+            foreach ($classes as $classname) {
+                $classname::set_data($data, $settings);
+            }
+        } catch (moodle_exception $e) {
+            // This is just to get out of the loop.
+            // We use this exit in the template class.
+            $a = 1;
         }
-
     }
 
     /**

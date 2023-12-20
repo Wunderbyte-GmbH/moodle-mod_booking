@@ -24,10 +24,13 @@
 
 namespace mod_booking\option\fields;
 
+use mod_booking\booking_option_settings;
 use mod_booking\option\fields;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
+use moodle_exception;
 use MoodleQuickForm;
 use stdClass;
 
@@ -99,6 +102,14 @@ class template extends field_base {
         // Standardfunctionality to add a header to the mform (only if its not yet there).
         fields_info::add_header_to_mform($mform, self::$header);
 
+        // Button to attach JavaScript to reload the form.
+        $mform->registerNoSubmitButton('btn_changetemplate');
+        $mform->addElement('submit', 'btn_changetemplate', 'xxx',
+            [
+            'class' => 'd-none',
+            'data-action' => 'btn_changetemplate',
+        ]);
+
         // If there is no license key and there is more than one template, we only use the first one.
         if (count($alloptiontemplates) > 1 && !wb_payment::pro_version_is_activated()) {
             $alloptiontemplates = [reset($alloptiontemplates)];
@@ -112,5 +123,82 @@ class template extends field_base {
 
         $mform->addElement('select', 'optiontemplateid', get_string('populatefromtemplate', 'mod_booking'),
             $optiontemplates);
+    }
+
+    /**
+     * Standard function to transfer stored value to form.
+     * @param stdClass $data
+     * @param booking_option_settings $settings
+     * @return void
+     * @throws dml_exception
+     */
+    public static function set_data(stdClass &$data, booking_option_settings $settings) {
+
+        if (isset($data->btn_changetemplate)) {
+            // First, retrieve the template we want to use.
+
+            $settings = singleton_service::get_instance_of_booking_option_settings($data->optiontemplateid);
+            $datescounter = count($settings->sessions);
+
+            // Now, we need to create the data for this option the same way we would create it otherwise...
+            $templateoption = (object)[
+                'cmid' => $data->cmid,
+                'id' => $data->optiontemplateid, // In the context of option_form class, id always refers to optionid.
+                'optionid' => $data->optiontemplateid, // Just kept on for legacy reasons.
+                'bookingid' => $data->bookingid,
+                'copyoptionid' => 0,
+                'datescounter' => $datescounter,
+                'returnurl' => '',
+            ];
+
+            fields_info::set_data($templateoption);
+
+            // Now we have the templateoption fully prepared...
+            // ... we can just replace a few values and continue working from here with this object.
+            $excluded = [
+                'id',
+                'optionid',
+                'cmid',
+                'bookingid',
+                'returnurl',
+                'identifier',
+                'sesskey',
+                'datescounter',
+            ];
+
+            foreach ($templateoption as $key => $value) {
+                if (!in_array($key, $excluded)) {
+                    $data->{$key} = $value;
+                }
+            }
+            throw new moodle_exception('loadtemplate', 'mod_booking');
+        }
+    }
+
+    /**
+     * Definition after data callback
+     * @param MoodleQuickForm $mform
+     * @param mixed $formdata
+     * @return void
+     * @throws coding_exception
+     */
+    public static function definition_after_data(MoodleQuickForm &$mform, $formdata) {
+
+        $values = $mform->_defaultValues;
+        $formdata = $values;
+
+        // If we have applied the change template value, we override all the values we have submitted.
+        if (!empty($formdata['btn_changetemplate'])) {
+            foreach ($values as $k => $v) {
+
+                if ($mform->elementExists($k) && $v !== null) {
+
+                    if ($mform->elementExists($k)) {
+                        $element = $mform->getElement($k);
+                        $element->setValue($v);
+                    }
+                }
+            }
+        }
     }
 }
