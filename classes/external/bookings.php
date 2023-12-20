@@ -68,7 +68,12 @@ class bookings extends external_api {
     /**
      * Webservice for return bookings for course id.
      *
+     * @param string $courseid
+     * @param string $printusers
+     * @param string $days
+     *
      * @return array
+     *
      */
     public static function execute($courseid = '0', $printusers = '0', $days = '0'): array {
         global $DB, $CFG;

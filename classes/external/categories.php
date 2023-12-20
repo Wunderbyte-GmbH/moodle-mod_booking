@@ -36,6 +36,16 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/externallib.php');
 
+/**
+ * Mod booking show sub categories.
+ *
+ * @param int $catid
+ * @param mixed $DB
+ * @param int $courseid
+ *
+ * @return array
+ *
+ */
 function mod_booking_showsubcategories($catid, $DB, $courseid) {
     $returns = [];
     $categories = $DB->get_records('booking_category', ['cid' => $catid]);
@@ -80,6 +90,8 @@ class categories extends external_api {
 
     /**
      * Webservice for return bookings categories.
+     *
+     * @param int $courseid
      *
      * @return array
      */

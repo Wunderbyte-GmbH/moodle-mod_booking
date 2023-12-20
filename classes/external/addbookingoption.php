@@ -155,7 +155,55 @@ class addbookingoption extends external_api {
     /**
      * By this function it's possible to create a booking option via webservice.
      *
+     * @param string $name
+     * @param string $identifier
+     * @param string|null $titleprefix
+     * @param int|null $targetcourseid
+     * @param int|null $courseid
+     * @param int|null $bookingid
+     * @param int|null $bookingidnumber
+     * @param int|null $bookingoptionid
+     * @param int|null $courseidnumber
+     * @param string|null $courseshortname
+     * @param string|null $enroltocourseshortname
+     * @param int|null $maxanswers
+     * @param int|null $maxoverbooking
+     * @param int|null $minanswers
+     * @param string|null $bookingopeningtime
+     * @param string|null $bookingclosingtime
+     * @param int|null $enrolmentstatus
+     * @param string|null $description
+     * @param int $descriptionformat
+     * @param int $limitanswers
+     * @param int|null $addtocalendar
+     * @param string|null $pollurl
+     * @param string|null $location
+     * @param string|null $institution
+     * @param string|null $address
+     * @param string|null $pollurlteachers
+     * @param int|null $howmanyusers
+     * @param int|null $removeafterminutes
+     * @param string|null $notifcationtext
+     * @param int|null $notifcationtextformat
+     * @param int $disablebookingusers
+     * @param string|null $beforebookedtext
+     * @param string|null $beforecompletedtext
+     * @param string|null $aftercompletedtext
+     * @param string|null $shorturl
+     * @param int $duration
+     * @param string|null $useremail
+     * @param string|null $teacheremail
+     * @param string|null $userusername
+     * @param string|null $coursestarttime
+     * @param string|null $courseendtime
+     * @param int $invisible
+     * @param string|null $responsiblecontact
+     * @param string|null $boavenrolledincourse
+     * @param string|null $recommendedin
+     * @param int|null $mergeparam
+     *
      * @return array
+     *
      */
     public static function execute(
                         string $name,

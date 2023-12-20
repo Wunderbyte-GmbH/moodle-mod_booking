@@ -13,6 +13,16 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Managing a single booking option
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author 2014 David Bogner
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking;
 
 use cache_helper;
@@ -52,10 +62,11 @@ require_once($CFG->libdir . '/completionlib.php');
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Managing a single booking option
+ * Class to managing a single booking option
  *
  * @package mod_booking
- * @copyright 2014 David Bogner
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author 2014 David Bogner
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_option {
@@ -169,8 +180,9 @@ class booking_option {
      * Returns a booking_option object when optionid is passed along.
      * Saves db query when booking id is given as well, but uses already cached settings.
      *
-     * @param $optionid
+     * @param int $optionid
      * @param ?int $bookingid booking id
+     *
      * @return booking_option
      * @throws coding_exception
      * @throws dml_exception
@@ -286,6 +298,12 @@ class booking_option {
         $this->option = $tags->option_replace($this->option);
     }
 
+    /**
+     * Get url params
+     *
+     * @return void
+     *
+     */
     public function get_url_params() {
         $bu = new booking_utils();
         $params = $bu->generate_params($this->booking->settings, $this->option);
@@ -592,7 +610,7 @@ class booking_option {
      * Deletes a single booking of a user if user cancels the booking, sends mail to bookingmanager.
      * If there is a limit book other user and send mail to the user.
      *
-     * @param $userid
+     * @param int $userid
      * @param bool $cancelreservation
      * @param bool $bookingoptioncancel indicates if the function was called
      *     after the whole booking option was cancelled, false by default
@@ -725,7 +743,7 @@ class booking_option {
      * Unsubscribes given users from this booking option and subscribes them to the newoption
      *
      * @param int $newoption
-     * @param array of numbers $userids
+     * @param array $userids of numbers
      * @return stdClass transferred->success = true/false, transferred->no[] errored users,
      *         $transferred->yes transferred users
      */
@@ -1695,7 +1713,7 @@ class booking_option {
     /**
      * Transfer the booking option including users to another booking option of the same course.
      *
-     * @param $targetcmid
+     * @param int $targetcmid
      * @return string error message, empty if no error.
      * @throws coding_exception
      * @throws dml_exception
@@ -1870,7 +1888,12 @@ class booking_option {
         }
     }
 
-    // Print custom report.
+    /**
+     * Print custom report.
+     *
+     * @return void
+     *
+     */
     public function printcustomreport() {
         global $CFG;
 
@@ -2024,7 +2047,11 @@ class booking_option {
      * @param array $filters
      * @param string $fields
      * @param string $from
-     * @return void
+     * @param string $where
+     * @param array $params
+     * @param string $order
+     *
+     * @return array
      */
     public static function search_all_options_sql($bookingid = 0,
                                     $filters = [],
@@ -2060,11 +2087,8 @@ class booking_option {
      * Send message: Poll URL.
      *
      * @param array $userids the selected userids
-     * @param int $bookingid booking id
-     * @param int $cmid course module id
-     * @param int $optionid booking option id
-     * @throws coding_exception
-     * @throws dml_exception
+     *
+     * @return void
      */
     public function sendmessage_pollurl(array $userids) {
         global $DB;
@@ -2091,11 +2115,8 @@ class booking_option {
 
     /**
      * Send message: Poll URL for teachers.
-     * @param int $bookingid
-     * @param int $cmid
-     * @param int $optionid
-     * @throws coding_exception
-     * @throws dml_exception
+     *
+     * @return void
      */
     public function sendmessage_pollurlteachers() {
         global $DB;
@@ -2226,7 +2247,12 @@ class booking_option {
 
     /**
      * Helper function for mustache template to return array with datestring and customfields
-     * @param $bookingoption
+     *
+     * @param object $bookingevent
+     * @param int $descriptionparam
+     * @param bool $withcustomfields
+     * @param bool $forbookeduser
+     *
      * @return array
      * @throws \dml_exception
      */
@@ -3105,7 +3131,7 @@ class booking_option {
     /**
      * A helper class to add data to the json of a booking option.
      *
-     * @param stdClass &$data reference to a data object containing the json key
+     * @param stdClass $data reference to a data object containing the json key
      * @param string $key - for example: "disablecancel"
      * @param int|string|stdClass|array|null $value - for example: 1
      */
@@ -3121,7 +3147,7 @@ class booking_option {
     /**
      * A helper class to remove a data field from the json of a booking option.
      *
-     * @param stdClass &$data reference to a data object containing the json key to remove
+     * @param stdClass $data reference to a data object containing the json key to remove
      * @param string $key - the key to remove, for example: "disablecancel"
      */
     public static function remove_key_from_json(stdClass &$data, string $key) {

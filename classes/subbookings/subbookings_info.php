@@ -151,7 +151,7 @@ class subbookings_info {
 
     /**
      * Save all booking subbookings.
-     * @param stdClass &$data reference to the form data
+     * @param stdClass $data reference to the form data
      * @return void
      */
     public static function save_subbooking(stdClass &$data) {
@@ -361,8 +361,8 @@ class subbookings_info {
      *
      * @param string $area
      * @param int $itemid
-     * @param int $userid
      * @param int $status
+     * @param int $userid
      * @return bool
      */
     public static function save_response(string $area, int $itemid, int $status, $userid = 0):bool {

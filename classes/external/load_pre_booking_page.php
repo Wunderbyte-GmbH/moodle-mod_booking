@@ -64,6 +64,7 @@ class load_pre_booking_page extends external_api {
      * Webservice for load_pre_booking_page.
      *
      * @param int $optionid
+     * @param int $userid
      * @param int $pagenumber
      *
      * @return array

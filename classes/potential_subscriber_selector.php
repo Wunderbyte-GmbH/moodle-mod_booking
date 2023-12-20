@@ -22,7 +22,8 @@ use mod_booking\subscriber_selector_base;
  * A user selector control for potential subscribers to the selected booking
  *
  * @package mod_booking
- * @copyright 2014 Andraž Prinčič
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Andraž Prinčič
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class potential_subscriber_selector extends subscriber_selector_base {

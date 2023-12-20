@@ -15,9 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Base class for a single booking option availability condition.
- *
- * All bo condition types must extend this class.
+ * Handling a subbooking cache.
  *
  * @package mod_booking
  * @copyright 2022 Wunderbyte GmbH
@@ -27,6 +25,8 @@
 namespace mod_booking\subbookings;
 
 /**
+ * Class to handling a subbooking cache.
+ *
  * @package mod_booking
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @author Georg Maißer

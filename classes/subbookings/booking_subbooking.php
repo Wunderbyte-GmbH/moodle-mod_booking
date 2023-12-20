@@ -45,7 +45,7 @@ interface booking_subbooking {
     /**
      * Adds the form elements for this subbooking to the provided mform.
      * @param MoodleQuickForm $mform the mform where the subbooking should be added
-     * @param formdata
+     * @param array $formdata
      * @return void
      */
     public function add_subbooking_to_mform(MoodleQuickForm &$mform, array &$formdata);
@@ -59,13 +59,13 @@ interface booking_subbooking {
 
     /**
      * Gets the JSON for the subbookings to be stored in DB.
-     * @param stdClass &$data form data reference
+     * @param stdClass $data form data reference
      */
     public function save_subbooking(stdClass &$data);
 
     /**
      * Sets the subbooking defaults when loading the form.
-     * @param stdClass &$data reference to the default values
+     * @param stdClass $data reference to the default values
      * @param stdClass $record a record from booking_subbookings
      */
     public function set_defaults(stdClass &$data, stdClass $record);
@@ -93,7 +93,6 @@ interface booking_subbooking {
      * The price might be altered, eg. when more than one item is selected.
      *
      * @param object $user
-     * @param object $user
      * @return array
      */
     public function return_price($user):array;
@@ -106,6 +105,7 @@ interface booking_subbooking {
      * But normally the itemid here is the same as the subboooking it.
      *
      * @param int $itemid
+     * @param object $user
      *
      * @return array
      */
