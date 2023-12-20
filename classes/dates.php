@@ -453,15 +453,19 @@ class dates {
         $mform->addElement($element);
         $elements[] = $element;
 
-        $elements[] =& $mform->addElement('date_time_selector', MOD_BOOKING_FORM_COURSESTARTTIME . $idx,
+        $element = $mform->addElement('date_time_selector', MOD_BOOKING_FORM_COURSESTARTTIME . $idx,
             get_string("coursestarttime", "booking"));
-            $mform->setType(MOD_BOOKING_FORM_COURSESTARTTIME . $idx, PARAM_INT);
-            $mform->disabledIf(MOD_BOOKING_FORM_COURSESTARTTIME . $idx, 'startendtimeknown', 'notchecked');
+        $mform->setType(MOD_BOOKING_FORM_COURSESTARTTIME . $idx, PARAM_INT);
+        $mform->disabledIf(MOD_BOOKING_FORM_COURSESTARTTIME . $idx, 'startendtimeknown', 'notchecked');
+        $element->setValue($starttime);
+        $elements[] = $element;
 
-        $elements[] =& $mform->addElement('date_time_selector', MOD_BOOKING_FORM_COURSEENDTIME . $idx,
+        $element = $mform->addElement('date_time_selector', MOD_BOOKING_FORM_COURSEENDTIME . $idx,
             get_string("courseendtime", "booking"));
         $mform->setType(MOD_BOOKING_FORM_COURSEENDTIME . $idx, PARAM_INT);
         $mform->disabledIf(MOD_BOOKING_FORM_COURSEENDTIME . $idx, 'startendtimeknown', 'notchecked');
+        $element->setValue($endtime);
+        $elements[] = $element;
 
         $element = $mform->addElement(
             'text',

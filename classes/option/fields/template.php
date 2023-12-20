@@ -164,13 +164,11 @@ class template extends field_base {
 
             foreach ($templateoption as $key => $value) {
 
-                if (strpos($key, MOD_BOOKING_FORM_OPTIONDATEID)) {
+                if (strpos($key, MOD_BOOKING_FORM_OPTIONDATEID) !== false) {
 
                     $data->{$key} = 0;
 
-                }
-
-                if (!in_array($key, $excluded)) {
+                } else if (!in_array($key, $excluded)) {
                     $data->{$key} = $value;
                 }
             }
