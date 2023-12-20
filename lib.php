@@ -968,11 +968,20 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         return;
     }
 
+    // Set the returnurl to navigate back to after form is saved.
+    $viewphpurl = new moodle_url('/mod/booking/view.php', ['id' => $cm->id]);
+    $returnurl = $viewphpurl->out();
+
     if (has_capability('mod/booking:updatebooking', $context)) {
         $navref->add(
             get_string('createnewbookingoption', 'booking'),
             // For a new booking option, optionid needs to be empty.
-            new moodle_url('/mod/booking/editoptions.php', ['id' => $cm->id, 'optionid' => '']),
+            new moodle_url('/mod/booking/editoptions.php',
+                ['id' => $cm->id,
+                'optionid' => '',
+                'returnto' => 'url',
+                'returnurl' => $returnurl,
+            ]),
                 navigation_node::TYPE_CUSTOM, null, 'nav_createnewbookingoption'
         );
     }

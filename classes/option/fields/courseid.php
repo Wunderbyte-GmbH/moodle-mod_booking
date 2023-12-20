@@ -141,7 +141,7 @@ class courseid extends field_base {
     public static function validation(array $data, array $files, array &$errors) {
 
         global $DB;
-        // -1 means we need to create a new course, that's ok.
+        // Minus 1 (-1) means we need to create a new course, that's ok.
         if (!empty($data['courseid']) && $data['courseid'] != -1) {
             if (!$DB->record_exists('course', ['id' => $data['courseid']])) {
                 $errors['courseid'] = get_string('coursedoesnotexist', 'mod_booking', $data['courseid']);

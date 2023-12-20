@@ -96,19 +96,20 @@ class addtogroup extends field_base {
      */
     public static function save_data(stdClass &$formdata, stdClass &$option) {
 
-        $cmid = $formdata->cmid;
-        $optionid = $option->id;
+        if ($cmid = $formdata->cmid) {
+            $optionid = $option->id;
 
-        $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
+            $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
-        if (!empty($booking->settings->addtogroup) && $option->courseid > 0) {
-            $bo = singleton_service::get_instance_of_booking_option($cmid, $optionid);
-            $bo->option->courseid = $option->courseid;
-            $option->groupid = $bo->create_group();
-            $booked = $bo->get_all_users_booked();
-            if (!empty($booked) && $booking->settings->autoenrol) {
-                foreach ($booked as $bookinganswer) {
-                    $bo->enrol_user($bookinganswer->userid);
+            if (!empty($booking->settings->addtogroup) && $option->courseid > 0) {
+                $bo = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+                $bo->option->courseid = $option->courseid;
+                $option->groupid = $bo->create_group();
+                $booked = $bo->get_all_users_booked();
+                if (!empty($booked) && $booking->settings->autoenrol) {
+                    foreach ($booked as $bookinganswer) {
+                        $bo->enrol_user($bookinganswer->userid);
+                    }
                 }
             }
         }

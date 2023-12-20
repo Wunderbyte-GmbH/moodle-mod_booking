@@ -206,25 +206,6 @@ class option_form extends dynamic_form {
     }
 
     /**
-     * Helper function to explode strings to array of starttime & endtime.
-     *
-     * @param [type] $array
-     * @return array
-     */
-    private static function return_timestamps($array):array {
-
-        $returnarray = [];
-        foreach ($array as $date) {
-            list($startime, $endtime) = explode('-', $date);
-            $returnarray[] = [
-                'starttime' => $startime,
-                'endtime' => $endtime,
-            ];
-        }
-        return $returnarray;
-    }
-
-    /**
      * Definition after data.
      * @return void
      * @throws coding_exception
@@ -244,6 +225,7 @@ class option_form extends dynamic_form {
     protected function get_context_for_dynamic_submission(): context {
 
         $cmid = $this->_ajaxformdata['cmid'];
+
         return context_module::instance($cmid);
     }
 

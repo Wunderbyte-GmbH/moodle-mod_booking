@@ -463,7 +463,11 @@ class dates {
         $mform->setType(MOD_BOOKING_FORM_COURSEENDTIME . $idx, PARAM_INT);
         $mform->disabledIf(MOD_BOOKING_FORM_COURSEENDTIME . $idx, 'startendtimeknown', 'notchecked');
 
-        $element = $mform->addElement('text', MOD_BOOKING_FORM_DAYSTONOTIFY . $idx, get_string('daystonotifysession', 'mod_booking'));
+        $element = $mform->addElement(
+            'text',
+            MOD_BOOKING_FORM_DAYSTONOTIFY . $idx,
+            get_string('daystonotifysession', 'mod_booking'));
+
         $mform->setType(MOD_BOOKING_FORM_DAYSTONOTIFY . $idx, PARAM_INT);
         $element->setValue($date['daystonotify']);
         $mform->addHelpButton(MOD_BOOKING_FORM_DAYSTONOTIFY . $idx, 'daystonotifysession', 'mod_booking');

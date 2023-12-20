@@ -56,6 +56,6 @@ export const init = () => {
         // It is recommended to reload the form after submission because the elements may change.
         // This will also remove previous submission errors. You will need to pass the same arguments to the form
         // that you passed when you rendered the form on the page.
-        dynamicForm.load({arg1: 'val1'});
+        dynamicForm.load(e.detail);
     });
 };
