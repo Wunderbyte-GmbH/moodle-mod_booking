@@ -135,6 +135,10 @@ class mod_booking_generator extends testing_module_generator {
 
         $record = (object) $record;
 
+        // Finalizing object with required properties.
+        $record->cmid = $cmb1->id;
+        $record->identifier = booking_option::create_truly_unique_option_identifier();
+
         // Conversion of strings like ["optiondatestart[0]"]=> int(1690792686) into arrays (by ChatGPT).
         $optiondatestart = [];
         $optiondateend = [];
