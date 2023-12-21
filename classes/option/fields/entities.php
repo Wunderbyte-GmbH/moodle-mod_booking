@@ -93,6 +93,21 @@ class entities extends field_base {
                     }
                 };
             }
+
+            // If the checkbox to save entity for each optiondate is checked...
+            // ... then we seave the optionentity also for each optiondate.
+            if ($entityidkeys = preg_grep('/^local_entities_entityid/', array_keys((array)$formdata))) {
+                // Entity for the whole option.
+                $optionentity = $formdata->local_entities_entityid_0;
+                foreach ($entityidkeys as $entityidkey) {
+                    if ($entityidkey == "local_entities_entityid_0") {
+                        continue;
+                    }
+                    if (!empty($formdata->er_saverelationsforoptiondates)) {
+                        $formdata->{$entityidkey} = $optionentity;
+                    }
+                }
+            }
         }
         return '';
     }
@@ -176,6 +191,8 @@ class entities extends field_base {
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
+        $entities = [];
+
         if (class_exists('local_entities\entitiesrelation_handler')) {
 
             $erhandler = new entitiesrelation_handler('mod_booking', 'option');
@@ -184,22 +201,21 @@ class entities extends field_base {
             // B) The string in Location corresponds to an entityid.
             // C) We load the saved entityid.
             if (!empty($data->importing) && is_numeric($data->location)) {
-
                 $entities = $erhandler->get_entities_by_id($data->location);
-                if (count($entities) === 1) {
-                    $entity = reset($entities);
-                    $data->location = $entity->name; // We store the name in location.
-                    $data->{LOCAL_ENTITIES_FORM_ENTITYID . 0} = $entity->id; // 0 means for option, not option date.
-                }
             } else if (!empty($data->importing) && !empty($data->location)) {
                 $entities = $erhandler->get_entities_by_name($data->location);
-                if (count($entities) === 1) {
-                    $entity = reset($entities);
-                    $data->location = $entity->name; // We store the name in location.
-                    $data->{LOCAL_ENTITIES_FORM_ENTITYID . 0} = $entity->id; // 0 means for option, not option date.
-                }
             } else {
                 $erhandler->values_for_set_data($data, $data->id);
+                return;
+            }
+
+            if (count($entities) === 1) {
+                $entity = reset($entities);
+                $data->location = $entity->name; // We store the name in location.
+                $data->{LOCAL_ENTITIES_FORM_ENTITYID . 0} = $entity->id; // 0 means for option, not option date.
+
+                // Make sure, when importing, we also set entity for each optiondate.
+                $data->er_saverelationsforoptiondates = 1;
             }
         }
     }
