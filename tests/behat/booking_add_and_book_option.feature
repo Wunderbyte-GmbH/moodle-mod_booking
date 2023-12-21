@@ -44,21 +44,20 @@ Feature: In a booking instance create booking options
     And I follow "New booking option"
     And I set the following fields to these values:
       | Booking option name | Test option - Webinar |
-    And I set the field "startendtimeknown" to "checked"
-    And I set the field "addtocalendar" to "1"
+    And I press "Add date"
     And I wait "1" seconds
     And I set the following fields to these values:
-      | coursestarttime[day]    | ## tomorrow ## %d ## |
-      | coursestarttime[month]  | ## tomorrow ## %B ## |
-      | coursestarttime[year]   | ## tomorrow ## %Y ## |
-      | coursestarttime[hour]   | 00                   |
-      | coursestarttime[minute] | 00                   |
+      | coursestarttime_1[day]    | ## tomorrow ## %d ## |
+      | coursestarttime_1[month]  | ## tomorrow ## %B ## |
+      | coursestarttime_1[year]   | ## tomorrow ## %Y ## |
+      | coursestarttime_1[hour]   | 00                   |
+      | coursestarttime_1[minute] | 00                   |
     And I set the following fields to these values:
-      | courseendtime[day]    | ## + 1 year ## %d ## |
-      | courseendtime[month]  | ## + 1 year ## %B ## |
-      | courseendtime[year]   | ## + 1 year ## %Y ## |
-      | courseendtime[hour]   | 00                   |
-      | courseendtime[minute] | 00                   |
+      | courseendtime_1[day]    | ## + 1 year ## %d ## |
+      | courseendtime_1[month]  | ## + 1 year ## %B ## |
+      | courseendtime_1[year]   | ## + 1 year ## %Y ## |
+      | courseendtime_1[hour]   | 00                   |
+      | courseendtime_1[minute] | 00                   |
     And I press "Save and go back"
     And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     When I am on the "My booking" Activity page logged in as student1
