@@ -592,8 +592,7 @@ class dates {
      */
     private static function timestamp_to_array(int $timestamp) {
 
-        $formatteddate = userdate($timestamp,
-            get_string('strftimedatetimeshort', 'langconfig'));
+        $formatteddate = date('Y-m-d, H:i', $timestamp);
         $time = new DateTime(
             $formatteddate
         );
