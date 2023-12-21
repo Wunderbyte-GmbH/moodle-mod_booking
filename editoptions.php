@@ -87,12 +87,10 @@ if (has_capability('mod/booking:cantoggleformmode', $context)) {
     // Without the capability, we always use simple mode.
     set_user_preference('optionform_mode', 'simple');
 }
-
-$settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-$datescounter = count($settings->sessions);
+// We don't need this anymore.
+$optionid = $optionid < 0 ? 0 : $optionid;
 
 // New code.
-
 $params = [
     'cmid' => $cmid,
     'id' => $optionid, // In the context of option_form class, id always refers to optionid.

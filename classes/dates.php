@@ -343,8 +343,6 @@ class dates {
      */
     public static function save_optiondates_from_form(stdClass $formdata, stdClass &$option) {
 
-        global $DB;
-
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         list($newoptiondates, $highesindex) = self::get_list_of_submitted_dates((array)$formdata);
         $olddates = $settings->sessions;

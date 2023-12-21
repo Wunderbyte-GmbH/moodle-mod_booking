@@ -134,14 +134,16 @@ class template extends field_base {
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
-        if (isset($data->btn_changetemplate)) {
+        if (isset($data->btn_changetemplate)
+            || !empty($data->copyoptionid)) {
             // First, retrieve the template we want to use.
 
+            $optionid = !empty($data->optiontemplateid) ? $data->optiontemplateid : $data->copyoptionid;
             // Now, we need to create the data for this option the same way we would create it otherwise...
             $templateoption = (object)[
                 'cmid' => $data->cmid,
-                'id' => $data->optiontemplateid, // In the context of option_form class, id always refers to optionid.
-                'optionid' => $data->optiontemplateid, // Just kept on for legacy reasons.
+                'id' => $optionid, // In the context of option_form class, id always refers to optionid.
+                'optionid' => $optionid, // Just kept on for legacy reasons.
                 'bookingid' => $data->bookingid,
                 'copyoptionid' => 0,
                 'returnurl' => '',
