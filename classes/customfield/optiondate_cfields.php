@@ -135,8 +135,8 @@ class optiondate_cfields {
         foreach ($cfnames as $cfname) {
             list($name, $index, $counter) = explode('_', $cfname);
 
-            $cfname = $formdata[$cfname];
-            $cfvalue = $formdata['customfieldvalue_' . $index . '_' . $counter];
+            $cfname = $formdata[$cfname] ?? null;
+            $cfvalue = $formdata['customfieldvalue_' . $index . '_' . $counter] ?? null;
             $id = $formdata['customfieldid_' . $index . '_' . $counter] ?? 0;
 
             // If no values are set, neither for key nor value, we continue.
