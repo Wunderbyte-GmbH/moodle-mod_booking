@@ -120,6 +120,14 @@ class booking_option_test extends advanced_testcase {
         $record->text = 'Test option1';
         $record->courseid = $course->id;
         $record->description = 'Test description';
+        $record->optiondateid_1 = "0";
+        $record->daystonotify_1 = "0";
+        $record->coursestarttime_1 = 1703171160;
+        $record->courseendtime_1 = 1734793560;
+        $record->optiondateid_2 = "0";
+        $record->daystonotify_2 = "0";
+        $record->coursestarttime_2 = 1734793560;
+        $record->courseendtime_2 = 1735793560;
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
