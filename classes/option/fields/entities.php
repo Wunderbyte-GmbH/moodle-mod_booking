@@ -158,7 +158,7 @@ class entities extends field_base {
             // This constant change between object and array is stupid, but comes from the mform handler.
             $fromform = (object)$data;
 
-            $erhandler = new entitiesrelation_handler('mod_booking', 'option', $data['optionid']);
+            $erhandler = new entitiesrelation_handler('mod_booking', 'option', $data['id']);
             /* self::order_all_dates_to_book_in_form($fromform); */ // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
             $erhandler->instance_form_validation((array)$fromform, $errors);
         }
