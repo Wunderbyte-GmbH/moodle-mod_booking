@@ -350,8 +350,16 @@ class dates {
                 }
 
                 // We might have entitites added.
-                $entityid = $formvalues[LOCAL_ENTITIES_FORM_ENTITYID . $counter] ?? '';
-                $entityarea = $formvalues[LOCAL_ENTITIES_FORM_ENTITYAREA . $counter] ?? '';
+                $entityid = '';
+                $entityarea = '';
+                if (class_exists('local_entities\entitiesrelation_handler')) {
+                    if (!empty($formdata->{LOCAL_ENTITIES_FORM_ENTITYID . $counter})) {
+                        $entityid = $formvalues[LOCAL_ENTITIES_FORM_ENTITYID . $counter];
+                    }
+                    if (!empty($formdata->{LOCAL_ENTITIES_FORM_ENTITYAREA . $counter})) {
+                        $entityarea = $formvalues[LOCAL_ENTITIES_FORM_ENTITYAREA . $counter];
+                    }
+                }
 
                 // We might have cfields, we need to add them to our dates array here.
                 $cffields = optiondate_cfields::get_list_of_submitted_cfields($formvalues, $counter);
