@@ -17,6 +17,7 @@ namespace mod_booking;
 
 use coding_exception;
 use DateTime;
+use DateTimeZone;
 use local_entities\entitiesrelation_handler;
 use mod_booking\customfield\optiondate_cfields;
 use mod_booking\option\dates_handler;
@@ -130,7 +131,7 @@ class dates {
             $datescounter,
         );
         $mform->setType('datescounter', PARAM_INT);
-        // $element->setValue($datescounter);
+        /* $element->setValue($datescounter); */ // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         $elements[] = $element;
 
         $now = time();
@@ -591,7 +592,11 @@ class dates {
      */
     private static function timestamp_to_array(int $timestamp) {
 
-        $time = new DateTime(userdate($timestamp));
+        $formatteddate = userdate($timestamp,
+            get_string('strftimedatetimeshort', 'langconfig'));
+        $time = new DateTime(
+            $formatteddate
+        );
 
         $datearray = [
             'day' => [$time->format('d')],
