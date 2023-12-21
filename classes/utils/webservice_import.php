@@ -84,8 +84,8 @@ class webservice_import {
         $data->bookingid = $bookingid;
         $this->cm = get_coursemodule_from_instance('booking', $bookingid);
 
-        if (!isset($data->bookingcmid)) {
-            $data->bookingcmid = $this->cm->id;
+        if (!isset($data->cmid)) {
+            $data->cmid = $this->cm->id;
         }
 
         // This will set the bookingoption to update (if there is one, else it will be null).
@@ -98,16 +98,12 @@ class webservice_import {
             // Create new booking option.
             $context = \context_module::instance($this->cm->id);
         } else {
+            $data->id = $bookingoption->id;
             $context = $bookingoption->booking->context;
         }
+        $data->importing = 1;
 
         $bookingoptionid = booking_option::update($data, $context);
-
-        // Now that we have the option id, also from new users, we can add the teacher.
-
-        $this->add_teacher_to_bookingoption($bookingoptionid, $data);
-
-        $this->add_customfields_to_bookingoption($bookingoptionid, $data);
 
         return ['status' => 1];
     }
@@ -266,10 +262,6 @@ class webservice_import {
                 'You provided courseendtime but coursestarttime is missing.');
         }
 
-        if ($bookingoption) {
-            $data->optionid = $bookingoption->option->id;
-        }
-
         // For mergeparams 1 and 2 both start time and end time need to be provided.
         if (($data->mergeparam == 1 || $data->mergeparam == 2)
             && empty($data->coursestarttime)
@@ -290,69 +282,14 @@ class webservice_import {
             // Check if it's no multisession.
             if (empty($data->mergeparam)) {
                 $data->startendtimeknown = 1;
-                $data->coursestarttime = strtotime($data->coursestarttime);
-                $data->courseendtime = strtotime($data->courseendtime);
             } else if ($data->mergeparam == 1 || $data->mergeparam == 2 || $data->mergeparam == 3) {
 
                 $data->startendtimeknown = 1;
-
-                $data->coursestarttime = strtotime($data->coursestarttime);
-                $data->courseendtime = strtotime($data->courseendtime);
-
-                $createnewdates = true;
-                foreach ($bookingoption->settings->sessions as $session) {
-                    $data->stillexistingdates[$session->id] = "$session->coursestarttime - $session->courseendtime";
-
-                    if ("$data->coursestarttime - $data->courseendtime" == "$session->coursestarttime - $session->courseendtime") {
-                        $createnewdates = false;
-                    }
-                }
-                if ($createnewdates) {
-                    $data->newoptiondates[] = "$data->coursestarttime - $data->courseendtime";
-                }
-
-            }
-        }
-        // We need the limitanswers key if there are maxanswers.
-        if (isset($data->maxanswers)) {
-            $data->limitanswers = 1;
-            // To make sure overbooking is not null, we set it here.
-            if (!isset($data->maxoverbooking)) {
-                $data->maxoverbooking = 0;
             }
         }
 
-        // Make sure minanswers is not null.
-        if (!isset($data->minanswers)) {
-            $data->minanswers = 0;
-        }
-
-        // Set booking closing time.
-        if (!empty($data->bookingclosingtime)) {
-            $data->restrictanswerperiodclosing = 1;
-            $data->bookingclosingtime = strtotime($data->bookingclosingtime);
-        }
-
-        // Set booking opening time.
-        if (!empty($data->bookingopeningtime)) {
-            $data->restrictanswerperiodopening = 1;
-            $data->bookingopeningtime = strtotime($data->bookingopeningtime);
-        }
-
-        if (!empty($data->responsiblecontact)) {
-
-            if (!$user = $DB->get_record('user',
-                            ['suspended' => 0, 'deleted' => 0, 'confirmed' => 1, 'email' => $data->responsiblecontact],
-                            'id', IGNORE_MULTIPLE)
-                ) {
-                throw new \moodle_exception('responsiblecontactnotsubscribed', 'mod_booking', null, null,
-                'The contact with email ' . $data->responsiblecontact .
-                ' does not exist in the target database.');
-            } else {
-                $data->responsiblecontact = $user->id;
-            }
-
-        }
+        return;
+        // We just keep the code below for a moment longer as template.
 
         if (!empty($data->boavenrolledincourse)) {
 

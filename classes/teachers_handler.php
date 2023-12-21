@@ -537,7 +537,7 @@ class teachers_handler {
      *
      * @param mixed $userstring
      * @param bool $email // if false, it's usernames, not usermails.
-     * @return void
+     * @return array
      */
     public static function get_user_ids_from_string($userstring, $email = true) {
 

@@ -138,7 +138,7 @@ class text extends field_base {
             }
         } else {
             $key = fields_info::get_class_name(static::class);
-            $data->{$key} = $data->text ?? $data->title ?? get_string('novalidtitlefound', 'mod_booking');
+            $data->{$key} = $data->text ?? $data->title ?? $data->name ?? get_string('novalidtitlefound', 'mod_booking');
         }
     }
 }

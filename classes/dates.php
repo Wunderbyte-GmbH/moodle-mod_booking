@@ -180,6 +180,24 @@ class dates {
         $datescounter = $defaultvalues->datescounter ?? 0;
         $sessions = [];
 
+        if (empty($defaultvalues->dayofweektime)) {
+
+            if (
+                (!empty($defaultvalues->starttime) && !empty($defaultvalues->endtime))
+                || (!empty($defaultvalues->coursestarttime) && !empty($defaultvalues->courseendtime))) {
+
+                // If there is no dayofweektime, we might have a single coursestartdate and courseeneddate.
+                $starttime = $defaultvalues->starttime ?? $defaultvalues->coursestarttime;
+                $endtime = $defaultvalues->endtime ?? $defaultvalues->courseendtime;
+
+                $defaultvalues->{MOD_BOOKING_FORM_OPTIONDATEID . 0} = 0;
+                $defaultvalues->{MOD_BOOKING_FORM_COURSESTARTTIME . 0} = strtotime($starttime);
+                $defaultvalues->{MOD_BOOKING_FORM_COURSEENDTIME . 0} = strtotime($endtime);
+                $defaultvalues->{MOD_BOOKING_FORM_DAYSTONOTIFY . 0} = 0;
+
+            }
+        }
+
         // If we have clicked on the create option date series, we recreate all option dates.
         if (isset($defaultvalues->addoptiondateseries)) {
 
@@ -202,6 +220,28 @@ class dates {
             $defaultvalues->datescounter = $datescounter;
         }
 
+        // This Logic is linked to the webservice importer functionality.
+        // We might need to add coursestartime and courseendtime as new session.
+        if ($defaultvalues->importing
+            && !empty($defaultvalues->mergeparam
+            && $defaultvalues->mergeparam == 2
+            && !empty($sessions))) {
+
+            // If we are importing via webservice and have already sessions in this option...
+            // ... and we have already added new coursestarttime and courseendtime, we move them.
+            $session[] = (object)[
+                'optiondateid' => 0,
+                'coursestarttime' => $defaultvalues->{MOD_BOOKING_FORM_COURSESTARTTIME . 0},
+                'courseendtime' => $defaultvalues->{MOD_BOOKING_FORM_COURSEENDTIME . 0},
+                'daystonotify' => 0,
+            ];
+            unset($defaultvalues->{MOD_BOOKING_FORM_OPTIONDATEID . 0});
+            unset($defaultvalues->{MOD_BOOKING_FORM_COURSESTARTTIME . 0});
+            unset($defaultvalues->{MOD_BOOKING_FORM_COURSEENDTIME . 0});
+            unset($defaultvalues->{MOD_BOOKING_FORM_DAYSTONOTIFY . 0});
+        }
+
+        // We need to make sure we have all options already added to the form.
         $regexkey = '/^' . MOD_BOOKING_FORM_OPTIONDATEID . '/';
         $optiondates = preg_grep($regexkey, array_keys((array)$defaultvalues));
         $datescounter = count($optiondates);

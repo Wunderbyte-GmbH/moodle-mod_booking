@@ -98,13 +98,16 @@ class entities extends field_base {
             // ... then we seave the optionentity also for each optiondate.
             if ($entityidkeys = preg_grep('/^local_entities_entityid/', array_keys((array)$formdata))) {
                 // Entity for the whole option.
-                $optionentity = $formdata->local_entities_entityid_0;
-                foreach ($entityidkeys as $entityidkey) {
-                    if ($entityidkey == "local_entities_entityid_0") {
-                        continue;
-                    }
-                    if (!empty($formdata->er_saverelationsforoptiondates)) {
-                        $formdata->{$entityidkey} = $optionentity;
+                $optionentity = $formdata->local_entities_entityid_0 ?? 0;
+
+                if (!empty($option)) {
+                    foreach ($entityidkeys as $entityidkey) {
+                        if ($entityidkey == "local_entities_entityid_0") {
+                            continue;
+                        }
+                        if (!empty($formdata->er_saverelationsforoptiondates)) {
+                            $formdata->{$entityidkey} = $optionentity;
+                        }
                     }
                 }
             }

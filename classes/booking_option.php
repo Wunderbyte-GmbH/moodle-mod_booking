@@ -3233,7 +3233,7 @@ class booking_option {
      * We don't want to accidentally delete values in the process of updating.
      * On the other hand, connected tables and values need to be updated after an optionid is there.
      * This concerns customfields, entities, prices, optiondates etc.
-     * @param array|stdClass $formdata // New transmitted values via form, csv or webservice.
+     * @param array|stdClass $data // New transmitted values via form, csv or webservice.
      * @param null|context_module $context // Context class.
      * @param int $updateparam // The update param allows for fine tuning.
      * @return int
@@ -3241,7 +3241,7 @@ class booking_option {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function update($formdata, context $context = null,
+    public static function update($data, context $context = null,
         int $updateparam = MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT) {
 
         global $DB;
@@ -3258,18 +3258,18 @@ class booking_option {
         // ... that's not the case for C to F.
 
         // If $formdata is an array, we need to run set_data.
-        if (is_array($formdata)) {
-            $formdata = (object)$formdata;
-            fields_info::set_data($formdata);
+        if (is_array($data) || isset($data->importing)) {
+            $data = (object)$data;
+            fields_info::set_data($data);
 
             $errors = [];
 
             // This is a possibility to return validation errors to the importer.
-            fields_info::validation((array)$formdata, [], $errors);
+            fields_info::validation((array)$data, [], $errors);
         }
 
         $newoption = new stdClass();
-        fields_info::prepare_save_fields($formdata, $newoption, $updateparam);
+        fields_info::prepare_save_fields($data, $newoption, $updateparam);
 
         if (!empty($newoption->id)) {
             // Save the changes to DB.
@@ -3283,10 +3283,10 @@ class booking_option {
             }
             // Some legacy weight still left.
             $newoption->id = $optionid;
-            $formdata->id = $optionid;
+            $data->id = $optionid;
         }
 
-        fields_info::save_fields_post($formdata, $newoption, $updateparam);
+        fields_info::save_fields_post($data, $newoption, $updateparam);
 
         // Todo:
         // - Integrate customfields and more settings to option dates - half done.

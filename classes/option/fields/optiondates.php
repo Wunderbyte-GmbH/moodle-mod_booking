@@ -193,14 +193,6 @@ class optiondates extends field_base {
                     return;
                 }
 
-            } else if (!empty($data->starttime) && !empty($data->endtime)) {
-                // If there is no dayofweektime, we might have a single coursestartdate and courseeneddate.
-
-                $data->{MOD_BOOKING_FORM_OPTIONDATEID . 0} = 0;
-                $data->{MOD_BOOKING_FORM_COURSESTARTTIME . 0} = strtotime($data->starttime);
-                $data->{MOD_BOOKING_FORM_COURSEENDTIME . 0} = strtotime($data->endtime);
-                $data->{MOD_BOOKING_FORM_DAYSTONOTIFY . 0} = 0;
-
             }
         }
 

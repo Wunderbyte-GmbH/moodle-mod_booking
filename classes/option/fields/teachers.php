@@ -102,17 +102,26 @@ class teachers extends field_base {
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
-        if (!empty($data->id)) {
+        if (empty($data->importing) && !empty($data->id)) {
             $teacherhandler = new teachers_handler($data->id);
+            $teacherhandler->set_data($data);
+        } else {
 
-            if (empty($data->importing)) {
-                $teacherhandler->set_data($data);
-            } else {
-                // Todo: collect errors on import.
-                $data->{MOD_BOOKING_FORM_TEACHERS} = teachers_handler::get_teacherids_from_form($data);
+            // This Logic is linked to the webservice importer functionality.
+            // If we are currently importing, we check the mergeparam, we might want to add teachers instead of replacing them.
+            $teacherids = teachers_handler::get_teacherids_from_form($data);
+
+            if ($data->importing
+                && !empty($data->mergeparam
+                && $data->mergeparam == 3)) {
+
+                $oldteacherids = $settings->teacherids;
+
+                $teacherids = array_merge($oldteacherids, $teacherids);
             }
-
+            $data->teachersforoption = $teacherids;
         }
+
     }
 
     /**

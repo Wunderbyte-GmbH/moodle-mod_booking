@@ -24,8 +24,10 @@
 
 namespace mod_booking\option\fields;
 
+use mod_booking\booking_option_settings;
 use mod_booking\option\field_base;
 use mod_booking\singleton_service;
+use mod_booking\teachers_handler;
 use MoodleQuickForm;
 use stdClass;
 
@@ -118,5 +120,24 @@ class responsiblecontact extends field_base {
             get_string('responsiblecontact', 'mod_booking'), [], $options);
         $mform->addHelpButton('responsiblecontact', 'responsiblecontact', 'mod_booking');
 
+    }
+
+    /**
+     * Standard function to transfer stored value to form.
+     * @param stdClass $data
+     * @param booking_option_settings $settings
+     * @return void
+     * @throws dml_exception
+     */
+    public static function set_data(stdClass &$data, booking_option_settings $settings) {
+
+        if (empty($data->importing) && !empty($data->id)) {
+            $teacherhandler = new teachers_handler($data->id);
+            $teacherhandler->set_data($data);
+        } else {
+
+            $userids = teachers_handler::get_user_ids_from_string($data->responsiblecontact);
+            $data->responsiblecontact = $userids[0] ?? [];
+        }
     }
 }
