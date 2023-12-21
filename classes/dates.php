@@ -16,6 +16,7 @@
 namespace mod_booking;
 
 use coding_exception;
+use DateTime;
 use local_entities\entitiesrelation_handler;
 use mod_booking\customfield\optiondate_cfields;
 use mod_booking\option\dates_handler;
@@ -457,14 +458,16 @@ class dates {
             get_string("coursestarttime", "booking"));
         $mform->setType(MOD_BOOKING_FORM_COURSESTARTTIME . $idx, PARAM_INT);
         $mform->disabledIf(MOD_BOOKING_FORM_COURSESTARTTIME . $idx, 'startendtimeknown', 'notchecked');
-        $element->setValue($starttime);
+        $time = self::timestamp_to_array($starttime);
+        $element->setValue($time);
         $elements[] = $element;
 
         $element = $mform->addElement('date_time_selector', MOD_BOOKING_FORM_COURSEENDTIME . $idx,
             get_string("courseendtime", "booking"));
         $mform->setType(MOD_BOOKING_FORM_COURSEENDTIME . $idx, PARAM_INT);
         $mform->disabledIf(MOD_BOOKING_FORM_COURSEENDTIME . $idx, 'startendtimeknown', 'notchecked');
-        $element->setValue($endtime);
+        $time = self::timestamp_to_array($endtime);
+        $element->setValue($time);
         $elements[] = $element;
 
         $element = $mform->addElement(
@@ -580,5 +583,26 @@ class dates {
             [
             'data-action' => 'adddatebutton',
         ]);
+    }
+
+    /**
+     * Transform a timestamp in an array to set value for datetimeselector.
+     * @param int $timestamp
+     * @return array
+     * @throws coding_exception
+     */
+    private static function timestamp_to_array(int $timestamp) {
+
+        $time = new DateTime(userdate($timestamp));
+
+        $datearray = [
+            'day' => [$time->format('d')],
+            'month' => [$time->format('m')],
+            'year' => [$time->format('Y')],
+            'hour' => [$time->format('H')],
+            'minute' => [$time->format('i')],
+        ];
+
+        return $datearray;
     }
 }
