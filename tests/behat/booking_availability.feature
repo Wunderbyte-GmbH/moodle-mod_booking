@@ -190,7 +190,6 @@ Feature: Test booking options avaialbility conditions
     Given I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
-    And I set the field "Limit the number of participants" to "checked"
     And I set the field "Max. number of participants" to "1"
     And I press "Save and go back"
     ## Check availability as students
@@ -209,7 +208,6 @@ Feature: Test booking options avaialbility conditions
     Given I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
-    And I set the field "Limit the number of participants" to "checked"
     And I set the following fields to these values:
       | Max. number of participants           | 2 |
       | Max. number of places on waiting list | 1 |
@@ -239,7 +237,6 @@ Feature: Test booking options avaialbility conditions
     When I am on the "My booking" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
-    And I set the field "Limit the number of participants" to "checked"
     And I set the field "Max. number of participants" to "1"
     And I press "Save and go back"
     And I wait until the page is ready
@@ -312,7 +309,6 @@ Feature: Test booking options avaialbility conditions
     Given I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
-    And I set the field "Limit the number of participants" to "checked"
     And I set the field "Max. number of participants" to "1"
     And I follow "Availability conditions"
     And I set the field "Only specific user(s) are allowed to book" to "checked"
