@@ -73,7 +73,7 @@ class customfields extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = 0): string {
+        $returnvalue = null): string {
 
         // No need to do anything here.
         return '';

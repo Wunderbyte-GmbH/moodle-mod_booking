@@ -72,7 +72,7 @@ class timemodified extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = 0): string {
+        $returnvalue = null): string {
 
         // We always store the current time in the time modified field, no matter what.
         $newoption->timemodfied = time();

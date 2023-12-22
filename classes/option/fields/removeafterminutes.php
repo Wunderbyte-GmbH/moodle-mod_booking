@@ -70,7 +70,7 @@ class removeafterminutes extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = 0): string {
+        $returnvalue = null): string {
 
         return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
     }

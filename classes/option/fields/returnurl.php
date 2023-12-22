@@ -73,7 +73,7 @@ class returnurl extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        mixed $returnvalue = 0): string {
+        $returnvalue = null): string {
 
         $key = fields_info::get_class_name(static::class);
         $value = $formdata->{$key} ?? null;

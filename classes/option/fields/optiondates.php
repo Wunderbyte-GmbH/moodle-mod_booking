@@ -77,7 +77,7 @@ class optiondates extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        mixed $returnvalue = ''): string {
+        $returnvalue = null): string {
 
         // Run through all dates to make sure we don't have an array.
         // We need to transform dates to timestamps.

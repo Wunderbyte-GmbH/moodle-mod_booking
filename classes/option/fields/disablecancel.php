@@ -71,7 +71,7 @@ class disablecancel extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = 0): string {
+        $returnvalue = null): string {
 
         // We store the information if a booking option can be cancelled in the JSON.
         // So this has to happen BEFORE JSON is saved!

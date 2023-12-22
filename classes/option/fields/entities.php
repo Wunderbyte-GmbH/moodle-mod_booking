@@ -72,7 +72,7 @@ class entities extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = 0): string {
+        $returnvalue = null): string {
 
         if (class_exists('local_entities\entitiesrelation_handler')) {
             // Every time we save an entity, we want to make sure that the name of the entity is stored in location.

@@ -48,7 +48,7 @@ interface fields {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        mixed $returnvalue = null): string;
+        $returnvalue = null): string;
 
     /**
      * Add field to the option form.
