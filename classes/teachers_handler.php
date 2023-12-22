@@ -542,6 +542,10 @@ class teachers_handler {
     public static function get_user_ids_from_string($userstring, $email = true) {
 
         global $DB;
+
+        if (empty($userstring)) {
+            return [];
+        }
         // First we explode teacheremail, there might be mulitple teachers.
         // We always use comma as separator.
         $teacheremails = explode(',', $userstring);
