@@ -29,6 +29,7 @@ global $CFG;
 
 use mod_booking\booking_option;
 use mod_booking\price;
+use mod_booking\semester;
 use mod_booking\customfield\booking_handler;
 
 /**
@@ -107,6 +108,7 @@ class mod_booking_generator extends testing_module_generator {
      * @return stdClass the booking option object
      */
     public function create_option($record = null) {
+        global $DB;
 
         $record = (array) $record;
 
@@ -173,6 +175,14 @@ class mod_booking_generator extends testing_module_generator {
             foreach ($teacherarr as $teacher) {
                 $record->teachersforoption[] = $this->get_user($teacher);
             }
+        }
+
+        if (!empty($record->semesterid)) {
+            // Force $bookingsettings->semesterid by given $record->semesterid.
+            $DB->set_field('booking','semesterid', $record->semesterid, ['id' => $record->bookingid]);
+            // It might be necessary to reset cache.
+            // phpcs:ignore
+            //$semester = new semester($record->semesterid);
         }
 
         if ($record->id = booking_option::update($record, $context)) {
