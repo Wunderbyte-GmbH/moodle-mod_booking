@@ -402,6 +402,23 @@ class bo_info {
     }
 
     /**
+     * Sets all keys to load form.
+     *
+     * @param stdClass $defaultvalues
+     * @param stdClass $jsonobject
+     * @return void
+     */
+    public static function set_defaults(stdClass &$defaultvalues, $jsonobject) {
+
+        foreach ($jsonobject as $conditionobject) {
+
+            $classname = $conditionobject->class;
+            $condition = new $classname($conditionobject->id);
+            $condition->set_defaults($defaultvalues, $conditionobject);
+        }
+    }
+
+    /**
      * Save all mform conditions.
      *
      * @param stdClass &$fromform reference to the form data

@@ -25,6 +25,7 @@
 namespace mod_booking\option\fields;
 
 use mod_booking\bo_availability\bo_info;
+use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use MoodleQuickForm;
@@ -95,5 +96,28 @@ class availability extends field_base {
         // TODO: expert/simple mode needs to work with this too!
         // Add availability conditions.
         bo_info::add_conditions_to_mform($mform, $optionid);
+    }
+
+    /**
+     * Standard function to transfer stored value to form.
+     * @param stdClass $data
+     * @param booking_option_settings $settings
+     * @return void
+     * @throws dml_exception
+     */
+    public static function set_data(stdClass &$data, booking_option_settings $settings) {
+
+        // Availability normally comes from settings, but it might come from the importer as well.
+        if (!empty($data->importing)) {
+            $availability = $data->availability;
+        } else {
+            $availability = $settings->availability ?? "{}";
+        }
+
+        if (!empty($availability)) {
+            $jsonobject = json_decode($availability);
+            bo_info::set_defaults($data, $jsonobject);
+        }
+
     }
 }
