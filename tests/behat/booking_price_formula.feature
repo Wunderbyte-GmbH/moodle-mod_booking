@@ -37,10 +37,10 @@ Feature: As a teacher - configure and use booking's price formula feature.
     Given I log in as "admin"
     And I set the following administration settings values:
       | Price formula | [{"timeslot":[{"starttime":"17:00","endtime":"23:00","weekdays":"Mon,Fri","multiplier":"0.5"}]}] |
-    When I am on the "My booking" Activity page logged in as teacher1
+    When I am on the "My booking" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
-    And I follow "Dates"
+    ##And I follow "Dates"
     And I press "Create date series"
     And I wait "1" seconds
     And I follow "Price"
@@ -59,7 +59,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     When I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I follow "Dates"
+    ##And I follow "Dates"
     And I press "Create date series"
     And I wait "1" seconds
     And I follow "Price"
@@ -80,7 +80,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     When I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
-    And I follow "Dates"
+    ##And I follow "Dates"
     And I press "Create date series"
     And I wait "1" seconds
     And I follow "Price"
@@ -101,7 +101,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     When I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
-    And I follow "Dates"
+    ##And I follow "Dates"
     And I press "Create date series"
     And I wait "1" seconds
     And I follow "Price"
@@ -125,4 +125,4 @@ Feature: As a teacher - configure and use booking's price formula feature.
     And I set the field "Only book with price" to "checked"
     Then the following fields match these values:
       | pricegroup_default[bookingprice_default] | 70.1 |
-    And I should not see "On saving, calculate prices with price formula" in the "#id_bookingoptionpricecontainer" "css_element"
+    And I should not see "On saving, calculate prices with price formula" in the "#editoptionsformcontainer" "css_element"
