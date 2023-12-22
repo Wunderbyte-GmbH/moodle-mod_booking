@@ -127,7 +127,7 @@ class responsiblecontact extends field_base {
      * @param stdClass $data
      * @param booking_option_settings $settings
      * @return void
-     * @throws dml_exception
+     * @throws \dml_exception
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
@@ -135,9 +135,10 @@ class responsiblecontact extends field_base {
             $teacherhandler = new teachers_handler($data->id);
             $teacherhandler->set_data($data);
         } else {
-
-            $userids = teachers_handler::get_user_ids_from_string($data->responsiblecontact);
-            $data->responsiblecontact = $userids[0] ?? [];
+            if (!empty($data->responsiblecontact)){
+                $userids = teachers_handler::get_user_ids_from_string($data->responsiblecontact);
+                $data->responsiblecontact = $userids[0] ?? [];
+            }
         }
     }
 }

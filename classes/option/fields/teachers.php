@@ -98,7 +98,7 @@ class teachers extends field_base {
      * @param stdClass $data
      * @param booking_option_settings $settings
      * @return void
-     * @throws dml_exception
+     * @throws \dml_exception
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
@@ -111,7 +111,7 @@ class teachers extends field_base {
             // If we are currently importing, we check the mergeparam, we might want to add teachers instead of replacing them.
             $teacherids = teachers_handler::get_teacherids_from_form($data);
 
-            if ($data->importing
+            if (!empty($data->importing)
                 && !empty($data->mergeparam
                 && $data->mergeparam == 3)) {
 
@@ -129,7 +129,7 @@ class teachers extends field_base {
      * @param stdClass $formdata
      * @param stdClass $option
      * @return void
-     * @throws dml_exception
+     * @throws \dml_exception
      */
     public static function save_data(stdClass &$data, stdClass &$option) {
 
