@@ -232,9 +232,9 @@ class optiondate {
                     $oldoptiondate['entityid'] = $data->id ?? 0;
                     $oldoptiondate['entityarea'] = $data->area ?? '';
                 }
-            }
-            if (!entitiesrelation_handler::compare_items($oldoptiondate, $newoptiondate)) {
-                return false;
+                if (!entitiesrelation_handler::compare_items($oldoptiondate, $newoptiondate)) {
+                    return false;
+                }
             }
         }
 
