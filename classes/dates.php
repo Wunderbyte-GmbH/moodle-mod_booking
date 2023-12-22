@@ -80,7 +80,7 @@ class dates {
 
         // We check if there are semsters at all...
         // ... and if on this particular instance a semesterid is set.
-        if ((count($semestersarray) > 1) && !empty($bookingsettings->semesterid)) {
+        if ((count($semestersarray) >= 1) && !empty($bookingsettings->semesterid)) {
 
             $semesterid = null;
             $dayofweektime = '';
@@ -169,7 +169,7 @@ class dates {
     /**
      *
      * @param stdClass $defaultvalues
-     * @return void
+     * @return stdClass
      */
     public static function set_data(stdClass &$defaultvalues) {
 

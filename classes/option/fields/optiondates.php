@@ -168,7 +168,7 @@ class optiondates extends field_base {
      * @param stdClass $data
      * @param booking_option_settings $settings
      * @return void
-     * @throws dml_exception
+     * @throws \dml_exception
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
