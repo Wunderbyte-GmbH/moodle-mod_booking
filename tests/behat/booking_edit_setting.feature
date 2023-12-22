@@ -199,8 +199,8 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
   @javascript
   Scenario: Booking settings - access the teacher pages without login
     Given the following "mod_booking > options" exist:
-      | booking    | text                      | course | description  | startendtimeknown | coursestarttime  | courseendtime | optiondatestart[0] | optiondateend[0] | teachersforoption |
-      | My booking | Booking option - Teachers | C1     | Option deskr | 1                 | ## yesterday ##  | ## +4 days ## | ## tomorrow ##     | ## +2 days ##    | teacher1          |
+      | booking    | text                      | course | description  | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | teachersforoption |
+      | My booking | Booking option - Teachers | C1     | Option deskr | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | teacher1          |
     And I log in as "admin"
     And I set the following administration settings values:
       | Login for teacher pages not necessary | |
@@ -221,8 +221,8 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
   @javascript
   Scenario: Booking settings - display teachers email pages without login
     Given the following "mod_booking > options" exist:
-      | booking    | text                      | course | description  | startendtimeknown | coursestarttime  | courseendtime | optiondatestart[0] | optiondateend[0] | teachersforoption |
-      | My booking | Booking option - Teachers | C1     | Option deskr | 1                 | ## yesterday ##  | ## +4 days ## | ## tomorrow ##     | ## +2 days ##    | teacher1          |
+      | booking    | text                      | course | description  | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | teachersforoption |
+      | My booking | Booking option - Teachers | C1     | Option deskr | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | teacher1          |
     And I log in as "admin"
     And I set the following administration settings values:
       | Login for teacher pages not necessary             | 1 |
