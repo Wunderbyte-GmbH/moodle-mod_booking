@@ -222,7 +222,7 @@ class dates {
 
         // This Logic is linked to the webservice importer functionality.
         // We might need to add coursestartime and courseendtime as new session.
-        if ($defaultvalues->importing
+        if (!empty($defaultvalues->importing)
             && !empty($defaultvalues->mergeparam
             && $defaultvalues->mergeparam == 2
             && !empty($sessions))) {
