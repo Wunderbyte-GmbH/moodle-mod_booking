@@ -185,15 +185,21 @@ class mod_booking_generator extends testing_module_generator {
             //$semester = new semester($record->semesterid);
         }
 
+        // Prepare pricef for being used in option(s) if exist.
+        $pricecategories = $DB->get_records('booking_pricecategories', ['disabled' => 0]);
+        if (!empty($pricecategories)) {
+            foreach ($pricecategories as $pricecat) {
+                $catname = "pricegroup_".$pricecat->identifier;
+                // We apply default values only if form does not contain it.
+                if (empty($record->{$catname})) {
+                    $record->{$catname} = ["bookingprice_".$pricecat->identifier => (float) $pricecat->defaultvalue];
+                }
+            }
+        }
+
+        // Create / save booking option(s).
         if ($record->id = booking_option::update($record, $context)) {
             $record->optionid = $record->id;
-            // Save the prices to option.
-            $price = new price('option', $record->optionid);
-            foreach ($price->pricecategories as $pricecat) {
-                $catname = "pricegroup_".$pricecat->identifier;
-                $record->{$catname} = ["bookingprice_".$pricecat->identifier => (float) $pricecat->defaultvalue];
-            }
-            $price->save_from_form($record);
             // Save customfield data to option (the id key has to be set to option id).
             $handler = booking_handler::create();
             $handler->instance_form_save($record, $record->optionid == -1);
