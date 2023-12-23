@@ -287,33 +287,6 @@ class webservice_import {
                 $data->startendtimeknown = 1;
             }
         }
-
-        return;
-        // We just keep the code below for a moment longer as template.
-
-        if (!empty($data->boavenrolledincourse)) {
-
-            $items = explode(',', $data->boavenrolledincourse);
-
-            list($inorequal, $params) = $DB->get_in_or_equal($items, SQL_PARAMS_NAMED);
-            $sql = "SELECT id
-                    FROM {course}
-                    WHERE shortname $inorequal";
-            $courses = $DB->get_records_sql($sql, $params);
-
-            $data->bo_cond_enrolledincourse_courseids = array_keys($courses);
-            $data->bo_cond_enrolledincourse_restrict = 1;
-            unset($data->boavenrolledincourse);
-        }
-
-        if (!empty($data->enroltocourseshortname)) {
-
-            if ($courseid = $DB->get_field('course', 'id', ['shortname' => $data->enroltocourseshortname])) {
-                $data->courseid = $courseid;
-                unset($data->enroltocourseshortname);
-            }
-
-        }
     }
 
     /**

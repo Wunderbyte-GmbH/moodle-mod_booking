@@ -190,11 +190,23 @@ class courseid extends field_base {
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
+        global $DB;
+
         if (!empty($data->importing)) {
             // We might import the courseid with a different key.
             if (!empty($data->coursenumber) && is_numeric($data->coursenumber)) {
 
                 $data->courseid = $data->coursenumber;
+            }
+
+            // We also support the enroltocourseshortname.
+            if (!empty($data->enroltocourseshortname)) {
+
+                if ($courseid = $DB->get_field('course', 'id', ['shortname' => $data->enroltocourseshortname])) {
+                    $data->courseid = $courseid;
+                    unset($data->enroltocourseshortname);
+                }
+
             }
         } else {
             $key = fields_info::get_class_name(static::class);
