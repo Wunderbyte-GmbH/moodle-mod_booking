@@ -21,6 +21,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace mod_booking;
+
+use coding_exception;
 use mod_booking\output\report_edit_bookingnotes;
 use html_writer;
 use moodle_url;
@@ -50,9 +52,11 @@ class all_userbookings extends \table_sql {
 
     /**
      * Constructor
-     *
-     * @param int $uniqueid all tables have to have a unique id, this is used as a key when
-     * storing table properties like sort order in the session.
+     * @param string $uniqueid
+     * @param booking_option $bookingdata
+     * @param mixed $cm
+     * @param mixed $optionid
+     * @return void
      */
     public function __construct($uniqueid, booking_option $bookingdata, $cm, $optionid) {
         parent::__construct($uniqueid);
@@ -77,9 +81,9 @@ class all_userbookings extends \table_sql {
 
     /**
      * This function is called for each data row to allow processing of the username value.
-     *
-     * @param object $values Contains object with all the values of record.
-     * @return $string Return username with link to profile or username only when downloading.
+     * @param mixed $values
+     * @return string
+     * @throws coding_exception
      */
     protected function col_timecreated($values) {
         if ($values->timecreated > 0) {
@@ -89,6 +93,12 @@ class all_userbookings extends \table_sql {
         return '';
     }
 
+    /**
+     * For status column.
+     * @param mixed $values
+     * @return string
+     * @throws coding_exception
+     */
     protected function col_status($values) {
         switch ($values->status) {
             case 0:
@@ -110,6 +120,11 @@ class all_userbookings extends \table_sql {
         }
     }
 
+    /**
+     * Fullname column.
+     * @param object $values
+     * @return string
+     */
     public function col_fullname($values) {
         if (empty($values->otheroptions)) {
             return html_writer::link(
@@ -123,6 +138,11 @@ class all_userbookings extends \table_sql {
         }
     }
 
+    /**
+     * Numrec column.
+     * @param mixed $values
+     * @return mixed
+     */
     protected function col_numrec($values) {
         if ($values->numrec == 0) {
             return '';
@@ -131,6 +151,12 @@ class all_userbookings extends \table_sql {
         }
     }
 
+    /**
+     * Completed column.
+     * @param mixed $values
+     * @return mixed
+     * @throws coding_exception
+     */
     protected function col_completed($values) {
         if (!$this->is_downloading()) {
             $completed = '';
@@ -143,6 +169,11 @@ class all_userbookings extends \table_sql {
         }
     }
 
+    /**
+     * Rating column.
+     * @param mixed $values
+     * @return string
+     */
     protected function col_rating($values) {
         global $PAGE;
         $output = '';
@@ -154,6 +185,12 @@ class all_userbookings extends \table_sql {
         return $output;
     }
 
+    /**
+     * Coursestarttime column.
+     * @param mixed $values
+     * @return string
+     * @throws coding_exception
+     */
     protected function col_coursestarttime($values) {
         if ($values->coursestarttime == 0) {
             return '';
@@ -162,6 +199,12 @@ class all_userbookings extends \table_sql {
         }
     }
 
+    /**
+     * Courseendtimecolumn.
+     * @param mixed $values
+     * @return string
+     * @throws coding_exception
+     */
     protected function col_courseendtime($values) {
         if ($values->courseendtime == 0) {
             return '';
@@ -170,6 +213,12 @@ class all_userbookings extends \table_sql {
         }
     }
 
+    /**
+     * Waitinglist column.
+     * @param mixed $values
+     * @return mixed
+     * @throws coding_exception
+     */
     protected function col_waitinglist($values) {
         if ($this->is_downloading()) {
             return $values->waitinglist;
@@ -184,6 +233,12 @@ class all_userbookings extends \table_sql {
         return $completed;
     }
 
+    /**
+     * City column.
+     * @param mixed $values
+     * @return mixed
+     * @throws coding_exception
+     */
     protected function col_city($values) {
         if ($this->is_downloading()) {
             return $values->city;
@@ -191,6 +246,12 @@ class all_userbookings extends \table_sql {
         return  $values->city;
     }
 
+    /**
+     * Selected column.
+     * @param mixed $values
+     * @return string
+     * @throws coding_exception
+     */
     protected function col_selected($values) {
         if (!$this->is_downloading()) {
             return '<input id="check' . $values->id .
@@ -201,6 +262,12 @@ class all_userbookings extends \table_sql {
         }
     }
 
+    /**
+     * Notes column.
+     * @param mixed $values
+     * @return mixed
+     * @throws coding_exception
+     */
     protected function col_notes($values) {
         global $PAGE;
         if ($this->is_downloading()) {
@@ -217,8 +284,10 @@ class all_userbookings extends \table_sql {
 
     /**
      * This function is called for each data row to allow processing of columns which do not have a *_cols function.
-     *
-     * @return string return processed value. Return null if no change has been made.
+     * @param mixed $colname
+     * @param mixed $value
+     * @return string|void
+     * @throws coding_exception
      */
     public function other_cols($colname, $value) {
         if (substr($colname, 0, 4) === "cust") {
