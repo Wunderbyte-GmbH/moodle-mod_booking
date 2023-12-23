@@ -84,7 +84,7 @@ class optiondate_cfields {
             } else {
                 $mform->setType('customfieldname_' . $identifier, PARAM_CLEANHTML);
             }
-            // $mform->setDefault('customfieldname_' . $identifier, null);
+
             $mform->addHelpButton('customfieldname_' . $identifier, 'customfieldname', 'booking');
             $mform->hideIf('customfieldname_' . $identifier, 'addcustomfield_' . $identifier, 'notchecked');
 

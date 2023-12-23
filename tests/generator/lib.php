@@ -179,7 +179,7 @@ class mod_booking_generator extends testing_module_generator {
 
         if (!empty($record->semesterid)) {
             // Force $bookingsettings->semesterid by given $record->semesterid.
-            $DB->set_field('booking','semesterid', $record->semesterid, ['id' => $record->bookingid]);
+            $DB->set_field('booking', 'semesterid', $record->semesterid, ['id' => $record->bookingid]);
             // It might be necessary to reset cache.
             // phpcs:ignore
             //$semester = new semester($record->semesterid);

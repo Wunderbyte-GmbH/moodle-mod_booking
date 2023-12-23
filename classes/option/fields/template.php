@@ -161,7 +161,6 @@ class template extends field_base {
                 'returnurl',
                 'identifier',
                 'sesskey',
-                //'datescounter',
             ];
 
             foreach ($templateoption as $key => $value) {
