@@ -438,7 +438,13 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
             $url = new moodle_url('/local/entities/view.php', ['id' => $settings->entity['id']]);
             // Full name of the entity (NOT the shortname).
-            $nametobeshown = $settings->entity['name'];
+
+            if (!empty($settings->entity['parentname'])) {
+                $nametobeshown = $settings->entity['parentname'] . " (" . $settings->entity['name'] . ")";
+            } else {
+                $nametobeshown = $settings->entity['name'];
+            }
+
             return html_writer::tag('a', $nametobeshown, ['href' => $url->out(false)]);
         }
 
