@@ -646,19 +646,6 @@ class bookingoptions_wbtable extends wunderbyte_table {
                     $OUTPUT->pix_icon('t/editstring', get_string('editbookingoption', 'mod_booking')) .
                     get_string('editbookingoption', 'mod_booking')) . '</div>';
 
-            if (has_capability('mod/booking:manageoptiondates', $context)) {
-                // Multiple dates session.
-                $ddoptions[] = '<div class="dropdown-item">' .
-                    html_writer::link(new moodle_url('/mod/booking/optiondates.php',
-                        ['id' => $cmid, 'optionid' => $optionid,
-                        'returnto' => 'url',
-                        'returnurl' => $returnurl,
-                        ]),
-                        $OUTPUT->pix_icon('i/scheduled',
-                            get_string('optiondatesmanager', 'booking')) .
-                        get_string('optiondatesmanager', 'booking')) . '</div>';
-            }
-
             // Book other users.
             if (has_capability('mod/booking:bookforothers', $context) &&
                 (has_capability('mod/booking:subscribeusers', $context) ||

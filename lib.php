@@ -1080,13 +1080,6 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                     new moodle_url('/mod/booking/editoptions.php',
                         ['id' => $cm->id, 'optionid' => -1, 'copyoptionid' => $optionid]),
                         navigation_node::TYPE_CUSTOM, null, 'nav_duplicatebooking');
-
-            if (has_capability('mod/booking:manageoptiondates', $context)) {
-                $navref->add(get_string('optiondatesmanager', 'booking'),
-                        new moodle_url('/mod/booking/optiondates.php',
-                            ['id' => $cm->id, 'optionid' => $optionid]),
-                            navigation_node::TYPE_CUSTOM, null, 'nav_optiondatesmanager');
-            }
         }
 
         if (has_capability ( 'mod/booking:subscribeusers', $context )) {
