@@ -353,10 +353,10 @@ class dates {
                 $entityid = '';
                 $entityarea = '';
                 if (class_exists('local_entities\entitiesrelation_handler')) {
-                    if (!empty($formdata->{LOCAL_ENTITIES_FORM_ENTITYID . $counter})) {
+                    if (!empty($formvalues[LOCAL_ENTITIES_FORM_ENTITYID . $counter])) {
                         $entityid = $formvalues[LOCAL_ENTITIES_FORM_ENTITYID . $counter];
                     }
-                    if (!empty($formdata->{LOCAL_ENTITIES_FORM_ENTITYAREA . $counter})) {
+                    if (!empty($formvalues[LOCAL_ENTITIES_FORM_ENTITYAREA . $counter])) {
                         $entityarea = $formvalues[LOCAL_ENTITIES_FORM_ENTITYAREA . $counter];
                     }
                 }
