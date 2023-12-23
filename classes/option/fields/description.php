@@ -132,7 +132,7 @@ class description extends field_base {
         }
 
         $value = $settings->{$key} ?? null;
-        $format = $settings->{$key . 'format'} ?? null;
+        $format = $settings->{$key . 'format'} ?? FORMAT_HTML;
 
         $data->{$key} = ['text' => $value, 'format' => $format];
     }
