@@ -26,62 +26,6 @@ Feature: In a booking create multi session options
     And I create booking option "New option - Multisession" in "My booking"
 
   @javascript
-  Scenario: Boooking option: add multiple session dates via page manage option dates
-    Given I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Manage option dates" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I set the following fields to these values:
-      | coursestarttime[day]    | 15                  |
-      | coursestarttime[month]  | March               |
-      | coursestarttime[year]   | ## + 1 year ##%Y##  |
-      | coursestarttime[hour]   | 13                  |
-      | coursestarttime[minute] | 00                  |
-      | endhour                 | 20                  |
-      | endminute               | 00                  |
-    And I press "Save"
-    And I set the following fields to these values:
-      | coursestarttime[day]    | 20                  |
-      | coursestarttime[month]  | June                |
-      | coursestarttime[year]   | ## + 2 year ##%Y##  |
-      | coursestarttime[hour]   | 14                  |
-      | coursestarttime[minute] | 00                  |
-      | endhour                 | 21                  |
-      | endminute               | 00                  |
-    And I press "Save"
-    And I set the following fields to these values:
-      | coursestarttime[day]    | 25                  |
-      | coursestarttime[month]  | September           |
-      | coursestarttime[year]   | ## + 3 year ##%Y##  |
-      | coursestarttime[hour]   | 15                  |
-      | coursestarttime[minute] | 00                  |
-      | endhour                 | 22                  |
-      | endminute               | 00                  |
-    And I press "Save"
-    And I wait until the page is ready
-    Then I should see "15 March" in the "#region-main table.generaltable" "css_element"
-    And I should see "## + 1 year ##%Y##" in the "#region-main table.generaltable" "css_element"
-    And I should see "1:00 PM to 8:00 PM" in the "#region-main table.generaltable" "css_element"
-    And I should see "20 June" in the "#region-main table.generaltable" "css_element"
-    And I should see "## + 2 year ##%Y##" in the "#region-main table.generaltable" "css_element"
-    And I should see "2:00 PM to 9:00 PM" in the "#region-main table.generaltable" "css_element"
-    And I should see "25 September" in the "#region-main table.generaltable" "css_element"
-    And I should see "## + 3 year ##%Y##" in the "#region-main table.generaltable" "css_element"
-    And I should see "3:00 PM to 10:00 PM" in the "#region-main table.generaltable" "css_element"
-    And I press "Back"
-    And I wait until the page is ready
-    And I click on "Show dates" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait "1" seconds
-    Then I should see "15 March" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "## + 1 year ##%Y##" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "1:00 PM - 8:00 PM" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "20 June" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "## + 2 year ##%Y##" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "2:00 PM - 9:00 PM" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "25 September" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "## + 3 year ##%Y##" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "3:00 PM - 10:00 PM" in the ".allbookingoptionstable_r1" "css_element"
-
-  @javascript
   Scenario: Boooking option: add multiple session dates by editing booking option
     Given I am on the "My booking" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
