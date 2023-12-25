@@ -55,13 +55,17 @@ Feature: Configure and use booking's pagination and perform filtering - as a tea
   @javascript
   Scenario: Filter of list of booking options including if pagination
     Given I am on the "My booking" Activity page logged in as teacher1
+    And I wait until the page is ready
     And I should see "Booking Option 1" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Booking Option 5" in the ".allbookingoptionstable_r5" "css_element"
     And "//nav[@aria-label='Page']" "xpath_element" should not exist
-    And I wait "1" seconds
+    ## Set filter without pagination
     And I set the field "Search" in the ".allbookingoptionstable" "css_element" to "Option 4"
+    And I wait "1" seconds
     And I should see "Booking Option 4" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "1 of 5 records found" in the ".allbookingoptionstable .wb-records-count-label" "css_element"
     And I set the field "Search" in the ".allbookingoptionstable" "css_element" to ""
+    ## Set pagination witout filter
     When I follow "Settings"
     And I follow "Advanced options"
     And I wait "1" seconds
@@ -75,6 +79,8 @@ Feature: Configure and use booking's pagination and perform filtering - as a tea
     And I should see "Booking Option 3" in the ".allbookingoptionstable_r3" "css_element"
     And I should not see "Booking Option 4" in the ".allbookingoptionstable" "css_element"
     And I should not see "Booking Option 5" in the ".allbookingoptionstable" "css_element"
+    ## Set search filter together with pagination
     And I set the field "Search" in the ".allbookingoptionstable" "css_element" to "Option 4"
     And I should see "Booking Option 4" in the ".allbookingoptionstable_r1" "css_element"
-    And "//nav[@aria-label='Page']" "xpath_element" should exist
+    And I should see "1 of 5 records found" in the ".allbookingoptionstable .wb-records-count-label" "css_element"
+    And "//nav[@aria-label='Page']" "xpath_element" should not exist
