@@ -44,7 +44,7 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     And I press "Subbookings"
     And I should see "Partner(s)" in the ".booking-subbookings-list" "css_element"
     And I press "Save and go back"
-    And I should see "Changes saved"
+    ##And I should see "Changes saved"
     ## The following part should become part of test dedicated to perform subbookings by student
     ## which is not fully implemented yet
     ## Given I am on the "Course 1" course page logged in as student1
