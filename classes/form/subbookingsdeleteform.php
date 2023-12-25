@@ -50,6 +50,7 @@ class subbookingsdeleteform extends dynamic_form {
         }
 
         $mform->addElement('hidden', 'cmid', $ajaxformdata['cmid']);
+        $mform->addElement('hidden', 'name', $ajaxformdata['name']);
 
         $mform->addElement('html', '<div><p>'
             . get_string('deletebookingrule_confirmtext', 'mod_booking')
