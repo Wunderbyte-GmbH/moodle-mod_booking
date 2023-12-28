@@ -40,6 +40,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     When I am on the "My booking" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
+    And I wait until the page is ready
     ##And I follow "Dates"
     And I press "Create date series"
     And I wait "1" seconds
@@ -59,6 +60,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     When I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until the page is ready
     ##And I follow "Dates"
     And I press "Create date series"
     And I wait "1" seconds
@@ -80,6 +82,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     When I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
+    And I wait until the page is ready
     ##And I follow "Dates"
     And I press "Create date series"
     And I wait "1" seconds
@@ -101,6 +104,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     When I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
+    And I wait until the page is ready
     ##And I follow "Dates"
     And I press "Create date series"
     And I wait "1" seconds
@@ -121,6 +125,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     When I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until the page is ready
     And I follow "Price"
     And I set the field "Only book with price" to "checked"
     Then the following fields match these values:
