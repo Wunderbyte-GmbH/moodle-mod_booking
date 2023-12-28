@@ -157,7 +157,7 @@ class fields_info {
      * @param stdClass $formdata
      * @param stdClass $newoption
      * @param int $updateparam
-     * @return array
+     * @return void
      */
     public static function save_fields_post(stdClass &$formdata, stdClass &$option, int $updateparam) {
 
