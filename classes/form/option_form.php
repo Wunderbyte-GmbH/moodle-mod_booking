@@ -120,7 +120,7 @@ class option_form extends dynamic_form {
         $buttonarray[] = &$mform->createElement("submit", 'submitandstay',
             get_string('submitandstay', 'mod_booking'));
         $buttonarray[] = &$mform->createElement('cancel');
-        $mform->addGroup($buttonarray, 'buttonar', '', [' '], false);
+        $mform->addGroup($buttonarray, 'buttonar', '', '', false);
         $mform->closeHeaderBefore('buttonar');
 
         $data = new eventslist(
@@ -128,7 +128,7 @@ class option_form extends dynamic_form {
             ['\mod_booking\event\bookingoption_updated']
         );
 
-        $html = $OUTPUT->render_from_template('mod_booking/eventslist', $data);
+        $html = $OUTPUT->render_from_template('mod_booking/eventslist', (array) $data);
         $mform->addElement('static', 'eventslist', '', $html);
 
         $PAGE->requires->js_call_amd('mod_booking/optionstemplateselect', 'init');

@@ -540,7 +540,7 @@ class dates {
         $datearray[] =& $mform->createElement('submit', 'applydate_' . $idx, get_string('apply'));
         $mform->registerNoSubmitButton(MOD_BOOKING_FORM_DELETEDATE . $idx);
         $datearray[] =& $mform->createElement('submit', MOD_BOOKING_FORM_DELETEDATE . $idx, get_string('delete'));
-        $elements[] =& $mform->addGroup($datearray, 'datearr_' . $idx, '', [' '], false);
+        $elements[] =& $mform->addGroup($datearray, 'datearr_' . $idx, '', '', false);
 
         $element = $mform->createElement('html', $html2);
         $element->setName('header_accordion_end_optiondate_' . $idx);
