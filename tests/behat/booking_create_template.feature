@@ -25,22 +25,28 @@ Feature: In a booking create a template
   @javascript
   Scenario: Booking option template: create one and use it to create new option
     Given I am on the "My booking" Activity page logged in as teacher1
+    ## Prepare option
     And I follow "New booking option"
+    And I wait until the page is ready
     And I set the following fields to these values:
       | Booking option name | New option - Template |
-    And I click on "Start and end time of course are known" "checkbox"
     And I set the field "Add to course calendar" to "Add to calendar (visible only to course participants)"
+    And I press "Add date"
+    And I wait "1" seconds
     And I set the following fields to these values:
-      | coursestarttime[day]    | ##tomorrow##%d## |
-      | coursestarttime[month]  | ##tomorrow##%B## |
-      | coursestarttime[year]   | ##tomorrow##%Y## |
-    And I set the following fields to these values:
-      | courseendtime[day]    | ##tomorrow##%d##     |
-      | courseendtime[month]  | ##tomorrow##%B##     |
-      | courseendtime[year]   | ## + 1 year ## %Y ## |
-    And I set the field "Add as template" to "Use as global template"
+      | coursestarttime_1[day]    | ##tomorrow##%d##     |
+      | coursestarttime_1[month]  | ##tomorrow##%B##     |
+      | coursestarttime_1[year]   | ##tomorrow##%Y##     |
+      | courseendtime_1[day]      | ##tomorrow##%d##     |
+      | courseendtime_1[month]    | ##tomorrow##%B##     |
+      | courseendtime_1[year]     | ## + 1 year ## %Y ## |
+    And I press "applydate_1"
+    ## Set as template
+    And I follow "Add as template"
+    And I set the field "addastemplate" to "Use as global template"
     And I press "Save and go back"
     And I wait until the page is ready
+    ## Use template
     And I follow "New booking option"
     And I set the following fields to these values:
       | Populate from template | New option - Template        |
