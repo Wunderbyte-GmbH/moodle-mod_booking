@@ -22,20 +22,19 @@ Feature: As a teacher - configure and use booking's semesters feature.
       | activity | course | name       | intro                  | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | All bookings                     | Yes                      |
     And the following "mod_booking > semesters" exist:
-      | identifier | name     | startdate                         | enddate                          |
-      | nextmay    | NextMay  | ## first day of May next year ##  | ## last day of May next year ##  |
-      | nextjune   | NextJune | ## first day of June next year ## | ## last day of June next year ## |
+      | identifier | name       | startdate                         | enddate                            |
+      | nextmay    | NextMay    | ## first day of May next year ##  | ## last day of May next year ##    |
+      | nextsummer | NextSummer | ## first day of June next year ## | ## last day of August next year ## |
     And the following "mod_booking > options" exist:
-      | booking    | text                                         | course | description  | semester |
-      | My booking | Price formula option - Dates In timeslot     | C1     | Option deskr | nextjune |
-      | My booking | Price formula option - Dates NOT in timeslot | C1     | Option deskr | nextjune |
+      | booking    | text                                         | course | description  | semester   |
+      | My booking | Price formula option - Dates In timeslot     | C1     | Option deskr | nextsummer |
 
   @javascript
   Scenario: Booking settings - change semester in booking option
     Given I am on the "My booking" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "NextJune (nextjune)" in the "//div[contains(@id, 'id_datesheader_') and contains(@class, 'fcontainer')]" "xpath_element"
+    And I should see "NextSummer (nextsummer)" in the "//div[contains(@id, 'id_datesheader_') and contains(@class, 'fcontainer')]" "xpath_element"
     And I open the autocomplete suggestions list in the "//div[contains(@id, 'id_datesheader_')]//div[contains(@id, 'fitem_id_semesterid_')]" "xpath_element"
     And I wait "1" seconds
     And I should see "NextMay (nextmay)" in the "//div[contains(@id, 'id_datesheader_')]//ul[contains(@class, 'form-autocomplete-suggestions')]" "xpath_element"
@@ -47,11 +46,11 @@ Feature: As a teacher - configure and use booking's semesters feature.
     Given I am on the "My booking" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "NextJune (nextjune)" in the "//div[contains(@id, 'id_datesheader_') and contains(@class, 'fcontainer')]" "xpath_element"
+    And I should see "NextSummer (nextsummer)" in the "//div[contains(@id, 'id_datesheader_') and contains(@class, 'fcontainer')]" "xpath_element"
     And I set the following fields to these values:
-      | Booking option name   | Option - Test Semester |
-      | Select time period    | NextJune (nextjune)    |
-      | Weekday, start and end time (Day, HH:MM - HH:MM) | Friday, 13:00-14:00    |
+      | Booking option name                              | Option - Test Semester  |
+      | Select time period                               | NextSummer (nextsummer) |
+      | Weekday, start and end time (Day, HH:MM - HH:MM) | Friday, 13:00-14:00     |
     And I press "Create date series"
     And I wait "1" seconds
     And I should see "## + 1 year ##%Y##" in the "#booking_optiondate_1" "css_element"
