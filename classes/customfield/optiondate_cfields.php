@@ -118,14 +118,14 @@ class optiondate_cfields {
      * Function to read all the cf fields in a form for a given optiondate.
      * @param array $formdata
      * @param mixed $index
-     * @return void
+     * @return array
      */
     public static function get_list_of_submitted_cfields(array $formdata, $index) {
 
         $regexstring = '/^customfieldname_' . $index . '/';
         if (!$cfnames = preg_grep($regexstring, array_keys($formdata))) {
             // For performance.
-            return;
+            return [];
         }
 
         $optionid = $formdata['id'];
