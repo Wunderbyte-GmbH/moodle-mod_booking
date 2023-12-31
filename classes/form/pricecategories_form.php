@@ -147,7 +147,12 @@ class pricecategories_form extends moodleform {
     /**
      * Helper function to create form elements for adding price categories.
      * Start with 2, because 1 is the default price.
+     *
+     * @param mixed $mform
      * @param int $counter if there already are existing price categories start with the succeeding number
+     *
+     * @return void
+     *
      */
     public function addpricecategories($mform, $counter = 2) {
 
@@ -205,10 +210,12 @@ class pricecategories_form extends moodleform {
     }
 
     /**
-     * Validate price categories.
+     * Form validation.
      *
-     * {@inheritdoc}
-     * @see moodleform::validation()
+     * @param array $data
+     * @param array $files
+     * @return array
+     *
      */
     public function validation($data, $files) {
 

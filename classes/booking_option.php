@@ -3233,10 +3233,13 @@ class booking_option {
      * We don't want to accidentally delete values in the process of updating.
      * On the other hand, connected tables and values need to be updated after an optionid is there.
      * This concerns customfields, entities, prices, optiondates etc.
+     *
      * @param array|stdClass $data // New transmitted values via form, csv or webservice.
-     * @param null|context_module $context // Context class.
+     * @param null|context $context // Context class.
      * @param int $updateparam // The update param allows for fine tuning.
+     *
      * @return int
+     *
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
@@ -3321,6 +3324,14 @@ class booking_option {
 
     /**
      * Helper function to deal with the creation of multisessions (optiondates).
+     *
+     * @param mixed $optionvalues
+     * @param mixed $booking
+     * @param int $optionid
+     * @param null|context $context
+     *
+     * @return void
+     *
      */
     public static function deal_with_multisessions(&$optionvalues, $booking, $optionid, $context) {
 

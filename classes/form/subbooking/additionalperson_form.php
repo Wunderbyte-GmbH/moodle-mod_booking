@@ -49,7 +49,7 @@ use stdClass;
  */
 class additionalperson_form extends dynamic_form {
 
-    /** @param int $id */
+    /** @var int $id */
     private $id = null;
 
     /**
@@ -232,8 +232,8 @@ class additionalperson_form extends dynamic_form {
     /**
      * Helper function to store data in cache.
      *
-     * @param int $data
-     * @param object $user
+     * @param int $subbookingid
+     * @param object|null $user
      * @return object
      */
     public static function get_data_from_cache($subbookingid, $user = null) {

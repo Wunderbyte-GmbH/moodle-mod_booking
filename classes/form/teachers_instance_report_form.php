@@ -77,7 +77,12 @@ class teachers_instance_report_form extends moodleform {
     }
 
     /**
-     * Custom validation not necessary for autocomplete.
+     * Form validation.
+     *
+     * @param array $data
+     * @param array $files
+     * @return array
+     *
      */
     public function validation($data, $files) {
 

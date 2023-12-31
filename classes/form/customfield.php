@@ -36,7 +36,9 @@ require_once($CFG->libdir . '/formslib.php');
 
 /**
  * Customfield class.
- * @package mod_booking\form
+ * @package mod_booking
+ * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class customfield extends \moodleform {
 

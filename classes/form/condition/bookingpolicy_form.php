@@ -47,7 +47,7 @@ use stdClass;
  */
 class bookingpolicy_form extends dynamic_form {
 
-    /** @param int $id */
+    /** @var int $id */
     private $id = null;
 
     /**

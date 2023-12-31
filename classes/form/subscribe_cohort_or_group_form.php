@@ -97,7 +97,12 @@ class subscribe_cohort_or_group_form extends moodleform {
     }
 
     /**
-     * Custom validation should be added here.
+     * Form validation.
+     *
+     * @param array $data
+     * @param array $files
+     * @return array
+     *
      */
     public function validation($data, $files) {
         return [];

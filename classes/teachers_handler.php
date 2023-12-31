@@ -170,7 +170,7 @@ class teachers_handler {
     /**
      * Load existing teachers into mform.
      *
-     * @param stdClass &$data reference to data
+     * @param stdClass $data reference to data
      */
     public function set_data(stdClass &$data) {
 

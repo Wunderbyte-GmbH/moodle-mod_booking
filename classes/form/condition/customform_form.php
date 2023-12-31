@@ -47,7 +47,7 @@ use stdClass;
  */
 class customform_form extends dynamic_form {
 
-    /** @param int $id */
+    /** @var int $id */
     private $id = null;
 
     /**

@@ -64,9 +64,12 @@ class customreporttemplatesadd_form extends moodleform {
     }
 
     /**
+     * Form validation.
      *
-     * {@inheritDoc}
-     * @see moodleform::validation()
+     * @param array $data
+     * @param array $files
+     * @return array
+     *
      */
     public function validation($data, $files) {
         return [];

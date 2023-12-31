@@ -47,11 +47,22 @@ use moodle_url;
 use required_capability_exception;
 use stdClass;
 
+/**
+ * Class to handle option form
+ *
+ * @package mod_booking
+ * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class option_form extends dynamic_form {
 
     /** @var bool $formmode 'simple' or 'expert' */
     public $formmode = null;
 
+    /**
+     * {@inheritDoc}
+     * @see moodleform::definition()
+     */
     public function definition() {
         global $DB, $PAGE, $OUTPUT;
 
@@ -134,6 +145,14 @@ class option_form extends dynamic_form {
         $PAGE->requires->js_call_amd('mod_booking/optionstemplateselect', 'init');
     }
 
+    /**
+     * Data preprocessing.
+     *
+     * @param array $defaultvalues
+     *
+     * @return void
+     *
+     */
     protected function data_preprocessing(&$defaultvalues) {
 
         // Custom lang strings.
@@ -185,10 +204,10 @@ class option_form extends dynamic_form {
     }
 
     /**
-     *
      * Show the booking information to edit
      *
-     * @param bool $entity
+     * @param booking_handler $handler
+     * @return array
      */
     public function get_customfieldcategories(booking_handler $handler) {
         $categories = $handler->get_categories_with_fields();

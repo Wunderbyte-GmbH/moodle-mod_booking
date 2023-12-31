@@ -30,7 +30,19 @@ require_once($CFG->libdir . '/formslib.php');
 
 use mod_booking\utils\db;
 
+/**
+ * Class to handle the confirm activity form
+ *
+ * @package mod_booking
+ * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class confirmactivity extends \moodleform {
+
+    /**
+     * Definitiion.
+     * @return void
+     */
     public function definition() {
         global $CFG, $DB;
 
@@ -64,7 +76,15 @@ class confirmactivity extends \moodleform {
         $mform->addGroup($buttonarray, 'buttonar', '', ' ', false);
     }
 
-    // Custom validation should be added here.
+    /**
+     * Custom validation should be added here.
+     *
+     * @param array $data
+     * @param array $files
+     *
+     * @return array
+     *
+     */
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
 

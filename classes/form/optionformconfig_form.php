@@ -125,10 +125,12 @@ class optionformconfig_form extends \moodleform {
 
 
     /**
-     * Validate price categories.
+     * Form validation.
      *
-     * {@inheritdoc}
-     * @see moodleform::validation()
+     * @param array $data
+     * @param array $files
+     * @return array
+     *
      */
     public function validation($data, $files) {
 

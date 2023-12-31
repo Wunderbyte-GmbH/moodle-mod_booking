@@ -89,10 +89,12 @@ class deleteruleform extends dynamic_form {
     }
 
     /**
-     * Validate dates.
+     * Form validation.
      *
-     * {@inheritdoc}
-     * @see moodleform::validation()
+     * @param array $data
+     * @param array $files
+     * @return array
+     *
      */
     public function validation($data, $files) {
         $errors = [];

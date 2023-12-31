@@ -26,8 +26,21 @@ namespace mod_booking\form;
 
 use moodleform;
 
+/**
+ * Class to handle instance template form
+ *
+ * @package mod_booking
+ * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class instancetemplateadd_form extends moodleform {
 
+    /**
+     * Form definition.
+     *
+     * @return void
+     *
+     */
     public function definition() {
         global $CFG;
         $mform = & $this->_form;

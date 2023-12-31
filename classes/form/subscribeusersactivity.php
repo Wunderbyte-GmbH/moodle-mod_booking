@@ -29,7 +29,20 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/formslib.php');
 
+/**
+ * Class to handle form for user activity subscription.
+ *
+ * @package   mod_booking
+ * @copyright 2021 Wunderbyte GmbH {@link http://www.wunderbyte.at}
+ * @author    Bernhard Fischer
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class subscribeusersactivity extends \moodleform {
+
+    /**
+     * {@inheritDoc}
+     * @see moodleform::definition()
+     */
     public function definition() {
         global $CFG, $DB;
 
@@ -63,7 +76,15 @@ class subscribeusersactivity extends \moodleform {
         $mform->addGroup($buttonarray, 'buttonar', '', ' ', false);
     }
 
-    // Custom validation should be added here.
+    /**
+     * Form validation.
+     *
+     * @param array $data
+     * @param array $files
+     *
+     * @return array
+     *
+     */
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
 

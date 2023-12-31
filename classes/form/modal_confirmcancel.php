@@ -41,7 +41,7 @@ use stdClass;
  */
 class modal_confirmcancel extends dynamic_form {
 
-    /** @param int $cmid */
+    /** @var int $cmid */
     private $cmid = null;
 
     /**

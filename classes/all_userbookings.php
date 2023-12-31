@@ -26,6 +26,7 @@ use coding_exception;
 use mod_booking\output\report_edit_bookingnotes;
 use html_writer;
 use moodle_url;
+use stdClass;
 defined('MOODLE_INTERNAL') || die();
 require_once('../../lib/tablelib.php');
 
@@ -39,10 +40,8 @@ class all_userbookings extends \table_sql {
     /** @var booking_option|null */
     public $bookingdata = null;
 
-    /** @var \   course_module|\stdClass|null */
+    /** @var stdClass|null */
     public $cm = null;
-
-    public $db = null;
 
     /** @var int $optionid*/
     public $optionid = null;

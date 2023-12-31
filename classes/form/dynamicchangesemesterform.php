@@ -48,7 +48,7 @@ use stdClass;
  */
 class dynamicchangesemesterform extends dynamic_form {
 
-    /** @param int $cmid */
+    /** @var int $cmid */
     private $cmid = null;
 
     /**
