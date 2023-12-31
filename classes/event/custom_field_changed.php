@@ -51,6 +51,12 @@ class custom_field_changed extends \core\event\base {
         return get_string('custom_field_changed', 'mod_booking');
     }
 
+    /**
+     * Get description
+     *
+     * @return string
+     *
+     */
     public function get_description() {
         return "Custom fileds where changed";
     }

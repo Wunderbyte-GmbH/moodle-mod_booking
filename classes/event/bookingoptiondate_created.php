@@ -33,20 +33,44 @@ namespace mod_booking\event;
  */
 class bookingoptiondate_created extends \core\event\base {
 
+    /**
+     * Init
+     *
+     * @return void
+     *
+     */
     protected function init() {
         $this->data['crud'] = 'c';
         $this->data['edulevel'] = self::LEVEL_TEACHING;
         $this->data['objecttable'] = 'booking_optiondates';
     }
 
+    /**
+     * Get name
+     *
+     * @return string
+     *
+     */
     public static function get_name() {
         return get_string('bookingoptiondate_created', 'booking');
     }
 
+    /**
+     * Get description
+     *
+     * @return string
+     *
+     */
     public function get_description() {
         return "User with id '{$this->userid}' created 'booking option date (session)' with id '{$this->objectid}'.";
     }
 
+    /**
+     * Get_url
+     *
+     * @return \moodle_url
+     *
+     */
     public function get_url() {
         return new \moodle_url('/mod/booking/report.php',
                 ['id' => $this->contextinstanceid, 'optiondateid' => $this->objectid]);

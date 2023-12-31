@@ -34,21 +34,45 @@ namespace mod_booking\event;
  */
 class optiondates_teacher_deleted extends \core\event\base {
 
+    /**
+     * Init
+     *
+     * @return void
+     *
+     */
     protected function init() {
         $this->data['crud'] = 'd';
         $this->data['edulevel'] = self::LEVEL_TEACHING;
         $this->data['objecttable'] = 'booking_optiondates_teachers';
     }
 
+    /**
+     * Get name
+     *
+     * @return string
+     *
+     */
     public static function get_name() {
         return get_string('optiondates_teacher_deleted', 'mod_booking');
     }
 
+    /**
+     * Get description
+     *
+     * @return string
+     *
+     */
     public function get_description() {
         return "Teacher with id '{$this->relateduserid}' was removed from one specific date "
             . "in teaching journal of option with id '{$this->objectid}' by user with id '{$this->userid}'.";
     }
 
+    /**
+     * Get_url
+     *
+     * @return \moodle_url
+     *
+     */
     public function get_url() {
         return new \moodle_url('/mod/booking/optiondates_teachers_report.php',
                 ['cmid' => $this->other['cmid'], 'optionid' => $this->objectid]);

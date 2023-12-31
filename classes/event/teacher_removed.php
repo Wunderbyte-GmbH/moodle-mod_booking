@@ -54,6 +54,12 @@ class teacher_removed extends \core\event\base {
         return get_string('eventteacher_removed', 'mod_booking');
     }
 
+    /**
+     * Get description
+     *
+     * @return string
+     *
+     */
     public function get_description() {
         return "The user with id '$this->userid' removed teacher with user id
                 '$this->relateduserid' from the booking option with the option id

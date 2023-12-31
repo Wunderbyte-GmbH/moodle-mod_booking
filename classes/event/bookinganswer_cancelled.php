@@ -34,16 +34,34 @@ namespace mod_booking\event;
  */
 class bookinganswer_cancelled extends \core\event\base {
 
+    /**
+     * Init
+     *
+     * @return void
+     *
+     */
     protected function init() {
         $this->data['crud'] = 'u';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
         $this->data['objecttable'] = 'booking_answers';
     }
 
+    /**
+     * Get name
+     *
+     * @return string
+     *
+     */
     public static function get_name() {
         return get_string('bookinganswer_cancelled', 'booking');
     }
 
+    /**
+     * Get description
+     *
+     * @return string
+     *
+     */
     public function get_description() {
 
         $userid = $this->data['userid']; // The user who DID the cancellation.
@@ -63,6 +81,12 @@ class bookinganswer_cancelled extends \core\event\base {
         }
     }
 
+    /**
+     * Get_url
+     *
+     * @return \moodle_url
+     *
+     */
     public function get_url() {
         return new \moodle_url('/mod/booking/subscribeusers.php',
                 ['id' => $this->contextinstanceid, 'optionid' => $this->objectid]);

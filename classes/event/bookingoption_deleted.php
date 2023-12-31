@@ -34,20 +34,44 @@ namespace mod_booking\event;
  */
 class bookingoption_deleted extends \core\event\base {
 
+    /**
+     * Init
+     *
+     * @return void
+     *
+     */
     protected function init() {
         $this->data['crud'] = 'd'; // Meaning: d = delete.
         $this->data['edulevel'] = self::LEVEL_TEACHING;
         $this->data['objecttable'] = 'booking_options';
     }
 
+    /**
+     * Get name
+     *
+     * @return string
+     *
+     */
     public static function get_name() {
         return get_string('bookingoption_deleted', 'booking');
     }
 
+    /**
+     * Get description
+     *
+     * @return string
+     *
+     */
     public function get_description() {
         return "User with id '{$this->userid}' deleted 'booking option' with id '{$this->objectid}'.";
     }
 
+    /**
+     * Get_url
+     *
+     * @return \moodle_url
+     *
+     */
     public function get_url() {
         return new \moodle_url('/mod/booking/view.php', ['id' => $this->contextinstanceid]);
     }

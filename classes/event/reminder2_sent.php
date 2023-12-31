@@ -35,16 +35,34 @@ namespace mod_booking\event;
  */
 class reminder2_sent extends \core\event\base {
 
+    /**
+     * Init
+     *
+     * @return void
+     *
+     */
     protected function init() {
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_TEACHING;
         $this->data['objecttable'] = 'booking_options';
     }
 
+    /**
+     * Get name
+     *
+     * @return string
+     *
+     */
     public static function get_name() {
         return get_string('reminder2_sent', 'booking');
     }
 
+    /**
+     * Get description
+     *
+     * @return string
+     *
+     */
     public function get_description() {
         return "reminder2_sent: The second reminder message has been sent to all users" .
             " who booked the option with optionid {$this->objectid}.";

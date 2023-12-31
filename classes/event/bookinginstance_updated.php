@@ -36,16 +36,34 @@ use mod_booking\singleton_service;
  */
 class bookinginstance_updated extends \core\event\base {
 
+    /**
+     * Init
+     *
+     * @return void
+     *
+     */
     protected function init() {
         $this->data['crud'] = 'u'; // Meaning: u = update.
         $this->data['edulevel'] = self::LEVEL_TEACHING;
         $this->data['objecttable'] = 'booking';
     }
 
+    /**
+     * Get name
+     *
+     * @return string
+     *
+     */
     public static function get_name() {
         return get_string('bookinginstance_updated', 'booking');
     }
 
+    /**
+     * Get description
+     *
+     * @return string
+     *
+     */
     public function get_description() {
 
         global $PAGE;
@@ -69,6 +87,12 @@ class bookinginstance_updated extends \core\event\base {
         return "User with id '{$this->userid}' updated 'booking instance' with cmid '{$this->objectid}'." . $html;
     }
 
+    /**
+     * Get_url
+     *
+     * @return \moodle_url
+     *
+     */
     public function get_url() {
         return new \moodle_url('/course/modedit.php', ['update' => $this->objectid]);
     }

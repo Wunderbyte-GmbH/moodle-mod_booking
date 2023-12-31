@@ -40,15 +40,33 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  */
 class message_sent extends \core\event\base {
 
+    /**
+     * Init
+     *
+     * @return void
+     *
+     */
     protected function init() {
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_TEACHING;
     }
 
+    /**
+     * Get name
+     *
+     * @return string
+     *
+     */
     public static function get_name() {
         return get_string('message_sent', 'booking');
     }
 
+    /**
+     * Get description
+     *
+     * @return string
+     *
+     */
     public function get_description() {
 
         return $this->transform_msgparam( $this->other['messageparam'] ) . ": " .
@@ -58,7 +76,7 @@ class message_sent extends \core\event\base {
 
     /**
      * Helper function to transform the message param.
-     * @param $msgparam the message parameter
+     * @param int $msgparam the message parameter
      * @return string
      */
     private function transform_msgparam(int $msgparam): string {

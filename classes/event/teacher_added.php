@@ -55,6 +55,12 @@ class teacher_added extends \core\event\base {
         return get_string('eventteacher_added', 'mod_booking');
     }
 
+    /**
+     * Get description
+     *
+     * @return string
+     *
+     */
     public function get_description() {
         return "The user with id '$this->userid' added teacher with user id
                 '$this->relateduserid' to the booking option with the option id

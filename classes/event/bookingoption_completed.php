@@ -35,16 +35,34 @@ namespace mod_booking\event;
  */
 class bookingoption_completed extends \core\event\base {
 
+    /**
+     * Init
+     *
+     * @return void
+     *
+     */
     protected function init() {
         $this->data['crud'] = 'c';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
         $this->data['objecttable'] = 'booking_answers';
     }
 
+    /**
+     * Get name
+     *
+     * @return string
+     *
+     */
     public static function get_name() {
         return get_string('bookingoption_completed', 'booking');
     }
 
+    /**
+     * Get description
+     *
+     * @return string
+     *
+     */
     public function get_description() {
         if ($this->userid != $this->data['relateduserid']) {
             return "The user with id {$this->userid} marked the option with id  {$this->objectid} for the "
@@ -54,6 +72,12 @@ class bookingoption_completed extends \core\event\base {
         }
     }
 
+    /**
+     * Get_url
+     *
+     * @return \moodle_url
+     *
+     */
     public function get_url() {
         return new \moodle_url('/mod/booking/view.php', ['id' => $this->contextinstanceid]);
     }

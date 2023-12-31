@@ -36,16 +36,34 @@ use mod_booking\singleton_service;
  */
 class bookingoption_updated extends \core\event\base {
 
+    /**
+     * Init
+     *
+     * @return void
+     *
+     */
     protected function init() {
         $this->data['crud'] = 'u'; // Meaning: u = update.
         $this->data['edulevel'] = self::LEVEL_TEACHING;
         $this->data['objecttable'] = 'booking_options';
     }
 
+    /**
+     * Get name
+     *
+     * @return string
+     *
+     */
     public static function get_name() {
         return get_string('bookingoption_updated', 'booking');
     }
 
+    /**
+     * Get description
+     *
+     * @return string
+     *
+     */
     public function get_description() {
 
         global $PAGE;
@@ -70,6 +88,12 @@ class bookingoption_updated extends \core\event\base {
         return "User with id '{$this->userid}' updated 'booking option' with id '{$this->objectid}'." . $html;
     }
 
+    /**
+     * Get_url
+     *
+     * @return \moodle_url
+     *
+     */
     public function get_url() {
         return new \moodle_url('/mod/booking/report.php', ['id' => $this->contextinstanceid, 'optionid' => $this->objectid]);
     }
