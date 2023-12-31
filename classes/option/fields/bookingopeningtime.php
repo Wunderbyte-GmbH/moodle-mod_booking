@@ -76,7 +76,20 @@ class bookingopeningtime extends field_base {
         int $updateparam,
         $returnvalue = null): string {
 
-        return parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
+        $key = fields_info::get_class_name(static::class);
+        $value = $formdata->{$key} ?? null;
+
+        if (empty($formdata->restrictanswerperiodopening)) {
+            $newoption->{$key} = 0;
+        } else {
+            if (!empty($value)) {
+                $newoption->{$key} = $value;
+            } else {
+                $newoption->{$key} = 0;
+            }
+        }
+
+        return '';
     }
 
     /**
