@@ -113,6 +113,7 @@ class enter_userprofilefield implements booking_rule_condition {
 
             $mform->addElement('text', 'condition_enter_userprofilefield_textfield',
                 get_string('condition_textfield', 'mod_booking'));
+            $mform->setType('condition_enter_userprofilefield_textfield', PARAM_TEXT);
         }
     }
 
