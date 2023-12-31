@@ -64,6 +64,7 @@ class pollurl extends field_base {
      * ... relays it to the new option class for saving or updating.
      * @param stdClass $formdata
      * @param stdClass $newoption
+     * @param int $updateparam
      * @param mixed $returnvalue
      * @return string // If no warning, empty string.
      */
@@ -98,7 +99,7 @@ class pollurl extends field_base {
     }
 
     /**
-     *
+     * Instance form definition
      * @param MoodleQuickForm $mform
      * @param array $formdata
      * @param array $optionformconfig
@@ -124,7 +125,8 @@ class pollurl extends field_base {
      * This function adds error keys for form validation.
      * @param array $data
      * @param array $files
-     * @return void
+     * @param array $errors
+     * @return array
      */
     public static function validation(array $data, array $files, array &$errors) {
 

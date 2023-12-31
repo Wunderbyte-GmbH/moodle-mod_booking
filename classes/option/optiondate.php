@@ -13,6 +13,15 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Optiondate class. Provides all the functionality linked to optiondates.
+ *
+ * @package mod_booking
+ * @copyright 2023 Georg Maißer <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking\option;
 
 use dml_exception;
@@ -22,8 +31,8 @@ use mod_booking\singleton_service;
 use stdClass;
 
 /**
- * Optiondate class
- * Provides all the functionality linked to optiondates.
+ * Class to handle optiondate. Provides all the functionality linked to optiondates.
+ *
  * @package mod_booking
  * @copyright 2023 Georg Maißer <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -63,10 +72,19 @@ class optiondate {
     /** @var int reviewed */
     public int $reviewed = 0;
 
-
-
     /**
      * Construct optiondate class
+     *
+     * @param int $id
+     * @param int $bookingid
+     * @param int $optionid
+     * @param int $eventid
+     * @param int $coursestarttime
+     * @param int $courseendtime
+     * @param int $daystonotify
+     * @param int $sent
+     * @param string $reason
+     * @param int $reviewed
      *
      */
     public function __construct(
@@ -115,6 +133,7 @@ class optiondate {
      * Save a specific optiondate by providing all necessary values.
      * The instantiated optiondate class is returned.
      * Also saves entities, if there are any.
+     *
      * @param int $id
      * @param int $optionid
      * @param int $coursestarttime
@@ -125,6 +144,8 @@ class optiondate {
      * @param string $reason
      * @param int $reviewed
      * @param int $entityid
+     * @param array $customfields
+     *
      * @return optiondate
      * @throws dml_exception
      */

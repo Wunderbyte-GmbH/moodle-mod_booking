@@ -64,6 +64,7 @@ class addtogroup extends field_base {
      * ... relays it to the new option class for saving or updating.
      * @param stdClass $formdata
      * @param stdClass $newoption
+     * @param int $updateparam
      * @param mixed $returnvalue
      * @return string // If no warning, empty string.
      */
@@ -77,7 +78,7 @@ class addtogroup extends field_base {
     }
 
     /**
-     *
+     * Instance form definition
      * @param MoodleQuickForm $mform
      * @param array $formdata
      * @param array $optionformconfig
@@ -88,11 +89,11 @@ class addtogroup extends field_base {
     }
 
     /**
-     *
+     * Save data
      * @param stdClass $formdata
      * @param stdClass $option
      * @return void
-     * @throws dml_exception
+     * @throws \dml_exception
      */
     public static function save_data(stdClass &$formdata, stdClass &$option) {
 

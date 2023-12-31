@@ -66,7 +66,7 @@ class fields_info {
                 // Execute the prepare function of every field.
                 try {
                     $warning = $classname::prepare_save_field($formdata, $newoption, $updateparam);
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $error[] = $e;
                 }
 
@@ -137,7 +137,7 @@ class fields_info {
     }
 
     /**
-     *
+     * Validation.
      * @param array $data
      * @param array $files
      * @param array $errors
@@ -153,9 +153,9 @@ class fields_info {
     }
 
     /**
-     *
+     * Save fields post
      * @param stdClass $formdata
-     * @param stdClass $newoption
+     * @param stdClass $option
      * @param int $updateparam
      * @return void
      */
@@ -169,7 +169,7 @@ class fields_info {
     }
 
     /**
-     *
+     * Set data
      * @param stdClass $data
      * @return void
      */
@@ -197,7 +197,7 @@ class fields_info {
     }
 
     /**
-     *
+     * Definition after data
      * @param MoodleQuickForm $mform
      * @param array $formdata
      * @return void

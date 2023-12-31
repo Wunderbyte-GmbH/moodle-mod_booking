@@ -246,7 +246,6 @@ class dates_handler {
      * Transform each optiondate and save.
      *
      * @param stdClass $fromform form data
-     * @param array $optiondates array of optiondates as strings (e.g. "11646647200-1646650800")
      */
     public function save_from_form(stdClass $fromform) {
         global $DB;
@@ -297,7 +296,7 @@ class dates_handler {
      * Get date array for a specific weekday and time between two dates.
      *
      * @param int $semesterid
-     * @param string $reoccuringdatestring
+     * @param string $reoccurringdatestring
      * @return array
      */
     public static function get_optiondate_series(int $semesterid, string $reoccurringdatestring): array {
@@ -508,7 +507,7 @@ class dates_handler {
     /**
      * Check if the entered reoccuring date string is in a valid format.
      *
-     * @param string $reoccuringdatestring e.g. Monday, 10:00-11:00 or Sun, 12:00-13:00
+     * @param string $reoccurringdatestring e.g. Monday, 10:00-11:00 or Sun, 12:00-13:00
      *
      * @return bool
      */

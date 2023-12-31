@@ -65,6 +65,7 @@ class entities extends field_base {
      * ... relays it to the new option class for saving or updating.
      * @param stdClass $formdata
      * @param stdClass $newoption
+     * @param int $updateparam
      * @param mixed $returnvalue
      * @return string // If no warning, empty string.
      */
@@ -116,7 +117,7 @@ class entities extends field_base {
     }
 
     /**
-     *
+     * Instance form definition
      * @param MoodleQuickForm $mform
      * @param array $formdata
      * @param array $optionformconfig
@@ -153,6 +154,7 @@ class entities extends field_base {
      * This function adds error keys for form validation.
      * @param array $data
      * @param array $files
+     * @param array $errors
      * @return void
      */
     public static function validation(array $data, array $files, array &$errors) {
@@ -172,8 +174,9 @@ class entities extends field_base {
      * ... after saving the option. This is so, when we need an option id for saving (because of other table).
      * @param stdClass $formdata
      * @param stdClass $option
+     * @param int $index
      * @return void
-     * @throws dml_exception
+     * @throws \dml_exception
      */
     public static function save_data(stdClass &$formdata, stdClass &$option, int $index = 0) {
 

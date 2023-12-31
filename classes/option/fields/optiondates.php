@@ -70,6 +70,7 @@ class optiondates extends field_base {
      * ... relays it to the new option class for saving or updating.
      * @param stdClass $formdata
      * @param stdClass $newoption
+     * @param int $updateparam
      * @param mixed $returnvalue
      * @return string // If no warning, empty string.
      */
@@ -115,7 +116,7 @@ class optiondates extends field_base {
      * This function adds error keys for form validation.
      * @param array $data
      * @param array $files
-     * @return void
+     * @param array $errors
      */
     public static function validation(array $data, array $files, array &$errors) {
 
@@ -132,7 +133,7 @@ class optiondates extends field_base {
     }
 
     /**
-     *
+     * Instance form definition
      * @param MoodleQuickForm $mform
      * @param array $formdata
      * @param array $optionformconfig
@@ -152,11 +153,12 @@ class optiondates extends field_base {
     }
 
     /**
+     * Save data.
      *
      * @param stdClass $formdata
      * @param stdClass $option
      * @return void
-     * @throws dml_exception
+     * @throws \dml_exception
      */
     public static function save_data(stdClass &$formdata, stdClass &$option) {
 
@@ -165,6 +167,7 @@ class optiondates extends field_base {
 
     /**
      * Standard function to transfer stored value to form.
+     *
      * @param stdClass $data
      * @param booking_option_settings $settings
      * @return void

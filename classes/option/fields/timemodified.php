@@ -65,6 +65,7 @@ class timemodified extends field_base {
      * ... relays it to the new option class for saving or updating.
      * @param stdClass $formdata
      * @param stdClass $newoption
+     * @param int $updateparam
      * @param mixed $returnvalue
      * @return string // If no warning, empty string.
      */
@@ -81,7 +82,7 @@ class timemodified extends field_base {
     }
 
     /**
-     *
+     * Instance form definition
      * @param MoodleQuickForm $mform
      * @param array $formdata
      * @param array $optionformconfig

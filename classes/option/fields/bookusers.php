@@ -33,6 +33,7 @@ use stdClass;
 
 /**
  * Class to handle one property of the booking_option_settings class.
+ *
  * Bookusers is made for the the csv importer to directly book users.
  * To do this, add the key "useremail" or "username" must be set in csv.
  * If you have more than one user, use comma (no space) to separate them.
@@ -68,6 +69,7 @@ class bookusers extends field_base {
      * ... relays it to the new option class for saving or updating.
      * @param stdClass $formdata
      * @param stdClass $newoption
+     * @param int $updateparam
      * @param mixed $returnvalue
      * @return string // If no warning, empty string.
      */
@@ -81,7 +83,7 @@ class bookusers extends field_base {
     }
 
     /**
-     *
+     * Instance form definition
      * @param MoodleQuickForm $mform
      * @param array $formdata
      * @param array $optionformconfig
@@ -92,11 +94,11 @@ class bookusers extends field_base {
     }
 
     /**
-     *
+     * Save data
      * @param stdClass $formdata
      * @param stdClass $option
      * @return void
-     * @throws dml_exception
+     * @throws \dml_exception
      */
     public static function save_data(stdClass &$formdata, stdClass &$option) {
 
