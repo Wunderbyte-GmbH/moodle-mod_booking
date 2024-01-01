@@ -13,8 +13,24 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Handle specific booking db methods.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking\utils;
 
+/**
+ * Class to handle specific booking db methods.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class db {
 
     /**
@@ -62,7 +78,7 @@ class db {
     /**
      * Get all badges for course.
      *
-     * @param $courseid
+     * @param int $courseid
      *
      * @return array
      */
@@ -84,9 +100,9 @@ class db {
     /**
      * Get all users that have or not have cerain activity completed.
      *
-     * @param $cmid
-     * @param $optionid
-     * @param $completed If true, return users who completed activity.
+     * @param int $cmid
+     * @param int $optionid
+     * @param bool $completed If true, return users who completed activity.
      *
      * @return array of matching users.
      */
@@ -116,8 +132,8 @@ class db {
     /**
      * Get all users that have certain badge.
      *
-     * @param $badgeid
-     * @param $optionid
+     * @param int $badgeid
+     * @param int $optionid
      *
      * @return array of matching users.
      */

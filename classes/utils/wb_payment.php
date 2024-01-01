@@ -13,15 +13,35 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Wunderbyte Payment Methods.
+ * Contains methods for license verification and more.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking\utils;
 
 use stdClass;
 
 /**
- * Wunderbyte Payment Methods Class:
+ * Class to handle Wunderbyte Payment Methods.
  * Contains methods for license verification and more.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class wb_payment {
+
+    /**
+     * MOD_BOOKING_PUBLIC_KEY
+     *
+     * @var mixed
+     */
     const MOD_BOOKING_PUBLIC_KEY = "-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu8vRBnPDug2pKoGY9wQS
 KNTK1SzrPuU0KC8xm22GPQZQM1XkPpvNwBp8CmXUN29r/qiPxapDNVmIH5Ectvb+
@@ -35,7 +55,7 @@ pwIDAQAB
     /**
      * Decrypt a PRO license key to get the expiration date of the license
      *
-     * @param stdClass $signedkey an object containing licensekey and signature
+     * @param string $encryptedlicensekey an object containing licensekey and signature
      * @return string the expiration date of the license key formatted as Y-m-d
      */
     public static function decryptlicensekey(string $encryptedlicensekey): string {

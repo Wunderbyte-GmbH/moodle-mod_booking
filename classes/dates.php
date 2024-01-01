@@ -13,6 +13,17 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Handle dates
+ * This class provides the form to handle dates (option dates)
+ * Provides all the functionality linked to dates in booking and booking options.
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Georg Maißer <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking;
 
 use coding_exception;
@@ -34,11 +45,12 @@ define('MOD_BOOKING_FORM_COURSEENDTIME', 'courseendtime_');
 define('MOD_BOOKING_FORM_DELETEDATE', 'deletedate_');
 
 /**
- * Handle dates
+ * Class to handle dates
  * This class provides the form to handle dates (option dates)
  * Provides all the functionality linked to dates in booking and booking options.
  * @package mod_booking
- * @copyright 2023 Georg Maißer <info@wunderbyte.at>
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Georg Maißer <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class dates {
@@ -52,7 +64,7 @@ class dates {
     }
 
     /**
-     *
+     * Definition after data
      * @param MoodleQuickForm $mform
      * @param array $formdata
      * @return void
@@ -167,7 +179,7 @@ class dates {
     }
 
     /**
-     *
+     * Set data.
      * @param stdClass $defaultvalues
      * @return stdClass
      */
@@ -315,6 +327,14 @@ class dates {
         return $defaultvalues;
     }
 
+    /**
+     * Data preprocessing
+     *
+     * @param mixed $defaultvalues
+     *
+     * @return void
+     *
+     */
     public static function data_preprocessing($defaultvalues) {
 
     }
@@ -385,6 +405,7 @@ class dates {
     }
 
     /**
+     * Save optiondates from form
      *
      * @param stdClass $formdata
      * @param stdClass $option
@@ -456,10 +477,12 @@ class dates {
     }
 
     /**
+     * Add date as collapsible
      *
      * @param MoodleQuickForm $mform
      * @param array $elements
      * @param array $date
+     * @param bool $expanded
      * @return void
      * @throws coding_exception
      */
@@ -568,10 +591,11 @@ class dates {
     }
 
     /**
-     *
+     * Add dates to form
      * @param MoodleQuickForm $mform
      * @param array $dates
      * @param array $elements
+     * @param array $formdata
      * @return void
      * @throws coding_exception
      */
@@ -609,6 +633,17 @@ class dates {
         ]);
     }
 
+    /**
+     * Add no dates yet to form
+     *
+     * @param MoodleQuickForm $mform
+     * @param array $elements
+     * @param array $dates
+     * @param array $formdata
+     *
+     * @return void
+     *
+     */
     private static function add_no_dates_yet_to_form(MoodleQuickForm &$mform, array &$elements, array $dates, array $formdata) {
 
         $elements[] = $mform->addElement('static', 'nodatesmessage', '', get_string('nodateset', 'mod_booking'));

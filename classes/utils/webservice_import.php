@@ -18,7 +18,8 @@
  * Import booking options via webservice.
  *
  * @package mod_booking
- * @copyright 2021 Georg Maisser <georg.maisser@wunderbyte.at>
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Georg Maisser <georg.maisser@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace mod_booking\utils;
@@ -39,6 +40,10 @@ global $CFG;
 /**
  * Class webservice_import
  * Import controller for webservice imports
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class webservice_import {
 
@@ -58,7 +63,7 @@ class webservice_import {
      * This function verifies if the given data should be merged with an existing booking option.
      * If so, we merge.
      * If not, we create a new booking option.
-     * @param $data
+     * @param mixed $data
      * @return int[]
      * @throws \coding_exception
      * @throws \moodle_exception
@@ -110,8 +115,8 @@ class webservice_import {
 
     /**
      * Function to update option. It is used to add teacher, to inscribe users or to add multisession date.
-     * @param $data
-     * @param $bookingoption
+     * @param mixed $data
+     * @param mixed $bookingoption
      */
     public function update_option(&$data, $bookingoption) {
 
@@ -120,7 +125,7 @@ class webservice_import {
     /**
      * Verify if we have enough overlapping with an existing booking option so we can update.
      * Returns 0 if we have to create a new option, else bookingoptionid.
-     * @param $data
+     * @param mixed $data
      * @return booking_option|null
      */
     private function check_if_update_option(&$data): ?booking_option {
@@ -181,7 +186,7 @@ class webservice_import {
 
     /**
      * There are several ways to find out to which booking instance we should add this booking option.
-     * @param $data
+     * @param mixed $data
      * @return int|null
      */
     private function return_booking_id(&$data): ?int {
@@ -241,7 +246,8 @@ class webservice_import {
 
     /**
      * Remapping changes the name of keys and transforms dates.
-     * @param $data
+     * @param mixed $data
+     * @param mixed $bookingoption
      * @throws \moodle_exception
      */
     private function remap_data(&$data, $bookingoption) {

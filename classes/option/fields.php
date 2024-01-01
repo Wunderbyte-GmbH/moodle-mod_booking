@@ -41,8 +41,9 @@ interface fields {
      * ... relays it to the new option class for saving or updating.
      * @param stdClass $formdata
      * @param stdClass $newoption
-     * @param mixed $returnvalue
      * @param int $updateparam
+     * @param mixed $returnvalue
+     *
      * @return string // If no errormessage, empty string.
      */
     public static function prepare_save_field(
