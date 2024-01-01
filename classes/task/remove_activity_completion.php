@@ -14,14 +14,41 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Adhoc Task to remove activity completion.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking\task;
 
+/**
+ * Class to handle Adhoc Task to remove activity completion.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class remove_activity_completion extends \core\task\scheduled_task {
 
+    /**
+     * Get task name
+     *
+     * @return string
+     *
+     */
     public function get_name() {
         return get_string('task_remove_activity_completion', 'mod_booking');
     }
 
+    /**
+     * Execute task.
+     *
+     * @return void
+     *
+     */
     public function execute() {
         global $DB, $CFG;
         $now = time();

@@ -14,6 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Adhoc Task to enrol booked users to course.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking\task;
 
 use mod_booking\elective;
@@ -23,9 +31,18 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
+/**
+ * Class to handle Adhoc Task to enrol booked users to course.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
 
     /**
+     * Get name.
+     *
      * @return string
      * @throws \coding_exception
      */
@@ -35,6 +52,7 @@ class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
 
     /**
      * Enrol users if course has started and this function has not yet been executed.
+     *
      * @throws \coding_exception
      * @throws \dml_exception
      * @throws \moodle_exception

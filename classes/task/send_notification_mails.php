@@ -14,6 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Adhoc Task to send notification mails.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking\task;
 
 use mod_booking\booking_option;
@@ -26,9 +34,18 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
+/**
+ * Class to handle Adhoc Task to send notification mails.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class send_notification_mails extends \core\task\scheduled_task {
 
     /**
+     * Get name.
+     *
      * @return string
      * @throws \coding_exception
      */
@@ -38,6 +55,7 @@ class send_notification_mails extends \core\task\scheduled_task {
 
     /**
      * Check for all users and send notification mail for those on the lists.
+     *
      * @throws \coding_exception
      * @throws \dml_exception
      * @throws \moodle_exception

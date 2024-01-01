@@ -13,6 +13,15 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Sending of reminder mails.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking\task;
 
 use context_system;
@@ -29,12 +38,31 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
+/**
+ * Class to handle sending of reminder mails.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class send_reminder_mails extends \core\task\scheduled_task {
 
+    /**
+     * Get name
+     *
+     * @return string
+     *
+     */
     public function get_name() {
         return get_string('task_send_reminder_mails', 'mod_booking');
     }
 
+    /**
+     * Execute task
+     *
+     * @return void
+     *
+     */
     public function execute() {
         global $DB;
         $now = time();

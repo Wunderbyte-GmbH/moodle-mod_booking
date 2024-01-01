@@ -13,6 +13,15 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Adhoc Task to clean caches at campaign start and at campaign end.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking\task;
 
 use cache_helper;
@@ -24,7 +33,11 @@ global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Adhoc Task to clean caches at campaign start and at campaign end.
+ * Class to handle adhoc Task to clean caches at campaign start and at campaign end.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class purge_campaign_caches extends \core\task\adhoc_task {
 

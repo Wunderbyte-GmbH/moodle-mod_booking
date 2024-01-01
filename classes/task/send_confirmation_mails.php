@@ -13,6 +13,15 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+/**
+ * Handling of sending confirmation mains.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Bernhard Fischer
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking\task;
 
 defined('MOODLE_INTERNAL') || die();
@@ -25,6 +34,14 @@ use Exception;
 
 global $CFG;
 
+/**
+ * Class for handling of sending confirmation mains.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Bernhard Fischer
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class send_confirmation_mails extends \core\task\adhoc_task {
 
     /**

@@ -13,6 +13,15 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Adhoc Task to send a mail by a rule at a certain time.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking\task;
 
 defined('MOODLE_INTERNAL') || die();
@@ -26,7 +35,11 @@ use mod_booking\message_controller;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Adhoc Task to send a mail by a rule at a certain time.
+ * Class to handle adhoc Task to send a mail by a rule at a certain time.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
 
