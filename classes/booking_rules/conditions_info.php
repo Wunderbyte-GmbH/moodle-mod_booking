@@ -40,7 +40,6 @@ class conditions_info {
      * Add form fields to mform.
      *
      * @param MoodleQuickForm $mform
-     * @param array $repeateloptions
      * @param array $ajaxformdata
      * @return void
      */

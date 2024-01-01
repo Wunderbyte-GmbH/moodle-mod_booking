@@ -18,7 +18,8 @@
  * Privacy provider implementation for mod_booking.
  *
  * @package mod_booking
- * @copyright 2018 Michael Pollak <moodle@michaelpollak.org>
+ * @copyright 2023 Wunderbyte GmbH
+ * @author Michael Pollak <moodle@michaelpollak.org>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -39,6 +40,14 @@ use dml_exception;
 use mod_booking\teachers_handler;
 use stdClass;
 
+/**
+ * Class privacy provider implementation for mod_booking.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH
+ * @author Michael Pollak <moodle@michaelpollak.org>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class provider implements
     // This plugin stores personal data.
     \core_privacy\local\metadata\provider,

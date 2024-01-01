@@ -117,6 +117,8 @@ class mod_booking_observer {
 
 
     /**
+     * Booking answer cancelled.
+     *
      * @param \mod_booking\event\bookinganswer_cancelled $event
      * @throws dml_exception
      */
@@ -136,6 +138,8 @@ class mod_booking_observer {
     }
 
     /**
+     * Booking option cancelled.
+     *
      * @param \mod_booking\event\bookingoption_cancelled $event
      * @throws dml_exception
      */

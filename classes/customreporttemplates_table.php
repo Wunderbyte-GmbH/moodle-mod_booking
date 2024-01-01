@@ -13,11 +13,27 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Handke custom report templates table.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking;
 
 use moodle_url;
 use table_sql;
 
+/**
+ * Class to handke custom report templates table.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class customreporttemplates_table extends table_sql {
 
     /**
@@ -28,8 +44,8 @@ class customreporttemplates_table extends table_sql {
     /**
      * customreporttemplates_table constructor.
      *
-     * @param $uniqueid
-     * @param $cmid
+     * @param string $uniqueid
+     * @param int $cmid
      * @throws \coding_exception
      */
     public function __construct($uniqueid, $cmid) {
@@ -48,7 +64,7 @@ class customreporttemplates_table extends table_sql {
     /**
      * Display actions for the templates (delete or edit)
      *
-     * @param $values
+     * @param object $values
      * @return string
      * @throws \coding_exception
      * @throws \moodle_exception
@@ -63,6 +79,14 @@ class customreporttemplates_table extends table_sql {
         return $output;
     }
 
+    /**
+     * Col file.
+     *
+     * @param object $values
+     *
+     * @return void
+     *
+     */
     public function col_file($values) {
         $fs = get_file_storage();
         list($course, $cm) = get_course_and_cm_from_cmid($this->cmid);

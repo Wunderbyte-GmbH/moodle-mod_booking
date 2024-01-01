@@ -73,7 +73,7 @@ class select_teacher_in_bo implements booking_rule_condition {
      * Only customizable functions need to return their necessary form elements.
      *
      * @param MoodleQuickForm $mform
-     * @param int $optionid
+     * @param array $ajaxformdata
      * @return void
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, array &$ajaxformdata = null) {
@@ -84,6 +84,8 @@ class select_teacher_in_bo implements booking_rule_condition {
 
     /**
      * Get the name of the rule.
+     *
+     * @param bool $localized
      * @return string the name of the rule
      */
     public function get_name_of_condition($localized = true) {

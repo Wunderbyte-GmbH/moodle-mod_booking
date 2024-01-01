@@ -45,8 +45,7 @@ interface booking_rule_action {
     /**
      * Adds the form elements for this rule action to the provided mform.
      * @param MoodleQuickForm $mform the mform where the rule action should be added
-     * @param array $repeatedaction repeated rule actions
-     * @param array $repateloptions options for repeated elements
+     * @param array $repeateloptions options for repeated elements
      * @return void
      */
     public function add_action_to_mform(MoodleQuickForm &$mform, array &$repeateloptions);

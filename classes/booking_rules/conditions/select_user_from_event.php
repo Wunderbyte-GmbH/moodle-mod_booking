@@ -15,14 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Condition to identify the user who triggered an event
- * or the user who was affected by an event.
+ * Condition to identify the user who triggered an event or the user who was affected by an event.
  *
  * @package mod_booking
  * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
  * @author Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 namespace mod_booking\booking_rules\conditions;
 
 use mod_booking\booking_rules\booking_rule_condition;
@@ -110,6 +110,7 @@ class select_user_from_event implements booking_rule_condition {
      * Add condition to mform.
      *
      * @param MoodleQuickForm $mform
+     * @param array $ajaxformdata
      * @return void
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, array &$ajaxformdata = null) {
@@ -141,6 +142,8 @@ class select_user_from_event implements booking_rule_condition {
 
     /**
      * Get the name of the condition.
+     *
+     * @param bool $localized
      * @return string the name of the condition
      */
     public function get_name_of_condition($localized = true) {

@@ -76,7 +76,7 @@ class send_mail implements booking_rule_action {
      * Only customizable functions need to return their necessary form elements.
      *
      * @param MoodleQuickForm $mform
-     * @param int $optionid
+     * @param array $repeateloptions
      * @return void
      */
     public function add_action_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {

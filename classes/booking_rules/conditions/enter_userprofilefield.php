@@ -14,6 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Condition to identify users by entering a value which should match a custom user profile field.
+ *
+ * @package mod_booking
+ * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Georg Maißer
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking\booking_rules\conditions;
 
 use mod_booking\booking_rules\booking_rule_condition;
@@ -25,8 +34,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Condition to identify users by entering a value
- * which should match a custom user profile field.
+ * Class to handle condition to identify users by entering a value which should match a custom user profile field.
  *
  * @package mod_booking
  * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
@@ -85,6 +93,7 @@ class enter_userprofilefield implements booking_rule_condition {
      * Add condition to mform.
      *
      * @param MoodleQuickForm $mform
+     * @param array $ajaxformdata
      * @return void
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, array &$ajaxformdata = null) {
@@ -119,6 +128,8 @@ class enter_userprofilefield implements booking_rule_condition {
 
     /**
      * Get the name of the rule.
+     *
+     * @param bool $localized
      * @return string the name of the rule
      */
     public function get_name_of_condition($localized = true) {
@@ -127,6 +138,7 @@ class enter_userprofilefield implements booking_rule_condition {
 
     /**
      * Saves the JSON for the condition into the $data object.
+     *
      * @param stdClass $data form data reference
      */
     public function save_condition(stdClass &$data) {

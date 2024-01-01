@@ -42,7 +42,8 @@ class booking_rules {
     /**
      * Returns the rendered html for a list of rules.
      *
-     * @return void
+     * @param int $bookingid
+     * @return string
      */
     public static function return_rendered_list_of_saved_rules($bookingid = 0) {
         global $PAGE;

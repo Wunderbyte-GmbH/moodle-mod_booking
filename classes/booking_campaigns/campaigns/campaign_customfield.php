@@ -304,6 +304,7 @@ class campaign_customfield implements booking_campaign {
      * Function to apply the campaign's booking limit factor.
      * If there are more booked users as the set limit (overbooked), we use that nr as base.
      * @param int $limit the original booking limit
+     * @param booking_option_settings $settings
      * @return int the new booking limit
      */
     private function get_campaign_limit(int $limit, booking_option_settings $settings):int {

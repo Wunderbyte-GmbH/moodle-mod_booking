@@ -250,7 +250,7 @@ class csvsettings {
     /**
      * Set columnswithvalues.
      *
-     * @param bool $columnswithvalues
+     * @param array $columnswithvalues
      */
     public function set_columnswithvalues($columnswithvalues) {
         $this->columnswithvalues = $columnswithvalues;

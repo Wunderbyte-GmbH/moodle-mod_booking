@@ -77,7 +77,7 @@ class rule_react_on_event implements booking_rule {
      * Only customizable functions need to return their necessary form elements.
      *
      * @param MoodleQuickForm $mform
-     * @param int $optionid
+     * @param array $repeateloptions
      * @return void
      */
     public function add_rule_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
@@ -227,7 +227,6 @@ class rule_react_on_event implements booking_rule {
      *
      * @param int $optionid
      * @param int $userid
-     * @param bool $testmode
      * @return array
      */
     public function get_records_for_execution(int $optionid, int $userid = 0) {
