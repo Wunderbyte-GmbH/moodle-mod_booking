@@ -16,7 +16,9 @@
 
 /**
  * Booking campaign interface.
+ *
  * All booking campaign types must extend this interface.
+ *
  * @package     mod_booking
  * @copyright   2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @author      Bernhard Fischer
@@ -30,7 +32,9 @@ use stdClass;
 
 /**
  * Booking campaign interface.
+ *
  * All booking campaign types must extend this interface.
+ *
  * @package     mod_booking
  * @copyright   2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @author      Bernhard Fischer
@@ -41,7 +45,7 @@ interface booking_campaign {
     /**
      * Adds the form elements for this campaign to the provided mform.
      * @param MoodleQuickForm $mform the mform where the campaign should be added
-     * @param array &$ajaxformdata reference to form data
+     * @param array $ajaxformdata reference to form data
      * @return void
      */
     public function add_campaign_to_mform(MoodleQuickForm &$mform, array &$ajaxformdata);
@@ -55,13 +59,13 @@ interface booking_campaign {
 
     /**
      * Save the campaign.
-     * @param stdClass &$data form data reference
+     * @param stdClass $data form data reference
      */
     public function save_campaign(stdClass &$data);
 
     /**
      * Sets the campaign defaults when loading the form.
-     * @param stdClass &$data reference to the default values
+     * @param stdClass $data reference to the default values
      * @param stdClass $record a record from booking_campaigns
      */
     public function set_defaults(stdClass &$data, stdClass $record);

@@ -141,7 +141,7 @@ class rule_daysbefore implements booking_rule {
     /**
      * Save the JSON for daysbefore rule defined in form.
      * The role has to determine the handler for condtion and action and get the right json object.
-     * @param stdClass &$data form data reference
+     * @param stdClass $data form data reference
      */
     public function save_rule(stdClass &$data) {
         global $DB;
@@ -176,7 +176,7 @@ class rule_daysbefore implements booking_rule {
 
     /**
      * Sets the rule defaults when loading the form.
-     * @param stdClass &$data reference to the default values
+     * @param stdClass $data reference to the default values
      * @param stdClass $record a record from booking_rules
      */
     public function set_defaults(stdClass &$data, stdClass $record) {

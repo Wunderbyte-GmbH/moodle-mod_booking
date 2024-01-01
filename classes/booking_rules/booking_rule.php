@@ -58,13 +58,13 @@ interface booking_rule {
 
     /**
      * Gets the JSON for the rules to be stored in DB.
-     * @param stdClass &$data form data reference
+     * @param stdClass $data form data reference
      */
     public function save_rule(stdClass &$data);
 
     /**
      * Sets the rule defaults when loading the form.
-     * @param stdClass &$data reference to the default values
+     * @param stdClass $data reference to the default values
      * @param stdClass $record a record from booking_rules
      */
     public function set_defaults(stdClass &$data, stdClass $record);

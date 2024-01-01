@@ -178,7 +178,7 @@ class campaigns_info {
 
     /**
      * Save the booking campaign.
-     * @param stdClass &$data reference to the form data
+     * @param stdClass $data reference to the form data
      * @return void
      */
     public static function save_booking_campaign(stdClass &$data) {

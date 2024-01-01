@@ -66,14 +66,14 @@ interface booking_rule_condition {
 
     /**
      * Gets the JSON for the rule condition to be stored in DB.
-     * @param stdClass &$data form data reference
+     * @param stdClass $data form data reference
      * @return string the json for the rule condition
      */
     public function save_condition(stdClass &$data);
 
     /**
      * Sets the rule condition defaults when loading the form.
-     * @param stdClass &$data reference to the default values
+     * @param stdClass $data reference to the default values
      * @param stdClass $record a record from booking_rules
      */
     public function set_defaults(stdClass &$data, stdClass $record);

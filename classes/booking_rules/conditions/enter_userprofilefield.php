@@ -127,7 +127,7 @@ class enter_userprofilefield implements booking_rule_condition {
 
     /**
      * Saves the JSON for the condition into the $data object.
-     * @param stdClass &$data form data reference
+     * @param stdClass $data form data reference
      */
     public function save_condition(stdClass &$data) {
 
@@ -148,7 +148,7 @@ class enter_userprofilefield implements booking_rule_condition {
 
     /**
      * Sets the rule defaults when loading the form.
-     * @param stdClass &$data reference to the default values
+     * @param stdClass $data reference to the default values
      * @param stdClass $record a record from booking_rules
      */
     public function set_defaults(stdClass &$data, stdClass $record) {

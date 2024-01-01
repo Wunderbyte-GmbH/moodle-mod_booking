@@ -1387,7 +1387,7 @@ class booking {
     /**
      * A helper class to add data to the json of a booking instance.
      *
-     * @param stdClass &$data reference to a data object containing the json key
+     * @param stdClass $data reference to a data object containing the json key
      * @param string $key - for example: "disablecancel"
      * @param int|string|stdClass|array|null $value - for example: 1
      */
@@ -1398,7 +1398,7 @@ class booking {
     /**
      * A helper class to remove a data field from the json of a booking instance.
      *
-     * @param stdClass &$data reference to a data object containing the json key to remove
+     * @param stdClass $data reference to a data object containing the json key to remove
      * @param string $key - the key to remove, for example: "disablecancel"
      */
     public static function remove_key_from_json(stdClass &$data, string $key) {

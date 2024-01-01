@@ -60,14 +60,14 @@ interface booking_rule_action {
 
     /**
      * Gets the JSON for the rule action to be stored in DB.
-     * @param stdClass &$data form data reference
+     * @param stdClass $data form data reference
      * @return string the json for the rule action
      */
     public function save_action(stdClass &$data);
 
     /**
      * Sets the rule action defaults when loading the form.
-     * @param stdClass &$data reference to the default values
+     * @param stdClass $data reference to the default values
      * @param stdClass $record a record from booking_rules
      */
     public function set_defaults(stdClass &$data, stdClass $record);

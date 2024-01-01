@@ -97,7 +97,7 @@ class campaign_blockbooking implements booking_campaign {
     /**
      * Add the campaign to the mform.
      * @param MoodleQuickForm $mform
-     * @param array &$ajaxformdata reference to form data
+     * @param array $ajaxformdata reference to form data
      * @return void
      */
     public function add_campaign_to_mform(MoodleQuickForm &$mform, array &$ajaxformdata = null) {
@@ -207,7 +207,7 @@ class campaign_blockbooking implements booking_campaign {
 
     /**
      * Save the campaign.
-     * @param stdClass &$data form data reference
+     * @param stdClass $data form data reference
      */
     public function save_campaign(stdClass &$data) {
         global $DB;
@@ -253,7 +253,7 @@ class campaign_blockbooking implements booking_campaign {
 
     /**
      * Sets the campaign defaults when loading the form.
-     * @param stdClass &$data reference to the default values
+     * @param stdClass $data reference to the default values
      * @param stdClass $record a record from booking_campaigns
      */
     public function set_defaults(stdClass &$data, stdClass $record) {

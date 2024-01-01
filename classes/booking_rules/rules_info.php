@@ -183,7 +183,7 @@ class rules_info {
 
     /**
      * Save all booking rules.
-     * @param stdClass &$data reference to the form data
+     * @param stdClass $data reference to the form data
      * @return void
      */
     public static function save_booking_rule(stdClass &$data) {
