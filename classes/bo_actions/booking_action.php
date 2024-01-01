@@ -51,7 +51,8 @@ abstract class booking_action {
 
     /**
      * This actually only translates the action values and stores them in the json property of the data object.
-     * @param stdClass &$data form data reference
+     *
+     * @param stdClass $data form data reference
      */
     public static function save_action(stdClass &$data) {
 

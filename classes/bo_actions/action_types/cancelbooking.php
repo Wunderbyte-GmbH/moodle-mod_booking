@@ -68,6 +68,14 @@ class cancelbooking extends booking_action {
         return 1; // We want to abort all other after actions.
     }
 
+    /**
+     * Add action to mform
+     *
+     * @param mixed $mform
+     *
+     * @return void
+     *
+     */
     public static function add_action_to_mform(&$mform) {
 
         $mform->addElement('text', 'boactionname', get_string('boactionname', 'mod_booking'));

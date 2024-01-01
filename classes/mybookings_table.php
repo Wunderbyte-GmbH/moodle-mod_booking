@@ -32,15 +32,18 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir.'/tablelib.php');
 
 /**
- * mybookings_table class
+ * Class to hahdle mybookings_table
+ *
+ * @package mod_booking
+ * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mybookings_table extends table_sql {
 
     /**
      * mybookings_table constructor.
      *
-     * @param $uniqueid
-     * @param $cmid
+     * @param int $uniqueid
      * @throws \coding_exception
      */
     public function __construct($uniqueid) {
@@ -64,7 +67,7 @@ class mybookings_table extends table_sql {
     /**
      * Column course start time
      *
-     * @param $values
+     * @param mixed $values
      * @return string
      */
     protected function col_coursestarttime($values) {
@@ -78,7 +81,7 @@ class mybookings_table extends table_sql {
     /**
      * Column text
      *
-     * @param $values
+     * @param mixed $values
      * @return string
      * @throws \moodle_exception
      */
@@ -95,7 +98,7 @@ class mybookings_table extends table_sql {
     /**
      * Column name
      *
-     * @param $values
+     * @param mixed $values
      * @return string
      */
     protected function col_name($values) {
@@ -108,7 +111,7 @@ class mybookings_table extends table_sql {
     /**
      * Column status
      *
-     * @param $values
+     * @param mixed $values
      * @return string
      * @throws \coding_exception
      */

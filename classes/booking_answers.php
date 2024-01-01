@@ -14,6 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Booking answers class.
+ *
+ * @package mod_booking
+ * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Georg Maißer
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking;
 
 use context_system;
@@ -25,7 +34,9 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Class for booking answers. An instance is linked to one specific option.
+ * Class for booking answers.
+ *
+ * An instance is linked to one specific option.
  * But the class provides static functions to get information about a users answers for the whole instance as well.
  *
  * @package mod_booking
@@ -64,6 +75,7 @@ class booking_answers {
 
     /**
      * Constructor for the booking answers class.
+     *
      * The booking answers class is instantiated for all users alike.
      * But it returns information for the individual users.
      *
@@ -73,7 +85,7 @@ class booking_answers {
      * MOD_BOOKING_STATUSPARAM_NOTBOOKED (4) ... user has not booked the option
      * MOD_BOOKING_STATUSPARAM_DELETED (5) ... user answer was deleted
      *
-     * @param int $optionid Booking option id.
+     * @param booking_option_settings $bookingoptionsettings
      * @throws dml_exception
      */
     public function __construct(booking_option_settings $bookingoptionsettings) {
@@ -376,7 +388,10 @@ class booking_answers {
 
     /**
      * Helper function to add availability info texts for available places and waiting list.
-     * @param  array &$bookinginformation reference to booking information array.
+     *
+     * @param  array $bookinginformation reference to booking information array.
+     *
+     * @return void
      */
     public static function add_availability_info_texts_to_booking_information(array &$bookinginformation) {
         // PRO feature: Availability info texts for booking places and waiting list.

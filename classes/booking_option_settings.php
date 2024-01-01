@@ -308,6 +308,7 @@ class booking_option_settings {
      * If we have passed on the cached object, we use this one.
      *
      * @param int $optionid
+     * @param object|null $dbrecord
      * @return stdClass|null
      */
     private function set_values(int $optionid, object $dbrecord = null) {
@@ -666,8 +667,7 @@ class booking_option_settings {
 
     /**
      * Function to render a list of teachers.
-     *
-     * @param int $optionid
+     * @return string
      */
     public function render_list_of_teachers() {
         global $PAGE;
@@ -732,7 +732,7 @@ class booking_option_settings {
 
     /**
      * Function to generate the optiondates-teachers-report URL.
-     * @param int $cmid course module id
+     *
      * @param int $optionid option id
      */
     private function generate_optiondatesteachers_url(int $optionid) {
@@ -977,7 +977,7 @@ class booking_option_settings {
      * The table is joined via bo.id=cfd.instanceid.
      * To be able to filter for the same param twice, we use this structure for searchparams [[$fieldnmae => $fieldvalue]]
      *
-     * @param array $searchparams
+     * @param array $filterarray
      * @return array
      */
     public static function return_sql_for_customfield(array &$filterarray = []): array {
@@ -1108,6 +1108,14 @@ class booking_option_settings {
         return [$select, $from, $where, $params];
     }
 
+    /**
+     * Returns sql for imagefiles.
+     *
+     * @param array $searchparams
+     *
+     * @return array
+     *
+     */
     public static function return_sql_for_imagefiles($searchparams = []): array {
 
         global $DB;

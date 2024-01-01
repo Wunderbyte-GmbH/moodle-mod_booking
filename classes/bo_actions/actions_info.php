@@ -157,7 +157,8 @@ class actions_info {
 
     /**
      * Save all booking actions.
-     * @param stdClass &$data reference to the form data
+     *
+     * @param stdClass $data reference to the form data
      * @return void
      */
     public static function save_action(stdClass &$data) {

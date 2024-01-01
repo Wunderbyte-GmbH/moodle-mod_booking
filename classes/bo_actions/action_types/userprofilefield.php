@@ -120,6 +120,14 @@ class userprofilefield extends booking_action {
         return 0; // We will allow all other after actions like events.
     }
 
+    /**
+     * Add action to mform
+     *
+     * @param mixed $mform
+     *
+     * @return void
+     *
+     */
     public static function add_action_to_mform(&$mform) {
 
         // Choose the user profile field which is used to store each user's price category.

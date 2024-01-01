@@ -91,6 +91,7 @@ class elective {
      * This is used for the option_form form.
      *
      * @param MoodleQuickForm $mform reference to the Moodle form
+     * @param array $customdata
      * @return void
      */
     public static function instance_option_form_definition(MoodleQuickForm &$mform, array $customdata) {
@@ -165,7 +166,6 @@ class elective {
      * Validate data from form.
      *
      * @param MoodleQuickForm $mform reference to the Moodle form
-     * @param bool $noformula can be used to turn price formula off (e.g. for subbookings)
      * @return void
      */
     public function instance_form_validation(MoodleQuickForm &$mform) {
@@ -177,7 +177,6 @@ class elective {
      * Process data from form.
      *
      * @param MoodleQuickForm $mform reference to the Moodle form
-     * @param bool $noformula can be used to turn price formula off (e.g. for subbookings)
      * @return void
      */
     public function instance_form_save(MoodleQuickForm &$mform) {
@@ -190,9 +189,9 @@ class elective {
      * Called from lib.php to add autocomplete array to DB.
      * Deals with mustcombine and can't combine
      * 0 is can't combine, 1 is must combine,
-     * @param $optionid
-     * @param $otheroptions
-     * @param $mustcombine
+     * @param int $optionid
+     * @param mixed $otheroptions
+     * @param bool $mustcombine
      * @throws \dml_exception
      */
     public static function addcombinations($optionid, $otheroptions, $mustcombine) {
@@ -244,8 +243,10 @@ class elective {
     }
 
     /**
-     * @param $optionid
-     * @param $mustcombine
+     * Get combine array.
+     *
+     * @param int $optionid
+     * @param bool $mustcombine
      * @return array
      * @throws \dml_exception
      */
@@ -258,8 +259,8 @@ class elective {
     /**
      * Function to run through all the other booked options a user has in this Instance.
      * If one of the linked courses before this option is uncompleted, function will return false, else true.
-     * @param $bookingoption
-     * @param $userid
+     * @param mixed $bookingoption
+     * @param int $userid
      * @return false
      * @throws \dml_exception
      */
@@ -319,6 +320,14 @@ class elective {
         return false;
     }
 
+    /**
+     * Show credits message
+     *
+     * @param mixed $booking
+     *
+     * @return string
+     *
+     */
     public static function show_credits_message($booking) {
         global $USER;
 
@@ -446,9 +455,9 @@ class elective {
 
     /**
      * helperfunction to check entries from booking_combine table for match
-     * @param $array
-     * @param $optionid
-     * @param $mustcombine
+     * @param array $array
+     * @param int $optionid
+     * @param bool $mustcombine
      * @return false
      */
     private static function otheroptionidexists($array, $optionid, $mustcombine) {

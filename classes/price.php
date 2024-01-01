@@ -14,6 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Price class.
+ *
+ * @package mod_booking
+ * @copyright 2022 Georg Maißer <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking;
 
 use cache_helper;
@@ -31,8 +39,9 @@ use User;
 
 define('MOD_BOOKING_FORM_PRICEGROUP', 'pricegroup_');
 define('MOD_BOOKING_FORM_PRICE', 'bookingprice_');
+
 /**
- * Price class.
+ * Class to handle prices.
  *
  * @package mod_booking
  * @copyright 2022 Georg Maißer <info@wunderbyte.at>
@@ -361,10 +370,10 @@ class price {
 
     /**
      * Applies the unit length factor from settings to the price formula.
+     *
      * Example: A booking option lasting 90 minutes will have a factor of 2,
      * if the educationalunitinminutes (config setting) ist set to 45 min.
      *
-     * @param stdClass $unitobject
      * @param array $dayinfo
      * @param float $price
      * @return void
@@ -432,7 +441,6 @@ class price {
     /**
      * Interprets the entity part of the jsonobject and applies the multiplier to the price, if necessary.
      *
-     * @param array $entityobjects
      * @param stdClass $fromform
      * @param float $price
      * @return void
@@ -508,6 +516,14 @@ class price {
         }
     }
 
+    /**
+     * Save from form
+     *
+     * @param stdClass $fromform
+     *
+     * @return void
+     *
+     */
     public function save_from_form(stdClass $fromform) {
 
         $currency = get_config('booking', 'globalcurrency');
@@ -543,6 +559,15 @@ class price {
         }
     }
 
+    /**
+     * Form validation
+     *
+     * @param array $data
+     * @param array $errors
+     *
+     * @return void
+     *
+     */
     public function validation(array $data, array &$errors) {
 
         global $DB;
