@@ -27,6 +27,13 @@ namespace mod_booking;
 use moodle_url;
 use table_sql;
 
+/**
+ * Class to handle booking instance template settings table
+ *
+ * @package mod_booking
+ * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class bookinginstancetemplatessettings_table extends table_sql {
 
     /**
@@ -37,8 +44,8 @@ class bookinginstancetemplatessettings_table extends table_sql {
     /**
      * bookinginstancetemplatessettings_table constructor.
      *
-     * @param $uniqueid
-     * @param $cmid
+     * @param string $uniqueid
+     * @param int $cmid
      * @throws \coding_exception
      */
     public function __construct($uniqueid, $cmid) {
@@ -58,7 +65,7 @@ class bookinginstancetemplatessettings_table extends table_sql {
     /**
      * Display the booking instances where template is used.
      *
-     * @param $values
+     * @param object $values
      * @return string
      */
     public function col_name($values) {
@@ -68,7 +75,7 @@ class bookinginstancetemplatessettings_table extends table_sql {
     /**
      * Display actions for the templates (delete or edit)
      *
-     * @param $values
+     * @param object $values
      * @return string
      * @throws \coding_exception
      * @throws \moodle_exception

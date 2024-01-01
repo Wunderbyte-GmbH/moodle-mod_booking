@@ -13,57 +13,173 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-namespace mod_booking;
-
-const MOD_BOOKING_DESCRIPTION_ICAL = 3;
 
 /**
  * Support class for generating ical items Note - this code is based on the ical code from mod_facetoface
  *
  * @package mod_booking
- * @copyright 2012-2017 Davo Smith, Synergy Learning, Andras Princic, David Bogner
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Davo Smith, Synergy Learning, Andras Princic, David Bogner
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+namespace mod_booking;
+
+/**
+ * MOD_BOOKING_DESCRIPTION_ICAL
+ *
+ * @var int
+ */
+const MOD_BOOKING_DESCRIPTION_ICAL = 3;
+
+/**
+ * Class for generating ical items Note - this code is based on the ical code from mod_facetoface
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Davo Smith, Synergy Learning, Andras Princic, David Bogner
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class ical {
 
+    /**
+     * $datesareset
+     *
+     * @var bool
+     */
     private $datesareset = false;
 
+    /**
+     * $booking
+     *
+     * @var mixed
+     */
     protected $booking;
 
+    /**
+     * $option
+     *
+     * @var mixed
+     */
     protected $option;
 
+    /**
+     * $user
+     *
+     * @var mixed
+     */
     protected $user;
 
+    /**
+     * $fromuser
+     *
+     * @var mixed
+     */
     protected $fromuser;
 
+    /**
+     * $updated
+     *
+     * @var mixed
+     */
     protected $updated;
 
+    /**
+     * $tempfilename
+     *
+     * @var string
+     */
     protected $tempfilename = '';
 
+    /**
+     * $times
+     *
+     * @var string
+     */
     protected $times = '';
 
+    /**
+     * $ical
+     *
+     * @var string
+     */
     protected $ical = '';
 
+    /**
+     * $dtstamp
+     *
+     * @var string
+     */
     protected $dtstamp = '';
 
+    /**
+     * $summary
+     *
+     * @var string
+     */
     protected $summary = '';
 
+    /**
+     * $description
+     *
+     * @var string
+     */
     protected $description = '';
 
+    /**
+     * $location
+     *
+     * @var string
+     */
     protected $location = '';
 
+    /**
+     * $host
+     *
+     * @var string
+     */
     protected $host = '';
 
+    /**
+     * $status
+     *
+     * @var string
+     */
     protected $status = '';
 
+    /**
+     * $role
+     *
+     * @var string
+     */
     protected $role = 'REQ-PARTICIPANT';
 
+    /**
+     * $userfullname
+     *
+     * @var string
+     */
     protected $userfullname = '';
 
+    /**
+     * $attachical
+     *
+     * @var bool
+     */
     protected $attachical = false;
 
+    /**
+     * $attachicalsessions
+     *
+     * @var bool
+     */
     protected $attachicalsessions = false;
 
+    /**
+     * $individualvevents
+     *
+     * @var array
+     */
     protected $individualvevents = [];
 
     /**
@@ -72,6 +188,7 @@ class ical {
      * @param object $booking the booking activity details
      * @param object $option the option that is being booked
      * @param object $user the user the booking is for
+     * @param object $fromuser
      * @param bool $updated if set to true, this will create an update ical (METHOD: REQUEST, SEQUENCE: 1)
      */
     public function __construct($booking, $option, $user, $fromuser, $updated = false) {
@@ -196,7 +313,7 @@ class ical {
     /**
      * Get vevents based on session times that are defined in the booking options.
      *
-     * @return string $vevent
+     * @return void
      */
     protected function get_vevents_from_optiondates() {
         global $CFG;
@@ -215,7 +332,8 @@ class ical {
      * @param string $uid
      * @param string $dtstart
      * @param string $dtend
-     * @return string $vevent vevent
+     * @param bool $time
+     * @return void
      */
     protected function add_vevent ($uid, $dtstart, $dtend, $time = false) {
         global $CFG, $DB, $PAGE;
@@ -297,6 +415,15 @@ class ical {
         return gmdate('Ymd', $timestamp) . 'T' . gmdate('His', $timestamp) . 'Z';
     }
 
+    /**
+     * String escape
+     *
+     * @param string $text
+     * @param bool $converthtml
+     *
+     * @return string
+     *
+     */
     protected function escape($text, $converthtml = false) {
         if (empty($text)) {
             return '';

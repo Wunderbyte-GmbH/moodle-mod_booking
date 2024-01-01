@@ -13,25 +13,65 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-namespace mod_booking;
 
 /**
  * Available places.
  *
  * @package mod_booking
- * @copyright 2018 Andraž Prinčič, David Bogner
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Andraž Prinčič, David Bogner
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+namespace mod_booking;
+
+/**
+ * Class to handle available places.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Andraž Prinčič, David Bogner
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class places {
 
+    /**
+     * $maxanswers
+     *
+     * @var int
+     */
     public $maxanswers = 0;
 
+    /**
+     * $available
+     *
+     * @var int
+     */
     public $available = 0;
 
+    /**
+     * $maxoverbooking
+     *
+     * @var int
+     */
     public $maxoverbooking = 0;
 
+    /**
+     * $overbookingavailable
+     *
+     * @var int
+     */
     public $overbookingavailable = 0;
 
+    /**
+     * Constructor
+     *
+     * @param mixed $maxanswers
+     * @param mixed $available
+     * @param mixed $maxoverbooking
+     * @param mixed $overbookingavailable
+     *
+     */
     public function __construct($maxanswers, $available, $maxoverbooking, $overbookingavailable) {
         $this->maxanswers = $maxanswers;
         $this->available = $available;

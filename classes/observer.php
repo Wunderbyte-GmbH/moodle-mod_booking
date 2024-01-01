@@ -18,9 +18,11 @@
  * Event observers.
  *
  * @package mod_booking
- * @copyright 2015 Andraž Prinčič <atletek@gmail.com>
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Andraž Prinčič <atletek@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 use mod_booking\booking_option;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\calendar;
@@ -28,7 +30,12 @@ use mod_booking\elective;
 use mod_booking\singleton_service;
 
 /**
- * Event observer for mod_booking.
+ * Class to handle event observer for mod_booking.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Andraž Prinčič <atletek@gmail.com>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_booking_observer {
 

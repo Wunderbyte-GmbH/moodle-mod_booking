@@ -18,7 +18,7 @@
  * Standard base class for mod_booking
  *
  * @package mod_booking
- * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -38,12 +38,14 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
 /**
- * Standard base class for mod_booking
+ * Standard base class for mod_booking.
+ *
  * Module was originally programmed for 1.9 but further adjustments should be made with new
  * Moodle 2.X coding style using this base class.
  *
  * @package mod_booking
- * @copyright 2013 David Bogner {@link http://www.edulabs.org}
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author David Bogner {@link http://www.edulabs.org}
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking {
@@ -125,6 +127,7 @@ class booking {
         }
     }
     /**
+     * Get context.
      *
      * @return \context
      */
@@ -132,6 +135,12 @@ class booking {
         return $this->context;
     }
 
+    /**
+     * Apply tags
+     *
+     * @return void
+     *
+     */
     public function apply_tags() {
         if (empty($this->cm->course)) {
             return;
@@ -141,7 +150,7 @@ class booking {
     }
 
     /**
-     *
+     * Get url params.
      */
     public function get_url_params() {
         $bu = new booking_utils();
@@ -347,7 +356,13 @@ class booking {
     /**
      * Get all booking options as an array of objects indexed by optionid
      *
+     * @param int $limitfrom
+     * @param int $limitnum
+     * @param string $searchtext
+     * @param string $fields
+     *
      * @return array of booking options records
+     *
      */
     public function get_all_options($limitfrom = 0, $limitnum = 0, $searchtext = '', $fields = "*") {
 
@@ -360,6 +375,14 @@ class booking {
             "SELECT $fields FROM $from WHERE $where $filter", $params);
     }
 
+    /**
+     * Get all options count
+     *
+     * @param string $searchtext
+     *
+     * @return void
+     *
+     */
     public function get_all_options_count($searchtext = '') {
         global $DB;
 
@@ -389,8 +412,13 @@ class booking {
     /**
      * Get active booking option ids as an array of numbers.
      *
-     * @param int $bookingid
+     * @param mixed $bookingid
+     * @param int $limitfrom
+     * @param int $limitnum
+     * @param string $searchtext
+     *
      * @return array of ids
+     *
      */
     public function get_active_optionids($bookingid, $limitfrom = 0, $limitnum = 0, $searchtext = '') {
         global $DB;
@@ -410,6 +438,15 @@ class booking {
             " {$search} {$limit}", $params);
     }
 
+    /**
+     * Get active optionids count
+     *
+     * @param mixed $bookingid
+     * @param string $searchtext
+     *
+     * @return void
+     *
+     */
     public function get_active_optionids_count($bookingid, $searchtext = '') {
         global $DB;
 
@@ -430,7 +467,7 @@ class booking {
     /**
      * Get all booking option ids as an array of numbers - only where is teacher.
      *
-     * @param int bookingid
+     * @param int $bookingid
      * @return array of ids
      */
     public static function get_all_optionids_of_teacher($bookingid) {
@@ -443,9 +480,14 @@ class booking {
     /**
      * Get all user booking option ids as an array of numbers.
      *
+     * @param int $limitfrom
+     * @param int $limitnum
+     * @param string $searchtext
+     *
      * @return array of ids
+     *
      */
-    public function get_my_bookingids($limitfrom = 0, $limitnum = 0, $searchtext= '') {
+    public function get_my_bookingids($limitfrom = 0, $limitnum = 0, $searchtext = '') {
         global $DB, $USER;
 
         $limit = '';
@@ -462,6 +504,14 @@ class booking {
                 " ba.bookingid = :bookingid AND ba.userid = :userid {$search} {$limit}", $params);
     }
 
+    /**
+     * Get my bookingids count
+     *
+     * @param string $searchstring
+     *
+     * @return void
+     *
+     */
     public function get_my_bookingids_count($searchstring = '') {
         global $DB, $USER;
 
@@ -809,7 +859,8 @@ class booking {
     // New functions beneath.
 
     /**
-     * @param $booking
+     * Is elective.
+     *
      * @return bool
      */
     public function is_elective() {
@@ -1128,7 +1179,7 @@ class booking {
     /**
      * Helper function to encode a moodle_url with base64.
      * This can be used in combination with bookingredirect.php.
-     * @param $moodleurl
+     * @param object $moodleurl
      */
     public static function encode_moodle_url($moodleurl) {
 
@@ -1340,6 +1391,7 @@ class booking {
      *
      * @param string $component
      * @param array $eventnames
+     * @param int $objectid
      *
      * @return array
      *
@@ -1429,8 +1481,8 @@ class booking {
     /**
      * Helper function to return an array containing all relevant instance update changes.
      *
-     * @param $oldoption stdClass the original booking option object
-     * @param $newoption stdClass the new booking option object
+     * @param stdClass $oldoption the original booking option object
+     * @param stdClass $newoption the new booking option object
      * @return array an array containing the changes that have been made
      */
     public static function booking_instance_get_changes($oldoption, $newoption) {
