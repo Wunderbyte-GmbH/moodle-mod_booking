@@ -93,7 +93,7 @@ class confirmation implements bo_condition {
      * ... as they are not necessary, but return true when the booking policy is not yet answered.
      * Hard block is only checked if is_available already returns false.
      *
-     * @param booking_option_settings $booking_option_settings
+     * @param booking_option_settings $settings
      * @param int $userid
      * @return bool
      */
@@ -114,8 +114,8 @@ class confirmation implements bo_condition {
      * (when displaying all information about the activity) and 'student' cases
      * (when displaying only conditions they don't meet).
      *
-     * @param bool $full Set true if this is the 'full information' view
      * @param booking_option_settings $settings Item we're checking
+     * @param bool $full Set true if this is the 'full information' view
      * @param int $userid User ID to check availability for
      * @param bool $not Set true if we are inverting the condition
      * @return array availability and Information string (for admin) about all restrictions on
@@ -207,6 +207,7 @@ class confirmation implements bo_condition {
      * @param int $userid
      * @param bool $full
      * @param bool $not
+     * @param bool $fullwidth
      * @return array
      */
     public function render_button(booking_option_settings $settings,
