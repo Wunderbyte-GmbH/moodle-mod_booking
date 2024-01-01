@@ -43,7 +43,7 @@ class mybookings_table extends table_sql {
     /**
      * mybookings_table constructor.
      *
-     * @param int $uniqueid
+     * @param string $uniqueid
      * @throws \coding_exception
      */
     public function __construct($uniqueid) {

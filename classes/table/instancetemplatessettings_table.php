@@ -13,6 +13,15 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Handle instance templates settings table.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking\table;
 
 defined('MOODLE_INTERNAL') || die();
@@ -23,14 +32,26 @@ require_once($CFG->libdir.'/tablelib.php');
 use moodle_url;
 use table_sql;
 
+/**
+ * Class to handle instance templates settings table.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class instancetemplatessettings_table extends table_sql {
 
+    /**
+     * $instance templates
+     *
+     * @var mixed
+     */
     private $instancetemplates;
 
     /**
      * instancetemplatessettings_table constructor.
      *
-     * @param $uniqueid
+     * @param string $uniqueid
      * @throws \coding_exception
      */
     public function __construct($uniqueid) {
@@ -51,7 +72,7 @@ class instancetemplatessettings_table extends table_sql {
     /**
      * Display actions for the templates (delete or edit)
      *
-     * @param $values
+     * @param object $values
      * @return string
      * @throws \coding_exception
      * @throws \moodle_exception

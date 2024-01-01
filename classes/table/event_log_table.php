@@ -32,6 +32,13 @@ require_once($CFG->libdir.'/tablelib.php');
 use mod_booking\catquiz;
 use local_wunderbyte_table\wunderbyte_table;
 
+/**
+ * Class to handle event log table.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class event_log_table extends wunderbyte_table {
 
     /**

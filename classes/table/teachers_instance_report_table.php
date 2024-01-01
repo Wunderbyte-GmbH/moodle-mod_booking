@@ -14,6 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Report table to show an overall report of teachers for a specific booking instance.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking\table;
 
 defined('MOODLE_INTERNAL') || die();
@@ -28,8 +36,11 @@ use moodle_url;
 use table_sql;
 
 /**
- * Report table to show an overall report
- * of teachers for a specific booking instance.
+ * Class to handle report table to show an overall report of teachers for a specific booking instance.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class teachers_instance_report_table extends table_sql {
 
@@ -109,8 +120,8 @@ class teachers_instance_report_table extends table_sql {
      *
      * @param object $values Contains object with all the values of record.
      * @return string $link Returns a string containing all teacher names.
-     * @throws moodle_exception
-     * @throws coding_exception
+     * @throws \moodle_exception
+     * @throws \coding_exception
      */
     public function col_lastname($values) {
 
@@ -147,7 +158,7 @@ class teachers_instance_report_table extends table_sql {
      * so that SQL for col_units_courses and for col_sum_units
      * gets called only once.
      *
-     * @param &$values reference to values object.
+     * @param $values reference to values object.
      */
     private function set_units_courses_records(&$values) {
         global $DB;

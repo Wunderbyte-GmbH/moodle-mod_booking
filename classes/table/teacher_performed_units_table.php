@@ -14,6 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Report table to show an individual performance report of a specific teacher (performed units).
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking\table;
 
 defined('MOODLE_INTERNAL') || die();
@@ -28,8 +36,11 @@ use table_sql;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Report table to show an individual performance report
- * of a specific teacher (performed units).
+ * Class to handle report table to show an individual performance report of a specific teacher.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class teacher_performed_units_table extends table_sql {
 

@@ -14,6 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Search results for managers are shown in a table (student search results use the template searchresults_student).
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking\table;
 
 defined('MOODLE_INTERNAL') || die();
@@ -34,12 +42,18 @@ use moodle_url;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Search results for managers are shown in a table (student search results use the template searchresults_student).
+ * Class to handle search results for managers.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookingoptions_simple_table extends wunderbyte_table {
 
     /**
      * Cache an array of teacher names to save DB queries.
+     *
+     * @var array
      */
     private $teachers = [];
 

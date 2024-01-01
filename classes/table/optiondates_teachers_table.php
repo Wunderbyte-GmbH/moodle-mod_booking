@@ -14,6 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+ /**
+ * Report table to show and edit teachers for specific sessions (a.k.a. optiondates).
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking\table;
 
 defined('MOODLE_INTERNAL') || die();
@@ -35,7 +43,11 @@ use moodle_url;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Report table to show and edit teachers for specific sessions (a.k.a. optiondates).
+ * Class to handle report table to show and edit teachers for specific sessions (a.k.a. optiondates).
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class optiondates_teachers_table extends wunderbyte_table {
 

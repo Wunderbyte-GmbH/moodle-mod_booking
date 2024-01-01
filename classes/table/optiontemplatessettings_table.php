@@ -13,12 +13,28 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Handle option templates settings table.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking\table;
 
 use moodle_url;
 use table_sql;
 use html_writer;
 
+/**
+ * Class to handle option templates settings table.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class optiontemplatessettings_table extends table_sql {
 
     /**
@@ -34,8 +50,8 @@ class optiontemplatessettings_table extends table_sql {
     /**
      * optiontemplatessettings_table constructor.
      *
-     * @param $uniqueid
-     * @param $cmid
+     * @param string $uniqueid
+     * @param int $cmid
      * @throws \coding_exception
      */
     public function __construct($uniqueid, $cmid) {
@@ -59,7 +75,7 @@ class optiontemplatessettings_table extends table_sql {
     /**
      * Display the booking instances where template is used.
      *
-     * @param $values
+     * @param object $values
      * @return string
      */
     public function col_options($values) {
@@ -85,7 +101,7 @@ class optiontemplatessettings_table extends table_sql {
     /**
      * Display actions for the templates (delete or edit)
      *
-     * @param $values
+     * @param object $values
      * @return string
      * @throws \coding_exception
      * @throws \moodle_exception
