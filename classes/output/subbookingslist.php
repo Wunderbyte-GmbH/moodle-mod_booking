@@ -49,7 +49,10 @@ class subbookingslist implements renderable, templatable {
     /**
      * Constructor takes the subbookings to render and saves them as array.
      *
+     * @param int $cmid
+     * @param int $optionid
      * @param array $subbookings
+     *
      */
     public function __construct(int $cmid, int $optionid, array $subbookings) {
 
@@ -66,6 +69,14 @@ class subbookingslist implements renderable, templatable {
         }
     }
 
+    /**
+     * Export for template
+     *
+     * @param renderer_base $output
+     *
+     * @return array
+     *
+     */
     public function export_for_template(renderer_base $output) {
         return [
                 'cmid' => $this->cmid,

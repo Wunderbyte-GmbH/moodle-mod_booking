@@ -56,8 +56,7 @@ class report_edit_bookingnotes implements renderable, templatable {
     /**
      * Constructor
      *
-     * @param string $sort sort by course/user/my
-     * @param \stdClass $data
+     * @param array $data
      */
     public function __construct(array $data) {
         $this->note = $data['note'];
@@ -69,6 +68,14 @@ class report_edit_bookingnotes implements renderable, templatable {
         $this->editable = $data['editable'];
     }
 
+    /**
+     * Export for template
+     *
+     * @param renderer_base $output
+     *
+     * @return array
+     *
+     */
     public function export_for_template(renderer_base $output) {
         if (!$this->editable) {
             return ['displayvalue' => (string) $this->displayvalue];

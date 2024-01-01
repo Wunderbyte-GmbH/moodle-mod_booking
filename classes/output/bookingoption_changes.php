@@ -56,6 +56,14 @@ class bookingoption_changes implements renderable, templatable {
         $this->cmid = $cmid;
     }
 
+    /**
+     * Export for template
+     *
+     * @param renderer_base $output
+     *
+     * @return array
+     *
+     */
     public function export_for_template(renderer_base $output) {
         global $CFG;
 

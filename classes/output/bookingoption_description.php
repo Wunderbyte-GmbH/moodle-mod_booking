@@ -150,15 +150,19 @@ class bookingoption_description implements renderable, templatable {
 
     /**
      * Constructor.
+     *
      * @param int $optionid
-     * @param null $bookingevent
+     * @param object|null $bookingevent
      * @param int $descriptionparam
      * @param bool $withcustomfields
+     * @param bool|null $forbookeduser
+     * @param object|null $user
+     *
      */
     public function __construct(
             int $optionid,
             $bookingevent = null,
-            int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE, // Default.
+            int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE,
             bool $withcustomfields = true,
             bool $forbookeduser = null,
             object $user = null) {
@@ -409,6 +413,8 @@ class bookingoption_description implements renderable, templatable {
     }
 
     /**
+     * Export for template.
+     *
      * @param renderer_base $output
      * @return array
      */

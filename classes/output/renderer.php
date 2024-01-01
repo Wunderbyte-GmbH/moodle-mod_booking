@@ -13,10 +13,26 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * A custom renderer class that extends the plugin_renderer_base and is used by the booking module.
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author David Bogner, Andraž Prinčič
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking\output;
 
 use mod_booking;
 use mod_booking\booking;
+use mod_booking\output\instance_description;
+use mod_booking\output\bookingoption_description;
+use mod_booking\output\business_card;
+use mod_booking\output\bookingoption_changes;
+use mod_booking\output\signin_downloadform;
+use mod_booking\output\report_edit_bookingnotes;
 use tabobject;
 use html_writer;
 use plugin_renderer_base;
@@ -35,12 +51,24 @@ use templatable;
  * A custom renderer class that extends the plugin_renderer_base and is used by the booking module.
  *
  * @package mod_booking
- * @copyright 2014 David Bogner, Andraž Prinčič
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author David Bogner, Andraž Prinčič
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class renderer extends plugin_renderer_base {
 
-    // Prints tabs for options.
+    /**
+     * Prints tabs for options.
+     *
+     * @param booking $booking
+     * @param mixed $urlparams
+     * @param string $current
+     * @param int $mybookings
+     * @param int $myoptions
+     *
+     * @return void
+     *
+     */
     public function print_booking_tabs(booking $booking, $urlparams, $current = 'showactive', $mybookings = 0, $myoptions = 0) {
         global $USER;
         // Output tabs.
@@ -104,7 +132,7 @@ class renderer extends plugin_renderer_base {
      *
      * @param user_selector_base $existinguc
      * @param user_selector_base $potentialuc
-     * @param $courseid
+     * @param int $courseid
      * @return string
      */
     public function subscriber_selection_form(user_selector_base $existinguc,
@@ -292,7 +320,7 @@ class renderer extends plugin_renderer_base {
 
             if (!$rating->settings->scale->isnumeric) {
                 // If a global scale, try to find current course ID from the context.
-                /** @var context $ratingcontext */
+                /** @var \context $ratingcontext */
                 $ratingcontext = $rating->context;
                 if (empty($rating->settings->scale->courseid) && !empty($ratingcontext) &&
                          $coursecontext = $ratingcontext->get_course_context(false)) {
@@ -309,12 +337,12 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
-     * display signinsheet pdf download form
+     * Display signinsheet pdf download form
      *
-     * @param mod_booking\output\signin_downloadform $data
+     * @param signin_downloadform $data
      * @return string rendered html
      */
-    public function render_signin_pdfdownloadform(mod_booking\output\signin_downloadform $data) {
+    public function render_signin_pdfdownloadform(signin_downloadform $data) {
         $o = '';
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template('mod_booking/signin_downloadform', $data);
@@ -324,10 +352,10 @@ class renderer extends plugin_renderer_base {
     /**
      * Render the template for editing booking notes on the report page
      *
-     * @param mod_booking\output\report_edit_bookingnotes $data
+     * @param report_edit_bookingnotes $data
      * @return string rendered html
      */
-    public function render_report_edit_bookingnotes(mod_booking\output\report_edit_bookingnotes $data) {
+    public function render_report_edit_bookingnotes(report_edit_bookingnotes $data) {
         $o = '';
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template('mod_booking/edit_bookingnotes', $data);
@@ -335,77 +363,84 @@ class renderer extends plugin_renderer_base {
     }
 
 
-    /** function to print user picture plus text as html
+    /**
+     * Function to print user picture plus text as html
      * @param business_card $data
      * @return string
      */
-    public function render_business_card(mod_booking\output\business_card $data) {
+    public function render_business_card(business_card $data) {
         $o = '';
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template('mod_booking/business_card', $data);
         return $o;
     }
 
-    /** function to print instance description
-     * @param business_card $data
+    /**
+     * Function to print instance description
+     * @param instance_description $data
      * @return string
      */
-    public function render_instance_description(mod_booking\output\instance_description $data) {
+    public function render_instance_description(instance_description $data) {
         $o = '';
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template('mod_booking/instance_description', $data);
         return $o;
     }
 
-    /** Function to print booking option description.
+    /**
+     * Function to print booking option description.
      * @param bookingoption_description $data
      * @return string
      */
-    public function render_bookingoption_description(mod_booking\output\bookingoption_description $data) {
+    public function render_bookingoption_description(bookingoption_description $data) {
         $o = '';
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template('mod_booking/bookingoption_description', $data);
         return $o;
     }
 
-    /** Function to print booking option description for event.
+    /**
+     * Function to print booking option description for event.
      * @param bookingoption_description $data
      * @return string
      */
-    public function render_bookingoption_description_event(mod_booking\output\bookingoption_description $data) {
+    public function render_bookingoption_description_event(bookingoption_description $data) {
         $o = '';
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template('mod_booking/bookingoption_description_event', $data);
         return $o;
     }
 
-    /** Function to print booking option description for ical.
+    /**
+     * Function to print booking option description for ical.
      * @param bookingoption_description $data
      * @return string
      */
-    public function render_bookingoption_description_ical(mod_booking\output\bookingoption_description $data) {
+    public function render_bookingoption_description_ical(bookingoption_description $data) {
         $o = '';
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template('mod_booking/bookingoption_description_ical', $data);
         return $o;
     }
 
-    /** Function to print booking option description for mail placeholder {bookingdetails}.
+    /**
+     * Function to print booking option description for mail placeholder {bookingdetails}.
      * @param bookingoption_description $data
      * @return string
      */
-    public function render_bookingoption_description_mail(mod_booking\output\bookingoption_description $data) {
+    public function render_bookingoption_description_mail(bookingoption_description $data) {
         $o = '';
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template('mod_booking/bookingoption_description_mail', $data);
         return $o;
     }
 
-    /** Function to print booking option description for mail placeholder {bookingdetails}.
+    /**
+     * Function to print booking option description for mail placeholder {bookingdetails}.
      * @param bookingoption_description $data
      * @return string
      */
-    public function render_bookingoption_description_cartitem(mod_booking\output\bookingoption_description $data) {
+    public function render_bookingoption_description_cartitem(bookingoption_description $data) {
         $o = '';
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template('mod_booking/bookingoption_description_cartitem', $data);
@@ -421,33 +456,36 @@ class renderer extends plugin_renderer_base {
         return $o;
     }
 
-    /** Function to print list of option dates for mail placeholder {dates}.
+    /**
+     * Function to print list of option dates for mail placeholder {dates}.
      * @param bookingoption_description $data
      * @return string
      */
-    public function render_bookingoption_description_dates(mod_booking\output\bookingoption_description $data) {
+    public function render_bookingoption_description_dates(bookingoption_description $data) {
         $o = '';
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template('mod_booking/bookingoption_description_dates', $data);
         return $o;
     }
 
-    /** Function to print booking option single view on optionview.php
+    /**
+     * Function to print booking option single view on optionview.php
      * @param bookingoption_description $data
      * @return string
      */
-    public function render_bookingoption_description_view(mod_booking\output\bookingoption_description $data) {
+    public function render_bookingoption_description_view(bookingoption_description $data) {
         $o = '';
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template('mod_booking/bookingoption_description_view', $data);
         return $o;
     }
 
-    /** Function to print booking option changes ("What has changed?").
+    /**
+     * Function to print booking option changes ("What has changed?").
      * @param bookingoption_changes $data
      * @return string
      */
-    public function render_bookingoption_changes(mod_booking\output\bookingoption_changes $data) {
+    public function render_bookingoption_changes(bookingoption_changes $data) {
         $o = '';
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template('mod_booking/bookingoption_changes', $data);
@@ -456,7 +494,7 @@ class renderer extends plugin_renderer_base {
 
     /**
      * Render function.
-     * @param $data array
+     * @param object $data
      * @return string
      */
     public function render_coursepage_shortinfo_and_button($data) {
@@ -468,7 +506,7 @@ class renderer extends plugin_renderer_base {
 
     /**
      * Render function.
-     * @param $data array
+     * @param object $data
      * @return string
      */
     public function render_col_coursestarttime($data) {
@@ -480,7 +518,7 @@ class renderer extends plugin_renderer_base {
 
     /**
      * Render function.
-     * @param $data array
+     * @param object $data
      * @return string
      */
     public function render_col_text_with_description($data) {
@@ -492,7 +530,7 @@ class renderer extends plugin_renderer_base {
 
     /**
      * Render function to render a simple string of optiondates separated by ", ".
-     * @param $data array
+     * @param object $data
      * @return string
      */
     public function render_optiondates_only($data) {
@@ -515,7 +553,7 @@ class renderer extends plugin_renderer_base {
 
     /**
      * Render output for text column.
-     * @param $data array
+     * @param object $data
      * @return string
      */
     public function render_col_text($data) {
@@ -527,7 +565,7 @@ class renderer extends plugin_renderer_base {
 
     /**
      * Render output for teacher column.
-     * @param $data array
+     * @param object $data
      * @return string
      */
     public function render_col_teacher($data) {
@@ -539,7 +577,7 @@ class renderer extends plugin_renderer_base {
 
     /**
      * Render output for price column.
-     * @param $data array
+     * @param object $data
      * @return string
      */
     public function render_col_price($data) {
@@ -551,7 +589,7 @@ class renderer extends plugin_renderer_base {
 
     /**
      * Render output for action column.
-     * @param $data array
+     * @param object $data
      * @return string
      */
     public function render_col_action($data) {
@@ -563,7 +601,7 @@ class renderer extends plugin_renderer_base {
 
     /**
      * Render output for action column.
-     * @param $data array
+     * @param object $data
      * @return string
      */
     public function render_col_availableplaces($data) {
@@ -575,7 +613,7 @@ class renderer extends plugin_renderer_base {
 
     /**
      * Render bookingoption dates.
-     * @param $data array
+     * @param object $data
      * @return string
      */
     public function render_bookingoption_dates($data) {
@@ -587,7 +625,7 @@ class renderer extends plugin_renderer_base {
 
     /**
      * Render semesters and holidays form.
-     * @param $data array
+     * @param object $data
      * @return string
      */
     public function render_semesters_holidays($data) {
@@ -599,7 +637,7 @@ class renderer extends plugin_renderer_base {
 
     /**
      * Render notifyme button.
-     * @param $data array
+     * @param object $data
      * @return string
      */
     public function render_notifyme_button($data) {
@@ -611,7 +649,7 @@ class renderer extends plugin_renderer_base {
 
     /**
      * Render ruleslist
-     * @param $data array
+     * @param object $data
      * @return string
      */
     public function render_ruleslist($data) {
@@ -621,7 +659,7 @@ class renderer extends plugin_renderer_base {
 
     /**
      * Render campaignslist
-     * @param $data array
+     * @param object $data
      * @return string
      */
     public function render_campaignslist($data) {
@@ -631,7 +669,7 @@ class renderer extends plugin_renderer_base {
 
     /**
      * Render output for booked users.
-     * @param $data array
+     * @param object $data
      * @return string
      */
     public function render_booked_users($data) {
@@ -643,7 +681,7 @@ class renderer extends plugin_renderer_base {
 
     /**
      * Render subbookings list
-     * @param $data array
+     * @param object $data
      * @return string
      */
     public function render_subbookingslist($data) {
@@ -653,7 +691,7 @@ class renderer extends plugin_renderer_base {
 
     /**
      * Render booking actions list
-     * @param $data array
+     * @param object $data
      * @return string
      */
     public function render_boactionslist($data) {
@@ -663,7 +701,7 @@ class renderer extends plugin_renderer_base {
 
     /**
      * Render subbookings pre page modal.
-     * @param $data array
+     * @param object $data
      * @return string
      */
     public function render_prepagemodal($data) {
@@ -673,7 +711,7 @@ class renderer extends plugin_renderer_base {
 
     /**
      * Render subbookings pre page inline.
-     * @param $data array
+     * @param object $data
      * @return string
      */
     public function render_prepageinline($data) {
@@ -683,7 +721,7 @@ class renderer extends plugin_renderer_base {
 
     /**
      * Render subbooking timeslot
-     * @param $data array
+     * @param object $data
      * @return string
      */
     public function render_sb_timeslot($data) {
@@ -693,7 +731,7 @@ class renderer extends plugin_renderer_base {
 
     /**
      * Render output for bookit.
-     * @param $data array
+     * @param object $data
      * @return string
      */
     public function render_bookit_price($data) {
@@ -705,8 +743,8 @@ class renderer extends plugin_renderer_base {
 
     /**
      * Render output for bookit button.
-     * @param $data array
-     * @param $template string
+     * @param object $data
+     * @param string $template
      * @return string
      */
     public function render_bookit_button($data, string $template) {
@@ -717,7 +755,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /** Function to render the page of a single teacher
-     * @param any $data
+     * @param object $data
      * @return string
      */
     public function render_teacherpage($data) {
@@ -728,7 +766,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /** Function to render the page showing all teachers
-     * @param any $data
+     * @param object $data
      * @return string
      */
     public function render_allteacherspage($data) {
@@ -740,8 +778,7 @@ class renderer extends plugin_renderer_base {
 
     /**
      * Render main booking options view.
-     * @param $data array
-     * @param $template string
+     * @param object $data
      * @return string
      */
     public function render_view($data) {

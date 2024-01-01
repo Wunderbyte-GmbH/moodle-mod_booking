@@ -49,12 +49,13 @@ class col_coursestarttime implements renderable, templatable {
     public $showcollapsebtn = null;
 
     /**
-     * Constructor.
+     * Constructor
      *
-     * @param mod_booking\booking booking instance
      * @param int $optionid
-     * @param int $cmid course module id of the booking instance
+     * @param object|null $booking booking instance
+     * @param int|null $cmid course module id of the booking instance
      * @param bool $collapsed set to true, if dates should be collapsed
+     *
      */
     public function __construct($optionid, $booking=null, $cmid = null, $collapsed = true) {
 
@@ -75,6 +76,14 @@ class col_coursestarttime implements renderable, templatable {
         }
     }
 
+    /**
+     * Export for template
+     *
+     * @param renderer_base $output
+     *
+     * @return array
+     *
+     */
     public function export_for_template(renderer_base $output) {
         if (!$this->datestrings) {
             return [];

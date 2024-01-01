@@ -49,7 +49,7 @@ class col_availableplaces implements renderable, templatable {
     /** @var booking_answers $bookinganswers instance of class */
     private $bookinganswers = null;
 
-    /** @var stdClass $buyforuser user stdclass if we buy for user */
+    /** @var \stdClass $buyforuser user stdclass if we buy for user */
     private $buyforuser = null;
 
     /** @var bool $showmanageresponses */
@@ -66,8 +66,10 @@ class col_availableplaces implements renderable, templatable {
 
     /**
      * The constructor takes the values from db.
-     * @param stdClass $values
+     *
+     * @param mixed $values
      * @param booking_option_settings $settings
+     * @param bool $buyforuser
      */
     public function __construct($values, booking_option_settings $settings, $buyforuser = null) {
         global $CFG;

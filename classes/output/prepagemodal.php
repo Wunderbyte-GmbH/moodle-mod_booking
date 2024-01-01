@@ -61,7 +61,7 @@ class prepagemodal implements renderable, templatable {
     /**
      * Constructor
      *
-     * @param int $optionid
+     * @param mixed $settings
      * @param int $totalnumberofpages
      * @param string $buttoncondition
      * @param string $extrabuttoncondition

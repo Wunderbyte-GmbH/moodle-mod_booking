@@ -52,16 +52,21 @@ class col_price implements renderable, templatable {
     /** @var array $priceitem array of priceitem */
     public $priceitems = [];
 
+    /**
+     * $context
+     *
+     * @var object
+     */
     private $context = null;
 
     /**
      * Only when the user is not booked, we store a price during construction.
-     */
-    /**
-     * Undocumented function
      *
-
+     * @param stdClass $values
      * @param booking_option_settings $settings
+     * @param object|null $buyforuser
+     * @param context|null $context
+     *
      */
     public function __construct(stdClass $values, booking_option_settings $settings, $buyforuser = null, context $context = null) {
 

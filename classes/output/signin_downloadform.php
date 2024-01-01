@@ -64,7 +64,6 @@ class signin_downloadform implements renderable, templatable {
     /**
      * Constructor
      *
-     * @param int $coursemoduleid
      * @param \mod_booking\booking_option $bookingoption
      * @param \moodle_url $url baseurl
      */
@@ -93,6 +92,14 @@ class signin_downloadform implements renderable, templatable {
         }
     }
 
+    /**
+     * Export for template
+     *
+     * @param renderer_base $output
+     *
+     * @return mixed
+     *
+     */
     public function export_for_template(renderer_base $output) {
         return $this;
     }

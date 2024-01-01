@@ -33,6 +33,7 @@ use templatable;
 
 /**
  * This file contains the definition for the renderable classes for booked users.
+ *
  * It is used to display a slightly configurable list of booked users for a given booking option.
  *
  * @package     mod_booking
@@ -61,6 +62,12 @@ class booked_users implements renderable, templatable {
      * Constructor
      *
      * @param int $optionid
+     * @param bool $showbooked
+     * @param bool $showwaiting
+     * @param bool $showreserved
+     * @param bool $showtonotifiy
+     * @param bool $showdeleted
+     *
      */
     public function __construct(
             int $optionid,

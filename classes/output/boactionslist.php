@@ -18,7 +18,8 @@
  * This file contains the definition for the renderable classes for the booking instance
  *
  * @package   mod_booking
- * @copyright 2022 Georg Maißer {@link http://www.wunderbyte.at}
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Georg Maißer {@link http://www.wunderbyte.at}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -32,7 +33,8 @@ use templatable;
  * This class prepares data for displaying a booking instance
  *
  * @package mod_booking
- * @copyright 2023 Georg Maißer {@link http://www.wunderbyte.at}
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Georg Maißer {@link http://www.wunderbyte.at}
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class boactionslist implements renderable, templatable {
@@ -61,6 +63,14 @@ class boactionslist implements renderable, templatable {
         }
     }
 
+    /**
+     * Export for template
+     *
+     * @param renderer_base $output
+     *
+     * @return array
+     *
+     */
     public function export_for_template(renderer_base $output) {
         return [
                 'actions' => $this->actions,

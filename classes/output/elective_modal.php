@@ -63,8 +63,6 @@ class elective_modal implements renderable, templatable {
      *
      * @param booking_settings $booking
      * @param array $rawdata
-     * @param bool $isteacherorderforced
-     * @param \stdClass $data
      */
     public function __construct(booking_settings $booking, array $rawdata) {
 
@@ -137,6 +135,12 @@ class elective_modal implements renderable, templatable {
         $this->confirmbutton = html_writer::tag('div', get_string('bookelectivesbtn', 'mod_booking'), $selectbtnoptions);
     }
 
+    /**
+     * Return as array
+     *
+     * @return array
+     *
+     */
     public function return_as_array() {
         return [
             'modalbuttonclass' => $this->modalbuttonclass,
@@ -147,6 +151,14 @@ class elective_modal implements renderable, templatable {
         ];
     }
 
+    /**
+     * Export for template
+     *
+     * @param renderer_base $output
+     *
+     * @return array
+     *
+     */
     public function export_for_template(renderer_base $output) {
         return $this->return_as_array();
     }

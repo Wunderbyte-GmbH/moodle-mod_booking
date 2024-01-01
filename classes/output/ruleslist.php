@@ -62,6 +62,14 @@ class ruleslist implements renderable, templatable {
         }
     }
 
+    /**
+     * Export for template
+     *
+     * @param renderer_base $output
+     *
+     * @return array
+     *
+     */
     public function export_for_template(renderer_base $output) {
         return [
                 'rules' => $this->rules,

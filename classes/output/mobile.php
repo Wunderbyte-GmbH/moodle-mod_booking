@@ -13,6 +13,16 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Mobile output class for booking
+ *
+ * @package mod_booking
+ * @copyright 2018 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Andraž Prinčič, David Bogner
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking\output;
 
 defined('MOODLE_INTERNAL') || die();
@@ -30,7 +40,8 @@ require_once($CFG->dirroot . '/mod/booking/locallib.php');
  * Mobile output class for booking
  *
  * @package mod_booking
- * @copyright 2018 Andraž Prinčič, David Bogner
+ * @copyright 2018 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Andraž Prinčič, David Bogner
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mobile {
@@ -192,8 +203,8 @@ class mobile {
 
     /**
      * TODO: What does it do?
-     * @param $allpages
-     * @param $pagnumber
+     * @param int $allpages
+     * @param int $pagnumber
      * @return array
      */
     public static function npbuttons($allpages, $pagnumber) {
@@ -216,13 +227,15 @@ class mobile {
     /**
      * TODO: What does it do?
      *
-     * @param $bookingoptions
+     * @param mixed $bookingoptions
      * @param booking $booking
      * @param context $context
      * @param stdClass $cm
-     * @param $courseid
+     * @param int $courseid
+     *
      * @return array
      * @throws \coding_exception
+     *
      */
     public static function prepare_options_array($bookingoptions, booking $booking, context $context, stdClass $cm, $courseid) {
         $options = [];
@@ -240,11 +253,11 @@ class mobile {
     /**
      * Prepare booking options for output on mobile.
      *
-     * @param $values
+     * @param mixed $values
      * @param booking $booking
      * @param context $context
      * @param stdClass $cm
-     * @param $courseid
+     * @param int $courseid
      * @return array
      * @throws \coding_exception
      */

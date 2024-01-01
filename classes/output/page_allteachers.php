@@ -46,6 +46,9 @@ class page_allteachers implements renderable, templatable {
 
     /**
      * In the constructor, we gather all the data we need and store it in the data property.
+     *
+     * @param array $teacherids
+     *
      */
     public function __construct(array $teacherids) {
         global $DB;
@@ -59,6 +62,8 @@ class page_allteachers implements renderable, templatable {
     }
 
     /**
+     * Export for template.
+     *
      * @param renderer_base $output
      * @return array
      */

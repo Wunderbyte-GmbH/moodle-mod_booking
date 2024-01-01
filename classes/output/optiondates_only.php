@@ -82,6 +82,14 @@ class optiondates_only implements renderable, templatable {
         $this->sessions = $sessions;
     }
 
+    /**
+     * Export for template
+     *
+     * @param renderer_base $output
+     *
+     * @return void
+     *
+     */
     public function export_for_template(renderer_base $output) {
 
         return [

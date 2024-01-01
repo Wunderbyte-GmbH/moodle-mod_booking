@@ -54,6 +54,10 @@ class page_teacher implements renderable, templatable {
 
     /**
      * In the Constructor, we gather all the data we need ans store it in the data property.
+     *
+     * @param int $teacherid
+     * @return void
+     *
      */
     public function __construct(int $teacherid) {
         global $DB;
@@ -81,6 +85,8 @@ class page_teacher implements renderable, templatable {
     }
 
     /**
+     * Export for template.
+     *
      * @param renderer_base $output
      * @return array
      */
@@ -152,7 +158,8 @@ class page_teacher implements renderable, templatable {
     /**
      * Helper function to create wunderbyte_tables for all options of a specific teacher.
      *
-     * @param int userid of a specific teacher
+     * @param int $teacherid userid of a specific teacher
+     * @param int $perpage
      * @return array an array of tables as string
      */
     private function get_option_tables_for_teacher(int $teacherid, $perpage = 1000) {

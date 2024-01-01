@@ -45,6 +45,12 @@ class bookit_button implements renderable, templatable {
     /**
      * @param array $data
      */
+    /**
+     * Constructor.
+     *
+     * @param array $data
+     *
+     */
     public function __construct(array $data = []) {
 
         global $USER;

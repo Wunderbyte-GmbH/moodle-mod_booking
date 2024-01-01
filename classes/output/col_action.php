@@ -50,6 +50,8 @@ class col_action implements renderable, templatable {
 
     /**
      * Dummy constructor
+     *
+     * @param int $id
      */
     public function __construct(int $id) {
         $this->id = $id;

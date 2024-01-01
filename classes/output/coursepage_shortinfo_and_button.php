@@ -18,7 +18,8 @@
  * This file contains the definition for the renderable classes for the booking instance
  *
  * @package   mod_booking
- * @copyright 2021 Bernhard Fischer {@link http://www.wunderbyte.at}
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Bernhard Fischer {@link http://www.wunderbyte.at}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -35,7 +36,8 @@ use templatable;
  * This class prepares data for displaying a booking instance
  *
  * @package mod_booking
- * @copyright 2021 Georg Maißer {@link http://www.wunderbyte.at}
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Georg Maißer {@link http://www.wunderbyte.at}
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class coursepage_shortinfo_and_button implements renderable, templatable {
@@ -73,7 +75,7 @@ class coursepage_shortinfo_and_button implements renderable, templatable {
     /**
      * Constructor to prepare the data for courspage booking options list
      *
-     * @param stdClass $data
+     * @param object $cm
      */
     public function __construct($cm) {
         global $COURSE, $CFG;
@@ -90,6 +92,14 @@ class coursepage_shortinfo_and_button implements renderable, templatable {
     /**
      * @param renderer_base $output
      * @return array
+     */
+    /**
+     * Export for template
+     *
+     * @param renderer_base $output
+     *
+     * @return array
+     *
      */
     public function export_for_template(renderer_base $output) {
         return [

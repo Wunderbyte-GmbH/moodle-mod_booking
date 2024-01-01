@@ -59,6 +59,7 @@ class semesters_holidays implements renderable, templatable {
      *
      * @param string $renderedsemestersform the rendered semesters form
      * @param string $renderedholidaysform the rendered holidays form
+     * @param string $renderedchangesemesterform
      */
     public function __construct(string $renderedsemestersform, string $renderedholidaysform, string $renderedchangesemesterform) {
 

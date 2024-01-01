@@ -52,7 +52,7 @@ class instance_description implements renderable, templatable {
     /**
      * Constructor
      *
-     * @param \stdClass $data
+     * @param object $settings
      */
     public function __construct($settings) {
         $this->description = $settings->intro;
@@ -65,6 +65,14 @@ class instance_description implements renderable, templatable {
         }
     }
 
+    /**
+     * Export for template
+     *
+     * @param renderer_base $output
+     *
+     * @return array
+     *
+     */
     public function export_for_template(renderer_base $output) {
         return [
                 'description' => $this->description,

@@ -41,6 +41,7 @@ use templatable;
 
 /**
  * This file contains the definition for the renderable classes for booked users.
+ *
  * It is used to display a slightly configurable list of booked users for a given booking option.
  *
  * @package     mod_booking

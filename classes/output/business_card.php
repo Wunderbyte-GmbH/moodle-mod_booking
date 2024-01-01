@@ -18,7 +18,8 @@
  * This file contains the definition for the renderable classes for the booking instance
  *
  * @package   mod_booking
- * @copyright 2021 Georg Maißer {@link http://www.wunderbyte.at}
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Georg Maißer {@link http://www.wunderbyte.at}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -34,7 +35,8 @@ use user_picture;
  * This class prepares data for displaying a booking instance
  *
  * @package mod_booking
- * @copyright 2021 Georg Maißer {@link http://www.wunderbyte.at}
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Georg Maißer {@link http://www.wunderbyte.at}
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class business_card implements renderable, templatable {
@@ -66,7 +68,9 @@ class business_card implements renderable, templatable {
     /**
      * Constructor
      *
-     * @param \stdClass $data
+     * @param object $bookingsettings
+     * @param int $userid
+     *
      */
     public function __construct($bookingsettings, $userid) {
 
@@ -94,6 +98,14 @@ class business_card implements renderable, templatable {
         }
     }
 
+    /**
+     * Export for template
+     *
+     * @param renderer_base $output
+     *
+     * @return array
+     *
+     */
     public function export_for_template(renderer_base $output) {
         return [
                 'username' => $this->username,

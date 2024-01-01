@@ -15,8 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file contains the definition for the renderable classes
- * for a list of booking campaigns.
+ * This file contains the definition for the renderable classes for a list of booking campaigns.
+ *
  * @package   mod_booking
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @author    Bernhard Fischer
@@ -30,8 +30,8 @@ use stdClass;
 use templatable;
 
 /**
- * This file contains the definition for the renderable classes
- * for a list of booking campaigns.
+ * Renderable classes for a list of booking campaigns.
+ *
  * @package   mod_booking
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @author    Bernhard Fischer
@@ -96,6 +96,14 @@ class campaignslist implements renderable, templatable {
         }
     }
 
+    /**
+     * Export for template
+     *
+     * @param renderer_base $output
+     *
+     * @return array
+     *
+     */
     public function export_for_template(renderer_base $output) {
         return [
                 'campaigns' => $this->campaigns,
