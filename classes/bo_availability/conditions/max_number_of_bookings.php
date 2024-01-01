@@ -143,8 +143,8 @@ class max_number_of_bookings implements bo_condition {
      * (when displaying only conditions they don't meet).
      *
      * @param booking_option_settings $settings Item we're checking
-     * @param bool $full Set true if this is the 'full information' view
      * @param int $userid User ID to check availability for
+     * @param bool $full Set true if this is the 'full information' view
      * @param bool $not Set true if we are inverting the condition
      * @return array availability and Information string (for admin) about all restrictions on
      *   this item

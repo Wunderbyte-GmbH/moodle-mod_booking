@@ -111,7 +111,7 @@ class onwaitinglist implements bo_condition {
      * ... as they are not necessary, but return true when the booking policy is not yet answered.
      * Hard block is only checked if is_available already returns false.
      *
-     * @param booking_option_settings $booking_option_settings
+     * @param booking_option_settings $settings
      * @param int $userid
      * @return bool
      */

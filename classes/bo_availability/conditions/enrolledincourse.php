@@ -342,7 +342,7 @@ class enrolledincourse implements bo_condition {
 
     /**
      * Set default values to be shown in form when loaded from DB.
-     * @param stdClass &$defaultvalues the default values
+     * @param stdClass $defaultvalues the default values
      * @param stdClass $acdefault the condition object from JSON
      */
     public function set_defaults(stdClass &$defaultvalues, stdClass $acdefault) {
@@ -397,9 +397,10 @@ class enrolledincourse implements bo_condition {
      *
      * @param bool $isavailable
      * @param bool $full
+     * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string($isavailable, $full, $settings) {
+    private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
         global $DB;
 
         if ($isavailable) {

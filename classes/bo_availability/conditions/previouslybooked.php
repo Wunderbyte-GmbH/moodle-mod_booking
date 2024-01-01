@@ -61,6 +61,7 @@ class previouslybooked implements bo_condition {
      * Constructor.
      *
      * @param int $id
+     * @param booking_option_settings $settings
      * @return void
      */
     public function __construct(int $id = null, booking_option_settings $settings = null) {
@@ -328,7 +329,7 @@ class previouslybooked implements bo_condition {
 
     /**
      * Set default values to be shown in form when loaded from DB.
-     * @param stdClass &$defaultvalues the default values
+     * @param stdClass $defaultvalues the default values
      * @param stdClass $acdefault the condition object from JSON
      */
     public function set_defaults(stdClass &$defaultvalues, stdClass $acdefault) {
@@ -382,9 +383,10 @@ class previouslybooked implements bo_condition {
      *
      * @param bool $isavailable
      * @param bool $full
+     * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string($isavailable, $full, $settings) {
+    private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
 
         if ($isavailable) {
             $description = $full ? get_string('bo_cond_previouslybooked_full_available', 'mod_booking') :

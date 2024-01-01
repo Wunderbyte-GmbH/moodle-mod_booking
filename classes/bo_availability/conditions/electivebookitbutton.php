@@ -42,6 +42,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
  * This is the base booking condition. It is actually used to show the bookit button.
+ *
  * It will always return false, because its the last check in the chain of booking conditions.
  * We use this to have a clean logic of how depticting the book it button.
  *

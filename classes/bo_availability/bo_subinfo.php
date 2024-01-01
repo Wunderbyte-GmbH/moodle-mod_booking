@@ -107,7 +107,7 @@ class bo_subinfo {
      * This function displays debugging() messages if the availability
      * information is invalid.
      *
-     * @param int optionid
+     * @param int $optionid
      * @param int $userid If set, specifies a different user ID to check availability for
      * @return array [isavailable, description]
      */
@@ -222,17 +222,16 @@ class bo_subinfo {
     /**
      * Obtains an array with the id, the availability and the description of the actually blocking condition.
      *
-     * @param bool $full Set true if this is the 'full information' view
      * @param booking_option_settings $settings Item we're checking
      * @param int $subbookingid
      * @param int $userid User ID to check availability for
-     * @param bool $not Set true if we are inverting the condition
+     * @param bool $full Set true if this is the 'full information' view
      * @return array availability and Information string (for admin) about all restrictions on
      *   this item
      */
     public function get_description(booking_option_settings $settings, int $subbookingid, $userid = null, $full = false):array {
 
-        return $this->is_available($settings->id, $subbookingid, $userid, false);
+        return $this->is_available($settings->id, $userid);
     }
 
     /**
@@ -272,7 +271,7 @@ class bo_subinfo {
     /**
      * Save all mform conditions.
      *
-     * @param stdClass &$fromform reference to the form data
+     * @param stdClass $fromform reference to the form data
      * @return void
      */
     public static function save_json_conditions_from_form(stdClass &$fromform) {
@@ -280,7 +279,7 @@ class bo_subinfo {
         $optionid = $fromform->optionid;
 
         if (!empty($optionid) && $optionid > 0) {
-            $conditions = self::get_subconditions(MOD_BOOKING_CONDPARAM_JSON_ONLY);
+            $conditions = self::get_subconditions();
             $arrayforjson = [];
 
             foreach ($conditions as $condition) {

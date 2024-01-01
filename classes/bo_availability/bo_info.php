@@ -80,6 +80,8 @@ class bo_info {
     /**
      * Constructs with item details.
      *
+     * @param booking_option_settings $settings
+     *
      */
     public function __construct(booking_option_settings $settings) {
 
@@ -107,8 +109,9 @@ class bo_info {
      * This function displays debugging() messages if the availability
      * information is invalid.
      *
-     * @param int optionid
+     * @param int $optionid
      * @param int $userid If set, specifies a different user ID to check availability for
+     * @param bool $hardblock
      * @return array [isavailable, description]
      */
     public function is_available(int $optionid = null, int $userid = 0, bool $hardblock = false):array {
@@ -354,10 +357,9 @@ class bo_info {
     /**
      * Obtains an array with the id, the availability and the description of the actually blocking condition.
      *
-     * @param bool $full Set true if this is the 'full information' view
      * @param booking_option_settings $settings Item we're checking
      * @param int $userid User ID to check availability for
-     * @param bool $not Set true if we are inverting the condition
+     * @param bool $full Set true if this is the 'full information' view
      * @return array availability and Information string (for admin) about all restrictions on
      *   this item
      */
@@ -371,7 +373,7 @@ class bo_info {
      *
      * @param MoodleQuickForm $mform
      * @param int $optionid
-     * @param moodleform $moodleform
+     * @param \moodleform $moodleform
      * @return void
      */
     public static function add_conditions_to_mform(MoodleQuickForm &$mform, int $optionid, $moodleform = null) {
@@ -421,7 +423,7 @@ class bo_info {
     /**
      * Save all mform conditions.
      *
-     * @param stdClass &$fromform reference to the form data
+     * @param stdClass $fromform reference to the form data
      * @return void
      */
     public static function save_json_conditions_from_form(stdClass &$fromform) {
