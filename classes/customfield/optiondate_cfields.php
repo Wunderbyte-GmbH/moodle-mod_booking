@@ -37,10 +37,16 @@ use stdClass;
  */
 class optiondate_cfields {
 
-
     /**
      * Helper function to create form elements for adding custom fields.
+     *
+     * @param mixed $mform
+     * @param array $elements
      * @param int $counter if there already are existing custom fields start with the succeeding number
+     * @param int $index
+     *
+     * @return void
+     *
      */
     public static function instance_form_definition(
         &$mform,

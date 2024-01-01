@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
- /**
+/**
  * Report table to show and edit teachers for specific sessions (a.k.a. optiondates).
  *
  * @package mod_booking

@@ -90,6 +90,7 @@ class bookingoptionsimporter {
      *
      * @param array $definedcolumns
      * @param string|null $callbackfunction
+     * @param bool $acceptunknowncolumns
      * @param string|null $delimiter
      * @param string|null $encoding
      * @param string|null $dateformat

@@ -33,7 +33,7 @@ class booking_context_helper {
      * Helper function to fix $PAGE->context problems in booking,
      * e.g. with shortcodes.
      *
-     * @param moodle_page &$page reference to global $PAGE instance.
+     * @param moodle_page $page reference to global $PAGE instance.
      * @param int $cmid course module id of the booking instance
      */
     public static function fix_booking_page_context(moodle_page &$page, int $cmid) {

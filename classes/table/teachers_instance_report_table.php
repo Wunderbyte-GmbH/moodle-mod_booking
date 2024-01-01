@@ -158,7 +158,7 @@ class teachers_instance_report_table extends table_sql {
      * so that SQL for col_units_courses and for col_sum_units
      * gets called only once.
      *
-     * @param $values reference to values object.
+     * @param object $values reference to values object.
      */
     private function set_units_courses_records(&$values) {
         global $DB;

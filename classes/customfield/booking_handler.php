@@ -84,10 +84,9 @@ class booking_handler extends \core_customfield\handler {
     /**
      * Saves the given data for custom fields, must be called after the instance is saved and id is present
      *
-     *
-     * @param int $instance id received from a form
+     * @param int $instanceid id received from a form
      * @param string $shortname of a given customfield
-     * @param mixed @value new value of a given custom field
+     * @param mixed $value new value of a given custom field
      */
     public function field_save($instanceid, $shortname, $value) {
 
@@ -142,6 +141,17 @@ class booking_handler extends \core_customfield\handler {
     }
 
 
+    /**
+     * Instance form definition
+     *
+     * @param \MoodleQuickForm $mform
+     * @param int $instanceid
+     * @param string|null $headerlangidentifier
+     * @param string|null $headerlangcomponent
+     *
+     * @return void
+     *
+     */
     public function instance_form_definition(\MoodleQuickForm $mform, int $instanceid = 0,
     ?string $headerlangidentifier = null, ?string $headerlangcomponent = null) {
 
