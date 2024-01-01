@@ -16,6 +16,7 @@
 
 /**
  * Wunderbyte Payment Methods.
+ *
  * Contains methods for license verification and more.
  *
  * @package mod_booking
@@ -29,6 +30,7 @@ use stdClass;
 
 /**
  * Class to handle Wunderbyte Payment Methods.
+ *
  * Contains methods for license verification and more.
  *
  * @package mod_booking

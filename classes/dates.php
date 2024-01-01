@@ -16,8 +16,10 @@
 
 /**
  * Handle dates
+ *
  * This class provides the form to handle dates (option dates)
  * Provides all the functionality linked to dates in booking and booking options.
+ *
  * @package mod_booking
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @author Georg Maißer <info@wunderbyte.at>
@@ -46,8 +48,10 @@ define('MOD_BOOKING_FORM_DELETEDATE', 'deletedate_');
 
 /**
  * Class to handle dates
+ *
  * This class provides the form to handle dates (option dates)
  * Provides all the functionality linked to dates in booking and booking options.
+ *
  * @package mod_booking
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @author Georg Maißer <info@wunderbyte.at>
@@ -593,8 +597,8 @@ class dates {
     /**
      * Add dates to form
      * @param MoodleQuickForm $mform
-     * @param array $dates
      * @param array $elements
+     * @param array $dates
      * @param array $formdata
      * @return void
      * @throws coding_exception

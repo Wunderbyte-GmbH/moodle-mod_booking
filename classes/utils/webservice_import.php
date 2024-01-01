@@ -39,6 +39,7 @@ global $CFG;
 
 /**
  * Class webservice_import
+ *
  * Import controller for webservice imports
  *
  * @package mod_booking
@@ -309,6 +310,7 @@ class webservice_import {
     }
 
     /**
+     * Add customfields to booking option.
      *
      * @param mixed $optionid
      * @param mixed $data
