@@ -68,7 +68,7 @@ class optionformconfig_form extends \moodleform {
 
             // Instantiate an option_form object, so we can get its elements.
             $optionformdummy = new option_form(null,
-                ['formmode' => 'expert', 'bookingid' => $bookingid, 'optionid' => 0, 'cmid' => $cmid, 'context' => $context]);
+                ['formmode' => 'expert', 'bookingid' => $bookingid, 'id' => 0, 'optionid' => 0, 'cmid' => $cmid, 'context' => $context]);
 
             if ($elements = $optionformdummy->_form->_elements) {
 
