@@ -58,9 +58,6 @@ abstract class booking_action {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($data->optionid);
 
-        $optionvalues = $settings->return_settings_as_stdclass();
-        $optionvalues->optionid = $optionvalues->id;
-
         // Make sure we have a jsonobject in settings.
         if (empty($settings->jsonobject)) {
             $settings->jsonobject = new stdClass();
@@ -89,11 +86,16 @@ abstract class booking_action {
 
         // Make sure we don't lose any other information stored in the json.
         // And store it back as string.
-        $optionvalues->json = json_encode($jsonobject);
+
+        $newdata = new stdClass();
+        $newdata->json = json_encode($jsonobject);
+        // Via the identifier, we get all the values we need.
+        $newdata->identifier = $settings->identifier;
+        $newdata->cmid = $data->cmid;
+        $newdata->importing = true;
 
         $context = context_module::instance($data->cmid);
-
-        booking_option::update($optionvalues, $context, MOD_BOOKING_UPDATE_OPTIONS_PARAM_REDUCED);
+        booking_option::update($newdata, $context);
     }
 
     /**

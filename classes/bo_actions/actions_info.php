@@ -60,7 +60,9 @@ class actions_info {
             // Add header to Element.
             $mform->addElement('header', 'bookingactionsheader', get_string('bookingactionsheader', 'mod_booking'));
 
-            if (!empty($formdata['optionid'])) {
+            $mform->addElement('hidden', 'boactionsjson');
+            $mform->setType('boactionsjson', PARAM_RAW);
+            if (!empty($formdata['id'])) {
                 // Add a list of existing actions, including an edit and a delete button.
                 self::add_list_of_existing_actions_for_this_option($mform, $formdata);
 
@@ -216,7 +218,9 @@ class actions_info {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        $data = new actionslist($cmid, $optionid, $settings->boactions ?? []);
+        $boactions = booking_option::get_value_of_json_by_key($optionid, 'boactions');
+
+        $data = new actionslist($cmid, $optionid, $boactions ?? []);
         $output = $PAGE->get_renderer('mod_booking');
         $html = $output->render_boactionslist($data);
 

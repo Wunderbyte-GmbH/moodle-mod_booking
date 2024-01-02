@@ -25,6 +25,8 @@
 namespace mod_booking\option\fields;
 
 use mod_booking\bo_actions\actions_info;
+use mod_booking\booking_option;
+use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use mod_booking\subbookings\subbookings_info;
@@ -75,7 +77,18 @@ class actions extends field_base {
         int $updateparam,
         $returnvalue = null): string {
 
-        return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
+        // In the actions, we don't actually save, but we want to pass on json, if there is any.
+        // But we don't want to overwrite already altered values.
+        // When we use the form, we have to save the boactions via the boactionsjson key.
+        if (!empty($formdata->boactionsjson)) {
+            $boactions = json_decode($formdata->boactionsjson);
+        } else {
+            $boactions = $formdata->boactions;
+        }
+
+        booking_option::add_data_to_json($newoption, 'boactions', $boactions);
+
+        return '';
     }
 
     /**
@@ -92,5 +105,26 @@ class actions extends field_base {
         // Add booking actions mform elements.
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         actions_info::add_actions_to_mform($mform, $formdata);
+    }
+
+    /**
+     * Standard function to transfer stored value to form.
+     * @param stdClass $data
+     * @param booking_option_settings $settings
+     * @return void
+     * @throws dml_exception
+     */
+    public static function set_data(stdClass &$data, booking_option_settings $settings) {
+
+        if (isset($data->importing) && !empty($data->json)) {
+            $jsonobject = json_decode($data->json);
+            if (isset($jsonobject->boactions)) {
+                $data->boactions = $jsonobject->boactions;
+            }
+        } else {
+            // We don't need the boactions otherwise, but might be needed in copying etc.
+            $data->boactions = booking_option::get_value_of_json_by_key($data->id, 'boactions');
+        }
+        $data->boactionsjson = json_encode($data->boactions);
     }
 }
