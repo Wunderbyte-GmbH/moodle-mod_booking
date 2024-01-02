@@ -34,6 +34,7 @@ use mod_booking_generator;
 use context_course;
 use stdClass;
 use mod_booking\utils\csv_import;
+use mod_booking\importer\bookingoptionsimporter;
 
 /**
  * Class handling tests for booking options.
@@ -189,6 +190,7 @@ class booking_option_test extends advanced_testcase {
             'optionsfields' =>
             ['description', 'statusdescription', 'teacher', 'showdates', 'dayofweektime', 'location', 'institution', 'minanswers'],
             'semesterid' => $testsemester->id,
+            'mergeparam' => 2,
         ];
         $bdata['course'] = $course->id;
         $bdata['bookingmanager'] = $user1->username;
@@ -216,17 +218,20 @@ class booking_option_test extends advanced_testcase {
         $formdata->encoding = 'utf-8';
         $formdata->updateexisting = true;
         $formdata->dateparseformat = 'j.n.Y H:i:s';
+        $formdata->cmid = $cmb1->id;
         // Create instance of csv_import class.
-        $bookingcsvimport1 = new csv_import($bookingobj1);
+        $bookingcsvimport1 = new bookingoptionsimporter();
 
         // Perform import of CSV: 3 new booking options have to be created.
-        $res = $bookingcsvimport1->process_data(
-                                    file_get_contents($this->get_full_path_of_csv_file('options_coma_new', '00')),
-                                    $formdata
-                                );
-
+        $res = $bookingcsvimport1->execute_bookingoptions_csv_import(
+                                    $formdata,
+                                    file_get_contents($this->get_full_path_of_csv_file('options_coma_new', '03')),
+        );
         // Check success of import process.
-        $this->assertEquals(true, $res);
+        $this->assertIsArray($res);
+        $this->assertEmpty($res['errors']);
+        $this->assertEquals(1, $res['success']);
+        $this->assertEquals(3, $res['numberofsuccessfullyupdatedrecords']);
         // Check actual records count.
         $this->assertEquals(3, $bookingobj1->get_all_options_count());
         // Get 1st option.
@@ -237,13 +242,13 @@ class booking_option_test extends advanced_testcase {
         $this->assertEquals("pftr52", $option1->identifier);
         $this->assertEquals($bookingobj1->id, $option1->bookingid);
         $this->assertEquals("Vorwiegend Outdoor", $option1->description);
-        $this->assertEquals("TNMU", $option1->location);
         $this->assertEquals("Spitalgasse 14 1090 Wien", $option1->institution);
         $this->assertEquals("MO 17:15 - 19:30", $option1->dayofweektime);
+        $this->assertEquals(35, $option1->maxanswers);
+        $this->assertEquals("TNMU", $option1->location);
         $this->assertEquals(1, $option1->limitanswers);
         $this->assertEquals(10800, $option1->duration);
         $this->assertEquals("monday", $option1->dayofweek);
-        $this->assertEquals(35, $option1->maxanswers);
 
         // Create booking option object to get extra detsils.
         $bookingoptionobj = new booking_option($cmb1->id, $option1->id);
