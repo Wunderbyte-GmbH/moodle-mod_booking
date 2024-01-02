@@ -112,7 +112,11 @@ class availability extends field_base {
 
         // Availability normally comes from settings, but it might come from the importer as well.
         if (!empty($data->importing)) {
-            $availability = $data->availability;
+            if (!empty($data->availability)) {
+                $availability = $data->availability;
+            } else {
+                $availability = $settings->availability ?? "{}";
+            }
 
             // On importing, we support the boavenrolledincourse key.
             if (!empty($data->boavenrolledincourse)) {
