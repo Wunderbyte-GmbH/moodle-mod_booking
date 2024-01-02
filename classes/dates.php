@@ -564,9 +564,9 @@ class dates {
         optiondate_cfields::instance_form_definition($mform, $elements, 1, $idx);
 
         $mform->registerNoSubmitButton('applydate_' . $idx);
-        $datearray[] =& $mform->createElement('submit', 'applydate_' . $idx, get_string('apply'));
+        $datearray[] =& $mform->createElement('submit', 'applydate_' . $idx, get_string('apply', 'mod_booking'));
         $mform->registerNoSubmitButton(MOD_BOOKING_FORM_DELETEDATE . $idx);
-        $datearray[] =& $mform->createElement('submit', MOD_BOOKING_FORM_DELETEDATE . $idx, get_string('delete'));
+        $datearray[] =& $mform->createElement('submit', MOD_BOOKING_FORM_DELETEDATE . $idx, get_string('delete', 'mod_booking'));
         $elements[] =& $mform->addGroup($datearray, 'datearr_' . $idx, '', '', false);
 
         $element = $mform->createElement('html', $html2);

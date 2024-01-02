@@ -1976,6 +1976,8 @@ $string['manageresponses'] = 'Buchungen verwalten';
 
 // Bo conditions.
 $string['availabilityconditions'] = 'Verfügbarkeit einschränken';
+$string['apply'] = 'Anwenden';
+$string['delete'] = 'Löschen';
 
 $string['bo_cond_alreadybooked'] = 'alreadybooked: Von diesem User bereits gebucht';
 $string['bo_cond_alreadyreserved'] = 'alreadyreserved: Von diesem User bereits in den Warenkorb gelegt';

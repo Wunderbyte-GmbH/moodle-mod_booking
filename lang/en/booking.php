@@ -2089,6 +2089,8 @@ $string['manageresponses'] = 'Manage bookings';
 
 // Bo conditions.
 $string['availabilityconditions'] = 'Availability conditions';
+$string['apply'] = 'Apply';
+$string['delete'] = 'Delete';
 
 $string['bo_cond_alreadybooked'] = 'alreadybooked: Is already booked by this user';
 $string['bo_cond_alreadyreserved'] = 'alreadyreserved: Has already been added to cart by this user';
