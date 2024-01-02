@@ -113,7 +113,7 @@ class teachers extends field_base {
             $teacherids = teachers_handler::get_teacherids_from_form($data);
 
             if (!empty($data->importing)
-                && !empty($data->mergeparam
+                && (!empty($data->mergeparam)
                 && $data->mergeparam == 3)) {
 
                 $oldteacherids = $settings->teacherids;

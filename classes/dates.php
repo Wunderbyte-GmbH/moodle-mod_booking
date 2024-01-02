@@ -239,9 +239,9 @@ class dates {
         // This Logic is linked to the webservice importer functionality.
         // We might need to add coursestartime and courseendtime as new session.
         if (!empty($defaultvalues->importing)
-            && !empty($defaultvalues->mergeparam
-            && $defaultvalues->mergeparam == 2
-            && !empty($sessions))) {
+            && (!empty($defaultvalues->mergeparam)
+            && $defaultvalues->mergeparam == 2)
+            && !empty($sessions)) {
 
             // If we are importing via webservice and have already sessions in this option...
             // ... and we have already added new coursestarttime and courseendtime, we move them.
