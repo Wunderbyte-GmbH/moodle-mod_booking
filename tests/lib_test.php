@@ -108,7 +108,8 @@ class lib_test extends advanced_testcase {
 
         $group = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
 
-        subscribe_teacher_to_booking_option($user->id, $option->id, $cm->id, $group->id);
+        $teacherhandler = new teachers_handler($option->id);
+        $teacherhandler->subscribe_teacher_to_booking_option($user->id, $option->id, $cm->id, $group->id);
 
         $this->assertEquals(1, $DB->count_records('booking_teachers', ['userid' => $user->id, 'optionid' => $option->id]));
 
