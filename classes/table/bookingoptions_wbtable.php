@@ -450,10 +450,6 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
 
-        if ($this->is_downloading()) {
-            return $settings->location;
-        }
-
         if (isset($settings->entity) && (count($settings->entity) > 0)) {
 
             $url = new moodle_url('/local/entities/view.php', ['id' => $settings->entity['id']]);
@@ -465,9 +461,16 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 $nametobeshown = $settings->entity['name'];
             }
 
+            if ($this->is_downloading()) {
+                // No hyperlink when downloading.
+                return $nametobeshown;
+            }
+
+            // Add link to entity.
             return html_writer::tag('a', $nametobeshown, ['href' => $url->out(false)]);
         }
 
+        // If no entity is set, we show the value stored in location.
         return $settings->location;
     }
 

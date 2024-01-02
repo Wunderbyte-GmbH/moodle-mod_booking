@@ -210,11 +210,17 @@ class bookingoption_description implements renderable, templatable {
         // If there is an entity, we show it instead of the location field.
         if (!empty($settings->entity)) {
             $entityurl = new moodle_url('/local/entities/view.php', ['id' => $settings->entity['id']]);
-            $entityfullname = $settings->entity['name'];
-            $this->location = html_writer::tag('a', $entityfullname, ['href' => $entityurl->out(false)]);
+
+            if (!empty($settings->entity['parentname'])) {
+                $nametobeshown = $settings->entity['parentname'] . " (" . $settings->entity['name'] . ")";
+            } else {
+                $nametobeshown = $settings->entity['name'];
+            }
+            $this->location = html_writer::tag('a', $nametobeshown, ['href' => $entityurl->out(false)]);
         } else {
             $this->location = $settings->location;
         }
+
         $this->address = $settings->address;
         $this->institution = $settings->institution;
 
