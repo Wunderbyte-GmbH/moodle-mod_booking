@@ -38,7 +38,7 @@ use stdClass;
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class templatesave extends field_base {
+class addastemplate extends field_base {
 
     /**
      * This ID is used for sorting execution.
@@ -74,6 +74,11 @@ class templatesave extends field_base {
         stdClass &$newoption,
         int $updateparam,
         $returnvalue = null): string {
+
+        // When the addastemplate is not null, we set bookingid to 0.
+        if (!empty($formdata->addastemplate)) {
+            $newoption->bookingid = 0;
+        }
 
         return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
     }
@@ -112,7 +117,6 @@ class templatesave extends field_base {
                 $mform->addElement('select', 'addastemplate', get_string('addastemplate', 'mod_booking'),
                         $addastemplate);
                 $mform->setType('addastemplate', PARAM_INT);
-                $mform->setDefault('addastemplate', 0);
             } else {
                 $mform->addElement('static', 'nolicense', get_string('licensekeycfg', 'mod_booking'),
                     get_string('licensekeycfgdesc', 'mod_booking'));
