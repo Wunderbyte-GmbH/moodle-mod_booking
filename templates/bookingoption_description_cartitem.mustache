@@ -84,13 +84,11 @@
                             <b>{{{datestring}}}</b>
                         </div>
                         <div {{^customfields}}style="display:none"{{/customfields}}>
-                            <ul>
-                                {{#customfields}}
-                                    <li>
-                                        {{name}}{{{value}}}
-                                    </li>
-                                {{/customfields}}
-                            </ul>
+                            {{#customfields}}
+                                <div>
+                                    {{name}}{{{value}}}
+                                </div>
+                            {{/customfields}}
                         </div>
                     </div>
                 {{/dates}}

@@ -66,6 +66,7 @@ class optiondate_cfields {
         // Add Autocomplete with TeamsMeeting etc.
         $cfnames = [
             null => '',
+            'Info' => 'Info',
             'TeamsMeeting' => 'TeamsMeeting',
             'ZoomMeeting' => 'ZoomMeeting',
             'BigBlueButtonMeeting' => 'BigBlueButtonMeeting',
