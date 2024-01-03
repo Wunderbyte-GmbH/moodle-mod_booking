@@ -106,7 +106,7 @@ $string['userprofilefield'] = "Profile field";
 $string['usersmatching'] = 'Matching users';
 $string['allmoodleusers'] = 'All users of this site';
 $string['enrolledusers'] = 'Users enrolled in course';
-$string['nopriceisset'] = 'No price has been set';
+$string['nopriceisset'] = 'No price has been set for pricecategory {$a}';
 
 // Badges.
 $string['badge:pro'] = '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
