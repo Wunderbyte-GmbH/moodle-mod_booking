@@ -127,9 +127,9 @@ class bookingoption_changes implements renderable, templatable {
             } else {
                 // Custom fields with links to video meeting sessions.
                 if (isset($entry['newname']) &&
-                    ($entry['newname'] == 'TeamsMeeting'
-                        || $entry['newname'] == 'ZoomMeeting'
-                        || $entry['newname'] == 'BigBlueButtonMeeting')) {
+                    ($entry['newname'] == 'teamsmeeting'
+                        || $entry['newname'] == 'zoommeeting'
+                        || $entry['newname'] == 'bigbluebuttonmeeting')) {
 
                     // Never show the link directly, but use link.php instead.
                     $baseurl = $CFG->wwwroot;

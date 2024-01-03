@@ -1513,6 +1513,10 @@ $string['erroremptycustomfieldvalue'] = 'Custom field value is not allowed to be
 $string['daystonotifysession'] = 'Number of days in advance of the session start to notify participants';
 $string['daystonotifysession_help'] = "Enter 0 to deactivate the e-mail notification for this session.";
 $string['nocfnameselected'] = "Nothing selected. Either type new name or select one from the list.";
+$string['bigbluebuttonmeeting'] = 'BigBlueButton meeting';
+$string['zoommeeting'] = 'Zoom meeting';
+$string['teamsmeeting'] = 'Teams meeting';
+$string['addcomment'] = 'Add a comment...';
 
 // File: locallib.php.
 $string['signinsheetdate'] = 'Date(s): ';

@@ -66,10 +66,10 @@ class optiondate_cfields {
         // Add Autocomplete with TeamsMeeting etc.
         $cfnames = [
             null => '',
-            'Info' => 'Info',
-            'TeamsMeeting' => 'TeamsMeeting',
-            'ZoomMeeting' => 'ZoomMeeting',
-            'BigBlueButtonMeeting' => 'BigBlueButtonMeeting',
+            'addcomment' => get_string('addcomment', 'mod_booking'),
+            'teamsmeeting' => get_string('teamsmeeting', 'mod_booking'),
+            'zoommeeting' => get_string('zoommeeting', 'mod_booking'),
+            'bigbluebuttonmeeting' => get_string('bigbluebuttonmeeting', 'mod_booking'),
         ];
         $options = [
                 'noselectionstring' => get_string('nocfnameselected', 'mod_booking'),

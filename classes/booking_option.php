@@ -2341,11 +2341,13 @@ class booking_option {
             $forbookeduser = false) {
 
         switch ($field->cfgname) {
-            case 'ZoomMeeting':
-            case 'BigBlueButtonMeeting':
-            case 'TeamsMeeting':
+            case 'zoommeeting':
+            case 'bigbluebuttonmeeting':
+            case 'teamsmeeting':
+                // If the session is not yet about to begin, we show placeholder.
+
                 return $this->render_meeting_fields($sessionid, $field, $descriptionparam, $forbookeduser);
-            case 'Info':
+            case 'addcomment':
                 return [
                     'name' => "",
                     'value' => $field->value,

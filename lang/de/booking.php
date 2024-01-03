@@ -1473,6 +1473,10 @@ $string['erroremptycustomfieldvalue'] = 'Wert des Felds darf nicht leer sein.';
 $string['daystonotifysession'] = 'Wie viele Tage vor Beginn dieser Session soll an die Teilnehmenden eine Benachrichtigung gesendet werden?';
 $string['daystonotifysession_help'] = "Geben Sie 0 ein, um die E-Mail-Benachrichtigung für diese Session zu deaktivieren.";
 $string['nocfnameselected'] = "Nichts ausgewählt. Tippen Sie einen neuen Namen oder wählen Sie einen aus der Liste.";
+$string['bigbluebuttonmeeting'] = 'BigBlueButton-Meeting';
+$string['zoommeeting'] = 'Zoom-Meeting';
+$string['teamsmeeting'] = 'Teams-Meeting';
+$string['addcomment'] = 'Kommentar hinzufügen...';
 
 // File: settings.php.
 $string['bookingsettings'] = 'Buchung: Einstellungen';
