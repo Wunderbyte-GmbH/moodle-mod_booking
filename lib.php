@@ -1908,7 +1908,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 }
 
 /**
- * Check if logged in user is in teachers db.
+ * Check if logged in user is a teacher of the passed option.
  * @param mixed|int $optionoroptionid optional option class or optionid
  * @return true if is assigned as teacher otherwise return false
  */

@@ -175,15 +175,20 @@ $bookingoption->urlparams = $urlparams;
 $bookingoption->apply_tags();
 $bookingoption->get_url_params();
 $optionteachers = $bookingoption->get_teachers();
+
+// Paging.
 $paging = $bookingoption->booking->settings->paginationnum;
-$isteacher = booking_check_if_teacher($bookingoption->option);
 if ($paging < 1) {
     $paging = 25;
 }
+
+// Capability checks.
+$isteacher = booking_check_if_teacher($bookingoption->option);
 if (!($isteacher || has_capability('mod/booking:viewreports', $context))) {
     require_capability('mod/booking:readresponses', $context);
 }
 
+// Trigger report_viewed event.
 $event = \mod_booking\event\report_viewed::create(
         ['objectid' => $optionid, 'context' => $context]);
 $event->trigger();
