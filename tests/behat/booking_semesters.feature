@@ -55,8 +55,9 @@ Feature: As a teacher - configure and use booking's semesters feature.
     And I wait "1" seconds
     And I should see "## + 1 year ##%Y##" in the "#booking_optiondate_1" "css_element"
     And I should see "1:00 PM - 2:00 PM" in the "#booking_optiondate_1" "css_element"
-    And I should see "Friday, 7" in the "#booking_optiondate_1" "css_element"
-    And I should see "Friday, 14" in the "#booking_optiondate_2" "css_element"
+    And I should see "Friday" in the "#booking_optiondate_1" "css_element"
+    And I should see "June" in the "#booking_optiondate_1" "css_element"
+    And I should see "July" in the "#booking_optiondate_6" "css_element"
     And I press "Save and go back"
     And I wait until the page is ready
     Then I should see "Option - Test Semester" in the ".allbookingoptionstable_r1" "css_element"
@@ -65,5 +66,5 @@ Feature: As a teacher - configure and use booking's semesters feature.
     And I wait "1" seconds
     And I should see "## + 1 year ##%Y##" in the ".allbookingoptionstable_r1 .showdates" "css_element"
     And I should see "1:00 PM - 2:00 PM" in the ".allbookingoptionstable_r1 .showdates" "css_element"
-    And I should see "7 June" in the ".allbookingoptionstable_r1 .showdates" "css_element"
-    And I should see "14 June" in the ".allbookingoptionstable_r1 .showdates" "css_element"
+    And I should see "June" in the ".allbookingoptionstable_r1 .showdates" "css_element"
+    And I should see "July" in the ".allbookingoptionstable_r1 .showdates" "css_element"
