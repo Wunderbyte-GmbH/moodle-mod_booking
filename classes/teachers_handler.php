@@ -86,6 +86,7 @@ class teachers_handler {
         }
         if ($showteachersheader) {
             $mform->addElement('header', 'bookingoptionteachers',
+                '<i class="fa fa-fw fa-graduation-cap" aria-hidden="true"></i>&nbsp;' .
                 get_string('teachers', 'mod_booking'));
         }
 

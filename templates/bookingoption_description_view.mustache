@@ -151,9 +151,9 @@
             {{#description}}<div class="content"><p>{{{.}}}</p></div>{{/description}}
             {{> mod_booking/bookingoption_description_teachers }}
             <a class="collapseoptiondatesbutton" data-toggle="collapse" href="#collapseoptiondates" role="button" aria-expanded="false" aria-controls="collapseoptiondates">
-                {{#str}} showdates, mod_booking {{/str}}
+                <i class="fa fa-calendar" aria-hidden="true"></i>&nbsp;{{#str}} dates, mod_booking {{/str}}...
             </a>
-            <div id="collapseoptiondates" class="collapse list-group-item">
+            <div id="collapseoptiondates" class="show list-group-item border-0 pl-0 pr-0">
             <div class="list-group">
                 {{#dates}}
                     <div class="list-group-item">

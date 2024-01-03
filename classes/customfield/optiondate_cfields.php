@@ -61,11 +61,10 @@ class optiondate_cfields {
         $elements[] = $mform->addElement(
             'checkbox',
             'addcustomfield_' . $identifier,
-            get_string('addcustomfield', 'mod_booking'));
+            get_string('addcustomfieldorcomment', 'mod_booking'));
 
         // Add Autocomplete with TeamsMeeting etc.
         $cfnames = [
-            null => '',
             'addcomment' => get_string('addcomment', 'mod_booking'),
             'teamsmeeting' => get_string('teamsmeeting', 'mod_booking'),
             'zoommeeting' => get_string('zoommeeting', 'mod_booking'),
@@ -74,6 +73,7 @@ class optiondate_cfields {
         $options = [
                 'noselectionstring' => get_string('nocfnameselected', 'mod_booking'),
                 'tags' => true,
+                'multiple' => false,
         ];
 
         while ($counter <= MOD_BOOKING_MAX_CUSTOM_FIELDS) {
@@ -114,7 +114,7 @@ class optiondate_cfields {
                 $elements[] = $mform->addElement(
                     'checkbox',
                     'addcustomfield_' . $nextidentifier,
-                    get_string('addcustomfield', 'mod_booking'));
+                    get_string('addcustomfieldorcomment', 'mod_booking'));
                 $mform->hideIf('addcustomfield_' . $nextidentifier, 'addcustomfield_' . $identifier, 'notchecked');
             }
             ++$counter;

@@ -75,6 +75,7 @@ class dates {
      * @throws coding_exception
      */
     public static function definition_after_data(MoodleQuickForm &$mform, array $formdata) {
+        global $CFG;
 
         // The default values are those we have just set via set_data.
         $defaultvalues = $mform->_defaultValues;
@@ -83,7 +84,8 @@ class dates {
         list($dates, $highestidx) = self::get_list_of_submitted_dates($defaultvalues);
 
         // Datesection for Dynamic Load.
-        $elements[] = $mform->addElement('header', 'datesheader', get_string('dates', 'mod_booking'));
+        $datesicon = '<i class="fa fa-fw fa-calendar" aria-hidden="true"></i>&nbsp;';
+        $elements[] = $mform->addElement('header', 'datesheader', $datesicon . get_string('dates', 'mod_booking'));
         $mform->setExpanded('datesheader');
 
         $bookingid = $formdata['bookingid'];

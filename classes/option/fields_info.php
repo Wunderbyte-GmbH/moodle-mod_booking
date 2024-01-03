@@ -100,6 +100,19 @@ class fields_info {
      */
     public static function add_header_to_mform(MoodleQuickForm &$mform, string $headeridentifier) {
 
+        $headericon = '';
+
+        switch ($headeridentifier) {
+            case MOD_BOOKING_HEADER_GENERAL:
+                $headericon = '<i class="fa fa-fw fa-sliders" aria-hidden="true"></i>';
+                break;
+            // TODO: Add icons for the other headers here...
+        }
+
+        if (!empty($headericon)) {
+            $headericon .= '&nbsp;';
+        }
+
         $elementexists = $mform->elementExists($headeridentifier);
         switch ($headeridentifier) {
             case MOD_BOOKING_HEADER_CUSTOMFIELDS:
@@ -114,7 +127,7 @@ class fields_info {
                 break;
             default:
                 if (!$elementexists) {
-                    $mform->addElement('header', $headeridentifier, get_string($headeridentifier, 'mod_booking'));
+                    $mform->addElement('header', $headeridentifier, $headericon . get_string($headeridentifier, 'mod_booking'));
                 }
                 break;
         }

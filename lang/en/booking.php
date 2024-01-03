@@ -1489,7 +1489,7 @@ $string['newoptiondate'] = 'Create a new session...';
 $string['dateandtime'] = 'Date and time';
 $string['sessionnotifications'] = 'E-mail notifications for each session';
 $string['customfields'] = 'Custom fields';
-$string['addcustomfield'] = 'Add custom field';
+$string['addcustomfieldorcomment'] = 'Add a comment or custom field';
 $string['customfieldname'] = 'Field name';
 $string['customfieldname_help'] = 'You can enter any field name you want. The special fieldnames
                                     <ul>
@@ -1510,8 +1510,9 @@ $string['deletecustomfield'] = 'Delete custom field?';
 $string['deletecustomfield_help'] = 'Caution: Setting this checkbox will delete the associated custom field when saving.';
 $string['erroremptycustomfieldname'] = 'Custom field name is not allowed to be empty.';
 $string['erroremptycustomfieldvalue'] = 'Custom field value is not allowed to be empty.';
-$string['daystonotifysession'] = 'Number of days in advance of the session start to notify participants';
-$string['daystonotifysession_help'] = "Enter 0 to deactivate the e-mail notification for this session.";
+$string['daystonotifysession'] = 'Notification n days before start';
+$string['daystonotifysession_help'] = "Number of days in advance of the session start to notify participants.
+Enter 0 to deactivate the e-mail notification for this session.";
 $string['nocfnameselected'] = "Nothing selected. Either type new name or select one from the list.";
 $string['bigbluebuttonmeeting'] = 'BigBlueButton meeting';
 $string['zoommeeting'] = 'Zoom meeting';

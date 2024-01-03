@@ -1448,7 +1448,7 @@ $string['newoptiondate'] = 'Neuen Termin anlegen...';
 $string['dateandtime'] = 'Datum und Uhrzeit';
 $string['sessionnotifications'] = 'E-Mail-Benachrichtigungen für Einzeltermine';
 $string['customfields'] = 'Benutzerdefinierte Felder';
-$string['addcustomfield'] = 'Benutzerdefiniertes Feld hinzufügen';
+$string['addcustomfieldorcomment'] = 'Kommentar oder benutzerdefiniertes Feld hinzufügen';
 $string['customfieldname'] = 'Feldname';
 $string['customfieldname_help'] = 'Sie können einen beliebigen Feldnamen angeben. <br>
                                     Die Spezial-Feldnamen
@@ -1470,8 +1470,9 @@ $string['deletecustomfield'] = 'Feld löschen?';
 $string['deletecustomfield_help'] = 'Achtung: Wenn Sie diese Checkbox aktivieren, wird das zugehörige Feld beim Speichern gelöscht!';
 $string['erroremptycustomfieldname'] = 'Name des Felds darf nicht leer sein.';
 $string['erroremptycustomfieldvalue'] = 'Wert des Felds darf nicht leer sein.';
-$string['daystonotifysession'] = 'Wie viele Tage vor Beginn dieser Session soll an die Teilnehmenden eine Benachrichtigung gesendet werden?';
-$string['daystonotifysession_help'] = "Geben Sie 0 ein, um die E-Mail-Benachrichtigung für diese Session zu deaktivieren.";
+$string['daystonotifysession'] = 'Benachrichtigung n Tage vor Beginn';
+$string['daystonotifysession_help'] = "Wie viele Tage vor Beginn dieser Session soll an die Teilnehmenden eine Benachrichtigung gesendet werden?
+Geben Sie 0 ein, um die E-Mail-Benachrichtigung für diese Session zu deaktivieren.";
 $string['nocfnameselected'] = "Nichts ausgewählt. Tippen Sie einen neuen Namen oder wählen Sie einen aus der Liste.";
 $string['bigbluebuttonmeeting'] = 'BigBlueButton-Meeting';
 $string['zoommeeting'] = 'Zoom-Meeting';

@@ -2345,7 +2345,6 @@ class booking_option {
             case 'bigbluebuttonmeeting':
             case 'teamsmeeting':
                 // If the session is not yet about to begin, we show placeholder.
-
                 return $this->render_meeting_fields($sessionid, $field, $descriptionparam, $forbookeduser);
             case 'addcomment':
                 return [
