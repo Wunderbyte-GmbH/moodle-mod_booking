@@ -318,8 +318,8 @@ Feature: Test booking options avaialbility conditions
     And I follow "Availability conditions"
     And I set the field "Only specific user(s) are allowed to book" to "checked"
     And I set the field "User(s) allowed to book" to "Student 2"
-    And I set the field "id_bo_cond_selectusers_overrideconditioncheckbox" to "checked"
-    And I set the field "id_bo_cond_selectusers_overrideoperator" to "OR"
+    And I set the field "bo_cond_selectusers_overrideconditioncheckbox" to "checked"
+    And I set the field "bo_cond_selectusers_overrideoperator" to "OR"
     And I set the field with xpath "//*[contains(@id, 'fitem_id_bo_cond_selectusers_overridecondition')]//*[contains(@id, 'form_autocomplete_input')]" to "Fully booked"
     And I press "Save and go back"
     And I wait until the page is ready
