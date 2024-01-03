@@ -353,6 +353,10 @@ class singleton_service {
      */
     public static function get_pricecategory_for_user($user) {
 
+        if (empty($user->id)) {
+            return false;
+        }
+
         $instance = self::get_instance();
 
         if (isset($instance->userpricecategory[$user->id])) {
