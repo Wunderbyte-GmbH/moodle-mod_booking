@@ -224,6 +224,11 @@ class optiondate {
 
         $data = array_merge(['id' => $id], $data);
 
+        // Splat opreaton does not work with associative arrays in php < 8.
+        if (PHP_MAJOR_VERSION < 8) {
+            $data = array_values($data);
+        }
+
         return new self(...$data);
     }
 

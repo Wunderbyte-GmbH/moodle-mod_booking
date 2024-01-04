@@ -384,8 +384,14 @@ class dates {
             if (isset($formvalues[MOD_BOOKING_FORM_OPTIONDATEID . $counter])) {
 
                 if (is_array($formvalues[MOD_BOOKING_FORM_COURSESTARTTIME . $counter])) {
-                    $coursestarttime = make_timestamp(...$formvalues[MOD_BOOKING_FORM_COURSESTARTTIME . $counter]);
-                    $courseendtime = make_timestamp(...$formvalues[MOD_BOOKING_FORM_COURSEENDTIME . $counter]);
+                    // Splat opreaton does not work with associative arrays in php < 8.
+                    $coursestarttimearr = $formvalues[MOD_BOOKING_FORM_COURSESTARTTIME . $counter];
+                    if (PHP_MAJOR_VERSION < 8) {
+                        $coursestarttimearr = array_values($coursestarttimearr);
+                    }
+
+                    $coursestarttime = make_timestamp(...$coursestarttimearr);
+                    $courseendtime = make_timestamp(...$coursestarttimearr);
                 } else {
                     $coursestarttime = $formvalues[MOD_BOOKING_FORM_COURSESTARTTIME . $counter];
                     $courseendtime = $formvalues[MOD_BOOKING_FORM_COURSEENDTIME . $counter];
