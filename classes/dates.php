@@ -575,7 +575,8 @@ class dates {
         // Add entities.
         if (class_exists('local_entities\entitiesrelation_handler')) {
             $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
-            $entitieselements = $erhandler->instance_form_definition($mform, $idx, 'noheader', null, null, (int)$date["entityid"]);
+            $entityid = (int)$date["entityid"] ?? 0;
+            $entitieselements = $erhandler->instance_form_definition($mform, $idx, 'noheader', null, null, $entityid);
             $elements = array_merge($elements, $entitieselements);
         }
 
