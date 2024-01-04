@@ -44,6 +44,7 @@ class optiondate_cfields {
      * @param array $elements
      * @param int $counter if there already are existing custom fields start with the succeeding number
      * @param int $index
+     * @param array $customfields
      *
      * @return void
      *
@@ -53,7 +54,7 @@ class optiondate_cfields {
         array &$elements,
         $counter = 1,
         $index = 0,
-        $customfields = []
+        array $customfields = []
     ) {
         global $CFG;
 
