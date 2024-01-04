@@ -52,16 +52,22 @@ class optiondate_cfields {
         &$mform,
         array &$elements,
         $counter = 1,
-        $index = 0) {
+        $index = 0,
+        $customfields = []
+    ) {
         global $CFG;
 
         $identifier = $index . '_' . $counter;
 
         // Add checkbox to add first customfield.
-        $elements[] = $mform->addElement(
+        $element = $mform->addElement(
             'checkbox',
             'addcustomfield_' . $identifier,
             get_string('addcustomfieldorcomment', 'mod_booking'));
+        if (empty($customfields)) {
+            $element->setValue(0);
+        }
+        $elements[] = $element;
 
         // Add Autocomplete with TeamsMeeting etc.
         $cfnames = [
@@ -78,29 +84,39 @@ class optiondate_cfields {
 
         while ($counter <= MOD_BOOKING_MAX_CUSTOM_FIELDS) {
 
+            if (!empty($customfields)) {
+                $customfield = array_shift($customfields);
+            } else {
+                unset($customfield);
+            }
+
             $identifier = $index . '_' . $counter;
 
             // New elements have a default customfieldid of 0.
-            $elements[] = $mform->addElement('hidden', 'customfieldid_' . $identifier);
+            $element = $mform->addElement('hidden', 'customfieldid_' . $identifier);
             $mform->setType('customfieldid_' . $identifier, PARAM_INT);
+            $element->setValue($customfield['id'] ?? 0);
+            $elements[] = $element;
 
-            $elements[] = $mform->addElement('autocomplete', 'customfieldname_' . $identifier,
+            $element = $mform->addElement('autocomplete', 'customfieldname_' . $identifier,
                 get_string('customfieldname', 'mod_booking'), $cfnames, $options);
             if (!empty($CFG->formatstringstriptags)) {
                 $mform->setType('customfieldname_' . $identifier, PARAM_TEXT);
             } else {
                 $mform->setType('customfieldname_' . $identifier, PARAM_CLEANHTML);
             }
-
             $mform->addHelpButton('customfieldname_' . $identifier, 'customfieldname', 'booking');
             $mform->hideIf('customfieldname_' . $identifier, 'addcustomfield_' . $identifier, 'notchecked');
+            $element->setValue($customfield['cfgname'] ?? '');
+            $elements[] = $element;
 
-            $elements[] = $mform->addElement('textarea', 'customfieldvalue_' . $identifier,
+            $element = $mform->addElement('textarea', 'customfieldvalue_' . $identifier,
                 get_string('customfieldvalue', 'mod_booking'), 'wrap="virtual" rows="1" cols="65"');
             $mform->setType('customfieldvalue_' . $identifier, PARAM_RAW);
-
             $mform->addHelpButton('customfieldvalue_' . $identifier, 'customfieldvalue', 'booking');
             $mform->hideIf('customfieldvalue_' . $identifier, 'addcustomfield_' . $identifier, 'notchecked');
+            $element->setValue($customfield['value'] ?? '');
+            $elements[] = $element;
 
             // Set delete parameter to 0 for newly created fields, so they won't be deleted.
             $elements[] = $mform->addElement('hidden', 'deletecustomfield_' . $identifier, 0);
@@ -111,11 +127,16 @@ class optiondate_cfields {
 
                 $nextidentifier = $index . '_' . ($counter + 1);
 
-                $elements[] = $mform->addElement(
+                $element = $mform->addElement(
                     'checkbox',
                     'addcustomfield_' . $nextidentifier,
                     get_string('addcustomfieldorcomment', 'mod_booking'));
                 $mform->hideIf('addcustomfield_' . $nextidentifier, 'addcustomfield_' . $identifier, 'notchecked');
+
+                if (empty($customfields)) {
+                    $element->setValue(0);
+                }
+                $elements[] = $element;
             }
             ++$counter;
         }

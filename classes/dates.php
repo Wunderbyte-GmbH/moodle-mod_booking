@@ -232,6 +232,14 @@ class dates {
             }
 
             $defaultvalues->datescounter = count($sessions);
+
+            // When creating new date series, we unset defaults for all customfields.
+            $regexkey = '/^customfield/';
+            $customfields = preg_grep($regexkey, array_keys((array)$defaultvalues));
+            foreach ($customfields as $cf) {
+                unset($defaultvalues->{$cf});
+            }
+
         } else if (!empty($defaultvalues->id)) {
             $settings = singleton_service::get_instance_of_booking_option_settings($defaultvalues->id);
             $sessions = $settings->sessions;
@@ -314,11 +322,20 @@ class dates {
 
                 // We might need to delete entities relation.
                 if (class_exists('local_entities\entitiesrelation_handler')) {
+
                     $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
-                    $entityid = $erhandler->get_entityid_by_instanceid($session->optiondateid) ?? 0;
+
+                    // If we fetch sessions from DB, we also have to load entities from DB.
+                    if (empty($defaultvalues->addoptiondateseries)) {
+                        $entityid = $erhandler->get_entityid_by_instanceid($session->optiondateid) ?? 0;
+                    } else {
+                        // Else we recreate optiondate series, so use the main entity of the option.
+                        $key = LOCAL_ENTITIES_FORM_ENTITYID . 0;
+                        $entityid = $defaultvalues->{$key};
+                    }
 
                     $key = LOCAL_ENTITIES_FORM_ENTITYID . $idx;
-                    $defaultvalues->{$key} = $entityid;
+                    $defaultvalues->{$key} = (int) $entityid;
 
                     $key = LOCAL_ENTITIES_FORM_ENTITYAREA . $idx;
                     $defaultvalues->{$key} = 'optiondate';
@@ -559,11 +576,11 @@ class dates {
         // Add entities.
         if (class_exists('local_entities\entitiesrelation_handler')) {
             $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
-            $entitieselements = $erhandler->instance_form_definition($mform, $idx, 'noheader');
+            $entitieselements = $erhandler->instance_form_definition($mform, $idx, 'noheader', null, null, (int)$date["entityid"]);
             $elements = array_merge($elements, $entitieselements);
         }
 
-        optiondate_cfields::instance_form_definition($mform, $elements, 1, $idx);
+        optiondate_cfields::instance_form_definition($mform, $elements, 1, $idx, $date['customfields'] ?? []);
 
         $mform->registerNoSubmitButton('applydate_' . $idx);
         $datearray[] =& $mform->createElement('submit', 'applydate_' . $idx, get_string('apply', 'mod_booking'));
