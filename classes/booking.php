@@ -600,10 +600,16 @@ class booking {
                 FROM {booking_answers} ba
                 LEFT JOIN {booking_options} bo
                 ON bo.id = ba.optionid
-                WHERE bo.bookingid = ?
-                AND ba.userid = ?';
+                WHERE bo.bookingid = :bookingid
+                AND ba.userid = :userid
+                AND ba.waitinglist = 0'; // Important: Check for waitinglist = 0 (booked).
 
-        return $DB->get_records_sql($sql, [$this->settings->id, $user->id]);
+        $params = [
+            'bookingid' => $this->settings->id,
+            'userid' => $user->id,
+        ];
+
+        return $DB->get_records_sql($sql, $params);
     }
 
     /**
