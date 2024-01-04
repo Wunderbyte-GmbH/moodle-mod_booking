@@ -36,6 +36,7 @@ use cache_helper;
 use coding_exception;
 use context_course;
 use context_module;
+use context_system;
 use dml_exception;
 use moodle_exception;
 use moodle_url;
@@ -272,17 +273,20 @@ class teachers_handler {
 
         global $DB, $USER;
 
-        $option = singleton_service::get_instance_of_booking_option($cmid, $optionid);
-        // Get settings of the booking instance (do not confuse with option settings).
-        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+        // On template creation, we don't have a cmid, we don't want to enrol the user.
+        if (!empty($cmid)) {
+            $option = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+            // Get settings of the booking instance (do not confuse with option settings).
+            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
 
-        // Event if teacher already exists in DB, we still might want to enrol it into a new course.
-        if ($doenrol) {
-            // We enrol teacher with the type defined in settings.
-            $option->enrol_user($userid, true, $bookingsettings->teacherroleid, true);
+            // Event if teacher already exists in DB, we still might want to enrol it into a new course.
+            if ($doenrol) {
+                // We enrol teacher with the type defined in settings.
+                $option->enrol_user($userid, true, $bookingsettings->teacherroleid, true);
 
-            /* NOTE: In the future, we might need a teacher_enrolled event here (or inside enrol_user)
-            which indicates that a teacher has been enrolled into a Moodle course. */
+                /* NOTE: In the future, we might need a teacher_enrolled event here (or inside enrol_user)
+                which indicates that a teacher has been enrolled into a Moodle course. */
+            }
         }
 
         if ($DB->record_exists("booking_teachers", ["userid" => $userid, "optionid" => $optionid])) {
@@ -292,7 +296,7 @@ class teachers_handler {
         $newteacherrecord = new stdClass();
         $newteacherrecord->userid = $userid;
         $newteacherrecord->optionid = $optionid;
-        $newteacherrecord->bookingid = $bookingsettings->id;
+        $newteacherrecord->bookingid = $bookingsettings->id ?? 0;
 
         $inserted = $DB->insert_record("booking_teachers", $newteacherrecord);
 
@@ -305,12 +309,18 @@ class teachers_handler {
             groups_add_member($groupid, $userid);
         }
 
+        if (empty($cmid)) {
+            $context = context_system::instance();
+        } else {
+            $context = context_module::instance($cmid);
+        }
+
         if ($inserted) {
             $event = \mod_booking\event\teacher_added::create([
                 'userid' => $USER->id,
                 'relateduserid' => $userid,
                 'objectid' => $optionid,
-                'context' => context_module::instance($cmid),
+                'context' => $context,
             ]);
             $event->trigger();
         }
