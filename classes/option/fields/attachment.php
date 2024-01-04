@@ -56,7 +56,7 @@ class attachment extends field_base {
      * This identifies the header under which this particular field should be displayed.
      * @var string
      */
-    public static $header = MOD_BOOKING_HEADER_GENERAL;
+    public static $header = MOD_BOOKING_HEADER_ADVANCEDOPTIONS;
 
     /**
      * This function interprets the value from the form and, if useful...

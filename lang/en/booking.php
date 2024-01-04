@@ -1060,8 +1060,8 @@ $string['removeuseronunenrol'] = 'Remove user from booking upon unenrolment from
 $string['editbookingoption'] = 'Edit booking option';
 $string['createnewbookingoption'] = 'New booking option';
 $string['createnewbookingoptionfromtemplate'] = 'Add a new booking option from template';
-$string['choosecourse'] = 'Choose a course';
-$string['choosecourse_help'] = 'Choose "New course" if you want a new Moodle course to be created for this booking option.';
+$string['connectedmoodlecourse'] = 'Connected Moodle course';
+$string['connectedmoodlecourse_help'] = 'Choose "New course" if you want a new Moodle course to be created for this booking option.';
 $string['courseendtime'] = 'End time of the course';
 $string['coursestarttime'] = 'Start time of the course';
 $string['newcourse'] = 'New course';
@@ -1110,11 +1110,15 @@ $string['toggleformmode_expert'] = '<i class="fa fa-expand" aria-hidden="true"><
 $string['bookingoptionimage'] = 'Upload an image';
 $string['submitandgoback'] = 'Save and go back';
 $string['bookingoptionprice'] = 'Price';
-$string['er_saverelationsforoptiondates'] = 'Save entity for each date too';
+
+// We removed this, but keep it for now as we might need these strings again.
+// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+/*$string['er_saverelationsforoptiondates'] = 'Save entity for each date too';
 $string['confirm:er_saverelationsforoptiondates'] = '<span class="text-danger">
 <b>Be careful:</b> This booking option has dates with various entities.
 Do you really want to set this entity for ALL dates?</span>';
-$string['error:er_saverelationsforoptiondates'] = 'Please confirm that you want to overwrite deviating entities.';
+$string['error:er_saverelationsforoptiondates'] = 'Please confirm that you want to overwrite deviating entities.'; */
+
 $string['pricecategory'] = 'Price category';
 $string['pricecurrency'] = 'Currency';
 $string['optionvisibility'] = 'Visibility';

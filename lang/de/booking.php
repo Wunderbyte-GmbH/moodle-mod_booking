@@ -1041,8 +1041,8 @@ $string['removeuseronunenrol'] = 'Nutzer/in von Buchungsoption autom. entfernen 
 $string['editbookingoption'] = 'Buchungsoption bearbeiten';
 $string['createnewbookingoption'] = 'Neue Buchungsoption';
 $string['createnewbookingoptionfromtemplate'] = 'Neue Buchungsoption von Vorlage erstellen';
-$string['choosecourse'] = 'Einen Kurs auswählen';
-$string['choosecourse_help'] = 'Wählen Sie "Neuer Kurs", wenn Sie wollen, dass ein neuer Moodle-Kurs für diese Buchungsoption angelegt werden soll.';
+$string['connectedmoodlecourse'] = 'Verbundener Moodle-Kurs';
+$string['connectedmoodlecourse_help'] = 'Wählen Sie "Neuer Kurs", wenn Sie wollen, dass ein neuer Moodle-Kurs für diese Buchungsoption angelegt werden soll.';
 $string['courseendtime'] = 'Kursende';
 $string['coursestarttime'] = 'Kursbeginn';
 $string['newcourse'] = 'Neuer Kurs';
@@ -1089,11 +1089,15 @@ $string['toggleformmode_expert'] = '<i class="fa fa-expand" aria-hidden="true"><
 $string['bookingoptionimage'] = 'Bild hochladen';
 $string['submitandgoback'] = 'Speichern und zurück';
 $string['bookingoptionprice'] = 'Preis';
-$string['er_saverelationsforoptiondates'] = 'Entity auch für jeden Termin speichern';
+
+// We removed this, but keep it for now as we might need these strings again.
+// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+/*$string['er_saverelationsforoptiondates'] = 'Entity auch für jeden Termin speichern';
 $string['confirm:er_saverelationsforoptiondates'] = '<span class="text-danger">
 <b>Achtung:</b> Diese Buchungsoption hat Termine mit unterschiedlichen Entities.
 Wollen Sie wirklich ALLE Termine mit der ausgewählten Entity überschreiben?</span>';
-$string['error:er_saverelationsforoptiondates'] = 'Bitte bestätigen Sie, dass Sie abweichende Entities überschreiben wollen.';
+$string['error:er_saverelationsforoptiondates'] = 'Bitte bestätigen Sie, dass Sie abweichende Entities überschreiben wollen.';*/
+
 $string['pricecategory'] = 'Preiskategorie';
 $string['pricecurrency'] = 'Währung';
 $string['optionvisibility'] = 'Sichtbarkeit';

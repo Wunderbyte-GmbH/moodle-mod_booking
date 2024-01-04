@@ -168,7 +168,7 @@ class optiondate_cfields {
             $id = $formdata['customfieldid_' . $index . '_' . $counter] ?? 0;
 
             // If no values are set, neither for key nor value, we continue.
-            if (empty($cfname) && empty($cfvalue)) {
+            if (empty($cfname) || empty($cfname[0])) {
                 continue;
             }
 

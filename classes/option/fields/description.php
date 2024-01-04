@@ -112,7 +112,7 @@ class description extends field_base {
         // In expert mode, we do not hide anything.
         if ($optionformconfig['formmode'] == 'expert' ||
             !isset($optionformconfig['description']) || $optionformconfig['description'] == 1) {
-            $mform->addElement('editor', 'description', get_string('description'));
+            $mform->addElement('editor', 'description', get_string('description'), ['rows' => 10]);
             $mform->setType('description', PARAM_CLEANHTML);
         }
     }

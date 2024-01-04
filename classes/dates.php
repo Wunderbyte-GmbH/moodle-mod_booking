@@ -86,7 +86,6 @@ class dates {
         // Datesection for Dynamic Load.
         $datesicon = '<i class="fa fa-fw fa-calendar" aria-hidden="true"></i>&nbsp;';
         $elements[] = $mform->addElement('header', 'datesheader', $datesicon . get_string('dates', 'mod_booking'));
-        $mform->setExpanded('datesheader');
 
         $bookingid = $formdata['bookingid'];
         $optionid = $formdata['optionid'];

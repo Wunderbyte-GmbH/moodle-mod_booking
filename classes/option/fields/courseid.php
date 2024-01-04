@@ -179,8 +179,8 @@ class courseid extends field_base {
         $options = [
             'noselectionstring' => get_string('donotselectcourse', 'mod_booking'),
         ];
-        $mform->addElement('autocomplete', 'courseid', get_string("choosecourse", "booking"), $coursearray, $options);
-        $mform->addHelpButton('courseid', 'choosecourse', 'mod_booking');
+        $mform->addElement('autocomplete', 'courseid', get_string("connectedmoodlecourse", "booking"), $coursearray, $options);
+        $mform->addHelpButton('courseid', 'connectedmoodlecourse', 'mod_booking');
     }
 
     /**

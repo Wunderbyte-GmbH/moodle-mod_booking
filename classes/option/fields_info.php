@@ -106,6 +106,12 @@ class fields_info {
             case MOD_BOOKING_HEADER_GENERAL:
                 $headericon = '<i class="fa fa-fw fa-sliders" aria-hidden="true"></i>';
                 break;
+            case MOD_BOOKING_HEADER_ADVANCEDOPTIONS:
+                $headericon = '<i class="fa fa-fw fa-cogs" aria-hidden="true"></i>';
+                break;
+            case MOD_BOOKING_HEADER_BOOKINGOPTIONTEXT:
+                $headericon = '<i class="fa fa-fw fa-comments" aria-hidden="true"></i>';
+                break;
             // TODO: Add icons for the other headers here...
         }
 

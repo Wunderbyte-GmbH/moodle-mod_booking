@@ -94,7 +94,8 @@ class responsiblecontact extends field_base {
         if ($optionformconfig['formmode'] == 'expert' ||
             !isset($optionformconfig['responsiblecontactheader']) || $optionformconfig['responsiblecontactheader'] == 1) {
             // Advanced options.
-            $mform->addElement('header', 'responsiblecontactheader', get_string('responsiblecontact', 'mod_booking'));
+            $mform->addElement('header', 'responsiblecontactheader',
+            '<i class="fa fa-fw fa-user" aria-hidden="true"></i>&nbsp;' . get_string('responsiblecontact', 'mod_booking'));
         }
         // Responsible contact person - autocomplete.
         $options = [

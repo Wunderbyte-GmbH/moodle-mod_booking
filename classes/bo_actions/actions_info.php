@@ -58,7 +58,8 @@ class actions_info {
 
         if (get_config('booking', 'showboactions') && wb_payment::pro_version_is_activated()) {
             // Add header to Element.
-            $mform->addElement('header', 'bookingactionsheader', get_string('bookingactionsheader', 'mod_booking'));
+            $mform->addElement('header', 'bookingactionsheader',
+            '<i class="fa fa-fw fa-bolt" aria-hidden="true"></i>&nbsp;' . get_string('bookingactionsheader', 'mod_booking'));
 
             $mform->addElement('hidden', 'boactionsjson');
             $mform->setType('boactionsjson', PARAM_RAW);

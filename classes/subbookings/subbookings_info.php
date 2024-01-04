@@ -53,7 +53,8 @@ class subbookings_info {
 
         if (get_config('booking', 'showsubbookings') && wb_payment::pro_version_is_activated()) {
             // Add header to Element.
-            $mform->addElement('header', 'bookingsubbookingsheader', get_string('bookingsubbookingsheader', 'mod_booking'));
+            $mform->addElement('header', 'bookingsubbookingsheader',
+            '<i class="fa fa-fw fa-sitemap" aria-hidden="true"></i>&nbsp;' . get_string('bookingsubbookingsheader', 'mod_booking'));
 
             if (!empty($formdata['optionid'])) {
                 // Add a list of existing subbookings, including an edit and a delete button.

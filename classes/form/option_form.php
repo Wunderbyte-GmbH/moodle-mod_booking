@@ -204,27 +204,6 @@ class option_form extends dynamic_form {
     }
 
     /**
-     * Show the booking information to edit
-     *
-     * @param booking_handler $handler
-     * @return array
-     */
-    public function get_customfieldcategories(booking_handler $handler) {
-        $categories = $handler->get_categories_with_fields();
-        foreach ($categories as $category) {
-            $name = $category->get('name');
-            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-            // Mabye use later: $id = $category->get('id'); END.
-            $categorynames[$name] = $name;
-        }
-        if (count($categorynames) == 0) {
-            return ['not category yet'];
-        }
-
-        return $categorynames;
-    }
-
-    /**
      * Definition after data.
      * @return void
      * @throws coding_exception

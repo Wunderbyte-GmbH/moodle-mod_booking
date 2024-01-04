@@ -95,8 +95,12 @@ class entities extends field_base {
                 };
             }
 
+            /* IMPORTANT NOTE: We do not use er_saverelationsforoptiondates (checkbox to save entity for each optiondate)
+            in the form anymore, but we had to keep this code, so this still works when importing! */
+
             // If the checkbox to save entity for each optiondate is checked...
-            // ... then we seave the optionentity also for each optiondate.
+            // ...(actually only simulated by importer)...
+            // ... then we save the option entity also for each optiondate.
             if ($entityidkeys = preg_grep('/^local_entities_entityid/', array_keys((array)$formdata))) {
                 // Entity for the whole option.
                 $optionentity = $formdata->local_entities_entityid_0 ?? 0;
@@ -106,6 +110,8 @@ class entities extends field_base {
                         if ($entityidkey == "local_entities_entityid_0") {
                             continue;
                         }
+                        // See end of set_data function!
+                        // There we just set er_saverelationsforoptiondates to 1.
                         if (!empty($formdata->er_saverelationsforoptiondates)) {
                             $formdata->{$entityidkey} = $optionentity;
                         }
@@ -131,22 +137,26 @@ class entities extends field_base {
             $erhandler = new entitiesrelation_handler('mod_booking', 'option');
             $erhandler->instance_form_definition($mform, 0, $optionformconfig['formmode']);
 
+            // We removed this because the new date series feature uses the option entity by default.
+
             // This checkbox is specific to mod_booking which is why it...
             // ...cannot be put directly into instance_form_definition of entitiesrelation_handler.
-            $mform->addElement('advcheckbox', 'er_saverelationsforoptiondates',
-                get_string('er_saverelationsforoptiondates', 'mod_booking'));
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /*$mform->addElement('advcheckbox', 'er_saverelationsforoptiondates',
+                get_string('er_saverelationsforoptiondates', 'mod_booking'));*/
 
-            // Important: "Save entity for each date too" must be checked by default.
-            $mform->setDefault('er_saverelationsforoptiondates', 1);
+            // Checkbox "Save entity for each date too" must be checked by default.
+            // $mform->setDefault('er_saverelationsforoptiondates', 1);
             // But: In validation we need to check, if there are optiondates that have "outlier" entities.
             // If so, the outliers must be changed to the main entity before all relations can be saved.
 
             // If we have "outliers" (deviating entities), we show a confirm box...
             // ...so a user does not overwrite them accidentally.
-            if (entitiesrelation_handler::option_has_dates_with_entity_outliers($optionid)) {
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* if (entitiesrelation_handler::option_has_dates_with_entity_outliers($optionid)) {
                 $mform->addElement('advcheckbox', 'confirm:er_saverelationsforoptiondates',
                     get_string('confirm:er_saverelationsforoptiondates', 'mod_booking'));
-            }
+            } */
         }
     }
 

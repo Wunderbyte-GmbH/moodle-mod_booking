@@ -96,6 +96,7 @@ class price {
         }
         if ($showpriceheader) {
             $mform->addElement('header', 'bookingoptionprice',
+                '<i class="fa fa-fw fa-money" aria-hidden="true"></i>&nbsp;' .
                 get_string('bookingoptionprice', 'booking'));
         }
 

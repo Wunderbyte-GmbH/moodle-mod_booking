@@ -182,9 +182,7 @@ define('MOD_BOOKING_OPTION_FIELD_MINANSWERS', 140);
 define('MOD_BOOKING_OPTION_FIELD_POLLURL', 150);
 define('MOD_BOOKING_OPTION_FIELD_COURSEID', 160); // Course to enrol to.
 define('MOD_BOOKING_OPTION_FIELD_ADDTOGROUP', 165);
-define('MOD_BOOKING_OPTION_FIELD_HOWMANYUSERS', 170);
-define('MOD_BOOKING_OPTION_FIELD_REMOVEAFTERMINUTES', 180);
-define('MOD_BOOKING_OPTION_FIELD_ATTACHMENT', 190);
+define('MOD_BOOKING_OPTION_FIELD_ENTITIES', 195);
 define('MOD_BOOKING_OPTION_FIELD_OPTIONDATES', 200);
 define('MOD_BOOKING_OPTION_FIELD_COURSESTARTTIME', 201); // Replaced with optiondates class.
 define('MOD_BOOKING_OPTION_FIELD_COURSEENDTIME', 202); // Replaced with optiondates class.
@@ -194,7 +192,6 @@ define('MOD_BOOKING_OPTION_FIELD_RESPONSIBLECONTACT', 220);
 define('MOD_BOOKING_OPTION_FIELD_PRICE', 230);
 define('MOD_BOOKING_OPTION_FIELD_CREDITS', 235);
 define('MOD_BOOKING_OPTION_FIELD_ELECTIVE', 240);
-define('MOD_BOOKING_OPTION_FIELD_ENTITIES', 250);
 define('MOD_BOOKING_OPTION_FIELD_COSTUMFIELDS', 260);
 define('MOD_BOOKING_OPTION_FIELD_AVAILABILITY', 270);
 define('MOD_BOOKING_OPTION_FIELD_BOOKINGCLOSINGTIME', 271);
@@ -204,8 +201,11 @@ define('MOD_BOOKING_OPTION_FIELD_ACTIONS', 290);
 define('MOD_BOOKING_OPTION_FIELD_ADVANCED', 300);
 define('MOD_BOOKING_OPTION_FIELD_DISABLEBOOKINGUSERS', 310);
 define('MOD_BOOKING_OPTION_FIELD_DISABLECANCEL', 320);
+define('MOD_BOOKING_OPTION_FIELD_ATTACHMENT', 325);
 define('MOD_BOOKING_OPTION_FIELD_NOTIFICATIONTEXT', 330);
-define('MOD_BOOKING_OPTION_FIELD_SHORTURL', 340);
+define('MOD_BOOKING_OPTION_FIELD_REMOVEAFTERMINUTES', 340);
+define('MOD_BOOKING_OPTION_FIELD_SHORTURL', 345);
+define('MOD_BOOKING_OPTION_FIELD_HOWMANYUSERS', 346);
 define('MOD_BOOKING_OPTION_FIELD_BEFOREBOOKEDTEXT', 350);
 define('MOD_BOOKING_OPTION_FIELD_BEFORECOMPLETEDTEXT', 360);
 define('MOD_BOOKING_OPTION_FIELD_AFTERCOMPLETEDTEXT', 370);
@@ -865,57 +865,6 @@ function booking_update_instance($booking) {
     cache_helper::purge_by_event('setbackeventlogtable');
 
     return $DB->update_record('booking', $booking);
-}
-
-/**
- * Helper function to save entity relations for all associated optiondates.
- *
- * @param stdClass $optionvalues option values from form
- * @param int $optionid
- * @param bool $isimport for CSV or webservice import this needs to be true
- *
- * @return void
- * */
-function save_entity_relations_for_optiondates_of_option(stdClass &$optionvalues, int $optionid, bool $isimport = false) {
-    global $DB;
-    if (class_exists('local_entities\entitiesrelation_handler')
-            && (!empty($optionvalues->er_saverelationsforoptiondates) || $isimport)) {
-
-        $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
-
-        $entities = [];
-        if ($isimport) {
-            // If we import we still need to fetch the entity from the location field value.
-            // It can be either the entity name or the entity id.
-            if (!empty($optionvalues->location)) {
-                if (is_numeric($optionvalues->location)) {
-                    // It's the entity id.
-                    $entities = $erhandler->get_entities_by_id($optionvalues->location);
-                } else {
-                    // It's the entity name (NOT shortname).
-                    $entities = $erhandler->get_entities_by_name($optionvalues->location);
-                }
-                // If we have exactly one entity, we create the entities entry.
-                if (count($entities) === 1) {
-                    $entity = reset($entities);
-                    $optionvalues->local_entities_entityid = $entity->id;
-                }
-            }
-        }
-
-        $optiondateids = $DB->get_fieldset_sql(
-            "SELECT id FROM {booking_optiondates} WHERE optionid = :optionid",
-            ['optionid' => $optionid]
-        );
-        foreach ($optiondateids as $optiondateid) {
-            if (!empty($optionvalues->local_entities_entityid)) {
-                $erhandler->save_entity_relation($optiondateid, $optionvalues->local_entities_entityid);
-            } else {
-                // If entity was deleted from the option, we delete it form optiondates too.
-                $erhandler->delete_relation($optiondateid);
-            }
-        }
-    }
 }
 
 /**
