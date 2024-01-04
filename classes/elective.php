@@ -57,7 +57,7 @@ class elective {
         // Elective.
         $mform->addElement('header', 'electivesettings',
                 get_string('electivesettings', 'booking'));
-        $mform->setExpanded('electivesettings', true);
+        $mform->setExpanded('electivesettings', false);
 
         $mform->addElement('checkbox', 'iselective', get_string('iselective', 'booking'));
 

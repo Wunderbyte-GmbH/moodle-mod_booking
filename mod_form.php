@@ -128,8 +128,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $bookingid = (int)$this->_instance;
 
-        $mform->addElement('header', 'general', '<i class="fa fa-sliders" aria-hidden="true"></i>&nbsp;' .
-            get_string('general', 'form'));
+        $mform->addElement('header', 'general', get_string('general', 'form'));
 
         $bookininstancetemplates = ['' => ''];
         $bookinginstances = $DB->get_records('booking_instancetemplate', [], '', 'id, name', 0, 0);
@@ -714,6 +713,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addHelpButton('activitycompletiontext', 'activitycompletiontext', 'booking');
         $mform->disabledIf('activitycompletiontext', 'mailtemplatessource', 'eq', 1);
 
+        // Miscellaneous settings.
         $mform->addElement('header', 'miscellaneoussettingshdr',
                 get_string('advancedoptions', 'mod_booking'));
 
