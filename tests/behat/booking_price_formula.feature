@@ -41,7 +41,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I wait until the page is ready
-    ##And I follow "Dates"
+    And I follow "Dates"
     And I press "Create date series"
     And I wait "1" seconds
     And I follow "Price"
@@ -61,7 +61,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I wait until the page is ready
-    ##And I follow "Dates"
+    And I follow "Dates"
     And I press "Create date series"
     And I wait "1" seconds
     And I follow "Price"
@@ -83,7 +83,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I wait until the page is ready
-    ##And I follow "Dates"
+    And I follow "Dates"
     And I press "Create date series"
     And I wait "1" seconds
     And I follow "Price"
@@ -105,7 +105,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I wait until the page is ready
-    ##And I follow "Dates"
+    And I follow "Dates"
     And I press "Create date series"
     And I wait "1" seconds
     And I follow "Price"

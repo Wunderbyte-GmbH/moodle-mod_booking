@@ -34,6 +34,7 @@ Feature: As a teacher - configure and use booking's semesters feature.
     Given I am on the "My booking" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I follow "Dates"
     And I should see "NextSummer (nextsummer)" in the "//div[contains(@id, 'id_datesheader_') and contains(@class, 'fcontainer')]" "xpath_element"
     And I open the autocomplete suggestions list in the "//div[contains(@id, 'id_datesheader_')]//div[contains(@id, 'fitem_id_semesterid_')]" "xpath_element"
     And I wait "1" seconds
@@ -46,6 +47,7 @@ Feature: As a teacher - configure and use booking's semesters feature.
     Given I am on the "My booking" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I follow "Dates"
     And I should see "NextSummer (nextsummer)" in the "//div[contains(@id, 'id_datesheader_') and contains(@class, 'fcontainer')]" "xpath_element"
     And I set the following fields to these values:
       | Booking option name                              | Option - Test Semester  |

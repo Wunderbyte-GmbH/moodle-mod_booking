@@ -30,7 +30,7 @@ Feature: In a booking create multi session options
     Given I am on the "My booking" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
-    ## And I follow "Dates"
+    And I follow "Dates"
     And I press "Add date"
     And I wait "1" seconds
     And I should see "## today ##%Y##" in the "#booking_optiondate_1" "css_element"
