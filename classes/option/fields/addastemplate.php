@@ -104,6 +104,7 @@ class addastemplate extends field_base {
             if ($optionformconfig['formmode'] == 'expert' ||
                 !isset($optionformconfig['templateheader']) || $optionformconfig['templateheader'] == 1) {
                 $mform->addElement('header', 'templateheader',
+                    '<i class="fa fa-fw fa-clone" aria-hidden="true"></i>&nbsp;' .
                     get_string('addastemplate', 'mod_booking'));
             }
 

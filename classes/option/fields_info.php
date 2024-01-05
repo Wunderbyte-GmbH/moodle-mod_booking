@@ -104,7 +104,7 @@ class fields_info {
 
         switch ($headeridentifier) {
             case MOD_BOOKING_HEADER_GENERAL:
-                $headericon = '<i class="fa fa-fw fa-sliders" aria-hidden="true"></i>';
+                $headericon = '<i class="fa fa-fw fa-cog" aria-hidden="true"></i>';
                 break;
             case MOD_BOOKING_HEADER_ADVANCEDOPTIONS:
                 $headericon = '<i class="fa fa-fw fa-cogs" aria-hidden="true"></i>';
