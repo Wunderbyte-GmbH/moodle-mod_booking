@@ -168,7 +168,7 @@ class dates {
             $dates[] = [
                 'index' => $highestidx,
                 'coursestarttime' => $now,
-                'courseendtime' => $now,
+                'courseendtime' => $now + 3600, // Default: 1 hour after start.
                 'daystonotify' => 0,
             ];
         }
@@ -394,12 +394,14 @@ class dates {
                 if (is_array($formvalues[MOD_BOOKING_FORM_COURSESTARTTIME . $counter])) {
                     // Splat opreaton does not work with associative arrays in php < 8.
                     $coursestarttimearr = $formvalues[MOD_BOOKING_FORM_COURSESTARTTIME . $counter];
+                    $courseendtimearr = $formvalues[MOD_BOOKING_FORM_COURSEENDTIME . $counter];
                     if (PHP_MAJOR_VERSION < 8) {
                         $coursestarttimearr = array_values($coursestarttimearr);
+                        $courseendtimearr = array_values($courseendtimearr);
                     }
 
                     $coursestarttime = make_timestamp(...$coursestarttimearr);
-                    $courseendtime = make_timestamp(...$coursestarttimearr);
+                    $courseendtime = make_timestamp(...$courseendtimearr);
                 } else {
                     $coursestarttime = $formvalues[MOD_BOOKING_FORM_COURSESTARTTIME . $counter];
                     $courseendtime = $formvalues[MOD_BOOKING_FORM_COURSEENDTIME . $counter];
@@ -537,7 +539,7 @@ class dates {
             $endtime = make_timestamp(...$date['courseendtime']);
         } else {
             $starttime = !empty($date['coursestarttime']) ? $date['coursestarttime'] : time();
-            $endtime = !empty($date['courseendtime']) ? $date['courseendtime'] : time();
+            $endtime = !empty($date['courseendtime']) ? $date['courseendtime'] : time() + 3600;
         }
 
         $headername = dates_handler::prettify_optiondates_start_end($starttime, $endtime);
