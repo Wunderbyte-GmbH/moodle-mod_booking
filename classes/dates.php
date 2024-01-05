@@ -542,7 +542,7 @@ class dates {
             $endtime = !empty($date['courseendtime']) ? $date['courseendtime'] : time() + 3600;
         }
 
-        $headername = dates_handler::prettify_optiondates_start_end($starttime, $endtime);
+        $headername = dates_handler::prettify_optiondates_start_end($starttime, $endtime, current_language());
         $headerid = 'booking_optiondate_' . $idx;
         $collapseid = 'booking_optiondate_collapse' . $idx;
         $accordionid = 'accordion_optionid_' . $idx;
