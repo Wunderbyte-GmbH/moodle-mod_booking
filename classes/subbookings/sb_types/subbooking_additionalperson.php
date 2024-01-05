@@ -115,11 +115,11 @@ class subbooking_additionalperson implements booking_subbooking {
             'context' => $context,
         ];
 
-        $mform->addElement('editor', 'subbooking_additionalperson_description',
+        $mform->addElement('editor', 'subbooking_additionalperson_description_editor',
             get_string('subbooking_additionalperson_description', 'mod_booking'),
             null,
             $textfieldoptions);
-        $mform->setType('subbooking_additionalperson_description', PARAM_RAW);
+        $mform->setType('subbooking_additionalperson_description_editor', PARAM_RAW);
 
         // For price & entities wie need the id of this subbooking.
         $sboid = $formdata['id'] ?? 0;
