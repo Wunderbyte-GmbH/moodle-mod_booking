@@ -79,20 +79,21 @@ class entities extends field_base {
             // Every time we save an entity, we want to make sure that the name of the entity is stored in location.
             if (!empty($formdata->{LOCAL_ENTITIES_FORM_ENTITYID . 0})) {
                 // We might have more than one address, this will lead to more than one record which comes back.
-                if (class_exists('local_entities\entitiesrelation_handler')) {
-                    $entities = entitiesrelation_handler::get_entities_by_id($formdata->{LOCAL_ENTITIES_FORM_ENTITYID . 0});
-                    $newoption->address = '';
-                    foreach ($entities as $entity) {
-                        $newoption->location = $entity->parentname ?? $entity->name;
-                        $newoption->address .= "$entity->postcode $entity->city $entity->streetname $entity->streetnumber";
-                        if (count($entities) > 1) {
-                            $newoption->address .= ', ';
-                        }
-                    }
+                $entities = entitiesrelation_handler::get_entities_by_id($formdata->{LOCAL_ENTITIES_FORM_ENTITYID . 0});
+                $newoption->address = '';
+                foreach ($entities as $entity) {
+                    $newoption->location = $entity->parentname ?? $entity->name;
+                    $newoption->address .= "$entity->postcode $entity->city $entity->streetname $entity->streetnumber";
                     if (count($entities) > 1) {
-                        $newoption->address = substr($newoption->address, 0, -2);
+                        $newoption->address .= ', ';
                     }
-                };
+                }
+                if (count($entities) > 1) {
+                    $newoption->address = substr($newoption->address, 0, -2);
+                }
+            } else {
+                $newoption->location = '';
+                $newoption->address = '';
             }
 
             /* IMPORTANT NOTE: We do not use er_saverelationsforoptiondates (checkbox to save entity for each optiondate)
