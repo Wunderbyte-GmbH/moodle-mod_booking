@@ -36,11 +36,6 @@ defined('MOODLE_INTERNAL') || die();
 require_once("$CFG->libdir/formslib.php");
 
 use mod_booking\booking_option;
-use mod_booking\customfield\booking_handler;
-use mod_booking\singleton_service;
-use local_entities\entitiesrelation_handler;
-use local_entities\local\entities\entitydate;
-use mod_booking\dates;
 use mod_booking\option\fields_info;
 use moodle_exception;
 use moodle_url;
@@ -102,7 +97,7 @@ class option_form extends dynamic_form {
         // We add the formmode to the optionformconfig.
         $optionformconfig['formmode'] = $this->formmode;
 
-        $mform = & $this->_form;
+        $mform = &$this->_form;
 
         $mform->addElement('hidden', 'scrollpos');
         $mform->setType('scrollpos', PARAM_INT);

@@ -867,7 +867,7 @@ class dates_handler {
             }
 
         } else {
-            // Without weekays.
+            // Without weekdays.
             $date->startdate = userdate($starttime, $strftimedate); // 3. February 2023.
             $date->startdatetime = userdate($starttime, $strftimedatetime); // 3. February 2023, 11:45.
             $date->datestring = $date->startdatetime;
