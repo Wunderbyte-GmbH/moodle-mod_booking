@@ -338,7 +338,7 @@ class dates {
                     } else {
                         // Else we recreate optiondate series, so use the main entity of the option.
                         $key = LOCAL_ENTITIES_FORM_ENTITYID . 0;
-                        $entityid = $defaultvalues->{$key};
+                        $entityid = $defaultvalues->{$key} ?? 0;
                     }
 
                     $key = LOCAL_ENTITIES_FORM_ENTITYID . $idx;
