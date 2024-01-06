@@ -1,4 +1,0 @@
-titleprefix;text;sport;location;institution;address;limitanswers;maxanswers;maxoverbooking;coursenumber;duration;addtocalendar;dayofweek;dayofweektime;dayofweekstarttime;dayofweekendtime;description;descriptionfromat;default;intern;extern;botags;kst;bookingopeningtime;bookingclosingtime;teacheremail
-1;0-Allgemeines Turnen;Allgemeines Turnen;TNMU;Spitalgasse 14, 1090 Wien; ;1;35;0;1;10800;0;MO;MO, 17:15 - 19:30;1715;1930;Vorwiegend Outdoor;1;79;89;99;bTNMU;ET592001;20.09.2023 00:00;31.12.2023 23:59;reinhold.brunhoelzl@univie.ac.at
-3;0-Rückenfit;Rückenfit;TNMU;Spitalgasse 14, 1090 Wien; ;1;60;0;3;3600;0;TH;Th, 06:50 - 07:35;650;735;Auch Outdoor;1;79;89;99;TryUSI;ET592001;20.09.2023 00:00;31.12.2023 23:59;ulrike.schultes@univie.ac.at
-5;0-Kondition Mit Musik;Kondition Mit Musik;TNMU;Spitalgasse 14, 1090 Wien; ;1;60;0;5;7200;0;We;We, 18:10 - 19:40;1810;1940; ;1;79;89;99;;ET592001;20.09.2023 00:00;31.12.2023 23:59;guenther.ficker@univie.ac.at

@@ -1,4 +1,0 @@
-identifier;titleprefix;text;sport;location;institution;address;limitanswers;maxanswers;maxoverbooking;coursenumber;duration;addtocalendar;dayofweek;dayofweektime;dayofweekstarttime;dayofweekendtime;description;descriptionfromat;default;intern;extern;botags;kst;bookingopeningtime;bookingclosingtime;teacheremail
-pftr52;1;1-Allgemeines Turnen;Allgemeines;TNTU;Spitalgasse 14 Wien; ;1;40;0;1;10800;0;We;We, 17:15 - 19:30;1715;1930;Vorwiegend Outd.;1;79;89;99;bTNTU;ET692001;20.10.2023 00:00;31.12.2023 23:59;guenther.ficker@univie.ac.at
-pftr53;2;1-Rückenfit;Rückenfit;TNTU;Spitalgasse 14 Wien; ;1;50;0;3;3600;0;TH;Th, 06:50 - 07:35;650;735;Auch Outd.;1;79;89;99;TryUSI;ET692002;20.10.2023 00:01;31.12.2023 23:59;reinhold.brunhoelzl@univie.ac.at
-pftr54;3;1-Kondition Mit Musik;Mit Musik;TNTU;Spitalgasse 14 Wien; ;1;55;0;5;7200;0;FR;FR, 18:10 - 19:40;1810;1940;Outd. Act.;1;79;89;99;bTNTU;ET692003;20.10.2023 00:02;31.12.2023 23:59;ulrike.schultes@univie.ac.at
