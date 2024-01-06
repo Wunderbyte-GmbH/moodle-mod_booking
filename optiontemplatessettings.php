@@ -42,6 +42,7 @@ $pageurl = new moodle_url('/mod/booking/optiontemplatessettings.php',  ['id' => 
 
 if (($action === 'delete') && ($optionid > 0)) {
     $DB->delete_records('booking_options', ['id' => $optionid]);
+    $pageurl->remove_params('optionid');
     redirect($pageurl, get_string('templatedeleted', 'booking'), 5);
 }
 
