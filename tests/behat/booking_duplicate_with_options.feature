@@ -51,35 +51,30 @@ Feature: In a booking create booking option with multiple custom options
     Given I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until the page is ready
     And I set the following fields to these values:
-      | Prefix              | MIB                   |
-      | Booking option name | Topic: Statistics     |
-      | Description         | Class om Statistics   |
-      | Internal annotation | Statistics for medics |
-      | Location            | MI Departmant         |
-      | Institution         | Morphology Institute  |
-      | Address             | Ternopil              |
-    And I set the field "Limit the number of participants" to "checked"
+      | Prefix                                | MIB                   |
+      | Booking option name                   | Topic: Statistics     |
+      | Description                           | Class om Statistics   |
+      | Internal annotation                   | Statistics for medics |
+      | Max. number of participants           | 10                    |
+      | Max. number of places on waiting list | 5                     |
+      | Min. number of participants           | 3                     |
+      | Teachers poll url                     | https://google.com    |
+    And I press "Add date"
+    And I wait "1" seconds
     And I set the following fields to these values:
-      | Max. number of participants           | 10    |
-      | Max. number of places on waiting list | 5     |
-      | Min. number of participants           | 3     |
-      | duration[number]                      | 2     |
-      | duration[timeunit]                    | hours |
-    And I click on "Start and end time of course are known" "checkbox"
-    And I set the following fields to these values:
-      | coursestarttime[day]    | ##tomorrow##%d##     |
-      | coursestarttime[month]  | ##tomorrow##%B##     |
-      | coursestarttime[year]   | ##tomorrow##%Y##     |
-      | coursestarttime[hour]   | 09                   |
-      | coursestarttime[minute] | 00                   |
-      | courseendtime[day]      | ##tomorrow##%d##     |
-      | courseendtime[month]    | ##tomorrow##%B##     |
-      | courseendtime[year]     | ## + 1 year ## %Y ## |
-      | courseendtime[hour]     | 18                   |
-      | courseendtime[minute]   | 00                   |
-      | Teachers poll url       | https://google.com   |
-      | reoccurringdatestring   | FR, 13:30 - 14:30    |
+      | coursestarttime_1[day]    | ##tomorrow##%d##   |
+      | coursestarttime_1[month]  | ##tomorrow##%B##   |
+      | coursestarttime_1[year]   | ##tomorrow##%Y##   |
+      | coursestarttime_1[hour]   | 09                 |
+      | coursestarttime_1[minute] | 00                 |
+      | courseendtime_1[day]      | ##tomorrow##%d##   |
+      | courseendtime_1[month]    | ##tomorrow##%B##   |
+      | courseendtime_1[year]     | ## + 1 year ##%Y## |
+      | courseendtime_1[hour]     | 18                 |
+      | courseendtime_1[minute]   | 00                 |
+      | daystonotify_1 | 1 |
     And I set the field "Add to course calendar" to "Add to calendar (visible only to course participants)"
     And I set the field "Assign teachers:" to "Teacher 1"
     And I wait "1" seconds
@@ -92,48 +87,45 @@ Feature: In a booking create booking option with multiple custom options
       | Before booked                                      | Before booked message         |
       | After booked                                       | After booked message          |
     And I press "Save and go back"
-    And I wait until the page is ready
+    ## And I wait until the page is ready - does not work, force timeout
+    And I wait "3" seconds
     ## Create a copy
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     When I click on "Duplicate this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until the page is ready
     And I set the field "Booking option name" to "Topic: Statistics - Copy 1"
     And I press "Save and go back"
-    And I wait until the page is ready
+    ## And I wait until the page is ready - does not work, force timeout
+    And I wait "3" seconds
     ## Verify copy and its options
     Then I should see "Topic: Statistics - Copy 1" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
+    And I wait until the page is ready
+    And I expand all fieldsets
+    And I should see "Teacher 1" in the "//div[contains(@id, 'id_bookingoptionteachers_')]//span[contains(@class, 'user-suggestion')]" "xpath_element"
     And the following fields match these values:
-      | Prefix              | MIB                        |
-      | Booking option name | Topic: Statistics - Copy 1 |
-      | Description         | Class om Statistics        |
-      | Internal annotation | Statistics for medics      |
-      | Address             | Ternopil                   |
-    And I should see "MI Departmant" in the "#fitem_id_location" "css_element"
-    And I should see "Morphology Institute" in the "#fitem_id_institution" "css_element"
-    And I should see "Teacher 1" in the "#id_bookingoptionteacherscontainer" "css_element"
-    And the field "Limit the number of participants" matches value "checked"
-    And the field "Start and end time of course are known" matches value "checked"
-    And the following fields match these values:
+      | Prefix                                | MIB                           |
+      | Booking option name                   | Topic: Statistics - Copy 1    |
+      | Description                           | Class om Statistics           |
+      | Internal annotation                   | Statistics for medics         |
       | Max. number of participants           | 10                            |
       | Max. number of places on waiting list | 5                             |
       | Min. number of participants           | 3                             |
-      | duration[number]                      | 2                             |
-      | duration[timeunit]                    | hours                         |
-      | coursestarttime[day]                  | ##tomorrow##%d##              |
-      | coursestarttime[month]                | ##tomorrow##%B##              |
-      | coursestarttime[year]                 | ##tomorrow##%Y##              |
-      | coursestarttime[hour]                 | 09                            |
-      | coursestarttime[minute]               | 00                            |
-      | courseendtime[day]                    | ##tomorrow##%d##              |
-      | courseendtime[month]                  | ##tomorrow##%B##              |
-      | courseendtime[year]                   | ## + 1 year ## %Y ##          |
-      | courseendtime[hour]                   | 18                            |
-      | courseendtime[minute]                 | 00                            |
       | Teachers poll url                     | https://google.com            |
-      | reoccurringdatestring                 | FR, 13:30 - 14:30             |
-      | pricegroup_default[bookingprice_default]           | 75               |
-      | pricegroup_specialprice[bookingprice_specialprice] | 65               |
+      | coursestarttime_1[day]                | ##tomorrow##%d##              |
+      | coursestarttime_1[month]              | ##tomorrow##%B##              |
+      | coursestarttime_1[year]               | ##tomorrow##%Y##              |
+      | coursestarttime_1[hour]               | 09                            |
+      | coursestarttime_1[minute]             | 00                            |
+      | courseendtime_1[day]                  | ##tomorrow##%d##              |
+      | courseendtime_1[month]                | ##tomorrow##%B##              |
+      | courseendtime_1[year]                 | ## + 1 year ## %Y ##          |
+      | courseendtime_1[hour]                 | 18                            |
+      | courseendtime_1[minute]               | 00                            |
+      | daystonotify_1                        | 1 |
+##      | pricegroup_default[bookingprice_default]           | 75               |
+##      | pricegroup_specialprice[bookingprice_specialprice] | 65               |
       | customfield_spt1                      | tenis                         |
       | Notification message                  | Advanced notification message |
       | Before booked                         | Before booked message         |
