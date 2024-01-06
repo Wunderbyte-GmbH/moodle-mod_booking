@@ -171,9 +171,13 @@ class singleton_service {
      * Service to create and return singleton instance of booking by bookingid.
      *
      * @param int $bookingid
-     * @return booking
+     * @return booking|null
      */
-    public static function get_instance_of_booking_by_bookingid(int $bookingid): booking {
+    public static function get_instance_of_booking_by_bookingid(int $bookingid): ?booking {
+
+        if (empty($bookingid)) {
+            return null;
+        }
 
         $instance = self::get_instance();
 
@@ -228,16 +232,21 @@ class singleton_service {
      * @return booking_settings|null
      */
     public static function get_instance_of_booking_settings_by_bookingid(int $bookingid): ?booking_settings {
+
+        if (empty($bookingid)) {
+            return null;
+        }
+
         $instance = self::get_instance();
 
         if (isset($instance->bookingsettingsbybookingid[$bookingid])) {
             return $instance->bookingsettingsbybookingid[$bookingid];
         } else {
             try {
-            $cm = get_coursemodule_from_instance('booking', $bookingid);
-            $settings = new booking_settings($cm->id);
-            $instance->bookingsettingsbybookingid[$bookingid] = $settings;
-            return $settings;
+                $cm = get_coursemodule_from_instance('booking', $bookingid);
+                $settings = new booking_settings($cm->id);
+                $instance->bookingsettingsbybookingid[$bookingid] = $settings;
+                return $settings;
             } catch (Exception $e) {
                 return null;
             }
@@ -253,6 +262,7 @@ class singleton_service {
      * @return booking_option|null
      */
     public static function get_instance_of_booking_option(int $cmid, int $optionid): ?booking_option {
+
         $instance = self::get_instance();
 
         if (isset($instance->bookingoptions[$optionid])) {
