@@ -29,7 +29,7 @@ Feature: In a booking create a template
     And I follow "New booking option"
     And I wait until the page is ready
     And I set the following fields to these values:
-      | Booking option name | New option - Template |
+      | Booking option name | New option - by template |
     And I set the field "Add to course calendar" to "Add to calendar (visible only to course participants)"
     And I press "Add date"
     And I wait "1" seconds
@@ -46,10 +46,12 @@ Feature: In a booking create a template
     And I set the field "addastemplate" to "Use as global template"
     And I press "Save and go back"
     And I wait until the page is ready
+    ## Required to avoid erros like "invalid session id" on the step next to "New option"
+    And I wait "3" seconds
     ## Use template
     And I follow "New booking option"
-    And I set the following fields to these values:
-      | Populate from template | New option - Template        |
-      | Booking option name    | Option created from template |
+    And I wait until the page is ready
+    And I set the field "optiontemplateid" to "New option - by template"
+    And I wait "1" seconds
     And I press "Save and go back"
-    Then I should see "Option created from template"
+    Then I should see "New option - by template"
