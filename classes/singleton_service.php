@@ -225,18 +225,22 @@ class singleton_service {
      *
      * @param int $bookingid
      *
-     * @return booking_settings
+     * @return booking_settings|null
      */
-    public static function get_instance_of_booking_settings_by_bookingid(int $bookingid): booking_settings {
+    public static function get_instance_of_booking_settings_by_bookingid(int $bookingid): ?booking_settings {
         $instance = self::get_instance();
 
         if (isset($instance->bookingsettingsbybookingid[$bookingid])) {
             return $instance->bookingsettingsbybookingid[$bookingid];
         } else {
+            try {
             $cm = get_coursemodule_from_instance('booking', $bookingid);
             $settings = new booking_settings($cm->id);
             $instance->bookingsettingsbybookingid[$bookingid] = $settings;
             return $settings;
+            } catch (Exception $e) {
+                return null;
+            }
         }
     }
 
