@@ -55,7 +55,8 @@ if (!has_capability('mod/booking:manageoptiontemplates', $context)) {
     throw new moodle_exception('nopermissions', 'error', '', 'manage booking option templates');
 }
 
-$mform = new option_form(null, ['bookingid' => 0, 'optionid' => $optionid, 'cmid' => $cm->id, 'context' => $context]);
+$customdata = ['id' => $optionid, 'bookingid' => 0, 'optionid' => $optionid, 'cmid' => $cm->id, 'context' => $context];
+$mform = new option_form(null, $customdata);
 
 if ($defaultvalues = $DB->get_record('booking_options', ['bookingid' => 0, 'id' => $optionid])) {
     $defaultvalues->optionid = $optionid;
