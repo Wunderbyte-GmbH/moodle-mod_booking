@@ -26,6 +26,7 @@ namespace mod_booking;
 
 use cache_helper;
 use context_system;
+use dml_exception;
 use mod_booking\option\dates_handler;
 use MoodleQuickForm;
 use stdClass;
@@ -169,10 +170,14 @@ class price {
         }
     }
 
+    /**
+     * Set data function.
+     * @param stdClass $data
+     * @return void
+     * @throws dml_exception
+     */
     public function set_data(stdClass $data) {
-
         global $DB;
-
         foreach ($this->pricecategories as $pricecategory) {
 
             $pricearrayidentifier = MOD_BOOKING_FORM_PRICEGROUP . $pricecategory->identifier .
@@ -190,7 +195,6 @@ class price {
             // If we have at least one price during import, we set useprice to 1.
             $data->useprice = 1;
         }
-
     }
 
     /**
