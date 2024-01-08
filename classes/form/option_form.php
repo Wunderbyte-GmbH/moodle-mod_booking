@@ -136,8 +136,6 @@ class option_form extends dynamic_form {
 
         $html = $OUTPUT->render_from_template('mod_booking/eventslist', (array) $data);
         $mform->addElement('static', 'eventslist', '', $html);
-
-        $PAGE->requires->js_call_amd('mod_booking/optionstemplateselect', 'init');
     }
 
     /**
