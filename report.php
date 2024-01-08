@@ -69,6 +69,8 @@ $returnurl = optional_param('returnurl', '', PARAM_LOCALURL);
 $aggregation = optional_param('aggregate', '', PARAM_INT);
 $searching = false;
 
+// A very big conceptual change.
+
 $urlparams = [];
 $urlparams['id'] = $id;
 $urlparams['page'] = $page;
