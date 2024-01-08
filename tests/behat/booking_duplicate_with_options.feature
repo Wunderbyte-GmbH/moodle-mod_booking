@@ -123,9 +123,9 @@ Feature: In a booking create booking option with multiple custom options
       | courseendtime_1[year]                 | ## + 1 year ## %Y ##          |
       | courseendtime_1[hour]                 | 18                            |
       | courseendtime_1[minute]               | 00                            |
-      | daystonotify_1                        | 1 |
-##      | pricegroup_default[bookingprice_default]           | 75               |
-##      | pricegroup_specialprice[bookingprice_specialprice] | 65               |
+      | daystonotify_1                        | 1                             |
+      | pricegroup_default[bookingprice_default]           | 75               |
+      | pricegroup_specialprice[bookingprice_specialprice] | 65               |
       | customfield_spt1                      | tenis                         |
       | Notification message                  | Advanced notification message |
       | Before booked                         | Before booked message         |
