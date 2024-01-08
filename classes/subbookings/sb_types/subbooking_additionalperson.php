@@ -249,6 +249,10 @@ class subbooking_additionalperson implements booking_subbooking {
             'mod_booking',
             'subbookings',
             $record->id);
+
+        // Add price.
+        $price = new price('subbooking', $this->id);
+        $price->save_from_form($data);
     }
 
     /**

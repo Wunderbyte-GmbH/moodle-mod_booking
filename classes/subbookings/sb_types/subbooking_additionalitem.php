@@ -248,6 +248,9 @@ class subbooking_additionalitem implements booking_subbooking {
             'mod_booking',
             'subbookings',
             $record->id);
+
+        $price = new price('subbooking', $record->id);
+        $price->set_data($data);
     }
 
     /**
