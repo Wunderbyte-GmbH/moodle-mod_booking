@@ -88,7 +88,7 @@ Feature: In a booking create booking option with multiple custom options
       | After booked                                       | After booked message          |
     And I press "Save and go back"
     ## And I wait until the page is ready - does not work, force timeout
-    And I wait "3" seconds
+    And I wait "1" seconds
     ## Create a copy
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     When I click on "Duplicate this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -96,7 +96,7 @@ Feature: In a booking create booking option with multiple custom options
     And I set the field "Booking option name" to "Topic: Statistics - Copy 1"
     And I press "Save and go back"
     ## And I wait until the page is ready - does not work, force timeout
-    And I wait "3" seconds
+    And I wait "1" seconds
     ## Verify copy and its options
     Then I should see "Topic: Statistics - Copy 1" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
