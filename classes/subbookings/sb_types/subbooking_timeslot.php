@@ -212,6 +212,9 @@ class subbooking_timeslot implements booking_subbooking {
             $erhandler = new entitiesrelation_handler('mod_booking', 'subbooking');
             $erhandler->values_for_set_data($data, $record->id);
         }
+        // Set price.
+        $price = new price('subbooking', $record->id);
+        $price->set_data($data);
     }
 
     /**

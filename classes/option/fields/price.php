@@ -135,9 +135,9 @@ class price extends field_base {
         // Right now, the price handler still sets prices via default in the definition, NOT via set data.
         // This has to be fixed.
 
-        if (!empty($data->importing)) {
+        $pricehanlder = new Mod_bookingPrice('option', $data->id);
 
-            $pricehanlder = new Mod_bookingPrice('option', $data->id);
+        if (!empty($data->importing)) {
 
             if (!is_array($pricehanlder->pricecategories)) {
                 return;
@@ -164,6 +164,8 @@ class price extends field_base {
                 $data->useprice = 1;
             }
 
+        } else {
+            $pricehanlder->set_data($data);
         }
     }
 }
