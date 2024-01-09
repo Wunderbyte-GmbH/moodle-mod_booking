@@ -73,6 +73,7 @@ class priceformulaoff extends field_base {
         int $updateparam,
         $returnvalue = null): string {
 
+        // Default values should be the same as in price field class.
         return parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
     }
 
