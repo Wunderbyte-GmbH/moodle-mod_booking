@@ -143,7 +143,6 @@ class price {
             $mform->addElement('advcheckbox', 'priceformulaoff', get_string('priceformulaoff', 'mod_booking'),
             null, null, [0, 1]);
             $mform->addHelpButton('priceformulaoff', 'priceformulaoff', 'mod_booking');
-            $mform->setDefault('priceformulaoff', 0);
 
             $formulaobj = new stdClass;
             $formulaobj->formula = $priceformula;
@@ -158,13 +157,11 @@ class price {
 
             // Manual factor (multiplier).
             $mform->addElement('float', 'priceformulamultiply', get_string('priceformulamultiply', 'mod_booking'), null);
-            $mform->setDefault('priceformulamultiply', 1);
             $mform->addHelpButton('priceformulamultiply', 'priceformulamultiply', 'mod_booking');
             $mform->hideIf('priceformulamultiply', 'priceformulaisactive', 'noteq', 1);
 
             // Absolute value (summand).
             $mform->addElement('float', 'priceformulaadd', get_string('priceformulaadd', 'mod_booking'), null);
-            $mform->setDefault('priceformulaadd', 0);
             $mform->addHelpButton('priceformulaadd', 'priceformulaadd', 'mod_booking');
             $mform->hideIf('priceformulaadd', 'priceformulaisactive', 'noteq', 1);
         }
@@ -194,6 +191,27 @@ class price {
 
             // If we have at least one price during import, we set useprice to 1.
             $data->useprice = 1;
+        }
+
+        // Only when there is an actual price formula, we do apply it.
+        $priceformula = get_config('booking', 'defaultpriceformula');
+        if (!empty($priceformula) && is_json($priceformula)) {
+            // Get Settings.
+            if (!empty($data->id) && ($data->id > 0)) {
+
+                $optionid = $data->id;
+                $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+                $data->priceformulaoff = $settings->priceformulaoff;
+                $data->priceformulaadd = $settings->priceformulaadd;
+                $data->priceformulamultiply = $settings->priceformulamultiply;
+            } else {
+                // Default values.
+                $data->priceformulaoff = 0;
+                $data->priceformulaadd = 0;
+                $data->priceformulamultiply = 1;
+
+            }
         }
     }
 
