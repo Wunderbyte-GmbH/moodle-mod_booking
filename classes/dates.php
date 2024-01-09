@@ -392,16 +392,28 @@ class dates {
             if (isset($formvalues[MOD_BOOKING_FORM_OPTIONDATEID . $counter])) {
 
                 if (is_array($formvalues[MOD_BOOKING_FORM_COURSESTARTTIME . $counter])) {
-                    // Splat opreaton does not work with associative arrays in php < 8.
                     $coursestarttimearr = $formvalues[MOD_BOOKING_FORM_COURSESTARTTIME . $counter];
                     $courseendtimearr = $formvalues[MOD_BOOKING_FORM_COURSEENDTIME . $counter];
+                    // Splat opreaton does not work with associative arrays in php < 8.
                     if (PHP_MAJOR_VERSION < 8) {
-                        $coursestarttimearr = array_values($coursestarttimearr);
-                        $courseendtimearr = array_values($courseendtimearr);
+                        $coursestarttime = make_timestamp(
+                            $coursestarttimearr['year'],
+                            $coursestarttimearr['month'],
+                            $coursestarttimearr['day'],
+                            $coursestarttimearr['hour'],
+                            $coursestarttimearr['minute'],
+                        );
+                        $courseendtime = make_timestamp(
+                            $courseendtimearr['year'],
+                            $courseendtimearr['month'],
+                            $courseendtimearr['day'],
+                            $courseendtimearr['hour'],
+                            $courseendtimearr['minute'],
+                        );
+                    } else {
+                        $coursestarttime = make_timestamp(...$coursestarttimearr);
+                        $courseendtime = make_timestamp(...$courseendtimearr);
                     }
-
-                    $coursestarttime = make_timestamp(...$coursestarttimearr);
-                    $courseendtime = make_timestamp(...$courseendtimearr);
                 } else {
                     $coursestarttime = $formvalues[MOD_BOOKING_FORM_COURSESTARTTIME . $counter];
                     $courseendtime = $formvalues[MOD_BOOKING_FORM_COURSEENDTIME . $counter];
