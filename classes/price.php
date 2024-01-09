@@ -127,9 +127,6 @@ class price {
 
             $mform->addGroup($formgroup, MOD_BOOKING_FORM_PRICEGROUP . $pricecategory->identifier, $pricecategory->name);
             $mform->disabledIf(MOD_BOOKING_FORM_PRICEGROUP . $pricecategory->identifier, 'useprice', 'neq', 1);
-            // Determine the correct array identifier.
-            $pricearrayidentifier = MOD_BOOKING_FORM_PRICEGROUP . $pricecategory->identifier .
-                '[' . MOD_BOOKING_FORM_PRICE . $pricecategory->identifier . ']';
         }
 
         // Only when there is an actual price formula, we do apply it.
@@ -177,17 +174,19 @@ class price {
         global $DB;
         foreach ($this->pricecategories as $pricecategory) {
 
-            $pricearrayidentifier = MOD_BOOKING_FORM_PRICEGROUP . $pricecategory->identifier .
-                '[' . MOD_BOOKING_FORM_PRICE . $pricecategory->identifier . ']';
-
             $pricegroup = MOD_BOOKING_FORM_PRICEGROUP . $pricecategory->identifier;
             $priceidentifier = MOD_BOOKING_FORM_PRICE . $pricecategory->identifier;
+
+            // We don't want to override set values, only when there are no values present.
+            if (!empty($data->{$pricegroup}[$priceidentifier])) {
+                continue;
+            }
 
             // Get price for current option.
             $existingprice = $DB->get_field('booking_prices', 'price',
                 ['area' => $this->area, 'itemid' => $this->itemid, 'pricecategoryidentifier' => $pricecategory->identifier]);
 
-            $data->{$pricegroup}[$priceidentifier] = $existingprice ?? $pricecategory->default ?? 0;
+            $data->{$pricegroup}[$priceidentifier] = $existingprice ? $existingprice : $pricecategory->defaultvalue ?? 0;
 
             // If we have at least one price during import, we set useprice to 1.
             $data->useprice = 1;
