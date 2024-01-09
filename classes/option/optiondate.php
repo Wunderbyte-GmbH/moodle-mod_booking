@@ -295,7 +295,8 @@ class optiondate {
         if (class_exists('local_entities\entitiesrelation_handler')) {
             $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
             $erhandler->delete_relation($optiondateid);
-            optiondate_cfields::delete_cfields_for_optiondate($optiondateid);
         }
+
+        optiondate_cfields::delete_cfields_for_optiondate($optiondateid);
     }
 }
