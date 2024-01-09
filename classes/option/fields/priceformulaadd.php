@@ -56,7 +56,7 @@ class priceformulaadd extends field_base {
      * This identifies the header under which this particular field should be displayed.
      * @var string
      */
-    public static $header = MOD_BOOKING_HEADER_GENERAL;
+    public static $header = MOD_BOOKING_HEADER_PRICE;
 
     /**
      * This function interprets the value from the form and, if useful...
@@ -86,6 +86,6 @@ class priceformulaadd extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
-        // Todo: Actually add to form.
+        // This is not done here but in \mod_booking\price class.
     }
 }

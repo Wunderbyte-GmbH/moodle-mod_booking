@@ -125,7 +125,7 @@ class subbooking_additionalitem implements booking_subbooking {
 
         // Add price.
         $price = new price('subbooking', $sboid);
-        $price->add_price_to_mform($mform);
+        $price->add_price_to_mform($mform, true); // Second param true means no price formula here!
 
     }
 

@@ -110,7 +110,7 @@ class subbooking_timeslot implements booking_subbooking {
 
         // Add price.
         $price = new price('subbooking', $sboid);
-        $price->add_price_to_mform($mform);
+        $price->add_price_to_mform($mform, true); // Second param true means no price formula here!
 
         if (class_exists('local_entities\entitiesrelation_handler')) {
             $erhandler = new entitiesrelation_handler('mod_booking', 'subbooking');
