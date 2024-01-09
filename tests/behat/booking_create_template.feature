@@ -47,7 +47,7 @@ Feature: In a booking create a template
     And I press "Save and go back"
     And I wait until the page is ready
     ## Required to avoid erros like "invalid session id" on the step next to "New option"
-    And I wait "3" seconds
+    And I wait "1" seconds
     ## Use template
     And I follow "New booking option"
     And I wait until the page is ready
