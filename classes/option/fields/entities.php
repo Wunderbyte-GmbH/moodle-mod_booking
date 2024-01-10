@@ -76,6 +76,9 @@ class entities extends field_base {
         $returnvalue = null): string {
 
         if (class_exists('local_entities\entitiesrelation_handler')) {
+
+            // We only run this to make sure we have the constants.
+            $erhandler = new entitiesrelation_handler('mod_booking', 'option');
             // Every time we save an entity, we want to make sure that the name of the entity is stored in location.
             if (!empty($formdata->{LOCAL_ENTITIES_FORM_ENTITYID . 0})) {
                 // We might have more than one address, this will lead to more than one record which comes back.
