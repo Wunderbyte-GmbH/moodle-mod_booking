@@ -1,3 +1,19 @@
+## Version 8.1.0 (2024011000)
+**New features:**
+* New feature: In Booking 8.1.0, we completely re-wrote the booking option form in a more modern and object oriented way.
+This will allow us, to individually adapt the booking option form for differenct clients and use cases dynamically and easily.
+* New feature: In Booking 8.1.0, we also changed the way templates work in the option form.
+They are no longer filled out using JavaScript (which was quite buggy and incomplete) but we use the new classes for templates and CSV import too.
+* New feature: In Booking 8.1.0, optiondates (sessions of an option) are created using a new dynamic form.
+So you can now add entities, custom fields, comments and the number of days for session notifications directly to each date.
+Also, you will now always have optiondates, even if there is only one session (so there is no need to show coursestarttime and
+courseendtime of the booking option anymore).
+
+**Improvements:**
+* Improvement: Logs of little UI, Usability and layout changes to make the booking option form cleaner and more beautiful.
+* Improvement: Recommendedin show only options where coursesendtime is > $now. (arg 'all' to turn off).
+* Improvement: Lots of code quality improvements and linting (e.g. PHPdoc).
+
 ## Version 8.0.56 (2023122000)
 **New features:**
 * New feature: Shortcode [recommendedin] - Better default settings and new params for configuration.
