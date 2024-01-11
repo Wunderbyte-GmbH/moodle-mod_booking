@@ -29,6 +29,7 @@ use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\customfield\optiondate_cfields;
 use mod_booking\dates;
+use mod_booking\option\dates_handler;
 use mod_booking\option\fields;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
@@ -106,6 +107,8 @@ class optiondates extends field_base {
         }
 
         $newoption->dayofweektime = $formdata->dayofweektime ?? '';
+        $dayinfo = dates_handler::prepare_day_info($formdata->dayofweektime);
+        $newoption->dayofweek = $dayinfo['day'] ?? '';
         $newoption->semesterid = $formdata->semesterid ?? 0;
 
         // We can return a warning message here.
