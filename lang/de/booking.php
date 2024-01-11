@@ -2338,6 +2338,7 @@ $string['booking:bookforothers'] = "Für andere buchen";
 $string['booking:canoverbook'] = "Darf überbuchen";
 $string['booking:canreviewsubstitutions'] = "Kann Vertretungen als kontrolliert markieren";
 $string['booking:conditionforms'] = "Formulare von Buchungsbedingungen abschicken (z.B. Buchungsbedingungen oder Zusatzbuchungen)";
+$string['booking:view'] = 'Darf Buchungsinstanzen sehen';
 $string['booking:viewreports'] = 'Zugang um gewisse Buchungsberichte zu sehen';
 $string['booking:manageoptiondates'] = 'Bearbeite Termine';
 $string['booking:limitededitownoption'] = 'Weniger als addeditownoption, nur sehr beschränktes Editieren eigener Optionen erlaubt.';

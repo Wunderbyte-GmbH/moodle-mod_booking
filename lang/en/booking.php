@@ -2455,6 +2455,7 @@ $string['booking:bookforothers'] = "Book for others";
 $string['booking:canoverbook'] = "Has permission to overbook";
 $string['booking:canreviewsubstitutions'] = "Allowed to review teacher substitutions (control checkbox)";
 $string['booking:conditionforms'] = "Submit condition forms like booking policy or subbookings";
+$string['booking:view'] = 'View booking instances';
 $string['booking:viewreports'] = 'Allow access for viewing reports';
 $string['booking:manageoptiondates'] = 'Manage option dates';
 $string['booking:limitededitownoption'] = 'Less than addeditownoption, only allows very limited actions';
