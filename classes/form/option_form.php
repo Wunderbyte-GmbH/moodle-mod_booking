@@ -125,6 +125,14 @@ class option_form extends dynamic_form {
 
         $buttonarray[] = &$mform->createElement('cancel', 'cancelbutton', get_string('cancel'));
         $mform->addGroup($buttonarray, 'submitbuttongroup', '', '', false);
+
+        // Buttons.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $buttonarray[] = &$mform->createElement("submit", 'submitandadd',
+                get_string('submitandadd', 'mod_booking'));
+        $buttonarray[] = &$mform->createElement("submit", 'submitandstay',
+            get_string('submitandstay', 'mod_booking')); */
+
         $mform->closeHeaderBefore('submitbuttongroup');
 
         $data = new eventslist(
