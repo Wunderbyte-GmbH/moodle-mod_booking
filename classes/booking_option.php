@@ -3266,7 +3266,7 @@ class booking_option {
 
         // Get the old option. We need to compare it with the new one to get the changes.
         $optionid = is_array($data) ? $data['id'] : $data->id;
-        $originaloption = singleton_service::get_instance_of_booking_option_settings($data->id);
+        $originaloption = singleton_service::get_instance_of_booking_option_settings($optionid);
 
         // If $formdata is an array, we need to run set_data.
         if (is_array($data) || isset($data->importing)) {
