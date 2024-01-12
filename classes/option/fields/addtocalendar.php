@@ -74,7 +74,7 @@ class addtocalendar extends field_base {
         int $updateparam,
         $returnvalue = null): string {
 
-        return '';
+        return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
     }
 
     /**
@@ -92,6 +92,7 @@ class addtocalendar extends field_base {
             1 => get_string('caladdascourseevent', 'mod_booking'),
         ];
         $mform->addElement('select', 'addtocalendar', get_string('addtocalendar', 'mod_booking'), $caleventtypes);
+        $mform->setDefault('addtocalendar', 0);
 
         if (get_config('booking', 'addtocalendar_locked')) {
             // If the setting is locked in settings.php it will be frozen.
