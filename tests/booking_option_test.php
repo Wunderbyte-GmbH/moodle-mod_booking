@@ -245,6 +245,7 @@ class booking_option_test extends advanced_testcase {
         $this->assertEquals("Spitalgasse 14 1090 Wien", $option1->institution);
         $this->assertEquals("MO 17:15 - 19:30", $option1->dayofweektime);
         $this->assertEquals(35, $option1->maxanswers);
+        $this->assertEquals("monday", $option1->dayofweek);
         // phpcs:ignore
         //$this->assertEquals("TNMU", $option1->location);
 
@@ -287,6 +288,7 @@ class booking_option_test extends advanced_testcase {
         $this->assertEquals("Spitalgasse 14 1090 Wien", $option3->institution);
         $this->assertEquals("We 18:10 - 19:40", $option3->dayofweektime);
         $this->assertEquals(60, $option3->maxanswers);
+        $this->assertEquals("wednesday", $option3->dayofweek);
         // phpcs:ignore
         //$this->assertEquals("TNMU", $option3->location);
 
