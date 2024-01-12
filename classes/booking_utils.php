@@ -27,7 +27,6 @@ namespace mod_booking;
 
 use cache_helper;
 use html_writer;
-use mod_booking\utils\wb_payment;
 use mod_booking\event\bookingoption_updated;
 use moodle_url;
 use stdClass;
@@ -575,34 +574,6 @@ class booking_utils {
     }
 
     /**
-     * Col status
-     *
-     * @param mixed $values
-     *
-     * @return string
-     *
-     */
-    private function col_status($values) {
-        switch ($values->status) {
-            case 1:
-                return get_string('status_complete', 'booking');
-            case 2:
-                return get_string('status_incomplete', 'booking');
-            case 3:
-                return get_string('status_noshow', 'booking');
-            case 4:
-                return get_string('status_failed', 'booking');
-            case 5:
-                return get_string('status_unknown', 'booking');
-            case 6:
-                return get_string('status_attending', 'booking');
-            case 0:
-            default:
-                return '';
-        }
-    }
-
-    /**
      * Helper function to hide all option user events.
      *
      * We need this if we switch from option to multisession.
@@ -693,13 +664,14 @@ class booking_utils {
      *
      * @param stdClass $fromform
      * @param booking_option $bookingoption
-     * @param stdClass $context
+     * @param mixed $context
      *
      * @return stdClass
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public static function book_cohort_or_group_members(stdClass $fromform, booking_option $bookingoption, $context): stdClass {
+    public static function book_cohort_or_group_members(stdClass $fromform, booking_option $bookingoption,
+        mixed $context): stdClass {
 
         global $DB;
 
