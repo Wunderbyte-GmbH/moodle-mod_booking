@@ -114,6 +114,10 @@ class dates {
                 $semesterid = $formdata['semesterid'] ?? $bookingoptionsettings->semesterid;
                 $dayofweektime = $formdata['dayofweektime'] ?? $bookingoptionsettings->dayofweektime;
             }
+            // Get semester from bookingsetting if still empty.
+            if (empty($semesterid)) {
+                $semesterid = $bookingsettings->semesterid;
+            }
 
             $semesteridoptions = [
                 'tags' => false,
