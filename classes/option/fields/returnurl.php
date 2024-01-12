@@ -85,7 +85,7 @@ class returnurl extends field_base {
             $newoption->{$key} = '';
         }
 
-        // We can return an warning message here.
+        // We can return a warning message here.
         return '';
     }
 

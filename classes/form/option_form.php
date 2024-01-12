@@ -117,17 +117,15 @@ class option_form extends dynamic_form {
             }
         }
 
-        // Buttons.
         $buttonarray = [];
         $buttonarray[] = &$mform->createElement('submit', 'submitbutton',
-                get_string('submitandgoback', 'mod_booking'));
-        $buttonarray[] = &$mform->createElement("submit", 'submitandadd',
-                get_string('submitandadd', 'mod_booking'));
-        $buttonarray[] = &$mform->createElement("submit", 'submitandstay',
-            get_string('submitandstay', 'mod_booking'));
-        $buttonarray[] = &$mform->createElement('cancel');
-        $mform->addGroup($buttonarray, 'buttonar', '', '', false);
-        $mform->closeHeaderBefore('buttonar');
+            get_string('submitandgoback', 'mod_booking'),
+            ['data-action' => 'submitandgoback']);
+        $mform->setType('submitbutton', PARAM_RAW);
+
+        $buttonarray[] = &$mform->createElement('cancel', 'cancelbutton', get_string('cancel'));
+        $mform->addGroup($buttonarray, 'submitbuttongroup', '', '', false);
+        $mform->closeHeaderBefore('submitbuttongroup');
 
         $data = new eventslist(
             $optionid,
