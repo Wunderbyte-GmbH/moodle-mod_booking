@@ -142,33 +142,6 @@ class mod_booking_generator extends testing_module_generator {
         $record->cmid = $cmb1->id;
         $record->identifier = booking_option::create_truly_unique_option_identifier();
 
-        // Conversion of strings like ["optiondatestart[0]"]=> int(1690792686) into arrays (by ChatGPT).
-        $optiondatestart = [];
-        $optiondateend = [];
-        foreach ($record as $key => $value) {
-            if (strpos($key, 'optiondatestart') === 0) {
-                // Get the index from the key.
-                preg_match('/optiondatestart\[(\d+)\]/', $key, $matches);
-                $index = $matches[1];
-                $optiondatestart[$index] = $value;
-            } else if (strpos($key, 'optiondateend') === 0) {
-                // Get the index from the key.
-                preg_match('/optiondateend\[(\d+)\]/', $key, $matches);
-                $index = $matches[1];
-                $optiondateend[$index] = $value;
-            }
-        }
-        // Sort the arrays by index.
-        ksort($optiondatestart);
-        ksort($optiondateend);
-
-        // Add optiondates to booking option.
-        if (is_array($optiondatestart) && is_array($optiondateend)) {
-            foreach ($optiondatestart as $i => $startdate) {
-                $record->newoptiondates[] = "$startdate - $optiondateend[$i]";
-            }
-        }
-
         // Process option teachers.
         if (!empty($record->teachersforoption)) {
             $teacherarr = explode(',', $record->teachersforoption);
