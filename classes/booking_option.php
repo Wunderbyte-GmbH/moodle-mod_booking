@@ -3251,7 +3251,7 @@ class booking_option {
     public static function update($data, context $context = null,
         int $updateparam = MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT) {
 
-        global $DB;
+        global $DB, $PAGE;
 
         // When we come here, we have the following possibilities:
         // A) Normal saving via Form of an existing option.
@@ -3263,6 +3263,10 @@ class booking_option {
 
         // While A) & B) will already have called set_data...
         // ... that's not the case for C to F.
+
+        // Get the old option. We need to compare it with the new one to get the changes.
+        $optionid = is_array($data) ? $data['id'] : $data->id;
+        $originaloption = singleton_service::get_instance_of_booking_option_settings($data->id);
 
         // If $formdata is an array, we need to run set_data.
         if (is_array($data) || isset($data->importing)) {
@@ -3322,6 +3326,28 @@ class booking_option {
 
         // Now check, if there are rules to execute.
         rules_info::execute_rules_for_option($newoption->id);
+
+        // If there have been changes to significant fields, we react on changes.
+        // Change notification will be sent (if active).
+        // Action logs will be stored ("Shwo recent updates..." link on bottom of option form).
+        $bu = new booking_utils();
+        if ($changes = $bu->booking_option_get_changes($originaloption, $newoption)) {
+
+            // Fix a bug where $PAGE->cm->id is not set for webservice importer.
+            if (!empty($PAGE->cm->id)) {
+                $cmid = $PAGE->cm->id;
+            } else {
+                $cm = context_module::instance($context->instanceid);
+                if (!empty($cm->id)) {
+                    $cmid = $cm->id;
+                }
+            }
+            // If we have no cmid, it's most possibly a template.
+            if (!empty($cmid) && $newoption->bookingid != 0) {
+                // We only react on changes, if a cmid exists.
+                $bu->react_on_changes($cmid, $context, $newoption->id, $changes);
+            }
+        }
 
         return $newoption->id;
     }
