@@ -16,7 +16,7 @@ jobs:
             "subject": "GH#${{ github.event.issue.number }} - ${{ github.event.issue.title }}",
             "project": "${{ github.event.label.name }}",
             "status": "Open",
-            "description": "<p><a href='${{ github.event.issue.html_url }}'>GH#${{ github.event.issue.number }}</a></p><br>${{ github.event.issue.body }}"
+            "description": "<p><a href='${{ github.event.issue.html_url }}'>GH#${{ github.event.issue.number }}</a></p>"
             }' > payload.json
 
       - name: Make API Request to ERPNext
