@@ -117,7 +117,12 @@ class option_form extends dynamic_form {
             }
         }
 
-        $buttonarray = [];
+        // NOTE: The second and third button (submitandadd, submitandstay) unfortunately do not work with new option form.
+        $this->add_action_buttons(true, get_string('submitandgoback', 'mod_booking'));
+
+        // Let's keep the code, in case we find a way to get it working again.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $buttonarray = [];
         $buttonarray[] = &$mform->createElement('submit', 'submitbutton',
             get_string('submitandgoback', 'mod_booking'),
             ['data-action' => 'submitandgoback']);
@@ -128,12 +133,12 @@ class option_form extends dynamic_form {
 
         // Buttons.
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $buttonarray[] = &$mform->createElement("submit", 'submitandadd',
+        $buttonarray[] = &$mform->createElement("submit", 'submitandadd',
                 get_string('submitandadd', 'mod_booking'));
         $buttonarray[] = &$mform->createElement("submit", 'submitandstay',
-            get_string('submitandstay', 'mod_booking')); */
+            get_string('submitandstay', 'mod_booking'));
 
-        $mform->closeHeaderBefore('submitbuttongroup');
+        $mform->closeHeaderBefore('submitbuttongroup'); */
 
         $data = new eventslist(
             $optionid,

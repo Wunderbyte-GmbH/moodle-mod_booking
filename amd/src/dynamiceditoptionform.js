@@ -31,8 +31,11 @@
 import DynamicForm from 'core_form/dynamicform';
 
 
-export const init = () => {
+export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => {
     // Initialize the form - pass the container element and the form class name.
+
+    // eslint-disable-next-line no-console
+    console.log('params: ', cmid, id, optionid, bookingid, copyoptionid, returnurl);
 
     const element = document.querySelector('#editoptionsformcontainer');
 
@@ -57,6 +60,17 @@ export const init = () => {
         // This will also remove previous submission errors. You will need to pass the same arguments to the form
         // that you passed when you rendered the form on the page.
         dynamicForm.load(e.detail);
+    });
+
+    dynamicForm.addEventListener(dynamicForm.events.FORM_CANCELLED, (e) => {
+        e.preventDefault();
+
+        if (returnurl && returnurl.length > 0) {
+            window.location.href = returnurl;
+        } else {
+            // Just in case we have no returnurl.
+            dynamicForm.load([cmid, id, optionid, bookingid, copyoptionid, returnurl]);
+        }
     });
 
     dynamicForm.addEventListener('change', e => {
