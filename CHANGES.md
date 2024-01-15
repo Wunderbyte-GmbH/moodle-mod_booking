@@ -1,3 +1,22 @@
+## Version 8.1.1 (2024011500)
+**Improvements:**
+* Improvement: React on changes in new booking_option update function.
+* Improvement: phpunittest - bring back "dayofweek" in csv and assertion.
+
+**Bugfixes:**
+* Bugfix: Collapsible not opened properly.
+* Bugfix: Make sure constants are present when needing them.
+* Bugfix: Fix collapsible for bootstrap 4 & 5.
+* Bugfix: Store correct info in dayofweek column.
+* Bugfix: Add missing string for booking:view capability.
+* Bugfix: Submit buttons not working in new option form - we comment them out for now.
+* Bugfix: Fix a bug in booking_option.php where optionid was retrieved incorrectly.
+* Bugfix: Semester not used from booking settings for new option.
+* Bugfix: Fix for undefined property: stdClass::$addtocalendar booking_utils.php.
+* Bugfix: No "id" in csv file. So if no ID provided we threat record as new and set id to "0".
+* Bugfix: Fix warning because of null in explode.
+* Bugfix: Fix broken cancel button in option form.
+
 ## Version 8.1.0 (2024011000)
 **New features:**
 * New feature: In Booking 8.1.0, we completely re-wrote the booking option form in a more modern and object oriented way.
