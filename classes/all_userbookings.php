@@ -290,7 +290,7 @@ class all_userbookings extends \table_sql {
      */
     public function other_cols($colname, $value) {
         if (substr($colname, 0, 4) === "cust") {
-            $tmp = explode('|', $value->{$colname});
+            $tmp = explode('|', $value->{$colname} ?? '');
 
             if (!$tmp) {
                 return '';
