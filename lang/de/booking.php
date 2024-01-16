@@ -1042,10 +1042,10 @@ $string['editbookingoption'] = 'Buchungsoption bearbeiten';
 $string['createnewbookingoption'] = 'Neue Buchungsoption';
 $string['createnewbookingoptionfromtemplate'] = 'Neue Buchungsoption von Vorlage erstellen';
 $string['connectedmoodlecourse'] = 'Verbundener Moodle-Kurs';
-$string['connectedmoodlecourse_help'] = 'Wählen Sie "Neuer Kurs", wenn Sie wollen, dass ein neuer Moodle-Kurs für diese Buchungsoption angelegt werden soll.';
+$string['connectedmoodlecourse_help'] = 'Wählen Sie "Neuen Kurs erstellen...", wenn Sie wollen, dass ein neuer Moodle-Kurs für diese Buchungsoption angelegt werden soll.';
 $string['courseendtime'] = 'Kursende';
 $string['coursestarttime'] = 'Kursbeginn';
-$string['newcourse'] = 'Neuer Kurs';
+$string['newcourse'] = 'Neuen Kurs erstellen...';
 $string['donotselectcourse'] = 'Kein Kurs ausgewählt';
 $string['donotselectinstitution'] = 'Keine Institution ausgewählt';
 $string['donotselectlocation'] = 'Kein Ort ausgewählt';
@@ -1637,7 +1637,7 @@ erstellt werden, können Sie diese Einstellung standardmäßig ausschalten und s
 $string['automaticcoursecreation'] = 'Automatische Erstellung von Moodle-Kursen ' . $string['badge:pro'];
 $string['newcoursecategorycfield'] = 'Benutzerdefiniertes Buchungsoptionsfeld für Kurskategorie';
 $string['newcoursecategorycfielddesc'] = 'Wählen Sie ein benutzerdefiniertes Buchungsoptionsfeld, das verwendet werden soll,
- um die Kurskategorie von automatisch erstellten Kursen festzulegen. Kurse können mit dem Eintrag "Neuer Kurs" im Menü "Einen Kurs auswählen"
+ um die Kurskategorie von automatisch erstellten Kursen festzulegen. Kurse können mit dem Eintrag "Neuen Kurs erstellen..." im Menü "Einen Kurs auswählen"
  des Formulars zum Anlegen von Buchungsoptionen automatisch erstellt werden.';
 
 $string['allowoverbooking'] = 'Überbuchen erlauben';

@@ -86,7 +86,7 @@ class courseid extends field_base {
                 // ... settingsvalue from customfields allwo only Textfields or Selects.
                 $cfforcategory = 'customfield_' . get_config('booking', 'newcoursecategorycfield');
                 $category = new stdClass();
-                $category->name = $_POST[$cfforcategory];
+                $category->name = $formdata->{$cfforcategory};
 
                 if (!empty($category->name)) {
                     $categories = core_course_external::get_categories([
@@ -127,9 +127,10 @@ class courseid extends field_base {
             $courses = [$newcourse];
             $createdcourses = core_course_external::create_courses($courses);
             $newoption->courseid = $createdcourses[0]['id'];
-        } else {
-            return parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
+            $formdata->courseid = $newoption->courseid;
         }
+
+        return parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
     }
 
     /**

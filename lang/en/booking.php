@@ -1061,10 +1061,10 @@ $string['editbookingoption'] = 'Edit booking option';
 $string['createnewbookingoption'] = 'New booking option';
 $string['createnewbookingoptionfromtemplate'] = 'Add a new booking option from template';
 $string['connectedmoodlecourse'] = 'Connected Moodle course';
-$string['connectedmoodlecourse_help'] = 'Choose "New course" if you want a new Moodle course to be created for this booking option.';
+$string['connectedmoodlecourse_help'] = 'Choose "Create new course..." if you want a new Moodle course to be created for this booking option.';
 $string['courseendtime'] = 'End time of the course';
 $string['coursestarttime'] = 'Start time of the course';
-$string['newcourse'] = 'New course';
+$string['newcourse'] = 'Create new course...';
 $string['donotselectcourse'] = 'No course selected';
 $string['donotselectinstitution'] = 'No institution selected';
 $string['donotselectlocation'] = 'No location selected';
@@ -1687,7 +1687,7 @@ you can turn this setting off and lock it by default. Don\'t worry: user calenda
 $string['automaticcoursecreation'] = 'Automatic creation of Moodle courses ' . $string['badge:pro'];
 $string['newcoursecategorycfield'] = 'Booking option custom field to be used as course category';
 $string['newcoursecategorycfielddesc'] = 'Choose a booking option custom field which will be used as course category for automatically created
- courses using the dropdown entry "New course" in the form for creating new booking options.';
+ courses using the dropdown entry "Create new course..." in the form for creating new booking options.';
 
 $string['allowoverbooking'] = 'Allow overbooking';
 $string['allowoverbookingheader'] = 'Overbooking of booking options ' . $string['badge:pro'];
