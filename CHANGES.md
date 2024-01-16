@@ -1,3 +1,9 @@
+## Version 8.1.2 (2024011600)
+**Bugfixes:**
+* Bugfix: No userid needed in option_allows_overbooking_for_user (we always use logged-in user here).
+* Bugfix: Fix exception for old options with only one date stored in the booking option.
+* Bugfix: Fix automatic creation of new Moodle courses with new option form.
+
 ## Version 8.1.1 (2024011500)
 **Improvements:**
 * Improvement: React on changes in new booking_option update function.
