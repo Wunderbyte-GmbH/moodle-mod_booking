@@ -337,7 +337,7 @@ class dates {
                     $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
 
                     // If we fetch sessions from DB, we also have to load entities from DB.
-                    if (empty($defaultvalues->addoptiondateseries)) {
+                    if (empty($defaultvalues->addoptiondateseries) && !empty($session->optiondateid)) {
                         $entityid = $erhandler->get_entityid_by_instanceid($session->optiondateid) ?? 0;
                     } else {
                         // Else we recreate optiondate series, so use the main entity of the option.
@@ -352,7 +352,9 @@ class dates {
                     $defaultvalues->{$key} = 'optiondate';
                 }
 
-                optiondate_cfields::set_data($defaultvalues, $session->optiondateid, $idx);
+                if (!empty($session->optiondateid)) {
+                    optiondate_cfields::set_data($defaultvalues, $session->optiondateid, $idx);
+                }
             }
 
             $defaultvalues->datescounter = $idx;
