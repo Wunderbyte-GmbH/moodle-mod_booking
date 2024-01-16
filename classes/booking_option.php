@@ -962,7 +962,7 @@ class booking_option {
         // False means, that it can't be booked.
         // 0 means, that we can book right away
         // 1 means, that there is only a place on the waiting list.
-        $waitinglist = $this->check_if_limit($user->id, self::option_allows_overbooking_for_user($this->optionid, $user->id));
+        $waitinglist = $this->check_if_limit($user->id, self::option_allows_overbooking_for_user($this->optionid));
         // With the second param, we check if overbooking is allowed.
 
         if ($waitinglist === false) {
@@ -2812,10 +2812,9 @@ class booking_option {
      * Helper function to check if an option allows overbooking.
      *
      * @param int $optionid
-     * @param int $userid
      * @return bool true if overbooking is allowed
      */
-    public static function option_allows_overbooking_for_user(int $optionid, int $userid):bool {
+    public static function option_allows_overbooking_for_user(int $optionid): bool {
 
         /* If the global setting to allow overbooking is on, we still need to check
         if the current user has the capability to overbook. */
