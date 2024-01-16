@@ -77,7 +77,6 @@ class courseid extends field_base {
 
         global $DB;
 
-        // TODO: Create function for new course.
         /* Create a new course and put it either in a new course category
         or in an already existing one. */
         if (!empty($formdata->courseid) && $formdata->courseid == -1) {
