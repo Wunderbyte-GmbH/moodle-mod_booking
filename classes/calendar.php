@@ -427,8 +427,8 @@ class calendar {
         global $DB;
 
         $optioniduserid =
-            "ue.optionid = :optionid
-            AND ue.userid = :userid";
+            "optionid = :optionid
+            AND userid = :userid";
 
         $sqlusereventids =
             "SELECT eventid
@@ -441,10 +441,10 @@ class calendar {
         ];
         try {
              // At first delete events themselves.
-            $DB->delete_records_select("event", "id IN ( $sqlusereventids )", $params);
+            $DB->delete_records_select('event', "id IN ( $sqlusereventids )", $params);
 
             // Now we can delete the booking user event entries.
-            $DB->delete_records_select("booking_userevents", $optioniduserid, $params);
+            $DB->delete_records_select('booking_userevents', $optioniduserid, $params);
         } catch (Exception $e) {
             debugging('there seems to be a problem with deleting the user events.', DEBUG_NORMAL);
         }
