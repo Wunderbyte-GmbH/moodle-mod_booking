@@ -31,7 +31,6 @@ require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
 use core\output\notification;
 use mod_booking\booking_utils;
-use mod_booking\booking_option;
 use mod_booking\form\subscribe_cohort_or_group_form;
 use mod_booking\output\booked_users;
 use mod_booking\singleton_service;
@@ -43,12 +42,10 @@ $optionid = required_param('optionid', PARAM_INT);
 $subscribe = optional_param('subscribe', false, PARAM_BOOL);
 $unsubscribe = optional_param('unsubscribe', false, PARAM_BOOL);
 $agree = optional_param('agree', false, PARAM_BOOL);
+$bookanyone = optional_param('bookanyone', false, PARAM_BOOL);
 
 // If we have already submitted the form, we don't want to fall into the agree policy.
 $formsubmitted = optional_param('submitbutton', '', PARAM_TEXT);
-
-// Get the bookanyone setting from user preferences.
-$bookanyone = get_user_preferences('bookanyone', '0');
 
 list($course, $cm) = get_course_and_cm_from_cmid($id);
 
@@ -252,21 +249,26 @@ echo $OUTPUT->heading(format_string($optionsettings->get_title_with_prefix()), 3
 
 // Switch to turn booking of anyone ON or OFF.
 if (is_siteadmin() && $bookanyone) {
-    // Turn it off.
     set_user_preference('bookanyone', '1');
+    // Show button to turn it off again.
     $url = new moodle_url('/mod/booking/subscribeusers.php', ['id' => $id,
                                                                 'optionid' => $optionid,
-                                                                'agree' => $agree,
+                                                                'agree' => $agree
                                                             ]);
     echo '<a class="btn btn-sm btn-light" href="' . $url . '">' . get_string('bookanyoneswitchoff', 'mod_booking') . '</a>';
     echo '<div class="alert alert-warning p-1 mt-1 text-center">' . get_string('bookanyonewarning', 'mod_booking')  . '</div>';
 } else {
-    // Turn it on.
     set_user_preference('bookanyone', '0');
-    $url = new moodle_url('/mod/booking/subscribeusers.php', ['id' => $id,
-                                                                'optionid' => $optionid,
-                                                                'agree' => $agree,
-                                                            ]);
+    // Show button to turn it off again.
+    $url = new moodle_url(
+        '/mod/booking/subscribeusers.php',
+        [
+            'id' => $id,
+            'optionid' => $optionid,
+            'agree' => $agree,
+            'bookanyone' => true,
+        ]
+    );
     echo '<a class="btn btn-sm btn-light" href="' . $url . '">' . get_string('bookanyoneswitchon', 'mod_booking') . '</a>';
 }
 
