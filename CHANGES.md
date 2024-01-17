@@ -1,3 +1,7 @@
+## Version 8.1.3 (2024011700)
+**Bugfixes:**
+* Bugfix: Fix button to allow booking of users who are not enrolled in course.
+
 ## Version 8.1.2 (2024011600)
 **Bugfixes:**
 * Bugfix: No userid needed in option_allows_overbooking_for_user (we always use logged-in user here).
