@@ -253,7 +253,7 @@ if (is_siteadmin() && $bookanyone) {
     // Show button to turn it off again.
     $url = new moodle_url('/mod/booking/subscribeusers.php', ['id' => $id,
                                                                 'optionid' => $optionid,
-                                                                'agree' => $agree
+                                                                'agree' => $agree,
                                                             ]);
     echo '<a class="btn btn-sm btn-light" href="' . $url . '">' . get_string('bookanyoneswitchoff', 'mod_booking') . '</a>';
     echo '<div class="alert alert-warning p-1 mt-1 text-center">' . get_string('bookanyonewarning', 'mod_booking')  . '</div>';
