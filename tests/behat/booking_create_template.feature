@@ -21,6 +21,10 @@ Feature: In a booking create a template
     And the following "activities" exist:
       | activity | course | name       | intro                  | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | All bookings                     | Yes                      |
+    ## Unfortunately, in Moodle 4.3 TinyMCE has misbehavior which cause number of site-wide issues. So - we disable it.
+    And the following config values are set as admin:
+      | config      | value         |
+      | texteditors | atto,textarea |
 
   @javascript
   Scenario: Booking option template: create one and use it to create new option
