@@ -95,6 +95,7 @@ $definitions = [
         'staticaccelerationsize' => 1,
         'invalidationevents' => ['setbackconditionforms'],
     ],
+    // The cache is used to confirm bookings.
     'confirmbooking' => [ // This cache uses optionids as keys.
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,

@@ -2736,7 +2736,7 @@ class booking_option {
      */
     public static function purge_cache_for_option(int $optionid) {
 
-        // cache_helper::purge_by_event('setbackoptionstable');
+        cache_helper::purge_by_event('setbackoptionstable');
         cache_helper::invalidate_by_event('setbackoptionsettings', [$optionid]);
 
         self::purge_cache_for_answers($optionid);
