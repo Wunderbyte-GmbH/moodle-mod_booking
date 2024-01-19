@@ -1,3 +1,11 @@
+## Version 8.1.4 (2024011900)
+**Improvements:**
+* Improvement: Improve quality of sign-in sheets.
+* Improvement: Speed-up performance by deleting the right caches (booking answers cache instead of whole booking option cache).
+
+**Bugfixes:**
+* Bugfix: Fix "showdates" misbehavior as well as template creation issue - both caused by TinyMCE - so disabled it.
+
 ## Version 8.1.3 (2024011700)
 **Bugfixes:**
 * Bugfix: Fix button to allow booking of users who are not enrolled in course.
