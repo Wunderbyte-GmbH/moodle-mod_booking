@@ -126,6 +126,7 @@ class booking_answers {
                 ba.timecreated, ba.optionid
             FROM {booking_answers} ba
             WHERE ba.optionid = :optionid
+            AND ba.waitinglist < 5
             ORDER BY ba.timecreated ASC";
 
             $answers = $DB->get_records_sql($sql, $params);
@@ -447,4 +448,16 @@ class booking_answers {
         }
     }
 
+    /**
+     * Check if the booking option is already fully booked.
+     * @return bool
+     */
+    public function is_fully_booked() {
+
+        if (count($this->usersonlist) >= $this->bookingoptionsettings->maxanswers) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
