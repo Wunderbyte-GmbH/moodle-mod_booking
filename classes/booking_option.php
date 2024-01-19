@@ -651,7 +651,7 @@ class booking_option {
         }
 
         // Purge caches BEFORE sync_waiting_list.
-        self::purge_cache_for_option($this->optionid);
+        self::purge_cache_for_answers($this->optionid);
 
         // If the whole option was cancelled, there is no need to sync anymore.
         if ($syncwaitinglist && (!$bookingoptioncancel && (
@@ -1036,7 +1036,7 @@ class booking_option {
                                        $timecreated);
 
         // Important: Purge caches after submitting a new user.
-        self::purge_cache_for_option($this->optionid);
+        self::purge_cache_for_answers($this->optionid);
 
         return $this->after_successful_booking_routine($user, $waitinglist);
     }
@@ -1089,7 +1089,7 @@ class booking_option {
         }
 
         // After writing an answer, cache has to be invalidated.
-        self::purge_cache_for_option($optionid);
+        self::purge_cache_for_answers($optionid);
     }
 
 
@@ -2736,12 +2736,17 @@ class booking_option {
      */
     public static function purge_cache_for_option(int $optionid) {
 
-        cache_helper::purge_by_event('setbackoptionstable');
+        // cache_helper::purge_by_event('setbackoptionstable');
         cache_helper::invalidate_by_event('setbackoptionsettings', [$optionid]);
 
-        // Set back the answer cache.
-        $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
-        $cache->delete($optionid);
+        self::purge_cache_for_answers($optionid);
+    }
+
+    /**
+     * Helper function to purge cache for a booking option.
+     * @param int $optionid
+     */
+    public static function purge_cache_for_answers(int $optionid) {
 
         cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
         // When we set back the booking_answers...
