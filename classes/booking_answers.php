@@ -448,4 +448,16 @@ class booking_answers {
         }
     }
 
+    /**
+     * Check if the booking option is already fully booked.
+     * @return bool
+     */
+    public function is_fully_booked() {
+
+        if (count($this->usersonlist) >= $this->bookingoptionsettings->maxanswers) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

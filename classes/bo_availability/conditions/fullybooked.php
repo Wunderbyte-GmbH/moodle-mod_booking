@@ -158,7 +158,15 @@ class fullybooked implements bo_condition {
 
         $description = self::get_description_string($isavailable, $full);
 
-        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_MYALERT];
+        // If the user is in principle allowed to overbook AND the overbook setting is set in the instance, overbooking is possible.
+        if (!empty(get_config('booking', 'allowoverbooking'))
+            && has_capability('mod/booking:canoverbook', context_system::instance())) {
+            $buttontype = MOD_BOOKING_BO_BUTTON_MYALERT;
+        } else {
+            $buttontype = MOD_BOOKING_BO_BUTTON_JUSTMYALERT;
+        }
+
+        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, $buttontype];
     }
 
     /**
