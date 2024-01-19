@@ -405,8 +405,8 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
             $ba = singleton_service::get_instance_of_booking_answers($settings);
 
-            // If the user is in principle allowed to overbook AND the overbook setting is set in the instance, overbooking is possible.
-
+            // If the user is in principle allowed to overbook...
+            // ... AND the overbook setting is set in the instance, overbooking is possible.
 
             if ($ba->is_fully_booked()) {
                 if (empty(get_config('booking', 'allowoverbooking'))
