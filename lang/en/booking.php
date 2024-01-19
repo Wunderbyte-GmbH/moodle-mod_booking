@@ -85,6 +85,7 @@ $string['sortorder'] = 'Sort order';
 $string['sortorder:asc'] = 'A&rarr;Z';
 $string['sortorder:desc'] = 'Z&rarr;A';
 $string['teachers'] = 'Teachers';
+$string['teacher_s'] = 'Teacher(s)';
 $string['assignteachers'] = 'Assign teachers:';
 $string['thankyoubooked'] = '<i class="fa fa-3x fa-calendar-check-o text-success" aria-hidden="true"></i><br><br>
 Thank you! You have successfully booked <b>{$a}</b>.';
@@ -1013,7 +1014,7 @@ $string['signinonesession'] = 'Display date(s) in the header';
 $string['signinaddemptyrows'] = 'Add empty rows';
 $string['signinextrasessioncols'] = 'Add extra columns for dates';
 $string['signinadddatemanually'] = 'Add date manually';
-$string['signinhidedate'] = 'Hide date';
+$string['signinhidedate'] = 'Hide dates';
 $string['includeteachers'] = 'Include teachers in the sign-in sheet';
 $string['choosepdftitle'] = 'Select a title for the sign-in sheet';
 $string['addtogroup'] = 'Automatically enrol users in group';
