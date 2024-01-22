@@ -1,3 +1,13 @@
+## Version 8.1.5 (2024012200)
+**Bugfixes:**
+* Bugfix: Fix save_data function of option field "elective".
+* Bugfix: Fix bugs in option field "actions".
+* Bugfix: Fix bug in option field "addtogroup".
+* Bugfix: Fix wrong usage of cmid in booking_option class.
+* Bugfix: Fix change semester functionality (reset and create new optiondates).
+* Bugfix: Fix several bugs with fields classes.
+* Bugfix: Fix for dynamic custom fields that allow multiple values (multiselect).
+
 ## Version 8.1.4 (2024011900)
 **Improvements:**
 * Improvement: Improve quality of sign-in sheets.
