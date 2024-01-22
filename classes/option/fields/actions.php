@@ -82,11 +82,13 @@ class actions extends field_base {
         // When we use the form, we have to save the boactions via the boactionsjson key.
         if (!empty($formdata->boactionsjson)) {
             $boactions = json_decode($formdata->boactionsjson);
-        } else {
+        } else if (isset($formdata->boactions)) {
             $boactions = $formdata->boactions;
         }
 
-        booking_option::add_data_to_json($newoption, 'boactions', $boactions);
+        if (isset($boactions)) {
+            booking_option::add_data_to_json($newoption, 'boactions', $boactions);
+        }
 
         return '';
     }
