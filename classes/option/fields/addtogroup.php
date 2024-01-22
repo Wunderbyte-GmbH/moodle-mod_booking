@@ -97,9 +97,8 @@ class addtogroup extends field_base {
      */
     public static function save_data(stdClass &$formdata, stdClass &$option) {
 
+        $cmid = $formdata->cmid;
         $optionid = $option->id;
-        $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        $cmid = $optionsettings->cmid;
 
         if (!empty($cmid)) {
 
@@ -108,7 +107,8 @@ class addtogroup extends field_base {
             if (!empty($bookingsettings->addtogroup) && $option->courseid > 0) {
                 $bo = singleton_service::get_instance_of_booking_option($cmid, $optionid);
                 // TODO: This looks kind of strange. Was this copied from legacy code? Does it still work?
-                $bo->option->courseid = $optionsettings->courseid;
+                // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+                /* $bo->option->courseid = $optionsettings->courseid; */
                 $option->groupid = $bo->create_group();
                 $booked = $bo->get_all_users_booked();
                 if (!empty($booked) && $bookingsettings->autoenrol) {

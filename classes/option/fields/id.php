@@ -102,7 +102,7 @@ class id extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
-        $cmid = $formdata['cmid'];
+        $cmid = $formdata['cmid'] ?? 0;
 
         $id = $formdata['id'] ?? 0;
 
@@ -131,5 +131,6 @@ class id extends field_base {
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
         $data->id = $data->id ?? $data->optionid;
+        $data->cmid = $data->cmid ?? $settings->cmid ?? 0;
     }
 }
