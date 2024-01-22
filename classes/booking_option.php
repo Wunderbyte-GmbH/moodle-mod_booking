@@ -423,7 +423,7 @@ class booking_option {
         $messagecontroller = new message_controller(
             MOD_BOOKING_MSGCONTRPARAM_DO_NOT_SEND, // We do not want to send anything here.
             MOD_BOOKING_MSGPARAM_CONFIRMATION,
-            $this->booking->cm->id,
+            $this->cmid,
             $this->bookingid,
             $this->optionid,
             $userid
