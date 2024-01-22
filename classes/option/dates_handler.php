@@ -566,51 +566,31 @@ class dates_handler {
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
         $bookingid = $booking->id;
 
-        $DB->delete_records('booking_optiondates', ['bookingid' => $bookingid]);
-        // If optiondates are deleted we also have to delete the associated entries in booking_optiondates_teachers.
-        teachers_handler::delete_booking_optiondates_teachers_by_bookingid($bookingid);
+        // Lastly, we also need to change the semester for the booking instance itself!
+        $bookinginstancerecord = $DB->get_record('booking', ['id' => $bookingid]);
+        $bookinginstancerecord->semesterid = $semesterid;
+        $DB->update_record('booking', $bookinginstancerecord);
+
+        // When updating an instance, we need to invalidate the cache for booking instances.
+        cache_helper::invalidate_by_event('setbackbookinginstances', [$cmid]);
+        cache_helper::purge_by_event('setbackoptionsettings');
 
         // Now we run through all the bookingoptions.
         $options = $DB->get_records('booking_options', ["bookingid" => $bookingid]);
 
-        foreach ($options as $optionvalues) {
+        foreach ($options as $option) {
 
-            // Set the id of the option correctly, so that update will work.
-            $optionvalues->optionid = $optionvalues->id;
+            $bo = singleton_service::get_instance_of_booking_option($cmid, $option->id);
 
-            // Save the semesterid within every option.
-            $optionvalues->semesterid = $semesterid;
-
-            if (empty($optionvalues->dayofweektime)) {
-                continue;
+            if (!empty($bo->settings->dayofweektime)) {
+                $bo->recreate_date_series($semesterid);
             }
-
-            $msdates = self::get_optiondate_series($semesterid, $optionvalues->dayofweektime);
-            $counter = 1;
-            if (isset($msdates['dates'])) {
-                foreach ($msdates['dates'] as $msdate) {
-                    $startkey = 'ms' . $counter . 'starttime';
-                    $endkey = 'ms' . $counter . 'endtime';
-                    $optionvalues->$startkey = $msdate->starttimestamp;
-                    $optionvalues->$endkey = $msdate->endtimestamp;
-                    $counter++;
-                }
-            }
-            $context = context_module::instance($cmid);
-            booking_option::update($optionvalues, $context);
         }
 
-        // Lastly, we also need to change the semester for the booking instance itself!
-        if ($bookinginstancerecord = $DB->get_record('booking', ['id' => $bookingid])) {
-            $bookinginstancerecord->semesterid = $semesterid;
-            $DB->update_record('booking', $bookinginstancerecord);
-        }
-
-        // When updating an instance, we need to invalidate the cache for booking instances.
-        cache_helper::invalidate_by_event('setbackbookinginstances', [$cmid]);
         // Also purge caches for options table and booking_option_settings.
         cache_helper::purge_by_event('setbackoptionstable');
         cache_helper::purge_by_event('setbackoptionsettings');
+
     }
 
     /**

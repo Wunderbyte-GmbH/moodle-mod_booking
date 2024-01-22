@@ -230,6 +230,13 @@ class dates {
         // If we have clicked on the create option date series, we recreate all option dates.
         if (isset($defaultvalues->addoptiondateseries)) {
 
+            // When creating new date series, we unset defaults for all customfields.
+            $regexkey = '/^' . MOD_BOOKING_FORM_OPTIONDATEID . '/';
+            $optiondates = preg_grep($regexkey, array_keys((array)$defaultvalues));
+            foreach ($optiondates as $odate) {
+                unset($defaultvalues->{$odate});
+            }
+
             $newoptiondates = dates_handler::get_optiondate_series($defaultvalues->semesterid, $defaultvalues->dayofweektime);
 
             if (!empty($newoptiondates)) {
@@ -641,9 +648,12 @@ class dates {
 
             $name = $formelement->getName();
             $value = $formelement->getValue();
-            $formelement = $mform->insertElementBefore($mform->removeElement($name, false), 'datesmarker');
-            if ($value !== null) {
-                $formelement->setValue($value);
+
+            if ($mform->elementExists('datesmarker')) {
+                $formelement = $mform->insertElementBefore($mform->removeElement($name, false), 'datesmarker');
+                if ($value !== null) {
+                    $formelement->setValue($value);
+                }
             }
         }
     }

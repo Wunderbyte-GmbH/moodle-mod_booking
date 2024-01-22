@@ -107,7 +107,7 @@ class optiondates extends field_base {
         }
 
         $newoption->dayofweektime = $formdata->dayofweektime ?? '';
-        $dayinfo = dates_handler::prepare_day_info($formdata->dayofweektime);
+        $dayinfo = dates_handler::prepare_day_info($formdata->dayofweektime ?? '');
         $newoption->dayofweek = $dayinfo['day'] ?? '';
         $newoption->semesterid = $formdata->semesterid ?? 0;
 
@@ -200,6 +200,14 @@ class optiondates extends field_base {
                 }
 
             }
+        } else {
+            $data->dayofweektime = $data->dayofweektime ?? $settings->dayofweektime ?? '';
+
+            if (!empty($data->cmid)) {
+                $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($data->cmid);
+            }
+
+            $data->semesterid = $data->semesterid ?? $settings->semesterid ?? $bookingsettings->semesterid ?? 0;
         }
 
         // We need to modify the data we set for dates.

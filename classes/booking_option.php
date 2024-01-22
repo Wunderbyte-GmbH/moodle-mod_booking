@@ -51,6 +51,7 @@ use mod_booking\option\fields_info;
 use mod_booking\subbookings\subbookings_info;
 use mod_booking\task\send_completion_mails;
 use moodle_exception;
+use MoodleQuickForm;
 
 use function get_config;
 
@@ -3338,15 +3339,8 @@ class booking_option {
         $bu = new booking_utils();
         if ($changes = $bu->booking_option_get_changes($originaloption, $newoption)) {
 
-            // Fix a bug where $PAGE->cm->id is not set for webservice importer.
-            if (!empty($PAGE->cm->id)) {
-                $cmid = $PAGE->cm->id;
-            } else {
-                $cm = context_module::instance($context->instanceid);
-                if (!empty($cm->id)) {
-                    $cmid = $cm->id;
-                }
-            }
+            $cmid = $originaloption->cmid ?? 0;
+
             // If we have no cmid, it's most possibly a template.
             if (!empty($cmid) && $newoption->bookingid != 0) {
                 // We only react on changes, if a cmid exists.
@@ -3355,6 +3349,40 @@ class booking_option {
         }
 
         return $newoption->id;
+    }
+
+    /**
+     * Recreate date series.
+     * @param int $semesterid
+     * @return void
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public function recreate_date_series(int $semesterid) {
+
+        // New code.
+        $data = (object)[
+            'cmid' => $this->cmid,
+            'id' => $this->id, // In the context of option_form class, id always refers to optionid.
+            'optionid' => $this->id, // Just kept on for legacy reasons.
+            'bookingid' => $this->bookingid,
+            'copyoptionid' => 0,
+            'returnurl' => '',
+        ];
+
+        fields_info::set_data($data);
+
+        $data->addoptiondateseries = "Create date series";
+        $data->semesterid = $semesterid;
+        $data->datesmarker = 1;
+
+        fields_info::set_data($data);
+
+        $context = context_module::instance($data->cmid);
+
+        $this->update($data, $context);
+
     }
 
     /**
