@@ -388,4 +388,47 @@ class booking_handler extends \core_customfield\handler {
         }
     }
 
+    /**
+     * Saves the given data for custom fields, must be called after the instance is saved and id is present
+     *
+     * Example:
+     *   if ($data = $form->get_data()) {
+     *     // ... save main instance, set $data->id if instance was created.
+     *     $handler->instance_form_save($data);
+     *     redirect(...);
+     *   }
+     *
+     * @param stdClass $instance data received from a form
+     * @param bool $isnewinstance if this is call is made during instance creation
+     */
+    public function instance_form_save(stdClass $instance, bool $isnewinstance = false) {
+        if (empty($instance->id)) {
+            throw new \coding_exception('Caller must ensure that id is already set in data before calling this method');
+        }
+        if (!preg_grep('/^customfield_/', array_keys((array)$instance))) {
+            // For performance.
+            return;
+        }
+        $editablefields = $this->get_editable_fields($isnewinstance ? 0 : $instance->id);
+        $fields = api::get_instance_fields_data($editablefields, $instance->id);
+        foreach ($fields as $data) {
+            if (!$data->get('id')) {
+                $data->set('contextid', $this->get_instance_context($instance->id)->id);
+            }
+
+            // Fix for dynamic custom fields that allow multiple values (multiselect).
+            $shortname = $data->get_field()->get('shortname');
+            $multiselect = $data->get_field()->get_configdata_property('multiselect');
+            $key = "customfield_$shortname";
+            if ($multiselect == "1" && is_string($instance->{$key})) {
+                // Convert them into an array, so everything works as expected.
+                $values = explode(',', $instance->{$key});
+                $instance->{$key} = $values;
+            }
+
+            $data->instance_form_save($instance);
+
+            $elementname = $data->get_form_element_name();
+        }
+    }
 }

@@ -53,7 +53,8 @@ class fields_info {
       * @param int $updateparam
       * @return array
       */
-    public static function prepare_save_fields(stdClass &$formdata, stdClass &$newoption, int $updateparam):array {
+    public static function prepare_save_fields(stdClass &$formdata, stdClass &$newoption,
+        int $updateparam = MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT): array {
 
         $warnings = [];
         $error = [];
