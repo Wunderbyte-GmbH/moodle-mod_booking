@@ -97,17 +97,21 @@ class addtogroup extends field_base {
      */
     public static function save_data(stdClass &$formdata, stdClass &$option) {
 
-        if ($cmid = $formdata->cmid) {
-            $optionid = $option->id;
+        $optionid = $option->id;
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $cmid = $optionsettings->cmid;
 
-            $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
+        if (!empty($cmid)) {
 
-            if (!empty($booking->settings->addtogroup) && $option->courseid > 0) {
+            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+
+            if (!empty($bookingsettings->addtogroup) && $option->courseid > 0) {
                 $bo = singleton_service::get_instance_of_booking_option($cmid, $optionid);
-                $bo->option->courseid = $option->courseid;
+                // TODO: This looks kind of strange. Was this copied from legacy code? Does it still work?
+                $bo->option->courseid = $optionsettings->courseid;
                 $option->groupid = $bo->create_group();
                 $booked = $bo->get_all_users_booked();
-                if (!empty($booked) && $booking->settings->autoenrol) {
+                if (!empty($booked) && $bookingsettings->autoenrol) {
                     foreach ($booked as $bookinganswer) {
                         $bo->enrol_user($bookinganswer->userid);
                     }
