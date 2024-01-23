@@ -202,7 +202,7 @@ if ($action == 'downloadpdf') {
     $pdfoptions->extrasessioncols = $signinextrasessioncols;
     $pdfoptions->addemptyrows = $addemptyrows;
     $pdfoptions->includeteachers = $includeteachers;
-    $pdf = new mod_booking\signinsheet\generator($bookingoption , $pdfoptions);
+    $pdf = new mod_booking\signinsheet\signinsheet_generator($bookingoption , $pdfoptions);
     $pdf->download_signinsheet();
     die();
 }

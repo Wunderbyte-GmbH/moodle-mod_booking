@@ -28,7 +28,7 @@ use mod_booking\singleton_service;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-class generator {
+class signinsheet_generator {
 
     /**
      * @var int $optionid
@@ -67,6 +67,13 @@ class generator {
      * @var bool
      */
     public $includeteachers = false;
+
+    /**
+     * sessions from booking option settings
+     *
+     * @var array
+     */
+    public $sessions;
 
     /**
      * sessionsstring for event
@@ -524,6 +531,7 @@ class generator {
     private function get_bookingoption_sessionsstring() {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+        $this->sessions = $settings->sessions ?? [];
 
         // If there are no sessions...
         if (empty($settings->sessions)) {
@@ -554,7 +562,7 @@ class generator {
                             get_string('strftimetime', 'langconfig'));
                     $val[] = get_string('leftandrightdate', 'booking', $tmpdate);
                 }
-                $this->sessionsstring = implode("\n\r", $val);
+                $this->sessionsstring = implode("\n", $val);
                 return;
             } else {
                 // Show a specific selected session.
@@ -683,9 +691,21 @@ class generator {
         $this->pdf->Ln();
         $this->pdf->SetFont('freesans', '', 10);
 
+        if (!empty($settings->location)) {
+            $this->pdf->Cell(0, 0,
+                    get_string('signinsheetlocation', 'booking') . format_string($settings->location), 0, 1,
+                    '', 0, '', 1);
+        }
+
         if (!empty($settings->dayofweektime)) {
             $this->pdf->Cell(0, 0,
                     get_string('dayofweektime', 'mod_booking') . ': ' . format_string($settings->dayofweektime), 0, 1,
+                    '', 0, '', 1);
+        }
+
+        if (!empty(trim($settings->address))) {
+            $this->pdf->Cell(0, 0,
+                    get_string('signinsheetaddress', 'booking') . format_string($settings->address), 0, 1,
                     '', 0, '', 1);
         }
 
@@ -700,7 +720,9 @@ class generator {
             $this->pdf->MultiCell($this->pdf->GetStringWidth(get_string('signinsheetdate', 'booking')) + 5, 0,
                 get_string('signinsheetdate', 'booking'), 0, 1, '', 0);
             $this->pdf->SetFont('freesans', '', 8);
-            $this->pdf->MultiCell(0, 0, $this->sessionsstring, 0, 1, '', 1);
+            $this->pdf->MultiCell(0, 0, $this->sessionsstring, 0, 'L', false, 1);
+            // Sessions seem to destroy Y because of newlines, so add the following little fix.
+            $this->pdf->setY($this->pdf->GetY() - (count($this->sessions) * 2.9), false);
             $this->pdf->SetFont('freesans', '', 10);
         }
 
@@ -725,17 +747,7 @@ class generator {
             }
         }
 
-        if (!empty(trim($settings->address))) {
-            $this->pdf->Cell(0, 0,
-                    get_string('signinsheetaddress', 'booking') . format_string($settings->address), 0, 1,
-                    '', 0, '', 1);
-        }
-
-        if (!empty($settings->location)) {
-            $this->pdf->Cell(0, 0,
-                    get_string('signinsheetlocation', 'booking') . format_string($settings->location), 0, 1,
-                    '', 0, '', 1);
-        }
+        // Do we need this line?
         $this->pdf->Ln();
 
         if ($this->pdfsessions == -1) {
