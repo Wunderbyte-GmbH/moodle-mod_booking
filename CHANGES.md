@@ -1,3 +1,7 @@
+## Version 8.1.6 (2024012400)
+**Improvements:**
+* Improvement: Fix layout bugs with signin sheet.
+
 ## Version 8.1.5 (2024012200)
 **Bugfixes:**
 * Bugfix: Fix save_data function of option field "elective".
