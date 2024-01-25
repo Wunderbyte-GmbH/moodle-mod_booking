@@ -41,6 +41,9 @@ $string['cancelallusers'] = 'Cancel booking for all users';
 $string['cancelmyself'] = 'Undo my booking';
 $string['cancelsign'] = '<i class="fa fa-ban" aria-hidden="true"></i>';
 $string['close'] = 'Close';
+$string['collapsedescriptionoff'] = 'Do not collapse descriptions';
+$string['collapsedescriptionmaxlength'] = 'Collapse descriptions (max. length)';
+$string['collapsedescriptionmaxlength_desc'] = 'Enter the maximum length of characters of a description. Descriptions having more characters will be collapsed.';
 $string['confirmoptioncreation'] = 'Do you want to split this booking option so that a separate booking option is created
  from each individual date of this booking option?';
 $string['createoptionsfromoptiondate'] = 'For each option date create a new option';
@@ -81,6 +84,7 @@ $string['rowupdated'] = 'Row was updated.';
 $string['search'] = 'Search...';
 $string['semesterid'] = 'SemesterID';
 $string['sendmailtoallbookedusers'] = 'Send e-mail to all booked users';
+$string['showmore'] = 'Show more';
 $string['sortorder'] = 'Sort order';
 $string['sortorder:asc'] = 'A&rarr;Z';
 $string['sortorder:desc'] = 'Z&rarr;A';

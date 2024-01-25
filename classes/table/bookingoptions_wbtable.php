@@ -906,17 +906,42 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * "description" value.
      *
      * @param object $values Contains object with all the values of record.
-     * @return string a string containing the description
+     * @return string $ret the return string
      * @throws coding_exception
      */
     public function col_description($values) {
+
         $description = $values->description;
+
         // If we download, we want to show text only without HTML tags.
         if ($this->is_downloading()) {
-            $ret = strip_tags($description);
-        } else {
-            $ret = html_writer::div($description);
+            $description = strip_tags($description, '<br>');
+            $description = str_replace('<br>', '\r\n', $description);
+            return strip_tags($description);
         }
+
+        $ret = $description;
+
+        if (!empty(get_config('mod_booking', 'collapsedescriptionmaxlength'))) {
+
+            $maxlength = (int)get_config('mod_booking', 'collapsedescriptionmaxlength');
+
+            // Show collapsible for long descriptions.
+            $shortdescription = strip_tags($description, '<br>');
+            if (strlen($shortdescription) > $maxlength) {
+                $shortdescription = substr($shortdescription, 0, $maxlength) . '...';
+                $ret =
+                    '<div>' . $shortdescription .
+                        '<a data-toggle="collapse" href="#collapseDescription' . $values->id . '" role="button"
+                            aria-expanded="false" aria-controls="collapseDescription"> ' .
+                            get_string('showmore', 'mod_booking') . '</a>
+                    </div>
+                    <div class="collapse" id="collapseDescription' . $values->id . '">
+                        <div class="card card-body border-0">' . $description . '</div>
+                    </div>';
+            }
+        }
+
         return $ret;
     }
 

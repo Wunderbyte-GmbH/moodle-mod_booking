@@ -122,6 +122,25 @@ if ($ADMIN->fulltree) {
                     get_string('turnoffwunderbytelogo', 'mod_booking'),
                     get_string('turnoffwunderbytelogo_desc', 'mod_booking'), 0));
 
+        // Collapse descriptions.
+        $collapsedescriptionoptions = [
+            0 => get_string('collapsedescriptionoff', 'mod_booking'),
+            100 => "100",
+            200 => "200",
+            300 => "300",
+            400 => "400",
+            500 => "500",
+            600 => "600",
+            700 => "700",
+            800 => "800",
+            900 => "900",
+        ];
+        $settings->add(
+            new admin_setting_configselect('mod_booking/collapsedescriptionmaxlength',
+                get_string('collapsedescriptionmaxlength', 'mod_booking'),
+                get_string('collapsedescriptionmaxlength_desc', 'mod_booking'),
+                300, $collapsedescriptionoptions));
+
         $options = [
             1 => "1",
             2 => "2",
