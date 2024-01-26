@@ -328,7 +328,9 @@ class view implements renderable, templatable {
         list($fields, $from, $where, $params, $filter) =
             booking::get_options_filter_sql(0, 0, '', null, $booking->context, [],
                 $wherearray, null, MOD_BOOKING_STATUSPARAM_BOOKED, $additionalwhere);
-        $params['timenow'] = time();
+
+        // Timenow is today at midnight.
+        $params['timenow'] = strtotime('today 24:00');
         $activebookingoptionstable->set_filter_sql($fields, $from, $where, $filter, $params);
 
         // Initialize the default columnes, headers, settings and layout for the table.
