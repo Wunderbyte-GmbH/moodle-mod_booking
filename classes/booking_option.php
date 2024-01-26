@@ -420,6 +420,16 @@ class booking_option {
 
         $text = "";
 
+        if (empty($this->option->aftercompletedtext
+            && empty($this->option->beforecompletedtext)
+            && empty($this->option->beforebookedtext)
+            && empty($this->booking->settings->aftercompletedtext)
+            && empty($this->booking->settings->beforecompletedtext)
+            && empty($this->booking->settings->beforebookedtext))) {
+
+                return '';
+        }
+
         // New message controller.
         $messagecontroller = new message_controller(
             MOD_BOOKING_MSGCONTRPARAM_DO_NOT_SEND, // We do not want to send anything here.

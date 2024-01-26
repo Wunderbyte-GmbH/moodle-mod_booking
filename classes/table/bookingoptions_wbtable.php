@@ -342,6 +342,13 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $optionid = $values->id;
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $cmid = $settings->cmid;
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+
+        if (empty($bookingsettings->ratings)) {
+            return '';
+        }
+
+        // Todo: Ratings need to be cached for acceptable performance.
         $context = context_module::instance($cmid);
 
         $ratingshtml = '';
