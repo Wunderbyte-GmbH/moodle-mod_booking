@@ -84,10 +84,17 @@ class cancelmyself implements bo_condition {
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
-        // If cancelling was disabled in option or for the whole instance...
+        // If cancelling was disabled in the booking option or for the whole instance...
         // ...then we do not show the cancel button.
         if (booking_option::get_value_of_json_by_key($optionid, 'disablecancel')
             || booking::get_value_of_json_by_key($settings->bookingid, 'disablecancel')) {
+            return true;
+        }
+
+        // Check if the option has its own canceluntil date and if it has already passed.
+        $now = time();
+        $canceluntil = booking_option::get_value_of_json_by_key($optionid, 'canceluntil');
+        if (!empty($canceluntil) && $now > $canceluntil) {
             return true;
         }
 

@@ -101,6 +101,7 @@ class canceluntil extends field_base {
         fields_info::add_header_to_mform($mform, self::$header);
 
         $mform->addElement('advcheckbox', 'canceluntilcheckbox', get_string('canceluntil', 'mod_booking'));
+        $mform->disabledIf('canceluntilcheckbox', 'disablecancel', 'checked');
         $mform->addElement('date_time_selector', 'canceluntil', '');
         $mform->disabledIf('canceluntil', 'canceluntilcheckbox');
         $mform->setType('canceluntil', PARAM_INT);
