@@ -302,6 +302,11 @@ class customform implements bo_condition {
      */
     public function get_condition_object_for_json(stdClass $fromform): stdClass {
 
+        // If the checkbox is turned off, we return an empty object.
+        if ($fromform->bo_cond_customform_restrict == "0") {
+            return new stdClass();
+        }
+
         // Remove the namespace from classname.
         $classname = __CLASS__;
         $classnameparts = explode('\\', $classname);
