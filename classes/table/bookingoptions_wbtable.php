@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
+use cache;
 use coding_exception;
 use context_system;
 use context_module;
@@ -578,9 +579,17 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $ret = implode(' | ', $datestrings);
         } else {
             // Use the renderer to output this column.
-            $data = new \mod_booking\output\col_coursestarttime($optionid, $booking);
-            $output = singleton_service::get_renderer('mod_booking');
-            $ret = $output->render_col_coursestarttime($data);
+            $lang = current_language();
+
+            $cachekey = "sessiondates$optionid$lang";
+            $cache = cache::make($this->cachecomponent, $this->rawcachename);
+
+            if (!$ret = $cache->get($cachekey)) {
+                $data = new \mod_booking\output\col_coursestarttime($optionid, $booking);
+                $output = singleton_service::get_renderer('mod_booking');
+                $ret = $output->render_col_coursestarttime($data);
+                $cache->set($cachekey, $ret);
+            }
         }
         return $ret;
     }
