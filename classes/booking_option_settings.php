@@ -264,6 +264,9 @@ class booking_option_settings {
     /** @var string $costcenter Cost center which is stored in a booking option custom field. */
     public $costcenter = ''; // Default is an empty string.
 
+    /** @var int $canceluntil each booking option can override the canceluntil date with its own date */
+    public $canceluntil = 0;
+
     /**
      * Constructor for the booking option settings class.
      * The constructor can take the dbrecord stdclass which is the initial DB request for this option.
@@ -417,10 +420,12 @@ class booking_option_settings {
                 $this->priceformulaoff = 0; // Default: Turned on.
             }
 
+            // Some fields are stored in JSON.
             if (!empty($dbrecord->json)) {
-                $this->load_bookingactions($dbrecord);
+                $this->load_data_from_json($dbrecord);
             } else {
                 $this->boactions = [];
+                $this->canceluntil = 0;
             }
 
             // If the course module id (cmid) is not yet set, we load it. //TODO: bookingid 0 bei option templates berücksichtigen!!
@@ -921,7 +926,7 @@ class booking_option_settings {
      * @param stdClass $dbrecord
      * @return void
      */
-    private function load_bookingactions(stdClass &$dbrecord) {
+    private function load_data_from_json(stdClass &$dbrecord) {
 
         // We might need to only now read the json object, but we want to do it only once.
         if (empty($dbrecord->jsonobject)) {
@@ -936,12 +941,19 @@ class booking_option_settings {
                 $this->jsonobject->boactions = $this->boactions;
                 $dbrecord->boactions = $this->boactions;
             }
+
+            // Canceluntil date is also stored in JSON.
+            if (!empty($this->jsonobject->canceluntil)) {
+                $this->canceluntil = (int)$this->jsonobject->canceluntil;
+                $this->jsonobject->canceluntil = $this->canceluntil;
+                $dbrecord->canceluntil = $this->canceluntil;
+            }
         } else {
             $this->boactions = $dbrecord->boactions ?? null;
+            $this->canceluntil = $dbrecord->canceluntil ?? 0;
             $this->jsonobject = $dbrecord->jsonobject ?? null;
         }
     }
-
 
     /**
      * Returns the cached settings as stClass.

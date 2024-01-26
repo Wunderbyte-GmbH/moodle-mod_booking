@@ -40,6 +40,7 @@ $string['bookings'] = 'Buchungen';
 $string['cancelallusers'] = 'Storniere Buchung für alle Nutzer:innen';
 $string['cancelmyself'] = 'Wieder abmelden';
 $string['cancelsign'] = '<i class="fa fa-ban" aria-hidden="true"></i>';
+$string['canceluntil'] = 'Stornieren nur bis zu bestimmtem Zeitpunkt erlauben';
 $string['close'] = 'Schließen';
 $string['confirmoptioncreation'] = 'Wollen Sie diese Buchungsoption splitten sodass aus jedem Einzeltermin eine eigene
  Buchungsoption erstellt wird?';

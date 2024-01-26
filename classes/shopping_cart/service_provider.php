@@ -361,8 +361,15 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
             $bookingid = $optionsettings->bookingid;
 
+            // Check if cancelling was disabled for the booking option or for the whole booking instance.
             if (booking_option::get_value_of_json_by_key($itemid, 'disablecancel') ||
                 booking::get_value_of_json_by_key($bookingid, 'disablecancel')) {
+                $allowedtocancel = false;
+            }
+            // Check if the option has its own canceluntil date and if it has already passed.
+            $now = time();
+            $canceluntil = booking_option::get_value_of_json_by_key($itemid, 'canceluntil');
+            if (!empty($canceluntil) && $now > $canceluntil) {
                 $allowedtocancel = false;
             }
         }

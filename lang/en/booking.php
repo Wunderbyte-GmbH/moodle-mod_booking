@@ -40,6 +40,7 @@ $string['bookings'] = 'Bookings';
 $string['cancelallusers'] = 'Cancel booking for all users';
 $string['cancelmyself'] = 'Undo my booking';
 $string['cancelsign'] = '<i class="fa fa-ban" aria-hidden="true"></i>';
+$string['canceluntil'] = 'Cancelling is only possible until certain date';
 $string['close'] = 'Close';
 $string['collapsedescriptionoff'] = 'Do not collapse descriptions';
 $string['collapsedescriptionmaxlength'] = 'Collapse descriptions (max. length)';

@@ -24,9 +24,9 @@
 
 namespace mod_booking\option\fields;
 
-use mod_booking\bo_actions\actions_info;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
+use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use MoodleQuickForm;
 use stdClass;
@@ -35,16 +35,16 @@ use stdClass;
  * Class to handle one property of the booking_option_settings class.
  *
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
- * @author Georg Maißer
+ * @author Bernhard Fischer-Sengseis
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class actions extends field_base {
+class canceluntil extends field_base {
 
     /**
      * This ID is used for sorting execution.
      * @var int
      */
-    public static $id = MOD_BOOKING_OPTION_FIELD_ACTIONS;
+    public static $id = MOD_BOOKING_OPTION_FIELD_CANCELUNTIL;
 
     /**
      * Some fields are saved with the booking option...
@@ -52,13 +52,13 @@ class actions extends field_base {
      * Some can be saved only post save (when they need the option id).
      * @var int
      */
-    public static $save = MOD_BOOKING_EXECUTION_POSTSAVE;
+    public static $save = MOD_BOOKING_EXECUTION_NORMAL;
 
     /**
      * This identifies the header under which this particular field should be displayed.
      * @var string
      */
-    public static $header = MOD_BOOKING_HEADER_ACTIONS;
+    public static $header = MOD_BOOKING_HEADER_ADVANCEDOPTIONS;
 
     /**
      * This function interprets the value from the form and, if useful...
@@ -75,23 +75,19 @@ class actions extends field_base {
         int $updateparam,
         $returnvalue = null): string {
 
-        // In the actions, we don't actually save, but we want to pass on json, if there is any.
-        // But we don't want to overwrite already altered values.
-        // When we use the form, we have to save the boactions via the boactionsjson key.
-        if (!empty($formdata->boactionsjson)) {
-            $boactions = json_decode($formdata->boactionsjson);
+        // We store the information until when a booking option can be cancelled in the JSON.
+        // So this has to happen BEFORE JSON is saved!
+        if (empty($formdata->canceluntilcheckbox)) {
+            // This will store the correct JSON to $optionvalues->json.
+            booking_option::remove_key_from_json($newoption, "canceluntil");
         } else {
-            $boactions = $formdata->boactions ?? [];
+            booking_option::add_data_to_json($newoption, "canceluntil", $formdata->canceluntil);
         }
-
-        booking_option::add_data_to_json($newoption, 'boactions', $boactions);
-
         return '';
     }
 
     /**
      * Instance form definition
-     *
      * @param MoodleQuickForm $mform
      * @param array $formdata
      * @param array $optionformconfig
@@ -99,10 +95,15 @@ class actions extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
-        // Actions are not yet finished - so we hide them for now.
-        // Add booking actions mform elements.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        actions_info::add_actions_to_mform($mform, $formdata);
+        $optionid = $formdata['id'];
+
+        // Standardfunctionality to add a header to the mform (only if its not yet there).
+        fields_info::add_header_to_mform($mform, self::$header);
+
+        $mform->addElement('advcheckbox', 'canceluntilcheckbox', get_string('canceluntil', 'mod_booking'));
+        $mform->addElement('date_time_selector', 'canceluntil', '');
+        $mform->disabledIf('canceluntil', 'canceluntilcheckbox');
+        $mform->setType('canceluntil', PARAM_INT);
     }
 
     /**
@@ -114,15 +115,10 @@ class actions extends field_base {
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
-        if (isset($data->importing) && !empty($data->json)) {
-            $jsonobject = json_decode($data->json);
-            if (isset($jsonobject->boactions)) {
-                $data->boactions = $jsonobject->boactions;
-            }
-        } else {
-            // We don't need the boactions otherwise, but might be needed in copying etc.
-            $data->boactions = booking_option::get_value_of_json_by_key($data->id, 'boactions');
+        $canceluntil = booking_option::get_value_of_json_by_key($data->id, "canceluntil");
+        if (!empty($canceluntil)) {
+            $data->canceluntilcheckbox = 1;
+            $data->canceluntil = $canceluntil;
         }
-        $data->boactionsjson = json_encode($data->boactions);
     }
 }

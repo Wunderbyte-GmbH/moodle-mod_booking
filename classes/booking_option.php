@@ -2781,6 +2781,11 @@ class booking_option {
         $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($optionsettings->cmid);
 
+        // If the option itself has a canceluntil date, we always use this one.
+        if (!empty($optionsettings->canceluntil)) {
+            return (int)$optionsettings->canceluntil;
+        }
+
         $canceluntil = 0;
 
         // Default: We use the booking option coursestarttime field.
