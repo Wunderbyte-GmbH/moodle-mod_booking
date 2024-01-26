@@ -580,10 +580,16 @@ class dates_handler {
 
         foreach ($options as $option) {
 
-            $bo = singleton_service::get_instance_of_booking_option($cmid, $option->id);
+            try {
+                $bo = singleton_service::get_instance_of_booking_option($cmid, $option->id);
 
-            if (!empty($bo->settings->dayofweektime)) {
-                $bo->recreate_date_series($semesterid);
+                if (!empty($bo->settings->dayofweektime)) {
+                    $bo->recreate_date_series($semesterid);
+
+                    mtrace('Recreated dates for optionid ' . $option->id);
+                }
+            } catch (Exception $e) {
+                mtrace('Failed to recreated dates for optionid ' . $option->id, json_encode($e));
             }
         }
 

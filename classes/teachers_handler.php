@@ -195,6 +195,8 @@ class teachers_handler {
      */
     public function save_from_form(stdClass &$formdata, bool $doenrol = true) {
 
+        global $DB;
+
         // If we don't have the key here, we ignore all of this.
         if (!isset($formdata->teachersforoption)) {
             return;
@@ -221,7 +223,7 @@ class teachers_handler {
                     if (empty($formdata->courseid)) {
                         // Teacher is already subscribed to booking option and there is no course.
                         $dosubscribe = false;
-                    } else {
+                    } else if ($DB->record_exists('course', ['id' => $formdata->courseid])) {
                         // There is a course, so check if the teacher is already enrolled.
                         $coursecontext = context_course::instance($formdata->courseid);
                         if (is_enrolled($coursecontext, $newteacherid, '', true)) {
