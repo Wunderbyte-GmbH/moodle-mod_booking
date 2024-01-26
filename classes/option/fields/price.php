@@ -24,6 +24,7 @@
 
 namespace mod_booking\option\fields;
 
+use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\option\field_base;
 use mod_booking\price as Mod_bookingPrice;
@@ -74,6 +75,15 @@ class price extends field_base {
         int $updateparam,
         $returnvalue = null): string {
 
+        // We store the information if we use a price in the JSON.
+        // So this has to happen BEFORE JSON is saved!
+        if (empty($formdata->useprice)) {
+            // This will store the correct JSON to $optionvalues->json.
+            booking_option::add_data_to_json($newoption, "useprice", 0); // 0 means no price.
+        } else {
+            booking_option::add_data_to_json($newoption, "useprice", 1); // 11 means we have a price.
+        }
+
         return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
     }
 
@@ -117,6 +127,7 @@ class price extends field_base {
 
         // Save the prices.
         $price = new Mod_bookingPrice('option', $option->id);
+
         $price->save_from_form($formdata);
     }
 
@@ -128,6 +139,7 @@ class price extends field_base {
      * @throws dml_exception
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
+        global $USER;
 
         // While importing, we need to set the imported prices.
         // Therefore, we first get the pricecategories.
@@ -165,6 +177,22 @@ class price extends field_base {
             }
 
         } else {
+
+            $useprice = booking_option::get_value_of_json_by_key($data->id, "useprice");
+
+            // If the value is not set in JSON, we activate useprice if a price was found for the option.
+            if ($useprice === null) {
+                if (booking_option::has_price_set($data->id, $USER->id)) {
+                    $data->useprice = 1;
+                } else {
+                    $data->useprice = 0;
+                }
+            } else if ($useprice == 0) {
+                $data->useprice = 0;
+            } else if ($useprice == 1) {
+                $data->useprice = 1;
+            }
+
             $pricehandler->set_data($data);
         }
     }

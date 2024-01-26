@@ -166,11 +166,11 @@ class price {
 
     /**
      * Set data function.
-     * @param stdClass $data
+     * @param stdClass $data reference to formdata
      * @return void
      * @throws dml_exception
      */
-    public function set_data(stdClass $data) {
+    public function set_data(stdClass &$data) {
         global $DB;
         foreach ($this->pricecategories as $pricecategory) {
 
@@ -188,8 +188,10 @@ class price {
 
             $data->{$pricegroup}[$priceidentifier] = $existingprice ? $existingprice : $pricecategory->defaultvalue ?? 0;
 
-            // If we have at least one price during import, we set useprice to 1.
-            $data->useprice = 1;
+            if (!empty($data->importing)) {
+                // If we have at least one price during import, we set useprice to 1.
+                $data->useprice = 1;
+            }
         }
 
         // Only when there is an actual price formula, we do apply it.

@@ -267,6 +267,9 @@ class booking_option_settings {
     /** @var int $canceluntil each booking option can override the canceluntil date with its own date */
     public $canceluntil = 0;
 
+    /** @var int $useprice flag that indicates if we use price or not */
+    public $useprice = null;
+
     /**
      * Constructor for the booking option settings class.
      * The constructor can take the dbrecord stdclass which is the initial DB request for this option.
@@ -426,6 +429,7 @@ class booking_option_settings {
             } else {
                 $this->boactions = [];
                 $this->canceluntil = 0;
+                $this->useprice = null; // Important: Use null as default so it will also work with old DB records.
             }
 
             // If the course module id (cmid) is not yet set, we load it. //TODO: bookingid 0 bei option templates berücksichtigen!!
@@ -948,9 +952,17 @@ class booking_option_settings {
                 $this->jsonobject->canceluntil = $this->canceluntil;
                 $dbrecord->canceluntil = $this->canceluntil;
             }
+
+            // Useprice flag indicates if the booking option uses a price.
+            if (!empty($this->jsonobject->useprice)) {
+                $this->useprice = (int)$this->jsonobject->useprice;
+                $this->jsonobject->useprice = $this->useprice;
+                $dbrecord->useprice = $this->useprice;
+            }
         } else {
             $this->boactions = $dbrecord->boactions ?? null;
             $this->canceluntil = $dbrecord->canceluntil ?? 0;
+            $this->useprice = $dbrecord->useprice ?? null;
             $this->jsonobject = $dbrecord->jsonobject ?? null;
         }
     }
