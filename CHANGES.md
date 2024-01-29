@@ -1,3 +1,11 @@
+## Version 8.1.8 (2024012901)
+**Improvements:**
+* Improvement: Show more information of availability conditions to users and fix some strings.
+
+**Bugfixes:**
+* Bugfix: Fix legacy code in option_optiondate_update_event and bookingoption_updated and use singleton service.
+* Bugfix: Fix deletion and recreation of course events (uuid is used to store optionid-optiondateid pattern).
+
 ## Version 8.1.7 (2024012900)
 **New features:**
 * New feature: Add setting to collapse descriptions of booking options in table.
