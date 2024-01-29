@@ -289,6 +289,18 @@ class optiondate {
     public static function delete($optiondateid) {
         global $DB;
 
+        $optionid = $DB->get_field('booking_optiondates', 'optionid', ['id' => $optiondateid]);
+
+        // Delete course events for the optiondate.
+        // Optionid and optiondateid are stored in uuid column like this: optionid-optiondateid.
+        $DB->delete_records_select('event',
+            "eventtype = 'course'
+            AND courseid <> 0
+            AND component = 'mod_booking'
+            AND uuid = :pattern",
+            ['pattern' => "{$optionid}-{$optiondateid}"]
+        );
+
         $DB->delete_records('booking_optiondates', ['id' => $optiondateid]);
 
         // We might need to delete entities relation.

@@ -295,6 +295,9 @@ class calendar {
             $event->modulename = 'booking'; // ONLY course events are allowed to have a modulename.
             $event->userid = 0;
             $event->groupid = 0;
+            /* For course events, we store optionid and optiondateid as uuid, so we can delete all of them at once,
+            if we create a new date series, for example. For events without optiondate we add "-0". */
+            $event->uuid = "$optionid-0";
         } else {
             // User event.
             $event->eventtype = 'user';
@@ -383,6 +386,9 @@ class calendar {
             $event->courseid = $courseid; // Only include course id in course events.
             $event->userid = 0;
             $event->groupid = 0;
+            /* For course events, we store optionid and optiondateid as uuid, so we can delete all of them at once,
+            if we create a new date series, for example. */
+            $event->uuid = "$optionid-{$optiondate->id}";
         } else {
             // User event.
             $event->eventtype = 'user';

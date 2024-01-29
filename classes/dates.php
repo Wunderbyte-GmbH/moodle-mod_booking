@@ -201,6 +201,7 @@ class dates {
      * @return stdClass
      */
     public static function set_data(stdClass &$defaultvalues) {
+        global $DB;
 
         // The currently saved optiondates are already in the singleton. we can therefore access it via bo settings.
         // But we do this only when first loading the form.
@@ -257,6 +258,17 @@ class dates {
             foreach ($customfields as $cf) {
                 unset($defaultvalues->{$cf});
             }
+
+            // Also make sure, we delete all previous calendar events.
+            // Delete course events for the optiondate.
+            // Optionid and optiondateid are stored in uuid column like this: optionid-optiondateid.
+            $DB->delete_records_select('event',
+                "eventtype = 'course'
+                AND courseid <> 0
+                AND component = 'mod_booking'
+                AND uuid LIKE :pattern",
+                ['pattern' => "{$defaultvalues->id}-%"]
+            );
 
         } else if (!empty($defaultvalues->id)) {
             $settings = singleton_service::get_instance_of_booking_option_settings($defaultvalues->id);

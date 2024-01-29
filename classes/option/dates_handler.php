@@ -214,6 +214,16 @@ class dates_handler {
         // We also need to delete associated custom fields.
         self::optiondate_deletecustomfields($id);
 
+        // Delete course events for the option date.
+        // Optionid and optiondateid are stored in uuid column like this: optionid-optiondateid.
+        $DB->delete_records_select('event',
+            "eventtype = 'course'
+            AND courseid <> 0
+            AND component = 'mod_booking'
+            AND uuid = :pattern",
+            ['pattern' => "{$this->optionid}-{$id}"]
+        );
+
         // Finally delete the option date.
         $DB->delete_records('booking_optiondates', ['id' => $id]);
 
