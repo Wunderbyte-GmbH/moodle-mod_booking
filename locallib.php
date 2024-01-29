@@ -512,12 +512,14 @@ function optiondate_duplicatecustomfields($oldoptiondateid, $newoptiondateid) {
 
 /**
  * Helper function to update user calendar events after an option or optiondate (a session of a booking option) has been changed.
- * @param stdClass $option
+ * @param int $optionid
  * @param stdClass $optiondate
  * @param int $cmid
  */
-function option_optiondate_update_event(stdClass $option, stdClass $optiondate = null, int $cmid) {
+function option_optiondate_update_event(int $optionid, stdClass $optiondate = null, int $cmid) {
     global $DB, $USER;
+
+    $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
     // We either do this for option or optiondate
     // different way to retrieve the right events.
@@ -530,7 +532,7 @@ function option_optiondate_update_event(stdClass $option, stdClass $optiondate =
             $bocreatedevent = bookingoptiondate_created::create(['context' => context_module::instance($cmid),
                                                                 'objectid' => $optiondate->id,
                                                                 'userid' => $USER->id,
-                                                                'other' => ['optionid' => $option->id],
+                                                                'other' => ['optionid' => $settings->id],
                                                             ]);
             $bocreatedevent->trigger();
 
@@ -566,12 +568,12 @@ function option_optiondate_update_event(stdClass $option, stdClass $optiondate =
                     ON ue.eventid = e.id
                     WHERE ue.optionid = :optionid";
 
-        $allevents = $DB->get_records_sql($sql, ['optionid' => $option->id]);
+        $allevents = $DB->get_records_sql($sql, ['optionid' => $settings->id]);
 
         // Use the option as data object.
-        $data = $option;
+        $data = $settings;
 
-        if ($event = $DB->get_record('event', ['id' => $option->calendarid])) {
+        if ($event = $DB->get_record('event', ['id' => $settings->calendarid])) {
             if ($allevents && count($allevents) > 0) {
                 if ($event && isset($event->description)) {
                     $allevents[] = $event;
@@ -585,11 +587,11 @@ function option_optiondate_update_event(stdClass $option, stdClass $optiondate =
     // We use $data here for $option and $optiondate, the necessary keys are the same.
     foreach ($allevents as $eventrecord) {
         if ($eventrecord->eventtype == 'user') {
-            $eventrecord->description = get_rendered_eventdescription($option->id, $cmid, MOD_BOOKING_DESCRIPTION_CALENDAR, true);
+            $eventrecord->description = get_rendered_eventdescription($settings->id, $cmid, MOD_BOOKING_DESCRIPTION_CALENDAR, true);
         } else {
-            $eventrecord->description = get_rendered_eventdescription($option->id, $cmid, MOD_BOOKING_DESCRIPTION_CALENDAR, false);
+            $eventrecord->description = get_rendered_eventdescription($settings->id, $cmid, MOD_BOOKING_DESCRIPTION_CALENDAR, false);
         }
-        $eventrecord->name = $option->text;
+        $eventrecord->name = $settings->get_title_with_prefix();
         $eventrecord->timestart = $data->coursestarttime;
         $eventrecord->timeduration = $data->courseendtime - $data->coursestarttime;
         $eventrecord->timesort = $data->coursestarttime;

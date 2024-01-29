@@ -180,18 +180,15 @@ class mod_booking_observer {
 
         $optionid = $event->objectid;
         $cmid = $event->contextinstanceid;
-        $context = $event->get_context();
 
-        $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
-
-        $option = $bookingoption->option;
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
         // If there are associated optiondates (sessions) then update their calendar events.
         if ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid])) {
 
             // Delete course event if we have optiondates (multisession!).
-            if ($option->calendarid) {
-                $DB->delete_records('event', ['id' => $option->calendarid]);
+            if ($settings->calendarid) {
+                $DB->delete_records('event', ['id' => $settings->calendarid]);
                 $data = new stdClass();
                 $data->id = $optionid;
                 $data->calendarid = 0;
@@ -200,16 +197,16 @@ class mod_booking_observer {
                 // Also, delete all associated user events.
 
                 // Get all the user events.
-                $sql = "SELECT e.* FROM {booking_userevents} ue
-                JOIN {event} e
-                ON ue.eventid = e.id
-                WHERE ue.optionid = :optionid AND
-                ue.optiondateid IS NULL";
+                $sql = "SELECT e.*
+                        FROM {booking_userevents} ue
+                        JOIN {event} e
+                        ON ue.eventid = e.id
+                        WHERE ue.optionid = :optionid
+                        AND ue.optiondateid IS NULL";
 
                 $allevents = $DB->get_records_sql($sql, ['optionid' => $optionid]);
 
                 // We delete all userevents and return false.
-
                 foreach ($allevents as $eventrecord) {
                     $DB->delete_records('event', ['id' => $eventrecord->id]);
                     $DB->delete_records('booking_userevents', ['id' => $eventrecord->id]);
@@ -218,14 +215,14 @@ class mod_booking_observer {
 
             foreach ($optiondates as $optiondate) {
                 // Create or update the sessions.
-                option_optiondate_update_event($option, $optiondate, $cmid);
+                option_optiondate_update_event($optionid, $optiondate, $cmid);
             }
         } else { // This means that there are no multisessions.
             // This is for the course event.
             new calendar($event->contextinstanceid, $optionid, 0, calendar::MOD_BOOKING_TYPEOPTION);
 
             // This is for the user events.
-            option_optiondate_update_event($option, null, $cmid);
+            option_optiondate_update_event($optionid, null, $cmid);
         }
 
         $allteachers = $DB->get_fieldset_select('booking_teachers', 'userid', 'optionid = :optionid AND calendarid > 0',
