@@ -414,10 +414,9 @@ class previouslybooked implements bo_condition {
                 'cmid' => $settings->cmid,
             ]);
 
-            $description = $full ? get_string('bo_cond_previouslybooked_full_not_available',
-                'mod_booking',
-                $url->out(false)) :
-                get_string('bo_cond_previouslybooked_not_available', 'mod_booking');
+            $description = $full ?
+                get_string('bo_cond_previouslybooked_full_not_available', 'mod_booking', $url->out(false)) :
+                get_string('bo_cond_previouslybooked_not_available', 'mod_booking', $url->out(false));
         }
 
         return $description;

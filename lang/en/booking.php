@@ -2134,9 +2134,9 @@ $string['bo_cond_customform'] = 'Fill out form';
 
 $string['bo_cond_booking_time_available'] = 'Within normal booking times.';
 $string['bo_cond_booking_time_not_available'] = 'Not within normal booking times.';
-$string['bo_cond_booking_opening_time_not_available'] = 'Cannot be booked yet.';
-$string['bo_cond_booking_opening_time_full_not_available'] = 'Can be booked from<br>{$a}.';
-$string['bo_cond_booking_closing_time_not_available'] = 'Cannot be booked anymore.';
+$string['bo_cond_booking_opening_time_not_available'] = 'Can be booked from {$a}.';
+$string['bo_cond_booking_opening_time_full_not_available'] = 'Can be booked from {$a}.';
+$string['bo_cond_booking_closing_time_not_available'] = 'Cannot be booked anymore (ended on {$a}).';
 $string['bo_cond_booking_closing_time_full_not_available'] = 'Cannot be booked anymore (ended on {$a}).';
 
 $string['bo_cond_alreadybooked_available'] = 'Not yet booked';
@@ -2152,16 +2152,16 @@ $string['bo_cond_alreadyreserved_full_not_available'] = 'Added to cart';
 $string['bo_cond_fullybooked_available'] = 'Book it';
 $string['bo_cond_fullybooked_full_available'] = 'Booking is possible';
 $string['bo_cond_fullybooked_not_available'] = 'Fully booked';
-$string['bo_cond_fullybooked_full_not_available'] = 'Fully booked. Booking not possible anymore.';
+$string['bo_cond_fullybooked_full_not_available'] = 'Fully booked';
 
 $string['bo_cond_fullybookedoverride_available'] = 'Book it';
 $string['bo_cond_fullybookedoverride_full_available'] = 'Booking is possible';
 $string['bo_cond_fullybookedoverride_not_available'] = 'Fully booked';
-$string['bo_cond_fullybookedoverride_full_not_available'] = 'Already fully booked, but you have the right to book a user anyways.';
+$string['bo_cond_fullybookedoverride_full_not_available'] = 'Fully booked - but you have the right to book a user anyways.';
 
 $string['bo_cond_max_number_of_bookings_available'] = 'Book it';
 $string['bo_cond_max_number_of_bookings_full_available'] = 'Booking is possible';
-$string['bo_cond_max_number_of_bookings_not_available'] = 'Max number of bookings reached';
+$string['bo_cond_max_number_of_bookings_not_available'] = 'Max. number of bookings reached';
 $string['bo_cond_max_number_of_bookings_full_not_available'] = 'User has reached the max number of bookings';
 
 $string['bo_cond_onnotifylist_available'] = 'Book it';
@@ -2172,7 +2172,7 @@ $string['bo_cond_onnotifylist_full_not_available'] = 'User has reached the max n
 $string['bo_cond_onwaitinglist_available'] = 'Book it';
 $string['bo_cond_onwaitinglist_full_available'] = 'Booking is possible';
 $string['bo_cond_onwaitinglist_not_available'] = 'Fully booked - You are on the waiting list';
-$string['bo_cond_onwaitinglist_full_not_available'] = 'User is on waitinglist';
+$string['bo_cond_onwaitinglist_full_not_available'] = 'Fully booked - User is on the waiting list';
 
 $string['bo_cond_priceisset_available'] = 'Book it';
 $string['bo_cond_priceisset_full_available'] = 'Booking is possible';
@@ -2182,26 +2182,28 @@ $string['bo_cond_priceisset_full_not_available'] = 'A price is set, payment requ
 $string['bo_cond_userprofilefield_available'] = 'Book it';
 $string['bo_cond_userprofilefield_full_available'] = 'Booking is possible';
 $string['bo_cond_userprofilefield_not_available'] = 'Not allowed to book';
-$string['bo_cond_userprofilefield_full_not_available'] = 'Only user with customfield {$a->profilefield} set to value {$a->value} are allowed to book.
+$string['bo_cond_userprofilefield_full_not_available'] = 'Only users with user profile field {$a->profilefield} set to value {$a->value} are allowed to book.
     <br>But you have the right to book a user anyways.';
 
 $string['bo_cond_customuserprofilefield_available'] = 'Book it';
 $string['bo_cond_customuserprofilefield_full_available'] = 'Booking is possible';
 $string['bo_cond_customuserprofilefield_not_available'] = 'Not allowed to book';
-$string['bo_cond_customuserprofilefield_full_not_available'] = 'Only user with customfield {$a->profilefield} set to value {$a->value} are allowed to book.
+$string['bo_cond_customuserprofilefield_full_not_available'] = 'Only users with custom user profile field {$a->profilefield} set to value {$a->value} are allowed to book.
     <br>But you have the right to book a user anyways.';
 
 $string['bo_cond_previouslybooked_available'] = 'Book it';
 $string['bo_cond_previouslybooked_full_available'] = 'Booking is possible';
-$string['bo_cond_previouslybooked_not_available'] = 'Not allowed to book';
-$string['bo_cond_previouslybooked_full_not_available'] = 'Only user who have previously booked this <a href="{$a}">option</a> are allowed to book.
+$string['bo_cond_previouslybooked_not_available'] = 'Only user who have previously booked this <a href="{$a}">option</a> are allowed to book.';
+$string['bo_cond_previouslybooked_full_not_available'] = 'Only users who have previously booked this <a href="{$a}">option</a> are allowed to book.
     <br>But you have the right to book a user anyways.';
 
 $string['bo_cond_enrolledincourse_available'] = 'Book it';
 $string['bo_cond_enrolledincourse_full_available'] = 'Booking is possible';
 $string['bo_cond_enrolledincourse_not_available'] = 'Booking not allowed because you are not enrolled in at least one of the following course(s): {$a}';
+$string['bo_cond_enrolledincourse_full_not_available'] = 'Only users who are enrolled in at least one of the following course(s) are allowed to book: {$a}
+    <br>But you have the right to book a user anyways.';
 $string['bo_cond_enrolledincourse_not_available_and'] = 'Booking not allowed because you are not enrolled in all of the following course(s): {$a}';
-$string['bo_cond_enrolledincourse_full_not_available'] = 'Only user who are enrolled in the following course(s) are allowed to book: {$a}
+$string['bo_cond_enrolledincourse_full_not_available_and'] = 'Only users who are enrolled in all of the following course(s) are allowed to book: {$a}
     <br>But you have the right to book a user anyways.';
 
 $string['bo_cond_isbookable_available'] = 'Book it';
@@ -2218,7 +2220,7 @@ $string['bo_cond_subisbookable_full_not_available'] = 'Booking is not possible f
 $string['bo_cond_iscancelled_available'] = 'Book it';
 $string['bo_cond_iscancelled_full_available'] = 'Booking is possible';
 $string['bo_cond_iscancelled_not_available'] = 'Cancelled';
-$string['bo_cond_iscancelled_full_not_available'] = 'Cancelled - booking not possible';
+$string['bo_cond_iscancelled_full_not_available'] = 'Cancelled';
 
 $string['bo_cond_isloggedin_available'] = 'Book it';
 $string['bo_cond_isloggedin_full_available'] = 'Booking is possible';
@@ -2228,7 +2230,7 @@ $string['bo_cond_isloggedin_full_not_available'] = 'User is not logged in.';
 $string['bo_cond_optionhasstarted_available'] = 'Book it';
 $string['bo_cond_optionhasstarted_full_available'] = 'Booking is possible';
 $string['bo_cond_optionhasstarted_not_available'] = 'Already started - booking is not possible anymore';
-$string['bo_cond_optionhasstarted_full_not_available'] = 'Already started - booking for users not possible anymore';
+$string['bo_cond_optionhasstarted_full_not_available'] = 'Already started - booking for users is not possible anymore';
 
 $string['bo_cond_selectusers_available'] = 'Book it';
 $string['bo_cond_selectusers_full_available'] = 'Booking is possible';
@@ -2240,7 +2242,7 @@ $string['bo_cond_subbookingblocks_full_available'] = 'Booking is possible';
 $string['bo_cond_subbookingblocks_not_available'] = 'Not allowed to book.';
 $string['bo_cond_subbookingblocks_full_not_available'] = 'Subbooking blocks this booking option.';
 
-// This does not really block, it just handels available subbookings.
+// This does not really block, it just handles available subbookings.
 $string['bo_cond_subbooking_available'] = 'Book it';
 $string['bo_cond_subbooking_full_available'] = 'Booking is possible';
 $string['bo_cond_subbooking_not_available'] = 'Book it';

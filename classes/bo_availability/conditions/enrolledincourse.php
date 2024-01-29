@@ -432,13 +432,13 @@ class enrolledincourse implements bo_condition {
 
             if (isset($this->customsettings->courseidsoperator)
                 && $this->customsettings->courseidsoperator == 'OR') {
-                $description = $full ? get_string('bo_cond_enrolledincourse_full_not_available',
-                'mod_booking', $a) :
-                get_string('bo_cond_enrolledincourse_not_available', 'mod_booking', $a);
+                $description = $full ?
+                    get_string('bo_cond_enrolledincourse_full_not_available', 'mod_booking', $a) :
+                    get_string('bo_cond_enrolledincourse_not_available', 'mod_booking', $a);
             } else {
-                $description = $full ? get_string('bo_cond_enrolledincourse_full_not_available',
-                'mod_booking', $a) :
-                get_string('bo_cond_enrolledincourse_not_available_and', 'mod_booking', $a);
+                $description = $full ?
+                    get_string('bo_cond_enrolledincourse_full_not_available_and', 'mod_booking', $a) :
+                    get_string('bo_cond_enrolledincourse_not_available_and', 'mod_booking', $a);
             }
 
         }
