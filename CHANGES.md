@@ -1,3 +1,19 @@
+## Version 8.1.7 (2024012900)
+**New features:**
+* New feature: Add setting to collapse descriptions of booking options in table.
+* New feature: Add possibility to set canceluntil date for individual booking options.
+
+**Improvements:**
+* Improvement: Improve performance on instances with a lot of options.
+* Improvement: Cache "showdates" for much better performance.
+* Improvement: Store useprice flag in JSON so that it works correctly.
+
+**Bugfixes:**
+* Bugfix: Change semester adHoc task threw an error when non existing courseid was defined.
+* Bugfix: Setting the active booking options filter on end of this day, not time() will improve cached working.
+* Bugfix: Do not save custom form condition if checkbox is turned off.
+* Bugfix: Fix and improve canceluntil functionality and make sure that it works with cancelmyself (for options without price).
+
 ## Version 8.1.6 (2024012400)
 **Improvements:**
 * Improvement: Fix layout bugs with signin sheet.
