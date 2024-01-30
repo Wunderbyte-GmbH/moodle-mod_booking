@@ -420,7 +420,7 @@ class booking_handler extends \core_customfield\handler {
             $shortname = $data->get_field()->get('shortname');
             $multiselect = $data->get_field()->get_configdata_property('multiselect');
             $key = "customfield_$shortname";
-            if ($multiselect == "1" && is_string($instance->{$key})) {
+            if ($multiselect == "1" && isset($instance->{$key}) && is_string($instance->{$key})) {
                 // Convert them into an array, so everything works as expected.
                 $values = explode(',', $instance->{$key});
                 $instance->{$key} = $values;
