@@ -587,9 +587,11 @@ function option_optiondate_update_event(int $optionid, stdClass $optiondate = nu
     // We use $data here for $option and $optiondate, the necessary keys are the same.
     foreach ($allevents as $eventrecord) {
         if ($eventrecord->eventtype == 'user') {
-            $eventrecord->description = get_rendered_eventdescription($settings->id, $cmid, MOD_BOOKING_DESCRIPTION_CALENDAR, true);
+            $eventrecord->description = get_rendered_eventdescription($settings->id, $cmid,
+                MOD_BOOKING_DESCRIPTION_CALENDAR, true);
         } else {
-            $eventrecord->description = get_rendered_eventdescription($settings->id, $cmid, MOD_BOOKING_DESCRIPTION_CALENDAR, false);
+            $eventrecord->description = get_rendered_eventdescription($settings->id, $cmid,
+                MOD_BOOKING_DESCRIPTION_CALENDAR, false);
         }
         $eventrecord->name = $settings->get_title_with_prefix();
         $eventrecord->timestart = $data->coursestarttime;

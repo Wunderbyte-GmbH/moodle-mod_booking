@@ -2193,8 +2193,8 @@ $string['bo_cond_customuserprofilefield_full_not_available'] = 'Only users with 
 
 $string['bo_cond_previouslybooked_available'] = 'Book it';
 $string['bo_cond_previouslybooked_full_available'] = 'Booking is possible';
-$string['bo_cond_previouslybooked_not_available'] = 'Only user who have previously booked this <a href="{$a}">option</a> are allowed to book.';
-$string['bo_cond_previouslybooked_full_not_available'] = 'Only users who have previously booked this <a href="{$a}">option</a> are allowed to book.
+$string['bo_cond_previouslybooked_not_available'] = 'Only users who have previously booked <a href="{$a}">this option</a> are allowed to book.';
+$string['bo_cond_previouslybooked_full_not_available'] = 'Only users who have previously booked <a href="{$a}">this option</a> are allowed to book.
     <br>But you have the right to book a user anyways.';
 
 $string['bo_cond_enrolledincourse_available'] = 'Book it';

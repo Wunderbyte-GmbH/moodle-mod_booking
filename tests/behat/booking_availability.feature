@@ -109,7 +109,7 @@ Feature: Test booking options avaialbility conditions
     And I should see "## + 1 year ##%Y##" in the ".allbookingoptionstable_r2" "css_element"
     ## Verify availability as a student
     When I am on the "My booking" Activity page logged in as student1
-    Then I should see "Cannot be booked yet" in the ".allbookingoptionstable_r2" "css_element"
+    Then I should see "Can be booked from" in the ".allbookingoptionstable_r2" "css_element"
     And I should not see "Book now" in the ".allbookingoptionstable_r2" "css_element"
 
   @javascript
@@ -125,7 +125,7 @@ Feature: Test booking options avaialbility conditions
     And I press "Save and go back"
     ## Verify availability as a student
     When I am on the "My booking" Activity page logged in as student1
-    Then I should see "Not allowed to book" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Only users who have previously booked" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r3" "css_element"
@@ -133,7 +133,7 @@ Feature: Test booking options avaialbility conditions
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Booked" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
-    And I should not see "Not allowed to book" in the ".allbookingoptionstable_r1" "css_element"
+    And I should not see "Only users who have previously booked" in the ".allbookingoptionstable_r1" "css_element"
 
   @javascript
   Scenario: Configure userprofile-depdendent availability condition
@@ -149,10 +149,10 @@ Feature: Test booking options avaialbility conditions
       | bo_cond_userprofilefield_value    | gmail.com       |
     And I press "Save and go back"
     And I wait until the page is ready
-    And I should see "Only user with customfield email set to value gmail.com are allowed to book" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Only users with user profile field email set to value gmail.com are allowed to book." in the ".allbookingoptionstable_r3" "css_element"
     ## Verify availability as a student
     When I am on the "My booking" Activity page logged in as student1
-    Then I should see "Not allowed to book" in the ".allbookingoptionstable_r3" "css_element"
+    Then I should see "Only users who have previously booked" in the ".allbookingoptionstable_r3" "css_element"
     And I should not see "Book now" in the ".allbookingoptionstable_r3" "css_element"
     ## Update availability as a teacher
     Given I am on the "My booking" Activity page logged in as teacher1
@@ -168,7 +168,7 @@ Feature: Test booking options avaialbility conditions
     And I press "Save and go back"
     ## Verify availability as a student
     Given I am on the "My booking" Activity page logged in as student1
-    Then I should not see "Not allowed to book" in the ".allbookingoptionstable_r3" "css_element"
+    Then I should not see "Only users who have previously booked" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
 
   @javascript
@@ -252,7 +252,7 @@ Feature: Test booking options avaialbility conditions
     And I follow "<< Back to responses"
     And I follow "Booking"
     And I wait until the page is ready
-    And I should see "Fully booked. Booking not possible anymore" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Fully booked" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r3" "css_element"
@@ -278,14 +278,14 @@ Feature: Test booking options avaialbility conditions
     And I set the field "Must be already booked" to "Option - dependency"
     And I press "Save and go back"
     When I am on the "My booking" Activity page logged in as student1
-    Then I should see "Cannot be booked yet" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Can be booked from" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Booked" in the ".allbookingoptionstable_r3" "css_element"
-    And I should see "Cannot be booked yet" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Can be booked from" in the ".allbookingoptionstable_r1" "css_element"
     ## Configure OR option
     Given I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
@@ -300,7 +300,7 @@ Feature: Test booking options avaialbility conditions
     When I am on the "My booking" Activity page logged in as student1
     Then I should see "Booked" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
-    And I should not see "Cannot be booked yet" in the ".allbookingoptionstable_r1" "css_element"
+    And I should not see "Can be booked from" in the ".allbookingoptionstable_r1" "css_element"
 
   @javascript
   Scenario: Configure combined availability conditions - overbooking given to user
@@ -323,7 +323,7 @@ Feature: Test booking options avaialbility conditions
     And I set the field with xpath "//*[contains(@id, 'fitem_id_bo_cond_selectusers_overridecondition')]//*[contains(@id, 'form_autocomplete_input')]" to "Fully booked"
     And I press "Save and go back"
     And I wait until the page is ready
-    And I should see "Fully booked. Booking not possible anymore." in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Fully booked" in the ".allbookingoptionstable_r3" "css_element"
     ## Check availability as student2
     When I am on the "My booking" Activity page logged in as student2
     Then I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
