@@ -834,14 +834,15 @@ class booking_option {
             // We want to enrol people who have been waiting longer first.
             usort($usersonwaitinglist, fn($a, $b) => $a->timecreated < $b->timecreated ? -1 : 1);
             if ($noofuserstobook > 0 && !empty($ba->usersonwaitinglist)) {
-                while (!empty($usersonwaitinglist)) {
+                while ($noofuserstobook > 0) {
+                    $noofuserstobook--; // Decrement.
                     $currentanswer = array_shift($usersonwaitinglist);
                     $user = singleton_service::get_instance_of_user($currentanswer->userid);
                     $this->user_submit_response($user, 0, 0, false, MOD_BOOKING_VERIFIED);
                     $this->enrol_user_coursestart($currentanswer->userid);
 
                     // Before sending, we delete the booking answers cache!
-                    self::purge_cache_for_option($this->optionid);
+                    self::purge_cache_for_answers($this->optionid);
                     $messagecontroller = new message_controller(
                         MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC, MOD_BOOKING_MSGPARAM_STATUS_CHANGED,
                         $this->cmid, $this->bookingid, $this->optionid, $currentanswer->userid
@@ -862,7 +863,7 @@ class booking_option {
                 $this->unenrol_user($currentanswer->userid);
 
                 // Before sending, we delete the booking answers cache!
-                self::purge_cache_for_option($this->optionid);
+                self::purge_cache_for_answers($this->optionid);
                 $messagecontroller = new message_controller(
                     MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC, MOD_BOOKING_MSGPARAM_STATUS_CHANGED,
                     $this->cmid, $this->bookingid, $this->optionid, $currentanswer->userid
@@ -888,7 +889,7 @@ class booking_option {
                 $event->trigger();
 
                 // Before sending, we delete the booking answers cache!
-                self::purge_cache_for_option($this->optionid);
+                self::purge_cache_for_answers($this->optionid);
                 $messagecontroller = new message_controller(
                     MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC, MOD_BOOKING_MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM,
                     $this->cmid, $this->bookingid, $this->optionid, $currentanswer->userid
@@ -904,7 +905,7 @@ class booking_option {
                 $this->enrol_user_coursestart($currentanswer->userid);
 
                 // Before sending, we delete the booking answers cache!
-                self::purge_cache_for_option($this->optionid);
+                self::purge_cache_for_answers($this->optionid);
                 $messagecontroller = new message_controller(
                     MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC, MOD_BOOKING_MSGPARAM_STATUS_CHANGED,
                     $this->cmid, $this->bookingid, $this->optionid, $currentanswer->userid
