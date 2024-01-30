@@ -1,3 +1,10 @@
+## Version 8.1.9 (2024013000)
+**Bugfixes:**
+* Bugfix: Fix strings in behat tests.
+
+**Improvements:**
+* Improvement: From calendar events we now link to optionview.php.
+
 ## Version 8.1.8 (2024012901)
 **Improvements:**
 * Improvement: Show more information of availability conditions to users and fix some strings.
