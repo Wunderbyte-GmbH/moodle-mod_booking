@@ -152,7 +152,7 @@ Feature: Test booking options avaialbility conditions
     And I should see "Only users with user profile field email set to value gmail.com are allowed to book." in the ".allbookingoptionstable_r3" "css_element"
     ## Verify availability as a student
     When I am on the "My booking" Activity page logged in as student1
-    Then I should see "Only users who have previously booked" in the ".allbookingoptionstable_r3" "css_element"
+    Then I should see "Not allowed to book" in the ".allbookingoptionstable_r3" "css_element"
     And I should not see "Book now" in the ".allbookingoptionstable_r3" "css_element"
     ## Update availability as a teacher
     Given I am on the "My booking" Activity page logged in as teacher1
@@ -168,7 +168,7 @@ Feature: Test booking options avaialbility conditions
     And I press "Save and go back"
     ## Verify availability as a student
     Given I am on the "My booking" Activity page logged in as student1
-    Then I should not see "Only users who have previously booked" in the ".allbookingoptionstable_r3" "css_element"
+    Then I should not see "Not allowed to book" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
 
   @javascript
