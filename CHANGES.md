@@ -1,3 +1,7 @@
+## Version 8.1.10 (2024013001)
+* Bugfix: Add missing isset check in booking_handler.
+* Bugfix: Fixed a bug that sent status change notifications to ALL users on waiting list.
+
 ## Version 8.1.9 (2024013000)
 **Bugfixes:**
 * Bugfix: Fix strings in behat tests.
