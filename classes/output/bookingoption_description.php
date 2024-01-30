@@ -363,10 +363,10 @@ class bookingoption_description implements renderable, templatable {
         $this->priceformulamultiply = $settings->priceformulamultiply;
 
         $baseurl = $CFG->wwwroot;
-        $moodleurl = new \moodle_url($baseurl . '/mod/booking/view.php', [
-            'id' => $cmid,
+        $moodleurl = new \moodle_url($baseurl . '/mod/booking/optionview.php', [
             'optionid' => $settings->id,
-            'whichview' => 'showonlyone',
+            'cmid' => $cmid,
+            // Do not set userid here as it might be written into calendar event!
         ]);
 
         switch ($descriptionparam) {
