@@ -214,20 +214,25 @@ class optiondate {
             // Add teachers of the booking option to newly created optiondate.
             teachers_handler::subscribe_existing_teachers_to_new_optiondate($id);
 
-            // We trigger the event, where we take care of events in calendar etc. First we get the context.
-            $event = bookingoptiondate_created::create([
-                'context' => context_module::instance($settings->cmid),
-                'objectid' => $id,
-                'userid' => $USER->id,
-                'other' => ['optionid' => $optionid],
-            ]);
-            $event->trigger();
+            // When we create a template, we may not have a cmid.
 
-            // Also create new user events (user calendar entries) for all booked users.
-            $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
-            $users = $option->get_all_users();
-            foreach ($users as $user) {
-                new calendar($settings->cmid, $optionid, $user->id, calendar::MOD_BOOKING_TYPEOPTIONDATE, $id, 1);
+            if (!empty($settings->cmid)) {
+
+                // We trigger the event, where we take care of events in calendar etc. First we get the context.
+                $event = bookingoptiondate_created::create([
+                    'context' => context_module::instance($settings->cmid),
+                    'objectid' => $id,
+                    'userid' => $USER->id,
+                    'other' => ['optionid' => $optionid],
+                ]);
+                $event->trigger();
+
+                // Also create new user events (user calendar entries) for all booked users.
+                $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
+                $users = $option->get_all_users();
+                foreach ($users as $user) {
+                    new calendar($settings->cmid, $optionid, $user->id, calendar::MOD_BOOKING_TYPEOPTIONDATE, $id, 1);
+                }
             }
 
             // If a new optiondate is inserted and we have no entityid set, then we use the entity of the parent option as default.
