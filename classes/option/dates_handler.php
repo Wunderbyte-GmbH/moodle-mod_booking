@@ -30,10 +30,8 @@ global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
 use cache_helper;
-use context_module;
 use lang_string;
 use local_entities\entitiesrelation_handler;
-use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\calendar;
 use mod_booking\semester;
@@ -67,46 +65,6 @@ class dates_handler {
         $this->bookingid = $bookingid;
     }
 
-    /**
-     * Create an option date from an optiondate object
-     * @param stdClass $optiondate
-     * @return int the option date id
-     */
-    public function create_option_date(stdClass $optiondate): int {
-        global $DB, $USER;
-        $optiondateid = $DB->insert_record('booking_optiondates', $optiondate);
-        // Add teachers of the booking option to newly created optiondate.
-        teachers_handler::subscribe_existing_teachers_to_new_optiondate($optiondateid);
-
-        // If a new optiondate is inserted, we add the entity of the parent option as default.
-        if (class_exists('local_entities\entitiesrelation_handler')) {
-            $erhandleroption = new entitiesrelation_handler('mod_booking', 'option');
-            $entityid = $erhandleroption->get_entityid_by_instanceid($this->optionid);
-            $erhandleroptiondate = new entitiesrelation_handler('mod_booking', 'optiondate');
-            $erhandleroptiondate->save_entity_relation($optiondateid, $entityid);
-        }
-        // After updating, we invalidate caches.
-        cache_helper::purge_by_event('setbackoptionstable');
-        cache_helper::invalidate_by_event('setbackoptionsettings', [$this->optionid]);
-
-        booking_updatestartenddate($this->optionid);
-        // We trigger the event, where we take care of events in calendar etc. First we get the context.
-        $booking = singleton_service::get_instance_of_booking_by_bookingid($optiondate->bookingid);
-        $context = $booking->get_context();
-        $event = \mod_booking\event\bookingoptiondate_created::create(['context' => $context,
-                                                                        'objectid' => $optiondateid,
-                                                                        'userid' => $USER->id,
-                                                                        'other' => ['optionid' => $this->optionid],
-                                                                    ]);
-        $event->trigger();
-        // Also create new user events (user calendar entries) for all booked users.
-        $option = singleton_service::get_instance_of_booking_option($booking->cmid, $this->optionid);
-        $users = $option->get_all_users();
-        foreach ($users as $user) {
-            new calendar($booking->cmid, $this->optionid, $user->id, calendar::MOD_BOOKING_TYPEOPTIONDATE, $optiondateid, 1);
-        }
-        return $optiondateid;
-    }
     /**
      * Add form fields to be passed on mform.
      *
@@ -171,84 +129,8 @@ class dates_handler {
 
             // Now, let's remove every date from booking_optiondates.
             foreach ($dates as $date) {
-                $this->delete_option_date($date);
+                optiondate::delete($date->id);
             }
-        }
-    }
-
-    /**
-     * Delete a single option date from a booking option.
-     *
-     * @param object $date option date id
-     * @return void
-     */
-    public function delete_option_date(object $date): void {
-        global $DB;
-        $changes = [];
-        $id = $date->id;
-
-        // If there is an associated calendar event, delete it first.
-        if ($date->eventid !== null && $date->eventid !== 0) {
-            $DB->delete_records('event', ['id' => $date->eventid]);
-            // Store the changes so they can be sent in an update mail.
-            $changes[] = [
-                'info' => get_string('changeinfosessiondeleted', 'booking'),
-                'fieldname' => 'coursestarttime',
-                'oldvalue' => $date->coursestarttime,
-            ];
-            $changes[] = ['fieldname' => 'courseendtime', 'oldvalue' => $date->courseendtime];
-        }
-
-        // Also, clean all associated user records.
-        $records = $DB->get_records('booking_userevents', ['optiondateid' => $id]);
-        if (!empty($records)) {
-            foreach ($records as $record) {
-                $DB->delete_records('event', ['id' => $record->eventid]);
-                $DB->delete_records('booking_userevents', ['id' => $record->id]);
-            }
-        }
-
-        // We also need to delete the associated records in booking_optiondates_teachers.
-        teachers_handler::remove_teachers_from_deleted_optiondate($id);
-
-        // We also need to delete associated custom fields.
-        self::optiondate_deletecustomfields($id);
-
-        // Delete course events for the option date.
-        // Optionid and optiondateid are stored in uuid column like this: optionid-optiondateid.
-        $DB->delete_records_select('event',
-            "eventtype = 'course'
-            AND courseid <> 0
-            AND component = 'mod_booking'
-            AND uuid = :pattern",
-            ['pattern' => "{$this->optionid}-{$id}"]
-        );
-
-        // Finally delete the option date.
-        $DB->delete_records('booking_optiondates', ['id' => $id]);
-
-        // We also need to delete any associated entities.
-        // If there is an associated relation to the entity, delete it too.
-        if (class_exists('local_entities\entitiesrelation_handler')) {
-            $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
-            $erhandler->delete_relation($id);
-        }
-
-        // If there are no sessions left, we switch from multisession to simple option.
-        if (!$DB->get_records('booking_optiondates', ['optionid' => $this->optionid])) {
-            $bu = new \mod_booking\booking_utils();
-            $bu->booking_show_option_userevents($this->optionid);
-        }
-        booking_updatestartenddate($this->optionid);
-        // After deleting, we invalidate caches.
-        booking_option::purge_cache_for_option($this->optionid);
-
-        if (!empty($changes)) {
-            // Set no update to true, so the original.
-            $bu = new \mod_booking\booking_utils();
-            $cm = get_coursemodule_from_instance('booking', $this->bookingid);
-            $context = context_module::instance($cm->id);
-            $bu->react_on_changes($cm->id, $context, $this->optionid, $changes, true);
         }
     }
 
@@ -282,7 +164,7 @@ class dates_handler {
                     }
 
                 } else {
-                    $this->delete_option_date($olddate);
+                    optiondate::delete($olddate->id);
                 }
             }
 
@@ -290,14 +172,14 @@ class dates_handler {
             foreach ($fromform->newoptiondates as $optiondatestring) {
                 list($starttime, $endtime) = explode('-', $optiondatestring);
 
-                $optiondate = new stdClass();
-                $optiondate->bookingid = $this->bookingid;
-                $optiondate->optionid = $this->optionid;
-                $optiondate->eventid = 0; // TODO: We will implement this in a later release.
-                $optiondate->coursestarttime = (int) $starttime;
-                $optiondate->courseendtime = (int) $endtime;
-                $optiondate->daystonotify = 0; // TODO: We will implement this in a later release..
-                $this->create_option_date($optiondate);
+                // Now save the new optiondates.
+                optiondate::save(
+                    0,
+                    $this->optionid,
+                    (int) $starttime,
+                    (int) $endtime,
+                    // TODO: Implement additional params in a later release.
+                );
             }
         }
     }
@@ -606,17 +488,6 @@ class dates_handler {
         // Also purge caches for options table and booking_option_settings.
         cache_helper::purge_by_event('setbackoptionstable');
         cache_helper::purge_by_event('setbackoptionsettings');
-
-    }
-
-    /**
-     * Helper function to delete custom fields belonging to an option date.
-     * @param int $optiondateid id of the option date for which all custom fields will be deleted.
-     */
-    public static function optiondate_deletecustomfields($optiondateid) {
-        global $DB;
-        // Delete all custom fields which belong to this optiondate.
-        $DB->delete_records("booking_customfields", ['optiondateid' => $optiondateid]);
     }
 
     /**

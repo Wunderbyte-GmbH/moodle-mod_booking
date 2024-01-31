@@ -279,7 +279,7 @@ class optiondate_cfields {
      */
     public static function delete_cfields_for_optiondate($optiondateid) {
         global $DB;
-
+        // Delete all custom fields which belong to this optiondate.
         $DB->delete_records('booking_customfields', ['optiondateid' => $optiondateid]);
     }
 
