@@ -62,7 +62,7 @@ Feature: In a booking create booking option with multiple custom options
       | Min. number of participants           | 3                     |
       | Teachers poll url                     | https://google.com    |
     And I press "Add date"
-    And I wait "1" seconds
+    And I wait "2" seconds
     And I set the following fields to these values:
       | coursestarttime_1[day]    | ##tomorrow##%d##   |
       | coursestarttime_1[month]  | ##tomorrow##%B##   |

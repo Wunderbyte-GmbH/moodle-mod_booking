@@ -32,7 +32,7 @@ Feature: In a booking create multi session options
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Dates"
     And I press "Add date"
-    And I wait "1" seconds
+    And I wait "2" seconds
     And I should see "## today ##%Y##" in the "#booking_optiondate_1" "css_element"
     And I should see "## today ##%B##" in the "#booking_optiondate_1" "css_element"
     And I should see "## today ##%d##" in the "#booking_optiondate_1" "css_element"
@@ -51,7 +51,7 @@ Feature: In a booking create multi session options
     And I press "applydate_1"
     ## Add 2nd date
     And I press "Add date"
-    And I wait "1" seconds
+    And I wait "2" seconds
     And I set the following fields to these values:
       | coursestarttime_2[day]    | 20                 |
       | coursestarttime_2[month]  | June               |

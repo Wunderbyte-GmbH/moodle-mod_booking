@@ -45,7 +45,7 @@ Feature: In a booking instance create booking options
     And I set the following fields to these values:
       | Booking option name | Test option - Webinar |
     And I press "Add date"
-    And I wait "1" seconds
+    And I wait "2" seconds
     And I set the following fields to these values:
       | coursestarttime_1[day]    | ## tomorrow ## %d ## |
       | coursestarttime_1[month]  | ## tomorrow ## %B ## |
