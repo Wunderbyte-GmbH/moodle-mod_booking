@@ -231,10 +231,12 @@ class optiondate {
                 new calendar($booking->cmid, $optionid, $user->id, calendar::MOD_BOOKING_TYPEOPTIONDATE, $id, 1);
             }
 
-            // If a new optiondate is inserted, we use the entity of the parent option as default.
+            // If a new optiondate is inserted and we have no entityid set, then we use the entity of the parent option as default.
             if (class_exists('local_entities\entitiesrelation_handler') && empty($entityid)) {
                 $erhandleroption = new entitiesrelation_handler('mod_booking', 'option');
                 $entityid = $erhandleroption->get_entityid_by_instanceid($optionid);
+                $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
+                $erhandler->save_entity_relation($id, $entityid);
             }
         }
 
@@ -243,7 +245,6 @@ class optiondate {
         $newdata['entityid'] = $entityid;
         $newdata['entityarea'] = 'optiondate';
         if (!self::compare_optiondates((array)$oldrecord, $newdata, 2)) {
-
             // We need to save entities relation.
             if (class_exists('local_entities\entitiesrelation_handler')) {
                 $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
@@ -266,16 +267,6 @@ class optiondate {
 
         return new self(...$data);
     }
-
-    /*
-        // If a new optiondate is inserted, we add the entity of the parent option as default.
-        if (class_exists('local_entities\entitiesrelation_handler')) {
-            $erhandleroption = new entitiesrelation_handler('mod_booking', 'option');
-            $entityid = $erhandleroption->get_entityid_by_instanceid($this->optionid);
-            $erhandleroptiondate = new entitiesrelation_handler('mod_booking', 'optiondate');
-            $erhandleroptiondate->save_entity_relation($optiondateid, $entityid);
-        }
-    */
 
     /**
      * Function returns true, if they are the same, false if not.
