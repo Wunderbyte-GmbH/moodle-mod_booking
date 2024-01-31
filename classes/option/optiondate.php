@@ -25,6 +25,7 @@
 namespace mod_booking\option;
 
 use dml_exception;
+use context_module;
 use local_entities\entitiesrelation_handler;
 use mod_booking\calendar;
 use mod_booking\customfield\optiondate_cfields;
@@ -214,10 +215,8 @@ class optiondate {
             teachers_handler::subscribe_existing_teachers_to_new_optiondate($id);
 
             // We trigger the event, where we take care of events in calendar etc. First we get the context.
-            $booking = singleton_service::get_instance_of_booking_by_bookingid($settings->bookingid);
-            $context = $booking->get_context();
             $event = bookingoptiondate_created::create([
-                'context' => $context,
+                'context' => context_module::instance($settings->cmid),
                 'objectid' => $id,
                 'userid' => $USER->id,
                 'other' => ['optionid' => $optionid],
@@ -225,10 +224,10 @@ class optiondate {
             $event->trigger();
 
             // Also create new user events (user calendar entries) for all booked users.
-            $option = singleton_service::get_instance_of_booking_option($booking->cmid, $optionid);
+            $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
             $users = $option->get_all_users();
             foreach ($users as $user) {
-                new calendar($booking->cmid, $optionid, $user->id, calendar::MOD_BOOKING_TYPEOPTIONDATE, $id, 1);
+                new calendar($settings->cmid, $optionid, $user->id, calendar::MOD_BOOKING_TYPEOPTIONDATE, $id, 1);
             }
 
             // If a new optiondate is inserted and we have no entityid set, then we use the entity of the parent option as default.
