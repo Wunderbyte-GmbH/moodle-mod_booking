@@ -308,8 +308,13 @@ class dates {
             // We have to increment datescounter.
             $datescounter++;
 
-            // Set entity from booking option as default for entity of new optiondate.
-            $defaultvalues->{LOCAL_ENTITIES_FORM_ENTITYID . $datescounter} = $defaultvalues->{LOCAL_ENTITIES_FORM_ENTITYID . 0};
+            if (class_exists('local_entities\entitiesrelation_handler')) {
+
+                $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
+
+                // Set entity from booking option as default for entity of new optiondate.
+                $defaultvalues->{LOCAL_ENTITIES_FORM_ENTITYID . $datescounter} = $defaultvalues->{LOCAL_ENTITIES_FORM_ENTITYID . 0};
+            }
 
             $defaultvalues->datescounter = $datescounter;
         } else {
