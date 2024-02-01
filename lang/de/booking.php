@@ -85,6 +85,7 @@ $string['reviewed'] = 'Kontrolliert';
 $string['rowupdated'] = 'Zeile wurde aktualisiert.';
 $string['search'] = 'Suche...';
 $string['semesterid'] = 'SemesterID';
+$string['nosemester'] = 'Kein Semester gewählt';
 $string['sendmailtoallbookedusers'] = 'E-Mail an alle gebuchten Nutzer:innen senden';
 $string['showmore'] = 'Zeige mehr';
 $string['sortorder'] = 'Sortierreihenfolge';

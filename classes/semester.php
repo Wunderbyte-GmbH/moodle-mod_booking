@@ -108,7 +108,7 @@ class semester {
     public static function get_semesters_id_name_array(): array {
         global $DB;
 
-        $semestersarray = [];
+        $semestersarray = [0 => get_string('nosemester', 'mod_booking')];
 
         $data = $DB->get_records('booking_semesters');
 
