@@ -36,7 +36,7 @@ Feature: In a booking create a template
       | Booking option name | New option - by template |
     And I set the field "Add to course calendar" to "Add to calendar (visible only to course participants)"
     And I press "Add date"
-    And I wait "2" seconds
+    And I wait "1" seconds
     And I set the following fields to these values:
       | coursestarttime_1[day]    | ##tomorrow##%d##     |
       | coursestarttime_1[month]  | ##tomorrow##%B##     |
