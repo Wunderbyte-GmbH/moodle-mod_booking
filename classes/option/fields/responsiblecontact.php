@@ -134,8 +134,9 @@ class responsiblecontact extends field_base {
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
         if (empty($data->importing) && !empty($data->id)) {
-            $teacherhandler = new teachers_handler($data->id);
-            $teacherhandler->set_data($data);
+            if (empty($data->responsiblecontact)) {
+                $data->responsiblecontact = $settings->responsiblecontact ?? [];
+            }
         } else {
             if (!empty($data->responsiblecontact)) {
                 $userids = teachers_handler::get_user_ids_from_string($data->responsiblecontact);
