@@ -188,7 +188,7 @@ class booking_option {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function create_option_from_optionid($optionid, ?int $bookingid = null): ?booking_option {
+    public static function create_option_from_optionid($optionid, ?int $bookingid = null) {
         global $DB;
 
         if (empty($bookingid)) {
@@ -3210,7 +3210,7 @@ class booking_option {
      * @param int $optionid
      * @return int|null $cmid
      */
-    public static function get_cmid_from_optionid(int $optionid): ?int {
+    public static function get_cmid_from_optionid(int $optionid) {
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         if (!empty($settings->cmid)) {
             return (int) $settings->cmid;

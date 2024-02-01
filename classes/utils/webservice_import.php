@@ -129,7 +129,7 @@ class webservice_import {
      * @param mixed $data
      * @return booking_option|null
      */
-    private function check_if_update_option(&$data): ?booking_option {
+    private function check_if_update_option(&$data) {
 
         global $DB;
         // Array of keys to check.
@@ -190,7 +190,7 @@ class webservice_import {
      * @param mixed $data
      * @return int|null
      */
-    private function return_booking_id(&$data): ?int {
+    private function return_booking_id(&$data) {
 
         global $DB;
 

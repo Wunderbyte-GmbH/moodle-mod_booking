@@ -85,7 +85,7 @@ class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
             $booking = $boption->booking;
             // phpcs:ignore
             // $iselective = $booking->settings->iselective; TODO: delete this?
-            $enforceorder = !empty($booking->settings->enforceorder) || !empty($booking->settings->enforceteacherorder) ? 1 : 0;
+            $enforceorder = (!empty($booking->settings->enforceorder) || !empty($booking->settings->enforceteacherorder)) ? 1 : 0;
 
             // Get all booked users of the relevant booking options.
             $bookedusers = $boption->get_all_users_booked();

@@ -148,7 +148,7 @@ class singleton_service {
      * @param int $cmid
      * @return booking|null
      */
-    public static function get_instance_of_booking_by_cmid(int $cmid): ?booking {
+    public static function get_instance_of_booking_by_cmid(int $cmid) {
 
         $instance = self::get_instance();
 
@@ -173,7 +173,7 @@ class singleton_service {
      * @param int $bookingid
      * @return booking|null
      */
-    public static function get_instance_of_booking_by_bookingid(int $bookingid): ?booking {
+    public static function get_instance_of_booking_by_bookingid(int $bookingid) {
 
         if (empty($bookingid)) {
             return null;
@@ -231,7 +231,7 @@ class singleton_service {
      *
      * @return booking_settings|null
      */
-    public static function get_instance_of_booking_settings_by_bookingid(int $bookingid): ?booking_settings {
+    public static function get_instance_of_booking_settings_by_bookingid(int $bookingid) {
 
         if (empty($bookingid)) {
             return null;
@@ -261,7 +261,7 @@ class singleton_service {
      *
      * @return booking_option|null
      */
-    public static function get_instance_of_booking_option(int $cmid, int $optionid): ?booking_option {
+    public static function get_instance_of_booking_option(int $cmid, int $optionid) {
 
         $instance = self::get_instance();
 

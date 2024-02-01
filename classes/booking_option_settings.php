@@ -974,7 +974,7 @@ class booking_option_settings {
      *
      * @return stdClass|null
      */
-    public function return_settings_as_stdclass(): ?stdClass {
+    public function return_settings_as_stdclass() {
 
         if (empty($this->id)) {
             return null;
