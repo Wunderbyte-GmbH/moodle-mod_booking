@@ -1,3 +1,14 @@
+## Version 8.1.11 (2024020100)
+* Improvement: Styling of booking description in musi_table.
+* Improvement: Harmonize and restore save (create) and delete functions for optiondates and remove redundancies.
+* Improvement: For new optiondates we use the entity of the parent option as default.
+* Improvement: Don't use the ? typecast to null for functions, as it's not yet supported in PHP 7.4.
+* Improvement: Add no semester option.
+* Bugfix: Fix context bug in optiondate class.
+* Bugfix: Don't access entities constant without actually having called the handler.
+* Bugfix: Don't trigger events when cmid is empty (as for global templates)
+* Bugfix: Load responsible contact.
+
 ## Version 8.1.10 (2024013001)
 * Bugfix: Add missing isset check in booking_handler.
 * Bugfix: Fixed a bug that sent status change notifications to ALL users on waiting list.
