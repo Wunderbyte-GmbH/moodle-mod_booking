@@ -3287,14 +3287,19 @@ class booking_option {
         // ... that's not the case for C to F.
 
         // Get the old option. We need to compare it with the new one to get the changes.
-        // If no ID provided we threat record as new and set id to "0".
+        // If no ID provided we treat record as new and set id to "0".
         $optionid = is_array($data) ? ($data['id'] ?? 0) : ($data->id ?? 0);
         $originaloption = singleton_service::get_instance_of_booking_option_settings($optionid);
 
         // If $formdata is an array, we need to run set_data.
         if (is_array($data) || isset($data->importing)) {
             $data = (object)$data;
-            fields_info::set_data($data);
+
+            // If we encounter an error in set data, we need to exit here.
+            $errormessage = fields_info::set_data($data);
+            if (!empty($errormessage)) {
+                throw new moodle_exception('erroronsetdata', 'mod_booking', '', $data, $errormessage);
+            }
 
             $errors = [];
 

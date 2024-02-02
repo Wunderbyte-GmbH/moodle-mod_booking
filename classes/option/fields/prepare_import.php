@@ -29,6 +29,7 @@ use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use mod_booking\singleton_service;
+use moodle_exception;
 use MoodleQuickForm;
 use stdClass;
 
@@ -114,6 +115,13 @@ class prepare_import extends field_base {
                         $data->{$key} = $value;
                     }
                 }
+            } else if (empty($data->text) || empty($data->description)) {
+                throw new moodle_exception(
+                    'identifiernotfoundnotenoughdata',
+                    'mod_booking',
+                    '',
+                    $data->identifier,
+                    "The record with the identifier $data->identifier was not found in db");
             }
         }
 

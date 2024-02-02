@@ -123,6 +123,6 @@ class actions extends field_base {
             // We don't need the boactions otherwise, but might be needed in copying etc.
             $data->boactions = booking_option::get_value_of_json_by_key($data->id, 'boactions');
         }
-        $data->boactionsjson = json_encode($data->boactions);
+        $data->boactionsjson = json_encode($data->boactions ?? []);
     }
 }

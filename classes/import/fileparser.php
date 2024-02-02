@@ -490,7 +490,7 @@ class fileparser {
      */
     protected function field_is_mandatory($columnname) {
 
-        return $this->settings->columns[$columnname]->mandatory;
+        return $this->settings->columns[$columnname]->mandatory ?? false;
     }
 
     /**

@@ -191,11 +191,13 @@ class fields_info {
     /**
      * Set data
      * @param stdClass $data
-     * @return void
+     * @return string
      */
     public static function set_data(stdClass &$data) {
 
         $optionid = $data->id ?? 0;
+
+        $errormessage = '';
 
         if (!empty($optionid)) {
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
@@ -212,8 +214,10 @@ class fields_info {
         } catch (moodle_exception $e) {
             // This is just to get out of the loop.
             // We use this exit in the template class.
-            $a = 1;
+            $error = $e->getMessage();
         }
+
+        return $error;
     }
 
     /**
