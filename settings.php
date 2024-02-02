@@ -661,6 +661,11 @@ if ($ADMIN->fulltree) {
         $settings->add($setting);
     }
 
+    $settings->add(
+        new admin_setting_configcheckbox('booking/alloptionsinreport',
+                get_string('alloptionsinreport', 'mod_booking'),
+                get_string('alloptionsinreportdesc', 'mod_booking'), 0));
+
     // Global mail templates (PRO).
     $settings->add(
         new admin_setting_heading('globalmailtemplates_heading',

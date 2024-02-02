@@ -1534,6 +1534,8 @@ $string['signincustfields'] = 'Anzuzeigende Profilfelder';
 $string['signincustfields_desc'] = 'Wählen Sie die Profilfelder, die auf der Unterschriftenliste abgedruckt werden sollen';
 $string['showcustomfields'] = 'Anzuzeigende benutzerdefnierte Buchungsoptionsfelder';
 $string['showcustomfields_desc'] = 'Wählen Sie die benutzerdefinierte Buchungsoptionfelder, die auf der Unterschriftenliste abgedruckt werden sollen';
+$string['alloptionsinreport'] = 'Report über alle Buchungen einer Instanz';
+$string['alloptionsinreportdesc'] = 'Der Report einer Buchungsoption beinhaltet alle Antowrten der ganzen Instanz';
 
 $string['showlistoncoursepage'] = 'Extra-Info auf Kursseite anzeigen';
 $string['showlistoncoursepage_help'] = 'Wenn Sie diese Einstellung aktivieren, werden der Kursname, eine Kurzinfo

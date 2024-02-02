@@ -936,7 +936,7 @@ if (!$tableallbookings->is_downloading()) {
         $sqlvalues = array_merge($sqlvalues, $groupparams);
     }
 
-    $fields = "u.id AS userid,
+    $fields = "ba.id uniqueid, u.id AS userid,
                     ba.optionid AS optionid,
                     bo.text AS booking,
                     u.institution AS institution,
@@ -960,8 +960,11 @@ if (!$tableallbookings->is_downloading()) {
     $from = '{booking_answers} ba
             JOIN {user}  u ON u.id = ba.userid
             JOIN {booking_options} bo ON bo.id = ba.optionid';
-    $where = 'ba.optionid = :optionid
-             AND ba.waitinglist < 2 ' . $addsqlwhere;
+
+    if (!get_config('booking', 'alloptionsinreport')) {
+        $individualbookingoption = " ba.optionid = :optionid AND ";
+    }
+    $where = $individualbookingoption ?? '' . ' ba.waitinglist < 2 ' . $addsqlwhere;
     $tableallbookings->define_columns($columns);
     $tableallbookings->define_headers($headers);
     $tableallbookings->set_sql($fields, $from, $where, $sqlvalues);
