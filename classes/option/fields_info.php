@@ -214,10 +214,10 @@ class fields_info {
         } catch (moodle_exception $e) {
             // This is just to get out of the loop.
             // We use this exit in the template class.
-            $error = $e->getMessage();
+            $errormessage = $e->getMessage();
         }
 
-        return $error;
+        return $errormessage;
     }
 
     /**
