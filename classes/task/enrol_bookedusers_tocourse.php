@@ -62,7 +62,7 @@ class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
         global $DB;
 
         // Get all booking options with associated Moodle courses that have enrolmentstatus 0 and coursestartdate in the past.
-        $select = "enrolmentstatus < 1 AND coursestarttime < :now";
+        $select = "enrolmentstatus < 1 AND (coursestarttime < :now OR coursestarttime IS NULL)";
         $now = time();
         $boids = $DB->get_records_select_menu('booking_options', $select, ['now' => $now], '', 'id, bookingid');
 
