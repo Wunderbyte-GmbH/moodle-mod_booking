@@ -115,7 +115,7 @@ class prepare_import extends field_base {
                         $data->{$key} = $value;
                     }
                 }
-            } else if (empty($data->text) || empty($data->description)) {
+            } else if (empty($data->text)) {
                 throw new moodle_exception(
                     'identifiernotfoundnotenoughdata',
                     'mod_booking',
