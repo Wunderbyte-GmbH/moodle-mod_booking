@@ -98,6 +98,13 @@ class elective extends field_base {
             $newoption->sortorder = 0;
         }
 
+        $booking = singleton_service::get_instance_of_booking_by_cmid($formdata->cmid);
+
+        // On an elective option, we always set enrolementstatus to 0.
+        if (!empty($booking->settings->iselective)) {
+            $newoption->enrolmentstatus = 0;
+        }
+
         // We can return an warning message here.
         return '';
     }

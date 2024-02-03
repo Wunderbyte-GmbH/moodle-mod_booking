@@ -28,10 +28,6 @@ use Exception;
 use mod_booking\elective;
 use mod_booking\singleton_service;
 
-defined('MOODLE_INTERNAL') || die();
-
-require_once($CFG->dirroot . '/mod/booking/lib.php');
-
 /**
  * Class to handle Adhoc Task to enrol booked users to course.
  *
@@ -60,7 +56,7 @@ class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
      */
     public function execute() {
 
-        global $DB;
+        global $CFG, $DB;
 
         // Get all booking options with associated Moodle courses that have enrolmentstatus 0 and coursestartdate in the past.
         $select = "enrolmentstatus < 1 AND (coursestarttime < :now OR coursestarttime IS NULL)";
@@ -81,6 +77,8 @@ class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
                 continue;
             }
 
+            mtrace("Try to get optionid $optionid and bookingid $bookingid ");
+
             try {
                 $boption = singleton_service::get_instance_of_booking_option($cm->id, $optionid);
             } catch (Exception $e) {
@@ -100,6 +98,8 @@ class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
 
             // Enrol all users to the course.
             foreach ($bookedusers as $bookeduser) {
+
+                mtrace("Try to treat user $bookeduser->userid ");
 
                 if ($bookingsettings->iselective
                     && $enforceorder == 1) {
