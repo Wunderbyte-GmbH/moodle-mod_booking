@@ -24,6 +24,7 @@
 
 namespace mod_booking\task;
 
+use Exception;
 use mod_booking\elective;
 use mod_booking\singleton_service;
 
@@ -80,7 +81,12 @@ class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
                 continue;
             }
 
-            $boption = singleton_service::get_instance_of_booking_option($cm->id, $optionid);
+            try {
+                $boption = singleton_service::get_instance_of_booking_option($cm->id, $optionid);
+            } catch (Exception $e) {
+                mtrace("Error with optionid $optionid and bookingid $bookingid " . json_encode($e));
+                continue;
+            }
 
             $booking = $boption->booking;
             // phpcs:ignore
