@@ -1,3 +1,14 @@
+## Version 8.1.12 (2024020600)
+* Improvement: Better feedback for import.
+* Improvement: Report with all booking answers - closes #386.
+* Bugfix: Fix import for canceluntil #401.
+* Bugfix: Fix wrong variable bug.
+* Bugfix: Fix course enrolement.
+* Bugfix: Loosen to strict import rules.
+* Bugfix: Catch error for task.
+* Bugfix: fix elective enrolement.
+* Bugfix: Remove unnecessary redundancy.
+
 ## Version 8.1.11 (2024020100)
 * Improvement: Styling of booking description in musi_table.
 * Improvement: Harmonize and restore save (create) and delete functions for optiondates and remove redundancies.
