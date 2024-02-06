@@ -420,14 +420,14 @@ class booking_option {
 
         $text = "";
 
-        if (empty($this->option->aftercompletedtext
-            && empty($this->option->beforecompletedtext)
-            && empty($this->option->beforebookedtext)
+        if (empty($this->settings->aftercompletedtext)
+            && empty($this->settings->beforecompletedtext)
+            && empty($this->settings->beforebookedtext)
             && empty($this->booking->settings->aftercompletedtext)
             && empty($this->booking->settings->beforecompletedtext)
-            && empty($this->booking->settings->beforebookedtext))) {
+            && empty($this->booking->settings->beforebookedtext)) {
 
-                return '';
+            return '';
         }
 
         // New message controller.
@@ -446,21 +446,21 @@ class booking_option {
             [MOD_BOOKING_STATUSPARAM_BOOKED, MOD_BOOKING_STATUSPARAM_WAITINGLIST])) {
             $ac = $bookinganswers->is_activity_completed($userid);
             if ($ac == 1) {
-                if (!empty($this->option->aftercompletedtext)) {
-                    $text = format_text($this->option->aftercompletedtext);
+                if (!empty($this->settings->aftercompletedtext)) {
+                    $text = format_text($this->settings->aftercompletedtext);
                 } else if (!empty($this->booking->settings->aftercompletedtext)) {
                     $text = format_text($this->booking->settings->aftercompletedtext);
                 }
             } else {
-                if (!empty($this->option->beforecompletedtext)) {
-                    $text = format_text($this->option->beforecompletedtext);
+                if (!empty($this->settings->beforecompletedtext)) {
+                    $text = format_text($this->settings->beforecompletedtext);
                 } else if (!empty($this->booking->settings->beforecompletedtext)) {
                     $text = format_text($this->booking->settings->beforecompletedtext);
                 }
             }
         } else {
-            if (!empty($this->option->beforebookedtext)) {
-                $text = format_text($this->option->beforebookedtext);
+            if (!empty($this->settings->beforebookedtext)) {
+                $text = format_text($this->settings->beforebookedtext);
             } else if (!empty($this->booking->settings->beforebookedtext)) {
                 $text = format_text($this->booking->settings->beforebookedtext);
             }
