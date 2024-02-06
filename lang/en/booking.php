@@ -86,7 +86,6 @@ $string['search'] = 'Search...';
 $string['semesterid'] = 'SemesterID';
 $string['nosemester'] = 'No semester chosen';
 $string['sendmailtoallbookedusers'] = 'Send e-mail to all booked users';
-$string['showmore'] = 'Show more';
 $string['sortorder'] = 'Sort order';
 $string['sortorder:asc'] = 'A&rarr;Z';
 $string['sortorder:desc'] = 'Z&rarr;A';

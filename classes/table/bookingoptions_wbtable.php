@@ -945,12 +945,12 @@ class bookingoptions_wbtable extends wunderbyte_table {
             // Show collapsible for long descriptions.
             $shortdescription = strip_tags($description, '<br>');
             if (strlen($shortdescription) > $maxlength) {
-                $shortdescription = substr($shortdescription, 0, $maxlength) . '...';
                 $ret =
-                    '<div>' . $shortdescription .
-                        '<a data-toggle="collapse" href="#collapseDescription' . $values->id . '" role="button"
-                            aria-expanded="false" aria-controls="collapseDescription"> ' .
-                            get_string('showmore', 'mod_booking') . '</a>
+                    '<div>
+                        <a data-toggle="collapse" href="#collapseDescription' . $values->id . '" role="button"
+                            aria-expanded="false" aria-controls="collapseDescription">
+                            <i class="fa fa-info-circle" aria-hidden="true"></i>&nbsp;' .
+                            get_string('showdescription', 'mod_booking') . '...</a>
                     </div>
                     <div class="collapse" id="collapseDescription' . $values->id . '">
                         <div class="card card-body border-1 mt-1 mb-1 mr-3">' . $description . '</div>
