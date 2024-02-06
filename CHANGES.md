@@ -1,3 +1,8 @@
+## Version 8.1.13 (2024020601)
+* Improvement: Get rid of startendtimeknown param as it is legacy code.
+* Improvement: Collapse the full description and do not show it twice.
+* Bugfix: Text depending on status was not shown anymore at all.
+
 ## Version 8.1.12 (2024020600)
 * Improvement: Better feedback for import.
 * Improvement: Report with all booking answers - closes #386.
