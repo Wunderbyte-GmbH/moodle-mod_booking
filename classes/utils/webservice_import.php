@@ -277,21 +277,12 @@ class webservice_import {
                 'For mergeparams 1 and 2 you need to provide start and end time.');
         }
 
-        // We need to set startendtimeknown to 1 if both are provided.
+        // TODO: Check if this still makes sense with the new option form logic.
         if (!empty($data->coursestarttime) && !empty($data->courseendtime)) {
-
             // Throw an error if courseendtime is not after course start time.
             if ($data->courseendtime <= $data->coursestarttime) {
                 throw new \moodle_exception('startendtimeerror', 'mod_booking', null, null,
                     'Course end time needs to be AFTER course start time (not before or equal).');
-            }
-
-            // Check if it's no multisession.
-            if (empty($data->mergeparam)) {
-                $data->startendtimeknown = 1;
-            } else if ($data->mergeparam == 1 || $data->mergeparam == 2 || $data->mergeparam == 3) {
-
-                $data->startendtimeknown = 1;
             }
         }
     }

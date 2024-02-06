@@ -1887,7 +1887,6 @@ class booking_option {
             $newoption = $settings->return_settings_as_stdclass();
             $newoption->coursestarttime = $optiondate->starttimestamp;
             $newoption->courseendtime = $optiondate->endtimestamp;
-            $newoption->startendtimeknown = 1;
             if (!$firstrun) {
                 unset($newoption->optionid);
                 unset($newoption->id);

@@ -1092,7 +1092,6 @@ Go to course: {$a->courselink}
 See all booking options: {$a->bookinglink}';
 $string['sendmailtobooker'] = 'Book other users page: Send mail to user who books instead to users who are booked';
 $string['sendmailtobooker_help'] = 'Activate this option in order to send booking confirmation mails to the user who books other users instead to users, who have been added to a booking option. This is only relevant for bookings made on the page "book other users".';
-$string['startendtimeknown'] = 'Start and end time of course are known';
 $string['submitandadd'] = 'Save and add new';
 $string['submitandstay'] = 'Save and stay';
 $string['waitinglisttaken'] = 'On the waiting list';

@@ -1074,7 +1074,6 @@ Zum Kurs: {$a->courselink}
 Alle Buchungsoptionen ansehen: {$a->bookinglink}';
 $string['sendmailtobooker'] = 'Buchung für andere User durchführen: Mail an User, der Buchung durchführt, anstatt an gebuchte User senden';
 $string['sendmailtobooker_help'] = 'Diese Option aktivieren, um Buchungsbestätigungsmails anstatt an die gebuchten Nutzer:innen zu senden an den/die Nutzer/in senden, die die Buchung durchgeführt hat. Dies betrifft nur Buchungen, die auf der Seite "Buchung für andere Nutzer:innen durchführen" getätigt wurden';
-$string['startendtimeknown'] = 'Kursbeginn und Kursende sind bekannt';
 $string['submitandadd'] = 'Speichern und neue';
 $string['submitandstay'] = 'Speichern';
 $string['waitinglisttaken'] = 'Auf der Warteliste';

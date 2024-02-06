@@ -101,12 +101,10 @@ class recurringoptions extends field_base {
 
             $mform->addElement('checkbox', 'repeatthisbooking',
                         get_string('repeatthisbooking', 'mod_booking'));
-            $mform->disabledIf('repeatthisbooking', 'startendtimeknown', 'notchecked');
             $mform->addElement('text', 'howmanytimestorepeat',
                         get_string('howmanytimestorepeat', 'mod_booking'));
             $mform->setType('howmanytimestorepeat', PARAM_INT);
             $mform->setDefault('howmanytimestorepeat', 1);
-            $mform->disabledIf('howmanytimestorepeat', 'startendtimeknown', 'notchecked');
             $mform->disabledIf('howmanytimestorepeat', 'repeatthisbooking', 'notchecked');
             $howoften = [
                 86400 => get_string('day'),
@@ -117,7 +115,6 @@ class recurringoptions extends field_base {
                         $howoften);
             $mform->setType('howoftentorepeat', PARAM_INT);
             $mform->setDefault('howoftentorepeat', 86400);
-            $mform->disabledIf('howoftentorepeat', 'startendtimeknown', 'notchecked');
             $mform->disabledIf('howoftentorepeat', 'repeatthisbooking', 'notchecked');
         }
     }
