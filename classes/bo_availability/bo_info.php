@@ -730,10 +730,13 @@ class bo_info {
             $user = null;
         }
 
+        // Initialize extra classes.
+        $extraclasses = '';
+
         // Needed for normal bookit button.
         if ($fullwidth) {
             // For view.php and default rendering.
-            $fullwidthclasses = 'w-100';
+            $extraclasses = 'w-100';
         }
 
         $data = [
@@ -744,7 +747,7 @@ class bo_info {
             'nojs' => $nojs,
             'main' => [
                 'label' => $label,
-                'class' => "$classes $fullwidthclasses text-center",
+                'class' => "$classes $extraclasses text-center",
                 'role' => $role,
             ],
         ];
