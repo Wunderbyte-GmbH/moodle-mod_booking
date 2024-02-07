@@ -531,7 +531,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
             // ...is a teacher of this option.
             // ...has the "updatebooking" capability (admins).
             $gotomoodlecourse = get_string('gotomoodlecourse', 'mod_booking');
-            $ret = "<a href='$courseurl' target='_self' class='btn btn-primary mt-2 mb-2 w-100'>
+            $ret = "<a href='$courseurl' target='_self' class='btn btn-primary p-1 mt-2 mb-2 w-100'>
                 <i class='fa fa-graduation-cap fa-fw' aria-hidden='true'></i>&nbsp;&nbsp;$gotomoodlecourse
             </a>";
         }
