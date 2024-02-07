@@ -371,8 +371,8 @@ class all_userbookings extends \table_sql {
             }
             echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="sendreminderemail" value="' .
                      get_string('sendreminderemail', 'booking') . '" /></div>';
-            echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="sendcustommessage" value="' .
-                     get_string('sendcustommessage', 'booking') . '" /></div>';
+            echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="sendcustommsg" value="' .
+                     get_string('sendcustommsg', 'booking') . '" /></div>';
         }
 
         if (booking_check_if_teacher($this->bookingdata->option) ||

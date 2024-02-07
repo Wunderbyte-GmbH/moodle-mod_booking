@@ -375,7 +375,7 @@ if (!$tableallbookings->is_downloading()) {
             $bookingoption->sendmessage_pollurl($allselectedusers);
             redirect($url, get_string('allmailssend', 'booking'), 5);
 
-        } else if (isset($_POST['sendcustommessage']) &&
+        } else if (isset($_POST['sendcustommsg']) &&
                  has_capability('mod/booking:communicate', $context)) {
 
             $sendmessageurl = new moodle_url('/mod/booking/sendmessage.php',

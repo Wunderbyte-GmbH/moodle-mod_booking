@@ -60,7 +60,7 @@ $mform = new mod_booking_sendmessage_form();
 
 $PAGE->set_pagelayout('standard');
 
-$PAGE->set_title(get_string('sendcustommessage', 'booking'));
+$PAGE->set_title(get_string('sendcustommsg', 'booking'));
 
 if ($mform->is_cancelled()) {
     redirect($redirecturl, '', 0);
@@ -77,7 +77,7 @@ if ($mform->is_cancelled()) {
 $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
 
-echo $OUTPUT->heading(get_string("sendcustommessage", "booking"), 2);
+echo $OUTPUT->heading(get_string("sendcustommsg", "booking"), 2);
 
 $mform->set_data($defaultvalues);
 $mform->display();
