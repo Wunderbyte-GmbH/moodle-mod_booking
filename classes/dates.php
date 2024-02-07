@@ -238,7 +238,9 @@ class dates {
                 unset($defaultvalues->{$odate});
             }
 
-            $newoptiondates = dates_handler::get_optiondate_series($defaultvalues->semesterid, $defaultvalues->dayofweektime);
+            if (!empty($defaultvalues->semesterid)) {
+                $newoptiondates = dates_handler::get_optiondate_series($defaultvalues->semesterid, $defaultvalues->dayofweektime);
+            }
 
             if (!empty($newoptiondates)) {
                 $sessions = array_map(fn($a) =>
