@@ -679,9 +679,8 @@ class booking_option_settings {
      * @return string
      */
     public function render_list_of_teachers() {
-        global $PAGE;
+        global $OUTPUT;
 
-        $output = $PAGE->get_renderer('mod_booking');
         $renderedlistofteachers = '';
 
         if (empty($this->teachers)) {
@@ -695,7 +694,8 @@ class booking_option_settings {
             $data['teachers'][] = $t;
         }
 
-        $renderedlistofteachers = $output->render_bookingoption_description_teachers($data);
+        $renderedlistofteachers =
+            $OUTPUT->render_from_template('mod_booking/bookingoption_description_teachers', $data);
 
         return $renderedlistofteachers;
     }
