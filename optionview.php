@@ -36,16 +36,28 @@ $cmid = required_param('cmid', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT);
 $userid = optional_param('userid', 0, PARAM_INT);
 
-if (!$context = context_system::instance()) {
-    throw new moodle_exception('badcontext');
-}
+$syscontext = context_system::instance();
+$modcontext = context_module::instance($cmid);
 
-$PAGE->set_context($context);
+require_capability('mod/booking:view', $modcontext);
+
+$PAGE->set_context($syscontext);
 
 $url = new moodle_url('/mod/booking/optionview.php', ['cmid' => $cmid, 'optionid' => $optionid]);
 $PAGE->set_url($url);
 
 $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
+
+// Make sure, we respect module visibility and activity restrictions on the booking instance.
+$modinfo = get_fast_modinfo($booking->course);
+$cm = $modinfo->get_cm($cmid);
+if (!$cm->uservisible) {
+    echo $OUTPUT->header();
+    echo html_writer::div(get_string('invisibleoption:notallowed', 'mod_booking'),
+        "alert alert-danger");
+    echo $OUTPUT->footer();
+    die();
+}
 
 if ($settings = singleton_service::get_instance_of_booking_option_settings($optionid)) {
 
@@ -64,7 +76,7 @@ if ($settings = singleton_service::get_instance_of_booking_option_settings($opti
 
     echo $OUTPUT->header();
 
-    // TODO: The following lines change the contedt of the PAGE object and have therefore to be called after printing the header.
+    // TODO: The following lines change the context of the PAGE object and have therefore to be called after printing the header.
     // This needs to be fixed.
 
     $output = $PAGE->get_renderer('mod_booking');
@@ -72,7 +84,7 @@ if ($settings = singleton_service::get_instance_of_booking_option_settings($opti
 
     if ($data->is_invisible()) {
         // If the user does have the capability to see invisible options...
-        if (has_capability('mod/booking:canseeinvisibleoptions', $context)) {
+        if (has_capability('mod/booking:canseeinvisibleoptions', $syscontext)) {
             // ... then show it.
             echo $output->render_bookingoption_description_view($data);
         } else {
