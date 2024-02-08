@@ -415,7 +415,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             // If the user is in principle allowed to overbook...
             // ... AND the overbook setting is set in the instance, overbooking is possible.
 
-            if ($ba->is_fully_booked()) {
+            if ($ba->user_status($userid) > MOD_BOOKING_STATUSPARAM_RESERVED && $ba->is_fully_booked()) {
                 if (empty(get_config('booking', 'allowoverbooking'))
                 || !has_capability('mod/booking:canoverbook', context_system::instance())) {
                     return [
