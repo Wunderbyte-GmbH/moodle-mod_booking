@@ -24,6 +24,7 @@
 
 namespace mod_booking\placeholders\placeholders;
 
+use mod_booking\output\optiondates_only;
 use mod_booking\placeholders\placeholders_info;
 use mod_booking\singleton_service;
 use moodle_exception;
@@ -39,7 +40,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class status {
+class dates {
 
     /**
      * Function which takes a text, replaces the placeholders...
@@ -58,12 +59,15 @@ class status {
         array &$params = [],
         int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE) {
 
+        global $PAGE;
+
         $classname = substr(strrchr(get_called_class(), '\\'), 1);
 
-        if (!empty($optionid)) {
+        if (!empty($userid)) {
+
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
             if (empty($cmid)) {
-                $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
                 $cmid = $settings->cmid;
             }
 
@@ -75,12 +79,12 @@ class status {
             if (isset(placeholders_info::$placeholders[$cachekey])) {
                 return placeholders_info::$placeholders[$cachekey];
             }
+            /** @var renderer $output*/
+            $output = $PAGE->get_renderer('mod_booking');
 
-            $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
-            $bookinganswer = singleton_service::get_instance_of_booking_answers($bookingoption->settings);
-            $value = $bookingoption->get_user_status_string($userid, $bookinganswer->user_status($userid));
-
-            placeholders_info::$placeholders[$cachekey] = $value;
+            // Render optiontimes using a template.
+            $data = new optiondates_only($settings);
+            $value = $output->render_optiondates_only($data);
 
         } else {
             throw new moodle_exception(

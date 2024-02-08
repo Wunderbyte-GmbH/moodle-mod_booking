@@ -39,7 +39,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class status {
+class bookingdetails {
 
     /**
      * Function which takes a text, replaces the placeholders...
@@ -60,7 +60,7 @@ class status {
 
         $classname = substr(strrchr(get_called_class(), '\\'), 1);
 
-        if (!empty($optionid)) {
+        if (!empty($userid)) {
 
             if (empty($cmid)) {
                 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
@@ -76,11 +76,7 @@ class status {
                 return placeholders_info::$placeholders[$cachekey];
             }
 
-            $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
-            $bookinganswer = singleton_service::get_instance_of_booking_answers($bookingoption->settings);
-            $value = $bookingoption->get_user_status_string($userid, $bookinganswer->user_status($userid));
-
-            placeholders_info::$placeholders[$cachekey] = $value;
+            $value = get_rendered_eventdescription($optionid, $cmid, $descriptionparam);
 
         } else {
             throw new moodle_exception(

@@ -24,6 +24,8 @@
 
 namespace mod_booking\placeholders;
 
+use coding_exception;
+use core_component;
 use mod_booking\placeholders\placeholders\customfields;
 use mod_booking\singleton_service;
 
@@ -42,6 +44,8 @@ class placeholders_info {
 
     public static array $placeholders = [];
 
+    public static array $localizedplaceholders = [];
+
     /**
      * Function which takes a text, replaces the placeholders...
      * ... and returns the text with the correct values.
@@ -55,7 +59,8 @@ class placeholders_info {
         string $text,
         int $cmid = 0,
         int $optionid = 0,
-        int $userid = 0) {
+        int $userid = 0,
+        int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE) {
 
         global $USER, $CFG;
 
@@ -67,6 +72,13 @@ class placeholders_info {
             $userid = $USER->id;
         }
 
+        // If there are placeholders at all...
+        // ... they will be localized. We need to replace them.
+        if (!empty($placeholders)) {
+
+            self::return_list_of_placeholders();
+        }
+
         foreach ($placeholders as $placeholder) {
 
             // We might need more complexe placeholder for iteration...
@@ -75,15 +87,20 @@ class placeholders_info {
 
             $parts = explode (' ', $placeholder);
 
+            // The classname is always the first element in the $parts array.
+
+            $classname = self::$localizedplaceholders[$parts[0]] ?? $parts[0];
+
             if (count($parts) === 1) {
-                $class = 'mod_booking\placeholders\placeholders\\' . $placeholder;
+                $class = 'mod_booking\placeholders\placeholders\\' . $classname;
                 if (class_exists($class)) {
                     $value = $class::return_value(
                         $cmid,
                         $optionid,
                         $userid,
-                        $text,
-                        $placeholders);
+                        $text, // Text can be changed in this function, if we need to replace sth.
+                        $placeholders, // Placeholders can be changed in this function, if we need to replace sth.
+                        $descriptionparam);
 
                     // In some cases, we might reseve an array instead of string.
                     if (is_array($value)) {
@@ -109,7 +126,7 @@ class placeholders_info {
                     }
                 }
             } else if (count($parts) === 2) {
-                $class = 'mod_booking\placeholders\placeholders\\' . $parts[0];
+                $class = 'mod_booking\placeholders\placeholders\\' . $classname;
                 if (class_exists($class) && is_numeric($parts[1])) {
                     $values = $class::return_value(
                         $cmid,
@@ -128,6 +145,43 @@ class placeholders_info {
             }
         }
 
-        return $text;
+        return format_text($text);
+    }
+
+    /**
+     * This builds an returns a list of localized placeholders.
+     * They are stored statically and thus available throughout the ttl.
+     * @return array
+     * @throws coding_exception
+     */
+    public static function return_list_of_placeholders() {
+
+        // If it's already build, we can skip this.
+        if (!empty(self::$localizedplaceholders)) {
+            return self::$localizedplaceholders;
+        }
+
+        $placeholders =
+            core_component::get_component_classes_in_namespace(
+                'mod_booking',
+                'placeholders\placeholders'
+            );
+
+        $specialtreatmentclasses = [
+            'customfields' => customfields::return_placeholder_text(),
+        ];
+
+        foreach ($placeholders as $key => $value) {
+            $class = substr(strrchr($key, '\\'), 1);
+
+            if (isset($specialtreatmentclasses[$class])) {
+                continue;
+            }
+
+            // We use the localized strings as keys and the classnames as values.
+            self::$localizedplaceholders[get_string($class, 'mod_booking')] = $class;
+        }
+
+        return self::$localizedplaceholders;
     }
 }

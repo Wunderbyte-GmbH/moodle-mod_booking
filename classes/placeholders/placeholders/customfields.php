@@ -90,4 +90,13 @@ class customfields {
 
         return $value;
     }
+
+    /**
+     * This function returns the keys and values of the localized placeholders.
+     * @return string
+     */
+    public static function return_placeholder_text() {
+
+        return get_string('customfieldsplaceholdertext', 'mod_booking');
+    }
 }

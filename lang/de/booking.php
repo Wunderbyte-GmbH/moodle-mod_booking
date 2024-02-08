@@ -1003,6 +1003,32 @@ $string['helptext:placeholders'] = '<p>
   </div>
 </div>';
 
+// Placeholders.
+$string['bookingdetails'] = "Buchungsdetails";
+$string['gotobookingoption'] = "Buchungslink";
+$string['bookinglink'] = "Buchungsinstanzlink";
+$string['coursecalendarurl'] = "Buchungslink";
+$string['courselink'] = "Buchungslink";
+$string['duration'] = "Buchungslink";
+$string['email'] = "Buchungslink";
+$string['enddate'] = "Buchungsinstanzlink";
+$string['endtime'] = "Buchungslink";
+$string['firstname'] = "Buchungslink";
+$string['duration'] = "Buchungslink";
+$string['journal'] = "Buchungslink";
+$string['lastname'] = "Buchungsinstanzlink";
+$string['numberparticipants'] = "Buchungslink";
+$string['numberwaitinglist'] = "Buchungslink";
+$string['participant'] = "Buchungslink";
+$string['pollstartdate'] = "Buchungslink";
+$string['qr_id'] = "Buchungslink";
+$string['qr_username'] = "Buchungslink";
+$string['startdate'] = "Buchungslink";
+$string['starttime'] = "Buchungsinstanzlink";
+$string['title'] = "Buchungslink";
+$string['usercalendarurl'] = "Buchungslink";
+$string['username'] = "Buchungslink";
+
 $string['configurefields'] = 'Spalten und Felder anpassen';
 $string['manageresponsespagefields'] = 'Buchungen verwalten - Seite';
 $string['manageresponsesdownloadfields'] = 'Buchungen verwalten - Download (CSV, XLSX...)';

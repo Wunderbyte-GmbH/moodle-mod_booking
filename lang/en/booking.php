@@ -1023,6 +1023,32 @@ $string['helptext:placeholders'] = '<p>
   </div>
 </div>';
 
+// Placeholders.
+$string['bookingdetails'] = "bookingdetails";
+$string['gotobookingoption'] = "gotobookingoption";
+$string['bookinglink'] = "bookinglink";
+$string['coursecalendarurl'] = "coursecalendarurl";
+$string['courselink'] = "courselink";
+$string['duration'] = "duration";
+$string['email'] = "email";
+$string['enddate'] = "enddate";
+$string['endtime'] = "endtime";
+$string['firstname'] = "firstname";
+$string['duration'] = "duration";
+$string['journal'] = "journal";
+$string['lastname'] = "lastname";
+$string['numberparticipants'] = "numberparticipants";
+$string['numberwaitinglist'] = "numberwaitinglist";
+$string['participant'] = "participant";
+$string['pollstartdate'] = "pollstartdate";
+$string['qr_id'] = "qr_id";
+$string['qr_username'] = "qr_username";
+$string['startdate'] = "startdate";
+$string['starttime'] = "starttime";
+$string['title'] = "title";
+$string['usercalendarurl'] = "usercalendarurl";
+$string['username'] = "username";
+
 $string['configurefields'] = 'Configure fields and columns';
 $string['manageresponsespagefields'] = 'Manage responses - Page';
 $string['manageresponsesdownloadfields'] = 'Manage responses - Download (CSV, XLSX...)';

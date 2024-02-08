@@ -56,7 +56,8 @@ class coursecalendarurl {
         int $optionid = 0,
         int $userid = 0,
         string &$text = '',
-        array &$params = []) {
+        array &$params = [],
+        int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE) {
 
         $classname = substr(strrchr(get_called_class(), '\\'), 1);
 
@@ -65,7 +66,8 @@ class coursecalendarurl {
             // The cachekey depends on the kind of placeholder and it's ttl.
             // If it's the same for all users, we don't use userid.
             // If it's the same for all options of a cmid, we don't use optionid.
-            $cachekey = "$classname-$optionid-$userid";
+            $currlang = current_language();
+            $cachekey = "$classname-$currlang-$optionid-$userid";
             if (isset(placeholders_info::$placeholders[$cachekey])) {
                 return placeholders_info::$placeholders[$cachekey];
             }
