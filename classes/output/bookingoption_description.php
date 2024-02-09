@@ -97,6 +97,9 @@ class bookingoption_description implements renderable, templatable {
     /** @var array $dates as saved in db in minutes */
     private $dates = [];
 
+    /** @var bool $datesexist flag true if dates exist, else null (not false!) */
+    private $datesexist = null;
+
     /** @var array $teachers by names */
     private $teachers = [];
 
@@ -302,6 +305,10 @@ class bookingoption_description implements renderable, templatable {
         $this->dates = $bookingoption->return_array_of_sessions($bookingevent,
                 $descriptionparam, $withcustomfields, $forbookeduser);
 
+        if (!empty($this->dates)) {
+            $this->datesexist = true;
+        }
+
         $colteacher = new col_teacher($optionid, $settings);
         $this->teachers = $colteacher->teachers;
 
@@ -449,6 +456,7 @@ class bookingoption_description implements renderable, templatable {
             'institution' => $this->institution,
             'duration' => $this->duration,
             'dates' => $this->dates,
+            'datesexist' => $this->datesexist,
             'booknowbutton' => $this->booknowbutton,
             'teachers' => $this->teachers,
             'responsiblecontactuser' => $this->responsiblecontactuser,

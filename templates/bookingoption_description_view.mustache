@@ -150,27 +150,29 @@
             </h6>
             {{#description}}<div class="content"><p>{{{.}}}</p></div>{{/description}}
             {{> mod_booking/bookingoption_description_teachers }}
-            <a class="collapseoptiondatesbutton" data-toggle="collapse" href="#collapseoptiondates" role="button" aria-expanded="false" aria-controls="collapseoptiondates">
-                <i class="fa fa-calendar" aria-hidden="true"></i>&nbsp;{{#str}} dates, mod_booking {{/str}}...
-            </a>
-            <div id="collapseoptiondates" class="show list-group-item border-0 pl-0 pr-0">
-            <div class="list-group">
-                {{#dates}}
-                    <div class="list-group-item">
-                        <div>
-                            <b>{{{datestring}}}</b>
-                        </div>
-                        <div {{^customfields}}style="display:none"{{/customfields}}>
-                            {{#customfields}}
+            {{#datesexist}}
+                <a class="collapseoptiondatesbutton" data-toggle="collapse" href="#collapseoptiondates" role="button" aria-expanded="false" aria-controls="collapseoptiondates">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>&nbsp;{{#str}} dates, mod_booking {{/str}}...
+                </a>
+                <div id="collapseoptiondates" class="show list-group-item border-0 pl-0 pr-0">
+                    <div class="list-group">
+                        {{#dates}}
+                            <div class="list-group-item">
                                 <div>
-                                    {{name}}{{{value}}}
+                                    <b>{{{datestring}}}</b>
                                 </div>
-                            {{/customfields}}
-                        </div>
+                                <div {{^customfields}}style="display:none"{{/customfields}}>
+                                    {{#customfields}}
+                                        <div>
+                                            {{name}}{{{value}}}
+                                        </div>
+                                    {{/customfields}}
+                                </div>
+                            </div>
+                        {{/dates}}
                     </div>
-                {{/dates}}
-            </div>
-            </div>
+                </div>
+            {{/datesexist}}
         </div>
         <div class="col-md-5">
             <div class="card price-card">
@@ -225,9 +227,6 @@
                             <span>
                                 <i class="fa fa-fw fa-user" aria-hidden="true"></i>
                             </span>
-                            <span class="d-md-none">
-                                {{#str}} responsible, mod_booking {{/str}}:
-                            </span>
                             <span>
                                 {{#str}} responsible, mod_booking {{/str}}: <a href="{{link}}" target="_blank">{{firstname}} {{lastname}}</a>
                             </span>
@@ -238,9 +237,6 @@
                             <span>
                                 <i class="fa fa-fw fa-forward" aria-hidden="true"></i>
                             </span>
-                            <span class="d-md-none">
-                                {{#str}} bookingopeningtime, mod_booking {{/str}}:
-                            </span>
                             <span>
                                 {{#str}} bookingopeningtime, mod_booking {{/str}}: {{{.}}}
                             </span>
@@ -250,9 +246,6 @@
                         <li>
                             <span>
                                 <i class="fa fa-fw fa-step-forward" aria-hidden="true"></i>
-                            </span>
-                            <span class="d-md-none">
-                                {{#str}} bookingclosingtime, mod_booking {{/str}}:
                             </span>
                             <span>
                                 {{#str}} bookingclosingtime, mod_booking {{/str}}: {{{.}}}
