@@ -18,6 +18,7 @@ namespace mod_booking\booking_rules\actions;
 
 use mod_booking\booking_rules\booking_rule;
 use mod_booking\booking_rules\booking_rule_action;
+use mod_booking\placeholders\placeholders_info;
 use mod_booking\singleton_service;
 use mod_booking\task\send_mail_by_rule_adhoc;
 use MoodleQuickForm;
@@ -90,7 +91,8 @@ class send_mail implements booking_rule_action {
         $mform->addElement('editor', 'action_send_mail_template',
             get_string('message'), ['rows' => 15], ['subdirs' => 0, 'maxfiles' => 0, 'context' => null]);
 
-        $mform->addElement('html', get_string('helptext:placeholders', 'mod_booking'));
+        $placeholders = placeholders_info::return_list_of_placeholders();
+        $mform->addElement('html', get_string('helptext:placeholders', 'mod_booking', $placeholders));
 
     }
 

@@ -26,6 +26,7 @@ namespace mod_booking\placeholders;
 
 use coding_exception;
 use core_component;
+use html_writer;
 use mod_booking\placeholders\placeholders\customfields;
 use mod_booking\singleton_service;
 
@@ -85,63 +86,54 @@ class placeholders_info {
             // ... (like {{# sessiondates}} or {{teacher 1}}). Therefore...
             // ... we need to explode the placeholders here.
 
-            $parts = explode (' ', $placeholder);
+            // We don't want any numbers, because we need classnames.
+            $identifier = preg_replace('/\d/', '', $placeholder);
 
-            // The classname is always the first element in the $parts array.
+            // Now we "unlocalize" the classname.
+            $classname = self::$localizedplaceholders[$identifier] ?? $identifier;
 
-            $classname = self::$localizedplaceholders[$parts[0]] ?? $parts[0];
+            // Now we can execute it.
+            $class = 'mod_booking\placeholders\placeholders\\' . $classname;
+            if (class_exists($class)) {
+                $value = $class::return_value(
+                    $cmid,
+                    $optionid,
+                    $userid,
+                    $text, // Text can be changed in this function, if we need to replace sth.
+                    $placeholders, // Placeholders can be changed in this function, if we need to replace sth.
+                    $descriptionparam);
 
-            if (count($parts) === 1) {
-                $class = 'mod_booking\placeholders\placeholders\\' . $classname;
-                if (class_exists($class)) {
-                    $value = $class::return_value(
-                        $cmid,
-                        $optionid,
-                        $userid,
-                        $text, // Text can be changed in this function, if we need to replace sth.
-                        $placeholders, // Placeholders can be changed in this function, if we need to replace sth.
-                        $descriptionparam);
+                // In some cases, we might receive an array instead of string.
+                if (is_array($value)) {
 
-                    // In some cases, we might reseve an array instead of string.
-                    if (is_array($value)) {
+                    // First we check if we had a number in our original placeholder.
+                    $number = str_replace($identifier, '', $placeholder);
+
+                    if (is_numeric($number) && $number > 0) {
+                        $number--;
+                        $value = $value[$number] ?? '';
+                    } else {
                         $value = reset($value);
                     }
-
-                    $searchstring = '{' . $placeholder . '}';
-                    $text = str_replace($searchstring, $value, $text);
-                } else if (!empty($optionid)) {
-                    // The customfields class takes care of booking custom fields...
-                    // ... and custom user profile fields.
-                    $value = customfields::return_value(
-                        $cmid,
-                        $optionid,
-                        $userid,
-                        $text,
-                        $placeholders,
-                        $placeholder);
-
-                    if (!empty($value)) {
-                        $searchstring = '{' . $placeholder . '}';
-                        $text = str_replace($searchstring, $value, $text);
-                    }
                 }
-            } else if (count($parts) === 2) {
-                $class = 'mod_booking\placeholders\placeholders\\' . $classname;
-                if (class_exists($class) && is_numeric($parts[1])) {
-                    $values = $class::return_value(
-                        $cmid,
-                        $optionid,
-                        $userid,
-                        $text,
-                        $placeholders);
 
-                    $counter = $parts[1];
-                    $counter--;
-                    $value = $values[$counter] ?? '';
+                $searchstring = '{' . $placeholder . '}';
+                $text = str_replace($searchstring, $value, $text);
+            } else if (!empty($optionid)) {
+                // The customfields class takes care of booking custom fields...
+                // ... and custom user profile fields.
+                $value = customfields::return_value(
+                    $cmid,
+                    $optionid,
+                    $userid,
+                    $text,
+                    $placeholders,
+                    $placeholder);
+            }
 
-                    $searchstring = '{' . $placeholder . '}';
-                    $text = str_replace($searchstring, $value, $text);
-                }
+            if (!empty($value)) {
+                $searchstring = '{' . $placeholder . '}';
+                $text = str_replace($searchstring, $value, $text);
             }
         }
 
@@ -155,6 +147,25 @@ class placeholders_info {
      * @throws coding_exception
      */
     public static function return_list_of_placeholders() {
+
+        // If it's already build, we can skip this.
+        if (empty(self::$localizedplaceholders)) {
+            self::create_list_of_localized_placeholders();
+        }
+
+        $placeholders = [];
+        foreach (self::$localizedplaceholders as $key => $value) {
+            $placeholders[] = "<li data-id='$value'>{" . $key . "}</li>";
+        }
+
+        $returnstring = implode('<br>', $placeholders);
+
+        $returnstring = html_writer::tag('ul', $returnstring, ['class' => 'booking-placeholders']);
+
+        return $returnstring;
+    }
+
+    private static function create_list_of_localized_placeholders() {
 
         // If it's already build, we can skip this.
         if (!empty(self::$localizedplaceholders)) {
@@ -181,7 +192,5 @@ class placeholders_info {
             // We use the localized strings as keys and the classnames as values.
             self::$localizedplaceholders[get_string($class, 'mod_booking')] = $class;
         }
-
-        return self::$localizedplaceholders;
     }
 }

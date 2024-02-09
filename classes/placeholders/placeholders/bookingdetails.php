@@ -78,21 +78,20 @@ class bookingdetails {
                 return placeholders_info::$placeholders[$cachekey];
             } else {
                 // There is a possibility of a loop here. We need to avoid this.
-                $now = time();
                 // We only set the now value if no value is set yet.
                 placeholders_info::$placeholders[$cachekey] =
-                    placeholders_info::$placeholders[$cachekey] ?? $now;
+                    placeholders_info::$placeholders[$cachekey] ?? 1;
             }
 
-            // Loop prevention:
-            if (placeholders_info::$placeholders[$cachekey] === $now) {
+            // Loop prevention.
+            if (placeholders_info::$placeholders[$cachekey] === 1) {
                 placeholders_info::$placeholders[$cachekey]++;
                 $value = get_rendered_eventdescription($optionid, $cmid, $descriptionparam);
 
                 // Save the value to profit from singleton.
                 placeholders_info::$placeholders[$cachekey] = $value;
             } else {
-                $value = get_string('loopprevention', 'mod_booking');
+                $value = get_string('loopprevention', 'mod_booking', $classname);
             }
 
         } else {

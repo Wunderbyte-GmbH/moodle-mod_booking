@@ -89,9 +89,6 @@ class customfields {
             }
         }
 
-        // Save the value to profit from singleton.
-        placeholders_info::$placeholders[$cachekey] = $value;
-
         return $value;
     }
 
