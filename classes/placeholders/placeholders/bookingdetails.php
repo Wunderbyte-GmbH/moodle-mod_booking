@@ -72,11 +72,28 @@ class bookingdetails {
             // If it's the same for all options of a cmid, we don't use optionid.
             $currlang = current_language();
             $cachekey = "$classname-$currlang-$optionid-$userid";
-            if (isset(placeholders_info::$placeholders[$cachekey])) {
+            if (isset(placeholders_info::$placeholders[$cachekey])
+                // The idea here is loop prevention. We set the timestamp to get out of the loop if necessary.
+                && !is_numeric(placeholders_info::$placeholders[$cachekey])) {
                 return placeholders_info::$placeholders[$cachekey];
+            } else {
+                // There is a possibility of a loop here. We need to avoid this.
+                $now = time();
+                // We only set the now value if no value is set yet.
+                placeholders_info::$placeholders[$cachekey] =
+                    placeholders_info::$placeholders[$cachekey] ?? $now;
             }
 
-            $value = get_rendered_eventdescription($optionid, $cmid, $descriptionparam);
+            // Loop prevention:
+            if (placeholders_info::$placeholders[$cachekey] === $now) {
+                placeholders_info::$placeholders[$cachekey]++;
+                $value = get_rendered_eventdescription($optionid, $cmid, $descriptionparam);
+
+                // Save the value to profit from singleton.
+                placeholders_info::$placeholders[$cachekey] = $value;
+            } else {
+                $value = get_string('loopprevention', 'mod_booking');
+            }
 
         } else {
             throw new moodle_exception(
