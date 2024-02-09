@@ -1,3 +1,15 @@
+## Version 8.1.14 (2024020900)
+* Improvement: Show updated string for send custom message button.
+* Improvement: Use less space for availability condition notification warnings.
+* Improvement: Slightly smaller Moodle course button.
+* Improvement: Do not execute fullybooked check if item is already in cart or already booked.
+* Improvement: Only show dates when dates exist in option view. Also get rid of string duplicates.
+* Improvement: Show responsible contact in change logs.
+* Bugfix: Fix an exception when creating date series with no semester set.
+* Bugfix: Make sure, we respect module visibility and activity restrictions on the booking instance - closes #385.
+* Bugfix: Fix bugs with entities and optiondates when called with different form.
+* Bugfix: Fix a bug when price was null ins save_from_form of price.php.
+
 ## Version 8.1.13 (2024020601)
 * Improvement: Get rid of startendtimeknown param as it is legacy code.
 * Improvement: Collapse the full description and do not show it twice.
