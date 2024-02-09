@@ -521,6 +521,15 @@ class booking_utils {
                     'newvalue' => $newoption->description,
             ];
         }
+        if (isset($oldoption->responsiblecontact)
+                && $oldoption->responsiblecontact != $newoption->responsiblecontact) {
+            $returnarry[] = [
+                    'info' => get_string('responsiblecontact', 'mod_booking') . get_string('changeinfochanged', 'booking'),
+                    'fieldname' => 'responsiblecontact',
+                    'oldvalue' => $oldoption->responsiblecontact,
+                    'newvalue' => $newoption->responsiblecontact,
+            ];
+        }
         // We have to check for changed "adtocalendar"-value, because we need to trigger update event (but not send mail).
         if (isset($oldoption->addtocalendar)
                 && $oldoption->addtocalendar != $newoption->addtocalendar) {
