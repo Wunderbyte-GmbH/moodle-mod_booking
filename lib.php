@@ -88,7 +88,7 @@ define('MOD_BOOKING_STATUSPARAM_NOTIFYMELIST', 3); // Get message when place is 
 define('MOD_BOOKING_STATUSPARAM_NOTBOOKED', 4);
 define('MOD_BOOKING_STATUSPARAM_DELETED', 5);
 
-// Params to define behavior of booking_update_options.
+// Params to define behavior of booking_option::update.
 define('MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT', 1);
 define('MOD_BOOKING_UPDATE_OPTIONS_PARAM_REDUCED', 2);
 define('MOD_BOOKING_UPDATE_OPTIONS_PARAM_IMPORT', 3);

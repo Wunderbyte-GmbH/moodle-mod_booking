@@ -81,6 +81,10 @@ class optiondates extends field_base {
         int $updateparam,
         $returnvalue = null): string {
 
+        if (!isset($formdata->datesmarker)) {
+            return '';
+        }
+
         // Run through all dates to make sure we don't have an array.
         // We need to transform dates to timestamps.
         list($dates, $highesindex) = dates::get_list_of_submitted_dates((array)$formdata);
@@ -165,6 +169,10 @@ class optiondates extends field_base {
      */
     public static function save_data(stdClass &$formdata, stdClass &$option) {
 
+        if (!isset($formdata->datesmarker)) {
+            return;
+        }
+
         dates::save_optiondates_from_form($formdata, $option);
     }
 
@@ -198,7 +206,6 @@ class optiondates extends field_base {
                     // Todo: Make a meaningful error message to the cause of this abortion.
                     return;
                 }
-
             }
         } else {
             $data->dayofweektime = $data->dayofweektime ?? $settings->dayofweektime ?? '';

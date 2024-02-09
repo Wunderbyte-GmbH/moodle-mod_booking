@@ -3272,7 +3272,7 @@ class booking_option {
     public static function update($data, context $context = null,
         int $updateparam = MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT) {
 
-        global $DB, $PAGE;
+        global $DB;
 
         // When we come here, we have the following possibilities:
         // A) Normal saving via Form of an existing option.
@@ -3325,28 +3325,6 @@ class booking_option {
         }
 
         fields_info::save_fields_post($data, $newoption, $updateparam);
-
-        // Todo:
-        // - Integrate customfields and more settings to option dates - half done.
-        // - implement saving and loading of templates.
-        // - implement returnurl - done
-        // - implement cancel
-        // - implement save and stay
-        // - implement save and add new
-        // - implement entities for optiondates - done
-        // - Test csv importer - done
-        // - test webservice importer
-        // - test availability
-        // - test actions
-        // - test subbookings
-        // - test events
-        // - test caches
-        // - test rules
-        // - rename everything and make it the only way to go.
-        // - fix save and add new
-        // - fix save and stay.
-
-        // Todo: Add the react on changes call.
 
         // We need to purge cache after updating an option.
         self::purge_cache_for_option($newoption->id);

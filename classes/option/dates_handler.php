@@ -622,7 +622,7 @@ class dates_handler {
                 $stillexistingdates[$currentdateid] = $value;
             }
         }
-        // Store the arrays in $fromform so we can use them later in booking_update_options.
+        // Store the arrays in $fromform so we can use them later in booking_option::update.
         $fromform->newoptiondates = $newoptiondates;
         $fromform->stillexistingdates = $stillexistingdates;
 

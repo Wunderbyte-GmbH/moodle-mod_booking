@@ -94,7 +94,7 @@ class entities extends field_base {
                 if (count($entities) > 1) {
                     $newoption->address = substr($newoption->address, 0, -2);
                 }
-            } else {
+            } else if (isset($formdata->{LOCAL_ENTITIES_FORM_ENTITYID . 0})) {
                 $newoption->location = '';
                 $newoption->address = '';
             }
@@ -196,7 +196,9 @@ class entities extends field_base {
 
         // This is to save entity relation data.
         // The id key has to be set to option id.
-        if (class_exists('local_entities\entitiesrelation_handler')) {
+        if (class_exists('local_entities\entitiesrelation_handler')
+            && isset($formdata->{LOCAL_ENTITIES_FORM_ENTITYID . 0})) {
+
             $erhandler = new entitiesrelation_handler('mod_booking', 'option');
             $erhandler->instance_form_save($formdata, $option->id, $index);
         }
