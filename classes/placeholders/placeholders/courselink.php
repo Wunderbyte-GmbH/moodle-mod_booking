@@ -83,6 +83,9 @@ class courselink {
                 $value = html_writer::link($courselink, $courselink->out());
             }
 
+            // Save the value to profit from singleton.
+            placeholders_info::$placeholders[$cachekey] = $value;
+
         } else {
             throw new moodle_exception(
                 'paramnotpresent',

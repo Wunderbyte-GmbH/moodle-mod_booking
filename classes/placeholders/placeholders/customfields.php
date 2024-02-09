@@ -62,6 +62,7 @@ class customfields {
 
         // We might have a param which is part of booking customfields fields.
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $value = '';
 
         if (isset($settings->customfields[$placeholder])
             && is_string($settings->customfields[$placeholder])) {
@@ -87,6 +88,9 @@ class customfields {
                 $value = $user->profile[$placeholder];
             }
         }
+
+        // Save the value to profit from singleton.
+        placeholders_info::$placeholders[$cachekey] = $value;
 
         return $value;
     }

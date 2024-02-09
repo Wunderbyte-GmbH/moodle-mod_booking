@@ -79,6 +79,7 @@ class coursecalendarurl {
                 $bu->booking_generate_calendar_subscription_link($user, 'courses') .
                 '</a>';
 
+            // Save the value to profit from singleton.
             placeholders_info::$placeholders[$cachekey] = $value;
 
         } else {

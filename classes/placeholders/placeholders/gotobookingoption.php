@@ -91,6 +91,7 @@ class gotobookingoption {
 
             $value = html_writer::link($gotobookingoptionlink, $gotobookingoptionlink->out());
 
+            // Save the value to profit from singleton.
             placeholders_info::$placeholders[$cachekey] = $value;
 
         } else {

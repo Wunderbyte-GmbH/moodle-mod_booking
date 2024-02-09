@@ -76,6 +76,9 @@ class numberwaitinglist {
             $value = !empty($settings->maxoverbooking)
                 ? $settings->maxoverbooking : get_string('unlimitedplaces', 'mod_booking');
 
+            // Save the value to profit from singleton.
+            placeholders_info::$placeholders[$cachekey] = $value;
+
         } else {
             throw new moodle_exception(
                 'paramnotpresent',

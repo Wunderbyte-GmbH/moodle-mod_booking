@@ -73,6 +73,10 @@ class duration {
 
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
             $value = $settings->duration;
+
+            // Save the value to profit from singleton.
+            placeholders_info::$placeholders[$cachekey] = $value;
+
         } else {
             throw new moodle_exception(
                 'paramnotpresent',

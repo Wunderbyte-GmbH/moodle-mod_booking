@@ -82,6 +82,7 @@ class qr_username {
             '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' .
             rawurlencode($user->username) . '&choe=UTF-8" title="QR encoded username" />' : '';
 
+            // Save the value to profit from singleton.
             placeholders_info::$placeholders[$cachekey] = $value;
 
         } else {

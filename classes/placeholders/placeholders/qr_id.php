@@ -79,6 +79,7 @@ class qr_id {
             $value = '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' .
             rawurlencode($userid) . '&choe=UTF-8" title="Link to Google.com" />';
 
+            // Save the value to profit from singleton.
             placeholders_info::$placeholders[$cachekey] = $value;
 
         } else {

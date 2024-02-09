@@ -76,6 +76,9 @@ class pollstartdate {
             $value = $settings->coursestarttime ?
                 userdate((int) $settings->coursestarttime, get_string('pollstrftimedate', 'booking')) : '';
 
+            // Save the value to profit from singleton.
+            placeholders_info::$placeholders[$cachekey] = $value;
+
         } else {
             throw new moodle_exception(
                 'paramnotpresent',
