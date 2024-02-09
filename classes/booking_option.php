@@ -49,6 +49,7 @@ use mod_booking\event\booking_afteractionsfailed;
 use mod_booking\event\bookinganswer_cancelled;
 use mod_booking\message_controller;
 use mod_booking\option\fields_info;
+use mod_booking\placeholders\placeholders_info;
 use mod_booking\subbookings\subbookings_info;
 use mod_booking\task\send_completion_mails;
 use moodle_exception;
@@ -421,60 +422,31 @@ class booking_option {
 
         $text = "";
 
-        if (empty($this->settings->aftercompletedtext)
-            && empty($this->settings->beforecompletedtext)
-            && empty($this->settings->beforebookedtext)
-            && empty($this->booking->settings->aftercompletedtext)
-            && empty($this->booking->settings->beforecompletedtext)
-            && empty($this->booking->settings->beforebookedtext)) {
-
-            return '';
-        }
-
-        // New message controller.
-        $messagecontroller = new message_controller(
-            MOD_BOOKING_MSGCONTRPARAM_DO_NOT_SEND, // We do not want to send anything here.
-            MOD_BOOKING_MSGPARAM_CONFIRMATION,
-            $this->cmid,
-            $this->bookingid,
-            $this->optionid,
-            $userid
-        );
-        // Get the email params from message controller.
-        $params = $messagecontroller->get_params();
-
         if (in_array($bookinganswers->user_status($userid),
             [MOD_BOOKING_STATUSPARAM_BOOKED, MOD_BOOKING_STATUSPARAM_WAITINGLIST])) {
             $ac = $bookinganswers->is_activity_completed($userid);
             if ($ac == 1) {
                 if (!empty($this->settings->aftercompletedtext)) {
-                    $text = format_text($this->settings->aftercompletedtext);
+                    $text = $this->settings->aftercompletedtext;
                 } else if (!empty($this->booking->settings->aftercompletedtext)) {
-                    $text = format_text($this->booking->settings->aftercompletedtext);
+                    $text = $this->booking->settings->aftercompletedtext;
                 }
             } else {
                 if (!empty($this->settings->beforecompletedtext)) {
-                    $text = format_text($this->settings->beforecompletedtext);
+                    $text = $this->settings->beforecompletedtext;
                 } else if (!empty($this->booking->settings->beforecompletedtext)) {
-                    $text = format_text($this->booking->settings->beforecompletedtext);
+                    $text = $this->booking->settings->beforecompletedtext;
                 }
             }
         } else {
             if (!empty($this->settings->beforebookedtext)) {
-                $text = format_text($this->settings->beforebookedtext);
+                $text = $this->settings->beforebookedtext;
             } else if (!empty($this->booking->settings->beforebookedtext)) {
-                $text = format_text($this->booking->settings->beforebookedtext);
+                $text = $this->booking->settings->beforebookedtext;
             }
         }
 
-        foreach ($params as $name => $value) {
-            if (!is_null($value)) { // Since php 8.1.
-                $value = strval($value);
-                $text = str_replace('{' . $name . '}', $value, $text);
-            }
-        }
-
-        return $text;
+        return placeholders_info::render_text($text, $this->settings->cmid, $this->settings->id, $userid);
     }
 
     /**
