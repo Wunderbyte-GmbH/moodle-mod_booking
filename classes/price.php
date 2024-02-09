@@ -579,7 +579,7 @@ class price {
                 $price = '';
             }
 
-            self::add_price($this->area, $this->itemid, $pricecategory->identifier, $price, $currency);
+            self::add_price($this->area, $this->itemid, $pricecategory->identifier, $price ?? "", $currency);
         }
     }
 
