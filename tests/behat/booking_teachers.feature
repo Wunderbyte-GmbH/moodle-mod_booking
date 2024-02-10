@@ -29,8 +29,8 @@ Feature: In a booking - create options and assign or substituing teachers
       | activity | course | name       | intro                  | bookingmanager | eventtype | Default view for booking options | Activate e-mails (confirmations, notifications and more) | Booking option name  |
       | booking  | C1     | My booking | My booking description | admin1         | Webinar   | All bookings                     | Yes                                                      | New option - Webinar |
     And the following "mod_booking > options" exist:
-      | booking    | text                      | course | description  | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | optiondateid_2 | daystonotify_2 | coursestarttime_2 | courseendtime_2 |
-      | My booking | Booking option - Teachers | C1     | Option deskr | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   |
+      | booking    | text                      | course | description  | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | optiondateid_2 | daystonotify_2 | coursestarttime_2 | courseendtime_2 |
+      | My booking | Booking option - Teachers | C1     | Option deskr | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   |
 
   @javascript
   Scenario: Booking option: add and remove single teacher via substitutions

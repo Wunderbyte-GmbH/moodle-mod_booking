@@ -28,9 +28,9 @@ Feature: As a teacher - configure and use booking's price formula feature.
       | ordernum | identifier | name       | defaultvalue | disabled | pricecatsortorder |
       | 1        | default    | Base Price | 70.1         | 0        | 1                 |
     And the following "mod_booking > options" exist:
-      | booking    | text                                         | course | description  | semester | dayofweek | dayofweektime    | dayofweekstarttime | dayofweekendtime |
-      | My booking | Price formula option - Dates In timeslot     | C1     | Option deskr | nextmay  | Mon       | Mon, 18:00-20:00 | 1800               | 2000             |
-      | My booking | Price formula option - Dates NOT in timeslot | C1     | Option deskr | nextmay  | Tue       | Tue, 9:00-11:00  | 900                | 1100             |
+      | booking    | text                                         | course | description  | datesmarker | semester | dayofweek | dayofweektime    | dayofweekstarttime | dayofweekendtime |
+      | My booking | Price formula option - Dates In timeslot     | C1     | Option deskr | 1           | nextmay  | Mon       | Mon, 18:00-20:00 | 1800               | 2000             |
+      | My booking | Price formula option - Dates NOT in timeslot | C1     | Option deskr | 1           | nextmay  | Tue       | Tue, 9:00-11:00  | 900                | 1100             |
 
   @javascript
   Scenario: Booking price formula - option dates not in timeslot of the price formula
