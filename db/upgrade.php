@@ -3647,5 +3647,30 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023112701, 'booking');
     }
 
+    if ($oldversion < 2024021000) {
+
+        // Define table booking_form_config to be created.
+        $table = new xmldb_table('booking_form_config');
+
+        // Adding fields to table booking_form_config.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('area', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('capability', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('contextid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('json', XMLDB_TYPE_TEXT, null, null, null, null, null);
+
+        // Adding keys to table booking_form_config.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Conditionally launch create table for booking_form_config.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2024021000, 'booking');
+    }
+
+
     return true;
 }
