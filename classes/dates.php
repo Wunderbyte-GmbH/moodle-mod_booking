@@ -281,22 +281,33 @@ class dates {
         // This Logic is linked to the webservice importer functionality.
         // We might need to add coursestartime and courseendtime as new session.
         if (!empty($defaultvalues->importing)
-            && (!empty($defaultvalues->mergeparam)
-            && $defaultvalues->mergeparam == 2)
+            && !empty($defaultvalues->mergeparam)
             && !empty($sessions)) {
 
-            // If we are importing via webservice and have already sessions in this option...
-            // ... and we have already added new coursestarttime and courseendtime, we move them.
-            $session[] = (object)[
-                'optiondateid' => 0,
-                'coursestarttime' => $defaultvalues->{MOD_BOOKING_FORM_COURSESTARTTIME . 0},
-                'courseendtime' => $defaultvalues->{MOD_BOOKING_FORM_COURSEENDTIME . 0},
-                'daystonotify' => 0,
-            ];
-            unset($defaultvalues->{MOD_BOOKING_FORM_OPTIONDATEID . 0});
-            unset($defaultvalues->{MOD_BOOKING_FORM_COURSESTARTTIME . 0});
-            unset($defaultvalues->{MOD_BOOKING_FORM_COURSEENDTIME . 0});
-            unset($defaultvalues->{MOD_BOOKING_FORM_DAYSTONOTIFY . 0});
+            // If we add another session, we need to add it to the sessions object.
+            if ($defaultvalues->mergeparam == 2) {
+                // If we are importing via webservice and have already sessions in this option...
+                // ... and we have already added new coursestarttime and courseendtime, we move them.
+                $sessions[] = (object)[
+                    'optiondateid' => 0,
+                    'coursestarttime' => $defaultvalues->{MOD_BOOKING_FORM_COURSESTARTTIME . 0},
+                    'courseendtime' => $defaultvalues->{MOD_BOOKING_FORM_COURSEENDTIME . 0},
+                    'daystonotify' => 0,
+                ];
+                unset($defaultvalues->{MOD_BOOKING_FORM_OPTIONDATEID . 0});
+                unset($defaultvalues->{MOD_BOOKING_FORM_COURSESTARTTIME . 0});
+                unset($defaultvalues->{MOD_BOOKING_FORM_COURSEENDTIME . 0});
+                unset($defaultvalues->{MOD_BOOKING_FORM_DAYSTONOTIFY . 0});
+            } else if ($defaultvalues->mergeparam == 1) {
+                // If this is the first date, we need to make sure that we delete all the other dates.
+                $sessions = [];
+            } else if ($defaultvalues->mergeparam == 3) {
+                // 3 Means that we add other stuff, so we just leave the dates alone.
+                unset($defaultvalues->{MOD_BOOKING_FORM_OPTIONDATEID . 0});
+                unset($defaultvalues->{MOD_BOOKING_FORM_COURSESTARTTIME . 0});
+                unset($defaultvalues->{MOD_BOOKING_FORM_COURSEENDTIME . 0});
+                unset($defaultvalues->{MOD_BOOKING_FORM_DAYSTONOTIFY . 0});
+            }
         }
 
         // We need to make sure we have all options already added to the form.
