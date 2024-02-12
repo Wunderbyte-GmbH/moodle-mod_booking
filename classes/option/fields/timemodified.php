@@ -44,7 +44,7 @@ class timemodified extends field_base {
      * This ID is used for sorting execution.
      * @var int
      */
-    public static $id = MOD_BOOKING_OPTION_FIELD_LOCATION;
+    public static $id = MOD_BOOKING_OPTION_FIELD_TIMEMODIFIED;
 
     /**
      * Some fields are saved with the booking option...
