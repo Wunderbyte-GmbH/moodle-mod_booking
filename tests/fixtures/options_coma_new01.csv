@@ -1,4 +1,4 @@
-identifier,titleprefix,text,sport,location,institution,address,maxanswers,maxoverbooking,coursenumber,addtocalendar,dayofweek,dayofweektime,dayofweekstarttime,dayofweekendtime,description,descriptionfromat,default,intern,extern,botags,kst,teacheremail
-pftr52,1,0-Allgemeines Turnen,Allgemeines Turnen,TNMU,Spitalgasse 14 1090 Wien,Voli 1,35,0,1,0,MO,MO 17:15 - 19:30,1715,1930,Vorwiegend Outdoor,1,79,89,99,bTNMU,ET592001,reinhold.brunhoelzl@univie.ac.at
-pftr53,3,0-Rückenfit,Rückenfit,TNMU,Spitalgasse 14 1090 Wien,Voli 1,60,0,3,0,TH,Th 06:50 - 07:35,650,735,Auch Outdoor,1,79,89,99,TryUSI,ET592001,ulrike.schultes@univie.ac.at
-pftr54,5,0-Kondition Mit Musik,Kondition Mit Musik,TNMU,Spitalgasse 14 1090 Wien,Voli 1,60,0,5,0,We,We 18:10 - 19:40,1810,1940,,1,79,89,99,KPI,ET592001,guenther.ficker@univie.ac.at
+identifier,titleprefix,text,sport,location,institution,address,maxanswers,maxoverbooking,coursenumber,addtocalendar,dayofweek,dayofweektime,dayofweekstarttime,dayofweekendtime,description,descriptionfromat,useprice,default,intern,extern,botags,kst,teacheremail
+pftr52,1,0-Allgemeines Turnen,Allgemeines Turnen,TNMU,Spitalgasse 14 1090 Wien,Voli 1,35,0,1,0,MO,MO 17:15 - 19:30,1715,1930,Vorwiegend Outdoor,1,1,79,89,99,bTNMU,ET592001,reinhold.brunhoelzl@univie.ac.at
+pftr53,3,0-Rückenfit,Rückenfit,TNMU,Spitalgasse 14 1090 Wien,Voli 1,60,0,3,0,TH,Th 06:50 - 07:35,650,735,Auch Outdoor,1,1,79,89,99,TryUSI,ET592001,ulrike.schultes@univie.ac.at
+pftr54,5,0-Kondition Mit Musik,Kondition Mit Musik,TNMU,Spitalgasse 14 1090 Wien,Voli 1,60,0,5,0,We,We 18:10 - 19:40,1810,1940,,1,1,79,89,99,KPI,ET592001,guenther.ficker@univie.ac.at
