@@ -34,17 +34,11 @@ require_once($CFG->dirroot . '/mod/booking/locallib.php');
 require_once($CFG->dirroot .'/course/externallib.php');
 
 use local_entities\entitiesrelation_handler;
-use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
 use mod_booking\booking_option;
-use mod_booking\booking_rules\rules_info;
-use mod_booking\booking_utils;
-use mod_booking\option\dates_handler;
-use mod_booking\elective;
 use mod_booking\output\coursepage_shortinfo_and_button;
 use mod_booking\singleton_service;
 use mod_booking\teachers_handler;
-use mod_booking\utils\wb_payment;
 
 // Default fields for bookingoptions in view.php and for download.
 define('MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS', "identifier,titleprefix,text,description,teacher,responsiblecontact," .
