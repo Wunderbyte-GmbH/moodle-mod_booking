@@ -29,7 +29,6 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir.'/tablelib.php');
 
-use mod_booking\catquiz;
 use local_wunderbyte_table\wunderbyte_table;
 
 /**

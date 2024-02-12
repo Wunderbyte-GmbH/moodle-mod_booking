@@ -124,7 +124,7 @@ class csvimport extends dynamic_form {
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
-        require_capability('local/catquiz:manage_catscales', $this->get_context_for_dynamic_submission());
+        require_capability('mod/booking:updatebooking', $this->get_context_for_dynamic_submission());
     }
 
     /**
