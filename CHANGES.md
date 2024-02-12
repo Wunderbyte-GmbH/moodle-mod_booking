@@ -1,3 +1,8 @@
+## Version 8.1.15 (2024021200)
+* Bugfix: Fix bug with wrong usage of strpos with "~" and "!~" operators.
+* Bugfix: Fix booking_navigation_setting behat scenarios to use precise navigation element selector.
+* Bugfix: Fix behat test - add datesmarker field.
+
 ## Version 8.1.14 (2024020900)
 * Improvement: Show updated string for send custom message button.
 * Improvement: Use less space for availability condition notification warnings.
