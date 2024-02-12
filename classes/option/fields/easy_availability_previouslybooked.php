@@ -111,6 +111,16 @@ class easy_availability_previouslybooked extends field_base {
             $formdata->bo_cond_previouslybooked_restrict = 0;
         }
 
+        // Here we have to make sure we don't override anything.
+        $tempform = new stdClass();
+        bo_info::set_defaults($tempform, json_encode($formdata->availability));
+
+        foreach ($tempform as $key => $value) {
+            if (!isset($formdata->{$key})) {
+                $formdata->{$key} = $value;
+            }
+        }
+
         // Save the additional JSON conditions (the ones which have been added to the mform).
         bo_info::save_json_conditions_from_form($formdata);
         $newoption->availability = $formdata->availability;
@@ -172,6 +182,12 @@ class easy_availability_previouslybooked extends field_base {
             get_string('bo_cond_previouslybooked_optionid', 'mod_booking'), [], $previouslybookedoptions);
         $mform->setType('bo_cond_previouslybooked_optionid', PARAM_INT);
         $mform->hideIf('bo_cond_previouslybooked_optionid', 'bo_cond_previouslybooked_restrict', 'notchecked');
+
+        // This is to transmit the original availability values.
+        if (!$mform->elementExists('availability')) {
+            $mform->addElement('hidden', 'availability');
+            $mform->setType('availability', PARAM_RAW);
+        }
     }
 
     /**
@@ -184,7 +200,7 @@ class easy_availability_previouslybooked extends field_base {
     public static function set_data(stdClass &$formdata, booking_option_settings $settings) {
 
         if (!empty($settings->availability)) {
-            $availabilityarray = json_decode($settings->availability);
+            $availabilityarray = json_decode($settings->availability ?? '{}');
             foreach ($availabilityarray as $av) {
                 switch ($av->id) {
                     case MOD_BOOKING_BO_COND_JSON_PREVIOUSLYBOOKED:
@@ -202,5 +218,7 @@ class easy_availability_previouslybooked extends field_base {
                 }
             }
         }
+        // We will always transmit the initial values.
+        $formdata->availability = $settings->availability ?? '{}';
     }
 }

@@ -293,7 +293,7 @@ class fields_info {
         $modulecontext = context_module::instance($PAGE->cm->id);
         $coursecatcontext = context_coursecat::instance($PAGE->category->id);
 
-        // Necessary fields are the same for all-
+        // Necessary fields are the same for all.
         if (in_array(MOD_BOOKING_OPTION_FIELD_NECESSARY, $classname::$fieldcategories)) {
             return true;
         }
