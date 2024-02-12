@@ -24,6 +24,8 @@
 
 namespace mod_booking\option\fields;
 
+use core_course_external;
+use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use MoodleQuickForm;
@@ -32,17 +34,20 @@ use stdClass;
 /**
  * Class to handle one property of the booking_option_settings class.
  *
+ * Courseendtime is fully replaced with the optiondates class.
+ * Its only here as a placeholder.
+ *
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class priceformulaadd extends field_base {
+class easy_bookingopeningtime extends field_base {
 
     /**
      * This ID is used for sorting execution.
      * @var int
      */
-    public static $id = MOD_BOOKING_OPTION_FIELD_PRICEFORMULAADD;
+    public static $id = MOD_BOOKING_OPTION_FIELD_EASY_BOOKINGOPENINGTIME;
 
     /**
      * Some fields are saved with the booking option...
@@ -56,19 +61,22 @@ class priceformulaadd extends field_base {
      * This identifies the header under which this particular field should be displayed.
      * @var string
      */
-    public static $header = MOD_BOOKING_HEADER_PRICE;
+    public static $header = MOD_BOOKING_HEADER_AVAILABILITY;
 
     /**
      * An int value to define if this field is standard or used in a different context.
      * @var array
      */
-    public static $fieldcategories = [MOD_BOOKING_OPTION_FIELD_STANDARD];
+    public static $fieldcategories = [MOD_BOOKING_OPTION_FIELD_EASY];
 
     /**
      * This is an array of incompatible field ids.
      * @var array
      */
-    public static $incompatiblefields = [];
+    public static $incompatiblefields = [
+        MOD_BOOKING_OPTION_FIELD_BOOKINGOPENINGTIME,
+        MOD_BOOKING_OPTION_FIELD_AVAILABILITY,
+    ];
 
     /**
      * This function interprets the value from the form and, if useful...
@@ -85,8 +93,32 @@ class priceformulaadd extends field_base {
         int $updateparam,
         $returnvalue = null): string {
 
-        // Default values should be the same as in price field class.
-        return parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
+        $key = 'bookingopeningtime';
+        $value = $formdata->{$key} ?? null;
+
+        if (empty($formdata->restrictanswerperiodopening)) {
+            $newoption->{$key} = 0;
+        } else {
+            if (!empty($value)) {
+                $newoption->{$key} = $value;
+            } else {
+                $newoption->{$key} = 0;
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * This function adds error keys for form validation.
+     * @param array $data
+     * @param array $files
+     * @param array $errors
+     * @return array
+     */
+    public static function validation(array $data, array $files, array &$errors) {
+
+        return $errors;
     }
 
     /**
@@ -98,6 +130,29 @@ class priceformulaadd extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
-        // This is not done here but in \mod_booking\price class.
+        // The form is not locked and can be used normally.
+        $mform->addElement('hidden', 'restrictanswerperiodopening');
+        $mform->setType('restrictanswerperiodopening', PARAM_INT);
+
+        $mform->addElement('date_time_selector', 'bookingopeningtime',
+            get_string('easyavailability:openingtime', 'local_musi'));
+        $mform->setType('bookingopeningtime', PARAM_INT);
+    }
+
+    /**
+     * Standard function to transfer stored value to form.
+     * @param stdClass $data
+     * @param booking_option_settings $settings
+     * @return void
+     * @throws dml_exception
+     */
+    public static function set_data(stdClass &$data, booking_option_settings $settings) {
+
+        if (!isset($data->bookingopeningtime)
+            && !empty($settings->bookingopeningtime)) {
+
+            $data->bookingopeningtime = $settings->bookingopeningtime;
+        }
+        $data->restrictanswerperiodopening = 1;
     }
 }

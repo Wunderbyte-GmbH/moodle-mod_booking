@@ -61,6 +61,18 @@ class teachers extends field_base {
     public static $header = MOD_BOOKING_HEADER_TEACHERS;
 
     /**
+     * An int value to define if this field is standard or used in a different context.
+     * @var array
+     */
+    public static $fieldcategories = [MOD_BOOKING_OPTION_FIELD_STANDARD];
+
+    /**
+     * This is an array of incompatible field ids.
+     * @var array
+     */
+    public static $incompatiblefields = [];
+
+    /**
      * This function interprets the value from the form and, if useful...
      * ... relays it to the new option class for saving or updating.
      * @param stdClass $formdata
@@ -113,12 +125,12 @@ class teachers extends field_base {
             $teacherids = teachers_handler::get_teacherids_from_form($data);
 
             if (!empty($data->importing)
-                && (!empty($data->mergeparam)
-                && $data->mergeparam == 3)) {
+                && (!empty($data->mergeparam))) {
 
-                $oldteacherids = $settings->teacherids;
-
-                $teacherids = array_merge($oldteacherids, $teacherids);
+                if ($data->mergeparam > 1) {
+                    $oldteacherids = $settings->teacherids;
+                    $teacherids = array_merge($oldteacherids, $teacherids);
+                }
             }
             $data->teachersforoption = $teacherids;
         }

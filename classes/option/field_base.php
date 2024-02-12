@@ -60,6 +60,12 @@ abstract class field_base implements fields {
     public static $header = '';
 
     /**
+     * This is an array of incompatible field ids.
+     * @var array
+     */
+    public static $incompatiblefields = [];
+
+    /**
      * This function interprets the value from the form and, if useful...
      * ... relays it to the new option class for saving or updating.
      * @param stdClass $formdata
@@ -72,7 +78,7 @@ abstract class field_base implements fields {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): string {
+        $returnvalue = ''): string {
 
         $key = fields_info::get_class_name(static::class);
         $value = $formdata->{$key} ?? null;
@@ -80,7 +86,7 @@ abstract class field_base implements fields {
         if (!empty($value)) {
             $newoption->{$key} = $value;
         } else {
-            $newoption->{$key} = '';
+            $newoption->{$key} = $returnvalue;
         }
 
         // We can return an warning message here.

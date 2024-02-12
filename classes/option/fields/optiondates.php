@@ -67,6 +67,18 @@ class optiondates extends field_base {
     public static $header = MOD_BOOKING_HEADER_DATES;
 
     /**
+     * An int value to define if this field is standard or used in a different context.
+     * @var array
+     */
+    public static $fieldcategories = [MOD_BOOKING_OPTION_FIELD_STANDARD];
+
+    /**
+     * This is an array of incompatible field ids.
+     * @var array
+     */
+    public static $incompatiblefields = [];
+
+    /**
      * This function interprets the value from the form and, if useful...
      * ... relays it to the new option class for saving or updating.
      * @param stdClass $formdata
@@ -80,10 +92,6 @@ class optiondates extends field_base {
         stdClass &$newoption,
         int $updateparam,
         $returnvalue = null): string {
-
-        if (!isset($formdata->datesmarker)) {
-            return '';
-        }
 
         // Run through all dates to make sure we don't have an array.
         // We need to transform dates to timestamps.
@@ -168,10 +176,6 @@ class optiondates extends field_base {
      * @throws \dml_exception
      */
     public static function save_data(stdClass &$formdata, stdClass &$option) {
-
-        if (!isset($formdata->datesmarker)) {
-            return;
-        }
 
         dates::save_optiondates_from_form($formdata, $option);
     }

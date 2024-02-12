@@ -24,6 +24,7 @@
 
 namespace mod_booking\option\fields;
 
+use mod_booking\booking_option_settings;
 use mod_booking\option\fields;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
@@ -58,6 +59,18 @@ class invisible extends field_base {
      * @var string
      */
     public static $header = MOD_BOOKING_HEADER_GENERAL;
+
+    /**
+     * An int value to define if this field is standard or used in a different context.
+     * @var array
+     */
+    public static $fieldcategories = [MOD_BOOKING_OPTION_FIELD_STANDARD];
+
+    /**
+     * This is an array of incompatible field ids.
+     * @var array
+     */
+    public static $incompatiblefields = [];
 
     /**
      * This function interprets the value from the form and, if useful...
@@ -98,5 +111,25 @@ class invisible extends field_base {
         $mform->setType('invisible', PARAM_INT);
         $mform->setDefault('invisible', 0);
         $mform->addHelpButton('invisible', 'optionvisibility', 'mod_booking');
+    }
+
+    /**
+     * Standard function to transfer stored value to form.
+     * @param stdClass $data
+     * @param booking_option_settings $settings
+     * @return void
+     * @throws dml_exception
+     */
+    public static function set_data(stdClass &$data, booking_option_settings $settings) {
+
+        $key = fields_info::get_class_name(static::class);
+        // Normally, we don't call set data after the first time loading.
+        if (isset($data->{$key})) {
+            return;
+        }
+
+        $value = $settings->{$key} ?? null;
+
+        $data->{$key} = $value;
     }
 }

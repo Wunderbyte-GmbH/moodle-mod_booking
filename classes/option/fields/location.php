@@ -24,8 +24,7 @@
 
 namespace mod_booking\option\fields;
 
-use mod_booking\booking_option;
-use mod_booking\option\fields;
+use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use MoodleQuickForm;
@@ -59,6 +58,18 @@ class location extends field_base {
      * @var string
      */
     public static $header = MOD_BOOKING_HEADER_GENERAL;
+
+    /**
+     * An int value to define if this field is standard or used in a different context.
+     * @var array
+     */
+    public static $fieldcategories = [MOD_BOOKING_OPTION_FIELD_STANDARD];
+
+    /**
+     * This is an array of incompatible field ids.
+     * @var array
+     */
+    public static $incompatiblefields = [];
 
     /**
      * This function interprets the value from the form and, if useful...

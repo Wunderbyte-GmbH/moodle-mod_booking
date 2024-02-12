@@ -254,6 +254,10 @@ class fields_info {
         $classes = [];
         foreach (array_keys($fields) as $classname) {
 
+            if (!self::check_field_for_user($classname)) {
+                continue;
+            }
+
             // We might only want postsave classes.
             if ($save === MOD_BOOKING_EXECUTION_POSTSAVE) {
                 if ($classname::$save !== MOD_BOOKING_EXECUTION_POSTSAVE) {
@@ -273,5 +277,39 @@ class fields_info {
         ksort($classes);
 
         return $classes;
+    }
+
+    /**
+     *
+     * @param string $classname
+     * @return bool
+     */
+    private static function check_field_for_user(string $classname) {
+
+        // Necessary fields are the same for all-
+        if (in_array(MOD_BOOKING_OPTION_FIELD_NECESSARY, $classname::$fieldcategories)) {
+            return true;
+        }
+
+        if (is_siteadmin()) {
+
+            // Standard fields only.
+            if (in_array(MOD_BOOKING_OPTION_FIELD_STANDARD, $classname::$fieldcategories)) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+
+            // Easy fields only.
+            // Standard fields only.
+            if (in_array(MOD_BOOKING_OPTION_FIELD_EASY, $classname::$fieldcategories)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
