@@ -31,6 +31,8 @@ use mod_booking\singleton_service;
 use moodle_exception;
 use MoodleQuickForm;
 use stdClass;
+use context_coursecat;
+use context_module;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -286,13 +288,17 @@ class fields_info {
      */
     private static function check_field_for_user(string $classname) {
 
+        global $PAGE;
+
+        $modulecontext = context_module::instance($PAGE->cm->id);
+        $coursecatcontext = context_coursecat::instance($PAGE->category->id);
+
         // Necessary fields are the same for all-
         if (in_array(MOD_BOOKING_OPTION_FIELD_NECESSARY, $classname::$fieldcategories)) {
             return true;
         }
 
-        if (is_siteadmin()) {
-
+        if (has_capability('mod/booking:expertoptionform', $modulecontext)) {
             // Standard fields only.
             if (in_array(MOD_BOOKING_OPTION_FIELD_STANDARD, $classname::$fieldcategories)) {
                 return true;

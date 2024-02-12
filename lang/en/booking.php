@@ -187,6 +187,13 @@ $string['booking:viewrating'] = 'View the total rating you received';
 $string['booking:addeditownoption'] = 'Add new option and edit own options.';
 $string['booking:canseeinvisibleoptions'] = 'View invisible options.';
 $string['booking:changelockedcustomfields'] = 'Can change locked custom booking option fields.';
+
+$string['booking:expertoptionform'] = "Expert option form";
+$string['booking:reducedoptionform1'] = "1. Reduced option form for course category";
+$string['booking:reducedoptionform2'] = "2. Reduced option form for course category";
+$string['booking:reducedoptionform3'] = "3. Reduced option form for course category";
+$string['booking:reducedoptionform4'] = "4. Reduced option form for course category";
+
 $string['booking:comment'] = 'Add comments';
 $string['booking:managecomments'] = 'Manage comments';
 $string['bookingfull'] = 'There are no available places';

@@ -270,6 +270,14 @@ $capabilities = [
             'editingteacher' => CAP_ALLOW,
         ],
     ],
+    // Expert option form capability. Can be configured via settings.
+    'mod/booking:expertoptionform' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+        ],
+    ],
     // Restricted option form capability. Can be configured via settings.
     'mod/booking:reducedoptionform1' => [
         'captype' => 'write',

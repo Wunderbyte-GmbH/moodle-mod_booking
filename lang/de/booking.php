@@ -185,6 +185,13 @@ $string['booking:viewrating'] = 'Gesamtbewertung sehen';
 $string['booking:addeditownoption'] = 'Neue Buchungsoptionen anlegen und eigene bearbeiten.';
 $string['booking:canseeinvisibleoptions'] = 'Unsichtbare Buchungsoptionen sehen.';
 $string['booking:changelockedcustomfields'] = 'Kann gesperrte benutzerdefinierte Buchungsoptionsfelder verändern.';
+
+$string['booking:expertoptionform'] = "Expert Buchungsoptions Formular";
+$string['booking:reducedoptionform1'] = "1. Reduziertes Buchungsoptionsformular für Kursbereich.";
+$string['booking:reducedoptionform2'] = "2. Reduziertes Buchungsoptionsformular für Kursbereich.";
+$string['booking:reducedoptionform3'] = "3. Reduziertes Buchungsoptionsformular für Kursbereich.";
+$string['booking:reducedoptionform4'] = "4. Reduziertes Buchungsoptionsformular für Kursbereich.";
+
 $string['manageoptiontemplates'] = 'Kann Buchungsoptionsvorlagen erstellen';
 $string['bookingfull'] = 'Ausgebucht';
 $string['bookingname'] = 'Buchungsinstanzname';
