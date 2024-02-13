@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 namespace mod_booking\external;
 
+use dml_exception;
 use external_api;
 use external_function_parameters;
 use external_single_structure;
@@ -65,10 +66,9 @@ class get_option_field_config extends external_api {
     /**
      * Returns the available capabilities to configure
      *
-     * @param int|null $mergeparam
-     *
+     * @param int $coursecategoryid
      * @return array
-     *
+     * @throws dml_exception
      */
     public static function execute(
                         int $coursecategoryid = 0,

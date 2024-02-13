@@ -53,6 +53,10 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  */
 class optionformconfig_info {
 
+    /**
+     * Capabilities.
+     * @var array
+     */
     public static array $capabilities = [
         'mod/booking:expertoptionform',
         'mod/booking:reducedoptionform1',
@@ -114,7 +118,7 @@ class optionformconfig_info {
             $returnarray[] = [
                 'id' => $coursecategoryid,
                 'capability' => $capability,
-                'json' => $json
+                'json' => $json,
             ];
         }
 

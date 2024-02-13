@@ -106,7 +106,7 @@ class easy_availability_selectusers extends field_base {
             // We always override these conditions, so users are always allowed to book outside time restrictions.
             $formdata->bo_cond_selectusers_overridecondition = [
                 MOD_BOOKING_BO_COND_BOOKING_TIME,
-                MOD_BOOKING_BO_COND_OPTIONHASSTARTED
+                MOD_BOOKING_BO_COND_OPTIONHASSTARTED,
             ];
 
             // If the overbook checkbox has been checked, we also add the conditions so the user(s) can overbook.
