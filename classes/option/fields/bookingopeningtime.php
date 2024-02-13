@@ -128,7 +128,8 @@ class bookingopeningtime extends field_base {
 
         $key = fields_info::get_class_name(static::class);
         // Normally, we don't call set data after the first time loading.
-        if (isset($data->{$key})) {
+        if (isset($data->{$key}) && is_numeric($data->{$key}) && $data->{$key} > 0) {
+            $data->restrictanswerperiodopening = 1;
             return;
         }
 
