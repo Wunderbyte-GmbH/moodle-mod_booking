@@ -210,6 +210,10 @@ class fields_info {
         try {
             foreach ($classes as $classname) {
                 $classname::set_data($data, $settings);
+                // We might get the id during prepare__import. If so, we want to get the settings object.
+                if (!empty($data->id) && empty($settings->id)) {
+                    $settings = singleton_service::get_instance_of_booking_option_settings($data->id);
+                }
             }
         } catch (moodle_exception $e) {
             // This is just to get out of the loop.
