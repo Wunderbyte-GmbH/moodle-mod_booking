@@ -159,7 +159,7 @@ class mod_booking_generator extends testing_module_generator {
             //$semester = new semester($record->semesterid);
         }
 
-        // Prepare pricef for being used in option(s) if exist.
+        // Prepare prices for being used in option(s) if exist.
         $pricecategories = $DB->get_records('booking_pricecategories', ['disabled' => 0]);
         if (!empty($pricecategories)) {
             foreach ($pricecategories as $pricecat) {

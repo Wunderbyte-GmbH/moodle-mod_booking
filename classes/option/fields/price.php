@@ -151,11 +151,6 @@ class price extends field_base {
         $pricehandler = new Mod_bookingPrice('option', $data->id);
         $priceitems = Mod_bookingPrice::get_prices_from_cache_or_db('option', $data->id);
 
-        // TODO: This is just a workaround, remove it, once $settings is fixed!
-        if (empty($settings->id)) {
-            $settings = singleton_service::get_instance_of_booking_option_settings($data->id);
-        }
-
         if (!empty($data->importing)) {
 
             if (!is_array($pricehandler->pricecategories)) {

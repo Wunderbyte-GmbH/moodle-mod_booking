@@ -117,11 +117,6 @@ class canceluntil extends field_base {
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
-        // TODO: This is just a workaround, remove it, once $settings is fixed!
-        if (empty($settings->id)) {
-            $settings = singleton_service::get_instance_of_booking_option_settings($data->id);
-        }
-
         if (!empty($data->importing)) {
             $data->canceluntil = $data->canceluntil ?? booking_option::get_value_of_json_by_key($data->id, "canceluntil") ?? 0;
             if (!empty($data->canceluntil)) {
