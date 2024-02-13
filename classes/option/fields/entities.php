@@ -97,7 +97,7 @@ class entities extends field_base {
                 $entities = entitiesrelation_handler::get_entities_by_id($formdata->{LOCAL_ENTITIES_FORM_ENTITYID . 0});
                 $newoption->address = '';
                 foreach ($entities as $entity) {
-                    $newoption->location = $entity->parentname ?? $entity->name;
+                    $newoption->location = $entity->name;
                     $newoption->address .= "$entity->postcode $entity->city $entity->streetname $entity->streetnumber";
                     if (count($entities) > 1) {
                         $newoption->address .= ', ';
