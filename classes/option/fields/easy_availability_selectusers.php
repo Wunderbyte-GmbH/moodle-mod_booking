@@ -70,6 +70,12 @@ class easy_availability_selectusers extends field_base {
     public static $fieldcategories = [MOD_BOOKING_OPTION_FIELD_EASY];
 
     /**
+     * Additionally to the classname, there might be others keys which should instantiate this class.
+     * @var array
+     */
+    public static $alternativeimportidentifiers = [];
+
+    /**
      * This is an array of incompatible field ids.
      * @var array
      */

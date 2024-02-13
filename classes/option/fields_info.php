@@ -177,8 +177,14 @@ class fields_info {
 
         $classes = self::get_field_classes();
 
-        foreach ($classes as $class) {
-            $class::validation($data, $files, $errors);
+        foreach ($classes as $classname) {
+
+            // We want to ignore some classes here.
+            if (self::ignore_class((object)$data, $classname)) {
+                continue;
+            }
+
+            $classname::validation($data, $files, $errors);
         }
     }
 
@@ -406,6 +412,13 @@ class fields_info {
                     $existingpricecategories = $DB->get_records('booking_pricecategories', ['disabled' => 0]);
                     $results = array_filter($existingpricecategories, fn($a) => isset($data->{$a->identifier}));
                     if (!empty($results)) {
+                        return false;
+                    }
+                }
+
+                // If there are alternative identifiers, we have to check if one of them is present.
+                foreach ($classname::$alternativeimportidentifiers as $alternativeidentifier) {
+                    if (isset($data->{$alternativeidentifier})) {
                         return false;
                     }
                 }

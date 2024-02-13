@@ -67,6 +67,14 @@ class teachers extends field_base {
     public static $fieldcategories = [MOD_BOOKING_OPTION_FIELD_STANDARD];
 
     /**
+     * Additionally to the classname, there might be others keys which should instantiate this class.
+     * @var array
+     */
+    public static $alternativeimportidentifiers = [
+        'teacheremail',
+    ];
+
+    /**
      * This is an array of incompatible field ids.
      * @var array
      */

@@ -69,6 +69,12 @@ class description extends field_base {
     ];
 
     /**
+     * Additionally to the classname, there might be others keys which should instantiate this class.
+     * @var array
+     */
+    public static $alternativeimportidentifiers = [];
+
+    /**
      * This is an array of incompatible field ids.
      * @var array
      */
