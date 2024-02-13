@@ -123,7 +123,7 @@ class canceluntil extends field_base {
         }
 
         if (!empty($data->importing)) {
-            $data->canceluntil = $data->canceluntil ?? $settings->canceluntil ?? 0;
+            $data->canceluntil = $data->canceluntil ?? booking_option::get_value_of_json_by_key($data->id, "canceluntil") ?? 0;
             if (!empty($data->canceluntil)) {
                 $data->canceluntilcheckbox = 1;
             }
