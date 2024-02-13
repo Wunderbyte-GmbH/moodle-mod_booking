@@ -231,6 +231,11 @@ class price extends field_base {
                 $data->useprice = 1;
             }
 
+            // If price is always on, we also turn on the useprice flag.
+            if (get_config('booking', 'priceisalwayson')) {
+                $data->useprice = 1;
+            }
+
             $pricehandler->set_data($data);
         }
     }
