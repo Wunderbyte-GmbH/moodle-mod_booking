@@ -320,15 +320,25 @@ class fields_info {
 
         global $PAGE;
 
-        $modulecontext = context_module::instance($PAGE->cm->id);
-        $coursecatcontext = context_coursecat::instance($PAGE->category->id);
+        if (!empty($PAGE->cm)) {
+            $cmid = $PAGE->cm->id;
+            $modulecontext = context_module::instance($cmid);
+        } else {
+            $cmid = 0;
+        }
+        if (!empty($PAGE->category)) {
+            $coursecategoryid = $PAGE->category->id;
+            $coursecatcontext = context_coursecat::instance($coursecategoryid);
+        } else {
+            $cmid = 0;
+        }
 
         // Necessary fields are the same for all.
         if (in_array(MOD_BOOKING_OPTION_FIELD_NECESSARY, $classname::$fieldcategories)) {
             return true;
         }
 
-        if (has_capability('mod/booking:expertoptionform', $modulecontext)) {
+        if (empty($cmid) || has_capability('mod/booking:expertoptionform', $modulecontext)) {
             // Standard fields only.
             if (in_array(MOD_BOOKING_OPTION_FIELD_STANDARD, $classname::$fieldcategories)) {
                 return true;
