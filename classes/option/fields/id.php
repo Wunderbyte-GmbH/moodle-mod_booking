@@ -146,5 +146,6 @@ class id extends field_base {
 
         $data->id = $data->id ?? $data->optionid;
         $data->cmid = $data->cmid ?? $settings->cmid ?? 0;
+        $data->bookingid = $data->bookingid ?? $settings->bookingid ?? 0;
     }
 }

@@ -33,6 +33,8 @@ use MoodleQuickForm;
 use stdClass;
 use context_coursecat;
 use context_module;
+use dml_exception;
+use mod_booking\price;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -64,7 +66,13 @@ class fields_info {
         $classes = self::get_field_classes();
 
         foreach ($classes as $classname) {
+
             if (class_exists($classname)) {
+
+                // We want to ignore some classes here.
+                if (self::ignore_class($formdata, $classname)) {
+                    continue;
+                }
 
                 // Execute the prepare function of every field.
                 try {
@@ -185,8 +193,14 @@ class fields_info {
 
         $classes = self::get_field_classes(MOD_BOOKING_EXECUTION_POSTSAVE);
 
-        foreach ($classes as $class) {
-            $class::save_data($formdata, $option);
+        foreach ($classes as $classname) {
+
+            // We want to ignore some classes here.
+            if (self::ignore_class($formdata, $classname)) {
+                continue;
+            }
+
+            $classname::save_data($formdata, $option);
         }
     }
 
@@ -211,6 +225,11 @@ class fields_info {
 
         try {
             foreach ($classes as $classname) {
+
+                // We want to ignore some classes here.
+                if (self::ignore_class($data, $classname)) {
+                    continue;
+                }
                 $classname::set_data($data, $settings);
                 // We might get the id during prepare__import. If so, we want to get the settings object.
                 if (!empty($data->id) && empty($settings->id)) {
@@ -357,5 +376,43 @@ class fields_info {
         }
 
         return true;
+    }
+
+    /**
+     * Ignore class.
+     * @param mixed $data
+     * @param mixed $classname
+     * @return bool
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    private static function ignore_class($data, $classname) {
+        if (!empty($data->importing)) {
+            // If we are importing, we see if the value is actually present.
+            // We only want the last part of the classname.
+            $array = explode('\\', $classname);
+            $shortclassname = array_pop($array);
+
+            // If the class is not necessary and not part of the imported fields, ignore it.
+            if (!in_array(MOD_BOOKING_OPTION_FIELD_NECESSARY, $classname::$fieldcategories)
+                && !isset($data->{$shortclassname})) {
+
+                // The custom field class is the only one which still needs to executed, as we dont.
+                if ($classname::$id === MOD_BOOKING_OPTION_FIELD_PRICE) {
+                    // TODO: if a column is called like any price category.
+                    $priceitems = price::get_prices_from_cache_or_db('option', $data->id);
+                    $results = array_filter($priceitems, fn($a) => isset($data->{$a->pricecategoryidentifier}));
+                    if (!empty($results)) {
+                        return false;
+                    }
+                }
+
+                // The custom field class is the only one which still needs to executed, as we dont.
+                if ($classname::$id !== MOD_BOOKING_OPTION_FIELD_COSTUMFIELDS) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
