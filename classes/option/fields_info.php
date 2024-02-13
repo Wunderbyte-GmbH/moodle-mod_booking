@@ -387,6 +387,9 @@ class fields_info {
      * @throws dml_exception
      */
     private static function ignore_class($data, $classname) {
+
+        global $DB;
+
         if (!empty($data->importing)) {
             // If we are importing, we see if the value is actually present.
             // We only want the last part of the classname.
@@ -400,8 +403,8 @@ class fields_info {
                 // The custom field class is the only one which still needs to executed, as we dont.
                 if ($classname::$id === MOD_BOOKING_OPTION_FIELD_PRICE) {
                     // TODO: if a column is called like any price category.
-                    $priceitems = price::get_prices_from_cache_or_db('option', $data->id);
-                    $results = array_filter($priceitems, fn($a) => isset($data->{$a->pricecategoryidentifier}));
+                    $existingpricecategories = $DB->get_records('booking_pricecategories', ['disabled' => 0]);
+                    $results = array_filter($existingpricecategories, fn($a) => isset($data->{$a->identifier}));
                     if (!empty($results)) {
                         return false;
                     }

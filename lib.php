@@ -163,6 +163,7 @@ define('MOD_BOOKING_OPTION_FIELD_EASY', 3); // This field is part of easy.
 // Define IDs of Fields.
 define('MOD_BOOKING_OPTION_FIELD_PREPARE_IMPORT', 1); // Has to be the first field class.
 define('MOD_BOOKING_OPTION_FIELD_ID', 10);
+define('MOD_BOOKING_OPTION_FIELD_JSON', 11);
 define('MOD_BOOKING_OPTION_FIELD_RETURNURL', 20);
 define('MOD_BOOKING_OPTION_FIELD_TEMPLATE', 30);
 define('MOD_BOOKING_OPTION_FIELD_TEXT', 40);
