@@ -141,6 +141,8 @@ class responsiblecontact extends field_base {
             if (!empty($data->responsiblecontact)) {
                 $userids = teachers_handler::get_user_ids_from_string($data->responsiblecontact);
                 $data->responsiblecontact = $userids[0] ?? [];
+            } else {
+                $data->responsiblecontact = $settings->responsiblecontact ?? [];
             }
         }
     }
