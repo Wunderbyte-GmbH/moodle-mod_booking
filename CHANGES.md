@@ -1,3 +1,11 @@
+## Version 8.1.16 (2024021300)
+* Bugfix: Make sure price does not get lost when using the CSV importer.
+* Bugfix: Fix update of price and canceluntil.
+* Bugfix: Make sure settings class is instantiated during import.
+* Bugfix: Make sure location can be saved again.
+* Bugfix: Make sure bookingopeningtime and bookingclosingtime do not get lost on import.
+* Bugfix: Fix set_data functions for bookingopeningtime, bookingclosingtime and responsiblecontact.
+
 ## Version 8.1.15 (2024021200)
 * Bugfix: Fix bug with wrong usage of strpos with "~" and "!~" operators.
 * Bugfix: Fix booking_navigation_setting behat scenarios to use precise navigation element selector.
