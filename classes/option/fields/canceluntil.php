@@ -28,6 +28,7 @@ use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
 
@@ -116,11 +117,15 @@ class canceluntil extends field_base {
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
+        // TODO: This is just a workaround, remove it, once $settings is fixed!
+        if (empty($settings->id)) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($data->id);
+        }
+
         if (!empty($data->importing)) {
+            $data->canceluntil = $data->canceluntil ?? $settings->canceluntil ?? 0;
             if (!empty($data->canceluntil)) {
                 $data->canceluntilcheckbox = 1;
-                // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-                /* $data->canceluntil = $data->canceluntil; */ // Not necessary!
             }
         } else {
             $canceluntil = booking_option::get_value_of_json_by_key($data->id, "canceluntil");
