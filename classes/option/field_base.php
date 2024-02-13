@@ -158,4 +158,22 @@ abstract class field_base implements fields {
     public static function definition_after_data(MoodleQuickForm &$mform, $formdata) {
 
     }
+
+    /**
+     * Definition after data callback
+     * @param MoodleQuickForm $mform
+     * @param mixed $formdata
+     * @return void
+     * @throws coding_exception
+     */
+    public static function return_localized_name() {
+
+        $classname = get_called_class();
+
+        // We only want the last part of the classname.
+        $array = explode('\\', $classname);
+
+        $classname = array_pop($array);
+        return get_string($classname, 'mod_booking');
+    }
 }

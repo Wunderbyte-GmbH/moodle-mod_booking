@@ -146,6 +146,13 @@ $functions = [
         'capabilities' => '',
         'ajax' => 1,
     ],
+    'mod_booking_get_option_field_config' => [
+        'classname' => 'mod_booking\external\get_option_field_config',
+        'description' => 'Returns all possible configurable fields of option form',
+        'type' => 'read',
+        'capabilities' => '',
+        'ajax' => 1,
+    ],
 ];
 
 $services = [

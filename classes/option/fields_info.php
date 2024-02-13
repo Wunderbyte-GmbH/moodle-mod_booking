@@ -282,6 +282,36 @@ class fields_info {
     }
 
     /**
+     * Get all classes function.
+     * Save param allows to filter for all (default) or special save logic.
+     * @param int $save
+     * @return array
+     */
+    private static function get_field_classes_initial() {
+        $fields = core_component::get_component_classes_in_namespace(
+            "mod_booking",
+            'option\fields'
+        );
+
+        $classes = [];
+        foreach (array_keys($fields) as $classname) {
+
+            $classes[$classname::$id] = [
+                'id' => $classname::$id,
+                'name' => $classname::return_localized_name(),
+                'checked' => in_array(MOD_BOOKING_OPTION_FIELD_STANDARD, $classname::$fieldcategories) ?
+                    1 : 0,
+                'necessary' => in_array(MOD_BOOKING_OPTION_FIELD_NECESSARY, $classname::$fieldcategories) ?
+                1 : 0,
+            ];
+        }
+
+        ksort($classes);
+
+        return $classes;
+    }
+
+    /**
      *
      * @param string $classname
      * @return bool
