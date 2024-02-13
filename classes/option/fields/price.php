@@ -202,12 +202,6 @@ class price extends field_base {
             // If price is always on, we also turn on the useprice flag.
             if (get_config('booking', 'priceisalwayson')) {
                 $data->useprice = 1;
-            } else {
-                foreach ($pricehandler->pricecategories as $category) {
-                    if (!empty($data->{$category->identifier}) && is_numeric($data->{$category->identifier})) {
-                        $data->useprice = 1;
-                    }
-                }
             }
             // If it is still not set, we use the original flag from settings.
             if (!isset($data->useprice)) {
