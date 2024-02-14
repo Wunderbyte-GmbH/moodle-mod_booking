@@ -182,7 +182,7 @@ class easy_availability_previouslybooked extends field_base {
                 ];
                 return $OUTPUT->render_from_template(
                         'mod_booking/form_booking_options_selector_suggestion', $details);
-            }
+            },
         ];
         $mform->addElement('autocomplete', 'bo_cond_previouslybooked_optionid',
             get_string('bo_cond_previouslybooked_optionid', 'mod_booking'), [], $previouslybookedoptions);

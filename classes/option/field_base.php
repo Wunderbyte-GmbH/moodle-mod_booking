@@ -24,6 +24,7 @@
 
 namespace mod_booking\option;
 
+use coding_exception;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields;
 use mod_booking\option\fields_info;
@@ -161,9 +162,7 @@ abstract class field_base implements fields {
 
     /**
      * Definition after data callback
-     * @param MoodleQuickForm $mform
-     * @param mixed $formdata
-     * @return void
+     * @return string
      * @throws coding_exception
      */
     public static function return_localized_name() {

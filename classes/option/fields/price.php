@@ -182,7 +182,6 @@ class price extends field_base {
                 if (!empty($data->{$category->identifier}) && is_numeric($data->{$category->identifier})) {
                     $price = $data->{$category->identifier};
                     // We don't want this value to be used elsewhere.
-                    // unset($data->{$category->identifier});
                 } else {
                     // Make sure that if prices exist, we do not lose them.
                     $items = array_filter($priceitems, fn($a) => $a->pricecategoryidentifier == $category->identifier);

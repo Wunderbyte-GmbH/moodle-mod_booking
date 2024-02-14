@@ -179,7 +179,7 @@ class easy_availability_selectusers extends field_base {
                 ];
                 return $OUTPUT->render_from_template(
                         'mod_booking/form-user-selector-suggestion', $details);
-            }
+            },
         ];
         $mform->addElement('autocomplete', 'bo_cond_selectusers_userids',
             get_string('bo_cond_selectusers_userids', 'mod_booking'), [], $options);

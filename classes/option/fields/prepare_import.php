@@ -130,12 +130,7 @@ class prepare_import extends field_base {
             if ($record = $DB->get_record('booking_options', ['identifier' => $data->identifier])) {
 
                 $data->id = $record->id;
-                // foreach ($record as $key => $value) {
-                //     // We only want to set those values that are not uploaded.
-                //     if (!isset($data->{$key})) {
-                //         $data->{$key} = $value;
-                //     }
-                // }
+
             } else if (empty($data->text)) {
                 throw new moodle_exception(
                     'identifiernotfoundnotenoughdata',

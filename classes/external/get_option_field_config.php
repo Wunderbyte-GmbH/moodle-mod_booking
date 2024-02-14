@@ -71,8 +71,7 @@ class get_option_field_config extends external_api {
      * @throws dml_exception
      */
     public static function execute(
-                        int $coursecategoryid = 0,
-                    ): array {
+                        int $coursecategoryid = 0): array {
 
         $params = external_api::validate_parameters(self::execute_parameters(),
             [
@@ -93,7 +92,7 @@ class get_option_field_config extends external_api {
             [
                 'id' => new external_value(PARAM_INT, 'Coursecategory ID'),
                 'capability' => new external_value(PARAM_TEXT, 'Capability'),
-                'json' => new external_value(PARAM_RAW, 'Payload as json')
+                'json' => new external_value(PARAM_RAW, 'Payload as json'),
             ]
         ));
     }
