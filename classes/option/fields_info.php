@@ -326,7 +326,15 @@ class fields_info {
      */
     private static function check_field_for_user(string $classname) {
 
-        global $PAGE;
+        global $OUTPUT, $PAGE;
+
+        try {
+            $cmid = $PAGE->cm->id;
+        } catch (Exception $e) {
+
+            // Hack alert: Forcing bootstrap_renderer to initiate moodle page.
+            $OUTPUT->header();
+        }
 
         try {
             if ($cm = $PAGE->cm ?? false) {
@@ -335,15 +343,9 @@ class fields_info {
             } else {
                 $cmid = 0;
             }
-            if ($category = $PAGE->category ?? false) {
-                $coursecategoryid = $category->id;
-                $coursecatcontext = context_coursecat::instance($coursecategoryid);
-            } else {
-                $coursecategoryid = 0;
-            }
         } catch (Exception $e) {
+
             $cmid = 0;
-            $coursecategoryid = 0;
         }
 
         // Necessary fields are the same for all.
