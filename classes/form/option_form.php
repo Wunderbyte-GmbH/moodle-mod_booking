@@ -139,14 +139,6 @@ class option_form extends dynamic_form {
             get_string('submitandstay', 'mod_booking'));
 
         $mform->closeHeaderBefore('submitbuttongroup'); */
-
-        $data = new eventslist(
-            $optionid,
-            ['\mod_booking\event\bookingoption_updated']
-        );
-
-        $html = $OUTPUT->render_from_template('mod_booking/eventslist', (array) $data);
-        $mform->addElement('static', 'eventslist', '', $html);
     }
 
     /**
