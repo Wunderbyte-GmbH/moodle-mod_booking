@@ -110,7 +110,7 @@ class eventslist extends field_base {
         global $OUTPUT;
 
         $data = new OutputEventslist(
-            $formdata['id'],
+            $formdata['id'] ?? $formdata['optionid'],
             ['\mod_booking\event\bookingoption_updated']
         );
 
