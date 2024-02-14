@@ -1,3 +1,27 @@
+## Version 8.1.17 (2024021401)
+* Improvement: Add easy option form functionality.
+* Improvement: Add reduced optionforms capabilities.
+* Improvement: Every editing teacher has the right to see the standard form (default setting).
+* Improvement: Add new table to store configs for forms.
+* Improvement: Add option form config webservice.
+* Improvement: Add necessary json class to make sure we don't lose json values even when the classes are not there.
+* Improvement: Add alternative import strings to instantiate classes.
+* Improvement: Add Pro Flag to report over all booking options feature.
+* Improvement: Add eventslist field.
+* Improvement: Better handling of empty $PAGE.
+* Bugfix: Make sure prices are not set involuntarily on import.
+* Bugfix: Fix dates import on Webservice and mergeparams.
+* Bugfix: Make sure not to delete unaffected availability conditions.
+* Bugfix: Fix merge error on feature branch.
+* Bugfix: On webservice & ajax, always use the standard fields.
+* Bugfix: Save lowest entity in location (not parent).
+* Bugfix: Fix CSV importer.
+* Bugfix: Fix issue #405.
+* Bugfix: Make new option form logic work in easy availability modal.
+* Bugfix: Do not show elective settings in form if instance is no elective instance.
+* Bufix: Fix check for $PAGE.
+* Bugfix: Lots of little fixes for option form and CSV import.
+
 ## Version 8.1.16 (2024021300)
 * Bugfix: Make sure price does not get lost when using the CSV importer.
 * Bugfix: Fix update of price and canceluntil.
