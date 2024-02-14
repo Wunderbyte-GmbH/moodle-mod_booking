@@ -67,7 +67,7 @@ class easy_bookingopeningtime extends field_base {
      * An int value to define if this field is standard or used in a different context.
      * @var array
      */
-    public static $fieldcategories = [MOD_BOOKING_OPTION_FIELD_EASY];
+    public static $fieldcategories = []; // MOD_BOOKING_OPTION_FIELD_EASY.
 
     /**
      * Additionally to the classname, there might be others keys which should instantiate this class.

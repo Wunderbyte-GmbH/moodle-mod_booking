@@ -2112,6 +2112,7 @@ $string['manageresponses'] = 'Manage bookings';
 
 // Bo conditions.
 $string['availabilityconditions'] = 'Availability conditions';
+$string['availabilityconditionsheader'] = '<i class="fa fa-fw fa-key" aria-hidden="true"></i>&nbsp;Availability conditions';
 $string['apply'] = 'Apply';
 $string['delete'] = 'Delete';
 

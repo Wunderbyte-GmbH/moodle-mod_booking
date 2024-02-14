@@ -27,6 +27,7 @@ namespace mod_booking\option\fields;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\option\field_base;
+use mod_booking\option\fields_info;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
@@ -154,6 +155,9 @@ class easy_availability_previouslybooked extends field_base {
      * @return void
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
+
+        // Standardfunctionality to add a header to the mform (only if its not yet there).
+        fields_info::add_header_to_mform($mform, self::$header);
 
         // Add the previouslybooked condition:
         // Users who previously booked a certain option can override booking_time condition.

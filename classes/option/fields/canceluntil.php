@@ -136,6 +136,11 @@ class canceluntil extends field_base {
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
         if (!empty($data->importing)) {
+            // IMPORTING.
+            if (!is_numeric($data->canceluntil)) {
+                $data->canceluntil = strtotime($data->canceluntil);
+            }
+
             $data->canceluntil = $data->canceluntil ?? booking_option::get_value_of_json_by_key($data->id, "canceluntil") ?? 0;
             if (!empty($data->canceluntil)) {
                 $data->canceluntilcheckbox = 1;

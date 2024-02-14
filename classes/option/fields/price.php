@@ -71,7 +71,9 @@ class price extends field_base {
      * Additionally to the classname, there might be others keys which should instantiate this class.
      * @var array
      */
-    public static $alternativeimportidentifiers = [];
+    public static $alternativeimportidentifiers = [
+        'useprice',
+    ];
 
     /**
      * This is an array of incompatible field ids.
@@ -170,6 +172,8 @@ class price extends field_base {
         $priceitems = Mod_bookingPrice::get_prices_from_cache_or_db('option', $data->id);
 
         if (!empty($data->importing)) {
+
+            // This is for IMPORTING!
 
             if (!is_array($pricehandler->pricecategories)) {
                 return;

@@ -2000,6 +2000,7 @@ $string['manageresponses'] = 'Buchungen verwalten';
 
 // Bo conditions.
 $string['availabilityconditions'] = 'Verfügbarkeit einschränken';
+$string['availabilityconditionsheader'] = '<i class="fa fa-fw fa-key" aria-hidden="true"></i>&nbsp;Verfügbarkeit einschränken';
 $string['apply'] = 'Anwenden';
 $string['delete'] = 'Löschen';
 

@@ -66,7 +66,7 @@ class identifier extends field_base {
      */
     public static $fieldcategories = [
         MOD_BOOKING_OPTION_FIELD_STANDARD,
-        MOD_BOOKING_OPTION_FIELD_EASY];
+    ];
 
     /**
      * Additionally to the classname, there might be others keys which should instantiate this class.

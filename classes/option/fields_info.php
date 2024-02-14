@@ -139,7 +139,6 @@ class fields_info {
             case MOD_BOOKING_HEADER_PRICE:
             case MOD_BOOKING_HEADER_TEACHERS:
             case MOD_BOOKING_HEADER_SUBBOOKINGS:
-            case MOD_BOOKING_HEADER_AVAILABILITY:
                 // For some identifiers, we do nothing.
                 // Because they take care of everything in one step.
                 break;

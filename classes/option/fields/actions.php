@@ -64,7 +64,7 @@ class actions extends field_base {
      * An int value to define if this field is standard or used in a different context.
      * @var array
      */
-    public static $fieldcategories = [MOD_BOOKING_OPTION_FIELD_STANDARD];
+    public static $fieldcategories = []; // MOD_BOOKING_OPTION_FIELD_STANDARD.
 
     /**
      * Additionally to the classname, there might be others keys which should instantiate this class.

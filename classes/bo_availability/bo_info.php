@@ -391,9 +391,7 @@ class bo_info {
             }
         }
         if ($showconditionsheader) {
-            $mform->addElement('header', 'availabilityconditions',
-            '<i class="fa fa-fw fa-key" aria-hidden="true"></i>&nbsp;' .
-            get_string('availabilityconditions', 'mod_booking'));
+            $mform->addElement('header', 'availabilityconditions', get_string('availabilityconditionsheader', 'mod_booking'));
         }
 
         $conditions = self::get_conditions(MOD_BOOKING_CONDPARAM_MFORM_ONLY);
