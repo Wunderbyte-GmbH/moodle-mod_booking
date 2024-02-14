@@ -3647,7 +3647,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023112701, 'booking');
     }
 
-    if ($oldversion < 2024021000) {
+    if ($oldversion < 2024021400) {
 
         // Define table booking_form_config to be created.
         $table = new xmldb_table('booking_form_config');
@@ -3668,7 +3668,7 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2024021000, 'booking');
+        upgrade_mod_savepoint(true, 2024021400, 'booking');
     }
 
     return true;
