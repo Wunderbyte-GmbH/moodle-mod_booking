@@ -101,8 +101,7 @@ class eventslist extends field_base {
     /**
      * Instance form definition
      * @param MoodleQuickForm $mform
-     * @param array $formdata
-     * @param array $optionformconfig
+     * @param mixed $formdata
      * @return void
      */
     public static function definition_after_data(MoodleQuickForm &$mform, $formdata) {

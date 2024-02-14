@@ -34,6 +34,7 @@ use stdClass;
 use context_coursecat;
 use context_module;
 use dml_exception;
+use Exception;
 use mod_booking\price;
 
 defined('MOODLE_INTERNAL') || die();
@@ -327,16 +328,21 @@ class fields_info {
 
         global $PAGE;
 
-        if ($cm = $PAGE->cm ?? false) {
-            $cmid = $PAGE->cm->id;
-            $modulecontext = context_module::instance($cmid);
-        } else {
+        try {
+            if ($cm = $PAGE->cm ?? false) {
+                $cmid = $cm->id;
+                $modulecontext = context_module::instance($cmid);
+            } else {
+                $cmid = 0;
+            }
+            if ($category = $PAGE->category ?? false) {
+                $coursecategoryid = $category->id;
+                $coursecatcontext = context_coursecat::instance($coursecategoryid);
+            } else {
+                $coursecategoryid = 0;
+            }
+        } catch (Exception $e) {
             $cmid = 0;
-        }
-        if ($category = $PAGE->category ?? false) {
-            $coursecategoryid = $PAGE->category->id;
-            $coursecatcontext = context_coursecat::instance($coursecategoryid);
-        } else {
             $coursecategoryid = 0;
         }
 
