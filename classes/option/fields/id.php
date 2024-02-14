@@ -124,7 +124,14 @@ class id extends field_base {
 
         $cmid = $formdata['cmid'] ?? 0;
 
-        $id = $formdata['id'] ?? 0;
+        $id = $formdata['optionid'] ?? $formdata['id'] ?? 0;
+
+        $formdata['id'] = $id;
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($id);
+        $bookingid = $settings->bookingid;
+
+        $cmid = $settings->cmid;
 
         // Id & optionid are the same here.
         $mform->addElement('hidden', 'id', $id);
@@ -137,7 +144,7 @@ class id extends field_base {
         $mform->addElement('hidden', 'cmid', $cmid);
         $mform->setType('cmid', PARAM_INT);
 
-        $mform->addElement('hidden', 'bookingid', $formdata['bookingid']);
+        $mform->addElement('hidden', 'bookingid', $bookingid);
         $mform->setType('bookingid', PARAM_INT);
     }
 

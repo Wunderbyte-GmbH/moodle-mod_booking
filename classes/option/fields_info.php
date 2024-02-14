@@ -161,8 +161,14 @@ class fields_info {
 
         $classes = self::get_field_classes();
 
-        foreach ($classes as $class) {
-            $class::instance_form_definition($mform, $formdata, $optionformconfig);
+        foreach ($classes as $classname) {
+
+            // We want to ignore some classes here.
+            if (self::ignore_class((object)$formdata, $classname)) {
+                continue;
+            }
+
+            $classname::instance_form_definition($mform, $formdata, $optionformconfig);
         }
     }
 
@@ -217,7 +223,7 @@ class fields_info {
      */
     public static function set_data(stdClass &$data) {
 
-        $optionid = $data->id ?? 0;
+        $optionid = $data->id ?? $data->optionid ?? 0;
 
         $errormessage = '';
 

@@ -108,7 +108,7 @@ class json extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($formdata['id']);
+        $settings = singleton_service::get_instance_of_booking_option_settings($formdata['optionid'] ?? $formdata['id']);
         $mform->addElement('hidden', 'json', $settings->json ?? '{}');
         $mform->setType('json', PARAM_RAW);
     }

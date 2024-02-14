@@ -254,6 +254,8 @@ class option_form extends dynamic_form {
 
         $data = (object)$this->_ajaxformdata ?? $this->_customdata;
 
+        $data->id = $this->_ajaxformdata['optionid'];
+
         fields_info::set_data($data);
 
         $this->set_data($data);

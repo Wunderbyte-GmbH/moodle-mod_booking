@@ -111,7 +111,7 @@ class text extends field_base {
         // Standardfunctionality to add a header to the mform (only if its not yet there).
         fields_info::add_header_to_mform($mform, self::$header);
 
-        $booking = singleton_service::get_instance_of_booking_by_bookingid($formdata['bookingid']);
+        $booking = singleton_service::get_instance_of_booking_by_bookingid($formdata['bookingid'] ?? 0);
 
         // Booking option name.
         $mform->addElement('text', 'text', get_string('bookingoptionname', 'mod_booking'), ['size' => '64']);
