@@ -136,7 +136,7 @@ if ($mform->is_cancelled()) {
  * The returned arrays will have the prepared stdClasses for update and insert in booking_pricecategories table.
  *
  * @param mixed $oldpricecategories the existing price categories
- * @param array $data the form data
+ * @param stdClass $data the form data
  *
  * @return array
  */
