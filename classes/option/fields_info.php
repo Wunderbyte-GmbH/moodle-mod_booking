@@ -268,6 +268,12 @@ class fields_info {
         $classes = self::get_field_classes();
 
         foreach ($classes as $classname) {
+
+            // We want to ignore some classes here.
+            if (self::ignore_class($formdata, $classname)) {
+                continue;
+            }
+
             $classname::definition_after_data($mform, $formdata);
         }
     }
@@ -321,17 +327,17 @@ class fields_info {
 
         global $PAGE;
 
-        if (!empty($PAGE->cm)) {
+        if ($cm = $PAGE->cm ?? false) {
             $cmid = $PAGE->cm->id;
             $modulecontext = context_module::instance($cmid);
         } else {
             $cmid = 0;
         }
-        if (!empty($PAGE->category)) {
+        if ($category = $PAGE->category ?? false) {
             $coursecategoryid = $PAGE->category->id;
             $coursecatcontext = context_coursecat::instance($coursecategoryid);
         } else {
-            $cmid = 0;
+            $coursecategoryid = 0;
         }
 
         // Necessary fields are the same for all.
