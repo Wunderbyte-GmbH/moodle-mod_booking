@@ -104,7 +104,7 @@ class credits extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
-        $cmid = $formdata['cmid'];
+        $cmid = $formdata['cmid'] ?? 0;
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
         // Standardfunctionality to add a header to the mform (only if its not yet there).

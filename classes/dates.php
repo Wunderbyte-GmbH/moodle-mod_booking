@@ -95,8 +95,8 @@ class dates {
             $mform->setExpanded('datesheader', (bool)$formdata[$key]);
         }
 
-        $bookingid = $formdata['bookingid'];
-        $optionid = $formdata['optionid'];
+        $bookingid = $formdata['bookingid'] ?? 0;
+        $optionid = $formdata['id'] ?? $formdata['optionid'] ?? 0;
 
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($bookingid);
         $bookingoptionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);

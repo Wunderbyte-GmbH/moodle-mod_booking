@@ -201,8 +201,8 @@ class subbookings_info {
 
         global $DB, $PAGE;
 
-        $optionid = $formdata['optionid'];
-        $cmid = $formdata['cmid'];
+        $optionid = $formdata['id'] ?? $formdata['optionid'] ?? 0;
+        $cmid = $formdata['cmid'] ?? 0;
 
         $subbookings = $DB->get_records('booking_subbooking_options', ['optionid' => $optionid]);
 

@@ -212,8 +212,8 @@ class actions_info {
 
         global $DB, $PAGE;
 
-        $optionid = $formdata['optionid'];
-        $cmid = $formdata['cmid'];
+        $optionid = $formdata['id'] ?? $formdata['optionid'] ?? 0;
+        $cmid = $formdata['cmid'] ?? 0;
 
         // TODO: Get existing actions not from table but from json of this option.
 
