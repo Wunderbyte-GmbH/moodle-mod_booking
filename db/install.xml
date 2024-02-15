@@ -92,7 +92,7 @@
         <FIELD NAME="coursepageshortinfo" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="bookingimagescustomfield" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="defaultoptionsort" TYPE="char" LENGTH="255" NOTNULL="false" DEFAULT="text" SEQUENCE="false"/>
-        <FIELD NAME="defaultsortorder" TYPE="char" LENGTH="4" NOTNULL="false" DEFAULT="text" SEQUENCE="false"/>
+        <FIELD NAME="defaultsortorder" TYPE="char" LENGTH="4" NOTNULL="false" DEFAULT="asc" SEQUENCE="false"/>
         <FIELD NAME="showviews" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="mybooking,myoptions,showall,showactive,myinstitution" SEQUENCE="false" COMMENT="Which views are shown in view.php"/>
         <FIELD NAME="customtemplateid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="autcractive" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Active auto create option feature."/>
@@ -104,7 +104,7 @@
         <FIELD NAME="consumeatonce" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Elective feature."/>
         <FIELD NAME="maxcredits" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Elective feature."/>
         <FIELD NAME="enforceorder" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Elective feature."/>
-        <FIELD NAME="enforceteacherorder" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Elective feature."/>
+        <FIELD NAME="enforceteacherorder" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Elective feature."/>
         <FIELD NAME="json" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="This allows to add supplementary information which is not performance critical, e.g. disablecancel"/>
       </FIELDS>
       <KEYS>
@@ -545,7 +545,7 @@
         <KEY NAME="usermodified" TYPE="foreign" FIELDS="usermodified" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="booking_optionform_config" COMMENT="Table to save optionform configuration for different capabilities and contexts.">
+    <TABLE NAME="booking_form_config" COMMENT="Table to save optionform configuration for different capabilities and contexts.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="area" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Area is basically the difference between instance and option."/>
