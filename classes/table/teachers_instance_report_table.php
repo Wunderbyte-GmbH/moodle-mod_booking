@@ -69,7 +69,7 @@ class teachers_instance_report_table extends table_sql {
      * @param int $cmid course module id of a booking instance
      */
     public function __construct(string $uniqueid, int $bookingid = 0, int $cmid = 0) {
-        parent::__construct($uniqueid);
+        parent::__construct($uniqueid . $bookingid . $cmid);
 
         global $DB, $PAGE;
         $this->baseurl = $PAGE->url;

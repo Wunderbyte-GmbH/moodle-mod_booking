@@ -382,7 +382,7 @@ class shortcodes {
 
         $tablename = $uniquetablename ?? bin2hex(random_bytes(12));
 
-        $table = new bookingoptions_wbtable($tablename, $booking);
+        $table = new bookingoptions_wbtable($tablename);
 
         // Without defining sorting won't work!
         // phpcs:ignore

@@ -55,7 +55,9 @@ class teacher_performed_units_table extends table_sql {
      * @param string $uniqueid all tables have to have a unique id, this is used
      */
     public function __construct(string $uniqueid) {
-        parent::__construct($uniqueid);
+
+        $lang = current_language();
+        parent::__construct($uniqueid . $lang);
 
         global $PAGE;
         $this->baseurl = $PAGE->url;

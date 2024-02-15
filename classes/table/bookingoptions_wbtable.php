@@ -58,49 +58,6 @@ defined('MOODLE_INTERNAL') || die();
  */
 class bookingoptions_wbtable extends wunderbyte_table {
 
-    /** @var int $cmid */
-    public $cmid = null;
-
-    /** @var booking $booking */
-    public $booking = null;
-
-    /** @var stdClass $buyforuser */
-    private $buyforuser = null;
-
-    /** @var context_module $buyforuser */
-    private $context = null;
-
-    /** @var object $cm */
-    private $cm = null;
-
-    /** @var object $course */
-    private $course = null;
-
-    /** @var string $returnurl */
-    private $returnurl = '';
-
-    /**
-     * Constructor
-     * @param string $uniqueid all tables have to have a unique id, this is used
-     *      as a key when storing table properties like sort order in the session.
-     * @param booking $booking the booking instance
-     */
-    public function __construct(string $uniqueid, booking $booking = null) {
-        parent::__construct($uniqueid);
-
-        if (!empty($booking)) {
-            $this->booking = $booking;
-            $this->cmid = $this->booking->cmid;
-            $this->context = context_module::instance($this->cmid);
-            list($this->course, $this->cm) = get_course_and_cm_from_cmid($this->cmid);
-        }
-
-        // We set buyforuser here for better performance.
-        $this->buyforuser = price::return_user_to_buy_for();
-
-        // Columns and headers are not defined in constructor, in order to keep things as generic as possible.
-    }
-
     /**
      * This function is called for each data row to allow processing of the
      * invisible value. It's called 'invisibleoption' so it does not interfere with
@@ -237,13 +194,14 @@ class bookingoptions_wbtable extends wunderbyte_table {
         // So we always need to retrieve them via singleton service for the current booking option ($values->id).
         $optionid = $values->id;
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $buyforuser = price::return_user_to_buy_for();
         $cmid = $settings->cmid;
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
         if ($booking) {
             $url = new moodle_url('/mod/booking/optionview.php', ['optionid' => $optionid,
                                                                   'cmid' => $cmid,
-                                                                  'userid' => $this->buyforuser->id,
+                                                                  'userid' => $buyforuser->id,
                                                                 ]);
         } else {
             $url = '#';
@@ -423,8 +381,9 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $output = singleton_service::get_renderer('mod_booking');
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
+        $buyforuser = price::return_user_to_buy_for();
         // Render col_bookings using a template.
-        $data = new col_availableplaces($values, $settings, $this->buyforuser);
+        $data = new col_availableplaces($values, $settings, $buyforuser);
 
         $ret = '';
         if ($this->is_downloading()) {
