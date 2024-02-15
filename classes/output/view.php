@@ -810,7 +810,7 @@ class view implements renderable, templatable {
                         'labelstartvalue' => get_string('coursestarttime', 'mod_booking'),
                         'defaultvaluestart' => 'now', // Can also be Unix timestamp or string "now".
                         'labelendvalue' => get_string('courseendtime', 'mod_booking'),
-                        'defaultvalueend' => strtotime('+ 1 year', time()), // Can also be Unix timestamp or string "now".
+                        'defaultvalueend' => 'now + 1 year', // Can also be Unix timestamp or string "now".
                         'checkboxlabel' => get_string('apply_filter', 'local_wunderbyte_table'),
                     ],
                 ],
@@ -825,7 +825,7 @@ class view implements renderable, templatable {
                         'labelstartvalue' => get_string('bookingopeningtime', 'mod_booking'),
                         'defaultvaluestart' => 'now', // Can also be Unix timestamp or string "now".
                         'labelendvalue' => get_string('bookingclosingtime', 'mod_booking'),
-                        'defaultvalueend' => strtotime('+ 1 year', time()), // Can also be Unix timestamp or string "now".
+                        'defaultvalueend' => 'now + 1 year', // Can also be Unix timestamp or string "now".
                         'checkboxlabel' => get_string('apply_filter', 'local_wunderbyte_table'),
                     ],
                 ],
