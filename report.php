@@ -964,7 +964,8 @@ if (!$tableallbookings->is_downloading()) {
     if (!get_config('booking', 'alloptionsinreport')) {
         $individualbookingoption = " ba.optionid = :optionid AND ";
     }
-    $where = $individualbookingoption ?? '' . ' ba.waitinglist < 2 ' . $addsqlwhere;
+
+    $where = ($individualbookingoption ?? '') . ' ba.waitinglist < 2 ' . $addsqlwhere;
     $tableallbookings->define_columns($columns);
     $tableallbookings->define_headers($headers);
     $tableallbookings->set_sql($fields, $from, $where, $sqlvalues);
