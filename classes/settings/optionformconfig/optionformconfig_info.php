@@ -118,6 +118,7 @@ class optionformconfig_info {
             $returnarray[] = [
                 'id' => $coursecategoryid,
                 'capability' => $capability,
+                'name' => get_string($capability, 'mod_booking'),
                 'json' => $json,
             ];
         }

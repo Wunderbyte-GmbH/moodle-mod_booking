@@ -2238,3 +2238,11 @@ $string['actionoperator:adddate'] = 'Add date';
 $string['adddatebutton'] = "Add date";
 $string['nodatesstring'] = "There are currently no dates associated with this booking option";
 $string['nodatesstring_desc'] = "no dates";
+
+// Access.
+$string['mod/booking:expertoptionform'] = 'Bookingoption for experts';
+$string['mod/booking:reducedoptionform1'] = 'Reduced booking option 1';
+$string['mod/booking:reducedoptionform2'] = 'Reduced booking option 2';
+$string['mod/booking:reducedoptionform3'] = 'Reduced booking option 3';
+$string['mod/booking:reducedoptionform4'] = 'Reduced booking option 4';
+$string['mod/booking:reducedoptionform5'] = 'Reduced booking option 5';

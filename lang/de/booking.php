@@ -2108,3 +2108,11 @@ $string['actionoperator:adddate'] = 'Füge Zeitraum hinzu';
 $string['adddatebutton'] = "Füge Datum hinzu";
 $string['nodatesstring'] = "Aktuell gibt es keine Daten zu dieser Buchungsoption";
 $string['nodatesstring_desc'] = "no dates";
+
+// Access.
+$string['mod/booking:expertoptionform'] = 'Buchungsoption für ExpertInnen';
+$string['mod/booking:reducedoptionform1'] = 'Buchungsoption reduziert 1';
+$string['mod/booking:reducedoptionform2'] = 'Buchungsoption reduziert 2';
+$string['mod/booking:reducedoptionform3'] = 'Buchungsoption reduziert 3';
+$string['mod/booking:reducedoptionform4'] = 'Buchungsoption reduziert 4';
+$string['mod/booking:reducedoptionform5'] = 'Buchungsoption reduziert 5';
