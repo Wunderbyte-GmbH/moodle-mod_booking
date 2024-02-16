@@ -1,3 +1,8 @@
+## Version 8.1.18 (2024021600)
+* Improvement: Adoption of new wb table constructor
+* Bugfix: Download bookings on report.php fixed, also for exactly one instance
+* Bugfix: Active Bookingoptions are not yet finished or have finished today
+
 ## Version 8.1.17 (2024021401)
 * Improvement: Add easy option form functionality.
 * Improvement: Add reduced optionforms capabilities.
