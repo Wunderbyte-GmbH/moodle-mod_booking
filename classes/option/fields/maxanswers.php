@@ -91,6 +91,10 @@ class maxanswers extends field_base {
         int $updateparam,
         $returnvalue = null): string {
 
+        if (!empty($formdata->maxanswers)) {
+            $newoption->limitanswers = 1;
+        }
+
         return parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
     }
 
@@ -108,6 +112,5 @@ class maxanswers extends field_base {
 
         $mform->addElement('text', 'maxanswers', get_string('maxparticipantsnumber', 'mod_booking'));
         $mform->setType('maxanswers', PARAM_INT);
-        $mform->disabledIf('maxanswers', 'limitanswers', 'notchecked');
     }
 }

@@ -136,6 +136,7 @@ class availability extends field_base {
                 $availability = $data->availability;
             } else {
                 $availability = $settings->availability ?? "{}";
+                $data->availability = $availability;
             }
 
             // On importing, we support the boavenrolledincourse key.

@@ -91,6 +91,10 @@ class maxoverbooking extends field_base {
         int $updateparam,
         $returnvalue = null): string {
 
+        if (!empty($formdata->maxoverbooking)) {
+            $newoption->limitanswers = 1;
+        }
+
         return parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
     }
 
@@ -103,13 +107,12 @@ class maxoverbooking extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
-        // Standardfunctionality to add a header to the mform (only if its not yet there).
-        fields_info::add_header_to_mform($mform, self::$header);
-
         if (!get_config('booking', 'turnoffwaitinglist')) {
+            // Standardfunctionality to add a header to the mform (only if its not yet there).
+            fields_info::add_header_to_mform($mform, self::$header);
+
             $mform->addElement('text', 'maxoverbooking', get_string('maxoverbooking', 'mod_booking'));
             $mform->setType('maxoverbooking', PARAM_INT);
-            $mform->disabledIf('maxoverbooking', 'limitanswers', 'notchecked');
         }
     }
 }
