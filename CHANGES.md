@@ -1,3 +1,6 @@
+## Version 8.1.19 (2024021601)
+* Bugfix: Special availability import fixed
+
 ## Version 8.1.18 (2024021600)
 * Improvement: Adoption of new wb table constructor
 * Bugfix: Download bookings on report.php fixed, also for exactly one instance
