@@ -61,7 +61,7 @@ class booking_rules {
      * @param int $bookingid
      * @return array
      */
-    private static function get_list_of_saved_rules($bookingid = 0):array {
+    private static function get_list_of_saved_rules($bookingid = 0): array {
         global $DB;
 
         // If the bookingid is 0, we are dealing with global rules.

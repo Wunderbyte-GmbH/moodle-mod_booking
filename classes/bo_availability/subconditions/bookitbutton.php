@@ -76,7 +76,7 @@ class bookitbutton implements bo_subcondition {
      * @param bool $not Set true if we are inverting the condition
      * @return bool True if available
      */
-    public function is_available(booking_option_settings $settings, $subbookingid, $userid, $not = false):bool {
+    public function is_available(booking_option_settings $settings, $subbookingid, $userid, $not = false): bool {
 
         // In this case, the book it button is always shown.
         // This always "blocks" the booking, so we always return false.
@@ -142,7 +142,7 @@ class bookitbutton implements bo_subcondition {
      * @return array
      */
     public function render_button(booking_option_settings $settings,
-        int $subbookingid, int $userid=0, bool $full=false, bool $not=false, bool $fullwidth=true):array {
+        int $subbookingid, int $userid=0, bool $full=false, bool $not=false, bool $fullwidth=true): array {
 
         global $USER;
 

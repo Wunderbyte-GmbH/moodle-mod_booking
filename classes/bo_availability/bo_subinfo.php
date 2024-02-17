@@ -111,7 +111,7 @@ class bo_subinfo {
      * @param int $userid If set, specifies a different user ID to check availability for
      * @return array [isavailable, description]
      */
-    public function is_available(int $optionid = null, int $userid = 0):array {
+    public function is_available(int $optionid = null, int $userid = 0): array {
 
         if (!$optionid) {
             $optionid = $this->optionid;
@@ -147,7 +147,7 @@ class bo_subinfo {
      * @param int $userid
      * @return array
      */
-    public static function get_subcondition_results(int $optionid, int $subbookingid, int $userid = 0):array {
+    public static function get_subcondition_results(int $optionid, int $subbookingid, int $userid = 0): array {
         global $USER, $CFG;
 
         require_once($CFG->dirroot . '/mod/booking/lib.php');
@@ -229,7 +229,7 @@ class bo_subinfo {
      * @return array availability and Information string (for admin) about all restrictions on
      *   this item
      */
-    public function get_description(booking_option_settings $settings, int $subbookingid, $userid = null, $full = false):array {
+    public function get_description(booking_option_settings $settings, int $subbookingid, $userid = null, $full = false): array {
 
         return $this->is_available($settings->id, $userid);
     }

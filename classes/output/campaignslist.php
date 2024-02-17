@@ -85,7 +85,7 @@ class campaignslist implements renderable, templatable {
      * @param string $lang the language to render, e.g. "de" or "en"
      * @return string the localized time string
      */
-    private function render_localized_timestamp(int $timestamp, string $lang = 'en'):string {
+    private function render_localized_timestamp(int $timestamp, string $lang = 'en'): string {
         switch ($lang) {
             case 'de':
                 return date('d. M Y, H:i', $timestamp);

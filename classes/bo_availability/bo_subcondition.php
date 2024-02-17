@@ -124,5 +124,5 @@ interface bo_subcondition {
      * @return array
      */
     public function render_button(booking_option_settings $settings,
-        int $subbookingid, int $userid=0, bool $full=false, bool $not=false, bool $fullwidth=true):array;
+        int $subbookingid, int $userid=0, bool $full=false, bool $not=false, bool $fullwidth=true): array;
 }

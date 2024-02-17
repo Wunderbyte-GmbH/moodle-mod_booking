@@ -217,7 +217,7 @@ class campaigns_info {
      * Returns a list of campaigns in DB.
      * @return array
      */
-    private static function get_list_of_saved_campaigns():array {
+    private static function get_list_of_saved_campaigns(): array {
         global $DB;
 
         return singleton_service::get_all_campaigns();
@@ -227,7 +227,7 @@ class campaigns_info {
      * Get all campaigns from DB - but already instantiated.
      * @return array
      */
-    public static function get_all_campaigns():array {
+    public static function get_all_campaigns(): array {
         $campaigns = [];
         $records = self::get_list_of_saved_campaigns();
         foreach ($records as $record) {

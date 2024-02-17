@@ -421,7 +421,7 @@ class singleton_service {
      * Fetch campaigns if there are not there already.
      * @return array
      */
-    public static function get_all_campaigns():array {
+    public static function get_all_campaigns(): array {
 
         global $DB;
 

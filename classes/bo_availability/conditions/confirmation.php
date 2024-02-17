@@ -97,7 +97,7 @@ class confirmation implements bo_condition {
      * @param int $userid
      * @return bool
      */
-    public function hard_block(booking_option_settings $settings, $userid):bool {
+    public function hard_block(booking_option_settings $settings, $userid): bool {
 
         $hardblock = false;
 

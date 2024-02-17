@@ -262,7 +262,7 @@ class view implements renderable, templatable {
      * Render table for elective.
      * @return array the rendered table
      */
-    public function get_rendered_elective_table():array {
+    public function get_rendered_elective_table(): array {
         $cmid = $this->cmid;
 
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
@@ -288,7 +288,7 @@ class view implements renderable, templatable {
      * Render table for all booking options.
      * @return string the rendered table
      */
-    public function get_rendered_all_options_table():string {
+    public function get_rendered_all_options_table(): string {
         $cmid = $this->cmid;
 
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);

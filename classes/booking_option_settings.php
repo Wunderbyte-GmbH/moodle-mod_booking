@@ -1206,7 +1206,7 @@ class booking_option_settings {
      * @param object $user
      * @return array
      */
-    public function return_booking_option_information(object $user = null):array {
+    public function return_booking_option_information(object $user = null): array {
 
         global $USER;
 
@@ -1245,7 +1245,7 @@ class booking_option_settings {
      * @param object $user
      * @return array
      */
-    public function return_subbooking_option_information(int $subbookingid, object $user = null):array {
+    public function return_subbooking_option_information(int $subbookingid, object $user = null): array {
 
         global $USER;
 

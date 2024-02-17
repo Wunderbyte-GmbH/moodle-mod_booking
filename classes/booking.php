@@ -1289,7 +1289,7 @@ class booking {
      *
      * @return string
      */
-    private static function return_sql_for_options_dates():string {
+    private static function return_sql_for_options_dates(): string {
 
         global $DB;
 

@@ -124,7 +124,7 @@ class subbooking_timeslot implements booking_subbooking {
      * @param bool $localized
      * @return string
      */
-    public function get_name_of_subbooking($localized = true):string {
+    public function get_name_of_subbooking($localized = true): string {
         return $localized ? get_string($this->type, 'mod_booking') : $this->type;
     }
 
@@ -223,7 +223,7 @@ class subbooking_timeslot implements booking_subbooking {
      * @param booking_option_settings $settings
      * @return array
      */
-    public function return_interface(booking_option_settings $settings):array {
+    public function return_interface(booking_option_settings $settings): array {
 
         // The interface of the timeslot booking should merge when there are multiple slot bookings.
         // Therefore, we need to first find out how many of these are present.
@@ -255,7 +255,7 @@ class subbooking_timeslot implements booking_subbooking {
      * @param object $user
      * @return array
      */
-    public function return_subbooking_information(int $itemid = 0, $user = null):array {
+    public function return_subbooking_information(int $itemid = 0, $user = null): array {
 
         // In the case of this subbooking type, the itemid refers to the slots.
         // In other types, the itemid is actually $this->id.
@@ -296,7 +296,7 @@ class subbooking_timeslot implements booking_subbooking {
      * @param object $user
      * @return string
      */
-    public function return_answer_json(int $itemid, $user = null):string {
+    public function return_answer_json(int $itemid, $user = null): string {
 
         return '';
     }
@@ -308,7 +308,7 @@ class subbooking_timeslot implements booking_subbooking {
      * @param int $itemid
      * @return array
      */
-    public function return_answers($itemid = 0):array {
+    public function return_answers($itemid = 0): array {
         global $DB;
 
         $params['sboptionid'] = $this->id;
@@ -335,7 +335,7 @@ class subbooking_timeslot implements booking_subbooking {
      *
      * @return array
      */
-    private function return_slots():array {
+    private function return_slots(): array {
 
         // Make sure we avoid a loop.
         if (empty($this->duration)) {
@@ -415,7 +415,7 @@ class subbooking_timeslot implements booking_subbooking {
      * @param object $user
      * @return array
      */
-    public function return_price($user):array {
+    public function return_price($user): array {
         return price::get_price('subbooking', $this->id, $user);
     }
 
@@ -426,7 +426,7 @@ class subbooking_timeslot implements booking_subbooking {
      * @param object $user
      * @return string
      */
-    public function return_description($user):string {
+    public function return_description($user): string {
         return $this->description;
     }
 

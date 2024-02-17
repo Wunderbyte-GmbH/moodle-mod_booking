@@ -279,7 +279,7 @@ class optiondate {
      * @param int $mode // Mode 0 is all the fields, 1 is only optiondates, 2 is only entities, 3 is only cfields.
      * @return bool
      */
-    public static function compare_optiondates(array $oldoptiondate, array $newoptiondate, int $mode = 0):bool {
+    public static function compare_optiondates(array $oldoptiondate, array $newoptiondate, int $mode = 0): bool {
 
         if ($mode <= 1) {
             if (($oldoptiondate['optiondateid'] != $newoptiondate['optiondateid'])

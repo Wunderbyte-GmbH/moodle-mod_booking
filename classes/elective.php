@@ -609,7 +609,7 @@ class elective {
      * @param booking_settings $booking
      * @return bool
      */
-    public static function is_bookable_combination(booking_settings $booking):bool {
+    public static function is_bookable_combination(booking_settings $booking): bool {
 
         $arrayofoptions = self::get_options_from_cache($booking->cmid);
 
@@ -639,7 +639,7 @@ class elective {
      * @param int $cmid
      * @return array
      */
-    public static function return_sorted_array_of_options_from_cache(int $cmid):array {
+    public static function return_sorted_array_of_options_from_cache(int $cmid): array {
 
         $sortarray = self::get_options_from_cache($cmid);
 
@@ -662,7 +662,7 @@ class elective {
      * @param int $cmid
      * @return array
      */
-    public static function get_options_from_cache(int $cmid):array {
+    public static function get_options_from_cache(int $cmid): array {
 
         $cache = cache::make('mod_booking', 'electivebookingorder');
         // We use itemid as cmid.

@@ -366,7 +366,7 @@ class subbookings_info {
      * @param int $userid
      * @return bool
      */
-    public static function save_response(string $area, int $itemid, int $status, $userid = 0):bool {
+    public static function save_response(string $area, int $itemid, int $status, $userid = 0): bool {
 
         global $USER;
 

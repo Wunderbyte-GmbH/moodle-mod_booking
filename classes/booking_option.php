@@ -1111,7 +1111,7 @@ class booking_option {
      * @param stdClass $user
      * @return bool
      */
-    public function user_confirm_response(stdClass $user):bool {
+    public function user_confirm_response(stdClass $user): bool {
 
         global $DB;
 
@@ -3222,7 +3222,7 @@ class booking_option {
      * Returns an array with status and a label to be displayed on the booking button.
      * @param booking_option_settings $settings
      */
-    public static function is_blocked_by_campaign(booking_option_settings $settings):array {
+    public static function is_blocked_by_campaign(booking_option_settings $settings): array {
 
         foreach ($settings->campaigns as $campaign) {
 

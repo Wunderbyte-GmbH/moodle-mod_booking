@@ -75,7 +75,7 @@ class alreadybooked implements bo_subcondition {
      * @param bool $not Set true if we are inverting the condition
      * @return bool True if available
      */
-    public function is_available(booking_option_settings $settings, $subbookingid, $userid, $not = false):bool {
+    public function is_available(booking_option_settings $settings, $subbookingid, $userid, $not = false): bool {
 
         // This is the return value. Not available to begin with.
         $isavailable = false;
@@ -165,7 +165,7 @@ class alreadybooked implements bo_subcondition {
      * @return array
      */
     public function render_button(booking_option_settings $settings,
-        int $subbookingid, int $userid=0, bool $full=false, bool $not=false, bool $fullwidth=true):array {
+        int $subbookingid, int $userid=0, bool $full=false, bool $not=false, bool $fullwidth=true): array {
 
         global $USER;
 

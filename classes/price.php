@@ -783,7 +783,7 @@ class price {
      * @param int $itemid
      * @return array
      */
-    public static function get_prices_from_cache_or_db(string $area, int $itemid):array {
+    public static function get_prices_from_cache_or_db(string $area, int $itemid): array {
         global $DB;
 
         $cache = \cache::make('mod_booking', 'cachedprices');

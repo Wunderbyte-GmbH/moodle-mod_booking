@@ -199,7 +199,7 @@ class booking_subbookit {
      * @param int $userid
      * @return array
      */
-    public static function answer_booking_option(string $area, int $itemid, int $status, int $userid = 0):array {
+    public static function answer_booking_option(string $area, int $itemid, int $status, int $userid = 0): array {
 
         global $PAGE, $USER;
 
@@ -305,7 +305,7 @@ class booking_subbookit {
      * @param int $userid
      * @return array
      */
-    public static function answer_subbooking_option(string $area, int $itemid, int $status, int $userid = 0):array {
+    public static function answer_subbooking_option(string $area, int $itemid, int $status, int $userid = 0): array {
 
         $subbooking = subbookings_info::get_subbooking_by_area_and_id($area, $itemid);
 

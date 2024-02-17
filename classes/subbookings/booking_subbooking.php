@@ -55,7 +55,7 @@ interface booking_subbooking {
      * @param bool $localized
      * @return string the name of the subbooking
      */
-    public function get_name_of_subbooking($localized = true):string;
+    public function get_name_of_subbooking($localized = true): string;
 
     /**
      * Gets the JSON for the subbookings to be stored in DB.
@@ -87,7 +87,7 @@ interface booking_subbooking {
      * @param booking_option_settings $settings
      * @return array
      */
-    public function return_interface(booking_option_settings $settings):array;
+    public function return_interface(booking_option_settings $settings): array;
 
     /**
      * The price might be altered, eg. when more than one item is selected.
@@ -95,7 +95,7 @@ interface booking_subbooking {
      * @param object $user
      * @return array
      */
-    public function return_price($user):array;
+    public function return_price($user): array;
 
     /**
      * Function to return all relevant information of this subbooking as array.
@@ -109,7 +109,7 @@ interface booking_subbooking {
      *
      * @return array
      */
-    public function return_subbooking_information(int $itemid = 0, $user = null):array;
+    public function return_subbooking_information(int $itemid = 0, $user = null): array;
 
     /**
      * When a subbooking is booked, we might need some supplementary values saved.
@@ -119,5 +119,5 @@ interface booking_subbooking {
      * @param object $user
      * @return string
      */
-    public function return_answer_json(int $itemid, $user = null):string;
+    public function return_answer_json(int $itemid, $user = null): string;
 }

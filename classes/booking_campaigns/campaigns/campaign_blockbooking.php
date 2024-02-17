@@ -345,7 +345,7 @@ class campaign_blockbooking implements booking_campaign {
      * @param booking_option_settings $settings the booking option settings class
      * @return array
      */
-    public function is_blocking(booking_option_settings $settings):array {
+    public function is_blocking(booking_option_settings $settings): array {
 
         $ba = singleton_service::get_instance_of_booking_answers($settings);
 

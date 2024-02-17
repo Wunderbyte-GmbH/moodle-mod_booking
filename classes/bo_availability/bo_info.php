@@ -114,7 +114,7 @@ class bo_info {
      * @param bool $hardblock
      * @return array [isavailable, description]
      */
-    public function is_available(int $optionid = null, int $userid = 0, bool $hardblock = false):array {
+    public function is_available(int $optionid = null, int $userid = 0, bool $hardblock = false): array {
 
         if (!$optionid) {
             $optionid = $this->optionid;
@@ -154,7 +154,7 @@ class bo_info {
      * @param bool $onlyhardblock
      * @return array
      */
-    public static function get_condition_results(int $optionid = null, int $userid = 0, bool $onlyhardblock = false):array {
+    public static function get_condition_results(int $optionid = null, int $userid = 0, bool $onlyhardblock = false): array {
         global $USER, $CFG;
 
         require_once($CFG->dirroot . '/mod/booking/lib.php');
@@ -363,7 +363,7 @@ class bo_info {
      * @return array availability and Information string (for admin) about all restrictions on
      *   this item
      */
-    public function get_description(booking_option_settings $settings, $userid = null, $full = false):array {
+    public function get_description(booking_option_settings $settings, $userid = null, $full = false): array {
 
         return $this->is_available($settings->id, $userid, false);
     }
@@ -890,7 +890,7 @@ class bo_info {
      * @param int $pagenumber
      * @return array
      */
-    private static function return_data_for_steps(array $conditionsarray, int $pagenumber):array {
+    private static function return_data_for_steps(array $conditionsarray, int $pagenumber): array {
 
         $data['tabs'] = [];
 
@@ -934,7 +934,7 @@ class bo_info {
      * @param array $results
      * @return bool
      */
-    private static function has_price_set(array $results):bool {
+    private static function has_price_set(array $results): bool {
         foreach ($results as $result) {
             if ($result['classname'] == 'mod_booking\bo_availability\conditions\priceisset') {
                 return true;

@@ -122,7 +122,7 @@ class max_number_of_bookings implements bo_condition {
      * @param int $userid
      * @return bool
      */
-    public function hard_block(booking_option_settings $settings, $userid):bool {
+    public function hard_block(booking_option_settings $settings, $userid): bool {
 
         $context = context_system::instance();
         if (has_capability('mod/booking:overrideboconditions', $context)) {
