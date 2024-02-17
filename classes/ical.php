@@ -335,7 +335,7 @@ class ical {
      * @param bool $time
      * @return void
      */
-    protected function add_vevent ($uid, $dtstart, $dtend, $time = false) {
+    protected function add_vevent($uid, $dtstart, $dtend, $time = false) {
         global $CFG, $DB, $PAGE;
 
         $eventid = false;

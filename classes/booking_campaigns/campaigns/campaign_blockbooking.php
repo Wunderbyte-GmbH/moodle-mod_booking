@@ -313,7 +313,7 @@ class campaign_blockbooking implements booking_campaign {
      * @param float $price the original price
      * @return float the new price
      */
-    public function get_campaign_price(float $price):float {
+    public function get_campaign_price(float $price): float {
         return $price;
     }
 
@@ -322,7 +322,7 @@ class campaign_blockbooking implements booking_campaign {
      * @param int $limit the original booking limit
      * @return int the new booking limit
      */
-    private function get_campaign_limit(int $limit):int {
+    private function get_campaign_limit(int $limit): int {
         return (int)$limit;
     }
 

@@ -770,7 +770,7 @@ class signinsheet_generator {
     /**
      * Setup the header row with the column headings for each column
      */
-    private function set_table_headerrow () {
+    private function set_table_headerrow() {
 
         $this->pdf->SetFont('freesans', 'B', 10);
         $c = 0;

@@ -163,7 +163,7 @@ class booking {
      * Returm number of displayed rows of options per page for pagination (or given default)
      * @return int
      */
-    public function get_pagination_setting():int {
+    public function get_pagination_setting(): int {
         $paginationnum = (int) $this->settings->paginationnum > 0 ? (int) $this->settings->paginationnum :
             MOD_BOOKING_PAGINATIONDEF;
         return $paginationnum;
@@ -569,7 +569,7 @@ class booking {
      * @param stdClass $user
      * @return int of bookings made by user
      */
-    public function get_user_booking_count($user):int {
+    public function get_user_booking_count($user): int {
         global $DB;
         if (!empty($this->userbookings)) {
             return $this->userbookings;

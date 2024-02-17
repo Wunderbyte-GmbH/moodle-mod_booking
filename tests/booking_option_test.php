@@ -49,7 +49,7 @@ class booking_option_test extends advanced_testcase {
     /**
      * Tests set up.
      */
-    public function setUp():void {
+    public function setUp(): void {
         $this->resetAfterTest();
     }
 
@@ -59,7 +59,7 @@ class booking_option_test extends advanced_testcase {
      * @return void
      *
      */
-    public function tearDown():void {
+    public function tearDown(): void {
     }
 
     /**

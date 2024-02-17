@@ -134,7 +134,7 @@ class fileparser {
      * @param mixed $settings
      *
      */
-    public function __construct ($settings) {
+    public function __construct($settings) {
         // Optional: switch on type of settings object -> process data according to type (csv, ...).
         $this->apply_settings($settings);
     }

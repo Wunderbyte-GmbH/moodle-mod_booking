@@ -591,7 +591,7 @@ class booking_utils {
      *
      * @return bool
      */
-    public function booking_hide_option_userevents ($optionid) {
+    public function booking_hide_option_userevents($optionid) {
         global $DB;
         $userevents = $DB->get_records('booking_userevents', ['optionid' => $optionid, 'optiondateid' => null]);
 
@@ -615,7 +615,7 @@ class booking_utils {
      *
      * @return bool
      */
-    public function booking_show_option_userevents ($optionid) {
+    public function booking_show_option_userevents($optionid) {
         global $DB;
         $userevents = $DB->get_records('booking_userevents', ['optionid' => $optionid, 'optiondateid' => null]);
 
@@ -642,7 +642,7 @@ class booking_utils {
      *
      * @return string the subscription link
      */
-    public function booking_generate_calendar_subscription_link ($user, $eventparam = 'user') {
+    public function booking_generate_calendar_subscription_link($user, $eventparam = 'user') {
 
         if (!$user) {
             return '';

@@ -287,7 +287,7 @@ class campaign_customfield implements booking_campaign {
      * @param float $price the original price
      * @return float the new price
      */
-    public function get_campaign_price(float $price):float {
+    public function get_campaign_price(float $price): float {
         $campaignprice = $price * $this->pricefactor;
 
         $discountprecision = 2;
@@ -307,7 +307,7 @@ class campaign_customfield implements booking_campaign {
      * @param booking_option_settings $settings
      * @return int the new booking limit
      */
-    private function get_campaign_limit(int $limit, booking_option_settings $settings):int {
+    private function get_campaign_limit(int $limit, booking_option_settings $settings): int {
 
         if (empty($settings->maxanswers)) {
             return 0;

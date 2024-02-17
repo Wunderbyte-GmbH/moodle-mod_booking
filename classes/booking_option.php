@@ -2345,7 +2345,7 @@ class booking_option {
      * @param int $descriptionparam
      * @param bool $forbookeduser
      */
-    public function render_customfield_data (
+    public function render_customfield_data(
             $field,
             $sessionid = 0,
             $descriptionparam = 0,

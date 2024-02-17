@@ -181,7 +181,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      * @param int $userid
      * @return array
      */
-    public static function unload_cartitem( string $area, int $itemid, int $userid = 0): array {
+    public static function unload_cartitem(string $area, int $itemid, int $userid = 0): array {
         global $CFG;
 
         require_once($CFG->dirroot . '/mod/booking/lib.php');

@@ -67,7 +67,7 @@ class bookingoptionsimporter {
      * @return array formdata for filepicker
      *
      */
-    public static function return_ajaxformdata() : array {
+    public static function return_ajaxformdata(): array {
         $ajaxformdata = [
             'id' => 'mbo_csv_import_form',
             'settingscallback' => 'mod_booking\importer\bookingoptionsimporter::execute_bookingoptions_csv_import',

@@ -89,7 +89,7 @@ interface booking_campaign {
      * @param float $price the original price
      * @return float the new price
      */
-    public function get_campaign_price(float $price):float;
+    public function get_campaign_price(float $price): float;
 
     /**
      * Function to apply the logic of the particular campaign.

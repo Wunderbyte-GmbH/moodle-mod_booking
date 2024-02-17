@@ -164,7 +164,7 @@ class optiondate {
         string $reason = '',
         int $reviewed = 0,
         int $entityid = 0,
-        array $customfields = []):optiondate {
+        array $customfields = []): optiondate {
 
         global $DB, $USER;
 
