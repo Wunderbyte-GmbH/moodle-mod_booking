@@ -51,23 +51,6 @@ defined('MOODLE_INTERNAL') || die();
  */
 class optiondates_teachers_table extends wunderbyte_table {
 
-    /** @var int $cmid */
-    public $cmid = null;
-
-    /**
-     * Constructor
-     * @param string $uniqueid all tables have to have a unique id, this is used
-     */
-    public function __construct(string $uniqueid) {
-        parent::__construct($uniqueid);
-
-        global $PAGE;
-        $this->baseurl = $PAGE->url;
-        $this->cmid = $_GET['cmid'] ?? $this->cmid;
-
-        // Columns and headers are not defined in constructor, in order to keep things as generic as possible.
-    }
-
     /**
      * This function is called for each data row to allow processing of the
      * optiondateid value.
@@ -154,9 +137,13 @@ class optiondates_teachers_table extends wunderbyte_table {
     public function col_edit(object $values): string {
         $ret = '';
         if (!$this->is_downloading() && !$values->reviewed == 1) {
+
+            $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
+            $cmid = $settings->cmid;
+
             $ret .= html_writer::div(html_writer::link('#', "<h5><i class='icon fa fa-edit'></i></h5>",
                 ['class' => 'btn-modal-edit-teachers',
-                'data-cmid' => $this->cmid,
+                'data-cmid' => $cmid,
                 'data-optionid' => $values->optionid,
                 'data-teachers' => $values->teachers,
                 'data-optiondateid' => $values->optiondateid,
