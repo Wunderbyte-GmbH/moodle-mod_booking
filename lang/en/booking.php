@@ -1842,6 +1842,11 @@ $string['bo_cond_fullybooked_full_available'] = 'Booking is possible';
 $string['bo_cond_fullybooked_not_available'] = 'Fully booked';
 $string['bo_cond_fullybooked_full_not_available'] = 'Fully booked';
 
+$string['bo_cond_allowedtobookininstance_available'] = 'Book it';
+$string['bo_cond_allowedtobookininstance_full_available'] = 'Booking is possible';
+$string['bo_cond_allowedtobookininstance_not_available'] = 'No right to book';
+$string['bo_cond_allowedtobookininstance_full_not_available'] = 'No right to book on this booking instance';
+
 $string['bo_cond_fullybookedoverride_available'] = 'Book it';
 $string['bo_cond_fullybookedoverride_full_available'] = 'Booking is possible';
 $string['bo_cond_fullybookedoverride_not_available'] = 'Fully booked';
