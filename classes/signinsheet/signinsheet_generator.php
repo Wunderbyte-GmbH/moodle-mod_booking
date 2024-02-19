@@ -691,21 +691,33 @@ class signinsheet_generator {
         $this->pdf->Ln();
         $this->pdf->SetFont('freesans', '', 10);
 
-        if (!empty($settings->location)) {
+        if (class_exists('local_entities\entitiesrelation_handler')) {
+            // If Entity manager is installed, we use location and address from entity.
+            if (!empty($settings->entity)) {
+                if (!empty($settings->entity['parentname'])) {
+                    $nametobeshown = $settings->entity['parentname'] . " (" . $settings->entity['name'] . ")";
+                } else {
+                    $nametobeshown = $settings->entity['name'] ?? $settings->location ?? '';
+                }
+                $this->pdf->Cell(0, 0,
+                    get_string('signinsheetlocation', 'booking') . format_string($nametobeshown), 0, 1,
+                    '', 0, '', 1);
+            }
+        } else if (!empty($settings->location)) {
             $this->pdf->Cell(0, 0,
                     get_string('signinsheetlocation', 'booking') . format_string($settings->location), 0, 1,
-                    '', 0, '', 1);
-        }
-
-        if (!empty($settings->dayofweektime)) {
-            $this->pdf->Cell(0, 0,
-                    get_string('dayofweektime', 'mod_booking') . ': ' . format_string($settings->dayofweektime), 0, 1,
                     '', 0, '', 1);
         }
 
         if (!empty(trim($settings->address))) {
             $this->pdf->Cell(0, 0,
                     get_string('signinsheetaddress', 'booking') . format_string($settings->address), 0, 1,
+                    '', 0, '', 1);
+        }
+
+        if (!empty($settings->dayofweektime)) {
+            $this->pdf->Cell(0, 0,
+                    get_string('dayofweektime', 'mod_booking') . ': ' . format_string($settings->dayofweektime), 0, 1,
                     '', 0, '', 1);
         }
 
