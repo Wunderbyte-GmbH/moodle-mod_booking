@@ -30,11 +30,8 @@ use dml_exception;
 use external_api;
 use external_function_parameters;
 use external_single_structure;
-use external_multiple_structure;
 use external_value;
 use mod_booking\settings\optionformconfig\optionformconfig_info;
-use mod_booking\utils\webservice_import;
-use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -55,13 +52,13 @@ class save_option_field_config extends external_api {
      *
      * @return external_function_parameters
      */
-    public static function execute_parameters(): external_single_structure {
-        return new external_single_structure(
-            [
-                'id' => new external_value(PARAM_INT, 'Coursecategory ID'),
-                'capability' => new external_value(PARAM_TEXT, 'Capability'),
-                'json' => new external_value(PARAM_RAW, 'Payload as json'),
-            ]
+    public static function execute_parameters(): external_function_parameters {
+      return new external_function_parameters(
+        [
+            'capability' => new external_value(PARAM_TEXT, 'Capability'),
+            'id' => new external_value(PARAM_INT, 'Coursecategory ID'),
+            'json' => new external_value(PARAM_RAW, 'Payload as json'),
+        ]
         );
     }
 
@@ -73,15 +70,25 @@ class save_option_field_config extends external_api {
      * @throws dml_exception
      */
     public static function execute(
-                        int $coursecategoryid = 0): array {
+        string $capability,
+        int $id,
+        string $json,
+        ): array {
 
         $params = external_api::validate_parameters(self::execute_parameters(),
             [
-                'coursecategoryid' => $coursecategoryid,
+                'id' => $id,
+                'capability' => $capability,
+                'json' => $json,
             ]
         );
 
-        return optionformconfig_info::return_configured_fields($coursecategoryid);
+        $status = optionformconfig_info::save_configured_fields($params);
+
+        return [
+          'id' => $id,
+          'status' => $status,
+        ];
     }
 
     /**

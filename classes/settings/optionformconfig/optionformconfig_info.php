@@ -25,18 +25,7 @@
 
 namespace mod_booking\settings\optionformconfig;
 
-use context_module;
-use core_analytics\action;
 use core_component;
-use dml_exception;
-use mod_booking\booking_option;
-use mod_booking\booking_option_settings;
-use mod_booking\output\actionslist;
-use mod_booking\singleton_service;
-use mod_booking\utils\wb_payment;
-use moodle_exception;
-use MoodleQuickForm;
-use stdClass;
 use context_system;
 use context_coursecat;
 
@@ -124,5 +113,43 @@ class optionformconfig_info {
         }
 
         return $returnarray;
+    }
+
+    /**
+     * Function to be called from webservice to save the available field ids & settings to db.
+     * @param array $params
+     * @return array
+     */
+    public static function save_configured_fields(array $params) {
+        global $DB;
+        $status = 'failed';
+        if (!empty($params['id'])) {
+            $context = context_coursecat::instance($params['id']);
+        } else {
+            $context = context_system::instance();
+        }
+
+        $record = $DB->get_record('booking_form_config', [
+                'area' => 'option',
+                'capability' => $params['capability'],
+                'contextid' => $context->id
+        ]);
+        if ($record) {
+            $DB->update_record('booking_form_config', [
+                'id' => $record->id,
+                'json' => $params['json']
+            ]);
+            $status = 'success';
+
+        } else {
+            $DB->insert_record('booking_form_config', [
+                'area' => 'option',
+                'capability' => $params['capability'],
+                'contextid' => $context->id,
+                'json' => $params['json']
+            ]);
+            $status = 'success';
+        }
+        return $status;
     }
 }
