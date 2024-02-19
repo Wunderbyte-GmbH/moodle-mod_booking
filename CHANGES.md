@@ -1,3 +1,12 @@
+## Version 8.1.20 (2024021900)
+* Improvement: priceisalwayson setting will always block booking now.
+* Improvement: Slightly better caching policy.
+* Bufix: New wunderbyte constructor rules implemented.
+* Bugfix: No warning when user in selectuser condition is deleted.
+* Bugfix: Save and display bookingoptionimages & attachments.
+* Bugfix: Visibility has to be public on bookingoptiondescription.
+* Bugfix: Revert "Save lowest entity in location (not parent)".
+
 ## Version 8.1.19 (2024021601)
 * Bugfix: Special availability import fixed
 
