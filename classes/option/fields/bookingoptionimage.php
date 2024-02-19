@@ -24,10 +24,13 @@
 
 namespace mod_booking\option\fields;
 
+use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
+use context_module;
 
 /**
  * Class to handle one property of the booking_option_settings class.
@@ -36,7 +39,7 @@ use stdClass;
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class optionimages extends field_base {
+class bookingoptionimage extends field_base {
 
     /**
      * This ID is used for sorting execution.
@@ -50,7 +53,7 @@ class optionimages extends field_base {
      * Some can be saved only post save (when they need the option id).
      * @var int
      */
-    public static $save = MOD_BOOKING_EXECUTION_NORMAL;
+    public static $save = MOD_BOOKING_EXECUTION_POSTSAVE;
 
     /**
      * This identifies the header under which this particular field should be displayed.
@@ -95,6 +98,28 @@ class optionimages extends field_base {
     }
 
     /**
+     * The save data function is very specific only for those values that should be saved...
+     * ... after saving the option. This is so, when we need an option id for saving (because of other table).
+     * @param stdClass $formdata
+     * @param stdClass $option
+     * @param int $index
+     * @return void
+     * @throws \dml_exception
+     */
+    public static function save_data(stdClass &$formdata, stdClass &$option, int $index = 0) {
+
+        $cmid = $formdata->cmid;
+        $optionid = $option->id;
+
+        $context = context_module::instance($cmid);
+
+        if ($draftimageid = $formdata->bookingoptionimage ?? false) {
+            file_save_draft_area_files($draftimageid, $context->id, 'mod_booking', 'bookingoptionimage',
+                    $optionid, ['subdirs' => false, 'maxfiles' => 1]);
+        }
+    }
+
+    /**
      * Instance form definition
      * @param MoodleQuickForm $mform
      * @param array $formdata
@@ -115,5 +140,48 @@ class optionimages extends field_base {
                         null,
                         ['subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 1, 'accepted_types' => ['image']]
                     );
+    }
+
+    /**
+     * Standard function to transfer stored value to form.
+     * @param stdClass $data
+     * @param booking_option_settings $settings
+     * @return void
+     * @throws dml_exception
+     */
+    public static function set_data(stdClass &$data, booking_option_settings $settings) {
+
+        global $CFG, $COURSE;
+
+        // Get an unused draft itemid which will be used for this form.
+        $draftitemid = file_get_submitted_draft_itemid('bookingoptionimage');
+
+        if (!empty($data->id)) {
+            $context = context_module::instance($data->cmid);
+
+            // Copy the existing files which were previously uploaded
+            // into the draft area used by this form.
+            file_prepare_draft_area(
+                // The $draftitemid is the target location.
+                $draftitemid,
+
+                // The combination of contextid / component / filearea / itemid
+                // form the virtual bucket that files are currently stored in
+                // and will be copied from.
+                $context->id,
+                'mod_booking',
+                'bookingoptionimage',
+                $data->id,
+                [
+                    'subdirs' => 0,
+                    'maxbytes' => $CFG->maxbytes,
+                    'maxfiles' => 1,
+                ]
+            );
+
+            if (!empty($draftitemid)) {
+                $data->bookingoptionimage = $draftitemid;
+            }
+        }
     }
 }

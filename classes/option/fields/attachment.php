@@ -24,10 +24,12 @@
 
 namespace mod_booking\option\fields;
 
+use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use MoodleQuickForm;
 use stdClass;
+use context_module;
 
 /**
  * Class to handle one property of the booking_option_settings class.
@@ -50,7 +52,7 @@ class attachment extends field_base {
      * Some can be saved only post save (when they need the option id).
      * @var int
      */
-    public static $save = MOD_BOOKING_EXECUTION_NORMAL;
+    public static $save = MOD_BOOKING_EXECUTION_POSTSAVE;
 
     /**
      * This identifies the header under which this particular field should be displayed.
@@ -91,7 +93,39 @@ class attachment extends field_base {
         int $updateparam,
         $returnvalue = null): string {
 
-        return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
+        $key = 'myfilemanageroption';
+        $value = $formdata->{$key} ?? null;
+
+        if (!empty($value)) {
+            $newoption->{$key} = $value;
+        } else {
+            $newoption->{$key} = $returnvalue;
+        }
+
+        // We can return an warning message here.
+        return '';
+    }
+
+    /**
+     * The save data function is very specific only for those values that should be saved...
+     * ... after saving the option. This is so, when we need an option id for saving (because of other table).
+     * @param stdClass $formdata
+     * @param stdClass $option
+     * @param int $index
+     * @return void
+     * @throws \dml_exception
+     */
+    public static function save_data(stdClass &$formdata, stdClass &$option, int $index = 0) {
+
+        $cmid = $formdata->cmid;
+        $optionid = $option->id;
+
+        $context = context_module::instance($cmid);
+
+        if ($draftitemid = $formdata->myfilemanageroption ?? false) {
+            file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'myfilemanageroption',
+                    $optionid, ['subdirs' => false, 'maxfiles' => 10]);
+        }
     }
 
     /**
@@ -112,7 +146,50 @@ class attachment extends field_base {
             'myfilemanageroption',
             get_string('bookingattachment', 'mod_booking'),
             null,
-            ['subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 50, 'accepted_types' => ['*']],
+            ['subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 10, 'accepted_types' => ['*']],
         );
+    }
+
+    /**
+     * Standard function to transfer stored value to form.
+     * @param stdClass $data
+     * @param booking_option_settings $settings
+     * @return void
+     * @throws dml_exception
+     */
+    public static function set_data(stdClass &$data, booking_option_settings $settings) {
+
+        global $CFG, $COURSE;
+
+        // Get an unused draft itemid which will be used for this form.
+        $draftitemid = file_get_submitted_draft_itemid('myfilemanageroption');
+
+        if (!empty($data->id)) {
+            $context = context_module::instance($data->cmid);
+
+            // Copy the existing files which were previously uploaded
+            // into the draft area used by this form.
+            file_prepare_draft_area(
+                // The $draftitemid is the target location.
+                $draftitemid,
+
+                // The combination of contextid / component / filearea / itemid
+                // form the virtual bucket that files are currently stored in
+                // and will be copied from.
+                $context->id,
+                'mod_booking',
+                'myfilemanageroption',
+                $data->id,
+                [
+                    'subdirs' => 0,
+                    'maxbytes' => $CFG->maxbytes,
+                    'maxfiles' => 10,
+                ]
+            );
+
+            if (!empty($draftitemid)) {
+                $data->myfilemanageroption = $draftitemid;
+            }
+        }
     }
 }
