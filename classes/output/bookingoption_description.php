@@ -62,7 +62,7 @@ class bookingoption_description implements renderable, templatable {
     private $modalcounter = null;
 
     /** @var bool $invisible is the booking option invisible to normal users? */
-    private $invisible = null;
+    public $invisible = null;
 
     /** @var string $annotation internal annotation */
     private $annotation = null;
