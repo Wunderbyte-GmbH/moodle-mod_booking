@@ -24,6 +24,7 @@
 
 namespace mod_booking\option\fields;
 
+use mod_booking\calendar;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use mod_booking\singleton_service;
@@ -91,6 +92,39 @@ class addtocalendar extends field_base {
         stdClass &$newoption,
         int $updateparam,
         $returnvalue = null): string {
+
+        global $DB;
+
+        $optionid = $formdata->id;
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        // Delete calendar events if they are turned off in form.
+        if ($formdata->addtocalendar == 0) {
+            if ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid])) {
+                foreach ($optiondates as $optiondate) {
+                    // Delete calendar course event for the optiondate.
+                    if ($DB->delete_records_select('event',
+                        "eventtype = 'course'
+                        AND courseid <> 0
+                        AND component = 'mod_booking'
+                        AND uuid = :pattern",
+                        ['pattern' => "{$optionid}-{$optiondate->id}"]
+                    )) {
+                        $optiondate->eventid = null;
+                        $DB->update_record('booking_optiondates', $optiondate);
+                    }
+                }
+            }
+        } else if ($formdata->addtocalendar == 1) {
+            if ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid])) {
+                foreach ($optiondates as $optiondate) {
+                    if ($DB->record_exists('event', ['id' => $optiondate->eventid])) {
+                        continue;
+                    }
+                    calendar::booking_optiondate_add_to_cal($settings->cmid, $optionid, $optiondate, $settings->calendarid);
+                }
+            }
+        }
 
         return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
     }

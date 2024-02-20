@@ -102,12 +102,12 @@ class calendar {
 
         $bu = new booking_utils();
 
-        $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
         // Fix: If we only have one session and its ID is 0, then it is a "fake" session.
         // So we use the standard routine for adding an option without sessions to the calendar.
-        if (count($optionsettings->sessions) == 1) {
-            $onlysession = array_pop($optionsettings->sessions);
+        if (count($settings->sessions) == 1) {
+            $onlysession = array_pop($settings->sessions);
             if ($onlysession->id == 0) {
                 $type = $this::MOD_BOOKING_TYPEOPTION;
             }
@@ -119,7 +119,7 @@ class calendar {
             case $this::MOD_BOOKING_TYPEOPTION:
                 if ($justbooked) {
                     // A user has just booked an option. The event will be created as USER event.
-                    $newcalendarid = self::booking_option_add_to_cal($cmid, $optionid, $optionsettings->calendarid, $userid);
+                    $newcalendarid = self::booking_option_add_to_cal($cmid, $optionid, $settings->calendarid, $userid);
                     // When we create a user event, we have to keep track of it in our special table.
                     if ($newcalendarid) {
                         // If it's a new user event, then insert.
@@ -141,14 +141,14 @@ class calendar {
                         }
                     }
                 } else {
-                    if ($optionsettings->addtocalendar == 1) {
+                    if ($settings->addtocalendar == 1) {
                         // Add to calendar as course event.
-                        $newcalendarid = self::booking_option_add_to_cal($cmid, $optionid, $optionsettings->calendarid, 0);
+                        $newcalendarid = self::booking_option_add_to_cal($cmid, $optionid, $settings->calendarid, 0);
                     } else {
-                        if ($optionsettings->calendarid > 0) {
-                            if ($DB->record_exists("event", ['id' => $optionsettings->calendarid])) {
+                        if ($settings->calendarid > 0) {
+                            if ($DB->record_exists("event", ['id' => $settings->calendarid])) {
                                 // Delete event if exist.
-                                $event = \calendar_event::load($optionsettings->calendarid);
+                                $event = \calendar_event::load($settings->calendarid);
                                 $event->delete(true);
                             }
                         }
@@ -165,7 +165,7 @@ class calendar {
 
                     if ($optiondate = $DB->get_record("booking_optiondates", ["id" => $optiondateid])) {
                         $newcalendarid = self::booking_optiondate_add_to_cal($cmid, $optionid,
-                            $optiondate, $optionsettings->calendarid, $userid);
+                            $optiondate, $settings->calendarid, $userid);
                         if ($newcalendarid) {
                             // If it's a new user event, then insert.
                             if (!$userevent = $DB->get_record('booking_userevents',
@@ -192,10 +192,10 @@ class calendar {
                     } else {
                         echo "ERROR: Calendar entry for option date could not be created.";
                     }
-                } else if ($optionsettings->addtocalendar == 1) {
+                } else if ($settings->addtocalendar == 1) {
                     if ($optiondate = $DB->get_record("booking_optiondates", ["id" => $optiondateid])) {
                         $newcalendarid = self::booking_optiondate_add_to_cal($cmid, $optionid,
-                            $optiondate, $optionsettings->calendarid, 0, 1);
+                            $optiondate, $settings->calendarid, 0, 1);
                     } else {
                         echo "ERROR: Calendar entry for option date could not be created.";
                     }
@@ -254,13 +254,13 @@ class calendar {
         global $DB;
 
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
-        $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        if ($optionsettings->courseendtime == 0 || $optionsettings->coursestarttime == 0) {
+        if ($settings->courseendtime == 0 || $settings->coursestarttime == 0) {
             return 0;
         }
         // Do not add booking option to calendar, if there are multiple sessions.
-        if (count($optionsettings->sessions) > 1) {
+        if (count($settings->sessions) > 1) {
             return 0;
         }
 
@@ -273,7 +273,7 @@ class calendar {
         } else {
             // Event calendar.
             $courseid = !empty($bookingsettings->course) ? $bookingsettings->course : 0;
-            $instance = $optionsettings->bookingid;
+            $instance = $settings->bookingid;
             $visible = instance_is_visible('booking', $bookingsettings);
             $fulldescription = get_rendered_eventdescription($optionid, $cmid, MOD_BOOKING_DESCRIPTION_CALENDAR);
         }
@@ -284,7 +284,7 @@ class calendar {
         // IMPORTANT: ONLY course events are allowed to have a modulename.
         $event->modulename = '';
         $event->id = $calendareventid;
-        $event->name = $optionsettings->text;
+        $event->name = $settings->text;
         $event->description = $fulldescription;
         $event->format = FORMAT_HTML;
 
@@ -307,10 +307,10 @@ class calendar {
         }
 
         $event->instance = $instance;
-        $event->timestart = $optionsettings->coursestarttime;
+        $event->timestart = $settings->coursestarttime;
         $event->visible = $visible;
-        $event->timeduration = $optionsettings->courseendtime - $optionsettings->coursestarttime;
-        $event->timesort = $optionsettings->coursestarttime;
+        $event->timeduration = $settings->courseendtime - $settings->coursestarttime;
+        $event->timesort = $settings->coursestarttime;
 
         if ($userid == 0 && $calendareventid > 0 && $DB->record_exists("event", ['id' => $event->id])) {
             $calendarevent = calendar_event::load($event->id);
@@ -337,12 +337,12 @@ class calendar {
      *
      * @return int calendarid
      */
-    private static function booking_optiondate_add_to_cal(int $cmid, int $optionid, stdClass $optiondate,
+    public static function booking_optiondate_add_to_cal(int $cmid, int $optionid, stdClass $optiondate,
         int $calendareventid, int $userid = 0, int $addtocalendar = 1) {
         global $DB;
 
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
-        $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
         $fulldescription = '';
 
@@ -365,7 +365,7 @@ class calendar {
         } else {
             // Event calendar.
             $courseid = !empty($bookingsettings->course) ? $bookingsettings->course : 0;
-            $instance = $optionsettings->bookingid;
+            $instance = $settings->bookingid;
             $visible = instance_is_visible('booking', $bookingsettings);
             $fulldescription = get_rendered_eventdescription($optionid, $cmid, MOD_BOOKING_DESCRIPTION_CALENDAR);
         }
@@ -376,7 +376,7 @@ class calendar {
         // ONLY course events are allowed to have a modulename.
         $event->modulename = '';
         $event->id = $calendareventid;
-        $event->name = $optionsettings->text;
+        $event->name = $settings->text;
         $event->description = $fulldescription;
         $event->format = FORMAT_HTML;
 
