@@ -95,26 +95,18 @@ class entities extends field_base {
 
         if (class_exists('local_entities\entitiesrelation_handler')) {
 
-            // We only run this to make sure we have the constants.
+            // We only run this line to make sure we have the constants.
             $erhandler = new entitiesrelation_handler('mod_booking', 'option');
+
+            // Initialize location and address.
+            $newoption->location = '';
+            $newoption->address = '';
+
             // Every time we save an entity, we want to make sure that the name of the entity is stored in location.
             if (!empty($formdata->{LOCAL_ENTITIES_FORM_ENTITYID . 0})) {
-                // We might have more than one address, this will lead to more than one record which comes back.
-                $entities = entitiesrelation_handler::get_entities_by_id($formdata->{LOCAL_ENTITIES_FORM_ENTITYID . 0});
-                $newoption->address = '';
-                foreach ($entities as $entity) {
-                    $newoption->location = $entity->parentname ?? $entity->name;
-                    $newoption->address .= "$entity->postcode $entity->city $entity->streetname $entity->streetnumber";
-                    if (count($entities) > 1) {
-                        $newoption->address .= ', ';
-                    }
-                }
-                if (count($entities) > 1) {
-                    $newoption->address = substr($newoption->address, 0, -2);
-                }
-            } else if (isset($formdata->{LOCAL_ENTITIES_FORM_ENTITYID . 0})) {
-                $newoption->location = '';
-                $newoption->address = '';
+                $newoption->location = entitiesrelation_handler::get_name_for_filter($formdata->{LOCAL_ENTITIES_FORM_ENTITYID . 0});
+                $newoption->address =
+                    entitiesrelation_handler::get_first_address_as_string($formdata->{LOCAL_ENTITIES_FORM_ENTITYID . 0});
             }
 
             /* IMPORTANT NOTE: We do not use er_saverelationsforoptiondates (checkbox to save entity for each optiondate)
