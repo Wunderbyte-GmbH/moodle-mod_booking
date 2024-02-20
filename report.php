@@ -663,6 +663,7 @@ if (!$tableallbookings->is_downloading()) {
 
     // Action buttons on top.
     $actionbuttonstop = '';
+
     if (has_capability('mod/booking:bookforothers', $context) &&
                 (has_capability('mod/booking:subscribeusers', $context) ||
                 $isteacherofthisoption)) {
@@ -670,7 +671,7 @@ if (!$tableallbookings->is_downloading()) {
             ['id' => $cm->id, 'optionid' => $optionid]);
         $actionbuttonstop .= "<span>" .
             html_writer::link($url, '<i class="fa fa-users fa-fw" aria-hidden="true"></i>&nbsp;' .
-                get_string('bookotherusers', 'booking'), ['class' => 'btn btn-light mr-2']) .
+                get_string('bookotherusers', 'booking'), ['class' => 'btn btn-primary btn-sm mr-2']) .
         "</span>";
     }
 
@@ -683,10 +684,18 @@ if (!$tableallbookings->is_downloading()) {
         if (!empty($mailtolink)) {
             $actionbuttonstop .= "<span>" .
                 html_writer::link($mailtolink, '<i class="fa fa-envelope fa-fw" aria-hidden="true"></i>&nbsp;' .
-                    get_string('sendmailtoallbookedusers', 'booking'), ['class' => 'btn btn-light mr-2']) .
+                    get_string('sendmailtoallbookedusers', 'booking'), ['class' => 'btn btn-primary btn-sm mr-2']) .
             "</span>";
         }
     }
+
+    // Button to configure and download signin sheet.
+    $actionbuttonstop .=
+        "<span>" . html_writer::link('#', '<i class="fa fa-list fa-fw" aria-hidden="true"></i>&nbsp;' .
+        get_string('sign_in_sheet_download', 'mod_booking'), [
+            'id' => 'sign_in_sheet_download',
+            'class' => 'btn btn-primary btn-sm mr-2',
+        ]) . "</span>";
 
     echo "<p>" .
              ($bookingoption->option->coursestarttime == 0 ? get_string('nodateset', 'booking') : userdate(
@@ -697,6 +706,11 @@ if (!$tableallbookings->is_downloading()) {
                     implode(', ', $teachers) . " {$linkst}</p>";
 
     echo "<div class='report-actionbuttons-top'>$actionbuttonstop</div>";
+
+    // Area to configure signin sheet (has to be right after top action buttons).
+    $signinform = new mod_booking\output\signin_downloadform($bookingoption, $baseurl);
+    $renderer = $PAGE->get_renderer('mod_booking');
+    echo $renderer->render_signin_pdfdownloadform($signinform);
 
     $links = [];
 
@@ -864,12 +878,12 @@ if (!$tableallbookings->is_downloading()) {
     $tableallbookings->finish_output();
 
     $onlyoneurl = new moodle_url('/mod/booking/view.php',
-            [
-                'id' => booking_option::get_cmid_from_optionid($optionid),
-                'optionid' => $optionid,
-                'whichview' => 'showonlyone',
-            ]
-        );
+        [
+            'id' => booking_option::get_cmid_from_optionid($optionid),
+            'optionid' => $optionid,
+            'whichview' => 'showonlyone',
+        ]
+    );
 
     // PHP 8.1 compatibility with extra safety if poolurl has changed outside option form.
     $pollurl = '';
@@ -889,12 +903,10 @@ if (!$tableallbookings->is_downloading()) {
     echo ' | ' . html_writer::link($onlyoneurl, get_string('copyonlythisbookingurl', 'booking'),
             ['onclick' => 'copyToClipboard("' . htmlspecialchars_decode($onlyoneurl, ENT_QUOTES) . '"); return false;']);
 
-    echo ' | ' . html_writer::link($onlyoneurl, get_string('sign_in_sheet_download', 'booking'),
-            ['id' => 'sign_in_sheet_download']);
     if (!empty($bookingoption->booking->settings->customtemplateid)) {
         echo ' | ' . html_writer::link(new moodle_url('/mod/booking/report.php',
                         ['id' => $cm->id, 'optionid' => $optionid, 'action' => 'postcustomreport']),
-                        get_string('customdownloadreport', 'booking'), ['target' => '_blank']);
+                        get_string('customdownloadreport', 'mod_booking'), ['target' => '_blank']);
     }
 
     echo "<script>
@@ -902,10 +914,6 @@ if (!$tableallbookings->is_downloading()) {
     window.prompt('" . get_string('copytoclipboard', 'booking') . "', text);
   }
 </script>";
-
-    $signinform = new mod_booking\output\signin_downloadform($bookingoption, $baseurl);
-    $renderer = $PAGE->get_renderer('mod_booking');
-    echo $renderer->render_signin_pdfdownloadform($signinform);
 
     echo $OUTPUT->footer();
 } else {
