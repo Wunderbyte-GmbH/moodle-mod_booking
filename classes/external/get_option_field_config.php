@@ -75,7 +75,6 @@ class get_option_field_config extends external_api {
                 'coursecategoryid' => $coursecategoryid,
             ]
         );
-
         return optionformconfig_info::return_configured_fields($coursecategoryid);
     }
 
@@ -89,6 +88,7 @@ class get_option_field_config extends external_api {
             [
                 'id' => new external_value(PARAM_INT, 'Coursecategory ID'),
                 'capability' => new external_value(PARAM_TEXT, 'Capability'),
+                'name' => new external_value(PARAM_TEXT, 'Capability Name'),
                 'json' => new external_value(PARAM_RAW, 'Payload as json'),
             ]
         ));
