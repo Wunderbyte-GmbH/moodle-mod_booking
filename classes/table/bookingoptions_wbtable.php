@@ -897,9 +897,9 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         $ret = $description;
 
-        if (!empty(get_config('mod_booking', 'collapsedescriptionmaxlength'))) {
+        if (!empty(get_config('booking', 'collapsedescriptionmaxlength'))) {
 
-            $maxlength = (int)get_config('mod_booking', 'collapsedescriptionmaxlength');
+            $maxlength = (int)get_config('booking', 'collapsedescriptionmaxlength');
 
             // Show collapsible for long descriptions.
             $shortdescription = strip_tags($description, '<br>');
