@@ -52,6 +52,9 @@ class col_price implements renderable, templatable {
     /** @var array $priceitem array of priceitem */
     public $priceitems = [];
 
+    /** @var array $priceitem */
+    public $priceitem = [];
+
     /**
      * $context
      *
