@@ -92,7 +92,11 @@ class location extends field_base {
         int $updateparam,
         $returnvalue = null): string {
 
-        return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
+        if (!class_exists('local_entities\entitiesrelation_handler')) {
+            return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
+        } else {
+            return '';
+        }
     }
 
     /**
