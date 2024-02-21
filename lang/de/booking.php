@@ -113,6 +113,7 @@ $string['usersmatching'] = 'Gefundene Nutzer:innen';
 $string['allmoodleusers'] = 'Alle Nutzer:innen dieser Website';
 $string['enrolledusers'] = 'In den Kurs eingeschriebene Nutzer:innen';
 $string['nopriceisset'] = 'Kein Preis für Preiskategorie {$a} vorhanden';
+$string['youareediting'] = 'Sie bearbeiten "<b>{$a}</b>".';
 
 // Badges.
 $string['badge:pro'] = '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
