@@ -454,6 +454,11 @@ class booking_answers {
      */
     public function is_fully_booked() {
 
+        // If booking option is unlimited, we always return false.
+        if (empty($this->bookingoptionsettings->maxanswers)) {
+            return false;
+        }
+
         if (count($this->usersonlist) >= $this->bookingoptionsettings->maxanswers) {
             return true;
         } else {
