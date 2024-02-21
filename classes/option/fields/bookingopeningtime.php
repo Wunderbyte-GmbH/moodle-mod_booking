@@ -152,7 +152,7 @@ class bookingopeningtime extends field_base {
 
                 $value = strtotime($data->{$key});
                 $data->{$key} = $value;
-                $data->restrictanswerperiodclosing = 1;
+                $data->restrictanswerperiodopening = 1;
             }
 
         } else {

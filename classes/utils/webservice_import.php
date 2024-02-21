@@ -94,19 +94,6 @@ class webservice_import {
             $data->cmid = $this->cm->id;
         }
 
-        // This will set the bookingoption to update (if there is one, else it will be null).
-        $bookingoption = $this->check_if_update_option($data);
-
-        // First, we remap data to make sure we can use it in update & creation.
-        $this->remap_data($data, $bookingoption);
-
-        if ($bookingoption == null) {
-            // Create new booking option.
-            $context = \context_module::instance($this->cm->id);
-        } else {
-            $data->id = $bookingoption->id;
-            $context = $bookingoption->booking->context;
-        }
         $data->importing = 1;
 
         $bookingoptionid = booking_option::update($data, $context);
