@@ -26,6 +26,7 @@ global $CFG;
 
 // General strings.
 $string['accept'] = 'Accept';
+$string['aftersubmitaction'] = 'After saving...';
 $string['age'] = 'Age';
 $string['allowupdatedays'] = 'Days before reference date';
 $string['areyousure:book'] = 'Click again to confirm booking';
@@ -1098,8 +1099,8 @@ Go to course: {$a->courselink}
 See all booking options: {$a->bookinglink}';
 $string['sendmailtobooker'] = 'Book other users page: Send mail to user who books instead to users who are booked';
 $string['sendmailtobooker_help'] = 'Activate this option in order to send booking confirmation mails to the user who books other users instead to users, who have been added to a booking option. This is only relevant for bookings made on the page "book other users".';
-$string['submitandadd'] = 'Save and add new';
-$string['submitandstay'] = 'Save and stay';
+$string['submitandadd'] = 'Add a new booking option';
+$string['submitandstay'] = 'Stay here';
 $string['waitinglisttaken'] = 'On the waiting list';
 $string['groupexists'] = 'The group already exists in the target course, please choose another name for the booking option';
 $string['groupdeleted'] = 'This booking instance creates groups automatically in the target course. But the group has been manually deleted in the target course. Activate the following checkbox in order to recreate the group';
@@ -1120,7 +1121,7 @@ $string['toggleformmode_expert'] = '<i class="fa fa-expand" aria-hidden="true"><
 
 // Option_form.php.
 $string['bookingoptionimage'] = 'Upload an image';
-$string['submitandgoback'] = 'Save and go back';
+$string['submitandgoback'] = 'Close this form';
 $string['bookingoptionprice'] = 'Price';
 
 // We removed this, but keep it for now as we might need these strings again.

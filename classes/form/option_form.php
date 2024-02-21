@@ -37,6 +37,7 @@ require_once("$CFG->libdir/formslib.php");
 
 use mod_booking\booking_option;
 use mod_booking\option\fields_info;
+use mod_booking\singleton_service;
 use moodle_exception;
 use moodle_url;
 use required_capability_exception;
@@ -117,28 +118,7 @@ class option_form extends dynamic_form {
             }
         }
 
-        // NOTE: The second and third button (submitandadd, submitandstay) unfortunately do not work with new option form.
-        $this->add_action_buttons(true, get_string('submitandgoback', 'mod_booking'));
-
-        // Let's keep the code, in case we find a way to get it working again.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $buttonarray = [];
-        $buttonarray[] = &$mform->createElement('submit', 'submitbutton',
-            get_string('submitandgoback', 'mod_booking'),
-            ['data-action' => 'submitandgoback']);
-        $mform->setType('submitbutton', PARAM_RAW);
-
-        $buttonarray[] = &$mform->createElement('cancel', 'cancelbutton', get_string('cancel'));
-        $mform->addGroup($buttonarray, 'submitbuttongroup', '', '', false);
-
-        // Buttons.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        $buttonarray[] = &$mform->createElement("submit", 'submitandadd',
-                get_string('submitandadd', 'mod_booking'));
-        $buttonarray[] = &$mform->createElement("submit", 'submitandstay',
-            get_string('submitandstay', 'mod_booking'));
-
-        $mform->closeHeaderBefore('submitbuttongroup'); */
+        $this->add_action_buttons(true, get_string('save'));
     }
 
     /**
