@@ -108,6 +108,10 @@ class template extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
+        if (!empty($formdata['id'])) {
+            return;
+        }
+
         global $DB;
 
         // Option templates.
@@ -152,6 +156,10 @@ class template extends field_base {
      * @throws dml_exception
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
+
+        if (!empty($data->id)) {
+            return;
+        }
 
         if (isset($data->btn_changetemplate)
             || !empty($data->copyoptionid)) {
@@ -204,6 +212,10 @@ class template extends field_base {
      * @throws coding_exception
      */
     public static function definition_after_data(MoodleQuickForm &$mform, $formdata) {
+
+        if (!empty($formdata->id)) {
+            return;
+        }
 
         $values = $mform->_defaultValues;
         $formdata = $values;

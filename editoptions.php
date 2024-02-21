@@ -108,11 +108,13 @@ $form->set_data_for_dynamic_submission();
 
 echo $OUTPUT->header();
 
-$settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-echo html_writer::div(
-    get_string('youareediting', 'mod_booking', $settings->get_title_with_prefix()),
-    'alert alert-info editoption-youareediting-alert'
-);
+if (!empty($optionid)) {
+    $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+    echo html_writer::div(
+        get_string('youareediting', 'mod_booking', $settings->get_title_with_prefix()),
+        'alert alert-info editoption-youareediting-alert'
+    );
+}
 
 // Render the form in a specific container, there should be nothing else in the same container.
 echo html_writer::div($form->render(), '', ['id' => 'editoptionsformcontainer']);
