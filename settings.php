@@ -136,7 +136,7 @@ if ($ADMIN->fulltree) {
             900 => "900",
         ];
         $settings->add(
-            new admin_setting_configselect('mod_booking/collapsedescriptionmaxlength',
+            new admin_setting_configselect('booking/collapsedescriptionmaxlength',
                 get_string('collapsedescriptionmaxlength', 'mod_booking'),
                 get_string('collapsedescriptionmaxlength_desc', 'mod_booking'),
                 300, $collapsedescriptionoptions));
