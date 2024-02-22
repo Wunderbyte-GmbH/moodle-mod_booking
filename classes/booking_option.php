@@ -45,6 +45,7 @@ use mod_booking\booking_utils;
 use mod_booking\calendar;
 use mod_booking\teachers_handler;
 use mod_booking\customfield\booking_handler;
+use mod_booking\event\booking_afteractionsfailed;
 use mod_booking\event\bookinganswer_cancelled;
 use mod_booking\message_controller;
 use mod_booking\option\fields_info;
@@ -959,6 +960,8 @@ class booking_option {
             $addedtocart = false,
             $verified = MOD_BOOKING_UNVERIFIED) {
 
+        global $USER;
+
         // First check, we only accept verified submissions.
         // This function always needs to be called with the verified param.
         if (!$verified) {
@@ -1050,7 +1053,29 @@ class booking_option {
         // Important: Purge caches after submitting a new user.
         self::purge_cache_for_answers($this->optionid);
 
-        return $this->after_successful_booking_routine($user, $waitinglist);
+        // To avoid a problem with the payment process, we catch any error that might occur.
+        try {
+            $this->after_successful_booking_routine($user, $waitinglist);
+            return true;
+        } catch (Exception $e) {
+            // We do not want this to fail if there was an exception.
+            // So we still return true.
+
+            $message = $e->getMessage();
+            // Log cancellation of user.
+            $event = booking_afteractionsfailed::create([
+                'objectid' => $this->optionid,
+                'context' => \context_module::instance($this->cmid),
+                'userid' => $USER->id, // The user triggered the action.
+                'relateduserid' => $user->id, // Affected user - the user for whom the booking failed..
+                'other' => [
+                    'error' => $message,
+                ],
+            ]);
+            $event->trigger(); // This will trigger the observer function.
+
+            return true;
+        }
     }
 
     /**
@@ -1113,7 +1138,7 @@ class booking_option {
      */
     public function user_confirm_response(stdClass $user): bool {
 
-        global $DB;
+        global $DB, $USER;
 
         $ba = singleton_service::get_instance_of_booking_answers($this->settings);
 
@@ -1161,7 +1186,20 @@ class booking_option {
             } catch (Exception $e) {
                 // We do not want this to fail if there was an exception.
                 // So we still return true.
-                // TODO: We need a debugging message here or a better strategy.
+
+                $message = $e->getMessage();
+                // Log cancellation of user.
+                $event = booking_afteractionsfailed::create([
+                    'objectid' => $this->optionid,
+                    'context' => \context_module::instance($this->cmid),
+                    'userid' => $USER->id, // The user triggered the action.
+                    'relateduserid' => $user->id, // Affected user - the user for whom the booking failed..
+                    'other' => [
+                        'error' => $message,
+                    ],
+                ]);
+                $event->trigger(); // This will trigger the observer function.
+
                 return true;
             }
         } else {
