@@ -1,3 +1,21 @@
+## Version 8.1.21 (2024022200)
+* New feature: Add new possibility to create new option or stay in edit option form after submit.
+* Improvement: Show sub-entities and location from entity in sign-in-sheet.
+* Improvement: Show signin sheet download button and area at more prominent place.
+* Improvement: Get name for filter and address from entity manager.
+* Improvement: Show an info alert in option form with option title, so we always know which option we edit.
+* Improvement: Make sure we can only fill new options with template data, so existing options won't get overwritten.
+* Improvement: Add Event to see if and possibly why afteractions failed.
+* Improvement: Add Event to see if and possibly why afteractions failed
+* Bugfix: For config settings, we always use 'booking' as plugin string.
+* Bugfix: Add missing logic to addtocalendar field, so course calendar events will be created and deleted when saving form.
+* Bugfix: For plugin settings, we use 'booking' not 'mod_booking'.
+* Bugfix: If maxanswers are 0 the option is unlimited, so is_fully_booked has to always return false in this case.
+* Bugfix: Don't override address & location if entities exist.
+* Bugfix: Fix Webservice importer (bookingopening & closingtime etc).
+* Bugfix: Remove broken mobile app support.
+* Bugfix: Fix behat (button "Save and go back" was renamed to "Save").
+
 ## Version 8.1.20 (2024021900)
 * Improvement: priceisalwayson setting will always block booking now.
 * Improvement: Slightly better caching policy.
