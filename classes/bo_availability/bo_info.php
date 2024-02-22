@@ -132,6 +132,11 @@ class bo_info {
             foreach ($results as $result) {
                 // If no Id has been defined or if id is higher, we take the descpription to return.
                 if ($id === 0 || $result['id'] > $id) {
+                    if ($result['id'] == MOD_BOOKING_BO_COND_NOTIFYMELIST) {
+                        // Notifyme list itself is no valid reason for is_available.
+                        // Instead, we want to know if it's fully booked for example.
+                        continue;
+                    }
                     if (has_capability('local/shopping_cart:cashier', context_system::instance()) &&
                         $result['button'] == MOD_BOOKING_BO_BUTTON_MYALERT) {
                         continue;

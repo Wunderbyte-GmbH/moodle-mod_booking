@@ -408,21 +408,36 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
         if ($area == "option") {
 
+            booking_option::purge_cache_for_answers($itemid);
+
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
 
-            $ba = singleton_service::get_instance_of_booking_answers($settings);
+            $boinfo = new bo_info($settings);
+            // There are two cases where we can actually book.
+            // We call thefunction with hadblock set to true.
+            // This means that we only get those blocks that actually should prevent booking.
+            list($id, $isavailable, $description) = $boinfo->is_available($itemid, $userid, true);
 
-            // If the user is in principle allowed to overbook...
-            // ... AND the overbook setting is set in the instance, overbooking is possible.
-
-            if ($ba->user_status($userid) > MOD_BOOKING_STATUSPARAM_RESERVED && $ba->is_fully_booked()) {
-                if (empty(get_config('booking', 'allowoverbooking'))
-                || !has_capability('mod/booking:canoverbook', context_system::instance())) {
-                    return [
-                        'allow' => false,
-                        'info' => 'fullybooked',
-                        'itemname' => $settings->get_title_with_prefix() ?? '',
-                    ];
+            if ($id > 1 && $id != MOD_BOOKING_BO_COND_PRICEISSET) {
+                switch($id) {
+                    case MOD_BOOKING_BO_COND_FULLYBOOKED:
+                        return [
+                            'allow' => false,
+                            'info' => 'fullybooked',
+                            'itemname' => $settings->get_title_with_prefix() ?? '',
+                        ];
+                    case MOD_BOOKING_BO_COND_ALREADYBOOKED:
+                        return [
+                            'allow' => false,
+                            'info' => 'alreadybooked',
+                            'itemname' => $settings->get_title_with_prefix() ?? '',
+                        ];
+                    default:
+                        return [
+                            'allow' => false,
+                            'info' => 'cannotbebooked',
+                            'itemname' => $settings->get_title_with_prefix() ?? '',
+                        ];
                 }
             }
 
