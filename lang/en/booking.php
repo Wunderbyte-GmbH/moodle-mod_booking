@@ -1717,6 +1717,37 @@ $string['units_unknown'] = 'Number of units unknown';
 $string['missinghours'] = 'Missing hours';
 $string['substitutions'] = 'Substitution(s)';
 
+// Optionformconfig.php / optionformconfig_form.php.
+$string['optionformconfig'] = 'Booking: Configure booking option form';
+$string['optionformconfigsaved'] = 'Configuration for the booking option form saved.';
+$string['optionformconfigsubtitle'] = '<p>Turn off features you do not need, in order to make the booking option form more compact for your administrators.</p>
+<p><strong>BE CAREFUL:</strong> Only deactivate fields if you are completely sure that you won\'t need them!</p>';
+$string['optionformconfig:nobooking'] = 'You need to create at least one booking instance before you can use this form!';
+
+$string['prepare_import'] = "Bereite den Import vor";
+$string['id'] = "Id";
+$string['json'] = "Sammelfeld für zum Speichern von Informationen";
+$string['returnurl'] = "Adresse für Rückkehr";
+$string['template'] = 'Vorlagen';
+$string['text'] = 'Titel';
+$string['identifier'] = 'Identifikator';
+$string['easy_text'] = 'Einfacher, nicht veränderbarer Text';
+$string['easy_bookingopeningtime'] = 'Einfache Buchungsstartzeit';
+$string['easy_bookingclosingtime'] = 'Einfache Buchungsendzeit';
+$string['easy_availability_selectusers'] = 'Einfache NutzerInnen Voraussetzung';
+$string['easy_availability_previouslybooked'] = 'Einfache bereits gebuchte Voraussetzung';
+$string['invisible'] = 'Unsichtbar';
+$string['annotation'] = 'Interne Anmerkung';
+$string['courseid'] = 'Kurs, in den eingeschrieben wird';
+$string['entities'] = 'Orte mit Entities Plugin auswählen';
+$string['optiondates'] = 'Termine';
+$string['actions'] = 'Buchungsaktionen';
+$string['attachment'] = 'Angehängte Dateien';
+$string['howmanyusers'] = 'Beschränkungen';
+$string['recurringoptions'] = 'Wiederkehrende Optionen';
+$string['bookusers'] = 'Feld für den Import, um NutzerInnen zu buchen';
+$string['timemodified'] = 'Bearbeitungszeit';
+
 // Tasks.
 $string['task_adhoc_reset_optiondates_for_semester'] = 'Adhoc task: Reset and generate new optiondates for semester';
 $string['task_remove_activity_completion'] = 'Booking: Remove activity completion';
