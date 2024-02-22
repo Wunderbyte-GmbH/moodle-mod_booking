@@ -49,7 +49,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     And I set the field "On saving, calculate prices with price formula" to "checked"
     And I set the field "Manual factor" to "2"
     And I set the field "Absolute value" to "5"
-    And I press "Save and go back"
+    And I press "Save"
     Then I should see "285.00 EUR" in the ".allbookingoptionstable_r2 .pricecurrency" "css_element"
 
   @javascript
@@ -69,7 +69,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     And I set the field "On saving, calculate prices with price formula" to "checked"
     And I set the field "Manual factor" to "2"
     And I set the field "Absolute value" to "5"
-    And I press "Save and go back"
+    And I press "Save"
     Then I should see "145.00 EUR" in the ".allbookingoptionstable_r1 .pricecurrency" "css_element"
 
   @javascript
@@ -91,7 +91,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     And I set the field "On saving, calculate prices with price formula" to "checked"
     And I set the field "Manual factor" to "3"
     And I set the field "Absolute value" to "5"
-    And I press "Save and go back"
+    And I press "Save"
     Then I should see "215.00 EUR" in the ".allbookingoptionstable_r2 .pricecurrency" "css_element"
 
   @javascript
@@ -113,7 +113,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     And I set the field "On saving, calculate prices with price formula" to "checked"
     And I set the field "Manual factor" to "3"
     And I set the field "Absolute value" to "5"
-    And I press "Save and go back"
+    And I press "Save"
     And I wait until the page is ready
     Then I should see "425.60 EUR" in the ".allbookingoptionstable_r2 .pricecurrency" "css_element"
 

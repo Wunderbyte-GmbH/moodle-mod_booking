@@ -44,7 +44,7 @@ Feature: Test booking options avaialbility conditions
       | bookingclosingtime[day]   | 10                 |
       | bookingclosingtime[month] | May                |
       | bookingclosingtime[year]  | ## - 1 year ##%Y## |
-    And I press "Save and go back"
+    And I press "Save"
     And I wait until the page is ready
     And I should see "Cannot be booked anymore" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "May 10" in the ".allbookingoptionstable_r2" "css_element"
@@ -65,7 +65,7 @@ Feature: Test booking options avaialbility conditions
       | bookingclosingtime[day]   | 10                 |
       | bookingclosingtime[month] | May                |
       | bookingclosingtime[year]  | ## + 1 year ##%Y## |
-    And I press "Save and go back"
+    And I press "Save"
     ## Verify availability as a student
     When I am on the "My booking" Activity page logged in as student1
     Then I should see "Book now" in the ".allbookingoptionstable_r2" "css_element"
@@ -83,7 +83,7 @@ Feature: Test booking options avaialbility conditions
       | bookingopeningtime[day]   | ##yesterday##%d## |
       | bookingopeningtime[month] | ##yesterday##%B## |
       | bookingopeningtime[year]  | ##yesterday##%Y## |
-    And I press "Save and go back"
+    And I press "Save"
     ## Verify availability as a student
     When I am on the "My booking" Activity page logged in as student1
     Then I should see "Book now" in the ".allbookingoptionstable_r2" "css_element"
@@ -99,7 +99,7 @@ Feature: Test booking options avaialbility conditions
       | bookingopeningtime[day]    | 10                 |
       | bookingopeningtime[month]  | March              |
       | bookingopeningtime[year]   | ## + 1 year ##%Y## |
-    And I press "Save and go back"
+    And I press "Save"
     And I wait until the page is ready
     And I should see "Can be booked from" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "March 10" in the ".allbookingoptionstable_r2" "css_element"
@@ -119,7 +119,7 @@ Feature: Test booking options avaialbility conditions
     And I wait "1" seconds
     And I set the field "Must be already booked" to "Option - dependency"
     And I wait "1" seconds
-    And I press "Save and go back"
+    And I press "Save"
     ## Verify availability as a student
     When I am on the "My booking" Activity page logged in as student1
     Then I should see "Only users who have previously booked" in the ".allbookingoptionstable_r1" "css_element"
@@ -144,7 +144,7 @@ Feature: Test booking options avaialbility conditions
       | bo_cond_userprofilefield_field    | Email address   |
       | bo_cond_userprofilefield_operator | contains (text) |
       | bo_cond_userprofilefield_value    | gmail.com       |
-    And I press "Save and go back"
+    And I press "Save"
     And I wait until the page is ready
     And I should see "Only users with user profile field email set to value gmail.com are allowed to book." in the ".allbookingoptionstable_r3" "css_element"
     ## Verify availability as a student
@@ -162,7 +162,7 @@ Feature: Test booking options avaialbility conditions
       | bo_cond_userprofilefield_field    | Email address   |
       | bo_cond_userprofilefield_operator | contains (text) |
       | bo_cond_userprofilefield_value    | example1.com    |
-    And I press "Save and go back"
+    And I press "Save"
     ## Verify availability as a student
     Given I am on the "My booking" Activity page logged in as student1
     Then I should not see "Not allowed to book" in the ".allbookingoptionstable_r3" "css_element"
@@ -176,7 +176,7 @@ Feature: Test booking options avaialbility conditions
     And I follow "Availability conditions"
     And I set the field "Only specific user(s) are allowed to book" to "checked"
     And I set the field "User(s) allowed to book" to "Student 2"
-    And I press "Save and go back"
+    And I press "Save"
     And I wait until the page is ready
     Then I should see "Only the following users are allowed to book:" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Student 2" in the ".allbookingoptionstable_r3" "css_element"
@@ -193,7 +193,7 @@ Feature: Test booking options avaialbility conditions
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
     And I set the field "Max. number of participants" to "1"
-    And I press "Save and go back"
+    And I press "Save"
     ## Check availability as students
     Given I am on the "My booking" Activity page logged in as student1
     Then I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
@@ -214,7 +214,7 @@ Feature: Test booking options avaialbility conditions
       | Max. number of participants           | 2 |
       | Max. number of places on waiting list | 1 |
       | Min. number of participants           | 1 |
-    And I press "Save and go back"
+    And I press "Save"
     And I wait until the page is ready
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r3" "css_element"
@@ -240,7 +240,7 @@ Feature: Test booking options avaialbility conditions
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
     And I set the field "Max. number of participants" to "1"
-    And I press "Save and go back"
+    And I press "Save"
     And I wait until the page is ready
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r3" "css_element"
@@ -273,7 +273,7 @@ Feature: Test booking options avaialbility conditions
     And I wait "1" seconds
     And I set the field "User has previously booked a certain option" to "checked"
     And I set the field "Must be already booked" to "Option - dependency"
-    And I press "Save and go back"
+    And I press "Save"
     When I am on the "My booking" Activity page logged in as student1
     Then I should see "Can be booked from" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Book now" in the ".allbookingoptionstable_r1" "css_element"
@@ -293,7 +293,7 @@ Feature: Test booking options avaialbility conditions
     And I wait "1" seconds
     ## And I set the field "Condition" to "Only bookable within a certain time"
     And I set the field with xpath "//*[contains(@id, 'fitem_id_bo_cond_previouslybooked_overridecondition')]//*[contains(@id, 'form_autocomplete_input')]" to "Only bookable within a certain time"
-    And I press "Save and go back"
+    And I press "Save"
     When I am on the "My booking" Activity page logged in as student1
     Then I should see "Booked" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
@@ -318,7 +318,7 @@ Feature: Test booking options avaialbility conditions
     And I set the field "bo_cond_selectusers_overrideconditioncheckbox" to "checked"
     And I set the field "bo_cond_selectusers_overrideoperator" to "OR"
     And I set the field with xpath "//*[contains(@id, 'fitem_id_bo_cond_selectusers_overridecondition')]//*[contains(@id, 'form_autocomplete_input')]" to "Fully booked"
-    And I press "Save and go back"
+    And I press "Save"
     And I wait until the page is ready
     And I should see "Fully booked" in the ".allbookingoptionstable_r3" "css_element"
     ## Check availability as student2
@@ -336,7 +336,7 @@ Feature: Test booking options avaialbility conditions
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I set the field "Visibility" to "Hide from normal users (visible to entitled users only)"
-    And I press "Save and go back"
+    And I press "Save"
     And I wait until the page is ready
     And I should see "Invisible" in the ".allbookingoptionstable_r1" "css_element"
     And I am on the "My booking" Activity page logged in as student1
@@ -354,7 +354,7 @@ Feature: Test booking options avaialbility conditions
     And I set the following fields to these values:
       | bo_cond_customform_value_1_1 | Confirm your intention |
       | bo_cond_customform_label_1_2 | Yes                    |
-    And I press "Save and go back"
+    And I press "Save"
     ## Check availability as students
     Given I am on the "My booking" Activity page logged in as student1
     Then I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
@@ -380,7 +380,7 @@ Feature: Test booking options avaialbility conditions
     And I set the following fields to these values:
       | bo_cond_customform_value_1_1 | Confirm your intention |
       | bo_cond_customform_label_1_2 | Yes                    |
-    And I press "Save and go back"
+    And I press "Save"
     ## Check availability as students
     Given I am on the "My booking" Activity page logged in as student1
     Then I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"

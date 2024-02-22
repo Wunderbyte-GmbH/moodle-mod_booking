@@ -72,7 +72,7 @@ Feature: In a booking create multi session options
     And I should see "20 June" in the "#booking_optiondate_2" "css_element"
     And I should see "## + 2 year ##%Y##" in the "#booking_optiondate_2" "css_element"
     And I should see "2:00 PM - 5:00 PM" in the "#booking_optiondate_2" "css_element"
-    And I press "Save and go back"
+    And I press "Save"
     ## Verify on booking oprions list page
     And I wait until the page is ready
     Then I should see "15 March" in the ".allbookingoptionstable_r1" "css_element"

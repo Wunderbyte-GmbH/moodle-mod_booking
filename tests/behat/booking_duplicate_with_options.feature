@@ -42,7 +42,7 @@ Feature: In a booking create booking option with multiple custom options
     And I click on "Duplicate this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I set the following fields to these values:
       | Booking option name | Test option - Copy1 |
-    And I press "Save and go back"
+    And I press "Save"
     ##And I wait until the page is ready
     Then I should see "Test option - Copy1" in the ".allbookingoptionstable_r2" "css_element"
 
@@ -86,7 +86,7 @@ Feature: In a booking create booking option with multiple custom options
       | Notification message                               | Advanced notification message |
       | Before booked                                      | Before booked message         |
       | After booked                                       | After booked message          |
-    And I press "Save and go back"
+    And I press "Save"
     ## And I wait until the page is ready - does not work, force timeout
     And I wait "1" seconds
     ## Create a copy
@@ -94,7 +94,7 @@ Feature: In a booking create booking option with multiple custom options
     When I click on "Duplicate this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I wait until the page is ready
     And I set the field "Booking option name" to "Topic: Statistics - Copy 1"
-    And I press "Save and go back"
+    And I press "Save"
     ## And I wait until the page is ready - does not work, force timeout
     And I wait "1" seconds
     ## Verify copy and its options

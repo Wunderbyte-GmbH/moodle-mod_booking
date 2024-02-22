@@ -48,7 +48,7 @@ Feature: In a booking create a template
     ## Set as template
     And I follow "Add as template"
     And I set the field "addastemplate" to "Use as global template"
-    And I press "Save and go back"
+    And I press "Save"
     And I wait until the page is ready
     ## Required to avoid erros like "invalid session id" on the step next to "New option"
     And I wait "1" seconds
@@ -57,5 +57,5 @@ Feature: In a booking create a template
     And I wait until the page is ready
     And I set the field "optiontemplateid" to "New option - by template"
     And I wait "1" seconds
-    And I press "Save and go back"
+    And I press "Save"
     Then I should see "New option - by template"

@@ -58,7 +58,7 @@ Feature: In a booking instance create booking options
       | courseendtime_1[year]   | ## + 1 year ## %Y ## |
       | courseendtime_1[hour]   | 00                   |
       | courseendtime_1[minute] | 00                   |
-    And I press "Save and go back"
+    And I press "Save"
     And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     When I am on the "My booking" Activity page logged in as student1
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
