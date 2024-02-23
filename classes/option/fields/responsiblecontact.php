@@ -157,7 +157,9 @@ class responsiblecontact extends field_base {
             }
         } else {
             if (!empty($data->responsiblecontact)) {
-                $userids = teachers_handler::get_user_ids_from_string($data->responsiblecontact);
+                // We set throwerror to true...
+                // ... because on importing, we want it to fail, if teacher is not found.
+                $userids = teachers_handler::get_user_ids_from_string($data->responsiblecontact, true);
                 $data->responsiblecontact = $userids[0] ?? [];
             } else {
                 $data->responsiblecontact = $settings->responsiblecontact ?? [];

@@ -531,17 +531,18 @@ class teachers_handler {
     /**
      * Get teacher ids.
      * @param stdClass $data
+     * @param bool $throwerror If not finding the email should throw an error.
      * @return array|void
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function get_teacherids_from_form(stdClass $data) {
+    public static function get_teacherids_from_form(stdClass $data, $throwerror = false) {
 
         global $DB;
 
         if (isset($data->teacheremail)) {
 
-            return self::get_user_ids_from_string($data->teacheremail);
+            return self::get_user_ids_from_string($data->teacheremail, $throwerror);
         }
     }
 
@@ -550,9 +551,10 @@ class teachers_handler {
      *
      * @param mixed $userstring
      * @param bool $email // if false, it's usernames, not usermails.
+     * @param bool $throwerror If not finding the email should throw an error.
      * @return array
      */
-    public static function get_user_ids_from_string($userstring, $email = true) {
+    public static function get_user_ids_from_string($userstring, $email = true, $throwerror = false) {
 
         global $DB;
 
@@ -576,6 +578,15 @@ class teachers_handler {
         ";
 
         $teacherids = $DB->get_fieldset_sql($sql, $params);
+
+        if ($throwerror && (count($teacherids) != count($teacheremails))) {
+            throw new moodle_exception(
+                'userswerenotfound',
+                'mod_booking',
+                '',
+                $teacheremails,
+                'The following users were not found ' . json_encode($teacheremails));
+        }
 
         return $teacherids;
     }

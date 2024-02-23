@@ -129,8 +129,11 @@ class teachers extends field_base {
         } else {
 
             // This Logic is linked to the webservice importer functionality.
-            // If we are currently importing, we check the mergeparam, we might want to add teachers instead of replacing them.
-            $teacherids = teachers_handler::get_teacherids_from_form($data);
+            // If we are currently importing, we check the mergeparam.
+            // We might want to add teachers instead of replacing them.
+            // We set throwerror to true...
+            // ... because on importing, we want it to fail, if teacher is not found.
+            $teacherids = teachers_handler::get_teacherids_from_form($data, true);
 
             if (!empty($data->importing)
                 && (!empty($data->mergeparam))) {

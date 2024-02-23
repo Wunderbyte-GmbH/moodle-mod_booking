@@ -28,6 +28,7 @@ use core_course_external;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use moodle_exception;
 use MoodleQuickForm;
 use stdClass;
 
@@ -227,6 +228,13 @@ class courseid extends field_base {
                 if ($courseid = $DB->get_field('course', 'id', ['shortname' => $data->enroltocourseshortname])) {
                     $data->courseid = $courseid;
                     unset($data->enroltocourseshortname);
+                } else {
+                    throw new moodle_exception(
+                        'courseshortnamenotfound',
+                        'mod_booking',
+                        '',
+                        $data->enroltocourseshortname,
+                        'Course not found: ' . $data->enroltocourseshortname);
                 }
 
             }
