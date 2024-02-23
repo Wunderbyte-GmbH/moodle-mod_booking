@@ -1,3 +1,6 @@
+## Version 8.1.22 (2024022300)
+* Bugfix: Fix allow_add_item_to_cart => do not block is_available anymore with notifyme-list.
+
 ## Version 8.1.21 (2024022200)
 * New feature: Add new possibility to create new option or stay in edit option form after submit.
 * Improvement: Show sub-entities and location from entity in sign-in-sheet.
