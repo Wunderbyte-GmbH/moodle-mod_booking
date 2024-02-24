@@ -78,7 +78,12 @@ class availability extends field_base {
      * This is an array of incompatible field ids.
      * @var array
      */
-    public static $incompatiblefields = [];
+    public static $incompatiblefields = [
+        MOD_BOOKING_OPTION_FIELD_EASY_BOOKINGCLOSINGTIME,
+        MOD_BOOKING_OPTION_FIELD_EASY_BOOKINGOPENINGTIME,
+        MOD_BOOKING_OPTION_FIELD_EASY_AVAILABILITY_PREVIOUSLYBOOKED,
+        MOD_BOOKING_OPTION_FIELD_EASY_AVAILABILITY_SELECTUSERS,
+    ];
 
     /**
      * This function interprets the value from the form and, if useful...
