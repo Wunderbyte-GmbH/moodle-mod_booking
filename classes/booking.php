@@ -1075,10 +1075,12 @@ class booking {
                 $where .= " AND ( ";
                 $orstring = [];
 
+                // TODO: This could be replaced with in or equal, but not sure of if its worth it.
                 foreach ($value as $arrayvalue) {
 
-                    if (gettype($arrayvalue) == 'integer') {
-                        $orstring[] = " $key = $arrayvalue ";
+                    if (is_numeric($arrayvalue)) {
+                        $number = (float)$arrayvalue;
+                        $orstring[] = " $key = $number ";
                     } else {
                         // Be sure to have a lower key string.
                         $paramsvaluekey = "param";
