@@ -418,7 +418,13 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             // This means that we only get those blocks that actually should prevent booking.
             list($id, $isavailable, $description) = $boinfo->is_available($itemid, $userid, true);
 
-            if ($id > 1 && $id != MOD_BOOKING_BO_COND_PRICEISSET) {
+            // These conditions are allowed, so we need a check.
+            $allowedconditions = [
+                MOD_BOOKING_BO_COND_PRICEISSET,
+                MOD_BOOKING_BO_COND_ALREADYRESERVED,
+            ];
+
+            if ($id > 1 && !in_array($id, $allowedconditions)) {
                 switch($id) {
                     case MOD_BOOKING_BO_COND_FULLYBOOKED:
                         return [
@@ -439,14 +445,6 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                             'itemname' => $settings->get_title_with_prefix() ?? '',
                         ];
                 }
-            }
-
-            if (!booking_option::has_price_set($itemid, $userid)) {
-                return [
-                    'allow' => true,
-                    'info' => 'nopriceisset',
-                    'itemname' => $settings->get_title_with_prefix() ?? '',
-                ];
             }
 
             $user = singleton_service::get_instance_of_user($userid);
