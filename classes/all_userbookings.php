@@ -336,13 +336,14 @@ class all_userbookings extends \table_sql {
         if (!$this->bookingdata->booking->settings->autoenrol &&
                  has_capability('mod/booking:communicate', \context_module::instance($this->cm->id)) &&
                  $this->bookingdata->option->courseid > 0) {
-            echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="subscribetocourse" value="' .
-             get_string('subscribetocourse', 'booking') . '" /></div>';
+            echo '<div class="singlebutton">' .
+                '<input type="submit" class="btn btn-secondary btn-sm" name="subscribetocourse" value="' .
+                get_string('subscribetocourse', 'booking') . '" /></div>';
         }
 
         if (has_capability('mod/booking:deleteresponses', \context_module::instance($this->cm->id))) {
-            echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="deleteusers" value="' .
-                     get_string('booking:deleteresponses', 'booking') . '" /></div>';
+            echo '<div class="singlebutton"><input type="submit" class="btn btn-danger btn-sm" name="deleteusers" value="' .
+                get_string('booking:deleteresponses', 'booking') . '" /></div>';
             if ($this->bookingdata->booking->settings->completionmodule > 0) {
                 $result = $DB->get_record_sql(
                     'SELECT cm.id, cm.course, cm.module, cm.instance, m.name
@@ -352,7 +353,7 @@ class all_userbookings extends \table_sql {
                     $dynamicactivitymodulesdata = $DB->get_record($result->name,
                         ['id' => $result->instance]);
                     echo '<div class="singlebutton">' .
-                        '<input type="submit" class="btn btn-secondary" name="deleteusersactivitycompletion" value="' .
+                        '<input type="submit" class="btn btn-danger btn-sm" name="deleteusersactivitycompletion" value="' .
                         get_string('deleteresponsesactivitycompletion', 'booking',
                             $dynamicactivitymodulesdata->name) . '" /></div>';
                 }
@@ -366,12 +367,12 @@ class all_userbookings extends \table_sql {
                 $pollurl = trim($this->bookingdata->option->pollurl);
             }
             if (!empty($pollurl)) {
-                echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="sendpollurl" value="' .
+                echo '<div class="singlebutton"><input type="submit" class="btn btn-primary btn-sm" name="sendpollurl" value="' .
                          get_string('booking:sendpollurl', 'booking') . '" /></div>';
             }
-            echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="sendreminderemail" value="' .
+            echo '<div class="singlebutton"><input type="submit" class="btn btn-primary btn-sm" name="sendreminderemail" value="' .
                      get_string('sendreminderemail', 'booking') . '" /></div>';
-            echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="sendcustommsg" value="' .
+            echo '<div class="singlebutton"><input type="submit" class="btn btn-primary btn-sm" name="sendcustommsg" value="' .
                      get_string('sendcustommsg', 'booking') . '" /></div>';
         }
 
@@ -380,7 +381,8 @@ class all_userbookings extends \table_sql {
                         \context_module::instance($this->cm->id))) {
                             $course = $DB->get_record('course', ['id' => $this->bookingdata->booking->settings->course]);
             if (strpos($this->bookingdata->booking->settings->responsesfields, 'completed') !== false) {
-                echo '<div class="singlebutton"><input type="submit"  class="btn btn-secondary" name="activitycompletion" value="' .
+                echo '<div class="singlebutton">' .
+                '<input type="submit"  class="btn btn-success btn-sm" name="activitycompletion" value="' .
                 (empty($this->bookingdata->booking->settings->btncacname) ? get_string(
                 'confirmoptioncompletion', 'booking') : $this->bookingdata->booking->settings->btncacname) .
                 '" /></div>';
@@ -391,7 +393,7 @@ class all_userbookings extends \table_sql {
                      $this->bookingdata->booking->settings->assessed != 0) {
                 $ratingbutton = '<div class="singlebutton">' . html_writer::start_tag('span', ['class' => "ratingsubmit"]);
                 $attributes = ['type' => 'submit',
-                    'class' => 'postratingmenusubmit btn btn-secondary',
+                    'class' => 'postratingmenusubmit btn btn-secondary btn-sm',
                     'id' => 'postratingsubmit',
                     'name' => 'postratingsubmit',
                     'value' => s(get_string('rate', 'rating')),
@@ -433,7 +435,7 @@ class all_userbookings extends \table_sql {
                     echo \html_writer::div(get_string('transferheading', 'mod_booking'));
                     echo $dropdown = \html_writer::select($transferto, 'transferoption');
                     $attributes = ['type' => 'submit',
-                        'class' => 'transfersubmit btn btn-secondary',
+                        'class' => 'transfersubmit btn btn-secondary btn-sm',
                         'id' => 'transfersubmit',
                         'name' => 'transfersubmit',
                         'value' => s(get_string('transfer', 'mod_booking')),
@@ -445,9 +447,10 @@ class all_userbookings extends \table_sql {
             }
 
             if ($this->bookingdata->booking->settings->numgenerator) {
-                echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="generaterecnum" value="' .
-                         get_string('generaterecnum', 'booking') . '" onclick="return confirm(\'' .
-                         get_string('generaterecnumareyousure', 'booking') . '\')"/></div>';
+                echo '<div class="singlebutton">' .
+                    '<input type="submit" class="btn btn-secondary btn-sm" name="generaterecnum" value="' .
+                    get_string('generaterecnum', 'booking') . '" onclick="return confirm(\'' .
+                    get_string('generaterecnumareyousure', 'booking') . '\')"/></div>';
             }
 
             $connectedbooking = $DB->get_record("booking",
@@ -483,7 +486,7 @@ class all_userbookings extends \table_sql {
                             'booktootherbooking', 'booking') : $this->bookingdata->booking->settings->booktootherbooking);
 
                     echo '<div class="singlebutton">' .
-                        '<input type="submit" class="btn btn-secondary" name="booktootherbooking" value="' .
+                        '<input type="submit" class="btn btn-secondary btn-sm" name="booktootherbooking" value="' .
                              $label . '" /></div>';
                 } else {
                     $alllimits = $DB->get_records_sql(
@@ -509,8 +512,8 @@ class all_userbookings extends \table_sql {
                                 'booktootherbooking', 'booking') : $this->bookingdata->booking->settings->booktootherbooking);
 
                         echo '<div class="singlebutton">' .
-                            '<input type="submit" class="btn btn-secondary" name="booktootherbooking" value="' .
-                                 $label . '" /></div>';
+                            '<input type="submit" class="btn btn-warning btn-sm" name="booktootherbooking" value="' .
+                            $label . '" /></div>';
                     }
                 }
             }
@@ -530,8 +533,8 @@ class all_userbookings extends \table_sql {
                 echo html_writer::select($presences, 'selectpresencestatus', '');
 
                 echo '<div class="singlebutton">' .
-                    '<input type="submit" class="btn btn-secondary" name="changepresencestatus" value="' .
-                         get_string('confirmpresence', 'booking') . '" /></div>';
+                    '<input type="submit" class="btn btn-success btn-sm" name="changepresencestatus" value="' .
+                    get_string('confirmpresence', 'booking') . '" /></div>';
             }
         }
 

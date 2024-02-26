@@ -371,6 +371,10 @@ if there only was one booking option. */
     width: max-content;
 }
 
+#page-mod-booking-report #studentsform table {
+    margin-bottom: 15px;
+}
+
 .prepage-booking-page {
     margin-top: 30px;
     margin-bottom: 30px;
