@@ -293,7 +293,7 @@ $string['scgfselectgroups'] = 'Select group(s)';
 
 // Bookingform.
 $string['address'] = 'Address';
-$string['general'] = 'Allgemein';
+$string['general'] = 'General';
 $string['advancedoptions'] = 'Advanced options';
 $string['btnbooknowname'] = 'Name of button: Book now';
 $string['btncacname'] = 'Name of button: Confirm activity completion';
