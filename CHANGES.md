@@ -1,3 +1,15 @@
+## Version 8.1.24 (2024022600)
+* Improvement: Better layout for table row.
+* Improvement: Second sign-in sheet button for download only and layout improvements.
+* Improvement: Linting and layout improvements for report.php and all_userbookings.php
+* Bugfix: Fix language string for "general" in English language pack - closes #410.
+* Bugfix: Also check for already reserved in allow_add_item_to_cart.
+
+## Version 8.1.23 (2024022301)
+* Bugfix: Save availability on newly created option as well.
+* Bugfix: Notification list is NO hard block!
+* Improvement: Throw exceptions on import for better quality.
+
 ## Version 8.1.22 (2024022300)
 * Bugfix: Fix allow_add_item_to_cart => do not block is_available anymore with notifyme-list.
 
