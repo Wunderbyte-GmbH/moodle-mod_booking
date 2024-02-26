@@ -31,9 +31,9 @@
 define([], function() {
     return {
         init: function() {
-            const control = document.getElementById("sign_in_sheet_download");
-            if (control) {
-                control.addEventListener('click', (e) => {
+            const downloadbtn = document.getElementById("sign_in_sheet_download");
+            if (downloadbtn) {
+                downloadbtn.addEventListener('click', (e) => {
                     e.preventDefault();
                     const elem = document.getElementById("signinsheet");
                     if (elem.classList.contains('hidden')) {
@@ -43,6 +43,14 @@ define([], function() {
                         elem.classList.add('hidden');
                         elem.setAttribute("aria-hidden", "true");
                     }
+                });
+            }
+
+            const downloadbtntop = document.getElementById("downloadsigninsheet-top-btn");
+            if (downloadbtntop) {
+                downloadbtntop.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.querySelector('button[name="downloadsigninsheet"]').click();
                 });
             }
         }

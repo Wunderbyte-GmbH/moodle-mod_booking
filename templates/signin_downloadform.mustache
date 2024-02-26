@@ -56,11 +56,15 @@
 }}
 <div class="card hidden mt-3 mb-5" id="signinsheet" aria-hidden="true">
     <form data-region="booking-download-signinsheet-form" method="get" action="{{baseurl}}">
-		<div class="card-header"><h5 class="card-title">{{#str}}sign_in_sheet_download, mod_booking{{/str}}</h5></div>
+		<div class="card-header">
+			<h5 class="card-title mb-0">
+				<i class="fa fa-list fa-fw" aria-hidden="true"></i>&nbsp;{{#str}}sign_in_sheet_configure, mod_booking{{/str}}
+			</h5>
+		</div>
 	    <div class="card-body p-y-4">
 		    <input name="optionid" type="hidden" value="{{optionid}}">
 		    <input name="id" type="hidden" value="{{id}}">
-		    <input name="action" type="hidden" value="downloadpdf">
+		    <input name="action" type="hidden" value="downloadsigninsheet">
 		    <div class="container-fluid">
 			    <div class="row p-y-1 mt-3">
 				    <div class="col-md-4 span4 col-4">
@@ -140,6 +144,10 @@
 				</div>
 		    </div>
 		</div>
-		<div class="card-footer"><button type="submit" class="btn btn-primary" name="downloadpdf">{{#str}} download {{/str}}</button></div>
+		<div class="card-footer">
+			<button type="submit" class="btn btn-primary btn-sm" name="downloadsigninsheet">
+				<i class="fa fa-download fa-fw" aria-hidden="true"></i>&nbsp;{{#str}} sign_in_sheet_download, mod_booking {{/str}}
+			</button>
+		</div>
 	</form>
 </div>

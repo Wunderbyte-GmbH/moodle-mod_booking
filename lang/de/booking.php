@@ -1359,6 +1359,7 @@ $string['selectoptionid'] = 'Eine Auswahl treffen';
 $string['sendcustommsg'] = 'Persönliche Nachricht senden';
 $string['sendreminderemailsuccess'] = 'Benachrichtung wurde per E-Mail versandt';
 $string['sign_in_sheet_download'] = 'Unterschriftenliste herunterladen';
+$string['sign_in_sheet_configure'] = 'Unterschriftenliste konfigurieren';
 $string['status_complete'] = "Abgeschlossen";
 $string['status_incomplete'] = "Nicht abgeschlossen";
 $string['status_noshow'] = "Nicht aufgetaucht";

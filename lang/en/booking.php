@@ -1415,6 +1415,7 @@ $string['copytoclipboard'] = 'Copy to clipboard: Ctrl+C, Enter';
 $string['yes'] = 'Yes';
 $string['sendreminderemailsuccess'] = 'Notification e-mail has been sent!';
 $string['sign_in_sheet_download'] = 'Download sign-in sheet';
+$string['sign_in_sheet_configure'] = 'Configure sign-in sheet';
 $string['status_complete'] = "Complete";
 $string['status_incomplete'] = "Incomplete";
 $string['status_noshow'] = "No show";
