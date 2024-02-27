@@ -1,3 +1,7 @@
+## Version 8.1.26 (2024022701)
+* Improvement: In Booking, we show the edit button at the top right.
+* New feature: New pencil button to directly edit booking options.
+
 ## Version 8.1.25 (2024022700)
 * Improvement: Make alert to show which option is edited sticky at top.
 * Bugfix: Missing cache definitions.
