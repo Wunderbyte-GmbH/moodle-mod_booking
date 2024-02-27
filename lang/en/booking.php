@@ -2015,7 +2015,6 @@ $string['cachedef_electivebookingorder'] = 'Elective booking order (Cache)';
 $string['cachedef_customformuserdata'] = 'Custom form user data (Cache)';
 $string['cachedef_eventlogtable'] = 'Event log table (Cache)';
 
-
 // Dates_handler.php.
 $string['chooseperiod'] = 'Select time period';
 $string['chooseperiod_help'] = 'Select a time period within to create the date series.';

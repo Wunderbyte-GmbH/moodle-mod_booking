@@ -438,3 +438,9 @@ if there only was one booking option. */
 #page-mod-booking-optionview ul.infolist {
     padding-inline-start: 10px;
 }
+
+#page-mod-booking-editoptions .editoption-youareediting-alert {
+    position: sticky;
+    top: 5px;
+    z-index: 999;
+}
