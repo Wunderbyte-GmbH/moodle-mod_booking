@@ -1901,6 +1901,8 @@ $string['cachedef_subbookingforms'] = 'Subbooking Forms (Cache)';
 $string['cachedef_conditionforms'] = 'Condition Forms (Cache)';
 $string['cachedef_confirmbooking'] = 'Buchung bestätigt (Cache)';
 $string['cachedef_electivebookingorder'] = 'Elective booking order (Cache)';
+$string['cachedef_customformuserdata'] = 'Benutzerdefiniertes Formular - Nutzerdaten (Cache)';
+$string['cachedef_eventlogtable'] = 'Eventlog-Tabelle (Cache)';
 
 // Dates_handler.php.
 $string['chooseperiod'] = 'Zeitraum auswählen';
