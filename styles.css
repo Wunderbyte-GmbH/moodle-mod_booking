@@ -443,4 +443,5 @@ if there only was one booking option. */
     position: sticky;
     top: 5px;
     z-index: 999;
+    width: 70%;
 }
