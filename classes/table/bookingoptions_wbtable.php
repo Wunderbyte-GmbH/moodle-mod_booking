@@ -639,7 +639,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 $OUTPUT->pix_icon('t/print', get_string('bookedtext', 'mod_booking')),
                 [
                     'target' => '_blank',
-                    'class' => 'pr-3',
+                    'class' => 'text-primary pr-3',
                     'aria-label' => get_string('bookedtext', 'mod_booking'),
                 ]);
         }
@@ -657,6 +657,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 $OUTPUT->pix_icon('i/edit', get_string('editbookingoption', 'mod_booking')),
                 [
                     'target' => '_self',
+                    'class' => 'text-primary',
                     'aria-label' => get_string('editbookingoption', 'mod_booking'),
                 ]);
         }
