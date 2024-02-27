@@ -78,3 +78,15 @@ function migrate_optionsfields_2023022800() {
         }
     }
 }
+
+/**
+ * Fix descriptionformat for all booking options.
+ */
+function fix_bookingoption_descriptionformat_2024022700() {
+    global $DB;
+    $DB->execute(
+        "UPDATE {booking_options}
+        SET descriptionformat = 1
+        WHERE descriptionformat = 0"
+    );
+}

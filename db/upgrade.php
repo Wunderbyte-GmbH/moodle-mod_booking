@@ -3671,5 +3671,13 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024021400, 'booking');
     }
 
+    if ($oldversion < 2024022700) {
+        // We need to migrate optionsfields for the new view.php.
+        fix_bookingoption_descriptionformat_2024022700();
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2024022700, 'booking');
+    }
+
     return true;
 }
