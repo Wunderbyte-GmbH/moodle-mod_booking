@@ -1,3 +1,8 @@
+## Version 8.1.25 (2024022700)
+* Improvement: Make alert to show which option is edited sticky at top.
+* Bugfix: Missing cache definitions.
+* Bugfix: Fix descriptionformat via upgrade.
+
 ## Version 8.1.24 (2024022600)
 * Improvement: Better layout for table row.
 * Improvement: Second sign-in sheet button for download only and layout improvements.
