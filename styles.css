@@ -445,3 +445,9 @@ if there only was one booking option. */
     z-index: 999;
     width: 70%;
 }
+
+#page-mod-booking-view .wunderbyte-table-list .action {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
