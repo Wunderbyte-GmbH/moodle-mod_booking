@@ -1,0 +1,115 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/table_cards_container
+    Template which defines a mooduell view page.
+    Classes required for JS:
+    * none
+    Data attributes required for JS:
+    * none
+    Context variables required for this template:
+    * statistics - array: An array with values.
+    * opengames - array: empty array, will be filled with JS.
+    * finishedgames - array: empty array, will be filled with JS.
+    * highscores - array: empty array, will be filled with JS.
+
+    Example context (json):
+    {
+       "uniqueid": "tlcuniqueid",
+       "showcomponentstoggle": true,
+       "showfilterbutton": true,
+       "nofilteratall": false,
+       "filterdeactivated": true,
+       "idstring": "tlcidstring",
+       "listheaderclass" : "listheaderclass",
+       "cardheaderclass" : "cardheaderclass",
+       "cardfooterclass" : "cardfooterclass",
+       "cardimageclass" : "cardimageclass",
+       "rowid" : "rowid",
+       "rowclasses" : "rowclasses",
+       "encodedtable": "fdaskjfdjalsdjfkldsjflsajflksdjfklasdjflkdasjljkdfsalkjfoweijfoeisjgdklyjglky",
+       "cardheader": [
+          {
+            "columnclass" : "columnclass",
+            "columnkeyclass" : "columnkeyclass",
+            "key" : "columnname",
+            "keystring" : "localized column name",
+            "columnvalueclass" : "columnvalueclass",
+            "value" : "value"
+          }
+       ],
+       "cardbody": [
+          {
+            "columnclass" : "columnclass",
+            "columnkeyclass" : "columnkeyclass",
+            "key" : "columnname",
+            "keystring" : "localized column name",
+            "columnvalueclass" : "columnvalueclass",
+            "value" : "value"
+          }
+       ],
+       "cardfooter": [
+          {
+            "columnclass" : "columnclass",
+            "columnkeyclass" : "columnkeyclass",
+            "key" : "columnname",
+            "keystring" : "localized column name",
+            "columnvalueclass" : "columnvalueclass",
+            "value" : "value"
+          }
+       ],
+       "cardimage": [
+          {
+            "value" : "value"
+          }
+       ]
+    }
+}}
+{{#norecords}}
+     <div class="norecordsfound">{{#str}} norecords, local_wunderbyte_table {{/str}}</div>
+{{/norecords}}
+{{^norecords}}
+     <div class="wunderbyte_table_container_{{idstring}} {{uniqueid}}{{!
+          }}{{#showfilterbutton}} wunderbyte_table_filter_on{{/showfilterbutton}}{{!
+          }}{{#filterdeactivated}} inactivefilter{{/filterdeactivated}}{{!
+          }}{{#nofilteratall}} nofilter{{/nofilteratall}} mt-2 px-2">
+          <div class="container-fluid ml-0">
+               <div class="row mb-2">
+                    <div>
+                         {{> local_wunderbyte_table/component_toggle }}
+                         {{> local_wunderbyte_table/component_reload }}
+                         {{> local_wunderbyte_table/component_print }}
+                    </div>
+                    <div class="ml-auto">
+                         {{> local_wunderbyte_table/component_sort }}
+                         {{> local_wunderbyte_table/component_search }}
+                    </div>
+               </div>
+          </div>
+          <div class="wunderbyte_table_container {{uniqueid}}">
+               <aside class="wunderbyte_table_components {{^showcomponentstoggle}} inactive{{/showcomponentstoggle}}">
+                    {{> local_wunderbyte_table/component_filter }}
+                    {{> local_wunderbyte_table/component_infinitescroll }}
+               </aside>
+               <div class= "wunderbyteTableClass {{uniqueid}}" id='a{{idstring}}'>
+                    {{> mod_booking/table_cards }}
+               </div>
+          </div>
+     </div>
+{{#js}}
+     require(['local_wunderbyte_table/init'], function(init) {
+          init.init('{{idstring}}', '{{encodedtable}}');
+     });
+{{/js}}
+{{/norecords}}

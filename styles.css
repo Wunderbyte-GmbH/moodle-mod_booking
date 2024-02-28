@@ -157,13 +157,6 @@ tr.mod-booking-invisible {
     color: red;
 }
 
-.wunderbyte-table-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    padding: 10px;
-    grid-gap: 20px;
-}
-
 .wunderbyte-table-grid .course-card-footer {
     display: flex;
     justify-content: space-between;
