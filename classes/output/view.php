@@ -610,6 +610,7 @@ class view implements renderable, templatable {
         $columnsleftside = [];
         $columnsleftside[] = 'invisibleoption';
         $columnsleftside[] = 'text';
+        $columnsleftside[] = 'action';
         if (in_array('teacher', $optionsfields)) {
             $columnsleftside[] = 'teacher';
         }
@@ -651,8 +652,7 @@ class view implements renderable, templatable {
         $columnsfooter[] = 'comments';
 
         $wbtable->add_subcolumns('footer', $columnsfooter);
-        $wbtable->add_subcolumns('rightside', ['action', 'booknow', 'course', 'progressbar', 'ratings']);
-        $wbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-right'], ['action']);
+        $wbtable->add_subcolumns('rightside', ['booknow', 'course', 'progressbar', 'ratings']);
 
         $wbtable->add_classes_to_subcolumns('leftside', ['columnkeyclass' => 'd-none']);
         $wbtable->add_classes_to_subcolumns(
@@ -661,7 +661,7 @@ class view implements renderable, templatable {
             ['invisibleoption']
         );
         $wbtable->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-left m-0 mb-1 h5'], ['text']);
-
+        $wbtable->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-right'], ['action']);
         if (in_array('teacher', $optionsfields)) {
             $wbtable->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-left font-size-sm'], ['teacher']);
         }
