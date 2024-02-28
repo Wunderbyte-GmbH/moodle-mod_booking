@@ -47,7 +47,7 @@ function init() {
         app.use(Notifications);
 
         const store = createAppStore();
-        //store.dispatch('loadComponentStrings');
+        store.dispatch('loadComponentStrings');
 
         const contextidAttributeValue = localBookingAppElement.getAttribute('contextid');
         store.state.contextid = contextidAttributeValue;

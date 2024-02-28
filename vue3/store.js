@@ -87,12 +87,12 @@ export function createAppStore() {
                     context.commit('setStrings', strings);
                     moodleStorage.set(cacheKey, JSON.stringify(strings));
                 }
-
             },
-            async fetchTab(context, index) {
-                const params = { coursecategoryid: index };
-                const content = await ajax('mod_booking_get_parent_categories', params);
-                if (index === 0) {
+            async fetchTab(context, params) {
+                const content = await ajax('mod_booking_get_parent_categories', {
+                  coursecategoryid: params.coursecategoryid
+                });
+                if (params.coursecategoryid === 0) {
                     context.commit('setTabs', content);
                 }
 
@@ -102,7 +102,9 @@ export function createAppStore() {
                   tabcontent.json = JSON.parse(tabcontent.json)
                 }
                 context.commit('setContent', tabcontent);
-                const configlist = await ajax('mod_booking_get_option_field_config', params);
+                const configlist = await ajax('mod_booking_get_option_field_config', {
+                  contextid: params.contextid
+                });
                 context.commit('setConfigList', configlist);
                 return configlist;
             },

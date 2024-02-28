@@ -22,7 +22,7 @@
             disabled
             :checked="1"
           >
-          <label :for="'checkbox_' + key"><strong>{{ value.name }}</strong></label>
+          <label :for="'checkbox_' + key"><strong>{{ store.state.strings[value.classname] }}</strong></label>
           <i> necessary</i>
         </span>
         <span v-else>
@@ -34,7 +34,7 @@
             :disabled="disableCheckbox(value)"
             @change="handleCheckboxChange(value)"
           >
-          <label :for="'checkbox_' + key"><strong>{{ value.name }}</strong></label>
+          <label :for="'checkbox_' + key"><strong>{{ store.state.strings[value.classname] }}</strong></label>
         </span>
         <span class="blocked-message">{{ getBlockMessage(value) }}</span>
       </li>

@@ -117,7 +117,10 @@
 
   // Trigger web services on mount
   onMounted(async() => {
-    configlist.value = await store.dispatch('fetchTab', 0);
+    configlist.value = await store.dispatch('fetchTab', {
+      coursecategoryid: 0,
+      contextid : 0,
+    });
     tabsstored.value = store.state.tabs
     tabs.value = store.state.tabs
     content.value = store.state.content
@@ -135,7 +138,10 @@
 
   function changeTab(index) {
     activeTab.value = index;
-    store.dispatch('fetchTab', index);
+    store.dispatch('fetchTab', {
+      coursecategoryid: index,
+      contextid : 0,
+    });
   }
 
   const updateFilteredTabs = (filteredTabsFromSearchbar) => {

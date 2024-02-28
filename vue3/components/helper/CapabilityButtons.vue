@@ -47,7 +47,7 @@
             class="btn btn-outline-primary mr-2 mb-2"
             @click="showButtons = false; handleCapabilityClick(capability)"
           >
-            {{ capability.name }}
+            {{ store.state.strings[capability.capability] }}
           </button>
         </div>
       </div>

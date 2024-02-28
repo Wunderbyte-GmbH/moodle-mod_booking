@@ -24,6 +24,7 @@
  */
 
 use mod_booking\singleton_service;
+use mod_booking\utils\wb_payment;
 
 require_once(__DIR__ . '/../../config.php');
 
@@ -49,12 +50,13 @@ $PAGE->set_url($baseurl);
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('teachingreportforinstance', 'mod_booking') .
     $bookingsettings->name);
-
-echo <<<EOT
-    <div id="mod-booking-app" contextid="{$context->id}">
-      <router-view></router-view>
-    </div>
-    EOT;
+if (wb_payment::pro_version_is_activated()) {
+    echo <<<EOT
+        <div id="mod-booking-app" contextid="{$context->id}">
+          <router-view></router-view>
+        </div>
+        EOT;
+}
 $PAGE->requires->js_call_amd('mod_booking/app-lazy', 'init');
 
 echo $OUTPUT->footer();

@@ -68,8 +68,6 @@ class get_parent_categories extends external_api {
      * @return array
      */
     public static function execute(int $coursecategoryid): array {
-        global $DB;
-
         require_login();
 
         $params = self::validate_parameters(self::execute_parameters(), [

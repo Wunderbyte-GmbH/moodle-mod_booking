@@ -100,7 +100,7 @@ class optionformconfig_info {
                 $fields = array_map(fn($a) =>
                     (object)[
                         'id' => $a::$id,
-                        'classname' => $a::return_classname(),
+                        'classname' => $a::return_classname_name(),
                         'checked' => in_array(MOD_BOOKING_OPTION_FIELD_STANDARD, $a::$fieldcategories) ?
                             1 : 0,
                         'necessary' => in_array(MOD_BOOKING_OPTION_FIELD_NECESSARY, $a::$fieldcategories) ?

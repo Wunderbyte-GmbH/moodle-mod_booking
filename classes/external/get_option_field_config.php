@@ -89,7 +89,6 @@ class get_option_field_config extends external_api {
             [
                 'id' => new external_value(PARAM_INT, 'Context ID'),
                 'capability' => new external_value(PARAM_TEXT, 'Capability'),
-                'name' => new external_value(PARAM_TEXT, 'Capability Name'),
                 'json' => new external_value(PARAM_RAW, 'Payload as json'),
             ]
         ));

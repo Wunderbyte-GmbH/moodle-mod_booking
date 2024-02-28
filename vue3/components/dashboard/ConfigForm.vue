@@ -27,7 +27,10 @@
 
   onMounted(async () => {
     // change to real value
-    configlist.value = await store.dispatch('fetchTab', store.state.contextid);
+    configlist.value = await store.dispatch('fetchTab', {
+      coursecategoryid: 0,
+      contextid : store.state.contextid,
+    });
   });
 
   const handleCapabilityClicked = (capability) => {

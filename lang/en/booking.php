@@ -1937,7 +1937,7 @@ $string['bo_cond_subbooking_full_not_available'] = 'Booking is possible';
 
 $string['bo_cond_customform_restrict'] = 'Form needs to be filled out before booking';
 $string['bo_cond_customform_available'] = 'Book it';
-$string['bo_cond_customform_full available'] = 'Booking is possible';
+$string['bo_cond_customform_full_available'] = 'Booking is possible';
 $string['bo_cond_customform_not_available'] = 'Book it';
 $string['bo_cond_customform_full_not_available'] = 'Booking is possible';
 
