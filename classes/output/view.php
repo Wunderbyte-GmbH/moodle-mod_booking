@@ -28,6 +28,8 @@ namespace mod_booking\output;
 use coding_exception;
 use context_module;
 use context_system;
+use local_wunderbyte_table\filters\types\datepicker;
+use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
 use mod_booking\elective;
