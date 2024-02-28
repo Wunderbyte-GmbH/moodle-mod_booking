@@ -726,7 +726,6 @@ class view implements renderable, templatable {
         // We define it here so we can pass it with the mustache template.
         $wbtable->add_subcolumns('optionid', ['id']);
         $wbtable->add_subcolumns('cardimage', ['image']);
-        $wbtable->add_subcolumns('title', ['text']);
         $wbtable->add_classes_to_subcolumns('cardimage', ['columnvalueclass' => 'w-100'], ['image']);
         $wbtable->add_subcolumns('optioninvisible', ['invisibleoption']);
 
