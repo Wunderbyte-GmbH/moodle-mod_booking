@@ -102,7 +102,6 @@ class optionformconfig_info {
 
                 usort($fields, fn($a, $b) => $a->id > $b->id);
                 $json = json_encode($fields);
-
             }
             $returnarray[] = [
                 'id' => $coursecategoryid,

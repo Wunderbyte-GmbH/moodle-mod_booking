@@ -32,6 +32,7 @@ use external_function_parameters;
 use external_single_structure;
 use external_multiple_structure;
 use external_value;
+use mod_booking\settings\optionformconfig\optionformconfig_info;
 
 defined('MOODLE_INTERNAL') || die();
 

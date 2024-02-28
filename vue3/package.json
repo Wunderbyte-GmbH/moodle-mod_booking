@@ -1,0 +1,83 @@
+{
+  "name": "vue-3",
+  "version": "1.0.0",
+  "description": "",
+  "author": "",
+  "scripts": {
+    "build": "cross-env webpack --mode production --progress",
+    "serve": "vue-cli-service serve",
+    "test:unit": "vue-cli-service test:unit",
+    "test:unit:ci": "vue-cli-service test:unit --coverage=true",
+    "lint": "eslint .",
+    "dev": "cross-env webpack --mode development --progress",
+    "watch": "cross-env webpack --mode development --watch"
+  },
+  "dependencies": {
+    "@headlessui/vue": "^1.7.19",
+    "@kyvg/vue3-notification": "^3.0.2",
+    "@vue-flow/background": "^1.2.0",
+    "@vue-flow/controls": "^1.1.0",
+    "@vue-flow/core": "^1.26.0",
+    "@vue-flow/minimap": "^1.2.0",
+    "bootstrap": "^5.3.2",
+    "bootstrap-vue": "^2.23.1",
+    "primevue": "^3.48.1",
+    "vue": "^3.4.18",
+    "vue-input-autowidth": "^1.0.11",
+    "vue-router": "^4.2.5",
+    "vue-style-loader": "^4.1.3",
+    "vue-toasted": "^1.1.28",
+    "vue3-modal": "^0.1.6",
+    "vuedraggable": "^2.24.3",
+    "vuex": "^4.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.3",
+    "@babel/preset-env": "^7.23.3",
+    "@testing-library/jest-dom": "^6.4.2",
+    "@testing-library/user-event": "^14.5.2",
+    "@testing-library/vue": "^8.0.2",
+    "@vue/cli-plugin-unit-jest": "~5.0.0",
+    "@vue/cli-service": "^5.0.8",
+    "@vue/test-utils": "^2.0.0-0",
+    "@vue/vue3-jest": "^27.0.0-alpha.1",
+    "babel-jest": "^27.0.6",
+    "babel-loader": "^9.1.3",
+    "cross-env": "^7.0.3",
+    "css-loader": "^6.7.3",
+    "eslint": "^7.32.0",
+    "eslint-plugin-vue": "^9.20.1",
+    "file-loader": "^6.2.0",
+    "jest": "^27.0.5",
+    "vue-loader": "^17.4.2",
+    "vue-template-compiler": "^2.7.14",
+    "webpack": "^5.82.0",
+    "webpack-cli": "^5.0.2",
+    "webpack-dev-server": "^4.13.3"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "eslint:recommended",
+      "plugin:vue/recommended"
+    ]
+  },
+  "browserslist": [
+    "Chrome >= 45",
+    "Firefox ESR",
+    "Edge >= 12",
+    "Explorer >= 10",
+    "iOS >= 9",
+    "Safari >= 9",
+    "Android >= 4.4",
+    "Opera >= 30",
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ],
+  "keywords": [],
+  "license": "ISC"
+}

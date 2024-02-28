@@ -39,6 +39,7 @@ use mod_booking\booking_option;
 use mod_booking\output\coursepage_shortinfo_and_button;
 use mod_booking\singleton_service;
 use mod_booking\teachers_handler;
+use mod_booking\utils\wb_payment;
 
 // Default fields for bookingoptions in view.php and for download.
 define('MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS', "identifier,titleprefix,text,description,teacher,responsiblecontact," .
@@ -996,6 +997,11 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         $navref->add(get_string('teachers_instance_report', 'mod_booking') . " ($bookingsettings->name)",
                 new moodle_url('/mod/booking/teachers_instance_report.php', ['cmid' => $cm->id]),
                 navigation_node::TYPE_CUSTOM, null, 'nav_teachers_instance_report');
+        if (wb_payment::pro_version_is_activated()) {
+            $navref->add(get_string('teachers_instance_config', 'mod_booking') . " ($bookingsettings->name)",
+                    new moodle_url('/mod/booking/teachers_instance_config.php', ['cmid' => $cm->id]),
+                    navigation_node::TYPE_CUSTOM, null, 'nav_teachers_instance_config');
+        }
     }
 
     // We currently never show these entries as we are not sure if they work correctly.

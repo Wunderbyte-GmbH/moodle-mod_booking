@@ -1717,6 +1717,12 @@ $string['units_unknown'] = 'Number of units unknown';
 $string['missinghours'] = 'Missing hours';
 $string['substitutions'] = 'Substitution(s)';
 
+// Teachers_instance_config.php.
+$string['teachers_instance_config'] = 'Teachers configuration form';
+$string['teachingconfigforinstance'] = 'Teaching context config for ';
+$string['dashboard_summary'] = 'General';
+$string['dashboard_summary_desc'] = 'Contains the settings and stats for the whole Moodle site';
+
 // Optionformconfig.php / optionformconfig_form.php.
 $string['optionformconfig'] = 'Booking: Configure booking option form';
 $string['optionformconfigsaved'] = 'Configuration for the booking option form saved.';

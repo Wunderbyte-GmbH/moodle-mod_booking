@@ -153,6 +153,20 @@ $functions = [
         'capabilities' => '',
         'ajax' => 1,
     ],
+    'mod_booking_get_parent_categories' => [
+        'classname' => 'mod_booking\external\get_parent_categories',
+        'description' => 'Returns all possible configurable fields of option form',
+        'type' => 'read',
+        'capabilities' => '',
+        'ajax' => 1,
+    ],
+    'mod_booking_set_parent_content' => [
+        'classname' => 'mod_booking\external\save_option_field_config',
+        'description' => 'Returns all possible configurable fields of option form',
+        'type' => 'read',
+        'capabilities' => '',
+        'ajax' => 1,
+    ],
 ];
 
 $services = [
