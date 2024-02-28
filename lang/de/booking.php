@@ -1594,6 +1594,12 @@ $string['units_unknown'] = 'Anzahl UE unbekannt';
 $string['missinghours'] = 'Fehlstunden';
 $string['substitutions'] = 'Vertretung(en)';
 
+// Teachers_instance_config.php.
+$string['teachers_instance_config'] = 'Bearbeite Buchungsoptionsformular';
+$string['teachingconfigforinstance'] = 'Bearbeite Buchungsoptionsformular für ';
+$string['dashboard_summary'] = 'Allgemein.';
+$string['dashboard_summary_desc'] = 'Enthält Konfiguration und Einstellungen für die gesamte Moodle Seite.';
+
 // Optionformconfig.php / optionformconfig_form.php.
 $string['optionformconfig'] = 'Buchung: Formular für Buchungsoptionen anpassen';
 $string['optionformconfigsaved'] = 'Konfiguration für das Buchungsoptionsformular gespeichert.';

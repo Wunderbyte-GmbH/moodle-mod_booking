@@ -1718,8 +1718,8 @@ $string['missinghours'] = 'Missing hours';
 $string['substitutions'] = 'Substitution(s)';
 
 // Teachers_instance_config.php.
-$string['teachers_instance_config'] = 'Teachers configuration form';
-$string['teachingconfigforinstance'] = 'Teaching context config for ';
+$string['teachers_instance_config'] = 'Edit booking option form';
+$string['teachingconfigforinstance'] = 'Edit booking option form for ';
 $string['dashboard_summary'] = 'General';
 $string['dashboard_summary_desc'] = 'Contains the settings and stats for the whole Moodle site';
 

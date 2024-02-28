@@ -25,9 +25,14 @@
 
 namespace mod_booking\settings\optionformconfig;
 
+use coding_exception;
 use core_component;
 use context_system;
 use context_coursecat;
+use core\context;
+use ddl_exception;
+use ddl_change_structure_exception;
+use dml_exception;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -57,15 +62,19 @@ class optionformconfig_info {
 
     /**
      * Function to be called from webservice to return the available field ids & settings from db.
-     * @param int $coursecategoryid
+     * @param int $contextid
      * @return array
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws ddl_exception
+     * @throws ddl_change_structure_exception
      */
-    public static function return_configured_fields(int $coursecategoryid = 0) {
+    public static function return_configured_fields(int $contextid = 0) {
 
         global $DB;
 
-        if (!empty($coursecategoryid)) {
-            $context = context_coursecat::instance($coursecategoryid);
+        if (!empty($contextid)) {
+            $context = context::instance_by_id($contextid);
         } else {
             $context = context_system::instance();
         }
@@ -91,7 +100,7 @@ class optionformconfig_info {
                 $fields = array_map(fn($a) =>
                     (object)[
                         'id' => $a::$id,
-                        'name' => $a::return_localized_name(),
+                        'classname' => $a::return_classname(),
                         'checked' => in_array(MOD_BOOKING_OPTION_FIELD_STANDARD, $a::$fieldcategories) ?
                             1 : 0,
                         'necessary' => in_array(MOD_BOOKING_OPTION_FIELD_NECESSARY, $a::$fieldcategories) ?
@@ -104,48 +113,44 @@ class optionformconfig_info {
                 $json = json_encode($fields);
             }
             $returnarray[] = [
-                'id' => $coursecategoryid,
+                'id' => $contextid,
                 'capability' => $capability,
-                'name' => get_string($capability, 'mod_booking'),
                 'json' => $json,
             ];
         }
-
         return $returnarray;
     }
 
     /**
      * Function to be called from webservice to save the available field ids & settings to db.
-     * @param array $params
-     * @return array
+     * @param int $contextid
+     * @param string $capability
+     * @param string $json
+     * @return string
+     * @throws dml_exception
      */
-    public static function save_configured_fields(array $params) {
+    public static function save_configured_fields(int $contextid, string $capability, string $json) {
         global $DB;
         $status = 'failed';
-        if (!empty($params['id'])) {
-            $context = context_coursecat::instance($params['id']);
-        } else {
-            $context = context_system::instance();
-        }
 
         $record = $DB->get_record('booking_form_config', [
                 'area' => 'option',
-                'capability' => $params['capability'],
-                'contextid' => $context->id
+                'capability' => $capability,
+                'contextid' => $contextid,
         ]);
         if ($record) {
             $DB->update_record('booking_form_config', [
                 'id' => $record->id,
-                'json' => $params['json']
+                'json' => $json,
             ]);
             $status = 'success';
 
         } else {
             $DB->insert_record('booking_form_config', [
                 'area' => 'option',
-                'capability' => $params['capability'],
-                'contextid' => $context->id,
-                'json' => $params['json']
+                'capability' => $capability,
+                'contextid' => $contextid,
+                'json' => $json,
             ]);
             $status = 'success';
         }

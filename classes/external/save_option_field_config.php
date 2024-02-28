@@ -53,19 +53,19 @@ class save_option_field_config extends external_api {
      * @return external_function_parameters
      */
     public static function execute_parameters(): external_function_parameters {
-      return new external_function_parameters(
-        [
-            'capability' => new external_value(PARAM_TEXT, 'Capability'),
-            'id' => new external_value(PARAM_INT, 'Coursecategory ID'),
-            'json' => new external_value(PARAM_RAW, 'Payload as json'),
-        ]
+        return new external_function_parameters(
+            [
+                'capability' => new external_value(PARAM_TEXT, 'Capability'),
+                'id' => new external_value(PARAM_INT, 'Context Id'),
+                'json' => new external_value(PARAM_RAW, 'Payload as json'),
+            ]
         );
     }
 
     /**
      * Returns the available capabilities to configure
      *
-     * @param int $coursecategoryid
+     * @param int $contextid
      * @return array
      * @throws dml_exception
      */
@@ -83,7 +83,7 @@ class save_option_field_config extends external_api {
             ]
         );
 
-        $status = optionformconfig_info::save_configured_fields($params);
+        $status = optionformconfig_info::save_configured_fields($params['id'], $params['capability'], $params['json']);
 
         return [
           'id' => $id,
