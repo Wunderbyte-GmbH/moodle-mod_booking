@@ -1,3 +1,6 @@
+## Version 8.1.27 (2024022800)
+* Improvement: Better layout for new menu bar (we cannot show it at the top right, as this would lead to several layouting problems).
+
 ## Version 8.1.26 (2024022701)
 * Improvement: In Booking, we show the edit button at the top right.
 * New feature: New pencil button to directly edit booking options.
