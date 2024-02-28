@@ -107,27 +107,24 @@ class institution extends field_base {
 
         global $DB;
 
-        // We don't show the location and address fields if we have entities installed.
-        if (!class_exists('local_entities\entitiesrelation_handler')) {
-            // Standardfunctionality to add a header to the mform (only if its not yet there).
-            fields_info::add_header_to_mform($mform, self::$header);
+        // Standardfunctionality to add a header to the mform (only if its not yet there).
+        fields_info::add_header_to_mform($mform, self::$header);
 
-            // Institution.
-            $sql = 'SELECT DISTINCT institution FROM {booking_options} ORDER BY institution';
-            $institutionarray = $DB->get_fieldset_sql($sql);
+        // Institution.
+        $sql = 'SELECT DISTINCT institution FROM {booking_options} ORDER BY institution';
+        $institutionarray = $DB->get_fieldset_sql($sql);
 
-            $institutionstrings = [];
-            foreach ($institutionarray as $item) {
-                $institutionstrings[$item] = $item;
-            }
-
-            $options = [
-                    'noselectionstring' => get_string('donotselectinstitution', 'mod_booking'),
-                    'tags' => true,
-            ];
-            $mform->addElement('autocomplete', 'institution',
-                get_string('institution', 'mod_booking'), $institutionstrings, $options);
-            $mform->addHelpButton('institution', 'institution', 'mod_booking');
+        $institutionstrings = [];
+        foreach ($institutionarray as $item) {
+            $institutionstrings[$item] = $item;
         }
+
+        $options = [
+                'noselectionstring' => get_string('donotselectinstitution', 'mod_booking'),
+                'tags' => true,
+        ];
+        $mform->addElement('autocomplete', 'institution',
+            get_string('institution', 'mod_booking'), $institutionstrings, $options);
+        $mform->addHelpButton('institution', 'institution', 'mod_booking');
     }
 }
