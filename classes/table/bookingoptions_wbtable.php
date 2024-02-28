@@ -651,7 +651,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                         'id' => $cmid,
                         'optionid' => $optionid,
                         'returnto' => 'url',
-                        'returnurl' => $returnurl
+                        'returnurl' => $returnurl,
                     ]
                 ),
                 $OUTPUT->pix_icon('i/edit', get_string('editbookingoption', 'mod_booking')),
