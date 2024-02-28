@@ -3679,5 +3679,18 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024022700, 'booking');
     }
 
+    if ($oldversion < 2024022801) {
+
+        // Changing the default of field whichview on table booking to showall.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('whichview', XMLDB_TYPE_CHAR, '32', null, XMLDB_NOTNULL, null, 'showall', 'scale');
+
+        // Launch change of default for field whichview.
+        $dbman->change_field_default($table, $field);
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2024022801, 'booking');
+    }
+
     return true;
 }

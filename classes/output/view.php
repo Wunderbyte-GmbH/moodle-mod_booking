@@ -215,14 +215,14 @@ class view implements renderable, templatable {
             return;
         }
 
-        // Active options.
-        if (in_array('showactive', $showviews)) {
-            $this->renderedactiveoptionstable = $this->get_rendered_active_options_table();
-        }
-
         // All options.
         if (in_array('showall', $showviews)) {
             $this->renderedalloptionstable = $this->get_rendered_all_options_table();
+        }
+
+        // Active options.
+        if (in_array('showactive', $showviews)) {
+            $this->renderedactiveoptionstable = $this->get_rendered_active_options_table();
         }
 
         // My bookings.

@@ -186,7 +186,7 @@ class booking_option_test extends advanced_testcase {
             'pollurlteacherstext' => ['text' => 'text'],
             'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
             'bookingpolicy' => 'bookingpolicy', 'tags' => '', 'completion' => 2,
-            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
+            'showviews' => ['showall,showactive,mybooking,myoptions,myinstitution'],
             'optionsfields' =>
             ['description', 'statusdescription', 'teacher', 'showdates', 'dayofweektime', 'location', 'institution', 'minanswers'],
             'semesterid' => $testsemester->id,

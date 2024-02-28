@@ -78,7 +78,7 @@ class mod_booking_generator extends testing_module_generator {
 
         $defaultsettings = [
             'assessed' => 0,
-            'showviews' => 'mybooking,myoptions,showall,showactive,myinstitution',
+            'showviews' => 'showall,showactive,mybooking,myoptions,myinstitution',
             'whichview' => 'showall',
             'optionsfields' => 'description,statusdescription,teacher,showdates,dayofweektime,
                                 location,institution,minanswers',

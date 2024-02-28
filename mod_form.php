@@ -221,9 +221,9 @@ class mod_booking_mod_form extends moodleform_mod {
                 ['subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 50, 'accepted_types' => ['*']]);
 
         $whichviewopts = [
+            'showall' => get_string('showallbookingoptions', 'mod_booking'),
             'mybooking' => get_string('showmybookingsonly', 'mod_booking'),
             'myoptions' => get_string('optionsiteach', 'mod_booking'),
-            'showall' => get_string('showallbookingoptions', 'mod_booking'),
             'showactive' => get_string('activebookingoptions', 'mod_booking'),
             'myinstitution' => get_string('myinstitution', 'mod_booking'),
             'showvisible' => get_string('visibleoptions', 'mod_booking'),

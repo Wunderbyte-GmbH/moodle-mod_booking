@@ -50,14 +50,6 @@
         </button>
       </li>
     {{/showonlyone}}
-    {{#activeoptionstable}}
-      <li class="nav-item mr-1" role="presentation">
-        <button class="nav-link {{#showactive}}active{{/showactive}}" id="active-options-tab" data-toggle="pill" data-target="#active-options"
-          type="button" role="tab" aria-controls="active-options" aria-selected="true">
-          {{#str}} activebookingoptions, mod_booking {{/str}}
-        </button>
-      </li>
-    {{/activeoptionstable}}
     {{#alloptionstable}}
       <li class="nav-item mr-1" role="presentation">
         <button class="nav-link {{#showall}}active{{/showall}}" id="all-options-tab" data-toggle="pill" data-target="#all-options"
@@ -66,6 +58,14 @@
         </button>
       </li>
     {{/alloptionstable}}
+    {{#activeoptionstable}}
+      <li class="nav-item mr-1" role="presentation">
+        <button class="nav-link {{#showactive}}active{{/showactive}}" id="active-options-tab" data-toggle="pill" data-target="#active-options"
+          type="button" role="tab" aria-controls="active-options" aria-selected="true">
+          {{#str}} activebookingoptions, mod_booking {{/str}}
+        </button>
+      </li>
+    {{/activeoptionstable}}
     {{#myoptionstable}}
       <li class="nav-item mr-1" role="presentation">
         <button class="nav-link {{#mybooking}}active{{/mybooking}}" id="my-options-tab" data-toggle="pill" data-target="#my-options"
@@ -114,26 +114,26 @@
         </button>
       </li>
     {{/fieldofstudytable}}
-    {{/elective}}
-    {{#elective}}
-      <li class="nav-item mr-1" role="presentation">
-        <button class="nav-link {{#elective}}active{{/elective}}" id="elective-tab" data-toggle="pill" data-target="#elective"
-          type="button" role="tab" aria-controls="elective" aria-selected="true">
-          {{#str}} elective, mod_booking {{/str}}
-        </button>
-      </li>
-    {{/elective}}
+  {{/elective}}
+  {{#elective}}
+    <li class="nav-item mr-1" role="presentation">
+      <button class="nav-link {{#elective}}active{{/elective}}" id="elective-tab" data-toggle="pill" data-target="#elective"
+        type="button" role="tab" aria-controls="elective" aria-selected="true">
+        {{#str}} elective, mod_booking {{/str}}
+      </button>
+    </li>
+  {{/elective}}
   </ul>
   <div class="tab-content" id="pills-tabContent">
     {{#showonlyone}}
       <div class="tab-pane fade show active" id="showonlyone" role="tabpanel" aria-labelledby="showonlyone-tab">{{{showonlyonetable}}}</div>
     {{/showonlyone}}
-    {{#activeoptionstable}}
-      <div class="tab-pane fade {{#showactive}}show active{{/showactive}}" id="active-options" role="tabpanel" aria-labelledby="active-options-tab">{{{activeoptionstable}}}</div>
-    {{/activeoptionstable}}
     {{#alloptionstable}}
       <div class="tab-pane fade {{#showall}}show active{{/showall}}" id="all-options" role="tabpanel" aria-labelledby="all-options-tab">{{{alloptionstable}}}</div>
     {{/alloptionstable}}
+    {{#activeoptionstable}}
+      <div class="tab-pane fade {{#showactive}}show active{{/showactive}}" id="active-options" role="tabpanel" aria-labelledby="active-options-tab">{{{activeoptionstable}}}</div>
+    {{/activeoptionstable}}
     {{#myoptionstable}}
       <div class="tab-pane fade {{#mybooking}}show active{{/mybooking}}" id="my-options" role="tabpanel" aria-labelledby="my-options-tab">{{{myoptionstable}}}</div>
     {{/myoptionstable}}
