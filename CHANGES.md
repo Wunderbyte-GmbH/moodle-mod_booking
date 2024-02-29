@@ -1,3 +1,10 @@
+## Version 8.1.28 (2024022900)
+* New feature: You may now switch between list and cards layout in Booking instance settings.
+* Improvement: Change tab order an make all booking options tab the default.
+* Improvement: showall should be the default tab - also in install.xml.
+* Bugfix: Make sure menubar is always at correct position using CSS.
+* Bugfix: We always want to see institution - regardless if entitity manager is installed or not.
+
 ## Version 8.1.27 (2024022800)
 * Improvement: Better layout for new menu bar (we cannot show it at the top right, as this would lead to several layouting problems).
 
