@@ -51,8 +51,11 @@ use templatable;
  */
 class view implements renderable, templatable {
 
-    /** @var int $cmid */
+    /** @var int $cmid course module id */
     private $cmid = null;
+
+    /** @var int $bookingid id of the booking instance */
+    private $bookingid = null;
 
     /** @var int $defaultoptionsort */
     private $defaultoptionsort = null;
@@ -137,6 +140,7 @@ class view implements renderable, templatable {
 
         $context = context_system::instance();
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+        $this->bookingid = $bookingsettings->id;
 
         // Default sort column and sort order from booking settings.
         $this->defaultoptionsort = $bookingsettings->defaultoptionsort;
@@ -575,7 +579,13 @@ class view implements renderable, templatable {
             $wbtable->showdownloadbutton = true;
         }
 
-        self::apply_standard_params_for_bookingtable($wbtable, $optionsfields, $filter, $search, $sort);
+        // Get view param from JSON of booking instance settings.
+        $viewparam = (int)booking::get_value_of_json_by_key($bookingsettings->id, 'viewparam');
+        if (empty($viewparam)) {
+            $viewparam = MOD_BOOKING_VIEW_PARAM_LIST; // List view is the default view.
+        }
+
+        self::apply_standard_params_for_bookingtable($wbtable, $optionsfields, $filter, $search, $sort, true, true, $viewparam);
     }
 
 
@@ -589,6 +599,7 @@ class view implements renderable, templatable {
      * @param bool $sort
      * @param bool $reload
      * @param bool $filterinactive
+     * @param int $viewparam list view or card view
      * @return void
      * @throws moodle_exception
      * @throws coding_exception
@@ -600,15 +611,23 @@ class view implements renderable, templatable {
         bool $search = true,
         bool $sort = true,
         bool $reload = true,
-        bool $filterinactive = true) {
+        bool $filterinactive = true,
+        int $viewparam = MOD_BOOKING_VIEW_PARAM_LIST) {
         // Activate sorting.
         $wbtable->cardsort = true;
 
         // Without defining sorting won't work!
         $wbtable->define_columns(['titleprefix', 'coursestarttime', 'courseendtime']);
 
-        // TODO: switch.
-        self::generate_table_for_cards($wbtable, $optionsfields);
+        // Switch view type (cards view or list view).
+        switch ($viewparam) {
+            case MOD_BOOKING_VIEW_PARAM_CARDS:
+                self::generate_table_for_cards($wbtable, $optionsfields);
+                break;
+            default:
+                self::generate_table_for_list($wbtable, $optionsfields);
+                break;
+        }
 
         // Header column.
         $wbtable->define_header_column('text');
@@ -881,10 +900,14 @@ class view implements renderable, templatable {
         );
 
         // Additional descriptions.
-        $wbtable->add_classes_to_subcolumns('cardlist', ['columnalt' => get_string('locationalt', 'local_musi')], ['location']);
-        $wbtable->add_classes_to_subcolumns('cardlist', ['columnalt' => get_string('dayofweekalt', 'local_musi')], ['dayofweektime']);
-        $wbtable->add_classes_to_subcolumns('cardlist', ['columnalt' => get_string('bookingsalt', 'local_musi')], ['bookings']);
-        $wbtable->add_classes_to_subcolumns('cardimage', ['cardimagealt' => get_string('imagealt', 'local_musi')], ['image']);
+        $wbtable->add_classes_to_subcolumns('cardlist', ['columnalt' => get_string('locationalt', 'local_musi')],
+            ['location']);
+        $wbtable->add_classes_to_subcolumns('cardlist', ['columnalt' => get_string('dayofweekalt', 'local_musi')],
+            ['dayofweektime']);
+        $wbtable->add_classes_to_subcolumns('cardlist', ['columnalt' => get_string('bookingsalt', 'local_musi')],
+            ['bookings']);
+        $wbtable->add_classes_to_subcolumns('cardimage', ['cardimagealt' => get_string('imagealt', 'local_musi')],
+            ['image']);
 
         // At last, we set the correct template!
         $wbtable->tabletemplate = 'mod_booking/table_cards';

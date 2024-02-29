@@ -140,6 +140,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('select', 'instancetemplateid', get_string('populatefromtemplate', 'booking'),
             $bookininstancetemplates);
 
+        // Name of Booking instance.
         $mform->addElement('text', 'name', get_string('bookingname', 'booking'),
                 ['size' => '64']);
         if (!empty($CFG->formatstringstriptags)) {
@@ -150,14 +151,17 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
-        $sql = 'SELECT DISTINCT eventtype FROM {booking} ORDER BY eventtype';
-        $eventtypearray = $DB->get_fieldset_sql($sql);
+        $viewparamoptions = [
+            MOD_BOOKING_VIEW_PARAM_LIST => get_string('viewparam:list', 'mod_booking'),
+            MOD_BOOKING_VIEW_PARAM_CARDS => get_string('viewparam:cards', 'mod_booking'),
+        ];
+        // Default view param (0...List view, 1...Cards view).
+        $mform->addElement('select', 'viewparam', get_string('viewparam', 'mod_booking'),
+            $viewparamoptions);
+        $mform->setType('viewparam', PARAM_INT);
+        $mform->setDefault('viewparam', (int)booking::get_value_of_json_by_key($bookingid, 'viewparam') ?? MOD_BOOKING_VIEW_PARAM_LIST);
 
-        $eventstrings = [];
-        foreach ($eventtypearray as $item) {
-            $eventstrings[$item] = $item;
-        }
-
+        // Choose semester.
         $semestersarray = semester::get_semesters_id_name_array();
         if (!empty($semestersarray)) {
             $semesteridoptions = [
@@ -170,6 +174,14 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->setDefault('semesterid', semester::get_semester_with_highest_id());
         }
 
+        // Event type.
+        $sql = 'SELECT DISTINCT eventtype FROM {booking} ORDER BY eventtype';
+        $eventtypearray = $DB->get_fieldset_sql($sql);
+
+        $eventstrings = [];
+        foreach ($eventtypearray as $item) {
+            $eventstrings[$item] = $item;
+        }
         $options = [
                 'noselectionstring' => get_string('donotselecteventtype', 'booking'),
                 'tags' => true,

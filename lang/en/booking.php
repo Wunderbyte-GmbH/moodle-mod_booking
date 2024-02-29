@@ -487,6 +487,9 @@ $string['defaultbookingoption'] = 'Default booking options';
 $string['activatemails'] = 'Activate e-mails (confirmations, notifications and more)';
 $string['copymail'] = 'Send confirmation e-mail to booking manager';
 $string['bookingpolicy'] = 'Booking policy';
+$string['viewparam'] = 'View type';
+$string['viewparam:list'] = 'List view';
+$string['viewparam:cards'] = 'Cards view';
 
 $string['eventslist'] = 'Recent updates';
 $string['showrecentupdates'] = 'Show recent updates';

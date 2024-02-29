@@ -44,6 +44,10 @@ use mod_booking\teachers_handler;
 define('MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS', "identifier,titleprefix,text,description,teacher,responsiblecontact," .
 "showdates,dayofweektime,location,institution,course,minanswers,bookings,bookingopeningtime,bookingclosingtime");
 
+// View params.
+define('MOD_BOOKING_VIEW_PARAM_LIST', 0); // List view.
+define('MOD_BOOKING_VIEW_PARAM_CARDS', 1); // Cards view.
+
 // Currently up to 9 different price categories can be set.
 define('MOD_BOOKING_MAX_PRICE_CATEGORIES', 9);
 
@@ -821,6 +825,13 @@ function booking_update_instance($booking) {
         booking::remove_key_from_json($booking, "disablecancel");
     } else {
         booking::add_data_to_json($booking, "disablecancel", 1);
+    }
+    // View param (list view or card view) is also stored in JSON.
+    if (empty($booking->viewparam)) {
+        // Save list view as default value.
+        booking::add_data_to_json($booking, "viewparam", MOD_BOOKING_VIEW_PARAM_LIST);
+    } else {
+        booking::add_data_to_json($booking, "viewparam", $booking->viewparam);
     }
 
     // Update, delete or insert answers.

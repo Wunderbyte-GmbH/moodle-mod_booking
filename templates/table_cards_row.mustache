@@ -122,54 +122,86 @@ style="max-width: 25rem;"
     data-{{key}}="{{value}}"
 {{/datafields}}
 >
-  {{#cardimage}}
-    {{#value}}
-      <img class="w-100 rounded-top" src="{{{value}}}" {{#cardimagealt}}alt="{{.}}" title="{{.}}"{{/cardimagealt}}>
-    {{/value}}
-    {{^value}}
-      <div class="d-flex align-items-center justify-content-center"
-        style="height: 220px; background-color: #e6f0f7;
-              opacity: 0.8;
-              background-image: radial-gradient(#45aaf7 0.5px, #e6f0f7 0.5px);
-              background-size: 10px 10px;">
-      </div>
-    {{/value}}
-  {{/cardimage}}
-
-  <div class="{{cardbodyclass}} mt-2 ml-2 mr-2 p-2">
-    {{#cardbody}}
-      {{#columnclass}}<div class="{{.}}{{#key}} {{key}}{{/key}}">{{/columnclass}}
-            <span {{^value}} style="display:none" {{/value}}>
-            {{#columniclassbefore}}
-              <i class="{{.}}" aria-hidden="true"></i>
-            {{/columniclassbefore}}
-            </span>
-            {{#columnkeyclass}}<span class="key {{.}}">{{/columnkeyclass}}
-              {{^keystring}}
-              {{{key}}}
-            {{/keystring}}
-            {{#keystring}}
-              {{.}}:
-            {{/keystring}}
-            {{#columnkeyclass}}</span>{{/columnkeyclass}}
-
-              <span {{^value}} style="display:none" {{/value}} class="{{columnvalueclass}}{{#key}} {{key}}{{/key}}">
-                {{{value}}}
+  <div class="mod-booking-view-card-image-and-body-area">
+    {{#cardimage}}
+      {{#value}}
+        <img class="w-100 rounded-top" src="{{{value}}}" {{#cardimagealt}}alt="{{.}}" title="{{.}}"{{/cardimagealt}}>
+      {{/value}}
+      {{^value}}
+        <div class="d-flex align-items-center justify-content-center"
+          style="height: 220px; background-color: #e6f0f7;
+                opacity: 0.8;
+                background-image: radial-gradient(#45aaf7 0.5px, #e6f0f7 0.5px);
+                background-size: 10px 10px;">
+        </div>
+      {{/value}}
+    {{/cardimage}}
+    <div class="{{cardbodyclass}} mt-2 ml-2 mr-2 p-2">
+      {{#cardbody}}
+        {{#columnclass}}<div class="{{.}}{{#key}} {{key}}{{/key}}">{{/columnclass}}
+              <span {{^value}} style="display:none" {{/value}}>
+              {{#columniclassbefore}}
+                <i class="{{.}}" aria-hidden="true"></i>
+              {{/columniclassbefore}}
               </span>
+              {{#columnkeyclass}}<span class="key {{.}}">{{/columnkeyclass}}
+                {{^keystring}}
+                {{{key}}}
+              {{/keystring}}
+              {{#keystring}}
+                {{.}}:
+              {{/keystring}}
+              {{#columnkeyclass}}</span>{{/columnkeyclass}}
 
-            <span {{^value}} style="display:none" {{/value}}>
-            {{#columniclassafter}}
-              <i class="value {{.}}" aria-hidden="true"></i>
-            {{/columniclassafter}}
-            </span>
-      {{#columnclass}}</div>{{/columnclass}}
-    {{/cardbody}}
+                <span {{^value}} style="display:none" {{/value}} class="{{columnvalueclass}}{{#key}} {{key}}{{/key}}">
+                  {{{value}}}
+                </span>
+
+              <span {{^value}} style="display:none" {{/value}}>
+              {{#columniclassafter}}
+                <i class="value {{.}}" aria-hidden="true"></i>
+              {{/columniclassafter}}
+              </span>
+        {{#columnclass}}</div>{{/columnclass}}
+      {{/cardbody}}
+    </div>
+    <div class="mt-2 ml-3 mr-3">
+      <div class="{{cardlistclass}}">
+        <ul class="infolist">
+        {{#cardlist}}
+          <li {{#columnalt}}title="{{.}}"{{/columnalt}}>
+          {{#columnclass}}<div class="{{.}}{{#key}} {{key}}{{/key}}">{{/columnclass}}
+                <span {{^value}} style="display:none" {{/value}}>
+                {{#columniclassbefore}}
+                  <i class="{{.}}" aria-hidden="true"></i>
+                {{/columniclassbefore}}
+                </span>
+                {{#columnkeyclass}}<span class="key {{.}}">{{/columnkeyclass}}
+                  {{^keystring}}
+                {{{key}}}
+                {{/keystring}}
+                {{#keystring}}
+                  {{.}}:
+                {{/keystring}}
+                {{#columnkeyclass}}</span>{{/columnkeyclass}}
+                <span {{^value}} style="display:none" {{/value}} class="{{columnvalueclass}}{{#key}} {{key}}{{/key}}">
+                  {{{value}}}
+                </span>
+                <span {{^value}} style="display:none" {{/value}}>
+                {{#columniclassafter}}
+                  <i class="value {{.}}" aria-hidden="true"></i>
+                {{/columniclassafter}}
+                </span>
+          {{#columnclass}}</div>{{/columnclass}}
+          </li>
+        {{/cardlist}}
+        </ul>
+      </div>
+    </div>
   </div>
-  <div class="mt-2 ml-3 mr-3">
-    <div class="{{cardlistclass}}">
-      <ul class="infolist">
-      {{#cardlist}}
-        <li {{#columnalt}}title="{{.}}"{{/columnalt}}>
+  <div class="mod-booking-view-card-mainarea">
+    <div class="mt-2 text-center p-2">
+      {{#cardfooter}}
         {{#columnclass}}<div class="{{.}}{{#key}} {{key}}{{/key}}">{{/columnclass}}
               <span {{^value}} style="display:none" {{/value}}>
               {{#columniclassbefore}}
@@ -184,45 +216,16 @@ style="max-width: 25rem;"
                 {{.}}:
               {{/keystring}}
               {{#columnkeyclass}}</span>{{/columnkeyclass}}
-              <span {{^value}} style="display:none" {{/value}} class="{{columnvalueclass}}{{#key}} {{key}}{{/key}}">
+              <div {{^value}} style="display:none" {{/value}} class="{{columnvalueclass}}{{#key}} {{key}}{{/key}}">
                 {{{value}}}
-              </span>
+              </div>
               <span {{^value}} style="display:none" {{/value}}>
               {{#columniclassafter}}
                 <i class="value {{.}}" aria-hidden="true"></i>
               {{/columniclassafter}}
               </span>
         {{#columnclass}}</div>{{/columnclass}}
-        </li>
-      {{/cardlist}}
-      </ul>
+      {{/cardfooter}}
     </div>
-  </div>
-  <div class="mt-2 text-center p-2">
-    {{#cardfooter}}
-      {{#columnclass}}<div class="{{.}}{{#key}} {{key}}{{/key}}">{{/columnclass}}
-            <span {{^value}} style="display:none" {{/value}}>
-            {{#columniclassbefore}}
-              <i class="{{.}}" aria-hidden="true"></i>
-            {{/columniclassbefore}}
-            </span>
-            {{#columnkeyclass}}<span class="key {{.}}">{{/columnkeyclass}}
-              {{^keystring}}
-            {{{key}}}
-            {{/keystring}}
-            {{#keystring}}
-              {{.}}:
-            {{/keystring}}
-            {{#columnkeyclass}}</span>{{/columnkeyclass}}
-            <div {{^value}} style="display:none" {{/value}} class="{{columnvalueclass}}{{#key}} {{key}}{{/key}}">
-              {{{value}}}
-            </div>
-            <span {{^value}} style="display:none" {{/value}}>
-            {{#columniclassafter}}
-              <i class="value {{.}}" aria-hidden="true"></i>
-            {{/columniclassafter}}
-            </span>
-      {{#columnclass}}</div>{{/columnclass}}
-    {{/cardfooter}}
   </div>
 </div>

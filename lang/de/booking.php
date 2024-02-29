@@ -478,6 +478,9 @@ $string['defaultbookingoption'] = 'Standardeinstellungen für Buchungsoptionen';
 $string['activatemails'] = 'E-Mails aktivieren (Bestätigungen, Erinnerungen etc.)';
 $string['copymail'] = 'Eine Kopie der Bestätigungsmail an den Buchungsverwalter senden';
 $string['bookingpolicy'] = 'Buchungsbedingungen - Booking Policy';
+$string['viewparam'] = 'Ansichtsart';
+$string['viewparam:list'] = 'Listen-Ansicht';
+$string['viewparam:cards'] = 'Karten-Ansicht';
 
 $string['eventslist'] = 'Letzte Bearbeitungen';
 $string['showrecentupdates'] = 'Zeige die letzten Bearbeitungen';
