@@ -245,6 +245,7 @@ $string['pluginadministration'] = 'Booking administration';
 $string['pluginname'] = 'Booking';
 $string['potentialsubscribers'] = 'Potential subscribers';
 $string['proversiononly'] = 'Upgrade to Booking PRO to use this feature.';
+$string['proversion:cardsview'] = 'With Booking PRO you can also use cards view.';
 $string['removeresponses'] = 'Remove all responses';
 $string['responses'] = 'Responses';
 $string['responsesto'] = 'Responses to {$a} ';

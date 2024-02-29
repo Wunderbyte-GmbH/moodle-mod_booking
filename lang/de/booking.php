@@ -241,6 +241,7 @@ $string['pluginadministration'] = 'Booking administration';
 $string['pluginname'] = 'Booking';
 $string['potentialsubscribers'] = 'Mögliche Nutzer:innen';
 $string['proversiononly'] = 'Nur in der PRO-Version verfügbar.';
+$string['proversion:cardsview'] = 'Mit Booking PRO können Sie auch die Karten-Ansicht aktivieren.';
 $string['removeresponses'] = 'Alle Buchungen löschen';
 $string['responses'] = 'Buchungen';
 $string['responsesto'] = 'Buchungen zu {$a} ';

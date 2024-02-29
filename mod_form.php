@@ -124,6 +124,8 @@ class mod_booking_mod_form extends moodleform_mod {
         // phpcs:ignore
         // $modulecontext = context_module::instance($this->_cm->id);
 
+        $isproversion = wb_payment::pro_version_is_activated();
+
         $mform = &$this->_form;
 
         $bookingid = (int)$this->_instance;
@@ -151,15 +153,21 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
-        $viewparamoptions = [
-            MOD_BOOKING_VIEW_PARAM_LIST => get_string('viewparam:list', 'mod_booking'),
-            MOD_BOOKING_VIEW_PARAM_CARDS => get_string('viewparam:cards', 'mod_booking'),
-        ];
+        $viewparamoptions = [MOD_BOOKING_VIEW_PARAM_LIST => get_string('viewparam:list', 'mod_booking')];
+        // Cards view is a PRO feature.
+        if ($isproversion) {
+            $viewparamoptions[MOD_BOOKING_VIEW_PARAM_CARDS] = get_string('viewparam:cards', 'mod_booking');
+        }
         // Default view param (0...List view, 1...Cards view).
         $mform->addElement('select', 'viewparam', get_string('viewparam', 'mod_booking'),
             $viewparamoptions);
         $mform->setType('viewparam', PARAM_INT);
         $mform->setDefault('viewparam', (int)booking::get_value_of_json_by_key($bookingid, 'viewparam') ?? MOD_BOOKING_VIEW_PARAM_LIST);
+
+        if (!$isproversion) {
+            $mform->addElement('html', '<div class="mb-3" style="margin-left: 13rem;">' . get_string('badge:pro', 'mod_booking') .
+                " <span class='small'>" . get_string('proversion:cardsview', 'mod_booking') . '</span></div>');
+        }
 
         // Choose semester.
         $semestersarray = semester::get_semesters_id_name_array();
@@ -243,7 +251,7 @@ class mod_booking_mod_form extends moodleform_mod {
         ];
 
         // The "field of study" tab is a PRO feature.
-        if (wb_payment::pro_version_is_activated()) {
+        if ($isproversion) {
             $whichviewopts['showfieldofstudy'] = get_string('showmyfieldofstudyonly', 'mod_booking');
         }
 
@@ -509,7 +517,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addHelpButton('daystonotify2', 'daystonotify', 'booking');
 
         // PRO feature: Teacher notifications.
-        if (wb_payment::pro_version_is_activated()) {
+        if ($isproversion) {
             $mform->addElement('text', 'daystonotifyteachers', get_string('daystonotifyteachers', 'booking'));
             $mform->setDefault('daystonotifyteachers', 0);
             $mform->addHelpButton('daystonotifyteachers', 'daystonotify', 'booking');
@@ -559,7 +567,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addRule('bookingmanager', null, 'required', null, 'client');
 
         // PRO feature: Let the user choose between instance specific or global mail templates.
-        if (wb_payment::pro_version_is_activated()) {
+        if ($isproversion) {
             $mailtemplatessource = [];
             $mailtemplatessource[0] = get_string('mailtemplatesinstance', 'booking');
             $mailtemplatessource[1] = get_string('mailtemplatesglobal', 'booking');
@@ -633,7 +641,7 @@ class mod_booking_mod_form extends moodleform_mod {
         ];
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         // Check if PRO version is active.
-        if (wb_payment::pro_version_is_activated()) {
+        if ($isproversion) {
             $mform->addElement('editor', 'notifyemailteachers', get_string('notifyemailteachers', 'booking'),
                 null, $editoroptions);
             $mform->setDefault('notifyemailteachers', $default);
@@ -899,7 +907,7 @@ class mod_booking_mod_form extends moodleform_mod {
         }
         $mform->addElement('select', 'customtemplateid', get_string('customreporttemplate', 'booking'), $customreporttemplates);
 
-        if (wb_payment::pro_version_is_activated()) {
+        if ($isproversion) {
             $electivehandler = new elective();
             $electivehandler->instance_form_definition($mform);
         }
