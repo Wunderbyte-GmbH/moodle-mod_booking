@@ -65,12 +65,12 @@ Feature: In a booking create booking option with multiple custom options
     And I wait "1" seconds
     And I set the following fields to these values:
       | coursestarttime_1[day]    | 1                  |
-      | coursestarttime_1[month]  | ##today##%B##      |
+      | coursestarttime_1[month]  | March              |
       | coursestarttime_1[year]   | ##today##%Y##      |
       | coursestarttime_1[hour]   | 09                 |
       | coursestarttime_1[minute] | 00                 |
       | courseendtime_1[day]      | 2                  |
-      | courseendtime_1[month]    | ##today##%B##      |
+      | courseendtime_1[month]    | March              |
       | courseendtime_1[year]     | ## + 1 year ##%Y## |
       | courseendtime_1[hour]     | 18                 |
       | courseendtime_1[minute]   | 00                 |
@@ -105,7 +105,7 @@ Feature: In a booking create booking option with multiple custom options
     And I wait until the page is ready
     And I expand all fieldsets
     And I should see "Teacher 1" in the "//div[contains(@id, 'id_bookingoptionteachers_')]//span[contains(@class, 'user-suggestion')]" "xpath_element"
-    And I should see "##tomorrow##%B##" in the "//span[@aria-controls='booking_optiondate_collapse1']" "xpath_element"
+    And I should see "March" in the "//span[@aria-controls='booking_optiondate_collapse1']" "xpath_element"
     And the following fields match these values:
       | Prefix                                | MIB                           |
       | Booking option name                   | Topic: Statistics - Copy 1    |
@@ -123,13 +123,13 @@ Feature: In a booking create booking option with multiple custom options
       | Before booked                         | Before booked message         |
       | After booked                          | After booked message          |
       | coursestarttime_1[day]                | 1                             |
-      | coursestarttime_1[month]              | ##today##%B##                 |
+      | coursestarttime_1[month]              | March                         |
       | coursestarttime_1[year]               | ##today##%Y##                 |
       | coursestarttime_1[hour]               | 09                            |
       | coursestarttime_1[minute]             | 00                            |
       ##| courseendtime_1[day]                 | ##today##%d##                 |
       | courseendtime_1[day]                  | 2                             |
-      | courseendtime_1[month]                | ##today##%B##                 |
+      | courseendtime_1[month]                | March                         |
       | courseendtime_1[year]                 | ## + 1 year ## %Y ##          |
       | courseendtime_1[hour]                 | 18                            |
       | courseendtime_1[minute]               | 00                            |
