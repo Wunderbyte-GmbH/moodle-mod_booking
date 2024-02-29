@@ -273,21 +273,21 @@ $capabilities = [
     // Restricted option form capability. Can be configured via settings.
     'mod/booking:reducedoptionform1' => [
         'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSECAT,
+        'contextlevel' => CONTEXT_MODULE,
     ],
     // Restricted option form capability. Can be configured via settings.
     'mod/booking:reducedoptionform2' => [
         'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSECAT,
+        'contextlevel' => CONTEXT_MODULE,
     ],
     // Restricted option form capability. Can be configured via settings.
     'mod/booking:reducedoptionform3' => [
         'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSECAT,
+        'contextlevel' => CONTEXT_MODULE,
     ],
     // Restricted option form capability. Can be configured via settings.
     'mod/booking:reducedoptionform4' => [
         'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSECAT,
+        'contextlevel' => CONTEXT_MODULE,
     ],
 ];

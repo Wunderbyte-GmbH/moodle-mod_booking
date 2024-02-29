@@ -47,11 +47,15 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  */
 class optionformconfig_info {
 
+    const NOCONFIGURATION = 0;
+    const SHOWFIELD = 1;
+    const HIDEFIELD = 2;
+
     /**
      * Capabilities.
      * @var array
      */
-    public static array $capabilities = [
+    const CAPABILITIES = [
         'mod/booking:expertoptionform',
         'mod/booking:reducedoptionform1',
         'mod/booking:reducedoptionform2',
@@ -71,8 +75,6 @@ class optionformconfig_info {
      */
     public static function return_configured_fields(int $contextid = 0) {
 
-        global $DB;
-
         if (!empty($contextid)) {
             $context = context::instance_by_id($contextid);
         } else {
@@ -81,42 +83,9 @@ class optionformconfig_info {
 
         $returnarray = [];
 
-        foreach (self::$capabilities as $capability) {
+        foreach (self::CAPABILITIES as $capability) {
 
-            if ($record = $DB->get_record('booking_form_config', [
-                    'area' => 'option',
-                    'capability' => $capability,
-                    'contextid' => $context->id,
-                ])) {
-
-                $json = $record->json;
-            } else {
-                // If we don't find a record yet, we create the standard fields.
-                // We get really all fields, without restriction.
-                $fields = core_component::get_component_classes_in_namespace(
-                    "mod_booking",
-                    'option\fields'
-                );
-                $fields = array_map(fn($a) =>
-                    (object)[
-                        'id' => $a::$id,
-                        'classname' => $a::return_classname_name(),
-                        'checked' => in_array(MOD_BOOKING_OPTION_FIELD_STANDARD, $a::$fieldcategories) ?
-                            1 : 0,
-                        'necessary' => in_array(MOD_BOOKING_OPTION_FIELD_NECESSARY, $a::$fieldcategories) ?
-                            1 : 0,
-                        'incompatible' => $a::$incompatiblefields,
-                    ],
-                    array_keys($fields));
-
-                usort($fields, fn($a, $b) => $a->id > $b->id);
-                $json = json_encode($fields);
-            }
-            $returnarray[] = [
-                'id' => $contextid,
-                'capability' => $capability,
-                'json' => $json,
-            ];
+            $returnarray[] = self::return_configured_fields_for_capability($context->id, $capability);
         }
         return $returnarray;
     }
@@ -155,5 +124,77 @@ class optionformconfig_info {
             $status = 'success';
         }
         return $status;
+    }
+
+    /**
+     * Fetches the record from db.
+     * @return array
+     */
+    public static function return_configured_fields_for_capability(int $contextid, string $capability) {
+
+        global $DB;
+
+        if ($record = $DB->get_record('booking_form_config', [
+            'area' => 'option',
+            'capability' => $capability,
+            'contextid' => $contextid,
+        ])) {
+
+            $json = $record->json;
+        } else {
+            // If we don't find a record yet, we create the standard fields.
+            // We get really all fields, without restriction.
+            $fields = core_component::get_component_classes_in_namespace(
+                "mod_booking",
+                'option\fields'
+            );
+            $fields = array_map(fn($a) =>
+                (object)[
+                    'id' => $a::$id,
+                    'classname' => $a::return_classname_name(),
+                    'checked' => in_array(MOD_BOOKING_OPTION_FIELD_STANDARD, $a::$fieldcategories) ?
+                        1 : 0,
+                    'necessary' => in_array(MOD_BOOKING_OPTION_FIELD_NECESSARY, $a::$fieldcategories) ?
+                        1 : 0,
+                    'incompatible' => $a::$incompatiblefields,
+                ],
+                array_keys($fields));
+
+            usort($fields, fn($a, $b) => $a->id > $b->id);
+            $json = json_encode($fields);
+        }
+
+        return [
+            'id' => $contextid,
+            'capability' => $capability,
+            'json' => $json,
+        ];
+    }
+
+    /**
+     * Fetch configured field from DB and check if field is checked for context.
+     * @param int $fieldid
+     * @param int $userid
+     * @param int $contextid
+     * @param string $capability
+     * @return int
+     * @throws dml_exception
+     */
+    public static function return_status_for_field(
+        int $fieldid,
+        int $userid,
+        int $contextid,
+        string $capability) {
+
+        if (!$storedrecord = self::return_configured_fields_for_capability($contextid, $capability)) {
+            return self::NOCONFIGURATION;
+        }
+
+        $configuration = json_decode($storedrecord['json']);
+        if (!empty(array_filter($configuration, fn($a) => ($a->id === $fieldid && $a->checked == 1)))) {
+            return self::SHOWFIELD;
+        } else {
+            return self::HIDEFIELD;
+        }
     }
 }
