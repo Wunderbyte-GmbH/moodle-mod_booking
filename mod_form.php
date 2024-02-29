@@ -162,7 +162,8 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('select', 'viewparam', get_string('viewparam', 'mod_booking'),
             $viewparamoptions);
         $mform->setType('viewparam', PARAM_INT);
-        $mform->setDefault('viewparam', (int)booking::get_value_of_json_by_key($bookingid, 'viewparam') ?? MOD_BOOKING_VIEW_PARAM_LIST);
+        $mform->setDefault('viewparam',
+            (int)booking::get_value_of_json_by_key($bookingid, 'viewparam') ?? MOD_BOOKING_VIEW_PARAM_LIST);
 
         if (!$isproversion) {
             $mform->addElement('html', '<div class="mb-3" style="margin-left: 13rem;">' . get_string('badge:pro', 'mod_booking') .
