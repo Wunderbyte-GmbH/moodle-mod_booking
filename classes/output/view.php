@@ -900,13 +900,13 @@ class view implements renderable, templatable {
         );
 
         // Additional descriptions.
-        $wbtable->add_classes_to_subcolumns('cardlist', ['columnalt' => get_string('locationalt', 'local_musi')],
+        $wbtable->add_classes_to_subcolumns('cardlist', ['columnalt' => get_string('location', 'mod_booking')],
             ['location']);
-        $wbtable->add_classes_to_subcolumns('cardlist', ['columnalt' => get_string('dayofweekalt', 'local_musi')],
+        $wbtable->add_classes_to_subcolumns('cardlist', ['columnalt' => get_string('dayofweektime', 'mod_booking')],
             ['dayofweektime']);
-        $wbtable->add_classes_to_subcolumns('cardlist', ['columnalt' => get_string('bookingsalt', 'local_musi')],
+        $wbtable->add_classes_to_subcolumns('cardlist', ['columnalt' => get_string('bookings', 'mod_booking')],
             ['bookings']);
-        $wbtable->add_classes_to_subcolumns('cardimage', ['cardimagealt' => get_string('imagealt', 'local_musi')],
+        $wbtable->add_classes_to_subcolumns('cardimage', ['cardimagealt' => get_string('bookingoptionimage', 'mod_booking')],
             ['image']);
 
         // At last, we set the correct template!

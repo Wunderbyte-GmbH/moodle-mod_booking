@@ -1105,7 +1105,7 @@ $string['toggleformmode_simple'] = '<i class="fa fa-compress" aria-hidden="true"
 $string['toggleformmode_expert'] = '<i class="fa fa-expand" aria-hidden="true"></i> Wechsle zu Experten-Modus';
 
 // Option_form.php.
-$string['bookingoptionimage'] = 'Bild hochladen';
+$string['bookingoptionimage'] = 'Header-Bild';
 $string['submitandgoback'] = 'Formular schließen';
 $string['bookingoptionprice'] = 'Preis';
 
