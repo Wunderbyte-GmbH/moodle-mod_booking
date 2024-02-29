@@ -1,6 +1,5 @@
 <template>
   <div v-if="configurationList && configurationList.length > 0">
-    <p>Capability Configuration: (LOKALIZE!)</p>
     <ul>
       <li
         v-for="(value, key) in configurationList"
@@ -22,8 +21,12 @@
             disabled
             :checked="1"
           >
-          <label :for="'checkbox_' + key"><strong>{{ store.state.strings[value.classname] }}</strong></label>
-          <i> necessary</i>
+          <label :for="'checkbox_' + key">
+            <strong>
+              <div v-html="store.state.strings[value.classname]" />
+            </strong>
+          </label>
+          <i> {{ store.state.strings.vue_capability_options_necessary }}</i>
         </span>
         <span v-else>
           <input
@@ -34,7 +37,11 @@
             :disabled="disableCheckbox(value)"
             @change="handleCheckboxChange(value)"
           >
-          <label :for="'checkbox_' + key"><strong>{{ store.state.strings[value.classname] }}</strong></label>
+          <label :for="'checkbox_' + key">
+            <strong>
+              <div v-html="store.state.strings[value.classname]" />
+            </strong>
+          </label>
         </span>
         <span class="blocked-message">{{ getBlockMessage(value) }}</span>
       </li>

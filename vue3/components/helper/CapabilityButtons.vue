@@ -1,26 +1,26 @@
 <template>
   <div class="mt-4">
     <div v-if="!showButtons">
-      <p><strong>Capability: (LOKALIZE!!) {{ choosenCapability.name }}</strong></p>
+      <p><strong>{{ store.state.strings.vue_booking_stats_capability }}: {{ choosenCapability.name }}</strong></p>
       <div class="row mt-2">
         <div class="col-md-12">
           <button
             class="btn btn-secondary mr-2"
             @click="showButtons = true; handleCapabilityClick(null)"
           >
-            Back (LOKALIZE!)
+            {{ store.state.strings.vue_booking_stats_back }}
           </button>
           <button
             class="btn btn-primary"
             @click="saveContent"
           >
-            Save (LOKALIZE!)
+            {{ store.state.strings.vue_booking_stats_save }}
           </button>
         </div>
       </div>
       <div class="row mt-2">
         <div class="col-md-12">
-          <ul>
+          <ul class="bottom-line">
             <li>
               <span>
                 <input
@@ -30,7 +30,7 @@
                   type="checkbox"
                   @change="editAll"
                 >
-                <label :for="'select_all'"><strong>Select all</strong></label>
+                <label :for="'select_all'"><strong>{{ store.state.strings.vue_booking_stats_select_all }}</strong></label>
               </span>
             </li>
           </ul>
@@ -38,7 +38,6 @@
       </div>
     </div>
     <div v-else>
-      <p><strong>Capabilites (LOKALIZE!)</strong></p>
       <div class="row">
         <div class="col-md-12">
           <button
@@ -112,3 +111,10 @@ const editAll = () => {
   emit('checkAll', selectAllChecked.value)
 }
 </script>
+
+<style scoped>
+.bottom-line {
+  border-bottom: 1px solid black;
+  padding-bottom: 5px;
+}
+</style>

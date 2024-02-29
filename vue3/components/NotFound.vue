@@ -24,7 +24,12 @@
 
 <template>
   <div class="NotFound">
-    <h2>Route not found</h2>
-    <h3>Please try later again</h3>
+    <h2>{{ store.state.strings.vue_not_found_route_not_found }}</h2>
+    <h3>{{ store.state.strings.vue_not_found_try_again }}</h3>
   </div>
 </template>
+
+<script setup>
+  import { useStore } from 'vuex'
+  const store = useStore();
+</script>

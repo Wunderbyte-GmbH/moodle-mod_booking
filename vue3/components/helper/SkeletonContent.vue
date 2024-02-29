@@ -1,21 +1,21 @@
 <template>
   <div>
     <p class="mb-0">
-      <strong>Name:</strong> 
+      <strong>{{ store.state.strings.vue_dashboard_name }}:</strong> 
       <span 
         class="loading-animation" 
         :style="{ width: generateRandomWidth() }"
       />
     </p>
     <p class="mb-0">
-      <strong>Course Count:</strong>
+      <strong>{{ store.state.strings.vue_dashboard_course_count }}:</strong>
       <span 
         class="loading-animation" 
         :style="{ width: generateRandomWidth() }"
       />
     </p>
     <p class="mb-0">
-      <strong>Path:</strong> 
+      <strong>{{ store.state.strings.vue_dashboard_path }}:</strong> 
       <span 
         class="loading-animation" 
         :style="{ width: generateRandomWidth() }"
@@ -25,7 +25,9 @@
 </template>
 
 <script setup>
-const generateRandomWidth = () => `${Math.floor(Math.random() * 13) + 8}rem`
+  import { useStore } from 'vuex'
+  const store = useStore();
+  const generateRandomWidth = () => `${Math.floor(Math.random() * 13) + 8}rem`
 </script>
 
 <style scoped>

@@ -46,25 +46,25 @@
           v-if="content.name"
           class="mb-0"
         >
-          <strong>Name: (LOKALIZE!)</strong> {{ content.name }}
+          <strong>{{ store.state.strings.vue_dashboard_name }}: </strong> {{ content.name }}
         </p>
         <p
           v-if="content.coursecount"
           class="mb-0"
         >
-          <strong>Course Count: (LOKALIZE!)</strong> {{ content.coursecount }}
+          <strong>{{ store.state.strings.vue_dashboard_course_count }}: </strong> {{ content.coursecount }}
         </p>
         <p
           v-if="content.path"
           class="mb-0"
         >
-          <strong>Path: (LOKALIZE!)</strong> {{ content.path }}
+          <strong>{{ store.state.strings.vue_dashboard_path }}: </strong> {{ content.path }}
         </p>
         <p
           class="mb-0"
         >
           <a href="/course/editcategory.php?parent=0">
-            Create new OE (LOKALIZE!)
+            {{ store.state.strings.vue_dashboard_create_oe }}
           </a>
         </p>
         <p
@@ -72,7 +72,7 @@
           class="mb-0"
         >
           <a :href="'/admin/roles/assign.php?contextid=' + content.contextid">
-            Assign Roles (LOKALIZE!)
+            {{ store.state.strings.vue_dashboard_assign_role }}
           </a>
         </p>
         <BookingStats :bookingstats="content" />

@@ -2284,3 +2284,22 @@ $string['mod/booking:reducedoptionform2'] = 'Reduced booking option 2';
 $string['mod/booking:reducedoptionform3'] = 'Reduced booking option 3';
 $string['mod/booking:reducedoptionform4'] = 'Reduced booking option 4';
 $string['mod/booking:reducedoptionform5'] = 'Reduced booking option 5';
+
+// Vue strings.
+$string['vue_dashboard_name'] = 'Name';
+$string['vue_dashboard_course_count'] = 'Course Count';
+$string['vue_dashboard_path'] = 'Path';
+$string['vue_dashboard_create_oe'] = 'Create new OE';
+$string['vue_dashboard_assign_role'] = 'Assign Roles';
+$string['vue_not_found_route_not_found'] = 'Route not found';
+$string['vue_not_found_try_again'] = 'Please try later again';
+$string['vue_booking_stats_capability'] = 'Capability';
+$string['vue_booking_stats_back'] = 'Back';
+$string['vue_booking_stats_save'] = 'Save';
+$string['vue_booking_stats_select_all'] = 'Select all';
+$string['vue_booking_stats_booking_options'] = 'Booking Options';
+$string['vue_booking_stats_booked'] = 'Booked';
+$string['vue_booking_stats_waiting'] = 'Waiting List';
+$string['vue_booking_stats_reserved'] = 'Reserved';
+$string['vue_capability_options_cap_config'] = 'Capability Configuration';
+$string['vue_capability_options_necessary'] = 'necessary';

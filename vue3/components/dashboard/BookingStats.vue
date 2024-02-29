@@ -3,11 +3,11 @@
     <table class="table mt-2">
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Booking Options</th>
-          <th>Booked</th>
-          <th>Waiting List</th>
-          <th>Reserved</th>
+          <th>{{ store.state.strings.vue_dashboard_name }}</th>
+          <th>{{ store.state.strings.vue_booking_stats_booking_options }}</th>
+          <th>{{ store.state.strings.vue_booking_stats_booked }}</th>
+          <th>{{ store.state.strings.vue_booking_stats_waiting }}</th>
+          <th>{{ store.state.strings.vue_booking_stats_reserved }}</th>
         </tr>
       </thead>
       <tbody>
@@ -29,11 +29,14 @@
 
 <script setup>
 
-const props = defineProps({
-  bookingstats: {
-    type: Array,
-    default: null,
-  },
-});
+  import { useStore } from 'vuex'
+  const store = useStore();
+
+  const props = defineProps({
+    bookingstats: {
+      type: Array,
+      default: null,
+    },
+  });
 
 </script>
