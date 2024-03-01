@@ -95,7 +95,6 @@ export function createAppStore() {
                 if (params.coursecategoryid === 0) {
                     context.commit('setTabs', content);
                 }
-
                 // we get back an array, so we need to get the first element for tab.
                 const tabcontent = content[0];
                 if (tabcontent.json.length > 3) {

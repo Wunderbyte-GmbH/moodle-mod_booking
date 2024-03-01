@@ -124,6 +124,7 @@
     tabsstored.value = store.state.tabs
     tabs.value = store.state.tabs
     content.value = store.state.content
+
   });
 
   watch(() => store.state.tabs, async () => {
@@ -133,14 +134,13 @@
 
   watch(() => store.state.content, async () => {
     content.value = store.state.content
-
   }, { deep: true } );
 
-  function changeTab(index) {
+  async function changeTab(index) {
     activeTab.value = index;
-    store.dispatch('fetchTab', {
+    configlist.value = await store.dispatch('fetchTab', {
       coursecategoryid: index,
-      contextid : 0,
+      contextid : findElementById(tabs.value, index),
     });
   }
 
@@ -154,6 +154,15 @@
 
   const handleCheckAll = (checking) => {
     check.value = checking
+  }
+
+  function findElementById(jsonData, idToFind) {
+      for (var i = 0; i < jsonData.length; i++) {
+          if (jsonData[i].id === idToFind) {
+              return jsonData[i].contextid;
+          }
+      }
+      return 0;
   }
 </script>
 
