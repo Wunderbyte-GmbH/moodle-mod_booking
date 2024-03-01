@@ -1,3 +1,8 @@
+## Version 8.1.29 (2024030100)
+* Bugfix: Fix for leap year bug.
+* Bugfix: Pre- and Post-page conditions like "Bookingpolicy" should not block "allow_add_item_to_cart".
+* Bugfix: Fix download.php of Booking view.
+
 ## Version 8.1.28 (2024022900)
 * New feature: You may now switch between list and cards layout in Booking instance settings.
 * Improvement: Change tab order an make all booking options tab the default.
