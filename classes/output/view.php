@@ -574,7 +574,7 @@ class view implements renderable, templatable {
 
         // Only admins can download.
         if (has_capability('mod/booking:updatebooking', context_module::instance($this->cmid))) {
-            $baseurl = new moodle_url('/mod/booking/download.php');
+            $baseurl = new moodle_url('/mod/booking/download.php', ['cmid' => $this->cmid]);
             $wbtable->define_baseurl($baseurl);
             $wbtable->showdownloadbutton = true;
         }

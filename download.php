@@ -31,17 +31,21 @@ require_login();
 
 require_once($CFG->dirroot . '/local/wunderbyte_table/classes/wunderbyte_table.php');
 
+$cmid = required_param('cmid', PARAM_INT);
 $download = optional_param('download', '', PARAM_ALPHA);
 $encodedtable = optional_param('encodedtable', '', PARAM_RAW);
 
 $context = context_system::instance();
 $PAGE->set_context($context);
-$PAGE->set_url('/download.php');
+$downloadurl = new moodle_url('/mod/booking/download.php', ['cmid' => $cmid]);
+$PAGE->set_url($downloadurl);
+
+$booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
 /** @var bookingoptions_wbtable $table */
 $table = wunderbyte_table::instantiate_from_tablecache_hash($encodedtable);
 
-$bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($table->cmid);
+$bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
 $instancename = $bookingsettings->name;
 
 // Replace special characters to prevent errors.
@@ -53,8 +57,6 @@ $instancename = format_string($instancename);
 // File name and sheet name.
 $fileandsheetname = "download_of_" . $instancename;
 $table->is_downloading($download, $fileandsheetname, $fileandsheetname);
-
-$booking = $table->booking;
 
 $table->headers = [];
 $table->columns = [];
