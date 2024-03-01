@@ -160,7 +160,7 @@ class optionformconfig_info {
                 ],
                 array_keys($fields));
 
-            usort($fields, fn($a, $b) => $a->id > $b->id);
+            usort($fields, fn($a, $b) => $a->id > $b->id ? 1 : -1);
             $json = json_encode($fields);
         }
 
