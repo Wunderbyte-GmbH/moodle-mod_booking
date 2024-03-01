@@ -112,9 +112,11 @@ class bo_info {
      * @param int $optionid
      * @param int $userid If set, specifies a different user ID to check availability for
      * @param bool $hardblock
+     * @param bool $noblockingpages
      * @return array [isavailable, description]
      */
-    public function is_available(int $optionid = null, int $userid = 0, bool $hardblock = false): array {
+    public function is_available(int $optionid = null, int $userid = 0, bool $hardblock = false,
+        bool $noblockingpages = false): array {
 
         if (!$optionid) {
             $optionid = $this->optionid;
@@ -134,6 +136,12 @@ class bo_info {
                 if ($id === 0 || $result['id'] > $id) {
                     if (has_capability('local/shopping_cart:cashier', context_system::instance()) &&
                         $result['button'] == MOD_BOOKING_BO_BUTTON_MYALERT) {
+                        continue;
+                    }
+                    // Pages should not block the "allow_add_item_to_cart" function if $noblockingpages is true.
+                    if ($noblockingpages &&
+                        ($result['insertpage'] == MOD_BOOKING_BO_PREPAGE_PREBOOK ||
+                        $result['insertpage'] == MOD_BOOKING_BO_PREPAGE_POSTBOOK)) {
                         continue;
                     }
                     $description = $result['description'];

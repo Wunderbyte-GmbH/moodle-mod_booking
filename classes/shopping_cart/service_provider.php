@@ -416,7 +416,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             // There are two cases where we can actually book.
             // We call thefunction with hadblock set to true.
             // This means that we only get those blocks that actually should prevent booking.
-            list($id, $isavailable, $description) = $boinfo->is_available($itemid, $userid, true);
+            list($id, $isavailable, $description) = $boinfo->is_available($itemid, $userid, true, true);
 
             // These conditions are allowed, so we need a check.
             $allowedconditions = [
