@@ -21,14 +21,15 @@ Feature: In a booking instance
       | student1 | C1     | student        |
       | student2 | C1     | student        |
     And the following "activities" exist:
-      | activity | course | name       | intro                  | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail |
-      | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | All bookings                     | Yes                      |
-    And I create booking option "Test option 1" in "My booking"
-    And I create booking option "Test option 2" in "My booking"
+      | activity | course | name       | intro                  | bookingmanager | eventtype | cancancelbook | Default view for booking options |
+      | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | 1             | All bookings                     |
 
   @javascript
-  Scenario: Simple booking of oprion as a student without cancellation
-    Given I am on the "My booking" Activity page logged in as teacher1
+  Scenario: Booking option cancellation: disable cancellation and booking of oprion as a student
+    Given the following "mod_booking > options" exist:
+      | booking    | text          | course | description  |
+      | My booking | Test option 1 | C1     | Cancellation |
+    And I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
     And I follow "Advanced options"
     And I set the field "Allow users to cancel their booking themselves" to ""
@@ -43,13 +44,11 @@ Feature: In a booking instance
     And I should not see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
 
   @javascript
-  Scenario: Simple booking of oprion as a student with cancellation
-    Given I am on the "My booking" Activity page logged in as teacher1
-    And I follow "Settings"
-    And I follow "Advanced options"
-    And I set the field "Allow users to cancel their booking themselves" to "checked"
-    And I press "Save and display"
-    When I am on the "My booking" Activity page logged in as student1
+  Scenario: Booking option cancellation: book oprion as a student and self-cancell it
+    Given the following "mod_booking > options" exist:
+      | booking    | text          | course | description  |
+      | My booking | Test option 1 | C1     | Cancellation |
+    And I am on the "My booking" Activity page logged in as student1
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
@@ -61,3 +60,66 @@ Feature: In a booking instance
     Then I should see "Click again to confirm cancellation" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm cancellation" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+
+  @javascript
+  Scenario: Booking option cancellation: try self-cancell future option as a student with different disallow settings
+    Given the following "mod_booking > options" exist:
+      | booking    | text          | course | description  | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | My booking | Test option 1 | C1     | Cancellation | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+    ## Important: ## tomorrow ## means 00:00 start time! 
+    And I am on the "My booking" Activity page logged in as teacher1
+    And I follow "Settings"
+    And I follow "Advanced options"
+    ## name for "Disallow users to cancel their booking n days before start..."
+    And I set the field "allowupdatedays" to "1"
+    And I press "Save and display"
+    And I log out
+    When I am on the "My booking" Activity page logged in as student1
+    And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    And I should not see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I log out
+    And I am on the "My booking" Activity page logged in as teacher1
+    And I follow "Settings"
+    And I follow "Advanced options"
+    And I set the field "allowupdatedays" to "0"
+    And I press "Save and display"
+    And I log out
+    When I am on the "My booking" Activity page logged in as student1
+    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+
+  @javascript
+  Scenario: Booking option cancellation: try self-cancell ongoing option as a student with different disallow settings
+    Given the following "mod_booking > options" exist:
+      | booking    | text          | course | description  | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | My booking | Test option 1 | C1     | Cancellation | 1           | 0              | 0              | ## today ##       | ## +2 days ##   |
+    ## Important: ## tomorrow ## means 00:00 start time! 
+    And I am on the "My booking" Activity page logged in as teacher1
+    And I follow "Settings"
+    And I follow "Advanced options"
+    ## name for "Disallow users to cancel their booking n days before start..."
+    And I set the field "Allow booking after course start" to "checked"
+    And I set the field "allowupdatedays" to "0"
+    And I press "Save and display"
+    And I log out
+    When I am on the "My booking" Activity page logged in as student1
+    And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    And I should not see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I log out
+    And I am on the "My booking" Activity page logged in as teacher1
+    And I follow "Settings"
+    And I follow "Advanced options"
+    And I set the field "allowupdatedays" to "-1"
+    And I press "Save and display"
+    And I log out
+    When I am on the "My booking" Activity page logged in as student1
+    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
