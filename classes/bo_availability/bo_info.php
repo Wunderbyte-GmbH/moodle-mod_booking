@@ -27,6 +27,7 @@ namespace mod_booking\bo_availability;
 use context_module;
 use context_system;
 use local_shopping_cart\shopping_cart;
+use mod_booking\booking;
 use mod_booking\booking_bookit;
 use mod_booking\booking_option_settings;
 use mod_booking\output\bookingoption_description;
@@ -979,6 +980,15 @@ class bo_info {
         $continuelabel = get_string('continue');
         $continuelink = '#';
 
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $viewparam = booking::get_value_of_json_by_key($settings->bookingid, 'viewparam');
+        $turnoffmodals = 0; // By default, we use modals.
+        if ($viewparam == MOD_BOOKING_VIEW_PARAM_LIST) {
+            // Only if we use list view, we can use inline modals.
+            // So only in this case, we need to check the config setting.
+            $turnoffmodals = get_config('booking', 'turnoffmodals');
+        }
+
         if ($conditions[$pagenumber]['id'] === MOD_BOOKING_BO_COND_CONFIRMATION) {
             // We need to decide if we want to show on the last page a "go to checkout" button.
             if (self::has_price_set($results)) {
@@ -995,7 +1005,7 @@ class bo_info {
                             $continuelink = $url->out();
                             $continuebutton = true;
                         } else {
-                            $continueaction = empty(get_config('booking', 'turnoffmodals')) ? 'closemodal' : 'closeinline';
+                            $continueaction = empty($turnoffmodals) ? 'closemodal' : 'closeinline';
                             $continuelabel = get_string('close', 'mod_booking');
                             $continuelink = "#checkout";
                             $continuebutton = true;
@@ -1004,13 +1014,13 @@ class bo_info {
                         break;
                     default:
                         $continuebutton = true;
-                        $continueaction = empty(get_config('booking', 'turnoffmodals')) ? 'closemodal' : 'closeinline';
+                        $continueaction = empty($turnoffmodals) ? 'closemodal' : 'closeinline';
                         $continuelabel = get_string('close', 'mod_booking');
                         break;
                 }
             } else {
                 $continuebutton = true;
-                $continueaction = empty(get_config('booking', 'turnoffmodals')) ? 'closemodal' : 'closeinline';
+                $continueaction = empty($turnoffmodals) ? 'closemodal' : 'closeinline';
                 $continuelabel = get_string('close', 'mod_booking');
             }
         }

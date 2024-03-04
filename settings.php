@@ -160,7 +160,7 @@ if ($ADMIN->fulltree) {
                 get_string('collapseshowsettings_desc', 'mod_booking'),
                 2, $options));
 
-        // Turn off wunderbyte branding.
+        // Turn off modals.
         $settings->add(
             new admin_setting_configcheckbox('booking/turnoffmodals',
                     get_string('turnoffmodals', 'mod_booking'),

@@ -179,7 +179,15 @@ class booking_bookit {
 
             $datas[] = $data;
 
-            if (empty(get_config('booking', 'turnoffmodals'))) {
+            $viewparam = booking::get_value_of_json_by_key($settings->bookingid, 'viewparam');
+            $turnoffmodals = 0; // By default, we use modals.
+            if ($viewparam == MOD_BOOKING_VIEW_PARAM_LIST) {
+                // Only if we use list view, we can use inline modals.
+                // So only in this case, we need to check the config setting.
+                $turnoffmodals = get_config('booking', 'turnoffmodals');
+            }
+
+            if (empty($turnoffmodals)) {
                 $templates[] = 'mod_booking/bookingpage/prepagemodal';
             } else {
                 $templates[] = 'mod_booking/bookingpage/prepageinline';
