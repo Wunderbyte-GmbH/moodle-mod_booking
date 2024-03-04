@@ -83,6 +83,8 @@ class optiondates extends field_base {
         'courseenddate',
         'dayofweektime',
         'semesterid',
+        'starddate',
+        'enddate',
     ];
 
     /**
