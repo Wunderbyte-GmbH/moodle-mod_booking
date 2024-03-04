@@ -266,7 +266,7 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="optionid" UNIQUE="false" FIELDS="optionid, otheroptionid"/>
+        <INDEX NAME="optionid-otheroptionid" UNIQUE="false" FIELDS="optionid, otheroptionid"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="booking_optiondates" COMMENT="Default comment for the table, please edit me">
@@ -304,7 +304,7 @@
         <KEY NAME="fk_userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+        <!-- DO NOT ADD INDEXES FOR optiondateid AND userid here as we already have foreign keys for them! -->
         <INDEX NAME="optiondateid-userid" UNIQUE="false" FIELDS="optiondateid, userid"/>
       </INDEXES>
     </TABLE>
