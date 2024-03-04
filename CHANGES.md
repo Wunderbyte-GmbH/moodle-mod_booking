@@ -1,3 +1,6 @@
+## Version 8.1.30 (2024030400)
+* Bugfix: Several fixes for indexes and foreign keys.
+
 ## Version 8.1.29 (2024030100)
 * Bugfix: Fix for leap year bug.
 * Bugfix: Pre- and Post-page conditions like "Bookingpolicy" should not block "allow_add_item_to_cart".
