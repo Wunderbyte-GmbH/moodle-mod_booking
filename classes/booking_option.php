@@ -33,6 +33,7 @@ use context_system;
 use context;
 use dml_exception;
 use Exception;
+use html_writer;
 use invalid_parameter_exception;
 use local_entities\entitiesrelation_handler;
 use mod_booking\bo_availability\conditions\customform;
@@ -2313,8 +2314,25 @@ class booking_option {
                     $forbookeduser);
             }
 
-            $returnarray[] = $returnsession;
+            if (class_exists('local_entities\entitiesrelation_handler')) {
+                $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate', $date->id);
+                $entity = $erhandler->get_instance_data($date->id);
+                $entityid = $erhandler->get_entityid_by_instanceid($date->id);
+                if (!empty($entityid)) {
+                    $entityurl = new moodle_url('/local/entities/view.php', ['id' => $entityid]);
+                }
+                if (!empty($entity->parentname)) {
+                    $entityfullname = "$entity->parentname ($entity->name)";
+                } else if (!empty($entity->name)) {
+                    $entityfullname = $entity->name;
+                }
+                if (!empty($entityurl) && !empty($entityfullname)) {
+                    $returnsession['entitylink'] = html_writer::link($entityurl->out(false), $entityfullname,
+                        ['target' => '_blank']);
+                }
+            }
 
+            $returnarray[] = $returnsession;
         }
 
         return $returnarray;

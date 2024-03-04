@@ -160,6 +160,11 @@
                             <div class="list-group-item">
                                 <div>
                                     <b>{{{datestring}}}</b>
+                                    {{#entitylink}}
+                                        <div class="entity-for-optiondate-area small">
+                                            <i class="fa fa-fw fa-sm fa-map-marker" aria-hidden="true"></i>&nbsp;{{{.}}}
+                                        </div>
+                                    {{/entitylink}}
                                 </div>
                                 <div {{^customfields}}style="display:none"{{/customfields}}>
                                     {{#customfields}}
