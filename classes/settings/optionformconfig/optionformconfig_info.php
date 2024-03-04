@@ -134,12 +134,30 @@ class optionformconfig_info {
 
         global $DB;
 
-        if ($record = $DB->get_record('booking_form_config', [
-            'area' => 'option',
-            'capability' => $capability,
-            'contextid' => $contextid,
-        ])) {
+        // We dont know where exactly the config is in the context path.
+        // There might be a config higher up, eg. for the course category.
+        // Therefore, we look for all the contextids in the path, sorted by context_level.
+        // We use the highest, ie most specific context_level.
+        $context = context::instance_by_id($contextid);
+        $path = $context->path;
 
+        $patharray = explode('/', $path);
+
+        $patharray = array_map(fn($a) => (int)$a, $patharray);
+
+        list($inorequal, $params) = $DB->get_in_or_equal($patharray, SQL_PARAMS_NAMED);
+
+        $sql = "SELECT *
+                FROM {booking_form_config} bfc
+                JOIN {context} c ON bfc.contextid=c.id
+                WHERE bfc.area='option'
+                AND bfc.capability=:capability
+                AND bfc.contextid $inorequal
+                ORDER BY c.contextlevel DESC";
+
+        $params['capability'] = $capability;
+
+        if ($record = $DB->get_record_sql($sql, $params, IGNORE_MULTIPLE)) {
             $json = $record->json;
         } else {
             // If we don't find a record yet, we create the standard fields.
