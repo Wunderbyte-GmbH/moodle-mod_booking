@@ -130,10 +130,10 @@ class get_parent_categories extends external_api {
             new external_single_structure(
                 array(
                     'id' => new external_value(PARAM_INT, 'Item id', VALUE_DEFAULT, 0),
-                    'name' => new external_value(PARAM_TEXT, 'Item name', VALUE_DEFAULT, ''),
+                    'name' => new external_value(PARAM_RAW, 'Item name', VALUE_DEFAULT, ''),
                     'contextid' => new external_value(PARAM_TEXT, 'Contextid', VALUE_DEFAULT, 1),
                     'coursecount' => new external_value(PARAM_TEXT, 'Coursecount', VALUE_DEFAULT, 0),
-                    'description' => new external_value(PARAM_TEXT, 'description', VALUE_DEFAULT, ''),
+                    'description' => new external_value(PARAM_RAW, 'description', VALUE_DEFAULT, ''),
                     'path' => new external_value(PARAM_TEXT, 'path', VALUE_DEFAULT, ''),
                     'json' => new external_value(PARAM_RAW, 'json', VALUE_DEFAULT, '{}'),
                 )
