@@ -62,16 +62,6 @@ class option_form extends dynamic_form {
     public function definition() {
         global $DB, $PAGE, $OUTPUT;
 
-        /* At first get the option form configuration from DB.
-        Unfortunately, we need this, because hideIf does not work with
-        editors, headers and html elements. */
-        $optionformconfig = [];
-        if ($optionformconfigrecords = $DB->get_records('booking_optionformconfig')) {
-            foreach ($optionformconfigrecords as $optionformconfigrecord) {
-                $optionformconfig[$optionformconfigrecord->elementname] = $optionformconfigrecord->active;
-            }
-        }
-
         $formdata = $this->_customdata ?? $this->_ajaxformdata;
 
         // We need context on this.
@@ -79,44 +69,13 @@ class option_form extends dynamic_form {
         $formdata['context'] = $context;
         $optionid = $formdata['optionid'];
 
-        // Get the form mode, which can be 'simple' or 'expert'.
-        if (isset($formdata['formmode'])) {
-            // Formmode can also be set via custom data.
-            // Currently we only need this for the optionformconfig...
-            // ...which needs to be set to 'expert', so it shows all checkboxes.
-            $this->formmode = $formdata['formmode'];
-        } else {
-            // Normal case: we get formmode from user preferences.
-            $this->formmode = get_user_preferences('optionform_mode');
-        }
-
-        if (empty($this->formmode)) {
-            // Default: Simple mode.
-            $this->formmode = 'simple';
-        }
-
-        // We add the formmode to the optionformconfig.
-        $optionformconfig['formmode'] = $this->formmode;
-
         $mform = &$this->_form;
 
         $mform->addElement('hidden', 'scrollpos');
         $mform->setType('scrollpos', PARAM_INT);
 
         // Add all available fields in the right order.
-        fields_info::instance_form_definition($mform, $formdata, $optionformconfig);
-
-        // Hide all elements which have been removed in the option form config.
-        // Only do this, if the form mode is set to 'simple'. In expert mode we do not hide anything.
-        if ($this->formmode == 'simple' && $cfgelements = $DB->get_records('booking_optionformconfig')) {
-            foreach ($cfgelements as $cfgelement) {
-                if ($cfgelement->active == 0) {
-                    $mform->addElement('hidden', 'cfg_' . $cfgelement->elementname, (int) $cfgelement->active);
-                    $mform->setType('cfg_' . $cfgelement->elementname, PARAM_INT);
-                    $mform->hideIf($cfgelement->elementname, 'cfg_' . $cfgelement->elementname, 'eq', 0);
-                }
-            }
-        }
+        fields_info::instance_form_definition($mform, $formdata);
 
         $this->add_action_buttons(true, get_string('save'));
     }

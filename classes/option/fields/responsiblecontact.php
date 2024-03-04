@@ -105,16 +105,9 @@ class responsiblecontact extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
-        // Responsible contact person.
-        // Workaround: Only show, if it is not turned off in the option form config.
-        // We currently need this, because hideIf does not work with headers.
-        // In expert mode, we do not hide anything.
-        if ($optionformconfig['formmode'] == 'expert' ||
-            !isset($optionformconfig['responsiblecontactheader']) || $optionformconfig['responsiblecontactheader'] == 1) {
-            // Advanced options.
-            $mform->addElement('header', 'responsiblecontactheader',
+        $mform->addElement('header', 'responsiblecontactheader',
             '<i class="fa fa-fw fa-user" aria-hidden="true"></i>&nbsp;' . get_string('responsiblecontact', 'mod_booking'));
-        }
+
         // Responsible contact person - autocomplete.
         $options = [
             'ajax' => 'mod_booking/form_users_selector',

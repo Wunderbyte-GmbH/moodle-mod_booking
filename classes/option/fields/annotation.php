@@ -119,21 +119,13 @@ class annotation extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
-        // Internal annotation.
-        // Workaround: Only show, if it is not turned off in the option form config.
-        // We currently need this, because hideIf does not work with editors.
-        // In expert mode, we do not hide anything.
-        if ($optionformconfig['formmode'] == 'expert' ||
-            !isset($optionformconfig['annotation']) || $optionformconfig['annotation'] == 1) {
+        // Standardfunctionality to add a header to the mform (only if its not yet there).
+        fields_info::add_header_to_mform($mform, self::$header);
 
-            // Standardfunctionality to add a header to the mform (only if its not yet there).
-            fields_info::add_header_to_mform($mform, self::$header);
-
-            $mform->addElement('editor', 'annotation', get_string('optionannotation', 'mod_booking'),
-                ['rows' => 5]);
-            $mform->setType('annotation', PARAM_CLEANHTML);
-            $mform->addHelpButton('annotation', 'optionannotation', 'mod_booking');
-        }
+        $mform->addElement('editor', 'annotation', get_string('optionannotation', 'mod_booking'),
+            ['rows' => 5]);
+        $mform->setType('annotation', PARAM_CLEANHTML);
+        $mform->addHelpButton('annotation', 'optionannotation', 'mod_booking');
     }
 
     /**
