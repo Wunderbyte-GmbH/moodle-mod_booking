@@ -3332,6 +3332,8 @@ class booking_option {
         if (is_array($data) || isset($data->importing)) {
             $data = (object)$data;
 
+            $data->importing = true;
+
             // If we encounter an error in set data, we need to exit here.
             $errormessage = fields_info::set_data($data);
             if (!empty($errormessage)) {
