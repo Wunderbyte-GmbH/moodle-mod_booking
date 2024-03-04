@@ -49,6 +49,7 @@ $string['confirmoptioncreation'] = 'Wollen Sie diese Buchungsoption splitten sod
  Buchungsoption erstellt wird?';
 $string['createoptionsfromoptiondate'] = 'Für jeden Einzeltermin eine neue Buchungsoption erstellen';
 $string['customformnotchecked'] = 'Noch nicht akzeptiert.';
+$string['customfieldsplaceholdertext'] = 'Benutzerdefinierte Felder';
 $string['updatebooking'] = 'Update Buchung';
 $string['booking:manageoptiontemplates'] = "Buchungsoptionsvorlagen verwalten";
 $string['booking:overrideboconditions'] = 'Nutzer:in darf buchen auch wenn Verfügbarkeit false zurückliefert.';

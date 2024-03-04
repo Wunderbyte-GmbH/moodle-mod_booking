@@ -52,6 +52,7 @@ $string['confirmoptioncreation'] = 'Do you want to split this booking option so 
  from each individual date of this booking option?';
 $string['createoptionsfromoptiondate'] = 'For each option date create a new option';
 $string['customformnotchecked'] = 'You didn\'t accept yet.';
+$string['customfieldsplaceholdertext'] = 'Custom fields';
 $string['updatebooking'] = 'Update booking';
 $string['booking:manageoptiontemplates'] = "Manage option templates";
 $string['booking:overrideboconditions'] = 'User can book even when conditions return false.';

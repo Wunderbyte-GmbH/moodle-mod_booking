@@ -735,53 +735,56 @@ class view implements renderable, templatable {
 
         if ($filter) {
             $filtercolumns = [];
+
             if (in_array('teacher', $optionsfields)) {
-                $filtercolumns['teacherobjects'] = [
-                    'localizedname' => get_string('teachers', 'mod_booking'),
+
+                $standardfilter = new standardfilter('teacherobjects', get_string('teachers', 'mod_booking'));
+                $standardfilter->add_options([
                     'jsonattribute' => 'name',
-                ];
+                ]);
+                $standardfilter->add_filter($filtercolumns);
             }
             if (in_array('location', $optionsfields)) {
-                $filtercolumns['location'] = [
-                    'localizedname' => get_string('location', 'mod_booking'),
-                ];
+
+                $standardfilter = new standardfilter('location', get_string('location', 'mod_booking'));
+                $standardfilter->add_filter($filtercolumns);
             }
             if (in_array('institution', $optionsfields)) {
-                $filtercolumns['institution'] = [
-                    'localizedname' => get_string('institution', 'mod_booking'),
-                ];
+
+                $standardfilter = new standardfilter('institution', get_string('institution', 'mod_booking'));
+                $standardfilter->add_filter($filtercolumns);
             }
 
-            $filtercolumns['coursestarttime'] = [
-                'localizedname' => get_string('timefilter:coursetime', 'mod_booking'),
-                'datepicker' => [
-                    'In between' => [
-                        'possibleoperations' => ['within', 'flexoverlap', 'before', 'after'],
-                        'columntimestart' => 'coursestarttime',
-                        'columntimeend' => 'courseendtime',
-                        'labelstartvalue' => get_string('coursestarttime', 'mod_booking'),
-                        'defaultvaluestart' => 'now', // Can also be Unix timestamp or string "now".
-                        'labelendvalue' => get_string('courseendtime', 'mod_booking'),
-                        'defaultvalueend' => 'now + 1 year', // Can also be Unix timestamp or string "now".
-                        'checkboxlabel' => get_string('apply_filter', 'local_wunderbyte_table'),
-                    ],
-                ],
-            ];
-            $filtercolumns['bookingopeningtime'] = [
-                'localizedname' => get_string('timefilter:bookingtime', 'mod_booking'),
-                'datepicker' => [
-                    'In between' => [
-                        'possibleoperations' => ['within', 'flexoverlap', 'before', 'after'],
-                        'columntimestart' => 'bookingopeningtime',
-                        'columntimeend' => 'bookingclosingtime',
-                        'labelstartvalue' => get_string('bookingopeningtime', 'mod_booking'),
-                        'defaultvaluestart' => 'now', // Can also be Unix timestamp or string "now".
-                        'labelendvalue' => get_string('bookingclosingtime', 'mod_booking'),
-                        'defaultvalueend' => 'now + 1 year', // Can also be Unix timestamp or string "now".
-                        'checkboxlabel' => get_string('apply_filter', 'local_wunderbyte_table'),
-                    ],
-                ],
-            ];
+            $datepicker = new datepicker(
+                'coursestarttime',
+                get_string('timefilter:coursetime', 'mod_booking'),
+                'columntimeend'
+            );
+            $datepicker->add_options(
+                'in between',
+                '<',
+                get_string('apply_filter', 'local_wunderbyte_table'),
+                'now',
+                'now + 1 year'
+            );
+            $datepicker->add_filter($filtercolumns);
+
+            $datepicker = new datepicker(
+                'bookingopeningtime',
+                get_string('bookingopeningtime', 'mod_booking'),
+                'bookingclosingtime',
+                get_string('bookingclosingtime', 'mod_booking')
+            );
+            $datepicker->add_options(
+                'in between',
+                '<',
+                get_string('apply_filter', 'local_wunderbyte_table'),
+                'now',
+                'now + 1 year'
+            );
+
+            $datepicker->add_filter($filtercolumns);
+
             $wbtable->define_filtercolumns($filtercolumns);
         }
 
