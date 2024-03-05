@@ -320,11 +320,23 @@ class booking_option_settings {
     private function set_values(int $optionid, object $dbrecord = null) {
         global $DB;
 
+        if (empty($optionid)) {
+            return;
+        }
+
         // If we don't get the cached object, we have to fetch it here.
         if ($dbrecord === null) {
 
-            // At this point, we don't now anything about any other context, so we get system.
-            $context = context_system::instance();
+            $params['id'] = $optionid;
+            $sql = "SELECT cm.id
+                    FROM {booking_options} bo
+                    JOIN {course_modules} cm ON bo.bookingid=cm.instance
+                    JOIN {modules} m ON m.id=cm.module
+                    WHERE m.name='booking'
+                    AND bo.id=:id";
+            $cmid = $DB->get_field_sql($sql, $params);
+
+            $context = context_module::instance($cmid);
 
             list($select, $from, $where, $params) = booking::get_options_filter_sql(null, 1, null, '*',
                 $context, [], ['id' => $optionid]);
