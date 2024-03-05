@@ -465,4 +465,33 @@ class booking_answers {
             return false;
         }
     }
+
+    /**
+     * Function to return the number of active bookings of a user.
+     * Optionally for booking opitons with a given teacher.
+     * @param int $userid
+     * @param int $teacherid
+     * @return int
+     * @throws dml_exception
+     */
+    public static function number_actively_booked(int $userid, int $teacherid = 0) {
+
+        global $DB;
+
+        $params = [
+            'userid' => $userid,
+            'teacherid' => $teacherid,
+        ];
+
+        $where = !empty($teacherid) ? " AND bt.userid = :teacherid " : "";
+
+        $sql = "SELECT COUNT(ba.id)
+                FROM {booking_answers} ba
+                JOIN {booking_teachers} bt ON ba.optionid=bt.optionid
+                WHERE ba.waitinglist = 0
+                AND ba.userid = :userid
+                $where";
+
+        return $DB->count_records_sql($sql, $params);
+    }
 }

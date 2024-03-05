@@ -26,6 +26,7 @@ namespace mod_booking\output;
 
 use context_system;
 use context_module;
+use mod_booking\booking_answers;
 use mod_booking\singleton_service;
 use moodle_url;
 use renderer_base;
@@ -91,7 +92,7 @@ class page_teacher implements renderable, templatable {
      * @return array
      */
     public function export_for_template(renderer_base $output) {
-        global $PAGE, $CFG;
+        global $PAGE, $CFG, $USER;
 
         $context = context_system::instance();
         if (!isset($PAGE->context)) {
@@ -126,9 +127,11 @@ class page_teacher implements renderable, templatable {
         // If the plugin setting to show all teacher e-mails (teachersshowemails) is turned on...
         // ... then teacher e-mails will always be shown to anyone.
         if (!empty($this->teacher->email) &&
-            ($this->teacher->maildisplay == 1 ||
-                has_capability('mod/booking:updatebooking', $context) ||
-                get_config('booking', 'teachersshowemails')
+            ($this->teacher->maildisplay == 1
+                || has_capability('mod/booking:updatebooking', $context)
+                || get_config('booking', 'teachersshowemails')
+                || (get_config('booking', 'bookedteachersshowemails')
+                    && (booking_answers::number_actively_booked($USER->id, $this->teacher->id) > 0))
             )) {
             $returnarray['teacher']['email'] = $this->teacher->email;
         }
