@@ -152,7 +152,11 @@ class availability extends field_base {
 
                 $data->bo_cond_enrolledincourse_courseids = array_keys($courses);
                 $data->bo_cond_enrolledincourse_restrict = 1;
+                // The operator defaults to "OR", but can be set via the boavenrolledincourseoperator column.
+                $data->bo_cond_enrolledincourse_courseids_operator
+                    = $data->boavenrolledincourseoperator ?? 'OR';
                 unset($data->boavenrolledincourse);
+                unset($data->boavenrolledincourseoperator);
             }
         } else {
             $availability = $settings->availability ?? "{}";
