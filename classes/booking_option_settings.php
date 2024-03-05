@@ -336,7 +336,11 @@ class booking_option_settings {
                     AND bo.id=:id";
             $cmid = $DB->get_field_sql($sql, $params);
 
-            $context = context_module::instance($cmid);
+            if ($cmid) {
+                $context = context_module::instance($cmid);
+            } else {
+                $context = context_system::instance();
+            }
 
             list($select, $from, $where, $params) = booking::get_options_filter_sql(null, 1, null, '*',
                 $context, [], ['id' => $optionid]);
