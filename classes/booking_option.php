@@ -639,13 +639,7 @@ class booking_option {
         self::purge_cache_for_answers($this->optionid);
 
         // If the whole option was cancelled, there is no need to sync anymore.
-        if ($syncwaitinglist && (!$bookingoptioncancel && (
-            // Moving up from waiting list has not been turned off in settings.php.
-            !get_config('booking', 'turnoffwaitinglistaftercoursestart') ||
-            /* Moving up from waiting list has been turned off in settings.php,
-            but we still do sync if the booking option has not started yet. */
-            (get_config('booking', 'turnoffwaitinglistaftercoursestart') && time() < $optionsettings->coursestarttime))
-        )) {
+        if ($syncwaitinglist && !$bookingoptioncancel) {
             // Sync the waiting list and send status change mails.
             $this->sync_waiting_list();
         }
@@ -787,14 +781,15 @@ class booking_option {
     public function sync_waiting_list() {
         global $USER;
 
+        $context = context_module::instance(($this->cmid));
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+
         // If waiting list is turned off globally, we return right away.
-        if (get_config('booking', 'turnoffwaitinglist')) {
+        if (get_config('booking', 'turnoffwaitinglist') ||
+            (get_config('booking', 'turnoffwaitinglistaftercoursestart') && time() > $settings->coursestarttime)
+        ) {
             return;
         }
-
-        $context = context_module::instance(($this->cmid));
-
-        $settings = $this->settings;
 
         $ba = singleton_service::get_instance_of_booking_answers($settings);
 
@@ -811,6 +806,9 @@ class booking_option {
                 while ($noofuserstobook > 0) {
                     $noofuserstobook--; // Decrement.
                     $currentanswer = array_shift($usersonwaitinglist);
+                    if (empty($currentanswer->userid)) {
+                        continue;
+                    }
                     $user = singleton_service::get_instance_of_user($currentanswer->userid);
                     $this->user_submit_response($user, 0, 0, false, MOD_BOOKING_VERIFIED);
                     $this->enrol_user_coursestart($currentanswer->userid);
@@ -3359,21 +3357,21 @@ class booking_option {
 
         fields_info::save_fields_post($data, $newoption, $updateparam);
 
-        // We need to purge cache after updating an option.
+        // We need to keep the previous values (before purging caches).
+        $oldsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        // Only now, we can purge.
         self::purge_cache_for_option($newoption->id);
 
-        // If the whole option was cancelled, there is no need to sync anymore.
-        if (// Moving up from waiting list has not been turned off in settings.php.
-            !get_config('booking', 'turnoffwaitinglistaftercoursestart') ||
-            /* Moving up from waiting list has been turned off in settings.php,
-            but we still do sync if the booking option has not started yet. */
-            (get_config('booking', 'turnoffwaitinglistaftercoursestart') && time() < $newoption->coursestarttime)) {
-            // Sync the waiting list and send status change mails.
+        $option = singleton_service::get_instance_of_booking_option($data->cmid, $optionid);
 
-            if ($data->maxanswers < $newoption->maxanswers) {
-                $option = singleton_service::get_instance_of_booking_option($data->cmid, $newoption->id);
-                $option->sync_waiting_list();
-            }
+        // Sync the waiting list and send status change mails.
+        if ($oldsettings->maxanswers < $newoption->maxanswers) {
+            // We have more places now, so we can sync without danger.
+            $option->sync_waiting_list();
+        } else if ($oldsettings->maxanswers > $newoption->maxanswers &&
+            !get_config('booking', 'keepusersbookedonreducingmaxanswers')) {
+            // We have less places now, so we only sync if the setting to keep users booked is turned off.
+            $option->sync_waiting_list();
         }
 
         // Now check, if there are rules to execute.
