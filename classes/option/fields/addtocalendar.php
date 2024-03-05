@@ -131,7 +131,7 @@ class addtocalendar extends field_base {
 
         global $DB;
 
-        if ($data->addtocalendar == 1) {
+        if (isset($data->addtocalendar) && $data->addtocalendar == 1) {
 
             $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
             // We need to make sure not to run the calendar function on a tmeplate without a cmid.
