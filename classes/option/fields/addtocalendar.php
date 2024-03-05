@@ -134,7 +134,9 @@ class addtocalendar extends field_base {
         if ($data->addtocalendar == 1) {
 
             $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
-            if ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $option->id])) {
+            // We need to make sure not to run the calendar function on a tmeplate without a cmid.
+            if (!empty($settings->cmid) &&
+                ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $option->id]))) {
                 foreach ($optiondates as $optiondate) {
                     if ($DB->record_exists('event', ['id' => $optiondate->eventid])) {
                         continue;
