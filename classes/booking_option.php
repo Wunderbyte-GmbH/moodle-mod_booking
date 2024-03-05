@@ -3359,6 +3359,20 @@ class booking_option {
         // We need to purge cache after updating an option.
         self::purge_cache_for_option($newoption->id);
 
+        // If the whole option was cancelled, there is no need to sync anymore.
+        if (// Moving up from waiting list has not been turned off in settings.php.
+            !get_config('booking', 'turnoffwaitinglistaftercoursestart') ||
+            /* Moving up from waiting list has been turned off in settings.php,
+            but we still do sync if the booking option has not started yet. */
+            (get_config('booking', 'turnoffwaitinglistaftercoursestart') && time() < $newoption->coursestarttime)) {
+            // Sync the waiting list and send status change mails.
+
+            if ($data->maxanswers < $newoption->maxanswers) {
+                $option = singleton_service::get_instance_of_booking_option($data->cmid, $newoption->id);
+                $option->sync_waiting_list();
+            }
+        }
+
         // Now check, if there are rules to execute.
         rules_info::execute_rules_for_option($newoption->id);
 
