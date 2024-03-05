@@ -125,6 +125,24 @@ class singleton_service {
     }
 
     /**
+     * When invalidating the cache, we need to also destroy the booking_option_settings.
+     * As we batch handle a lot of users, they always need a "clean" booking option settings object.
+     *
+     * @param int $optionid
+     * @return bool
+     */
+    public static function destroy_booking_option($optionid) {
+        $instance = self::get_instance();
+
+        if (isset($instance->bookingoptionsettings[$optionid])) {
+            unset($instance->bookingoptionsettings[$optionid]);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * When invalidating the cache, we need to also destroy the booking_answer_object.
      * As we batch handle a lot of users, they always need a "clean" booking answers object.
      *
