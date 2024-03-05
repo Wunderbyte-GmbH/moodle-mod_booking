@@ -642,7 +642,7 @@ if (!$tableallbookings->is_downloading()) {
                 "{$value->firstname} {$value->lastname}");
     }
 
-    $isteacherofthisoption = booking_check_if_teacher($bookingoption->booking->settings);
+    $isteacherofthisoption = booking_check_if_teacher($bookingoption->settings);
 
     $linkst = '';
     if (has_capability('mod/booking:communicate', $context) ||
