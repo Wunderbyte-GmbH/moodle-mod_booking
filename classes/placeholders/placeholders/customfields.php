@@ -49,7 +49,7 @@ class customfields {
      * @param int $userid
      * @param string $text
      * @param array $params
-     * @param int $descriptionparam
+     * @param string $placeholder
      * @return string
      */
     public static function return_value(
