@@ -142,6 +142,9 @@ class mod_booking_generator extends testing_module_generator {
         $record->cmid = $cmb1->id;
         $record->identifier = booking_option::create_truly_unique_option_identifier();
 
+        $record->addtocalendar = !empty($record->addtocalendar) ? $record->addtocalendar : 0;
+        $record->maxanswers = !empty($record->maxanswers) ? $record->maxanswers : 0;
+
         // Process option teachers.
         if (!empty($record->teachersforoption)) {
             $teacherarr = explode(',', $record->teachersforoption);
