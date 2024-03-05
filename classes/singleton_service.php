@@ -134,8 +134,10 @@ class singleton_service {
     public static function destroy_booking_option($optionid) {
         $instance = self::get_instance();
 
-        if (isset($instance->bookingoptionsettings[$optionid])) {
+        if (isset($instance->bookingoptionsettings[$optionid])
+            || isset($instance->bookingoptions[$optionid])) {
             unset($instance->bookingoptionsettings[$optionid]);
+            unset($instance->bookingoptions[$optionid]);
             return true;
         } else {
             return false;
