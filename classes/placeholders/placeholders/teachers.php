@@ -44,11 +44,13 @@ class teachers {
     /**
      * Function which takes a text, replaces the placeholders...
      * ... and returns the text with the correct values.
-     * @param string $text
      * @param int $cmid
      * @param int $optionid
      * @param int $userid
-     * @return array
+     * @param string $text
+     * @param array $params
+     * @param int $descriptionparam
+     * @return string
      */
     public static function return_value(
         int $cmid = 0,

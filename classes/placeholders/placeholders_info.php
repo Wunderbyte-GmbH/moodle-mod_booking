@@ -43,8 +43,14 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  */
 class placeholders_info {
 
+    /**
+     * @var array $placeholders
+     */
     public static array $placeholders = [];
 
+    /**
+     * @var array $localizedplaceholders
+     */
     public static array $localizedplaceholders = [];
 
     /**
@@ -54,6 +60,7 @@ class placeholders_info {
      * @param int $cmid
      * @param int $optionid
      * @param int $userid
+     * @param int $descriptionparam
      * @return string
      */
     public static function render_text(
@@ -63,7 +70,7 @@ class placeholders_info {
         int $userid = 0,
         int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE) {
 
-        global $USER, $CFG;
+        global $USER;
 
         // First, identify all the placeholders.
         preg_match_all('/{(.*?)}/', $text, $matches);
@@ -165,6 +172,11 @@ class placeholders_info {
         return $returnstring;
     }
 
+    /**
+     * Create list of localized placeholders.
+     * @return array|void
+     * @throws coding_exception
+     */
     private static function create_list_of_localized_placeholders() {
 
         // If it's already build, we can skip this.
