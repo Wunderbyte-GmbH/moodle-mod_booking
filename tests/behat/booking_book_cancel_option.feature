@@ -215,3 +215,43 @@ Feature: In a booking instance
     Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
     ## Verify - self-cancellation IS possible
     And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+
+  @javascript
+  Scenario: Booking option cancellation: try self-cancell ongoing option as a student with bookingclosingtime and different disallow settings
+    Given the following "mod_booking > options" exist:
+      | booking    | text          | course | description  | availability | restrictanswerperiodclosing | bookingclosingtime | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | My booking | Test option 1 | C1     | Cancellation | 1            | 1                           | ##tomorrow##          | 1           | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
+    And I log in as "admin"
+    ## Define semester start time as relative date to cancellation
+    And I set the following administration settings values:
+      | Cancellation period dependent on | bookingclosingtime |
+    And I am on the "My booking" Activity page
+    ## allowupdatedays > max possible days before semester so cancellation impossible
+    And I follow "Settings"
+    And I follow "Advanced options"
+    ## name for "Disallow users to cancel their booking n days before start..."
+    ##And I set the field "Allow booking after course start" to "checked"
+    And I set the field "allowupdatedays" to "1"
+    And I press "Save and display"
+    And I log out
+    ## Book option as student
+    When I am on the "My booking" Activity page logged in as student1
+    And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    ## Verify - self-cancellation IS NOT possible
+    And I should not see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I log out
+    ## Update self-cancellation as a teacher
+    And I am on the "My booking" Activity page logged in as teacher1
+    And I follow "Settings"
+    And I follow "Advanced options"
+    And I set the field "allowupdatedays" to "-1"
+    And I press "Save and display"
+    And I log out
+    When I am on the "My booking" Activity page logged in as student1
+    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    ## Verify - self-cancellation IS possible
+    And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
