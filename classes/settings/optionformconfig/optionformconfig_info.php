@@ -29,7 +29,7 @@ use coding_exception;
 use core_component;
 use context_system;
 use context_coursecat;
-use core\context;
+use context;
 use ddl_exception;
 use ddl_change_structure_exception;
 use dml_exception;
@@ -50,6 +50,12 @@ class optionformconfig_info {
     const NOCONFIGURATION = 0;
     const SHOWFIELD = 1;
     const HIDEFIELD = 2;
+
+    /**
+     * Array of field set provides the fetched configuration from DB.
+     * @var array
+     */
+    private static $arrayoffieldsets = [];
 
     /**
      * Capabilities.
@@ -92,6 +98,7 @@ class optionformconfig_info {
 
     /**
      * Function to be called from webservice to save the available field ids & settings to db.
+     * If we find the key "reset" with the value true, we delete the record.
      * @param int $contextid
      * @param string $capability
      * @param string $json
@@ -102,28 +109,57 @@ class optionformconfig_info {
         global $DB;
         $status = 'failed';
 
-        $record = $DB->get_record('booking_form_config', [
-                'area' => 'option',
-                'capability' => $capability,
-                'contextid' => $contextid,
-        ]);
-        if ($record) {
+        $params = [
+            'area' => 'option',
+            'capability' => $capability,
+            'contextid' => $contextid,
+        ];
+
+        // First check if we wanted to delete.
+        $jsonobject = json_decode($json);
+        if (isset($jsonobject['reset']) && $jsonobject['reset'] == true) {
+            $DB->delete_records('booking_form_config', $params);
+            $status = 'success';
+            // Now check if we need to update.
+        } else if ($record = $DB->get_record('booking_form_config', $params)) {
+
             $DB->update_record('booking_form_config', [
                 'id' => $record->id,
                 'json' => $json,
             ]);
             $status = 'success';
-
         } else {
-            $DB->insert_record('booking_form_config', [
-                'area' => 'option',
-                'capability' => $capability,
-                'contextid' => $contextid,
-                'json' => $json,
-            ]);
+            // Finally check if we insert.
+            $params['json'] = $json;
+            $DB->insert_record('booking_form_config', $params);
             $status = 'success';
         }
         return $status;
+    }
+
+    /**
+     *
+     * @param int $contextid
+     * @param int $userid
+     * @return string
+     */
+    public static function return_capability_for_user(int $contextid, int $userid = 0) {
+
+        global $USER;
+
+        if (empty($userid)) {
+            $userid = $USER->id;
+        }
+
+        $context = context::instance_by_id($contextid);
+
+        foreach (self::CAPABILITIES as $capability) {
+
+            if (has_capability($capability, $context)) {
+                return $capability;
+            }
+        }
+        return '';
     }
 
     /**
@@ -157,8 +193,11 @@ class optionformconfig_info {
 
         $params['capability'] = $capability;
 
-        if ($record = $DB->get_record_sql($sql, $params, IGNORE_MULTIPLE)) {
+        if (isset(self::$arrayoffieldsets[$contextid][$capability])) {
+            $json = self::$arrayoffieldsets[$contextid][$capability];
+        } else if ($record = $DB->get_record_sql($sql, $params, IGNORE_MULTIPLE)) {
             $json = $record->json;
+            self::$arrayoffieldsets[$contextid][$capability] = $json;
         } else {
             // If we don't find a record yet, we create the standard fields.
             // We get really all fields, without restriction.
@@ -187,32 +226,5 @@ class optionformconfig_info {
             'capability' => $capability,
             'json' => $json,
         ];
-    }
-
-    /**
-     * Fetch configured field from DB and check if field is checked for context.
-     * @param int $fieldid
-     * @param int $userid
-     * @param int $contextid
-     * @param string $capability
-     * @return int
-     * @throws dml_exception
-     */
-    public static function return_status_for_field(
-        int $fieldid,
-        int $userid,
-        int $contextid,
-        string $capability) {
-
-        if (!$storedrecord = self::return_configured_fields_for_capability($contextid, $capability)) {
-            return self::NOCONFIGURATION;
-        }
-
-        $configuration = json_decode($storedrecord['json']);
-        if (!empty(array_filter($configuration, fn($a) => ($a->id === $fieldid && $a->checked == 1)))) {
-            return self::SHOWFIELD;
-        } else {
-            return self::HIDEFIELD;
-        }
     }
 }

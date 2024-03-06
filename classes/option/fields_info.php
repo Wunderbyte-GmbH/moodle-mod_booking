@@ -65,7 +65,8 @@ class fields_info {
         $warnings = [];
         $error = [];
 
-        $classes = self::get_field_classes();
+        $context = context_module::instance($formdata->cmid);
+        $classes = self::get_field_classes($context->id);
 
         foreach ($classes as $classname) {
 
@@ -159,7 +160,8 @@ class fields_info {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata) {
 
-        $classes = self::get_field_classes();
+        $context = context_module::instance($formdata['cmid']);
+        $classes = self::get_field_classes($context->id);
 
         foreach ($classes as $classname) {
 
@@ -181,7 +183,8 @@ class fields_info {
      */
     public static function validation(array $data, array $files, array &$errors) {
 
-        $classes = self::get_field_classes();
+        $context = context_module::instance($data['cmid']);
+        $classes = self::get_field_classes($context->id);
 
         foreach ($classes as $classname) {
 
@@ -203,7 +206,8 @@ class fields_info {
      */
     public static function save_fields_post(stdClass &$formdata, stdClass &$option, int $updateparam) {
 
-        $classes = self::get_field_classes(MOD_BOOKING_EXECUTION_POSTSAVE);
+        $context = context_module::instance($formdata->cmid);
+        $classes = self::get_field_classes($context->id, MOD_BOOKING_EXECUTION_POSTSAVE);
 
         foreach ($classes as $classname) {
 
@@ -233,7 +237,8 @@ class fields_info {
             $settings = new booking_option_settings(0);
         }
 
-        $classes = self::get_field_classes();
+        $context = context_module::instance($data->cmid);
+        $classes = self::get_field_classes($context->id);
 
         try {
             foreach ($classes as $classname) {
@@ -265,7 +270,8 @@ class fields_info {
      */
     public static function definition_after_data(MoodleQuickForm &$mform, array &$formdata) {
 
-        $classes = self::get_field_classes();
+        $context = context_module::instance($formdata['cmid']);
+        $classes = self::get_field_classes($context->id);
 
         foreach ($classes as $classname) {
 
@@ -282,21 +288,24 @@ class fields_info {
      * Get all classes function.
      * This already filters classes for the given users and settings.
      * Save param allows to filter for all (default) or special save logic.
+     * @param int $contextid
      * @param int $save
      * @return array
      */
-    private static function get_field_classes(int $save = -1) {
-        $fields = core_component::get_component_classes_in_namespace(
-            "mod_booking",
-            'option\fields'
-        );
+    private static function get_field_classes(int $contextid, int $save = -1) {
+
+        // We get the fields directly as configured fields.
+
+        $capability = optionformconfig_info::return_capability_for_user($contextid);
+        $record = optionformconfig_info::return_configured_fields_for_capability($contextid, $capability);
+
+        $fields = json_decode($record['json']);
 
         $classes = [];
-        foreach (array_keys($fields) as $classname) {
+        $namespace = "mod_booking\\option\\fields\\";
+        foreach ($fields as $field) {
 
-            if (!self::check_field_for_user($classname)) {
-                continue;
-            }
+            $classname = $namespace . $field->classname;
 
             // We might only want postsave classes.
             if ($save === MOD_BOOKING_EXECUTION_POSTSAVE) {
@@ -310,82 +319,12 @@ class fields_info {
                     continue;
                 }
             }
-
-            $classes[$classname::$id] = $classname;
+            if (!empty($field->necessary) || !empty($field->checked)) {
+                $classes[$classname::$id] = $classname;
+            }
         }
-
-        ksort($classes);
 
         return $classes;
-    }
-
-    /**
-     * Check field for user applies only the classes for the context of the form.
-     * @param string $classname
-     * @return bool
-     */
-    private static function check_field_for_user(string $classname) {
-
-        global $OUTPUT, $PAGE, $USER;
-
-        try {
-            $cmid = $PAGE->cm->id;
-        } catch (Exception $e) {
-
-            // Hack alert: Forcing bootstrap_renderer to initiate moodle page.
-            $OUTPUT->header();
-        }
-
-        try {
-            if ($cm = $PAGE->cm ?? false) {
-                $cmid = $cm->id;
-                $context = context_module::instance($cmid);
-            } else {
-                $cmid = 0;
-            }
-        } catch (Exception $e) {
-
-            $cmid = 0;
-        }
-
-        // Necessary fields are the same for all.
-        if (in_array(MOD_BOOKING_OPTION_FIELD_NECESSARY, $classname::$fieldcategories)) {
-            return true;
-        }
-
-        // We iterate over all capabilities.
-        // From expert to lowest reduced.
-        foreach (optionformconfig_info::CAPABILITIES as $capability) {
-            // If cmid is empty, we always use the expert form (the first one).
-            if (empty($cmid) || has_capability($capability, $context)) {
-                // First check if the fields turned on in the fields configuration.
-                $status = optionformconfig_info::return_status_for_field(
-                    $classname::$id,
-                    $USER->id,
-                    $context->id,
-                    $capability);
-
-                switch ($status) {
-                    case optionformconfig_info::SHOWFIELD:
-                        return true;
-                    case optionformconfig_info::HIDEFIELD:
-                        return false;
-                }
-
-                // Only for the Expert capability, we use expert, else easy.
-                $formstouse = 'capability' === 'mod/booking:expertoptionform'
-                    ? MOD_BOOKING_OPTION_FIELD_STANDARD : MOD_BOOKING_OPTION_FIELD_EASY;
-
-                // If we arrive here this means that there is no configuration and we use the fallback.
-                if (in_array($formstouse, $classname::$fieldcategories)) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
-
-        return true;
     }
 
     /**

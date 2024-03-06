@@ -60,8 +60,15 @@ class option_form extends dynamic_form {
 
         $formdata = $this->_customdata ?? $this->_ajaxformdata;
 
-        // We need context on this.
-        $context = context_module::instance($formdata['cmid']);
+        $cmid = $formdata['cmid'] ?? 0;
+
+        if (!empty($cmid)) {
+            // We need context on this.
+            $context = context_module::instance($cmid);
+        } else {
+            $context = context_system::instance();
+        }
+
         $formdata['context'] = $context;
         $optionid = $formdata['optionid'];
 
@@ -153,7 +160,11 @@ class option_form extends dynamic_form {
      */
     protected function get_context_for_dynamic_submission(): context {
 
-        $cmid = $this->_ajaxformdata['cmid'];
+        $cmid = $this->_ajaxformdata['cmid'] ?? 0;
+
+        if (empty($cmid)) {
+            return context_system::instance();
+        }
 
         return context_module::instance($cmid);
     }
