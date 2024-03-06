@@ -22,12 +22,12 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_booking\option;
-
-use coding_exception;
+namespace mod_booking\option\fields;
 use mod_booking\booking_option_settings;
-use mod_booking\option\fields;
+use mod_booking\option\field_base;
 use mod_booking\option\fields_info;
+use mod_booking\settings\optionformconfig\optionformconfig_info;
+use context_module;
 use MoodleQuickForm;
 use stdClass;
 
@@ -38,13 +38,13 @@ use stdClass;
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-abstract class field_base implements fields {
+class formconfig extends field_base {
 
     /**
      * This ID is used for sorting execution.
      * @var int
      */
-    public static $id = 0;
+    public static $id = MOD_BOOKING_OPTION_FIELD_FORMCONFIG;
 
     /**
      * Some fields are saved with the booking option...
@@ -58,7 +58,21 @@ abstract class field_base implements fields {
      * This identifies the header under which this particular field should be displayed.
      * @var string
      */
-    public static $header = '';
+    public static $header = MOD_BOOKING_HEADER_GENERAL;
+
+    /**
+     * An int value to define if this field is standard or used in a different context.
+     * @var array
+     */
+    public static $fieldcategories = [
+        MOD_BOOKING_OPTION_FIELD_STANDARD,
+    ]; // MOD_BOOKING_OPTION_FIELD_STANDARD.
+
+    /**
+     * Additionally to the classname, there might be others keys which should instantiate this class.
+     * @var array
+     */
+    public static $alternativeimportidentifiers = [];
 
     /**
      * This is an array of incompatible field ids.
@@ -79,23 +93,14 @@ abstract class field_base implements fields {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = ''): string {
+        $returnvalue = null): string {
 
-        $key = fields_info::get_class_name(static::class);
-        $value = $formdata->{$key} ?? null;
-
-        if (!empty($value)) {
-            $newoption->{$key} = $value;
-        } else {
-            $newoption->{$key} = $returnvalue;
-        }
-
-        // We can return an warning message here.
         return '';
     }
 
     /**
      * Instance form definition
+     *
      * @param MoodleQuickForm $mform
      * @param array $formdata
      * @param array $optionformconfig
@@ -103,30 +108,12 @@ abstract class field_base implements fields {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
-    }
+        // Standardfunctionality to add a header to the mform (only if its not yet there).
+        fields_info::add_header_to_mform($mform, self::$header);
 
-    /**
-     * This function adds error keys for form validation.
-     * @param array $data
-     * @param array $files
-     * @param array $errors
-     * @return array
-     */
-    public static function validation(array $data, array $files, array &$errors) {
-
-        return $errors;
-    }
-
-    /**
-     * The save data function is very specific only for those values that should be saved...
-     * ... after saving the option. This is so, when we need an option id for saving (because of other table).
-     * @param stdClass $formdata
-     * @param stdClass $option
-     * @return void
-     * @throws \dml_exception
-     */
-    public static function save_data(stdClass &$formdata, stdClass &$option) {
-
+        $context = context_module::instance($formdata['cmid']);
+        $capability = get_string(optionformconfig_info::return_capability_for_user($context->id), 'mod_booking');
+        $mform->addElement('static', 'formconfiglabel', '', get_string('youareusingconfig', 'mod_booking', $capability));
     }
 
     /**
@@ -138,49 +125,5 @@ abstract class field_base implements fields {
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
-        $key = fields_info::get_class_name(static::class);
-        // Normally, we don't call set data after the first time loading.
-        if (isset($data->{$key})) {
-            return;
-        }
-
-        $value = $settings->{$key} ?? null;
-
-        $data->{$key} = $value;
-    }
-
-    /**
-     * Definition after data callback
-     * @param MoodleQuickForm $mform
-     * @param mixed $formdata
-     * @return void
-     * @throws coding_exception
-     */
-    public static function definition_after_data(MoodleQuickForm &$mform, $formdata) {
-
-    }
-
-    /**
-     * Definition after data callback
-     * @return string
-     * @throws coding_exception
-     */
-    public static function return_classname_name() {
-
-        $classname = get_called_class();
-
-        // We only want the last part of the classname.
-        $array = explode('\\', $classname);
-
-        $classname = array_pop($array);
-        return $classname;
-    }
-
-    /**
-     * Every class can provide subfields.
-     * @return array
-     */
-    public static function get_subfields() {
-        return [];
     }
 }

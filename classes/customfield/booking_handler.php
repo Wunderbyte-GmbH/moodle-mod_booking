@@ -26,8 +26,10 @@ namespace mod_booking\customfield;
 
 use core_customfield\api;
 use core_customfield\field_controller;
+use mod_booking\settings\optionformconfig\optionformconfig_info;
 use mod_booking\utils\wb_payment;
 use moodle_url;
+use context_system;
 use stdClass;
 
 /**
@@ -148,19 +150,27 @@ class booking_handler extends \core_customfield\handler {
      * @param int $instanceid
      * @param string|null $headerlangidentifier
      * @param string|null $headerlangcomponent
+     * @param int $contextid
      *
      * @return void
      *
      */
     public function instance_form_definition(\MoodleQuickForm $mform, int $instanceid = 0,
-    ?string $headerlangidentifier = null, ?string $headerlangcomponent = null) {
+    ?string $headerlangidentifier = null, ?string $headerlangcomponent = null, $contextid = 0) {
 
         global $DB;
+
+        $uncheckedcustomfields = optionformconfig_info::get_unchecked_customfields($contextid);
 
         $editablefields = $this->get_editable_fields($instanceid);
         $fieldswithdata = api::get_instance_fields_data($editablefields, $instanceid);
         $lastcategoryid = null;
+
         foreach ($fieldswithdata as $data) {
+
+            if (in_array($data->get_field()->get('shortname'), $uncheckedcustomfields)) {
+                continue;
+            }
             $categoryid = $data->get_field()->get_category()->get('id');
 
             if ($categoryid != $lastcategoryid) {

@@ -214,6 +214,7 @@ class optionformconfig_info {
                     'necessary' => in_array(MOD_BOOKING_OPTION_FIELD_NECESSARY, $a::$fieldcategories) ?
                         1 : 0,
                     'incompatible' => $a::$incompatiblefields,
+                    'subfields' => $a::get_subfields(),
                 ],
                 array_keys($fields));
 
@@ -226,5 +227,31 @@ class optionformconfig_info {
             'capability' => $capability,
             'json' => $json,
         ];
+    }
+
+    /**
+     * Returns the unchecked customfields for a given context and for the capability of the given user.
+     * @param int $contextid
+     * @param int $userid
+     * @return mixed
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public static function get_unchecked_customfields(int $contextid, int $userid = 0) {
+        if (empty($contextid)) {
+            return [];
+        }
+
+        $capability = self::return_capability_for_user($contextid, $userid);
+
+        // As we can configure the fiels, we first need the configuration.
+        $record = self::return_configured_fields_for_capability($contextid, $capability);
+
+        $fields = json_decode($record['json']);
+
+        $customfields = reset(array_filter($fields, fn($a) => $a->id == MOD_BOOKING_OPTION_FIELD_COSTUMFIELDS ? true : false));
+        $uncheckedfields = array_map(fn($a) => $a->checked != 1 ? $a->id : null, (array)$customfields->subfields);
+
+        return $uncheckedfields;
     }
 }

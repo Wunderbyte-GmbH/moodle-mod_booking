@@ -24,11 +24,10 @@
 
 namespace mod_booking\option\fields;
 
-use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\customfield\booking_handler;
-use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use context_module;
 use MoodleQuickForm;
 use stdClass;
 
@@ -109,9 +108,11 @@ class customfields extends field_base {
 
         $optionid = $formdata['id'];
 
+        $contextid = context_module::instance($formdata['cmid'])->id;
+
         // Add custom fields.
         $handler = booking_handler::create();
-        $handler->instance_form_definition($mform, $optionid);
+        $handler->instance_form_definition($mform, $optionid, null, null, $contextid);
     }
 
     /**
@@ -164,6 +165,24 @@ class customfields extends field_base {
             $handler = booking_handler::create();
             $handler->instance_form_before_set_data_on_import($data);
         }
+    }
 
+    /**
+     * Every class can provide subfields.
+     * @return array
+     */
+    public static function get_subfields() {
+
+        $handler = booking_handler::create();
+        $fields = $handler->get_fields();
+
+        $returnarray = array_map(fn($a) => [
+            'shortname' => $a->get('shortname'),
+            'name' => $a->get('name'),
+            'checked' => 1,
+            'header' => $a->get_category()->get('name'),
+            ], $fields);
+
+        return $returnarray;
     }
 }
