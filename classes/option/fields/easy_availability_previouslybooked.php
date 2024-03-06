@@ -175,6 +175,9 @@ class easy_availability_previouslybooked extends field_base {
             'ajax' => 'mod_booking/form_booking_options_selector',
             'valuehtmlcallback' => function($value) {
                 global $OUTPUT;
+                if (empty($value)) {
+                    return get_string('choose...', 'mod_booking');
+                }
                 $optionsettings = singleton_service::get_instance_of_booking_option_settings((int)$value);
                 $instancesettings = singleton_service::get_instance_of_booking_settings_by_cmid($optionsettings->cmid);
 

@@ -284,6 +284,9 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
             'ajax' => 'mod_booking/form_users_selector',
             'valuehtmlcallback' => function($value) {
                 global $OUTPUT;
+                if (empty($value)) {
+                    return get_string('choose...', 'mod_booking');
+                }
                 $user = singleton_service::get_instance_of_user((int)$value);
                 $details = [
                     'id' => $user->id,
