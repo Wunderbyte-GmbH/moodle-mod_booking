@@ -25,6 +25,7 @@
 namespace mod_booking\output;
 
 use context_system;
+use mod_booking\booking_answers;
 use moodle_url;
 use renderer_base;
 use renderable;
@@ -68,7 +69,7 @@ class page_allteachers implements renderable, templatable {
      * @return array
      */
     public function export_for_template(renderer_base $output) {
-        global $PAGE;
+        global $PAGE, $USER;
 
         $returnarray = [];
 
@@ -118,7 +119,9 @@ class page_allteachers implements renderable, templatable {
             if (!empty($teacher->email) &&
                 ($teacher->maildisplay == 1 ||
                     has_capability('mod/booking:updatebooking', $context) ||
-                    get_config('booking', 'teachersshowemails')
+                    get_config('booking', 'teachersshowemails') ||
+                    (get_config('booking', 'bookedteachersshowemails')
+                        && (booking_answers::number_actively_booked($USER->id, $teacher->id) > 0))
                 )) {
                 $teacherarr['email'] = $teacher->email;
             }
