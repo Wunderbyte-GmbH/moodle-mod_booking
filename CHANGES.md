@@ -1,3 +1,27 @@
+## Version 8.1.31 (2024030500)
+* New feature: New placeholder classes for better performance and maintainability.
+* New feature: Show full entity name of each optiondate in optionview (booking option description).
+* New feature: New setting for sync_waiting_list to keep users booked when reducing limits.
+* Improvement: Import now works with "startdate" & "enddate" keys.
+* Improvement: Inline modals (turn off modals functionality) will only work with list view.
+With cards view, we always have modals.
+* Improvement: Apply waitinglist on increasing maxanswers for booking option
+* Improvement: Add string that modals cannot be turned off for new cards view.
+* Improvement: When purging caches for option we also need to destroy singletons for booking option settings.
+* Improvement: Show teachers emails to booked users only (with config setting).
+* Improvement: Better strings.
+* Bugfix: Add to Calendar needed to be in postsave mode.
+* Bugfix: Set importing on true when noticing an import.
+* Bugfix: Default boavenrolledincourse during import to OR, not AND, support for boavenrolledincourseoperator (Values OR, AND).
+* Bugfix: Don't call add to calendar on template.
+* Bugfix: Add isset check for addtocalendar.
+* Bugfix: Don't block booking options without price with prepages.
+* Bugfix: Destroy all instances of booking options when calling destroy_booking_option.
+* Bugfix: Make sure we use correct context when creating booking option sql.
+* Bugfix: Wrong settings were used on report.php.
+* Bugfix: Use context_system if context_module can't be found (eg for template).
+* Testing: Temporarily take out failing behat test - to be reintroduced.
+
 ## Version 8.1.30 (2024030400)
 * Bugfix: Several fixes for indexes and foreign keys.
 
