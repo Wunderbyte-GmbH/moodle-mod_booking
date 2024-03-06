@@ -1,3 +1,7 @@
+## Version 8.1.32 (2024030601)
+* Improvement: Layout fix for cards.
+* Improvement: Show "Choose..." string in autocompletes if value is missing.
+
 ## Version 8.1.31 (2024030500)
 * New feature: New placeholder classes for better performance and maintainability.
 * New feature: Show full entity name of each optiondate in optionview (booking option description).
