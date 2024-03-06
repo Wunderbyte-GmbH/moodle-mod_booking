@@ -69,7 +69,7 @@ if ($mform->is_cancelled()) {
     $cleanuids = clean_param_array(json_decode($uids), PARAM_INT);
 
     // Now, let's send the custom message.
-    send_custom_message($optionid, $data->subject, $data->message, $cleanuids);
+    send_custom_message($optionid, $data->subject, $data->message['text'], $cleanuids);
 
     redirect($redirecturl, get_string('messagesend', 'booking'), 5);
 }
