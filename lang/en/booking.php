@@ -1337,8 +1337,8 @@ $string['teachersshowemails_desc'] = 'If you activate this setting, every user c
     the e-mail address of any teacher - even if they are not logged in. <span class="text-danger"><b>Be careful:</b> This might be
     a privacy issue. Only activate this, if you are sure it corresponds with your organization\'s privacy policy.</span>';
 $string['bookedteachersshowemails'] = 'Show teacher\'s email addresses to booked users';
-$string['bookedteachersshowemails_desc'] = 'If you activate this setting, booked user can see
-    the e-mail address of any teacher';
+$string['bookedteachersshowemails_desc'] = 'If you activate this setting, booked users can see
+the e-mail address of their teacher.';
 $string['teachersallowmailtobookedusers'] = 'Allow teachers to send an e-mail to all booked users using their own mail client';
 $string['teachersallowmailtobookedusers_desc'] = 'If you activate this setting, teachers can click a button to send an e-mail
     to all booked users using their own mail client - the e-mail-addresses of all users will be visible.
