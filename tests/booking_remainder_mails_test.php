@@ -31,12 +31,10 @@ use coding_exception;
 use mod_booking\option\dates_handler;
 use mod_booking\task\send_reminder_mails;
 use mod_booking\teachers_handler;
-use mod_booking\price;
 use mod_booking_generator;
 use context_course;
+use context_system;
 use stdClass;
-use mod_booking\utils\csv_import;
-use mod_booking\importer\bookingoptionsimporter;
 
 /**
  * Class handling tests for booking remainder mails.
@@ -67,7 +65,7 @@ class booking_remainder_mails_test extends advanced_testcase {
     /**
      * Test delete responses.
      *
-     * @covers ::delete_responses_activitycompletion
+     * @covers \mod_booking\tasks\send_reminder_mails
      * @throws \coding_exception
      * @throws \dml_exception
      */
@@ -80,7 +78,7 @@ class booking_remainder_mails_test extends advanced_testcase {
 
         $CFG->enablecompletion = 1;
 
-        $bdata = ['name' => 'Test Booking 1', 'eventtype' => 'Test event', 'enablecompletion' => 1,
+        $bdata = ['name' => 'Booking Test Reminders', 'eventtype' => 'Test event', 'enablecompletion' => 1,
             'bookedtext' => ['text' => 'text'], 'waitingtext' => ['text' => 'text'],
             'notifyemail' => ['text' => 'text'], 'statuschangetext' => ['text' => 'text'],
             'deletedtext' => ['text' => 'text'], 'pollurltext' => ['text' => 'text'],
@@ -91,7 +89,9 @@ class booking_remainder_mails_test extends advanced_testcase {
         ];
 
         // Spoecific setting to notify teachers.
-        $bdata['daystonotifyteachers'] = 1;
+        $bdata['daystonotify'] = 3;
+        $bdata['daystonotify2'] = 2;
+        $bdata['daystonotifyteachers'] = 2;
         $bdata['notifyemailteachers'] = 'Your booking will start soon:
             {bookingdetails} You have {numberparticipants} booked participants';
 
@@ -114,8 +114,7 @@ class booking_remainder_mails_test extends advanced_testcase {
 
         $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
 
-        $this->setUser($user3);
-        $this->setAdminUser();
+        $this->setUser($user2);
 
         $this->getDataGenerator()->enrol_user($user1->id, $course->id);
         $this->getDataGenerator()->enrol_user($user2->id, $course->id);
@@ -124,23 +123,24 @@ class booking_remainder_mails_test extends advanced_testcase {
         $coursectx = context_course::instance($course->id);
 
         $time = new \DateTimeImmutable('now', new \DateTimeZone('Europe/London'));
-        $twodaysbefore = $time->modify('-2 day');
-        $threedaysbefore = $time->modify('-3 day');
-        $fourdaysbefore = $time->modify('-4 day');
+        $onedaysbefore = $time->modify('+25 hour');
+        $twodaysbefore = $time->modify('+50 hour');
+        $threedaysbefore = $time->modify('+3 day');
+        $fourdaysbefore = $time->modify('+4 day');
 
         $record = new stdClass();
         $record->bookingid = $booking1->id;
-        $record->text = 'Test option1';
+        $record->text = 'Option Test Reminders 1';
         $record->courseid = $course->id;
         $record->description = 'Test description';
         $record->optiondateid_1 = "0";
         $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = $fourdaysbefore->getTimestamp();
+        $record->coursestarttime_1 = $onedaysbefore->getTimestamp();
         $record->courseendtime_1 = $threedaysbefore->getTimestamp();
         $record->optiondateid_2 = "0";
         $record->daystonotify_2 = "0";
-        $record->coursestarttime_2 = $threedaysbefore->getTimestamp();
-        $record->courseendtime_2 = $twodaysbefore->getTimestamp();
+        $record->coursestarttime_2 = $twodaysbefore->getTimestamp();
+        $record->courseendtime_2 = $fourdaysbefore->getTimestamp();
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
@@ -157,9 +157,48 @@ class booking_remainder_mails_test extends advanced_testcase {
         $dates = dates_handler::return_array_of_sessions_datestrings($option1->id);
 
         // Run the send_reminder_mails scheduled task.
-        //ob_start();
+        $sink = $this->redirectEvents();
+
+        ob_start();
         $reminder = new send_reminder_mails();
         $reminder->execute();
-        //ob_get_clean();
+        $events = $sink->get_events();
+
+        $res = ob_get_clean();
+
+        $this->assertStringContainsString("send teacher notifications - START", $res);
+        $this->assertStringContainsString("send teacher notifications - DONE", $res);
+
+        $this->assertCount(4, $events);
+
+        // Checking that the 1st event - reminder1 - contains the expected values.
+        $this->assertInstanceOf('\mod_booking\event\reminder1_sent', $events[0]);
+        $this->assertEquals(context_system::instance(), $events[0]->get_context());
+        $this->assertEquals($option1->id, $events[0]->objectid);
+        $this->assertEquals("sent", $events[0]->action);
+        $this->assertEquals($user2->id, $events[0]->userid);
+
+        // Checking that the 2nd event contains the expected values.
+        $this->assertInstanceOf('\mod_booking\event\reminder2_sent', $events[1]);
+        $this->assertEquals(context_system::instance(), $events[1]->get_context());
+        $this->assertEquals($option1->id, $events[1]->objectid);
+        $this->assertEquals("sent", $events[1]->action);
+        $this->assertEquals($user2->id, $events[1]->userid);
+
+        // Checking that the 3rd event - student message - contains the expected values.
+        $this->assertInstanceOf('\mod_booking\event\message_sent', $events[2]);
+        $this->assertEquals(context_system::instance(), $events[2]->get_context());
+        $this->assertNull($events[2]->objectid);
+        $this->assertEquals("sent", $events[2]->action);
+        $this->assertEquals($user2->id, $events[2]->userid);
+        $this->assertEquals($user3->id, $events[2]->relateduserid);
+
+        // Checking that the 4th event - teacher reminder - contains the expected values.
+        $this->assertInstanceOf('\mod_booking\event\reminder_teacher_sent', $events[3]);
+        $this->assertEquals(context_system::instance(), $events[3]->get_context());
+        $this->assertEquals($option1->id, $events[3]->objectid);
+        $this->assertEquals("sent", $events[3]->action);
+        $this->assertEquals($user2->id, $events[3]->userid);
+        $this->assertEquals(2, $events[3]->other["daystonotifyteachers"]);
     }
 }
