@@ -1,3 +1,7 @@
+## Version 8.1.33 (2024030700)
+* Improvement: Add possibility to format personal messages with HTML editor.
+* Improvement: Make sure images in cards view always have the same height of 220px.
+
 ## Version 8.1.32 (2024030601)
 * Improvement: Layout fix for cards.
 * Improvement: Show "Choose..." string in autocompletes if value is missing.
