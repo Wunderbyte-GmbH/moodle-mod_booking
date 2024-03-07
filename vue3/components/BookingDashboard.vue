@@ -78,12 +78,16 @@
         <BookingStats :bookingstats="content" />
         <CapabilityButtons 
           :configlist="configlist" 
+          :active-tab="activeTab"
+          :changes-made="changesMade"
           @capabilityClicked="handleCapabilityClicked"
           @checkAll="handleCheckAll" 
+          @restoreConfig="changeTab"
         />
         <CapabilityOptions 
           :selectedcapability="selectedCapability"
           :check="check"
+          @changesMade="handleChangesMade"
         />
       </div>
       <div
@@ -114,6 +118,7 @@
   const selectedCapability = ref(null);
   const configlist = ref(null)
   const check = ref(null)
+  const changesMade = ref({})
 
   // Trigger web services on mount
   onMounted(async() => {
@@ -137,6 +142,7 @@
   }, { deep: true } );
 
   async function changeTab(index) {
+    selectedCapability.value = null
     activeTab.value = index;
     configlist.value = await store.dispatch('fetchTab', {
       coursecategoryid: index,
@@ -150,6 +156,10 @@
 
   const handleCapabilityClicked = (capability) => {
     selectedCapability.value = capability
+  }
+
+  const handleChangesMade = (changesMadeEmit) => {
+    changesMade.value = changesMadeEmit
   }
 
   const handleCheckAll = (checking) => {

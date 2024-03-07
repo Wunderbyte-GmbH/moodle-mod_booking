@@ -258,7 +258,6 @@ class fields_info {
             // We use this exit in the template class.
             $errormessage = $e->getMessage();
         }
-
         return $errormessage;
     }
 

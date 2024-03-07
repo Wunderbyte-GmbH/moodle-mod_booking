@@ -38,6 +38,7 @@ export function createAppStore() {
                 tabs: [],
                 content: [],
                 configlist: [],
+                compareConfiglist: [],
                 cmid: null,
             };
         },
@@ -54,6 +55,7 @@ export function createAppStore() {
             },
             setConfigList(state, configlist) {
               state.configlist = configlist;
+              state.compareConfiglist = JSON.parse(JSON.stringify(configlist));
             },
             setCM(state, cmid) {
               state.cmid = cmid;

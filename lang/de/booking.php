@@ -2162,3 +2162,23 @@ $string['mod/booking:reducedoptionform2'] = 'Buchungsoption reduziert 2';
 $string['mod/booking:reducedoptionform3'] = 'Buchungsoption reduziert 3';
 $string['mod/booking:reducedoptionform4'] = 'Buchungsoption reduziert 4';
 $string['mod/booking:reducedoptionform5'] = 'Buchungsoption reduziert 5';
+
+// Vue strings.
+$string['vue_dashboard_name'] = 'Name';
+$string['vue_dashboard_course_count'] = 'Anzahl der Kurse';
+$string['vue_dashboard_path'] = 'Pfad';
+$string['vue_dashboard_create_oe'] = 'Neue OE erstellen';
+$string['vue_dashboard_assign_role'] = 'Rollen zuweisen';
+$string['vue_not_found_route_not_found'] = 'Route nicht gefunden';
+$string['vue_not_found_try_again'] = 'Bitte versuchen Sie es später erneut';
+$string['vue_booking_stats_capability'] = 'Berechtigung';
+$string['vue_booking_stats_back'] = 'Zurück';
+$string['vue_booking_stats_save'] = 'Speichern';
+$string['vue_booking_stats_restore'] = 'Zurücksetzten';
+$string['vue_booking_stats_select_all'] = 'Alle auswählen';
+$string['vue_booking_stats_booking_options'] = 'Buchungsoptionen';
+$string['vue_booking_stats_booked'] = 'Gebucht';
+$string['vue_booking_stats_waiting'] = 'Warteliste';
+$string['vue_booking_stats_reserved'] = 'Reserviert';
+$string['vue_capability_options_cap_config'] = 'Berechtigungskonfiguration';
+$string['vue_capability_options_necessary'] = 'notwendig';

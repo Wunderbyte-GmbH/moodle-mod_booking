@@ -28,7 +28,6 @@ namespace mod_booking\settings\optionformconfig;
 use coding_exception;
 use core_component;
 use context_system;
-use context_coursecat;
 use context;
 use ddl_exception;
 use ddl_change_structure_exception;
@@ -117,7 +116,7 @@ class optionformconfig_info {
 
         // First check if we wanted to delete.
         $jsonobject = json_decode($json);
-        if (isset($jsonobject['reset']) && $jsonobject['reset'] == true) {
+        if (isset($jsonobject->reset) && $jsonobject->reset == true) {
             $DB->delete_records('booking_form_config', $params);
             $status = 'success';
             // Now check if we need to update.
@@ -223,7 +222,7 @@ class optionformconfig_info {
         }
 
         return [
-            'id' => $contextid,
+          'id' => $contextid,
             'capability' => $capability,
             'json' => $json,
         ];

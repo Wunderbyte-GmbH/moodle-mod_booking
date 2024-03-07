@@ -172,7 +172,6 @@ class customfields extends field_base {
      * @return array
      */
     public static function get_subfields() {
-
         $handler = booking_handler::create();
         $fields = $handler->get_fields();
 

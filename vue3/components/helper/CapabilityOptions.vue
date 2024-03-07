@@ -44,6 +44,25 @@
           </label>
         </span>
         <span class="blocked-message">{{ getBlockMessage(value) }}</span>
+
+        <span v-if="value.subfields && Object.keys(value.subfields).length > 0" class="subfields-wrapper">
+          <button @click="toggleSubfields(key)">
+            <i :class="['fas', value.showSubfields ? 'fa-chevron-up' : 'fa-chevron-down']"></i>
+          </button>
+          <transition name="slide-fade">
+            <ul v-show="value.showSubfields">
+              <li v-for="(subvalue, subkey) in value.subfields" :key="subkey">
+                <span class="enumeration-dot"></span>
+                <span>
+                  <input :id="'subcheckbox_' + subkey" type="checkbox" class="mr-2" :checked="subvalue.checked" @change="handleCheckboxChange(subvalue)">
+                  <label :for="'subcheckbox_' + subkey">
+                    <strong>{{ subvalue.name }}</strong>
+                  </label>
+                </span>
+              </li>
+            </ul>
+          </transition>
+        </span>
       </li>
     </ul>
   </div>
@@ -55,6 +74,7 @@ import { useStore } from 'vuex'
 
 const store = useStore()
 const configurationList = ref([]);
+
 const props = defineProps({
   selectedcapability: {
     type: Object,
@@ -67,8 +87,15 @@ const props = defineProps({
 });
 const draggedOverIndex = ref(null);
 
+const emit = defineEmits([
+  'changesMade'
+])
 
-onMounted(() => {
+const toggleSubfields = (key) => {
+  configurationList.value[key].showSubfields = !configurationList.value[key].showSubfields;
+};
+
+onMounted(() => {  
   getConfigurationList()
 });
 
@@ -122,7 +149,19 @@ const saveConfigurationList = (configurationList) => {
     const index = store.state.configlist.findIndex(obj => obj.id === props.selectedcapability.id
       && obj.capability === props.selectedcapability.capability);
     if (index !== -1) {
-      store.state.configlist[index].json = JSON.stringify(configurationList)
+      if (store.state.configlist[index].json == JSON.stringify(configurationList)) {
+        emit('changesMade', {
+          changesMade: false,
+          index: index,
+          configurationList: JSON.stringify(configurationList)
+        })
+      }else {
+        emit('changesMade', {
+          changesMade: true,
+          index: index,
+          configurationList: JSON.stringify(configurationList)
+        })
+      }
     }
   }
 }
@@ -152,13 +191,10 @@ const disableCheckbox = (item) => {
 
 const getBlockMessage = (item) => {
   if (item.incompatible && item.incompatible.length > 0) {
-    const incompatibleNames = item.incompatible
-      .map(id => configurationList.value.find(configItem => configItem.id === id))
-      .filter(incompatibleItem => incompatibleItem && incompatibleItem.checked)
-      .map(incompatibleItem => incompatibleItem.name);
-      if (incompatibleNames.length > 0) {
-      return ` Blocked by: ${incompatibleNames.join(', ')}`;
-    }
+    let incompatibleNames = configurationList.value
+      .filter(configurationItem => item.incompatible.includes(configurationItem.id))
+      .map(configurationItem => store.state.strings[configurationItem.classname])
+    return ` Blocked by: ${incompatibleNames.join(', ')}`;
   }
   return '';
 };
@@ -185,5 +221,43 @@ li.drag-over {
 .blocked-message {
   color: red;
   font-size: 12px;
+}
+
+.subfields-wrapper {
+  margin-left: 20px; /* Adjust as needed */
+}
+
+.subfields-wrapper > button {
+  margin-right: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.subfields-wrapper ul {
+  margin-top: 5px;
+  padding-left: 20px; /* Indent subfields */
+}
+
+.subfields-wrapper ul li {
+  list-style-type: none; /* Remove default list style */
+}
+
+.enumeration-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  background-color: #000;
+  border-radius: 50%;
+  margin-right: 5px; /* Adjust as needed */
+}
+
+.slide-fade-enter-active, .slide-fade-leave-active {
+  transition: all 0.5s ease;
+}
+
+.slide-fade-enter-from, .slide-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
 }
 </style>
