@@ -23,7 +23,10 @@
           >
           <label :for="'checkbox_' + key">
             <strong>
-              <div v-html="store.state.strings[value.classname]" />
+              <div 
+                class="mr-2"
+                v-html="store.state.strings[value.classname]" 
+              />
             </strong>
           </label>
           <i> {{ store.state.strings.vue_capability_options_necessary }}</i>
@@ -43,37 +46,30 @@
             </strong>
           </label>
         </span>
-        <span class="blocked-message">{{ getBlockMessage(value) }}</span>
-
-        <span v-if="value.subfields && Object.keys(value.subfields).length > 0" class="subfields-wrapper">
-          <button @click="toggleSubfields(key)">
-            <i :class="['fas', value.showSubfields ? 'fa-chevron-up' : 'fa-chevron-down']"></i>
-          </button>
+        
+        <span class="blocked-message">
           <transition name="slide-fade">
-            <ul v-show="value.showSubfields">
-              <li v-for="(subvalue, subkey) in value.subfields" :key="subkey">
-                <span class="enumeration-dot"></span>
-                <span>
-                  <input :id="'subcheckbox_' + subkey" type="checkbox" class="mr-2" :checked="subvalue.checked" @change="handleCheckboxChange(subvalue)">
-                  <label :for="'subcheckbox_' + subkey">
-                    <strong>{{ subvalue.name }}</strong>
-                  </label>
-                </span>
-              </li>
-            </ul>
+            <span v-if="getBlockMessage(value)">{{ getBlockMessage(value) }}</span>
           </transition>
         </span>
+        <SubLists 
+          :subfields="value.subfields"
+          :subfields-visible="subfieldsVisible"
+          @handleCheckboxChange="handleCheckboxChange"
+        /> 
       </li>
     </ul>
   </div>
 </template>
 
 <script setup>
+import SubLists from './SubLists.vue';
 import { onMounted, ref, watch } from 'vue';
 import { useStore } from 'vuex'
 
 const store = useStore()
 const configurationList = ref([]);
+const subfieldsVisible = ref({});
 
 const props = defineProps({
   selectedcapability: {
@@ -91,10 +87,6 @@ const emit = defineEmits([
   'changesMade'
 ])
 
-const toggleSubfields = (key) => {
-  configurationList.value[key].showSubfields = !configurationList.value[key].showSubfields;
-};
-
 onMounted(() => {  
   getConfigurationList()
 });
@@ -106,6 +98,9 @@ watch(() => props.selectedcapability, async () => {
 const getConfigurationList = (() => {
   if (props.selectedcapability && props.selectedcapability.json) {
     configurationList.value = JSON.parse(props.selectedcapability.json)
+    configurationList.value.forEach((value, key) => {
+      subfieldsVisible.value[key] = false;
+    });
   } else {
     configurationList.value = null
   }
@@ -123,6 +118,11 @@ watch(() => props.check, async () => {
       } else if (!disableCheckbox(configuration)) {
         configuration.checked = props.check
       }
+      if (Object.keys(configuration.subfields).length > 0){
+        for (let key in configuration.subfields) {
+          configuration.subfields[key].checked = props.check
+        }
+      } 
     }
   })
 }, { deep: true } );
@@ -192,9 +192,12 @@ const disableCheckbox = (item) => {
 const getBlockMessage = (item) => {
   if (item.incompatible && item.incompatible.length > 0) {
     let incompatibleNames = configurationList.value
-      .filter(configurationItem => item.incompatible.includes(configurationItem.id))
+      .filter(configurationItem => item.incompatible.includes(configurationItem.id) &&
+        configurationItem.checked)
       .map(configurationItem => store.state.strings[configurationItem.classname])
-    return ` Blocked by: ${incompatibleNames.join(', ')}`;
+    if (incompatibleNames.length > 0){
+      return ` Blocked by: ${incompatibleNames.join(', ')}`;
+    }
   }
   return '';
 };
@@ -203,6 +206,12 @@ const handleCheckboxChange = (value) => {
   configurationList.value.forEach((configuration) => {
     if (value == configuration) {
       configuration.checked = configuration.checked ? 0 : 1
+    } else if (Object.keys(configuration.subfields).length > 0){
+      for (let key in configuration.subfields) {
+        if (value == configuration.subfields[key]) {
+          configuration.subfields[key].checked = configuration.subfields[key].checked ? 0 : 1
+        }
+      }
     }
     const blocked = disableCheckbox(configuration)
     if (blocked) {
@@ -221,35 +230,6 @@ li.drag-over {
 .blocked-message {
   color: red;
   font-size: 12px;
-}
-
-.subfields-wrapper {
-  margin-left: 20px; /* Adjust as needed */
-}
-
-.subfields-wrapper > button {
-  margin-right: 5px;
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-.subfields-wrapper ul {
-  margin-top: 5px;
-  padding-left: 20px; /* Indent subfields */
-}
-
-.subfields-wrapper ul li {
-  list-style-type: none; /* Remove default list style */
-}
-
-.enumeration-dot {
-  display: inline-block;
-  width: 5px;
-  height: 5px;
-  background-color: #000;
-  border-radius: 50%;
-  margin-right: 5px; /* Adjust as needed */
 }
 
 .slide-fade-enter-active, .slide-fade-leave-active {

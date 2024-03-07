@@ -11,7 +11,10 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="bookingStat in bookingstats.json.booking" :key="'bookingstats' + bookingStat.id">
+        <tr 
+          v-for="bookingStat in bookingstats.json.booking" 
+          :key="'bookingstats' + bookingStat.id"
+        >
           <td>
             <a :href="'/mod/booking/view.php?id=' + bookingStat.id">
               {{ bookingStat.name }}
@@ -32,7 +35,7 @@
   import { useStore } from 'vuex'
   const store = useStore();
 
-  const props = defineProps({
+  defineProps({
     bookingstats: {
       type: Array,
       default: null,

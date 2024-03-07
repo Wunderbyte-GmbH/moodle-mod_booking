@@ -5,6 +5,7 @@
       :tabs="tabsstored"
       @filteredTabs="updateFilteredTabs"
     />
+
     <div class="overflow-tabs-container">
       <div>
         <div
@@ -33,6 +34,14 @@
           </div>
         </div>
       </div>
+      <!-- Confirmation dialog -->
+      <div v-if="showConfirmationModal">
+        <ConfirmationModal 
+          :show-confirmation-modal="showConfirmationModal"
+          :strings="store.state.strings"
+          @confirmBack="confirmBack"
+        />
+      </div>
     </div>
     <transition
       name="fade"
@@ -42,39 +51,10 @@
         v-if="content"
         class="content-container"
       >
-        <p
-          v-if="content.name"
-          class="mb-0"
-        >
-          <strong>{{ store.state.strings.vue_dashboard_name }}: </strong> {{ content.name }}
-        </p>
-        <p
-          v-if="content.coursecount"
-          class="mb-0"
-        >
-          <strong>{{ store.state.strings.vue_dashboard_course_count }}: </strong> {{ content.coursecount }}
-        </p>
-        <p
-          v-if="content.path"
-          class="mb-0"
-        >
-          <strong>{{ store.state.strings.vue_dashboard_path }}: </strong> {{ content.path }}
-        </p>
-        <p
-          class="mb-0"
-        >
-          <a href="/course/editcategory.php?parent=0">
-            {{ store.state.strings.vue_dashboard_create_oe }}
-          </a>
-        </p>
-        <p
-          v-if="content.contextid"
-          class="mb-0"
-        >
-          <a :href="'/admin/roles/assign.php?contextid=' + content.contextid">
-            {{ store.state.strings.vue_dashboard_assign_role }}
-          </a>
-        </p>
+        <TabInformation 
+          :content="content"
+          :strings="store.state.strings"
+        />
         <BookingStats :bookingstats="content" />
         <CapabilityButtons 
           :configlist="configlist" 
@@ -109,6 +89,8 @@
   import CapabilityButtons from '../components/helper/CapabilityButtons.vue';
   import CapabilityOptions from '../components/helper/CapabilityOptions.vue';
   import BookingStats from '../components/dashboard/BookingStats.vue';
+  import TabInformation from '../components/dashboard/TabInformation.vue';
+  import ConfirmationModal from './modal/ConfirmationModal.vue'
 
   const content = ref();
   const store = useStore();
@@ -119,6 +101,8 @@
   const configlist = ref(null)
   const check = ref(null)
   const changesMade = ref({})
+  const showConfirmationModal = ref(false)
+  const indexTab = ref(null)
 
   // Trigger web services on mount
   onMounted(async() => {
@@ -142,13 +126,31 @@
   }, { deep: true } );
 
   async function changeTab(index) {
-    selectedCapability.value = null
-    activeTab.value = index;
-    configlist.value = await store.dispatch('fetchTab', {
-      coursecategoryid: index,
-      contextid : findElementById(tabs.value, index),
-    });
+    indexTab.value = index
+    if (changesMade.value && changesMade.value.changesMade) {
+      showConfirmationModal.value = true
+    } else {
+      activeTab.value = indexTab.value;
+      selectedCapability.value = null
+      configlist.value = await store.dispatch('fetchTab', {
+        coursecategoryid: indexTab.value,
+        contextid : findElementById(tabs.value, indexTab.value),
+      });
+    }
   }
+
+  const confirmBack = async(confirmation) => {
+    showConfirmationModal.value = false;
+    if (confirmation) {
+      activeTab.value = indexTab.value;
+      selectedCapability.value = null
+      changesMade.value = null
+      configlist.value = await store.dispatch('fetchTab', {
+        coursecategoryid: indexTab.value,
+        contextid : findElementById(tabs.value, indexTab.value),
+      });
+    }
+  };
 
   const updateFilteredTabs = (filteredTabsFromSearchbar) => {
     tabs.value = filteredTabsFromSearchbar;

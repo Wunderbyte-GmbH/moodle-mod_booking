@@ -6,7 +6,7 @@
         <div class="col-md-12">
           <button
             class="btn btn-secondary mr-2"
-            @click="showButtons = true; handleCapabilityClick(null)"
+            @click="handleBackButtonClick"
           >
             {{ store.state.strings.vue_booking_stats_back }}
           </button>
@@ -23,37 +23,50 @@
           >
             {{ store.state.strings.vue_booking_stats_restore }}
           </button>
+
+          <!-- Confirmation dialog -->
+          <div v-if="showConfirmationBack">
+            <ConfirmationModal 
+              :show-confirmation-modal="showConfirmationBack"
+              :strings="store.state.strings"
+              @confirmBack="confirmBack"
+            />
+          </div>
+
           <transition name="slide-fade">
             <div 
               v-if="changesMade.changesMade"
               class="unsaved-dialog"
             >
-              There are unsaved changes
+              {{ store.state.strings.vue_capability_unsaved_changes }}
             </div>
           </transition>
-          <div 
-            v-if="showConfirmation" 
-            class="confirmation-dialog"
-          >
-            <div class="confirmation-content">
-              <p>You really want to reset this configuration?</p>
-              <!-- Buttons in a new row -->
-              <div class="btn-row">
-                <button
-                  class="btn btn-secondary mr-2"
-                  @click="showConfirmation=false"
-                >
-                  {{ store.state.strings.vue_booking_stats_no }}
-                </button>
-                <button
-                  class="btn btn-primary mr-2"
-                  @click="restoreContent"
-                >
-                  {{ store.state.strings.vue_booking_stats_yes }}
-                </button>
+          <transition name="slide-fade">
+            <div 
+              v-if="showConfirmation" 
+              class="confirmation-dialog"
+            >
+              <div class="confirmation-content">
+                <p>
+                  {{ store.state.strings.vue_capability_unsaved_continue }}
+                </p>
+                <div class="btn-row">
+                  <button
+                    class="btn btn-secondary mr-2"
+                    @click="showConfirmation=false"
+                  >
+                    {{ store.state.strings.vue_booking_stats_no }}
+                  </button>
+                  <button
+                    class="btn btn-primary mr-2"
+                    @click="restoreContent"
+                  >
+                    {{ store.state.strings.vue_booking_stats_yes }}
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          </transition>
         </div>
       </div>
       <div class="row mt-2">
@@ -93,6 +106,7 @@
 </template>
 
 <script setup>
+import ConfirmationModal from '../modal/ConfirmationModal.vue'
 import { ref, watch, computed } from 'vue'
 import { notify } from "@kyvg/vue3-notification"
 import { useStore } from 'vuex'
@@ -102,6 +116,7 @@ const showButtons = ref(true)
 const choosenCapability = ref(null)
 const selectAllChecked = ref(false);
 const showConfirmation = ref(false)
+const showConfirmationBack = ref(false)
 
 const props = defineProps({
   configlist: {
@@ -127,7 +142,6 @@ const emit = defineEmits([
   'setParentContent'
 ])
 
-
 watch(() => choosenCapability.value, async () => {
   if (choosenCapability.value == null) {
     emit('capabilityClicked', null)
@@ -148,39 +162,39 @@ const saveContent = async () => {
   if (props.changesMade.changesMade){
     choosenCapability.value.json = props.changesMade.configurationList
     const result = await store.dispatch('setParentContent', choosenCapability.value)
-    notificationSet(result)
+    notificationSet(result, 'saved')
   } else {
     notify({
-      title: 'No unsaved changes detected',
-      text: 'There were no unsaved changes detected.',
-      type: 'warning'
+      title: store.state.strings.vue_notification_title_unsave,
+      text: store.state.strings.vue_notification_text_unsave,
+      type: 'warn'
     });
   }
 }
 
 const restoreContent = async () => {
   showButtons.value = true
-  showConfirmation.value = false
+  showConfirmationBack.value = false
   let restoreChoosenCapability = { ...choosenCapability.value}
   restoreChoosenCapability.json = JSON.stringify({
     reset: true
   })
   const result = await store.dispatch('setParentContent', restoreChoosenCapability)
-  notificationSet(result)
+  notificationSet(result, 'restored')
   emit('restoreConfig', props.activeTab)
 }
 
-const notificationSet = (result) => {
+const notificationSet = (result, action) => {
   if(result.status == 'success'){
     notify({
-      title: 'Configuration was saved',
-      text: 'Configuration was saved successfully.',
+      title: store.state.strings.vue_notification_title_action_success.replace('{$a}', action),
+      text: store.state.strings.vue_notification_text_action_success.replace('{$a}', action),
       type: 'success'
     });
   }else {
     notify({
-      title: 'Configuration was saved',
-      text: 'Something went wrong while saving. The changes have not been changed.',
+      title: store.state.strings.vue_notification_title_action_fail.replace('{$a}', action),
+      text: store.state.strings.vue_notification_text_action_fail.replace('{$a}', action),
       type: 'warn'
     });
   }
@@ -189,6 +203,24 @@ const notificationSet = (result) => {
 const editAll = () => {
   emit('checkAll', selectAllChecked.value)
 }
+
+const handleBackButtonClick = () => {
+  if (props.changesMade.changesMade) {
+    showConfirmationBack.value = true
+  } else {
+    showButtons.value = true
+    handleCapabilityClick(null)
+  }
+};
+
+const confirmBack = async(confirmation) => {
+  showConfirmationBack.value = false;
+  if (confirmation) {
+    showButtons.value = true
+    handleCapabilityClick(null)
+  }
+};
+
 </script>
 
 <style scoped>
@@ -198,10 +230,10 @@ const editAll = () => {
 }
 
 .unsaved-dialog, .confirmation-dialog {
-  background-color: #ffffff; /* White background */
-  border-radius: 8px; /* Rounded corners */
-  padding: 10px; /* Padding for content */
-  margin-top: 10px; /* Space between buttons and content */
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 10px;
 }
 
 .btn-row {
