@@ -65,7 +65,9 @@ class save_option_field_config extends external_api {
     /**
      * Returns the available capabilities to configure
      *
-     * @param int $contextid
+     * @param string $capability
+     * @param int $id
+     * @param string $json
      * @return array
      * @throws dml_exception
      */

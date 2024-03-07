@@ -62,8 +62,7 @@ class get_parent_categories extends external_api {
     /**
      * Webservice for shopping_cart class to add a new item to the cart.
      *
-     * @param string $component
-     * @param string $area
+     * @param int $coursecategoryid
      *
      * @return array
      */
@@ -107,7 +106,7 @@ class get_parent_categories extends external_api {
                     = coursecategories::return_booking_information_for_coursecategory((int)$record->contextid)) {
 
                 $record->json = json_encode([
-                    'booking' => array_values($bookingoptions)
+                    'booking' => array_values($bookingoptions),
                 ]);
             }
 
@@ -128,7 +127,7 @@ class get_parent_categories extends external_api {
     public static function execute_returns(): external_multiple_structure {
         return new external_multiple_structure(
             new external_single_structure(
-                array(
+                [
                     'id' => new external_value(PARAM_INT, 'Item id', VALUE_DEFAULT, 0),
                     'name' => new external_value(PARAM_RAW, 'Item name', VALUE_DEFAULT, ''),
                     'contextid' => new external_value(PARAM_TEXT, 'Contextid', VALUE_DEFAULT, 1),
@@ -136,7 +135,7 @@ class get_parent_categories extends external_api {
                     'description' => new external_value(PARAM_RAW, 'description', VALUE_DEFAULT, ''),
                     'path' => new external_value(PARAM_TEXT, 'path', VALUE_DEFAULT, ''),
                     'json' => new external_value(PARAM_RAW, 'json', VALUE_DEFAULT, '{}'),
-                )
+                ]
             )
         );
     }
