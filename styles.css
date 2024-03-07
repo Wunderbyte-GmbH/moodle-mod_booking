@@ -444,3 +444,8 @@ if there only was one booking option. */
     top: 0;
     right: 0;
 }
+
+#page-mod-booking-view .mod-booking-view-card-image {
+    height: 220px;
+    object-fit: cover;
+}
