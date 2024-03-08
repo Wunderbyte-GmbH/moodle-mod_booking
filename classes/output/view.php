@@ -28,8 +28,6 @@ namespace mod_booking\output;
 use coding_exception;
 use context_module;
 use context_system;
-use local_wunderbyte_table\filters\types\datepicker;
-use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
 use mod_booking\elective;
@@ -734,25 +732,22 @@ class view implements renderable, templatable {
         }
 
         if ($filter) {
-            $filtercolumns = [];
-
             if (in_array('teacher', $optionsfields)) {
-
-                $standardfilter = new standardfilter('teacherobjects', get_string('teachers', 'mod_booking'));
-                $standardfilter->add_options([
+                $filtercolumns['teacherobjects'] = [
+                    'localizedname' => get_string('teachers', 'mod_booking'),
                     'jsonattribute' => 'name',
                 ]);
-                $standardfilter->add_filter($filtercolumns);
+                $wbtable->add_filter($standardfilter);
             }
             if (in_array('location', $optionsfields)) {
 
                 $standardfilter = new standardfilter('location', get_string('location', 'mod_booking'));
-                $standardfilter->add_filter($filtercolumns);
+                $wbtable->add_filter($standardfilter);
             }
             if (in_array('institution', $optionsfields)) {
 
                 $standardfilter = new standardfilter('institution', get_string('institution', 'mod_booking'));
-                $standardfilter->add_filter($filtercolumns);
+                $wbtable->add_filter($standardfilter);
             }
 
             $datepicker = new datepicker(
@@ -767,7 +762,7 @@ class view implements renderable, templatable {
                 'now',
                 'now + 1 year'
             );
-            $datepicker->add_filter($filtercolumns);
+            $wbtable->add_filter($datepicker);
 
             $datepicker = new datepicker(
                 'bookingopeningtime',
@@ -783,9 +778,7 @@ class view implements renderable, templatable {
                 'now + 1 year'
             );
 
-            $datepicker->add_filter($filtercolumns);
-
-            $wbtable->define_filtercolumns($filtercolumns);
+            $wbtable->add_filter($datepicker);
         }
 
         if ($sort) {
