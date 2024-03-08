@@ -171,22 +171,9 @@ class booking_handler extends \core_customfield\handler {
                     $categoryname = get_string($headerlangidentifier, $headerlangcomponent, $categoryname);
                 }
 
-                // Workaround: Only show header, if it is not turned off in the option form config.
-                // We currently need this, because hideIf does not work with headers.
-                // In expert mode, we always show everything.
-                $showheader = true;
-                $formmode = get_user_preferences('optionform_mode');
-                if ($formmode !== 'expert') {
-                    $cfgheader = $DB->get_field('booking_optionformconfig', 'active', ['elementname' => 'category_' . $categoryid]);
-                    if ($cfgheader === "0") {
-                        $showheader = false;
-                    }
-                }
-                if ($showheader) {
-                    $mform->addElement('header', 'category_' . $categoryid,
-                        '<i class="fa fa-fw fa-puzzle-piece" aria-hidden="true"></i>&nbsp;' .
-                        $categoryname);
-                }
+                $mform->addElement('header', 'category_' . $categoryid,
+                    '<i class="fa fa-fw fa-puzzle-piece" aria-hidden="true"></i>&nbsp;' .
+                    $categoryname);
 
                 $lastcategoryid = $categoryid;
             }

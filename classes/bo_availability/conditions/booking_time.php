@@ -247,23 +247,7 @@ class booking_time implements bo_condition {
         $mform->hideIf('bo_cond_booking_time_overridecondition', 'bo_cond_booking_time_overrideconditioncheckbox',
             'notchecked');*/
 
-        // Workaround: Only show, if it is not turned off in the option form config.
-        // We currently need this, because html elements do not show up in the option form config.
-        // In expert mode, we always show everything.
-        $showhorizontalline = true;
-        $formmode = get_user_preferences('optionform_mode');
-        if ($formmode !== 'expert') {
-            $cfgrestrictanswerperiodopening = $DB->get_field('booking_optionformconfig', 'active',
-                ['elementname' => 'restrictanswerperiodopening']);
-            $cfgrestrictanswerperiodclosing = $DB->get_field('booking_optionformconfig', 'active',
-                ['elementname' => 'restrictanswerperiodclosing']);
-            if (($cfgrestrictanswerperiodopening === "0") && ($cfgrestrictanswerperiodclosing === "0")) {
-                $showhorizontalline = false;
-            }
-        }
-        if ($showhorizontalline) {
-            $mform->addElement('html', '<hr class="w-50"/>');
-        }
+        $mform->addElement('html', '<hr class="w-50"/>');
     }
 
     /**

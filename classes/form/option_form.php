@@ -52,15 +52,11 @@ use stdClass;
  */
 class option_form extends dynamic_form {
 
-    /** @var bool $formmode 'simple' or 'expert' */
-    public $formmode = null;
-
     /**
      * {@inheritDoc}
      * @see moodleform::definition()
      */
     public function definition() {
-        global $DB, $PAGE, $OUTPUT;
 
         $formdata = $this->_customdata ?? $this->_ajaxformdata;
 

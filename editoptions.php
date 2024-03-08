@@ -73,20 +73,6 @@ if ((has_capability('mod/booking:updatebooking', $context) || (has_capability(
     throw new moodle_exception('nopermissions');
 }
 
-if (has_capability('mod/booking:cantoggleformmode', $context)) {
-    // Switch mode after button has been clicked.
-    switch ($mode) {
-        case 'formmodesimple':
-            set_user_preference('optionform_mode', 'simple');
-            break;
-        case 'formmodeexpert':
-            set_user_preference('optionform_mode', 'expert');
-            break;
-    }
-} else {
-    // Without the capability, we always use simple mode.
-    set_user_preference('optionform_mode', 'simple');
-}
 // We don't need this anymore.
 $optionid = $optionid < 0 ? 0 : $optionid;
 

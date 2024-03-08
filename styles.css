@@ -282,17 +282,6 @@ if there only was one booking option. */
     overflow: visible;
 }
 
-#page-admin-mod-booking-optionformconfig .col-md-3 {
-    display: none;
-}
-
-#page-admin-mod-booking-optionformconfig .mform {
-    padding-top: 15px;
-    padding-bottom: 5px;
-    background-color: ghostwhite;
-    border-radius: 12px;
-}
-
 /* Booking rules. */
 #page-mod-booking-edit-rules .booking-rules-cards {
     padding-top: 15px;

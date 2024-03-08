@@ -652,7 +652,7 @@ class dates {
             $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
             $entityid = $date["entityid"] ?? 0;
             $entityid = (int)$entityid;
-            $entitieselements = $erhandler->instance_form_definition($mform, $idx, 'noheader', null, null, $entityid);
+            $entitieselements = $erhandler->instance_form_definition($mform, $idx, false, null, null, $entityid);
             $elements = array_merge($elements, $entitieselements);
         }
 

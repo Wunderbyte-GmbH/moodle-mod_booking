@@ -195,14 +195,6 @@ $capabilities = [
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => ['manager' => CAP_ALLOW],
     ],
-    'mod/booking:cantoggleformmode' => [
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => [
-            'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW,
-        ],
-    ],
     'mod/booking:bookforothers' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,

@@ -387,21 +387,8 @@ class bo_info {
      */
     public static function add_conditions_to_mform(MoodleQuickForm &$mform, int $optionid, $moodleform = null) {
         global $DB;
-        // Workaround: Only show, if it is not turned off in the option form config.
-        // We currently need this, because hideIf does not work with headers.
-        // In expert mode, we always show everything.
-        $showconditionsheader = true;
-        $formmode = get_user_preferences('optionform_mode');
-        if ($formmode !== 'expert') {
-            $cfgconditionsheader = $DB->get_field('booking_optionformconfig', 'active',
-                ['elementname' => 'availabilityconditions']);
-            if ($cfgconditionsheader === "0") {
-                $showconditionsheader = false;
-            }
-        }
-        if ($showconditionsheader) {
-            $mform->addElement('header', 'availabilityconditions', get_string('availabilityconditionsheader', 'mod_booking'));
-        }
+
+        $mform->addElement('header', 'availabilityconditions', get_string('availabilityconditionsheader', 'mod_booking'));
 
         $conditions = self::get_conditions(MOD_BOOKING_CONDPARAM_MFORM_ONLY);
 

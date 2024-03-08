@@ -49,7 +49,6 @@ $string['createoptionsfromoptiondate'] = 'Für jeden Einzeltermin eine neue Buch
 $string['customformnotchecked'] = 'Noch nicht akzeptiert.';
 $string['updatebooking'] = 'Update Buchung';
 $string['booking:manageoptiontemplates'] = "Buchungsoptionsvorlagen verwalten";
-$string['booking:cantoggleformmode'] = 'Nutzer:in darf alle Einstellungen verwalten';
 $string['booking:overrideboconditions'] = 'Nutzer:in darf buchen auch wenn Verfügbarkeit false zurückliefert.';
 $string['collapsedescriptionoff'] = 'Beschreibungen nicht einklappen';
 $string['collapsedescriptionmaxlength'] = 'Beschreibungen einklappen (Zeichenanzahl)';
@@ -707,8 +706,6 @@ $string['newtemplatesaved'] = 'Neue Buchungsoptionsvorlage wurde gespeichert.';
 $string['option_template_not_saved_no_valid_license'] = 'Buchungsoption konnte nicht als Vorlage gespeichert werden.
                                                   Holen Sie sich die PRO-Version, um beliebig viele Vorlagen erstellen
                                                   zu können.';
-$string['toggleformmode_simple'] = '<i class="fa fa-compress" aria-hidden="true"></i> Wechsle zu Einfach-Modus';
-$string['toggleformmode_expert'] = '<i class="fa fa-expand" aria-hidden="true"></i> Wechsle zu Experten-Modus';
 
 // Option_form.php.
 $string['bookingoptionimage'] = 'Header-Bild';
@@ -1581,13 +1578,6 @@ $string['units_courses'] = 'Kurse / UE';
 $string['units_unknown'] = 'Anzahl UE unbekannt';
 $string['missinghours'] = 'Fehlstunden';
 $string['substitutions'] = 'Vertretung(en)';
-
-// Optionformconfig.php / optionformconfig_form.php.
-$string['optionformconfig'] = 'Buchung: Formular für Buchungsoptionen anpassen';
-$string['optionformconfigsaved'] = 'Konfiguration für das Buchungsoptionsformular gespeichert.';
-$string['optionformconfigsubtitle'] = '<p>Hier können Sie nicht benötigte Funktionalitäten entfernen, um das Formular für die Erstellung von Buchungsoptionen übersichtlicher zu gestalten.</p>
-<p><strong>ACHTUNG:</strong> Deaktivieren Sie nur Felder, von denen Sie sicher sind, dass Sie sie nicht benötigen!</p>';
-$string['optionformconfig:nobooking'] = 'Sie müssen zumindest eine Buchungsinstanz anlegen, bevor Sie dieses Formular nutzen können!';
 
 // Tasks.
 $string['task_adhoc_reset_optiondates_for_semester'] = 'Adhoc task: Termine zurücksetzen und neu erstellen';

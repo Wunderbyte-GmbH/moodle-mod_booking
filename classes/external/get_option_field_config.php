@@ -32,9 +32,6 @@ use external_function_parameters;
 use external_single_structure;
 use external_multiple_structure;
 use external_value;
-use mod_booking\settings\optionformconfig\optionformconfig_info;
-use mod_booking\utils\webservice_import;
-use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 

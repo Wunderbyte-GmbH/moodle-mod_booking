@@ -81,25 +81,9 @@ class price {
      */
     public function add_price_to_mform(MoodleQuickForm &$mform, bool $noformula=false) {
 
-        global $DB;
-
-        // Workaround: Only show, if it is not turned off in the option form config.
-        // We currently need this, because hideIf does not work with headers.
-        // In expert mode, we always show everything.
-        $showpriceheader = true;
-        $formmode = get_user_preferences('optionform_mode');
-        if ($formmode !== 'expert') {
-            $cfgpriceheader = $DB->get_field('booking_optionformconfig', 'active',
-                ['elementname' => 'bookingoptionprice']);
-            if ($cfgpriceheader === "0") {
-                $showpriceheader = false;
-            }
-        }
-        if ($showpriceheader) {
-            $mform->addElement('header', 'bookingoptionprice',
-                '<i class="fa fa-fw fa-money" aria-hidden="true"></i>&nbsp;' .
-                get_string('bookingoptionprice', 'booking'));
-        }
+        $mform->addElement('header', 'bookingoptionprice',
+            '<i class="fa fa-fw fa-money" aria-hidden="true"></i>&nbsp;' .
+            get_string('bookingoptionprice', 'booking'));
 
         // If there are no price categories yet, show an info text.
         if (empty($this->pricecategories)) {
