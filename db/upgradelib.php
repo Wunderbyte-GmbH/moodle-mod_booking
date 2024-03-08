@@ -90,3 +90,15 @@ function fix_bookingoption_descriptionformat_2024022700() {
         WHERE descriptionformat = 0"
     );
 }
+
+/**
+ * Fix showlistoncoursepage for all booking instances.
+ */
+function fix_showlistoncoursepage_2024030801() {
+    global $DB;
+    $DB->execute(
+        "UPDATE {booking}
+        SET showlistoncoursepage = 1
+        WHERE showlistoncoursepage = 2"
+    );
+}

@@ -26,6 +26,7 @@ use mod_booking\booking;
 use mod_booking\elective;
 use mod_booking\output\eventslist;
 use mod_booking\semester;
+use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
 
 defined('MOODLE_INTERNAL') || die();
@@ -129,6 +130,9 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform = &$this->_form;
 
         $bookingid = (int)$this->_instance;
+        if (!empty($bookingid)) {
+            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($bookingid);
+        }
 
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
@@ -312,7 +316,11 @@ class mod_booking_mod_form extends moodleform_mod {
         $listoncoursepageoptions[1] = get_string('showcoursenameandbutton', 'booking');
         $mform->addElement('select', 'showlistoncoursepage',
             get_string('showlistoncoursepage', 'booking'), $listoncoursepageoptions);
-        $mform->setDefault('showlistoncoursepage', 0); // List on course page is tuned off by default.
+        if (!empty($bookingsettings)) {
+            $mform->setDefault('showlistoncoursepage', (int)$bookingsettings->showlistoncoursepage);
+        } else {
+            $mform->setDefault('showlistoncoursepage', 0); // List on course page is turned off by default for new instances.
+        }
         $mform->addHelpButton('showlistoncoursepage', 'showlistoncoursepage', 'booking');
         $mform->setType('showlistoncoursepage', PARAM_INT);
 

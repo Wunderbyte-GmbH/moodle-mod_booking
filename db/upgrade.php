@@ -3673,7 +3673,7 @@ function xmldb_booking_upgrade($oldversion) {
     }
 
     if ($oldversion < 2024022700) {
-        // We need to migrate optionsfields for the new view.php.
+        // Fix bugs with description format.
         fix_bookingoption_descriptionformat_2024022700();
 
         // Booking savepoint reached.
@@ -3705,6 +3705,15 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2024030800, 'booking');
+    }
+
+    if ($oldversion < 2024030801) {
+
+        // Fix bugs with showlistoncoursepage field.
+        fix_showlistoncoursepage_2024030801();
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2024030801, 'booking');
     }
 
     return true;
