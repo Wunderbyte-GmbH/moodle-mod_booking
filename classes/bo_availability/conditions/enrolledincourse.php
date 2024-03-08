@@ -116,7 +116,7 @@ class enrolledincourse implements bo_condition {
                         $enrolled = true;
                         break;
                     }
-                    // We only get true, if the user is enrolled in ALL courses of the condition.
+                    // We only get true, if the user is enrolled in one of the courses of the condition.
                 }
             }
 
