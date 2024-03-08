@@ -104,7 +104,7 @@ class enrolledincourse implements bo_condition {
             if (empty($this->customsettings->courseidsoperator) || $this->customsettings->courseidsoperator != 'OR') {
                 foreach ($courseids as $courseid) {
                     $context = context_course::instance($courseid);
-                    $enrolled = $enrolled && is_enrolled($context, $userid);
+                    $enrolled = $enrolled && is_enrolled($context, $userid, '', true);
                     // We only get true, if the user is enrolled in ALL courses of the condition.
                 }
             } else {
