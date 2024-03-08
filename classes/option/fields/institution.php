@@ -91,9 +91,19 @@ class institution extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): string {
+        $returnvalue = ''): string {
 
-        return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
+        $key = fields_info::get_class_name(static::class);
+        $value = $formdata->{$key} ?? '';
+
+        if (!empty($value)) {
+            $newoption->{$key} = $value;
+        } else {
+            $newoption->{$key} = $returnvalue;
+        }
+
+        // We can return an warning message here.
+        return '';
     }
 
     /**
