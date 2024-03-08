@@ -24,7 +24,7 @@ With cards view, we always have modals.
 * Bugfix: Don't call add to calendar on template.
 * Bugfix: Add isset check for addtocalendar.
 * Bugfix: Don't block booking options without price with prepages.
-* Bugfix: Destroy all instances of booking options when calling destroy_booking_option.
+* Bugfix: Destroy all instances of booking options when calling destroy_booking_option_singleton.
 * Bugfix: Make sure we use correct context when creating booking option sql.
 * Bugfix: Wrong settings were used on report.php.
 * Bugfix: Use context_system if context_module can't be found (eg for template).

@@ -2777,7 +2777,7 @@ class booking_option {
         cache_helper::invalidate_by_event('setbackoptionsettings', [$optionid]);
 
         // We also need to destroy outdated singletons.
-        singleton_service::destroy_booking_option($optionid);
+        singleton_service::destroy_booking_option_singleton($optionid);
 
         // We also purge the answers cache.
         self::purge_cache_for_answers($optionid);
