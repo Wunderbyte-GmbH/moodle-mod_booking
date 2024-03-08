@@ -1,3 +1,11 @@
+## Version 8.1.34 (2024030801)
+* Improvement: Only use cached data for enrolled in course check.
+* Improvement: Make sure calendar events are always stored as optiondates.
+* Improvement: Get rid of old form modes (toggle between simple and expert form).
+* Improvement: New function to purge all booking instance caches and destroy booking instance singleton.
+* Bugfix: Make sure institution stores only empty strings.
+* Bugfix: Fix bugs with showlistoncoursepage field.
+
 ## Version 8.1.33 (2024030700)
 * Improvement: Add possibility to format personal messages with HTML editor.
 * Improvement: Make sure images in cards view always have the same height of 220px.
