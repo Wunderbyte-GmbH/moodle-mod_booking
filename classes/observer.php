@@ -217,12 +217,6 @@ class mod_booking_observer {
                 // Create or update the sessions.
                 option_optiondate_update_event($optionid, $optiondate, $cmid);
             }
-        } else { // This means that there are no multisessions.
-            // This is for the course event.
-            new calendar($event->contextinstanceid, $optionid, 0, calendar::MOD_BOOKING_TYPEOPTION);
-
-            // This is for the user events.
-            option_optiondate_update_event($optionid, null, $cmid);
         }
 
         $allteachers = $DB->get_fieldset_select('booking_teachers', 'userid', 'optionid = :optionid AND calendarid > 0',
@@ -312,7 +306,11 @@ class mod_booking_observer {
                 WHERE md.name = 'booking' AND cm.instance = ?", [$value->bookingid]
             );
 
-            new calendar($tmpcmid->id, $value->id, 0, calendar::MOD_BOOKING_TYPEOPTION);
+            // There are no calendar entries for whole booking options anymore. Only for optiondates!
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* new calendar($tmpcmid->id, $value->id, 0, calendar::MOD_BOOKING_TYPEOPTION); */
+
+            // TODO: We have to re-write this function so all calendar entries of optiondates will get updated correctly.
 
             $allteachers = $DB->get_records_sql("SELECT userid FROM {booking_teachers} WHERE optionid = ? AND calendarid > 0",
                 [$value->id]);
