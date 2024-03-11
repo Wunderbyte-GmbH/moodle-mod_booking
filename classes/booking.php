@@ -1561,18 +1561,26 @@ class booking {
     /**
      * Helper function to purge all caches for a booking instance.
      * @param int $cmid
+     * @param bool $withsemesters
+     * @param bool $withencodedtables
+     * @param bool $destroysingleton
      */
-    public static function purge_cache_for_booking_instance_by_cmid(int $cmid) {
+    public static function purge_cache_for_booking_instance_by_cmid(int $cmid, bool $withsemesters = true,
+        bool $withencodedtables = true, bool $destroysingleton = true) {
         cache_helper::invalidate_by_event('setbackbookinginstances', [$cmid]);
         cache_helper::purge_by_event('setbackoptionsettings');
         cache_helper::purge_by_event('setbackoptionstable');
-        cache_helper::purge_by_event('setbacksemesters');
-
-        // We also need to set back Wunderbyte table cache!
-        cache_helper::purge_by_event('setbackencodedtables');
         cache_helper::purge_by_event('setbackeventlogtable');
-
-        // Make sure, we destroy singletons too.
-        singleton_service::destroy_booking_singleton_by_cmid($cmid);
+        if ($withsemesters) {
+            cache_helper::purge_by_event('setbacksemesters');
+        }
+        if ($withencodedtables) {
+            // Wunderbyte table cache.
+            cache_helper::purge_by_event('setbackencodedtables');
+        }
+        if ($destroysingleton) {
+            // Make sure, we destroy singletons too.
+            singleton_service::destroy_booking_singleton_by_cmid($cmid);
+        }
     }
 }

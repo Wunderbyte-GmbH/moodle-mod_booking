@@ -686,7 +686,7 @@ function booking_add_instance($booking) {
     booking_grade_item_update($booking);
 
     // When adding an instance, we need to invalidate the cache for booking instances.
-    booking::purge_cache_for_booking_instance_by_cmid($cmid);
+    booking::purge_cache_for_booking_instance_by_cmid($cmid, false, false, false);
 
     return $booking->id;
 }
