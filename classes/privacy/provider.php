@@ -126,6 +126,46 @@ class provider implements
             'privacy:metadata:booking_userevents'
         );
 
+        $collection->add_database_table(
+            'booking_optiondates_teachers',
+            [
+                'optiondateid' => 'privacy:metadata:booking_optiondates_teachers:optiondateid',
+                'userid' => 'privacy:metadata:booking_optiondates_teachers:userid',
+            ],
+            'privacy:metadata:booking_optiondates_teachers'
+        );
+
+        $collection->add_database_table(
+            'booking_subbooking_answers',
+            [
+                'itemid' => 'privacy:metadata:booking_subbooking_answers:itemid',
+                'optionid' => 'privacy:metadata:booking_subbooking_answers:optionid',
+                'sboptionid' => 'privacy:metadata:booking_subbooking_answers:sboptionid',
+                'userid' => 'privacy:metadata:booking_subbooking_answers:userid',
+                'usermodified' => 'privacy:metadata:booking_subbooking_answers:usermodified',
+                'json' => 'privacy:metadata:booking_subbooking_answers:json',
+                'timestart' => 'privacy:metadata:booking_subbooking_answers:timestart',
+                'timeend' => 'privacy:metadata:booking_subbooking_answers:timeend',
+                'status' => 'privacy:metadata:booking_subbooking_answers:status',
+                'timecreated' => 'privacy:metadata:booking_subbooking_answers:timecreated',
+                'timemodified' => 'privacy:metadata:booking_subbooking_answers:timemodified',
+            ],
+            'privacy:metadata:booking_subbooking_answers'
+        );
+
+        $collection->add_database_table(
+            'booking_odt_deductions',
+            [
+                'optiondateid' => 'privacy:metadata:booking_odt_deductions:optiondateid',
+                'userid' => 'privacy:metadata:booking_odt_deductions:userid',
+                'reason' => 'privacy:metadata:booking_odt_deductions:reason',
+                'usermodified' => 'privacy:metadata:booking_odt_deductions:usermodified',
+                'timecreated' => 'privacy:metadata:booking_odt_deductions:timecreated',
+                'timemodified' => 'privacy:metadata:booking_odt_deductions:timemodified',
+            ],
+            'privacy:metadata:booking_odt_deductions'
+        );
+
         return $collection;
     }
 
