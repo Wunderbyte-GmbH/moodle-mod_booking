@@ -28,6 +28,8 @@ namespace mod_booking\output;
 use coding_exception;
 use context_module;
 use context_system;
+use local_wunderbyte_table\filters\types\datepicker;
+use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
 use mod_booking\elective;
@@ -733,10 +735,9 @@ class view implements renderable, templatable {
 
         if ($filter) {
             if (in_array('teacher', $optionsfields)) {
-                $filtercolumns['teacherobjects'] = [
-                    'localizedname' => get_string('teachers', 'mod_booking'),
-                    'jsonattribute' => 'name',
-                ]);
+
+                $standardfilter = new standardfilter('teacherobjects', get_string('teachers', 'mod_booking'));
+                $standardfilter->add_options(['jsonattribute' => 'name']);
                 $wbtable->add_filter($standardfilter);
             }
             if (in_array('location', $optionsfields)) {
