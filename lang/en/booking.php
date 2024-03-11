@@ -1402,6 +1402,31 @@ $string['privacy:metadata:booking_userevents:optionid'] = 'ID of booking option 
 $string['privacy:metadata:booking_userevents:optiondateid'] = 'ID of optiondate (session) for user event';
 $string['privacy:metadata:booking_userevents:eventid'] = 'ID of event in events table';
 
+$string['privacy:metadata:booking_optiondates_teachers'] = 'Track teachers for each session.';
+$string['privacy:metadata:booking_optiondates_teachers:optiondateid'] = 'ID of the option date';
+$string['privacy:metadata:booking_optiondates_teachers:userid'] = 'The userid of the teacher.';
+
+$string['privacy:metadata:booking_subbooking_answers'] = 'Stores the anwers (the bookings) of a user for a particular subbooking.';
+$string['privacy:metadata:booking_subbooking_answers:itemid'] = 'itemid can be the same as sboptionid, but there are some types (eg. timeslots which provide slots) where one sboptionid provides a lot of itemids.';
+$string['privacy:metadata:booking_subbooking_answers:optionid'] = 'The option ID';
+$string['privacy:metadata:booking_subbooking_answers:sboptionid'] = 'id of the booked subbooking';
+$string['privacy:metadata:booking_subbooking_answers:userid'] = 'Userid of the booked user.';
+$string['privacy:metadata:booking_subbooking_answers:usermodified'] = 'The user that modified';
+$string['privacy:metadata:booking_subbooking_answers:json'] = 'supplementary data if necessary';
+$string['privacy:metadata:booking_subbooking_answers:timestart'] = 'Timestamp for start time of this booking';
+$string['privacy:metadata:booking_subbooking_answers:timeend'] = 'Timestamp for end time of this booking';
+$string['privacy:metadata:booking_subbooking_answers:status'] = 'The bookings status, as in booked, waiting list, in the shopping cart, on a notify list or deleted';
+$string['privacy:metadata:booking_subbooking_answers:timecreated'] = 'The time created';
+$string['privacy:metadata:booking_subbooking_answers:timemodified'] = 'The time last modified';
+
+$string['privacy:metadata:booking_odt_deductions'] = 'This table is used to log if we want to deduct a part of a teachers salary if (s)he has missing hours.';
+$string['privacy:metadata:booking_odt_deductions:optiondateid'] = 'The option date ID';
+$string['privacy:metadata:booking_odt_deductions:userid'] = 'Userid of the teacher who gets a deduction for this option date.';
+$string['privacy:metadata:booking_odt_deductions:reason'] = 'Reason for the deduction.';
+$string['privacy:metadata:booking_odt_deductions:usermodified'] = 'The user that modified';
+$string['privacy:metadata:booking_odt_deductions:timecreated'] = 'The time created';
+$string['privacy:metadata:booking_odt_deductions:timemodified'] = 'The time last modified';
+
 // Calendar.php.
 $string['usercalendarentry'] = 'You are booked for <a href="{$a}">this session</a>.';
 $string['bookingoptioncalendarentry'] = '<a href="{$a}" class="btn btn-primary">Book now...</a>';
