@@ -1,3 +1,7 @@
+## Version 8.1.35 (2024031100)
+* Bugfix: No need to destroy singleton when creating new booking instances.
+* Bugfix: Add missing strings (assesstimestart, assesstimefinish).
+
 ## Version 8.1.34 (2024030801)
 * Improvement: Only use cached data for enrolled in course check.
 * Improvement: Make sure calendar events are always stored as optiondates.
