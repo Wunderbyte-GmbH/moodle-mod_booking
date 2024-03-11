@@ -87,6 +87,7 @@ echo $OUTPUT->footer();
 /**
  * Send a custom message to one or more users.
  *
+ * @package mod_booking
  * @param int $optionid
  * @param string $subject
  * @param string $message
