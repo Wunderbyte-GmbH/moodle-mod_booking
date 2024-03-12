@@ -1,3 +1,7 @@
+## Version 8.1.36 (2024031200)
+* Improvement: New settings for max. per user and improvements to general settings.
+* Tests: New phpunit tests for reminder mails and teacher reminders.
+
 ## Version 8.1.35 (2024031100)
 * Bugfix: No need to destroy singleton when creating new booking instances.
 * Bugfix: Add missing strings (assesstimestart, assesstimefinish).
