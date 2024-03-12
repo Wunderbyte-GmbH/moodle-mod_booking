@@ -67,9 +67,17 @@ $string['deductionnotpossible'] = 'All teachers were present at this date. So no
 $string['defaultoptionsort'] = 'Default sorting by column';
 $string['doyouwanttobook'] = 'Do you want to book <b>{$a}</b>?';
 $string['from'] = 'From';
+$string['generalsettings'] = 'General settings';
 $string['gotomanageresponses'] = '&lt;&lt; Manage bookings';
 $string['gotomoodlecourse'] = 'Go to Moodle course';
 $string['limitfactor'] = 'Booking limit factor';
+$string['maxperuserdontcountpassed'] = 'Max. number of bookings: Ignore courses passed';
+$string['maxperuserdontcountpassed_desc'] = 'When calculating the maximum number of bookings per user per instance,
+do not count booking options that have already passed (recommended)';
+$string['maxperuserdontcountcompleted'] = 'Max. number of bookings: Ignore completed';
+$string['maxperuserdontcountcompleted_desc'] = 'Do not count bookings that have been marked as "completed" or that
+have a presence status like "Attending", "No show"... (exception: "Unknown") when calculating the maximum number
+of bookings per user per instance (recommended)';
 $string['messageprovider:bookingconfirmation'] = "Booking confirmations";
 $string['name'] = 'Name';
 $string['noselection'] = 'No selection';
@@ -655,7 +663,9 @@ $string['lblname'] = 'Name of label: Name';
 $string['lblnumofusers'] = 'Name of label: Num. of users';
 $string['lblsurname'] = 'Name of label: Surname';
 $string['maxperuser'] = 'Max current bookings per user';
-$string['maxperuser_help'] = 'The maximum number of bookings an individual user can make in this activity at once. After an event end time has passed, it is no longer counted against this limit.';
+$string['maxperuser_help'] = 'The maximum number of bookings an individual user can make in this activity at once.
+<b>Attention:</b> In the Booking plugin settings, you can choose if users who completed or attended and booking options
+that have already passed should be counted or not counted to determine the maximum number of bookings a user can book within this instance.';
 $string['notificationtext'] = 'Notification message';
 $string['numgenerator'] = 'Enable rec. number generation?';
 $string['paginationnum'] = "N. of records - pagination";
@@ -1191,7 +1201,7 @@ $string['signincustfields_desc'] = 'Select the custom profiles fields to be show
 $string['showcustomfields'] = 'Custom booking option fields';
 $string['showcustomfields_desc'] = 'Select the custom booking option fields to be shown on the sign-in sheet';
 $string['alloptionsinreport'] = 'One report for a booking activity' . $string['badge:pro'];
-$string['alloptionsinreportdesc'] = 'The report of one booking activity will include all the answers of all booking options within this activity.';
+$string['alloptionsinreportdesc'] = 'The report of one booking option will include all the bookings of all booking options within this instance.';
 
 $string['showlistoncoursepage'] = 'Show extra information on course page';
 $string['showlistoncoursepage_help'] = 'If you activate this setting, the course name, a short info and a button

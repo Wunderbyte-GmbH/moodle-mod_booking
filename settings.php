@@ -168,6 +168,26 @@ if ($ADMIN->fulltree) {
                 get_string('infotext:prolicensenecessary', 'mod_booking')));
     }
 
+    // General settings.
+    $settings->add(
+        new admin_setting_heading('generalsettings',
+            get_string('generalsettings', 'mod_booking'), ''));
+
+    $settings->add(
+        new admin_setting_configcheckbox('booking/alloptionsinreport',
+                get_string('alloptionsinreport', 'mod_booking'),
+                get_string('alloptionsinreportdesc', 'mod_booking'), 0));
+
+    $settings->add(
+        new admin_setting_configcheckbox('booking/maxperuserdontcountpassed',
+            get_string('maxperuserdontcountpassed', 'mod_booking'),
+            get_string('maxperuserdontcountpassed_desc', 'mod_booking'), 1));
+
+    $settings->add(
+        new admin_setting_configcheckbox('booking/maxperuserdontcountcompleted',
+            get_string('maxperuserdontcountcompleted', 'mod_booking'),
+            get_string('maxperuserdontcountcompleted_desc', 'mod_booking'), 1));
+
     // PRO feature: Teacher settings.
     if ($proversion) {
 
@@ -667,11 +687,6 @@ if ($ADMIN->fulltree) {
         $setting = new admin_setting_configtext($name, $visiblename, $description, '');
         $settings->add($setting);
     }
-
-    $settings->add(
-        new admin_setting_configcheckbox('booking/alloptionsinreport',
-                get_string('alloptionsinreport', 'mod_booking'),
-                get_string('alloptionsinreportdesc', 'mod_booking'), 0));
 
     // Global mail templates (PRO).
     $settings->add(

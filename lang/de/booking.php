@@ -68,9 +68,17 @@ $string['deductionnotpossible'] = 'Da alle Trainer:innen bei diesem Termin anwes
 $string['defaultoptionsort'] = 'Standardsortierung nach Spalte';
 $string['doyouwanttobook'] = 'Wollen Sie <b>{$a}</b> buchen?';
 $string['from'] = 'Ab';
+$string['generalsettings'] = 'Allgemeine Einstellungen';
 $string['gotomanageresponses'] = '&lt;&lt; Buchungen verwalten';
 $string['gotomoodlecourse'] = 'Zum Moodle-Kurs';
 $string['limitfactor'] = 'Buchungslimit-Faktor';
+$string['maxperuserdontcountpassed'] = 'Max. Anz. Buchungen: Vergangene ignorieren';
+$string['maxperuserdontcountpassed_desc'] = 'Buchungen von Buchungsoptionen, die bereits vergangen sind, bei der Berechnung
+der maximalen Anzahl an Buchungen nicht mitzählen (empfohlen)';
+$string['maxperuserdontcountcompleted'] = 'Max. Anz. Buchungen: Abgeschlossene ignorieren';
+$string['maxperuserdontcountcompleted_desc'] = 'Abgeschlossene Buchungen und Teilnehmer:innen mit Präsenzstatus
+(z.B. "Teilgenommen", "Nicht aufgetaucht"... - Ausnahme: "Unbekannt") bei der Berechnung der maximalen Anzahl
+an Buchungen nicht mitzählen (empfohlen)';
 $string['messageprovider:bookingconfirmation'] = "Buchungsbestätigungen";
 $string['name'] = 'Name';
 $string['noselection'] = 'Keine Auswahl';
@@ -649,7 +657,9 @@ $string['lblname'] = 'Bezeichnung für: Name';
 $string['lblnumofusers'] = 'Bezeichnung für: Nutzer:innenanzahl';
 $string['lblsurname'] = 'Bezeichnung für: Nachname';
 $string['maxperuser'] = 'Maximale Anzahl an Buchungen pro User';
-$string['maxperuser_help'] = 'Die maximale Anzahl an Buchungen, die ein/e Nutzer/in auf einmal buchen kann. Nach dem Ende des gebuchten Kurses, zählt dieser nicht mehr zum Buchungslimit.';
+$string['maxperuser_help'] = 'Die maximale Anzahl an Buchungen, die ein/e Nutzer/in auf einmal buchen kann.
+<b>Achtung:</b> In den Booking-Plugin-Einstellungen können Sie auswählen, ob Nutzer:innen, die teilgenommen
+oder abgeschlossen haben und ob Buchungsoptionen, die bereits vorbei sind, mitgezählt werden sollen oder nicht.';
 $string['notificationtext'] = 'Benachrichtigungstext';
 $string['numgenerator'] = 'Automatische Seitennummerierung aktivieren?';
 $string['paginationnum'] = 'Anzahl der Einträge pro Seite';
@@ -1152,7 +1162,7 @@ $string['signincustfields_desc'] = 'Wählen Sie die Profilfelder, die auf der Un
 $string['showcustomfields'] = 'Anzuzeigende benutzerdefnierte Buchungsoptionsfelder';
 $string['showcustomfields_desc'] = 'Wählen Sie die benutzerdefinierte Buchungsoptionfelder, die auf der Unterschriftenliste abgedruckt werden sollen';
 $string['alloptionsinreport'] = 'Report über alle Buchungen einer Instanz' . $string['badge:pro'];
-$string['alloptionsinreportdesc'] = 'Der Report einer Buchungsoption beinhaltet alle Antworten der ganzen Instanz';
+$string['alloptionsinreportdesc'] = 'Der Report einer Buchungsoption beinhaltet alle Buchungen der ganzen Instanz';
 
 $string['showlistoncoursepage'] = 'Extra-Info auf Kursseite anzeigen';
 $string['showlistoncoursepage_help'] = 'Wenn Sie diese Einstellung aktivieren, werden der Kursname, eine Kurzinfo

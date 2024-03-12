@@ -1657,10 +1657,14 @@ class booking_option {
         global $DB;
 
         foreach ($allselectedusers as $ui) {
-            $userdata = $DB->get_record('booking_answers',
-                    ['optionid' => $this->optionid, 'userid' => $ui]);
-            $userdata->status = $presencestatus;
 
+            $userdata = $DB->get_record_sql(
+                "SELECT *
+                FROM {booking_answers}
+                WHERE optionid = :optionid AND userid = :userid AND waitinglist < 2",
+                ['optionid' => $this->optionid, 'userid' => $ui]);
+
+            $userdata->status = $presencestatus;
             $DB->update_record('booking_answers', $userdata);
         }
 

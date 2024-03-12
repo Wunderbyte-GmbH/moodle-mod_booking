@@ -344,16 +344,27 @@ class booking_answers {
     public static function number_of_active_bookings_for_user(int $userid, int $bookingid) {
         global $DB;
 
-        $params = ['statuswaitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
-                   'bookingid' => $bookingid,
-                   'userid' => $userid,
-                    ];
+        $params = [
+            'statuswaitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+            'bookingid' => $bookingid,
+            'userid' => $userid,
+        ];
 
-        $sql = "SELECT COUNT(*)
-                FROM {booking_answers}
-                WHERE waitinglist <= :statuswaitinglist
-                AND bookingid = :bookingid
-                AND userid = :userid";
+        $sql = "SELECT COUNT(ba.*) cnt
+                FROM {booking_answers} ba
+                JOIN {booking_options} bo
+                ON bo.id = ba.optionid
+                WHERE ba.waitinglist <= :statuswaitinglist
+                AND ba.bookingid = :bookingid
+                AND ba.userid = :userid";
+
+        if (get_config('booking', 'maxperuserdontcountpassed')) {
+            $params['now'] = time();
+            $sql .= " AND (bo.courseendtime > :now OR bo.courseendtime IS NULL OR bo.courseendtime = 0)";
+        }
+        if (get_config('booking', 'maxperuserdontcountcompleted')) {
+            $sql .= " AND ba.completed = 0 AND ba.status NOT IN (1,2,3,4,6)";
+        }
 
         return $DB->count_records_sql($sql, $params);
     }
