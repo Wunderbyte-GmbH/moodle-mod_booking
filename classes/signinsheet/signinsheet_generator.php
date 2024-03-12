@@ -213,6 +213,12 @@ class signinsheet_generator {
     public $margintop = 12;
 
     /**
+     * True if there are rotated fields within header row.
+     * @var bool
+     */
+    public $hasrotatedfields = false;
+
+    /**
      * Define basic variable values for signinsheet pdf
      *
      * @param \mod_booking\booking_option $bookingoption
@@ -270,8 +276,7 @@ class signinsheet_generator {
             $this->extracols[$i] = trim(get_config('booking', 'signinextracols' . $i));
         }
 
-        $this->pdf = new signin_pdf($this->orientation, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8',
-                false);
+        $this->pdf = new signin_pdf($this->orientation, PDF_UNIT, PDF_PAGE_FORMAT);
     }
 
     /**
@@ -354,21 +359,12 @@ class signinsheet_generator {
         }
 
         $this->pdf->SetCreator(PDF_CREATOR);
-        $this->pdf->setPrintHeader(true);
+        // Not needed anymore! (Otherwise we'll have a black line, we do not want).
+        $this->pdf->setPrintHeader(false);
         $this->pdf->setPrintFooter(true);
         $this->pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
         $this->pdf->SetHeaderMargin($this->margintop);
         $this->pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
-
-        if ($this->title == 2) {
-            $this->pdf->SetHeaderData('', 0, format_string($settings->get_title_with_prefix()), '');
-        } else if ($this->title == 1) {
-            $this->pdf->SetHeaderData('', 0,
-                    format_string($this->bookingoption->booking->settings->name) . ': ' .
-                    format_string($settings->get_title_with_prefix()), '');
-        } else {
-            $this->pdf->SetHeaderData('', 0, format_string($this->bookingoption->booking->settings->name, ''));
-        }
         $this->pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
         $this->pdf->SetAutoPageBreak(true, PDF_MARGIN_BOTTOM);
         $this->pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
@@ -378,6 +374,7 @@ class signinsheet_generator {
         $this->pdf->setCellPadding(1);
 
         $this->get_signinsheet_logo_footer();
+
         $this->set_page_header();
 
         $profilefields = explode(',', get_config('booking', 'custprofilefields'));
@@ -409,14 +406,18 @@ class signinsheet_generator {
                     }
                 }
             }
+
             // The first time a teacher is processed a new page should be made.
             if ($this->processteachers != $user->isteacher) {
                 $this->processteachers = true;
-                $this->pdf->SetY($this->pdf->GetY() + 5, true);
+
+                $this->pdf->SetY($this->pdf->GetY() + 5);
                 $this->set_table_headerrow();
-            }
-            if ($this->pdf->go_to_newline(12)) {
-                $this->set_page_header();
+                if ($this->extrasessioncols == -1) {
+                    $this->pdf->SetY($this->pdf->GetY() + 5);
+                } else {
+                    $this->pdf->SetY($this->pdf->GetY() + 14);
+                }
             }
             $this->pdf->SetFont('freesans', '', 10);
 
@@ -467,7 +468,7 @@ class signinsheet_generator {
                         $name = $user->idnumber;
                         break;
                     case 'email':
-                        $w = 40;
+                        $w = 60;
                         $name = $user->email;
                         break;
                     case 'phone1':
@@ -678,7 +679,8 @@ class signinsheet_generator {
         $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
 
         // Get header and footer logo for signin sheet.
-        $this->pdf->SetXY(18, $this->margintop + 13);
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $this->pdf->SetXY(18, $this->pdf->getY() - 15); */
 
         // TODO: Fix signinsheet logo!
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
@@ -687,9 +689,22 @@ class signinsheet_generator {
                     true, 150, 'R', false, false, 0, false, false, false);
         } */
 
-        // Teachers.
-        $this->pdf->Ln();
         $this->pdf->SetFont('freesans', '', 10);
+
+        if ($this->title == 2) {
+            $headertitle = format_string($settings->get_title_with_prefix());
+        } else if ($this->title == 1) {
+            $headertitle = format_string($this->bookingoption->booking->settings->name) . ': ' .
+                format_string($settings->get_title_with_prefix());
+        } else {
+            $headertitle = format_string($this->bookingoption->booking->settings->name, '');
+        }
+
+        $this->pdf->writeHTMLCell(0, 0, $this->pdf->GetX(), 15,
+            '<h3>' . $headertitle . '</h3>',
+            0, 1, false, true, 'L', false);
+
+        $this->pdf->SetY($this->pdf->GetY() + 2);
 
         if (class_exists('local_entities\entitiesrelation_handler')) {
             // If Entity manager is installed, we use location and address from entity.
@@ -733,10 +748,9 @@ class signinsheet_generator {
                 get_string('signinsheetdate', 'booking'), 0, 1, '', 0);
             $this->pdf->SetFont('freesans', '', 8);
             $this->pdf->MultiCell(0, 0, $this->sessionsstring, 0, 'L', false, 1);
-            // Sessions seem to destroy Y because of newlines, so add the following little fix.
-            $this->pdf->setY($this->pdf->GetY() - (count($this->sessions) * 2.9), false);
-            $this->pdf->SetFont('freesans', '', 10);
         }
+
+        $this->pdf->SetFont('freesans', '', 10);
 
         if (!empty($this->cfgcustfields)) {
             $customfields = \mod_booking\booking_option::get_customfield_settings();
@@ -776,7 +790,19 @@ class signinsheet_generator {
             $this->allfields = array_unique(array_merge($this->allfields, $extrasessioncols));
         }
 
+        // Sessions seem to destroy Y because of newlines, so add the following little fix.
+        if ($this->pdfsessions == 0) {
+            // Only do this, if we show ALL sessions.
+            $this->pdf->setY($this->pdf->GetY() - (count($this->sessions) * 2.9), false);
+        } else {
+            $this->pdf->setY($this->pdf->GetY() + 5, false);
+        }
         $this->set_table_headerrow();
+        if ($this->extrasessioncols == -1) {
+            $this->pdf->SetY($this->pdf->GetY() + 5);
+        } else {
+            $this->pdf->SetY($this->pdf->GetY() + 14);
+        }
     }
 
     /**
@@ -825,7 +851,7 @@ class signinsheet_generator {
                     $name = get_string('idnumber');
                     break;
                 case 'email':
-                    $w = 40;
+                    $w = 60;
                     $name = get_string('email');
                     break;
                 case 'phone1':
@@ -851,6 +877,7 @@ class signinsheet_generator {
                     break;
                 default:
                     $rotate = true;
+                    $this->hasrotatedfields = true;
                     $name = $value;
             }
 
@@ -872,6 +899,5 @@ class signinsheet_generator {
                 $this->pdf->Cell($w, 15, $name, 1, (count($this->allfields) == $c ? 1 : 0), '', 0, '', 1);
             }
         }
-        $this->pdf->SetY($this->pdf->GetY() + 14);
     }
 }
