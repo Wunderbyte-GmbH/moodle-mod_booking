@@ -195,7 +195,7 @@ class page_teacher implements renderable, templatable {
                 // We load only the first table directly, the other ones lazy.
                 $lazy = $firsttable ? '' : ' lazy="1" ';
 
-                $view = new view($booking->cmid);
+                $view = new view($booking->cmid, 'shownothing');
                 $out = $view->get_rendered_table_for_teacher($teacherid, false, false, false);
 
                 $class = $firsttable ? 'active show' : '';

@@ -194,6 +194,9 @@ class view implements renderable, templatable {
             case 'showfieldofstudy':
                 $this->showfieldofstudy = true;
                 break;
+            case 'shownothing':
+                // Don't do anything.
+                break;
             case 'showall':
             default:
                 $this->showall = true;
