@@ -133,7 +133,7 @@ class view implements renderable, templatable {
      * @param string $whichview
      * @param int $optionid
      */
-    public function __construct(int $cmid, string $whichview = '', int $optionid = 0) {
+    public function __construct(int $cmid, string $whichview = '', int $optionid = 0, bool $onlywhichview = false) {
         global $USER, $PAGE;
 
         $this->cmid = $cmid;
@@ -150,11 +150,17 @@ class view implements renderable, templatable {
         if (empty($whichview)) {
             if (!empty($bookingsettings->whichview)) {
                 $whichview = $bookingsettings->whichview;
+                $showviews = explode(',', $bookingsettings->showviews);
             } else {
                 $whichview = 'showall'; // Fallback.
             }
         }
-        $showviews = explode(',', $bookingsettings->showviews);
+
+        if ($onlywhichview) {
+            $showviews = [$whichview];
+        } else {
+            $showviews = explode(',', $bookingsettings->showviews);
+        }
 
         // These params are used to determine the active tabs in the mustache template.
         switch ($whichview) {
@@ -196,6 +202,7 @@ class view implements renderable, templatable {
                 break;
             case 'shownothing':
                 // Don't do anything.
+                $showviews = [];
                 break;
             case 'showall':
             default:
@@ -387,7 +394,7 @@ class view implements renderable, templatable {
      * @return string the rendered table
      */
     public function get_rendered_table_for_teacher(int $teacherid,
-        bool $tfilter = true, bool $tsearch = true, bool $tsort = true) {
+        bool $tfilter = true, bool $tsearch = true, bool $tsort = true, $lazy = false) {
         $cmid = $this->cmid;
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
@@ -408,7 +415,13 @@ class view implements renderable, templatable {
 
         $teacheroptionstable->showreloadbutton = false; // No reload button on teacher pages.
         $teacheroptionstable->requirelogin = false; // Teacher pages need to be accessible without login.
-        $out = $teacheroptionstable->outhtml($booking->get_pagination_setting(), true);
+
+        if ($lazy) {
+            list($idstring, $encodedtable, $out)
+                = $teacheroptionstable->lazyouthtml($booking->get_pagination_setting(), true);
+        } else {
+            $out = $teacheroptionstable->outhtml($booking->get_pagination_setting(), true);
+        }
 
         return $out;
     }
