@@ -69,7 +69,7 @@ class booking_reminder_mails_test extends advanced_testcase {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function test_send_teacher_reminder() {
+    public function test_send_teacher_remimder() {
         global $DB, $CFG;
 
         $this->resetAfterTest();
@@ -173,14 +173,12 @@ class booking_reminder_mails_test extends advanced_testcase {
         $this->assertStringContainsString("send teacher notifications - DONE", $res);
 
         foreach ($events as $key => $event) {
-            if ($event instanceof \core\event\notication_sent) {
+            if ($event instanceof core\event\notification_sent) {
                 unset($events[$key]);
             }
         }
 
-        // TODO: @semteacher Commented this out for now to get green Booking again.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $this->assertCount(4, $events); */
+        $this->assertCount(4, $events);
 
         // Checking that the 1st event - reminder1 - contains the expected values.
         $this->assertInstanceOf('\mod_booking\event\reminder1_sent', $events[0]);
