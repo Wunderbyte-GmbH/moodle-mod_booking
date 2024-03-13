@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Tests for booking remainder mails.
+ * Tests for booking reminder mails.
  *
  * @package mod_booking
  * @category test
@@ -37,14 +37,14 @@ use context_system;
 use stdClass;
 
 /**
- * Class handling tests for booking remainder mails.
+ * Class handling tests for booking reminder mails.
  *
  * @package mod_booking
  * @category test
  * @copyright 2024 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class booking_remainder_mails_test extends advanced_testcase {
+class booking_reminder_mails_test extends advanced_testcase {
 
     /**
      * Tests set up.
