@@ -186,7 +186,12 @@ if ($ADMIN->fulltree) {
     $settings->add(
         new admin_setting_configcheckbox('booking/maxperuserdontcountcompleted',
             get_string('maxperuserdontcountcompleted', 'mod_booking'),
-            get_string('maxperuserdontcountcompleted_desc', 'mod_booking'), 1));
+            get_string('maxperuserdontcountcompleted_desc', 'mod_booking'), 0));
+
+    $settings->add(
+        new admin_setting_configcheckbox('booking/maxperuserdontcountnoshow',
+            get_string('maxperuserdontcountnoshow', 'mod_booking'),
+            get_string('maxperuserdontcountnoshow_desc', 'mod_booking'), 1));
 
     // PRO feature: Teacher settings.
     if ($proversion) {

@@ -363,7 +363,10 @@ class booking_answers {
             $sql .= " AND (bo.courseendtime > :now OR bo.courseendtime IS NULL OR bo.courseendtime = 0)";
         }
         if (get_config('booking', 'maxperuserdontcountcompleted')) {
-            $sql .= " AND ba.completed = 0 AND ba.status NOT IN (1,2,3,4,6)";
+            $sql .= " AND ba.completed = 0 AND ba.status NOT IN (1,6)";
+        }
+        if (get_config('booking', 'maxperuserdontcountnoshow')) {
+            $sql .= " AND ba.status <> 3";
         }
 
         return $DB->count_records_sql($sql, $params);

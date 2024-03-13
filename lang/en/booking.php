@@ -73,11 +73,13 @@ $string['gotomoodlecourse'] = 'Go to Moodle course';
 $string['limitfactor'] = 'Booking limit factor';
 $string['maxperuserdontcountpassed'] = 'Max. number of bookings: Ignore courses passed';
 $string['maxperuserdontcountpassed_desc'] = 'When calculating the maximum number of bookings per user per instance,
-do not count booking options that have already passed (recommended)';
+do not count booking options that have already passed';
 $string['maxperuserdontcountcompleted'] = 'Max. number of bookings: Ignore completed';
 $string['maxperuserdontcountcompleted_desc'] = 'Do not count bookings that have been marked as "completed" or that
-have a presence status like "Attending", "No show"... (exception: "Unknown") when calculating the maximum number
-of bookings per user per instance (recommended)';
+have a presence status "Attending" or "Complete" when calculating the maximum number of bookings per user per instance';
+$string['maxperuserdontcountnoshow'] = 'Max. number of bookings: Ignore users who did not show up';
+$string['maxperuserdontcountnoshow_desc'] = 'Do not count bookings that have been marked as "No show"
+when calculating the maximum number of bookings per user per instance';
 $string['messageprovider:bookingconfirmation'] = "Booking confirmations";
 $string['name'] = 'Name';
 $string['noselection'] = 'No selection';

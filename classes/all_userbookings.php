@@ -432,7 +432,7 @@ class all_userbookings extends \table_sql {
                     }
                     $optionbutton = '<div class="singlebutton">' . \html_writer::start_tag('span',
                             ['class' => "transfersubmit"]);
-                    echo \html_writer::div(get_string('transferheading', 'mod_booking'));
+                    echo \html_writer::div(get_string('transferheading', 'mod_booking'), 'mt-2');
                     echo $dropdown = \html_writer::select($transferto, 'transferoption');
                     $attributes = ['type' => 'submit',
                         'class' => 'transfersubmit btn btn-secondary btn-sm',
@@ -530,10 +530,11 @@ class all_userbookings extends \table_sql {
                     4 => get_string('status_failed', 'booking'),
                 ];
 
-                echo html_writer::select($presences, 'selectpresencestatus', '');
+                echo html_writer::select($presences, 'selectpresencestatus', '', ['' => 'choosedots'],
+                    ['class' => 'mt-3']);
 
-                echo '<div class="singlebutton">' .
-                    '<input type="submit" class="btn btn-success btn-sm" name="changepresencestatus" value="' .
+                echo '<div class="singlebutton ml-2">' .
+                    '<input type="submit" class="btn btn-success btn-sm mt-3" name="changepresencestatus" value="' .
                     get_string('confirmpresence', 'booking') . '" /></div>';
             }
         }

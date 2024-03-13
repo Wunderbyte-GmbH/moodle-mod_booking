@@ -74,11 +74,13 @@ $string['gotomoodlecourse'] = 'Zum Moodle-Kurs';
 $string['limitfactor'] = 'Buchungslimit-Faktor';
 $string['maxperuserdontcountpassed'] = 'Max. Anz. Buchungen: Vergangene ignorieren';
 $string['maxperuserdontcountpassed_desc'] = 'Buchungen von Buchungsoptionen, die bereits vergangen sind, bei der Berechnung
-der maximalen Anzahl an Buchungen nicht mitzählen (empfohlen)';
+der maximalen Anzahl an Buchungen nicht mitzählen';
 $string['maxperuserdontcountcompleted'] = 'Max. Anz. Buchungen: Abgeschlossene ignorieren';
-$string['maxperuserdontcountcompleted_desc'] = 'Abgeschlossene Buchungen und Teilnehmer:innen mit Präsenzstatus
-(z.B. "Teilgenommen", "Nicht aufgetaucht"... - Ausnahme: "Unbekannt") bei der Berechnung der maximalen Anzahl
-an Buchungen nicht mitzählen (empfohlen)';
+$string['maxperuserdontcountcompleted_desc'] = 'Abgeschlossene Buchungen und Teilnehmer:innen mit Präsenzstatus "Teilgenommen" oder "Abgeschlossen"
+bei der Berechnung der maximalen Anzahl an Buchungen nicht mitzählen';
+$string['maxperuserdontcountnoshow'] = 'Max. Anz. Buchungen: Abwesende ignorieren';
+$string['maxperuserdontcountnoshow_desc'] = 'Abwesende Teilnehmer:innen mit Präsenzstatus "Nicht aufgetaucht"
+bei der Berechnung der maximalen Anzahl an Buchungen nicht mitzählen';
 $string['messageprovider:bookingconfirmation'] = "Buchungsbestätigungen";
 $string['name'] = 'Name';
 $string['noselection'] = 'Keine Auswahl';
