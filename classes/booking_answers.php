@@ -350,7 +350,7 @@ class booking_answers {
             'userid' => $userid,
         ];
 
-        $sql = "SELECT COUNT(ba.*) cnt
+        $sql = "SELECT COUNT(ba.id) cnt
                 FROM {booking_answers} ba
                 JOIN {booking_options} bo
                 ON bo.id = ba.optionid
