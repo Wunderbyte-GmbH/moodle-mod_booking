@@ -1375,7 +1375,8 @@ $string['linknotvalid'] = 'Dieser Link / dieses Event ist derzeit nicht verfügb
 Bitte probieren Sie es kurz vor Beginn noch einmal, wenn Sie dieses Event gebucht haben.';
 
 // Booking_utils.php.
-$string['linknotavailableyet'] = 'Der Link auf die Konferenz ist nur zwischen 15 Minuten vor dem Meeting und dem Enddatum hier verfügbar.';
+$string['linknotavailableyet'] = 'Der Link zum Online-Meeting-Raum ist erst 15 Minuten vor dem Meeting sichtbar
+und verschwindet nach Ende des Meetings wieder.';
 $string['changeinfochanged'] = ' hat sich geändert:';
 $string['changeinfoadded'] = ' wurde hinzugefügt:';
 $string['changeinfodeleted'] = ' wurde gelöscht:';

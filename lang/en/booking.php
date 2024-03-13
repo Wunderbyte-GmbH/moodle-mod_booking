@@ -1498,7 +1498,8 @@ $string['linknotvalid'] = 'This link or meeting is not accessible.
 If it is a meeting you have booked, please check again, shortly before start.';
 
 // Booking_utils.php.
-$string['linknotavailableyet'] = "The link to access the meeting is available only 15 minutes before the start until the end of the session.";
+$string['linknotavailableyet'] = "The link to access the meeting is available only 15 minutes before the start
+until the end of the session.";
 $string['changeinfochanged'] = ' has changed:';
 $string['changeinfoadded'] = ' has been added:';
 $string['changeinfodeleted'] = ' has been deleted:';

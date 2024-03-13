@@ -2381,12 +2381,14 @@ class booking_option {
             $descriptionparam = 0,
             $forbookeduser = false) {
 
+        // At first, we handle special meeting fields.
+        // The regex will match ZoomMeeting, BigBlueButton-Meeting, Teams meeting etc.
+        if (preg_match('/^((zoom)|(big.*blue.*button)|(teams)).*meeting$/i', $field->cfgname)) {
+            // If the session is not yet about to begin, we show placeholder.
+            return $this->render_meeting_fields($sessionid, $field, $descriptionparam, $forbookeduser);
+        }
+
         switch ($field->cfgname) {
-            case 'zoommeeting':
-            case 'bigbluebuttonmeeting':
-            case 'teamsmeeting':
-                // If the session is not yet about to begin, we show placeholder.
-                return $this->render_meeting_fields($sessionid, $field, $descriptionparam, $forbookeduser);
             case 'addcomment':
                 return [
                     'name' => "",
