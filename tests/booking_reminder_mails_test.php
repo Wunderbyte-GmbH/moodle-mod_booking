@@ -35,6 +35,7 @@ use mod_booking_generator;
 use context_course;
 use context_system;
 use stdClass;
+use core\event\notification_sent;
 
 /**
  * Class handling tests for booking reminder mails.
@@ -172,11 +173,13 @@ class booking_reminder_mails_test extends advanced_testcase {
         $this->assertStringContainsString("send teacher notifications - START", $res);
         $this->assertStringContainsString("send teacher notifications - DONE", $res);
 
+        // Eliminate notification_sent even from processing for now.
         foreach ($events as $key => $event) {
-            if ($event instanceof core\event\notification_sent) {
+            if ($event instanceof notification_sent) {
                 unset($events[$key]);
             }
         }
+        $events = array_values($events);
 
         $this->assertCount(4, $events);
 
