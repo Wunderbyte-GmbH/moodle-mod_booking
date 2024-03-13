@@ -1,3 +1,10 @@
+## Version 8.1.37 (2024031300)
+* Bugfix: Fix privacy provider.
+* Bugfix: Fix special fields for optiondates (Teams meeting, Zoom meeting...).
+* Improvement: Several improvements for sign-in sheet, including better display of e-mail addresses and line breaks for too long titles.
+* Improvement: Better debugging for errors with availability json.
+* Improvement: Setting to not count users with presence status "no show" for max. number of bookings per instance.
+
 ## Version 8.1.36 (2024031200)
 * Improvement: New settings for max. per user and improvements to general settings.
 * Tests: New phpunit tests for reminder mails and teacher reminders.
