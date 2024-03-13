@@ -69,7 +69,7 @@ class booking_reminder_mails_test extends advanced_testcase {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function test_send_teacher_remaider() {
+    public function test_send_teacher_remimder() {
         global $DB, $CFG;
 
         $this->resetAfterTest();
@@ -171,6 +171,12 @@ class booking_reminder_mails_test extends advanced_testcase {
 
         $this->assertStringContainsString("send teacher notifications - START", $res);
         $this->assertStringContainsString("send teacher notifications - DONE", $res);
+
+        foreach ($events as $key => $event) {
+            if ($event instanceof \core\event\notication_sent) {
+                unset($events[$key]);
+            }
+        }
 
         $this->assertCount(4, $events);
 
