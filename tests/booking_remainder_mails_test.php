@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Tests for booking reminder mails.
+ * Tests for booking remainder mails.
  *
  * @package mod_booking
  * @category test
@@ -37,14 +37,14 @@ use context_system;
 use stdClass;
 
 /**
- * Class handling tests for booking reminder mails.
+ * Class handling tests for booking remainder mails.
  *
  * @package mod_booking
  * @category test
  * @copyright 2024 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class booking_reminder_mails_test extends advanced_testcase {
+class booking_remainder_mails_test extends advanced_testcase {
 
     /**
      * Tests set up.
@@ -103,13 +103,10 @@ class booking_reminder_mails_test extends advanced_testcase {
         $userdata = new stdClass;
         $userdata->email = $useremails[0];
         $userdata->timezone = 'Europe/London';
-        $userdata->username = 'username1';
         $user1 = $this->getDataGenerator()->create_user($userdata);
         $userdata->email = $useremails[1];
-        $userdata->username = 'username2';
         $user2 = $this->getDataGenerator()->create_user($userdata); // Booking teacher.
         $userdata->email = $useremails[2];
-        $userdata->username = 'username3';
         $user3 = $this->getDataGenerator()->create_user($userdata); // Booking manager.
 
         $bdata['course'] = $course->id;
