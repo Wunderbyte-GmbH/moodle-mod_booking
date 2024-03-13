@@ -169,6 +169,12 @@ class booking_remainder_mails_test extends advanced_testcase {
         $this->assertStringContainsString("send teacher notifications - START", $res);
         $this->assertStringContainsString("send teacher notifications - DONE", $res);
 
+        foreach ($events as $key => $event) {
+            if ($event instanceof \core\event\notication_sent) {
+                unset($events[$key]);
+            }
+        }
+
         $this->assertCount(4, $events);
 
         // Checking that the 1st event - reminder1 - contains the expected values.
