@@ -132,6 +132,7 @@ class view implements renderable, templatable {
      * @param int $cmid
      * @param string $whichview
      * @param int $optionid
+     * @param bool $onlywhichview
      */
     public function __construct(int $cmid, string $whichview = '', int $optionid = 0, bool $onlywhichview = false) {
         global $USER, $PAGE;
@@ -391,10 +392,11 @@ class view implements renderable, templatable {
      * @param bool $tfilter turn on filter in wunderbyte table
      * @param bool $tsearch turn on search in wunderbyte table
      * @param bool $tsort turn on sorting in wunderbyte table
+     * @param bool $lazy for lazy-loading
      * @return string the rendered table
      */
     public function get_rendered_table_for_teacher(int $teacherid,
-        bool $tfilter = true, bool $tsearch = true, bool $tsort = true, $lazy = false) {
+        bool $tfilter = true, bool $tsearch = true, bool $tsort = true, bool $lazy = false) {
         $cmid = $this->cmid;
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
