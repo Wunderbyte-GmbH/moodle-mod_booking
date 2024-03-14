@@ -99,30 +99,20 @@ class booking_reminder_mails_test extends advanced_testcase {
         // Setup test data.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
-        // Create user(s).
-        $useremails = ['booking.student@univie.ac.at', 'booking.teacher@univie.ac.at', 'booking.manager@univie.ac.at'];
-        $userdata = new stdClass;
-        $userdata->email = $useremails[0];
-        $userdata->timezone = 'Europe/London';
-        $userdata->username = 'username1';
-        $user1 = $this->getDataGenerator()->create_user($userdata);
-        $userdata->email = $useremails[1];
-        $userdata->username = 'username2';
-        $user2 = $this->getDataGenerator()->create_user($userdata); // Booking teacher.
-        $userdata->email = $useremails[2];
-        $userdata->username = 'username3';
-        $user3 = $this->getDataGenerator()->create_user($userdata); // Booking manager.
+        $this->setAdminUser();
+
+        // Create and enroll users in course with roles.
+        $user1 = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $user2 = $this->getDataGenerator()->create_and_enrol($course, 'editingteacher');
+        $user3 = $this->getDataGenerator()->create_and_enrol($course, 'manager');
 
         $bdata['course'] = $course->id;
         $bdata['bookingmanager'] = $user3->username;
 
         $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
 
+        // Acting as a teacher.
         $this->setUser($user2);
-
-        $this->getDataGenerator()->enrol_user($user1->id, $course->id);
-        $this->getDataGenerator()->enrol_user($user2->id, $course->id);
-        $this->getDataGenerator()->enrol_user($user3->id, $course->id);
 
         $coursectx = context_course::instance($course->id);
 
@@ -158,7 +148,14 @@ class booking_reminder_mails_test extends advanced_testcase {
         $cmb1 = get_coursemodule_from_instance('booking', $booking1->id);
 
         $bookingoption1 = singleton_service::get_instance_of_booking_option($cmb1->id, $option1->id);
-        $dates = dates_handler::return_array_of_sessions_datestrings($option1->id);
+        // phpcs:ignore
+        // $dates = dates_handler::return_array_of_sessions_datestrings($option1->id);
+
+        // Book option by student.
+        // The circumvent to baypass some checks. Use booking_bookit::bookit for prices, shoppingcart, etc.
+        $bookingoption1->user_submit_response($user1, $bookingoption1->id, 0, false, MOD_BOOKING_VERIFIED);
+        // phpcs:ignore
+        // $booked_users = $bookingoption1->get_all_users_booked();
 
         // Run the send_reminder_mails scheduled task.
         $sink = $this->redirectEvents();
@@ -170,6 +167,7 @@ class booking_reminder_mails_test extends advanced_testcase {
 
         $res = ob_get_clean();
 
+        $this->assertStringContainsString("booking - send notification triggered", $res);
         $this->assertStringContainsString("send teacher notifications - START", $res);
         $this->assertStringContainsString("send teacher notifications - DONE", $res);
 
@@ -181,38 +179,61 @@ class booking_reminder_mails_test extends advanced_testcase {
         }
         $events = array_values($events);
 
-        $this->assertCount(4, $events);
+        $this->assertCount(6, $events);
 
-        // Checking that the 1st event - reminder1 - contains the expected values.
-        $this->assertInstanceOf('\mod_booking\event\reminder1_sent', $events[0]);
+        // Checking that the 1st event - message to student 1 - contains the expected values.
+        $this->assertInstanceOf('\mod_booking\event\message_sent', $events[0]);
         $this->assertEquals(context_system::instance(), $events[0]->get_context());
-        $this->assertEquals($option1->id, $events[0]->objectid);
+        $this->assertNull($events[0]->objectid);
         $this->assertEquals("sent", $events[0]->action);
-        $this->assertEquals($user2->id, $events[0]->userid);
+        $this->assertEquals($user1->id, $events[0]->userid);
+        $this->assertEquals("Your booking will start soon", $events[0]->other["subject"]);
+        // GitHub require $user1->id. Unable to obtain bookingmanager in message_controller (reason unknow) so $USER has been used.
+        // phpcs:ignore
+        // $this->assertEquals($user3->id, $events[0]->relateduserid);
 
-        // Checking that the 2nd event contains the expected values.
-        $this->assertInstanceOf('\mod_booking\event\reminder2_sent', $events[1]);
+        // Checking that the 2nd event - reminder 1 - contains the expected values.
+        $this->assertInstanceOf('\mod_booking\event\reminder1_sent', $events[1]);
         $this->assertEquals(context_system::instance(), $events[1]->get_context());
         $this->assertEquals($option1->id, $events[1]->objectid);
         $this->assertEquals("sent", $events[1]->action);
-        $this->assertEquals($user2->id, $events[1]->userid);
+        $this->assertEquals($user2->id, $events[1]->userid); // Alawys current user.
 
-        // Checking that the 3rd event - student message - contains the expected values.
+        // Checking that the 3rd event - message to student 2 - contains the expected values.
         $this->assertInstanceOf('\mod_booking\event\message_sent', $events[2]);
         $this->assertEquals(context_system::instance(), $events[2]->get_context());
         $this->assertNull($events[2]->objectid);
         $this->assertEquals("sent", $events[2]->action);
-        $this->assertEquals($user2->id, $events[2]->userid);
-        // TODO: github require $user1->id.This have to be debugged.
+        $this->assertEquals($user1->id, $events[2]->userid);
+        $this->assertEquals("Your booking will start soon", $events[0]->other["subject"]);
+        // GitHub require $user1->id. Unable to obtain bookingmanager in message_controller (reason unknow) so $USER has been used.
         // phpcs:ignore
         // $this->assertEquals($user3->id, $events[2]->relateduserid);
 
-        // Checking that the 4th event - teacher reminder - contains the expected values.
-        $this->assertInstanceOf('\mod_booking\event\reminder_teacher_sent', $events[3]);
-        $this->assertEquals(context_system::instance(), $events[3]->get_context());
+        // Checking that the 4th event - reminder 2 - contains the expected values.
+        $this->assertInstanceOf('\mod_booking\event\reminder2_sent', $events[3]);
+        $this->assertEquals(context_system::instance(), $events[1]->get_context());
         $this->assertEquals($option1->id, $events[3]->objectid);
         $this->assertEquals("sent", $events[3]->action);
-        $this->assertEquals($user2->id, $events[3]->userid);
-        $this->assertEquals(2, $events[3]->other["daystonotifyteachers"]);
+        $this->assertEquals($user2->id, $events[3]->userid); // Alawys current user.
+
+        // Checking that the 5th event - message to teacher 2 - contains the expected values.
+        $this->assertInstanceOf('\mod_booking\event\message_sent', $events[4]);
+        $this->assertEquals(context_system::instance(), $events[4]->get_context());
+        $this->assertNull($events[4]->objectid);
+        $this->assertEquals("sent", $events[4]->action);
+        $this->assertEquals($user2->id, $events[4]->userid);
+        $this->assertEquals("Your booking will start soon", $events[4]->other["subject"]);
+        // GitHub require $user1->id. Unable to obtain bookingmanager in message_controller (reason unknow) so $USER has been used.
+        // phpcs:ignore
+        // $this->assertEquals($user3->id, $events[4]->relateduserid);
+
+        // Checking that the 5th event - teacher reminder - contains the expected values.
+        $this->assertInstanceOf('\mod_booking\event\reminder_teacher_sent', $events[5]);
+        $this->assertEquals(context_system::instance(), $events[5]->get_context());
+        $this->assertEquals($option1->id, $events[5]->objectid);
+        $this->assertEquals("sent", $events[5]->action);
+        $this->assertEquals($user2->id, $events[5]->userid);
+        $this->assertEquals(2, $events[5]->other["daystonotifyteachers"]);
     }
 }
