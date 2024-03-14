@@ -2438,7 +2438,8 @@ class booking_option {
                     // User is booked and event open, we return the button with the link to access, this is for the website.
                     return [
                             'name' => null,
-                            'value' => "<a href=$field->value class='btn btn-info'>$field->cfgname</a>",
+                            'value' => "<a href=$field->value class='btn btn-secondary booking-meetinglink-btn'>"
+                                . $field->cfgname . "</a>",
                     ];
                 };
             case MOD_BOOKING_DESCRIPTION_CALENDAR:
@@ -2458,7 +2459,8 @@ class booking_option {
 
                     return [
                             'name' => null,
-                            'value' => "<a href=$encodedlink class='btn btn-info'>$field->cfgname</a>",
+                            'value' => "<a href=$encodedlink class='btn btn-secondary booking-meetinglink-btn'>" .
+                                $field->cfgname . "</a>",
                     ];
                 } else {
                     return [];
