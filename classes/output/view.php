@@ -172,6 +172,7 @@ class view implements renderable, templatable {
                 if (!empty($optionid)) {
                     $this->showonlyone = true;
                     $this->renderedshowonlyonetable = $this->get_rendered_showonlyone_table($optionid);
+                    return;
                 } else {
                     $this->showall = true;
                 }
@@ -232,42 +233,58 @@ class view implements renderable, templatable {
 
         // All options.
         if (in_array('showall', $showviews)) {
-            $this->renderedalloptionstable = $this->get_rendered_all_options_table();
+            // If we show this table first, we don't load it lazy.
+            $lazy = $whichview !== 'showall';
+            $this->renderedalloptionstable = $this->get_rendered_all_options_table($lazy);
         }
 
         // Active options.
         if (in_array('showactive', $showviews)) {
-            $this->renderedactiveoptionstable = $this->get_rendered_active_options_table();
+            // If we show this table first, we don't load it lazy.
+            $lazy = $whichview !== 'showactive';
+            $this->renderedactiveoptionstable = $this->get_rendered_active_options_table($lazy);
         }
 
         // My bookings.
         if (in_array('mybooking', $showviews)) {
-            $this->renderedmyoptionstable = $this->get_rendered_my_booked_options_table();
+            // If we show this table first, we don't load it lazy.
+            $lazy = $whichview !== 'mybooking';
+            $this->renderedmyoptionstable = $this->get_rendered_my_booked_options_table($lazy);
         }
 
         // Options I teach.
         if (in_array('myoptions', $showviews) && booking_check_if_teacher()) {
-            $this->renderedoptionsiteachtable = $this->get_rendered_table_for_teacher($USER->id, false, true, true);
+            // If we show this table first, we don't load it lazy.
+            $lazy = $whichview !== 'myoptions';
+            $this->renderedoptionsiteachtable = $this->get_rendered_table_for_teacher($USER->id, false, true, true, $lazy);
         }
 
         // Only the booking options of my institution.
         if (in_array('myinstitution', $showviews) && !empty($USER->institution)) {
             $this->myinstitutionname = $USER->institution;
-            $this->renderedmyinstitutiontable = $this->get_rendered_myinstitution_table($USER->institution);
+            // If we show this table first, we don't load it lazy.
+            $lazy = $whichview !== 'myinstitution';
+            $this->renderedmyinstitutiontable = $this->get_rendered_myinstitution_table($USER->institution, $lazy);
         }
 
         // Only show visible options.
         if (in_array('showvisible', $showviews) && has_capability('mod/booking:canseeinvisibleoptions', $context)) {
-            $this->renderedvisibleoptionstable = $this->get_rendered_visible_options_table();
+            // If we show this table first, we don't load it lazy.
+            $lazy = $whichview !== 'showvisible';
+            $this->renderedvisibleoptionstable = $this->get_rendered_visible_options_table($lazy);
         }
 
         // Only show invisible options.
         if (in_array('showinvisible', $showviews) && has_capability('mod/booking:canseeinvisibleoptions', $context)) {
-            $this->renderedinvisibleoptionstable = $this->get_rendered_invisible_options_table();
+            // If we show this table first, we don't load it lazy.
+            $lazy = $whichview !== 'showinvisible';
+            $this->renderedinvisibleoptionstable = $this->get_rendered_invisible_options_table($lazy);
         }
 
         // Field of study options.
         if (in_array('showfieldofstudy', $showviews)) {
+            // If we show this table first, we don't load it lazy.
+            $lazy = $whichview !== 'showfieldofstudy';
             $this->renderedfieldofstudyoptionstable = format_text('[fieldofstudyoptions]');
         }
     }
@@ -301,9 +318,13 @@ class view implements renderable, templatable {
 
     /**
      * Render table for all booking options.
-     * @return string the rendered table
+     * @param bool $lazy
+     * @return string
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
      */
-    public function get_rendered_all_options_table(): string {
+    public function get_rendered_all_options_table($lazy = false): string {
         $cmid = $this->cmid;
 
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
@@ -320,16 +341,22 @@ class view implements renderable, templatable {
         // In the future, we can parametrize this function so we can use it on many different places.
         $this->wbtable_initialize_list_layout($allbookingoptionstable, true, true, true);
 
-        $out = $allbookingoptionstable->outhtml($booking->get_pagination_setting(), true);
+        if ($lazy) {
+            list($idstring, $encodedtable, $out)
+                = $allbookingoptionstable->lazyouthtml($booking->get_pagination_setting(), true);
+        } else {
+            $out = $allbookingoptionstable->outhtml($booking->get_pagination_setting(), true);
+        }
 
         return $out;
     }
 
     /**
      * Render table for active booking options.
+     * @param bool $lazy for lazy-loading
      * @return string the rendered table
      */
-    public function get_rendered_active_options_table() {
+    public function get_rendered_active_options_table($lazy = false) {
         $cmid = $this->cmid;
 
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
@@ -353,16 +380,21 @@ class view implements renderable, templatable {
         // In the future, we can parametrize this function so we can use it on many different places.
         $this->wbtable_initialize_list_layout($activebookingoptionstable, true, true, true);
 
-        $out = $activebookingoptionstable->outhtml($booking->get_pagination_setting(), true);
-
+        if ($lazy) {
+            list($idstring, $encodedtable, $out)
+                = $activebookingoptionstable->lazyouthtml($booking->get_pagination_setting(), true);
+        } else {
+            $out = $activebookingoptionstable->outhtml($booking->get_pagination_setting(), true);
+        }
         return $out;
     }
 
     /**
      * Render table for my own booked options.
+     * @param bool $lazy for lazy-loading
      * @return string the rendered table
      */
-    public function get_rendered_my_booked_options_table() {
+    public function get_rendered_my_booked_options_table($lazy = false) {
         global $USER;
 
         $cmid = $this->cmid;
@@ -381,7 +413,12 @@ class view implements renderable, templatable {
         // In the future, we can parametrize this function so we can use it on many different places.
         $this->wbtable_initialize_list_layout($mybookingoptionstable, true, true, true);
 
-        $out = $mybookingoptionstable->outhtml($booking->get_pagination_setting(), true);
+        if ($lazy) {
+            list($idstring, $encodedtable, $out)
+                = $mybookingoptionstable->lazyouthtml($booking->get_pagination_setting(), true);
+        } else {
+            $out = $mybookingoptionstable->outhtml($booking->get_pagination_setting(), true);
+        }
 
         return $out;
     }
@@ -396,7 +433,7 @@ class view implements renderable, templatable {
      * @return string the rendered table
      */
     public function get_rendered_table_for_teacher(int $teacherid,
-        bool $tfilter = true, bool $tsearch = true, bool $tsort = true, bool $lazy = false) {
+        bool $tfilter = true, bool $tsearch = true, bool $tsort = true, $lazy = false) {
         $cmid = $this->cmid;
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
@@ -461,9 +498,10 @@ class view implements renderable, templatable {
     /**
      * Render table for all options with a specific institution.
      * @param string $institution
+     * @param bool $lazy for lazy-loading
      * @return string the rendered table
      */
-    public function get_rendered_myinstitution_table(string $institution) {
+    public function get_rendered_myinstitution_table(string $institution, $lazy = false) {
         $cmid = $this->cmid;
 
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
@@ -483,16 +521,22 @@ class view implements renderable, templatable {
         // In the future, we can parametrize this function so we can use it on many different places.
         $this->wbtable_initialize_list_layout($myinstitutiontable, true, true, true);
 
-        $out = $myinstitutiontable->outhtml($booking->get_pagination_setting(), true);
+        if ($lazy) {
+            list($idstring, $encodedtable, $out)
+                = $myinstitutiontable->lazyouthtml($booking->get_pagination_setting(), true);
+        } else {
+            $out = $myinstitutiontable->outhtml($booking->get_pagination_setting(), true);
+        }
 
         return $out;
     }
 
     /**
      * Render table for all options which are visible.
+     * @param bool $lazy for lazy-loading
      * @return string the rendered table
      */
-    public function get_rendered_visible_options_table() {
+    public function get_rendered_visible_options_table($lazy = false) {
         $cmid = $this->cmid;
 
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
@@ -512,16 +556,22 @@ class view implements renderable, templatable {
         // In the future, we can parametrize this function so we can use it on many different places.
         $this->wbtable_initialize_list_layout($visibleoptionstable, true, true, true);
 
-        $out = $visibleoptionstable->outhtml($booking->get_pagination_setting(), true);
+        if ($lazy) {
+            list($idstring, $encodedtable, $out)
+                = $visibleoptionstable->lazyouthtml($booking->get_pagination_setting(), true);
+        } else {
+            $out = $visibleoptionstable->outhtml($booking->get_pagination_setting(), true);
+        }
 
         return $out;
     }
 
     /**
      * Render table for all options which are invisible.
+     * @param bool $lazy for lazy-loading
      * @return string the rendered table
      */
-    public function get_rendered_invisible_options_table() {
+    public function get_rendered_invisible_options_table($lazy = false) {
         $cmid = $this->cmid;
 
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
@@ -541,7 +591,12 @@ class view implements renderable, templatable {
         // In the future, we can parametrize this function so we can use it on many different places.
         $this->wbtable_initialize_list_layout($invisibleoptionstable, true, true, true);
 
-        $out = $invisibleoptionstable->outhtml($booking->get_pagination_setting(), true);
+        if ($lazy) {
+            list($idstring, $encodedtable, $out)
+                = $invisibleoptionstable->lazyouthtml($booking->get_pagination_setting(), true);
+        } else {
+            $out = $invisibleoptionstable->outhtml($booking->get_pagination_setting(), true);
+        }
 
         return $out;
     }
