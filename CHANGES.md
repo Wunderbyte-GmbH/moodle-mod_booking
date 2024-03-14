@@ -1,3 +1,10 @@
+## Version 8.1.38 (2024031400)
+* Improvement: Accelerate view page via lazy loading.
+* Improvement: Meeting link buttons should have secondary color.
+* Bugfix: Service period currently always needs to be courseendtime.
+* Bugfix: Accelerate slow teacher page.
+* Bugfix: don't render all tables to show teacher page.
+
 ## Version 8.1.37 (2024031300)
 * Bugfix: Fix privacy provider.
 * Bugfix: Fix special fields for optiondates (Teams meeting, Zoom meeting...).
