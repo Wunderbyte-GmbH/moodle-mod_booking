@@ -95,9 +95,8 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             } else if (get_config('booking', 'canceldependenton') == "bookingopeningtime"
                 || get_config('booking', 'canceldependenton') == "bookingclosingtime") {
                 // If cancellation is either dependent on bookingopeningtime or bookingclosingtime...
-                // ...we use the full registration period as service period.
+                // ...the service period may only start at booking registration start (bookingopeningtime).
                 $serviceperiodstart = $settings->bookingopeningtime ?? $item['coursestarttime'];
-                $serviceperiodend = $settings->bookingclosingtime ?? $item['courseendtime'];
             }
 
             // Make sure we have a valid cost center.
