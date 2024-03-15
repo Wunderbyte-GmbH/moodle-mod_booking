@@ -247,8 +247,8 @@ class optionformconfig_info {
         $record = self::return_configured_fields_for_capability($contextid, $capability);
 
         $fields = json_decode($record['json']);
-
-        $customfields = reset(array_filter($fields, fn($a) => $a->id == MOD_BOOKING_OPTION_FIELD_COSTUMFIELDS ? true : false));
+        $filteredfields = array_filter($fields, fn($a) => $a->id == MOD_BOOKING_OPTION_FIELD_COSTUMFIELDS ? true : false);
+        $customfields = reset($filteredfields);
         $uncheckedfields = array_map(fn($a) => $a->checked != 1 ? $a->id : null, (array)$customfields->subfields);
 
         return $uncheckedfields;

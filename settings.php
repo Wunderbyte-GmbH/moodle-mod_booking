@@ -41,6 +41,14 @@ $ADMIN->add('modbookingfolder',
                 new moodle_url('/mod/booking/instancetemplatessettings.php')));
 
 $ADMIN->add('modbookingfolder',
+new admin_externalpage('modbookingoptionformconfig',
+        get_string('optionformconfig', 'mod_booking'),
+        new moodle_url('/mod/booking/optionformconfig.php', [
+            'cmid' => 0,
+            ]
+        )));
+
+$ADMIN->add('modbookingfolder',
         new admin_externalpage('modbookingpricecategories',
                 get_string('pricecategories', 'mod_booking'),
                 new moodle_url('/mod/booking/pricecategories.php')));

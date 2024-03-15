@@ -34,29 +34,35 @@ $urlparams = [
     'cmid' => $cmid,
 ];
 
-list($course, $cm) = get_course_and_cm_from_cmid($cmid, 'booking');
-require_course_login($course, false, $cm);
-$context = context_module::instance($cm->id);
-$bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+if (!empty($cmid)) {
+    list($course, $cm) = get_course_and_cm_from_cmid($cmid, 'booking');
+    require_course_login($course, false, $cm);
+    $context = context_module::instance($cm->id);
+    $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+    $name = $bookingsettings->name;
+    // In Moodle 4.0+ we want to turn the instance description off on every page except view.php.
+    $PAGE->activityheader->disable();
+    $PAGE->set_context($context);
+} else {
+    require_login();
+    $context = context_system::instance();
+    $name = get_config('bookingconfig', 'mod_booking');
+    require_login();
+    // Set page context.
+    $PAGE->set_context($context);
+    // Set page layout.
+    $PAGE->set_pagelayout('admin');
+}
 
-// In Moodle 4.0+ we want to turn the instance description off on every page except view.php.
-$PAGE->activityheader->disable();
 
-$PAGE->set_context($context);
-
-$baseurl = new moodle_url('/mod/booking/teachers_instance_config.php', $urlparams);
+$baseurl = new moodle_url('/mod/booking/optionformconfig.php', $urlparams);
 $PAGE->set_url($baseurl);
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('teachingreportforinstance', 'mod_booking') .
-    $bookingsettings->name);
+    $name);
 if (wb_payment::pro_version_is_activated()) {
-    echo <<<EOT
-        <div id="mod-booking-app" contextid="{$context->id}">
-          <router-view></router-view>
-        </div>
-        EOT;
+    echo $OUTPUT->render_from_template('mod_booking/settings/optionformconfig', ['contextid' => $context->id]);
 }
-$PAGE->requires->js_call_amd('mod_booking/app-lazy', 'init');
 
 echo $OUTPUT->footer();

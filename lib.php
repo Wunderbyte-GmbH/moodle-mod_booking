@@ -1000,9 +1000,9 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                 new moodle_url('/mod/booking/teachers_instance_report.php', ['cmid' => $cm->id]),
                 navigation_node::TYPE_CUSTOM, null, 'nav_teachers_instance_report');
         if (wb_payment::pro_version_is_activated()) {
-            $navref->add(get_string('teachers_instance_config', 'mod_booking') . " ($bookingsettings->name)",
-                    new moodle_url('/mod/booking/teachers_instance_config.php', ['cmid' => $cm->id]),
-                    navigation_node::TYPE_CUSTOM, null, 'nav_teachers_instance_config');
+            $navref->add(get_string('optionformconfig', 'mod_booking') . " ($bookingsettings->name)",
+                    new moodle_url('/mod/booking/optionformconfig.php', ['cmid' => $cm->id]),
+                    navigation_node::TYPE_CUSTOM, null, 'nav_optionformconfig');
         }
     }
 
