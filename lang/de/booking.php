@@ -1194,6 +1194,12 @@ $string['bookingplaceslowpercentage'] = 'Buchungsplätze: Prozentsatz für "Nur 
 $string['bookingplaceslowpercentagedesc'] = 'Wenn die Anzahl verfügbarer Buchungsplätze diesen Prozentsatz erreicht oder unter diesen Prozentsatz sinkt, wird eine Nachricht angezeigt, dass nur noch wenige Plätze verfügbar sind.';
 $string['waitinglistlowpercentage'] = 'Warteliste: Prozentsatz für "Nur noch wenige Plätze verfügbar"-Nachricht';
 $string['waitinglistlowpercentagedesc'] = 'Wenn die Anzahl verfügbarer Wartelistenplätze diesen Prozentsatz erreicht oder unter diesen Prozentsatz sinkt, wird eine Nachricht angezeigt, dass nur noch wenige Plätze verfügbar sind.';
+
+$string['waitinglistshowplaceonwaitinglist'] = 'Zeige Platz auf der Warteliste.';
+$string['waitinglistshowplaceonwaitinglist_info'] = 'Warteliste: Zeige den Platz der NutzerIn auf der Warteliste an.';
+
+$string['yourplaceonwaitinglist'] = 'Sie sind auf Platz {$a} auf der Warteliste';
+
 $string['waitinglistlowmessage'] = 'Nur noch wenige Wartelistenplätze!';
 $string['waitinglistenoughmessage'] = 'Noch Wartelistenplätze verfügbar.';
 $string['waitinglistfullmessage'] = 'Warteliste ist voll.';
@@ -1581,6 +1587,12 @@ $string['error:reasontoolong'] = 'Grund ist zu lange, geben Sie einen kürzeren 
 $string['error:reasonforsubstituteteacher'] = 'Geben Sie einen Grund für die Vertretung an.';
 $string['error:reasonfordeduction'] = 'Geben Sie einen Grund für den Abzug an.';
 
+$string['confirmbooking'] = 'Bestätigen der Buchung';
+$string['confirmbookinglong'] = 'Wollen Sie diese Buchung wirklich bestätigen?';
+
+$string['deletebooking'] = 'Buchung löschen';
+$string['deletebookinglong'] = 'Wollen Sie diese Buchung wirklich löschen?';
+
 // Teachers_instance_report.php.
 $string['teachers_instance_report'] = 'Trainer:innen-Gesamtbericht';
 $string['error:invalidcmid'] = 'Der Bericht kann nicht geöffnet werden, weil keine gültige Kursmodul-ID (cmid) übergeben wurde. Die cmid muss auf eine Buchungsinstanz verweisen!';
@@ -1634,6 +1646,7 @@ $string['howmanyusers'] = 'Beschränkungen';
 $string['recurringoptions'] = 'Wiederkehrende Optionen';
 $string['bookusers'] = 'Feld für den Import, um NutzerInnen zu buchen';
 $string['timemodified'] = 'Bearbeitungszeit';
+$string['waitforconfirmation'] = 'Buchen nur nach Bestätigung';
 
 // Tasks.
 $string['task_adhoc_reset_optiondates_for_semester'] = 'Adhoc task: Termine zurücksetzen und neu erstellen';
@@ -1682,6 +1695,7 @@ $string['bo_cond_bookingpolicy'] = 'Buchungsbedingungen';
 $string['bo_cond_notifymelist'] = 'Benachrichtigungsliste';
 $string['bo_cond_max_number_of_bookings'] = 'max_number_of_bookings: Maximum an Nutzer:innen erreicht, die dieser User buchen darf';
 $string['bo_cond_onwaitinglist'] = 'onwaitinglist: Auf Warteliste';
+$string['bo_cond_askforconfirmation'] = 'askforconfirmation: Manuelle Bestätigung der Buchung';
 $string['bo_cond_previouslybooked'] = 'Benutzer:in hat früher eine bestimmte Option gebucht';
 $string['bo_cond_enrolledincourse'] = 'Benutzer:in ist in bestimmte(n) Kurs(e) eingeschrieben';
 $string['bo_cond_priceisset'] = 'priceisset: Preis ist vorhanden';
@@ -1782,6 +1796,11 @@ $string['bo_cond_onnotifylist_available'] = 'Buchen';
 $string['bo_cond_onnotifylist_full_available'] = 'Buchen möglich';
 $string['bo_cond_onnotifylist_not_available'] = 'Ausgebucht - Sie sind auf der Benachrichtigungsliste';
 $string['bo_cond_onnotifylist_full_not_available'] = 'Ausgebucht - Nutzer:in ist auf der Benachrichtigungliste';
+
+$string['bo_cond_askforconfirmation_available'] = 'Buchen';
+$string['bo_cond_askforconfirmation_full_available'] = 'Buchen möglich';
+$string['bo_cond_askforconfirmation_not_available'] = 'Buchen - auf Warteliste';
+$string['bo_cond_askforconfirmation_full_not_available'] = 'Buchen - auf Warteliste';
 
 $string['bo_cond_onwaitinglist_available'] = 'Buchen';
 $string['bo_cond_onwaitinglist_full_available'] = 'Buchen möglich';

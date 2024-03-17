@@ -534,8 +534,18 @@ class price {
      */
     public function save_from_form(stdClass $fromform) {
 
+        global $DB;
+
         $currency = get_config('booking', 'globalcurrency');
         $formulastring = get_config('booking', 'defaultpriceformula');
+
+        // If we don't want to use prices, we can delete all the prices at once.
+        if (empty($fromform->useprice)) {
+            $price = '';
+            // There might be old, prices lingering, so we make sure we delete everything at onece.
+            $DB->delete_records('booking_prices', ['itemid' => $fromform->id, 'area' => $this->area]);
+            return;
+        }
 
         foreach ($this->pricecategories as $pricecategory) {
             if (!empty($fromform->priceformulaisactive) && $fromform->priceformulaisactive == "1") {

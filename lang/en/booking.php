@@ -1233,6 +1233,12 @@ $string['bookingplaceslowpercentage'] = 'Percentage for booking places low messa
 $string['bookingplaceslowpercentagedesc'] = 'If the available booking places reach or get below this percentage a booking places low message will be shown.';
 $string['waitinglistlowpercentage'] = 'Percentage for waiting list low message';
 $string['waitinglistlowpercentagedesc'] = 'If the available places on the waiting list reach or get below this percentage a waiting list low message will be shown.';
+
+$string['waitinglistshowplaceonwaitinglist'] = 'Show place on waitinglist.';
+$string['waitinglistshowplaceonwaitinglist_info'] = 'Waitinglist: Shows the exact place of the user on the waitinglist.';
+
+$string['yourplaceonwaitinglist'] = 'You are on place {$a} on the waitinglist';
+
 $string['waitinglistlowmessage'] = 'Only a few waiting list places left!';
 $string['waitinglistenoughmessage'] = 'Still enough waiting list places.';
 $string['waitinglistfullmessage'] = 'Waiting list full.';
@@ -1704,6 +1710,12 @@ $string['error:reasontoolong'] = 'Reason is too long, enter a shorter text.';
 $string['error:reasonforsubstituteteacher'] = 'Enter a reason for the substitute teacher(s).';
 $string['error:reasonfordeduction'] = 'Enter a reason for the deduction.';
 
+$string['confirmbooking'] = 'Confirmation of this booking';
+$string['confirmbookinglong'] = 'Do you really want to confirm this booking?';
+
+$string['confirmbooking'] = 'Delete this booking';
+$string['confirmbookinglong'] = 'Do you really want to delete this booking?';
+
 // Teachers_instance_report.php.
 $string['teachers_instance_report'] = 'Teachers report';
 $string['error:invalidcmid'] = 'The report cannot be opened because no valid course module ID (cmid) was provided. It needs to be the cmid of a booking instance!';
@@ -1757,6 +1769,7 @@ $string['howmanyusers'] = 'Book other users limit';
 $string['recurringoptions'] = 'Recurring booking options';
 $string['bookusers'] = 'For Import, to book users directly';
 $string['timemodified'] = 'Time modified';
+$string['waitforconfirmation'] = 'Book only after confirmation';
 
 // Tasks.
 $string['task_adhoc_reset_optiondates_for_semester'] = 'Adhoc task: Reset and generate new optiondates for semester';
@@ -1806,6 +1819,7 @@ $string['bo_cond_bookingpolicy'] = 'Booking policy';
 $string['bo_cond_notifymelist'] = 'Notify list';
 $string['bo_cond_max_number_of_bookings'] = 'max_number_of_bookings: Maximum number of bookings per user reached';
 $string['bo_cond_onwaitinglist'] = 'onwaitinglist: User is on waiting list';
+$string['bo_cond_askforconfirmation'] = 'askforconfirmation: Manually confirm booking';
 $string['bo_cond_previouslybooked'] = 'User has previously booked a certain option';
 $string['bo_cond_enrolledincourse'] = 'User is enrolled in certain course(s)';
 $string['bo_cond_priceisset'] = 'priceisset: Price is set';
@@ -1863,6 +1877,11 @@ $string['bo_cond_onnotifylist_available'] = 'Book it';
 $string['bo_cond_onnotifylist_full_available'] = 'Booking is possible';
 $string['bo_cond_onnotifylist_not_available'] = 'Max number of bookings reached';
 $string['bo_cond_onnotifylist_full_not_available'] = 'User has reached the max number of bookings';
+
+$string['bo_cond_askforconfirmation_available'] = 'Book it';
+$string['bo_cond_askforconfirmation_full_available'] = 'Booking is possible';
+$string['bo_cond_askforconfirmation_not_available'] = 'Book it - on waitinglist';
+$string['bo_cond_askforconfirmation_full_not_available'] = 'Book it - on waitinglist';
 
 $string['bo_cond_onwaitinglist_available'] = 'Book it';
 $string['bo_cond_onwaitinglist_full_available'] = 'Booking is possible';

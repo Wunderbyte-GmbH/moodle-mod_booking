@@ -84,26 +84,18 @@
     </ul>
 {{/bookedusers.0}}
 
-{{#waitinglist.0}}
+{{#waitinglist}}
 <h5>{{#str}} waitinglist, mod_booking {{/str}}</h5>
-    <ul class="list-group">
-    {{#waitinglist}}
-        <li class="list-group-item list-group-item-action">
-            {{> mod_booking/booked_user}}
-        </li>
-    {{/waitinglist}}
-    </ul>
-{{/waitinglist.0}}
+
+    {{{waitinglist}}}
+
+{{/waitinglist}}
 
 {{#reservedusers.0}}
 <h5>{{#str}} reservedusers, mod_booking {{/str}}</h5>
-    <ul class="list-group">
     {{#reservedusers}}
-        <li class="list-group-item list-group-item-action">
-            {{> mod_booking/booked_user}}
-        </li>
+        {{{reservedusers}}}
     {{/reservedusers}}
-    </ul>
 {{/reservedusers.0}}
 
 {{#userstonotify.0}}
@@ -127,4 +119,3 @@
     {{/deletedusers}}
     </ul>
 {{/deletedusers.0}}
-

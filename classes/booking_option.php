@@ -609,6 +609,11 @@ class booking_option {
 
         $optionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
 
+        // If waitforconfirmation is turned on, we will never sync waitinglist (we do it manually).
+        if (!empty($optionsettings->waitforconfirmation)) {
+            $syncwaitinglist = false;
+        }
+
         $results = $DB->get_records('booking_answers',
                 ['userid' => $userid, 'optionid' => $this->optionid, 'completed' => 0]);
 
@@ -1002,8 +1007,14 @@ class booking_option {
                     // Else, we might move from waitinglist to booked, we just continue.
                     break;
                 case MOD_BOOKING_STATUSPARAM_NOTIFYMELIST:
-                    // If we have a notification...
-                    // ... we override it here, because all alternatives are higher.
+                    // If we are not yet booked and we need manual confirmation...
+                    // ... We switch booking param to waitinglist.
+                    if (!empty($this->settings->waitforconfirmation)) {
+
+                        $waitinglist = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
+
+                    }
+
                     break;
             }
             $currentanswerid = $currentanswer->baid;
@@ -1011,6 +1022,12 @@ class booking_option {
         } else {
             $currentanswerid = null;
             $timecreated = null;
+
+            if ($waitinglist === MOD_BOOKING_STATUSPARAM_BOOKED
+                && !empty($this->settings->waitforconfirmation)) {
+
+                $waitinglist = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
+            }
         }
 
         self::write_user_answer_to_db($this->booking->id,
@@ -1710,17 +1727,21 @@ class booking_option {
         // Therefore, we take the one array which actually is present.
         if ($bookingstatus = reset($bookingstatus)) {
             if (isset($bookingstatus['fullybooked']) && !$bookingstatus['fullybooked']) {
-                return MOD_BOOKING_STATUSPARAM_BOOKED;
+
+                $status = MOD_BOOKING_STATUSPARAM_BOOKED;
+
             } else if (isset($bookingstatus['freeonwaitinglist']) && $bookingstatus['freeonwaitinglist'] > 0) {
-                return MOD_BOOKING_STATUSPARAM_WAITINGLIST;
+                $status = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
             } else {
                 if ($allowoverbooking) {
-                    return MOD_BOOKING_STATUSPARAM_BOOKED;
+                    $status = MOD_BOOKING_STATUSPARAM_BOOKED;
                 } else {
-                    return false;
+                    $status = false;
                 }
             }
         }
+
+        return $status;
     }
 
     /**
@@ -2801,6 +2822,9 @@ class booking_option {
         // When we set back the booking_answers...
         // ... we have to make sure it's also deleted in the singleton service.
         singleton_service::destroy_booking_answers($optionid);
+
+        // We also need to destroy the booked_user_information.
+        cache_helper::purge_by_event('setbackbookedusertable');
     }
 
     /**

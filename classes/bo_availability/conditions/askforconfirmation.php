@@ -29,7 +29,6 @@
 use context_system;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
-use mod_booking\booking_answers;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
@@ -48,10 +47,10 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class onwaitinglist implements bo_condition {
+class askforconfirmation implements bo_condition {
 
     /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = MOD_BOOKING_BO_COND_ONWAITINGLIST;
+    public $id = MOD_BOOKING_BO_COND_ASKFORCONFIRMATION;
 
     /**
      * Needed to see if class can take JSON.
@@ -79,23 +78,20 @@ class onwaitinglist implements bo_condition {
      */
     public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
 
-        global $DB;
+        // We only block when we are NOT on the waiting list...
+        // And when it's set in the option.
 
-        // This is the return value. Here available to begin with.
-        $isavailable = false;
+        $isavailable = true;
 
         // Get the booking answers for this instance.
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
-
         $bookinginformation = $bookinganswer->return_all_booking_information($userid);
 
-        // If the user is not yet booked, and option is not fully booked, we return true.
-        if (!isset($bookinginformation['onwaitinglist'])) {
-
-            $isavailable = true;
+        if (!isset($bookinginformation['onwaitinglist'])
+            && !empty($settings->waitforconfirmation)) {
+            $isavailable = false;
         }
 
-        // If it's inversed, we inverse.
         if ($not) {
             $isavailable = !$isavailable;
         }
@@ -143,9 +139,9 @@ class onwaitinglist implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        $description = $this->get_description_string($isavailable, $full, $userid, $settings);
+        $description = $this->get_description_string($isavailable, $full);
 
-        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_JUSTMYALERT];
+        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_BOOK, MOD_BOOKING_BO_BUTTON_MYBUTTON];
     }
 
     /**
@@ -169,7 +165,55 @@ class onwaitinglist implements bo_condition {
      * @return array
      */
     public function render_page(int $optionid, int $userid = 0) {
-        return [];
+
+        if (!empty($userid)) {
+            $user = singleton_service::get_instance_of_user($userid);
+        }
+
+        $data1 = new bookingoption_description($optionid, null, MOD_BOOKING_DESCRIPTION_WEBSITE, true, false, $user ?? null);
+
+        $template = 'mod_booking/bookingoption_description_prepagemodal_bookit';
+
+        $dataarray[] = [
+            'data' => $data1->get_returnarray(),
+        ];
+
+        $templates[] = $template;
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        list($template, $data2) = booking_bookit::render_bookit_template_data($settings, $userid ?? 0, false);
+        $data2 = reset($data2);
+        $template = reset($template);
+
+        $dataarray[] = [
+            'data' => $data2->data,
+        ];
+
+        $templates[] = $template;
+
+        // Only if the option is not yet booked, we set buttontype to 1 (continue is disabled).
+        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+
+        // Inactive Continue Button.
+        // We don't use this functionality right now.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* if ($bookinganswer->user_status($USER->id) == MOD_BOOKING_STATUSPARAM_NOTBOOKED) {
+            $buttontype = 1;
+        } else {
+            $buttontype = 0;
+        } */
+        $buttontype = 0;
+
+        $response = [
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* 'json' => json_encode($dataarray), */
+            'template' => implode(',', $templates),
+            'buttontype' => $buttontype, // This means that the continue button is disabled.
+            'data' => $dataarray,
+        ];
+
+        return $response;
     }
 
     /**
@@ -188,9 +232,15 @@ class onwaitinglist implements bo_condition {
     public function render_button(booking_option_settings $settings,
         int $userid = 0, bool $full = false, bool $not = false, bool $fullwidth = true): array {
 
-        $label = $this->get_description_string(false, $full, $userid, $settings);
+        global $USER;
 
-        return bo_info::render_button($settings, $userid, $label, 'alert alert-warning', true, $fullwidth, 'alert', 'option');
+        if ($userid === null) {
+            $userid = $USER->id;
+        }
+        $label = $this->get_description_string(false, $full);
+
+        return bo_info::render_button($settings, $userid, $label, 'btn btn-secondary mt-1 mb-1', false, $fullwidth,
+            'button', 'option', false, 'noforward');
     }
 
     /**
@@ -198,28 +248,13 @@ class onwaitinglist implements bo_condition {
      *
      * @param bool $isavailable
      * @param bool $full
-     * @param int $userid
-     * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string($isavailable, $full, $userid, $settings) {
-        if ($isavailable) {
-            $description = $full ? get_string('bo_cond_onwaitinglist_full_available', 'mod_booking') :
-                get_string('bo_cond_onwaitinglist_available', 'mod_booking');
-        } else {
+    private function get_description_string($isavailable, $full): string {
 
-            if (get_config('booking', 'waitinglistshowplaceonwaitinglist')) {
-
-                $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
-                $placeonwaitinglist = $bookinganswer->return_place_on_waitinglist($userid);
-
-                $description = get_string('yourplaceonwaitinglist', 'mod_booking', $placeonwaitinglist);
-
-            } else {
-                $description = $full ? get_string('bo_cond_onwaitinglist_full_not_available', 'mod_booking') :
-                get_string('bo_cond_onwaitinglist_not_available', 'mod_booking');
-            }
-        }
+        // In this case, we dont differentiate between availability, because when it blocks...
+        // ... it just means that it can be booked. Blocking has a different functionality here.
+        $description = get_string('bo_cond_askforconfirmation_not_available', 'mod_booking');
 
         return $description;
     }

@@ -267,6 +267,9 @@ class booking_option_settings {
     /** @var int $canceluntil each booking option can override the canceluntil date with its own date */
     public $canceluntil = 0;
 
+    /** @var int $waitforconfirmation Only books to waitinglist and manually confirm every booking. */
+    public $waitforconfirmation = 0;
+
     /** @var int $useprice flag that indicates if we use price or not */
     public $useprice = null;
 
@@ -975,10 +978,18 @@ class booking_option_settings {
                 $this->jsonobject->useprice = $this->useprice;
                 $dbrecord->useprice = $this->useprice;
             }
+
+            // Useprice flag indicates if the booking option uses a price.
+            if (!empty($this->jsonobject->waitforconfirmation)) {
+                $this->waitforconfirmation = (int)$this->jsonobject->waitforconfirmation;
+                $this->jsonobject->waitforconfirmation = $this->waitforconfirmation;
+                $dbrecord->waitforconfirmation = $this->waitforconfirmation;
+            }
         } else {
             $this->boactions = $dbrecord->boactions ?? null;
             $this->canceluntil = $dbrecord->canceluntil ?? 0;
             $this->useprice = $dbrecord->useprice ?? null;
+            $this->waitforconfirmation = $dbrecord->waitforconfirmation ?? 0;
             $this->jsonobject = $dbrecord->jsonobject ?? null;
         }
     }

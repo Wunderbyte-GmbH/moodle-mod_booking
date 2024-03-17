@@ -121,13 +121,18 @@ class booking_answers {
             ORDER BY ba.timecreated ASC"; */
 
             $sql = "SELECT
-                ba.id as baid, ba.userid as id, ba.userid,
-                ba.waitinglist, ba.completed,
-                ba.timecreated, ba.optionid
+                ba.id as baid,
+                ba.userid as id,
+                ba.userid,
+                ba.waitinglist,
+                ba.completed,
+                ba.timemodified,
+                ba.optionid,
+                ba.timecreated
             FROM {booking_answers} ba
             WHERE ba.optionid = :optionid
             AND ba.waitinglist < 5
-            ORDER BY ba.timecreated ASC";
+            ORDER BY ba.timemodified ASC";
 
             $answers = $DB->get_records_sql($sql, $params);
 
@@ -306,6 +311,25 @@ class booking_answers {
         }
 
         return $returnarray;
+    }
+
+    /**
+     * Returns place on waiting list of user.
+     * -1 if not on list.
+     * @param int $userid
+     * @return int
+     */
+    public function return_place_on_waitinglist(int $userid) {
+
+        $index = 0;
+        foreach ($this->usersonwaitinglist as $key => $user) {
+            $index++;
+            if ($userid == $key) {
+                return $index;
+            }
+        }
+
+        return -1;
     }
 
     /**
@@ -507,5 +531,30 @@ class booking_answers {
                 $where";
 
         return $DB->count_records_sql($sql, $params);
+    }
+
+    /**
+     * Returns the sql to fetch booked users with a certain status.
+     * Orderd by timemodified, to be able to sort them.
+     * @param int $optionid
+     * @param int $statusparam
+     * @return (string|int[])[]
+     */
+    public static function return_sql_for_booked_users(int $optionid, int $statusparam) {
+
+        $fields = 's1.*';
+        $from = " (SELECT ba.id, u.id as userid, u.firstname, u.lastname, u.email, ba.timemodified, ba.timecreated, ba.optionid
+                    FROM {booking_answers} ba
+                    JOIN {user} u ON ba.userid = u.id
+                    WHERE ba.optionid=:optionid AND ba.waitinglist=:statusparam
+                    ORDER BY ba.timemodified, ba.id ASC
+                    ) s1";
+        $where = '1=1';
+        $params = [
+            'optionid' => $optionid,
+            'statusparam' => $statusparam,
+        ];
+
+        return [$fields, $from, $where, $params];
     }
 }

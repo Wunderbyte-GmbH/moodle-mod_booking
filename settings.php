@@ -545,6 +545,11 @@ if ($ADMIN->fulltree) {
                 get_string('waitinglistlowpercentage', 'booking'),
                 get_string('waitinglistlowpercentagedesc', 'booking'),
                 20, $waitinglistlowpercentages));
+
+        $settings->add(
+            new admin_setting_configcheckbox('booking/waitinglistshowplaceonwaitinglist',
+                get_string('waitinglistshowplaceonwaitinglist', 'mod_booking'),
+                get_string('waitinglistshowplaceonwaitinglist_info', 'booking'), 0));
     }
 
     // PRO feature: Subbookings.
