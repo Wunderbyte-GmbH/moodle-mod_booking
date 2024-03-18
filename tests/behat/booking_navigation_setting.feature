@@ -26,6 +26,7 @@ Feature: Configure and use booking's pagination and perform filtering - as a tea
     And I create booking option "Booking Option 3" in "My booking"
     And I create booking option "Booking Option 4" in "My booking"
     And I create booking option "Booking Option 5" in "My booking"
+    And I change viewport size to "1366x10000"
 
   @javascript
   Scenario: Configure pagination and navigate pages with list of booking options

@@ -24,6 +24,7 @@ Feature: Test of book policy setting in a booking instance
       | activity | course | name       | intro                  | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail | bookingpolicy |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | All bookings                     | Yes                      | Are you sure? |
     And I create booking option "Test option 1" in "My booking"
+    And I change viewport size to "1366x10000"
 
   @javascript
   Scenario: Booking policy: add promt to the booking instance as a teacher via UI

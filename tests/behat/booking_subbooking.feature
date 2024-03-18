@@ -26,6 +26,7 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     And I log in as "admin"
     And I set the following administration settings values:
       | Activate subbookings | 1 |
+    And I change viewport size to "1366x10000"
     And I log out
 
   @javascript

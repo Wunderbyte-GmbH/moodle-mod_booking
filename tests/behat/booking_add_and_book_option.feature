@@ -26,6 +26,7 @@ Feature: In a booking instance create booking options
   @javascript
   Scenario: Create booking instance as teacher
     Given I log in as "teacher1"
+    And I change viewport size to "1366x5000"
     And I am on "Course 1" course homepage with editing mode on
     And I add a "Booking" to section "0"
     And I set the following fields to these values:
@@ -41,6 +42,7 @@ Feature: In a booking instance create booking options
   @javascript
   Scenario: Create booking option as a teacher, see it on activity page and book it as a student
     Given I am on the "My booking" Activity page logged in as teacher1
+    And I change viewport size to "1366x10000"
     And I follow "New booking option"
     And I set the following fields to these values:
       | Booking option name | Test option - Webinar |

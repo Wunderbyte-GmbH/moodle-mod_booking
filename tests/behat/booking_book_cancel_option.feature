@@ -23,6 +23,7 @@ Feature: In a booking instance
     And the following "activities" exist:
       | activity | course | name       | intro                  | bookingmanager | eventtype | cancancelbook | Default view for booking options |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | 1             | All bookings                     |
+    And I change viewport size to "1366x10000"
 
   @javascript
   Scenario: Booking option cancellation: disable cancellation and booking of oprion as a student

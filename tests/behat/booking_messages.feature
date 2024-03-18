@@ -26,6 +26,7 @@ Feature: Test messaging features in a booking
     And the following "mod_booking > options" exist:
       | booking    | text                        | course | description  | teachersforoption |
       | My booking | Option: mail to participant | C1     | Option deskr | teacher1          |
+    And I change viewport size to "1366x10000"
 
   @javascript
   Scenario: Booking option: send reminder mail to participant
