@@ -1,3 +1,6 @@
+## Version 8.1.39 (2024031800)
+* Improvement: Make save and cancel buttons in edit forms sticky at bottom.
+
 ## Version 8.1.38 (2024031400)
 * Improvement: Accelerate view page via lazy loading.
 * Improvement: Meeting link buttons should have secondary color.
