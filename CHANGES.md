@@ -1,3 +1,6 @@
+## Version 8.1.40 (2024031801)
+* Bugfix: If shoppingcarthistory already has a canceluntil date set it may not be overriden by the option's canceluntil date again!
+
 ## Version 8.1.39 (2024031800)
 * Improvement: Make save and cancel buttons in edit forms sticky at bottom.
 
