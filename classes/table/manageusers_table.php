@@ -231,12 +231,11 @@ class manageusers_table extends wunderbyte_table {
      * @param stdClass $values
      * @return void
      */
-    public function col_action($values) {
+    public function col_action_confirm_delete($values) {
 
         global $OUTPUT, $DB;
 
         $record = $DB->get_record('booking_answers', ['id' => $values->id]);
-
         $optionid = $record->optionid;
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
@@ -261,6 +260,40 @@ class manageusers_table extends wunderbyte_table {
                 ]
             ];
         }
+
+        $data[] = [
+            'label' => '', // Name of your action button.
+            'class' => '',
+            'href' => '#', // You can either use the link, or JS, or both.
+            'iclass' => 'fa fa-trash', // Add an icon before the label.
+            'id' => $values->id,
+            'name' => $values->id,
+            'methodname' => 'deletebooking', // The method needs to be added to your child of wunderbyte_table class.
+            'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                'id' => $values->id,
+                'labelcolumn' => 'username',
+                'titlestring' => 'deletebooking',
+                'bodystring' => 'deletebookinglong',
+                'submitbuttonstring' => 'delete',
+                'component' => 'mod_booking',
+            ]
+        ];
+
+        // This transforms the array to make it easier to use in mustache template.
+        table::transform_actionbuttons_array($data);
+
+        return $OUTPUT->render_from_template('local_wunderbyte_table/component_actionbutton', ['showactionbuttons' => $data]);
+    }
+
+    /**
+     * This handles the action column with buttons, icons, checkboxes.
+     *
+     * @param stdClass $values
+     * @return void
+     */
+    public function col_action_delete($values) {
+
+        global $OUTPUT;
 
         $data[] = [
             'label' => '', // Name of your action button.

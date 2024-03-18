@@ -25,12 +25,8 @@
 
 namespace mod_booking\output;
 
-use local_wunderbyte_table\filters\types\standardfilter;
-use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking_answers;
-use mod_booking\singleton_service;
 use mod_booking\table\manageusers_table;
-use moodle_url;
 use renderer_base;
 use renderable;
 use templatable;
@@ -47,20 +43,20 @@ use templatable;
  */
 class booked_users implements renderable, templatable {
 
-    /** @var array $bookedusers array of bookedusers */
-    public $bookedusers = [];
+    /** @var string $bookedusers rendered table of bookedusers */
+    public $bookedusers;
 
-    /** @var array $waitinglist array of waitinglist */
-    public $waitinglist = [];
+    /** @var string $waitinglist rendered table of waitinglist */
+    public $waitinglist;
 
-    /** @var string $reservedusers array of reservedusers */
+    /** @var string $reservedusers rendered table of reservedusers */
     public $reservedusers;
 
-    /** @var array $userstonotify array of reservedusers */
-    public $userstonotify = [];
+    /** @var string $userstonotify rendered table of userstonotify */
+    public $userstonotify;
 
-    /** @var array $deletedusers array of reservedusers */
-    public $deletedusers = [];
+    /** @var string $deletedusers rendered table of deletedusers */
+    public $deletedusers;
 
     /**
      * Constructor
@@ -81,76 +77,86 @@ class booked_users implements renderable, templatable {
             bool $showtonotifiy = false,
             bool $showdeleted = false) {
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        $ba = singleton_service::get_instance_of_booking_answers($settings);
-
         if ($showreserved) {
+            list($fields, $from, $where, $params)
+                = booking_answers::return_sql_for_booked_users($optionid, MOD_BOOKING_STATUSPARAM_RESERVED);
 
+            $tablename = 'reserved' . $optionid;
+
+            $table = new manageusers_table($tablename);
+
+            $table->define_cache('mod_booking', 'bookedusertable');
+            $table->define_columns(['name', 'action_delete']);
+            $table->sortablerows = true;
+            $table->set_sql($fields, $from, $where, $params);
+
+            $this->reservedusers = $table->outhtml(20, false);
         }
 
         if ($showbooked) {
-            foreach ($ba->usersonlist as $item) {
-                $user = singleton_service::get_instance_of_user($item->id);
-                $url = new moodle_url('/user/profile.php', ['id' => $item->id]);
+            list($fields, $from, $where, $params)
+                = booking_answers::return_sql_for_booked_users($optionid, MOD_BOOKING_STATUSPARAM_BOOKED);
 
-                $this->bookedusers[] = [
-                    'id' => $item->baid,
-                    'firstname' => $user->firstname,
-                    'lastname' => $user->lastname,
-                    'email' => $user->email,
-                    'status' => get_string('waitinglist', 'mod_booking'),
-                    'userprofilelink' => $url->out(),
-                ];
-            }
+            $tablename = 'booked' . $optionid;
+
+            $table = new manageusers_table($tablename);
+
+            $table->define_cache('mod_booking', 'bookedusertable');
+            $table->define_columns(['name', 'action_delete']);
+            $table->sortablerows = true;
+            $table->set_sql($fields, $from, $where, $params);
+
+            $this->bookedusers = $table->outhtml(20, false);
         }
 
         if ($showwaiting) {
-            $table = new manageusers_table('waitinglist' . $optionid);
-
-            $table->define_cache('mod_booking', 'bookedusertable');
-
-            $table->define_columns(['name', 'action']);
-
-            $table->sortablerows = true;
 
             list($fields, $from, $where, $params)
                 = booking_answers::return_sql_for_booked_users($optionid, MOD_BOOKING_STATUSPARAM_WAITINGLIST);
 
+            $tablename = 'waitinglist' . $optionid;
+
+            $table = new manageusers_table($tablename);
+
+            $table->define_cache('mod_booking', 'bookedusertable');
+            $table->define_columns(['name', 'action_confirm_delete']);
+            $table->sortablerows = true;
             $table->set_sql($fields, $from, $where, $params);
 
             $this->waitinglist = $table->outhtml(20, false);
         }
 
         if ($showtonotifiy) {
-            foreach ($ba->userstonotify as $item) {
-                $user = singleton_service::get_instance_of_user($item->id);
-                $url = new moodle_url('/user/profile.php', ['id' => $item->id]);
 
-                $this->userstonotify[] = [
-                    'id' => $item->baid,
-                    'firstname' => $user->firstname,
-                    'lastname' => $user->lastname,
-                    'email' => $user->email,
-                    'status' => get_string('waitinglist', 'mod_booking'),
-                    'userprofilelink' => $url->out(),
-                ];
-            }
+            list($fields, $from, $where, $params)
+                = booking_answers::return_sql_for_booked_users($optionid, MOD_BOOKING_STATUSPARAM_NOTIFYMELIST);
+
+            $tablename = 'notifymelist' . $optionid;
+
+            $table = new manageusers_table($tablename);
+
+            $table->define_cache('mod_booking', 'bookedusertable');
+            $table->define_columns(['name', 'action_delete']);
+            $table->sortablerows = true;
+            $table->set_sql($fields, $from, $where, $params);
+
+            $this->userstonotify = $table->outhtml(20, false);
         }
 
         if ($showdeleted) {
-            foreach ($ba->usersdeleted as $item) {
-                $user = singleton_service::get_instance_of_user($item->id);
-                $url = new moodle_url('/user/profile.php', ['id' => $item->id]);
+            list($fields, $from, $where, $params)
+                = booking_answers::return_sql_for_booked_users($optionid, MOD_BOOKING_STATUSPARAM_DELETED);
 
-                $this->deletedusers[] = [
-                    'id' => $item->baid,
-                    'firstname' => $user->firstname,
-                    'lastname' => $user->lastname,
-                    'email' => $user->email,
-                    'status' => get_string('waitinglist', 'mod_booking'),
-                    'userprofilelink' => $url->out(),
-                ];
-            }
+            $tablename = 'deleted' . $optionid;
+
+            $table = new manageusers_table($tablename);
+
+            $table->define_cache('mod_booking', 'bookedusertable');
+            $table->define_columns(['name']);
+            $table->sortablerows = true;
+            $table->set_sql($fields, $from, $where, $params);
+
+            $this->deletedusers = $table->outhtml(20, false);
         }
     }
 
