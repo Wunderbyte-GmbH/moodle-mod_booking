@@ -90,7 +90,8 @@ class booked_users implements renderable, templatable {
             $table->sortablerows = true;
             $table->set_sql($fields, $from, $where, $params);
 
-            $this->reservedusers = $table->outhtml(20, false);
+            $html = $table->outhtml(20, false);
+            $this->reservedusers = count($table->rawdata) > 0 ? $html : null;
         }
 
         if ($showbooked) {
@@ -106,7 +107,8 @@ class booked_users implements renderable, templatable {
             $table->sortablerows = true;
             $table->set_sql($fields, $from, $where, $params);
 
-            $this->bookedusers = $table->outhtml(20, false);
+            $html = $table->outhtml(20, false);
+            $this->bookedusers = count($table->rawdata) > 0 ? $html : null;
         }
 
         if ($showwaiting) {
@@ -123,7 +125,8 @@ class booked_users implements renderable, templatable {
             $table->sortablerows = true;
             $table->set_sql($fields, $from, $where, $params);
 
-            $this->waitinglist = $table->outhtml(20, false);
+            $html = $table->outhtml(20, false);
+            $this->waitinglist = count($table->rawdata) > 0 ? $html : null;
         }
 
         if ($showtonotifiy) {
@@ -140,7 +143,8 @@ class booked_users implements renderable, templatable {
             $table->sortablerows = true;
             $table->set_sql($fields, $from, $where, $params);
 
-            $this->userstonotify = $table->outhtml(20, false);
+            $html = $table->outhtml(20, false);
+            $this->userstonotify = count($table->rawdata) > 0 ? $html : null;
         }
 
         if ($showdeleted) {
@@ -156,7 +160,8 @@ class booked_users implements renderable, templatable {
             $table->sortablerows = true;
             $table->set_sql($fields, $from, $where, $params);
 
-            $this->deletedusers = $table->outhtml(20, false);
+            $html = $table->outhtml(20, false);
+            $this->deletedusers = count($table->rawdata) > 0 ? $html : null;
         }
     }
 
