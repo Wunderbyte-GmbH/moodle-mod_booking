@@ -1006,6 +1006,7 @@ $string['toomuchusersbooked'] = 'The max number of users you can book is: {$a}';
 $string['userid'] = 'UserID';
 $string['userssuccessfullenrolled'] = 'All users have been enrolled!';
 $string['userssuccessfullybooked'] = 'All users have been booked to the other booking option.';
+$string['sucessfullybooked'] = 'Sucessfully booked';
 $string['waitinglistusers'] = 'Users on waiting list';
 $string['withselected'] = 'With selected users:';
 $string['editotherbooking'] = 'Other booking rules';

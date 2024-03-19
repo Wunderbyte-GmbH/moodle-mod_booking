@@ -996,6 +996,7 @@ $string['transferoptionsuccess'] = 'Die Buchungsoption und die registrierten Nut
 $string['transferproblem'] = 'Die folgenden Nutzer:innen konnten aufgrund einer limitierten Anzahl an Plätzen der Buchungsoption oder aufgrund individueller Limitierungen seitens des/der Nutzer/in nicht umgebucht werden: {$a}';
 $string['userssuccessfullenrolled'] = 'Alle Nutzer:innen wurden erfolgreich eingeschrieben!';
 $string['userssuccessfullybooked'] = 'Alle Nutzer:innen wurden erfolgreich in die andere Buchungsoption eingeschrieben.';
+$string['sucessfullybooked'] = 'Erfolgreich gebucht';
 $string['waitinglistusers'] = 'Nutzer:innen auf der Warteliste';
 $string['withselected'] = 'Ausgewählte Nutzer:innen';
 $string['yes'] = 'Ja';
