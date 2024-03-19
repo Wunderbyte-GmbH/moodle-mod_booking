@@ -754,7 +754,7 @@ class view implements renderable, templatable {
             $datepicker = new datepicker(
                 'coursestarttime',
                 get_string('timefilter:coursetime', 'mod_booking'),
-                'columntimeend'
+                'courseendtime'
             );
             $datepicker->add_options(
                 'in between',
@@ -767,9 +767,8 @@ class view implements renderable, templatable {
 
             $datepicker = new datepicker(
                 'bookingopeningtime',
-                get_string('bookingopeningtime', 'mod_booking'),
-                'bookingclosingtime',
-                get_string('bookingclosingtime', 'mod_booking')
+                get_string('timefilter:bookingtime', 'mod_booking'),
+                'bookingclosingtime'
             );
             $datepicker->add_options(
                 'in between',
