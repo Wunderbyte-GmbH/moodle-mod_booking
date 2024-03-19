@@ -87,7 +87,6 @@ class booked_users implements renderable, templatable {
 
             $table->define_cache('mod_booking', 'bookedusertable');
             $table->define_columns(['name', 'action_delete']);
-            $table->sortablerows = true;
             $table->set_sql($fields, $from, $where, $params);
 
             $html = $table->outhtml(20, false);
@@ -104,7 +103,6 @@ class booked_users implements renderable, templatable {
 
             $table->define_cache('mod_booking', 'bookedusertable');
             $table->define_columns(['name', 'action_delete']);
-            $table->sortablerows = true;
             $table->set_sql($fields, $from, $where, $params);
 
             $html = $table->outhtml(20, false);
@@ -140,7 +138,6 @@ class booked_users implements renderable, templatable {
 
             $table->define_cache('mod_booking', 'bookedusertable');
             $table->define_columns(['name', 'action_delete']);
-            $table->sortablerows = true;
             $table->set_sql($fields, $from, $where, $params);
 
             $html = $table->outhtml(20, false);
@@ -157,7 +154,6 @@ class booked_users implements renderable, templatable {
 
             $table->define_cache('mod_booking', 'bookedusertable');
             $table->define_columns(['name']);
-            $table->sortablerows = true;
             $table->set_sql($fields, $from, $where, $params);
 
             $html = $table->outhtml(20, false);
