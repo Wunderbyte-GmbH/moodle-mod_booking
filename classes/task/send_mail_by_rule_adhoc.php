@@ -30,6 +30,7 @@ global $CFG;
 
 use Exception;
 use mod_booking\booking_rules\rules_info;
+use mod_booking\event\booking_debug;
 use mod_booking\message_controller;
 
 require_once($CFG->dirroot . '/mod/booking/lib.php');
@@ -97,6 +98,23 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
                     $taskdata->userid, null, null, $taskdata->customsubject, $taskdata->custommessage
                 );
             } catch (Exception $e) {
+                if (get_config('booking', 'bookingdebugmode')) {
+                    // If debug mode is enabled, we create a debug message.
+                    $event = booking_debug::create([
+                        'objectid' => $taskdata->optionid ?? 0,
+                        'context' => \context_system::instance(),
+                        'relateduserid' => $taskdata->userid ?? 0,
+                        'other' => [
+                            'exception' => $e->getMessage(),
+                            'cmid' => $taskdata->cmid ?? 0,
+                            'optionid' => $taskdata->optionid ?? 0,
+                            'userid' => $taskdata->userid ?? 0,
+                            'customsubject' => $taskdata->customsubject ?? '',
+                            'custommessage' => $taskdata->custommessage ?? '',
+                        ],
+                    ]);
+                    $event->trigger();
+                }
                 return;
             }
 
