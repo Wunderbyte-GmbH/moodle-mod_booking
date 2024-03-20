@@ -1160,6 +1160,8 @@ $string['linkgotobookingoption'] = 'Go to booked option: {$a}</a>';
 
 // File: settings.php.
 $string['bookingsettings'] = 'Booking: Main settings';
+$string['bookingdebugmode'] = 'Booking debug mode';
+$string['bookingdebugmode_desc'] = 'Booking debug mode should only be activated by developers.';
 $string['globalcurrency'] = 'Currency';
 $string['globalcurrencydesc'] = 'Choose the currency for booking option prices';
 $string['globalmailtemplates'] = 'Global mail templates ' . $string['badge:pro'];

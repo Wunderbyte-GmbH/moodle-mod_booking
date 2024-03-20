@@ -1124,6 +1124,8 @@ $string['addcomment'] = 'Kommentar hinzufügen...';
 
 // File: settings.php.
 $string['bookingsettings'] = 'Buchung: Einstellungen';
+$string['bookingdebugmode'] = 'Booking-Debug-Modus';
+$string['bookingdebugmode_desc'] = 'Der Booking-Debug-Modus sollte nur von Entwickler:innen aktiviert werden.';
 $string['globalcurrency'] = 'Währung';
 $string['globalcurrencydesc'] = 'Wählen Sie die Währung für Preise von Buchungsoptionen aus';
 $string['globalmailtemplates'] = 'Globale Mailvorlagen ' . $string['badge:pro'];
