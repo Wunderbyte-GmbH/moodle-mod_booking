@@ -46,8 +46,23 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  */
 class optionformconfig_info {
 
+    /**
+     * NOCONFIGURATION
+     *
+     * @var int
+     */
     const NOCONFIGURATION = 0;
+    /**
+     * SHOWFIELD
+     *
+     * @var int
+     */
     const SHOWFIELD = 1;
+    /**
+     * HIDEFIELD
+     *
+     * @var int
+     */
     const HIDEFIELD = 2;
 
     /**
@@ -137,7 +152,7 @@ class optionformconfig_info {
     }
 
     /**
-     *
+     * Return capability for user.
      * @param int $contextid
      * @param int $userid
      * @return string
@@ -163,7 +178,12 @@ class optionformconfig_info {
 
     /**
      * Fetches the record from db.
+     *
+     * @param int $contextid
+     * @param string $capability
+     *
      * @return array
+     *
      */
     public static function return_configured_fields_for_capability(int $contextid, string $capability) {
 

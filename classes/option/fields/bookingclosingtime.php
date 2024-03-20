@@ -80,7 +80,7 @@ class bookingclosingtime extends field_base {
      * @var array
      */
     public static $incompatiblefields = [
-        MOD_BOOKING_OPTION_FIELD_EASY_BOOKINGCLOSINGTIME
+        MOD_BOOKING_OPTION_FIELD_EASY_BOOKINGCLOSINGTIME,
     ];
 
     /**

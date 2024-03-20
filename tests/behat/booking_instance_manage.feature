@@ -42,7 +42,7 @@ Feature: In a course add a booking instance and manage it
       | activity | course | name       | intro                  | bookingmanager | eventtype | duration | pollurl          | whichview  | copymail | bookingpolicy    |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | 10       | https://pool.loc | showactive | 1        | Confirm booking! |
     And I change viewport size to "1366x10000"
-    And I am on the "My booking" Activity page logged in as teacher1    
+    And I am on the "My booking" Activity page logged in as teacher1
     ## Create booking instance template
     And I click on "More" "link" in the ".secondary-navigation .dropdownmoremenu" "css_element"
     And I click on "Add booking instance to template" "link" in the "[data-key=\"nav_saveinstanceastemplate\"]" "css_element"

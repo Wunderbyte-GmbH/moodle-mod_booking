@@ -61,6 +61,7 @@ defined('MOODLE_INTERNAL') || die();
 class manageusers_table extends wunderbyte_table {
 
     /**
+     * Return dragable column.
      *
      * @param stdClass $values
      * @return string
@@ -73,6 +74,7 @@ class manageusers_table extends wunderbyte_table {
     }
 
     /**
+     * Return name column.
      *
      * @param stdClass $values
      * @return string
@@ -253,7 +255,7 @@ class manageusers_table extends wunderbyte_table {
                     'component' => 'mod_booking',
                     'optionid' => $values->optionid,
                     'userid' => $values->userid,
-                ]
+                ],
             ];
         }
 
@@ -274,7 +276,7 @@ class manageusers_table extends wunderbyte_table {
                 'component' => 'mod_booking',
                 'optionid' => $values->optionid,
                 'userid' => $values->userid,
-            ]
+            ],
         ];
 
         // This transforms the array to make it easier to use in mustache template.
@@ -310,7 +312,7 @@ class manageusers_table extends wunderbyte_table {
                 'component' => 'mod_booking',
                 'optionid' => $values->optionid,
                 'userid' => $values->userid,
-            ]
+            ],
         ];
 
         // This transforms the array to make it easier to use in mustache template.

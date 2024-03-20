@@ -77,7 +77,7 @@ class coursecategories {
 
         $where = [
             "m.name = 'booking'",
-            "c.contextlevel = " . CONTEXT_MODULE
+            "c.contextlevel = " . CONTEXT_MODULE,
         ];
 
         if (!empty($contextid)) {
