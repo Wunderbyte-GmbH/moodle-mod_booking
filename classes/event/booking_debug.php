@@ -16,23 +16,21 @@
 
 
 /**
- * The booking_cancelled event.
+ * A debug event.
  *
  * @package mod_booking
- * @copyright 2014 David Bogner, http://www.edulabs.org
+ * @copyright 2024 Georg Maißer, Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace mod_booking\event;
 
-defined('MOODLE_INTERNAL') || die();
-
+use moodle_url;
 
 /**
  * The booking_cancelled event class.
- *
  * @property-read array $other { Extra information about event. Acesss an instance of the booking module }
- * @since Moodle 2.7
- * @copyright 2014 David Bogner
+ * @since Moodle 4.1
+ * @copyright 2024 Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_debug extends \core\event\base {
@@ -43,17 +41,28 @@ class booking_debug extends \core\event\base {
         $this->data['objecttable'] = 'booking';
     }
 
+    /**
+     * Get name.
+     * @return string
+     */
     public static function get_name() {
         return "Debug Booking";
     }
-
+    /**
+     * Get description.
+     * @return string
+     */
     public function get_description() {
         $datastring = json_encode($this->data);
         return "We got the following data: $datastring";
     }
 
+    /**
+     * Get url
+     * @return moodle_url
+     */
     public function get_url() {
         return new \moodle_url('/mod/booking/subscribeusers.php',
-                array('id' => $this->contextinstanceid, 'optionid' => $this->objectid));
+                ['id' => $this->contextinstanceid, 'optionid' => $this->objectid]);
     }
 }
