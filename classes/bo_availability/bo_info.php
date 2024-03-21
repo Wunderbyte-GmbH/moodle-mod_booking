@@ -126,15 +126,15 @@ class bo_info {
         $results = $this->get_condition_results($optionid, $userid, $hardblock);
 
         if (count($results) === 0) {
-            $id = 0;
+            $id = MOD_BOOKING_BO_COND_CONFIRMATION; // This is the lowest id.
             $isavailable = true;
             $description = '';
         } else {
-            $id = 0;
+            $id = MOD_BOOKING_BO_COND_CONFIRMATION;
             $isavailable = false;
             foreach ($results as $result) {
                 // If no Id has been defined or if id is higher, we take the descpription to return.
-                if ($id === 0 || $result['id'] > $id) {
+                if ($id === MOD_BOOKING_BO_COND_CONFIRMATION || $result['id'] > $id) {
                     if (has_capability('local/shopping_cart:cashier', context_system::instance()) &&
                         $result['button'] == MOD_BOOKING_BO_BUTTON_MYALERT) {
                         continue;

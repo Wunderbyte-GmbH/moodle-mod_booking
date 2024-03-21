@@ -274,7 +274,7 @@ class booking_bookit {
             /* TODO: Refactor this.
              First, we need a switch.
              Second the reaction code should be included in the condition classes themselves, to improve maintainability. */
-            if ($id < 1) {
+            if ($id < MOD_BOOKING_BO_COND_BOOKITBUTTON) {
                 $isavailable = true;
             } else if ($id === MOD_BOOKING_BO_COND_BOOKITBUTTON) {
 
