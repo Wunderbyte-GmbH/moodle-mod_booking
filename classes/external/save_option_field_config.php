@@ -74,7 +74,7 @@ class save_option_field_config extends external_api {
     public static function execute(
         string $capability,
         int $id,
-        string $json,
+        string $json
         ): array {
 
         $params = external_api::validate_parameters(self::execute_parameters(),
