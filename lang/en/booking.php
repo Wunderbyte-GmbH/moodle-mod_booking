@@ -1716,8 +1716,10 @@ $string['error:reasonfordeduction'] = 'Enter a reason for the deduction.';
 $string['confirmbooking'] = 'Confirmation of this booking';
 $string['confirmbookinglong'] = 'Do you really want to confirm this booking?';
 
-$string['confirmbooking'] = 'Delete this booking';
-$string['confirmbookinglong'] = 'Do you really want to delete this booking?';
+$string['deletebooking'] = 'Delete this booking';
+$string['deletebookinglong'] = 'Do you really want to delete this booking?';
+
+$string['successfullysorted'] = 'Successfully sorted';
 
 // Teachers_instance_report.php.
 $string['teachers_instance_report'] = 'Teachers report';

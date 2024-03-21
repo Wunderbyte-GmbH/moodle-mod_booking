@@ -140,7 +140,7 @@ class manageusers_table extends wunderbyte_table {
 
         return [
             'success' => 1,
-            'message' => get_string('success', 'mod_booking'),
+            'message' => get_string('successfullysorted', 'mod_booking'),
         ];
     }
 

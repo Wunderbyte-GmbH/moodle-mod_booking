@@ -1596,6 +1596,8 @@ $string['confirmbookinglong'] = 'Wollen Sie diese Buchung wirklich bestätigen?'
 $string['deletebooking'] = 'Buchung löschen';
 $string['deletebookinglong'] = 'Wollen Sie diese Buchung wirklich löschen?';
 
+$string['successfullysorted'] = 'Erfolgreich sortiert';
+
 // Teachers_instance_report.php.
 $string['teachers_instance_report'] = 'Trainer:innen-Gesamtbericht';
 $string['error:invalidcmid'] = 'Der Bericht kann nicht geöffnet werden, weil keine gültige Kursmodul-ID (cmid) übergeben wurde. Die cmid muss auf eine Buchungsinstanz verweisen!';
