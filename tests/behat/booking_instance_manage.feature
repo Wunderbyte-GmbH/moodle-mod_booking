@@ -1,4 +1,4 @@
-@mod @mod_booking @booking_add_and_book_option
+@mod @mod_booking @booking_instance_manage
 Feature: In a course add a booking instance and manage it
   As an administrator or a teacher
   I need to add booking instance and configure it
