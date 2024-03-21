@@ -344,7 +344,8 @@ class booking_bookit {
 
                 // This means we can actually book.
                 $isavailable = true;
-
+            } else if ($id === MOD_BOOKING_BO_COND_ASKFORCONFIRMATION) {
+                $isavailable = true;
             } else if ($id === MOD_BOOKING_BO_COND_ALREADYBOOKED || $id === MOD_BOOKING_BO_COND_ONWAITINGLIST) {
 
                 // If the cancel condition is blocking here, we can actually mark the option for cancelation.
