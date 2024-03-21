@@ -539,11 +539,14 @@ class price {
         $currency = get_config('booking', 'globalcurrency');
         $formulastring = get_config('booking', 'defaultpriceformula');
 
+        // We have forms where id is meant for sth else. So we need to first check for optionid.
+        $optionid = $fromform->optionid ?? $fromform->id;
+
         // If we don't want to use prices, we can delete all the prices at once.
         if (empty($fromform->useprice)) {
             $price = '';
             // There might be old, prices lingering, so we make sure we delete everything at onece.
-            $DB->delete_records('booking_prices', ['itemid' => $fromform->id, 'area' => $this->area]);
+            $DB->delete_records('booking_prices', ['itemid' => $optionid, 'area' => $this->area]);
             return;
         }
 
