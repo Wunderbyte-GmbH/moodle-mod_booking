@@ -43,7 +43,7 @@ tr.mod-booking-watinglist td.cell {
 
 tr.mod-booking-invisible {
     visibility: hidden;
-    height: 0;
+    height: 0px;
     display: none;
 }
 
@@ -64,8 +64,8 @@ tr.mod-booking-invisible {
 }
 
 .subscribertable tr td.actions .actionbutton {
-    margin: 0.3em 0;
-    padding: 0.5em 0;
+    margin: 0.3em 0em;
+    padding: 0.5em 0em;
     width: 100%;
 }
 
@@ -169,8 +169,8 @@ tr.mod-booking-invisible {
 }
 
 .wunderbyte-table-grid ul.infolist {
-    padding: 0;
-    margin: 0;
+    padding: 0px;
+    margin: 0px;
 }
 
 .wunderbyte-table-grid .infolist .fa {

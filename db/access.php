@@ -290,4 +290,9 @@ $capabilities = [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
     ],
+    // Restricted option form capability. Can be configured via settings.
+    'mod/booking:reducedoptionform5' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+    ],
 ];
