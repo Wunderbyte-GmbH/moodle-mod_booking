@@ -11,8 +11,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr 
-          v-for="bookingStat in bookingstats.json.booking" 
+        <tr
+          v-for="bookingStat in bookingstats.json.booking"
           :key="'bookingstats' + bookingStat.id"
         >
           <td>
@@ -37,7 +37,7 @@
 
   defineProps({
     bookingstats: {
-      type: Array,
+      type: Object,
       default: null,
     },
   });

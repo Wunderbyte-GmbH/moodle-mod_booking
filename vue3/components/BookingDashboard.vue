@@ -36,7 +36,7 @@
       </div>
       <!-- Confirmation dialog -->
       <div v-if="showConfirmationModal">
-        <ConfirmationModal 
+        <ConfirmationModal
           :show-confirmation-modal="showConfirmationModal"
           :strings="store.state.strings"
           @confirmBack="confirmBack"
@@ -51,20 +51,20 @@
         v-if="content"
         class="content-container"
       >
-        <TabInformation 
+        <TabInformation
           :content="content"
           :strings="store.state.strings"
         />
         <BookingStats :bookingstats="content" />
-        <CapabilityButtons 
-          :configlist="configlist" 
+        <CapabilityButtons
+          :configlist="configlist"
           :active-tab="activeTab"
           :changes-made="changesMade"
           @capabilityClicked="handleCapabilityClicked"
-          @checkAll="handleCheckAll" 
+          @checkAll="handleCheckAll"
           @restoreConfig="changeTab"
         />
-        <CapabilityOptions 
+        <CapabilityOptions
           :selectedcapability="selectedCapability"
           :check="check"
           @changesMade="handleChangesMade"

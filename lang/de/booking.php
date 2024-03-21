@@ -2193,6 +2193,7 @@ $string['vue_dashboard_course_count'] = 'Anzahl der Kurse';
 $string['vue_dashboard_path'] = 'Pfad';
 $string['vue_dashboard_create_oe'] = 'Neue OE erstellen';
 $string['vue_dashboard_assign_role'] = 'Rollen zuweisen';
+$string['vue_dashboard_new_course'] = 'Neuen Kurs erstellen';
 $string['vue_not_found_route_not_found'] = 'Route nicht gefunden';
 $string['vue_not_found_try_again'] = 'Bitte versuchen Sie es später erneut';
 $string['vue_booking_stats_capability'] = 'Berechtigung';

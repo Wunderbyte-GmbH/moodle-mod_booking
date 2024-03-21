@@ -2323,6 +2323,7 @@ $string['vue_dashboard_course_count'] = 'Course Count';
 $string['vue_dashboard_path'] = 'Path';
 $string['vue_dashboard_create_oe'] = 'Create new OE';
 $string['vue_dashboard_assign_role'] = 'Assign Roles';
+$string['vue_dashboard_new_course'] = 'Create new course';
 $string['vue_not_found_route_not_found'] = 'Route not found';
 $string['vue_not_found_try_again'] = 'Please try later again';
 $string['vue_booking_stats_capability'] = 'Capability';

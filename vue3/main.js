@@ -29,9 +29,9 @@ import Notifications from '@kyvg/vue3-notification'
 import router from './router/router'
 
 // Enables the Composition API
-window.__VUE_OPTIONS_API__ = true; 
+window.__VUE_OPTIONS_API__ = true;
 // Disable devtools in production
-window.__VUE_PROD_DEVTOOLS__ = false; 
+window.__VUE_PROD_DEVTOOLS__ = false;
 
 function init() {
     // We need to overwrite the variable for lazy loading.
@@ -49,12 +49,15 @@ function init() {
         const store = createAppStore();
         store.dispatch('loadComponentStrings');
 
-        const contextidAttributeValue = localBookingAppElement.getAttribute('contextid');
+        const contextidAttributeValue = localBookingAppElement.dataset.contextid;
+
         store.state.contextid = contextidAttributeValue;
-    
+
+        console.log("contextidAttributeValue: ", contextidAttributeValue, localBookingAppElement);
+
         app.use(store);
         app.use(router);
-    
+
         app.mount(localBookingAppElement);
         if(store.state.contextid){
           router.push({ name: 'booking-context' });

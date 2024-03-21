@@ -1,15 +1,15 @@
 <template>
   <div>
     <notifications width="100%" />
-    <CapabilityButtons 
-      :configlist="configlist" 
+    <CapabilityButtons
+      :configlist="configlist"
       :active-tab="activeTab"
       :changes-made="changesMade"
       @capabilityClicked="handleCapabilityClicked"
-      @checkAll="handleCheckAll" 
+      @checkAll="handleCheckAll"
       @restoreConfig="changeTab"
     />
-    <CapabilityOptions 
+    <CapabilityOptions
       :selectedcapability="selectedCapability"
       :check="check"
       @changesMade="handleChangesMade"
@@ -33,8 +33,8 @@
 
   onMounted(async () => {
     // change to real value
+
     configlist.value = await store.dispatch('fetchTab', {
-      coursecategoryid: 0,
       contextid : store.state.contextid,
     });
   });
