@@ -35,6 +35,10 @@ use moodle_url;
  */
 class booking_debug extends \core\event\base {
 
+    /**
+     * Booking init.
+     * @return void
+     */
     protected function init() {
         $this->data['crud'] = 'u';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;

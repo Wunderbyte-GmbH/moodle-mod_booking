@@ -110,6 +110,7 @@ class manageusers_table extends wunderbyte_table {
         $jsonobject = json_decode($data);
         $ids = $jsonobject->ids;
 
+        $this->setup();
         // First we fetch the rawdata.
         $this->query_db_cached($this->pagesize, true);
 
@@ -139,7 +140,7 @@ class manageusers_table extends wunderbyte_table {
 
         return [
             'success' => 1,
-            'message' => 'This is just a demo, reordering has to be implemented for each table',
+            'message' => get_string('success', 'mod_booking'),
         ];
     }
 
