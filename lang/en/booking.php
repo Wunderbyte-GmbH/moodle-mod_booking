@@ -1650,6 +1650,7 @@ $string['errorholidayend'] = 'Holiday is not allowed to end before the start dat
 $string['deleteholiday'] = 'Delete holiday';
 
 // Cache.
+$string['cachedef_bookedusertable'] = 'Booked users table (cache)';
 $string['cachedef_bookingoptions'] = 'Booking options (cache)';
 $string['cachedef_bookingoptionsanswers'] = 'Booking options answers (cache)';
 $string['cachedef_bookingoptionstable'] = 'Tables of booking options with hashed sql queries (cache)';

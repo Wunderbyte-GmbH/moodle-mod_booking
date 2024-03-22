@@ -1527,6 +1527,7 @@ $string['errorholidayend'] = 'Ferienende darf nicht vor dem Ferienbeginn liegen.
 $string['deleteholiday'] = 'Eintrag löschen';
 
 // Caches.
+$string['cachedef_bookedusertable'] = 'Gebuchte Nutzer:innen-Tabelle (Cache)';
 $string['cachedef_bookingoptions'] = 'Buchungsoptionen (Cache)';
 $string['cachedef_bookingoptionsanswers'] = 'Buchungen von Buchungsoptionen (Cache)';
 $string['cachedef_bookingoptionstable'] = 'Tabelle mit gesamten SQL-Abfragen (Cache)';
