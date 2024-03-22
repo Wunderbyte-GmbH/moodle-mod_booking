@@ -29,8 +29,8 @@ Feature: In a course add a booking option and manage its waiting list
   @javascript
   Scenario: Booking option: reorder waiting list
     Given the following "mod_booking > options" exist:
-      | booking    | text                 | course | description  | teachersforoption | maxanswers | maxoverbooking | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
-      | My booking | Option: waiting list | C1     | Waiting list | teacher1          | 1          | 2              | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+      | booking    | text                 | course | description  | teachersforoption | maxanswers | maxoverbooking | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | waitforconfirmation |
+      | My booking | Option: waiting list | C1     | Waiting list | teacher1          | 5          | 5              | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 1                   |
     Given I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -38,6 +38,6 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Student 2 (student2@example.com)" "text"
     And I click on "Student 3 (student3@example.com)" "text"
     And I click on "Add" "button"
-    And I follow "Back to responses"
-    And I wait "30" seconds
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait "60" seconds
     ## Check avaialbility as students
