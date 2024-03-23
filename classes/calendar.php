@@ -105,9 +105,8 @@ class calendar {
 
         switch ($type) {
             case $this::MOD_BOOKING_TYPEOPTIONDATE:
-                if ($justbooked) {
+                if ($justbooked && !empty($optiondateid)) {
                     // A user has just booked. The events will be created as USER events.
-
                     if ($optiondate = $DB->get_record("booking_optiondates", ["id" => $optiondateid])) {
                         $newcalendarid = self::booking_optiondate_add_to_cal($cmid, $optionid,
                             $optiondate, $settings->calendarid, $userid);
