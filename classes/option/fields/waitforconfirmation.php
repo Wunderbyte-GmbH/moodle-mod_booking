@@ -94,7 +94,9 @@ class waitforconfirmation extends field_base {
         int $updateparam,
         $returnvalue = null): string {
 
-        booking_option::add_data_to_json($newoption, "waitforconfirmation", $formdata->waitforconfirmation);
+        if (isset($formdata->waitforconfirmation)) {
+            booking_option::add_data_to_json($newoption, "waitforconfirmation", $formdata->waitforconfirmation);
+        }
 
         return '';
     }
