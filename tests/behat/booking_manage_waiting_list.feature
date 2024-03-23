@@ -38,6 +38,12 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Student 2 (student2@example.com)" "text"
     And I click on "Student 3 (student3@example.com)" "text"
     And I click on "Add" "button"
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait "60" seconds
+    And I click on the element with the number "2" with the dynamic identifier "waitinglist"
+    And I click on "Book" "button" in the ".modal-footer" "css_element"
+    And I wait until the page is ready
+    And I click on the element with the number "1" with the dynamic identifier "waitinglist"
+    And I click on "Book" "button" in the ".modal-footer" "css_element"
+    And I wait until the page is ready
+    Then I should see "Student 1 (student1@example.com)" in the ".userselector #removeselect" "css_element"
+    Then I should see "Student 2 (student2@example.com)" in the ".userselector #removeselect" "css_element"
     ## Check avaialbility as students
