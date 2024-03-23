@@ -74,7 +74,7 @@ class bookusers extends field_base {
      * Additionally to the classname, there might be others keys which should instantiate this class.
      * @var array
      */
-    public static $alternativeimportidentifiers = [];
+    public static $alternativeimportidentifiers = ['useremail'];
 
     /**
      * This is an array of incompatible field ids.
@@ -128,7 +128,7 @@ class bookusers extends field_base {
             $usersids = teachers_handler::get_user_ids_from_string($formdata->useremail);
         }
 
-        if (!empty($userids)) {
+        if (!empty($usersids)) {
             $bookingoption = singleton_service::get_instance_of_booking_option($formdata->cmid, $formdata->id);
             foreach ($usersids as $userid) {
 
