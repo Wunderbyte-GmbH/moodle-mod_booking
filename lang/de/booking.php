@@ -1626,6 +1626,14 @@ $string['optionformconfigsubtitle'] = '<p>Hier können Sie nicht benötigte Funk
 <p><strong>ACHTUNG:</strong> Deaktivieren Sie nur Felder, von denen Sie sicher sind, dass Sie sie nicht benötigen!</p>';
 $string['optionformconfig:nobooking'] = 'Sie müssen zumindest eine Buchungsinstanz anlegen, bevor Sie dieses Formular nutzen können!';
 
+$string['optionformconfigsavedsystem'] = 'Ihre Formular Definition wurde auf dem Kontextlevel System gespeichert';
+$string['optionformconfigsavedcoursecat'] = 'Ihre Formular Definition wurde auf dem Kontextlevel Kurskategorie gespeichert';
+$string['optionformconfigsavedmodule'] = 'Ihre Formular Definition wurde auf dem Kontextlevel Modul gespeichert';
+$string['optionformconfigsavedcourse'] = 'Ihre Formular Definition wurde auf dem Kontextlevel Kurs gespeichert';
+$string['optionformconfigsavedother'] = 'Ihre Formular Definition wurde auf Kontextlevel {$a} gespeichert';
+
+$string['optionformconfignotsaved'] = 'Es wurde keine besondere Formular Definition gespeichert';
+
 $string['prepare_import'] = "Bereite den Import vor";
 $string['id'] = "Id";
 $string['json'] = "Sammelfeld für zum Speichern von Informationen";

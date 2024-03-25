@@ -1749,6 +1749,14 @@ $string['optionformconfigsubtitle'] = '<p>Turn off features you do not need, in 
 <p><strong>BE CAREFUL:</strong> Only deactivate fields if you are completely sure that you won\'t need them!</p>';
 $string['optionformconfig:nobooking'] = 'You need to create at least one booking instance before you can use this form!';
 
+$string['optionformconfigsavedsystem'] = 'Your form definition was saved on context level system';
+$string['optionformconfigsavedcoursecat'] = 'Your form definition was saved on context level course category';
+$string['optionformconfigsavedmodule'] = 'Your form definition was saved on context level module';
+$string['optionformconfigsavedcourse'] = 'Your form definition was saved on context level course';
+$string['optionformconfigsavedother'] = 'Your form definition was saved on context level {$a}';
+
+$string['optionformconfignotsaved'] = 'No special configuration was saved for your form';
+
 $string['prepare_import'] = "Prepare Import";
 $string['id'] = "Id";
 $string['json'] = "Stores supplementary information";

@@ -114,6 +114,13 @@ class formconfig extends field_base {
         $context = context_module::instance($formdata['cmid']);
         $capability = get_string(optionformconfig_info::return_capability_for_user($context->id), 'mod_booking');
         $mform->addElement('static', 'formconfiglabel', '', get_string('youareusingconfig', 'mod_booking', $capability));
+        $mform->addElement(
+            'static',
+            'formconfiglabel_more',
+            '',
+            optionformconfig_info::return_message_stored_optionformconfig($context->id)
+        );
+
     }
 
     /**

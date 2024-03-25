@@ -32,6 +32,8 @@ use context;
 use ddl_exception;
 use ddl_change_structure_exception;
 use dml_exception;
+use html_writer;
+use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -187,34 +189,9 @@ class optionformconfig_info {
      */
     public static function return_configured_fields_for_capability(int $contextid, string $capability) {
 
-        global $DB;
-
-        // We dont know where exactly the config is in the context path.
-        // There might be a config higher up, eg. for the course category.
-        // Therefore, we look for all the contextids in the path, sorted by context_level.
-        // We use the highest, ie most specific context_level.
-        $context = context::instance_by_id($contextid);
-        $path = $context->path;
-
-        $patharray = explode('/', $path);
-
-        $patharray = array_map(fn($a) => (int)$a, $patharray);
-
-        list($inorequal, $params) = $DB->get_in_or_equal($patharray, SQL_PARAMS_NAMED);
-
-        $sql = "SELECT *
-                FROM {booking_form_config} bfc
-                JOIN {context} c ON bfc.contextid=c.id
-                WHERE bfc.area='option'
-                AND bfc.capability=:capability
-                AND bfc.contextid $inorequal
-                ORDER BY c.contextlevel DESC";
-
-        $params['capability'] = $capability;
-
         if (isset(self::$arrayoffieldsets[$contextid][$capability])) {
             $json = self::$arrayoffieldsets[$contextid][$capability];
-        } else if ($record = $DB->get_record_sql($sql, $params, IGNORE_MULTIPLE)) {
+        } else if ($record = self::return_capabilities_from_db($contextid, $capability)) {
             $json = $record->json;
             self::$arrayoffieldsets[$contextid][$capability] = $json;
         } else {
@@ -272,5 +249,93 @@ class optionformconfig_info {
         $uncheckedfields = array_map(fn($a) => $a->checked != 1 ? $a->id : null, (array)$customfields->subfields);
 
         return $uncheckedfields;
+    }
+
+    /**
+     * This function will tell us on which level we have a record stored for the given user in the given context.
+     * @param int $contextid
+     * @return string
+     */
+    public static function return_message_stored_optionformconfig(int $contextid) {
+
+        $capability = self::return_capability_for_user($contextid);
+
+        $context = context::instance_by_id($contextid);
+
+        if (!$record = self::return_capabilities_from_db($contextid, $capability)) {
+            return get_string('optionformconfignotsaved', 'mod_booking');
+        } else {
+
+            switch($record->contextlevel) {
+                case CONTEXT_SYSTEM:
+                    $url = new moodle_url('/mod/booking/optionformconfig.php', [
+                        'cmid' => 0,
+                    ]);
+                    $message = html_writer::link(
+                        $url,
+                        get_string('optionformconfigsavedsystem', 'mod_booking')
+                    );
+                    break;
+                case CONTEXT_COURSECAT:
+                    $message = get_string('optionformconfigsavedcoursecat', 'mod_booking');
+                    break;
+                case CONTEXT_MODULE:
+                    $cmid = $context->instanceid;
+                    $url = new moodle_url('/mod/booking/optionformconfig.php', [
+                        'cmid' => $cmid,
+                    ]);
+                    $message = html_writer::link(
+                        $url,
+                        get_string('optionformconfigsavedmodule', 'mod_booking')
+                    );
+                    break;
+                case CONTEXT_MODULE:
+                    $message = get_string('optionformconfigsavedcourse', 'mod_booking');
+                    break;
+                default:
+                    $message = get_string('optionformconfigsavedother', 'mod_booking', $record->contextlevel);
+                    break;
+            }
+
+            return $message;
+        }
+    }
+
+    /**
+     * Returns the db record, if any exists.
+     * @param int $contextid
+     * @param string $capability
+     * @return mixed
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    private static function return_capabilities_from_db(int $contextid, string $capability) {
+
+        global $DB;
+
+        // We dont know where exactly the config is in the context path.
+        // There might be a config higher up, eg. for the course category.
+        // Therefore, we look for all the contextids in the path, sorted by context_level.
+        // We use the highest, ie most specific context_level.
+        $context = context::instance_by_id($contextid);
+        $path = $context->path;
+
+        $patharray = explode('/', $path);
+
+        $patharray = array_map(fn($a) => (int)$a, $patharray);
+
+        list($inorequal, $params) = $DB->get_in_or_equal($patharray, SQL_PARAMS_NAMED);
+
+        $sql = "SELECT *
+                FROM {booking_form_config} bfc
+                JOIN {context} c ON bfc.contextid=c.id
+                WHERE bfc.area='option'
+                AND bfc.capability=:capability
+                AND bfc.contextid $inorequal
+                ORDER BY c.contextlevel DESC";
+
+        $params['capability'] = $capability;
+
+        return $DB->get_record_sql($sql, $params, IGNORE_MULTIPLE);
     }
 }
