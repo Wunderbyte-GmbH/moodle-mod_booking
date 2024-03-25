@@ -143,7 +143,7 @@ class rule_react_on_event implements booking_rule {
         $record->bookingid = $data->bookingid ?? 0;
 
         // If we can update, we add the id here.
-        if ($data->id) {
+        if (!empty($data->id)) {
             $record->id = $data->id;
             $DB->update_record('booking_rules', $record);
         } else {
