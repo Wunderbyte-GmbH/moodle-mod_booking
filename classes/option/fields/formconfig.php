@@ -28,6 +28,8 @@ use mod_booking\option\field_base;
 use mod_booking\option\fields_info;
 use mod_booking\settings\optionformconfig\optionformconfig_info;
 use context_module;
+use html_writer;
+use mod_booking\utils\wb_payment;
 use MoodleQuickForm;
 use stdClass;
 
@@ -112,13 +114,17 @@ class formconfig extends field_base {
         fields_info::add_header_to_mform($mform, self::$header);
 
         $context = context_module::instance($formdata['cmid']);
-        $capability = get_string(optionformconfig_info::return_capability_for_user($context->id), 'mod_booking');
-        $mform->addElement('static', 'formconfiglabel', '', get_string('youareusingconfig', 'mod_booking', $capability));
+        if (wb_payment::pro_version_is_activated()) {
+            $capability = get_string(optionformconfig_info::return_capability_for_user($context->id), 'mod_booking');
+            $mform->addElement('static', 'formconfiglabel', '', get_string('youareusingconfig', 'mod_booking', $capability));
+            $msg = optionformconfig_info::return_message_stored_optionformconfig($context->id);
+        }
+
         $mform->addElement(
             'static',
             'formconfiglabel_more',
             '',
-            optionformconfig_info::return_message_stored_optionformconfig($context->id)
+            $msg
         );
 
     }

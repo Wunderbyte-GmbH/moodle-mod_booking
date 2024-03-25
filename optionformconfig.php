@@ -59,10 +59,20 @@ $baseurl = new moodle_url('/mod/booking/optionformconfig.php', $urlparams);
 $PAGE->set_url($baseurl);
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('teachingreportforinstance', 'mod_booking') .
-    $name);
+if (empty($name)) {
+    $name = get_string('global', 'mod_booking');
+}
+echo $OUTPUT->heading(get_string('optionformconfig', 'mod_booking') . " ($name)");
+// Dismissible alert containing the description of the report.
+echo '<div class="alert alert-info alert-dismissible fade show" role="alert">' .
+    get_string('optionformconfig_infotext', 'mod_booking') .
+    '<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+    </button>
+</div>';
 if (wb_payment::pro_version_is_activated()) {
     echo $OUTPUT->render_from_template('mod_booking/settings/optionformconfig', ['contextid' => $context->id]);
+} else {
+    echo html_writer::div(get_string('infotext:prolicensenecessary', 'mod_booking'), 'alert alert-info');
 }
-
 echo $OUTPUT->footer();

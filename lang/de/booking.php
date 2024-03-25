@@ -70,6 +70,7 @@ $string['defaultoptionsort'] = 'Standardsortierung nach Spalte';
 $string['doyouwanttobook'] = 'Wollen Sie <b>{$a}</b> buchen?';
 $string['from'] = 'Ab';
 $string['generalsettings'] = 'Allgemeine Einstellungen';
+$string['global'] = 'Global';
 $string['gotomanageresponses'] = '&lt;&lt; Buchungen verwalten';
 $string['gotomoodlecourse'] = 'Zum Moodle-Kurs';
 $string['limitfactor'] = 'Buchungslimit-Faktor';
@@ -1620,25 +1621,30 @@ $string['dashboard_summary'] = 'Allgemein.';
 $string['dashboard_summary_desc'] = 'Enthält Konfiguration und Einstellungen für die gesamte Moodle Seite.';
 
 // Optionformconfig.php / optionformconfig_form.php.
-$string['optionformconfig'] = 'Buchung: Formular für Buchungsoptionen anpassen';
+$string['optionformconfig'] = 'Formulare für Buchungsoptionen anpassen (PRO)';
+$string['optionformconfig_infotext'] = 'Mit diesem PRO-Feature können Sie sich mit Drag & Drop und den Checkboxen beliebige Buchungsoptionsformulare zusammenstellen.
+Die einzelnen Formulare werden auf bestimmten Kontext-Ebenen (z.B. pro Buchungsinstanz, Systemweit...) definiert. Den jeweiligen Nutzer:innen sind die Formulare nur zugänglich,
+wenn Sie die jeweils entsprechende Berechtigung haben.';
+$string['optionformconfig_getpro'] = 'Mit Booking ' . $string['badge:pro'] . ' haben Sie die Möglichkeit, mit Drag & Drop individuelle Formulare für bestimmte Nutzer:innen-Gruppen und Kontexte
+(z.B. nur für eine bestimmte Buchungsinstanz) anzulegen.';
 $string['optionformconfigsaved'] = 'Konfiguration für das Buchungsoptionsformular gespeichert.';
 $string['optionformconfigsubtitle'] = '<p>Hier können Sie nicht benötigte Funktionalitäten entfernen, um das Formular für die Erstellung von Buchungsoptionen übersichtlicher zu gestalten.</p>
 <p><strong>ACHTUNG:</strong> Deaktivieren Sie nur Felder, von denen Sie sicher sind, dass Sie sie nicht benötigen!</p>';
 $string['optionformconfig:nobooking'] = 'Sie müssen zumindest eine Buchungsinstanz anlegen, bevor Sie dieses Formular nutzen können!';
 
-$string['optionformconfigsavedsystem'] = 'Ihre Formular Definition wurde auf dem Kontextlevel System gespeichert';
-$string['optionformconfigsavedcoursecat'] = 'Ihre Formular Definition wurde auf dem Kontextlevel Kurskategorie gespeichert';
-$string['optionformconfigsavedmodule'] = 'Ihre Formular Definition wurde auf dem Kontextlevel Modul gespeichert';
-$string['optionformconfigsavedcourse'] = 'Ihre Formular Definition wurde auf dem Kontextlevel Kurs gespeichert';
-$string['optionformconfigsavedother'] = 'Ihre Formular Definition wurde auf Kontextlevel {$a} gespeichert';
+$string['optionformconfigsavedsystem'] = 'Ihre Formular-Definition wurde auf dem Kontextlevel System gespeichert';
+$string['optionformconfigsavedcoursecat'] = 'Ihre Formular-Definition wurde auf dem Kontextlevel Kurskategorie gespeichert';
+$string['optionformconfigsavedmodule'] = 'Ihre Formular-Definition wurde auf dem Kontextlevel Modul gespeichert';
+$string['optionformconfigsavedcourse'] = 'Ihre Formular-Definition wurde auf dem Kontextlevel Kurs gespeichert';
+$string['optionformconfigsavedother'] = 'Ihre Formular-Definition wurde auf Kontextlevel {$a} gespeichert';
 
-$string['optionformconfignotsaved'] = 'Es wurde keine besondere Formular Definition gespeichert';
+$string['optionformconfignotsaved'] = 'Es wurde keine besondere Formular-Definition gespeichert';
 
 $string['prepare_import'] = "Bereite den Import vor";
 $string['id'] = "Id";
 $string['json'] = "Sammelfeld für zum Speichern von Informationen";
 $string['returnurl'] = "Adresse für Rückkehr";
-$string['youareusingconfig'] = 'Sie verwenden folgende Form Konfiguration: {$a}';
+$string['youareusingconfig'] = 'Sie verwenden folgende Formular-Konfiguration: {$a}';
 $string['formconfig'] = 'Anzeige, welches Formular verwendet wird';
 $string['template'] = 'Vorlagen';
 $string['text'] = 'Titel';

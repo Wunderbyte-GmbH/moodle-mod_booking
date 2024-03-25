@@ -42,6 +42,7 @@ $ADMIN->add('modbookingfolder',
 
 $ADMIN->add('modbookingfolder',
 new admin_externalpage('modbookingoptionformconfig',
+        get_string('booking', 'mod_booking') . ": " .
         get_string('optionformconfig', 'mod_booking'),
         new moodle_url('/mod/booking/optionformconfig.php', [
             'cmid' => 0,
