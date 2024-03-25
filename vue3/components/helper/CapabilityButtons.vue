@@ -139,7 +139,8 @@ const configCapability = computed(() => {
 
 const emit = defineEmits([
   'capabilityClicked',
-  'setParentContent'
+  'setParentContent',
+  'restoreConfig'
 ])
 
 watch(() => choosenCapability.value, async () => {
@@ -152,6 +153,7 @@ watch(() => choosenCapability.value, async () => {
 
 const handleCapabilityClick = (capability) => {
   choosenCapability.value = capability;
+  showConfirmation.value=false
 }
 
 watch(() => props.activeTab, async () => {
@@ -175,6 +177,7 @@ const saveContent = async () => {
 const restoreContent = async () => {
   showButtons.value = true
   showConfirmationBack.value = false
+  showConfirmation.value=false
   let restoreChoosenCapability = { ...choosenCapability.value}
   restoreChoosenCapability.json = JSON.stringify({
     reset: true

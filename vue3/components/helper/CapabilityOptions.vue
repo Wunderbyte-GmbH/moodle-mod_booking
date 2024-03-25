@@ -118,7 +118,7 @@ watch(() => props.check, async () => {
       } else if (!disableCheckbox(configuration)) {
         configuration.checked = props.check
       }
-      if (Object.keys(configuration.subfields).length > 0){
+      if (configuration.subfields && Object.keys(configuration.subfields).length > 0){
         for (let key in configuration.subfields) {
           configuration.subfields[key].checked = props.check
         }
@@ -206,7 +206,7 @@ const handleCheckboxChange = (value) => {
   configurationList.value.forEach((configuration) => {
     if (value == configuration) {
       configuration.checked = configuration.checked ? 0 : 1
-    } else if (Object.keys(configuration.subfields).length > 0){
+    } else if (configuration.subfields && Object.keys(configuration.subfields).length > 0){
       for (let key in configuration.subfields) {
         if (value == configuration.subfields[key]) {
           configuration.subfields[key].checked = configuration.subfields[key].checked ? 0 : 1

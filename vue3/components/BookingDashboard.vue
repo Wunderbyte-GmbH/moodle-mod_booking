@@ -5,7 +5,6 @@
       :tabs="tabsstored"
       @filteredTabs="updateFilteredTabs"
     />
-
     <div class="overflow-tabs-container">
       <div>
         <div
@@ -62,7 +61,7 @@
           :changes-made="changesMade"
           @capabilityClicked="handleCapabilityClicked"
           @checkAll="handleCheckAll"
-          @restoreConfig="changeTab"
+          @restoreConfig="handleRestoreConfig"
         />
         <CapabilityOptions
           :selectedcapability="selectedCapability"
@@ -137,6 +136,15 @@
         contextid : findElementById(tabs.value, indexTab.value),
       });
     }
+  }
+  async function handleRestoreConfig(index) {
+    indexTab.value = index
+    activeTab.value = indexTab.value;
+    selectedCapability.value = null
+    configlist.value = await store.dispatch('fetchTab', {
+      coursecategoryid: indexTab.value,
+      contextid : findElementById(tabs.value, indexTab.value),
+    });
   }
 
   const confirmBack = async(confirmation) => {
