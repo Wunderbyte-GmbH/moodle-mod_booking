@@ -262,6 +262,15 @@ $capabilities = [
             'editingteacher' => CAP_ALLOW,
         ],
     ],
+    // Capability to edit the option form config.
+    // Has to be assigned via global role!
+    'mod/booking:editoptionformconfig' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
     // Expert option form capability. Can be configured via settings.
     'mod/booking:expertoptionform' => [
         'captype' => 'write',

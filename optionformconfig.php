@@ -71,7 +71,11 @@ echo '<div class="alert alert-info alert-dismissible fade show" role="alert">' .
     </button>
 </div>';
 if (wb_payment::pro_version_is_activated()) {
-    echo $OUTPUT->render_from_template('mod_booking/settings/optionformconfig', ['contextid' => $context->id]);
+    if (has_capability('mod/booking:editoptionformconfig', context_system::instance())) {
+        echo $OUTPUT->render_from_template('mod_booking/settings/optionformconfig', ['contextid' => $context->id]);
+    } else {
+        echo html_writer::div(get_string('nopermissiontoaccesspage', 'mod_booking'), 'alert alert-danger');
+    }
 } else {
     echo html_writer::div(get_string('infotext:prolicensenecessary', 'mod_booking'), 'alert alert-info');
 }
