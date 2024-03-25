@@ -1781,6 +1781,7 @@ $string['invisible'] = 'Invisible';
 $string['annotation'] = 'Internal annotation';
 $string['courseid'] = 'Course to subscribe to';
 $string['entities'] = 'Choose places with entities plugin';
+$string['shoppingcart'] = 'Set payment options with shopping cart plugin';
 $string['optiondates'] = 'Dates';
 $string['actions'] = 'Booking actions';
 $string['attachment'] = 'Attachments';
