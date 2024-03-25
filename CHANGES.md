@@ -1,3 +1,40 @@
+## Version 8.2.0 (2024032500)
+* New feature: Config Dashboard implementation.
+* New feature: Add manually managed waitinglist.
+* Improvement: New Webservice to save config forms - unfinished.
+* Improvement: Adjust incompatibilities of option form fields.
+* Improvement: Better treatment auf where array values.
+* Improvement: Support for new configurable Wunderbyte Table filters.
+* Improvement: Move to contextids instead of coursecategoryids.
+* Improvement: Use capabilities to adjust option form.
+* Improvement: Get rid of old expertform mode.
+* Improvement: Issue #407 blocks booking via moodle capability.
+* Improvement: Make config sortable & add delete functionality.
+* Improvement: Add possibility to turn off single customfields.
+* Improvement: Use new WB Table functionality for using filters.
+* Improvement: Add optionformconfig to context 1 (systemwide).
+* Improvement: Allow cachier to book users from waitinglist, if it's a "confirm waitinglist" setting.
+* Improvement: New booked users information with wb table.
+* Improvement: More efficient handling of actions.
+* Improvement: Show booked users only if there are some.
+* Improvement: Add edit component to tables.
+* Improvement: New setting for Booking debug mode.
+* Improvement: Add debug event for send_mail_by_rule_adhoc.
+* Improvement: New language strings.
+* Bugfix: Fix deprecation warning for usort.
+* Bugfix: Make sure html tags won't destroy the functionality.
+* Bugfix: Implement new WB Table API.
+* Bugfix: Drag & drop only for waitinglist.
+* Bugfix: Fix errors in datepickers.
+* Bugfix: Crucial Bugfix for booking process.
+* Bugfix: Fix askforconfirmation booking button.
+* Bugfix: Confusion between optionid & id.
+* Bugfix: Fix option config form.
+* Bugfix: Add missing cache definitions.
+* Bugfix: Fix #447.
+* Bugfix: Don't try to create event if optiondatesid is 0.
+* Bugfix: Only access waitforconfirmation if it is set.
+
 ## Version 8.1.40 (2024031801)
 * Bugfix: If shoppingcarthistory already has a canceluntil date set it may not be overriden by the option's canceluntil date again!
 
