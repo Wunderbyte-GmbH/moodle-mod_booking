@@ -74,7 +74,7 @@ class bookusers extends field_base {
      * Additionally to the classname, there might be others keys which should instantiate this class.
      * @var array
      */
-    public static $alternativeimportidentifiers = ['useremail'];
+    public static $alternativeimportidentifiers = ['useremail', 'username'];
 
     /**
      * This is an array of incompatible field ids.
