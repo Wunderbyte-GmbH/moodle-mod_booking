@@ -43,7 +43,7 @@ tr.mod-booking-watinglist td.cell {
 
 tr.mod-booking-invisible {
     visibility: hidden;
-    height: 0px;
+    height: 0;
     display: none;
 }
 
@@ -64,8 +64,8 @@ tr.mod-booking-invisible {
 }
 
 .subscribertable tr td.actions .actionbutton {
-    margin: 0.3em 0em;
-    padding: 0.5em 0em;
+    margin: 0.3em 0;
+    padding: 0.5em 0;
     width: 100%;
 }
 
@@ -169,8 +169,8 @@ tr.mod-booking-invisible {
 }
 
 .wunderbyte-table-grid ul.infolist {
-    padding: 0px;
-    margin: 0px;
+    padding: 0;
+    margin: 0;
 }
 
 .wunderbyte-table-grid .infolist .fa {
@@ -446,7 +446,7 @@ if there only was one booking option. */
 
 #page-mod-booking-editoptions div[id^='fgroup_id_buttonar_'] input[name='submitbutton'],
 #page-mod-booking-editoptions div[id^='fgroup_id_buttonar_'] input[name='cancel'] {
-    box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
+    box-shadow: rgba(14, 30, 37, 0.12) 0 2px 4px 0, rgba(14, 30, 37, 0.32) 0 2px 16px 0px;
 }
 
 #page-mod-booking-mod #fgroup_id_buttonar {
@@ -457,5 +457,5 @@ if there only was one booking option. */
 #page-mod-booking-mod #fgroup_id_buttonar  input[name='submitbutton'],
 #page-mod-booking-mod #fgroup_id_buttonar  input[name='submitbutton2'],
 #page-mod-booking-mod #fgroup_id_buttonar  input[name='cancel'] {
-    box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
+    box-shadow: rgba(14, 30, 37, 0.12) 0 2px 4px 0, rgba(14, 30, 37, 0.32) 0 2px 16px 0px;
 }
