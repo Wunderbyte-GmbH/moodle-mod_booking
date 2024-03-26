@@ -49,7 +49,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And I click on "Save changes" "button"
     And I wait until the page is ready
     And I should see "notifyadmin"
-    And I click on "Edit" "text" in the ".booking-rule-list" "css_element"
+    And I click on "Edit" "text" in the ".booking-rules-list" "css_element"
     And I wait "1" seconds
     And I set the field "Custom name for the rule" to "rule1-notifyadmin"
     And I click on "Save changes" "button"
