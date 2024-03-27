@@ -250,12 +250,12 @@ class mod_booking_generator extends testing_module_generator {
 
         $ruleobject = new stdClass;
         $ruleobject->conditionname = $ruledraft->conditionname;
-        $ruleobject->conditiondata = $ruledraft->conditiondata;
+        $ruleobject->conditiondata = json_decode($ruledraft->conditiondata);
         $ruleobject->name = $ruledraft->name;
         $ruleobject->actionname = $ruledraft->actionname;
-        $ruleobject->actiondata = $ruledraft->actiondata;
+        $ruleobject->actiondata = json_decode($ruledraft->actiondata);
         $ruleobject->rulename = $ruledraft->rulename;
-        $ruleobject->ruledata = $ruledraft->ruledata;
+        $ruleobject->ruledata = json_decode($ruledraft->ruledata);
 
         $record->rulejson = json_encode($ruleobject);
 
