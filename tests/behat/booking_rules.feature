@@ -34,7 +34,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And I set the following fields to these values:
       | Custom name for the rule | notifyadmin    |
       | Rule                     | React on event |
-    And I wait "2" seconds
+    And I wait "3" seconds
     And I set the following fields to these values:
       | Event                 | Substitution teacher was added (optiondates_teacher_added)     |
       | Condition of the rule | Directly select users without connection to the booking option |
@@ -67,3 +67,28 @@ Feature: Create global booking rules as admin and insure they are working.
     And I should see "React on event" in the ".booking-rules-list" "css_element"
     And I should see "Directly select users without connection to the booking option" in the ".booking-rules-list" "css_element"
     And I should see "Send email" in the ".booking-rules-list" "css_element"
+
+  @javascript
+  Scenario: Booking rules: create booking rule for teacher substituing event
+    Given the following "mod_booking > rules" exist:
+      | conditionname | conditiondata     | name        | actionname | actiondata                                                                      | rulename            | ruledata                                                      |
+      | select_users  | {"userids":["2"]} | notifyadmin | send_mail  | {"subject":"teacher subst","template":"teacher sybst msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\optiondates_teacher_added"} |
+    When I am on the "BookingCMP" Activity page logged in as admin
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Substitutions / Cancelled dates" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Option-football" in the "#region-main" "css_element"
+    And I should see "No teacher" in the "[id^=optiondates_teachers_table] td.teacher" "css_element"
+    And I click on "Edit" "link" in the "[id^=optiondates_teachers_table] td.edit" "css_element"
+    And I wait "1" seconds
+    And I should see "Teachers" in the ".modal-header" "css_element"
+    When I set the following fields to these values:
+      | Teachers | teacher1   |
+      | Reason   | Assign one |
+    And I press "Save changes"
+    ## Send messages via cron and verify via events log
+    And I trigger cron
+    And I visit "/report/loglive/index.php"
+    And I should see "Substitution teacher was added"
+    And I should see "An e-mail with subject 'teacher subst' has been sent to user with id: '2'"
+    ## Logout is mandatory for admin pages to avoid error
+    And I log out
