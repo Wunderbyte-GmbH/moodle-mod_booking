@@ -24,6 +24,7 @@
 
 namespace mod_booking\bo_availability\conditions;
 
+use local_shopping_cart\shopping_cart;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
@@ -104,13 +105,11 @@ class cancelmyself implements bo_condition {
         $bookinginformation = $bookinganswer->return_all_booking_information($userid);
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
 
-        $priceitems = price::get_prices_from_cache_or_db('option', $settings->id);
-        if (count($priceitems) > 0) {
+        if (!empty($settings->jsonobject->useprice) && (!class_exists('local_shopping_cart\shopping_cart'))) {
             // If we have a price, this condition is not used.
             $isavailable = true; // True means, it won't be shown.
         } else {
             // If the user is not allowed to cancel we never show cancel button.
-
             if (!empty($bookingsettings->iselective) && isset($bookinginformation['iamreserved'])) {
                 $isavailable = false;
             } else if ($bookingsettings->cancancelbook != 1 || isset($bookinginformation['notbooked'])) {
@@ -120,7 +119,17 @@ class cancelmyself implements bo_condition {
                 // We have to check if there's a limit until a certain date.
                 $canceluntil = booking_option::return_cancel_until_date($optionid);
                 // If the cancel until date has passed, we do not show cancel button.
-                if ($canceluntil != 0 && $now > $canceluntil) {
+                if (class_exists('local_shopping_cart\shopping_cart')
+                    && (!empty($settings->jsonobject->useprice))) {
+                    $item = (object)[
+                        'itemid' => $settings->id,
+                        'componentname' => 'mod_booking',
+                    ];
+                    // Shopping cart allows to cancel.
+                    if (!shopping_cart::allowed_to_cancel_for_item($item, 'option')) {
+                        $isavailable = true;
+                    }
+                } else if ($canceluntil != 0 && $now > $canceluntil) {
                     $isavailable = true;
                 }
             }
@@ -173,8 +182,11 @@ class cancelmyself implements bo_condition {
         $description = '';
 
         $isavailable = $this->is_available($settings, $userid, $not);
-
-        $description = $this->get_description_string($isavailable, $full);
+        if (!class_exists('local_shopping_cart\shopping_cart')) {
+            $description = $this->get_description_string($isavailable, $full);
+        } else {
+            $description = 'sc cancel';
+        }
 
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_CANCEL];
     }
@@ -225,9 +237,17 @@ class cancelmyself implements bo_condition {
         }
         $label = $this->get_description_string();
 
-        return bo_info::render_button($settings, $userid, $label,
-            'btn btn-light btn-sm',
-            false, $fullwidth, 'button', 'option', false);
+        if (!class_exists('local_shopping_cart\shopping_cart')
+            || empty($settings->jsonobject->useprice)) {
+            return bo_info::render_button($settings, $userid, $label,
+                'btn btn-light btn-sm',
+                false, $fullwidth, 'button', 'option', false);
+        } else {
+
+            return bo_info::render_button($settings, $userid, $label,
+                'btn btn-danger btn-sm',
+                false, $fullwidth, 'button', 'option', false);
+        }
     }
 
     /**
