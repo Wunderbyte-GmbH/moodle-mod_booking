@@ -217,7 +217,6 @@ class mod_booking_generator extends testing_module_generator {
         return $record;
     }
 
-
     /**
      * Function to create a dummy semester option.
      *
@@ -230,6 +229,37 @@ class mod_booking_generator extends testing_module_generator {
         $record = (object) $record;
 
         $record->id = $DB->insert_record('booking_semesters', $record);
+
+        return $record;
+    }
+
+    /**
+     * Function to create a dummy rule for bookings.
+     *
+     * @param array|stdClass $ruledraft
+     * @return stdClass the booking rule object
+     */
+    public function create_rule($ruledraft = null) {
+        global $DB;
+
+        $ruledraft = (object) $ruledraft;
+
+        $record = new stdClass;
+        $record->bookingid = isset($ruledraft->bookingid) ? $ruledraft->bookingid : 0;
+        $record->rulename = $ruledraft->rulename;
+
+        $ruleobject = new stdClass;
+        $ruleobject->conditionname = $ruledraft->conditionname;
+        $ruleobject->conditiondata = $ruledraft->conditiondata;
+        $ruleobject->name = $ruledraft->name;
+        $ruleobject->actionname = $ruledraft->actionname;
+        $ruleobject->actiondata = $ruledraft->actiondata;
+        $ruleobject->rulename = $ruledraft->rulename;
+        $ruleobject->ruledata = $ruledraft->ruledata;
+
+        $record->rulejson = json_encode($ruleobject);
+
+        $record->id = $DB->insert_record('booking_rules', $record);
 
         return $record;
     }
