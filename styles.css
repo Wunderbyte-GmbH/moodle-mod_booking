@@ -446,7 +446,7 @@ if there only was one booking option. */
 
 #page-mod-booking-editoptions div[id^='fgroup_id_buttonar_'] input[name='submitbutton'],
 #page-mod-booking-editoptions div[id^='fgroup_id_buttonar_'] input[name='cancel'] {
-    box-shadow: rgba(14, 30, 37, 0.12) 0 2px 4px 0, rgba(14, 30, 37, 0.32) 0 2px 16px 0px;
+    box-shadow: rgba(14, 30, 37, 0.12) 0 2px 4px 0, rgba(14, 30, 37, 0.32) 0 2px 16px 0;
 }
 
 #page-mod-booking-mod #fgroup_id_buttonar {
@@ -457,5 +457,5 @@ if there only was one booking option. */
 #page-mod-booking-mod #fgroup_id_buttonar  input[name='submitbutton'],
 #page-mod-booking-mod #fgroup_id_buttonar  input[name='submitbutton2'],
 #page-mod-booking-mod #fgroup_id_buttonar  input[name='cancel'] {
-    box-shadow: rgba(14, 30, 37, 0.12) 0 2px 4px 0, rgba(14, 30, 37, 0.32) 0 2px 16px 0px;
+    box-shadow: rgba(14, 30, 37, 0.12) 0 2px 4px 0, rgba(14, 30, 37, 0.32) 0 2px 16px 0;
 }
