@@ -1,3 +1,12 @@
+## Version 8.2.1 (2024032700)
+* Improvement: Show which form currently overrides the standard form definition on edit.
+* Improvement: Usability improvements for option form config with and without PRO license.
+* Improvement: Allow csv import with column username.
+* Improvement: Add capability to edit option form config (mod/booking:editoptionformconfig).
+* Improvement: Add more rights to manager role (manager should have the same rights as enrolled teacher).
+* Bugfix: Add enrolmentstatus field again.
+* Test: New behat tests for Booking rules.
+
 ## Version 8.2.0 (2024032500)
 * New feature: Config Dashboard implementation.
 * New feature: Add manually managed waitinglist.
