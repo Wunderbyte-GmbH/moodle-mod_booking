@@ -41,7 +41,6 @@ Feature: Create global booking rules as admin and insure they are working.
     And I wait "1" seconds
     ## Mandatory workaround for autocomplete field
     And I set the field "Select the users you want to target" to "admin"
-    ##And I set the field "Select the users you want to target" to "Admin User (ID: 2) | moodle@example.com"
     And I wait "1" seconds
     And I set the following fields to these values:
       | Subject                             | Teacher was substituted              |
@@ -55,3 +54,16 @@ Feature: Create global booking rules as admin and insure they are working.
     And I click on "Save changes" "button"
     And I wait until the page is ready
     And I should see "rule1-notifyadmin"
+
+  ## @javascript - JS no need for this test
+  Scenario: Booking rules: create booking rule via DB and view as admin
+    Given the following "mod_booking > rules" exist:
+      | conditionname | conditiondata     | name        | actionname | actiondata                                                                      | rulename            | ruledata                                                      |
+      | select_users  | {"userids":["2"]} | notifyadmin | send_mail  | {"subject":"teacher subst","template":"teacher sybst msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\optiondates_teacher_added"} |
+    When I log in as "admin"
+    And I visit "/mod/booking/edit_rules.php"
+    ## And I wait until the page is ready
+    And I should see "notifyadmin" in the ".booking-rules-list" "css_element"
+    And I should see "React on event" in the ".booking-rules-list" "css_element"
+    And I should see "Directly select users without connection to the booking option" in the ".booking-rules-list" "css_element"
+    And I should see "Send email" in the ".booking-rules-list" "css_element"
