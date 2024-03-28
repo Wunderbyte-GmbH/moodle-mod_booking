@@ -1207,7 +1207,7 @@ $string['signincustfields'] = 'Custom profile fields';
 $string['signincustfields_desc'] = 'Select the custom profiles fields to be shown on the sign-in sheet';
 $string['showcustomfields'] = 'Custom booking option fields';
 $string['showcustomfields_desc'] = 'Select the custom booking option fields to be shown on the sign-in sheet';
-$string['alloptionsinreport'] = 'One report for a booking activity' . $string['badge:pro'];
+$string['alloptionsinreport'] = 'One report for a booking activity ' . $string['badge:pro'];
 $string['alloptionsinreportdesc'] = 'The report of one booking option will include all the bookings of all booking options within this instance.';
 
 $string['showlistoncoursepage'] = 'Show extra information on course page';

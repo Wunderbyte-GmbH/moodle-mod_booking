@@ -29,9 +29,11 @@ use mod_booking\option\fields_info;
 use mod_booking\settings\optionformconfig\optionformconfig_info;
 use context_module;
 use html_writer;
+use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
 use MoodleQuickForm;
 use stdClass;
+use moodle_exception;
 
 /**
  * Class to handle one property of the booking_option_settings class.
@@ -113,7 +115,15 @@ class formconfig extends field_base {
         // Standardfunctionality to add a header to the mform (only if its not yet there).
         fields_info::add_header_to_mform($mform, self::$header);
 
-        $context = context_module::instance($formdata['cmid']);
+        if (!empty($formdata['cmid'])) {
+            $context = context_module::instance($formdata['cmid']);
+        } else if (!empty($formdata['optionid'])) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($formdata['optionid']);
+            $context = context_module::instance($settings->cmid);
+        } else {
+            throw new moodle_exception('formconfig.php: missing context in function instance_form_definition');
+        }
+
         if (wb_payment::pro_version_is_activated()) {
             $capstringidentifier = optionformconfig_info::return_capability_for_user($context->id);
             if (!empty($capstringidentifier)) {
