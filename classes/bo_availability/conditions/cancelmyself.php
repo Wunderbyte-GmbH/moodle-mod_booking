@@ -231,21 +231,24 @@ class cancelmyself implements bo_condition {
     public function render_button(booking_option_settings $settings,
         int $userid = 0, bool $full = false, bool $not = false, bool $fullwidth = true): array {
 
-        global $USER;
+        global $USER, $PAGE;
         if ($userid === null) {
             $userid = $USER->id;
         }
-        $label = $this->get_description_string();
 
         if (!class_exists('local_shopping_cart\shopping_cart')
             || empty($settings->jsonobject->useprice)) {
+
+            $label = $this->get_description_string();
             return bo_info::render_button($settings, $userid, $label,
                 'btn btn-light btn-sm',
                 false, $fullwidth, 'button', 'option', false);
         } else {
+            $label = get_string('cancelsign', 'mod_booking')
+                . "&nbsp;" . get_string('cancelpurchase', 'local_shopping_cart');
 
             return bo_info::render_button($settings, $userid, $label,
-                'btn btn-danger btn-sm',
+                'btn btn-light btn-sm shopping-cart-cancel-button',
                 false, $fullwidth, 'button', 'option', false);
         }
     }
