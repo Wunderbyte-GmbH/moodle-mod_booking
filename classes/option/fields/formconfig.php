@@ -115,18 +115,20 @@ class formconfig extends field_base {
 
         $context = context_module::instance($formdata['cmid']);
         if (wb_payment::pro_version_is_activated()) {
-            $capability = get_string(optionformconfig_info::return_capability_for_user($context->id), 'mod_booking');
-            $mform->addElement('static', 'formconfiglabel', '', get_string('youareusingconfig', 'mod_booking', $capability));
-            $msg = optionformconfig_info::return_message_stored_optionformconfig($context->id);
+            $capstringidentifier = optionformconfig_info::return_capability_for_user($context->id);
+            if (!empty($capstringidentifier)) {
+                $capability = get_string($capstringidentifier, 'mod_booking');
+                $mform->addElement('static', 'formconfiglabel', '', get_string('youareusingconfig', 'mod_booking', $capability));
+
+                $msg = optionformconfig_info::return_message_stored_optionformconfig($context->id);
+                $mform->addElement(
+                    'static',
+                    'formconfiglabel_more',
+                    '',
+                    $msg
+                );
+            }
         }
-
-        $mform->addElement(
-            'static',
-            'formconfiglabel_more',
-            '',
-            $msg
-        );
-
     }
 
     /**
