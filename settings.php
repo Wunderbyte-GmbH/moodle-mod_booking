@@ -188,6 +188,11 @@ if ($ADMIN->fulltree) {
                 get_string('alloptionsinreportdesc', 'mod_booking'), 0));
 
     $settings->add(
+        new admin_setting_configcheckbox('booking/responsiblecontactcanedit',
+            get_string('responsiblecontactcanedit', 'mod_booking'),
+            get_string('responsiblecontactcanedit_desc', 'mod_booking'), 0));
+
+    $settings->add(
         new admin_setting_configcheckbox('booking/maxperuserdontcountpassed',
             get_string('maxperuserdontcountpassed', 'mod_booking'),
             get_string('maxperuserdontcountpassed_desc', 'mod_booking'), 1));

@@ -1161,6 +1161,9 @@ function booking_check_if_teacher($optionoroptionid = null) {
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         if (in_array($USER->id, $settings->teacherids)) {
             return true;
+        } else if (get_config('booking', 'responsiblecontactcanedit')
+            && $settings->responsiblecontact == $USER->id) {
+            return true;
         } else {
             return false;
         }
