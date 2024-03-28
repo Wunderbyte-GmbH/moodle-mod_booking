@@ -119,6 +119,7 @@ class additionalperson_form extends dynamic_form {
         $mform = $this->_form;
 
         $id = $formdata['id'];
+        $subbooking = subbookings_info::get_subbooking_by_area_and_id('subbooking', $id);
 
         // We know this is already a filled out form when we have this key.
         if (isset($formdata["subbooking_addpersons"])) {
@@ -132,7 +133,8 @@ class additionalperson_form extends dynamic_form {
 
         $mform->addElement('hidden', 'id', $id);
 
-        $mform->addElement('static', 'subbookingaddpersondesc', '', get_string('subbooking_additionalperson_desc', 'mod_booking'));
+        $mform->addElement('static', 'subbookingaddpersondescription', '',
+            $subbooking->description ?? get_string('subbooking_additionalperson_desc', 'mod_booking'));
 
         $mform->registerNoSubmitButton('btn_addperson');
         $buttonargs = ['style' => 'visibility:hidden;'];
@@ -160,7 +162,6 @@ class additionalperson_form extends dynamic_form {
 
         // We only show the "Add to cart button" when we actually have sth to add to the cart.
         if ($bookedpersons > 0) {
-            $subbooking = subbookings_info::get_subbooking_by_area_and_id('subbooking', $formdata['id']);
             $settings = singleton_service::get_instance_of_booking_option_settings($subbooking->optionid);
             $html = booking_subbookit::render_bookit_button($settings, $subbooking->id);
             $mform->addElement('html', $html);
