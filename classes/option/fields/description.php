@@ -64,8 +64,7 @@ class description extends field_base {
      * @var array
      */
     public static $fieldcategories = [
-        MOD_BOOKING_OPTION_FIELD_STANDARD,
-        MOD_BOOKING_OPTION_FIELD_EASY,
+        MOD_BOOKING_OPTION_FIELD_NECESSARY,
     ];
 
     /**

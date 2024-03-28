@@ -50,6 +50,7 @@
 }}
 <div class="booking-button-area noprice w-100"
     data-itemid="{{itemid}}"
+    data-componentname="mod_booking"
     data-area="{{area}}"
     data-userid="{{userid}}"
     {{#dataaction}}data-action="{{dataaction}}"{{/dataaction}}
@@ -60,7 +61,9 @@
         </div>
     {{/onlist}}
     {{#top}}
-        <div class="booking-button-toparea mb-1 mt-1 p-1 {{class}}" role="{{role}}">
+        <div class="booking-button-toparea mb-1 mt-1 p-1 {{class}}"
+             role="{{role}}"
+             {{#nojs}}data-nojs="1"{{/nojs}}>
             {{{label}}}
         </div>
     {{/top}}

@@ -97,7 +97,23 @@ export const initbookitbutton = (itemid, area) => {
 
                 const data = button.dataset;
 
-                if (e.target.classList.contains('btn')) {
+                if (e.target.classList.contains('shopping-cart-cancel-button')) {
+
+                    import('local_shopping_cart/shistory')
+                    // eslint-disable-next-line promise/always-return
+                    .then(shoppingcart => {
+                        const confirmCancelModal = shoppingcart.confirmCancelModal;
+                        // Now you can use the specific function
+                        confirmCancelModal(button, 0);
+                    })
+                    .catch(err => {
+                        // Handle any errors, including if the module doesn't exist
+                        // eslint-disable-next-line no-console
+                        console.log(err);
+                    });
+
+
+                } else if (e.target.classList.contains('btn')) {
                     bookit(itemid, area, userid, data);
                 }
             });
