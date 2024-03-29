@@ -108,14 +108,8 @@ class recurringoptions extends field_base {
         // Templates and recurring 'events' - only visible when adding new.
         if ($formdata['optionid'] == -1) {
 
-            // Workaround: Only show, if it is not turned off in the option form config.
-            // We currently need this, because hideIf does not work with headers.
-            // In expert mode, we do not hide anything.
-            if ($optionformconfig['formmode'] == 'expert' ||
-                !isset($optionformconfig['recurringheader']) || $optionformconfig['recurringheader'] == 1) {
-                $mform->addElement('header', 'recurringheader',
+            $mform->addElement('header', 'recurringheader',
                             get_string('recurringheader', 'mod_booking'));
-            }
 
             $mform->addElement('checkbox', 'repeatthisbooking',
                         get_string('repeatthisbooking', 'mod_booking'));

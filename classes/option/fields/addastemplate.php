@@ -116,15 +116,9 @@ class addastemplate extends field_base {
         if (has_capability('mod/booking:manageoptiontemplates', $formdata['context'])
             && $formdata['id'] < 1) {
 
-            // Workaround: Only show, if it is not turned off in the option form config.
-            // We currently need this, because hideIf does not work with headers.
-            // In expert mode, we do not hide anything.
-            if ($optionformconfig['formmode'] == 'expert' ||
-                !isset($optionformconfig['templateheader']) || $optionformconfig['templateheader'] == 1) {
-                $mform->addElement('header', 'templateheader',
-                    '<i class="fa fa-fw fa-clone" aria-hidden="true"></i>&nbsp;' .
-                    get_string('addastemplate', 'mod_booking'));
-            }
+            $mform->addElement('header', 'templateheader',
+                '<i class="fa fa-fw fa-clone" aria-hidden="true"></i>&nbsp;' .
+                get_string('addastemplate', 'mod_booking'));
 
             $numberoftemplates = $DB->count_records('booking_options', ['bookingid' => 0]);
 

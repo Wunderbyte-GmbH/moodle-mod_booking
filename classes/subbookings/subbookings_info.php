@@ -26,7 +26,6 @@
 namespace mod_booking\subbookings;
 
 use context_module;
-use Exception;
 use mod_booking\output\subbookingslist;
 use mod_booking\utils\wb_payment;
 use MoodleQuickForm;
@@ -105,7 +104,7 @@ class subbookings_info {
     /**
      * Get booking subbooking by type.
      * @param string $subbookingtype
-     * @return mixed
+     * @return booking_subbooking
      */
     public static function get_subbooking(string $subbookingtype) {
         global $CFG;
@@ -326,7 +325,7 @@ class subbookings_info {
      *
      * @param string $area
      * @param int $itemid
-     * @return object
+     * @return booking_subbooking
      */
     public static function get_subbooking_by_area_and_id(string $area, int $itemid) {
         global $DB;

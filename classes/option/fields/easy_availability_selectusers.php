@@ -174,6 +174,9 @@ class easy_availability_selectusers extends field_base {
             'ajax' => 'local_shopping_cart/form_users_selector',
             'valuehtmlcallback' => function($value) {
                 global $OUTPUT;
+                if (empty($value)) {
+                    return get_string('choose...', 'mod_booking');
+                }
                 $user = singleton_service::get_instance_of_user((int)$value);
                 $details = [
                     'id' => $user->id,

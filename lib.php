@@ -39,10 +39,15 @@ use mod_booking\booking_option;
 use mod_booking\output\coursepage_shortinfo_and_button;
 use mod_booking\singleton_service;
 use mod_booking\teachers_handler;
+use mod_booking\utils\wb_payment;
 
 // Default fields for bookingoptions in view.php and for download.
 define('MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS', "identifier,titleprefix,text,description,teacher,responsiblecontact," .
 "showdates,dayofweektime,location,institution,course,minanswers,bookings,bookingopeningtime,bookingclosingtime");
+
+// View params.
+define('MOD_BOOKING_VIEW_PARAM_LIST', 0); // List view.
+define('MOD_BOOKING_VIEW_PARAM_CARDS', 1); // Cards view.
 
 // Currently up to 9 different price categories can be set.
 define('MOD_BOOKING_MAX_PRICE_CATEGORIES', 9);
@@ -114,6 +119,8 @@ define('MOD_BOOKING_BO_COND_SUBBOOKINGBLOCKS', 45);
 define('MOD_BOOKING_BO_COND_SUBBOOKING', 40);
 define('MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING', 35);
 
+// Careful with changing these JSON COND values! They are stored.
+// If changed, DB Values need to be updated.
 define('MOD_BOOKING_BO_COND_JSON_CUSTOMFORM', 16);
 define('MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE', 15);
 define('MOD_BOOKING_BO_COND_JSON_SELECTUSERS', 14);
@@ -121,21 +128,23 @@ define('MOD_BOOKING_BO_COND_JSON_PREVIOUSLYBOOKED', 13);
 define('MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD', 12);
 define('MOD_BOOKING_BO_COND_JSON_USERPROFILEFIELD', 11);
 
-define('MOD_BOOKING_BO_COND_ELECTIVENOTBOOKABLE', 10);
-define('MOD_BOOKING_BO_COND_ELECTIVEBOOKITBUTTON', 9);
+define('MOD_BOOKING_BO_COND_ASKFORCONFIRMATION', 0);
 
-define('MOD_BOOKING_BO_COND_CONFIRMBOOKWITHSUBSCRIPTION', 8);
-define('MOD_BOOKING_BO_COND_BOOKWITHSUBSCRIPTION', 7);
+define('MOD_BOOKING_BO_COND_ELECTIVENOTBOOKABLE', -5);
+define('MOD_BOOKING_BO_COND_ELECTIVEBOOKITBUTTON', -10);
 
-define('MOD_BOOKING_BO_COND_CONFIRMBOOKWITHCREDITS', 6);
-define('MOD_BOOKING_BO_COND_BOOKWITHCREDITS', 5);
+define('MOD_BOOKING_BO_COND_CONFIRMBOOKWITHSUBSCRIPTION', -20);
+define('MOD_BOOKING_BO_COND_BOOKWITHSUBSCRIPTION', -30);
 
-define('MOD_BOOKING_BO_COND_NOSHOPPINGCART', 4);
-define('MOD_BOOKING_BO_COND_PRICEISSET', 3);
+define('MOD_BOOKING_BO_COND_CONFIRMBOOKWITHCREDITS', -40);
+define('MOD_BOOKING_BO_COND_BOOKWITHCREDITS', -50);
 
-define('MOD_BOOKING_BO_COND_CONFIRMBOOKIT', 2);
-define('MOD_BOOKING_BO_COND_BOOKITBUTTON', 1); // This is only used to show the book it button.
-define('MOD_BOOKING_BO_COND_CONFIRMATION', 0); // This is the last page after booking.
+define('MOD_BOOKING_BO_COND_NOSHOPPINGCART', -60);
+define('MOD_BOOKING_BO_COND_PRICEISSET', -70);
+
+define('MOD_BOOKING_BO_COND_CONFIRMBOOKIT', -80);
+define('MOD_BOOKING_BO_COND_BOOKITBUTTON', -90); // This is only used to show the book it button.
+define('MOD_BOOKING_BO_COND_CONFIRMATION', -100); // This is the last page after booking.
 
 // Define conditions parameters.
 define('MOD_BOOKING_CONDPARAM_ALL', 0);
@@ -166,6 +175,7 @@ define('MOD_BOOKING_OPTION_FIELD_PREPARE_IMPORT', 1); // Has to be the first fie
 define('MOD_BOOKING_OPTION_FIELD_ID', 10);
 define('MOD_BOOKING_OPTION_FIELD_JSON', 11);
 define('MOD_BOOKING_OPTION_FIELD_RETURNURL', 20);
+define('MOD_BOOKING_OPTION_FIELD_FORMCONFIG', 25);
 define('MOD_BOOKING_OPTION_FIELD_TEMPLATE', 30);
 define('MOD_BOOKING_OPTION_FIELD_TEXT', 40);
 define('MOD_BOOKING_OPTION_FIELD_IDENTIFIER', 50);
@@ -187,6 +197,7 @@ define('MOD_BOOKING_OPTION_FIELD_MAXOVERBOOKING', 150);
 define('MOD_BOOKING_OPTION_FIELD_MINANSWERS', 160);
 define('MOD_BOOKING_OPTION_FIELD_POLLURL', 170);
 define('MOD_BOOKING_OPTION_FIELD_COURSEID', 180); // Course to enrol to.
+define('MOD_BOOKING_OPTION_FIELD_ENROLMENTSTATUS', 185);
 define('MOD_BOOKING_OPTION_FIELD_ADDTOGROUP', 190);
 define('MOD_BOOKING_OPTION_FIELD_ENTITIES', 200);
 define('MOD_BOOKING_OPTION_FIELD_OPTIONDATES', 210);
@@ -211,6 +222,7 @@ define('MOD_BOOKING_OPTION_FIELD_ADVANCED', 390);
 define('MOD_BOOKING_OPTION_FIELD_DISABLEBOOKINGUSERS', 400);
 define('MOD_BOOKING_OPTION_FIELD_DISABLECANCEL', 410);
 define('MOD_BOOKING_OPTION_FIELD_CANCELUNTIL', 420);
+define('MOD_BOOKING_OPTION_FIELD_WAITFORCONFIRMATION', 425);
 define('MOD_BOOKING_OPTION_FIELD_ATTACHMENT', 430);
 define('MOD_BOOKING_OPTION_FIELD_NOTIFICATIONTEXT', 440);
 define('MOD_BOOKING_OPTION_FIELD_REMOVEAFTERMINUTES', 450);
@@ -683,11 +695,7 @@ function booking_add_instance($booking) {
     booking_grade_item_update($booking);
 
     // When adding an instance, we need to invalidate the cache for booking instances.
-    cache_helper::invalidate_by_event('setbackbookinginstances', [$cmid]);
-
-    // Also purge caches for options table and booking_option_settings.
-    cache_helper::purge_by_event('setbackoptionstable');
-    cache_helper::purge_by_event('setbackoptionsettings');
+    booking::purge_cache_for_booking_instance_by_cmid($cmid, false, false, false);
 
     return $booking->id;
 }
@@ -823,6 +831,13 @@ function booking_update_instance($booking) {
     } else {
         booking::add_data_to_json($booking, "disablecancel", 1);
     }
+    // View param (list view or card view) is also stored in JSON.
+    if (empty($booking->viewparam)) {
+        // Save list view as default value.
+        booking::add_data_to_json($booking, "viewparam", MOD_BOOKING_VIEW_PARAM_LIST);
+    } else {
+        booking::add_data_to_json($booking, "viewparam", $booking->viewparam);
+    }
 
     // Update, delete or insert answers.
     if (!empty($booking->option)) {
@@ -866,16 +881,7 @@ function booking_update_instance($booking) {
     $event->trigger();
 
     // When updating an instance, we need to invalidate the cache for booking instances.
-    cache_helper::invalidate_by_event('setbackbookinginstances', [$cm->id]);
-
-    // Also purge caches for options table, semesters and booking_option_settings.
-    cache_helper::purge_by_event('setbackoptionstable');
-    cache_helper::purge_by_event('setbacksemesters');
-    cache_helper::purge_by_event('setbackoptionsettings');
-
-    // We also need to set back Wunderbyte table cache!
-    cache_helper::purge_by_event('setbackencodedtables');
-    cache_helper::purge_by_event('setbackeventlogtable');
+    booking::purge_cache_for_booking_instance_by_cmid($cm->id);
 
     return $DB->update_record('booking', $booking);
 }
@@ -999,6 +1005,11 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         $navref->add(get_string('teachers_instance_report', 'mod_booking') . " ($bookingsettings->name)",
                 new moodle_url('/mod/booking/teachers_instance_report.php', ['cmid' => $cm->id]),
                 navigation_node::TYPE_CUSTOM, null, 'nav_teachers_instance_report');
+        if (wb_payment::pro_version_is_activated()) {
+            $navref->add(get_string('optionformconfig', 'mod_booking') . " ($bookingsettings->name)",
+                    new moodle_url('/mod/booking/optionformconfig.php', ['cmid' => $cm->id]),
+                    navigation_node::TYPE_CUSTOM, null, 'nav_optionformconfig');
+        }
     }
 
     // We currently never show these entries as we are not sure if they work correctly.
@@ -1149,6 +1160,9 @@ function booking_check_if_teacher($optionoroptionid = null) {
         }
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         if (in_array($USER->id, $settings->teacherids)) {
+            return true;
+        } else if (get_config('booking', 'responsiblecontactcanedit')
+            && $settings->responsiblecontact == $USER->id) {
             return true;
         } else {
             return false;
@@ -1791,11 +1805,7 @@ function booking_delete_instance($id) {
     }
 
     // When deleting an instance, we need to invalidate the cache for booking instances.
-    cache_helper::invalidate_by_event('setbackbookinginstances', [$cm->id]);
-
-    // Also purge caches for options table and booking_option_settings.
-    cache_helper::purge_by_event('setbackoptionstable');
-    cache_helper::purge_by_event('setbackoptionsettings');
+    booking::purge_cache_for_booking_instance_by_cmid($cm->id);
 
     return $result;
 }
@@ -1914,27 +1924,22 @@ function booking_show_subcategories($catid, $courseid) {
  */
 function mod_booking_cm_info_view(cm_info $cm) {
     global $PAGE;
+    $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cm->id);
+    $html = '';
+    if (isset($bookingsettings->showlistoncoursepage) &&
+        ($bookingsettings->showlistoncoursepage == 1 || $bookingsettings->showlistoncoursepage == 2)) {
 
-    $booking = singleton_service::get_instance_of_booking_by_cmid($cm->id);
+        /* NOTE: For backwards compatibility, we kept both values (1 and 2).
+        Coursepage_available_options are no longer supported! */
 
-    if (!empty($booking)) {
-        $html = '';
+        // Show course name, a short info text and a button redirecting to available booking options.
+        $data = new coursepage_shortinfo_and_button($cm);
+        $output = $PAGE->get_renderer('mod_booking');
+        $html .= $output->render_coursepage_shortinfo_and_button($data);
+    }
 
-        if (isset($booking->settings->showlistoncoursepage) &&
-            ($booking->settings->showlistoncoursepage == 1 || $booking->settings->showlistoncoursepage == 2)) {
-
-            /* NOTE: For backwards compatibility, we kept both values (1 and 2).
-            Coursepage_available_options are no longer supported! */
-
-            // Show course name, a short info text and a button redirecting to available booking options.
-            $data = new coursepage_shortinfo_and_button($cm);
-            $output = $PAGE->get_renderer('mod_booking');
-            $html .= $output->render_coursepage_shortinfo_and_button($data);
-        }
-
-        if ($html !== '') {
-            $cm->set_content($html);
-        }
+    if ($html !== '') {
+        $cm->set_content($html);
     }
 }
 

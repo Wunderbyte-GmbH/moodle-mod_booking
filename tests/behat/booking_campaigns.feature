@@ -33,7 +33,8 @@ Feature: Create booking campaigns for booking options as admin and booking it as
     And the following "mod_booking > options" exist:
       | booking     | text            | course | description    | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | optiondateid_2 | daystonotify_2 | coursestarttime_2 | courseendtime_2 | useprice | customfield_spt1 |
       | BookingCMP  | Option-tenis    | C1     | Deskr-tenis    | 1            | 2          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | tenis            |
-      | BookingCMP  | Option-football | C1     | Deskr-football | 1            | 2          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | football         |
+      | BookingCMP  | Option-football | C1     | Deskr-football | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | football         |
+    And I change viewport size to "1366x10000"
 
   @javascript
   Scenario: Booking campaigns: create settings for booking campaign via UI as admin and edit it
@@ -68,7 +69,7 @@ Feature: Create booking campaigns for booking options as admin and booking it as
     When I am on the "BookingCMP" Activity page logged in as teacher1
     Then I should see "Option-football" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "88.00 EUR" in the ".allbookingoptionstable_r1 .pricecurrency" "css_element"
-    And I should see "/ 2" in the ".allbookingoptionstable_r1 .col-ap-availableplaces" "css_element"
+    And I should see "/ 4" in the ".allbookingoptionstable_r1 .col-ap-availableplaces" "css_element"
     And I should see "Option-tenis" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "44.00 EUR" in the ".allbookingoptionstable_r2 .pricecurrency" "css_element"
-    And I should see "/ 4" in the ".allbookingoptionstable_r2 .col-ap-availableplaces" "css_element"
+    And I should see "/ 2" in the ".allbookingoptionstable_r2 .col-ap-availableplaces" "css_element"

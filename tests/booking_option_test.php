@@ -159,13 +159,15 @@ class booking_option_test extends advanced_testcase {
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
         // Create user(s).
-        $useremails = ['reinhold.brunhoelzl@univie.ac.at', 'ulrike.schultes@univie.ac.at'];
+        $useremails = ['teacher1@example.com', 'teacher2@example.com', 'user1@example.com'];
         $userdata = new stdClass;
         $userdata->email = $useremails[0];
         $userdata->timezone = 'Europe/London';
         $user1 = $this->getDataGenerator()->create_user($userdata); // Booking manager and teacher.
         $userdata->email = $useremails[1];
         $user2 = $this->getDataGenerator()->create_user($userdata); // Teacher.
+        $userdata->email = $useremails[2];
+        $user3 = $this->getDataGenerator()->create_user($userdata); // Student.
 
         // Create booking settings prior create booking module in course: price categories and semester.
         /** @var mod_booking_generator $plugingenerator */
@@ -186,7 +188,7 @@ class booking_option_test extends advanced_testcase {
             'pollurlteacherstext' => ['text' => 'text'],
             'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
             'bookingpolicy' => 'bookingpolicy', 'tags' => '', 'completion' => 2,
-            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
+            'showviews' => ['showall,showactive,mybooking,myoptions,myinstitution'],
             'optionsfields' =>
             ['description', 'statusdescription', 'teacher', 'showdates', 'dayofweektime', 'location', 'institution', 'minanswers'],
             'semesterid' => $testsemester->id,
@@ -202,6 +204,7 @@ class booking_option_test extends advanced_testcase {
 
         $this->getDataGenerator()->enrol_user($user1->id, $course->id);
         $this->getDataGenerator()->enrol_user($user2->id, $course->id);
+        $this->getDataGenerator()->enrol_user($user3->id, $course->id);
 
         $coursectx = context_course::instance($course->id);
 
@@ -246,7 +249,14 @@ class booking_option_test extends advanced_testcase {
         $this->assertEquals("MO 17:15 - 19:30", $option1->dayofweektime);
         $this->assertEquals(35, $option1->maxanswers);
         $this->assertEquals("monday", $option1->dayofweek);
+
+        // This might fail when local_entities is installed.
         $this->assertEquals("TNMU", $option1->location);
+
+        // Check if the user is subscribed.
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $ba = singleton_service::get_instance_of_booking_answers($settings);
+        $this->assertEquals(MOD_BOOKING_STATUSPARAM_BOOKED, $ba->user_status($user3->id));
 
         // Create booking option object to get extra detsils.
         $bookingoptionobj = new booking_option($cmb1->id, $option1->id);
@@ -288,7 +298,14 @@ class booking_option_test extends advanced_testcase {
         $this->assertEquals("We 18:10 - 19:40", $option3->dayofweektime);
         $this->assertEquals(60, $option3->maxanswers);
         $this->assertEquals("wednesday", $option3->dayofweek);
+
+        // This might fail when local_entities is installed.
         $this->assertEquals("TNMU", $option3->location);
+
+        // Check if the user is subscribed.
+        $settings = singleton_service::get_instance_of_booking_option_settings($option3->id);
+        $ba = singleton_service::get_instance_of_booking_answers($settings);
+        $this->assertEquals(MOD_BOOKING_STATUSPARAM_BOOKED, $ba->user_status($user3->id));
 
         // Create booking option object to get extra detsils.
         $bookingoptionobj = new booking_option($cmb1->id, $option3->id);

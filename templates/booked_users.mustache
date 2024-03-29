@@ -25,106 +25,35 @@
 
     Example context (json):
     {
-        "bookedusers" : [
-            {
-                "firstname" : "Anna",
-                "lastname" : "X",
-                "email" : "a.x@example.com",
-                "status" : "x",
-                "link" : "http://localhost:8010/user/profile.php?id=118"
-            }
-        ],
-        "waitinglist" : [
-            {
-                "firstname" : "Anna",
-                "lastname" : "X",
-                "email" : "a.x@example.com",
-                "status" : "x",
-                "link" : "http://localhost:8010/user/profile.php?id=118"
-            }
-        ],
-        "reservedusers" : [
-            {
-                "firstname" : "Anna",
-                "lastname" : "X",
-                "email" : "a.x@example.com",
-                "status" : "x",
-                "link" : "http://localhost:8010/user/profile.php?id=118"
-            }
-        ],
-        "userstonotify" : [
-            {
-                "firstname" : "Anna",
-                "lastname" : "X",
-                "email" : "a.x@example.com",
-                "status" : "x",
-                "link" : "http://localhost:8010/user/profile.php?id=118"
-            }
-        ],
-        "deletedusers" : [
-            {
-                "firstname" : "Anna",
-                "lastname" : "X",
-                "email" : "a.x@example.com",
-                "status" : "x",
-                "link" : "http://localhost:8010/user/profile.php?id=118"
-            }
-        ]
+        "bookedusers" : "<div></div>",
+        "waitinglist" : "<div></div>",
+        "reservedusers" : "<div></div>",
+        "userstonotify" : "<div></div>",
+        "deletedusers" : "<div></div>"
     }
 }}
 
-{{#bookedusers.0}}
+{{#bookedusers}}
 <h5>{{#str}} bookedusers, mod_booking {{/str}}</h5>
-    <ul class="list-group">
-    {{#bookedusers}}
-        <li class="list-group-item list-group-item-action">
-            {{> mod_booking/booked_user}}
-        </li>
-    {{/bookedusers}}
-    </ul>
-{{/bookedusers.0}}
+    {{{bookedusers}}}
+{{/bookedusers}}
 
-{{#waitinglist.0}}
+{{#waitinglist}}
 <h5>{{#str}} waitinglist, mod_booking {{/str}}</h5>
-    <ul class="list-group">
-    {{#waitinglist}}
-        <li class="list-group-item list-group-item-action">
-            {{> mod_booking/booked_user}}
-        </li>
-    {{/waitinglist}}
-    </ul>
-{{/waitinglist.0}}
+    {{{waitinglist}}}
+{{/waitinglist}}
 
-{{#reservedusers.0}}
+{{#reservedusers}}
 <h5>{{#str}} reservedusers, mod_booking {{/str}}</h5>
-    <ul class="list-group">
-    {{#reservedusers}}
-        <li class="list-group-item list-group-item-action">
-            {{> mod_booking/booked_user}}
-        </li>
-    {{/reservedusers}}
-    </ul>
-{{/reservedusers.0}}
+    {{{reservedusers}}}
+{{/reservedusers}}
 
-{{#userstonotify.0}}
+{{#userstonotify}}
 <h5>{{#str}} userstonotify, mod_booking {{/str}}</h5>
-    <ul class="list-group">
-    {{#userstonotify}}
-        <li class="list-group-item list-group-item-action">
-            {{> mod_booking/booked_user}}
-        </li>
-    {{/userstonotify}}
-    </ul>
-{{/userstonotify.0}}
+    {{{userstonotify}}}
+{{/userstonotify}}
 
-{{#deletedusers.0}}
+{{#deletedusers}}
 <h5>{{#str}} deletedusers, mod_booking {{/str}}</h5>
-    <ul class="list-group">
-    {{#deletedusers}}
-        <li class="list-group-item list-group-item-action">
-            {{> mod_booking/booked_user}}
-        </li>
-    {{/deletedusers}}
-    </ul>
-{{/deletedusers.0}}
-
+    {{{deletedusers}}}
+{{/deletedusers}}

@@ -97,6 +97,9 @@ class select_users implements booking_rule_condition {
             'noselectionstring' => get_string('choose...', 'mod_booking'),
             'valuehtmlcallback' => function($value) {
                 global $OUTPUT;
+                if (empty($value)) {
+                    return get_string('choose...', 'mod_booking');
+                }
                 $user = singleton_service::get_instance_of_user((int)$value);
                 $details = [
                     'id' => $user->id,

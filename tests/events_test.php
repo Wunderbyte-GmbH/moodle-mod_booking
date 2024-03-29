@@ -69,7 +69,7 @@ class events_test extends advanced_testcase {
                     'pollurlteacherstext' => ['text' => 'text'],
                     'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
                     'bookingpolicy' => 'bookingpolicy', 'tags' => '',
-                    'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
+                    'showviews' => ['showall,showactive,mybooking,myoptions,myinstitution'],
         ];
 
         // Setup test data.

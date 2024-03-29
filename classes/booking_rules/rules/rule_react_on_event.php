@@ -19,8 +19,6 @@ namespace mod_booking\booking_rules\rules;
 use mod_booking\booking_rules\actions_info;
 use mod_booking\booking_rules\booking_rule;
 use mod_booking\booking_rules\conditions_info;
-use mod_booking\singleton_service;
-use mod_booking\task\send_mail_by_rule_adhoc;
 use MoodleQuickForm;
 use stdClass;
 
@@ -145,7 +143,7 @@ class rule_react_on_event implements booking_rule {
         $record->bookingid = $data->bookingid ?? 0;
 
         // If we can update, we add the id here.
-        if ($data->id) {
+        if (!empty($data->id)) {
             $record->id = $data->id;
             $DB->update_record('booking_rules', $record);
         } else {

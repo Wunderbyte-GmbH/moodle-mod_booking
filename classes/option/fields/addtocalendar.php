@@ -52,7 +52,7 @@ class addtocalendar extends field_base {
      * Some can be saved only post save (when they need the option id).
      * @var int
      */
-    public static $save = MOD_BOOKING_EXECUTION_NORMAL;
+    public static $save = MOD_BOOKING_EXECUTION_POSTSAVE;
 
     /**
      * This identifies the header under which this particular field should be displayed.
@@ -115,18 +115,36 @@ class addtocalendar extends field_base {
                     }
                 }
             }
-        } else if ($formdata->addtocalendar == 1) {
-            if ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid])) {
+        }
+
+        return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
+    }
+
+    /**
+     * Save data
+     * @param stdClass $data
+     * @param stdClass $option
+     * @return void
+     * @throws \dml_exception
+     */
+    public static function save_data(stdClass &$data, stdClass &$option) {
+
+        global $DB;
+
+        if (isset($data->addtocalendar) && $data->addtocalendar == 1) {
+
+            $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+            // We need to make sure not to run the calendar function on a tmeplate without a cmid.
+            if (!empty($settings->cmid) &&
+                ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $option->id]))) {
                 foreach ($optiondates as $optiondate) {
                     if ($DB->record_exists('event', ['id' => $optiondate->eventid])) {
                         continue;
                     }
-                    calendar::booking_optiondate_add_to_cal($settings->cmid, $optionid, $optiondate, $settings->calendarid);
+                    calendar::booking_optiondate_add_to_cal($settings->cmid, $option->id, $optiondate, $settings->calendarid);
                 }
             }
         }
-
-        return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
     }
 
     /**

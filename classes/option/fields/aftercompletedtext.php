@@ -122,16 +122,10 @@ class aftercompletedtext extends field_base {
         // Standardfunctionality to add a header to the mform (only if its not yet there).
         fields_info::add_header_to_mform($mform, self::$header);
 
-        // Workaround: Only show, if it is not turned off in the option form config.
-        // We currently need this, because hideIf does not work with editors.
-        // In expert mode, we do not hide anything.
-        if ($optionformconfig['formmode'] == 'expert' ||
-            !isset($optionformconfig['aftercompletedtext']) || $optionformconfig['aftercompletedtext'] == 1) {
-            $mform->addElement('editor', 'aftercompletedtext',
+        $mform->addElement('editor', 'aftercompletedtext',
                     get_string("aftercompletedtext", "booking"), null, null);
-            $mform->setType('aftercompletedtext', PARAM_CLEANHTML);
-            $mform->addHelpButton('aftercompletedtext', 'aftercompletedtext', 'mod_booking');
-        }
+        $mform->setType('aftercompletedtext', PARAM_CLEANHTML);
+        $mform->addHelpButton('aftercompletedtext', 'aftercompletedtext', 'mod_booking');
     }
 
     /**

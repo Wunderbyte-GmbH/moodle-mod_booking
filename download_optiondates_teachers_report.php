@@ -16,6 +16,8 @@
 
 /**
  * Baseurl for download of optiondates_teachers_report.
+ *
+ * @package mod_booking
  * @copyright 2023 Wunderbyte Gmbh <info@wunderbyte.at>
  * @license https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

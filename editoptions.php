@@ -27,6 +27,7 @@ require_once($CFG->dirroot . '/mod/booking/locallib.php');
 require_once($CFG->libdir . '/formslib.php');
 
 use mod_booking\singleton_service;
+use mod_booking\utils\wb_payment;
 
 global $DB, $OUTPUT, $PAGE, $USER;
 
@@ -73,20 +74,6 @@ if ((has_capability('mod/booking:updatebooking', $context) || (has_capability(
     throw new moodle_exception('nopermissions');
 }
 
-if (has_capability('mod/booking:cantoggleformmode', $context)) {
-    // Switch mode after button has been clicked.
-    switch ($mode) {
-        case 'formmodesimple':
-            set_user_preference('optionform_mode', 'simple');
-            break;
-        case 'formmodeexpert':
-            set_user_preference('optionform_mode', 'expert');
-            break;
-    }
-} else {
-    // Without the capability, we always use simple mode.
-    set_user_preference('optionform_mode', 'simple');
-}
 // We don't need this anymore.
 $optionid = $optionid < 0 ? 0 : $optionid;
 
@@ -114,6 +101,9 @@ if (!empty($optionid)) {
         get_string('youareediting', 'mod_booking', $settings->get_title_with_prefix()),
         'alert alert-info editoption-youareediting-alert'
     );
+    if (!wb_payment::pro_version_is_activated()) {
+        echo html_writer::div(get_string('optionformconfig_getpro', 'mod_booking'), 'small mt-2');
+    }
 }
 
 // Render the form in a specific container, there should be nothing else in the same container.

@@ -104,7 +104,7 @@ class enrolledincourse implements bo_condition {
             if (empty($this->customsettings->courseidsoperator) || $this->customsettings->courseidsoperator != 'OR') {
                 foreach ($courseids as $courseid) {
                     $context = context_course::instance($courseid);
-                    $enrolled = $enrolled && is_enrolled($context, $userid);
+                    $enrolled = $enrolled && is_enrolled($context, $userid, '', true);
                     // We only get true, if the user is enrolled in ALL courses of the condition.
                 }
             } else {
@@ -116,7 +116,7 @@ class enrolledincourse implements bo_condition {
                         $enrolled = true;
                         break;
                     }
-                    // We only get true, if the user is enrolled in ALL courses of the condition.
+                    // We only get true, if the user is enrolled in one of the courses of the condition.
                 }
             }
 
@@ -294,21 +294,7 @@ class enrolledincourse implements bo_condition {
                 get_string('proversiononly', 'mod_booking'));
         }
 
-        // Workaround: Only show, if it is not turned off in the option form config.
-        // We currently need this, because html elements do not show up in the option form config.
-        // In expert mode, we always show everything.
-        $showhorizontalline = true;
-        $formmode = get_user_preferences('optionform_mode');
-        if ($formmode !== 'expert') {
-            $cfgrestrictwithenrolledincourse = $DB->get_field('booking_optionformconfig', 'active',
-                ['elementname' => 'bo_cond_enrolledincourse_restrict']);
-            if ($cfgrestrictwithenrolledincourse === "0") {
-                $showhorizontalline = false;
-            }
-        }
-        if ($showhorizontalline) {
-            $mform->addElement('html', '<hr class="w-50"/>');
-        }
+        $mform->addElement('html', '<hr class="w-50"/>');
     }
 
     /**

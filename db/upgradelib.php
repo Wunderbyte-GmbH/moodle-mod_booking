@@ -78,3 +78,27 @@ function migrate_optionsfields_2023022800() {
         }
     }
 }
+
+/**
+ * Fix descriptionformat for all booking options.
+ */
+function fix_bookingoption_descriptionformat_2024022700() {
+    global $DB;
+    $DB->execute(
+        "UPDATE {booking_options}
+        SET descriptionformat = 1
+        WHERE descriptionformat = 0"
+    );
+}
+
+/**
+ * Fix showlistoncoursepage for all booking instances.
+ */
+function fix_showlistoncoursepage_2024030801() {
+    global $DB;
+    $DB->execute(
+        "UPDATE {booking}
+        SET showlistoncoursepage = 1
+        WHERE showlistoncoursepage = 2"
+    );
+}

@@ -81,25 +81,9 @@ class price {
      */
     public function add_price_to_mform(MoodleQuickForm &$mform, bool $noformula=false) {
 
-        global $DB;
-
-        // Workaround: Only show, if it is not turned off in the option form config.
-        // We currently need this, because hideIf does not work with headers.
-        // In expert mode, we always show everything.
-        $showpriceheader = true;
-        $formmode = get_user_preferences('optionform_mode');
-        if ($formmode !== 'expert') {
-            $cfgpriceheader = $DB->get_field('booking_optionformconfig', 'active',
-                ['elementname' => 'bookingoptionprice']);
-            if ($cfgpriceheader === "0") {
-                $showpriceheader = false;
-            }
-        }
-        if ($showpriceheader) {
-            $mform->addElement('header', 'bookingoptionprice',
-                '<i class="fa fa-fw fa-money" aria-hidden="true"></i>&nbsp;' .
-                get_string('bookingoptionprice', 'booking'));
-        }
+        $mform->addElement('header', 'bookingoptionprice',
+            '<i class="fa fa-fw fa-money" aria-hidden="true"></i>&nbsp;' .
+            get_string('bookingoptionprice', 'booking'));
 
         // If there are no price categories yet, show an info text.
         if (empty($this->pricecategories)) {
@@ -550,8 +534,21 @@ class price {
      */
     public function save_from_form(stdClass $fromform) {
 
+        global $DB;
+
         $currency = get_config('booking', 'globalcurrency');
         $formulastring = get_config('booking', 'defaultpriceformula');
+
+        // We have forms where id is meant for sth else. So we need to first check for optionid.
+        $optionid = $fromform->optionid ?? $fromform->id;
+
+        // If we don't want to use prices, we can delete all the prices at once.
+        if (empty($fromform->useprice)) {
+            $price = '';
+            // There might be old, prices lingering, so we make sure we delete everything at onece.
+            $DB->delete_records('booking_prices', ['itemid' => $optionid, 'area' => $this->area]);
+            return;
+        }
 
         foreach ($this->pricecategories as $pricecategory) {
             if (!empty($fromform->priceformulaisactive) && $fromform->priceformulaisactive == "1") {

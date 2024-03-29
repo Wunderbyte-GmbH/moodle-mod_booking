@@ -63,6 +63,7 @@ $capabilities = [
             'student' => CAP_ALLOW,
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
         ],
     ],
     'mod/booking:canseeinvisibleoptions' => [
@@ -76,7 +77,10 @@ $capabilities = [
     'mod/booking:addeditownoption' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => ['editingteacher' => CAP_ALLOW],
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
     ],
     'mod/booking:readresponses' => [
         'captype' => 'read',
@@ -84,6 +88,7 @@ $capabilities = [
         'archetypes' => [
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
         ],
     ],
     'mod/booking:deleteresponses' => [
@@ -92,6 +97,7 @@ $capabilities = [
         'archetypes' => [
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
         ],
     ],
     'mod/booking:updatebooking' => [
@@ -100,6 +106,7 @@ $capabilities = [
         'archetypes' => [
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
         ],
     ],
     'mod/booking:downloadresponses' => [
@@ -108,6 +115,7 @@ $capabilities = [
         'archetypes' => [
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
         ],
     ],
     'mod/booking:subscribeusers' => [
@@ -116,6 +124,7 @@ $capabilities = [
         'archetypes' => [
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
         ],
     ],
     'mod/booking:addinstance' => [
@@ -134,6 +143,7 @@ $capabilities = [
         'archetypes' => [
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
         ],
     ],
     'mod/booking:viewrating' => [
@@ -194,14 +204,6 @@ $capabilities = [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => ['manager' => CAP_ALLOW],
-    ],
-    'mod/booking:cantoggleformmode' => [
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => [
-            'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW,
-        ],
     ],
     'mod/booking:bookforothers' => [
         'captype' => 'write',
@@ -270,6 +272,15 @@ $capabilities = [
             'editingteacher' => CAP_ALLOW,
         ],
     ],
+    // Capability to edit the option form config.
+    // Has to be assigned via global role!
+    'mod/booking:editoptionformconfig' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
     // Expert option form capability. Can be configured via settings.
     'mod/booking:expertoptionform' => [
         'captype' => 'write',
@@ -281,21 +292,26 @@ $capabilities = [
     // Restricted option form capability. Can be configured via settings.
     'mod/booking:reducedoptionform1' => [
         'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSECAT,
+        'contextlevel' => CONTEXT_MODULE,
     ],
     // Restricted option form capability. Can be configured via settings.
     'mod/booking:reducedoptionform2' => [
         'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSECAT,
+        'contextlevel' => CONTEXT_MODULE,
     ],
     // Restricted option form capability. Can be configured via settings.
     'mod/booking:reducedoptionform3' => [
         'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSECAT,
+        'contextlevel' => CONTEXT_MODULE,
     ],
     // Restricted option form capability. Can be configured via settings.
     'mod/booking:reducedoptionform4' => [
         'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSECAT,
+        'contextlevel' => CONTEXT_MODULE,
+    ],
+    // Restricted option form capability. Can be configured via settings.
+    'mod/booking:reducedoptionform5' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
     ],
 ];

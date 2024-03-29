@@ -193,7 +193,7 @@ $event = \mod_booking\event\report_viewed::create(
         ['objectid' => $optionid, 'context' => $context]);
 $event->trigger();
 
-if ($action == 'downloadpdf') {
+if ($action == 'downloadsigninsheet') {
     $pdfoptions = new stdClass();
     $pdfoptions->orientation = $orientation;
     $pdfoptions->orderby = $orderby;
@@ -631,6 +631,9 @@ if (!$tableallbookings->is_downloading()) {
                     format_string($bookingoption->booking->settings->name)) . ' > ' .
                         format_string($titlestring), 4);
 
+    // We need this on top, so we have the action to download the sign-in-sheet.
+    echo '<input name="action" type="hidden" value="downloadsigninsheet">';
+
     $teachers = [];
 
     foreach ($bookingoption->teachers as $value) {
@@ -639,7 +642,7 @@ if (!$tableallbookings->is_downloading()) {
                 "{$value->firstname} {$value->lastname}");
     }
 
-    $isteacherofthisoption = booking_check_if_teacher($bookingoption->booking->settings);
+    $isteacherofthisoption = booking_check_if_teacher($bookingoption->settings);
 
     $linkst = '';
     if (has_capability('mod/booking:communicate', $context) ||
@@ -689,13 +692,12 @@ if (!$tableallbookings->is_downloading()) {
         }
     }
 
-    // Button to configure and download signin sheet.
+    // Button to download signin sheet.
     $actionbuttonstop .=
-        "<span>" . html_writer::link('#', '<i class="fa fa-list fa-fw" aria-hidden="true"></i>&nbsp;' .
-        get_string('sign_in_sheet_download', 'mod_booking'), [
-            'id' => 'sign_in_sheet_download',
-            'class' => 'btn btn-primary btn-sm mr-2',
-        ]) . "</span>";
+        '<button class="btn btn-primary btn-sm mr-2" id="downloadsigninsheet-top-btn">
+            <i class="fa fa-download fa-fw" aria-hidden="true"></i>&nbsp;' .
+            get_string('sign_in_sheet_download', 'mod_booking') .
+        '</button>';
 
     echo "<p>" .
              ($bookingoption->option->coursestarttime == 0 ? get_string('nodateset', 'booking') : userdate(
@@ -706,11 +708,6 @@ if (!$tableallbookings->is_downloading()) {
                     implode(', ', $teachers) . " {$linkst}</p>";
 
     echo "<div class='report-actionbuttons-top'>$actionbuttonstop</div>";
-
-    // Area to configure signin sheet (has to be right after top action buttons).
-    $signinform = new mod_booking\output\signin_downloadform($bookingoption, $baseurl);
-    $renderer = $PAGE->get_renderer('mod_booking');
-    echo $renderer->render_signin_pdfdownloadform($signinform);
 
     $links = [];
 
@@ -877,6 +874,9 @@ if (!$tableallbookings->is_downloading()) {
     $tableallbookings->build_table();
     $tableallbookings->finish_output();
 
+    // Area for bottom links.
+    echo "<div class='mod-booking-report-links-at-bottom mt-3'>";
+
     $onlyoneurl = new moodle_url('/mod/booking/view.php',
         [
             'id' => booking_option::get_cmid_from_optionid($optionid),
@@ -891,17 +891,22 @@ if (!$tableallbookings->is_downloading()) {
         $pollurl = trim($bookingoption->option->pollurl);
     }
     if (!empty($pollurl)) {
-        echo html_writer::link($pollurl, get_string('copypollurl', 'booking'),
+        echo html_writer::link($pollurl, '<i class="fa fa-link fa-fw" aria-hidden="true"></i>&nbsp;' .
+            get_string('copypollurl', 'booking'),
                 ['onclick' => 'copyToClipboard("' . $pollurl . '"); return false;']) .
                  ($bookingoption->option->pollsend ? ' &#x2713;' : '') . ' | ';
     }
 
-    echo html_writer::link($onlyoneurl, get_string('onlythisbookingoption', 'booking'), []);
-    if (!empty($bookingoption->option->shorturl)) {
-        echo " ({$bookingoption->option->shorturl})";
-    }
-    echo ' | ' . html_writer::link($onlyoneurl, get_string('copyonlythisbookingurl', 'booking'),
-            ['onclick' => 'copyToClipboard("' . htmlspecialchars_decode($onlyoneurl, ENT_QUOTES) . '"); return false;']);
+    echo html_writer::link($onlyoneurl, $OUTPUT->pix_icon('i/publish', get_string('onlythisbookingoption', 'mod_booking')) .
+        get_string('onlythisbookingoption', 'mod_booking'));
+
+    echo ' | ' . html_writer::link($onlyoneurl, '<i class="fa fa-link fa-fw" aria-hidden="true"></i>&nbsp;' .
+        get_string('copyonlythisbookingurl', 'booking'),
+        ['onclick' => 'copyToClipboard("' . htmlspecialchars_decode($onlyoneurl, ENT_QUOTES) . '"); return false;']);
+
+    echo ' | ' . html_writer::link("#", '<i class="fa fa-list fa-fw" aria-hidden="true"></i>&nbsp;' .
+        get_string('sign_in_sheet_configure', 'mod_booking'),
+        ['id' => 'sign_in_sheet_download']);
 
     if (!empty($bookingoption->booking->settings->customtemplateid)) {
         echo ' | ' . html_writer::link(new moodle_url('/mod/booking/report.php',
@@ -909,11 +914,18 @@ if (!$tableallbookings->is_downloading()) {
                         get_string('customdownloadreport', 'mod_booking'), ['target' => '_blank']);
     }
 
+    echo "</div>";
+
     echo "<script>
-  function copyToClipboard(text) {
-    window.prompt('" . get_string('copytoclipboard', 'booking') . "', text);
-  }
-</script>";
+    function copyToClipboard(text) {
+        window.prompt('" . get_string('copytoclipboard', 'booking') . "', text);
+    }
+    </script>";
+
+    // Area to configure signin sheet.
+    $signinform = new mod_booking\output\signin_downloadform($bookingoption, $baseurl);
+    $renderer = $PAGE->get_renderer('mod_booking');
+    echo $renderer->render_signin_pdfdownloadform($signinform);
 
     echo $OUTPUT->footer();
 } else {

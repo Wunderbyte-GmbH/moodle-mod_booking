@@ -24,6 +24,7 @@ Feature: In a booking create multi session options
       | activity | course | name       | intro                  | bookingmanager | eventtype | Default view for booking options | Activate e-mails (confirmations, notifications and more) | Booking option name  |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | All bookings                     | Yes                                                      | New option - Webinar |
     And I create booking option "New option - Multisession" in "My booking"
+    And I change viewport size to "1366x10000"
 
   @javascript
   Scenario: Boooking option: add multiple session dates by editing booking option

@@ -26,6 +26,7 @@ use mod_booking\booking;
 use mod_booking\elective;
 use mod_booking\output\eventslist;
 use mod_booking\semester;
+use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
 
 defined('MOODLE_INTERNAL') || die();
@@ -124,9 +125,14 @@ class mod_booking_mod_form extends moodleform_mod {
         // phpcs:ignore
         // $modulecontext = context_module::instance($this->_cm->id);
 
+        $isproversion = wb_payment::pro_version_is_activated();
+
         $mform = &$this->_form;
 
         $bookingid = (int)$this->_instance;
+        if (!empty($bookingid)) {
+            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($bookingid);
+        }
 
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
@@ -140,6 +146,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('select', 'instancetemplateid', get_string('populatefromtemplate', 'booking'),
             $bookininstancetemplates);
 
+        // Name of Booking instance.
         $mform->addElement('text', 'name', get_string('bookingname', 'booking'),
                 ['size' => '64']);
         if (!empty($CFG->formatstringstriptags)) {
@@ -150,14 +157,24 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
-        $sql = 'SELECT DISTINCT eventtype FROM {booking} ORDER BY eventtype';
-        $eventtypearray = $DB->get_fieldset_sql($sql);
+        $viewparamoptions = [MOD_BOOKING_VIEW_PARAM_LIST => get_string('viewparam:list', 'mod_booking')];
+        // Cards view is a PRO feature.
+        if ($isproversion) {
+            $viewparamoptions[MOD_BOOKING_VIEW_PARAM_CARDS] = get_string('viewparam:cards', 'mod_booking');
+        }
+        // Default view param (0...List view, 1...Cards view).
+        $mform->addElement('select', 'viewparam', get_string('viewparam', 'mod_booking'),
+            $viewparamoptions);
+        $mform->setType('viewparam', PARAM_INT);
+        $mform->setDefault('viewparam',
+            (int)booking::get_value_of_json_by_key($bookingid, 'viewparam') ?? MOD_BOOKING_VIEW_PARAM_LIST);
 
-        $eventstrings = [];
-        foreach ($eventtypearray as $item) {
-            $eventstrings[$item] = $item;
+        if (!$isproversion) {
+            $mform->addElement('html', '<div class="mb-3" style="margin-left: 13rem;">' . get_string('badge:pro', 'mod_booking') .
+                " <span class='small'>" . get_string('proversion:cardsview', 'mod_booking') . '</span></div>');
         }
 
+        // Choose semester.
         $semestersarray = semester::get_semesters_id_name_array();
         if (!empty($semestersarray)) {
             $semesteridoptions = [
@@ -170,6 +187,14 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->setDefault('semesterid', semester::get_semester_with_highest_id());
         }
 
+        // Event type.
+        $sql = 'SELECT DISTINCT eventtype FROM {booking} ORDER BY eventtype';
+        $eventtypearray = $DB->get_fieldset_sql($sql);
+
+        $eventstrings = [];
+        foreach ($eventtypearray as $item) {
+            $eventstrings[$item] = $item;
+        }
         $options = [
                 'noselectionstring' => get_string('donotselecteventtype', 'booking'),
                 'tags' => true,
@@ -221,9 +246,9 @@ class mod_booking_mod_form extends moodleform_mod {
                 ['subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 50, 'accepted_types' => ['*']]);
 
         $whichviewopts = [
+            'showall' => get_string('showallbookingoptions', 'mod_booking'),
             'mybooking' => get_string('showmybookingsonly', 'mod_booking'),
             'myoptions' => get_string('optionsiteach', 'mod_booking'),
-            'showall' => get_string('showallbookingoptions', 'mod_booking'),
             'showactive' => get_string('activebookingoptions', 'mod_booking'),
             'myinstitution' => get_string('myinstitution', 'mod_booking'),
             'showvisible' => get_string('visibleoptions', 'mod_booking'),
@@ -231,7 +256,7 @@ class mod_booking_mod_form extends moodleform_mod {
         ];
 
         // The "field of study" tab is a PRO feature.
-        if (wb_payment::pro_version_is_activated()) {
+        if ($isproversion) {
             $whichviewopts['showfieldofstudy'] = get_string('showmyfieldofstudyonly', 'mod_booking');
         }
 
@@ -291,7 +316,11 @@ class mod_booking_mod_form extends moodleform_mod {
         $listoncoursepageoptions[1] = get_string('showcoursenameandbutton', 'booking');
         $mform->addElement('select', 'showlistoncoursepage',
             get_string('showlistoncoursepage', 'booking'), $listoncoursepageoptions);
-        $mform->setDefault('showlistoncoursepage', 0); // List on course page is tuned off by default.
+        if (!empty($bookingsettings)) {
+            $mform->setDefault('showlistoncoursepage', (int)$bookingsettings->showlistoncoursepage);
+        } else {
+            $mform->setDefault('showlistoncoursepage', 0); // List on course page is turned off by default for new instances.
+        }
         $mform->addHelpButton('showlistoncoursepage', 'showlistoncoursepage', 'booking');
         $mform->setType('showlistoncoursepage', PARAM_INT);
 
@@ -497,7 +526,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addHelpButton('daystonotify2', 'daystonotify', 'booking');
 
         // PRO feature: Teacher notifications.
-        if (wb_payment::pro_version_is_activated()) {
+        if ($isproversion) {
             $mform->addElement('text', 'daystonotifyteachers', get_string('daystonotifyteachers', 'booking'));
             $mform->setDefault('daystonotifyteachers', 0);
             $mform->addHelpButton('daystonotifyteachers', 'daystonotify', 'booking');
@@ -547,7 +576,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addRule('bookingmanager', null, 'required', null, 'client');
 
         // PRO feature: Let the user choose between instance specific or global mail templates.
-        if (wb_payment::pro_version_is_activated()) {
+        if ($isproversion) {
             $mailtemplatessource = [];
             $mailtemplatessource[0] = get_string('mailtemplatesinstance', 'booking');
             $mailtemplatessource[1] = get_string('mailtemplatesglobal', 'booking');
@@ -621,7 +650,7 @@ class mod_booking_mod_form extends moodleform_mod {
         ];
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         // Check if PRO version is active.
-        if (wb_payment::pro_version_is_activated()) {
+        if ($isproversion) {
             $mform->addElement('editor', 'notifyemailteachers', get_string('notifyemailteachers', 'booking'),
                 null, $editoroptions);
             $mform->setDefault('notifyemailteachers', $default);
@@ -887,7 +916,7 @@ class mod_booking_mod_form extends moodleform_mod {
         }
         $mform->addElement('select', 'customtemplateid', get_string('customreporttemplate', 'booking'), $customreporttemplates);
 
-        if (wb_payment::pro_version_is_activated()) {
+        if ($isproversion) {
             $electivehandler = new elective();
             $electivehandler->instance_form_definition($mform);
         }

@@ -15,93 +15,68 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Price categories settings
+ * Overall report for all teachers within a booking instance.
  *
- * @package mod_booking
- * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
- * @author Georg Maißer, Bernhard Fischer
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     mod_booking
+ * @copyright   2022 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author      Bernhard Fischer
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_booking\form\optionformconfig_form;
+use mod_booking\singleton_service;
+use mod_booking\utils\wb_payment;
 
 require_once(__DIR__ . '/../../config.php');
-require_once($CFG->libdir . '/adminlib.php');
 
-global $DB, $OUTPUT;
+$cmid = required_param('cmid', PARAM_INT);
 
-// No guest autologin.
-require_login(0, false);
+$urlparams = [
+    'cmid' => $cmid,
+];
 
-admin_externalpage_setup('modbookingoptionformconfig');
-
-$settingsurl = new moodle_url('/admin/category.php', ['category' => 'modbookingfolder']);
-
-$pageurl = new moodle_url('/mod/booking/optionformconfig.php');
-$PAGE->set_url($pageurl);
-
-$PAGE->set_title(
-    format_string($SITE->shortname) . ': ' . get_string('optionformconfig', 'mod_booking')
-);
-
-// This is the actual configuration form.
-$mform = new optionformconfig_form($pageurl);
-
-if ($mform->is_cancelled()) {
-    // If cancelled, go back to general booking settings.
-    redirect($settingsurl);
-
-} else if ($data = $mform->get_data()) {
-
-    // TODO: Insert, delete or update data in DB.
-    foreach ($data as $key => $value) {
-
-        // Remove 'cfg_' part of the key.
-        $key = str_replace('cfg_', '', $key);
-
-        // Do not write empty keys into DB.
-        if (empty($key)) {
-            continue;
-        }
-
-        // Do not add special elements like "submitbutton".
-        if (!is_int($value)) {
-            continue;
-        }
-
-        $el = new stdClass;
-        $el->elementname = $key;
-        $el->active = $value;
-
-        if ($dbrecord = $DB->get_record('booking_optionformconfig', ['elementname' => $key])) {
-            // Record exists: Update.
-            $el->id = $dbrecord->id;
-            $DB->update_record('booking_optionformconfig', $el);
-        } else {
-            // New record: Insert.
-            $DB->insert_record('booking_optionformconfig', $el);
-        }
-    }
-
-    redirect($pageurl, get_string('optionformconfigsaved', 'mod_booking'), 5);
-
+if (!empty($cmid)) {
+    list($course, $cm) = get_course_and_cm_from_cmid($cmid, 'booking');
+    require_course_login($course, false, $cm);
+    $context = context_module::instance($cm->id);
+    $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+    $name = $bookingsettings->name;
+    // In Moodle 4.0+ we want to turn the instance description off on every page except view.php.
+    $PAGE->activityheader->disable();
+    $PAGE->set_context($context);
 } else {
-    echo $OUTPUT->header();
-    echo $OUTPUT->heading(new lang_string('optionformconfig', 'mod_booking'));
+    require_login();
+    $context = context_system::instance();
+    $name = get_config('bookingconfig', 'mod_booking');
+    require_login();
+    // Set page context.
+    $PAGE->set_context($context);
+    // Set page layout.
+    $PAGE->set_pagelayout('admin');
+}
 
-    // Dismissible alert.
-    echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">' .
-    get_string('optionformconfigsubtitle', 'mod_booking') .
+
+$baseurl = new moodle_url('/mod/booking/optionformconfig.php', $urlparams);
+$PAGE->set_url($baseurl);
+
+echo $OUTPUT->header();
+if (empty($name)) {
+    $name = get_string('global', 'mod_booking');
+}
+echo $OUTPUT->heading(get_string('optionformconfig', 'mod_booking') . " ($name)");
+// Dismissible alert containing the description of the report.
+echo '<div class="alert alert-info alert-dismissible fade show" role="alert">' .
+    get_string('optionformconfig_infotext', 'mod_booking') .
     '<button type="button" class="close" data-dismiss="alert" aria-label="Close">
     <span aria-hidden="true">&times;</span>
     </button>
-    </div>';
-
-    if (!$firstinstancefound = $DB->get_records('booking', null, '', '*', 0, 1)) {
-        echo html_writer::div(get_string('optionformconfig:nobooking', 'mod_booking'), 'alert alert-danger');
+</div>';
+if (wb_payment::pro_version_is_activated()) {
+    if (has_capability('mod/booking:editoptionformconfig', context_system::instance())) {
+        echo $OUTPUT->render_from_template('mod_booking/settings/optionformconfig', ['contextid' => $context->id]);
     } else {
-        $mform->display();
+        echo html_writer::div(get_string('nopermissiontoaccesspage', 'mod_booking'), 'alert alert-danger');
     }
-
-    echo $OUTPUT->footer();
+} else {
+    echo html_writer::div(get_string('infotext:prolicensenecessary', 'mod_booking'), 'alert alert-info');
 }
+echo $OUTPUT->footer();

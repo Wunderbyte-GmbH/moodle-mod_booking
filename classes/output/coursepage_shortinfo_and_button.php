@@ -85,7 +85,7 @@ class coursepage_shortinfo_and_button implements renderable, templatable {
 
         $this->coursename = $COURSE->fullname;
         $this->eventtype = $this->booking->settings->eventtype;
-        $this->buttonurl = $CFG->wwwroot . '/mod/booking/view.php?id=' . $cm->id . '&whichview=showactive';
+        $this->buttonurl = $CFG->wwwroot . '/mod/booking/view.php?id=' . $cm->id . '&whichview=showall';
         $this->shortinfo = $this->booking->settings->coursepageshortinfo;
     }
 

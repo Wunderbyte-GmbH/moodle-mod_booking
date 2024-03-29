@@ -267,6 +267,9 @@ class booking_option_settings {
     /** @var int $canceluntil each booking option can override the canceluntil date with its own date */
     public $canceluntil = 0;
 
+    /** @var int $waitforconfirmation Only books to waitinglist and manually confirm every booking. */
+    public $waitforconfirmation = 0;
+
     /** @var int $useprice flag that indicates if we use price or not */
     public $useprice = null;
 
@@ -320,11 +323,27 @@ class booking_option_settings {
     private function set_values(int $optionid, object $dbrecord = null) {
         global $DB;
 
+        if (empty($optionid)) {
+            return;
+        }
+
         // If we don't get the cached object, we have to fetch it here.
         if ($dbrecord === null) {
 
-            // At this point, we don't now anything about any other context, so we get system.
-            $context = context_system::instance();
+            $params['id'] = $optionid;
+            $sql = "SELECT cm.id
+                    FROM {booking_options} bo
+                    JOIN {course_modules} cm ON bo.bookingid=cm.instance
+                    JOIN {modules} m ON m.id=cm.module
+                    WHERE m.name='booking'
+                    AND bo.id=:id";
+            $cmid = $DB->get_field_sql($sql, $params);
+
+            if ($cmid) {
+                $context = context_module::instance($cmid);
+            } else {
+                $context = context_system::instance();
+            }
 
             list($select, $from, $where, $params) = booking::get_options_filter_sql(null, 1, null, '*',
                 $context, [], ['id' => $optionid]);
@@ -679,9 +698,8 @@ class booking_option_settings {
      * @return string
      */
     public function render_list_of_teachers() {
-        global $PAGE;
+        global $OUTPUT;
 
-        $output = $PAGE->get_renderer('mod_booking');
         $renderedlistofteachers = '';
 
         if (empty($this->teachers)) {
@@ -695,7 +713,8 @@ class booking_option_settings {
             $data['teachers'][] = $t;
         }
 
-        $renderedlistofteachers = $output->render_bookingoption_description_teachers($data);
+        $renderedlistofteachers =
+            $OUTPUT->render_from_template('mod_booking/bookingoption_description_teachers', $data);
 
         return $renderedlistofteachers;
     }
@@ -959,10 +978,18 @@ class booking_option_settings {
                 $this->jsonobject->useprice = $this->useprice;
                 $dbrecord->useprice = $this->useprice;
             }
+
+            // Useprice flag indicates if the booking option uses a price.
+            if (!empty($this->jsonobject->waitforconfirmation)) {
+                $this->waitforconfirmation = (int)$this->jsonobject->waitforconfirmation;
+                $this->jsonobject->waitforconfirmation = $this->waitforconfirmation;
+                $dbrecord->waitforconfirmation = $this->waitforconfirmation;
+            }
         } else {
             $this->boactions = $dbrecord->boactions ?? null;
             $this->canceluntil = $dbrecord->canceluntil ?? 0;
             $this->useprice = $dbrecord->useprice ?? null;
+            $this->waitforconfirmation = $dbrecord->waitforconfirmation ?? 0;
             $this->jsonobject = $dbrecord->jsonobject ?? null;
         }
     }

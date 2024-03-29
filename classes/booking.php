@@ -24,6 +24,7 @@
 
 namespace mod_booking;
 
+use cache_helper;
 use course_modinfo;
 use html_writer;
 use local_entities\local\entities\entitydate;
@@ -1074,10 +1075,12 @@ class booking {
                 $where .= " AND ( ";
                 $orstring = [];
 
+                // TODO: This could be replaced with in or equal, but not sure of if its worth it.
                 foreach ($value as $arrayvalue) {
 
-                    if (gettype($arrayvalue) == 'integer') {
-                        $orstring[] = " $key = $arrayvalue ";
+                    if (is_numeric($arrayvalue)) {
+                        $number = (float)$arrayvalue;
+                        $orstring[] = " $key = $number ";
                     } else {
                         // Be sure to have a lower key string.
                         $paramsvaluekey = "param";
@@ -1446,7 +1449,7 @@ class booking {
      * A helper class to add data to the json of a booking instance.
      *
      * @param stdClass $data reference to a data object containing the json key
-     * @param string $key - for example: "disablecancel"
+     * @param string $key - for example: "disablecancel", "viewparam"...
      * @param int|string|stdClass|array|null $value - for example: 1
      */
     public static function add_data_to_json(stdClass &$data, string $key, $value) {
@@ -1467,7 +1470,7 @@ class booking {
      * A helper class to get the value of a certain key stored in the json DB field of a booking instance.
      *
      * @param int $bookingid booking instance id - do not confuse with cmid!
-     * @param string $key - the key to remove, for example: "disablecancel"
+     * @param string $key - the key to remove, for example: "disablecancel", "viewparam"...
      * @return mixed|null the value found, false if nothing found
      */
     public static function get_value_of_json_by_key(int $bookingid, string $key) {
@@ -1497,6 +1500,7 @@ class booking {
             'introformat',
             'customtemplateid',
             'timemodified',
+            'json', // Changes in JSON are currently not supported.
         ];
 
         $keyslocalization = [
@@ -1553,6 +1557,32 @@ class booking {
             return $returnarry;
         } else {
             return [];
+        }
+    }
+
+    /**
+     * Helper function to purge all caches for a booking instance.
+     * @param int $cmid
+     * @param bool $withsemesters
+     * @param bool $withencodedtables
+     * @param bool $destroysingleton
+     */
+    public static function purge_cache_for_booking_instance_by_cmid(int $cmid, bool $withsemesters = true,
+        bool $withencodedtables = true, bool $destroysingleton = true) {
+        cache_helper::invalidate_by_event('setbackbookinginstances', [$cmid]);
+        cache_helper::purge_by_event('setbackoptionsettings');
+        cache_helper::purge_by_event('setbackoptionstable');
+        cache_helper::purge_by_event('setbackeventlogtable');
+        if ($withsemesters) {
+            cache_helper::purge_by_event('setbacksemesters');
+        }
+        if ($withencodedtables) {
+            // Wunderbyte table cache.
+            cache_helper::purge_by_event('setbackencodedtables');
+        }
+        if ($destroysingleton) {
+            // Make sure, we destroy singletons too.
+            singleton_service::destroy_booking_singleton_by_cmid($cmid);
         }
     }
 }

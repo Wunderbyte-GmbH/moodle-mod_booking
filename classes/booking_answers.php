@@ -121,13 +121,18 @@ class booking_answers {
             ORDER BY ba.timecreated ASC"; */
 
             $sql = "SELECT
-                ba.id as baid, ba.userid as id, ba.userid,
-                ba.waitinglist, ba.completed,
-                ba.timecreated, ba.optionid
+                ba.id as baid,
+                ba.userid as id,
+                ba.userid,
+                ba.waitinglist,
+                ba.completed,
+                ba.timemodified,
+                ba.optionid,
+                ba.timecreated
             FROM {booking_answers} ba
             WHERE ba.optionid = :optionid
             AND ba.waitinglist < 5
-            ORDER BY ba.timecreated ASC";
+            ORDER BY ba.timemodified ASC";
 
             $answers = $DB->get_records_sql($sql, $params);
 
@@ -309,6 +314,25 @@ class booking_answers {
     }
 
     /**
+     * Returns place on waiting list of user.
+     * -1 if not on list.
+     * @param int $userid
+     * @return int
+     */
+    public function return_place_on_waitinglist(int $userid) {
+
+        $index = 0;
+        foreach ($this->usersonwaitinglist as $key => $user) {
+            $index++;
+            if ($userid == $key) {
+                return $index;
+            }
+        }
+
+        return -1;
+    }
+
+    /**
      * Verify if a user is actually on the booked list or not.
      *
      * @param int $userid
@@ -344,16 +368,30 @@ class booking_answers {
     public static function number_of_active_bookings_for_user(int $userid, int $bookingid) {
         global $DB;
 
-        $params = ['statuswaitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
-                   'bookingid' => $bookingid,
-                   'userid' => $userid,
-                    ];
+        $params = [
+            'statuswaitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+            'bookingid' => $bookingid,
+            'userid' => $userid,
+        ];
 
-        $sql = "SELECT COUNT(*)
-                FROM {booking_answers}
-                WHERE waitinglist <= :statuswaitinglist
-                AND bookingid = :bookingid
-                AND userid = :userid";
+        $sql = "SELECT COUNT(ba.id) cnt
+                FROM {booking_answers} ba
+                JOIN {booking_options} bo
+                ON bo.id = ba.optionid
+                WHERE ba.waitinglist <= :statuswaitinglist
+                AND ba.bookingid = :bookingid
+                AND ba.userid = :userid";
+
+        if (get_config('booking', 'maxperuserdontcountpassed')) {
+            $params['now'] = time();
+            $sql .= " AND (bo.courseendtime > :now OR bo.courseendtime IS NULL OR bo.courseendtime = 0)";
+        }
+        if (get_config('booking', 'maxperuserdontcountcompleted')) {
+            $sql .= " AND ba.completed = 0 AND ba.status NOT IN (1,6)";
+        }
+        if (get_config('booking', 'maxperuserdontcountnoshow')) {
+            $sql .= " AND ba.status <> 3";
+        }
 
         return $DB->count_records_sql($sql, $params);
     }
@@ -464,5 +502,59 @@ class booking_answers {
         } else {
             return false;
         }
+    }
+
+    /**
+     * Function to return the number of active bookings of a user.
+     * Optionally for booking opitons with a given teacher.
+     * @param int $userid
+     * @param int $teacherid
+     * @return int
+     * @throws dml_exception
+     */
+    public static function number_actively_booked(int $userid, int $teacherid = 0) {
+
+        global $DB;
+
+        $params = [
+            'userid' => $userid,
+            'teacherid' => $teacherid,
+        ];
+
+        $where = !empty($teacherid) ? " AND bt.userid = :teacherid " : "";
+
+        $sql = "SELECT COUNT(ba.id)
+                FROM {booking_answers} ba
+                JOIN {booking_teachers} bt ON ba.optionid=bt.optionid
+                WHERE ba.waitinglist = 0
+                AND ba.userid = :userid
+                $where";
+
+        return $DB->count_records_sql($sql, $params);
+    }
+
+    /**
+     * Returns the sql to fetch booked users with a certain status.
+     * Orderd by timemodified, to be able to sort them.
+     * @param int $optionid
+     * @param int $statusparam
+     * @return (string|int[])[]
+     */
+    public static function return_sql_for_booked_users(int $optionid, int $statusparam) {
+
+        $fields = 's1.*';
+        $from = " (SELECT ba.id, u.id as userid, u.firstname, u.lastname, u.email, ba.timemodified, ba.timecreated, ba.optionid
+                    FROM {booking_answers} ba
+                    JOIN {user} u ON ba.userid = u.id
+                    WHERE ba.optionid=:optionid AND ba.waitinglist=:statusparam
+                    ORDER BY ba.timemodified, ba.id ASC
+                    ) s1";
+        $where = '1=1';
+        $params = [
+            'optionid' => $optionid,
+            'statusparam' => $statusparam,
+        ];
+
+        return [$fields, $from, $where, $params];
     }
 }

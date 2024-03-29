@@ -24,23 +24,9 @@ Feature: In a booking instance create booking options
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   |
 
   @javascript
-  Scenario: Create booking instance as teacher
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    And I add a "Booking" to section "0"
-    And I set the following fields to these values:
-      | Booking instance name            | Test booking                                           |
-      | Event type                       | Webinar                                                |
-      | Booking text                     | This is the description for the test booking instance. |
-      | Organizer name                   | Teacher 1                                              |
-      | Sort by                          | Name (without prefix)                                  |
-      | Default view for booking options | All booking options                                    |
-    And I press "Save and return to course"
-    Then I should see "Test booking"
-
-  @javascript
   Scenario: Create booking option as a teacher, see it on activity page and book it as a student
     Given I am on the "My booking" Activity page logged in as teacher1
+    And I change viewport size to "1366x10000"
     And I follow "New booking option"
     And I set the following fields to these values:
       | Booking option name | Test option - Webinar |

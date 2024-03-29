@@ -214,11 +214,12 @@ class dates {
 
             if (
                 (!empty($defaultvalues->starttime) && !empty($defaultvalues->endtime))
-                || (!empty($defaultvalues->coursestarttime) && !empty($defaultvalues->courseendtime))) {
+                || (!empty($defaultvalues->coursestarttime) && !empty($defaultvalues->courseendtime))
+                || (!empty($defaultvalues->startdate) && !empty($defaultvalues->enddate))) {
 
                 // If there is no dayofweektime, we might have a single coursestartdate and courseeneddate.
-                $starttime = $defaultvalues->starttime ?? $defaultvalues->coursestarttime;
-                $endtime = $defaultvalues->endtime ?? $defaultvalues->courseendtime;
+                $starttime = $defaultvalues->starttime ?? $defaultvalues->startdate ?? $defaultvalues->coursestarttime;
+                $endtime = $defaultvalues->endtime ?? $defaultvalues->enddate ?? $defaultvalues->courseendtime;
 
                 $defaultvalues->{MOD_BOOKING_FORM_OPTIONDATEID . 0} = 0;
                 $defaultvalues->{MOD_BOOKING_FORM_COURSESTARTTIME . 0} = strtotime($starttime);
@@ -651,7 +652,7 @@ class dates {
             $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
             $entityid = $date["entityid"] ?? 0;
             $entityid = (int)$entityid;
-            $entitieselements = $erhandler->instance_form_definition($mform, $idx, 'noheader', null, null, $entityid);
+            $entitieselements = $erhandler->instance_form_definition($mform, $idx, false, null, null, $entityid);
             $elements = array_merge($elements, $entitieselements);
         }
 

@@ -25,6 +25,7 @@ Feature: In a booking create a template
     And the following config values are set as admin:
       | config      | value         |
       | texteditors | atto,textarea |
+    And I change viewport size to "1366x10000"
 
   @javascript
   Scenario: Booking option template: create one and use it to create new option

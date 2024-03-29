@@ -51,10 +51,18 @@ class mod_booking_sendmessage_form extends moodleform {
         $mform->addRule('subject', null, 'required', null, 'client');
         $mform->setType('subject', PARAM_TEXT);
 
-        $mform->addElement('textarea', 'message', get_string('messagetext', 'booking'),
-                'wrap="virtual" rows="20" cols="50"');
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $mform->addElement('textarea', 'message', get_string('messagetext', 'booking'),
+                'wrap="virtual" rows="20" cols="50"'); */
+        $mform->addElement('editor', 'message',
+        get_string('message'), ['rows' => 20, 'cols' => 50],
+        [
+            'subdirs' => 0,
+            'maxfiles' => 0,
+            'context' => context_system::instance(),
+        ]);
         $mform->addRule('message', null, 'required', null, 'client');
-        $mform->setType('message', PARAM_TEXT);
+        $mform->setType('message', PARAM_RAW);
 
         $mform->addElement('hidden', 'optionid');
         $mform->setType('optionid', PARAM_INT);

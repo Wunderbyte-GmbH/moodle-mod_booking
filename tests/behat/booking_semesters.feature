@@ -32,6 +32,7 @@ Feature: As a teacher - configure and use booking's semesters feature.
     And the following config values are set as admin:
       | config      | value         |
       | texteditors | atto,textarea |
+    And I change viewport size to "1366x10000"
 
   @javascript
   Scenario: Booking settings - change semester in booking option

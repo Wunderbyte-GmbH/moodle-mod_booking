@@ -31,6 +31,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
       | booking    | text                                         | course | description  | datesmarker | semester | dayofweek | dayofweektime    | dayofweekstarttime | dayofweekendtime |
       | My booking | Price formula option - Dates In timeslot     | C1     | Option deskr | 1           | nextmay  | Mon       | Mon, 18:00-20:00 | 1800               | 2000             |
       | My booking | Price formula option - Dates NOT in timeslot | C1     | Option deskr | 1           | nextmay  | Tue       | Tue, 9:00-11:00  | 900                | 1100             |
+    And I change viewport size to "1366x10000"
 
   @javascript
   Scenario: Booking price formula - option dates not in timeslot of the price formula

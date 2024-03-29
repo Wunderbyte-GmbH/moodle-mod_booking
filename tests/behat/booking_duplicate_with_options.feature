@@ -34,6 +34,7 @@ Feature: In a booking create booking option with multiple custom options
       | 1        | default       | Base Price    | 70           | 0        | 1                 |
       | 2        | specialprice  | Special Price | 60           | 0        | 2                 |
     And I create booking option "New option - duplication source" in "My booking"
+    And I change viewport size to "1366x10000"
 
   @javascript
   Scenario: Simple duplication of booking option
@@ -64,18 +65,19 @@ Feature: In a booking create booking option with multiple custom options
     And I press "Add date"
     And I wait "1" seconds
     And I set the following fields to these values:
-      | coursestarttime_1[day]    | ##tomorrow##%d##   |
-      | coursestarttime_1[month]  | ##tomorrow##%B##   |
-      | coursestarttime_1[year]   | ##tomorrow##%Y##   |
+      | coursestarttime_1[day]    | 1                  |
+      | coursestarttime_1[month]  | March              |
+      | coursestarttime_1[year]   | ##today##%Y##      |
       | coursestarttime_1[hour]   | 09                 |
       | coursestarttime_1[minute] | 00                 |
-      | courseendtime_1[day]      | ##tomorrow##%d##   |
-      | courseendtime_1[month]    | ##tomorrow##%B##   |
+      | courseendtime_1[day]      | 2                  |
+      | courseendtime_1[month]    | March              |
       | courseendtime_1[year]     | ## + 1 year ##%Y## |
       | courseendtime_1[hour]     | 18                 |
       | courseendtime_1[minute]   | 00                 |
       | daystonotify_1 | 1 |
     And I set the field "Add to course calendar" to "Add to calendar (visible only to course participants)"
+    ##And I set the field "Institution" to "TNMU" ## Error Other element would receive the click:
     And I set the field "Assign teachers:" to "Teacher 1"
     And I wait "1" seconds
     And I set the field "Only book with price" to "checked"
@@ -104,29 +106,32 @@ Feature: In a booking create booking option with multiple custom options
     And I wait until the page is ready
     And I expand all fieldsets
     And I should see "Teacher 1" in the "//div[contains(@id, 'id_bookingoptionteachers_')]//span[contains(@class, 'user-suggestion')]" "xpath_element"
+    And I should see "March" in the "//span[@aria-controls='booking_optiondate_collapse1']" "xpath_element"
     And the following fields match these values:
       | Prefix                                | MIB                           |
       | Booking option name                   | Topic: Statistics - Copy 1    |
       | Description                           | Class om Statistics           |
+      ##| Institution                           | TNMU                          |
       | Internal annotation                   | Statistics for medics         |
       | Max. number of participants           | 10                            |
       | Max. number of places on waiting list | 5                             |
       | Min. number of participants           | 3                             |
       | Teachers poll url                     | https://google.com            |
-      | coursestarttime_1[day]                | ##tomorrow##%d##              |
-      | coursestarttime_1[month]              | ##tomorrow##%B##              |
-      | coursestarttime_1[year]               | ##tomorrow##%Y##              |
-      | coursestarttime_1[hour]               | 09                            |
-      | coursestarttime_1[minute]             | 00                            |
-      | courseendtime_1[day]                  | ##tomorrow##%d##              |
-      | courseendtime_1[month]                | ##tomorrow##%B##              |
-      | courseendtime_1[year]                 | ## + 1 year ## %Y ##          |
-      | courseendtime_1[hour]                 | 18                            |
-      | courseendtime_1[minute]               | 00                            |
-      | daystonotify_1                        | 1                             |
       | pricegroup_default[bookingprice_default]           | 75               |
       | pricegroup_specialprice[bookingprice_specialprice] | 65               |
       | customfield_spt1                      | tenis                         |
       | Notification message                  | Advanced notification message |
       | Before booked                         | Before booked message         |
       | After booked                          | After booked message          |
+      | coursestarttime_1[day]                | 1                             |
+      | coursestarttime_1[month]              | March                         |
+      | coursestarttime_1[year]               | ##today##%Y##                 |
+      | coursestarttime_1[hour]               | 09                            |
+      | coursestarttime_1[minute]             | 00                            |
+      ##| courseendtime_1[day]                 | ##today##%d##                 |
+      | courseendtime_1[day]                  | 2                             |
+      | courseendtime_1[month]                | March                         |
+      | courseendtime_1[year]                 | ## + 1 year ## %Y ##          |
+      | courseendtime_1[hour]                 | 18                            |
+      | courseendtime_1[minute]               | 00                            |
+      | daystonotify_1                        | 1                             |

@@ -79,7 +79,9 @@ class bookingclosingtime extends field_base {
      * This is an array of incompatible field ids.
      * @var array
      */
-    public static $incompatiblefields = [];
+    public static $incompatiblefields = [
+        MOD_BOOKING_OPTION_FIELD_EASY_BOOKINGCLOSINGTIME,
+    ];
 
     /**
      * This function interprets the value from the form and, if useful...

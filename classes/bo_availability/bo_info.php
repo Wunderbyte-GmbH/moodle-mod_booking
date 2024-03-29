@@ -27,6 +27,7 @@ namespace mod_booking\bo_availability;
 use context_module;
 use context_system;
 use local_shopping_cart\shopping_cart;
+use mod_booking\booking;
 use mod_booking\booking_bookit;
 use mod_booking\booking_option_settings;
 use mod_booking\output\bookingoption_description;
@@ -112,9 +113,11 @@ class bo_info {
      * @param int $optionid
      * @param int $userid If set, specifies a different user ID to check availability for
      * @param bool $hardblock
+     * @param bool $noblockingpages
      * @return array [isavailable, description]
      */
-    public function is_available(int $optionid = null, int $userid = 0, bool $hardblock = false): array {
+    public function is_available(int $optionid = null, int $userid = 0, bool $hardblock = false,
+        bool $noblockingpages = false): array {
 
         if (!$optionid) {
             $optionid = $this->optionid;
@@ -123,22 +126,23 @@ class bo_info {
         $results = $this->get_condition_results($optionid, $userid, $hardblock);
 
         if (count($results) === 0) {
-            $id = 0;
+            $id = MOD_BOOKING_BO_COND_CONFIRMATION; // This is the lowest id.
             $isavailable = true;
             $description = '';
         } else {
-            $id = 0;
+            $id = MOD_BOOKING_BO_COND_CONFIRMATION;
             $isavailable = false;
             foreach ($results as $result) {
                 // If no Id has been defined or if id is higher, we take the descpription to return.
-                if ($id === 0 || $result['id'] > $id) {
-                    if ($result['id'] == MOD_BOOKING_BO_COND_NOTIFYMELIST) {
-                        // Notifyme list itself is no valid reason for is_available.
-                        // Instead, we want to know if it's fully booked for example.
-                        continue;
-                    }
+                if ($id === MOD_BOOKING_BO_COND_CONFIRMATION || $result['id'] > $id) {
                     if (has_capability('local/shopping_cart:cashier', context_system::instance()) &&
                         $result['button'] == MOD_BOOKING_BO_BUTTON_MYALERT) {
+                        continue;
+                    }
+                    // Pages should not block the "allow_add_item_to_cart" function if $noblockingpages is true.
+                    if ($noblockingpages &&
+                        ($result['insertpage'] == MOD_BOOKING_BO_PREPAGE_PREBOOK ||
+                        $result['insertpage'] == MOD_BOOKING_BO_PREPAGE_POSTBOOK)) {
                         continue;
                     }
                     $description = $result['description'];
@@ -178,7 +182,10 @@ class bo_info {
 
             // If the json is not valid, we throw an error.
             if (!is_array($availabilityarray) && (!$availabilityarray || empty($availabilityarray))) {
-                throw new moodle_exception('availabilityjsonerror', 'mod_booking');
+                throw new moodle_exception(
+                    "availabilityjsonerror for optionid $optionid with availabilityjson $settings->availability",
+                    'mod_booking'
+                );
             }
 
             $conditions = array_merge($conditions, $availabilityarray);
@@ -383,21 +390,8 @@ class bo_info {
      */
     public static function add_conditions_to_mform(MoodleQuickForm &$mform, int $optionid, $moodleform = null) {
         global $DB;
-        // Workaround: Only show, if it is not turned off in the option form config.
-        // We currently need this, because hideIf does not work with headers.
-        // In expert mode, we always show everything.
-        $showconditionsheader = true;
-        $formmode = get_user_preferences('optionform_mode');
-        if ($formmode !== 'expert') {
-            $cfgconditionsheader = $DB->get_field('booking_optionformconfig', 'active',
-                ['elementname' => 'availabilityconditions']);
-            if ($cfgconditionsheader === "0") {
-                $showconditionsheader = false;
-            }
-        }
-        if ($showconditionsheader) {
-            $mform->addElement('header', 'availabilityconditions', get_string('availabilityconditionsheader', 'mod_booking'));
-        }
+
+        $mform->addElement('header', 'availabilityconditions', get_string('availabilityconditionsheader', 'mod_booking'));
 
         $conditions = self::get_conditions(MOD_BOOKING_CONDPARAM_MFORM_ONLY);
 
@@ -435,36 +429,34 @@ class bo_info {
         $optionid = $fromform->id ?? 0;
         $arrayforjson = [];
 
-        if (!empty($optionid) && $optionid > 0) {
-            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-            $existingconditions = [];
-            if (!empty($settings->availability)) {
-                $existingconditions = json_decode($settings->availability);
-            }
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $existingconditions = [];
+        if (!empty($settings->availability)) {
+            $existingconditions = json_decode($settings->availability);
+        }
 
-            $conditions = self::get_conditions(MOD_BOOKING_CONDPARAM_JSON_ONLY);
+        $conditions = self::get_conditions(MOD_BOOKING_CONDPARAM_JSON_ONLY);
 
-            foreach ($conditions as $condition) {
-                if (!empty($condition)) {
-                    $fullclassname = get_class($condition); // With namespace.
-                    $classnameparts = explode('\\', $fullclassname);
-                    $shortclassname = end($classnameparts); // Without namespace.
-                    $key = "bo_cond_{$shortclassname}_restrict";
+        foreach ($conditions as $condition) {
+            if (!empty($condition)) {
+                $fullclassname = get_class($condition); // With namespace.
+                $classnameparts = explode('\\', $fullclassname);
+                $shortclassname = end($classnameparts); // Without namespace.
+                $key = "bo_cond_{$shortclassname}_restrict";
 
-                    if (isset($fromform->{$key})) {
-                        // For each condition, add the appropriate form fields.
-                        $conditionobject = $condition->get_condition_object_for_json($fromform);
-                        if (!empty($conditionobject->class)) {
-                            $arrayforjson[] = $conditionobject;
-                        }
-                        continue;
+                if (isset($fromform->{$key})) {
+                    // For each condition, add the appropriate form fields.
+                    $conditionobject = $condition->get_condition_object_for_json($fromform);
+                    if (!empty($conditionobject->class)) {
+                        $arrayforjson[] = $conditionobject;
                     }
+                    continue;
+                }
 
-                    if (!empty($existingconditions)) {
-                        foreach ($existingconditions as $existingcondition) {
-                            if ($existingcondition->id == $condition->id) {
-                                $arrayforjson[] = $existingcondition;
-                            }
+                if (!empty($existingconditions)) {
+                    foreach ($existingconditions as $existingcondition) {
+                        if ($existingcondition->id == $condition->id) {
+                            $arrayforjson[] = $existingcondition;
                         }
                     }
                 }
@@ -978,6 +970,15 @@ class bo_info {
         $continuelabel = get_string('continue');
         $continuelink = '#';
 
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $viewparam = booking::get_value_of_json_by_key($settings->bookingid, 'viewparam');
+        $turnoffmodals = 0; // By default, we use modals.
+        if ($viewparam == MOD_BOOKING_VIEW_PARAM_LIST) {
+            // Only if we use list view, we can use inline modals.
+            // So only in this case, we need to check the config setting.
+            $turnoffmodals = get_config('booking', 'turnoffmodals');
+        }
+
         if ($conditions[$pagenumber]['id'] === MOD_BOOKING_BO_COND_CONFIRMATION) {
             // We need to decide if we want to show on the last page a "go to checkout" button.
             if (self::has_price_set($results)) {
@@ -994,7 +995,7 @@ class bo_info {
                             $continuelink = $url->out();
                             $continuebutton = true;
                         } else {
-                            $continueaction = empty(get_config('booking', 'turnoffmodals')) ? 'closemodal' : 'closeinline';
+                            $continueaction = empty($turnoffmodals) ? 'closemodal' : 'closeinline';
                             $continuelabel = get_string('close', 'mod_booking');
                             $continuelink = "#checkout";
                             $continuebutton = true;
@@ -1003,13 +1004,13 @@ class bo_info {
                         break;
                     default:
                         $continuebutton = true;
-                        $continueaction = empty(get_config('booking', 'turnoffmodals')) ? 'closemodal' : 'closeinline';
+                        $continueaction = empty($turnoffmodals) ? 'closemodal' : 'closeinline';
                         $continuelabel = get_string('close', 'mod_booking');
                         break;
                 }
             } else {
                 $continuebutton = true;
-                $continueaction = empty(get_config('booking', 'turnoffmodals')) ? 'closemodal' : 'closeinline';
+                $continueaction = empty($turnoffmodals) ? 'closemodal' : 'closeinline';
                 $continuelabel = get_string('close', 'mod_booking');
             }
         }

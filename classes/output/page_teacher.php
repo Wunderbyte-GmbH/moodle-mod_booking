@@ -26,6 +26,7 @@ namespace mod_booking\output;
 
 use context_system;
 use context_module;
+use mod_booking\booking_answers;
 use mod_booking\singleton_service;
 use moodle_url;
 use renderer_base;
@@ -91,7 +92,7 @@ class page_teacher implements renderable, templatable {
      * @return array
      */
     public function export_for_template(renderer_base $output) {
-        global $PAGE, $CFG;
+        global $PAGE, $CFG, $USER;
 
         $context = context_system::instance();
         if (!isset($PAGE->context)) {
@@ -126,9 +127,11 @@ class page_teacher implements renderable, templatable {
         // If the plugin setting to show all teacher e-mails (teachersshowemails) is turned on...
         // ... then teacher e-mails will always be shown to anyone.
         if (!empty($this->teacher->email) &&
-            ($this->teacher->maildisplay == 1 ||
-                has_capability('mod/booking:updatebooking', $context) ||
-                get_config('booking', 'teachersshowemails')
+            ($this->teacher->maildisplay == 1
+                || has_capability('mod/booking:updatebooking', $context)
+                || get_config('booking', 'teachersshowemails')
+                || (get_config('booking', 'bookedteachersshowemails')
+                    && (booking_answers::number_actively_booked($USER->id, $this->teacher->id) > 0))
             )) {
             $returnarray['teacher']['email'] = $this->teacher->email;
         }
@@ -174,6 +177,23 @@ class page_teacher implements renderable, templatable {
         );
 
         $firsttable = true;
+
+        // This is a special setting for a special project. Only when this project is installed...
+        // ... the set semester will get precedence over all the other ones.
+        if (class_exists('local_musi\observer')) {
+
+            $firstbookingcmid = get_config('local_musi', 'shortcodessetinstance');
+
+            foreach ($bookingidrecords as $key => $bookingidrecord) {
+                $booking = singleton_service::get_instance_of_booking_by_bookingid($bookingidrecord->bookingid);
+                if ($firstbookingcmid == $booking->cmid) {
+                    $record = $bookingidrecord;
+                    unset($bookingidrecords[$key]);
+                    array_unshift($bookingidrecords, $record);
+                }
+            }
+        }
+
         foreach ($bookingidrecords as $bookingidrecord) {
 
             $bookingid = $bookingidrecord->bookingid;
@@ -190,10 +210,10 @@ class page_teacher implements renderable, templatable {
                 }
 
                 // We load only the first table directly, the other ones lazy.
-                $lazy = $firsttable ? '' : ' lazy="1" ';
+                $lazy = $firsttable ? false : true;
 
-                $view = new view($booking->cmid);
-                $out = $view->get_rendered_table_for_teacher($teacherid, false, false, false);
+                $view = new view($booking->cmid, 'shownothing', 0, true);
+                $out = $view->get_rendered_table_for_teacher($teacherid, false, false, false, $lazy);
 
                 $class = $firsttable ? 'active show' : '';
                 $firsttable = false;
@@ -208,31 +228,17 @@ class page_teacher implements renderable, templatable {
                     'class' => $class,
                 ];
 
-                // This is a special setting for a special project. Only when this project is installed...
-                // ... the set semester will get precedence over all the other ones.
-                if (class_exists('local_musi\observer')
-                    && ($booking->cmid == get_config('local_musi', 'shortcodessetinstance'))) {
-
-                    // If there is already a table in our array, we make it inactive.
-                    if (isset($teacheroptiontables[0])) {
-                        $teacheroptiontables[0]['class'] = '';
+                 // Todo: Only show booking options from instance that is available.
+                // Right now, we don't use it. needs a setting.
+                if (1 == 2) {
+                    $context = context_module::instance($booking->cmid);
+                    if (!has_capability('mod/booking:choose', $context)) {
+                        continue;
                     }
-                    $newtable['class'] = 'active show';
-                    array_unshift($teacheroptiontables, $newtable);
-
-                } else {
-
-                    // Todo: Only show booking options from instance that is available.
-                    // Right now, we don't use it. needs a setting.
-                    if (1 == 2) {
-                        $context = context_module::instance($booking->cmid);
-                        if (!has_capability('mod/booking:choose', $context)) {
-                            continue;
-                        }
-                    }
-
-                    $teacheroptiontables[] = $newtable;
                 }
+
+                $teacheroptiontables[] = $newtable;
+
             }
         }
 

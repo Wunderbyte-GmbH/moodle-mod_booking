@@ -36,6 +36,7 @@ use context_module;
 use dml_exception;
 use Exception;
 use mod_booking\price;
+use mod_booking\settings\optionformconfig\optionformconfig_info;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -64,7 +65,8 @@ class fields_info {
         $warnings = [];
         $error = [];
 
-        $classes = self::get_field_classes();
+        $context = context_module::instance($formdata->cmid);
+        $classes = self::get_field_classes($context->id);
 
         foreach ($classes as $classname) {
 
@@ -154,12 +156,20 @@ class fields_info {
      * Add all available fields in the right order.
      * @param MoodleQuickForm $mform
      * @param array $formdata
-     * @param array $optionformconfig
      * @return void
      */
-    public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array &$optionformconfig) {
+    public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata) {
 
-        $classes = self::get_field_classes();
+        if (!empty($formdata['cmid'])) {
+            $context = context_module::instance($formdata['cmid']);
+        } else if (!empty($formdata['optionid'])) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($formdata['optionid']);
+            $context = context_module::instance($settings->cmid);
+        } else {
+            throw new moodle_exception('fields_info.php: missing context in function instance_form_definition');
+        }
+
+        $classes = self::get_field_classes($context->id);
 
         foreach ($classes as $classname) {
 
@@ -168,7 +178,7 @@ class fields_info {
                 continue;
             }
 
-            $classname::instance_form_definition($mform, $formdata, $optionformconfig);
+            $classname::instance_form_definition($mform, $formdata, []);
         }
     }
 
@@ -181,7 +191,8 @@ class fields_info {
      */
     public static function validation(array $data, array $files, array &$errors) {
 
-        $classes = self::get_field_classes();
+        $context = context_module::instance($data['cmid']);
+        $classes = self::get_field_classes($context->id);
 
         foreach ($classes as $classname) {
 
@@ -203,7 +214,8 @@ class fields_info {
      */
     public static function save_fields_post(stdClass &$formdata, stdClass &$option, int $updateparam) {
 
-        $classes = self::get_field_classes(MOD_BOOKING_EXECUTION_POSTSAVE);
+        $context = context_module::instance($formdata->cmid);
+        $classes = self::get_field_classes($context->id, MOD_BOOKING_EXECUTION_POSTSAVE);
 
         foreach ($classes as $classname) {
 
@@ -233,7 +245,9 @@ class fields_info {
             $settings = new booking_option_settings(0);
         }
 
-        $classes = self::get_field_classes();
+        $cmid = $data->cmid ?? $settings->cmid ?? 0;
+        $context = context_module::instance($cmid);
+        $classes = self::get_field_classes($context->id);
 
         try {
             foreach ($classes as $classname) {
@@ -253,7 +267,6 @@ class fields_info {
             // We use this exit in the template class.
             $errormessage = $e->getMessage();
         }
-
         return $errormessage;
     }
 
@@ -265,7 +278,15 @@ class fields_info {
      */
     public static function definition_after_data(MoodleQuickForm &$mform, array &$formdata) {
 
-        $classes = self::get_field_classes();
+        if (!empty($formdata['cmid'])) {
+            $context = context_module::instance($formdata['cmid']);
+        } else if (!empty($formdata['optionid'])) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($formdata['optionid']);
+            $context = context_module::instance($settings->cmid);
+        } else {
+            throw new moodle_exception('formconfig.php: missing context in function instance_form_definition');
+        }
+        $classes = self::get_field_classes($context->id);
 
         foreach ($classes as $classname) {
 
@@ -280,22 +301,26 @@ class fields_info {
 
     /**
      * Get all classes function.
+     * This already filters classes for the given users and settings.
      * Save param allows to filter for all (default) or special save logic.
+     * @param int $contextid
      * @param int $save
      * @return array
      */
-    private static function get_field_classes(int $save = -1) {
-        $fields = core_component::get_component_classes_in_namespace(
-            "mod_booking",
-            'option\fields'
-        );
+    private static function get_field_classes(int $contextid, int $save = -1) {
+
+        // We get the fields directly as configured fields.
+
+        $capability = optionformconfig_info::return_capability_for_user($contextid);
+        $record = optionformconfig_info::return_configured_fields_for_capability($contextid, $capability);
+
+        $fields = json_decode($record['json']);
 
         $classes = [];
-        foreach (array_keys($fields) as $classname) {
+        $namespace = "mod_booking\\option\\fields\\";
+        foreach ($fields as $field) {
 
-            if (!self::check_field_for_user($classname)) {
-                continue;
-            }
+            $classname = $namespace . $field->classname;
 
             // We might only want postsave classes.
             if ($save === MOD_BOOKING_EXECUTION_POSTSAVE) {
@@ -309,72 +334,17 @@ class fields_info {
                     continue;
                 }
             }
-
-            $classes[$classname::$id] = $classname;
+            if (!empty($field->necessary) || !empty($field->checked)) {
+                $classes[$classname::$id] = $classname;
+            }
         }
-
-        ksort($classes);
 
         return $classes;
     }
 
     /**
-     * Check field for user applies only the classes for the context of the form.
-     * @param string $classname
-     * @return bool
-     */
-    private static function check_field_for_user(string $classname) {
-
-        global $OUTPUT, $PAGE;
-
-        try {
-            $cmid = $PAGE->cm->id;
-        } catch (Exception $e) {
-
-            // Hack alert: Forcing bootstrap_renderer to initiate moodle page.
-            $OUTPUT->header();
-        }
-
-        try {
-            if ($cm = $PAGE->cm ?? false) {
-                $cmid = $cm->id;
-                $modulecontext = context_module::instance($cmid);
-            } else {
-                $cmid = 0;
-            }
-        } catch (Exception $e) {
-
-            $cmid = 0;
-        }
-
-        // Necessary fields are the same for all.
-        if (in_array(MOD_BOOKING_OPTION_FIELD_NECESSARY, $classname::$fieldcategories)) {
-            return true;
-        }
-
-        if (empty($cmid) || has_capability('mod/booking:expertoptionform', $modulecontext)) {
-            // Standard fields only.
-            if (in_array(MOD_BOOKING_OPTION_FIELD_STANDARD, $classname::$fieldcategories)) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-
-            // Easy fields only.
-            // Standard fields only.
-            if (in_array(MOD_BOOKING_OPTION_FIELD_EASY, $classname::$fieldcategories)) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Ignore class.
+     * Ignore class only applies to importing mode.
+     * During import, forms are created differently then normally.
      * @param mixed $data
      * @param mixed $classname
      * @return bool
@@ -395,7 +365,6 @@ class fields_info {
             if (!in_array(MOD_BOOKING_OPTION_FIELD_NECESSARY, $classname::$fieldcategories)
                 && !isset($data->{$shortclassname})) {
 
-                // The custom field class is the only one which still needs to executed, as we dont.
                 if ($classname::$id === MOD_BOOKING_OPTION_FIELD_PRICE) {
                     // TODO: if a column is called like any price category.
                     $existingpricecategories = $DB->get_records('booking_pricecategories', ['disabled' => 0]);

@@ -630,14 +630,36 @@ class bookingoptions_wbtable extends wunderbyte_table {
             booking_check_if_teacher($values));
 
         $ddoptions = [];
-        $ret = '<div class="menubar" id="action-menu-' . $optionid . '-menubar" role="menubar">';
+        $ret = '<div class="menubar pr-2" id="action-menu-' . $optionid . '-menubar" role="menubar">';
 
         if ($status == MOD_BOOKING_STATUSPARAM_BOOKED) {
             $ret .= html_writer::link(
                 new moodle_url('/mod/booking/viewconfirmation.php',
                     ['id' => $cmid, 'optionid' => $optionid]),
                 $OUTPUT->pix_icon('t/print', get_string('bookedtext', 'mod_booking')),
-                ['target' => '_blank']);
+                [
+                    'target' => '_blank',
+                    'class' => 'text-primary pr-3',
+                    'aria-label' => get_string('bookedtext', 'mod_booking'),
+                ]);
+        }
+
+        if ($canupdate || $isteacherandcanedit) {
+            $ret .= html_writer::link(
+                new moodle_url('/mod/booking/editoptions.php',
+                    [
+                        'id' => $cmid,
+                        'optionid' => $optionid,
+                        'returnto' => 'url',
+                        'returnurl' => $returnurl,
+                    ]
+                ),
+                $OUTPUT->pix_icon('i/edit', get_string('editbookingoption', 'mod_booking')),
+                [
+                    'target' => '_self',
+                    'class' => 'text-primary',
+                    'aria-label' => get_string('editbookingoption', 'mod_booking'),
+                ]);
         }
 
         if ($canupdate || $isteacherandcanedit) {

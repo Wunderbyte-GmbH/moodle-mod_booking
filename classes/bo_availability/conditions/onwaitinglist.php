@@ -29,6 +29,7 @@
 use context_system;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\booking_answers;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
@@ -142,9 +143,18 @@ class onwaitinglist implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        $description = $this->get_description_string($isavailable, $full);
+        $description = $this->get_description_string($isavailable, $full, $userid, $settings);
 
-        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_JUSTMYALERT];
+        // If the user is in principle allowed to overbook AND the overbook setting is set in the instance, overbooking is possible.
+        if (!empty($settings->waitforconfirmation)
+            && !empty(get_config('booking', 'allowoverbooking'))
+            && has_capability('mod/booking:canoverbook', context_system::instance())) {
+            $buttontype = MOD_BOOKING_BO_BUTTON_MYALERT;
+        } else {
+            $buttontype = MOD_BOOKING_BO_BUTTON_JUSTMYALERT;
+        }
+
+        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, $buttontype];
     }
 
     /**
@@ -187,7 +197,7 @@ class onwaitinglist implements bo_condition {
     public function render_button(booking_option_settings $settings,
         int $userid = 0, bool $full = false, bool $not = false, bool $fullwidth = true): array {
 
-        $label = $this->get_description_string(false, $full);
+        $label = $this->get_description_string(false, $full, $userid, $settings);
 
         return bo_info::render_button($settings, $userid, $label, 'alert alert-warning', true, $fullwidth, 'alert', 'option');
     }
@@ -197,16 +207,29 @@ class onwaitinglist implements bo_condition {
      *
      * @param bool $isavailable
      * @param bool $full
+     * @param int $userid
+     * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string($isavailable, $full) {
+    private function get_description_string($isavailable, $full, $userid, $settings) {
         if ($isavailable) {
             $description = $full ? get_string('bo_cond_onwaitinglist_full_available', 'mod_booking') :
                 get_string('bo_cond_onwaitinglist_available', 'mod_booking');
         } else {
-            $description = $full ? get_string('bo_cond_onwaitinglist_full_not_available', 'mod_booking') :
+
+            if (get_config('booking', 'waitinglistshowplaceonwaitinglist')) {
+
+                $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+                $placeonwaitinglist = $bookinganswer->return_place_on_waitinglist($userid);
+
+                $description = get_string('yourplaceonwaitinglist', 'mod_booking', $placeonwaitinglist);
+
+            } else {
+                $description = $full ? get_string('bo_cond_onwaitinglist_full_not_available', 'mod_booking') :
                 get_string('bo_cond_onwaitinglist_not_available', 'mod_booking');
+            }
         }
+
         return $description;
     }
 }

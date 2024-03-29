@@ -24,6 +24,7 @@ Feature: In a booking delete
       | activity | course | name       | intro                  | bookingmanager | eventtype | Default view for booking options |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | All bookings                     |
     And I create booking option "New option" in "My booking"
+    And I change viewport size to "1366x10000"
 
   @javascript
   Scenario: Delete booking option as teacher

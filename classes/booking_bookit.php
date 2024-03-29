@@ -179,7 +179,15 @@ class booking_bookit {
 
             $datas[] = $data;
 
-            if (empty(get_config('booking', 'turnoffmodals'))) {
+            $viewparam = booking::get_value_of_json_by_key($settings->bookingid, 'viewparam');
+            $turnoffmodals = 0; // By default, we use modals.
+            if ($viewparam == MOD_BOOKING_VIEW_PARAM_LIST) {
+                // Only if we use list view, we can use inline modals.
+                // So only in this case, we need to check the config setting.
+                $turnoffmodals = get_config('booking', 'turnoffmodals');
+            }
+
+            if (empty($turnoffmodals)) {
                 $templates[] = 'mod_booking/bookingpage/prepagemodal';
             } else {
                 $templates[] = 'mod_booking/bookingpage/prepageinline';
@@ -266,7 +274,7 @@ class booking_bookit {
             /* TODO: Refactor this.
              First, we need a switch.
              Second the reaction code should be included in the condition classes themselves, to improve maintainability. */
-            if ($id < 1) {
+            if ($id < MOD_BOOKING_BO_COND_BOOKITBUTTON) {
                 $isavailable = true;
             } else if ($id === MOD_BOOKING_BO_COND_BOOKITBUTTON) {
 
@@ -336,7 +344,8 @@ class booking_bookit {
 
                 // This means we can actually book.
                 $isavailable = true;
-
+            } else if ($id === MOD_BOOKING_BO_COND_ASKFORCONFIRMATION) {
+                $isavailable = true;
             } else if ($id === MOD_BOOKING_BO_COND_ALREADYBOOKED || $id === MOD_BOOKING_BO_COND_ONWAITINGLIST) {
 
                 // If the cancel condition is blocking here, we can actually mark the option for cancelation.

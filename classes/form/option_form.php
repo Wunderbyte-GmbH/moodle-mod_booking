@@ -52,51 +52,25 @@ use stdClass;
  */
 class option_form extends dynamic_form {
 
-    /** @var bool $formmode 'simple' or 'expert' */
-    public $formmode = null;
-
     /**
      * {@inheritDoc}
      * @see moodleform::definition()
      */
     public function definition() {
-        global $DB, $PAGE, $OUTPUT;
-
-        /* At first get the option form configuration from DB.
-        Unfortunately, we need this, because hideIf does not work with
-        editors, headers and html elements. */
-        $optionformconfig = [];
-        if ($optionformconfigrecords = $DB->get_records('booking_optionformconfig')) {
-            foreach ($optionformconfigrecords as $optionformconfigrecord) {
-                $optionformconfig[$optionformconfigrecord->elementname] = $optionformconfigrecord->active;
-            }
-        }
 
         $formdata = $this->_customdata ?? $this->_ajaxformdata;
 
-        // We need context on this.
-        $context = context_module::instance($formdata['cmid']);
+        $cmid = $formdata['cmid'] ?? 0;
+
+        if (!empty($cmid)) {
+            // We need context on this.
+            $context = context_module::instance($cmid);
+        } else {
+            $context = context_system::instance();
+        }
+
         $formdata['context'] = $context;
         $optionid = $formdata['optionid'];
-
-        // Get the form mode, which can be 'simple' or 'expert'.
-        if (isset($formdata['formmode'])) {
-            // Formmode can also be set via custom data.
-            // Currently we only need this for the optionformconfig...
-            // ...which needs to be set to 'expert', so it shows all checkboxes.
-            $this->formmode = $formdata['formmode'];
-        } else {
-            // Normal case: we get formmode from user preferences.
-            $this->formmode = get_user_preferences('optionform_mode');
-        }
-
-        if (empty($this->formmode)) {
-            // Default: Simple mode.
-            $this->formmode = 'simple';
-        }
-
-        // We add the formmode to the optionformconfig.
-        $optionformconfig['formmode'] = $this->formmode;
 
         $mform = &$this->_form;
 
@@ -104,19 +78,7 @@ class option_form extends dynamic_form {
         $mform->setType('scrollpos', PARAM_INT);
 
         // Add all available fields in the right order.
-        fields_info::instance_form_definition($mform, $formdata, $optionformconfig);
-
-        // Hide all elements which have been removed in the option form config.
-        // Only do this, if the form mode is set to 'simple'. In expert mode we do not hide anything.
-        if ($this->formmode == 'simple' && $cfgelements = $DB->get_records('booking_optionformconfig')) {
-            foreach ($cfgelements as $cfgelement) {
-                if ($cfgelement->active == 0) {
-                    $mform->addElement('hidden', 'cfg_' . $cfgelement->elementname, (int) $cfgelement->active);
-                    $mform->setType('cfg_' . $cfgelement->elementname, PARAM_INT);
-                    $mform->hideIf($cfgelement->elementname, 'cfg_' . $cfgelement->elementname, 'eq', 0);
-                }
-            }
-        }
+        fields_info::instance_form_definition($mform, $formdata);
 
         $this->add_action_buttons(true, get_string('save'));
     }
@@ -198,7 +160,11 @@ class option_form extends dynamic_form {
      */
     protected function get_context_for_dynamic_submission(): context {
 
-        $cmid = $this->_ajaxformdata['cmid'];
+        $cmid = $this->_ajaxformdata['cmid'] ?? 0;
+
+        if (empty($cmid)) {
+            return context_system::instance();
+        }
 
         return context_module::instance($cmid);
     }

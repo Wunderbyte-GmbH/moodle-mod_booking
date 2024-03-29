@@ -1,3 +1,156 @@
+## Version 8.2.1 (2024032700)
+* Improvement: Show which form currently overrides the standard form definition on edit.
+* Improvement: Usability improvements for option form config with and without PRO license.
+* Improvement: Allow csv import with column username.
+* Improvement: Add capability to edit option form config (mod/booking:editoptionformconfig).
+* Improvement: Add more rights to manager role (manager should have the same rights as enrolled teacher).
+* Bugfix: Add enrolmentstatus field again.
+* Test: New behat tests for Booking rules.
+
+## Version 8.2.0 (2024032500)
+* New feature: Config Dashboard implementation.
+* New feature: Add manually managed waitinglist.
+* Improvement: New Webservice to save config forms - unfinished.
+* Improvement: Adjust incompatibilities of option form fields.
+* Improvement: Better treatment auf where array values.
+* Improvement: Support for new configurable Wunderbyte Table filters.
+* Improvement: Move to contextids instead of coursecategoryids.
+* Improvement: Use capabilities to adjust option form.
+* Improvement: Get rid of old expertform mode.
+* Improvement: Issue #407 blocks booking via moodle capability.
+* Improvement: Make config sortable & add delete functionality.
+* Improvement: Add possibility to turn off single customfields.
+* Improvement: Use new WB Table functionality for using filters.
+* Improvement: Add optionformconfig to context 1 (systemwide).
+* Improvement: Allow cachier to book users from waitinglist, if it's a "confirm waitinglist" setting.
+* Improvement: New booked users information with wb table.
+* Improvement: More efficient handling of actions.
+* Improvement: Show booked users only if there are some.
+* Improvement: Add edit component to tables.
+* Improvement: New setting for Booking debug mode.
+* Improvement: Add debug event for send_mail_by_rule_adhoc.
+* Improvement: New language strings.
+* Bugfix: Fix deprecation warning for usort.
+* Bugfix: Make sure html tags won't destroy the functionality.
+* Bugfix: Implement new WB Table API.
+* Bugfix: Drag & drop only for waitinglist.
+* Bugfix: Fix errors in datepickers.
+* Bugfix: Crucial Bugfix for booking process.
+* Bugfix: Fix askforconfirmation booking button.
+* Bugfix: Confusion between optionid & id.
+* Bugfix: Fix option config form.
+* Bugfix: Add missing cache definitions.
+* Bugfix: Fix #447.
+* Bugfix: Don't try to create event if optiondatesid is 0.
+* Bugfix: Only access waitforconfirmation if it is set.
+
+## Version 8.1.40 (2024031801)
+* Bugfix: If shoppingcarthistory already has a canceluntil date set it may not be overriden by the option's canceluntil date again!
+
+## Version 8.1.39 (2024031800)
+* Improvement: Make save and cancel buttons in edit forms sticky at bottom.
+
+## Version 8.1.38 (2024031400)
+* Improvement: Accelerate view page via lazy loading.
+* Improvement: Meeting link buttons should have secondary color.
+* Bugfix: Service period currently always needs to be courseendtime.
+* Bugfix: Accelerate slow teacher page.
+* Bugfix: don't render all tables to show teacher page.
+
+## Version 8.1.37 (2024031300)
+* Bugfix: Fix privacy provider.
+* Bugfix: Fix special fields for optiondates (Teams meeting, Zoom meeting...).
+* Improvement: Several improvements for sign-in sheet, including better display of e-mail addresses and line breaks for too long titles.
+* Improvement: Better debugging for errors with availability json.
+* Improvement: Setting to not count users with presence status "no show" for max. number of bookings per instance.
+
+## Version 8.1.36 (2024031200)
+* Improvement: New settings for max. per user and improvements to general settings.
+* Tests: New phpunit tests for reminder mails and teacher reminders.
+
+## Version 8.1.35 (2024031100)
+* Bugfix: No need to destroy singleton when creating new booking instances.
+* Bugfix: Add missing strings (assesstimestart, assesstimefinish).
+
+## Version 8.1.34 (2024030801)
+* Improvement: Only use cached data for enrolled in course check.
+* Improvement: Make sure calendar events are always stored as optiondates.
+* Improvement: Get rid of old form modes (toggle between simple and expert form).
+* Improvement: New function to purge all booking instance caches and destroy booking instance singleton.
+* Bugfix: Make sure institution stores only empty strings.
+* Bugfix: Fix bugs with showlistoncoursepage field.
+
+## Version 8.1.33 (2024030700)
+* Improvement: Add possibility to format personal messages with HTML editor.
+* Improvement: Make sure images in cards view always have the same height of 220px.
+
+## Version 8.1.32 (2024030601)
+* Improvement: Layout fix for cards.
+* Improvement: Show "Choose..." string in autocompletes if value is missing.
+
+## Version 8.1.31 (2024030500)
+* New feature: New placeholder classes for better performance and maintainability.
+* New feature: Show full entity name of each optiondate in optionview (booking option description).
+* New feature: New setting for sync_waiting_list to keep users booked when reducing limits.
+* Improvement: Import now works with "startdate" & "enddate" keys.
+* Improvement: Inline modals (turn off modals functionality) will only work with list view.
+With cards view, we always have modals.
+* Improvement: Apply waitinglist on increasing maxanswers for booking option
+* Improvement: Add string that modals cannot be turned off for new cards view.
+* Improvement: When purging caches for option we also need to destroy singletons for booking option settings.
+* Improvement: Show teachers emails to booked users only (with config setting).
+* Improvement: Better strings.
+* Bugfix: Add to Calendar needed to be in postsave mode.
+* Bugfix: Set importing on true when noticing an import.
+* Bugfix: Default boavenrolledincourse during import to OR, not AND, support for boavenrolledincourseoperator (Values OR, AND).
+* Bugfix: Don't call add to calendar on template.
+* Bugfix: Add isset check for addtocalendar.
+* Bugfix: Don't block booking options without price with prepages.
+* Bugfix: Destroy all instances of booking options when calling destroy_booking_option_singleton.
+* Bugfix: Make sure we use correct context when creating booking option sql.
+* Bugfix: Wrong settings were used on report.php.
+* Bugfix: Use context_system if context_module can't be found (eg for template).
+* Testing: Temporarily take out failing behat test - to be reintroduced.
+
+## Version 8.1.30 (2024030400)
+* Bugfix: Several fixes for indexes and foreign keys.
+
+## Version 8.1.29 (2024030100)
+* Bugfix: Fix for leap year bug.
+* Bugfix: Pre- and Post-page conditions like "Bookingpolicy" should not block "allow_add_item_to_cart".
+* Bugfix: Fix download.php of Booking view.
+
+## Version 8.1.28 (2024022900)
+* New feature: You may now switch between list and cards layout in Booking instance settings.
+* Improvement: Change tab order an make all booking options tab the default.
+* Improvement: showall should be the default tab - also in install.xml.
+* Bugfix: Make sure menubar is always at correct position using CSS.
+* Bugfix: We always want to see institution - regardless if entitity manager is installed or not.
+
+## Version 8.1.27 (2024022800)
+* Improvement: Better layout for new menu bar (we cannot show it at the top right, as this would lead to several layouting problems).
+
+## Version 8.1.26 (2024022701)
+* Improvement: In Booking, we show the edit button at the top right.
+* New feature: New pencil button to directly edit booking options.
+
+## Version 8.1.25 (2024022700)
+* Improvement: Make alert to show which option is edited sticky at top.
+* Bugfix: Missing cache definitions.
+* Bugfix: Fix descriptionformat via upgrade.
+
+## Version 8.1.24 (2024022600)
+* Improvement: Better layout for table row.
+* Improvement: Second sign-in sheet button for download only and layout improvements.
+* Improvement: Linting and layout improvements for report.php and all_userbookings.php
+* Bugfix: Fix language string for "general" in English language pack - closes #410.
+* Bugfix: Also check for already reserved in allow_add_item_to_cart.
+
+## Version 8.1.23 (2024022301)
+* Bugfix: Save availability on newly created option as well.
+* Bugfix: Notification list is NO hard block!
+* Improvement: Throw exceptions on import for better quality.
+
 ## Version 8.1.22 (2024022300)
 * Bugfix: Fix allow_add_item_to_cart => do not block is_available anymore with notifyme-list.
 

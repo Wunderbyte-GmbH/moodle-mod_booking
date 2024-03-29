@@ -95,9 +95,8 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             } else if (get_config('booking', 'canceldependenton') == "bookingopeningtime"
                 || get_config('booking', 'canceldependenton') == "bookingclosingtime") {
                 // If cancellation is either dependent on bookingopeningtime or bookingclosingtime...
-                // ...we use the full registration period as service period.
+                // ...the service period may only start at booking registration start (bookingopeningtime).
                 $serviceperiodstart = $settings->bookingopeningtime ?? $item['coursestarttime'];
-                $serviceperiodend = $settings->bookingclosingtime ?? $item['courseendtime'];
             }
 
             // Make sure we have a valid cost center.
@@ -366,12 +365,15 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 booking::get_value_of_json_by_key($bookingid, 'disablecancel')) {
                 $allowedtocancel = false;
             }
+            /* IMPORTANT: We had to remove this check as it has to be possible to override this
+            by setting a canceluntil date in shopping_cart_history table directly. */
             // Check if the option has its own canceluntil date and if it has already passed.
-            $now = time();
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* $now = time();
             $canceluntil = booking_option::get_value_of_json_by_key($itemid, 'canceluntil');
             if (!empty($canceluntil) && $now > $canceluntil) {
                 $allowedtocancel = false;
-            }
+            } */
         }
         return $allowedtocancel;
     }
@@ -416,9 +418,16 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             // There are two cases where we can actually book.
             // We call thefunction with hadblock set to true.
             // This means that we only get those blocks that actually should prevent booking.
-            list($id, $isavailable, $description) = $boinfo->is_available($itemid, $userid, true);
+            list($id, $isavailable, $description) = $boinfo->is_available($itemid, $userid, true, true);
 
-            if ($id > 1 && $id != MOD_BOOKING_BO_COND_PRICEISSET) {
+            // These conditions are allowed, so we need a check.
+            $allowedconditions = [
+                MOD_BOOKING_BO_COND_PRICEISSET,
+                MOD_BOOKING_BO_COND_ALREADYRESERVED,
+                MOD_BOOKING_BO_COND_BOOKITBUTTON,
+            ];
+
+            if ($id > 0 && !in_array($id, $allowedconditions)) {
                 switch($id) {
                     case MOD_BOOKING_BO_COND_FULLYBOOKED:
                         return [
@@ -441,32 +450,27 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 }
             }
 
-            if (!booking_option::has_price_set($itemid, $userid)) {
-                return [
-                    'allow' => true,
-                    'info' => 'nopriceisset',
-                    'itemname' => $settings->get_title_with_prefix() ?? '',
-                ];
+            // TODO: Dont call allow_add_item_to_cart when NOT adding to cart!
+            if ($id !== MOD_BOOKING_BO_COND_BOOKITBUTTON) {
+                $user = singleton_service::get_instance_of_user($userid);
+                $item = $settings->return_booking_option_information($user);
+                $cartitem = new cartitem($itemid,
+                    $item['title'],
+                    $item['price'],
+                    $item['currency'],
+                    'mod_booking',
+                    'option',
+                    $item['description'],
+                    $item['imageurl'],
+                    $item['canceluntil'],
+                    $item['coursestarttime'],
+                    $item['courseendtime'],
+                    null,
+                    0,
+                    $item['costcenter']
+                );
+                return $cartitem->as_array() ?? [];
             }
-
-            $user = singleton_service::get_instance_of_user($userid);
-            $item = $settings->return_booking_option_information($user);
-            $cartitem = new cartitem($itemid,
-                $item['title'],
-                $item['price'],
-                $item['currency'],
-                'mod_booking',
-                'option',
-                $item['description'],
-                $item['imageurl'],
-                $item['canceluntil'],
-                $item['coursestarttime'],
-                $item['courseendtime'],
-                null,
-                0,
-                $item['costcenter']
-            );
-            return $cartitem->as_array() ?? [];
         }
         return [
             'allow' => true,

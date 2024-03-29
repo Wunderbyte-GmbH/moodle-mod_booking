@@ -88,7 +88,7 @@ class lib_test extends advanced_testcase {
                     'pollurlteacherstext' => ['text' => 'text'], 'notificationtext' => ['text' => 'text'],
                     'userleave' => ['text' => 'text'], 'bookingpolicy' => 'bookingpolicy',
                     'tags' => '', 'course' => $course->id, 'bookingmanager' => $user->username,
-                    'showviews' => ['mybooking, myoptions, showall, showactive, myinstitution'],
+                    'showviews' => ['showall, showactive, mybooking, myoptions, myinstitution'],
         ];
 
         $booking = $this->getDataGenerator()->create_module('booking', $bdata);

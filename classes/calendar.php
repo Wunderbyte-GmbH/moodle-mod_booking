@@ -44,12 +44,9 @@ require_once($CFG->dirroot.'/calendar/lib.php');
  */
 class calendar {
 
-    /**
-     * MOD_BOOKING_TYPEOPTION
-     *
-     * @var int
-     */
-    const MOD_BOOKING_TYPEOPTION = 1;
+    // We removed this because we now save ANY date as optiondate!
+    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+    /* const MOD_BOOKING_TYPEOPTION = 1; */
 
     /**
      * MOD_BOOKING_TYPEUSER
@@ -104,65 +101,12 @@ class calendar {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        // Fix: If we only have one session and its ID is 0, then it is a "fake" session.
-        // So we use the standard routine for adding an option without sessions to the calendar.
-        if (count($settings->sessions) == 1) {
-            $onlysession = array_pop($settings->sessions);
-            if ($onlysession->id == 0) {
-                $type = $this::MOD_BOOKING_TYPEOPTION;
-            }
-        }
-
         $newcalendarid = 0;
 
         switch ($type) {
-            case $this::MOD_BOOKING_TYPEOPTION:
-                if ($justbooked) {
-                    // A user has just booked an option. The event will be created as USER event.
-                    $newcalendarid = self::booking_option_add_to_cal($cmid, $optionid, $settings->calendarid, $userid);
-                    // When we create a user event, we have to keep track of it in our special table.
-                    if ($newcalendarid) {
-                        // If it's a new user event, then insert.
-                        if (!$userevent = $DB->get_record('booking_userevents',
-                            ['userid' => $userid,
-                            'optionid' => $optionid,
-                            'optiondateid' => null,
-                            ])) {
-                            $data = new stdClass();
-                            $data->userid = $userid;
-                            $data->optionid = $optionid;
-                            $data->eventid = $newcalendarid;
-                            $DB->insert_record('booking_userevents', $data);
-                        } else {
-                            // If the user event already exists, then update.
-                            $DB->delete_records('event', ['id' => $userevent->eventid]);
-                            $userevent->eventid = $newcalendarid;
-                            $DB->update_record('booking_userevents', $userevent);
-                        }
-                    }
-                } else {
-                    if ($settings->addtocalendar == 1) {
-                        // Add to calendar as course event.
-                        $newcalendarid = self::booking_option_add_to_cal($cmid, $optionid, $settings->calendarid, 0);
-                    } else {
-                        if ($settings->calendarid > 0) {
-                            if ($DB->record_exists("event", ['id' => $settings->calendarid])) {
-                                // Delete event if exist.
-                                $event = \calendar_event::load($settings->calendarid);
-                                $event->delete(true);
-                            }
-                        }
-                    }
-                    if ($newcalendarid && $newcalendarid != 0) {
-                        // Fixed: Only set calendar id, if there is one.
-                        $DB->set_field("booking_options", 'calendarid', $newcalendarid, ['id' => $optionid]);
-                    }
-                }
-                break;
             case $this::MOD_BOOKING_TYPEOPTIONDATE:
-                if ($justbooked) {
+                if ($justbooked && !empty($optiondateid)) {
                     // A user has just booked. The events will be created as USER events.
-
                     if ($optiondate = $DB->get_record("booking_optiondates", ["id" => $optiondateid])) {
                         $newcalendarid = self::booking_optiondate_add_to_cal($cmid, $optionid,
                             $optiondate, $settings->calendarid, $userid);

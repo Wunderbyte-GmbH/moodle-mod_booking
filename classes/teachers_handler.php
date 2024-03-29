@@ -73,23 +73,9 @@ class teachers_handler {
     public function add_to_mform(MoodleQuickForm &$mform) {
         global $DB, $OUTPUT;
 
-        // Workaround: Only show, if it is not turned off in the option form config.
-        // We currently need this, because hideIf does not work with headers.
-        // In expert mode, we always show everything.
-        $showteachersheader = true;
-        $formmode = get_user_preferences('optionform_mode');
-        if ($formmode !== 'expert') {
-            $cfgteachersheader = $DB->get_field('booking_optionformconfig', 'active',
-                ['elementname' => 'bookingoptionteachers']);
-            if ($cfgteachersheader === "0") {
-                $showteachersheader = false;
-            }
-        }
-        if ($showteachersheader) {
-            $mform->addElement('header', 'bookingoptionteachers',
-                '<i class="fa fa-fw fa-graduation-cap" aria-hidden="true"></i>&nbsp;' .
-                get_string('teachers', 'mod_booking'));
-        }
+        $mform->addElement('header', 'bookingoptionteachers',
+            '<i class="fa fa-fw fa-graduation-cap" aria-hidden="true"></i>&nbsp;' .
+            get_string('teachers', 'mod_booking'));
 
         /* Important note: Currently, all users can be added as teachers for a booking option.
         In the future, there might be a user profile field defining users which are allowed
@@ -120,6 +106,9 @@ class teachers_handler {
             'ajax' => 'mod_booking/form_users_selector',
             'valuehtmlcallback' => function($value) {
                 global $OUTPUT;
+                if (empty($value)) {
+                    return get_string('choose...', 'mod_booking');
+                }
                 $user = singleton_service::get_instance_of_user((int)$value);
                 $details = [
                     'id' => $user->id,
@@ -531,17 +520,18 @@ class teachers_handler {
     /**
      * Get teacher ids.
      * @param stdClass $data
+     * @param bool $throwerror If not finding the email should throw an error.
      * @return array|void
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function get_teacherids_from_form(stdClass $data) {
+    public static function get_teacherids_from_form(stdClass $data, $throwerror = false) {
 
         global $DB;
 
         if (isset($data->teacheremail)) {
 
-            return self::get_user_ids_from_string($data->teacheremail);
+            return self::get_user_ids_from_string($data->teacheremail, $throwerror);
         }
     }
 
@@ -550,9 +540,10 @@ class teachers_handler {
      *
      * @param mixed $userstring
      * @param bool $email // if false, it's usernames, not usermails.
+     * @param bool $throwerror If not finding the email should throw an error.
      * @return array
      */
-    public static function get_user_ids_from_string($userstring, $email = true) {
+    public static function get_user_ids_from_string($userstring, $email = true, $throwerror = false) {
 
         global $DB;
 
@@ -576,6 +567,15 @@ class teachers_handler {
         ";
 
         $teacherids = $DB->get_fieldset_sql($sql, $params);
+
+        if ($throwerror && (count($teacherids) != count($teacheremails))) {
+            throw new moodle_exception(
+                'userswerenotfound',
+                'mod_booking',
+                '',
+                $teacheremails,
+                'The following users were not found ' . json_encode($teacheremails));
+        }
 
         return $teacherids;
     }

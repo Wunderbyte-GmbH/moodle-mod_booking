@@ -83,6 +83,8 @@ class optiondates extends field_base {
         'courseenddate',
         'dayofweektime',
         'semesterid',
+        'starddate',
+        'enddate',
     ];
 
     /**
@@ -169,15 +171,8 @@ class optiondates extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
-        // Workaround: Only show, if it is not turned off in the option form config.
-        // We currently need this, because hideIf does not work with editors.
-        // In expert mode, we do not hide anything.
-        if ($optionformconfig['formmode'] == 'expert' ||
-            !isset($optionformconfig['datesheader']) || $optionformconfig['datesheader'] == 1) {
-
-            $mform->addElement('hidden', 'datesmarker', 0);
-            $mform->setType('datesmarker', PARAM_INT);
-        }
+        $mform->addElement('hidden', 'datesmarker', 0);
+        $mform->setType('datesmarker', PARAM_INT);
     }
 
     /**

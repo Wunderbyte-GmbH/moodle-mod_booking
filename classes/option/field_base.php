@@ -165,7 +165,7 @@ abstract class field_base implements fields {
      * @return string
      * @throws coding_exception
      */
-    public static function return_localized_name() {
+    public static function return_classname_name() {
 
         $classname = get_called_class();
 
@@ -173,6 +173,14 @@ abstract class field_base implements fields {
         $array = explode('\\', $classname);
 
         $classname = array_pop($array);
-        return get_string($classname, 'mod_booking');
+        return $classname;
+    }
+
+    /**
+     * Every class can provide subfields.
+     * @return array
+     */
+    public static function get_subfields() {
+        return [];
     }
 }

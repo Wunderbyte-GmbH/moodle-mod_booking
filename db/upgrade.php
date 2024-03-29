@@ -312,7 +312,10 @@ function xmldb_booking_upgrade($oldversion) {
                 ['id']);
 
         // Adding indexes to table booking_teachers.
-        $table->add_index('userid', XMLDB_INDEX_NOTUNIQUE, ['userid']);
+        $index = new xmldb_index('userid', XMLDB_INDEX_NOTUNIQUE, ['userid']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
 
         // Conditionally launch create table for booking_teachers.
         if (!$dbman->table_exists($table)) {
@@ -1073,7 +1076,10 @@ function xmldb_booking_upgrade($oldversion) {
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Adding indexes to table booking_other.
-        $table->add_index('optionid', XMLDB_INDEX_UNIQUE, ['optionid', 'otheroptionid']);
+        $index = new xmldb_index('optionid-otheroptionid', XMLDB_INDEX_NOTUNIQUE, ['optionid', 'otheroptionid']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
 
         // Conditionally launch create table for booking_other.
         if (!$dbman->table_exists($table)) {
@@ -1108,7 +1114,10 @@ function xmldb_booking_upgrade($oldversion) {
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Adding indexes to table booking_other.
-        $table->add_index('optionid', XMLDB_INDEX_NOTUNIQUE, ['optionid', 'otheroptionid']);
+        $index = new xmldb_index('optionid-otheroptionid', XMLDB_INDEX_NOTUNIQUE, ['optionid', 'otheroptionid']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
 
         // Conditionally launch create table for booking_other.
         if (!$dbman->table_exists($table)) {
@@ -1332,7 +1341,10 @@ function xmldb_booking_upgrade($oldversion) {
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Adding indexes to table booking_optiondates.
-        $table->add_index('optionid', XMLDB_INDEX_NOTUNIQUE, ['optionid']);
+        $index = new xmldb_index('optionid', XMLDB_INDEX_NOTUNIQUE, ['optionid']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
 
         // Conditionally launch create table for booking_optiondates.
         if (!$dbman->table_exists($table)) {
@@ -1953,7 +1965,10 @@ function xmldb_booking_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-        $table->add_index('templateid', XMLDB_INDEX_NOTUNIQUE, ['templateid']);
+        $index = new xmldb_index('templateid', XMLDB_INDEX_NOTUNIQUE, ['templateid']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2019080303, 'booking');
     }
@@ -2081,7 +2096,11 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Adding keys to table booking_customreport.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
-        $table->add_index('course', XMLDB_INDEX_NOTUNIQUE, ['course']);
+
+        $index = new xmldb_index('course', XMLDB_INDEX_NOTUNIQUE, ['course']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
 
         // Conditionally launch create table for booking_customreport.
         if (!$dbman->table_exists($table)) {
@@ -2899,24 +2918,6 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_index($table, $index);
         }
 
-        // Define index optiondateid (not unique) to be added to booking_optiondates_teachers.
-        $table = new xmldb_table('booking_optiondates_teachers');
-        $index = new xmldb_index('optiondateid', XMLDB_INDEX_NOTUNIQUE, ['optiondateid']);
-
-        // Conditionally launch add index optiondateid.
-        if (!$dbman->index_exists($table, $index)) {
-            $dbman->add_index($table, $index);
-        }
-
-        // Define index userid (not unique) to be added to booking_optiondates_teachers.
-        $table = new xmldb_table('booking_optiondates_teachers');
-        $index = new xmldb_index('userid', XMLDB_INDEX_NOTUNIQUE, ['userid']);
-
-        // Conditionally launch add index userid.
-        if (!$dbman->index_exists($table, $index)) {
-            $dbman->add_index($table, $index);
-        }
-
         // Define index optiondateid-userid (not unique) to be added to booking_optiondates_teachers.
         $table = new xmldb_table('booking_optiondates_teachers');
         $index = new xmldb_index('optiondateid-userid', XMLDB_INDEX_NOTUNIQUE, ['optiondateid', 'userid']);
@@ -3669,6 +3670,50 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2024021400, 'booking');
+    }
+
+    if ($oldversion < 2024022700) {
+        // Fix bugs with description format.
+        fix_bookingoption_descriptionformat_2024022700();
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2024022700, 'booking');
+    }
+
+    if ($oldversion < 2024022801) {
+
+        // Changing the default of field whichview on table booking to showall.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('whichview', XMLDB_TYPE_CHAR, '32', null, XMLDB_NOTNULL, null, 'showall', 'scale');
+
+        // Launch change of default for field whichview.
+        $dbman->change_field_default($table, $field);
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2024022801, 'booking');
+    }
+
+    if ($oldversion < 2024030800) {
+
+        // Define table booking_optionformconfig to be dropped.
+        $table = new xmldb_table('booking_optionformconfig');
+
+        // Conditionally launch drop table for booking_optionformconfig.
+        if ($dbman->table_exists($table)) {
+            $dbman->drop_table($table);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2024030800, 'booking');
+    }
+
+    if ($oldversion < 2024030801) {
+
+        // Fix bugs with showlistoncoursepage field.
+        fix_showlistoncoursepage_2024030801();
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2024030801, 'booking');
     }
 
     return true;

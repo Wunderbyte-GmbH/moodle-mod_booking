@@ -1,0 +1,231 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/table_cards_row
+    Template which defines a mooduell view page.
+    Classes required for JS:
+    * none
+    Data attributes required for JS:
+    * none
+    Context variables required for this template:
+    * statistics - array: An array with values.
+    * opengames - array: empty array, will be filled with JS.
+    * finishedgames - array: empty array, will be filled with JS.
+    * highscores - array: empty array, will be filled with JS.
+
+    Example context (json):
+
+    {
+      "rowid": "allbookingoptionstable_r1",
+      "rowclasses": "rowclasses",
+      "datafields": [
+        {
+          "key": "field1",
+          "value": "value1"
+        }
+      ],
+      "leftside": {
+        "invisibleoption": {
+          "columnkeyclass": "d-none",
+          "columnvalueclass": "booking-option-info-invisible"
+        },
+        "text": {
+          "columnkeyclass": "d-none",
+          "columnclass": "text-left m-0 mb-1 h5",
+          "keystring": "Course name"
+        },
+        "action": {
+          "columnkeyclass": "d-none",
+          "columnclass": "text-right"
+        },
+        "teacher": {
+          "columnkeyclass": "d-none",
+          "columnclass": "text-left font-size-sm",
+          "keystring": "Teacher(s)"
+        },
+        "statusdescription": {
+          "columnkeyclass": "d-none"
+        },
+        "description": {
+          "columnkeyclass": "d-none"
+        }
+      },
+      "footer": {
+        "bookings": {
+          "columnkeyclass": "d-none",
+          "columnclass": "text-left text-gray pr-2 font-size-sm",
+          "columniclassbefore": "fa fa-ticket fa-fw text-gray font-size-sm"
+        },
+        "minanswers": {
+          "columnkeyclass": "d-none",
+          "columnclass": "text-left text-gray pr-2 font-size-sm",
+          "columniclassbefore": "fa fa-arrow-up fa-fw text-gray font-size-sm"
+        },
+        "dayofweektime": {
+          "columnkeyclass": "d-none",
+          "columnclass": "text-left text-gray pr-2 font-size-sm",
+          "columniclassbefore": "fa fa-clock-o fa-fw text-gray font-size-sm"
+        },
+        "location": {
+          "columnkeyclass": "d-none",
+          "columnclass": "text-left text-gray  pr-2 font-size-sm",
+          "columniclassbefore": "fa fa-map-marker fa-fw text-gray font-size-sm"
+        },
+        "institution": {
+          "columnkeyclass": "d-none",
+          "columnclass": "text-left text-gray  pr-2 font-size-sm",
+          "columniclassbefore": "fa fa-building-o fa-fw text-gray font-size-sm"
+        },
+        "responsiblecontact": {
+          "columnkeyclass": "d-none",
+          "columnclass": "text-left text-gray  pr-2 font-size-sm",
+          "columniclassbefore": "fa fa-user fa-fw text-gray font-size-sm"
+        },
+        "showdates": {
+          "columnkeyclass": "d-none",
+          "columnclass": "text-left pr-2 text-gray font-size-sm"
+        },
+        "comments": {
+          "columnkeyclass": "d-none"
+        }
+      },
+      "rightside": {
+        "booknow": {
+          "columnclass": "text-right"
+        },
+        "course": [],
+        "progressbar": {
+          "columnclass": "text-left mt-1 text-gray font-size-sm"
+        },
+        "ratings": {
+          "columnclass": "mt-1"
+        }
+      }
+    }
+
+}}
+
+<div class="list-group-item p-0 rounded wunderbyteTableJavascript search-data-element d-flex flex-column"
+style="max-width: 25rem;"
+{{#datafields}}
+    data-{{key}}="{{value}}"
+{{/datafields}}
+>
+  <div class="mod-booking-view-card-image-and-body-area">
+    {{#cardimage}}
+      {{#value}}
+        <img class="w-100 rounded-top mod-booking-view-card-image" src="{{{value}}}" {{#cardimagealt}}alt="{{.}}" title="{{.}}"{{/cardimagealt}}>
+      {{/value}}
+      {{^value}}
+        <div class="d-flex align-items-center justify-content-center"
+          style="height: 220px; background-color: #e6f0f7;
+                opacity: 0.8;
+                background-image: radial-gradient(#45aaf7 0.5px, #e6f0f7 0.5px);
+                background-size: 10px 10px;">
+        </div>
+      {{/value}}
+    {{/cardimage}}
+    <div class="{{cardbodyclass}} mt-2 ml-2 mr-2 p-2">
+      {{#cardbody}}
+        {{#columnclass}}<div class="{{.}}{{#key}} {{key}}{{/key}}">{{/columnclass}}
+              <span {{^value}} style="display:none" {{/value}}>
+              {{#columniclassbefore}}
+                <i class="{{.}}" aria-hidden="true"></i>
+              {{/columniclassbefore}}
+              </span>
+              {{#columnkeyclass}}<span class="key {{.}}">{{/columnkeyclass}}
+                {{^keystring}}
+                {{{key}}}
+              {{/keystring}}
+              {{#keystring}}
+                {{.}}:
+              {{/keystring}}
+              {{#columnkeyclass}}</span>{{/columnkeyclass}}
+
+                <span {{^value}} style="display:none" {{/value}} class="{{columnvalueclass}}{{#key}} {{key}}{{/key}}">
+                  {{{value}}}
+                </span>
+
+              <span {{^value}} style="display:none" {{/value}}>
+              {{#columniclassafter}}
+                <i class="value {{.}}" aria-hidden="true"></i>
+              {{/columniclassafter}}
+              </span>
+        {{#columnclass}}</div>{{/columnclass}}
+      {{/cardbody}}
+    </div>
+    <div class="mt-2 ml-3 mr-3">
+      <div class="{{cardlistclass}}">
+        <ul class="infolist">
+        {{#cardlist}}
+          <li {{#columnalt}}title="{{.}}"{{/columnalt}}>
+          {{#columnclass}}<div class="{{.}}{{#key}} {{key}}{{/key}}">{{/columnclass}}
+                <span {{^value}} style="display:none" {{/value}}>
+                {{#columniclassbefore}}
+                  <i class="{{.}}" aria-hidden="true"></i>
+                {{/columniclassbefore}}
+                </span>
+                {{#columnkeyclass}}<span class="key {{.}}">{{/columnkeyclass}}
+                  {{^keystring}}
+                {{{key}}}
+                {{/keystring}}
+                {{#keystring}}
+                  {{.}}:
+                {{/keystring}}
+                {{#columnkeyclass}}</span>{{/columnkeyclass}}
+                <span {{^value}} style="display:none" {{/value}} class="{{columnvalueclass}}{{#key}} {{key}}{{/key}}">
+                  {{{value}}}
+                </span>
+                <span {{^value}} style="display:none" {{/value}}>
+                {{#columniclassafter}}
+                  <i class="value {{.}}" aria-hidden="true"></i>
+                {{/columniclassafter}}
+                </span>
+          {{#columnclass}}</div>{{/columnclass}}
+          </li>
+        {{/cardlist}}
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="mod-booking-view-card-mainarea mt-auto">
+    <div class="mt-2 text-center p-2">
+      {{#cardfooter}}
+        {{#columnclass}}<div class="{{.}}{{#key}} {{key}}{{/key}}">{{/columnclass}}
+              <span {{^value}} style="display:none" {{/value}}>
+              {{#columniclassbefore}}
+                <i class="{{.}}" aria-hidden="true"></i>
+              {{/columniclassbefore}}
+              </span>
+              {{#columnkeyclass}}<span class="key {{.}}">{{/columnkeyclass}}
+                {{^keystring}}
+              {{{key}}}
+              {{/keystring}}
+              {{#keystring}}
+                {{.}}:
+              {{/keystring}}
+              {{#columnkeyclass}}</span>{{/columnkeyclass}}
+              <div {{^value}} style="display:none" {{/value}} class="{{columnvalueclass}}{{#key}} {{key}}{{/key}}">
+                {{{value}}}
+              </div>
+              <span {{^value}} style="display:none" {{/value}}>
+              {{#columniclassafter}}
+                <i class="value {{.}}" aria-hidden="true"></i>
+              {{/columniclassafter}}
+              </span>
+        {{#columnclass}}</div>{{/columnclass}}
+      {{/cardfooter}}
+    </div>
+  </div>
+</div>

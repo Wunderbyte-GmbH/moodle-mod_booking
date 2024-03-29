@@ -125,6 +125,54 @@ class singleton_service {
     }
 
     /**
+     * When invalidating the cache, we need to also destroy the booking_settings (instance settings).
+     * As we batch handle a lot of users, they always need a "clean" booking (instance) settings object.
+     *
+     * @param int $cmid course module id
+     * @return bool
+     */
+    public static function destroy_booking_singleton_by_cmid($cmid) {
+        $instance = self::get_instance();
+
+        $bookingsettings = self::get_instance_of_booking_settings_by_cmid($cmid);
+        $bookingid = $bookingsettings->id;
+
+        if (isset($instance->bookingsbycmid[$cmid])
+            || isset($instance->bookingsbybookingid[$bookingid])
+            || isset($instance->bookingsettingsbycmid[$cmid])
+            || isset($instance->bookingsettingsbybookingid[$bookingid])
+        ) {
+            unset($instance->bookingsbycmid[$cmid]);
+            unset($instance->bookingsbybookingid[$bookingid]);
+            unset($instance->bookingsettingsbycmid[$cmid]);
+            unset($instance->bookingsettingsbybookingid[$bookingid]);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * When invalidating the cache, we need to also destroy the booking_option_settings.
+     * As we batch handle a lot of users, they always need a "clean" booking option settings object.
+     *
+     * @param int $optionid
+     * @return bool
+     */
+    public static function destroy_booking_option_singleton($optionid) {
+        $instance = self::get_instance();
+
+        if (isset($instance->bookingoptionsettings[$optionid])
+            || isset($instance->bookingoptions[$optionid])) {
+            unset($instance->bookingoptionsettings[$optionid]);
+            unset($instance->bookingoptions[$optionid]);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * When invalidating the cache, we need to also destroy the booking_answer_object.
      * As we batch handle a lot of users, they always need a "clean" booking answers object.
      *

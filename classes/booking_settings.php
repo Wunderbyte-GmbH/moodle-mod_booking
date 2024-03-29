@@ -331,7 +331,7 @@ class booking_settings {
     /** @var user $bookingmanageruser */
     public $bookingmanageruser = null;
 
-    /** @var string $json is used to store non performance critical data like disablecancel */
+    /** @var string $json is used to store non performance critical data like disablecancel, viewparam */
     public $json = null;
 
     /**

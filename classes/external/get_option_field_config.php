@@ -33,8 +33,6 @@ use external_single_structure;
 use external_multiple_structure;
 use external_value;
 use mod_booking\settings\optionformconfig\optionformconfig_info;
-use mod_booking\utils\webservice_import;
-use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -57,8 +55,8 @@ class get_option_field_config extends external_api {
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'coursecategoryid' => new external_value(PARAM_INT,
-                'Id of course category', VALUE_DEFAULT, 0),
+            'contextid' => new external_value(PARAM_INT,
+                'Id of context', VALUE_DEFAULT, 0),
             ]
         );
     }
@@ -66,20 +64,19 @@ class get_option_field_config extends external_api {
     /**
      * Returns the available capabilities to configure
      *
-     * @param int $coursecategoryid
+     * @param int $contextid
      * @return array
      * @throws dml_exception
      */
     public static function execute(
-                        int $coursecategoryid = 0): array {
+                        int $contextid = 0): array {
 
         $params = external_api::validate_parameters(self::execute_parameters(),
             [
-                'coursecategoryid' => $coursecategoryid,
+                'contextid' => $contextid,
             ]
         );
-
-        return optionformconfig_info::return_configured_fields($coursecategoryid);
+        return optionformconfig_info::return_configured_fields($contextid);
     }
 
     /**
@@ -90,7 +87,7 @@ class get_option_field_config extends external_api {
     public static function execute_returns(): external_multiple_structure {
         return new external_multiple_structure(new external_single_structure(
             [
-                'id' => new external_value(PARAM_INT, 'Coursecategory ID'),
+                'id' => new external_value(PARAM_INT, 'Context ID'),
                 'capability' => new external_value(PARAM_TEXT, 'Capability'),
                 'json' => new external_value(PARAM_RAW, 'Payload as json'),
             ]

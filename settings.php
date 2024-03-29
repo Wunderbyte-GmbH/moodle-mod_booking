@@ -41,9 +41,13 @@ $ADMIN->add('modbookingfolder',
                 new moodle_url('/mod/booking/instancetemplatessettings.php')));
 
 $ADMIN->add('modbookingfolder',
-        new admin_externalpage('modbookingoptionformconfig',
-                get_string('optionformconfig', 'mod_booking'),
-                new moodle_url('/mod/booking/optionformconfig.php')));
+new admin_externalpage('modbookingoptionformconfig',
+        get_string('booking', 'mod_booking') . ": " .
+        get_string('optionformconfig', 'mod_booking'),
+        new moodle_url('/mod/booking/optionformconfig.php', [
+            'cmid' => 0,
+            ]
+        )));
 
 $ADMIN->add('modbookingfolder',
         new admin_externalpage('modbookingpricecategories',
@@ -160,7 +164,7 @@ if ($ADMIN->fulltree) {
                 get_string('collapseshowsettings_desc', 'mod_booking'),
                 2, $options));
 
-        // Turn off wunderbyte branding.
+        // Turn off modals.
         $settings->add(
             new admin_setting_configcheckbox('booking/turnoffmodals',
                     get_string('turnoffmodals', 'mod_booking'),
@@ -172,6 +176,41 @@ if ($ADMIN->fulltree) {
                 get_string('appearancesettings', 'mod_booking'),
                 get_string('infotext:prolicensenecessary', 'mod_booking')));
     }
+
+    // General settings.
+    $settings->add(
+        new admin_setting_heading('generalsettings',
+            get_string('generalsettings', 'mod_booking'), ''));
+
+    $settings->add(
+        new admin_setting_configcheckbox('booking/alloptionsinreport',
+                get_string('alloptionsinreport', 'mod_booking'),
+                get_string('alloptionsinreportdesc', 'mod_booking'), 0));
+
+    $settings->add(
+        new admin_setting_configcheckbox('booking/responsiblecontactcanedit',
+            get_string('responsiblecontactcanedit', 'mod_booking'),
+            get_string('responsiblecontactcanedit_desc', 'mod_booking'), 0));
+
+    $settings->add(
+        new admin_setting_configcheckbox('booking/maxperuserdontcountpassed',
+            get_string('maxperuserdontcountpassed', 'mod_booking'),
+            get_string('maxperuserdontcountpassed_desc', 'mod_booking'), 1));
+
+    $settings->add(
+        new admin_setting_configcheckbox('booking/maxperuserdontcountcompleted',
+            get_string('maxperuserdontcountcompleted', 'mod_booking'),
+            get_string('maxperuserdontcountcompleted_desc', 'mod_booking'), 0));
+
+    $settings->add(
+        new admin_setting_configcheckbox('booking/maxperuserdontcountnoshow',
+            get_string('maxperuserdontcountnoshow', 'mod_booking'),
+            get_string('maxperuserdontcountnoshow_desc', 'mod_booking'), 1));
+
+    $settings->add(
+        new admin_setting_configcheckbox('booking/bookingdebugmode',
+            get_string('bookingdebugmode', 'mod_booking'),
+            get_string('bookingdebugmode_desc', 'mod_booking'), 0));
 
     // PRO feature: Teacher settings.
     if ($proversion) {
@@ -195,6 +234,11 @@ if ($ADMIN->fulltree) {
             new admin_setting_configcheckbox('booking/teachersshowemails',
                 get_string('teachersshowemails', 'mod_booking'),
                 get_string('teachersshowemails_desc', 'mod_booking'), 0));
+
+        $settings->add(
+            new admin_setting_configcheckbox('booking/bookedteachersshowemails',
+                get_string('bookedteachersshowemails', 'mod_booking'),
+                get_string('bookedteachersshowemails_desc', 'mod_booking'), 0));
 
         $settings->add(
             new admin_setting_configcheckbox('booking/teachersallowmailtobookedusers',
@@ -292,6 +336,11 @@ if ($ADMIN->fulltree) {
     $settings->add(
         new admin_setting_configcheckbox('booking/turnoffwaitinglistaftercoursestart',
                 get_string('turnoffwaitinglistaftercoursestart', 'mod_booking'), '', 0));
+
+    $settings->add(
+        new admin_setting_configcheckbox('booking/keepusersbookedonreducingmaxanswers',
+                get_string('keepusersbookedonreducingmaxanswers', 'mod_booking'),
+                    get_string('keepusersbookedonreducingmaxanswers_desc', 'mod_booking'), 0));
 
     // Notification list settings.
     $settings->add(
@@ -507,6 +556,11 @@ if ($ADMIN->fulltree) {
                 get_string('waitinglistlowpercentage', 'booking'),
                 get_string('waitinglistlowpercentagedesc', 'booking'),
                 20, $waitinglistlowpercentages));
+
+        $settings->add(
+            new admin_setting_configcheckbox('booking/waitinglistshowplaceonwaitinglist',
+                get_string('waitinglistshowplaceonwaitinglist', 'mod_booking'),
+                get_string('waitinglistshowplaceonwaitinglist_info', 'booking'), 0));
     }
 
     // PRO feature: Subbookings.
@@ -662,11 +716,6 @@ if ($ADMIN->fulltree) {
         $setting = new admin_setting_configtext($name, $visiblename, $description, '');
         $settings->add($setting);
     }
-
-    $settings->add(
-        new admin_setting_configcheckbox('booking/alloptionsinreport',
-                get_string('alloptionsinreport', 'mod_booking'),
-                get_string('alloptionsinreportdesc', 'mod_booking'), 0));
 
     // Global mail templates (PRO).
     $settings->add(

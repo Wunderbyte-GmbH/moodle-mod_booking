@@ -148,7 +148,7 @@ class entities extends field_base {
         // Add entities.
         if (class_exists('local_entities\entitiesrelation_handler')) {
             $erhandler = new entitiesrelation_handler('mod_booking', 'option');
-            $erhandler->instance_form_definition($mform, 0, $optionformconfig['formmode']);
+            $erhandler->instance_form_definition($mform, 0);
 
             // We removed this because the new date series feature uses the option entity by default.
 

@@ -162,6 +162,7 @@ class allowedtobookininstance implements bo_condition {
      * @param int $userid optional user id
      * @return array
      */
+
     public function render_page(int $optionid, int $userid = 0): array {
         return [];
     }
