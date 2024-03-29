@@ -162,7 +162,7 @@ class allowedtobookininstance implements bo_condition {
      * @param int $userid optional user id
      * @return array
      */
-    public function render_page(int $optionid, int $userid = 0) {
+    public function render_page(int $optionid, int $userid = 0): array {
         return [];
     }
 
@@ -194,7 +194,7 @@ class allowedtobookininstance implements bo_condition {
      * @param bool $full
      * @return string
      */
-    private function get_description_string($isavailable, $full) {
+    private function get_description_string($isavailable, $full): string {
         if ($isavailable) {
             $description = $full ? get_string('bo_cond_allowedtobookininstance_full_available', 'mod_booking') :
                 get_string('bo_cond_allowedtobookininstance_available', 'mod_booking');
