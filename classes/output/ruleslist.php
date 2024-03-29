@@ -24,6 +24,7 @@
 
 namespace mod_booking\output;
 
+use coding_exception;
 use renderer_base;
 use renderable;
 use templatable;
@@ -40,12 +41,17 @@ class ruleslist implements renderable, templatable {
     /** @var array $rules */
     public $rules = [];
 
+    /** @var int $contextid */
+    public $contextid = 1;
+
     /**
      * Constructor takes the rules to render and saves them as array.
-     *
      * @param array $rules
+     * @param int $contextid
+     * @return void
+     * @throws coding_exception
      */
-    public function __construct(array $rules) {
+    public function __construct(array $rules, int $contextid) {
 
         foreach ($rules as $rule) {
 
@@ -60,6 +66,7 @@ class ruleslist implements renderable, templatable {
 
             $this->rules[] = (array)$rule;
         }
+        $this->contextid = $contextid;
     }
 
     /**
@@ -73,6 +80,7 @@ class ruleslist implements renderable, templatable {
     public function export_for_template(renderer_base $output) {
         return [
                 'rules' => $this->rules,
+                'contextid' => $this->contextid,
         ];
     }
 }

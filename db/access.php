@@ -281,6 +281,15 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    // Capability to edit booking rules.
+    // Has to be assigned via global role!
+    'mod/booking:editbookingrules' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
     // Expert option form capability. Can be configured via settings.
     'mod/booking:expertoptionform' => [
         'captype' => 'write',

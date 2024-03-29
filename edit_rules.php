@@ -29,20 +29,51 @@ require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 require_once($CFG->libdir . '/adminlib.php');
 
+
+$cmid = optional_param('cmid', 0, PARAM_INT);
+$contextid = optional_param('contextid', 0, PARAM_INT);
+
+
 global $DB;
 
 // No guest autologin.
 require_login(0, false);
 
-admin_externalpage_setup('modbookingeditrules');
+$urlparams = [];
 
-$url = new moodle_url('/mod/booking/edit_rules.php');
+if (empty($cmid) && empty($contextid)) {
+    $contextid = context_system::instance()->id;
+} else {
+    if (!empty($cmid)) {
+        list($course, $cm) = get_course_and_cm_from_cmid($cmid, 'booking');
+        require_course_login($course, false, $cm);
+        $context = context_module::instance($cmid);
+        $contextid = $context->id;
+        $urlparams = ['id' => $cmid];
+    } else {
+        $contextid = $contextid;
+    }
+}
+
+$context = context::instance_by_id($contextid);
+
+require_capability('mod/booking:editbookingrules', $context);
+
+$PAGE->set_context($context);
+
+$url = new moodle_url('/mod/booking/edit_rules.php', $urlparams);
 $PAGE->set_url($url);
 
 // In Moodle 4.0+ we want to turn the instance description off on every page except view.php.
 $PAGE->activityheader->disable();
 
-$PAGE->set_pagelayout('admin');
+if ($contextid == 1) {
+    admin_externalpage_setup('modbookingeditrules');
+    $PAGE->set_pagelayout('admin');
+} else {
+    $PAGE->set_pagelayout('standard');
+}
+
 $PAGE->add_body_class('limitedwidth');
 $PAGE->set_pagetype('mod-booking-edit-rules');
 
@@ -57,7 +88,7 @@ echo $output->heading(get_string('bookingruleswithbadge', 'mod_booking'));
 
 // Check if PRO version is active.
 if (wb_payment::pro_version_is_activated()) {
-    echo booking_rules::return_rendered_list_of_saved_rules();
+    echo booking_rules::return_rendered_list_of_saved_rules($contextid);
 
 } else {
     echo html_writer::div(get_string('infotext:prolicensenecessary', 'mod_booking'), 'alert alert-warning');

@@ -63,6 +63,9 @@ class rules_info {
             $rulesforselect[$shortclassname] = $rule->get_name_of_rule();
         }
 
+        $mform->addElement('hidden', 'contextid');
+        $mform->setType('contextid', PARAM_INT);
+
         // The custom name of the role has to be at this place, but every rule will implement save and set of rule_name.
         $mform->addElement('text', 'rule_name',
             get_string('rule_name', 'mod_booking'), ['size' => '50']);
@@ -165,6 +168,8 @@ class rules_info {
 
         // If we have an ID, we retrieve the right rule from DB.
         $record = $DB->get_record('booking_rules', ['id' => $data->id]);
+
+        $data->contextid = $record->contextid;
 
         $rule = self::get_rule($record->rulename);
 

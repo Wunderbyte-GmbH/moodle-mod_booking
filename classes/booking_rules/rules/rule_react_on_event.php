@@ -142,7 +142,7 @@ class rule_react_on_event implements booking_rule {
 
         $record->rulejson = json_encode($jsonobject);
         $record->rulename = $this->rulename;
-        $record->bookingid = $data->bookingid ?? 0;
+        $record->contextid = $data->contextid ?? 1;
 
         // If we can update, we add the id here.
         if (!empty($data->id)) {

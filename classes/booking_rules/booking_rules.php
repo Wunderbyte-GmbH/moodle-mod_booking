@@ -25,6 +25,9 @@
 
 namespace mod_booking\booking_rules;
 
+use coding_exception;
+use context;
+use dml_exception;
 use mod_booking\output\ruleslist;
 
 /**
@@ -42,35 +45,55 @@ class booking_rules {
     /**
      * Returns the rendered html for a list of rules.
      *
-     * @param int $bookingid
+     * @param int $contextid
      * @return string
      */
-    public static function return_rendered_list_of_saved_rules($bookingid = 0) {
+    public static function return_rendered_list_of_saved_rules($contextid = 1) {
         global $PAGE;
 
-        $rules = self::get_list_of_saved_rules($bookingid);
+        $rules = self::get_list_of_saved_rules($contextid);
 
-        $data = new ruleslist($rules);
+        $data = new ruleslist($rules, $contextid);
         $output = $PAGE->get_renderer('booking');
         return $output->render_ruleslist($data);
     }
 
     /**
-     * Returns the rendered html for a list of rules for an instance or globally.
-     *
-     * @param int $bookingid
-     * @return array
+     * Returns the saved rules for the right context.
+     * @param int $contextid
+     * @return mixed
+     * @throws coding_exception
+     * @throws dml_exception
      */
-    private static function get_list_of_saved_rules($bookingid = 0): array {
+    private static function get_list_of_saved_rules(int $contextid = 1) {
+
         global $DB;
 
-        // If the bookingid is 0, we are dealing with global rules.
-        $params = ['bookingid' => $bookingid];
 
-        if (!$rules = $DB->get_records('booking_rules', $params)) {
-            $rules = [];
-        }
+        return $DB->get_records('booking_rules', ['contextid' => $contextid]);
 
-        return $rules;
+        // Everything below is not necessary for fetching the rules, but for the affected booking options.
+        // TODO: Delete it.
+
+        // We dont know where exactly the config is in the context path.
+        // There might be a config higher up, eg. for the course category.
+        // Therefore, we look for all the contextids in the path, sorted by context_level.
+        // We use the highest, ie most specific context_level.
+        $context = context::instance_by_id($contextid);
+        $path = $context->path;
+
+        $patharray = explode('/', $path);
+
+        $patharray = array_map(fn($a) => (int)$a, $patharray);
+
+        list($inorequal, $params) = $DB->get_in_or_equal($patharray, SQL_PARAMS_NAMED);
+
+        $sql = "SELECT br.*
+                FROM {booking_rules} br
+                JOIN {context} c ON br.contextid=c.id
+                WHERE br.contextid $inorequal
+                ORDER BY c.contextlevel DESC";
+
+        return $DB->get_records_sql($sql, $params, IGNORE_MULTIPLE);
     }
 }

@@ -56,6 +56,7 @@ function editRulesModal(element) {
     const ruleid = element.dataset.id;
     const name = element.dataset.name;
     const action = element.dataset.action;
+    const contextid = element.dataset.contextid;
 
     if (!ruleid) {
         return;
@@ -91,7 +92,10 @@ function editRulesModal(element) {
             // Name of the class where form is defined (must extend \core_form\dynamic_form):
             formClass: "mod_booking\\form\\rulesform",
             // Add as many arguments as you need, they will be passed to the form:
-            args: {id: ruleid},
+            args: {
+                id: ruleid,
+                contextid: contextid
+            },
             // Pass any configuration settings to the modal dialogue, for example, the title:
             modalConfig: {title: getString('editrule', 'mod_booking')},
             // DOM element that should get the focus after the modal dialogue is closed:

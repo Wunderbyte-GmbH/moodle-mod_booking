@@ -30,7 +30,7 @@
 
                 "id": 1,
                 "name" : "Rule name",
-                "bookingid": 1,
+                "contextid": 1,
                 "actionname" : "actionname",
                 "conditionname" : "conditionname",
                 "localizedrulename" : "localizedrulename",
@@ -38,13 +38,14 @@
                 "localizedconditionname" : "localizedconditionname"
 
             }
-        ]
+        ],
+        "contextid": 1
     }
 }}
 
 <div class="booking-rules-container">
-    <div class="btn btn-success booking-rules-addnewrulebtn" data-action="edit-or-new" data-id="0" data-bookingid="0">
-        <i class="fa fa-plus-square" aria-hidden="true"></i> {{#str}} addbookingrule, mod_booking {{/str}}
+    <div class="btn btn-success booking-rules-addnewrulebtn" data-action="edit-or-new" data-id="0" data-contextid="{{contextid}}">
+        <i class="fa fa-plus-square" aria-hidden="true"></i>{{#str}} addbookingrule, mod_booking {{/str}}
     </div>
     <ul class="mt-3 list-group booking-rules-list">
         {{#rules}}
@@ -52,10 +53,10 @@
             <div class="d-flex justify-content-between">
                 <h5>{{name}}</h5>
                 <div class="btn-group" role="group" aria-label="Booking rule buttons">
-                    <div class="btn btn-sm btn-outline-danger" data-action="delete" data-id="{{id}}" data-name="{{name}}" data-bookingid="{{bookingid}}">
+                    <div class="btn btn-sm btn-outline-danger" data-action="delete" data-id="{{id}}" data-name="{{name}}" data-contextid="{{contextid}}">
                         <i class="fa fa-trash" aria-hidden="true"></i> {{#str}} delete {{/str}}
                     </div>
-                    <div class="btn btn-sm btn-outline-primary" data-action="edit-or-new" data-id="{{id}}" data-name="{{name}}" data-bookingid="{{bookingid}}">
+                    <div class="btn btn-sm btn-outline-primary" data-action="edit-or-new" data-id="{{id}}" data-name="{{name}}" data-contextid="{{contextid}}">
                         <i class="fa fa-pencil" aria-hidden="true"></i> {{#str}} edit {{/str}}
                     </div>
                 </div>

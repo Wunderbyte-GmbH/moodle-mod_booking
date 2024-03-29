@@ -2002,8 +2002,8 @@ $string['error:campaignstart'] = 'Kampagnenbeginn muss vor dem Kampagnenende lie
 $string['error:campaignend'] = 'Kampagnenende muss nach dem Kampagnenbeginn sein.';
 
 // Booking rules.
-$string['bookingruleswithbadge'] = 'Buchung: Globale Regeln ' . $string['badge:pro'];
-$string['bookingrules'] = 'Buchung: Globale Regeln (PRO)';
+$string['bookingruleswithbadge'] = 'Buchung: Regeln ' . $string['badge:pro'];
+$string['bookingrules'] = 'Buchung: Regeln (PRO)';
 $string['bookingrule'] = 'Regel';
 $string['addbookingrule'] = 'Regel hinzufügen';
 $string['deletebookingrule'] = 'Regel löschen';

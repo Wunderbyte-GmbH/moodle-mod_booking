@@ -1016,6 +1016,9 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             $navref->add(get_string('optionformconfig', 'mod_booking') . " ($bookingsettings->name)",
                     new moodle_url('/mod/booking/optionformconfig.php', ['cmid' => $cm->id]),
                     navigation_node::TYPE_CUSTOM, null, 'nav_optionformconfig');
+            $navref->add(get_string('bookingrules', 'mod_booking') . " ($bookingsettings->name)",
+                    new moodle_url('/mod/booking/edit_rules.php', ['cmid' => $cm->id]),
+                    navigation_node::TYPE_CUSTOM, null, 'nav_editbookingrules');
         }
     }
 
