@@ -165,7 +165,7 @@ class page_teacher implements renderable, templatable {
      * @param int $perpage
      * @return array an array of tables as string
      */
-    private function get_option_tables_for_teacher(int $teacherid, $perpage = 1000) {
+    private function get_option_tables_for_teacher(int $teacherid, $perpage = 100) {
 
         global $DB, $USER;
 

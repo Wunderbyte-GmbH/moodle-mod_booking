@@ -925,7 +925,7 @@ class booking {
      * @param array $filterarray
      * @param array $wherearray
      * @param ?int $userid
-     * @param int $bookingparam
+     * @param array $bookingparams
      * @param string $additionalwhere
      * @param string $innerfrom
      * @return array
@@ -938,7 +938,7 @@ class booking {
                                                 $filterarray = [],
                                                 $wherearray = [],
                                                 $userid = null,
-                                                $bookingparam = MOD_BOOKING_STATUSPARAM_BOOKED,
+                                                $bookingparams = [MOD_BOOKING_STATUSPARAM_BOOKED],
                                                 $additionalwhere = '',
                                                 $innerfrom = '') {
 
@@ -980,16 +980,20 @@ class booking {
         }
         // Add where condition for userid.
         if ($userid !== null) {
+
+            list($inorequal, $inparams) = $DB->get_in_or_equal($bookingparams, SQL_PARAMS_NAMED);
+
             $innerfrom .= " JOIN {booking_answers} ba
                           ON ba.optionid=bo.id ";
 
             $outerfrom .= ", ba.waitinglist, ba.userid as bookeduserid ";
-            $where .= " AND waitinglist=:bookingparam
+            $where .= " AND waitinglist $inorequal
                         AND bookeduserid=:bookeduserid ";
             $groupby .= " , ba.waitinglist, ba.userid ";
 
             $params['bookeduserid'] = $userid;
-            $params['bookingparam'] = $bookingparam;
+
+            $params = array_merge($params, $inparams);
         }
 
         // Instead of "where" we return "filter". This is to support the filter functionality of wunderbyte table.
@@ -1139,7 +1143,8 @@ class booking {
      * @return void
      */
     public function get_my_options_sql($limitfrom = 0, $limitnum = 0, $searchtext = '',
-        $fields = "bo.*") {
+        $fields = "bo.*",
+        $booked = [MOD_BOOKING_STATUSPARAM_BOOKED]) {
 
         global $DB, $USER;
 
@@ -1150,19 +1155,22 @@ class booking {
         $search = $rsearch['query'];
         $params = array_merge(['bookingid' => $this->id,
                                     'userid' => $USER->id,
-                                    'booked' => MOD_BOOKING_STATUSPARAM_BOOKED,
                                 ], $rsearch['params']);
 
         if ($limitnum != 0) {
             $limit = " LIMIT {$limitfrom} OFFSET {$limitnum}";
         }
 
+        list($inorequal, $inparams) = $DB->get_in_or_equal($booked, SQL_PARAMS_NAMED);
+
+        $params = array_merge($params, $inparams);
+
         $from = "{booking_options} bo
                 JOIN {booking_answers} ba
                 ON ba.optionid=bo.id";
         $where = "bo.bookingid = :bookingid
                   AND ba.userid = :userid
-                  AND ba.waitinglist = :booked {$search}";
+                  AND ba.waitinglist = $inorequal {$search}";
         if (strlen($searchtext) !== 0) {
             $from .= "
                 JOIN {customfield_data} cfd

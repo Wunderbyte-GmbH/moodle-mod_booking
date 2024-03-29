@@ -371,7 +371,7 @@ class view implements renderable, templatable {
 
         list($fields, $from, $where, $params, $filter) =
             booking::get_options_filter_sql(0, 0, '', null, $booking->context, [],
-                $wherearray, null, MOD_BOOKING_STATUSPARAM_BOOKED, $additionalwhere);
+                $wherearray, null, [MOD_BOOKING_STATUSPARAM_BOOKED], $additionalwhere);
 
         // Timenow is today at at 00.00.
         // The test is on courseendtime, if it has finished not already yesterday.
