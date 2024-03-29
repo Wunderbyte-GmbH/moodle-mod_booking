@@ -102,3 +102,16 @@ function fix_showlistoncoursepage_2024030801() {
         WHERE showlistoncoursepage = 2"
     );
 }
+
+/**
+ * Migrate former bookingids to contextids.
+ * @return void
+ */
+function migrate_contextids_2024032900() {
+    global $DB;
+
+    $DB->execute(
+        "UPDATE {booking_rules}
+        SET contextid = 1"
+    );
+}

@@ -3716,5 +3716,26 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024030801, 'booking');
     }
 
+    if ($oldversion < 2024032900) {
+
+        // Define key bookingid (foreign) to be dropped form booking_rules.
+        $table = new xmldb_table('booking_rules');
+        $key = new xmldb_key('bookingid', XMLDB_KEY_FOREIGN, ['bookingid'], 'booking', ['id']);
+
+        // Launch drop key bookingid.
+        $dbman->drop_key($table, $key);
+
+        $field = new xmldb_field('bookingid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'id');
+
+        // Launch rename field bookingid.
+        $dbman->rename_field($table, $field, 'contextid');
+
+        // We need to migrate optionsfields for the new view.php.
+        migrate_contextids_2024032900();
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2024032900, 'booking');
+    }
+
     return true;
 }
