@@ -1248,6 +1248,9 @@ class booking_option {
             }
         }
 
+        // Now check, if there are rules to execute.
+        rules_info::execute_rules_for_option($this->optionid, $user->id);
+
         if ($this->booking->settings->sendmail) {
             $this->send_confirm_message($user);
         }

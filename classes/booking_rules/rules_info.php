@@ -25,6 +25,7 @@
 
 namespace mod_booking\booking_rules;
 
+use dml_exception;
 use Exception;
 use MoodleQuickForm;
 use stdClass;
@@ -227,9 +228,13 @@ class rules_info {
     /**
      * After an option has been added or updated,
      * we need to check if any rules need to be applied or changed.
+     * Also, after a user has booked we run this.
      * @param int $optionid
+     * @param int $userid
+     * @return void
+     * @throws dml_exception
      */
-    public static function execute_rules_for_option(int $optionid) {
+    public static function execute_rules_for_option(int $optionid, int $userid = 0) {
         global $DB;
 
         // Only fetch rules which need to be reapplied. At the moment, it's just one.
@@ -242,7 +247,7 @@ class rules_info {
                 // Important: Load the rule data from JSON into the rule instance.
                 $rule->set_ruledata($record);
                 // Now the rule can be executed.
-                $rule->execute($optionid);
+                $rule->execute($optionid, $userid);
             }
         }
     }

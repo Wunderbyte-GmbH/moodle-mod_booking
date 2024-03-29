@@ -283,6 +283,11 @@ class rule_daysbefore implements booking_rule {
             $params['optionid'] = $optionid;
         }
 
+        // When we want to restrict the userid, we just pass on the param to the condition like this.
+        if (!empty($userid)) {
+            $params['userid'] = $userid;
+        }
+
         $sql = new stdClass();
 
         $sql->select = "bo.id optionid, cm.id cmid, bo." . $ruledata->datefield . " datefield";
