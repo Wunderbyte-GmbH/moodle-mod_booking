@@ -1140,6 +1140,7 @@ class booking {
      * @param int $limitnum
      * @param string $searchtext
      * @param string $fields
+     * @param array $booked
      * @return void
      */
     public function get_my_options_sql($limitfrom = 0, $limitnum = 0, $searchtext = '',
