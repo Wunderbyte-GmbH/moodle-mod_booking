@@ -192,10 +192,12 @@ class match_userprofilefield implements booking_rule_condition {
         global $DB;
 
         $sqlcomparepart = "";
+
+        $concat = $DB->sql_concat("'%'", "bo.$this->optionfield", "'%'");
         switch ($this->operator) {
             case '~':
                 $sqlcomparepart = $DB->sql_compare_text("ud.data") .
-                    " LIKE CONCAT('%', bo." . $this->optionfield . ", '%')
+                    " LIKE $concat
                       AND bo." . $this->optionfield . " <> ''
                       AND bo." . $this->optionfield . " IS NOT NULL";
                 break;
@@ -214,8 +216,9 @@ class match_userprofilefield implements booking_rule_condition {
             $anduserid = "AND ud.userid = :userid2";
         }
 
+        $concat = $DB->sql_concat("bo.id", "'-'", "ud.userid");
         // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
-        $sql->select = " CONCAT(bo.id, '-', ud.userid) uniqueid, " . $sql->select;
+        $sql->select = " $concat uniqueid, " . $sql->select;
         $sql->select .= ", ud.userid userid ";
 
         $sql->from .= " JOIN {user_info_data} ud ON $sqlcomparepart ";

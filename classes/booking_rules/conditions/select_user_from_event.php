@@ -191,6 +191,8 @@ class select_user_from_event implements booking_rule_condition {
      */
     public function execute(stdClass &$sql, array &$params) {
 
+        global $DB;
+
         switch ($this->userfromeventtype) {
             case "userid":
                 // The user who triggered the event.
@@ -204,8 +206,9 @@ class select_user_from_event implements booking_rule_condition {
                 throw new moodle_exception('error: missing userid type for userfromevent condition');
         }
 
+        $concat = $DB->sql_concat("bo.id", "'-'", "u.userid");
         // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
-        $sql->select = " CONCAT(bo.id, '-', u.id) uniqueid, " . $sql->select;
+        $sql->select = " $concat uniqueid, " . $sql->select;
         $sql->select .= ", u.id userid";
         $sql->from .= " JOIN {user} u ON u.id = :chosenuserid "; // We want to join only the chosen user.
 

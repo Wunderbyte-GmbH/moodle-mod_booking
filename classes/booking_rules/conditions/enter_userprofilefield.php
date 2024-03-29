@@ -188,10 +188,10 @@ class enter_userprofilefield implements booking_rule_condition {
         $sqlcomparepart = "";
         switch ($this->operator) {
             case '~':
+                $concat = $DB->sql_concat("'%'", ":conditiontextfield", "'%'");
                 $sqlcomparepart = $DB->sql_compare_text("ud.data") .
-                    " LIKE CONCAT('%', :conditiontextfield, '%')
-                      AND :conditiontextfield1 <> ''
-                      AND :conditiontextfield2 IS NOT NULL";
+                    " LIKE $concat
+                      AND :conditiontextfield1 <> ''";
                 break;
             case '=':
             default:
@@ -201,7 +201,6 @@ class enter_userprofilefield implements booking_rule_condition {
 
         $params['conditiontextfield'] = $this->textfield;
         $params['conditiontextfield1'] = $this->textfield;
-        $params['conditiontextfield2'] = $this->textfield;
 
         // We pass the restriction to the userid in the params.
         // If its not 0, we add the restirction.
@@ -212,8 +211,9 @@ class enter_userprofilefield implements booking_rule_condition {
             $anduserid = "AND ud.userid = :userid2";
         }
 
+        $concat = $DB->sql_concat("bo.id", "'-'", "ud.userid");
         // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
-        $sql->select = " CONCAT(bo.id, '-', ud.userid) uniqueid, " . $sql->select;
+        $sql->select = " $concat uniqueid, " . $sql->select;
         $sql->select .= ", ud.userid userid";
 
         $sql->from .= " JOIN {user_info_data} ud ON $sqlcomparepart";

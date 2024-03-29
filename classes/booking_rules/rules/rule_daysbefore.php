@@ -165,7 +165,7 @@ class rule_daysbefore implements booking_rule {
         $record->bookingid = $data->bookingid ?? 0;
 
         // If we can update, we add the id here.
-        if ($data->id) {
+        if ($data->id ?? false) {
             $record->id = $data->id;
             $DB->update_record('booking_rules', $record);
         } else {
@@ -281,11 +281,6 @@ class rule_daysbefore implements booking_rule {
         if (!empty($optionid)) {
             $andoptionid = " AND bo.id = :optionid ";
             $params['optionid'] = $optionid;
-        }
-
-        if (!empty($userid)) {
-            $anduserid = "AND ud.userid = :userid";
-            $params['userid'] = $userid;
         }
 
         $sql = new stdClass();
