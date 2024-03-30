@@ -3737,5 +3737,21 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024032900, 'booking');
     }
 
+    if ($oldversion < 2024033000) {
+
+        // Define field eventname to be added to booking_rules.
+        $table = new xmldb_table('booking_rules');
+        $field = new xmldb_field('eventname', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'rulejson');
+
+        // Conditionally launch add field eventname.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2024033000, 'booking');
+    }
+
+
     return true;
 }
