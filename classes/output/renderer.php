@@ -444,7 +444,9 @@ class renderer extends plugin_renderer_base {
         return $o;
     }
 
-    /** Function to print list of teachers for mail placeholder {teachers}.
+    /**
+     * Function to print list of teachers for mail placeholder {teachers}.
+     *
      * @param array $data
      * @return string
      */
@@ -455,6 +457,7 @@ class renderer extends plugin_renderer_base {
 
     /**
      * Function to print list of option dates for mail placeholder {dates}.
+     *
      * @param bookingoption_description $data
      * @return string
      */
@@ -751,7 +754,9 @@ class renderer extends plugin_renderer_base {
         return $o;
     }
 
-    /** Function to render the page of a single teacher
+    /**
+     * Function to render the page of a single teacher.
+     *
      * @param object $data
      * @return string
      */
@@ -762,7 +767,9 @@ class renderer extends plugin_renderer_base {
         return $o;
     }
 
-    /** Function to render the page showing all teachers
+    /**
+     * Function to render the page showing all teachers.
+     *
      * @param object $data
      * @return string
      */

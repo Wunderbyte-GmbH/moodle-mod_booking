@@ -44,12 +44,12 @@ class csvcolumn {
     public $localizedname = '';
 
     /**
-     * @var boolean
+     * @var bool
      */
     public $mandatory = true;
 
     /**
-     * @var boolean
+     * @var bool
      */
     public $unique = false;
 

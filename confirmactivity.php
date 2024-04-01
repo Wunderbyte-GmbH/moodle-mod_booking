@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * This page allows to confirm user as completed if has received certificaion badge or completed certain activity.
  *
@@ -21,6 +22,7 @@
  * @copyright 2015 onwards David Bogner {@link http://www.edulabs.org}
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
