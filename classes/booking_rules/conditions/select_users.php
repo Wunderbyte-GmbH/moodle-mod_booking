@@ -175,7 +175,7 @@ class select_users implements booking_rule_condition {
 
         // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
 
-        $concat = $DB->sql_concat("bo.id", "'-'", "u.userid");
+        $concat = $DB->sql_concat("bo.id", "'-'", "u.id");
         $sql->select = " $concat uniqueid, " . $sql->select;
         $sql->select .= ", u.id userid";
 
