@@ -31,6 +31,7 @@ use mod_booking\booking;
 use mod_booking\booking_answers;
 use mod_booking\booking_bookit;
 use mod_booking\booking_context_helper;
+use mod_booking\booking_option;
 use mod_booking\option\dates_handler;
 use mod_booking\price;
 use mod_booking\singleton_service;
@@ -75,6 +76,9 @@ class bookingoption_description implements renderable, templatable {
 
     /** @var string $statusdescription depending on booking status */
     private $statusdescription = null;
+
+    /** @var string $attachments HTML for attached files as links */
+    private $attachments = null;
 
     /** @var string $imageurl URL of an uploaded image for the option */
     private $imageurl = null;
@@ -299,6 +303,9 @@ class bookingoption_description implements renderable, templatable {
         // Currently, this will only get the description for the current user.
         $this->statusdescription = $bookingoption->get_text_depending_on_status($bookinganswers);
 
+        // Attachments.
+        $this->attachments = booking_option::render_attachments($optionid, 'optionview-bookingoption-attachments mb-3');
+
         // Every date will be an array of datestring and customfields.
         // But customfields will only be shown if we show booking option information inline.
 
@@ -449,6 +456,7 @@ class bookingoption_description implements renderable, templatable {
             'modalcounter' => $this->modalcounter,
             'userid' => $this->userid,
             'description' => $this->description,
+            'attachments' => $this->attachments,
             'statusdescription' => $this->statusdescription,
             'imageurl' => $this->imageurl,
             'location' => $this->location,

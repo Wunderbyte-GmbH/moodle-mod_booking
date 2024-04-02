@@ -1003,4 +1003,16 @@ class bookingoptions_wbtable extends wunderbyte_table {
         }
         return $ret;
     }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * "attachment" value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string a string containing a link to the attachment
+     * @throws coding_exception
+     */
+    public function col_attachment($values) {
+        return booking_option::render_attachments($values->id, 'mod-booking-option-attachments mb-2');
+    }
 }

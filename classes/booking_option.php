@@ -3463,4 +3463,43 @@ class booking_option {
         $this->update($data, $context);
 
     }
+
+    /**
+     * Helper function to render a list of attachments for a booking option.
+     * @param int $optionid
+     * @param string $classes optional classes for the enclosing div
+     * @return string the rendered attachments as links (with paperclip icons)
+     */
+    public static function render_attachments(int $optionid, string $classes = ''): string {
+        $ret = '';
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $cmid = $settings->cmid;
+        $context = context_module::instance($cmid);
+
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($context->id, 'mod_booking', 'myfilemanageroption', $optionid);
+
+        if (count($files) > 1) {
+            $attachedfiles = [];
+            foreach ($files as $file) {
+                if ($file->get_filesize() > 0) {
+                    $filename = $file->get_filename();
+                    $url = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(),
+                        $file->get_itemid(), $file->get_filepath(), $file->get_filename(), true);
+                    $attachedfiles[] = html_writer::link($url, $filename);
+                }
+            }
+        }
+        if (!empty($attachedfiles)) {
+            $ret .= html_writer::start_div($classes);
+            foreach ($attachedfiles as $attachedfile) {
+                $content = html_writer::tag('span', '<i class="fa fa-fw fa-sm fa-paperclip" aria-hidden="true"></i> ',
+                    ['class' => 'bold text-gray']) .
+                    html_writer::tag('span', $attachedfile, ['class' => 'pt-0 pb-0']);
+                $ret .= html_writer::div($content, '');
+            }
+            $ret .= html_writer::end_div();
+        }
+        return $ret;
+    }
 }

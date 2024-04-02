@@ -655,6 +655,10 @@ class booking {
                     $headers[] = get_string('responsiblecontact', 'mod_booking');
                     $columns[] = 'responsiblecontact';
                     break;
+                case 'attachment':
+                    $headers[] = get_string('bookingattachment', 'mod_booking');
+                    $columns[] = 'attachment';
+                    break;
                 case 'showdates':
                     $headers[] = get_string('dates', 'mod_booking');
                     $columns[] = 'showdates';

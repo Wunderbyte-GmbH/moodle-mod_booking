@@ -242,7 +242,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addHelpButton('pollurlteachers', 'feedbackurlteachers', 'mod_booking');
 
         $mform->addElement('filemanager', 'myfilemanager',
-                get_string('bookingattachment', 'booking'), null,
+                get_string('bookingattachment', 'mod_booking'), null,
                 ['subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 50, 'accepted_types' => ['*']]);
 
         $whichviewopts = [
@@ -373,6 +373,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'statusdescription' => get_string('textdependingonstatus', 'mod_booking'),
             'teacher' => get_string('teachers', 'mod_booking'),
             'responsiblecontact' => get_string('responsiblecontact', 'mod_booking'),
+            'attachment' => get_string('bookingattachment', 'mod_booking'),
             'showdates' => get_string('dates', 'mod_booking'),
             'dayofweektime' => get_string('dayofweektime', 'mod_booking'),
             'location' => get_string('location', 'mod_booking'),

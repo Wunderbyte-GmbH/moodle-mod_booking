@@ -95,6 +95,7 @@ class shortcodes {
         $possibleoptions = [
             "description",
             "statusdescription",
+            "attachment",
             "teacher",
             "responsiblecontact",
             "showdates",
@@ -229,6 +230,7 @@ class shortcodes {
         $possibleoptions = [
             "description",
             "statusdescription",
+            "attachment",
             "teacher",
             "responsiblecontact",
             "showdates",
@@ -343,6 +345,7 @@ class shortcodes {
         $possibleoptions = [
             "description",
             "statusdescription",
+            "attachment",
             "teacher",
             "responsiblecontact",
             "showdates",
