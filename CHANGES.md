@@ -1,3 +1,22 @@
+## Version 8.2.2 (2024040200)
+* New feature: New setting to allow responsible contacts to edit booking options.
+* Improvement: Issue #407 blocks booking via moodle capability
+* Improvement: Add cancel for bought items.
+* Improvement: Allow Filter a users bookingoption for more than one booking status param
+* Improvement: Better way to check for price.
+* Improvement: Apply rules again after every time a user has booked (only for option & userid).
+* Improvement: Make bookit button accessible via TAB - fixes #436.
+* Bugfix: Cancel myself not shown on reserved items.
+* Bugfix: Description is actually a necessary field
+* Bugfix: Several fixes for missing cmid in formdata when creating context_module.
+* Bugfix: Add missing empty check for capability string identifier.
+* Bugfix: Fix some minor errors in subbookings - fixes #356.
+* Bugfix: Debug Booking rules.
+* Bugfix: Fix error "ERROR:  column u.userid does not exist" which affects booking rules #445.
+* Bugfix: Fix CSV import for entities.
+* Bugfix: In confirmcancel we need to check useprice from JSON. (Price item check is legacy.)
+* Bugfix: Switch from counting priceitems to just check useprice.
+
 ## Version 8.2.1 (2024032700)
 * Improvement: Show which form currently overrides the standard form definition on edit.
 * Improvement: Usability improvements for option form config with and without PRO license.
