@@ -82,9 +82,7 @@ class confirmcancel implements bo_condition {
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
-        $priceitems = price::get_prices_from_cache_or_db('option', $settings->id);
-
-        if (count($priceitems) > 0) {
+        if (!empty($settings->jsonobject->useprice)) {
             // If we have a price, this condition is not used.
             $isavailable = true; // True means, it won't be shown.
         } else {
