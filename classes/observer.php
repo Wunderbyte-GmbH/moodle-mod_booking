@@ -24,6 +24,8 @@
  */
 
 use mod_booking\booking_option;
+use mod_booking\booking_rules\booking_rule;
+use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\calendar;
 use mod_booking\elective;
@@ -364,8 +366,6 @@ class mod_booking_observer {
      */
     public static function execute_rule($event) {
 
-        global $DB;
-
         // We want booking events only.
         $data = $event->get_data();
         if ($data['component'] !== 'mod_booking') {
@@ -373,11 +373,9 @@ class mod_booking_observer {
         }
 
         // TODO: Get name of event and only trigger when the rule is set to listen on this specific event.
-
         $optionid = $event->objectid ?? 0;
-
-        // We retrieve all the event based booking rules.
-        $records = $DB->get_records('booking_rules', ['rulename' => 'rule_react_on_event']);
+        $eventname = get_class($event);
+        $records = booking_rules::get_list_of_saved_rules_by_optionid($optionid, $eventname);
 
         // Now we check all the existing rules.
         foreach ($records as $record) {

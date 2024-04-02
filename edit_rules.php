@@ -49,11 +49,16 @@ if (empty($cmid) && empty($contextid)) {
         require_course_login($course, false, $cm);
         $context = context_module::instance($cmid);
         $contextid = $context->id;
-        $urlparams = ['id' => $cmid];
+        $urlparams = ['cmid' => $cmid];
     } else {
         $contextid = $contextid;
     }
 }
+
+if (empty($urlparams)) {
+    $urlparams = ['contextid' => 1];
+}
+
 
 $context = context::instance_by_id($contextid);
 
@@ -88,7 +93,7 @@ echo $output->heading(get_string('bookingruleswithbadge', 'mod_booking'));
 
 // Check if PRO version is active.
 if (wb_payment::pro_version_is_activated()) {
-    echo booking_rules::return_rendered_list_of_saved_rules($contextid);
+    echo booking_rules::get_rendered_list_of_saved_rules($contextid);
 
 } else {
     echo html_writer::div(get_string('infotext:prolicensenecessary', 'mod_booking'), 'alert alert-warning');
