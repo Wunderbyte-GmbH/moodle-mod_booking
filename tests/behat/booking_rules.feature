@@ -19,10 +19,6 @@ Feature: Create global booking rules as admin and insure they are working.
     And the following "activities" exist:
       | activity | course | name       | intro               | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail |
       | booking  | C1     | BookingCMP | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      |
-    And the following "mod_booking > options" exist:
-      | booking     | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | optiondateid_2 | daystonotify_2 | coursestarttime_2 | courseendtime_2 |
-      | BookingCMP  | Option-tenis    | C1     | Deskr1      | 1            | 2          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   |
-      | BookingCMP  | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   |
     ## And I change viewport size to "1366x10000"
 
   @javascript
@@ -70,7 +66,10 @@ Feature: Create global booking rules as admin and insure they are working.
 
   @javascript
   Scenario: Booking rules: create booking rule for teacher substituing event
-    Given the following "mod_booking > rules" exist:
+    Given the following "mod_booking > options" exist:
+      | booking     | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | BookingCMP  | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
+    And the following "mod_booking > rules" exist:
       | conditionname | conditiondata     | name        | actionname | actiondata                                                                      | rulename            | ruledata                                                      |
       | select_users  | {"userids":["2"]} | notifyadmin | send_mail  | {"subject":"teacher subst","template":"teacher sybst msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\optiondates_teacher_added"} |
     When I am on the "BookingCMP" Activity page logged in as admin
@@ -95,7 +94,10 @@ Feature: Create global booking rules as admin and insure they are working.
 
   @javascript
   Scenario: Booking rules: create booking rule for option cancellation event
-    Given the following "mod_booking > rules" exist:
+    Given the following "mod_booking > options" exist:
+      | booking     | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | BookingCMP  | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
+    And the following "mod_booking > rules" exist:
       | conditionname | conditiondata     | name        | actionname | actiondata                                                                    | rulename            | ruledata                                                    |
       | select_users  | {"userids":["2"]} | notifyadmin | send_mail  | {"subject":"cancellation","template":"cancellation msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_cancelled"} |
     When I am on the "BookingCMP" Activity page logged in as admin
