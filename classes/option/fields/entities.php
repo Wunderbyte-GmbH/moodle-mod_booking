@@ -67,10 +67,10 @@ class entities extends field_base {
     public static $fieldcategories = [MOD_BOOKING_OPTION_FIELD_STANDARD];
 
     /**
-     * Additionally to the classname, there might be others keys which should instantiate this class.
+     * Additionally to the classname, there might be other keys which should instantiate this class.
      * @var array
      */
-    public static $alternativeimportidentifiers = [];
+    public static $alternativeimportidentifiers = ['location', 'entity'];
 
     /**
      * This is an array of incompatible field ids.
@@ -227,14 +227,20 @@ class entities extends field_base {
         if (class_exists('local_entities\entitiesrelation_handler')) {
 
             $erhandler = new entitiesrelation_handler('mod_booking', 'option');
+
+            $location = $data->entity ?? $data->location ?? "";
+
             // The following possibilites we have to set entities here.
             // A) In location, we find an int. this will be considered an entityid.
             // B) The string in Location corresponds to an entityid.
             // C) We load the saved entityid.
-            if (!empty($data->importing) && is_numeric($data->location)) {
-                $entities = $erhandler->get_entities_by_id($data->location);
-            } else if (!empty($data->importing) && !empty($data->location)) {
-                $entities = $erhandler->get_entities_by_name($data->location);
+            if (!empty($data->importing) && is_numeric($location)) {
+                $entities = $erhandler->get_entities_by_id($location);
+            } else if (!empty($data->importing) && !empty($location)) {
+                $entities = $erhandler->get_entities_by_name($location);
+                if (empty($entities)) {
+                    $entities = $erhandler->get_entities_by_shortname($location);
+                }
             } else {
                 $erhandler->values_for_set_data($data, $data->id);
                 return;
