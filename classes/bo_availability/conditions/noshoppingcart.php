@@ -79,15 +79,11 @@ class noshoppingcart implements bo_condition {
      */
     public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
 
-        global $DB;
-
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
-        $priceitems = price::get_prices_from_cache_or_db('option', $settings->id);
-
         // If the user is not yet booked we return true.
-        if ((count($priceitems) === 0) || class_exists('local_shopping_cart\shopping_cart')) {
+        if ((empty($settings->jsonobject->useprice)) || class_exists('local_shopping_cart\shopping_cart')) {
 
             $isavailable = true;
         }

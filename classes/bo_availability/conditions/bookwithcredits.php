@@ -94,11 +94,8 @@ class bookwithcredits implements bo_condition {
 
             if (!empty($profilefield) && $settings->credits > 0) {
 
-                // We need one more check. We only book if there is no price on this item.
-                $priceitems = price::get_prices_from_cache_or_db('option', $settings->id);
-
                 // If the user is not yet booked we return true.
-                if (count($priceitems) == 0) {
+                if (empty($settings->jsonobject->useprice)) {
                     // When we use credits, we can't book without.
                     $isavailable = false;
                 } else {

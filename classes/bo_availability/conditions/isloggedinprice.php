@@ -83,10 +83,9 @@ class isloggedinprice implements bo_condition {
         if (isloggedin()) {
             $isavailable = true;
         } else {
-            $priceitems = price::get_prices_from_cache_or_db('option', $settings->id);
 
             // If the user is not yet booked we return true.
-            if (count($priceitems) == 0) {
+            if (empty($settings->jsonobject->useprice)) {
 
                 $isavailable = true;
             }

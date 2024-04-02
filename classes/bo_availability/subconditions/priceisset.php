@@ -85,7 +85,7 @@ class priceisset implements bo_subcondition {
         // Only if there is no price on the option, we can return true.
         $priceitems = price::get_prices_from_cache_or_db('option', $settings->id);
 
-        if (count($priceitems) == 0) {
+        if (empty($settings->jsonobject->useprice)) {
 
             // Only now we actually check the price on the subbooking.
             $priceitems = price::get_prices_from_cache_or_db('subbooking', $subbookingid);
