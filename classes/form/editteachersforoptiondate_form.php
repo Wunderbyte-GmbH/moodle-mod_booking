@@ -353,7 +353,6 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
 
         $optionid = $data['optionid'];
 
-
         if (strlen($data['reason']) > 250) {
             $errors['reason'] = get_string('error:reasontoolong', 'mod_booking');
         }
