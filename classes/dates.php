@@ -39,13 +39,6 @@ use moodle_exception;
 use MoodleQuickForm;
 use stdClass;
 
-define('MOD_BOOKING_MAX_CUSTOM_FIELDS', 3);
-define('MOD_BOOKING_FORM_OPTIONDATEID', 'optiondateid_');
-define('MOD_BOOKING_FORM_DAYSTONOTIFY', 'daystonotify_');
-define('MOD_BOOKING_FORM_COURSESTARTTIME', 'coursestarttime_');
-define('MOD_BOOKING_FORM_COURSEENDTIME', 'courseendtime_');
-define('MOD_BOOKING_FORM_DELETEDATE', 'deletedate_');
-
 /**
  * Class to handle dates
  *

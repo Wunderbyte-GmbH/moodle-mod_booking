@@ -32,6 +32,8 @@ require_once($CFG->dirroot . '/group/lib.php');
 require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 require_once($CFG->dirroot .'/course/externallib.php');
+require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
 
 use local_entities\entitiesrelation_handler;
 use mod_booking\booking;
@@ -258,6 +260,13 @@ define('MOD_BOOKING_HEADER_AVAILABILITY', 'availabilityconditionsheader');
 define('MOD_BOOKING_HEADER_SUBBOOKINGS', 'bookingsubbookingsheader');
 define('MOD_BOOKING_HEADER_CUSTOMFIELDS', 'category_'); // There can be multiple headers, with custom names.
 define('MOD_BOOKING_HEADER_TEMPLATESAVE', 'templateheader');
+
+define('MOD_BOOKING_MAX_CUSTOM_FIELDS', 3);
+define('MOD_BOOKING_FORM_OPTIONDATEID', 'optiondateid_');
+define('MOD_BOOKING_FORM_DAYSTONOTIFY', 'daystonotify_');
+define('MOD_BOOKING_FORM_COURSESTARTTIME', 'coursestarttime_');
+define('MOD_BOOKING_FORM_COURSEENDTIME', 'courseendtime_');
+define('MOD_BOOKING_FORM_DELETEDATE', 'deletedate_');
 
 /**
  * Booking get coursemodule info.

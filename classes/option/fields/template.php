@@ -172,7 +172,8 @@ class template extends field_base {
                 'id' => $optionid, // In the context of option_form class, id always refers to optionid.
                 'optionid' => $optionid, // Just kept on for legacy reasons.
                 'bookingid' => $data->bookingid,
-                'copyoptionid' => 0,
+                'copyoptionid' => 0, // Do NOT set it here as we might get stuck in a loop.
+                'newcourseid' => $data->newcourseid ?? 0,
                 'returnurl' => '',
             ];
 

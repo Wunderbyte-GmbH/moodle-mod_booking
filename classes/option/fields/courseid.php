@@ -24,10 +24,12 @@
 
 namespace mod_booking\option\fields;
 
+use context_course;
 use core_course_external;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use mod_booking\singleton_service;
 use moodle_exception;
 use MoodleQuickForm;
 use stdClass;
@@ -182,6 +184,7 @@ class courseid extends field_base {
      * @return void
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
+        global $DB;
 
         // Standardfunctionality to add a header to the mform (only if its not yet there).
         fields_info::add_header_to_mform($mform, self::$header);
@@ -197,6 +200,21 @@ class courseid extends field_base {
         foreach ($allcourses as $id => $courseobject) {
             $coursearray[$id] = $courseobject->shortname;
         }
+
+        // Add courses, which are currently duplicating.
+        $sql = "SELECT c.id, c.shortname
+            FROM {course} c
+            JOIN {backup_controllers} bc
+            ON c.id = bc.itemid
+            JOIN {task_adhoc} ta
+            ON ta.customdata LIKE " . $DB->sql_concat("'%backupid%'", "bc.backupid", "'%'") .
+            "WHERE bc.operation = 'restore'";
+        $duplicatingcourses = $DB->get_records_sql($sql);
+        foreach ($duplicatingcourses as $dc) {
+            $coursearray[$dc->id] = $dc->shortname;
+        }
+        // TODO: This does not yet work as intended as the adhoc task did not run yet at this time!
+
         $options = [
             'noselectionstring' => get_string('donotselectcourse', 'mod_booking'),
         ];
@@ -245,8 +263,95 @@ class courseid extends field_base {
                 return;
             }
 
-            $value = $settings->{$key} ?? null;
+            // If the setting to duplicate the Moodle course is turned on...
+            // ... we duplicate it and use the ID of the new course copy.
+            if (/*get_config('booking', 'duplicatemoodlecourses') &&*/ !empty($data->oldcopyoptionid)) {
+                $newcourseid = self::copy_moodle_course($data->oldcopyoptionid);
+            }
+
+            $value = $newcourseid ?? $settings->{$key} ?? null;
             $data->{$key} = $value;
         }
+    }
+
+    /**
+     * Helper function to copy a Moodle course.
+     * @param int $oldcopyoptionid the id of the duplicated booking option
+     *                             containing the course to copy
+     * @return int $newcourseid the id of the new Moodle course
+     * @throws coding_exception
+     */
+    private static function copy_moodle_course(int $oldcopyoptionid) {
+
+        $oldsettings = singleton_service::get_instance_of_booking_option_settings($oldcopyoptionid);
+        $oldcourseid = $oldsettings->courseid;
+
+        // At first, we check the capabilities.
+        $context = context_course::instance($oldcourseid);
+        $copycaps = \core_course\management\helper::get_course_copy_capabilities();
+        require_all_capabilities($copycaps, $context);
+
+        // Get an object with the old course data.
+        $oldcourse = get_course($oldcourseid);
+
+        // Gather copy data.
+        $copydata = new stdClass;
+        $copydata->courseid = $oldcourseid;
+        $copydata->fullname = $oldcourse->fullname . " (" . get_string('copy', 'mod_booking') . ")";
+        $copydata->shortname = $oldcourse->shortname . "_" . strtolower(get_string('copy', 'mod_booking'));
+        $copydata->category = $oldcourse->category;
+        $copydata->visible = $oldcourse->visible;
+        $copydata->startdate = $oldcourse->startdate;
+        $copydata->enddate = $oldcourse->enddate;
+        $copydata->idnumber = '';
+        $copydata->userdata = "0"; // This might be a feature in a future version.
+        $copydata->keptroles = [];
+        // Roles ($copydata->keptroles = [roleid1, roleid2,...]) are also not yet included.
+
+        // Now, we create an adhoc task to copy the course.
+        $newcourseid = self::create_copy($copydata);
+
+        // We return the ID of the new course copy.
+        return (int) $newcourseid ?? null;
+    }
+
+    /**
+     * Creates a course copy.
+     *
+     * @param \stdClass $copydata Course copy data from process_formdata
+     * @return int $newcourseid the id of the new course
+     */
+    private static function create_copy(stdClass $copydata): int {
+        global $USER;
+        $copyids = [];
+
+        // Create the initial backupcontoller.
+        $bc = new \backup_controller(\backup::TYPE_1COURSE, $copydata->courseid, \backup::FORMAT_MOODLE,
+            \backup::INTERACTIVE_NO, \backup::MODE_COPY, $USER->id, \backup::RELEASESESSION_YES);
+        $copyids['backupid'] = $bc->get_backupid();
+
+        // Create the initial restore contoller.
+        list($fullname, $shortname) = \restore_dbops::calculate_course_names(
+            0, get_string('copyingcourse', 'backup'), get_string('copyingcourseshortname', 'backup'));
+        $newcourseid = \restore_dbops::create_new_course($fullname, $shortname, $copydata->category);
+        $rc = new \restore_controller($copyids['backupid'], $newcourseid, \backup::INTERACTIVE_NO,
+            \backup::MODE_COPY, $USER->id, \backup::TARGET_NEW_COURSE, null,
+            \backup::RELEASESESSION_NO, $copydata);
+        $copyids['restoreid'] = $rc->get_restoreid();
+
+        $bc->set_status(\backup::STATUS_AWAITING);
+        $bc->get_status();
+        $rc->save_controller();
+
+        // Create the ad-hoc task to perform the course copy.
+        $asynctask = new \core\task\asynchronous_copy_task();
+        $asynctask->set_blocking(false);
+        $asynctask->set_custom_data($copyids);
+        \core\task\manager::queue_adhoc_task($asynctask);
+
+        // Clean up the controller.
+        $bc->destroy();
+
+        return $newcourseid;
     }
 }
