@@ -181,7 +181,7 @@ class booking {
 
         $values = explode(' ', $query);
 
-        $fullsql = $DB->sql_concat('u.firstname', '\'\'', 'u.lastname', '\'\'', 'u.email');
+        $fullsql = $DB->sql_concat('u.id', '\'\'', 'u.firstname', '\'\'', 'u.lastname', '\'\'', 'u.email');
 
         $sql = "SELECT * FROM (
                     SELECT u.id, u.firstname, u.lastname, u.email, $fullsql AS fulltextstring
@@ -252,7 +252,7 @@ class booking {
 
         $values = explode(' ', $query);
 
-        $fullsql = $DB->sql_concat('c.shortname', '\'\'', 'c.fullname');
+        $fullsql = $DB->sql_concat('c.id', '\'\'', 'c.shortname', '\'\'', 'c.fullname');
 
         $sql = "SELECT * FROM (
                     SELECT c.id, c.shortname, c.fullname, $fullsql AS fulltextstring

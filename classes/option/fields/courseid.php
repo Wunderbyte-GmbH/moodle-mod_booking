@@ -191,7 +191,7 @@ class courseid extends field_base {
         $options = [
             'tags' => false,
             'multiple' => false,
-            'ajax' => 'mod_booking/form_course_selector',
+            'ajax' => 'mod_booking/form_courses_selector',
             'noselectionstring' => get_string('nocourseselected', 'mod_booking'),
             'valuehtmlcallback' => function($value) {
                 if (isset($coursearray[$value])) {
