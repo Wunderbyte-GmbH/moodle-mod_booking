@@ -2,12 +2,15 @@
 Feature: Create global booking rules as admin and insure they are working.
 
   Background:
+    Given the following "custom profile fields" exist:
+      | datatype | shortname | name  |
+      | text     | sport     | Sport |
     Given the following "users" exist:
-      | username | firstname | lastname | email                | idnumber |
-      | teacher1 | Teacher   | 1        | teacher1@example.com | T1       |
-      | teacher2 | Teacher   | 2        | teacher2@example.com | T2       |
-      | student1 | Student   | 1        | student1@example.com | S1       |
-      | student2 | Student   | 2        | student2@example.com | S2       |
+      | username | firstname | lastname | email                | idnumber | profile_field_sport |
+      | teacher1 | Teacher   | 1        | teacher1@example.com | T1       |                     |
+      | teacher2 | Teacher   | 2        | teacher2@example.com | T2       | football            |
+      | student1 | Student   | 1        | student1@example.com | S1       |                     |
+      | student2 | Student   | 2        | student2@example.com | S2       |                     |
     And the following "courses" exist:
       | fullname | shortname | category | enablecompletion |
       | Course 1 | C1        | 0        | 1                |
@@ -176,5 +179,30 @@ Feature: Create global booking rules as admin and insure they are working.
     Then I should see "Booking option completed"
     And I should see "Booking confirmation: An e-mail with subject 'Booking confirmation for Option-football' has been sent to user with id:"
     And I should see "Custom message: An e-mail with subject 'completion' has been sent to user with id:"
+    ## Logout is mandatory for admin pages to avoid error
+    And I log out
+
+  @javascript
+  Scenario: Booking rules: create booking rule for option cancellation event and notify user matching profile field value
+    Given the following "mod_booking > options" exist:
+      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | teachersforoption  |
+      | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | teacher1, teacher2 |
+    And the following "mod_booking > rules" exist:
+      | conditionname          | conditiondata                                            | name        | actionname | actiondata                                                                               | rulename            | ruledata                                                    |
+      | enter_userprofilefield | {"cpfield":"sport","operator":"=","textfield":"footbal"} | notifyadmin | send_mail  | {"subject":"cancellation football","template":"football cancelled","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_cancelled"} |
+    When I am on the "BookingCMP" Activity page logged in as admin
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Cancel this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I set the field "Reason for cancelation of this booking option" to "rule testing"
+    And I click on "Save changes" "button"
+    And I should see "Option-football" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Cancelled" in the ".allbookingoptionstable_r1" "css_element"
+    ## Send messages via cron and verify via events log
+    And I trigger cron
+    And I visit "/report/loglive/index.php"
+    And I should see "Booking option cancelled"
+    ## Does not fired by now
+    And I should see "An e-mail with subject 'Booking confirmation for Option-football' has been sent to user with id:"
+    And I should see "An e-mail with subject 'cancellation football' has been sent to user with id:"
     ## Logout is mandatory for admin pages to avoid error
     And I log out
