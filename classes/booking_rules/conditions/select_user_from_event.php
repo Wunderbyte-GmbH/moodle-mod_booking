@@ -206,7 +206,7 @@ class select_user_from_event implements booking_rule_condition {
                 throw new moodle_exception('error: missing userid type for userfromevent condition');
         }
 
-        $concat = $DB->sql_concat("bo.id", "'-'", "u.userid");
+        $concat = $DB->sql_concat("bo.id", "'-'", "u.id");
         // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
         $sql->select = " $concat uniqueid, " . $sql->select;
         $sql->select .= ", u.id userid";
