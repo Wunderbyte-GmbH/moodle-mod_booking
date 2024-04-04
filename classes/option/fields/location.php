@@ -125,7 +125,7 @@ class location extends field_base {
             }
 
             $options = [
-                    'noselectionstring' => get_string('donotselectlocation', 'mod_booking'),
+                    'noselectionstring' => get_string('nolocationselected', 'mod_booking'),
                     'tags' => true,
             ];
             $mform->addElement('autocomplete', 'location', get_string('location', 'mod_booking'), $locationstrings, $options);

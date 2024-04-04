@@ -77,7 +77,8 @@ class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
                 continue;
             }
 
-            mtrace("Try to get optionid $optionid and bookingid $bookingid ");
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* mtrace("Try to get optionid $optionid and bookingid $bookingid "); */
 
             try {
                 $boption = singleton_service::get_instance_of_booking_option($cm->id, $optionid);

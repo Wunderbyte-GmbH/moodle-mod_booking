@@ -139,6 +139,13 @@ $functions = [
         'capabilities' => '',
         'ajax' => 1,
     ],
+    'mod_booking_search_courses' => [
+        'classname' => 'mod_booking\external\search_courses',
+        'description' => 'Search a list of courses',
+        'type' => 'read',
+        'capabilities' => '',
+        'ajax' => 1,
+    ],
     'mod_booking_allow_add_item_to_cart' => [
         'classname' => 'mod_booking\external\allow_add_item_to_cart',
         'description' => 'Check if item can be added to cart',

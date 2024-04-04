@@ -232,6 +232,89 @@ class booking {
     }
 
     /**
+     * Function to lazyload courses list for autocomplete.
+     *
+     * @param string $query
+     * @return array
+     */
+    public static function load_courses(string $query) {
+        global $DB;
+
+        $totalcount = 1;
+
+        $allcourses = get_courses_search([], 'c.fullname ASC', 0, 9999999,
+            $totalcount, ['enrol/manual:enrol']);
+        $allcourseids = [];
+        foreach ($allcourses as $id => $courseobject) {
+            $allcourseids[] = $id;
+        }
+        list($incourseids, $inparams) = $DB->get_in_or_equal($allcourseids, SQL_PARAMS_NAMED, 'inparam');
+
+        $values = explode(' ', $query);
+
+        $fullsql = $DB->sql_concat('c.shortname', '\'\'', 'c.fullname');
+
+        $sql = "SELECT * FROM (
+                    SELECT c.id, c.shortname, c.fullname, $fullsql AS fulltextstring
+                    FROM {course} c
+                    WHERE c.visible = 1 AND c.id $incourseids
+                ) AS fulltexttable";
+        // Check for c.visible = 1 is important, so we do not load any inivisble courses!
+        $params = $inparams;
+        if (!empty($query)) {
+            // We search for every word extra to get better results.
+            $firstrun = true;
+            $counter = 1;
+            foreach ($values as $value) {
+
+                $sql .= $firstrun ? ' WHERE ' : ' AND ';
+                $sql .= " " . $DB->sql_like('fulltextstring', ':param' . $counter, false) . " ";
+                $params['param' . $counter] = "%$value%";
+                $firstrun = false;
+                $counter++;
+            }
+        }
+
+        // We don't return more than 100 records, so we don't need to fetch more from db.
+        $sql .= " limit 102";
+
+        $rs = $DB->get_recordset_sql($sql, $params);
+        $count = 0;
+        $coursearray = [];
+
+        foreach ($rs as $record) {
+            $course = (object)[
+                    'id' => $record->id,
+                    'shortname' => $record->shortname,
+                    'fullname' => $record->fullname,
+            ];
+
+            $count++;
+            $coursearray[$record->id] = $course;
+        }
+
+        // 0 ... No course has been selected.
+        $coursearray[0] = (object)[
+            'id' => 0,
+            'shortname' => get_string('nocourseselected', 'mod_booking'),
+            'fullname' => get_string('nocourseselected', 'mod_booking'),
+        ];
+        // Minus 1 means, a new course will be created.
+        $coursearray[-1] = (object)[
+            'id' => -1,
+            'shortname' => get_string('newcourse', 'mod_booking'),
+            'fullname' => get_string('newcourse', 'mod_booking'),
+        ];
+
+        $rs->close();
+
+        return [
+                'warnings' => count($coursearray) > 100 ? get_string('toomanytoshow', 'mod_booking') : '',
+                'list' => count($coursearray) > 100 ? [] : $coursearray,
+        ];
+    }
+
+    /**
      * Function to lazyload teacher list for autocomplete.
      *
      * @param string $query

@@ -184,41 +184,54 @@ class courseid extends field_base {
      * @return void
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
-        global $DB;
 
         // Standardfunctionality to add a header to the mform (only if its not yet there).
         fields_info::add_header_to_mform($mform, self::$header);
 
-        $coursearray = [];
-        $coursearray[0] = get_string('donotselectcourse', 'mod_booking');
-        $totalcount = 1;
-        // TODO: Using  moodle/course:viewhiddenactivities is not 100% accurate for finding teacher/non-editing teacher at least.
-        $allcourses = get_courses_search([], 'c.shortname ASC', 0, 9999999,
-            $totalcount, ['enrol/manual:enrol']);
-
-        $coursearray[-1] = get_string('newcourse', 'booking');
-        foreach ($allcourses as $id => $courseobject) {
-            $coursearray[$id] = $courseobject->shortname;
-        }
-
-        // Add courses, which are currently duplicating.
-        $sql = "SELECT c.id, c.shortname
-            FROM {course} c
-            JOIN {backup_controllers} bc
-            ON c.id = bc.itemid
-            JOIN {task_adhoc} ta
-            ON ta.customdata LIKE " . $DB->sql_concat("'%backupid%'", "bc.backupid", "'%'") .
-            "WHERE bc.operation = 'restore'";
-        $duplicatingcourses = $DB->get_records_sql($sql);
-        foreach ($duplicatingcourses as $dc) {
-            $coursearray[$dc->id] = $dc->shortname;
-        }
-        // TODO: This does not yet work as intended as the adhoc task did not run yet at this time!
-
         $options = [
-            'noselectionstring' => get_string('donotselectcourse', 'mod_booking'),
+            'tags' => false,
+            'multiple' => false,
+            'ajax' => 'mod_booking/form_course_selector',
+            'noselectionstring' => get_string('nocourseselected', 'mod_booking'),
+            'valuehtmlcallback' => function($value) {
+                if (isset($coursearray[$value])) {
+                    return $coursearray[$value];
+                } else {
+                    global $DB, $OUTPUT;
+                    // Check if the course is currently being duplicated.
+                    $sql = "SELECT c.id, c.fullname, c.shortname
+                            FROM {course} c
+                            JOIN {backup_controllers} bc
+                            ON c.id = bc.itemid
+                            JOIN {task_adhoc} ta
+                            ON ta.customdata LIKE " . $DB->sql_concat("'%backupid%'", "bc.backupid", "'%'") .
+                            "WHERE bc.operation = 'restore' AND c.id = :courseid";
+                    $params = ['courseid' => $value];
+                    $duplicatingcourse = $DB->get_record_sql($sql, $params);
+
+                    if (empty($duplicatingcourse)) {
+                        // Check if the course exists.
+                        $sql = "SELECT c.id, c.fullname, c.shortname
+                                FROM {course} c
+                                WHERE c.id = :courseid";
+                        $params = ['courseid' => $value];
+                        $courserecord = $DB->get_record_sql($sql, $params);
+                        if (empty($courserecord)) {
+                            // The course does not exist.
+                            return get_string('nocourseselected', 'mod_booking');
+                        } else {
+                            // The course exists, so show it.
+                            return $OUTPUT->render_from_template(
+                                'mod_booking/form-course-selector-suggestion', $courserecord);
+                        }
+                    } else {
+                        return get_string('courseduplicating', 'mod_booking');
+                    }
+                }
+            },
         ];
-        $mform->addElement('autocomplete', 'courseid', get_string("connectedmoodlecourse", "booking"), $coursearray, $options);
+
+        $mform->addElement('autocomplete', 'courseid', get_string("connectedmoodlecourse", "booking"), [], $options);
         $mform->addHelpButton('courseid', 'connectedmoodlecourse', 'mod_booking');
     }
 

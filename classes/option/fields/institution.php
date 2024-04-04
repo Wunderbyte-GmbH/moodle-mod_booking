@@ -130,7 +130,7 @@ class institution extends field_base {
         }
 
         $options = [
-                'noselectionstring' => get_string('donotselectinstitution', 'mod_booking'),
+                'noselectionstring' => get_string('noinstitutionselected', 'mod_booking'),
                 'tags' => true,
         ];
         $mform->addElement('autocomplete', 'institution',

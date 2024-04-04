@@ -196,7 +196,7 @@ class mod_booking_mod_form extends moodleform_mod {
             $eventstrings[$item] = $item;
         }
         $options = [
-                'noselectionstring' => get_string('donotselecteventtype', 'booking'),
+                'noselectionstring' => get_string('noeventtypeselected', 'booking'),
                 'tags' => true,
         ];
         $mform->addElement('autocomplete', 'eventtype', get_string('eventtype', 'booking'), $eventstrings, $options);

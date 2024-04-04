@@ -173,7 +173,7 @@ class template extends field_base {
                 'optionid' => $optionid, // Just kept on for legacy reasons.
                 'bookingid' => $data->bookingid,
                 'copyoptionid' => 0, // Do NOT set it here as we might get stuck in a loop.
-                'newcourseid' => $data->newcourseid ?? 0,
+                'oldcopyoptionid' => $data->copyoptionid ?? 0,
                 'returnurl' => '',
             ];
 
