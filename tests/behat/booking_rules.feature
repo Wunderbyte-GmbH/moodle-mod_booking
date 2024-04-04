@@ -139,7 +139,7 @@ Feature: Create global booking rules as admin and insure they are working.
     ## Send messages via cron and verify via events log
     And I trigger cron
     And I visit "/report/loglive/index.php"
-    ## And I should see "Substitution teacher was added"
-    ## And I should see "An e-mail with subject 'teacher subst' has been sent to user with id: '2'"
+    And I should see "Teacher deleted from teaching journal"
+    And I should see "An e-mail with subject 'teacher removed' has been sent to user with id: '2'"
     ## Logout is mandatory for admin pages to avoid error
     And I log out
