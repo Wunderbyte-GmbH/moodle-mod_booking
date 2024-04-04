@@ -29,7 +29,7 @@ Feature: Test messaging features in a booking
     And I change viewport size to "1366x10000"
 
   @javascript
-  Scenario: Booking option: send reminder mail to participant
+  Scenario: Booking option: send custom reminder mail to participant
     Given I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -46,10 +46,17 @@ Feature: Test messaging features in a booking
       | Message | Dear, Firstly, I would like to thank you for booking my Course |
     And I press "Send message"
     And I should see "Your message has been sent."
-    # And I run all adhoc tasks
-    # And I open the link "webserver/_/mail"
-    # Then I should see "Teacher 1 (via Acceptance test site)"
-    # And I should see "Behat test"
+    And I log out
+    ## Send messages via cron and verify via events log
+    And I log in as "admin"
+    When I trigger cron
+    And I wait "1" seconds
+    And I run all adhoc tasks
+    And I visit "/report/loglive/index.php"
+    Then I should see "Booking option booked"
+    And I should see "Custom message: An e-mail with subject 'Behat test' has been sent to user with id:"
+    ## Logout is mandatory for admin pages to avoid error
+    And I log out
 
   @javascript
   Scenario: Teacher books a booking option and get email confirmation
