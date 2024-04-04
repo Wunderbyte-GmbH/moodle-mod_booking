@@ -474,10 +474,27 @@ if ($ADMIN->fulltree) {
         new admin_setting_configcheckbox('booking/duplicationrestoreentities',
                 get_string('duplicationrestoreentities', 'mod_booking'), '', 1));
 
-    if (wb_payment::pro_version_is_activated()) {
+    if ($proversion) {
         $settings->add(
             new admin_setting_configcheckbox('booking/duplicationrestoresubbookings',
                     get_string('duplicationrestoresubbookings', 'mod_booking'), '', 1));
+    }
+
+    if ($proversion) {
+        $settings->add(
+            new admin_setting_heading('duplicationrestoreoption',
+                get_string('duplicationrestoreoption', 'mod_booking'),
+                get_string('duplicationrestoreoption_desc', 'mod_booking')));
+        $settings->add(
+            new admin_setting_configcheckbox('booking/duplicatemoodlecourses',
+                    get_string('duplicatemoodlecourses', 'mod_booking'),
+                    get_string('duplicatemoodlecourses_desc', 'mod_booking'), 0));
+    } else {
+        $settings->add(
+            new admin_setting_heading('duplicationrestoreoption',
+                get_string('duplicationrestoreoption', 'mod_booking'),
+                get_string('duplicationrestoreoption_desc', 'mod_booking') . " " .
+                    get_string('infotext:prolicensenecessary', 'mod_booking')));
     }
 
     $settings->add(

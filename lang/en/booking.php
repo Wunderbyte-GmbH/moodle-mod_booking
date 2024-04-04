@@ -1296,12 +1296,15 @@ $string['teachingreportfortrainer'] = 'Report of performed teaching units for tr
 $string['educationalunitinminutes'] = 'Length of an educational unit (minutes)';
 $string['educationalunitinminutes_desc'] = 'Enter the length of an educational unit in minutes. It will be used to calculate the performed teaching units.';
 
-$string['duplicationrestore'] = 'Duplication, backup and restore';
+$string['duplicationrestore'] = 'Booking instances: Duplication, backup and restore';
 $string['duplicationrestoredesc'] = 'Here you can set which information you want to include when duplicating or backing up / restoring booking instances.';
 $string['duplicationrestoreteachers'] = 'Include teachers';
 $string['duplicationrestoreprices'] = 'Include prices';
 $string['duplicationrestoreentities'] = 'Include entities';
 $string['duplicationrestoresubbookings'] = 'Include subbookings ' . $string['badge:pro'];
+
+$string['duplicationrestoreoption'] = 'Booking options: Duplication settings ' . $string['badge:pro'];
+$string['duplicationrestoreoption_desc'] = 'Special settings for the duplication of booking options.';
 
 $string['waitinglistheader'] = 'Waiting list';
 $string['waitinglistheader_desc'] = 'Here you can set how the booking waiting list should behave.';
@@ -1384,6 +1387,11 @@ $string['cdo:coursestarttime'] = 'Start of the booking option (coursestarttime)'
 $string['cdo:semesterstart'] = 'Semester start';
 $string['cdo:bookingopeningtime'] = 'Booking registration start (bookingopeningtime)';
 $string['cdo:bookingclosingtime'] = 'Booking registration end (bookingclosingtime)';
+
+$string['duplicatemoodlecourses'] = 'Duplicate Moodle course';
+$string['duplicatemoodlecourses_desc'] = 'When this setting is active and you duplicate a booking option,
+then the connected Moodle course will also be duplicated. This will be done with an adhoc task,
+so be sure that CRON runs regularly.';
 
 // Mobile.
 $string['next'] = 'Next';

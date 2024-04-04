@@ -278,10 +278,11 @@ class courseid extends field_base {
 
             // If the setting to duplicate the Moodle course is turned on...
             // ... we duplicate it and use the ID of the new course copy.
-            if (/*get_config('booking', 'duplicatemoodlecourses') &&*/ !empty($data->oldcopyoptionid)) {
+            if (get_config('booking', 'duplicatemoodlecourses') && !empty($data->oldcopyoptionid)) {
                 $newcourseid = self::copy_moodle_course($data->oldcopyoptionid);
             }
 
+            // If there is no $newcourseid, then the old courseid ($settings->{$key}) will be taken.
             $value = $newcourseid ?? $settings->{$key} ?? null;
             $data->{$key} = $value;
         }

@@ -1255,12 +1255,15 @@ $string['teachingreportfortrainer'] = 'Leistungs-Report für Trainer:in';
 $string['educationalunitinminutes'] = 'Länge einer Unterrichtseinheit (Minuten)';
 $string['educationalunitinminutes_desc'] = 'Hier können Sie die Länge einer Unterrichtseinheit in Minuten angeben. Diese wird zur Berechnung der geleisteten UEs herangezogen.';
 
-$string['duplicationrestore'] = 'Duplizieren, Backup und Wiederherstellen';
+$string['duplicationrestore'] = 'Buchungsinstanzen: Duplizieren, Backup und Wiederherstellen';
 $string['duplicationrestoredesc'] = 'Hier können Sie einstellen, welche Informationen beim Duplizieren bzw. beim Backup / Wiederherstellen von Buchungsinstanzen inkludiert werden sollen.';
 $string['duplicationrestoreteachers'] = 'Trainer:innen inkludieren';
 $string['duplicationrestoreprices'] = 'Preise inkludieren';
 $string['duplicationrestoreentities'] = 'Entities inkludieren';
 $string['duplicationrestoresubbookings'] = 'Zusatzbuchungen inkludieren ' . $string['badge:pro'];
+
+$string['duplicationrestoreoption'] = 'Buchungsoptionen: Duplizieren ' . $string['badge:pro'];
+$string['duplicationrestoreoption_desc'] = 'Spezielle Einstellungen für das Duplizieren von Buchungsoptionen.';
 
 $string['waitinglistheader'] = 'Warteliste';
 $string['waitinglistheader_desc'] = 'Hier können Sie Einstellungen zum Verhalten der Warteliste vornehmen.';
@@ -1348,6 +1351,11 @@ $string['cdo:coursestarttime'] = 'Beginn der Buchungsoption (coursestarttime)';
 $string['cdo:semesterstart'] = 'Semesterstart';
 $string['cdo:bookingopeningtime'] = 'Buchungsbeginn (bookingopeningtime)';
 $string['cdo:bookingclosingtime'] = 'Anmeldeschluss (bookingclosingtime)';
+
+$string['duplicatemoodlecourses'] = 'Moodle-Kurs duplizieren';
+$string['duplicatemoodlecourses_desc'] = 'Wenn diese Einstellung aktiviert ist, dann wird beim Duplizieren einer Buchungsoption
+auch der verbundene Moodle-Kurs dupliziert (Achtung: Nutzer:innen-Daten des Moodle-Kurses werden nicht mit-dupliziert!).
+Da das Duplizieren asynchron über einen Adhoc-Task gemacht wird, stellen Sie bitte sicher, dass der CRON-Task regelmäßig läuft.';
 
 // Optiontemplatessettings.php.
 $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';
