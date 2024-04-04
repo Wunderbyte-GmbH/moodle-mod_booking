@@ -118,13 +118,13 @@ Feature: Create global booking rules as admin and insure they are working.
     And I log out
 
   @javascript
-  Scenario: Booking rules: create booking rule for teacher removal event
+  Scenario: Booking rules: create booking rule for teacher removal event and notify other teachers
     Given the following "mod_booking > options" exist:
       | booking     | text           | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | teachersforoption |
-      | BookingCMP  | Option-teacher | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | teacher2          |
+      | BookingCMP  | Option-teacher | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | teacher2, admin   |
     And the following "mod_booking > rules" exist:
-      | conditionname | conditiondata     | name        | actionname | actiondata                                                                          | rulename            | ruledata                                                        |
-      | select_users  | {"userids":["2"]} | notifyadmin | send_mail  | {"subject":"teacher removed","template":"teacher removed msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\optiondates_teacher_deleted"} |
+      | conditionname        | name        | actionname | actiondata                                                                          | rulename            | ruledata                                                        |
+      | select_teacher_in_bo | notifyadmin | send_mail  | {"subject":"teacher removed","template":"teacher removed msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\optiondates_teacher_deleted"} |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Substitutions / Cancelled dates" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -135,11 +135,11 @@ Feature: Create global booking rules as admin and insure they are working.
     And I set the field "Reason" to "Remove teacher"
     And I press "Save changes"
     And I wait until the page is ready
-    And I should see "No teacher" in the "[id^=optiondates_teachers_table] td.teacher" "css_element"
+    And I should see "Admin" in the "[id^=optiondates_teachers_table] td.teacher" "css_element"
     ## Send messages via cron and verify via events log
     And I trigger cron
     And I visit "/report/loglive/index.php"
-    And I should see "Teacher deleted from teaching journal"
+    Then I should see "Teacher deleted from teaching journal"
     And I should see "An e-mail with subject 'teacher removed' has been sent to user with id: '2'"
     ## Logout is mandatory for admin pages to avoid error
     And I log out
