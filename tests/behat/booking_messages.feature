@@ -75,8 +75,8 @@ Feature: Test messaging features in a booking
     ## And I should see "Booking confirmation for New option - Webinar"
 
   @javascript
-  Scenario: Teacher book students into booking option and sends mails to them
-    Given I am on the "My booking" Activity page logged in as teacher1
+  Scenario: Admin book students into booking option and sends mails to them
+    Given I am on the "My booking" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Student 1 (student1@example.com)" "text"
@@ -85,8 +85,14 @@ Feature: Test messaging features in a booking
     And I follow "<< Back to responses"
     And I click on "selectall" "checkbox"
     And I click on "Send reminder e-mail" "button"
-    Then I should see "Notification e-mail has been sent!"
-    ## Next step(s) cause faiure (coding error, email was not sent):
-    ## Then I trigger cron
-    ## And I wait "1" seconds
-    ## And I run all adhoc tasks
+    And I should see "Notification e-mail has been sent!"
+    ## Send messages via cron and verify via events log
+    When I trigger cron
+    And I wait "1" seconds
+    And I run all adhoc tasks
+    And I visit "/report/loglive/index.php"
+    Then I should see "Booking option booked"
+    And I should see "Reminder sent from report: An e-mail with subject 'Reminder: Your booked course' has been sent to user with id:"
+    And I should see "Booking confirmation: An e-mail with subject 'Booking confirmation for Option: mail to participant' has been sent to user with id:"
+    ## Logout is mandatory for admin pages to avoid error
+    And I log out
