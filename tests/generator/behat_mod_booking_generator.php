@@ -53,7 +53,7 @@ class behat_mod_booking_generator extends behat_generator_base {
             'rules' => [
                 'datagenerator' => 'rule',
                 'required' => [
-                        'conditionname', 'conditiondata',
+                        'conditionname',
                         'name', 'actionname', 'actiondata',
                         'rulename', 'ruledata',
                 ],

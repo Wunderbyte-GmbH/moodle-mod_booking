@@ -150,7 +150,7 @@ class mod_booking_generator extends testing_module_generator {
             $teacherarr = explode(',', $record->teachersforoption);
             $record->teachersforoption = [];
             foreach ($teacherarr as $teacher) {
-                $record->teachersforoption[] = $this->get_user($teacher);
+                $record->teachersforoption[] = $this->get_user(trim($teacher));
             }
         }
 
@@ -250,7 +250,7 @@ class mod_booking_generator extends testing_module_generator {
 
         $ruleobject = new stdClass;
         $ruleobject->conditionname = $ruledraft->conditionname;
-        $ruleobject->conditiondata = json_decode($ruledraft->conditiondata);
+        $ruleobject->conditiondata = isset($ruledraft->conditiondata) ? json_decode($ruledraft->conditiondata) : '';
         $ruleobject->name = $ruledraft->name;
         $ruleobject->actionname = $ruledraft->actionname;
         $ruleobject->actiondata = json_decode($ruledraft->actiondata);
