@@ -95,14 +95,20 @@ Feature: Create global booking rules as admin and insure they are working.
     And I log out
 
   @javascript
-  Scenario: Booking rules: create booking rule for option cancellation event
+  Scenario: Booking rules: create booking rule for option cancellation event and notify students
     Given the following "mod_booking > options" exist:
-      | booking     | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
-      | BookingCMP  | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
+      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
-      | conditionname | conditiondata     | name        | actionname | actiondata                                                                    | rulename            | ruledata                                                    |
-      | select_users  | {"userids":["2"]} | notifyadmin | send_mail  | {"subject":"cancellation","template":"cancellation msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_cancelled"} |
+      | conditionname        | conditiondata  | name        | actionname | actiondata                                                                    | rulename            | ruledata                                                    |
+      | select_student_in_bo | {"borole":"0"} | notifyadmin | send_mail  | {"subject":"cancellation","template":"cancellation msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_cancelled"} |
     When I am on the "BookingCMP" Activity page logged in as admin
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Student 1 (student1@example.com)" "text"
+    And I click on "Student 2 (student2@example.com)" "text"
+    And I click on "Add" "button"
+    And I am on the "BookingCMP" Activity page
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Cancel this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I set the field "Reason for cancelation of this booking option" to "rule testing"
@@ -113,7 +119,9 @@ Feature: Create global booking rules as admin and insure they are working.
     And I trigger cron
     And I visit "/report/loglive/index.php"
     And I should see "Booking option cancelled"
-    And I should see "An e-mail with subject 'cancellation' has been sent to user with id: '2'"
+    And I should see "Booking option cancelled for/by user"
+    And I should see "An e-mail with subject 'Booking confirmation for Option-football' has been sent to user with id:"
+    And I should see "An e-mail with subject 'cancellation' has been sent to user with id:"
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
