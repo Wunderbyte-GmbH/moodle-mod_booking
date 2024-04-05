@@ -113,6 +113,7 @@ function send_custom_message(int $optionid, string $subject, string $message, ar
         // Also trigger an event, so we can react with booking rules for example.
         $event = custom_message_sent::create([
             'context' => context_system::instance(),
+            'objectid' => $optionid,
             'userid' => $USER->id,
             'relateduserid' => $currentuserid,
             'other' => [

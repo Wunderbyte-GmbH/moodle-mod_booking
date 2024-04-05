@@ -69,8 +69,8 @@ class send_copy_of_mail implements booking_rule_action {
         $jsonobject = json_decode($json);
         $actiondata = $jsonobject->actiondata;
         $datafromevent = $jsonobject->datafromevent;
-        $this->subject = $actiondata->subjectprefix . ": " . $datafromevent->other['subject'];
-        $this->message = $actiondata->messageprefix . "<br><hr><br> " . $datafromevent->other['message'];
+        $this->subject = $actiondata->subjectprefix . ": " . $datafromevent->other->subject;
+        $this->message = $actiondata->messageprefix . "<hr> " . $datafromevent->other->message;
     }
 
     /**
@@ -83,14 +83,15 @@ class send_copy_of_mail implements booking_rule_action {
     public function add_action_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
 
         // Mail subject.
-        $mform->addElement('text', 'action_send_copy_of_mail_subject_prefix_prefix',
+        $mform->addElement('text', 'action_send_copy_of_mail_subject_prefix',
             get_string('sendcopyofmailsubjectprefix', 'mod_booking'),
             ['size' => '33']);
         $mform->setType('action_send_copy_of_mail_subject_prefix', PARAM_TEXT);
 
         // Mail template.
         $mform->addElement('editor', 'action_send_copy_of_mail_message_prefix',
-            get_string('sendcopyofmailmessageprefix'), ['rows' => 5], ['subdirs' => 0, 'maxfiles' => 0, 'context' => null]);
+            get_string('sendcopyofmailmessageprefix', 'mod_booking'), ['rows' => 5],
+            ['subdirs' => 0, 'maxfiles' => 0, 'context' => null]);
 
         // No placeholders needed here. If some client needs them, we can add them later on.
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
