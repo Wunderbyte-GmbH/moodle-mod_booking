@@ -62,6 +62,7 @@ $string['course'] = 'Moodle-Kurs';
 $string['courseduplicating'] = 'Diesen Eintrag NICHT ENTFERNEN. Moodle-Kurs wird mit der nächsten Ausführung des CRON-Tasks kopiert.';
 $string['courses'] = 'Kurse';
 $string['course_s'] = 'Kurs(e)';
+$string['custom_message_sent'] = 'Persönliche Nachricht gesendet';
 $string['date_s'] = 'Termin(e)';
 $string['dayofweek'] = 'Wochentag';
 $string['deduction'] = 'Abzug';
@@ -2064,6 +2065,9 @@ $string['condition_select_user_from_event_type'] = 'Rolle wählen';
 
 // Booking rules actions.
 $string['bookingaction'] = "Aktion";
+$string['sendcopyofmailsubjectprefix'] = 'Vorangestellter Text für den Betreff';
+$string['sendcopyofmailmessageprefix'] = 'Vorangestellter Text für die Nachricht';
+$string['send_copy_of_mail'] = 'Eine Kopie der E-Mail senden';
 
 // Cancel booking option.
 $string['canceloption'] = "Storniere Buchungsoption";

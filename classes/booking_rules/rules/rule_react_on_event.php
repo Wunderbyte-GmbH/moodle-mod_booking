@@ -84,6 +84,7 @@ class rule_react_on_event implements booking_rule {
         $allowedeventkeys = [
             'bookingoption_cancelled',
             'bookingoption_completed',
+            'custom_message_sent',
             'optiondates_teacher_added',
             'optiondates_teacher_deleted',
         ];

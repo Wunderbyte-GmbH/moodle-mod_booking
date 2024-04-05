@@ -61,6 +61,7 @@ $string['course'] = 'Moodle course';
 $string['courseduplicating'] = 'DO NOT REMOVE this item. Moodle course is being copied with next run of CRON task.';
 $string['courses'] = 'Courses';
 $string['course_s'] = 'Kurs(e)';
+$string['custom_message_sent'] = 'Custom message sent';
 $string['date_s'] = 'Date(s)';
 $string['dayofweek'] = 'Weekday';
 $string['deduction'] = 'Deduction';
@@ -2194,6 +2195,9 @@ $string['condition_select_user_from_event_type'] = 'Choose role';
 
 // Booking rules actions.
 $string['bookingaction'] = "Action";
+$string['sendcopyofmailsubjectprefix'] = 'Subject prefix for the copy';
+$string['sendcopyofmailmessageprefix'] = 'Message prefix for the copy';
+$string['send_copy_of_mail'] = 'Send an email copy';
 
 // Cancel booking option.
 $string['canceloption'] = "Cancel boooking option";

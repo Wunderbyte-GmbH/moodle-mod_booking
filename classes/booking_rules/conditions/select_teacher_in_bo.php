@@ -132,7 +132,7 @@ class select_teacher_in_bo implements booking_rule_condition {
         global $DB;
 
         // We pass the restriction to the userid in the params.
-        // If its not 0, we add the restirction.
+        // If its not 0, we add the restriction.
         $anduserid = '';
         if (!empty($params['userid'])) {
             // We cannot use params twice, so we need to use userid2.
