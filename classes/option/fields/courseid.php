@@ -336,8 +336,11 @@ class courseid extends field_base {
      * @return int $newcourseid the id of the new course
      */
     private static function create_copy(stdClass $copydata): int {
-        global $USER;
+        global $CFG, $USER;
         $copyids = [];
+
+        require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+        require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
 
         // Create the initial backupcontoller.
         $bc = new \backup_controller(\backup::TYPE_1COURSE, $copydata->courseid, \backup::FORMAT_MOODLE,
