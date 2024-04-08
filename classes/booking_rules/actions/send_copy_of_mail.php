@@ -17,6 +17,7 @@
 namespace mod_booking\booking_rules\actions;
 
 use mod_booking\booking_rules\booking_rule_action;
+use mod_booking\singleton_service;
 use mod_booking\task\send_mail_by_rule_adhoc;
 use MoodleQuickForm;
 use stdClass;
@@ -69,8 +70,25 @@ class send_copy_of_mail implements booking_rule_action {
         $jsonobject = json_decode($json);
         $actiondata = $jsonobject->actiondata;
         $datafromevent = $jsonobject->datafromevent;
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($datafromevent->objectid);
+        $fulltitle = $settings->get_title_with_prefix();
+        $optionformatted = "<b>" . get_string('bookingoption', 'mod_booking') . "</b>: $fulltitle<br>";
+
+        $userfrom = singleton_service::get_instance_of_user((int) $datafromevent->userid);
+        $userfromformatted = "$userfrom->firstname $userfrom->lastname &lt;$userfrom->email&gt;";
+        $userfromformatted = "<b>" . get_string('from') . "</b>: $userfromformatted<br>";
+
+        $usertoformatted = '';
+        if (!empty($datafromevent->relateduserid)) {
+            $userto = singleton_service::get_instance_of_user((int) $datafromevent->relateduserid);
+            $usertoformatted .= "$userto->firstname $userto->lastname &lt;$userto->email&gt;";
+            $usertoformatted = "<b>" . get_string('to') . "</b>: $usertoformatted<br>";
+        }
+
         $this->subject = $actiondata->subjectprefix . ": " . $datafromevent->other->subject;
-        $this->message = $actiondata->messageprefix . "<hr> " . $datafromevent->other->message;
+        $this->message = "$actiondata->messageprefix<hr>" .
+            $optionformatted . $userfromformatted . $usertoformatted . $datafromevent->other->message;
     }
 
     /**
@@ -115,7 +133,10 @@ class send_copy_of_mail implements booking_rule_action {
      */
     public function is_compatible_with_ajaxformdata(array $ajaxformdata = []) {
         // For compatible events we return true.
-        if (isset($ajaxformdata["rule_react_on_event_event"]) &&
+        if (isset($ajaxformdata["bookingruleactiontype"]) &&
+            $ajaxformdata["bookingruleactiontype"] == "send_copy_of_mail") {
+            return true;
+        } else if (isset($ajaxformdata["rule_react_on_event_event"]) &&
             $ajaxformdata["rule_react_on_event_event"] == '\mod_booking\event\custom_message_sent') {
             return true;
         }

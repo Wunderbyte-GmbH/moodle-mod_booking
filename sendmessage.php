@@ -26,6 +26,7 @@ require_once(__DIR__ . '/../../config.php');
 require_once("lib.php");
 require_once("sendmessageform.class.php");
 
+use mod_booking\event\custom_bulk_message_sent;
 use mod_booking\event\custom_message_sent;
 use mod_booking\message_controller;
 use mod_booking\singleton_service;
@@ -125,4 +126,29 @@ function send_custom_message(int $optionid, string $subject, string $message, ar
         ]);
         $event->trigger();
     }
+
+    // Check, if a bulk message has been sent.
+    $answers = singleton_service::get_instance_of_booking_answers($settings);
+    $bookedusers = $answers->usersonlist;
+    if (!empty($selecteduserids) && !empty($bookedusers)) {
+        $countselected = count($selecteduserids);
+        $countbooked = count($bookedusers);
+        // It's been considered as a bulk message, if it goes to at least 75% of booked users (and more than 3 users).
+        if ($countselected >= 3 && ($countselected / $countbooked) >= 0.75) {
+            $event = custom_bulk_message_sent::create([
+                'context' => context_system::instance(),
+                'objectid' => $optionid,
+                'userid' => $USER->id,
+                'other' => [
+                    'cmid' => $cmid,
+                    'optionid' => $optionid,
+                    'bookingid' => $bookingid,
+                    'subject' => $subject,
+                    'message' => $message,
+                ],
+            ]);
+            $event->trigger();
+        }
+    }
+
 }

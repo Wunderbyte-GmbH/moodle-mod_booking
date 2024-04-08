@@ -173,6 +173,18 @@ class rulesform extends dynamic_form {
                     $errors['action_send_mail_template'] = get_string('error:entervalue', 'mod_booking');
                 }
                 break;
+            case 'send_copy_of_mail':
+                $allowedeventsformailcopy = [
+                    '\mod_booking\event\custom_message_sent',
+                ];
+                if (!isset($data["rule_react_on_event_event"]) ||
+                    !in_array($data["rule_react_on_event_event"], $allowedeventsformailcopy)) {
+                    $errors['action_send_copy_of_mail_subject_prefix'] =
+                        get_string('error:ruleactionsendcopynotpossible', 'mod_booking');
+                    $errors['action_send_copy_of_mail_message_prefix'] =
+                        get_string('error:ruleactionsendcopynotpossible', 'mod_booking');
+                }
+                break;
         }
 
         return $errors;

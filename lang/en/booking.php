@@ -61,6 +61,7 @@ $string['course'] = 'Moodle course';
 $string['courseduplicating'] = 'DO NOT REMOVE this item. Moodle course is being copied with next run of CRON task.';
 $string['courses'] = 'Courses';
 $string['course_s'] = 'Kurs(e)';
+$string['custom_bulk_message_sent'] = 'Custom bulk message sent (> 75% of booked users, min. 3)';
 $string['custom_message_sent'] = 'Custom message sent';
 $string['date_s'] = 'Date(s)';
 $string['dayofweek'] = 'Weekday';
@@ -142,6 +143,7 @@ $string['badge:pro'] = '<span class="badge bg-success text-light"><i class="fa f
 $string['badge:experimental'] = '<span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimental</span>';
 
 // Errors.
+$string['error:ruleactionsendcopynotpossible'] = 'It\'s not possible to send an e-mail copy for the event you chose.';
 $string['error:choosevalue'] = 'You have to choose a value here.';
 $string['error:confirmthatyouaresure'] = 'Please confirm that you are sure.';
 $string['error:taskalreadystarted'] = 'You have already started a task!';

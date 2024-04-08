@@ -62,6 +62,7 @@ $string['course'] = 'Moodle-Kurs';
 $string['courseduplicating'] = 'Diesen Eintrag NICHT ENTFERNEN. Moodle-Kurs wird mit der nächsten Ausführung des CRON-Tasks kopiert.';
 $string['courses'] = 'Kurse';
 $string['course_s'] = 'Kurs(e)';
+$string['custom_bulk_message_sent'] = 'Persönl. Nachricht als Rundmail gesendet (> 75% der TN, mind. 3 TN)';
 $string['custom_message_sent'] = 'Persönliche Nachricht gesendet';
 $string['date_s'] = 'Termin(e)';
 $string['dayofweek'] = 'Wochentag';
@@ -139,6 +140,7 @@ $string['badge:pro'] = '<span class="badge bg-success text-light"><i class="fa f
 $string['badge:experimental'] = '<span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimentell</span>';
 
 // Errors.
+$string['error:ruleactionsendcopynotpossible'] = 'Für das gewählte Ereignis kann leider keine E-Mail-Kopie versendet werden.';
 $string['error:choosevalue'] = 'Sie müssen hier einen Wert auswählen.';
 $string['error:confirmthatyouaresure'] = 'Bitte bestätigen Sie, dass Sie wissen, was Sie tun.';
 $string['error:taskalreadystarted'] = 'Sie haben bereits einen Task gestartet!';
