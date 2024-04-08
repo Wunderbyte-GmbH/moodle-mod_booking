@@ -176,6 +176,7 @@ class rulesform extends dynamic_form {
             case 'send_copy_of_mail':
                 $allowedeventsformailcopy = [
                     '\mod_booking\event\custom_message_sent',
+                    '\mod_booking\event\custom_bulk_message_sent',
                 ];
                 if (!isset($data["rule_react_on_event_event"]) ||
                     !in_array($data["rule_react_on_event_event"], $allowedeventsformailcopy)) {

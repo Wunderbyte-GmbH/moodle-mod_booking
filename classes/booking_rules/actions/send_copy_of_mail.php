@@ -53,6 +53,12 @@ class send_copy_of_mail implements booking_rule_action {
     /** @var string $message */
     public $message = null;
 
+    /** @var array $compatibleevents */
+    public $compatibleevents = [
+        '\mod_booking\event\custom_message_sent',
+        '\mod_booking\event\custom_bulk_message_sent',
+    ];
+
     /**
      * Load json data from DB into the object.
      * @param stdClass $record a rule action record from DB
@@ -71,7 +77,7 @@ class send_copy_of_mail implements booking_rule_action {
         $actiondata = $jsonobject->actiondata;
         $datafromevent = $jsonobject->datafromevent;
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($datafromevent->objectid);
+        $settings = singleton_service::get_instance_of_booking_option_settings($datafromevent->other->optionid);
         $fulltitle = $settings->get_title_with_prefix();
         $optionformatted = "<b>" . get_string('bookingoption', 'mod_booking') . "</b>: $fulltitle<br>";
 
@@ -137,7 +143,7 @@ class send_copy_of_mail implements booking_rule_action {
             $ajaxformdata["bookingruleactiontype"] == "send_copy_of_mail") {
             return true;
         } else if (isset($ajaxformdata["rule_react_on_event_event"]) &&
-            $ajaxformdata["rule_react_on_event_event"] == '\mod_booking\event\custom_message_sent') {
+            in_array($ajaxformdata["rule_react_on_event_event"], $this->compatibleevents)) {
             return true;
         }
         // For anything else, it's not compatible and won't be shown.

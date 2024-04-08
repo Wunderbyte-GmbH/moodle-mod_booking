@@ -119,6 +119,7 @@ function send_custom_message(int $optionid, string $subject, string $message, ar
             'relateduserid' => $currentuserid,
             'other' => [
                 'cmid' => $cmid,
+                'optionid' => $optionid,
                 'bookingid' => $bookingid,
                 'subject' => $subject,
                 'message' => $message,
@@ -139,6 +140,7 @@ function send_custom_message(int $optionid, string $subject, string $message, ar
                 'context' => context_system::instance(),
                 'objectid' => $optionid,
                 'userid' => $USER->id,
+                'relateduserid' => 0, // Bulk message, so no related single user.
                 'other' => [
                     'cmid' => $cmid,
                     'optionid' => $optionid,

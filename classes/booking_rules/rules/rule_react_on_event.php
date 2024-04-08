@@ -85,6 +85,7 @@ class rule_react_on_event implements booking_rule {
             'bookingoption_cancelled',
             'bookingoption_completed',
             'custom_message_sent',
+            'custom_bulk_message_sent',
             'optiondates_teacher_added',
             'optiondates_teacher_deleted',
         ];
