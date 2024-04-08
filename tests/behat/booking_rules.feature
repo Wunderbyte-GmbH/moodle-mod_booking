@@ -188,8 +188,8 @@ Feature: Create global booking rules as admin and insure they are working.
       | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | teachersforoption  |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | teacher1, teacher2 |
     And the following "mod_booking > rules" exist:
-      | conditionname          | conditiondata                                            | name        | actionname | actiondata                                                                               | rulename            | ruledata                                                    |
-      | enter_userprofilefield | {"cpfield":"sport","operator":"=","textfield":"footbal"} | notifyadmin | send_mail  | {"subject":"cancellation football","template":"football cancelled","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_cancelled"} |
+      | conditionname          | conditiondata                                             | name         | actionname | actiondata                                                                               | rulename            | ruledata                                                    |
+      | enter_userprofilefield | {"cpfield":"sport","operator":"=","textfield":"football"} | emailteacher | send_mail  | {"subject":"cancellation football","template":"football cancelled","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_cancelled"} |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Cancel this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -202,7 +202,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And I visit "/report/loglive/index.php"
     And I should see "Booking option cancelled"
     ## Does not fired by now - disabled temporarily
-    ## And I should see "An e-mail with subject 'Booking confirmation for Option-football' has been sent to user with id:"
-    ## And I should see "An e-mail with subject 'cancellation football' has been sent to user with id:"
+    And I should see "Custom message: An e-mail with subject 'cancellation football' has been sent to user with id:"
+    And I should see "An e-mail with subject 'cancellation football' has been sent to user with id:"
     ## Logout is mandatory for admin pages to avoid error
     And I log out
