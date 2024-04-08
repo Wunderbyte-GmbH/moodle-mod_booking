@@ -58,6 +58,13 @@ interface booking_rule_action {
     public function get_name_of_action($localized = true);
 
     /**
+     * Is the booking rule action compatible with the current form data?
+     * @param array $ajaxformdata the ajax form data entered by the user
+     * @return bool true if compatible, else false
+     */
+    public function is_compatible_with_ajaxformdata(array $ajaxformdata = []);
+
+    /**
      * Gets the JSON for the rule action to be stored in DB.
      * @param stdClass $data form data reference
      * @return string the json for the rule action

@@ -26,7 +26,7 @@
 namespace mod_booking\booking_rules;
 
 use MoodleQuickForm;
-use stdClass;
+use mod_booking\booking_rules\booking_rule_action;
 
 /**
  * Class for additional information of booking rules.
@@ -52,10 +52,14 @@ class actions_info {
         $actions = self::get_actions();
 
         $actionsforselect = [];
+        /** @var booking_rule_action $action */
         foreach ($actions as $action) {
             $fullclassname = get_class($action); // With namespace.
             $classnameparts = explode('\\', $fullclassname);
             $shortclassname = end($classnameparts); // Without namespace.
+            if (!$action->is_compatible_with_ajaxformdata($ajaxformdata)) {
+                continue;
+            }
             $actionsforselect[$shortclassname] = $action->get_name_of_action();
         }
 

@@ -109,6 +109,21 @@ class send_copy_of_mail implements booking_rule_action {
     }
 
     /**
+     * Is the booking rule action compatible with the current form data?
+     * @param array $ajaxformdata the ajax form data entered by the user
+     * @return bool true if compatible, else false
+     */
+    public function is_compatible_with_ajaxformdata(array $ajaxformdata = []) {
+        // For compatible events we return true.
+        if (isset($ajaxformdata["rule_react_on_event_event"]) &&
+            $ajaxformdata["rule_react_on_event_event"] == '\mod_booking\event\custom_message_sent') {
+            return true;
+        }
+        // For anything else, it's not compatible and won't be shown.
+        return false;
+    }
+
+    /**
      * Save the JSON for all sendmail_daysbefore rules defined in form.
      * @param stdClass $data form data reference
      */

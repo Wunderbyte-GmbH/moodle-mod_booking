@@ -106,6 +106,15 @@ class send_mail implements booking_rule_action {
     }
 
     /**
+     * Is the booking rule action compatible with the current form data?
+     * @param array $ajaxformdata the ajax form data entered by the user
+     * @return bool true if compatible, else false
+     */
+    public function is_compatible_with_ajaxformdata(array $ajaxformdata = []) {
+        return true;
+    }
+
+    /**
      * Save the JSON for all sendmail_daysbefore rules defined in form.
      * @param stdClass $data form data reference
      */
