@@ -2936,7 +2936,9 @@ class booking_option {
 
         $values = explode(' ', $query);
 
-        $fullsql = $DB->sql_concat('bo.id', '\'\'', 'bo.titleprefix', '\'\'', 'bo.text', '\'\'', 'b.name');
+        $fullsql = $DB->sql_concat(
+            '\' \'', 'bo.id', '\' \'', 'bo.titleprefix', '\' \'', 'bo.text', '\' \'', 'b.name', '\' \''
+        );
 
         $sql = "SELECT * FROM (
                     SELECT bo.id, bo.titleprefix, bo.text, b.name instancename, $fullsql AS fulltextstring
@@ -2953,7 +2955,8 @@ class booking_option {
 
                 $sql .= $firstrun ? ' WHERE ' : ' AND ';
                 $sql .= " " . $DB->sql_like('fulltextstring', ':param' . $counter, false) . " ";
-                $params['param' . $counter] = "%$value%";
+                // If it's numeric, we search for the full number - so we need to add blanks.
+                $params['param' . $counter] = is_numeric($value) ? "% $value %" : "%$value%";
                 $firstrun = false;
                 $counter++;
             }
