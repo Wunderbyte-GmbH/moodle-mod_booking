@@ -9,7 +9,7 @@ name: Releasing in the Plugins directory
 on:
   push:
     tags:
-      - v*
+      - v*-stable
 
   workflow_dispatch:
     inputs:
