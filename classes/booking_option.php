@@ -1206,7 +1206,7 @@ class booking_option {
      */
     public function after_successful_booking_routine(stdClass $user, int $waitinglist) {
 
-        global $DB;
+        global $DB, $USER;
 
         // If we have only put the option in the shopping card (reserved) we will skip the rest of the fucntion here.
         if ($waitinglist == MOD_BOOKING_STATUSPARAM_RESERVED) {
@@ -1225,7 +1225,7 @@ class booking_option {
         $event = event\bookingoption_booked::create(
                 ['objectid' => $this->optionid,
                     'context' => context_module::instance($this->cmid),
-                    'userid' => $user->id,
+                    'userid' => $USER->id,
                     'relateduserid' => $user->id,
                 ]);
         $event->trigger();
