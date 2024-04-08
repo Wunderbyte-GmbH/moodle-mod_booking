@@ -108,7 +108,7 @@ class booking_rules {
      * @throws coding_exception
      * @throws dml_exception
      */
-    private static function get_list_of_saved_rules_by_context(int $contextid = 1, string $eventname = '') {
+    public static function get_list_of_saved_rules_by_context(int $contextid = 1, string $eventname = '') {
 
         $context = context::instance_by_id($contextid);
         $path = $context->path;

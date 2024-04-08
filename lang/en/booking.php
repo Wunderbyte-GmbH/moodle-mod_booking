@@ -55,6 +55,7 @@ $string['customformnotchecked'] = 'You didn\'t accept yet.';
 $string['customfieldsplaceholdertext'] = 'Custom fields';
 $string['updatebooking'] = 'Update booking';
 $string['booking:manageoptiontemplates'] = "Manage option templates";
+$string['booking:editbookingrules'] = "Edit rules (Pro)";
 $string['booking:overrideboconditions'] = 'User can book even when conditions return false.';
 $string['confirmchangesemester'] = 'YES, I really want to delete all existing dates of the booking instance and generate new ones.';
 $string['course'] = 'Moodle course';
@@ -2132,8 +2133,8 @@ $string['error:campaignstart'] = 'Campaign start has to be before campaign end.'
 $string['error:campaignend'] = 'Campaign end has to be after campaign start.';
 
 // Booking rules.
-$string['bookingruleswithbadge'] = 'Booking: Global rules ' . $string['badge:pro'];
-$string['bookingrules'] = 'Booking: Global rules (PRO)';
+$string['bookingruleswithbadge'] = 'Booking: Rules ' . $string['badge:pro'];
+$string['bookingrules'] = 'Booking: Rules (PRO)';
 $string['bookingrule'] = 'Rule';
 $string['addbookingrule'] = 'Add rule';
 $string['deletebookingrule'] = 'Delete rule';
