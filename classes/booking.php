@@ -181,7 +181,9 @@ class booking {
 
         $values = explode(' ', $query);
 
-        $fullsql = $DB->sql_concat('u.id', '\'\'', 'u.firstname', '\'\'', 'u.lastname', '\'\'', 'u.email');
+        $fullsql = $DB->sql_concat(
+            '\' \'', 'u.id', '\' \'', 'u.firstname', '\' \'', 'u.lastname', '\' \'', 'u.email', '\' \''
+        );
 
         $sql = "SELECT * FROM (
                     SELECT u.id, u.firstname, u.lastname, u.email, $fullsql AS fulltextstring
@@ -198,7 +200,8 @@ class booking {
 
                 $sql .= $firstrun ? ' WHERE ' : ' AND ';
                 $sql .= " " . $DB->sql_like('fulltextstring', ':param' . $counter, false) . " ";
-                $params['param' . $counter] = "%$value%";
+                // If it's numeric, we search for the full number - so we need to add blanks.
+                $params['param' . $counter] = is_numeric($value) ? "% $value %" : "%$value%";
                 $firstrun = false;
                 $counter++;
             }
