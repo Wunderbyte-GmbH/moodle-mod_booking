@@ -8,7 +8,7 @@ Feature: Create global booking rules as admin and insure they are working.
     Given the following "users" exist:
       | username | firstname | lastname | email                | idnumber | profile_field_sport |
       | teacher1 | Teacher   | 1        | teacher1@example.com | T1       |                     |
-      | teacher2 | Teacher   | 2        | teacher2@example.com | T2       | football            |
+      | teacher2 | Teacher   | 2        | teacher2@example.com | T2       | football, tennis    |
       | student1 | Student   | 1        | student1@example.com | S1       |                     |
       | student2 | Student   | 2        | student2@example.com | S2       |                     |
     And the following "courses" exist:
@@ -161,7 +161,7 @@ Feature: Create global booking rules as admin and insure they are working.
       | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
-      | conditionname          | conditiondata                         | name          | actionname | actiondata                                                                    | rulename            | ruledata                                                    |
+      | conditionname          | conditiondata                         | name          | actionname | actiondata                                                                | rulename            | ruledata                                                    |
       | select_user_from_event | {"userfromeventtype":"relateduserid"} | notifystudent | send_mail  | {"subject":"completion","template":"completion msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_completed"} |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
@@ -189,7 +189,7 @@ Feature: Create global booking rules as admin and insure they are working.
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | teacher1, teacher2 |
     And the following "mod_booking > rules" exist:
       | conditionname          | conditiondata                                             | name         | actionname | actiondata                                                                               | rulename            | ruledata                                                    |
-      | enter_userprofilefield | {"cpfield":"sport","operator":"=","textfield":"football"} | emailteacher | send_mail  | {"subject":"cancellation football","template":"football cancelled","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_cancelled"} |
+      | enter_userprofilefield | {"cpfield":"sport","operator":"~","textfield":"football"} | emailteacher | send_mail  | {"subject":"cancellation football","template":"football cancelled","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_cancelled"} |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Cancel this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -204,5 +204,32 @@ Feature: Create global booking rules as admin and insure they are working.
     ## Does not fired by now - disabled temporarily
     And I should see "Custom message: An e-mail with subject 'cancellation football' has been sent to user with id:"
     And I should see "An e-mail with subject 'cancellation football' has been sent to user with id:"
+    ## Logout is mandatory for admin pages to avoid error
+    And I log out
+
+  @javascript
+  Scenario: Booking rules: create booking rule for event of completion and notify user matching profile field with option name
+    Given the following "mod_booking > options" exist:
+      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | teachersforoption  |
+      | BookingCMP | football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | teacher1, teacher2 |
+    And the following "mod_booking > rules" exist:
+      | conditionname          | conditiondata                                           | name         | actionname | actiondata                                                                         | rulename            | ruledata                                                    |
+      | match_userprofilefield | {"optionfield":"text","operator":"~","cpfield":"sport"} | emailteacher | send_mail  | {"subject":"completion football","template":"completion msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_completed"} |
+    When I am on the "BookingCMP" Activity page logged in as admin
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Student 1 (student1@example.com)" "text"
+    And I click on "Add" "button"
+    And I follow "<< Back to responses"
+    And I wait until the page is ready
+    And I click on "selectall" "checkbox"
+    And I click on "(Un)confirm completion status" "button"
+    And I should see "All selected users have been marked for activity completion"
+    ## Send messages via cron and verify via events log
+    And I trigger cron
+    And I visit "/report/loglive/index.php"
+    Then I should see "Booking option completed"
+    And I should see "Booking confirmation: An e-mail with subject 'Booking confirmation for football' has been sent to user with id:"
+    And I should see "Custom message: An e-mail with subject 'completion football' has been sent to user with id:"
     ## Logout is mandatory for admin pages to avoid error
     And I log out
