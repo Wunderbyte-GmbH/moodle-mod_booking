@@ -94,8 +94,11 @@ class fullybooked implements bo_condition {
         // If the user is not yet booked, and option is not fully booked, we return true.
         if (isset($bookinginformation['notbooked'])) {
             if (isset($bookinginformation['notbooked']['fullybooked'])
-                && $bookinginformation['notbooked']['fullybooked'] === true
-                && $bookinginformation['notbooked']['freeonwaitinglist'] < 1) {
+                && $bookinginformation['notbooked']['fullybooked'] === true) {
+                if (isset($bookinginformation['notbooked']['freeonwaitinglist'])
+                    && $bookinginformation['notbooked']['freeonwaitinglist'] < 1) {
+                        $isavailable = false;
+                }
                 $isavailable = false;
             }
         }
