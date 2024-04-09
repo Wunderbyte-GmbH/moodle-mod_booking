@@ -83,8 +83,8 @@ class fullybooked implements bo_condition {
 
         global $USER;
 
-        // This is the return value. Not available to begin with.
-        $isavailable = false;
+        // This is the return value. Available to begin with.
+        $isavailable = true;
 
         // Get the booking answers for this instance.
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
@@ -93,12 +93,10 @@ class fullybooked implements bo_condition {
 
         // If the user is not yet booked, and option is not fully booked, we return true.
         if (isset($bookinginformation['notbooked'])) {
-            if (!isset($bookinginformation['notbooked']['fullybooked']) ||
-                $bookinginformation['notbooked']['fullybooked'] === false) {
-                $isavailable = true;
-            } else if (isset($bookinginformation['notbooked']['freeonwaitinglist']) &&
-                $bookinginformation['notbooked']['freeonwaitinglist'] > 0) {
-                $isavailable = true;
+            if (isset($bookinginformation['notbooked']['fullybooked'])
+                && $bookinginformation['notbooked']['fullybooked'] === true
+                && $bookinginformation['notbooked']['freeonwaitinglist'] < 1) {
+                $isavailable = false;
             }
         }
 

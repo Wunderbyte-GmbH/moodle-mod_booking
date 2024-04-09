@@ -128,7 +128,8 @@ class booking_answers {
                 ba.completed,
                 ba.timemodified,
                 ba.optionid,
-                ba.timecreated
+                ba.timecreated,
+                ba.json
             FROM {booking_answers} ba
             WHERE ba.optionid = :optionid
             AND ba.waitinglist < 5

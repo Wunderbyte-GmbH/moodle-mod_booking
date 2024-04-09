@@ -312,7 +312,8 @@ class manageusers_table extends wunderbyte_table {
             }
         }
 
-        if (!$ba->is_fully_booked()
+        if ((!$ba->is_fully_booked()
+            || !empty($settings->jsonobject->useprice))
             && empty($data)) {
             $data[] = [
                 'label' => '', // Name of your action button.

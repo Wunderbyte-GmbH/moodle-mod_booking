@@ -131,6 +131,25 @@ class cancelmyself implements bo_condition {
                     if (!shopping_cart::allowed_to_cancel_for_item($item, 'option')) {
                         $isavailable = true;
                     }
+
+                    // If user is confirmed, we don't block.
+                    if (isset($bookinginformation['onwaitinglist'])) {
+
+                        // We don't show cancel when we don't ask for confirmation and it's not fully booked.
+                        if (empty($settings->waitforconfirmation)
+                            && $bookinginformation['onwaitinglist']['fullybooked'] === false) {
+                            $isavailable = true;
+                        } else {
+                            $ba = $bookinganswer->usersonwaitinglist[$userid];
+                            if (!empty($ba->json)) {
+                                $jsonobject = json_decode($ba->json);
+                                if (!empty($jsonobject->confirmwaitinglist)) {
+                                    $isavailable = true;
+                                }
+                            }
+                        }
+                    }
+
                 } else if ($canceluntil != 0 && $now > $canceluntil) {
                     $isavailable = true;
                 }
