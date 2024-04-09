@@ -526,7 +526,7 @@ class booking_option {
 
         if (!empty($this->bookedusers) && null != $this->option) {
             foreach ($this->bookedusers as $rank => $userobject) {
-                $userobject->bookingcmid = $this->booking->cm->id;
+                $userobject->bookingcmid = $this->cmid;
                 if (!$this->option->limitanswers) {
                     $userobject->booked = 'booked';
                 }
@@ -675,7 +675,7 @@ class booking_option {
         // Log cancellation of user.
         $event = bookinganswer_cancelled::create([
             'objectid' => $this->optionid,
-            'context' => \context_module::instance($this->booking->cm->id),
+            'context' => \context_module::instance($this->cmid),
             'userid' => $USER->id, // The user who did cancel.
             'relateduserid' => $userid, // Affected user - the user who was cancelled.
         ]);
@@ -690,6 +690,8 @@ class booking_option {
             if ($userid == $USER->id) {
                 // Participant cancelled the booking herself.
                 $msgparam = MOD_BOOKING_MSGPARAM_CANCELLED_BY_PARTICIPANT;
+
+                // TODO: Trigger event.
             } else {
                 // An admin user cancelled the booking.
                 $msgparam = MOD_BOOKING_MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM;
@@ -737,7 +739,7 @@ class booking_option {
         $transferred->yes = []; // Successfully transferred users.
         $transferred->no = []; // Errored users.
         $transferred->success = false;
-        $otheroption = singleton_service::get_instance_of_booking_option($this->booking->cm->id, $newoption);
+        $otheroption = singleton_service::get_instance_of_booking_option($this->cmid, $newoption);
         if (!empty($userids) && (has_capability('mod/booking:subscribeusers', $this->booking->get_context()) ||
                 booking_check_if_teacher($otheroption->option))) {
             $transferred->success = true;
@@ -1222,7 +1224,7 @@ class booking_option {
 
         $event = event\bookingoption_booked::create(
                 ['objectid' => $this->optionid,
-                    'context' => context_module::instance($this->booking->cm->id),
+                    'context' => context_module::instance($this->cmid),
                     'userid' => $user->id,
                     'relateduserid' => $user->id,
                 ]);
@@ -1240,11 +1242,11 @@ class booking_option {
             // If the option has optiondates, then add the optiondate events to the user's calendar.
             if ($optiondates) {
                 foreach ($optiondates as $optiondate) {
-                    new calendar($this->booking->cm->id, $this->optionid, $user->id, 6, $optiondate->id, 1);
+                    new calendar($this->cmid, $this->optionid, $user->id, 6, $optiondate->id, 1);
                 }
             } else {
                 // Else add the booking option event to the user's calendar.
-                new calendar($this->booking->cm->id, $this->optionid, $user->id, 1, 0, 1);
+                new calendar($this->cmid, $this->optionid, $user->id, 1, 0, 1);
             }
         }
 
@@ -1440,7 +1442,7 @@ class booking_option {
         }
         if ($groupid = groups_get_group_by_name($newgroupdata->courseid, $newgroupdata->name) &&
                 !isset($this->option->id)) {
-            $url = new moodle_url('/mod/booking/view.php', ['id' => $this->booking->cm->id]);
+            $url = new moodle_url('/mod/booking/view.php', ['id' => $this->cmid]);
             throw new \moodle_exception('groupexists', 'booking', $url->out());
         }
         if ($this->option->groupid > 0 && in_array($this->option->groupid, $groupids)) {
@@ -1522,7 +1524,7 @@ class booking_option {
             $teacherhandler->unsubscribe_teacher_from_booking_option(
                 $teacher->userid,
                 $this->optionid,
-                $this->booking->cm->id);
+                $this->cmid);
         }
 
         // Delete calendar entry, if any.
@@ -1849,7 +1851,7 @@ class booking_option {
         require_once($CFG->libdir . '/completionlib.php');
         $course = $DB->get_record('course', ['id' => $this->booking->cm->course]);
         $completion = new completion_info($course);
-        $cm = get_coursemodule_from_id('booking', $this->booking->cm->id, 0, false, MUST_EXIST);
+        $cm = get_coursemodule_from_id('booking', $this->cmid, 0, false, MUST_EXIST);
 
         $suser = null;
 
@@ -1952,8 +1954,8 @@ class booking_option {
         $tbs->Plugin(TBS_INSTALL, OPENTBS_PLUGIN);
         $tbs->NoErr = true;
 
-        list($course, $cm) = get_course_and_cm_from_cmid($this->booking->cm->id);
-        $context = \context_module::instance($this->booking->cm->id);
+        list($course, $cm) = get_course_and_cm_from_cmid($this->cmid);
+        $context = \context_module::instance($this->cmid);
         $coursecontext = \context_course::instance($course->id);
 
         $booking = [
