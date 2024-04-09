@@ -2010,7 +2010,6 @@ class booking_option {
                 $this->option->courseendtime, get_string('strftimedatetime', 'langconfig'))),
             'pollurl' => $this->option->pollurl,
             'pollurlteachers' => $this->option->pollurlteachers,
-            'shorturl' => $this->option->shorturl,
         ];
 
         $allusers = $this->get_all_users();
