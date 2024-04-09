@@ -238,21 +238,30 @@ class cancelmyself implements bo_condition {
             $userid = $USER->id;
         }
 
-        if (!class_exists('local_shopping_cart\shopping_cart')
-            || empty($settings->jsonobject->useprice)) {
+        // At this point, we need some logic, because we have a different button for ...
+        // ... purchases and just normal bookings.
+        if (class_exists('local_shopping_cart\shopping_cart')
+            && !empty($settings->jsonobject->useprice)) {
 
-            $label = $this->get_description_string();
+            // Get the booking answers for this instance.
+            $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+            $bookinginformation = $bookinganswer->return_all_booking_information($userid);
+
+            if (!isset($bookinginformation['onwaitinglist'])) {
+                $label = get_string('cancelsign', 'mod_booking')
+                . "&nbsp;" . get_string('cancelpurchase', 'local_shopping_cart');
+
+                return bo_info::render_button($settings, $userid, $label,
+                    'btn btn-light btn-sm shopping-cart-cancel-button',
+                    false, $fullwidth, 'button', 'option', false);
+            }
+        }
+
+        $label = $this->get_description_string();
             return bo_info::render_button($settings, $userid, $label,
                 'btn btn-light btn-sm',
                 false, $fullwidth, 'button', 'option', false);
-        } else {
-            $label = get_string('cancelsign', 'mod_booking')
-                . "&nbsp;" . get_string('cancelpurchase', 'local_shopping_cart');
 
-            return bo_info::render_button($settings, $userid, $label,
-                'btn btn-light btn-sm shopping-cart-cancel-button',
-                false, $fullwidth, 'button', 'option', false);
-        }
     }
 
     /**

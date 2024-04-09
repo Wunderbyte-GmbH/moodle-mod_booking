@@ -82,10 +82,20 @@ class confirmcancel implements bo_condition {
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
+        // If we have a price, this condition is not used.
+        // The condition is only used when we are on the waiting list.
         if (!empty($settings->jsonobject->useprice)) {
-            // If we have a price, this condition is not used.
-            $isavailable = true; // True means, it won't be shown.
-        } else {
+
+            // Get the booking answers for this instance.
+            $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+            $bookinginformation = $bookinganswer->return_all_booking_information($userid);
+
+            if (!isset($bookinginformation['onwaitinglist'])) {
+                $isavailable = true; // True means, it won't be shown.
+            }
+        }
+
+        if ($isavailable === false) {
             // If there is no cache blocking, we do nothing.
             $cache = cache::make('mod_booking', 'confirmbooking');
             $cachekey = $userid . "_" . $settings->id . '_cancel';

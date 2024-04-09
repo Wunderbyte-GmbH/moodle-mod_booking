@@ -374,7 +374,7 @@ class mod_booking_observer {
 
         // TODO: Get name of event and only trigger when the rule is set to listen on this specific event.
         $optionid = $event->objectid ?? 0;
-        $eventname = get_class($event);
+        $eventname = "\\" . get_class($event);
 
         $contextid = $event->contextid;
         $records = booking_rules::get_list_of_saved_rules_by_context($contextid, $eventname);
