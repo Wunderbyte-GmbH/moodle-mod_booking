@@ -156,9 +156,6 @@ class booking_option_settings {
     /** @var string $aftercompletedtext */
     public $aftercompletedtext = null;
 
-    /** @var string $shorturl */
-    public $shorturl = null;
-
     /** @var int $duration */
     public $duration = null;
 
@@ -395,7 +392,6 @@ class booking_option_settings {
             $this->beforebookedtext = $dbrecord->beforebookedtext;
             $this->beforecompletedtext = $dbrecord->beforecompletedtext;
             $this->aftercompletedtext = $dbrecord->aftercompletedtext;
-            $this->shorturl = $dbrecord->shorturl;
             $this->duration = $dbrecord->duration;
             $this->parentid = $dbrecord->parentid;
             $this->semesterid = $dbrecord->semesterid;

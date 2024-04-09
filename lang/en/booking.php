@@ -550,9 +550,6 @@ $string['noratings'] = 'Ratings disabled';
 $string['allratings'] = 'Everybody can rate';
 $string['enrolledratings'] = 'Only enrolled';
 $string['completedratings'] = 'Only with completed activity';
-$string['shorturl'] = 'Short URL of this option';
-// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-/* $string['generatenewurl'] = 'Generate new short url'; */
 $string['notes'] = 'Booking notes';
 $string['uploadheaderimages'] = 'Header images for booking options';
 $string['bookingimagescustomfield'] = 'Booking option custom field to match the header images with';

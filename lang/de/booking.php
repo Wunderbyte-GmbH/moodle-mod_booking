@@ -540,9 +540,6 @@ $string['noratings'] = 'Bewertungen deaktiviert';
 $string['allratings'] = 'Jede/r kann bewerten';
 $string['enrolledratings'] = 'Nur Eingeschriebene können bewerten';
 $string['completedratings'] = 'Nur diejenigen, die Aktivität abgeschlossen haben';
-$string['shorturl'] = 'Verkürzter Link zu dieser Buchungsoption';
-// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-/* $string['generatenewurl'] = 'Neue Kurz-URL generieren'; */
 $string['notes'] = 'Anmerkungen zur Buchung';
 $string['uploadheaderimages'] = 'Header-Bilder für Buchungsoptionen';
 $string['bookingimagescustomfield'] = 'Benutzerdefiniertes Feld von Buchungsoptionen, mit dem die Header-Bilder gematcht werden';

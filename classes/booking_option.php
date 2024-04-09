@@ -3126,7 +3126,6 @@ class booking_option {
         $params->institution = $settings->institution;
         $params->address = $settings->address;
         $params->eventtype = $bookingsettings->eventtype;
-        $params->shorturl = $settings->shorturl;
         $params->pollstartdate = $settings->coursestarttime ?
             userdate((int) $settings->coursestarttime, get_string('pollstrftimedate', 'booking')) : '';
         if (empty($settings->pollurl)) {
