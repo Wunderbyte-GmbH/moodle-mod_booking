@@ -246,7 +246,9 @@ class mod_booking_generator extends testing_module_generator {
 
         $record = new stdClass;
         $record->bookingid = isset($ruledraft->bookingid) ? $ruledraft->bookingid : 0;
+        $record->contextid = isset($ruledraft->contextid) ? $ruledraft->contextid : 1;
         $record->rulename = $ruledraft->rulename;
+        $record->eventname = '';
 
         $ruleobject = new stdClass;
         $ruleobject->conditionname = $ruledraft->conditionname;
@@ -256,6 +258,13 @@ class mod_booking_generator extends testing_module_generator {
         $ruleobject->actiondata = json_decode($ruledraft->actiondata);
         $ruleobject->rulename = $ruledraft->rulename;
         $ruleobject->ruledata = json_decode($ruledraft->ruledata);
+
+        // Setup event name if provided explicitly or from ruledata if provided.
+        if (!empty($ruledraft->eventname)) {
+            $record->eventname = $ruledraft->eventname;
+        } else if (!empty($ruleobject->ruledata->boevent)) {
+            $record->eventname = $ruleobject->ruledata->boevent;
+        }
 
         $record->rulejson = json_encode($ruleobject);
 
