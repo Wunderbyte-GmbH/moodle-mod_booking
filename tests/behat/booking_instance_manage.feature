@@ -23,7 +23,7 @@ Feature: In a course add a booking instance and manage it
   @javascript
   Scenario: Booking: Create instance as teacher
     Given I log in as "teacher1"
-    And I change viewport size to "1366x5000"
+    And I change viewport size to "1366x7000"
     And I am on "Course 1" course homepage with editing mode on
     And I add a "Booking" to section "0"
     And I set the following fields to these values:
