@@ -543,7 +543,15 @@ class booking_answers {
     public static function return_sql_for_booked_users(int $optionid, int $statusparam) {
 
         $fields = 's1.*';
-        $from = " (SELECT ba.id, u.id as userid, u.firstname, u.lastname, u.email, ba.timemodified, ba.timecreated, ba.optionid
+        $from = " (SELECT ba.id,
+                          u.id as userid,
+                          u.firstname,
+                          u.lastname,
+                          u.email,
+                          ba.timemodified,
+                          ba.timecreated,
+                          ba.optionid,
+                          ba.json
                     FROM {booking_answers} ba
                     JOIN {user} u ON ba.userid = u.id
                     WHERE ba.optionid=:optionid AND ba.waitinglist=:statusparam

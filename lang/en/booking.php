@@ -440,6 +440,7 @@ $string['mustfilloutuserinfobeforebooking'] = 'Befor proceeding to the booking f
 $string['nobookingselected'] = 'No booking option selected';
 $string['notbooked'] = 'Not yet booked';
 $string['onwaitinglist'] = 'You are on the waiting list';
+$string['confirmed'] = 'Confirmed';
 $string['organizatorname'] = 'Organizer name';
 $string['organizatorname_help'] = 'You can either enter the organizer name manually or choose from a list of previous organizers.
                                     You can choose one organizer only. Once you save, the organizer will be added to the list.';
@@ -1709,6 +1710,9 @@ $string['error:reasonfordeduction'] = 'Enter a reason for the deduction.';
 
 $string['confirmbooking'] = 'Confirmation of this booking';
 $string['confirmbookinglong'] = 'Do you really want to confirm this booking?';
+$string['unconfirm'] = 'Delete confirmation';
+$string['unconfirmbooking'] = 'Delete confirmation of this booking';
+$string['unconfirmbookinglong'] = 'Do you really want to delete the confirmation of this booking?';
 
 $string['deletebooking'] = 'Delete this booking';
 $string['deletebookinglong'] = 'Do you really want to delete this booking?';

@@ -153,7 +153,7 @@ class booking_reminder_mails_test extends advanced_testcase {
 
         // Book option by student.
         // The circumvent to baypass some checks. Use booking_bookit::bookit for prices, shoppingcart, etc.
-        $bookingoption1->user_submit_response($user1, $bookingoption1->id, 0, false, MOD_BOOKING_VERIFIED);
+        $bookingoption1->user_submit_response($user1, $bookingoption1->id, 0, 0, MOD_BOOKING_VERIFIED);
         // phpcs:ignore
         // $booked_users = $bookingoption1->get_all_users_booked();
 

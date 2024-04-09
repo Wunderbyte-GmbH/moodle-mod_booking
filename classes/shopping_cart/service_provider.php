@@ -248,7 +248,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 // If the booking is not successful, we return false and trigger the payment unsuccessful event.
                 // This will happen, when the booking is full.
                 $user = singleton_service::get_instance_of_user($userid);
-                if (!$bookingoption->user_submit_response($user, 0, 0, false, MOD_BOOKING_VERIFIED)) {
+                if (!$bookingoption->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED)) {
 
                     // Log cancellation of user.
                     $event = booking_failed::create([

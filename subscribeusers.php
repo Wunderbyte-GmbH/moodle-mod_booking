@@ -130,7 +130,16 @@ if (!$agree && empty($formsubmitted) && (!empty($bookingoption->booking->setting
             if (has_capability('mod/booking:subscribeusers', $context) || (booking_check_if_teacher(
                     $bookingoption->option))) {
                 foreach ($users as $user) {
-                    if (!$bookingoption->user_submit_response($user, 0, 0, false, MOD_BOOKING_VERIFIED)) {
+
+                    // If there is a price on the booking option, we don't want to subscribe the user directly.
+                    if (class_exists('local_shopping_cart\shopping_cart')
+                        && !empty($optionsettings->jsonobject->useprice)) {
+                        $status = 3; // This added without confirmation.
+                    } else {
+                        $status = 0;
+                    }
+
+                    if (!$bookingoption->user_submit_response($user, 0, 0, $status, MOD_BOOKING_VERIFIED)) {
                         $subscribesuccess = false;
                         $notsubscribedusers[] = $user;
                     }

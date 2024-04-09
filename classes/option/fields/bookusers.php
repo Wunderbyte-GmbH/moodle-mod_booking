@@ -133,7 +133,7 @@ class bookusers extends field_base {
             foreach ($usersids as $userid) {
 
                 $user = singleton_service::get_instance_of_user($userid);
-                $bookingoption->user_submit_response($user, 0, 0, false, MOD_BOOKING_VERIFIED);
+                $bookingoption->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED);
             }
         }
     }

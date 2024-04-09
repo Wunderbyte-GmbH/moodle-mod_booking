@@ -448,7 +448,7 @@ if (!$tableallbookings->is_downloading()) {
             foreach ($allselectedusers as $value) {
                 $user = new stdClass();
                 $user->id = $value;
-                if (!$tmpbooking->user_submit_response($user, $optionid, 0, false, MOD_BOOKING_VERIFIED)) {
+                if (!$tmpbooking->user_submit_response($user, $optionid, 0, 0, MOD_BOOKING_VERIFIED)) {
                     redirect($url, get_string('bookingfulldidntregister', 'mod_booking'), 5);
                 }
             }

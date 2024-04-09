@@ -80,7 +80,7 @@ class enrol_user extends external_api {
 
         $bookingdata = singleton_service::get_instance_of_booking_option($id, $answer);
         $bookingdata->apply_tags();
-        if ($bookingdata->user_submit_response($USER, 0, 0, false, MOD_BOOKING_VERIFIED)) {
+        if ($bookingdata->user_submit_response($USER, 0, 0, 0, MOD_BOOKING_VERIFIED)) {
             $contents = get_string('bookingsaved', 'booking');
             if ($bookingdata->booking->settings->sendmail) {
                 $contents .= "<br />" . get_string('mailconfirmationsent', 'booking') . ".";

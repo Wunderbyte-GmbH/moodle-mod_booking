@@ -235,12 +235,12 @@ class booking_subbookit {
         // Now we reserve the place for the user.
         switch ($status) {
             case MOD_BOOKING_STATUSPARAM_BOOKED:
-                if (!$bookingoption->user_submit_response($user, 0, 0, false, MOD_BOOKING_VERIFIED)) {
+                if (!$bookingoption->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED)) {
                     return [];
                 }
                 break;
             case MOD_BOOKING_STATUSPARAM_RESERVED:
-                if (!$bookingoption->user_submit_response($user, 0, 0, true, MOD_BOOKING_VERIFIED)) {
+                if (!$bookingoption->user_submit_response($user, 0, 0, 1, MOD_BOOKING_VERIFIED)) {
                     return [];
                 }
                 break;

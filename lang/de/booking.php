@@ -428,6 +428,7 @@ $string['nobookingselected'] = 'Keine Buchungsoption ausgewählt';
 $string['norighttobook'] = 'Sie haben zur Zeit keine Berechtigung Buchungen vorzunehmen. Loggen Sie sich ein, schreiben Sie sich in diesen Kurs ein oder kontaktieren Sie den/die Administrator/in.';
 $string['notbooked'] = 'Noch nicht gebucht';
 $string['onwaitinglist'] = 'Sie sind auf der Warteliste';
+$string['confirmed'] = 'Bestätigt';
 $string['organizatorname'] = 'Name des Organisators';
 $string['organizatorname_help'] = 'Sie können den Namen des Organisators/der Organisatorin manuell eingeben oder aus einer Liste von
                                     früheren Organisator:innen auswählen. Sie können nur eine/n Organisator/in angeben. Sobald
@@ -1584,6 +1585,9 @@ $string['error:reasonfordeduction'] = 'Geben Sie einen Grund für den Abzug an.'
 
 $string['confirmbooking'] = 'Bestätigen der Buchung';
 $string['confirmbookinglong'] = 'Wollen Sie diese Buchung wirklich bestätigen?';
+$string['unconfirm'] = 'Lösche Bestätigung';
+$string['unconfirmbooking'] = 'Lösche Bestätigung dieser Buchung';
+$string['unconfirmbookinglong'] = 'Wollen Sie die Bestätigung dieser Buchung wirklich aufheben?';
 
 $string['deletebooking'] = 'Buchung löschen';
 $string['deletebookinglong'] = 'Wollen Sie diese Buchung wirklich löschen?';
