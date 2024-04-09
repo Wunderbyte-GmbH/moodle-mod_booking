@@ -80,7 +80,7 @@ class bookinganswer_cancelled extends \core\event\base {
         $a = new stdClass();
         $a->user = $user->firstname . " " . $user->lastname . " (ID: " . $userid . ")";
         $a->relateduser = $relateduser->firstname . " " . $relateduser->lastname . " (ID: " . $relateduserid . ")";
-        $a->title = $settings->get_title_with_prefix();
+        $a->title = $settings->get_title_with_prefix() . " (ID: " . $optionid . ")";
 
         $extrainfo = '';
         if (!empty($this->data['other']['extrainfo'])) {

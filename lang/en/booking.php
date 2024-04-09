@@ -2144,7 +2144,8 @@ $string['rule_sendmail_cpf_desc'] = 'Choose an event that should trigger the "Se
 $string['rule_daysbefore'] = 'Trigger n days before a certain date';
 $string['rule_daysbefore_desc'] = 'Choose a date field of booking options and the number of days BEFORE that date.';
 $string['rule_react_on_event'] = "React on event";
-$string['rule_react_on_event_desc'] = "Choose an event that should trigger the rule.";
+$string['rule_react_on_event_desc'] = "Choose an event that should trigger the rule.<br>
+<b>Hint:</b> You can use the placeholder <code>{eventdescription}</code> to show a description of the event.";
 
 $string['error:nofieldchosen'] = 'You have to choose a field.';
 $string['error:mustnotbeempty'] = 'Must not be empty.';
