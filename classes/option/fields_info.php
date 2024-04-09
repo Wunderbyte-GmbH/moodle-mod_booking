@@ -335,7 +335,9 @@ class fields_info {
                 }
             }
             if (!empty($field->necessary) || !empty($field->checked)) {
-                $classes[$classname::$id] = $classname;
+                if (class_exists($classname)) {
+                    $classes[$classname::$id] = $classname;
+                }
             }
         }
 
