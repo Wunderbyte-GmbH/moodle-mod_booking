@@ -17,6 +17,7 @@
 namespace mod_booking\booking_rules\actions;
 
 use mod_booking\booking_rules\booking_rule_action;
+use mod_booking\placeholders\placeholders_info;
 use mod_booking\singleton_service;
 use mod_booking\task\send_mail_by_rule_adhoc;
 use MoodleQuickForm;
@@ -55,6 +56,7 @@ class send_copy_of_mail implements booking_rule_action {
 
     /** @var array $compatibleevents */
     public $compatibleevents = [
+        '\mod_booking\event\bookinganswer_cancelled',
         '\mod_booking\event\custom_message_sent',
         '\mod_booking\event\custom_bulk_message_sent',
     ];
@@ -117,10 +119,9 @@ class send_copy_of_mail implements booking_rule_action {
             get_string('sendcopyofmailmessageprefix', 'mod_booking'), ['rows' => 5],
             ['subdirs' => 0, 'maxfiles' => 0, 'context' => null]);
 
-        // No placeholders needed here. If some client needs them, we can add them later on.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $placeholders = placeholders_info::return_list_of_placeholders();
-        $mform->addElement('html', get_string('helptext:placeholders', 'mod_booking', $placeholders)); */
+        // Placeholders info text.
+        $placeholders = placeholders_info::return_list_of_placeholders();
+        $mform->addElement('html', get_string('helptext:placeholders', 'mod_booking', $placeholders));
     }
 
     /**

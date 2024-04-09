@@ -91,6 +91,7 @@ class send_mail implements booking_rule_action {
         $mform->addElement('editor', 'action_send_mail_template',
             get_string('message'), ['rows' => 15], ['subdirs' => 0, 'maxfiles' => 0, 'context' => null]);
 
+        // Placeholders info text.
         $placeholders = placeholders_info::return_list_of_placeholders();
         $mform->addElement('html', get_string('helptext:placeholders', 'mod_booking', $placeholders));
 

@@ -22,6 +22,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\placeholders\placeholders_info;
+
 global $CFG;
 
 // General strings.
@@ -231,7 +233,7 @@ $string['daystonotifyteachers'] = 'Wie viele Tage vor Kursbeginn soll an die Tra
 $string['bookinganswer_cancelled'] = 'Buchungsoption von/für Nutzer:in storniert';
 
 // Booking option events.
-$string['bookingoption_cancelled'] = "Buchungsoption storniert";
+$string['bookingoption_cancelled'] = "Buchungsoption für alle storniert";
 $string['bookingoption_booked'] = 'Buchungsoption durchgeführt';
 $string['bookingoption_completed'] = 'Buchungsoption abgeschlossen';
 $string['bookingoption_created'] = 'Buchungsoption angelegt';
@@ -561,39 +563,13 @@ $string['feedbackurl_help'] = 'Link zu einem Feedback-Formular, das an Teilnehme
 $string['feedbackurlteachers_help'] = 'Link zu einem Feedback-Formular, das an Trainer:innen gesendet werden soll.
 Verwenden Sie in E-Mails den Platzhalter <b>{pollurlteachers}</b>.';
 
-$string['bookedtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden: {$a}';
-
-$string['userleave_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden: {$a}';
-
-$string['waitingtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden: {$a}';
-
-$string['notifyemail_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden: {$a}';
-
-$string['notifyemailteachers_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden: {$a}';
-
-$string['statuschangetext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden: {$a}';
-
-$string['deletedtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden: {$a}';
-
-$string['bookingchangedtext_help'] = '0 eingeben um Änderungsbenachrichtigungen auszuschalten.
-
-Folgende Platzhalter können im Text verwendet werden: {$a}';
-
-$string['pollurltext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden: {$a}';
-
-$string['pollurlteacherstext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden: {$a}';
-
-$string['activitycompletiontext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden: {$a}';
-
-$string['notificationtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden: {$a}';
-
-$string['placeholders_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden: {$a}';
-
-$string['helptext:placeholders'] = '<p>
+$string['bookingchangedtext_help'] = '0 eingeben um Änderungsbenachrichtigungen auszuschalten.';
+$string['placeholders_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden.';
+$string['helptext:placeholders'] = '<div class="alert alert-info" style="margin-left: 200px;">
 <a data-toggle="collapse" href="#collapsePlaceholdersHelptext" role="button" aria-expanded="false" aria-controls="collapsePlaceholdersHelptext">
-  <i class="fa fa-question-circle" aria-hidden="true"></i><span>&nbsp;Sie können die folgenden Platzhalter verwenden...</span>
+  <i class="fa fa-question-circle" aria-hidden="true"></i><span>&nbsp;Platzhalter, die Sie in Ihren E-Mails verwenden können.</span>
 </a>
-</p>
+</div>
 <div class="collapse" id="collapsePlaceholdersHelptext">
   <div class="card card-body">
     {$a}

@@ -22,6 +22,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\placeholders\placeholders_info;
+
 global $CFG;
 
 // General strings.
@@ -237,7 +239,7 @@ $string['daystonotifyteachers'] = 'Number of days in advance of the event-start 
 $string['bookinganswer_cancelled'] = 'Booking option cancelled for/by user';
 
 // Booking option events.
-$string['bookingoption_cancelled'] = "Booking option cancelled";
+$string['bookingoption_cancelled'] = "Booking option cancelled for all";
 $string['bookingoption_booked'] = 'Booking option booked';
 $string['bookingoption_completed'] = 'Booking option completed';
 $string['bookingoption_created'] = 'Booking option created';
@@ -571,39 +573,13 @@ $string['feedbackurl_help'] = 'Enter a link to a feedback form that should be se
 $string['feedbackurlteachers_help'] = 'Enter a link to a feedback form that should be sent to teachers.
  It can be added to e-mails with the <b>{pollurlteachers}</b> placeholder.';
 
-$string['bookedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text: {$a}';
-
-$string['userleave_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text: {$a}';
-
-$string['waitingtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text: {$a}';
-
-$string['notifyemail_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text: {$a}';
-
-$string['notifyemailteachers_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text: {$a}';
-
-$string['statuschangetext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text: {$a}';
-
-$string['deletedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text: {$a}';
-
-$string['bookingchangedtext_help'] = 'Enter 0 to turn change notifications off.
-
-You can use any of the following placeholders in the text: {$a}';
-
-$string['pollurltext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text: {$a}';
-
-$string['pollurlteacherstext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text: {$a}';
-
-$string['activitycompletiontext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text: {$a}';
-
-$string['notificationtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text: {$a}';
-
-$string['placeholders_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text: {$a}';
-
-$string['helptext:placeholders'] = '<p>
+$string['bookingchangedtext_help'] = 'Enter 0 to turn change notifications off.';
+$string['placeholders_help'] = 'Leave this blank to use the site default text.';
+$string['helptext:placeholders'] = '<div class="alert alert-info" style="margin-left: 200px;">
 <a data-toggle="collapse" href="#collapsePlaceholdersHelptext" role="button" aria-expanded="false" aria-controls="collapsePlaceholdersHelptext">
-  <i class="fa fa-question-circle" aria-hidden="true"></i><span>&nbsp;You can use the following placeholders...</span>
+  <i class="fa fa-question-circle" aria-hidden="true"></i><span>&nbsp;Placeholders you can use in your emails.</span>
 </a>
-</p>
+</div>
 <div class="collapse" id="collapsePlaceholdersHelptext">
   <div class="card card-body">
     {$a}

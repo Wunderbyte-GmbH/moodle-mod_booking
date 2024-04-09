@@ -31,6 +31,7 @@ use mod_booking\booking_option_settings;
 use mod_booking\output\optiondates_only;
 use mod_booking\output\bookingoption_changes;
 use mod_booking\output\renderer;
+use mod_booking\placeholders\placeholders_info;
 use mod_booking\task\send_confirmation_mails;
 
 require_once($CFG->dirroot.'/user/profile/lib.php');
@@ -186,8 +187,11 @@ class message_controller {
             $this->user = singleton_service::get_instance_of_user($userid);
         }
 
-        // Generate e-mail placeholder params.
-        $this->params = booking_option::get_placeholder_params($optionid, $userid);
+        $this->params = new stdClass();
+
+        // We need these for some message subject strings!
+        $this->params->title = $settings->get_title_with_prefix();
+        $this->params->participant = $this->user->firstname . " " . $this->user->lastname;
 
         // Now we add e-mail specific params.
         switch ($this->msgcontrparam) {
@@ -309,13 +313,18 @@ class message_controller {
             $text = get_string($this->messagefieldname . 'message', 'booking', $this->params);
         }
 
-        // Replace the placeholders.
+        // Replace ADDITIONAL placeholders which have been defined here in message_controller.
+        // TODO: We will have to migrate these additional placeholders to the new placeholders in a future release.
         foreach ($this->params as $name => $value) {
             if (!is_null($value)) { // Since php 8.1.
                 $value = strval($value);
                 $text = str_replace('{' . $name . '}', $value, $text);
             }
         }
+
+        // Only now, we apply the default placeholders.
+        $text = placeholders_info::render_text($text, $this->optionsettings->cmid, $this->optionid, $this->userid,
+            MOD_BOOKING_DESCRIPTION_MAIL);
 
         return $text;
     }
