@@ -24,6 +24,9 @@
  */
 namespace mod_booking\event;
 
+use mod_booking\singleton_service;
+use stdClass;
+
 /**
  * The bookinganswer_cancelled event.
  *
@@ -68,16 +71,26 @@ class bookinganswer_cancelled extends \core\event\base {
         $relateduserid = $this->data['relateduserid']; // Affected user - the user who was cancelled from the option.
         $optionid = $this->data['objectid']; // The option id.
 
+        // TODO: Gute Description machen.
+
+        $user = singleton_service::get_instance_of_user((int) $userid);
+        $relateduser = singleton_service::get_instance_of_user((int) $relateduserid);
+        $settings = singleton_service::get_instance_of_booking_option_settings((int) $optionid);
+
+        $a = new stdClass();
+        $a->user = $user->firstname . " " . $user->lastname . " (ID: " . $userid . ")";
+        $a->relateduser = $relateduser->firstname . " " . $relateduser->lastname . " (ID: " . $relateduserid . ")";
+        $a->title = $settings->get_title_with_prefix();
+
         $extrainfo = '';
         if (!empty($this->data['other']['extrainfo'])) {
-            $extrainfo = " NOTE: (" . $this->data['other']['extrainfo'] . ")";
+            $extrainfo = " (" . $this->data['other']['extrainfo'] . ")";
         }
 
         if ($userid == $relateduserid) {
-            return "The user with id $relateduserid cancelled his booking of the option with id $optionid.$extrainfo";
+            return get_string('eventdesc:bookinganswercancelledself', 'mod_booking', $a) . $extrainfo;
         } else {
-            return "The user with id $relateduserid was removed from the option with id $optionid by user with id $userid." .
-                $extrainfo;
+            return get_string('eventdesc:bookinganswercancelled', 'mod_booking', $a) . $extrainfo;
         }
     }
 

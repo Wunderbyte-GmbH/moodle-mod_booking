@@ -69,6 +69,13 @@ class send_mail implements booking_rule_action {
         $this->rulejson = $json;
         $jsonobject = json_decode($json);
         $actiondata = $jsonobject->actiondata;
+        $datafromevent = $jsonobject->datafromevent;
+
+        /* If the template contains the {eventdescription} placeholder,
+        we replace it here, because we have the eventdescription in the $datafromevent
+        which is part of the JSON. */
+        $actiondata->template = str_replace('{eventdescription}', $datafromevent->eventdescription ?? "", $actiondata->template);
+
         $this->subject = $actiondata->subject;
         $this->template = $actiondata->template;
     }

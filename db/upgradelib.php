@@ -107,7 +107,7 @@ function fix_showlistoncoursepage_2024030801() {
  * Migrate former bookingids to contextids.
  * @return void
  */
-function migrate_contextids_2024032900() {
+function migrate_contextids_2024040901() {
     global $DB;
 
     $DB->execute(

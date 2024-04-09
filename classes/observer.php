@@ -361,10 +361,10 @@ class mod_booking_observer {
     /**
      * This is triggered on any event. Depending on the rule, the execution is triggered.
      *
-     * @param mixed $event
+     * @param \core\event\base $event
      * @return void
      */
-    public static function execute_rule($event) {
+    public static function execute_rule(\core\event\base $event) {
 
         // We want booking events only.
         $data = $event->get_data();
@@ -386,11 +386,12 @@ class mod_booking_observer {
 
             // THIS is the place where we need to add event data to the rulejson!
             $ruleobj = json_decode($record->rulejson);
+            if (empty($ruleobj->datafromevent)) {
+                $ruleobj->datafromevent = new stdClass;
+                $ruleobj->datafromevent->eventdescription = $event->get_description() ?? "";
+            }
 
             if (!empty($event->userid)) {
-                if (empty($ruleobj->datafromevent)) {
-                    $ruleobj->datafromevent = new stdClass;
-                }
                 // Will be usually the logged-in USER.
                 $ruleobj->datafromevent->userid = $event->userid;
             }

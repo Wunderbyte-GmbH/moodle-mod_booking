@@ -56,7 +56,6 @@ class send_copy_of_mail implements booking_rule_action {
 
     /** @var array $compatibleevents */
     public $compatibleevents = [
-        '\mod_booking\event\bookinganswer_cancelled',
         '\mod_booking\event\custom_message_sent',
         '\mod_booking\event\custom_bulk_message_sent',
     ];
