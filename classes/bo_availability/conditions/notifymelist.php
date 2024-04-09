@@ -217,7 +217,7 @@ class notifymelist implements bo_condition {
         $bookinginformation = $bookinganswer->return_all_booking_information($userid);
 
         $notifyme = new button_notifyme($userid, $settings->id,
-                $bookinginformation['notbooked']['onnotifylist']);
+                $bookinginformation['notbooked']['onnotifylist'] ?? false);
 
         return [
             'mod_booking/button_notifyme',
