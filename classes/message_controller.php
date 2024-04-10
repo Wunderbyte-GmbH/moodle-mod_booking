@@ -103,6 +103,9 @@ class message_controller {
     /** @var string $custommessage for custom messages */
     private $custommessage;
 
+    /** @var int $descriptionparam param to render booking option description for mails, websites etc. */
+    private $descriptionparam;
+
     /**
      * Constructor
      * @param int $msgcontrparam message controller param (send now | queue adhoc)
@@ -187,53 +190,30 @@ class message_controller {
             $this->user = singleton_service::get_instance_of_user($userid);
         }
 
+        // We need these for some strings!
         $this->params = new stdClass();
-
-        // We need these for some message subject strings!
         $this->params->title = $settings->get_title_with_prefix();
         $this->params->participant = $this->user->firstname . " " . $this->user->lastname;
-
-        // Now we add e-mail specific params.
-        switch ($this->msgcontrparam) {
-            case MOD_BOOKING_MSGCONTRPARAM_SEND_NOW:
-            case MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC:
-                // We overwrite {bookingdetails} here, so we have a description for e-mails (website description is default).
-                // Add placeholder {bookingdetails} so we can add the detailed option description (similar to calendar, modal...
-                // ... and ical) to mails.
-                $this->params->bookingdetails = get_rendered_eventdescription($optionid, $cmid, MOD_BOOKING_DESCRIPTION_MAIL);
-                break;
-            case MOD_BOOKING_MSGCONTRPARAM_VIEW_CONFIRMATION:
-                // For viewconfirmation.php.
-                $this->params->bookingdetails = get_rendered_eventdescription($optionid, $cmid, MOD_BOOKING_DESCRIPTION_WEBSITE);
-                break;
-            case MOD_BOOKING_MSGCONTRPARAM_DO_NOT_SEND:
-            default:
-                break;
-        }
-
-        // Params for session reminders.
+        // Param sessiondescription is only needed for session reminders.
+        // It's used as string param {$a->sessionreminder} in the default message string 'sessionremindermailmessage'.
         if ($this->messageparam == MOD_BOOKING_MSGPARAM_SESSIONREMINDER) {
-            // For session reminders we only have ONE session.
-            $sessions = [];
-            foreach ($settings->sessions as $session) {
-                if (!empty($session->optiondateid) && !empty($this->optiondateid)) {
-                    if ($session->optiondateid == $this->optiondateid) {
-                        $sessions[] = $session;
-                    }
-                }
-            }
-            // Render optiontimes using a template.
-            $data = new optiondates_only($settings);
-            $this->params->dates = $output->render_optiondates_only($data);
             // Rendered session description.
             $this->params->sessiondescription = get_rendered_eventdescription(
                 $this->optionid, $this->cmid,
                 MOD_BOOKING_DESCRIPTION_CALENDAR);
+        }
 
-        } else {
-            // Render optiontimes using a template.
-            $data = new optiondates_only($settings);
-            $this->params->dates = $output->render_optiondates_only($data);
+        // Set the correct description param.
+        switch ($msgcontrparam) {
+            case MOD_BOOKING_MSGCONTRPARAM_SEND_NOW:
+            case MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC:
+                // For display in e-mails.
+                $this->descriptionparam = MOD_BOOKING_DESCRIPTION_MAIL;
+                break;
+            default:
+                // For display on website.
+                $this->descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE;
+                break;
         }
 
         // If there are changes, let's render them.
@@ -241,30 +221,6 @@ class message_controller {
         if (!empty($changes)) {
             $data = new bookingoption_changes($changes, $cmid);
             $this->params->changes = $output->render_bookingoption_changes($data);
-        }
-
-        // Add a param for the user profile picture so we can show it in e-mails.
-        if ($usercontext = context_user::instance($userid, IGNORE_MISSING)) {
-            $fs = get_file_storage();
-            $files = $fs->get_area_files($usercontext->id, 'user', 'icon');
-            $picturefile = null;
-            foreach ($files as $file) {
-                $filenamewithoutextension = explode('.', $file->get_filename())[0];
-                if ($filenamewithoutextension === 'f1') {
-                    $picturefile = $file;
-                    // We found it, so break the loop.
-                    break;
-                }
-            }
-            if ($picturefile) {
-                // Retrieve the image contents and encode them as base64.
-                $picturedata = $picturefile->get_content();
-                $picturebase64 = base64_encode($picturedata);
-                // Now load the HTML of the image into the profilepicture param.
-                $this->params->profilepicture = '<img src="data:image/image;base64,' . $picturebase64 . '" />';
-            } else {
-                $this->params->profilepicture = '';
-            }
         }
 
         // Generate the email body.
@@ -324,7 +280,7 @@ class message_controller {
 
         // Only now, we apply the default placeholders.
         $text = placeholders_info::render_text($text, $this->optionsettings->cmid, $this->optionid, $this->userid,
-            MOD_BOOKING_DESCRIPTION_MAIL);
+            $this->descriptionparam ?? MOD_BOOKING_DESCRIPTION_WEBSITE);
 
         return $text;
     }

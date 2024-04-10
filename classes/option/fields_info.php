@@ -324,13 +324,13 @@ class fields_info {
 
             // We might only want postsave classes.
             if ($save === MOD_BOOKING_EXECUTION_POSTSAVE) {
-                if ($classname::$save !== MOD_BOOKING_EXECUTION_POSTSAVE) {
+                if (!class_exists($classname) || $classname::$save !== MOD_BOOKING_EXECUTION_POSTSAVE) {
                     continue;
                 }
             }
             // We might only want only normal save classes.
             if ($save === MOD_BOOKING_EXECUTION_NORMAL) {
-                if ($classname::$save !== MOD_BOOKING_EXECUTION_NORMAL) {
+                if (!class_exists($classname) || $classname::$save !== MOD_BOOKING_EXECUTION_NORMAL) {
                     continue;
                 }
             }

@@ -94,6 +94,7 @@ $string['optionsfields'] = 'Booking option fields';
 $string['optionsiteach'] = 'Taught by me';
 $string['placeholders'] = 'Placeholders';
 $string['pricefactor'] = 'Price factor';
+$string['profilepicture'] = 'Profile picture';
 $string['responsesfields'] = 'Fields in participants list';
 $string['responsible'] = 'Responsible';
 $string['responsiblecontact'] = 'Responsible contact person';

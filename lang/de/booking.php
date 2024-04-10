@@ -95,6 +95,7 @@ $string['optionsfields'] = 'Buchungsoptionsfelder';
 $string['optionsiteach'] = 'Von mir geleitet';
 $string['placeholders'] = 'Platzhalter';
 $string['pricefactor'] = 'Preisfaktor';
+$string['profilepicture'] = 'Profilbild';
 $string['responsesfields'] = 'Felder in der Teilnehmer:innen-Liste';
 $string['responsible'] = 'Zuständig';
 $string['responsiblecontact'] = 'Zuständige Kontaktperson';
