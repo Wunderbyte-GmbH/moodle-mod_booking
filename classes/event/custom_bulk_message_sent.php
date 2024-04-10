@@ -70,6 +70,6 @@ class custom_bulk_message_sent extends \core\event\base {
 
         return
             "A custom bulk message e-mail with subject '" . $this->other['subject'] .
-            "' has been sent to all users of booking option with id: '$this->other['optionid']'.";
+            "' has been sent to all users of booking option with id: '" . $this->other['optionid'] . "'.";
     }
 }
