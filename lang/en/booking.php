@@ -22,8 +22,6 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_booking\placeholders\placeholders_info;
-
 global $CFG;
 
 // General strings.
@@ -234,8 +232,7 @@ $string['datenotset'] = 'Date not set';
 $string['daystonotify'] = 'Number of days in advance of the event-start to notify participants';
 $string['daystonotify_help'] = "Will work only if start and end date of option are set! 0 for disabling this functionality.";
 $string['daystonotify2'] = 'Second notification before start of event to notify participants.';
-$string['daystonotifyteachers'] = 'Number of days in advance of the event-start to notify teachers
-' . $string['badge:pro'];
+$string['daystonotifyteachers'] = 'Number of days in advance of the event-start to notify teachers' . $string['badge:pro'];
 $string['bookinganswer_cancelled'] = 'Booking option cancelled for/by user';
 
 // Booking option events.
@@ -2307,8 +2304,7 @@ $string['selectboactiontype'] = 'Select action after booking';
 $string['bookingactionadd'] = "Add action";
 $string['boactions_desc'] = "Booking actions after booking are still an EXPERIMENTAL feature. You can try them if you want.
 But do not use them in a productive environment yet!";
-$string['boactions'] = 'Actions after booking
-' . $string['badge:pro'] . ' ' . $string['badge:experimental'];
+$string['boactions'] = 'Actions after booking ' . $string['badge:pro'] . ' ' . $string['badge:experimental'];
 $string['onlyaddactionsonsavedoption'] = "Actions after booking can only be added once the booking option is saved.";
 $string['boactionname'] = "Name of action";
 $string['showboactions'] = "Activate actions after booking";

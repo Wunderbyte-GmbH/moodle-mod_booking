@@ -22,8 +22,6 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_booking\placeholders\placeholders_info;
-
 global $CFG;
 
 // General strings.
@@ -2175,8 +2173,7 @@ $string['selectboactiontype'] = 'Wähle Aktion nach der Buchung';
 $string['bookingactionadd'] = "Füge Aktion hinzu";
 $string['boactions_desc'] = "Aktionen nach der Buchung sind derzeit ein experimentelles Feature.
 Sie können es ausprobieren, aber bitte verwenden Sie es noch auf keiner Produktivplattform!";
-$string['boactions'] = 'Aktionen nach der Buchung
-' . $string['badge:pro'] . ' ' . $string['badge:experimental'];
+$string['boactions'] = 'Aktionen nach der Buchung ' . $string['badge:pro'] . ' ' . $string['badge:experimental'];
 $string['onlyaddactionsonsavedoption'] = "Aktionen nach der Buchung könnnen nur zu schon gespeicherte Optionen hinzugefügt werden.";
 $string['boactionname'] = "Name der Aktion";
 $string['showboactions'] = "Aktiviere Aktionen nach der Buchung";
