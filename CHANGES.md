@@ -1,3 +1,29 @@
+## Version 8.2.3 (2024041000)
+* New feature: Show attachments right within booking options.
+* New feature: New setting to also duplicate Moodle course when a booking option gets duplicated.
+* New feature: Send copies of mails for custom messages or for bulk custom messages via booking rules.
+* New feature: Context-based booking rules (e.g. rules for a specific Booking instance).
+* Improvement: New event custom_message_sent.
+* Improvement: New booking rule action send_copy_of_mail.
+* Improvement: Allow search for ID without pattern matching. (Will also work with numeric last names in behat tests.)
+* Improvement: Allow search for full course id and booking option id in autocompletes.
+* Improvement: Purge bookingoptionstable cache when encodedtables are purged.
+* Improvement: New send_copy_of_mail action will only be shown for compatible events.
+* Improvement: Fix eventlog to better reflect booking of other users.
+* Improvement: Allow waitinglist for paid options.
+* Improvement: Get rid of outdated shorturl field.
+* Improvement: Several improvements and fixes for the new placeholders.
+* Improvement: Possibility to confirm users which are on waitinglist with price.
+* Improvement: Show hint for new placeholder {eventdescription} and show optionid in event description.
+* Bugfix: Some small bugs in editteachersforoptiondate form.
+* Bugfix: Report.php (user bookings page) cannot use the same pagination value that is used for Booking view - fixes #439.
+* Bugfix: Possible bugfix for strange nullpointer bug on name property of module.
+* Bugfix: Avoid error if class does not exist in fields_info.php.
+* Bugfix: Bugfixes for waitinglist with price.
+* Bugfix: Nullpointer bug in notifymelist.
+* Bugfix: Fix Exception - Warning: Undefined array key "freeonwaitinglist".
+* Bugfix: Fix is_available of fullybooked.php.
+
 ## Version 8.2.2 (2024040200)
 * New feature: New setting to allow responsible contacts to edit booking options.
 * Improvement: Issue #407 blocks booking via moodle capability
