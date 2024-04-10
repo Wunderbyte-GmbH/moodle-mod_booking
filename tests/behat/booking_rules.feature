@@ -11,6 +11,8 @@ Feature: Create global booking rules as admin and insure they are working.
       | teacher2 | Teacher   | 2        | teacher2@example.com | T2       | football, tennis    |
       | student1 | Student   | 1        | student1@example.com | S1       |                     |
       | student2 | Student   | 2        | student2@example.com | S2       |                     |
+      | student3 | Student   | 3        | student3@example.com | S3       |                     |
+      | student4 | Student   | 4        | student4@example.com | S4       |                     |
     And the following "courses" exist:
       | fullname | shortname | category | enablecompletion |
       | Course 1 | C1        | 0        | 1                |
@@ -20,6 +22,8 @@ Feature: Create global booking rules as admin and insure they are working.
       | teacher1 | C1     | manager        |
       | student1 | C1     | student        |
       | student2 | C1     | student        |
+      | student3 | C1     | student        |
+      | student4 | C1     | student        |
     And the following "activities" exist:
       | activity | course | name       | intro               | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail |
       | booking  | C1     | BookingCMP | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      |
@@ -290,5 +294,38 @@ Feature: Create global booking rules as admin and insure they are working.
     Then I should see "Custom message sent"
     And I should see "A custom message e-mail with subject 'Rule send_copy_of_mail test' has been sent to user with id:"
     And I should see "Custom message: An e-mail with subject 'Custom msg copy: Rule send_copy_of_mail test' has been sent to user with id: '2'"
+    ## Logout is mandatory for admin pages to avoid error
+    And I log out
+
+  @javascript
+  Scenario: Booking rule for: copy to admin a bulk custom message sent to 3 users who booked option
+    Given the following "mod_booking > options" exist:
+      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
+    And the following "mod_booking > rules" exist:
+      | conditionname          | contextid | conditiondata                  | name        | actionname        | actiondata                                                       | rulename            | ruledata                                                     |
+      | select_user_from_event | 1         | {"userfromeventtype":"userid"} | bulktoadmin | send_copy_of_mail | {"subjectprefix":"Custom bulk msg copy","messageprefix":"copy:"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\custom_bulk_message_sent"} |
+    When I am on the "BookingCMP" Activity page logged in as admin
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Student 1 (student1@example.com)" "text"
+    And I click on "Student 2 (student2@example.com)" "text"
+    And I click on "Student 3 (student3@example.com)" "text"
+    And I click on "Add" "button"
+    And I follow "<< Back to responses"
+    And I wait until the page is ready
+    And I click on "selectall" "checkbox"
+    And I click on "Send custom message" "button"
+    And I set the following fields to these values:
+      | Subject | Rule send_copy_of_bulk_mail test             |
+      | Message | Test bookig Rule send_copy_of_bulk_mail test |
+    And I press "Send message"
+    And I should see "Your message has been sent."
+    ## Send messages via cron and verify via events log
+    And I trigger cron
+    And I visit "/report/loglive/index.php"
+    Then I should see "Custom message sent"
+    And I should see "A custom message e-mail with subject 'Rule send_copy_of_bulk_mail test' has been sent to user with id:"
+    And I should see "Custom message: An e-mail with subject 'Custom bulk msg copy: Rule send_copy_of_bulk_mail test' has been sent to user with id: '2'"
     ## Logout is mandatory for admin pages to avoid error
     And I log out
