@@ -130,6 +130,33 @@ Feature: Create global booking rules as admin and insure they are working.
     And I log out
 
   @javascript
+  Scenario: Booking rules: create booking rule for option cancellation for user event and notify admin
+    Given the following "mod_booking > options" exist:
+      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
+    And the following "mod_booking > rules" exist:
+      | conditionname | contextid | conditiondata     | name        | actionname | actiondata                                                                       | rulename            | ruledata                                                    |
+      | select_users  | 1         | {"userids":["2"]} | notifyadmin | send_mail  | {"subject":"answer cancellation","template":"cancellation","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookinganswer_cancelled"} |
+    When I am on the "BookingCMP" Activity page logged in as admin
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Student 1 (student1@example.com)" "text"
+    And I click on "Add" "button"
+    And I follow "<< Back to responses"
+    And I wait until the page is ready
+    And I click on "selectall" "checkbox"
+    And I click on "Delete responses" "button"
+    And I should see "You deleted 1 of 1 users. Users, that have completed activity, can't be deleted!"
+    ## Send messages via cron and verify via events log
+    And I trigger cron
+    And I visit "/report/loglive/index.php"
+    And I should see "Booking option cancelled for/by user"
+    And I should see "Option cancelled by teacher or system: An e-mail with subject 'Deleted booking: Option-football by Student 1' has been sent to user with id:"
+    And I should see "Custom message: An e-mail with subject 'answer cancellation' has been sent to user with id: '2'"
+    ## Logout is mandatory for admin pages to avoid error
+    And I log out
+
+  @javascript
   Scenario: Booking rules: create booking rule for teacher removal event and notify other teachers
     Given the following "mod_booking > options" exist:
       | booking     | text           | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | teachersforoption |
