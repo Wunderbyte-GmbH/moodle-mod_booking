@@ -261,3 +261,34 @@ Feature: Create global booking rules as admin and insure they are working.
     And I should see "Custom message: An e-mail with subject 'completion football' has been sent to user with id:"
     ## Logout is mandatory for admin pages to avoid error
     And I log out
+
+  @javascript
+  Scenario: Booking rule for: copy to admin a custom message sent to users who booked option
+    Given the following "mod_booking > options" exist:
+      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
+    And the following "mod_booking > rules" exist:
+      | conditionname          | contextid | conditiondata                  | name        | actionname        | actiondata                                                  | rulename            | ruledata                                                |
+      | select_user_from_event | 1         | {"userfromeventtype":"userid"} | copytoadmin | send_copy_of_mail | {"subjectprefix":"Custom msg copy","messageprefix":"copy:"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\custom_message_sent"} |
+    When I am on the "BookingCMP" Activity page logged in as admin
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Student 1 (student1@example.com)" "text"
+    And I click on "Add" "button"
+    And I follow "<< Back to responses"
+    And I wait until the page is ready
+    And I click on "selectall" "checkbox"
+    And I click on "Send custom message" "button"
+    And I set the following fields to these values:
+      | Subject | Rule send_copy_of_mail test             |
+      | Message | Test bookig Rule send_copy_of_mail test |
+    And I press "Send message"
+    And I should see "Your message has been sent."
+    ## Send messages via cron and verify via events log
+    And I trigger cron
+    And I visit "/report/loglive/index.php"
+    Then I should see "Custom message sent"
+    And I should see "A custom message e-mail with subject 'Rule send_copy_of_mail test' has been sent to user with id:"
+    And I should see "Custom message: An e-mail with subject 'Custom msg copy: Rule send_copy_of_mail test' has been sent to user with id: '2'"
+    ## Logout is mandatory for admin pages to avoid error
+    And I log out
