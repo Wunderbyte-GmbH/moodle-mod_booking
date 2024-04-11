@@ -97,6 +97,9 @@ class message_controller {
     /** @var stdClass $params email params */
     private $params;
 
+    /** @var stdClass $params for strings */
+    private $stringparams;
+
     /** @var string $customsubject for custom messages */
     private $customsubject;
 
@@ -170,6 +173,7 @@ class message_controller {
         $this->userid = $userid;
         $this->optiondateid = $optiondateid;
         $this->changes = $changes;
+        $this->params = new stdClass();
 
         // For custom messages only.
         if ($this->messageparam == MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE) {
@@ -191,14 +195,14 @@ class message_controller {
         }
 
         // We need these for some strings!
-        $this->params = new stdClass();
-        $this->params->title = $settings->get_title_with_prefix();
-        $this->params->participant = $this->user->firstname . " " . $this->user->lastname;
+        $this->stringparams = new stdClass();
+        $this->stringparams->title = $settings->get_title_with_prefix();
+        $this->stringparams->participant = $this->user->firstname . " " . $this->user->lastname;
         // Param sessiondescription is only needed for session reminders.
         // It's used as string param {$a->sessionreminder} in the default message string 'sessionremindermailmessage'.
         if ($this->messageparam == MOD_BOOKING_MSGPARAM_SESSIONREMINDER) {
             // Rendered session description.
-            $this->params->sessiondescription = get_rendered_eventdescription(
+            $this->stringparams->sessiondescription = get_rendered_eventdescription(
                 $this->optionid, $this->cmid,
                 MOD_BOOKING_DESCRIPTION_CALENDAR);
         }
@@ -266,11 +270,11 @@ class message_controller {
             $text = $this->bookingsettings->{$this->messagefieldname};
         } else {
             // Use default message if none is specified.
-            $text = get_string($this->messagefieldname . 'message', 'booking', $this->params);
+            $text = get_string($this->messagefieldname . 'message', 'booking', $this->stringparams);
         }
 
-        // Replace ADDITIONAL placeholders which have been defined here in message_controller.
-        // TODO: We will have to migrate these additional placeholders to the new placeholders in a future release.
+        // NOTE: The only param that has not yet been migrated is {changes}.
+        // So we  still have to keep this.
         foreach ($this->params as $name => $value) {
             if (!is_null($value)) { // Since php 8.1.
                 $value = strval($value);
@@ -278,7 +282,7 @@ class message_controller {
             }
         }
 
-        // Only now, we apply the default placeholders.
+        // We apply the default placeholders.
         $text = placeholders_info::render_text($text, $this->optionsettings->cmid, $this->optionid, $this->userid,
             $this->descriptionparam ?? MOD_BOOKING_DESCRIPTION_WEBSITE);
 
@@ -309,7 +313,7 @@ class message_controller {
             $messagedata->subject = $this->customsubject;
         } else {
             // Else use the localized lang string for the correspondent message type.
-            $messagedata->subject = get_string($this->messagefieldname . 'subject', 'booking', $this->params);
+            $messagedata->subject = get_string($this->messagefieldname . 'subject', 'booking', $this->stringparams);
         }
 
         $messagedata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $this->messagebody));
@@ -347,7 +351,7 @@ class message_controller {
             $messagedata->subject = $this->customsubject;
         } else {
             // Else use the localized lang string for the correspondent message type.
-            $messagedata->subject = get_string($this->messagefieldname . 'subject', 'booking', $this->params);
+            $messagedata->subject = get_string($this->messagefieldname . 'subject', 'booking', $this->stringparams);
         }
 
         $messagedata->messagetext = format_text_email($this->messagebody, FORMAT_HTML);
@@ -458,7 +462,7 @@ class message_controller {
                 if ($this->messageparam == MOD_BOOKING_MSGPARAM_CONFIRMATION ||
                     $this->messageparam == MOD_BOOKING_MSGPARAM_WAITINGLIST) {
                     $this->messagedata->subject = get_string($this->messagefieldname . 'subjectbookingmanager',
-                        'mod_booking', $this->params);
+                        'mod_booking', $this->stringparams);
                 }
 
                 $sendtask = new send_confirmation_mails();
@@ -509,16 +513,6 @@ class message_controller {
     public function get_messagebody(): string {
 
         return $this->messagebody;
-
-    }
-
-    /**
-     * Public getter function for the email params.
-     * @return stdClass email params
-     */
-    public function get_params(): stdClass {
-
-        return $this->params;
 
     }
 
