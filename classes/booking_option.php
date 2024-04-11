@@ -447,7 +447,9 @@ class booking_option {
             }
         }
 
-        return placeholders_info::render_text($text, $this->settings->cmid, $this->settings->id, $userid);
+        $text = placeholders_info::render_text($text, $this->settings->cmid, $this->settings->id, $userid);
+
+        return format_text($text);
     }
 
     /**

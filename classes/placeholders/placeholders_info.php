@@ -143,17 +143,16 @@ class placeholders_info {
                 $text = str_replace($searchstring, $value, $text);
             }
         }
-
-        return format_text($text);
+        return $text;
     }
 
     /**
      * This builds an returns a list of localized placeholders.
      * They are stored statically and thus available throughout the ttl.
-     * @return array
+     * @return string
      * @throws coding_exception
      */
-    public static function return_list_of_placeholders() {
+    public static function return_list_of_placeholders(): string {
 
         // If it's already build, we can skip this.
         if (empty(self::$localizedplaceholders)) {
