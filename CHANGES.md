@@ -1,3 +1,10 @@
+## Version 8.2.4 (2024041100)
+* Improvement: Migrate placeholders in message controller to new placeholder classes.
+* Improvement: Separate string params from placeholder param {changes}.
+* Bugfix: Profile picture is destroyed by format_text so do not use it in placeholders_info but only directly where we need it.
+* Bugfix: Try to fix strings for AMOS.
+* Bugfix: Add missing !empty check for datafromevent property.
+
 ## Version 8.2.3 (2024041000)
 * New feature: Show attachments right within booking options.
 * New feature: New setting to also duplicate Moodle course when a booking option gets duplicated.
