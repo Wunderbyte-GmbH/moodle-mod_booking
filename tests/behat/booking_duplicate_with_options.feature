@@ -48,6 +48,31 @@ Feature: In a booking create booking option with multiple custom options
     Then I should see "Test option - Copy1" in the ".allbookingoptionstable_r2" "css_element"
 
   @javascript
+  Scenario: Duplication of booking option with course
+    Given I log in as "admin"
+    And I set the following administration settings values:
+      | Duplicate Moodle course | 1 |
+    And I am on the "My booking" Activity page
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until the page is ready
+    And I set the following fields to these values:
+      | Booking option name                   | Duplication source |
+      | Connected Moodle course               | Course 1           |
+    And I press "Save"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    When I click on "Duplicate this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I set the following fields to these values:
+      | Booking option name | Duplication - Copy1 |
+    And I press "Save"
+    And I trigger cron
+    And I am on "Course 1 (copy)" course homepage
+    And I follow "My booking"
+    Then I should see "Duplication - Copy1"
+    And I wait "30" seconds
+    ## And I should not see "Duplication source"
+
+  @javascript
   Scenario: Duplicate booking option with multiple customized settings
     Given I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
