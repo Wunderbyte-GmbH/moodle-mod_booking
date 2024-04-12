@@ -386,29 +386,8 @@ class mod_booking_observer {
 
             // THIS is the place where we need to add event data to the rulejson!
             $ruleobj = json_decode($record->rulejson);
-            if (empty($ruleobj->datafromevent)) {
-                $ruleobj->datafromevent = new stdClass;
-                $ruleobj->datafromevent->eventdescription = $event->get_description() ?? "";
-            }
 
-            if (!empty($event->userid)) {
-                // Will be usually the logged-in USER.
-                $ruleobj->datafromevent->userid = $event->userid;
-            }
-            if (!empty($event->relateduserid)) {
-                if (empty($ruleobj->datafromevent)) {
-                    $ruleobj->datafromevent = new stdClass;
-                }
-                // The user affected by the event.
-                $ruleobj->datafromevent->relateduserid = $event->relateduserid;
-            }
-            if (!empty($event->other)) {
-                if (empty($ruleobj->datafromevent)) {
-                    $ruleobj->datafromevent = new stdClass;
-                }
-                // Everything else from event can be passed via "other" array.
-                $ruleobj->datafromevent->other = $event->other;
-            }
+            $ruleobj->datafromevent = $data;
             // We save rulejson again with added event data.
             $record->rulejson = json_encode($ruleobj);
             // Save it into the rule.

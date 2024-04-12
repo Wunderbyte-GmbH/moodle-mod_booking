@@ -49,6 +49,7 @@ use mod_booking\teachers_handler;
 use mod_booking\customfield\booking_handler;
 use mod_booking\event\booking_afteractionsfailed;
 use mod_booking\event\bookinganswer_cancelled;
+use mod_booking\event\bookingoption_freetobookagain;
 use mod_booking\message_controller;
 use mod_booking\option\fields\credits;
 use mod_booking\option\fields_info;
@@ -621,6 +622,14 @@ class booking_option {
 
         $optionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
+        $ba = singleton_service::get_instance_of_booking_answers($optionsettings);
+
+        // We need to check if we were, before deleting, fully booked.
+        if ($ba->is_fully_booked()) {
+            $fullybooked = true;
+        } else {
+            $fullybooked = false;
+        }
 
         // If waitforconfirmation is turned on, we will never sync waitinglist (we do it manually).
         if (!empty($optionsettings->waitforconfirmation)) {
@@ -734,6 +743,21 @@ class booking_option {
 
         // After deleting an answer, cache has to be invalidated.
         self::purge_cache_for_option($this->optionid);
+
+        if ($fullybooked) {
+            $ba = singleton_service::get_instance_of_booking_answers($optionsettings);
+            // Check if there is, after potential syncing, still a place.
+            if (!$ba->is_fully_booked()) {
+                // Now we trigger the event.
+                // Log cancellation of user.
+                $event = bookingoption_freetobookagain::create([
+                    'objectid' => $this->optionid,
+                    'context' => \context_module::instance($this->cmid),
+                    'userid' => $userid, // The user who did cancel.
+                ]);
+                $event->trigger();
+            }
+        }
 
         return true;
     }

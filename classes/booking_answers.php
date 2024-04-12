@@ -290,6 +290,9 @@ class booking_answers {
         if ($maxoverbooking > 0) {
             $returnarray['maxoverbooking'] = $maxoverbooking;
             $returnarray['freeonwaitinglist'] = $maxoverbooking - $returnarray['waiting'];
+        } else if ($maxoverbooking == 0) {
+            // No limit, therefore.
+            $returnarray['freeonwaitinglist'] = 100 + $returnarray['waiting'];
         }
 
         if (!empty($this->bookingoptionsettings->minanswers) && $this->bookingoptionsettings->minanswers > 0) {
@@ -509,6 +512,24 @@ class booking_answers {
         }
 
         if (count($this->usersonlist) >= $this->bookingoptionsettings->maxanswers) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Check if the booking option is already fully booked.
+     * @return bool
+     */
+    public function is_fully_booked_on_waitinglist() {
+
+        // If booking option is unlimited, we always return false.
+        if (empty($this->bookingoptionsettings->maxoverbooking)) {
+            return false;
+        }
+
+        if (count($this->usersonwaitinglist) >= $this->bookingoptionsettings->maxoverbooking) {
             return true;
         } else {
             return false;

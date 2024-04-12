@@ -76,6 +76,9 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
 
             $ruleinstance = $DB->get_record('booking_rules', ['id' => $taskdata->ruleid]);
 
+            // We replace the rulejson if it's already provided by the task.
+            $ruleinstance->rulejson = $taskdata->rulejson ?? $ruleinstance->rulejson;
+
             $rule = rules_info::get_rule($taskdata->rulename);
             // Important: Load the rule data in the instance. As we have compared the json before, we can use the record.
             // Thereby, we will also have the ruleid.
@@ -85,6 +88,15 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
             if (!$rule->check_if_rule_still_applies($taskdata->optionid, $taskdata->userid, $nextruntime)) {
                 mtrace('send_mail_by_rule_adhoc task: Rule does not apply anymore. Mail was NOT SENT for option ' .
                     $taskdata->optionid . ' and user ' . $taskdata->userid);
+                return;
+            }
+
+            // We add the option that this task can actually rerun the rule which created it.
+            // This will be currently done only by the action "send_mail_interval".
+            // The important thing: We will not send the mail, because recipients might have changed.
+            // We just reexecute the event, which will then determine the right recipients and take over.
+            if (!empty($taskdata->repeat)) {
+                $rule->execute($taskdata->optionid);
                 return;
             }
 

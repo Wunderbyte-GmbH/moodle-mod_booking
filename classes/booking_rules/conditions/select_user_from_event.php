@@ -93,7 +93,9 @@ class select_user_from_event implements booking_rule_condition {
             $this->userfromeventtype = $ruleobj->conditiondata->userfromeventtype;
         }
 
-        $datafromevent = $ruleobj->datafromevent;
+        $event = $ruleobj->ruledata->boevent::restore((array)$ruleobj->datafromevent, []);
+
+        $datafromevent = $event->get_data();
 
         // The user who triggered the event.
         if (!empty($datafromevent->userid)) {

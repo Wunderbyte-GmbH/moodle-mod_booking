@@ -32,14 +32,14 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * action how to identify concerned users by matching booking option field and user profile field.
  *
  * @package mod_booking
- * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
+ * @copyright 2024 Wunderbyte GmbH <info@wunderbyte.at>
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class send_mail implements booking_rule_action {
+class send_mail_interval implements booking_rule_action {
 
     /** @var string $rulename */
-    public $actionname = 'send_mail';
+    public $actionname = 'send_mail_interval';
 
     /** @var string $rulejson */
     public $rulejson = null;
@@ -52,6 +52,12 @@ class send_mail implements booking_rule_action {
 
     /** @var string $template */
     public $template = null;
+
+    /** @var int $interval is set in minutes */
+    public $interval = 0;
+
+    /** @var int $counter */
+    public $counter = 0;
 
     /**
      * Load json data from DB into the object.
@@ -69,18 +75,9 @@ class send_mail implements booking_rule_action {
         $this->rulejson = $json;
         $jsonobject = json_decode($json);
         $actiondata = $jsonobject->actiondata;
-
-        if (!empty($jsonobject->datafromevent)) {
-            /* If the template contains the {eventdescription} placeholder,
-            we replace it here, because we have the eventdescription in the $datafromevent
-            which is part of the JSON. */
-            $event = $jsonobject->ruledata->boevent::restore((array)$jsonobject->datafromevent, []);
-            $actiondata->template = str_replace('{eventdescription}', $event->get_description() ?? "",
-                $actiondata->template);
-        }
-
         $this->subject = $actiondata->subject;
         $this->template = $actiondata->template;
+        $this->interval = $actiondata->interval;
     }
 
     /**
@@ -92,16 +89,22 @@ class send_mail implements booking_rule_action {
      */
     public function add_action_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
 
+        // Here we can set the interval in which the mails will be released.
+        $mform->addElement('text', 'action_send_mail_interval_interval',
+                get_string('interval', 'mod_booking'));
+        $mform->addHelpButton('action_send_mail_interval_interval', 'interval', 'mod_booking');
+        $mform->setType('action_send_mail_interval_interval', PARAM_INT);
+        $mform->setDefault('action_send_mail_interval_interval', 60);
+
         // Mail subject.
-        $mform->addElement('text', 'action_send_mail_subject', get_string('messagesubject', 'mod_booking'),
+        $mform->addElement('text', 'action_send_mail_interval_subject', get_string('messagesubject', 'mod_booking'),
             ['size' => '66']);
-        $mform->setType('action_send_mail_subject', PARAM_TEXT);
+        $mform->setType('action_send_mail_interval_subject', PARAM_TEXT);
 
         // Mail template.
-        $mform->addElement('editor', 'action_send_mail_template',
+        $mform->addElement('editor', 'action_send_mail_interval_template',
             get_string('message'), ['rows' => 15], ['subdirs' => 0, 'maxfiles' => 0, 'context' => null]);
 
-        // Placeholders info text.
         $placeholders = placeholders_info::return_list_of_placeholders();
         $mform->addElement('html', get_string('helptext:placeholders', 'mod_booking', $placeholders));
 
@@ -113,7 +116,7 @@ class send_mail implements booking_rule_action {
      * @return string the name of the rule action
      */
     public function get_name_of_action($localized = true) {
-        return get_string('send_mail', 'mod_booking');
+        return get_string('send_mail_interval', 'mod_booking');
     }
 
     /**
@@ -141,9 +144,10 @@ class send_mail implements booking_rule_action {
         $jsonobject->name = $data->name ?? $this->actionname;
         $jsonobject->actionname = $this->actionname;
         $jsonobject->actiondata = new stdClass();
-        $jsonobject->actiondata->subject = $data->action_send_mail_subject;
-        $jsonobject->actiondata->template = $data->action_send_mail_template['text'];
-        $jsonobject->actiondata->templateformat = $data->action_send_mail_template['format'];
+        $jsonobject->actiondata->interval = $data->action_send_mail_interval_interval ?? 60;
+        $jsonobject->actiondata->subject = $data->action_send_mail_interval_subject;
+        $jsonobject->actiondata->template = $data->action_send_mail_interval_template['text'];
+        $jsonobject->actiondata->templateformat = $data->action_send_mail_interval_template['format'];
 
         $data->rulejson = json_encode($jsonobject);
     }
@@ -158,6 +162,7 @@ class send_mail implements booking_rule_action {
         $jsonobject = json_decode($record->rulejson);
         $actiondata = $jsonobject->actiondata;
 
+        $data->action_send_mail_interval_interval = $actiondata->interval ?? 60;
         $data->action_send_mail_subject = $actiondata->subject;
         $data->action_send_mail_template = [];
         $data->action_send_mail_template['text'] = $actiondata->template;
@@ -172,6 +177,56 @@ class send_mail implements booking_rule_action {
     public function execute(stdClass $record) {
         global $DB;
 
+        // This will be potentially run multiple times in a loop.
+        // The first time, we just want to send the normal mail.
+        // But we need to give the task already the information that we want to repeat this.
+        // And we need to store the information, to which user we have sent this information already.
+        // Then we abort.
+        // When the same action is run again, we will see the information that this is a rerun.
+        // We check if the currently to treat record was already treated (user 1 on waintinlist might still be user one).
+        // If that's the case, we skip it.
+        // We send message to next user.
+
+        $interval = $this->interval;
+
+        $nextruntime = $record->nextruntime;
+
+        $jsonobject = json_decode($this->rulejson);
+        $repeat = 0;
+
+        if (!isset($jsonobject->intervaldata)) {
+            $jsonobject->intervaldata = (object)[
+                'nextruntime' => $nextruntime,
+                'usersalreadytreated' => [],
+                'interval' => $interval,
+            ];
+        } else {
+
+            // If we are dealing with an interval execution...
+            // We first check if the current user has already been treated.
+            // If so, we abort.
+            if (in_array($record->userid, $jsonobject->intervaldata->usersalreadytreated)) {
+                return;
+            }
+        }
+
+        if ($this->counter === 0) {
+            // If it's a new user, we store the information.
+            $jsonobject->intervaldata->usersalreadytreated[] = $record->userid;
+            $userid = $record->userid;
+        } else if ($this->counter === 1) {
+            // If this is the second user, we set the repeat flag.
+            $repeat = 1;
+            // The next execution will be delayed.
+            $nextruntime = $nextruntime + $interval * 60;
+        } else if ($this->counter > 1) {
+            return;
+        }
+
+        $this->rulejson = json_encode($jsonobject);
+
+        $this->counter++;
+
         $task = new send_mail_by_rule_adhoc();
 
         $taskdata = [
@@ -185,14 +240,12 @@ class send_mail implements booking_rule_action {
             'cmid' => $record->cmid,
             'customsubject' => $this->subject,
             'custommessage' => $this->template,
-            'installmentnr' => $record->payment_id ?? 0,
-            'duedate' => $record->datefield ?? 0,
-            'price' => $record->price ?? 0,
+            'repeat' => $repeat,
         ];
         $task->set_custom_data($taskdata);
         $task->set_userid($record->userid);
 
-        $task->set_next_run_time($record->nextruntime);
+        $task->set_next_run_time($nextruntime);
 
         // Now queue the task or reschedule it if it already exists (with matching data).
         \core\task\manager::reschedule_or_queue_adhoc_task($task);

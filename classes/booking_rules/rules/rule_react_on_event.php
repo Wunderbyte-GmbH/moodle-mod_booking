@@ -19,6 +19,7 @@ namespace mod_booking\booking_rules\rules;
 use mod_booking\booking_rules\actions_info;
 use mod_booking\booking_rules\booking_rule;
 use mod_booking\booking_rules\conditions_info;
+use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
 
@@ -51,6 +52,24 @@ class rule_react_on_event implements booking_rule {
     /** @var int $ruleid */
     public $boevent = null;
 
+    /** @var object $intervaldata */
+    public $intervaldata = null;
+
+    /** Const state of booking option */
+    public const ALWAYS = 0;
+
+    /** Const state of booking option */
+    public const FULLYBOOKED = 1;
+
+    /** Const state of booking option */
+    public const NOTFULLYBOOKED = 2;
+
+    /** Const state of booking option */
+    public const FULLWAITINGLIST = 3;
+
+    /** Const state of booking option */
+    public const NOTFULLWAITINGLIST = 4;
+
     /**
      * Load json data from DB into the object.
      * @param stdClass $record a rule record from DB
@@ -69,6 +88,7 @@ class rule_react_on_event implements booking_rule {
         $ruleobj = json_decode($json);
         $this->name = $ruleobj->name;
         $this->boevent = $ruleobj->ruledata->boevent;
+        $this->intervaldata = $ruleobj->intervaldata ?? null;
     }
 
     /**
@@ -82,8 +102,9 @@ class rule_react_on_event implements booking_rule {
 
         // Only these events are currently supported and tested.
         $allowedeventkeys = [
+            'bookingoption_freetobookagain',
             'bookinganswer_cancelled',
-            'bookingoption_cancelled',
+            'bookingoption_booked',
             'bookingoption_completed',
             'custom_message_sent',
             'custom_bulk_message_sent',
@@ -109,6 +130,17 @@ class rule_react_on_event implements booking_rule {
 
         $mform->addElement('select', 'rule_react_on_event_event',
             get_string('rule_event', 'mod_booking'), $allowedevents);
+
+        $conditions = [
+            self::ALWAYS => get_string('always', 'mod_booking'),
+            self::FULLYBOOKED => get_string('fullybooked', 'mod_booking'),
+            self::NOTFULLYBOOKED => get_string('notfullybooked', 'mod_booking'),
+            self::FULLWAITINGLIST => get_string('fullwaitinglist', 'mod_booking'),
+            self::NOTFULLWAITINGLIST => get_string('notfullwaitinglist', 'mod_booking'),
+        ];
+
+        $mform->addElement('select', 'rule_react_on_event_condition',
+            get_string('rule_event_condition', 'mod_booking'), $conditions);
     }
 
     /**
@@ -140,6 +172,7 @@ class rule_react_on_event implements booking_rule {
         $jsonobject->rulename = $this->rulename;
         $jsonobject->ruledata = new stdClass();
         $jsonobject->ruledata->boevent = $data->rule_react_on_event_event ?? '';
+        $jsonobject->ruledata->condition = $data->rule_react_on_event_condition ?? '';
 
         $record->rulejson = json_encode($jsonobject);
         $record->rulename = $this->rulename;
@@ -174,6 +207,7 @@ class rule_react_on_event implements booking_rule {
 
         $data->rule_name = $jsonobject->name;
         $data->rule_react_on_event_event = $ruledata->boevent;
+        $data->rule_react_on_event_condition = $ruledata->condition;
 
     }
 
@@ -222,6 +256,36 @@ class rule_react_on_event implements booking_rule {
      * @return bool true if the rule still applies, false if not
      */
     public function check_if_rule_still_applies(int $optionid, int $userid, int $nextruntime): bool {
+
+        $jsonobject = json_decode($this->rulejson);
+        $ruledata = $jsonobject->ruledata;
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $ba = singleton_service::get_instance_of_booking_answers($settings);
+
+        switch ($ruledata->condition ?? self::ALWAYS) {
+            case self::ALWAYS:
+                return true;
+            case self::FULLYBOOKED:
+                if ($ba->is_fully_booked()) {
+                    return true;
+                }
+                return false;
+            case self::NOTFULLYBOOKED:
+                if ($ba->is_fully_booked()) {
+                    return false;
+                }
+                return true;
+            case self::FULLWAITINGLIST:
+                if ($ba->is_fully_booked_on_waitinglist()) {
+                    return true;
+                }
+                return false;
+            case self::NOTFULLWAITINGLIST:
+                if ($ba->is_fully_booked_on_waitinglist()) {
+                    return false;
+                }
+                return true;
+        }
 
         // For this rule, we don't need to check because everything is sent directly after event was triggered.
         return true;

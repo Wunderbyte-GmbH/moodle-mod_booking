@@ -76,9 +76,11 @@ class send_copy_of_mail implements booking_rule_action {
         $this->rulejson = $json;
         $jsonobject = json_decode($json);
         $actiondata = $jsonobject->actiondata;
-        $datafromevent = $jsonobject->datafromevent;
+        $event = $jsonobject->ruledata->boevent::restore((array)$jsonobject->datafromevent, []);
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($datafromevent->other->optionid);
+        $datafromevent = $event->get_data();
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($event->objectid);
         $fulltitle = $settings->get_title_with_prefix();
         $optionformatted = "<b>" . get_string('bookingoption', 'mod_booking') . "</b>: $fulltitle<br>";
 

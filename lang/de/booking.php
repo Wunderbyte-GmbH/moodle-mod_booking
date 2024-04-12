@@ -237,6 +237,7 @@ $string['bookinganswer_cancelled'] = 'Buchungsoption von/für Nutzer:in stornier
 // Booking option events.
 $string['bookingoption_cancelled'] = "Buchungsoption für alle storniert";
 $string['bookingoption_booked'] = 'Buchungsoption durchgeführt';
+$string['bookingoption_freetobookagain'] = 'Wieder freie Plätze';
 $string['bookingoption_completed'] = 'Buchungsoption abgeschlossen';
 $string['bookingoption_created'] = 'Buchungsoption angelegt';
 $string['bookingoption_updated'] = 'Buchungsoption upgedatet';
@@ -399,7 +400,11 @@ $string['attachedfiles'] = 'Dateianhänge';
 $string['availability'] = 'Noch verfügbar ';
 $string['available'] = 'Plätze verfügbar';
 $string['booked'] = 'Gebucht';
+$string['always'] = 'Immer';
 $string['fullybooked'] = 'Ausgebucht';
+$string['notfullybooked'] = 'Nicht ausgebucht';
+$string['fullwaitinglist'] = 'Volle Warteliste';
+$string['notfullwaitinglist'] = 'Nicht volle Warteliste';
 $string['notifyme'] = 'Benachrichtigen wenn frei';
 $string['alreadyonlist'] = 'Sie werden benachrichtigt';
 $string['bookedpast'] = 'Gebucht (Kurs wurde bereits beendet)';
@@ -2033,8 +2038,11 @@ $string['deletebookingrule_confirmtext'] = 'Wollen Sie die folgende Regel wirkli
 $string['bookingruletemplates'] = 'Lade eine Template-Regel';
 $string['bookinguseastemplate'] = 'Setze diese Regel als Template';
 $string['bookingdefaulttemplate'] = 'Wähle Template...';
+$string['interval'] = "Interval";
+$string['interval_help'] = "In Minuten. 1440 für 24h.";
 
 $string['rule_event'] = 'Event';
+$string['rule_event_condition'] = 'Führe aus wenn...';
 $string['rule_mailtemplate'] = 'E-Mail-Vorlage';
 $string['rule_datefield'] = 'Datumsfeld';
 $string['rule_customprofilefield'] = 'Benutzerdefiniertes User-Profilfeld';
@@ -2099,6 +2107,7 @@ $string['bookingaction'] = "Aktion";
 $string['sendcopyofmailsubjectprefix'] = 'Vorangestellter Text für den Betreff';
 $string['sendcopyofmailmessageprefix'] = 'Vorangestellter Text für die Nachricht';
 $string['send_copy_of_mail'] = 'Eine Kopie der E-Mail senden';
+$string['send_mail_interval'] = 'Eine Nachricht zeitversetzt an mehrere Nutzer:innen schicken';
 
 // Cancel booking option.
 $string['canceloption'] = "Storniere Buchungsoption";
