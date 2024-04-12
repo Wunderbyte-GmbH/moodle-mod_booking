@@ -77,14 +77,4 @@ class bookingoption_freetobookagain extends \core\event\base {
     public function get_url() {
         return new \moodle_url('/mod/booking/view.php', ['id' => $this->contextinstanceid]);
     }
-
-    /**
-     * Custom validation.
-     *
-     * @throws \coding_exception
-     * @return void
-     */
-    protected function validate_data() {
-        parent::validate_data();
-    }
 }
