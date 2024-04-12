@@ -2371,6 +2371,7 @@ class booking_option {
                 $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate', $date->id);
                 $entity = $erhandler->get_instance_data($date->id);
                 $entityid = $erhandler->get_entityid_by_instanceid($date->id);
+                $entityurl = null; // Important: initialize!
                 if (!empty($entityid)) {
                     $entityurl = new moodle_url('/local/entities/view.php', ['id' => $entityid]);
                 }
