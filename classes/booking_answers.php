@@ -290,9 +290,6 @@ class booking_answers {
         if ($maxoverbooking > 0) {
             $returnarray['maxoverbooking'] = $maxoverbooking;
             $returnarray['freeonwaitinglist'] = $maxoverbooking - $returnarray['waiting'];
-        } else if ($maxoverbooking == 0) {
-            // No limit, therefore.
-            $returnarray['freeonwaitinglist'] = 100 + $returnarray['waiting'];
         }
 
         if (!empty($this->bookingoptionsettings->minanswers) && $this->bookingoptionsettings->minanswers > 0) {
