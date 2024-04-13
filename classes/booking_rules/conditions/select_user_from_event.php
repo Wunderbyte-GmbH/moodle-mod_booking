@@ -98,13 +98,13 @@ class select_user_from_event implements booking_rule_condition {
         $datafromevent = $event->get_data();
 
         // The user who triggered the event.
-        if (!empty($datafromevent->userid)) {
-            $this->userid = $datafromevent->userid;
+        if (!empty($datafromevent['userid'])) {
+            $this->userid = $datafromevent['userid'];
         }
 
         // The user affected by the event.
-        if (!empty($datafromevent->relateduserid)) {
-            $this->relateduserid = $datafromevent->relateduserid;
+        if (!empty($datafromevent['relateduserid'])) {
+            $this->relateduserid = $datafromevent['relateduserid'];
         }
     }
 

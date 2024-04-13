@@ -84,20 +84,20 @@ class send_copy_of_mail implements booking_rule_action {
         $fulltitle = $settings->get_title_with_prefix();
         $optionformatted = "<b>" . get_string('bookingoption', 'mod_booking') . "</b>: $fulltitle<br>";
 
-        $userfrom = singleton_service::get_instance_of_user((int) $datafromevent->userid);
+        $userfrom = singleton_service::get_instance_of_user((int) $datafromevent['userid']);
         $userfromformatted = "$userfrom->firstname $userfrom->lastname &lt;$userfrom->email&gt;";
         $userfromformatted = "<b>" . get_string('from') . "</b>: $userfromformatted<br>";
 
         $usertoformatted = '';
-        if (!empty($datafromevent->relateduserid)) {
-            $userto = singleton_service::get_instance_of_user((int) $datafromevent->relateduserid);
+        if (!empty($datafromevent['relateduserid'])) {
+            $userto = singleton_service::get_instance_of_user((int) $datafromevent['relateduserid']);
             $usertoformatted .= "$userto->firstname $userto->lastname &lt;$userto->email&gt;";
             $usertoformatted = "<b>" . get_string('to') . "</b>: $usertoformatted<br>";
         }
 
-        $this->subject = $actiondata->subjectprefix . ": " . $datafromevent->other->subject;
+        $this->subject = $actiondata->subjectprefix . ": " . $datafromevent['other']->subject;
         $this->message = "$actiondata->messageprefix<hr>" .
-            $optionformatted . $userfromformatted . $usertoformatted . $datafromevent->other->message;
+            $optionformatted . $userfromformatted . $usertoformatted . $datafromevent['other']->message;
     }
 
     /**
