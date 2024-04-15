@@ -127,7 +127,7 @@ class addtogroup extends field_base {
                 // TODO: This looks kind of strange. Was this copied from legacy code? Does it still work?
                 // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
                 /* $bo->option->courseid = $optionsettings->courseid; */
-                $option->groupid = $bo->create_group();
+                $option->groupid = $bo->create_group($option);
                 $booked = $bo->get_all_users_booked();
                 if (!empty($booked) && $bookingsettings->autoenrol) {
                     foreach ($booked as $bookinganswer) {

@@ -1398,7 +1398,7 @@ class booking_option {
                         in_array($this->option->groupid, $groups)) {
                     groups_add_member($this->option->groupid, $userid);
                 } else {
-                    if ($groupid = $this->create_group()) {
+                    if ($groupid = $this->create_group($this->settings->return_settings_as_stdclass())) {
                         groups_add_member($groupid, $userid);
                     } else {
                         throw new \moodle_exception('groupexists', 'booking');
@@ -1453,14 +1453,15 @@ class booking_option {
     /**
      * Create a new group for a booking option if it is not already created
      * Return the id of the group.
-     *
+     * @param stdClass $newoption
      * @return bool|number id of the group
      * @throws \moodle_exception
      */
-    public function create_group() {
+    public function create_group($newoption) {
         global $DB;
-        $newgroupdata = self::generate_group_data($this->booking->settings, $this->option);
-        $groupids = array_keys(groups_get_all_groups($this->option->courseid));
+        $newgroupdata = self::generate_group_data($this->booking->settings, $newoption);
+
+        $groupids = array_keys(groups_get_all_groups($newoption->courseid));
         // If group name already exists, do not create it a second time, it should be unique.
         if ($groupid = groups_get_group_by_name($newgroupdata->courseid, $newgroupdata->name)) {
             return $groupid;
