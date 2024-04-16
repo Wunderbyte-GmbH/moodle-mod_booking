@@ -163,10 +163,10 @@ class send_mail_interval implements booking_rule_action {
         $actiondata = $jsonobject->actiondata;
 
         $data->action_send_mail_interval_interval = $actiondata->interval ?? 60;
-        $data->action_send_mail_subject = $actiondata->subject;
-        $data->action_send_mail_template = [];
-        $data->action_send_mail_template['text'] = $actiondata->template;
-        $data->action_send_mail_template['format'] = $actiondata->templateformat;
+        $data->action_send_mail_interval_subject = $actiondata->subject;
+        $data->action_send_mail_interval_template = [];
+        $data->action_send_mail_interval_template['text'] = $actiondata->template;
+        $data->action_send_mail_interval_template['format'] = $actiondata->templateformat;
     }
 
     /**

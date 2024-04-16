@@ -71,7 +71,7 @@ class booking_rules {
         global $DB;
 
         if (empty(self::$rules)) {
-            $rules = $DB->get_records('booking_rules');
+            $rules = $DB->get_records('booking_rules', null, 'id');
             self::$rules = $rules;
         }
 
