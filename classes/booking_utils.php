@@ -486,30 +486,30 @@ class booking_utils {
             ];
         }
         if (isset($oldoption->location)
-                && $oldoption->location != $newoption->location) {
+                && $oldoption->location != ($newoption->location ?? '')) {
             $returnarry[] = [
                     'info' => get_string('location', 'booking') . get_string('changeinfochanged', 'booking'),
                     'fieldname' => 'location',
                     'oldvalue' => $oldoption->location,
-                    'newvalue' => $newoption->location,
+                    'newvalue' => ($newoption->location ?? ''),
             ];
         }
         if (isset($oldoption->institution)
-                && $oldoption->institution != $newoption->institution) {
+                && $oldoption->institution != ($newoption->institution ?? '')) {
             $returnarry[] = [
                     'info' => get_string('institution', 'booking') . get_string('changeinfochanged', 'booking'),
                     'fieldname' => 'institution',
                     'oldvalue' => $oldoption->institution,
-                    'newvalue' => $newoption->institution,
+                    'newvalue' => ($newoption->institution ?? ''),
             ];
         }
         if (isset($oldoption->address)
-                && $oldoption->address != $newoption->address) {
+                && $oldoption->address != ($newoption->address ?? '')) {
             $returnarry[] = [
                     'info' => get_string('address', 'booking') . get_string('changeinfochanged', 'booking'),
                     'fieldname' => 'address',
                     'oldvalue' => $oldoption->address,
-                    'newvalue' => $newoption->address,
+                    'newvalue' => ($newoption->address ?? ''),
             ];
         }
         if (isset($oldoption->description)
@@ -522,21 +522,21 @@ class booking_utils {
             ];
         }
         if (isset($oldoption->responsiblecontact)
-                && $oldoption->responsiblecontact != $newoption->responsiblecontact) {
+                && $oldoption->responsiblecontact != ($newoption->responsiblecontac ?? '')) {
             $returnarry[] = [
                     'info' => get_string('responsiblecontact', 'mod_booking') . get_string('changeinfochanged', 'booking'),
                     'fieldname' => 'responsiblecontact',
                     'oldvalue' => $oldoption->responsiblecontact,
-                    'newvalue' => $newoption->responsiblecontact,
+                    'newvalue' => ($newoption->responsiblecontac ?? ''),
             ];
         }
         // We have to check for changed "adtocalendar"-value, because we need to trigger update event (but not send mail).
         if (isset($oldoption->addtocalendar)
-                && $oldoption->addtocalendar != $newoption->addtocalendar) {
+                && $oldoption->addtocalendar != ($newoption->addtocalendar ?? 0)) {
             $returnarry[] = [
                     'fieldname' => 'addtocalendar',
                     'oldvalue' => $oldoption->addtocalendar,
-                    'newvalue' => $newoption->addtocalendar,
+                    'newvalue' => ($newoption->addtocalendar ?? 0),
             ];
         }
         if (count($returnarry) > 0) {

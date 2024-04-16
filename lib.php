@@ -781,17 +781,26 @@ function booking_update_instance($booking) {
     $arr = [];
     core_tag_tag::set_item_tags('mod_booking', 'booking', $booking->id, $context, $booking->tags);
 
-    file_save_draft_area_files($booking->signinlogoheader, $context->id, 'mod_booking',
+    if (!empty($booking->signinlogoheader)) {
+        file_save_draft_area_files($booking->signinlogoheader, $context->id, 'mod_booking',
             'signinlogoheader', $booking->id, ['subdirs' => false, 'maxfiles' => 1]);
+    }
 
-    file_save_draft_area_files($booking->signinlogofooter, $context->id, 'mod_booking',
+    if (!empty($booking->signinlogofooter)) {
+        file_save_draft_area_files($booking->signinlogofooter, $context->id, 'mod_booking',
             'signinlogofooter', $booking->id, ['subdirs' => false, 'maxfiles' => 1]);
+    }
 
-    file_save_draft_area_files($booking->myfilemanager, $context->id, 'mod_booking',
+    if (!empty($booking->myfilemanager)) {
+        file_save_draft_area_files($booking->myfilemanager, $context->id, 'mod_booking',
             'myfilemanager', $booking->id, ['subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 50]);
 
-    file_save_draft_area_files($booking->bookingimages, $context->id, 'mod_booking',
+    }
+
+    if (!empty($booking->bookingimages)) {
+        file_save_draft_area_files($booking->bookingimages, $context->id, 'mod_booking',
             'bookingimages', $booking->id, ['subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 500]);
+    }
 
     if (empty($booking->timerestrict)) {
         $booking->timeopen = 0;
@@ -818,13 +827,13 @@ function booking_update_instance($booking) {
     $booking->bookedtext = $booking->bookedtext['text'];
     $booking->waitingtext = $booking->waitingtext['text'];
     $booking->notifyemail = $booking->notifyemail['text'];
-    $booking->notifyemailteachers = $booking->notifyemailteachers['text'];
+    $booking->notifyemailteachers = $booking->notifyemailteachers['text'] ?? '';
     $booking->statuschangetext = $booking->statuschangetext['text'];
     $booking->deletedtext = $booking->deletedtext['text'];
-    $booking->bookingchangedtext = $booking->bookingchangedtext['text'];
+    $booking->bookingchangedtext = $booking->bookingchangedtext['text'] ?? '';
     $booking->pollurltext = $booking->pollurltext['text'];
     $booking->pollurlteacherstext = $booking->pollurlteacherstext['text'];
-    $booking->activitycompletiontext = $booking->activitycompletiontext['text'];
+    $booking->activitycompletiontext = $booking->activitycompletiontext['text'] ?? '';
     $booking->userleave = $booking->userleave['text'];
 
     // Get JSON from bookingsettings.
@@ -1436,7 +1445,7 @@ function booking_grade_item_update($booking, $grades = null) {
         require_once($CFG->libdir . '/gradelib.php');
     }
 
-    $params = ['itemname' => $booking->name, 'idnumber' => $booking->cmidnumber];
+    $params = ['itemname' => $booking->name, 'idnumber' => $booking->cmidnumber ?? ''];
 
     if (!$booking->assessed || $booking->scale == 0) {
         $params['gradetype'] = GRADE_TYPE_NONE;

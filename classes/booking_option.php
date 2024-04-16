@@ -3456,6 +3456,10 @@ class booking_option {
             // If we have no cmid, it's most possibly a template.
             if (!empty($cmid) && $newoption->bookingid != 0) {
                 // We only react on changes, if a cmid exists.
+
+                if (empty($context)) {
+                    $context = context_module::instance($cmid);
+                }
                 $bu->react_on_changes($cmid, $context, $newoption->id, $changes);
             }
         }
