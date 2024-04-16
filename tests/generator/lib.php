@@ -169,6 +169,8 @@ class mod_booking_generator extends testing_module_generator {
             }
         }
 
+        $record->importing = true;
+
         // Create / save booking option(s).
         if ($record->id = booking_option::update($record, $context)) {
             $record->optionid = $record->id;
