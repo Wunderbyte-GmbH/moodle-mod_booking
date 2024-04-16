@@ -135,7 +135,8 @@ class bo_info {
             foreach ($results as $result) {
                 // If no Id has been defined or if id is higher, we take the descpription to return.
                 if ($id === MOD_BOOKING_BO_COND_CONFIRMATION || $result['id'] > $id) {
-                    if (has_capability('local/shopping_cart:cashier', context_system::instance()) &&
+                    if (class_exists('local_shopping_cart\shopping_cart')
+                        && has_capability('local/shopping_cart:cashier', context_system::instance()) &&
                         $result['button'] == MOD_BOOKING_BO_BUTTON_MYALERT) {
                         continue;
                     }

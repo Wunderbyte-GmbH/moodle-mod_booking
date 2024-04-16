@@ -37,6 +37,7 @@ use stdClass;
 use mod_booking\utils\csv_import;
 use mod_booking\importer\bookingoptionsimporter;
 
+defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
