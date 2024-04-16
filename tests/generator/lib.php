@@ -31,6 +31,7 @@ use mod_booking\booking_option;
 use mod_booking\price;
 use mod_booking\semester;
 use mod_booking\customfield\booking_handler;
+use mod_booking\singleton_service;
 
 /**
  * Class to handle module booking data generator
@@ -122,15 +123,7 @@ class mod_booking_generator extends testing_module_generator {
                     'text must be present in phpunit_util::create_option() $record');
         }
 
-        if (!isset($record['courseid'])) {
-            throw new coding_exception(
-                    'courseid must be present in phpunit_util::create_option() $record');
-        }
-
-        $cmb1 = get_coursemodule_from_instance('booking', $record['bookingid'], $record['courseid']);
-        if (!$context = context_module::instance($cmb1->id)) {
-            throw new moodle_exception('badcontext');
-        }
+        $booking = singleton_service::get_instance_of_booking_by_bookingid($record['bookingid']);
 
         // Increment the forum subscription count.
         $this->bookingoptions++;
@@ -139,8 +132,10 @@ class mod_booking_generator extends testing_module_generator {
 
         // Finalizing object with required properties.
         $record->id = 0;
-        $record->cmid = $cmb1->id;
+        $record->cmid = $booking->cmid;
         $record->identifier = booking_option::create_truly_unique_option_identifier();
+
+        $context = context_module::instance($record->cmid);
 
         $record->addtocalendar = !empty($record->addtocalendar) ? $record->addtocalendar : 0;
         $record->maxanswers = !empty($record->maxanswers) ? $record->maxanswers : 0;

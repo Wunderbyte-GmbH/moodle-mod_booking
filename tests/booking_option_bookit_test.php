@@ -67,7 +67,7 @@ class booking_option_bookit_test extends advanced_testcase {
     }
 
     /**
-     * Test delete responses.
+     * Test booking, cancelation, option has started etc.
      *
      * @covers ::delete_responses_activitycompletion
      * @throws \coding_exception
@@ -235,5 +235,115 @@ class booking_option_bookit_test extends advanced_testcase {
         $this->setUser($student1);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals($id, MOD_BOOKING_BO_COND_OPTIONHASSTARTED);
+    }
+
+    /**
+     * Test add to group.
+     *
+     * @covers ::delete_responses_activitycompletion
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
+    public function test_booking_bookit_add_to_group() {
+        global $DB, $CFG;
+
+        $bdata = [
+            'name' => 'Test Booking 1',
+            'eventtype' => 'Test event',
+            'enablecompletion' => 1,
+            'bookedtext' => ['text' => 'text'],
+            'waitingtext' => ['text' => 'text'],
+            'notifyemail' => ['text' => 'text'],
+            'statuschangetext' => ['text' => 'text'],
+            'deletedtext' => ['text' => 'text'],
+            'pollurltext' => ['text' => 'text'],
+            'pollurlteacherstext' => ['text' => 'text'],
+            'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
+            'tags' => '',
+            'completion' => 2,
+            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
+            'cancancelbook' => 1,
+            'addtogroup' => 1,
+            'autoenrol' => 1,
+        ];
+        // Setup test data.
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create users.
+        $admin = $this->getDataGenerator()->create_user();
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $student3 = $this->getDataGenerator()->create_user();
+        $student4 = $this->getDataGenerator()->create_user();
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $bdata['name'] = 'Test Booking 2';
+
+        $this->setUser($admin);
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($admin->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($student2->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($student3->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($student4->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($teacher->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id);
+
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1';
+        $record->courseid = $course2->id;
+        $record->maxanswers = 2;
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option1 = $plugingenerator->create_option($record);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+
+        // Book the first user without any problem.
+        $boinfo = new bo_info($settings);
+
+        // Book the student right away.
+        $this->setUser($student1);
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+
+        // Via this line, we can get the blocking condition.
+        // The true is only hardblocking, which means low blockers used to only show buttons etc. wont be shown.
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals($id, MOD_BOOKING_BO_COND_ALREADYBOOKED);
+
+        // Now check if the user is enrolled to the course.
+        // We should get two courses.
+        $courses = enrol_get_users_courses($student1->id);
+        $this->assertEquals(count($courses), 2);
+
+        // Now check if the user is enrolled in the right group.
+        $groups = groups_get_all_groups($course2->id);
+        $group = reset($groups);
+
+        // First assert that the group is actually created.
+        $this->assertStringContainsString($settings->text, $group->name);
+
+        // No check if the user is in the group.
+        $groupmembers = groups_get_members($group->id);
+
+        $this->assertArrayHasKey($student1->id, $groupmembers);
+
+        // Unenrol user again.
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals($id, MOD_BOOKING_BO_COND_BOOKITBUTTON);
     }
 }
