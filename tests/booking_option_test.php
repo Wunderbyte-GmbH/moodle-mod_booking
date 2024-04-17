@@ -33,7 +33,6 @@ use mod_booking\price;
 use mod_booking_generator;
 use context_course;
 use stdClass;
-use mod_booking\utils\csv_import;
 use mod_booking\importer\bookingoptionsimporter;
 
 /**
@@ -205,8 +204,6 @@ class booking_option_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($user1->id, $course->id);
         $this->getDataGenerator()->enrol_user($user2->id, $course->id);
         $this->getDataGenerator()->enrol_user($user3->id, $course->id);
-
-        $coursectx = context_course::instance($course->id);
 
         // Get coursemodule of bookjng instance.
         $cmb1 = get_coursemodule_from_instance('booking', $booking1->id);

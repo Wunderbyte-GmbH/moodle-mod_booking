@@ -28,11 +28,9 @@ namespace mod_booking;
 
 use advanced_testcase;
 use coding_exception;
-use mod_booking\option\dates_handler;
 use mod_booking\task\send_reminder_mails;
 use mod_booking\teachers_handler;
 use mod_booking_generator;
-use context_course;
 use context_system;
 use stdClass;
 use core\event\notification_sent;
@@ -114,11 +112,9 @@ class booking_reminder_mails_test extends advanced_testcase {
         // Acting as a teacher.
         $this->setUser($user2);
 
-        $coursectx = context_course::instance($course->id);
-
         $time = new \DateTimeImmutable('now', new \DateTimeZone('Europe/London'));
-        $onedaysbefore = $time->modify('+25 hour');
-        $twodaysbefore = $time->modify('+50 hour');
+        $onedaysbefore = $time->modify('+27 hour');
+        $twodaysbefore = $time->modify('+52 hour');
         $threedaysbefore = $time->modify('+3 day');
         $fourdaysbefore = $time->modify('+4 day');
 
@@ -145,22 +141,22 @@ class booking_reminder_mails_test extends advanced_testcase {
         $teacherdata->teachersforoption = [$user2->id];
         $teacherhandler->save_from_form($teacherdata);
 
-        $cmb1 = get_coursemodule_from_instance('booking', $booking1->id);
+        // Replace StdClass with instance of Booking.
+        $booking1 = singleton_service::get_instance_of_booking_by_bookingid($booking1->id);
 
-        $bookingoption1 = singleton_service::get_instance_of_booking_option($cmb1->id, $option1->id);
-        // phpcs:ignore
-        // $dates = dates_handler::return_array_of_sessions_datestrings($option1->id);
+        $bookingoption1 = singleton_service::get_instance_of_booking_option($booking1->cmid, $option1->id);
 
         // Book option by student.
         // The circumvent to baypass some checks. Use booking_bookit::bookit for prices, shoppingcart, etc.
         $bookingoption1->user_submit_response($user1, $bookingoption1->id, 0, 0, MOD_BOOKING_VERIFIED);
-        // phpcs:ignore
-        // $booked_users = $bookingoption1->get_all_users_booked();
+
+        $users = $bookingoption1->get_all_users_booked();
 
         // Run the send_reminder_mails scheduled task.
         $sink = $this->redirectEvents();
 
         ob_start();
+
         $reminder = new send_reminder_mails();
         $reminder->execute();
         $events = $sink->get_events();
