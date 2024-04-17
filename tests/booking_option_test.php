@@ -251,7 +251,9 @@ class booking_option_test extends advanced_testcase {
         $this->assertEquals("monday", $option1->dayofweek);
 
         // This might fail when local_entities is installed.
-        $this->assertEquals("TNMU", $option1->location);
+        if (!class_exists('local_entities\entitiesrelation_handler')) {
+            $this->assertEquals("TNMU", $option1->location);
+        }
 
         // Check if the user is subscribed.
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
@@ -300,7 +302,9 @@ class booking_option_test extends advanced_testcase {
         $this->assertEquals("wednesday", $option3->dayofweek);
 
         // This might fail when local_entities is installed.
-        $this->assertEquals("TNMU", $option3->location);
+        if (!class_exists('local_entities\entitiesrelation_handler')) {
+            $this->assertEquals("TNMU", $option3->location);
+        }
 
         // Check if the user is subscribed.
         $settings = singleton_service::get_instance_of_booking_option_settings($option3->id);

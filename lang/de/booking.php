@@ -2133,6 +2133,8 @@ $string['definefieldofstudy'] = 'Sie können hier alle Buchungsoptionen aus dem 
  Fügen Sie nun das benutzerdefinierte Buchungsoptionsfeld mit dem Shortname "recommendedin" hinzu, in das Sie die kommagetrennten
  Shortcodes derjenigen Kurse, in denen eine Buchungsoption empfohlen werden soll, eintragen. Wenn ein:e Benutzer:in Teil der
  Gruppe "Philosophie" ist, werden ihm:ihr alle Buchungsoptionen aus Kursen angezeigt, in denen mindestens einer der "Philosophie"-Kurse empfohlen wird.';
+$string['definecmidforshortcode'] = "Um diesen Shortcode verwenden zu können, muss die cmid einer Booking instanz folgendermaßen zum shortcode hinzugefügt werden: [courselist cmid=23]";
+$string['courselist'] = 'Show all the booking options of a bookin instance';
 
 // Elective.
 $string['elective'] = "Wahlfach";

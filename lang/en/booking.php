@@ -2262,6 +2262,8 @@ $string['definefieldofstudy'] = 'You can show here all booking options from the 
  Now add the custom booking field with the shortname "recommendedin", where you add the comma separated
  shortcodes of those courses, in which a booking option should be recommended. If a user is subscribed
  to "philosophy", she will see all the booking options in which at least one of the "philosohpy"-courses is recommended.';
+ $string['definecmidforshortcode'] = "To use this shortcode, enter the id of a booking instance like this: [courselist cmid=23]";
+ $string['courselist'] = 'Zeige alle Buchungsoptionen einer Buchungsinstanz';
 
 // Elective.
 $string['elective'] = "Elective";

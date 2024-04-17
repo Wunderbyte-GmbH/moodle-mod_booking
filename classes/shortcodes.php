@@ -31,6 +31,7 @@ use mod_booking\booking;
 use mod_booking\output\view;
 use mod_booking\singleton_service;
 use mod_booking\table\bookingoptions_wbtable;
+use mod_booking\utils\wb_payment;
 use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
@@ -60,6 +61,10 @@ class shortcodes {
 
         $course = $PAGE->course;
 
+        if (!wb_payment::pro_version_is_activated()) {
+            return get_string('infotext:prolicensenecessary', 'mod_booking');
+        }
+
         if (
             !isset($args['perpage'])
             || !is_int((int)$args['perpage'])
@@ -73,6 +78,129 @@ class shortcodes {
         $table = self::init_table_for_courses(null, md5($pageurl));
 
         $wherearray['recommendedin'] = "%$course->shortname%";
+
+        list($fields, $from, $where, $params, $filter) =
+                booking::get_options_filter_sql(0, 0, '', null, null, [], $wherearray);
+
+        // By default, we do not show booking options that lie in the past.
+        // Shortcode arg values get transmitted as string, so also check for "false" and "0".
+        if (empty($args['all']) || $args['all'] == "false" || $args['all'] == "0") {
+            $now = time();
+            $where .= " AND courseendtime > $now ";
+        }
+
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
+
+        if (empty($args['all'])) {
+            $now = time();
+            $where .= " coursestarttime > $now ";
+        }
+
+        // These are all possible options to be displayed in the bookingtable.
+        $possibleoptions = [
+            "description",
+            "statusdescription",
+            "attachment",
+            "teacher",
+            "responsiblecontact",
+            "showdates",
+            "dayofweektime",
+            "location",
+            "institution",
+            "minanswers",
+            "bookingopeningtime",
+            "bookingclosingtime",
+        ];
+        // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
+
+        if (!empty($args['exclude'])) {
+            $exclude = explode(',', $args['exclude']);
+            $optionsfields = array_diff($possibleoptions, $exclude);
+        } else {
+            $optionsfields = $possibleoptions;
+        }
+
+        $defaultorder = SORT_ASC; // Default.
+        if (!empty($args['sortorder'])) {
+            if (strtolower($args['sortorder']) === "desc") {
+                $defaultorder = SORT_DESC;
+            }
+        }
+        if (!empty($args['sortby'])) {
+            $table->sortable(true, $args['sortby'], $defaultorder);
+        } else {
+            $table->sortable(true, 'text', $defaultorder);
+        }
+
+        $showfilter = !empty($args['filter']) ? true : false;
+        $showsort = !empty($args['sort']) ? true : false;
+        $showsearch = !empty($args['search']) ? true : false;
+
+        view::apply_standard_params_for_bookingtable(
+            $table,
+            $optionsfields,
+            $showfilter,
+            $showsearch,
+            $showsort,
+            false,
+        );
+
+        // If "rightside" is in the "exclude" array, then we do not show the rightside area (containing the "Book now" button).
+        if (!empty($exclude) && in_array('rightside', $exclude)) {
+            unset($table->subcolumns['rightside']);
+        }
+
+        $out = $table->outhtml($perpage, true);
+
+        return $out;
+    }
+
+    /**
+     * This shortcode shows a list of booking options, which have a booking customfield...
+     * ... with the shortname "recommendedin" and the value set to the shortname of the course...
+     * ... in which they should appear.
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return string
+     */
+    public static function courselist($shortcode, $args, $content, $env, $next) {
+
+        global $PAGE;
+
+        $course = $PAGE->course;
+
+        if (!wb_payment::pro_version_is_activated()) {
+            return get_string('infotext:prolicensenecessary', 'mod_booking');
+        }
+
+        if (
+            !isset($args['perpage'])
+            || !is_int((int)$args['perpage'])
+            || !$perpage = ($args['perpage'])
+        ) {
+            $perpage = 100;
+        }
+
+        $pageurl = $course->shortname . $PAGE->url->out();
+
+        if (empty($args['cmid'])) {
+            return get_string('definecmidforshortcode', 'mod_booking');
+        }
+
+        $booking = singleton_service::get_instance_of_booking_settings_by_cmid((int)$args['cmid']);
+
+        if (empty($booking->id)) {
+            return get_string('definecmidforshortcode', 'mod_booking');
+        }
+
+
+        $table = self::init_table_for_courses(null, md5($pageurl));
+
+        $wherearray['bookingid'] = (int)$booking->id;
 
         list($fields, $from, $where, $params, $filter) =
                 booking::get_options_filter_sql(0, 0, '', null, null, [], $wherearray);
@@ -171,6 +299,10 @@ class shortcodes {
     public static function fieldofstudyoptions($shortcode, $args, $content, $env, $next) {
 
         global $COURSE, $USER, $DB, $CFG;
+
+        if (!wb_payment::pro_version_is_activated()) {
+            return get_string('infotext:prolicensenecessary', 'mod_booking');
+        }
 
         if (
             !isset($args['perpage'])
@@ -280,6 +412,10 @@ class shortcodes {
     public static function fieldofstudycohortoptions($shortcode, $args, $content, $env, $next) {
 
         global $PAGE, $USER, $DB, $CFG;
+
+        if (!wb_payment::pro_version_is_activated()) {
+            return get_string('infotext:prolicensenecessary', 'mod_booking');
+        }
 
         $supporteddbs = [
             'pgsql_native_moodle_database',
