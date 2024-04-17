@@ -1,3 +1,8 @@
+## Version 8.2.5 (2024041700)
+* New feature: Shortcode [courselist cmid=23]
+* Bugfix: feature addtogroup working now
+* Improvement: Add a lot of new phpunit tests
+
 ## Version 8.2.4 (2024041100)
 * Improvement: Migrate placeholders in message controller to new placeholder classes.
 * Improvement: Separate string params from placeholder param {changes}.
