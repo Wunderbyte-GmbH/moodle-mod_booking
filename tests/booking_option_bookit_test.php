@@ -408,9 +408,10 @@ class booking_option_bookit_test extends advanced_testcase {
 
         $record = new stdClass();
         $record->bookingid = $booking1->id;
-        $record->text = 'Test option1';
+        $record->text = 'Test option1 (option time)';
         $record->courseid = $course2->id;
         $record->maxanswers = 2;
+        $record->restrictanswerperiodopening = 1;
         $record->bookingopeningtime = strtotime('now + 2 day');
         $record->bookingclosingtime = strtotime('now + 3 day');
 
@@ -598,7 +599,7 @@ class booking_option_bookit_test extends advanced_testcase {
         $record->maxanswers = 2;
         $record->maxoverbooking = 2;
         $record->waitforconfirmation = 1;
-        $record->default = 30; // The price for the default category.
+        $record->useprice = 1; // Use price from the default category.
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
@@ -617,7 +618,8 @@ class booking_option_bookit_test extends advanced_testcase {
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
         $price = price::get_price('option', $settings->id);
 
-        $this->assertEquals($price["price"], 30);
+        // Default price expected.
+        $this->assertEquals($price["price"], 100);
 
         // Book the first user without any problem.
         $boinfo = new bo_info($settings);
