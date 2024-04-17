@@ -965,7 +965,8 @@ class booking_option {
         $waitinglist = $this->check_if_limit($user->id, self::option_allows_overbooking_for_user($this->optionid));
         // With the second param, we check if overbooking is allowed.
 
-        if ($waitinglist === false) {
+        // $status 2 means confirm. Under some circumstances, waitinglist can be false here.
+        if ($waitinglist === false && $status != 2) {
 
             // TODO: introduce an "allowoverbooking" param into the availability JSON.
             // If the JSON contains it, we want to allow overbooking even without a waiting list.
