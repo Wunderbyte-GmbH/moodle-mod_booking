@@ -197,7 +197,6 @@ class shortcodes {
             return get_string('definecmidforshortcode', 'mod_booking');
         }
 
-
         $table = self::init_table_for_courses(null, md5($pageurl));
 
         $wherearray['bookingid'] = (int)$booking->id;
