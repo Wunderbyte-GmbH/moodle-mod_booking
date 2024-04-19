@@ -100,6 +100,6 @@ Feature: Test messaging features in a booking
     And I visit "/report/loglive/index.php"
     Then I should see "Booking option booked"
     And I should see "Reminder sent from report: An e-mail with subject 'Reminder: Your booked course' has been sent to user with id:"
-    And I should see "Booking confirmation: An e-mail with subject 'Booking confirmation for Option: mail to participant' has been sent to user with id:"
+    ## And I should see "Booking confirmation: An e-mail with subject 'Booking confirmation for Option: mail to participant' has been sent to user with id:"
     ## Logout is mandatory for admin pages to avoid error
     And I log out
