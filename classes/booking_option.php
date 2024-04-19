@@ -222,6 +222,8 @@ class booking_option {
     public function calculate_how_many_can_book_to_other(int $optionid): int {
         global $DB;
 
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
+
         if (isset($optionid) && $optionid > 0) {
             $alreadybooked = 0;
 
@@ -256,7 +258,7 @@ class booking_option {
             }
 
             $connectedbooking = $DB->get_record("booking",
-                    ['conectedbooking' => $this->booking->settings->id], 'id', IGNORE_MULTIPLE);
+                    ['conectedbooking' => $bookingsettings->id], 'id', IGNORE_MULTIPLE);
 
             if ($connectedbooking) {
 
@@ -310,7 +312,9 @@ class booking_option {
      */
     public function get_url_params() {
         $bu = new booking_utils();
-        $params = $bu->generate_params($this->booking->settings, $this->option);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
+        $bookingsettings = $bookingsettings->return_settings_as_stdclass();
+        $params = $bu->generate_params($bookingsettings, $this->option);
         $this->option->pollurl = $bu->get_body($params, 'pollurl', $params, true);
         $this->option->pollurlteachers = $bu->get_body($params, 'pollurlteachers', $params, true);
     }
@@ -370,16 +374,17 @@ class booking_option {
         global $USER;
 
         $bookinganswers = booking_answers::get_instance_from_optionid($this->optionid);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
 
-        if ($this->booking->settings->ratings == 0) {
+        if ($bookingsettings->ratings == 0) {
             return false;
         }
 
-        if ($this->booking->settings->ratings == 1) {
+        if ($bookingsettings->ratings == 1) {
             return true;
         }
 
-        if ($this->booking->settings->ratings == 2) {
+        if ($bookingsettings->ratings == 2) {
             if (in_array($bookinganswers->user_status($USER->id),
                 [MOD_BOOKING_STATUSPARAM_BOOKED, MOD_BOOKING_STATUSPARAM_WAITINGLIST])) {
                 return true;
@@ -388,7 +393,7 @@ class booking_option {
             }
         }
 
-        if ($this->booking->settings->ratings == 3) {
+        if ($bookingsettings->ratings == 3) {
             if ($bookinganswers->is_activity_completed($USER->id)) {
                 return true;
             } else {
@@ -413,6 +418,7 @@ class booking_option {
 
         // With shortcodes & webservice we might not have a valid context object.
         booking_context_helper::fix_booking_page_context($PAGE, $this->cmid);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
 
         $userid = $userid ?? $USER->id;
 
@@ -429,21 +435,21 @@ class booking_option {
             if ($ac == 1) {
                 if (!empty($this->settings->aftercompletedtext)) {
                     $text = $this->settings->aftercompletedtext;
-                } else if (!empty($this->booking->settings->aftercompletedtext)) {
-                    $text = $this->booking->settings->aftercompletedtext;
+                } else if (!empty($bookingsettings->aftercompletedtext)) {
+                    $text = $bookingsettings->aftercompletedtext;
                 }
             } else {
                 if (!empty($this->settings->beforecompletedtext)) {
                     $text = $this->settings->beforecompletedtext;
-                } else if (!empty($this->booking->settings->beforecompletedtext)) {
-                    $text = $this->booking->settings->beforecompletedtext;
+                } else if (!empty($bookingsettings->beforecompletedtext)) {
+                    $text = $bookingsettings->beforecompletedtext;
                 }
             }
         } else {
             if (!empty($this->settings->beforebookedtext)) {
                 $text = $this->settings->beforebookedtext;
-            } else if (!empty($this->booking->settings->beforebookedtext)) {
-                $text = $this->booking->settings->beforebookedtext;
+            } else if (!empty($bookingsettings->beforebookedtext)) {
+                $text = $bookingsettings->beforebookedtext;
             }
         }
 
@@ -552,10 +558,12 @@ class booking_option {
     public function delete_responses_activitycompletion() {
         global $DB;
 
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
+
         $ud = [];
         $oud = [];
         $users = $DB->get_records('course_modules_completion',
-                ['coursemoduleid' => $this->booking->settings->completionmodule]);
+                ['coursemoduleid' => $bookingsettings->completionmodule]);
         $ousers = $DB->get_records('booking_answers', ['optionid' => $this->optionid]);
 
         foreach ($users as $u) {
@@ -610,6 +618,7 @@ class booking_option {
         global $USER, $DB;
 
         $optionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
 
         // If waitforconfirmation is turned on, we will never sync waitinglist (we do it manually).
         if (!empty($optionsettings->waitforconfirmation)) {
@@ -711,13 +720,13 @@ class booking_option {
         }
 
         // Remove activity completion.
-        $course = $DB->get_record('course', ['id' => $this->booking->settings->course]);
+        $course = $DB->get_record('course', ['id' => $bookingsettings->course]);
         $completion = new completion_info($course);
 
         $countcompleted = $DB->count_records('booking_answers',
-                ['bookingid' => $this->booking->settings->id, 'userid' => $user->id, 'completed' => '1']);
+                ['bookingid' => $bookingsettings->id, 'userid' => $user->id, 'completed' => '1']);
 
-        if ($completion->is_enabled($this->booking->cm) && $this->booking->settings->enablecompletion < $countcompleted) {
+        if ($completion->is_enabled($this->booking->cm) && $bookingsettings->enablecompletion < $countcompleted) {
             $completion->update_state($this->booking->cm, COMPLETION_INCOMPLETE, $userid);
         }
 
@@ -947,6 +956,8 @@ class booking_option {
 
         global $USER;
 
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
+
         // First check, we only accept verified submissions.
         // This function always needs to be called with the verified param.
         if (!$verified) {
@@ -988,9 +999,9 @@ class booking_option {
         }
 
         // Only if maxperuser is set, the part after the OR is executed.
-        $underlimit = ($this->booking->settings->maxperuser == 0);
+        $underlimit = ($bookingsettings->maxperuser == 0);
         $underlimit = $underlimit ||
-                (($this->booking->get_user_booking_count($user) - $subtractfromlimit) < $this->booking->settings->maxperuser);
+                (($this->booking->get_user_booking_count($user) - $subtractfromlimit) < $bookingsettings->maxperuser);
         if (!$underlimit) {
             // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
             /* mtrace("Couldn't subscribe user $user->id because of maxperuser setting <br>"); */
@@ -1279,7 +1290,7 @@ class booking_option {
         // Now check, if there are rules to execute.
         rules_info::execute_rules_for_option($this->optionid, $user->id);
 
-        if ($this->booking->settings->sendmail) {
+        if ($bookingsettings->sendmail) {
             $this->send_confirm_message($user);
         }
         return true;
@@ -1348,8 +1359,10 @@ class booking_option {
      */
     public function enrol_user(int $userid, bool $manual = false, int $roleid = 0, bool $isteacher = false) {
         global $DB;
+
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
         if (!$manual) {
-            if (!$this->booking->settings->autoenrol) {
+            if (!$bookingsettings->autoenrol) {
                 return; // Autoenrol not enabled.
             }
         }
@@ -1393,7 +1406,7 @@ class booking_option {
 
             // TODO: Track enrolment status in booking_answers. It makes no sense to track it in booking_options.
 
-            if ($this->booking->settings->addtogroup == 1) {
+            if ($bookingsettings->addtogroup == 1) {
                 $groups = groups_get_all_groups($this->option->courseid);
                 if (!is_null($this->option->groupid) && ($this->option->groupid > 0) &&
                         in_array($this->option->groupid, $groups)) {
@@ -1418,7 +1431,9 @@ class booking_option {
     public function unenrol_user($userid) {
         global $DB;
 
-        if (!$this->booking->settings->autoenrol) {
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
+
+        if (!$bookingsettings->autoenrol) {
             return; // Autoenrol not enabled.
         }
         if (!$this->option->courseid) {
@@ -1436,7 +1451,7 @@ class booking_option {
                     'sortorder,id ASC')) {
             return; // No manual enrolment instance on this course.
         }
-        if ($this->booking->settings->addtogroup == 1) {
+        if ($bookingsettings->addtogroup == 1) {
             if (!is_null($this->option->groupid) && ($this->option->groupid > 0)) {
                 $groupsofuser = groups_get_all_groups($this->option->courseid, $userid);
                 $numberofgroups = count($groupsofuser);
@@ -1460,7 +1475,10 @@ class booking_option {
      */
     public function create_group($newoption) {
         global $DB;
-        $newgroupdata = self::generate_group_data($this->booking->settings, $newoption);
+
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
+        $bookingsettings = $bookingsettings->return_settings_as_stdclass();
+        $newgroupdata = self::generate_group_data($bookingsettings, $newoption);
 
         $groupids = array_keys(groups_get_all_groups($newoption->courseid));
         // If group name already exists, do not create it a second time, it should be unique.
@@ -1907,8 +1925,9 @@ class booking_option {
             $countcompleted = $DB->count_records('booking_answers',
                 ['bookingid' => $this->booking->id, 'userid' => $userid, 'completed' => '1']);
 
+            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
             if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC &&
-                $this->booking->settings->enablecompletion <= $countcompleted) {
+                $bookingsettings->enablecompletion <= $countcompleted) {
                 $completion->update_state($cm, COMPLETION_COMPLETE, $userid);
             }
         }
@@ -1985,14 +2004,15 @@ class booking_option {
         list($course, $cm) = get_course_and_cm_from_cmid($this->cmid);
         $context = \context_module::instance($this->cmid);
         $coursecontext = \context_course::instance($course->id);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
 
         $booking = [
-            'name' => $this->booking->settings->name,
-            'eventtype' => $this->booking->settings->eventtype,
-            'duration' => $this->booking->settings->duration,
-            'organizatorname' => $this->booking->settings->organizatorname,
-            'pollurl' => $this->booking->settings->pollurl,
-            'pollurlteachers' => $this->booking->settings->pollurlteachers,
+            'name' => $bookingsettings->name,
+            'eventtype' => $bookingsettings->eventtype,
+            'duration' => $bookingsettings->duration,
+            'organizatorname' => $bookingsettings->organizatorname,
+            'pollurl' => $bookingsettings->pollurl,
+            'pollurlteachers' => $bookingsettings->pollurlteachers,
         ];
         $bu = new booking_utils();
         $option = [
@@ -2044,14 +2064,14 @@ class booking_option {
         $fs = get_file_storage();
 
         $files = $fs->get_area_files($coursecontext->id, 'mod_booking', 'templatefile',
-            $this->booking->settings->customtemplateid, 'sortorder,filepath,filename', false);
+            $bookingsettings->customtemplateid, 'sortorder,filepath,filename', false);
 
         if ($files) {
             $file = reset($files);
 
             // Get file.
             $file = $fs->get_file($coursecontext->id, 'mod_booking', 'templatefile',
-            $this->booking->settings->customtemplateid, $file->get_filepath(), $file->get_filename());
+            $bookingsettings->customtemplateid, $file->get_filepath(), $file->get_filename());
         }
 
         $ext = pathinfo($file->get_filename(), PATHINFO_EXTENSION);

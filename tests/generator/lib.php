@@ -172,9 +172,6 @@ class mod_booking_generator extends testing_module_generator {
         // Create / save booking option(s).
         if ($record->id = booking_option::update($record, $context)) {
             $record->optionid = $record->id;
-            // Save customfield data to option (the id key has to be set to option id).
-            $handler = booking_handler::create();
-            $handler->instance_form_save($record, $record->optionid == -1);
         }
 
         return $record;

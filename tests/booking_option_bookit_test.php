@@ -209,33 +209,101 @@ class booking_option_bookit_test extends advanced_testcase {
         $this->setGuestUser();
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, 1, false);
         $this->assertEquals($id, MOD_BOOKING_BO_COND_ALLOWEDTOBOOKININSTANCE);
+    }
 
-        // Now we cancel the whole booking option.
-        booking_option::cancelbookingoption($settings->id);
+    /**
+     * Test booking, cancelation, option has started etc.
+     *
+     * @covers ::delete_responses_activitycompletion
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
+    public function test_booking_bookit_allowupdate() {
+        global $DB, $CFG;
 
-        // Option has already started.
-        $record->coursestarttime = date('Y-m-d', strtotime('now - 2 day'));
-        $record->courseendtime = date('Y-m-d', strtotime('now + 2 day'));
-        $record->importing = true;
-        booking_option::update($record);
+        $bdata = [
+            'name' => 'Test Booking 1',
+            'eventtype' => 'Test event',
+            'enablecompletion' => 1,
+            'bookedtext' => ['text' => 'text'],
+            'waitingtext' => ['text' => 'text'],
+            'notifyemail' => ['text' => 'text'],
+            'statuschangetext' => ['text' => 'text'],
+            'deletedtext' => ['text' => 'text'],
+            'pollurltext' => ['text' => 'text'],
+            'pollurlteacherstext' => ['text' => 'text'],
+            'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
+            'tags' => '',
+            'completion' => 2,
+            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
+            'cancancelbook' => 1,
+            'allowupdate' => 0,
+        ];
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
-        $bdata = (object)$bdata;
-        $bdata->allowupdate = 0;
-        $bdata->instance = $booking1->id;
-        $bdata->id = $booking1->id;
-        booking_update_instance($bdata);
+        // Create users.
+        $admin = $this->getDataGenerator()->create_user();
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $student3 = $this->getDataGenerator()->create_user();
+        $student4 = $this->getDataGenerator()->create_user();
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
 
-        // Try to book again with user1.
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_ISCANCELLED);
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
 
-        // Now we undo cancel of the booking option.
-        booking_option::cancelbookingoption($settings->id, '', true);
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
 
-        // Try to book again with user1.
+        $bdata['name'] = 'Test Booking 2';
+
+        $this->setUser($admin);
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($admin->id, $course->id);
+        $this->getDataGenerator()->enrol_user($student1->id, $course->id);
+        $this->getDataGenerator()->enrol_user($student2->id, $course->id);
+        $this->getDataGenerator()->enrol_user($student3->id, $course->id);
+        $this->getDataGenerator()->enrol_user($student4->id, $course->id);
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id);
+
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1';
+        $record->courseid = 0;
+        $record->maxanswers = 2;
+        $record->coursestarttime = strtotime('now - 2 day');
+        $record->courseendtime =  strtotime('now + 2 day');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option1 = $plugingenerator->create_option($record);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+
+        // Book the first user without any problem.
+        $boinfo = new bo_info($settings);
+
+         // Now we cancel the whole booking option.
+        booking_option::cancelbookingoption($option1->id);
+
+        // Book the student right away.
         $this->setUser($student1);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_OPTIONHASSTARTED);
+
+         // Try to book again with user1.
+         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+         $this->assertEquals($id, MOD_BOOKING_BO_COND_ISCANCELLED);
+
+         // Now we undo cancel of the booking option.
+         booking_option::cancelbookingoption($settings->id, '', true);
+
+         // Try to book again with user1.
+         $this->setUser($student1);
+         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+         $this->assertEquals($id, MOD_BOOKING_BO_COND_OPTIONHASSTARTED);
+
     }
 
     /**
@@ -265,7 +333,7 @@ class booking_option_bookit_test extends advanced_testcase {
             'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
             'cancancelbook' => 1,
             'addtogroup' => 1,
-            'autoenrol' => 1,
+            'autoenrol' => "1",
         ];
         // Setup test data.
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
@@ -309,6 +377,8 @@ class booking_option_bookit_test extends advanced_testcase {
         $option1 = $plugingenerator->create_option($record);
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        // To avoid retrieving the singleton with the wrong settings, we destroy it.
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
 
         // Book the first user without any problem.
         $boinfo = new bo_info($settings);

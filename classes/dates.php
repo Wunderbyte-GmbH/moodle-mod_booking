@@ -425,7 +425,24 @@ class dates {
 
         if (!$optiondates = preg_grep('/^optiondateid_/', array_keys($formvalues))) {
             // For performance.
-            return [[], 0];
+
+            // There might be one more way data is submitted.
+            if (!empty($formvalues["coursestarttime"]) && !empty($formvalues["courseendtime"])) {
+                $dates[] = [
+                    'id' => 0,
+                    'index' => 0,
+                    'optiondateid' => 0,
+                    'coursestarttime' => $formvalues["coursestarttime"],
+                    'courseendtime' => $formvalues["courseendtime"],
+                    'daystonotify' => 0,
+                    'entityid' => 0,
+                    'entityarea' => 0,
+                    'customfields' => [],
+                ];
+                $highesindex = 0;
+            } else {
+                return [[], 0];
+            }
         }
 
         foreach ($optiondates as $optiondate) {
