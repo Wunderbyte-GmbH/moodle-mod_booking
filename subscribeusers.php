@@ -257,7 +257,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(format_string($optionsettings->get_title_with_prefix()), 3, 'helptitle', 'uniqueid');
 
 // Switch to turn booking of anyone ON or OFF.
-if (is_siteadmin() && $bookanyone) {
+if (has_capability('mod/booking:bookanyone', $context) && $bookanyone) {
     set_user_preference('bookanyone', '1');
     // Show button to turn it off again.
     $url = new moodle_url('/mod/booking/subscribeusers.php', ['id' => $id,
