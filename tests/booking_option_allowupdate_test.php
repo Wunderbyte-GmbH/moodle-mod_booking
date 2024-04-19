@@ -49,13 +49,13 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class booking_option_policy_test extends advanced_testcase {
+class booking_option_allowupdate_test extends advanced_testcase {
 
     /**
      * Tests set up.
      */
     public function setUp(): void {
-        $this->resetAfterTest();
+        $this->resetAfterTest(true);
     }
 
     /**
@@ -68,17 +68,17 @@ class booking_option_policy_test extends advanced_testcase {
     }
 
     /**
-     * Test booking option policy.
+     * Test booking, cancelation, option has started etc.
      *
-     * @covers \bookingpolicy::is_available
+     * @covers ::delete_responses_activitycompletion
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function test_booking_policy_max_number() {
+    public function test_booking_bookit_allowupdate() {
         global $DB, $CFG;
 
         $bdata = [
-            'name' => 'Test Booking Policy 1',
+            'name' => 'Test Booking 1',
             'eventtype' => 'Test event',
             'enablecompletion' => 1,
             'bookedtext' => ['text' => 'text'],
@@ -93,13 +93,10 @@ class booking_option_policy_test extends advanced_testcase {
             'completion' => 2,
             'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
             'cancancelbook' => 1,
-            'addtogroup' => 1,
-            'autoenrol' => 1,
-            'bookingpolicy' => 'policy',
+            'allowupdate' => 0,
         ];
         // Setup test data.
-        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
-        $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
         // Create users.
         $admin = $this->getDataGenerator()->create_user();
@@ -110,29 +107,30 @@ class booking_option_policy_test extends advanced_testcase {
         $teacher = $this->getDataGenerator()->create_user();
         $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
 
-        $bdata['course'] = $course1->id;
+        $bdata['course'] = $course->id;
         $bdata['bookingmanager'] = $bookingmanager->username;
 
         $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
-        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($booking1->id);
-        singleton_service::destroy_booking_singleton_by_cmid($bookingsettings->cmid);
-        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($booking1->id);
+
+        $bdata['name'] = 'Test Booking 2';
 
         $this->setAdminUser();
 
-        $this->getDataGenerator()->enrol_user($admin->id, $course1->id);
-        $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
-        $this->getDataGenerator()->enrol_user($student2->id, $course1->id);
-        $this->getDataGenerator()->enrol_user($student3->id, $course1->id);
-        $this->getDataGenerator()->enrol_user($student4->id, $course1->id);
-        $this->getDataGenerator()->enrol_user($teacher->id, $course1->id);
-        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($admin->id, $course->id);
+        $this->getDataGenerator()->enrol_user($student1->id, $course->id);
+        $this->getDataGenerator()->enrol_user($student2->id, $course->id);
+        $this->getDataGenerator()->enrol_user($student3->id, $course->id);
+        $this->getDataGenerator()->enrol_user($student4->id, $course->id);
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id);
 
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'Test option1';
-        $record->courseid = $course2->id;
+        $record->courseid = 0;
         $record->maxanswers = 2;
+        $record->coursestarttime = strtotime('now - 2 day');
+        $record->courseendtime = strtotime('now + 2 day');
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
@@ -143,24 +141,23 @@ class booking_option_policy_test extends advanced_testcase {
         // Book the first user without any problem.
         $boinfo = new bo_info($settings);
 
+         // Now we cancel the whole booking option.
+        booking_option::cancelbookingoption($option1->id);
+
         // Book the student right away.
         $this->setUser($student1);
 
+        // Try to book again with user1.
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKINGPOLICY, $id);
+        $this->assertEquals($id, MOD_BOOKING_BO_COND_ISCANCELLED);
 
-        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        // Now we undo cancel of the booking option.
+        booking_option::cancelbookingoption($settings->id, '', true);
+
+        // Try to book again with user1.
+        $this->setUser($student1);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKINGPOLICY, $id);
+        $this->assertEquals($id, MOD_BOOKING_BO_COND_OPTIONHASSTARTED);
 
-        $this->setAdminUser();
-        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
-        // In this test, we book the user directly (user don't confirm policy).
-        $option->user_submit_response($student1, 0, 0, 0, MOD_BOOKING_VERIFIED);
-
-        // Via this line, we can get the blocking condition.
-        // The true is only hardblocking, which means low blockers used to only show buttons etc. wont be shown.
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_ALREADYBOOKED);
     }
 }
