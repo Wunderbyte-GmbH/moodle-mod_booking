@@ -323,7 +323,7 @@ $capabilities = [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
     ],
-    // Book anyone
+    // Book anyone.
     'mod/booking:bookanyone' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
