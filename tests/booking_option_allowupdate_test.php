@@ -112,8 +112,6 @@ class booking_option_allowupdate_test extends advanced_testcase {
 
         $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
 
-        $bdata['name'] = 'Test Booking 2';
-
         $this->setAdminUser();
 
         $this->getDataGenerator()->enrol_user($admin->id, $course->id);

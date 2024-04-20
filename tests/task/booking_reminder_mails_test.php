@@ -64,7 +64,7 @@ class booking_reminder_mails_test extends advanced_testcase {
     /**
      * Test delete responses.
      *
-     * @covers \mod_booking\tasks\send_reminder_mails
+     * @covers \mod_booking\task\send_reminder_mails
      * @throws \coding_exception
      * @throws \dml_exception
      */
