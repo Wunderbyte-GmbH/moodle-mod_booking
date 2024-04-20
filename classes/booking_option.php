@@ -1290,6 +1290,7 @@ class booking_option {
         // Now check, if there are rules to execute.
         rules_info::execute_rules_for_option($this->optionid, $user->id);
 
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
         if ($bookingsettings->sendmail) {
             $this->send_confirm_message($user);
         }
