@@ -156,7 +156,7 @@ jobs:
 
       - name: PHPUnit tests
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpunit
+        run: moodle-plugin-ci phpunit --testdox
 
       - name: Behat features
         if: ${{ !cancelled() }}
