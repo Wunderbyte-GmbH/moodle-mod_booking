@@ -49,7 +49,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class booking_option_allowupdate_test extends advanced_testcase {
+class condition_allowupdate_test extends advanced_testcase {
 
     /**
      * Tests set up.
@@ -70,7 +70,8 @@ class booking_option_allowupdate_test extends advanced_testcase {
     /**
      * Test booking, cancelation, option has started etc.
      *
-     * @covers ::delete_responses_activitycompletion
+     * @covers \condition\iscancelled::is_available
+     * @covers \condition\hasstarted::is_available
      * @throws \coding_exception
      * @throws \dml_exception
      */

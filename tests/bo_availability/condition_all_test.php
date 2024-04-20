@@ -28,14 +28,10 @@ namespace mod_booking;
 
 use advanced_testcase;
 use coding_exception;
-use mod_booking\option\dates_handler;
 use mod_booking\price;
 use mod_booking_generator;
-use context_course;
 use mod_booking\bo_availability\bo_info;
 use stdClass;
-use mod_booking\utils\csv_import;
-use mod_booking\importer\bookingoptionsimporter;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -49,7 +45,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class booking_option_abookit_test extends advanced_testcase {
+class condition_all_test extends advanced_testcase {
 
     /**
      * Tests set up.
@@ -70,7 +66,10 @@ class booking_option_abookit_test extends advanced_testcase {
     /**
      * Test booking, cancelation, option has started etc.
      *
-     * @covers ::delete_responses_activitycompletion
+     * @covers \condition\bookitbutton::is_available
+     * @covers \condition\alreadybooked::is_available
+     * @covers \condition\fullybooked::is_available
+     * @covers \condition\confirmation::render_page
      * @throws \coding_exception
      * @throws \dml_exception
      */
@@ -113,7 +112,6 @@ class booking_option_abookit_test extends advanced_testcase {
 
         $bdata['name'] = 'Test Booking 2';
 
-        $this->setUser($admin);
         $this->setAdminUser();
 
         $this->getDataGenerator()->enrol_user($admin->id, $course->id);
@@ -135,6 +133,8 @@ class booking_option_abookit_test extends advanced_testcase {
         $option1 = $plugingenerator->create_option($record);
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        // To avoid retrieving the singleton with the wrong settings, we destroy it.
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
 
         // Book the first user without any problem.
         $boinfo = new bo_info($settings);
@@ -212,9 +212,10 @@ class booking_option_abookit_test extends advanced_testcase {
     }
 
     /**
-     * Test add to group.
+     * Test enrol user and add to group.
      *
-     * @covers ::delete_responses_activitycompletion
+     * @covers \booking_option->enrol_user
+     * @covers \option\fields\addtogroup::save_data
      * @throws \coding_exception
      * @throws \dml_exception
      */
@@ -260,7 +261,6 @@ class booking_option_abookit_test extends advanced_testcase {
 
         $bdata['name'] = 'Test Booking 2';
 
-        $this->setUser($admin);
         $this->setAdminUser();
 
         $this->getDataGenerator()->enrol_user($admin->id, $course1->id);
@@ -326,7 +326,7 @@ class booking_option_abookit_test extends advanced_testcase {
     /**
      * Test add to group.
      *
-     * @covers ::delete_responses_activitycompletion
+     * @covers \condition\boking_time::is_available
      * @throws \coding_exception
      * @throws \dml_exception
      */
@@ -370,7 +370,6 @@ class booking_option_abookit_test extends advanced_testcase {
 
         $bdata['name'] = 'Test Booking 2';
 
-        $this->setUser($admin);
         $this->setAdminUser();
 
         $this->getDataGenerator()->enrol_user($admin->id, $course1->id);
@@ -418,7 +417,10 @@ class booking_option_abookit_test extends advanced_testcase {
     /**
      * Test add to group.
      *
-     * @covers ::delete_responses_activitycompletion
+     * @covers \condition\alreadybooked::is_available
+     * @covers \condition\confirmation::is_available
+     * @covers \condition\onwaitinglist::is_available
+     * @covers \condition\askforconfirmation::render_page
      * @throws \coding_exception
      * @throws \dml_exception
      */
@@ -462,7 +464,6 @@ class booking_option_abookit_test extends advanced_testcase {
 
         $bdata['name'] = 'Test Booking 2';
 
-        $this->setUser($admin);
         $this->setAdminUser();
 
         $this->getDataGenerator()->enrol_user($admin->id, $course1->id);
@@ -512,7 +513,9 @@ class booking_option_abookit_test extends advanced_testcase {
     /**
      * Test add to group.
      *
-     * @covers ::delete_responses_activitycompletion
+     * @covers \condition\askforconfirmation::is_available
+     * @covers \condition\onwaitinglist::is_available
+     * @covers \condition\priceset::is_available
      * @throws \coding_exception
      * @throws \dml_exception
      */
@@ -556,7 +559,6 @@ class booking_option_abookit_test extends advanced_testcase {
 
         $bdata['name'] = 'Test Booking 2';
 
-        $this->setUser($admin);
         $this->setAdminUser();
 
         $this->getDataGenerator()->enrol_user($admin->id, $course1->id);
@@ -591,6 +593,8 @@ class booking_option_abookit_test extends advanced_testcase {
         $option1 = $plugingenerator->create_option($record);
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        // To avoid retrieving the singleton with the wrong settings, we destroy it.
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
         $price = price::get_price('option', $settings->id);
 
         // Default price expected.

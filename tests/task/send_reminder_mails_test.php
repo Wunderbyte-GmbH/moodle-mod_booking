@@ -43,7 +43,7 @@ use core\event\notification_sent;
  * @copyright 2024 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class booking_reminder_mails_test extends advanced_testcase {
+class send_reminder_mails_test extends advanced_testcase {
 
     /**
      * Tests set up.
@@ -71,7 +71,6 @@ class booking_reminder_mails_test extends advanced_testcase {
     public function test_send_teacher_remimder() {
         global $DB, $CFG;
 
-        $this->resetAfterTest();
         // It is important to set timezone to have all dates correct!
         $this->setTimezone('Europe/London');
 
@@ -149,8 +148,6 @@ class booking_reminder_mails_test extends advanced_testcase {
         // Book option by student.
         // The circumvent to baypass some checks. Use booking_bookit::bookit for prices, shoppingcart, etc.
         $bookingoption1->user_submit_response($user1, $bookingoption1->id, 0, 0, MOD_BOOKING_VERIFIED);
-
-        $users = $bookingoption1->get_all_users_booked();
 
         // Run the send_reminder_mails scheduled task.
         $sink = $this->redirectEvents();

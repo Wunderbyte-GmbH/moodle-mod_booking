@@ -28,14 +28,9 @@ namespace mod_booking;
 
 use advanced_testcase;
 use coding_exception;
-use mod_booking\option\dates_handler;
-use mod_booking\price;
 use mod_booking_generator;
-use context_course;
 use mod_booking\bo_availability\bo_info;
 use stdClass;
-use mod_booking\utils\csv_import;
-use mod_booking\importer\bookingoptionsimporter;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -49,7 +44,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class booking_option_policy_test extends advanced_testcase {
+class condition_bookingpolicy_test extends advanced_testcase {
 
     /**
      * Tests set up.
@@ -68,9 +63,9 @@ class booking_option_policy_test extends advanced_testcase {
     }
 
     /**
-     * Test booking option policy.
+     * Test booking option availability: \condition\bookingpolicy.
      *
-     * @covers \bookingpolicy::is_available
+     * @covers \condition\bookingpolicy::is_available
      * @throws \coding_exception
      * @throws \dml_exception
      */

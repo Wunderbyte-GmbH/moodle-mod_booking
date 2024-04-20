@@ -106,14 +106,11 @@ class booking_option_test extends advanced_testcase {
         $bdata['completionmodule'] = $result->id;
         $booking2 = $this->getDataGenerator()->create_module('booking', $bdata);
 
-        $this->setUser($user3);
         $this->setAdminUser();
 
         $this->getDataGenerator()->enrol_user($user1->id, $course->id);
         $this->getDataGenerator()->enrol_user($user2->id, $course->id);
         $this->getDataGenerator()->enrol_user($user3->id, $course->id);
-
-        $coursectx = context_course::instance($course->id);
 
         $record = new stdClass();
         $record->bookingid = $booking1->id;
