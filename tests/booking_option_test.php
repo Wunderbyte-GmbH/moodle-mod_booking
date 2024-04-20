@@ -344,14 +344,41 @@ final class booking_option_test extends advanced_testcase {
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
         $option1 = $plugingenerator->create_option($record);
-        $record->bookingid = $booking2->id;
 
-        $cmb1 = get_coursemodule_from_instance('booking', $booking1->id);
-
-        $bookingoption1 = singleton_service::get_instance_of_booking_option($cmb1->id, $option1->id);
+        $bookingobj1 = singleton_service::get_instance_of_booking_by_bookingid($booking1->id);
+        $bookingsettings1 = singleton_service::get_instance_of_booking_settings_by_bookingid($bookingobj1->id);
+        $bookingoption1 = singleton_service::get_instance_of_booking_option($bookingsettings1->cmid, $option1->id);
+        $bookinganswers1 = booking_answers::get_instance_from_optionid($bookingoption1->id);
 
         $this->setUser($user1);
         $this->assertEquals(false, $bookingoption1->can_rate());
+        $this->assertEquals(0, $bookinganswers1->is_activity_completed($user1->id));
+
+        // In this test, we book the user directly (option already started).
+        $this->setAdminUser();
+        $bookingoption1->user_submit_response($user1, 0, 0, 0, MOD_BOOKING_VERIFIED);
+
+        $this->setUser($user1);
+        $this->assertEquals(true, $bookingoption1->can_rate());
+
+        // In this test, we set completion to the user directly.
+        $this->setAdminUser();
+        $sink = $this->redirectEvents();
+        booking_activitycompletion([$user1->id], $booking1, $bookingsettings1->cmid, $bookingoption1->id);
+        $events = $sink->get_events();
+
+        // Mandatory to get updates on completion.
+        $bookinganswers1 = booking_answers::get_instance_from_optionid($bookingoption1->id);
+        $this->assertEquals(1, $bookinganswers1->is_activity_completed($user1->id));
+
+        // phpcs:disable
+        // Delete responses and verivy absence of completion.
+        //$res = $bookingoption1->delete_responses_activitycompletion();
+        //$bookinganswers1 = booking_answers::get_instance_from_optionid($bookingoption1->id);
+        //$this->setUser($user1);
+        //$this->assertEquals(0, $bookinganswers1->is_activity_completed($user1->id));
+        //$this->assertEquals(false, $bookingoption1->can_rate());
+        // phpcs:enable
 
         // Mandatory to solve potential cache issues.
         singleton_service::destroy_booking_option_singleton($option1->id);
