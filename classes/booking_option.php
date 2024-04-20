@@ -602,23 +602,20 @@ class booking_option {
     public function delete_responses_activitycompletion() {
         global $DB;
 
-        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
+        $booking = singleton_service::get_instance_of_booking_by_bookingid($this->bookingid);
 
-        $ud = [];
-        $oud = [];
-        $users = $DB->get_records('course_modules_completion',
-                ['coursemoduleid' => $bookingsettings->completionmodule]);
-        $ousers = $DB->get_records('booking_answers', ['optionid' => $this->optionid]);
-
-        foreach ($users as $u) {
-            $ud[] = $u->userid;
+        $todelete = [];
+        $options = $booking->get_all_options();
+        foreach ($options as $option) {
+            $answers = booking_answers::get_instance_from_optionid($option->id);
+            if (!empty($answers->users)) {
+                foreach ($answers->users as $user) {
+                    if ((int)$user->completed === 1) {
+                        $todelete[] = $user->id;
+                    }
+                }
+            }
         }
-
-        foreach ($ousers as $u) {
-            $oud[] = $u->userid;
-        }
-
-        $todelete = array_intersect($ud, $oud);
 
         $results = [];
         foreach ($todelete as $userid) {
