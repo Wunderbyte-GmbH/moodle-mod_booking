@@ -148,7 +148,7 @@ class condition_allowupdate_test extends advanced_testcase {
 
         // Try to book again with user1.
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_ISCANCELLED);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ISCANCELLED, $id);
 
         // Now we undo cancel of the booking option.
         booking_option::cancelbookingoption($settings->id, '', true);
@@ -156,7 +156,7 @@ class condition_allowupdate_test extends advanced_testcase {
         // Try to book again with user1.
         $this->setUser($student1);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_OPTIONHASSTARTED);
+        $this->assertEquals(MOD_BOOKING_BO_COND_OPTIONHASSTARTED, $id);
 
     }
 }

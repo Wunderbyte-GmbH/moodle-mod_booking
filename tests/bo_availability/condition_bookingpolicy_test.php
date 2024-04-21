@@ -156,6 +156,6 @@ class condition_bookingpolicy_test extends advanced_testcase {
         // Via this line, we can get the blocking condition.
         // The true is only hardblocking, which means low blockers used to only show buttons etc. wont be shown.
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_ALREADYBOOKED);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
     }
 }

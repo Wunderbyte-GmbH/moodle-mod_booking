@@ -142,29 +142,29 @@ class condition_all_test extends advanced_testcase {
         // Via this line, we can get the blocking condition.
         // The true is only hardblocking, which means low blockers used to only show buttons etc. wont be shown.
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_BOOKITBUTTON);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
 
         // We are allowed to book.
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_CONFIRMBOOKIT);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
 
         // Now we can actually book.
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_ALREADYBOOKED);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // When we run it again, we might want to cancel.
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_CONFIRMCANCEL);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMCANCEL, $id);
 
         // Now confirm cancel.
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
 
         // The result is, that we see the bookingbutton again.
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_BOOKITBUTTON);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
 
         // That was just for fun. Now we make sure the user is booked again.
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
@@ -177,12 +177,12 @@ class condition_all_test extends advanced_testcase {
         // Now, all the available places are booked. We try to book the third user.
         $this->setUser($student3);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student3->id, false);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_FULLYBOOKED);
+        $this->assertEquals(MOD_BOOKING_BO_COND_FULLYBOOKED, $id);
 
         // We still try to book, but no chance.
         $result = booking_bookit::bookit('option', $settings->id, $student3->id);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student3->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_FULLYBOOKED);
+        $this->assertEquals(MOD_BOOKING_BO_COND_FULLYBOOKED, $id);
 
         // Now we add waitinglist to option.
         $this->setUser($admin);
@@ -203,12 +203,12 @@ class condition_all_test extends advanced_testcase {
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student3->id, false);
 
         // User really is booked to waitinglist.
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_ONWAITINGLIST);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Check for guest user.
         $this->setGuestUser();
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, 1, false);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_ALLOWEDTOBOOKININSTANCE);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALLOWEDTOBOOKININSTANCE, $id);
     }
 
     /**
@@ -296,7 +296,7 @@ class condition_all_test extends advanced_testcase {
         // Via this line, we can get the blocking condition.
         // The true is only hardblocking, which means low blockers used to only show buttons etc. wont be shown.
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_ALREADYBOOKED);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Now check if the user is enrolled to the course.
         // We should get two courses.
@@ -320,7 +320,7 @@ class condition_all_test extends advanced_testcase {
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
 
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_BOOKITBUTTON);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
     }
 
     /**
@@ -402,7 +402,7 @@ class condition_all_test extends advanced_testcase {
         $this->setUser($student1);
 
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_BOOKING_TIME);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKING_TIME, $id);
 
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
@@ -410,7 +410,7 @@ class condition_all_test extends advanced_testcase {
         // Via this line, we can get the blocking condition.
         // The true is only hardblocking, which means low blockers used to only show buttons etc. wont be shown.
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_BOOKING_TIME);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKING_TIME, $id);
 
     }
 
@@ -494,11 +494,11 @@ class condition_all_test extends advanced_testcase {
         $this->setUser($student1);
 
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_ASKFORCONFIRMATION);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
 
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_ONWAITINGLIST);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
 
@@ -507,7 +507,7 @@ class condition_all_test extends advanced_testcase {
 
         $this->setUser($student1);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_ALREADYBOOKED);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
     }
 
     /**
@@ -607,12 +607,12 @@ class condition_all_test extends advanced_testcase {
         $this->setUser($student1);
 
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_ASKFORCONFIRMATION);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
 
         // The user books now and is only on waitinglist.
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_ONWAITINGLIST);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
 
@@ -625,9 +625,9 @@ class condition_all_test extends advanced_testcase {
 
         // The user sees now, after confirmation, correctly either the payment button or the noshoppingcart message.
         if (class_exists('local_shopping_cart\shopping_cart')) {
-            $this->assertEquals($id, MOD_BOOKING_BO_COND_PRICEISSET);
+            $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
         } else {
-            $this->assertEquals($id, MOD_BOOKING_BO_COND_NOSHOPPINGCART);
+            $this->assertEquals(MOD_BOOKING_BO_COND_NOSHOPPINGCART, $id);
         }
 
         $this->setAdminUser();
@@ -636,7 +636,7 @@ class condition_all_test extends advanced_testcase {
 
         // User 1 should be booked now.
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_ALREADYBOOKED);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Book a second user to fill the waitinglist.
         $option->user_submit_response($student2, 0, 0, 0, MOD_BOOKING_VERIFIED);
@@ -645,35 +645,35 @@ class condition_all_test extends advanced_testcase {
 
         // Verify that second user is booked.
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_ALREADYBOOKED);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Now we check the third user.
         $this->setUser($student3);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student3->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_ASKFORCONFIRMATION);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
 
         // The user is booked on the waitinglist.
         $result = booking_bookit::bookit('option', $settings->id, $student3->id);
 
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student3->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_ONWAITINGLIST);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Now we check the fourth user.
         $this->setUser($student4);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student4->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_ASKFORCONFIRMATION);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
 
         // The user is booked on the waitinglist.
         $result = booking_bookit::bookit('option', $settings->id, $student4->id);
 
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student4->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_ONWAITINGLIST);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Confirm the user.
         $this->setAdminUser();
         $option->user_submit_response($student3, 0, 0, 2, MOD_BOOKING_VERIFIED);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student3->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_ONWAITINGLIST);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         $ba = singleton_service::get_instance_of_booking_answers($settings);
 
@@ -681,7 +681,7 @@ class condition_all_test extends advanced_testcase {
         // Not seeing price.
         $this->setUser($student3);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student3->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_ONWAITINGLIST);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Now we take one user off the waitinglist.
         $this->setUser($student1);
@@ -689,7 +689,7 @@ class condition_all_test extends advanced_testcase {
 
         // So student1 is now delelted again, a place on the waitinglist has freed up.
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_ASKFORCONFIRMATION);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
 
         // Also take student 2 from the list, for a second place to free up.
         $this->setUser($student2);
@@ -697,7 +697,7 @@ class condition_all_test extends advanced_testcase {
 
         // So student2 is now delelted again, a place on the waitinglist has freed up.
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_ASKFORCONFIRMATION);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
 
         // There should be still one free place left.
         $ba = singleton_service::get_instance_of_booking_answers($settings);
@@ -706,16 +706,16 @@ class condition_all_test extends advanced_testcase {
         $this->setUser($student3);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student3->id, true);
         if (class_exists('local_shopping_cart\shopping_cart')) {
-            $this->assertEquals($id, MOD_BOOKING_BO_COND_PRICEISSET);
+            $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
         } else {
-            $this->assertEquals($id, MOD_BOOKING_BO_COND_NOSHOPPINGCART);
+            $this->assertEquals(MOD_BOOKING_BO_COND_NOSHOPPINGCART, $id);
         }
 
         // Even though there are still two free places:
         // As we didn't confirm student4, he should still be on waitinglist, even though a place would be free.
         $this->setUser($student4);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student4->id, true);
-        $this->assertEquals($id, MOD_BOOKING_BO_COND_ONWAITINGLIST);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
     }
 }
