@@ -1,3 +1,8 @@
+## Version 8.2.6 (2024042200)
+* Improvement: New php unit tests and behat tests and improvements for existing ones.
+* Improvement: Add book anyone capability.
+* Bugfix: Fix missing $bookingsettings in function after_successful_booking_routine of class booking_option.
+
 ## Version 8.2.5 (2024041700)
 * New feature: Shortcode [courselist cmid=23]
 * Bugfix: feature addtogroup working now
