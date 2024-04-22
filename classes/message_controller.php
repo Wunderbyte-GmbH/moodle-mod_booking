@@ -496,7 +496,7 @@ class message_controller {
 
         } else {
             // Generate ical attachments to go with the message. Check if ical attachments enabled.
-            if (get_config('booking', 'attachical') || get_config('booking', 'attachicalsessions')) {
+            if (get_config('booking', 'attachical')) {
                 $ical = new ical($this->bookingsettings, $this->optionsettings, $this->user, $this->bookingmanager, $updated);
                 $attachments = $ical->get_attachments(false);
                 $attachname = $ical->get_name();

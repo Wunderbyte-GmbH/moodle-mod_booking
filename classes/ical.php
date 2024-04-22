@@ -94,7 +94,7 @@ class ical {
     /**
      * $times
      *
-     * @var string
+     * @var array
      */
     protected $times = '';
 
@@ -169,13 +169,6 @@ class ical {
     protected $attachical = false;
 
     /**
-     * $attachicalsessions
-     *
-     * @var bool
-     */
-    protected $attachicalsessions = false;
-
-    /**
      * $individualvevents
      *
      * @var array
@@ -229,7 +222,6 @@ class ical {
             $this->host = $urlbits['host'];
             $this->userfullname = \fullname($this->user);
             $this->attachical = \get_config('booking', 'attachical');
-            $this->attachicalsessions = \get_config('booking', 'attachicalsessions');
         }
     }
 
@@ -264,10 +256,9 @@ class ical {
             $icalmethod = 'PUBLISH';
         }
 
-        if (!empty($this->times) && $this->attachicalsessions) {
+        // This is where we attach the iCal.
+        if (!empty($this->times) && $this->attachical) {
             $this->get_vevents_from_optiondates();
-        } else if ($this->attachical && $this->option->coursestarttime) {
-            $this->add_vevent($uid, $dtstart, $dtend);
         }
 
         $allvevents = trim(implode("\r\n", $this->individualvevents));
