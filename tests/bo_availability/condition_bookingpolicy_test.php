@@ -222,6 +222,8 @@ class condition_bookingpolicy_test extends advanced_testcase {
      * Test booking option availability: \condition\selectusers.
      *
      * @covers \condition\selectusers::is_available
+     * @covers \condition\previouslybooked::is_available
+     * @covers \condition\enrolledincourse::is_available
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -229,10 +231,11 @@ class condition_bookingpolicy_test extends advanced_testcase {
      *
      * @dataProvider booking_settings_provider
      */
-    public function test_booking_selectusers(array $bdata) {
+    public function test_booking_jsonconditions(array $bdata) {
 
         // Setup test data.
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
         // Create users.
         $student1 = $this->getDataGenerator()->create_user();
@@ -252,6 +255,7 @@ class condition_bookingpolicy_test extends advanced_testcase {
 
         $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
         $this->getDataGenerator()->enrol_user($student2->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($student2->id, $course2->id);
         $this->getDataGenerator()->enrol_user($teacher->id, $course1->id);
         $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id);
 
@@ -266,29 +270,91 @@ class condition_bookingpolicy_test extends advanced_testcase {
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
         $option1 = $plugingenerator->create_option($record);
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $boinfo1 = new bo_info($settings1);
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
-
-        // Book the first user without any problem.
-        $boinfo = new bo_info($settings);
+        // The 2nd option in the course1.
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option2';
+        $record->courseid = $course1->id;
+        // Set test availability setting(s).
+        $record->bo_cond_previouslybooked_restrict = 1;
+        $record->bo_cond_previouslybooked_optionid = $option1->id;
+        $option2 = $plugingenerator->create_option($record);
+        $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
+        $boinfo2 = new bo_info($settings2);
 
         // Book the student right away.
         $this->setUser($student1);
 
-        // Student1 not allowed to book.
-        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        // Student1 not allowed to book option1 in course1.
+        $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_JSON_SELECTUSERS, $id);
 
+        // Student1 not allowed to book option2 in course1.
+        $result = booking_bookit::bookit('option', $settings2->id, $student1->id);
+        list($id, $isavailable, $description) = $boinfo2->is_available($settings2->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_PREVIOUSLYBOOKED, $id);
+
         $this->setUser($student2);
-        // Student2 is allowed to book.
-        $result = booking_bookit::bookit('option', $settings->id, $student2->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id, true);
+
+        // Student2 has not allowed to book option2 in course1 yet.
+        $result = booking_bookit::bookit('option', $settings2->id, $student2->id);
+        list($id, $isavailable, $description) = $boinfo2->is_available($settings2->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_PREVIOUSLYBOOKED, $id);
+
+        // Student2 is allowed to book option1 in course1.
+        $result = booking_bookit::bookit('option', $settings1->id, $student2->id);
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
 
-        // Student2 is actually book.
-        $result = booking_bookit::bookit('option', $settings->id, $student2->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id, true);
+        // Student2 is actually book option1 in the course1.
+        $result = booking_bookit::bookit('option', $settings1->id, $student2->id);
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Student2 now is allowed to book option2 in course1.
+        $result = booking_bookit::bookit('option', $settings2->id, $student2->id);
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings2->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
+
+        // Student2 is actually book option2 in the course1.
+        $result = booking_bookit::bookit('option', $settings2->id, $student2->id);
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings2->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // The 3nd option in the course1.
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option3';
+        $record->courseid = $course1->id;
+        // Set test availability setting(s).
+        $record->bo_cond_enrolledincourse_restrict = 1;
+        $record->bo_cond_enrolledincourse_courseids = [$course2->id];
+        $record->bo_cond_enrolledincourse_courseids_operator = 'AND';
+        $option3 = $plugingenerator->create_option($record);
+        $settings3 = singleton_service::get_instance_of_booking_option_settings($option3->id);
+        $boinfo3 = new bo_info($settings3);
+
+        // Book the student right away.
+        $this->setUser($student1);
+
+        // Student1 not allowed to book option3 in course1.
+        $result = booking_bookit::bookit('option', $settings3->id, $student1->id);
+        list($id, $isavailable, $description) = $boinfo3->is_available($settings3->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE, $id);
+
+        $this->setUser($student2);
+
+        // But student2 allowed to book option3 in course1.
+        $result = booking_bookit::bookit('option', $settings3->id, $student2->id);
+        list($id, $isavailable, $description) = $boinfo3->is_available($settings3->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
+
+        $result = booking_bookit::bookit('option', $settings3->id, $student2->id);
+        list($id, $isavailable, $description) = $boinfo3->is_available($settings3->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
     }
 
