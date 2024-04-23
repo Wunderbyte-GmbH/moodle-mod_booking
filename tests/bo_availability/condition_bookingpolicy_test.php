@@ -66,39 +66,25 @@ class condition_bookingpolicy_test extends advanced_testcase {
      * Test booking option availability: \condition\bookingpolicy.
      *
      * @covers \condition\bookingpolicy::is_available
+     *
+     * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
+     *
+     * @dataProvider booking_settings_provider
      */
-    public function test_booking_policy() {
-        global $DB, $CFG;
+    public function test_booking_policy(array $bdata) {
 
-        $bdata = [
-            'name' => 'Test Booking Policy 1',
-            'eventtype' => 'Test event',
-            'enablecompletion' => 1,
-            'bookedtext' => ['text' => 'text'],
-            'waitingtext' => ['text' => 'text'],
-            'notifyemail' => ['text' => 'text'],
-            'statuschangetext' => ['text' => 'text'],
-            'deletedtext' => ['text' => 'text'],
-            'pollurltext' => ['text' => 'text'],
-            'pollurlteacherstext' => ['text' => 'text'],
-            'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
-            'tags' => '',
-            'completion' => 2,
-            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
-            'bookingpolicy' => 'policy',
-        ];
+        // Set test objective setting(s).
+        $bdata['bookingpolicy'] = 'policy';
+
         // Setup test data.
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
-        $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
         // Create users.
         $admin = $this->getDataGenerator()->create_user();
         $student1 = $this->getDataGenerator()->create_user();
         $student2 = $this->getDataGenerator()->create_user();
-        $student3 = $this->getDataGenerator()->create_user();
-        $student4 = $this->getDataGenerator()->create_user();
         $teacher = $this->getDataGenerator()->create_user();
         $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
 
@@ -115,15 +101,13 @@ class condition_bookingpolicy_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($admin->id, $course1->id);
         $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
         $this->getDataGenerator()->enrol_user($student2->id, $course1->id);
-        $this->getDataGenerator()->enrol_user($student3->id, $course1->id);
-        $this->getDataGenerator()->enrol_user($student4->id, $course1->id);
         $this->getDataGenerator()->enrol_user($teacher->id, $course1->id);
         $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id);
 
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'Test option1';
-        $record->courseid = $course2->id;
+        $record->courseid = $course1->id;
         $record->maxanswers = 2;
 
         /** @var mod_booking_generator $plugingenerator */
@@ -160,32 +144,20 @@ class condition_bookingpolicy_test extends advanced_testcase {
      * Test booking option availability: \condition\max_number_of_bookings.
      *
      * @covers \condition\max_number_of_bookings::is_available
+     *
+     * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
+     *
+     * @dataProvider booking_settings_provider
      */
-    public function test_booking_maxperuser() {
-        global $DB, $CFG;
+    public function test_booking_maxperuser(array $bdata) {
 
-        $bdata = [
-            'name' => 'Test Booking Policy 1',
-            'eventtype' => 'Test event',
-            'enablecompletion' => 1,
-            'bookedtext' => ['text' => 'text'],
-            'waitingtext' => ['text' => 'text'],
-            'notifyemail' => ['text' => 'text'],
-            'statuschangetext' => ['text' => 'text'],
-            'deletedtext' => ['text' => 'text'],
-            'pollurltext' => ['text' => 'text'],
-            'pollurlteacherstext' => ['text' => 'text'],
-            'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
-            'tags' => '',
-            'completion' => 2,
-            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
-            'maxperuser' => 1,
-        ];
+        // Set test objective setting(s).
+        $bdata['maxperuser'] = 1;
+
         // Setup test data.
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
-        $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
         // Create users.
         $student1 = $this->getDataGenerator()->create_user();
@@ -211,7 +183,7 @@ class condition_bookingpolicy_test extends advanced_testcase {
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'Test option1';
-        $record->courseid = $course2->id;
+        $record->courseid = $course1->id;
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
@@ -244,5 +216,31 @@ class condition_bookingpolicy_test extends advanced_testcase {
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_MAX_NUMBER_OF_BOOKINGS, $id);
+    }
+
+    /**
+     * Data provider for condition_bookingpolicy_test
+     *
+     * @return array
+     * @throws \UnexpectedValueException
+     */
+    public static function booking_settings_provider(): array {
+        $bdata = [
+            'name' => 'Test Booking Policy 1',
+            'eventtype' => 'Test event',
+            'enablecompletion' => 1,
+            'bookedtext' => ['text' => 'text'],
+            'waitingtext' => ['text' => 'text'],
+            'notifyemail' => ['text' => 'text'],
+            'statuschangetext' => ['text' => 'text'],
+            'deletedtext' => ['text' => 'text'],
+            'pollurltext' => ['text' => 'text'],
+            'pollurlteacherstext' => ['text' => 'text'],
+            'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
+            'tags' => '',
+            'completion' => 2,
+            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
+        ];
+        return ['bdata' => [$bdata]];
     }
 }
