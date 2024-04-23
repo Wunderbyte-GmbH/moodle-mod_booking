@@ -480,10 +480,12 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $answersobject = singleton_service::get_instance_of_booking_answers($settings);
         $status = $answersobject->user_status($USER->id);
 
+        $context = context_module::instance($settings->cmid);
+
         $isteacherofthisoption = booking_check_if_teacher($values);
         if (!empty($settings->courseid) && (
             $status == MOD_BOOKING_STATUSPARAM_BOOKED ||
-            has_capability('mod/booking:updatebooking', context_system::instance()) ||
+            has_capability('mod/booking:updatebooking', $context) ||
             $isteacherofthisoption)) {
             // The link will be shown to everyone who...
             // ...has booked this option.
