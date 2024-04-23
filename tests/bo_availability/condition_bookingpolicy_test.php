@@ -219,6 +219,80 @@ class condition_bookingpolicy_test extends advanced_testcase {
     }
 
     /**
+     * Test booking option availability: \condition\selectusers.
+     *
+     * @covers \condition\selectusers::is_available
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_settings_provider
+     */
+    public function test_booking_selectusers(array $bdata) {
+
+        // Setup test data.
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create users.
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($booking1->id);
+        singleton_service::destroy_booking_singleton_by_cmid($bookingsettings->cmid);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($booking1->id);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($student2->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($teacher->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id);
+
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1';
+        $record->courseid = $course1->id;
+        // Set test availability setting(s).
+        $record->bo_cond_selectusers_restrict = 1;
+        $record->bo_cond_selectusers_userids = [$student2->id];
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option1 = $plugingenerator->create_option($record);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+
+        // Book the first user without any problem.
+        $boinfo = new bo_info($settings);
+
+        // Book the student right away.
+        $this->setUser($student1);
+
+        // Student1 not allowed to book.
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_SELECTUSERS, $id);
+
+        $this->setUser($student2);
+        // Student2 is allowed to book.
+        $result = booking_bookit::bookit('option', $settings->id, $student2->id);
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
+
+        // Student2 is actually book.
+        $result = booking_bookit::bookit('option', $settings->id, $student2->id);
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+    }
+
+    /**
      * Data provider for condition_bookingpolicy_test
      *
      * @return array
