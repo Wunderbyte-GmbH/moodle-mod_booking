@@ -370,6 +370,25 @@ class singleton_service {
         }
     }
 
+
+    /**
+     * When invalidating the cache, we need to also destroy the booking_users_object.
+     * As we batch handle a lot of users, they always need a "clean" booking users object.
+     *
+     * @param int $userid
+     * @return bool
+     */
+    public static function destroy_user(int $userid) {
+        $instance = self::get_instance();
+
+        if (isset($instance->users[$userid])) {
+            unset($instance->users[$userid]);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * Service to create and return singleton instance of price class.
      *
