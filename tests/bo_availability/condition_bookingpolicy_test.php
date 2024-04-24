@@ -233,6 +233,7 @@ class condition_bookingpolicy_test extends advanced_testcase {
      */
     public function test_booking_jsonconditions(array $bdata) {
 
+        $this->resetAfterTest();
         // Setup test data.
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
@@ -355,6 +356,125 @@ class condition_bookingpolicy_test extends advanced_testcase {
 
         $result = booking_bookit::bookit('option', $settings3->id, $student2->id);
         list($id, $isavailable, $description) = $boinfo3->is_available($settings3->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+    }
+
+
+    /**
+     * Test booking option availability: \condition\jsonuserfields.
+     *
+     * @covers \condition\userprofilefield_1_default::is_available
+     * @covers \condition\userprofilefield_2_custom::is_available
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_settings_provider
+     */
+    public function test_booking_jsonuserfields(array $bdata) {
+        global $CFG;
+
+        $this->resetAfterTest();
+
+        // Setup test data.
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create custom profile field.
+        $this->getDataGenerator()->create_custom_profile_field(['datatype' => 'text', 'shortname' => 'sport', 'name' => 'Sport',
+        'visible' => PROFILE_VISIBLE_ALL]);
+        set_config('showuseridentity', 'username,email,profile_field_sport');
+        // Create users.
+        $users = [
+            ['username' => 'student1', 'email' => 'student1@example.com', 'profile_field_sport' => 'football'],
+            ['username' => 'student2', 'email' => 'student2@sample.com', 'profile_field_sport' => 'tennis'],
+            ['username' => 'teacher', 'email' => 'teacher@sample.com', 'profile_field_sport' => 'yoga'],
+        ];
+        $student1 = $this->getDataGenerator()->create_user($users[0]);
+        $student2 = $this->getDataGenerator()->create_user($users[1]);
+        $teacher = $this->getDataGenerator()->create_user($users[2]);
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($booking1->id);
+        singleton_service::destroy_booking_singleton_by_cmid($bookingsettings->cmid);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($booking1->id);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($student2->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($teacher->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id);
+
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1';
+        $record->courseid = $course1->id;
+        // Set test availability setting(s).
+        $record->bo_cond_userprofilefield_1_default_restrict = 1;
+        $record->bo_cond_userprofilefield_field = 'email';
+        $record->bo_cond_userprofilefield_operator = '~';
+        $record->bo_cond_userprofilefield_value = 'student2';
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option1 = $plugingenerator->create_option($record);
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $boinfo1 = new bo_info($settings1);
+
+        // The 2nd option in the course1.
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option2';
+        $record->courseid = $course1->id;
+        // Set test availability setting(s).
+        $record->bo_cond_userprofilefield_2_custom_restrict = 1;
+        $record->bo_cond_customuserprofilefield_field = 'sport';
+        $record->bo_cond_customuserprofilefield_operator = '=';
+        $record->bo_cond_customuserprofilefield_value = 'football';
+
+        $option2 = $plugingenerator->create_option($record);
+        $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
+        $boinfo2 = new bo_info($settings2);
+
+        // Book the student1.
+        $this->setUser($student1);
+        singleton_service::destroy_user($student1->id);
+
+        // Student1 does not allowed to book option1 in course1.
+        $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_USERPROFILEFIELD, $id);
+
+        // Student1 does allowed to book option2 in course1.
+        $result = booking_bookit::bookit('option', $settings2->id, $student1->id);
+        list($id, $isavailable, $description) = $boinfo2->is_available($settings2->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
+
+        $result = booking_bookit::bookit('option', $settings2->id, $student1->id);
+        list($id, $isavailable, $description) = $boinfo2->is_available($settings2->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Book the student2.
+        $this->setUser($student2);
+        singleton_service::destroy_user($student2->id);
+
+        // Student2 does not allowed to book option2 in course1.
+        $result = booking_bookit::bookit('option', $settings2->id, $student2->id);
+        list($id, $isavailable, $description) = $boinfo2->is_available($settings2->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD, $id);
+
+        // Student2 does allowed to book option1 in course1.
+        $result = booking_bookit::bookit('option', $settings1->id, $student2->id);
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
+
+        $result = booking_bookit::bookit('option', $settings1->id, $student2->id);
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
     }
 
