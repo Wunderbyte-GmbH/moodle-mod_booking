@@ -112,9 +112,17 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $price = new backup_nested_element('price', ['id'],
                 ['itemid', 'area', 'pricecategoryidentifier', 'price', 'currency']);
 
-        $entitiesrelations = new backup_nested_element('entitiesrelations');
-        $entitiesrelation = new backup_nested_element('entitiesrelation', ['id'],
+        // Entities can be set for whole options...
+        $entitiesrelationsforoptions = new backup_nested_element('entitiesrelationsforoptions');
+        $entitiesrelationforoption = new backup_nested_element('entitiesrelationforoption', ['id'],
                 ['entityid', 'component', 'area', 'instanceid', 'timecreated']);
+        $entitiesrelationsforoptions->add_child($entitiesrelationforoption);
+
+        // ...or for individual optiondates.
+        $entitiesrelationsforoptiondates = new backup_nested_element('entitiesrelationsforoptiondates');
+        $entitiesrelationforoptiondate = new backup_nested_element('entitiesrelationforoptiondate', ['id'],
+                ['entityid', 'component', 'area', 'instanceid', 'timecreated']);
+        $entitiesrelationsforoptiondates->add_child($entitiesrelationforoptiondate);
 
         $customfields = new backup_nested_element('customfields');
         $customfield = new backup_nested_element('customfield', ['id'],
@@ -155,8 +163,9 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $option->add_child($prices);
         $prices->add_child($price);
 
-        $option->add_child($entitiesrelations);
-        $entitiesrelations->add_child($entitiesrelation);
+        // We have entitiesrelations for both options and optiondates!
+        $option->add_child($entitiesrelationsforoptions);
+        $optiondate->add_child($entitiesrelationsforoptiondates);
 
         $option->add_child($subbookingoptions);
         $subbookingoptions->add_child($subbookingoption);
@@ -190,7 +199,10 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
 
         // Only backup (or duplicate) entities, if config setting is set AND if entities are available.
         if (get_config('booking', 'duplicationrestoreentities') && class_exists('local_entities\entitiesrelation_handler')) {
-            $entitiesrelation->set_source_table('local_entities_relations', ['instanceid' => backup::VAR_PARENTID]);
+            $entitiesrelationforoption->set_source_table('local_entities_relations',
+                ['instanceid' => backup::VAR_PARENTID]);
+            $entitiesrelationforoptiondate->set_source_table('local_entities_relations',
+                ['instanceid' => backup::VAR_PARENTID]);
         }
 
         // Only backup (or duplicate) subbookingoptions, if config setting is set.

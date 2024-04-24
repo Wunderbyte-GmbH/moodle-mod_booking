@@ -235,10 +235,13 @@ class optiondate {
                 }
             }
 
-            // If a new optiondate is inserted and we have no entityid set, then we use the entity of the parent option as default.
-            if (class_exists('local_entities\entitiesrelation_handler') && empty($entityid)) {
-                $erhandleroption = new entitiesrelation_handler('mod_booking', 'option');
-                $entityid = $erhandleroption->get_entityid_by_instanceid($optionid);
+            if (class_exists('local_entities\entitiesrelation_handler')) {
+                if (empty($entityid)) {
+                    // If a new optiondate is inserted and we have no entityid set...
+                    // ...then we use the entity of the parent option as default.
+                    $erhandleroption = new entitiesrelation_handler('mod_booking', 'option');
+                    $entityid = $erhandleroption->get_entityid_by_instanceid($optionid);
+                }
                 $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
                 $erhandler->save_entity_relation($id, $entityid);
             }

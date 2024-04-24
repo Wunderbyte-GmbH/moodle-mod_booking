@@ -372,13 +372,17 @@ class dates {
 
                     $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
 
+                    // By default, we use the same entity as the main entity.
+                    // This is helpful, when we recreate optiondate series for example.
+                    $key = LOCAL_ENTITIES_FORM_ENTITYID . 0;
+                    $entityid = $defaultvalues->{$key} ?? 0;
+
                     // If we fetch sessions from DB, we also have to load entities from DB.
                     if (empty($defaultvalues->addoptiondateseries) && !empty($session->optiondateid)) {
-                        $entityid = $erhandler->get_entityid_by_instanceid($session->optiondateid) ?? 0;
-                    } else {
-                        // Else we recreate optiondate series, so use the main entity of the option.
-                        $key = LOCAL_ENTITIES_FORM_ENTITYID . 0;
-                        $entityid = $defaultvalues->{$key} ?? 0;
+                        $existingentityidofoptiondate = $erhandler->get_entityid_by_instanceid($session->optiondateid);
+                        if (!empty($existingentityidofoptiondate)) {
+                            $entityid = $existingentityidofoptiondate;
+                        }
                     }
 
                     $key = LOCAL_ENTITIES_FORM_ENTITYID . $idx;
