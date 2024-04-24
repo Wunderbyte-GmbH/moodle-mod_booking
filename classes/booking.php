@@ -1370,15 +1370,23 @@ class booking {
                 'userid' => $USER->id,
             ]);
 
+            // Invisible options should be in a light gray.
+            $isinvisible = !empty($optionsettings->invisible) ? true : false;
+            $bgcolor = $isinvisible ? "#808080" : "#4285F4";
+            $optiontitle = $optionsettings->get_title_with_prefix();
+            if ($isinvisible) {
+                // Show "hidden" icon before title.
+                $optiontitle = "[" . get_string('invisible', 'mod_booking') . "] " . $optiontitle;
+            }
+
             $newentittydate = new entitydate(
                 $record->instanceid,
                 'mod_booking',
                 $record->area,
-                $optionsettings->get_title_with_prefix(),
+                $optiontitle,
                 $record->coursestarttime,
                 $record->courseendtime,
-                1,
-                $link);
+                1, $link, $bgcolor);
 
             $returnarray[] = $newentittydate;
         }
