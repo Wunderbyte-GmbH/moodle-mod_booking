@@ -108,23 +108,17 @@ class condition_bookingpolicy_test extends advanced_testcase {
         $record->bookingid = $booking1->id;
         $record->text = 'Test option1';
         $record->courseid = $course1->id;
-        $record->maxanswers = 2;
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
         $option1 = $plugingenerator->create_option($record);
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
-
-        // Book the first user without any problem.
         $boinfo = new bo_info($settings);
 
-        // Book the student right away.
+        // Book the student1.
         $this->setUser($student1);
-
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKINGPOLICY, $id);
-
+        // Not allowed until policy agreed.
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_BOOKINGPOLICY, $id);
@@ -134,9 +128,83 @@ class condition_bookingpolicy_test extends advanced_testcase {
         // In this test, we book the user directly (user don't confirm policy).
         $option->user_submit_response($student1, 0, 0, 0, MOD_BOOKING_VERIFIED);
 
-        // Via this line, we can get the blocking condition.
-        // The true is only hardblocking, which means low blockers used to only show buttons etc. wont be shown.
+        // Verify that user already booked.
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+    }
+
+    /**
+     * Test booking option availability: \condition\customform.
+     *
+     * @covers \condition\customform::is_available
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_settings_provider
+     */
+    public function test_booking_customform(array $bdata) {
+
+        // Setup test data.
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create users.
+        $admin = $this->getDataGenerator()->create_user();
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($booking1->id);
+        singleton_service::destroy_booking_singleton_by_cmid($bookingsettings->cmid);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($booking1->id);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($admin->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($student2->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($teacher->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id);
+
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1';
+        $record->courseid = $course1->id;
+        // Set test objective setting(s).
+        $record->bo_cond_customform_restrict = 1;
+        $record->bo_cond_customform_select_1_1 = 'static';
+        $record->bo_cond_customform_value_1_1 = 'confirm';
+        $record->bo_cond_customform_select_1_2 = 'advcheckbox';
+        $record->bo_cond_customform_label_1_2 = 'agree';
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option1 = $plugingenerator->create_option($record);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $boinfo = new bo_info($settings);
+
+        // Book the student1.
+        $this->setUser($student1);
+
+        // Not allowed until policy agreed.
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_CUSTOMFORM, $id);
+
+        $this->setAdminUser();
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        // In this test, we book the user directly (user don't confirm policy).
+        $option->user_submit_response($student1, 0, 0, 0, MOD_BOOKING_VERIFIED);
+
+        // Verify that user already booked.
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, false);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
     }
 
