@@ -185,6 +185,7 @@ class customfields extends field_base {
         $fields = $handler->get_fields();
 
         $returnarray = array_map(fn($a) => [
+            'id' => $a->get('id'),
             'shortname' => $a->get('shortname'),
             'name' => $a->get('name'),
             'checked' => 1,

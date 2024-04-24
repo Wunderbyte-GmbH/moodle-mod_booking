@@ -246,7 +246,7 @@ class optionformconfig_info {
         $fields = json_decode($record['json']);
         $filteredfields = array_filter($fields, fn($a) => $a->id == MOD_BOOKING_OPTION_FIELD_COSTUMFIELDS ? true : false);
         $customfields = reset($filteredfields);
-        $uncheckedfields = array_map(fn($a) => $a->checked != 1 ? $a->id : null, (array)$customfields->subfields);
+        $uncheckedfields = array_map(fn($a) => $a->checked != 1 ? $a->shortname : null, (array)$customfields->subfields);
 
         return $uncheckedfields;
     }
