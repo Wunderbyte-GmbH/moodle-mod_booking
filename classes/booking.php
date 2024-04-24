@@ -25,6 +25,7 @@
 namespace mod_booking;
 
 use cache_helper;
+use context_module;
 use course_modinfo;
 use html_writer;
 use local_entities\local\entities\entitydate;
@@ -1372,10 +1373,17 @@ class booking {
 
             // Invisible options should be in a light gray.
             $isinvisible = !empty($optionsettings->invisible) ? true : false;
+
+            // If the option is invisible and the user has no right to see it, we continue.
+            if ($isinvisible && !has_capability('mod/booking:canseeinvisibleoptions',
+                context_module::instance($optionsettings->cmid))) {
+                continue;
+            }
+
             $bgcolor = $isinvisible ? "#808080" : "#4285F4";
             $optiontitle = $optionsettings->get_title_with_prefix();
             if ($isinvisible) {
-                // Show "hidden" icon before title.
+                // Show [invisible] prefix icon before title.
                 $optiontitle = "[" . get_string('invisible', 'mod_booking') . "] " . $optiontitle;
             }
 
