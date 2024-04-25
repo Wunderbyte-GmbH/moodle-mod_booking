@@ -1243,7 +1243,7 @@ class booking_option_settings {
 
         $returnarray = [
             'itemid' => $this->id,
-            'title' => $this->text,
+            'title' => $this->get_title_with_prefix(),
             'price' => $price['price'] ?? null,
             'currency' => $price['currency'] ?? null,
             'userid' => $user->id,
