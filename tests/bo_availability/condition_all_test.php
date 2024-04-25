@@ -731,4 +731,128 @@ class condition_all_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
     }
+
+    /**
+     * Test booking option availability: \condition\bookwithcredits.
+     *
+     * @covers \condition\userprofilefield_1_default::is_available
+     * @covers \condition\userprofilefield_2_custom::is_available
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_booking_bookwithcredits(array $bdata) {
+        global $CFG;
+
+        $this->resetAfterTest();
+
+        // Setup test data.
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create custom profile field.
+        $this->getDataGenerator()->create_custom_profile_field(['datatype' => 'text', 'shortname' => 'credit', 'name' => 'Credit',
+        'visible' => PROFILE_VISIBLE_NONE]);
+        //set_config('showuseridentity', 'username,email,profile_field_sport');
+
+        // Create users.
+        $users = [
+            ['username' => 'student1', 'email' => 'student1@example.com', 'profile_field_credit' => '50'],
+            ['username' => 'student2', 'email' => 'student2@sample.com', 'profile_field_credit' => '150'],
+            ['username' => 'teacher', 'email' => 'teacher@sample.com', 'profile_field_credit' => '0'],
+        ];
+        $student1 = $this->getDataGenerator()->create_user($users[0]);
+        $student2 = $this->getDataGenerator()->create_user($users[1]);
+        $teacher = $this->getDataGenerator()->create_user($users[2]);
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($booking1->id);
+        // To avoid retrieving the singleton with the wrong settings, we destroy it.
+        singleton_service::destroy_booking_singleton_by_cmid($bookingsettings->cmid);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($student2->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($teacher->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id);
+
+        $res = set_config('bookwithcreditsactive', 1, 'booking');
+        $res = set_config('bookwithcreditsprofilefield', 'credit', 'booking');
+
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1';
+        $record->courseid = $course1->id;
+        $record->credits = 100;
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option1 = $plugingenerator->create_option($record);
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $optionobj1 = singleton_service::get_instance_of_booking_option($settings1->cmid, $settings1->id);
+
+        $boinfo1 = new bo_info($settings1);
+
+        // Book the student2.
+        $this->setUser($student2);
+        singleton_service::destroy_user($student2->id);
+
+        // Verify book with credits.
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKWITHCREDITS, $id);
+
+        // Student2 does allowed to book option1 in course1.
+        $result = booking_bookit::bookit('option', $settings1->id, $student2->id);
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKWITHCREDITS, $id);
+
+        $result = booking_bookit::bookit('option', $settings1->id, $student2->id);
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+        // Book the student1.
+        $this->setUser($student1);
+        singleton_service::destroy_user($student1->id);
+
+        // Student1 does not allowed to book option1 in course1 - no enough credits.
+        $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKWITHCREDITS, $id);
+
+        $this->expectException(\moodle_exception::class);
+        $this->expectExceptionMessage('mod_booking/notenoughcredits');
+        $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
+    }
+
+    /**
+     * Data provider for condition_bookingpolicy_test
+     *
+     * @return array
+     * @throws \UnexpectedValueException
+     */
+    public static function booking_common_settings_provider(): array {
+        $bdata = [
+            'name' => 'Test Booking Policy 1',
+            'eventtype' => 'Test event',
+            'enablecompletion' => 1,
+            'bookedtext' => ['text' => 'text'],
+            'waitingtext' => ['text' => 'text'],
+            'notifyemail' => ['text' => 'text'],
+            'statuschangetext' => ['text' => 'text'],
+            'deletedtext' => ['text' => 'text'],
+            'pollurltext' => ['text' => 'text'],
+            'pollurlteacherstext' => ['text' => 'text'],
+            'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
+            'tags' => '',
+            'completion' => 2,
+            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
+        ];
+        return ['bdata' => [$bdata]];
+    }
 }
