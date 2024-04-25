@@ -24,6 +24,7 @@
 
 namespace mod_booking\option\fields;
 
+use cache;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use mod_booking\singleton_service;
@@ -111,9 +112,39 @@ class credits extends field_base {
         fields_info::add_header_to_mform($mform, self::$header);
 
         // If the form is no elective, and we can pay with credits, we can actually use this.
-        if (!$booking->is_elective() && $booking->uses_credits()) {
+        if (!$booking->is_elective() && get_config('booking', 'bookwithcreditsactive')) {
             $mform->addElement('text', 'credits', get_string('credits', 'mod_booking'));
             $mform->setType('credits', PARAM_INT);
+        }
+    }
+
+    /**
+     * This static functions checks if the user has paid with credits.
+     * If so, we add it to the json column in booking_answers.
+     * @param stdClass $newanswer
+     * @param int $userid
+     * @return void
+     */
+    public static function add_json_to_booking_answer(stdClass &$newanswer, int $userid) {
+
+        // If we have bought with credits, we need to save that in the answer.
+        $cache = cache::make('mod_booking', 'confirmbooking');
+        $cachekey = $userid . "_" . $newanswer->optionid . '_bookwithcredits';
+        // Only if we find the form in cache, we save it to the answer.
+        // We can just overwrite any preivous answer.
+        if ($data = $cache->get($cachekey)) {
+
+            $jsonobject = json_decode($newanswer->json);
+
+            if (empty($jsonobject)) {
+                $jsonobject = new stdClass();
+            }
+
+            $jsonobject->paidwithcredits = 1;
+
+            $cache->delete($cachekey);
+
+            $newanswer->json = json_encode($jsonobject);
         }
     }
 }

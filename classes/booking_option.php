@@ -25,6 +25,7 @@
 
 namespace mod_booking;
 
+use cache;
 use cache_helper;
 use coding_exception;
 use completion_info;
@@ -49,6 +50,7 @@ use mod_booking\customfield\booking_handler;
 use mod_booking\event\booking_afteractionsfailed;
 use mod_booking\event\bookinganswer_cancelled;
 use mod_booking\message_controller;
+use mod_booking\option\fields\credits;
 use mod_booking\option\fields_info;
 use mod_booking\placeholders\placeholders_info;
 use mod_booking\subbookings\subbookings_info;
@@ -1116,6 +1118,9 @@ class booking_option {
 
         $now = time();
 
+        // For book with credits, we need to delete the cache.
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
         $newanswer = new stdClass();
         $newanswer->bookingid = $bookingid;
         $newanswer->frombookingid = $frombookingid;
@@ -1127,6 +1132,9 @@ class booking_option {
 
         // When a user submits a userform, we need to save this as well.
         customform::add_json_to_booking_answer($newanswer, $userid);
+
+        // When a user submits a userform, we need to save this as well.
+        credits::add_json_to_booking_answer($newanswer, $userid);
 
         // The confirmation on the waitinglist is saved here.
         if ($confirmwaitinglist === 2) {

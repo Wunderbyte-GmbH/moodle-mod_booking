@@ -90,7 +90,8 @@ class confirmcancel implements bo_condition {
             $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
             $bookinginformation = $bookinganswer->return_all_booking_information($userid);
 
-            if (!isset($bookinginformation['onwaitinglist'])) {
+            if (!isset($bookinginformation['onwaitinglist'])
+                && !isset($bookinginformation['iambooked']['paidwithcredits'])) {
                 $isavailable = true; // True means, it won't be shown.
             }
         }

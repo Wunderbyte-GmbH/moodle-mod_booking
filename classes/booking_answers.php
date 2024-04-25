@@ -298,6 +298,14 @@ class booking_answers {
 
         // First check list of booked users.
         if (isset($this->usersonlist[$userid]) && $this->usersonlist[$userid]->waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED) {
+
+            $answer = $this->usersonlist[$userid];
+            $jsonobject = json_decode($answer->json);
+
+            if (!empty($jsonobject->paidwithcredits)) {
+                $returnarray['paidwithcredits'] = true;
+            }
+
             $returnarray = ['iambooked' => $returnarray];
         } else if (isset($this->usersreserved[$userid])
             && $this->usersreserved[$userid]->waitinglist == MOD_BOOKING_STATUSPARAM_RESERVED) {
