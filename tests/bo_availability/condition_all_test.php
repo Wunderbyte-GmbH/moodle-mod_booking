@@ -70,6 +70,7 @@ class condition_all_test extends advanced_testcase {
      * @covers \condition\alreadybooked::is_available
      * @covers \condition\fullybooked::is_available
      * @covers \condition\confirmation::render_page
+     * @covers \condition\notifymelist::is_available
      * @throws \coding_exception
      * @throws \dml_exception
      */
@@ -209,6 +210,18 @@ class condition_all_test extends advanced_testcase {
         $this->setGuestUser();
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, 1, false);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALLOWEDTOBOOKININSTANCE, $id);
+
+        // Use notification list.
+        $res = set_config('usenotificationlist', 1, 'booking');
+
+        $this->setUser($student4);
+
+        // Now student4 is on notification list.
+        $result = booking_bookit::bookit('option', $settings->id, $student4->id);
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student4->id, false);
+
+        // User really is booked to waitinglist.
+        $this->assertEquals(MOD_BOOKING_BO_COND_NOTIFYMELIST, $id);
     }
 
     /**
