@@ -90,6 +90,7 @@ class col_price implements renderable, templatable {
 
         // Because of the caching logic, we have to create the booking_answers object here again.
         if ($values->id) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
             $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
 
             // We only show the price when we can actually buy.
@@ -105,7 +106,7 @@ class col_price implements renderable, templatable {
                     if ($this->priceitem = price::get_price('option', $values->id, $buyforuser)) {
 
                         $cartitem = new cartitem($values->id,
-                                         $values->text,
+                                         $settings->get_title_with_prefix(),
                                          $this->priceitem['price'],
                                          $this->priceitem['currency'],
                                          'mod_booking',

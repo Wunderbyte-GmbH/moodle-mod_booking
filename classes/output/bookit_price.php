@@ -113,7 +113,7 @@ class bookit_price implements renderable, templatable {
                     if ($this->priceitem = price::get_price('option', $settings->id, $buyforuser)) {
 
                         $cartitem = new cartitem($settings->id,
-                                         $settings->text,
+                                         $settings->get_title_with_prefix(),
                                          $this->priceitem['price'],
                                          $this->priceitem['currency'],
                                          'mod_booking',

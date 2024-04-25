@@ -198,7 +198,7 @@ class bookingoption_description implements renderable, templatable {
         }
 
         // These fields can be gathered directly from settings.
-        $this->title = $settings->text;
+        $this->title = $settings->get_title_with_prefix();
 
         // Prefix to be shown before title.
         $this->titleprefix = $settings->titleprefix;
