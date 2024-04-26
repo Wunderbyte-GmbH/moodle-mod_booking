@@ -1259,6 +1259,15 @@ class booking_option_settings {
             'coursestarttime' => $this->coursestarttime ?? 0,
             'courseendtime' => $this->courseendtime ?? 0,
             'costcenter' => $this->costcenter ?? '',
+            'sessions' => array_values(array_map(fn($a) => [
+                'coursestarttime' => userdate($a->coursestarttime),
+                'courseendtime' => userdate($a->courseendtime),
+            ], $this->sessions)),
+            'teachers' => array_values(array_map(fn($a) => [
+                'firstname' => $a->firstname,
+                'lastname' => $a->lastname,
+                'email' => str_replace('@', '&#64;', $a->email),
+            ], $this->teachers)),
         ];
 
         return $returnarray;

@@ -10,19 +10,31 @@
 <%#mybookings%>
     <ion-card>
         <ion-card-header>
-            <% text %>
+            <h3>
+                <% title %>
+            </h3>
         </ion-card-header>
         <ion-card-content>
             <b>
-            {{ 'plugin.mod_booking.mybookingsbooking' | translate }}
-            </b> <% name %> (<% fullname %>) <br>
-            <b>
             {{ 'plugin.mod_booking.description' | translate }}
             </b> <% description %> <br>
+            <br>
+            <%# teachers %>
+                <div><% firstname %> <% lastname %> (<% email %>)</div>
+            <%/ teachers %>
+            <%# teachers.0 %>
+            <br>
+            <%/ teachers.0 %>
+            <%# sessions %>
+                <div><% coursestarttime %> - <% courseendtime %></div>
+            <%/ sessions %>
+            <%# sessions.0 %>
+            <br>
+            <%/ sessions.0 %>
 
             <ion-button core-site-plugins-new-content
-                title="<% certificate.name %>" component="mod_booking"
-                method="mobile_booking_option_details" [args]="{optionid: <% optionid %>, userid: <% userid %>}">
+                title="<% text %>" component="mod_booking"
+                method="mobile_booking_option_details" [args]="{optionid: <% itemid %>, userid: <% userid %>}">
             {{ 'plugin.mod_booking.details' | translate }}
         </ion-button>
         </ion-card-content>

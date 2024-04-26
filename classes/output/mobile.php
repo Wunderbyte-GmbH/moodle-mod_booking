@@ -58,63 +58,32 @@ class mobile {
 
         global $DB, $OUTPUT, $USER;
 
-
-        if ($args['action'] == 'viewdetails') {
-
-            $data = [];
-
-            return [
-                'templates' => [
-                    [
-                        'id' => 'main',
-                        'html' => $OUTPUT->render_from_template('mod_booking/mobile/mobile_mybookings_list', $data),
-                    ],
-                ],
-                'javascript' => '',
-                'otherdata' => '',
-            ];
-
-        }
-
         $cmid = get_config('booking', 'shortcodessetinstance');
 
-        $sql = "SELECT bo.id id, b.course courseid, b.id bookingid, b.name, bo.text, bo.id optionid, :userid1 userid,
-                bo.coursestarttime coursestarttime, bo.courseendtime courseendtime, cm.id cmid
-                  FROM {booking_options} bo
-             LEFT JOIN
-        {booking} b ON b.id = bo.bookingid
-             LEFT JOIN {course_modules} cm ON cm.instance = b.id
-                 WHERE cm.visible = 1 AND cm.id = :cmid";
+        if (empty($cmid)) {
+            throw new moodle_exception('nocmidselected', 'mod_booking');
+        }
 
-        $params = [
-            'cmid' => $cmid,
-            'userid' => $USER->id,
-            'userid1' => $USER->id,
-        ];
+        $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
-        $mybookings = $DB->get_records_sql($sql, $params);
+        $wherearray['bookingid'] = (int)$booking->id;
+
+        list($fields, $from, $where, $params, $filter) =
+                booking::get_options_filter_sql(0, 0, '', null, null, [], $wherearray);
+
+
+        $sql = "SELECT $fields
+                FROM $from
+                WHERE $where";
+
+        $records = $DB->get_records_sql($sql, $params);
 
         $outputdata = [];
 
-        foreach ($mybookings as $key => $value) {
-            $status = '';
-            $coursestarttime = '';
+        foreach ($records as $record) {
 
-            if ($value->coursestarttime > 0) {
-                $coursestarttime = userdate($value->coursestarttime);
-            }
-            $status = booking_getoptionstatus($value->coursestarttime, $value->courseendtime);
-
-            $outputdata[] = [
-                'fullname' => 'fullname',
-                'name' => $value->name,
-                'text' => $value->text,
-                'status' => $status,
-                'coursestarttime' => $coursestarttime,
-                'button' => '',
-                'optionid' => $value->optionid,
-                'userid' => $value->userid,
-            ];
+            $settings = singleton_service::get_instance_of_booking_option_settings($record->id);
+            $outputdata[] = $settings->return_booking_option_information();
         }
 
         $data = ['mybookings' => $outputdata];
