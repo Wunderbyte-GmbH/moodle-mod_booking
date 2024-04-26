@@ -300,10 +300,12 @@ class booking_answers {
         if (isset($this->usersonlist[$userid]) && $this->usersonlist[$userid]->waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED) {
 
             $answer = $this->usersonlist[$userid];
-            $jsonobject = json_decode($answer->json);
+            if (!empty($answer->json)) {
+                $jsonobject = json_decode($answer->json);
 
-            if (!empty($jsonobject->paidwithcredits)) {
-                $returnarray['paidwithcredits'] = true;
+                if (!empty($jsonobject->paidwithcredits)) {
+                    $returnarray['paidwithcredits'] = true;
+                }
             }
 
             $returnarray = ['iambooked' => $returnarray];
