@@ -58,6 +58,15 @@ class mobile {
 
         $data = new stdClass();
 
+
+        $cmid = get_config('booking', 'mobileappsetinstance');
+
+        $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
+
+
+
+
+
         return [
             'templates' => [
                 [
@@ -80,7 +89,7 @@ class mobile {
         global $OUTPUT, $USER, $DB;
 
         $mybookings = $DB->get_records_sql(
-        "SELECT ba.id id, c.id courseid, c.fullname fullname, b.id bookingid, b.name name, bo.text text, bo.id optionid,
+        "SELECT ba.id id, c.id courseid, c.fullname fullname, b.id bookingid, b.name, bo.text, bo.id optionid,
         bo.coursestarttime coursestarttime, bo.courseendtime courseendtime, cm.id cmid
         FROM
         {booking_answers} ba

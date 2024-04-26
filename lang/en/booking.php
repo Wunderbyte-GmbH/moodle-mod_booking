@@ -2390,3 +2390,11 @@ $string['vue_notification_title_action_success'] = 'Configuration was {$a}';
 $string['vue_notification_text_action_success'] = 'Configuration was {$a} successfully.';
 $string['vue_notification_title_action_fail'] = 'Configuration was not  {$a}';
 $string['vue_notification_text_action_fail'] = 'Something went wrong while saving. The changes have not been made.';
+
+// mobile
+$string['mobileapp_heading'] = "Mobile App";
+$string['mobileapp_heading_desc'] = "Choose your booking instance to display on the connected Moodle Mobile Apps.";
+$string['mobileappnobookinginstance'] = "No booking instance on your plattform";
+$string['mobileappnobookinginstance_desc'] = "You need to create at least one booking instance";
+$string['mobileappsetinstance'] = "Booking instance";
+$string['mobileappsetinstancedesc'] = "Choose the Booking instance which should be shown on the mobile app.";

@@ -26,6 +26,7 @@
  */
 
 use mod_booking\output\business_card;
+use mod_booking\output\mobile;
 use mod_booking\output\view;
 use mod_booking\singleton_service;
 
@@ -45,6 +46,8 @@ $whichview = optional_param('whichview', '', PARAM_ALPHA);
 list($course, $cm) = get_course_and_cm_from_cmid($cmid, 'booking');
 require_course_login($course, false, $cm);
 $context = context_module::instance($cm->id);
+
+$return = mobile::mobile_mybookings_list([]);
 
 require_capability('mod/booking:view', $context);
 
