@@ -54,24 +54,52 @@ class mobile {
      */
     public static function mobile_system_view($args) {
 
-        global $OUTPUT;
+        global $DB, $OUTPUT, $USER;
 
-        $data = new stdClass();
+        $cmid = get_config('booking', 'shortcodessetinstance');
 
+        $sql = "SELECT bo.id id, b.course courseid, b.id bookingid, b.name, bo.text, bo.id optionid,
+                bo.coursestarttime coursestarttime, bo.courseendtime courseendtime, cm.id cmid
+                  FROM {booking_options} bo
+             LEFT JOIN
+        {booking} b ON b.id = bo.bookingid
+             LEFT JOIN {course_modules} cm ON cm.instance = b.id
+                 WHERE cm.visible = 1 AND cm.id = :cmid";
 
-        $cmid = get_config('booking', 'mobileappsetinstance');
+        $params = [
+            'cmid' => $cmid,
+            'userid' => $USER->id,
+        ];
 
-        $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
+        $mybookings = $DB->get_records_sql($sql, $params);
 
+        $outputdata = [];
 
+        foreach ($mybookings as $key => $value) {
+            $status = '';
+            $coursestarttime = '';
 
+            if ($value->coursestarttime > 0) {
+                $coursestarttime = userdate($value->coursestarttime);
+            }
+            $status = booking_getoptionstatus($value->coursestarttime, $value->courseendtime);
 
+            $outputdata[] = [
+                'fullname' => $value->fullname ?? '',
+                'name' => $value->name,
+                'text' => $value->text,
+                'status' => $status,
+                'coursestarttime' => $coursestarttime,
+            ];
+        }
+
+        $data = ['mybookings' => $outputdata];
 
         return [
             'templates' => [
                 [
                     'id' => 'main',
-                    'html' => $OUTPUT->render_from_template('mod_booking/mobile/mobile_view_page', $data),
+                    'html' => $OUTPUT->render_from_template('mod_booking/mobile/mobile_mybookings_list', $data),
                 ],
             ],
             'javascript' => '',
