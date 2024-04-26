@@ -134,10 +134,10 @@ class credits extends field_base {
         // We can just overwrite any preivous answer.
         if ($data = $cache->get($cachekey)) {
 
-            $jsonobject = json_decode($newanswer->json);
-
-            if (empty($jsonobject)) {
+            if (!isset($newanswer->json)) {
                 $jsonobject = new stdClass();
+            } else {
+                $jsonobject = json_decode($newanswer->json);
             }
 
             $jsonobject->paidwithcredits = 1;

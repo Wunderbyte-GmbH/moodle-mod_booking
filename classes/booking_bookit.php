@@ -330,6 +330,7 @@ class booking_bookit {
                     $user = singleton_service::get_instance_of_user($userid);
                 } else {
                     $user = $USER;
+                    profile_load_custom_fields($user);
                 }
 
                 if ($user->profile[$profilefield] < $settings->credits) {
