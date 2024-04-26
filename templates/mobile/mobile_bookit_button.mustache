@@ -1,0 +1,89 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/bookit_button
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * data-region
+
+    Example context (json):
+    {
+        "itemid": 12,
+        "area": "option",
+        "userid": 1212,
+        "dataaction": "myAction",
+        "nojs": false,
+        "js": true,
+        "main": {
+                "label": "mylabel",
+                "class": "myclass",
+                "role": "button"
+        },
+        "top": {
+                "label": "mylabel",
+                "class": "myclass",
+                "role": "button"
+        },
+        "sub": {
+                "label": "mylabel",
+                "class": "myclass",
+                "role": "button"
+        }
+    }
+}}
+<div class="booking-button-area noprice w-100"
+    tabindex="0"
+    data-itemid="{{itemid}}"
+    data-componentname="mod_booking"
+    data-area="{{area}}"
+    data-userid="{{userid}}"
+    {{#dataaction}}data-action="{{dataaction}}"{{/dataaction}}
+    {{#nojs}}data-nojs="1"{{/nojs}}>
+    {{#onlist}}
+        <div class="booking-button-notifyarea mb-3">
+            {{> mod_booking/button_notifyme }}
+        </div>
+    {{/onlist}}
+    {{#top}}
+        <div class="booking-button-toparea mb-1 mt-1 p-1 {{class}}"
+             role="{{role}}"
+             {{#nojs}}data-nojs="1"{{/nojs}}>
+            {{{label}}}
+        </div>
+    {{/top}}
+    {{#main}}
+        <div class="booking-button-mainarea p-1 {{class}}" role="{{role}}">
+            {{{label}}}
+        </div>
+    {{/main}}
+    {{#sub}}
+        <div class="booking-button-subarea h6 mb-1 mt-1 p-1 {{class}}" role="{{role}}">
+            {{{label}}}
+        </div>
+    {{/sub}}
+</div>
+
+{{^nojs}}
+    {{#js}}
+        require(['mod_booking/bookit'], function(init) {
+        init.initbookitbutton({{itemid}}, '{{area}}');
+        });
+    {{/js}}
+{{/nojs}}

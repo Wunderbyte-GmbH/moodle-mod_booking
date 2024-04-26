@@ -56,6 +56,24 @@ class mobile {
 
         global $DB, $OUTPUT, $USER;
 
+
+        if ($args['action'] == 'viewdetails') {
+
+            $data = [];
+
+            return [
+                'templates' => [
+                    [
+                        'id' => 'main',
+                        'html' => $OUTPUT->render_from_template('mod_booking/mobile/mobile_mybookings_list', $data),
+                    ],
+                ],
+                'javascript' => '',
+                'otherdata' => '',
+            ];
+
+        }
+
         $cmid = get_config('booking', 'shortcodessetinstance');
 
         $sql = "SELECT bo.id id, b.course courseid, b.id bookingid, b.name, bo.text, bo.id optionid,
@@ -85,11 +103,12 @@ class mobile {
             $status = booking_getoptionstatus($value->coursestarttime, $value->courseendtime);
 
             $outputdata[] = [
-                'fullname' => $value->fullname ?? '',
+                'fullname' => 'fullname',
                 'name' => $value->name,
                 'text' => $value->text,
                 'status' => $status,
                 'coursestarttime' => $coursestarttime,
+                'button' => '',
             ];
         }
 
