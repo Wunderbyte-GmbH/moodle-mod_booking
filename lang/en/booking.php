@@ -2398,3 +2398,5 @@ $string['mobileappnobookinginstance'] = "No booking instance on your plattform";
 $string['mobileappnobookinginstance_desc'] = "You need to create at least one booking instance";
 $string['mobileappsetinstance'] = "Booking instance";
 $string['mobileappsetinstancedesc'] = "Choose the Booking instance which should be shown on the mobile app.";
+$string['details'] = 'Details';
+$string['notbookable'] = "Not bookable";

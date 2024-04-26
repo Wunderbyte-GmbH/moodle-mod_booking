@@ -1,0 +1,52 @@
+{{=<% %>=}}
+
+<div>
+    <ion-card>
+        <ion-card-header>
+            <% text %>
+        </ion-card-header>
+        <ion-card-content>
+
+            <b>
+            {{ 'plugin.mod_booking.description' | translate }}
+            </b><% description %><br>
+
+            <b>
+            {{ 'plugin.mod_booking.location' | translate }}
+            </b> <% location %> <br>
+
+             <b>
+            {{ 'plugin.mod_booking.address' | translate }}
+            </b> <% address %> <br>
+
+            <%#teachers%>
+
+                 <b>
+                {{ 'plugin.mod_booking.firstname' | translate }}
+                </b> <% firstname %> <br>
+                <b>
+                {{ 'plugin.mod_booking.lastname' | translate }}
+                </b> <% lastname %> <br>
+                <b>
+                {{ 'plugin.mod_booking.email' | translate }}
+                </b> <% email %> <br>
+
+            <%/teachers%>
+
+            <%#submit%>
+                <ion-button core-site-plugins-call-ws
+                    name="mod_booking_bookit" [params]="{itemid: <% id %>, area: 'option', userid: <% userid %>, data:''}"
+                    [preSets]="{getFromCache: 0, saveToCache: 0}"
+                    refreshOnSuccess="true">
+                    <% label %>
+                </ion-button>
+            <%/submit%>
+
+            <%#nosubmit%>
+                <ion-button>
+                    <% label %>
+                </ion-button>
+            <%/nosubmit%>
+        </ion-card-content>
+    </ion-card>
+</div>

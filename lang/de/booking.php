@@ -2267,3 +2267,5 @@ $string['mobileappnobookinginstance'] = "Keine Buchungsinstanz auf Ihrer Plattfo
 $string['mobileappnobookinginstance_desc'] = "Sie müssen mindestens eine Buchungsinstanz erstellen.";
 $string['mobileappsetinstance'] = "Buchungsinstanz";
 $string['mobileappsetinstancedesc'] = "Wählen Sie die Buchungsinstanz aus, die in der mobilen App angezeigt werden soll.";
+$string['details'] = 'Details';
+$string['notbookable'] = "Nicht buchbar";

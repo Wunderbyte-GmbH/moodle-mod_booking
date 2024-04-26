@@ -777,7 +777,7 @@ if ($ADMIN->fulltree) {
         $settings->add(
             new admin_setting_heading('mobileapp_heading',
                 get_string('mobileapp_heading', 'mod_booking'),
-                get_string('mobileapp_heading_des', 'mod_booking')));
+                get_string('mobileapp_heading_desc', 'mod_booking')));
 
         $allowedinstances = [];
 

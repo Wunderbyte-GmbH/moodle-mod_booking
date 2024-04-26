@@ -30,8 +30,10 @@ defined('MOODLE_INTERNAL') || die();
 use context_module;
 use context;
 use mod_booking\booking;
+use mod_booking\booking_bookit;
 use mod_booking\places;
 use mod_booking\singleton_service;
+use moodle_exception;
 use stdClass;
 
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
@@ -110,6 +112,8 @@ class mobile {
                 'status' => $status,
                 'coursestarttime' => $coursestarttime,
                 'button' => '',
+                'optionid' => $value->optionid,
+                'userid' => $value->userid,
             ];
         }
 
@@ -120,6 +124,60 @@ class mobile {
                 [
                     'id' => 'main',
                     'html' => $OUTPUT->render_from_template('mod_booking/mobile/mobile_mybookings_list', $data),
+                ],
+            ],
+            'javascript' => '',
+            'otherdata' => '',
+        ];
+    }
+
+    /**
+     * Returns detail view of booking option
+     *
+     * @param array $args Arguments from tool_mobile_get_content WS
+     * @return array HTML, javascript and otherdata
+     */
+    public static function mobile_booking_option_details($args) {
+
+        global $OPTION, $DB, $OUTPUT, $USER;
+
+        if (empty($args['optionid'])) {
+            throw new moodle_exception('nooptionid', 'mod_booking');
+        }
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($args['optionid']);
+
+        $data = (array)$settings->return_settings_as_stdclass();
+        $teachers = [];
+        foreach ($data['teachers'] as $teacher) {
+
+            $teacher->email = str_replace('@', '&#64;', $teacher->email);
+
+            $teachers[] = (array)$teacher;
+        }
+
+        $data['teachers'] = $teachers;
+        $data['userid'] = $USER->id;
+
+        // Now we render the button for this option & user.
+
+        list($templates, $button) = booking_bookit::render_bookit_template_data($settings);
+
+        $ba = singleton_service::get_instance_of_booking_answers($settings);
+        $button = reset($button);
+
+        if (isset($button->data['nojs']) && $button->data['nojs'] === false) {
+
+            $data['submit']['label'] = $button->data['main']['label'];
+        } else {
+            $data['nosubmit']['label'] = $button->data['main']['label'] ?? get_string('notbookable', 'mod_booking');
+        }
+
+        return [
+            'templates' => [
+                [
+                    'id' => 'main',
+                    'html' => $OUTPUT->render_from_template('mod_booking/mobile/mobile_booking_option_details', $data),
                 ],
             ],
             'javascript' => '',

@@ -26,13 +26,13 @@
 defined('MOODLE_INTERNAL') || die();
 
 $functions = [
-    'mod_booking_update_bookingnotes' => [
-        'classname' => 'mod_booking\external\update_bookingnotes',
-        'description' => 'Update the booking notes via AJAX',
+    'mod_booking_bookit' => [
+        'classname' => 'mod_booking\external\bookit',
+        'description' => 'Book option or suboption via ajax',
         'type' => 'write',
+        'capabilities' => 'mod/booking:choose',
         'ajax' => true,
-        'capabilities' => 'mod/booking:readresponses',
-        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile'],
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE, 'moodle_mobile_app'],
     ],
     'mod_booking_addbookingoption' => [ // Function will be added manually to service, only for admin use.
         'classname' => 'mod_booking\external\addbookingoption',
@@ -89,14 +89,6 @@ $functions = [
         'type' => 'read',
         'capabilities' => '',
         'ajax' => true,
-    ],
-    'mod_booking_bookit' => [
-        'classname' => 'mod_booking\external\bookit',
-        'description' => 'Book option or suboption via ajax',
-        'type' => 'write',
-        'capabilities' => '',
-        'ajax' => true,
-        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE, 'moodle_mobile_app'],
     ],
     'mod_booking_init_comments' => [
         'classname' => 'mod_booking\external\init_comments',

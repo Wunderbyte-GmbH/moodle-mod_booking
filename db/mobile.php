@@ -53,8 +53,21 @@ $addons = [
             ['showmybookingsonly', 'booking'],
             ['showmybookingsonly', 'booking'],
             ['mybookingsbooking', 'booking'],
+            ['details', 'mod_booking'],
             ['status', 'booking'],
-            ['coursestarttime', 'booking']
+            ['coursestarttime', 'booking'],
+            ['courseendtime', 'booking'],
+            ['description', 'mod_booking'],
+            ['location', 'mod_booking'],
+            ['address', 'mod_booking'],
+            ['firstname', 'mod_booking'],
+            ['lastname', 'mod_booking'],
+            ['email', 'mod_booking'],
+            ['next', 'mod_booking'],
+            ['previous', 'mod_booking'],
+            ['booking:choose', 'mod_booking'],
+            ['areyousure:book', 'mod_booking'],
+            ['booked', 'mod_booking'],
         ]
     ]
 ];
