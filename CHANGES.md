@@ -1,3 +1,17 @@
+## Version 8.2.7 (2024042600)
+* Improvement: Clean up ical settings and remove deprecated handling of options with single-session.
+* Improvement: Mark invisible optiondates in entity calendar (gray and with [invisible] prefix).
+* Improvement: Make sure that only authorized users (with capability booking:canseeinvisibleoptions) are able to see invisible options in entity calendar.
+* Improvement: Create method to destroy instance of user object (because of fails in phpunit tests).
+* Improvement: Make sure entities are restored for optiondates when duplicating courses and kept when recreating new date series.
+* Improvement: Always show title with prefix.
+* Bugfix: Move context_system to context_module.
+* Bugfix: Fix customform.
+* Bugfix: Fix possible problem with missing titleprefix.
+* Bugfix: Fix validation of course category when creating new Moodle course together with booking option.
+* Bugfix: Fix credits when there is also a price.
+* Bugfix: Fix deprecation warning.
+
 ## Version 8.2.6 (2024042200)
 * Improvement: New php unit tests and behat tests and improvements for existing ones.
 * Improvement: Add book anyone capability.
