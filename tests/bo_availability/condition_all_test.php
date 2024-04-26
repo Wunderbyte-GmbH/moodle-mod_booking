@@ -73,27 +73,14 @@ class condition_all_test extends advanced_testcase {
      * @covers \condition\notifymelist::is_available
      * @throws \coding_exception
      * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
      */
     public function test_booking_bookit_simple() {
         global $DB, $CFG;
 
-        $bdata = [
-            'name' => 'Test Booking 1',
-            'eventtype' => 'Test event',
-            'enablecompletion' => 1,
-            'bookedtext' => ['text' => 'text'],
-            'waitingtext' => ['text' => 'text'],
-            'notifyemail' => ['text' => 'text'],
-            'statuschangetext' => ['text' => 'text'],
-            'deletedtext' => ['text' => 'text'],
-            'pollurltext' => ['text' => 'text'],
-            'pollurlteacherstext' => ['text' => 'text'],
-            'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
-            'tags' => '',
-            'completion' => 2,
-            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
-            'cancancelbook' => 1,
-        ];
+        $bdata['cancancelbook'] = 1;
+
         // Setup test data.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
@@ -110,8 +97,6 @@ class condition_all_test extends advanced_testcase {
         $bdata['bookingmanager'] = $bookingmanager->username;
 
         $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
-
-        $bdata['name'] = 'Test Booking 2';
 
         $this->setAdminUser();
 
@@ -231,29 +216,16 @@ class condition_all_test extends advanced_testcase {
      * @covers \option\fields\addtogroup::save_data
      * @throws \coding_exception
      * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
      */
     public function test_booking_bookit_add_to_group() {
         global $DB, $CFG;
 
-        $bdata = [
-            'name' => 'Test Booking 1',
-            'eventtype' => 'Test event',
-            'enablecompletion' => 1,
-            'bookedtext' => ['text' => 'text'],
-            'waitingtext' => ['text' => 'text'],
-            'notifyemail' => ['text' => 'text'],
-            'statuschangetext' => ['text' => 'text'],
-            'deletedtext' => ['text' => 'text'],
-            'pollurltext' => ['text' => 'text'],
-            'pollurlteacherstext' => ['text' => 'text'],
-            'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
-            'tags' => '',
-            'completion' => 2,
-            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
-            'cancancelbook' => 1,
-            'addtogroup' => 1,
-            'autoenrol' => "1",
-        ];
+        $bdata['cancancelbook'] = 1;
+        $bdata['addtogroup'] = 1;
+        $bdata['autoenrol'] = "1";
+
         // Setup test data.
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
@@ -271,8 +243,6 @@ class condition_all_test extends advanced_testcase {
         $bdata['bookingmanager'] = $bookingmanager->username;
 
         $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
-
-        $bdata['name'] = 'Test Booking 2';
 
         $this->setAdminUser();
 
@@ -342,27 +312,14 @@ class condition_all_test extends advanced_testcase {
      * @covers \condition\boking_time::is_available
      * @throws \coding_exception
      * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
      */
     public function test_booking_bookit_bookingtime() {
         global $DB, $CFG;
 
-        $bdata = [
-            'name' => 'Test Booking 1',
-            'eventtype' => 'Test event',
-            'enablecompletion' => 1,
-            'bookedtext' => ['text' => 'text'],
-            'waitingtext' => ['text' => 'text'],
-            'notifyemail' => ['text' => 'text'],
-            'statuschangetext' => ['text' => 'text'],
-            'deletedtext' => ['text' => 'text'],
-            'pollurltext' => ['text' => 'text'],
-            'pollurlteacherstext' => ['text' => 'text'],
-            'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
-            'tags' => '',
-            'completion' => 2,
-            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
-            'cancancelbook' => 1,
-        ];
+        $bdata['cancancelbook'] = 1;
+
         // Setup test data.
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
@@ -380,8 +337,6 @@ class condition_all_test extends advanced_testcase {
         $bdata['bookingmanager'] = $bookingmanager->username;
 
         $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
-
-        $bdata['name'] = 'Test Booking 2';
 
         $this->setAdminUser();
 
@@ -436,27 +391,14 @@ class condition_all_test extends advanced_testcase {
      * @covers \condition\askforconfirmation::render_page
      * @throws \coding_exception
      * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
      */
     public function test_booking_bookit_askforconfirmation() {
         global $DB, $CFG;
 
-        $bdata = [
-            'name' => 'Test Booking 1',
-            'eventtype' => 'Test event',
-            'enablecompletion' => 1,
-            'bookedtext' => ['text' => 'text'],
-            'waitingtext' => ['text' => 'text'],
-            'notifyemail' => ['text' => 'text'],
-            'statuschangetext' => ['text' => 'text'],
-            'deletedtext' => ['text' => 'text'],
-            'pollurltext' => ['text' => 'text'],
-            'pollurlteacherstext' => ['text' => 'text'],
-            'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
-            'tags' => '',
-            'completion' => 2,
-            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
-            'cancancelbook' => 1,
-        ];
+        $bdata['cancancelbook'] = 1;
+
         // Setup test data.
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
@@ -474,8 +416,6 @@ class condition_all_test extends advanced_testcase {
         $bdata['bookingmanager'] = $bookingmanager->username;
 
         $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
-
-        $bdata['name'] = 'Test Booking 2';
 
         $this->setAdminUser();
 
@@ -531,27 +471,14 @@ class condition_all_test extends advanced_testcase {
      * @covers \condition\priceset::is_available
      * @throws \coding_exception
      * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
      */
     public function test_booking_bookit_askforconfirmation_with_price() {
         global $DB, $CFG;
 
-        $bdata = [
-            'name' => 'Test Booking 1',
-            'eventtype' => 'Test event',
-            'enablecompletion' => 1,
-            'bookedtext' => ['text' => 'text'],
-            'waitingtext' => ['text' => 'text'],
-            'notifyemail' => ['text' => 'text'],
-            'statuschangetext' => ['text' => 'text'],
-            'deletedtext' => ['text' => 'text'],
-            'pollurltext' => ['text' => 'text'],
-            'pollurlteacherstext' => ['text' => 'text'],
-            'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
-            'tags' => '',
-            'completion' => 2,
-            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
-            'cancancelbook' => 1,
-        ];
+        $bdata['cancancelbook'] = 1;
+
         // Setup test data.
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
@@ -569,8 +496,6 @@ class condition_all_test extends advanced_testcase {
         $bdata['bookingmanager'] = $bookingmanager->username;
 
         $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
-
-        $bdata['name'] = 'Test Booking 2';
 
         $this->setAdminUser();
 
@@ -729,14 +654,13 @@ class condition_all_test extends advanced_testcase {
         $this->setUser($student4);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student4->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
-
     }
 
     /**
      * Test booking option availability: \condition\bookwithcredits.
      *
-     * @covers \condition\userprofilefield_1_default::is_available
-     * @covers \condition\userprofilefield_2_custom::is_available
+     * @covers \condition\bookwithcredits::is_available
+     * @covers \condition\confirmbookwithcredits::is_available
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -755,7 +679,6 @@ class condition_all_test extends advanced_testcase {
         // Create custom profile field.
         $this->getDataGenerator()->create_custom_profile_field(['datatype' => 'text', 'shortname' => 'credit', 'name' => 'Credit',
         'visible' => PROFILE_VISIBLE_NONE]);
-        //set_config('showuseridentity', 'username,email,profile_field_sport');
 
         // Create users.
         $users = [
