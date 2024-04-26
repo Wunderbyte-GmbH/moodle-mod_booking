@@ -76,7 +76,7 @@ class mobile {
 
         $cmid = get_config('booking', 'shortcodessetinstance');
 
-        $sql = "SELECT bo.id id, b.course courseid, b.id bookingid, b.name, bo.text, bo.id optionid,
+        $sql = "SELECT bo.id id, b.course courseid, b.id bookingid, b.name, bo.text, bo.id optionid, :userid1 userid,
                 bo.coursestarttime coursestarttime, bo.courseendtime courseendtime, cm.id cmid
                   FROM {booking_options} bo
              LEFT JOIN
@@ -87,6 +87,7 @@ class mobile {
         $params = [
             'cmid' => $cmid,
             'userid' => $USER->id,
+            'userid1' => $USER->id,
         ];
 
         $mybookings = $DB->get_records_sql($sql, $params);

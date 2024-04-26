@@ -96,6 +96,7 @@ $functions = [
         'type' => 'write',
         'capabilities' => '',
         'ajax' => true,
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile'],
     ],
     'mod_booking_init_comments' => [
         'classname' => 'mod_booking\external\init_comments',
