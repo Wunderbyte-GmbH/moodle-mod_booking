@@ -2259,3 +2259,11 @@ $string['vue_notification_title_action_success'] = 'Die Konfiguration wurde erfo
 $string['vue_notification_text_action_success'] = 'Die Konfiguration wurde erfolgreich {$a}.';
 $string['vue_notification_title_action_fail'] = 'Die Konfiguration wurde nicht erfolgreich {$a}';
 $string['vue_notification_text_action_fail'] = 'Beim Speichern ist ein Fehler aufgetreten. Die Änderungen wurden nicht vorgenommen.';
+
+// mobile
+$string['mobileapp_heading'] = "Mobile App";
+$string['mobileapp_heading_desc'] = "Wählen Sie Ihre Buchungsinstanz aus, die in den verbundenen Moodle Mobile Apps angezeigt werden soll.";
+$string['mobileappnobookinginstance'] = "Keine Buchungsinstanz auf Ihrer Plattform";
+$string['mobileappnobookinginstance_desc'] = "Sie müssen mindestens eine Buchungsinstanz erstellen.";
+$string['mobileappsetinstance'] = "Buchungsinstanz";
+$string['mobileappsetinstancedesc'] = "Wählen Sie die Buchungsinstanz aus, die in der mobilen App angezeigt werden soll.";

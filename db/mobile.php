@@ -18,7 +18,7 @@ defined('MOODLE_INTERNAL') || die();
 $addons = [
     "mod_booking" => [
         'handlers' => [
-            'coursebooking' => [
+            'bookingslist' => [
                 'displaydata' => [
                 'icon' => $CFG->wwwroot . '/mod/booking/pix/icon.png', 'class' => ''
                 ],

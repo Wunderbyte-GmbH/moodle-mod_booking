@@ -770,6 +770,51 @@ if ($ADMIN->fulltree) {
             get_string('globalpollurlteacherstext', 'booking'), '', ''));
 
         // TODO: globalactivitycompletiontext is currently not implemented because activitycompletiontext isn't either.
+
+        // PRO feature.
+    if ($proversion) {
+
+        $settings->add(
+            new admin_setting_heading('mobileapp_heading',
+                get_string('mobileapp_heading', 'mod_booking'),
+                get_string('mobileapp_heading_des', 'mod_booking')));
+
+        $allowedinstances = [];
+
+        if ($records = $DB->get_records_sql(
+            "SELECT cm.id cmid, b.name bookingname
+            FROM {course_modules} cm
+            LEFT JOIN {booking} b
+            ON b.id = cm.instance
+            WHERE cm.module IN (
+                SELECT id
+                FROM {modules} m
+                WHERE m.name = 'booking'
+            )"
+        )) {
+            foreach ($records as $record) {
+                $allowedinstances[$record->cmid] = "$record->bookingname (ID: $record->cmid)";
+                $defaultcmid = $record->cmid; // Last cmid will be the default one.
+            }
+        }
+
+        if (empty($allowedinstances)) {
+            // If we have no instances, show an explanation text.
+            $settings->add(new admin_setting_description(
+                'mobileappnobookinginstance',
+                get_string('mobileappnobookinginstance', 'mod_booking'),
+                get_string('mobileappnobookinginstancedesc', 'mod_booking')
+            ));
+        } else {
+            // Show select for cmids of booking instances.
+            $settings->add(
+                new admin_setting_configselect('booking/shortcodessetinstance',
+                    get_string('mobileappsetinstance', 'mod_booking'),
+                    get_string('mobileappsetinstancedesc', 'mod_booking'),
+                    $defaultcmid, $allowedinstances));
+        }
+
+    }
     }
 }
 
