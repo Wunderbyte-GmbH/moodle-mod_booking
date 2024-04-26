@@ -52,6 +52,30 @@ class mobile {
      * @param array $args Arguments from tool_mobile_get_content WS
      * @return array HTML, javascript and otherdata
      */
+    public static function mobile_system_view($args) {
+
+        global $OUTPUT;
+
+        $data = new stdClass();
+
+        return [
+            'templates' => [
+                [
+                    'id' => 'main',
+                    'html' => $OUTPUT->render_from_template('mod_booking/mobile/mobile_view_page', $data),
+                ],
+            ],
+            'javascript' => '',
+            'otherdata' => '',
+        ];
+    }
+
+    /**
+     * Returns all my bookings view for mobile app.
+     *
+     * @param array $args Arguments from tool_mobile_get_content WS
+     * @return array HTML, javascript and otherdata
+     */
     public static function mobile_mybookings_list($args) {
         global $OUTPUT, $USER, $DB;
 
@@ -101,7 +125,7 @@ class mobile {
             'templates' => [
                 [
                     'id' => 'main',
-                    'html' => $OUTPUT->render_from_template('mod_booking/mobile_mybookings_list', $data),
+                    'html' => $OUTPUT->render_from_template('mod_booking/mobile/mobile_mybookings_list', $data),
                 ],
             ],
             'javascript' => '',
@@ -194,7 +218,7 @@ class mobile {
 
                 [
                     'id' => 'main',
-                    'html' => $OUTPUT->render_from_template('mod_booking/mobile_view_page', $data),
+                    'html' => $OUTPUT->render_from_template('mod_booking/mobile/mobile_view_page', $data),
                 ],
             ], 'javascript' => '', 'otherdata' => ['searchstring' => $searchstring],
 
