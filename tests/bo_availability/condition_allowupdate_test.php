@@ -72,30 +72,18 @@ class condition_allowupdate_test extends advanced_testcase {
      *
      * @covers \condition\iscancelled::is_available
      * @covers \condition\hasstarted::is_available
+     * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
      */
-    public function test_booking_bookit_allowupdate() {
+    public function test_booking_bookit_allowupdate(array $bdata) {
         global $DB, $CFG;
 
-        $bdata = [
-            'name' => 'Test Booking 1',
-            'eventtype' => 'Test event',
-            'enablecompletion' => 1,
-            'bookedtext' => ['text' => 'text'],
-            'waitingtext' => ['text' => 'text'],
-            'notifyemail' => ['text' => 'text'],
-            'statuschangetext' => ['text' => 'text'],
-            'deletedtext' => ['text' => 'text'],
-            'pollurltext' => ['text' => 'text'],
-            'pollurlteacherstext' => ['text' => 'text'],
-            'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
-            'tags' => '',
-            'completion' => 2,
-            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
-            'cancancelbook' => 1,
-            'allowupdate' => 0,
-        ];
+        $bdata['cancancelbook'] = 1;
+        $bdata['allowupdate'] = 0;
+
         // Setup test data.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
@@ -103,8 +91,6 @@ class condition_allowupdate_test extends advanced_testcase {
         $admin = $this->getDataGenerator()->create_user();
         $student1 = $this->getDataGenerator()->create_user();
         $student2 = $this->getDataGenerator()->create_user();
-        $student3 = $this->getDataGenerator()->create_user();
-        $student4 = $this->getDataGenerator()->create_user();
         $teacher = $this->getDataGenerator()->create_user();
         $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
 
@@ -118,8 +104,6 @@ class condition_allowupdate_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($admin->id, $course->id);
         $this->getDataGenerator()->enrol_user($student1->id, $course->id);
         $this->getDataGenerator()->enrol_user($student2->id, $course->id);
-        $this->getDataGenerator()->enrol_user($student3->id, $course->id);
-        $this->getDataGenerator()->enrol_user($student4->id, $course->id);
         $this->getDataGenerator()->enrol_user($teacher->id, $course->id);
         $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id);
 
@@ -160,32 +144,20 @@ class condition_allowupdate_test extends advanced_testcase {
     }
 
     /**
-     * Test isbookable etc.
+     * Test isbookable, bookitbutton, alreadybooked.
      *
      * @covers \condition\isbookable::is_available
-     * @covers \condition\hasstarted::is_available
+     * @covers \condition\bookitbutton::is_available
+     * @covers \condition\alreadybooked::is_available
+     * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
      */
-    public function test_booking_bookit_isbookable() {
+    public function test_booking_bookit_isbookable(array $bdata) {
         global $DB, $CFG;
 
-        $bdata = [
-            'name' => 'Test Booking 1',
-            'eventtype' => 'Test event',
-            'enablecompletion' => 1,
-            'bookedtext' => ['text' => 'text'],
-            'waitingtext' => ['text' => 'text'],
-            'notifyemail' => ['text' => 'text'],
-            'statuschangetext' => ['text' => 'text'],
-            'deletedtext' => ['text' => 'text'],
-            'pollurltext' => ['text' => 'text'],
-            'pollurlteacherstext' => ['text' => 'text'],
-            'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
-            'tags' => '',
-            'completion' => 2,
-            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
-        ];
         // Setup test data.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
@@ -244,5 +216,31 @@ class condition_allowupdate_test extends advanced_testcase {
         $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
         list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+    }
+
+    /**
+     * Data provider for condition_allowupdate_test
+     *
+     * @return array
+     * @throws \UnexpectedValueException
+     */
+    public static function booking_common_settings_provider(): array {
+        $bdata = [
+            'name' => 'Test Booking Policy 1',
+            'eventtype' => 'Test event',
+            'enablecompletion' => 1,
+            'bookedtext' => ['text' => 'text'],
+            'waitingtext' => ['text' => 'text'],
+            'notifyemail' => ['text' => 'text'],
+            'statuschangetext' => ['text' => 'text'],
+            'deletedtext' => ['text' => 'text'],
+            'pollurltext' => ['text' => 'text'],
+            'pollurlteacherstext' => ['text' => 'text'],
+            'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
+            'tags' => '',
+            'completion' => 2,
+            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
+        ];
+        return ['bdata' => [$bdata]];
     }
 }
