@@ -556,7 +556,14 @@ class condition_all_test extends advanced_testcase {
 
         // Admin confirms the users booking.
         $this->setAdminUser();
+        // Add to the shopping_cart - set ALREADYRESERVED and verify status.
+        $option->user_submit_response($student1, 0, 0, 1, MOD_BOOKING_VERIFIED);
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYRESERVED, $id);
+
+        // Confirm user's booking.
         $option->user_submit_response($student1, 0, 0, 2, MOD_BOOKING_VERIFIED);
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
 
         $this->setUser($student1);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
