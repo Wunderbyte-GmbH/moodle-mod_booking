@@ -15,10 +15,12 @@
             </h3>
         </ion-card-header>
         <ion-card-content>
-            <b>
-            {{ 'plugin.mod_booking.description' | translate }}
-            </b> <% description %> <br>
-            <br>
+            <%# description %>
+                <b>
+                {{ 'plugin.mod_booking.description' | translate }}
+                </b> <% description %> <br>
+                <br>
+            <%/ description %>
             <%# teachers %>
                 <div><% firstname %> <% lastname %> (<% email %>)</div>
             <%/ teachers %>
@@ -31,6 +33,11 @@
             <%# sessions.0 %>
             <br>
             <%/ sessions.0 %>
+
+            <%# price %>
+                <h4><% price %> <% currency %></h4>
+                <br>
+            <%/ price %>
 
             <ion-button core-site-plugins-new-content
                 title="<% text %>" component="mod_booking"
