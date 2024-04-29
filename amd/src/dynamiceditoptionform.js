@@ -89,17 +89,26 @@ export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => 
         }
 
         if (e.target.name == 'restrictanswerperiodopening' || e.target.name == 'restrictanswerperiodclosing') {
-            if (!checkbox1.checked && !checkbox2.checked) {
-            closest.style.display = "none";
-            conditionalCheckbox.value = "0";
-            } else {
-            closest.style.display = "";
-            }
+            hidecheckbox(checkbox1, checkbox2, closest, conditionalCheckbox, true);
 
         }
     });
+    hidecheckbox(checkbox1, checkbox2, closest, conditionalCheckbox, false);
+};
+
+/**
+ *
+ * @param {mixed} checkbox1
+ * @param {mixed} checkbox2
+ * @param {mixed} closest
+ * @param {mixed} conditionalCheckbox
+ * @param {boolean} withelse
+ */
+function hidecheckbox(checkbox1, checkbox2, closest, conditionalCheckbox, withelse) {
     if (!checkbox1.checked && !checkbox2.checked) {
         closest.style.display = "none";
         conditionalCheckbox.value = "0";
+    } else if (withelse) {
+        closest.style.display = "";
     }
-};
+}
