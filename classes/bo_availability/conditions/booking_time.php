@@ -110,6 +110,33 @@ class booking_time implements bo_condition {
     }
 
     /**
+     * Each function can return additional sql.
+     * This will be used if the conditions should not only block booking...
+     * ... but actually hide the conditons alltogether.
+     *
+     * @return array
+     */
+    public function return_sql(): array {
+
+        $where = "((bookingopeningtime < 1 OR bookingopeningtime < :bookingopeningtimenow1)
+                  AND (bookingclosingtime < 1 OR bookingclosingtime > :bookingopeningtimenow2))";
+
+        // Using realtime here would destroy our caching.
+        // Cache would be invalidated every second.
+        // Therefore, the filter of bookingopeningtime goes on the timestamp of 00:00.
+        // Closing on 23:59.
+        $nowstart = strtotime('today 00:00');
+        $nowend = strtotime('today 23:59');
+
+        $params = [
+            'bookingopeningtimenow1' => $nowstart,
+            'bookingopeningtimenow2' => $nowend,
+        ];
+
+        return ['', '', '', $params, $where];;
+    }
+
+    /**
      * The hard block is complementary to the is_available check.
      * While is_available is used to build eg also the prebooking modals and...
      * ... introduces eg the booking policy or the subbooking page, the hard block is meant to prevent ...

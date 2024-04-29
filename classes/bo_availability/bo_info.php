@@ -469,6 +469,49 @@ class bo_info {
     }
 
     /**
+     * Add the sql from the conditions.
+     *
+     * @return void
+     */
+    public static function return_sql_from_conditions() {
+
+        // First, we get all the relevant conditions.
+        $conditions = self::get_conditions(MOD_BOOKING_CONDPARAM_MFORM_ONLY);
+        $selectall = '';
+        $fromall = '';
+        $filterall = '';
+        $paramsarray = [];
+        foreach ($conditions as $class) {
+
+            $condition = new $class();
+
+            list($select, $from, $filter, $params, $where) = $condition->return_sql();
+
+            $selectall .= $select;
+            $fromall .= $from;
+            $filterall .= $filter;
+            if (!empty($where)) {
+                $wherearray[] = $where;
+            }
+            $paramsarray = array_merge($paramsarray, $params);
+
+        }
+
+        $where = implode(" AND ", $wherearray);
+
+        // For performance reason we have a flag if we need to check the value at all.
+        $where = " (
+                        sqlfilter < 1 OR (
+                            $where
+                            )
+                        )
+                        ";
+
+        return ['', '', '', $paramsarray, $where];
+        // return [$select, $from, $filter, $params, $where];
+    }
+
+    /**
      * Returns conditions depending on the conditions param.
      *
      * @param int $condparam conditions parameter

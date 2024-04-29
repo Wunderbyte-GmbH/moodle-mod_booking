@@ -95,6 +95,18 @@ class electivebookitbutton implements bo_condition {
     }
 
     /**
+     * Each function can return additional sql.
+     * This will be used if the conditions should not only block booking...
+     * ... but actually hide the conditons alltogether.
+     *
+     * @return array
+     */
+    public function return_sql(): array {
+
+        return ['', '', '', [], ''];
+    }
+
+    /**
      * The hard block is complementary to the is_available check.
      * While is_available is used to build eg also the prebooking modals and...
      * ... introduces eg the booking policy or the subbooking page, the hard block is meant to prevent ...

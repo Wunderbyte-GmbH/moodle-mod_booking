@@ -29,6 +29,7 @@ use context_module;
 use course_modinfo;
 use html_writer;
 use local_entities\local\entities\entitydate;
+use mod_booking\bo_availability\bo_info;
 use mod_booking\teachers_handler;
 use moodle_exception;
 use stdClass;
@@ -1092,6 +1093,7 @@ class booking {
         list($select1, $from1, $filter1, $params1) = booking_option_settings::return_sql_for_customfield();
         list($select2, $from2, $filter2, $params2) = booking_option_settings::return_sql_for_teachers();
         list($select3, $from3, $filter3, $params3) = booking_option_settings::return_sql_for_imagefiles();
+        list($select4, $from4, $filter4, $params4, $additionalwhere) = bo_info::return_sql_from_conditions();
 
         // The $outerfrom takes all the select from the supplementary selects.
         $outerfrom .= !empty($select1) ? ", $select1 " : '';
@@ -1122,7 +1124,7 @@ class booking {
         $groupby = implode(" , ", $groupbyarray);
 
         // Now we merge all the params arrays.
-        $params = array_merge($params, $params1, $params2, $params3);
+        $params = array_merge($params, $params1, $params2, $params3, $params4);
 
         // We build everything together.
         $from = $outerfrom;
@@ -1200,6 +1202,11 @@ class booking {
                 $where .= " AND " . $DB->sql_like("$key", ":$paramsvaluekey", false);
                 $params[$paramsvaluekey] = $value;
             }
+        }
+
+        // We add sql from conditions, if there is any.
+        if (!empty($conditionsql)) {
+            $where .= " AND " . $conditionsql;
         }
 
         // We add additional conditions to $where, if there are any.
