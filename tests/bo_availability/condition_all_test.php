@@ -797,6 +797,7 @@ class condition_all_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id);
 
         // Disable allowoverbooking at all.
+        $res = set_config('allowoverbooking', 0, 'booking');
         $res = set_config('allowoverbooking', null, 'booking');
 
         $record = new stdClass();
