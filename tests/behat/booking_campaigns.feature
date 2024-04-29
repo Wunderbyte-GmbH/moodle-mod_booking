@@ -31,9 +31,10 @@ Feature: Create booking campaigns for booking options as admin and booking it as
       | 2        | discount1  | Disc1 | 77           | 0        | 2                 |
       | 3        | discount2  | Disc2 | 66           | 0        | 3                 |
     And the following "mod_booking > options" exist:
-      | booking     | text            | course | description    | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | optiondateid_2 | daystonotify_2 | coursestarttime_2 | courseendtime_2 | useprice | customfield_spt1 |
-      | BookingCMP  | Option-tenis    | C1     | Deskr-tenis    | 1            | 2          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | tenis            |
-      | BookingCMP  | Option-football | C1     | Deskr-football | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | football         |
+      | booking     | text            | course | description    | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | optiondateid_2 | daystonotify_2 | coursestarttime_2 | courseendtime_2 | useprice | customfield_spt1 |
+      | BookingCMP  | Option-tenis    | C1     | Price-tenis    | 1          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | tenis            |
+      | BookingCMP  | Option-football | C1     | Price-football | 2          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | football         |
+      | BookingCMP  | Option-yoga     | C1     | Yoga-noprice   | 3          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | yoga             |
     And I change viewport size to "1366x10000"
 
   @javascript
@@ -69,7 +70,46 @@ Feature: Create booking campaigns for booking options as admin and booking it as
     When I am on the "BookingCMP" Activity page logged in as teacher1
     Then I should see "Option-football" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "88.00 EUR" in the ".allbookingoptionstable_r1 .pricecurrency" "css_element"
-    And I should see "/ 4" in the ".allbookingoptionstable_r1 .col-ap-availableplaces" "css_element"
+    And I should see "/ 2" in the ".allbookingoptionstable_r1 .col-ap-availableplaces" "css_element"
     And I should see "Option-tenis" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "44.00 EUR" in the ".allbookingoptionstable_r2 .pricecurrency" "css_element"
-    And I should see "/ 2" in the ".allbookingoptionstable_r2 .col-ap-availableplaces" "css_element"
+    And I should see "/ 1" in the ".allbookingoptionstable_r2 .col-ap-availableplaces" "css_element"
+
+  @javascript
+  Scenario: Booking campaigns: create bloking booking campaign via DB view and book as students
+    Given the following "mod_booking > campaigns" exist:
+      | name      | type | json                                                                                                                                                | starttime   | endtime        | pricefactor | limitfactor |
+      | campaign3 | 1    | {"fieldname":"spt1","fieldvalue":"yoga","blockoperator":"blockabove","blockinglabel":"Above30","hascapability":null,"percentageavailableplaces":30} | ## today ## | ## + 1 year ## | 1           | 1           |
+    ## Verify "above" blocking campaing - student1 can book
+    When I am on the "BookingCMP" Activity page logged in as student1
+    And I should see "Option-football" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "88.00 EUR" in the ".allbookingoptionstable_r1 .pricecurrency" "css_element"
+    And I should see "/ 2" in the ".allbookingoptionstable_r1 .col-ap-availableplaces" "css_element"
+    And I should see "Option-tenis" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "88.00 EUR" in the ".allbookingoptionstable_r2 .pricecurrency" "css_element"
+    And I should see "/ 1" in the ".allbookingoptionstable_r2 .col-ap-availableplaces" "css_element"
+    And I should see "Option-yoga" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r3 .booknow" "css_element"
+    And I should see "/ 3" in the ".allbookingoptionstable_r3 .col-ap-availableplaces" "css_element"
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r3 .booknow" "css_element"
+    And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Booked" in the ".allbookingoptionstable_r3" "css_element"
+    And I log out
+    ## Verify "above" blocking campaing - student2 can NOT book
+    And I am on the "BookingCMP" Activity page logged in as student2
+    Then I should see "Above30" in the ".allbookingoptionstable_r3 .booknow" "css_element"
+    And I should not see "Book now" in the ".allbookingoptionstable_r3 .booknow" "css_element"
+    And I log out
+    ## Verify "above" blocking campaing - book student2 by admin
+    And I am on the "BookingCMP" Activity page logged in as admin
+    And I should see "Above30" in the ".allbookingoptionstable_r3 .booknow" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r3 .booknow" "css_element"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Book other users" "link" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Student 2 (student2@example.com)" "text"
+    And I click on "Add" "button"
+    And I follow "<< Back to responses"
+    And I should see "Student 1 (student1)" in the "#mod_booking_all_users_sort_new_r0_c2" "css_element"
+    And I should see "Student 2 (student2)" in the "#mod_booking_all_users_sort_new_r1_c2" "css_element"
+    And I log out
