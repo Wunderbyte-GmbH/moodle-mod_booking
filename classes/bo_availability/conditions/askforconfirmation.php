@@ -96,7 +96,14 @@ class askforconfirmation implements bo_condition {
             || (!empty($settings->jsonobject->useprice))
                 && (isset($bookinginformation['notbooked']['fullybooked']) &&
                 $bookinginformation['notbooked']['fullybooked'] === true))) {
-            $isavailable = false;
+
+
+            if (!empty(get_config('booking', 'allowoverbooking'))
+                && has_capability('mod/booking:canoverbook', context_system::instance())) {
+                $isavailable = true;
+            } else {
+                $isavailable = false;
+            }
         }
 
         if ($not) {
