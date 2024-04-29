@@ -1,3 +1,6 @@
+## Version 8.2.8 (2024042900)
+* Bugfix: Cashiers can still overbook when waitinglist is full
+
 ## Version 8.2.7 (2024042600)
 * Improvement: Clean up ical settings and remove deprecated handling of options with single-session.
 * Improvement: Mark invisible optiondates in entity calendar (gray and with [invisible] prefix).
