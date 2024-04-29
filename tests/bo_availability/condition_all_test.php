@@ -71,6 +71,8 @@ class condition_all_test extends advanced_testcase {
      * @covers \condition\fullybooked::is_available
      * @covers \condition\confirmation::render_page
      * @covers \condition\notifymelist::is_available
+     * @covers \condition\isloggedin::is_available
+     *
      * @throws \coding_exception
      * @throws \dml_exception
      *
@@ -98,8 +100,6 @@ class condition_all_test extends advanced_testcase {
 
         $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
 
-        $this->setAdminUser();
-
         $this->getDataGenerator()->enrol_user($admin->id, $course->id);
         $this->getDataGenerator()->enrol_user($student1->id, $course->id);
         $this->getDataGenerator()->enrol_user($student2->id, $course->id);
@@ -125,6 +125,13 @@ class condition_all_test extends advanced_testcase {
         // Book the first user without any problem.
         $boinfo = new bo_info($settings);
 
+        // Check option availability if user is not logged yet.
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ISLOGGEDIN, $id);
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ISLOGGEDIN, $id);
+
+        $this->setAdminUser();
         // Via this line, we can get the blocking condition.
         // The true is only hardblocking, which means low blockers used to only show buttons etc. wont be shown.
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
