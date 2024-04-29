@@ -205,7 +205,7 @@ class condition_all_test extends advanced_testcase {
         $result = booking_bookit::bookit('option', $settings->id, $student4->id);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student4->id, false);
 
-        // User really is booked to waitinglist.
+        // User really is booked to notifylist.
         $this->assertEquals(MOD_BOOKING_BO_COND_NOTIFYMELIST, $id);
     }
 
@@ -758,6 +758,132 @@ class condition_all_test extends advanced_testcase {
         $this->expectException(\moodle_exception::class);
         $this->expectExceptionMessage('mod_booking/notenoughcredits');
         $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
+    }
+
+    /**
+     * Test add to group.
+     *
+     * @covers \condition\askforconfirmation::is_available
+     * @covers \condition\onwaitinglist::is_available
+     * @covers \condition\priceset::is_available
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_booking_bookit_overbooking_with_price() {
+        global $DB, $CFG;
+
+        // Setup test data.
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create users.
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($student2->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($teacher->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id);
+
+        // Disable allowoverbooking at all.
+        $res = set_config('allowoverbooking', null, 'booking');
+
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1';
+        $record->courseid = $course2->id;
+        $record->maxanswers = 1;
+        $record->maxoverbooking = 0;  // Disable waitinglist.
+        $record->waitforconfirmation = 0; // Waitinglist nof enforced.
+        $record->useprice = 1; // Use price from the default category.
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $pricecategorydata = (object)[
+            'ordernum' => 1,
+            'name' => 'default',
+            'identifier' => 'default',
+            'defaultvalue' => 100,
+            'pricecatsortorder' => 1,
+        ];
+
+        $plugingenerator->create_pricecategory($pricecategorydata);
+        $option1 = $plugingenerator->create_option($record);
+
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        // To avoid retrieving the singleton with the wrong settings, we destroy it.
+        singleton_service::destroy_booking_singleton_by_cmid($settings1->cmid);
+        $price = price::get_price('option', $settings1->id);
+
+        // Default price expected.
+        $this->assertEquals($price["price"], 100);
+
+        // Book the first user without any problem.
+        $boinfo1 = new bo_info($settings1);
+
+        // Book the student1 right away.
+        $this->setUser($student1);
+
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student1->id, true);
+        // The user sees now, after confirmation, correctly either the payment button or the noshoppingcart message.
+        if (class_exists('local_shopping_cart\shopping_cart')) {
+            $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
+        } else {
+            $this->assertEquals(MOD_BOOKING_BO_COND_NOSHOPPINGCART, $id);
+        }
+
+        // Admin confirms the users booking.
+        $this->setAdminUser();
+
+        $optionobj1 = singleton_service::get_instance_of_booking_option($settings1->cmid, $settings1->id);
+        // Confirm user's booking.
+        $optionobj1->user_submit_response($student1, 0, 0, 0, MOD_BOOKING_VERIFIED);
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Book option 1 by the student2.
+        $this->setUser($student2);
+
+        // The student2 cannot book - option is fully booked.
+        $result = booking_bookit::bookit('option', $settings1->id, $student2->id);
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_FULLYBOOKED, $id);
+
+        // Admin try to override.
+        $this->setAdminUser();
+
+        // Cehck current state.
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id); // Actual state (Is "fully booked" to be expected?).
+        // Admin try to override and confirms the stundet2 booking.
+        $optionobj1->user_submit_response($student2, 0, 0, 0, MOD_BOOKING_VERIFIED);
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id); // Actual state (Is "fully booked" to be expected?).
+
+        // ASKFORCONFIRMATION ("on waiting list") is permanent now (despite waiting list diasbled).
+        $optionobj1->user_submit_response($student2, 0, 0, 0, MOD_BOOKING_VERIFIED);
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id); // Actual state (Is "fully booked" to be expected?).
+
+        // Enable overbooking by athorized user.
+        $res = set_config('allowoverbooking', 1, 'booking');
+
+        // Admin's override now successfull - student2 being booked.
+        $optionobj1->user_submit_response($student2, 0, 0, 0, MOD_BOOKING_VERIFIED);
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
     }
 
     /**
