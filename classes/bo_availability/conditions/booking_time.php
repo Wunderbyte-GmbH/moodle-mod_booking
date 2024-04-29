@@ -211,6 +211,9 @@ class booking_time implements bo_condition {
         $mform->setType('bookingclosingtime', PARAM_INT);
         $mform->hideIf('bookingclosingtime', 'restrictanswerperiodclosing', 'notchecked');
 
+        $mform->addElement('checkbox', 'bo_cond_booking_time_sqlfiltercheck',
+            get_string('sqlfiltercheckstring', 'mod_booking'));
+
         // Override conditions should not be necessary here - but let's keep it if we change our mind.
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         /* $mform->addElement('checkbox', 'bo_cond_booking_time_overrideconditioncheckbox',

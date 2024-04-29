@@ -73,6 +73,11 @@ export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => 
         }
     });
 
+    var checkbox1 = document.querySelector('[name="restrictanswerperiodopening"]');
+    var checkbox2 = document.querySelector('[name="restrictanswerperiodclosing"]');
+    var conditionalCheckbox = document.querySelector('[name="bo_cond_booking_time_sqlfiltercheck"]');
+    let closest = conditionalCheckbox.closest('[class="form-group row  fitem  "]');
+
     dynamicForm.addEventListener('change', e => {
         // eslint-disable-next-line no-console
         console.log(e);
@@ -83,5 +88,18 @@ export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => 
             dynamicForm.processNoSubmitButton(button);
         }
 
+        if (e.target.name == 'restrictanswerperiodopening' || e.target.name == 'restrictanswerperiodclosing') {
+            if (!checkbox1.checked && !checkbox2.checked) {
+            closest.style.display = "none";
+            conditionalCheckbox.value = "0";
+            } else {
+            closest.style.display = "";
+            }
+
+        }
     });
+    if (!checkbox1.checked && !checkbox2.checked) {
+        closest.style.display = "none";
+        conditionalCheckbox.value = "0";
+    }
 };

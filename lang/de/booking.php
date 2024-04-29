@@ -372,6 +372,7 @@ $string['deletecategory'] = 'Löschen';
 $string['deletesubcategory'] = 'Löschen Sie zuerst alle Unterkategorien dieser Kategorie!';
 $string['usedinbooking'] = 'Das Löschen dieser Kategorie/n ist nicht möglich, da sie verwendet werden!';
 $string['successfulldeleted'] = 'Kategorie wurde erfolgreich gelöscht!';
+$string['sqlfiltercheckstring'] = 'Bookingoption ausblenden wenn diese Bedingung nicht erfüllt ist';
 
 // Events.
 $string['bookingoptiondate_created'] = 'Termin erstellt';

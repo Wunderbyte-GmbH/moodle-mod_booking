@@ -1108,4 +1108,30 @@ class bo_info {
         $footerdata['data']['backaction'] = $backaction; // Which action should be taken?
         $footerdata['data']['backlabel'] = $backlabel; // The visible label.
     }
+
+    /**
+     * Returns part of SQL-Query according to DB Family for a specified column and key.
+     *
+     * @param string $dbcolumn
+     * @param string $jsonkey
+     *
+     * @return string
+     *
+     */
+    public static function check_for_sqljson_key(string $dbcolumn, string $jsonkey): string {
+        global $DB;
+
+        $databasetype = $DB->get_dbfamily();
+        // The $key param is the name of the param in json.
+        switch ($databasetype) {
+            case 'postgres':
+                return " ($dbcolumn->>'$jsonkey')";
+            case 'mysql':
+                return " JSON_EXTRACT($dbcolumn, '$jsonkey')";
+            case 'mariadb':
+                return " JSON_EXTRACT($dbcolumn, '$jsonkey')";
+            default:
+                return '';
+        }
+    }
 }

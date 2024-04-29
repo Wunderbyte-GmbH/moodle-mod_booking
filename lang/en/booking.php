@@ -373,6 +373,7 @@ $string['deletecategory'] = 'Delete';
 $string['deletesubcategory'] = 'Please, first delete all subcategories of this category!';
 $string['usedinbooking'] = 'You can\'t delete this category, because you\'re using it in booking!';
 $string['successfulldeleted'] = 'Category was deleted!';
+$string['sqlfiltercheckstring'] = 'Hide bookingoption when condition not met';
 
 // Events.
 $string['bookingoptiondate_created'] = 'Booking option date created';
