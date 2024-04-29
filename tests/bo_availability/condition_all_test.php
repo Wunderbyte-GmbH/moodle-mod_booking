@@ -504,8 +504,6 @@ class condition_all_test extends advanced_testcase {
 
         $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
 
-        $this->setAdminUser();
-
         $this->getDataGenerator()->enrol_user($admin->id, $course1->id);
         $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
         $this->getDataGenerator()->enrol_user($student2->id, $course1->id);
@@ -540,15 +538,17 @@ class condition_all_test extends advanced_testcase {
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
         // To avoid retrieving the singleton with the wrong settings, we destroy it.
         singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
-        $price = price::get_price('option', $settings->id);
-
-        // Default price expected.
-        $this->assertEquals($price["price"], 100);
 
         // Book the first user without any problem.
         $boinfo = new bo_info($settings);
 
-        // Book the student right away.
+        // Check option availability if user is not logged yet.
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ISLOGGEDINPRICE, $id);
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ISLOGGEDINPRICE, $id);
+
+        // Book option1 by the student1 himself.
         $this->setUser($student1);
 
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
@@ -563,6 +563,11 @@ class condition_all_test extends advanced_testcase {
 
         // Admin confirms the users booking.
         $this->setAdminUser();
+        // Verify price.
+        $price = price::get_price('option', $settings->id);
+        // Default price expected.
+        $this->assertEquals($price["price"], 100);
+
         // Add to the shopping_cart - set ALREADYRESERVED and verify status.
         $option->user_submit_response($student1, 0, 0, 1, MOD_BOOKING_VERIFIED);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
