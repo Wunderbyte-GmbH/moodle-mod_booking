@@ -761,7 +761,7 @@ class condition_all_test extends advanced_testcase {
     }
 
     /**
-     * Test add to group.
+     * Test overbooking with price when confirmation and waiting list disabled.
      *
      * @covers \condition\askforconfirmation::is_available
      * @covers \condition\onwaitinglist::is_available
@@ -865,18 +865,13 @@ class condition_all_test extends advanced_testcase {
         // Admin try to override.
         $this->setAdminUser();
 
-        // Cehck current state.
-        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id); // Actual state (Is "fully booked" to be expected?).
-        // Admin try to override and confirms the stundet2 booking.
+        // Cehck current state. We should not use hard block to get "fully booked" (will get permanent "ask confirmation" than).
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_FULLYBOOKED, $id);
+        // Even Admin denied to override and confirms the stundet2 booking.
         $optionobj1->user_submit_response($student2, 0, 0, 0, MOD_BOOKING_VERIFIED);
-        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id); // Actual state (Is "fully booked" to be expected?).
-
-        // ASKFORCONFIRMATION ("on waiting list") is permanent now (despite waiting list diasbled).
-        $optionobj1->user_submit_response($student2, 0, 0, 0, MOD_BOOKING_VERIFIED);
-        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id); // Actual state (Is "fully booked" to be expected?).
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_FULLYBOOKED, $id);
 
         // Enable overbooking by athorized user.
         $res = set_config('allowoverbooking', 1, 'booking');
