@@ -30,6 +30,10 @@ use mod_booking\booking_option_settings;
 use MoodleQuickForm;
 use stdClass;
 
+defined('MOODLE_INTERNAL') || die();
+// Required to avoid errors after duplicatoion of bo_info's constants had been removed from bo_subinfo class.
+require_once($CFG->dirroot . '/mod/booking/classes/bo_availability/bo_info.php');
+
 /**
  * Base class for a single bo availability condition.
  *

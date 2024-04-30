@@ -37,20 +37,6 @@ use moodle_exception;
 use MoodleQuickForm;
 use stdClass;
 
-// The blocking condition can return a value to define which button to use.
-define('MOD_BOOKING_BO_BUTTON_INDIFFERENT', 0);
-define('MOD_BOOKING_BO_BUTTON_MYBUTTON', 1); // Used for price or book it.
-define('MOD_BOOKING_BO_BUTTON_NOBUTTON', 2); // Forces no button (Eg special subbookings).
-define('MOD_BOOKING_BO_BUTTON_MYALERT', 3); // Alert is a weaker form of MYBUTTON. With special rights, Button is still shown.
-define('MOD_BOOKING_BO_BUTTON_JUSTMYALERT', 4); // A strong Alert which also prevents buttons to be displayed.
-
-// Define if there are sites and if so, if they are prepend, postpend or booking relevant.
-define('MOD_BOOKING_BO_PREPAGE_NONE', 0); // This condition provides no page.
-define('MOD_BOOKING_BO_PREPAGE_BOOK', 1); // This condition does only provide a booking page (button or price).
-                              // It's only used when there are other pages as well.
-define('MOD_BOOKING_BO_PREPAGE_PREBOOK', 2); // This should be before the bookit button.
-define('MOD_BOOKING_BO_PREPAGE_POSTBOOK', 3); // This should be after the bookit button.
-
 /**
  * class for conditional availability information of a booking option
  *
