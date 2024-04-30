@@ -31,6 +31,7 @@ use mod_booking\booking_option;
 use mod_booking\price;
 use mod_booking\semester;
 use mod_booking\customfield\booking_handler;
+use mod_booking\booking_campaigns\campaigns_info;
 use mod_booking\singleton_service;
 
 /**
@@ -200,13 +201,21 @@ class mod_booking_generator extends testing_module_generator {
      * @return stdClass the booking campaign object
      */
     public function create_campaign($record = null) {
-        global $DB;
+
+        $record = array_merge($record, json_decode($record['json'], true));
 
         $record = (object) $record;
 
-        $record->id = $DB->insert_record('booking_campaigns', $record);
+        if ((int) $record->type == 0) {
+            $record->bookingcampaigntype = 'campaign_customfield';
+        } else {
+            $record->bookingcampaigntype = 'campaign_blockbooking';
+        }
 
-        return $record;
+        campaigns_info::save_booking_campaign($record);
+        $camp = campaigns_info::get_campaign_by_name($record->name);
+
+        return $camp;
     }
 
     /**
