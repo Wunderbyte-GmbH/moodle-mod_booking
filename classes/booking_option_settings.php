@@ -268,7 +268,10 @@ class booking_option_settings {
     public $waitforconfirmation = 0;
 
     /** @var int $useprice flag that indicates if we use price or not */
-    public $useprice = null;
+    public $useprice = 0;
+
+    /** @var int $sqlfilter defines if an element should be hidden via sql filter. hidden > 0 */
+    public $sqlfilter = 0;
 
     /**
      * Constructor for the booking option settings class.
@@ -402,6 +405,7 @@ class booking_option_settings {
             $this->availability = $dbrecord->availability;
             $this->status = $dbrecord->status;
             $this->responsiblecontact = $dbrecord->responsiblecontact;
+            $this->sqlfilter = $dbrecord->sqlfilter;
 
             // If we have a responsible contact id, we load the corresponding user object.
             if (!isset($dbrecord->responsiblecontactuser)) {

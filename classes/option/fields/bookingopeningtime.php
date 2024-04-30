@@ -106,6 +106,11 @@ class bookingopeningtime extends field_base {
         } else {
             if (!empty($value)) {
                 $newoption->{$key} = $value;
+                if (!empty($formdata->bo_cond_booking_time_sqlfiltercheck)) {
+                    $newoption->sqlfilter = MOD_BOOKING_SQL_FILTER_ACTIVE_BO_TIME;
+                } else if (!isset($newoption->sqlfilter)) {
+                    $newoption->sqlfilter = MOD_BOOKING_SQL_FILTER_INACTIVE;
+                }
             } else {
                 $newoption->{$key} = 0;
             }
@@ -156,6 +161,9 @@ class bookingopeningtime extends field_base {
                 $data->{$key} = $value;
                 $data->restrictanswerperiodopening = 1;
             }
+            if (($data->sqlfilter ?? 0) == MOD_BOOKING_SQL_FILTER_ACTIVE_BO_TIME) {
+                $data->bo_cond_booking_time_sqlfiltercheck = 1;
+            }
 
         } else {
 
@@ -172,6 +180,9 @@ class bookingopeningtime extends field_base {
             // We need to also set the checkbox correctly.
             if (!empty($value)) {
                 $data->restrictanswerperiodopening = 1;
+            }
+            if ($settings->sqlfilter == MOD_BOOKING_SQL_FILTER_ACTIVE_BO_TIME) {
+                $data->bo_cond_booking_time_sqlfiltercheck = 1;
             }
         }
     }
