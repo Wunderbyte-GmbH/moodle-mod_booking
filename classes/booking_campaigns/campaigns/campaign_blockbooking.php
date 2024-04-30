@@ -225,7 +225,7 @@ class campaign_blockbooking implements booking_campaign {
         $jsonobject->fieldvalue = $data->fieldvalue;
         $jsonobject->blockoperator = $data->blockoperator;
         $jsonobject->blockinglabel = $data->blockinglabel;
-        $jsonobject->hascapability = $data->hascapability;
+        $jsonobject->hascapability = $data->hascapability ?? '';
         $jsonobject->percentageavailableplaces = $data->percentageavailableplaces;
         $record->json = json_encode($jsonobject);
 
