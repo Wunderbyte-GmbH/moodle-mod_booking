@@ -60,6 +60,9 @@ $string['updatebooking'] = 'Update booking';
 $string['booking:manageoptiontemplates'] = "Manage option templates";
 $string['booking:editbookingrules'] = "Edit rules (Pro)";
 $string['booking:overrideboconditions'] = 'User can book even when conditions return false.';
+$string['cohort'] = 'Cohort';
+$string['cohorts'] = 'Cohorts';
+$string['cohort_s'] = 'Cohort(s)';
 $string['confirmchangesemester'] = 'YES, I really want to delete all existing dates of the booking instance and generate new ones.';
 $string['course'] = 'Moodle course';
 $string['courseduplicating'] = 'DO NOT REMOVE this item. Moodle course is being copied with next run of CRON task.';
@@ -1840,6 +1843,7 @@ $string['bo_cond_onwaitinglist'] = 'onwaitinglist: User is on waiting list';
 $string['bo_cond_askforconfirmation'] = 'askforconfirmation: Manually confirm booking';
 $string['bo_cond_previouslybooked'] = 'User has previously booked a certain option';
 $string['bo_cond_enrolledincourse'] = 'User is enrolled in certain course(s)';
+$string['bo_cond_enrolledincohorts'] = 'User is enrolled in certain cohort(s)';
 $string['bo_cond_priceisset'] = 'priceisset: Price is set';
 $string['bo_cond_userprofilefield_1_default'] = 'User profile field has a certain value';
 $string['bo_cond_userprofilefield_2_custom'] = 'Custom user profile field has a certain value';
@@ -1927,6 +1931,15 @@ $string['bo_cond_previouslybooked_available'] = 'Book it';
 $string['bo_cond_previouslybooked_full_available'] = 'Booking is possible';
 $string['bo_cond_previouslybooked_not_available'] = 'Only users who have previously booked <a href="{$a}">this option</a> are allowed to book.';
 $string['bo_cond_previouslybooked_full_not_available'] = 'Only users who have previously booked <a href="{$a}">this option</a> are allowed to book.
+    <br>But you have the right to book a user anyways.';
+
+$string['bo_cond_enrolledincohorts_available'] = 'Book it';
+$string['bo_cond_enrolledincohorts_full_available'] = 'Booking is possible';
+$string['bo_cond_enrolledincohorts_not_available'] = 'Booking not allowed because you are not enrolled in at least one of the following cohort(s): {$a}';
+$string['bo_cond_enrolledincohorts_full_not_available'] = 'Only users who are enrolled in at least one of the following cohort(s) are allowed to book: {$a}
+    <br>But you have the right to book a user anyways.';
+$string['bo_cond_enrolledincohorts_not_available_and'] = 'Booking not allowed because you are not enrolled in all of the following cohort(s): {$a}';
+$string['bo_cond_enrolledincohorts_full_not_available_and'] = 'Only users who are enrolled in all of the following cohort(s) are allowed to book: {$a}
     <br>But you have the right to book a user anyways.';
 
 $string['bo_cond_enrolledincourse_available'] = 'Book it';
@@ -2027,8 +2040,11 @@ $string['overrideoperator'] = 'Operator';
 $string['overrideoperator:and'] = 'AND';
 $string['overrideoperator:or'] = 'OR';
 $string['bo_cond_previouslybooked_optionid'] = 'Must be already booked';
+$string['allcohortsmustbefound'] = 'User has to be member of all cohorts';
 $string['allcoursesmustbefound'] = 'User has to be subscribed to all courses';
-$string['onecoursemustbefound'] = 'User hast to be subscribed to only one of these courses';
+$string['onecohortmustbefound'] = 'User has to be member to at least one of these cohorts';
+$string['onecoursemustbefound'] = 'User has to be subscribed to at least only one of these courses';
+
 
 $string['noelement'] = "No Element";
 $string['checkbox'] = "Checkbox";

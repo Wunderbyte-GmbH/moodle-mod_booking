@@ -438,6 +438,7 @@ class bo_info {
 
         $conditions = self::get_conditions(MOD_BOOKING_CONDPARAM_JSON_ONLY);
 
+        $sqlfilter = 0;
         foreach ($conditions as $condition) {
             if (!empty($condition)) {
                 $fullclassname = get_class($condition); // With namespace.
@@ -448,6 +449,9 @@ class bo_info {
                 if (isset($fromform->{$key})) {
                     // For each condition, add the appropriate form fields.
                     $conditionobject = $condition->get_condition_object_for_json($fromform);
+                    if (!empty($conditionobject->sqlfilter)) {
+                        $sqlfilter = MOD_BOOKING_SQL_FILTER_ACTIVE_JSON_BO;
+                    }
                     if (!empty($conditionobject->class)) {
                         $arrayforjson[] = $conditionobject;
                     }
@@ -465,6 +469,7 @@ class bo_info {
         }
         // This will be saved in the table booking_options in the 'availability' field.
         $fromform->availability = json_encode($arrayforjson);
+        $fromform->sqlfilter = $sqlfilter;
         // Without an optionid we do nothing.
     }
 

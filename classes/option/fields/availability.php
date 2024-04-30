@@ -104,6 +104,9 @@ class availability extends field_base {
         bo_info::save_json_conditions_from_form($formdata);
 
         $newoption->availability = $formdata->availability;
+        if (empty($newoption->sqlfilter)) {
+            $newoption->sqlfilter = $formdata->sqlfilter;
+        }
 
         return '';
     }

@@ -57,6 +57,9 @@ $string['updatebooking'] = 'Update Buchung';
 $string['booking:manageoptiontemplates'] = "Buchungsoptionsvorlagen verwalten";
 $string['booking:editbookingrules'] = "Regeln bearbeiten (Pro)";
 $string['booking:overrideboconditions'] = 'Nutzer:in darf buchen auch wenn Verfügbarkeit false zurückliefert.';
+$string['cohort'] = 'Globale Gruppe';
+$string['cohorts'] = 'Globale Gruppen';
+$string['cohort_s'] = 'Globale Gruppe(n)';
 $string['collapsedescriptionoff'] = 'Beschreibungen nicht einklappen';
 $string['collapsedescriptionmaxlength'] = 'Beschreibungen einklappen (Zeichenanzahl)';
 $string['collapsedescriptionmaxlength_desc'] = 'Geben Sie die maximale Anzahl an Zeichen, die eine Beschreibung haben darf, ein.
@@ -1715,6 +1718,7 @@ $string['bo_cond_onwaitinglist'] = 'onwaitinglist: Auf Warteliste';
 $string['bo_cond_askforconfirmation'] = 'askforconfirmation: Manuelle Bestätigung der Buchung';
 $string['bo_cond_previouslybooked'] = 'Benutzer:in hat früher eine bestimmte Option gebucht';
 $string['bo_cond_enrolledincourse'] = 'Benutzer:in ist in bestimmte(n) Kurs(e) eingeschrieben';
+$string['bo_cond_enrolledincohorts'] = 'Benutzer:in ist in bestimmte(n) globale(n) Gruppe(n) eingeschrieben';
 $string['bo_cond_priceisset'] = 'priceisset: Preis ist vorhanden';
 $string['bo_cond_userprofilefield_1_default'] = 'User-Profilfeld hat einen bestimmten Wert';
 $string['bo_cond_userprofilefield_2_custom'] = 'Benutzerdefiniertes User-Profilfeld hat einen bestimmten Wert';
@@ -1778,6 +1782,15 @@ $string['bo_cond_previouslybooked_full_available'] = 'Buchen möglich';
 $string['bo_cond_previouslybooked_not_available'] = 'Nur Benutzer:innen, die früher bereits <a href="{$a}">option</a> gebucht haben, dürfen buchen.';
 $string['bo_cond_previouslybooked_full_not_available'] = 'Nur Benutzer:innen, die früher bereits <a href="{$a}">option</a> gebucht haben, dürfen buchen.
  <br>Sie haben aber das Recht dennoch zu buchen.';
+
+$string['bo_cond_enrolledincohorts_available'] = 'Buchen';
+$string['bo_cond_enrolledincohorts_full_available'] = 'Buchen möglich';
+$string['bo_cond_enrolledincohorts_not_available'] = 'Buchen nicht möglich, da Sie in mindestens eine der folgenden globalen Grupppen nicht eingeschrieben sind: {$a}';
+$string['bo_cond_enrolledincohorts_full_not_available'] = 'Nur Benutzer:innen, die in mindestens einen der folgenden globalen Grupppen eingeschrieben sind, dürfen buchen: {$a}
+    <br>Sie haben aber das Recht dennoch zu buchen.';
+$string['bo_cond_enrolledincohorts_not_available_and'] = 'Buchen nicht möglich, da Sie nicht in alle der folgenden globalen Grupppen eingeschrieben sind: {$a}';
+$string['bo_cond_enrolledincohorts_full_not_available_and'] = 'Nur Benutzer:innen, die in alle folgenden globalen Grupppen eingeschrieben sind, dürfen buchen: {$a}
+<br>Sie haben aber das Recht dennoch zu buchen.';
 
 $string['bo_cond_enrolledincourse_available'] = 'Buchen';
 $string['bo_cond_enrolledincourse_full_available'] = 'Buchen möglich';
@@ -1896,7 +1909,9 @@ $string['overrideoperator'] = 'Operator';
 $string['overrideoperator:and'] = 'UND';
 $string['overrideoperator:or'] = 'ODER';
 $string['bo_cond_previouslybooked_optionid'] = 'Buchungsoption';
+$string['allcohortsmustbefound'] = 'Zugehörigkeit zu allen globalen Gruppen';
 $string['allcoursesmustbefound'] = 'Alle Kurse müssen gebucht sein';
+$string['onecohortmustbefound'] = 'Zumindest eine dieser globalen Gruppen muss zutreffen';
 $string['onecoursemustbefound'] = 'Zumindest einer dieser Kurse muss gebucht sein';
 
 $string['noelement'] = "Kein Element";

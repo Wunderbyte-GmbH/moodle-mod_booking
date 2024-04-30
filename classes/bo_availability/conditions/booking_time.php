@@ -133,7 +133,7 @@ class booking_time implements bo_condition {
             'bookingopeningtimenow2' => $nowend,
         ];
 
-        return ['', '', '', $params, $where];;
+        return ['', '', '', $params, $where];
     }
 
     /**
