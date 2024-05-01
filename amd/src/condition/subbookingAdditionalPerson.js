@@ -21,7 +21,6 @@
 
 import DynamicForm from 'core_form/dynamicform';
 import {initbookitbutton} from 'mod_booking/bookit';
-import {buttoninit} from 'local_shopping_cart/cart';
 import {eventTypes} from 'core_filters/events';
 
 const SELECTOR = {
@@ -34,8 +33,9 @@ const SELECTOR = {
 
 /**
  * Init function.
+ * @param {boolean} shoppingcartisinstalled
  */
-export async function init() {
+export async function init(shoppingcartisinstalled) {
 
     // eslint-disable-next-line no-console
     console.log('init dynamic form');
@@ -71,7 +71,7 @@ export async function init() {
             // eslint-disable-next-line no-console
             console.log(e.target);
 
-            initButtons(id, container, dynamicForm);
+            initButtons(id, container, dynamicForm, shoppingcartisinstalled);
         });
 
         dynamicForm.addEventListener(dynamicForm.events.SERVER_VALIDATION_ERROR, () => {
@@ -79,7 +79,7 @@ export async function init() {
             // eslint-disable-next-line no-console
             console.log('error with form');
 
-            initButtons(id, container, dynamicForm);
+            initButtons(id, container, dynamicForm, shoppingcartisinstalled);
         });
 
         dynamicForm.addEventListener('change', e => {
@@ -90,7 +90,7 @@ export async function init() {
             }
         });
 
-        initButtons(id, container, dynamicForm);
+        initButtons(id, container, dynamicForm, shoppingcartisinstalled);
     });
 }
 
@@ -98,8 +98,9 @@ export async function init() {
  * @param {integer} id
  * @param {HTMLElement} container
  * @param {*} dynamicForm
+ * @param {boolean} shoppingcartisinstalled
  */
-function initButtons(id, container, dynamicForm) {
+function initButtons(id, container, dynamicForm, shoppingcartisinstalled) {
 
     // We always need to get the buttons anew, as they might have been replaced.
 
@@ -124,7 +125,19 @@ function initButtons(id, container, dynamicForm) {
 
     // Only after the Form is loaded, we reinitialze the buttons.
     try {
-        buttoninit();
+        // Avoid any errors/warnings if no shopping_cart installed.
+        if (shoppingcartisinstalled) {
+            import('local_shopping_cart/cart')
+                    // eslint-disable-next-line promise/always-return
+                    .then(shoppingcart => {
+                        shoppingcart.buttoninit();
+                    })
+                    .catch(err => {
+                        // Handle any errors, including if the module doesn't exist
+                        // eslint-disable-next-line no-console
+                        console.log(err);
+                });
+            }
         initbookitbutton();
     } catch (e) {
         // eslint-disable-next-line no-console
@@ -171,7 +184,6 @@ function unblockButtons(id, container) {
 
     if (bookitbutton) {
         bookitbutton.dataset.blocked = 'false';
-        bookitbutton.click();
     }
 }
 

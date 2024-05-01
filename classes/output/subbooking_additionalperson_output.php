@@ -72,6 +72,7 @@ class subbooking_additionalperson_output implements renderable, templatable {
         }
 
         $this->data['subbookings'] = $data;
+        $this->data['shoppingcartisinstalled'] = class_exists('local_shopping_cart\shopping_cart') ? true : false;
     }
 
     /**
