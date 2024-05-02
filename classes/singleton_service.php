@@ -79,6 +79,9 @@ class singleton_service {
     /** @var array $campaigns */
     public array $campaigns = [];
 
+    /** @var array $courses */
+    public array $courses = [];
+
 
 
     /**
@@ -505,5 +508,23 @@ class singleton_service {
         }
 
         return (array)$instance->campaigns;
+    }
+
+    /**
+     * Return course with given id.
+     * @return object
+     */
+    public static function get_course(int $courseid): object {
+
+        global $DB;
+
+        $instance = self::get_instance();
+
+        if (!isset($instance->courses[$courseid])) {
+            $course = $DB->get_record('course', ['id' => $courseid], '*', IGNORE_MISSING);
+            $instance->courses[$courseid] = $course;
+        }
+
+        return $instance->courses[$courseid];
     }
 }

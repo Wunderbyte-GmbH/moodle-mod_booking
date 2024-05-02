@@ -423,8 +423,8 @@ class enrolledincourse implements bo_condition {
             $a = '';
             $coursestringsarr = [];
             foreach ($this->customsettings->courseids as $courseid) {
-                $coursename = $DB->get_field('course', 'fullname', ['id' => $courseid]);
-                $coursestringsarr[] = $coursename;
+                $course = singleton_service::get_course($courseid);
+                $coursestringsarr[] = $course->fullname;
             }
             $a = implode(', ', $coursestringsarr);
 
