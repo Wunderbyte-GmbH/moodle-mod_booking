@@ -576,9 +576,19 @@ class bo_info {
 
             // Book this option.
             if (!self::has_price_set($results)) {
-                $response = booking_bookit::bookit('option', $optionid, $userid);
-                // We need to book twice, as confirmation might be in place.
-                $response = booking_bookit::bookit('option', $optionid, $userid);
+
+                // Check if we are already booked.
+                $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+                $boinfo = new bo_info($settings);
+
+                // Check option availability if user is not logged yet.
+                list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $userid, false);
+
+                if ($id !== MOD_BOOKING_BO_COND_ALREADYBOOKED) {
+                    $response = booking_bookit::bookit('option', $optionid, $userid);
+                    // We need to book twice, as confirmation might be in place.
+                    $response = booking_bookit::bookit('option', $optionid, $userid);
+                }
             } else {
                 if (class_exists('local_shopping_cart\shopping_cart')) {
                     shopping_cart::add_item_to_cart('mod_booking', 'option', $optionid, $userid);
