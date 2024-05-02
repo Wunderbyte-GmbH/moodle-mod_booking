@@ -476,16 +476,22 @@ class bo_info {
     /**
      * Add the sql from the conditions.
      *
-     * @return void
+     * @return array
      */
     public static function return_sql_from_conditions() {
-
+        global $PAGE;
         // First, we get all the relevant conditions.
         $conditions = self::get_conditions(MOD_BOOKING_CONDPARAM_MFORM_ONLY);
         $selectall = '';
         $fromall = '';
         $filterall = '';
         $paramsarray = [];
+
+        $cm = $PAGE->cm;
+        if ($cm && (has_capability('mod/booking:updatebooking', $cm->context))) {
+            // With this capability, ignore filter for sql check.
+            return ['', '', '', [], ''];
+        }
         foreach ($conditions as $class) {
 
             $condition = new $class();
@@ -513,7 +519,6 @@ class bo_info {
                         ";
 
         return ['', '', '', $paramsarray, $where];
-        // return [$select, $from, $filter, $params, $where];
     }
 
     /**
