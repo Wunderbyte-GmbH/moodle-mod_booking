@@ -138,33 +138,48 @@ class enrolledincohorts implements bo_condition {
         if (empty($usercohorts)) {
             return ["", "", "", [], ""];
         }
-        // Case 1:
-        // User has to be enroled in all cohorts. AND.
-        // Case 2:
-        // User has to be enroled in at least one cohort. OR.
+
+        // Appended as string for DB syntax reasons.
+        $appendwhere1 = "";
+        $cohortids = array_map(fn($c) => '"' . $c->id. '"', $usercohorts);
+        $appendwhere1 = implode(', ', $cohortids);
+
+        // Can be appended as params.
         $cohorts = [];
         $params = [];
         foreach ($usercohorts as $cohort) {
             $cohorts[] = ":cohortparam_$cohort->id";
-            $params["cohortparam_$cohort->id"] = "'$cohort->id'";
+            $params["cohortparam_$cohort->id"] = "\"$cohort->id\"";
         }
-        $appendwhere = implode(' , ', $cohorts);
+        // List of current cohorts of user.
+        $appendwhere2 = implode(' , ', $cohorts);
 
-        $where = "availability IS NOT NULL
-            AND (NOT availability::jsonb @> '[{\"sqlfilter\": \"1\"}]'::jsonb)
-            OR (
-                    EXISTS (
-                      SELECT 1
-                      FROM jsonb_array_elements(availability::jsonb) AS obj
-                      WHERE obj->>'cohortids' IS NOT NULL
-                      AND EXISTS (
+        // Depending on the cohortidsoperator check either if user in enrolled in all or at least one cohorts selected.
+        // Default is AND - all cohorts must be met by user.
+        $where = "
+        availability IS NOT NULL
+        AND (NOT availability::jsonb @> '[{\"sqlfilter\": \"1\"}]'::jsonb)
+        OR (CASE
+            WHEN (availability::jsonb->0->>'cohortidsoperator') = 'OR' THEN
+                EXISTS (
+                    SELECT 1
+                    FROM jsonb_array_elements(availability::jsonb) AS obj
+                    WHERE obj->>'cohortids' IS NOT NULL
+                    AND EXISTS (
                         SELECT 1
                         FROM jsonb_array_elements_text((obj->'cohortids')::jsonb) AS cohortids
-                        WHERE cohortids::text in ($appendwhere)
-                        ))
+                        WHERE cohortids::text IN ($appendwhere2)
                     )
-        ";
-
+                )
+            ELSE
+                NOT EXISTS (
+                    SELECT 1
+                    FROM jsonb_array_elements(availability::jsonb) AS obj
+                    WHERE obj->>'cohortids' IS NOT NULL
+                    AND NOT (obj->'cohortids')::jsonb <@ '[$appendwhere1]'::jsonb
+                )
+            END
+        )";
         return ['', '', '', $params, $where];
 
     }
