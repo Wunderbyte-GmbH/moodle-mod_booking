@@ -23,13 +23,13 @@ import Ajax from 'core/ajax';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
 
-import {reloadAllTables} from 'local_wunderbyte_table/reload';
 import {closeModal, closeInline} from 'mod_booking/bookingpage/prepageFooter';
+import { bookit } from './bookit.1';
 
 var currentbookitpage = {};
 var totalbookitpages = {};
 
-var SELECTORS = {
+export var SELECTORS = {
     MODALID: 'sbPrePageModal_',
     INLINEID: 'sbPrePageInline_',
     INMODALDIV: ' div.modalMainContent',
@@ -451,87 +451,6 @@ async function renderTemplatesOnPage(templates, dataarray, element) {
         return true;
     });
     return true;
-}
-
-/**
- *
- * @param {int} itemid
- * @param {string} area
- * @param {int} userid
- * @param {object} data
- */
-function bookit(itemid, area, userid, data) {
-
-    Ajax.call([{
-        methodname: "mod_booking_bookit",
-        args: {
-            'itemid': itemid,
-            'area': area,
-            'userid': userid,
-            'data': JSON.stringify(data),
-        },
-        done: function(res) {
-
-            if (document.querySelector('.booking-elective-component')) {
-                window.location.reload();
-            }
-
-            const jsonarray = JSON.parse(res.json);
-
-            // We might have more than one template to render.
-            const templates = res.template.split(',');
-
-            // There might be more than one button area.
-            const buttons = document.querySelectorAll(SELECTORS.BOOKITBUTTON +
-                '[data-itemid=\'' + itemid + '\']' +
-                '[data-area=\'' + area + '\']');
-
-            const promises = [];
-
-            // We run through every button. and render the data.
-            buttons.forEach(button => {
-
-                // For every button, we need a new jsonarray.
-                const arraytoreduce = [...jsonarray];
-
-                templates.forEach(template => {
-
-                    const data = arraytoreduce.shift();
-
-                    const datatorender = data.data ?? data;
-
-                    const promise = Templates.renderForPromise(template, datatorender).then(({html, js}) => {
-
-                        Templates.replaceNode(button, html, js);
-
-                        return true;
-                    }).catch(ex => {
-                        Notification.addNotification({
-                            message: 'failed rendering ' + ex,
-                            type: "danger"
-                        });
-                    });
-
-                    promises.push(promise);
-                });
-            });
-
-            Promise.all(promises).then(() => {
-
-                const backdrop = document.querySelector(SELECTORS.STATICBACKDROP);
-
-                if (!backdrop) {
-                    reloadAllTables();
-                }
-
-                // The actions on successful booking are executed elsewhere.
-                return true;
-            }).catch(e => {
-                // eslint-disable-next-line no-console
-                console.log(e);
-            });
-        }
-    }]);
 }
 
 /**
