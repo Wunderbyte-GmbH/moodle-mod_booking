@@ -569,7 +569,8 @@ class bo_info {
         // ... then we need to verify if we are already booked.
         // If not, we need to do it now.
 
-        if (!isset($conditions[$pagenumber]['pre'])) {
+        if (!isset($conditions[$pagenumber]['pre']) 
+            && !$conditions[$pagenumber]['id'] === MOD_BOOKING_BO_COND_BOOKITBUTTON) {
 
             // Every time we load a page which is not "pre", we need to check if we are booked.
             // First, determine if this is a booking option with a price.
@@ -886,9 +887,10 @@ class bo_info {
         // This single page has to be necessarily the confirmation page.
         if ((count($prepages['pre']) + count($prepages['post'])) < 2) {
             return [];
-        } else {
-            return $conditionsarray;
+        } else if (empty($prepages['pre'])) {
+            array_unshift($conditionsarray, $prepages['book']);
         }
+        return $conditionsarray;
     }
 
     /**
