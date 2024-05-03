@@ -54,6 +54,12 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I wait "1" seconds
+    And I should see "Do you want to book Test option 1?" in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
+    And I click on "Book now" "text" in the ".modal-dialog.modal-xl .booking-button-area" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".modal-dialog.modal-xl .booking-button-area" "css_element"
+    And I should see "Booked" in the ".modal-dialog.modal-xl .booking-button-area" "css_element"
+    And I follow "Continue"
+    And I should see "Partner(s)" in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
     And I press "Partner(s)"
     And I set the field "Add additional person(s)" to "2"
     And I wait "1" seconds
@@ -67,6 +73,7 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     And I click on "Book now" "text" in the ".subbooking-additionalperson-form" "css_element"
     And I should see "Booked" in the ".subbooking-additionalperson-form" "css_element"
     And I follow "Continue"
-    And I should see "Already booked"
-    And I click on "OK" "text" in the ".modal-dialog.modal-dialog-scrollable .modal-footer" "css_element"
+    And I should see "Thank you! You have successfully booked" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
+    And I should see "Test option 1" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
+    And I follow "Close"
     And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
