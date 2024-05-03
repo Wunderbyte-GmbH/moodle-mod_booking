@@ -57,7 +57,9 @@ export function bookit(itemid, area, userid, data) {
                 } else {
                     // For every button, we need a new jsonarray.
                     const arraytoreduce = [...jsonarray];
-
+                    if (res.status == 1) {
+                        skipreload = false;
+                    }
                     templates.forEach(template => {
 
                         const data = arraytoreduce.shift();
