@@ -24,7 +24,7 @@ import Templates from 'core/templates';
 import Notification from 'core/notification';
 
 import {closeModal, closeInline} from 'mod_booking/bookingpage/prepageFooter';
-import { bookit } from './bookit.1';
+import {bookit} from './bookit.1';
 
 var currentbookitpage = {};
 var totalbookitpages = {};

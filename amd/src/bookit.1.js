@@ -1,8 +1,8 @@
 import Ajax from 'core/ajax';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
-import { reloadAllTables } from 'local_wunderbyte_table/reload';
-import { SELECTORS } from './bookit';
+import {reloadAllTables} from 'local_wunderbyte_table/reload';
+import {SELECTORS} from './bookit';
 
 /**
  *
@@ -24,7 +24,7 @@ export function bookit(itemid, area, userid, data) {
             'userid': userid,
             'data': JSON.stringify(data),
         },
-        done: function (res) {
+        done: function(res) {
 
             var skipreload = false;
 
@@ -64,7 +64,7 @@ export function bookit(itemid, area, userid, data) {
 
                         const datatorender = data.data ?? data;
 
-                        const promise = Templates.renderForPromise(template, datatorender).then(({ html, js }) => {
+                        const promise = Templates.renderForPromise(template, datatorender).then(({html, js}) => {
 
                             Templates.replaceNode(button, html, js);
 
