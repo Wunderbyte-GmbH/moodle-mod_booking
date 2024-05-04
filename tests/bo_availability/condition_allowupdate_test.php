@@ -215,10 +215,9 @@ class condition_allowupdate_test extends advanced_testcase {
     }
 
     /**
-     * Test booking, cancelation, option has started etc.
+     * Test campaign blockbooking.
      *
-     * @covers \condition\iscancelled::is_available
-     * @covers \condition\hasstarted::is_available
+     * @covers \condition\campaign_blockbooking::is_available
      * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
@@ -274,11 +273,13 @@ class condition_allowupdate_test extends advanced_testcase {
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'Test option1';
-        $record->courseid = 0;
+        $record->courseid = $course->id;
         $record->useprice = 0;
         $record->maxanswers = 3;
-        $record->coursestarttime = strtotime('now + 2 day');
-        $record->courseendtime = strtotime('now + 4 day');
+        $record->optiondateid_1 = "0";
+        $record->daystonotify_1 = "0";
+        $record->coursestarttime_1 = strtotime('now + 3 day');
+        $record->courseendtime_1 = strtotime('now + 6 day');
         $record->customfield_spt1 = 'tennis';
 
         /** @var mod_booking_generator $plugingenerator */
@@ -296,15 +297,16 @@ class condition_allowupdate_test extends advanced_testcase {
         $campaing = new stdClass();
         $campaing = [
             'name' => 'bloking', 'type' => 1,
-            'starttime' => strtotime('now + 1 day'), 'endtime' => strtotime('now + 1 month'),
+            'starttime' => strtotime('yesterday'), 'endtime' => strtotime('now + 1 month'),
             'pricefactor' => 1, 'limitfactor' => 1,
             'json' => json_encode($campaingdata),
         ];
 
         $option1 = $plugingenerator->create_option($record);
-        singleton_service::destroy_booking_option_singleton($option1->id);
+        singleton_service::destroy_booking_option_singleton($option1->id); // Mandatory there.
+
         $plugingenerator->create_campaign($campaing);
-        $res = singleton_service::get_all_campaigns();
+
         $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
         $optionobj1 = singleton_service::get_instance_of_booking_option($settings1->cmid, $option1->id);
 

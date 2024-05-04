@@ -198,7 +198,6 @@ class mod_booking_generator extends testing_module_generator {
      * Function to create a dummy campaign option.
      *
      * @param array|stdClass $record
-     * @return stdClass the booking campaign object
      */
     public function create_campaign($record = null) {
 
@@ -213,9 +212,6 @@ class mod_booking_generator extends testing_module_generator {
         }
 
         campaigns_info::save_booking_campaign($record);
-        $camp = campaigns_info::get_campaign_by_name($record->name);
-
-        return $camp;
     }
 
     /**
