@@ -1254,7 +1254,8 @@ class booking_option {
 
         // If we have only put the option in the shopping card (reserved) we will skip the rest of the fucntion here.
         // Also, when we just confirm the waitinglist.
-        if ($waitinglist == MOD_BOOKING_STATUSPARAM_RESERVED) {
+        if ($waitinglist == MOD_BOOKING_STATUSPARAM_RESERVED
+            || $waitinglist == MOD_BOOKING_STATUSPARAM_NOTIFYMELIST) {
 
             return true;
         }
