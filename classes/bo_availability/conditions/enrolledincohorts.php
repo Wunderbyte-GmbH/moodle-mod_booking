@@ -461,20 +461,20 @@ class enrolledincohorts implements bo_condition {
                 $availabilityarray = json_decode($settings->availability);
 
                 foreach ($availabilityarray as $availability) {
-                    if (strpos($availability->class, 'enrolledincourse') > 0) {
+                    if (strpos($availability->class, 'enrolledincohort') > 0) {
                         $this->customsettings = (object)$availability;
                     }
                 }
             }
 
             if (!isset($this->customsettings->cohortids)) {
-                return 'Error in "enrolledincourse" availability condition: no course ids are set!';
+                return 'Error in "enrolledincohort" availability condition: no cohort ids are set!';
             }
 
             $a = '';
             $coursestringsarr = [];
-            foreach ($this->customsettings->cohortids as $courseid) {
-                $coursename = $DB->get_field('course', 'fullname', ['id' => $courseid]);
+            foreach ($this->customsettings->cohortids as $cohortid) {
+                $coursename = singleton_service::get_cohort($cohortid);
                 $coursestringsarr[] = $coursename;
             }
             $a = implode(', ', $coursestringsarr);

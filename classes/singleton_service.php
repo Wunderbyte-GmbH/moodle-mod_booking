@@ -82,6 +82,8 @@ class singleton_service {
     /** @var array $courses */
     public array $courses = [];
 
+    /** @var array $cohorts */
+    public array $cohorts = [];
 
 
     /**
@@ -526,5 +528,23 @@ class singleton_service {
         }
 
         return $instance->courses[$courseid];
+    }
+
+    /**
+     * Return course with given id.
+     * @return object
+     */
+    public static function get_cohort(int $cohortid): object {
+
+        global $DB;
+
+        $instance = self::get_instance();
+
+        if (!isset($instance->cohorts[$cohortid])) {
+            $cohort = $DB->get_record('cohorts', ['id' => $cohortid], '*', IGNORE_MISSING);
+            $instance->cohorts[$cohortid] = $cohort;
+        }
+
+        return $instance->cohorts[$cohortid];
     }
 }
