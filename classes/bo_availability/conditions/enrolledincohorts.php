@@ -474,8 +474,8 @@ class enrolledincohorts implements bo_condition {
             $a = '';
             $coursestringsarr = [];
             foreach ($this->customsettings->cohortids as $cohortid) {
-                $coursename = singleton_service::get_cohort($cohortid);
-                $coursestringsarr[] = $coursename;
+                $cohort = singleton_service::get_cohort($cohortid);
+                $coursestringsarr[] = $cohort->name;
             }
             $a = implode(', ', $coursestringsarr);
 

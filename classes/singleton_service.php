@@ -541,7 +541,7 @@ class singleton_service {
         $instance = self::get_instance();
 
         if (!isset($instance->cohorts[$cohortid])) {
-            $cohort = $DB->get_record('cohorts', ['id' => $cohortid], '*', IGNORE_MISSING);
+            $cohort = $DB->get_record('cohort', ['id' => $cohortid], '*', IGNORE_MISSING);
             $instance->cohorts[$cohortid] = $cohort;
         }
 
