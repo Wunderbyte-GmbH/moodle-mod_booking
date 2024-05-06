@@ -133,55 +133,83 @@ class enrolledincohorts implements bo_condition {
      * @return array
      */
     public function return_sql(): array {
-        global $USER;
+        global $USER, $DB;
         $usercohorts = cohort_get_user_cohorts($USER->id);
         if (empty($usercohorts)) {
             return ["", "", "", [], ""];
         }
 
-        // Appended as string for DB syntax reasons.
-        $appendwhere1 = "";
-        $cohortids = array_map(fn($c) => '"' . $c->id. '"', $usercohorts);
-        $appendwhere1 = implode(', ', $cohortids);
+        $databasetype = $DB->get_dbfamily();
+        // The $key param is the name of the param in json.
+        if ($databasetype == 'postgres') {
+            // Appended as string for DB syntax reasons.
+            $appendwhere1 = "";
+            $cohortids = array_map(fn($c) => '"' . $c->id. '"', $usercohorts);
+            $appendwhere1 = implode(', ', $cohortids);
 
-        // Can be appended as params.
-        $cohorts = [];
-        $params = [];
-        foreach ($usercohorts as $cohort) {
-            $cohorts[] = ":cohortparam_$cohort->id";
-            $params["cohortparam_$cohort->id"] = "\"$cohort->id\"";
-        }
-        // List of current cohorts of user.
-        $appendwhere2 = implode(' , ', $cohorts);
+            // Can be appended as params.
+            $cohorts = [];
+            $params = [];
+            foreach ($usercohorts as $cohort) {
+                $cohorts[] = ":cohortparam_$cohort->id";
+                $params["cohortparam_$cohort->id"] = "\"$cohort->id\"";
+            }
+            // List of current cohorts of user.
+            $appendwhere2 = implode(' , ', $cohorts);
 
-        // Depending on the cohortidsoperator check either if user in enrolled in all or at least one cohorts selected.
-        // Default is AND - all cohorts must be met by user.
-        $where = "
-        availability IS NOT NULL
-        AND (NOT availability::jsonb @> '[{\"sqlfilter\": \"1\"}]'::jsonb)
-        OR (CASE
-            WHEN (availability::jsonb->0->>'cohortidsoperator') = 'OR' THEN
-                EXISTS (
-                    SELECT 1
-                    FROM jsonb_array_elements(availability::jsonb) AS obj
-                    WHERE obj->>'cohortids' IS NOT NULL
-                    AND EXISTS (
+            // Depending on the cohortidsoperator check either if user in enrolled in all or at least one cohorts selected.
+            // Default is AND - all cohorts must be met by user.
+            $where = "
+            availability IS NOT NULL
+            AND (NOT availability::jsonb @> '[{\"sqlfilter\": \"1\"}]'::jsonb)
+            OR (CASE
+                WHEN (availability::jsonb->0->>'cohortidsoperator') = 'OR' THEN
+                    EXISTS (
                         SELECT 1
-                        FROM jsonb_array_elements_text((obj->'cohortids')::jsonb) AS cohortids
-                        WHERE cohortids::text IN ($appendwhere2)
+                        FROM jsonb_array_elements(availability::jsonb) AS obj
+                        WHERE obj->>'cohortids' IS NOT NULL
+                        AND EXISTS (
+                            SELECT 1
+                            FROM jsonb_array_elements_text((obj->'cohortids')::jsonb) AS cohortids
+                            WHERE cohortids::text IN ($appendwhere2)
+                        )
                     )
-                )
-            ELSE
-                NOT EXISTS (
-                    SELECT 1
-                    FROM jsonb_array_elements(availability::jsonb) AS obj
-                    WHERE obj->>'cohortids' IS NOT NULL
-                    AND NOT (obj->'cohortids')::jsonb <@ '[$appendwhere1]'::jsonb
-                )
-            END
-        )";
-        return ['', '', '', $params, $where];
+                ELSE
+                    NOT EXISTS (
+                        SELECT 1
+                        FROM jsonb_array_elements(availability::jsonb) AS obj
+                        WHERE obj->>'cohortids' IS NOT NULL
+                        AND NOT (obj->'cohortids')::jsonb <@ '[$appendwhere1]'::jsonb
+                    )
+                END
+            )";
+            return ['', '', '', $params, $where];
+        } else {
 
+            $cohortstrings = array_map(fn($c) => "JSON_UNQUOTE(JSON_SEARCH(j.cohortids, 'one', '" . $c->id. "')) IS NULL
+            AND ", $usercohorts);
+            $appendwheremaria = implode(' ', $cohortstrings);
+
+            $where = "
+            availability IS NOT NULL
+            AND (NOT JSON_CONTAINS(availability, '{\"sqlfilter\": \"1\"}'))
+            OR (EXISTS (
+                SELECT 1
+                FROM JSON_TABLE(availability, '$[*]' COLUMNS (
+                    cohortids JSON PATH '$.cohortids'
+                )) AS j
+                WHERE NOT EXISTS (
+                    SELECT 1
+                    FROM JSON_TABLE(availability, '$[*]' COLUMNS (
+                        cohortids JSON PATH '$.cohortids'
+                    )) AS j2
+                    WHERE $appendwheremaria 1=1
+                )
+                )
+                )
+            ";
+            return ['', '', '', [], $where];
+        }
     }
 
     /**
@@ -271,19 +299,22 @@ class enrolledincohorts implements bo_condition {
                 'AND' => get_string('overrideoperator:and', 'mod_booking'),
             ];
 
-            $cohortoperator = [
-                'OR' => get_string('onecohortmustbefound', 'mod_booking'),
-                'AND' => get_string('allcohortsmustbefound', 'mod_booking'),
-            ];
-
             $mform->addElement('autocomplete', 'bo_cond_enrolledincohorts_cohortids',
                 get_string('cohort_s', 'mod_booking'), $cohortssarray, $enrolledincohortsoptions);
             $mform->hideIf('bo_cond_enrolledincohorts_cohortids', 'bo_cond_enrolledincohorts_restrict', 'notchecked');
 
-            $mform->addElement('select', 'bo_cond_enrolledincohorts_cohortids_operator',
+            if ($DB->get_dbfamily() == 'postgres') {
+                // For the moment, only postgres supports AND check for cohorts, other DBs check if user is in any cohort.
+                $cohortoperator = [
+                    'OR' => get_string('onecohortmustbefound', 'mod_booking'),
+                    'AND' => get_string('allcohortsmustbefound', 'mod_booking'),
+                ];
+
+                $mform->addElement('select', 'bo_cond_enrolledincohorts_cohortids_operator',
                 get_string('overrideoperator', 'mod_booking'), $cohortoperator);
-            $mform->setDefault('bo_cond_enrolledincohorts_cohortids_operator', 'AND');
-            $mform->hideIf('bo_cond_enrolledincohorts_cohortids_operator', 'bo_cond_enrolledincohorts_restrict', 'notchecked');
+                $mform->setDefault('bo_cond_enrolledincohorts_cohortids_operator', 'AND');
+                $mform->hideIf('bo_cond_enrolledincohorts_cohortids_operator', 'bo_cond_enrolledincohorts_restrict', 'notchecked');
+            }
 
             $mform->addElement('checkbox', 'bo_cond_enrolledincohorts_sqlfiltercheck',
                 get_string('sqlfiltercheckstring', 'mod_booking'));
