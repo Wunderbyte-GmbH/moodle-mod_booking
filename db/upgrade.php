@@ -3750,7 +3750,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024040901, 'booking');
     }
 
-    if ($oldversion < 2024042800) {
+    if ($oldversion < 2024050100) {
 
         // Define field sqlfilter to be added to booking_options.
         $table = new xmldb_table('booking_options');
@@ -3762,9 +3762,8 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2024042800, 'booking');
+        upgrade_mod_savepoint(true, 2024050100, 'booking');
     }
-
 
     return true;
 }
