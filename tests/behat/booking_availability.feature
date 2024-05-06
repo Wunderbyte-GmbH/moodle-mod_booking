@@ -11,6 +11,15 @@ Feature: Test booking options avaialbility conditions
       | student1 | Student   | 1        | student1@example1.com | S1       |
       | student2 | Student   | 2        | student2@example2.com | S2       |
       | student3 | Student   | 3        | student3@example3.com | S3       |
+    And the following "cohorts" exist:
+      | name                    | idnumber | visible |
+      | System booking cohort 1 | SBC1     | 1       |
+      | System booking cohort 2 | SBC2     | 1       |
+    And the following "cohort members" exist:
+      | user     | cohort |
+      | student2 | SBC1   |
+      | student3 | SBC1   |
+      | student3 | SBC2   |
     And the following "courses" exist:
       | fullname | shortname | category | enablecompletion |
       | Course 1 | C1        | 0        | 1                |
@@ -392,3 +401,48 @@ Feature: Test booking options avaialbility conditions
     And I should see "You have successfully booked Option - advanced availability" in the ".allbookingoptionstable_r1 .condition-confirmation" "css_element"
     And I follow "Close"
     And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+
+  @javascript
+  Scenario: Option availability: check users cohort settings
+    Given I am on the "My booking" Activity page logged in as teacher1
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I follow "Availability conditions"
+    And I set the field "User is enrolled in certain cohort(s)" to "checked"
+    And I wait "1" seconds
+    ## Teacher: hide unavailable option and require both cohort membership
+    And I set the following fields to these values:
+      | Cohort(s)                                    | SBC1,SBC2 |
+      | bo_cond_enrolledincohorts_cohortids_operator | User has to be member of all cohorts |
+      | Hide bookingoption when condition not met    | 1 |
+    And I press "Save"
+    ## Check availability as student2 and student3
+    When I am on the "My booking" Activity page logged in as student2
+    Then I should not see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
+    When I am on the "My booking" Activity page logged in as student3
+    And I should see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
+    ## Teacher: show unavailable option
+    And I am on the "My booking" Activity page logged in as teacher1
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I follow "Availability conditions"
+    And I set the following fields to these values:
+      | Hide bookingoption when condition not met    | |
+    And I press "Save"
+    ## Check availability as student 2
+    And I am on the "My booking" Activity page logged in as student2
+    And I should see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
+    And I should not see "Book now" in the ".allbookingoptionstable_r1" "css_element"
+    ## Teacher: reqire only one cohort membership
+    And I am on the "My booking" Activity page logged in as teacher1
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I follow "Availability conditions"
+    And I set the following fields to these values:
+      | bo_cond_enrolledincohorts_cohortids_operator | User has to be member to at least one of these cohorts |
+    And I press "Save"
+    ## Check availability as student 2
+    And I am on the "My booking" Activity page logged in as student2
+    And I should see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
