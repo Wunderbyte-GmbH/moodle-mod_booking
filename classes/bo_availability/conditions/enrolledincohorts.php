@@ -135,11 +135,25 @@ class enrolledincohorts implements bo_condition {
     public function return_sql(): array {
         global $USER, $DB;
         $usercohorts = cohort_get_user_cohorts($USER->id);
+        $databasetype = $DB->get_dbfamily();
         if (empty($usercohorts)) {
-            return ["", "", "", [], ""];
+
+            if ($databasetype == 'postgres') {
+                $where = "
+                    availability IS NOT NULL
+                    AND (NOT availability::jsonb @> '[{\"sqlfilter\": \"1\"}]'::jsonb)";
+            } else if ($databasetype == 'mysql') {
+                $where = "
+                availability IS NOT NULL
+                AND (NOT JSON_CONTAINS(availability, '{\"sqlfilter\": \"1\"}'))";
+            }
+            else {
+                return ["", "", "", [], ""];
+            }
+
+            return ["", "", "", [], $where];
         }
 
-        $databasetype = $DB->get_dbfamily();
         // The $key param is the name of the param in json.
         if ($databasetype == 'postgres') {
             // Appended as string for DB syntax reasons.
@@ -184,7 +198,7 @@ class enrolledincohorts implements bo_condition {
                 END
             )";
             return ['', '', '', $params, $where];
-        } else {
+        } else if ($databasetype == 'mysql') {
 
             $cohortstrings = array_map(fn($c) => "JSON_UNQUOTE(JSON_SEARCH(j.cohortids, 'one', '" . $c->id. "')) IS NULL
             AND ", $usercohorts);
@@ -209,6 +223,8 @@ class enrolledincohorts implements bo_condition {
                 )
             ";
             return ['', '', '', [], $where];
+        } else {
+            return ['', '', '', [], ''];
         }
     }
 
