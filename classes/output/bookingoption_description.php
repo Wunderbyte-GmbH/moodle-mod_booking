@@ -322,7 +322,22 @@ class bookingoption_description implements renderable, templatable {
         // User object of the responsible contact.
         $this->responsiblecontactuser = $settings->responsiblecontactuser ?? null;
         if (!empty($this->responsiblecontactuser)) {
-            $this->responsiblecontactuser->link = new moodle_url('/user/profile.php', ['id' => $this->responsiblecontactuser->id]);
+            $isteacher = false;
+            // For teachers of this course, link to teacherpage instead of user profile.
+            foreach ($settings->teachers as $teacher) {
+                if ($this->responsiblecontactuser->id == $teacher->userid) {
+                    continue;
+                }
+                $isteacher = true;
+            }
+            if ($isteacher) {
+                $this->responsiblecontactuser->link = new moodle_url(
+                    '/mod/booking/teacher.php',
+                    ['teacherid' => $settings->responsiblecontact]
+                );
+            } else {
+                $this->responsiblecontactuser->link = new moodle_url('/user/profile.php', ['id' => $this->responsiblecontactuser->id]);
+            }
         }
 
         if (empty($settings->bookingopeningtime)) {
