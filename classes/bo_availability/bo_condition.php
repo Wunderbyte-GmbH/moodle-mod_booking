@@ -153,7 +153,6 @@ interface bo_condition {
      * ... but actually hide the conditons alltogether.
      *
      * @param booking_option_settings $settings
-     * @param int $userid
      * @return array
      */
     public function return_sql(): array;

@@ -266,7 +266,7 @@ define('MOD_BOOKING_FORM_COURSESTARTTIME', 'coursestarttime_');
 define('MOD_BOOKING_FORM_COURSEENDTIME', 'courseendtime_');
 define('MOD_BOOKING_FORM_DELETEDATE', 'deletedate_');
 
-//SQL Filter
+// SQL Filter.
 define('MOD_BOOKING_SQL_FILTER_INACTIVE', 0);
 define('MOD_BOOKING_SQL_FILTER_ACTIVE_JSON_BO', 1);
 define('MOD_BOOKING_SQL_FILTER_ACTIVE_BO_TIME', 2);
