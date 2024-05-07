@@ -429,7 +429,7 @@ class enrolledincohorts implements bo_condition {
             $defaultvalues->bo_cond_enrolledincohorts_restrict = "1";
             $defaultvalues->bo_cond_enrolledincohorts_cohortids = $acdefault->cohortids;
             $defaultvalues->bo_cond_enrolledincohorts_cohortids_operator = $acdefault->cohortidsoperator ?? 'AND';
-            $defaultvalues->bo_cond_enrolledincohorts_sqlfiltercheck = $acdefault->sqlfilter ?? 0;
+            $defaultvalues->bo_cond_enrolledincohorts_sqlfiltercheck = $acdefault->sqlfilter ?? "";
         }
         if (!empty($acdefault->overrides)) {
             $defaultvalues->bo_cond_enrolledincohorts_overrideconditioncheckbox = "1";
