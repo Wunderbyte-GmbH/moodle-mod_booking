@@ -127,7 +127,7 @@ class description extends field_base {
         // Standardfunctionality to add a header to the mform (only if its not yet there).
         fields_info::add_header_to_mform($mform, self::$header);
 
-        $mform->addElement('editor', 'description', get_string('description'), ['rows' => 10]);
+        $mform->addElement('editor', 'description', get_string('description', 'mod_booking'), ['rows' => 10]);
         $mform->setType('description', PARAM_CLEANHTML);
     }
 
