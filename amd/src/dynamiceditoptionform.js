@@ -97,7 +97,7 @@ export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => 
 };
 
 /**
- *
+ * Hide the given checkbox.
  * @param {mixed} checkbox1
  * @param {mixed} checkbox2
  * @param {mixed} closest
@@ -105,6 +105,9 @@ export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => 
  * @param {boolean} withelse
  */
 function hidecheckbox(checkbox1, checkbox2, closest, conditionalCheckbox, withelse) {
+    if (closest === null) {
+        return;
+    }
     if (!checkbox1.checked && !checkbox2.checked) {
         closest.style.display = "none";
         conditionalCheckbox.value = "0";
