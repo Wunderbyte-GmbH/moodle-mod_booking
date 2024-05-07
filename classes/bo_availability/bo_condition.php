@@ -152,7 +152,6 @@ interface bo_condition {
      * This will be used if the conditions should not only block booking...
      * ... but actually hide the conditons alltogether.
      *
-     * @param booking_option_settings $settings
      * @return array
      */
     public function return_sql(): array;

@@ -514,6 +514,8 @@ class singleton_service {
 
     /**
      * Return course with given id.
+     *
+     * @param int $courseid
      * @return object
      */
     public static function get_course(int $courseid): object {
@@ -532,6 +534,8 @@ class singleton_service {
 
     /**
      * Return course with given id.
+     *
+     * @param int $cohortid
      * @return object
      */
     public static function get_cohort(int $cohortid): object {
