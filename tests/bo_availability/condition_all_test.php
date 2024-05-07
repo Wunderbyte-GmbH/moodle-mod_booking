@@ -219,6 +219,100 @@ class condition_all_test extends advanced_testcase {
     }
 
     /**
+     * Test of booking option availability by cohorts and bookingtime.
+     *
+     * @covers \condition\boking_time::is_available
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_booking_bookit_cohorts_and_bookingtime() {
+        global $DB, $CFG;
+
+        $bdata['cancancelbook'] = 1;
+
+        // Setup test data.
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create users.
+        $admin = $this->getDataGenerator()->create_user();
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $student3 = $this->getDataGenerator()->create_user();
+        $student4 = $this->getDataGenerator()->create_user();
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        // Create 2 cohorts.
+        $contextsystem = \context_system::instance();
+        $cohort1 = $this->getDataGenerator()->create_cohort([
+            'contextid' => $contextsystem->id,
+            'name' => 'System booking cohort 1',
+            'idnumber' => 'SBC1',
+        ]);
+        $cohort2 = $this->getDataGenerator()->create_cohort([
+            'contextid' => $contextsystem->id,
+            'name' => 'System booking cohort 2',
+            'idnumber' => 'SBC2',
+        ]);
+
+        $this->setAdminUser();
+
+        cohort_add_member($cohort1->id, $student1->id);
+        cohort_add_member($cohort1->id, $student2->id);
+        cohort_add_member($cohort2->id, $student2->id);
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($student2->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($student3->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($student4->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($teacher->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id);
+
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1 (availability by cohort and time)';
+        $record->courseid = $course1->id;
+        $record->maxanswers = 2;
+        // Set test availability setting(s).
+        $record->bo_cond_enrolledincohorts_restrict = 1;
+        $record->bo_cond_enrolledincohorts_cohortids = [$cohort2->id];
+        $record->bo_cond_enrolledincohorts_cohortids_operator = 'OR';
+        $record->bo_cond_enrolledincohorts_sqlfiltercheck = 1;
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option1 = $plugingenerator->create_option($record);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $boinfo = new bo_info($settings);
+
+        // Try to book student2 - alloved.
+        $this->setUser($student2);
+
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS, $id);
+
+        $result = booking_bookit::bookit('option', $settings->id, $student2->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student2->id);
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Try to book student1 - NOT allowed.
+        $this->setUser($student1);
+
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS, $id);
+    }
+
+    /**
      * Test enrol user and add to group.
      *
      * @covers \booking_option->enrol_user
@@ -388,7 +482,6 @@ class condition_all_test extends advanced_testcase {
         // The true is only hardblocking, which means low blockers used to only show buttons etc. wont be shown.
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_BOOKING_TIME, $id);
-
     }
 
     /**
