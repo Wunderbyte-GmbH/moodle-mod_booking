@@ -412,14 +412,19 @@ Feature: Test booking options avaialbility conditions
     And I wait "1" seconds
     ## Teacher: hide unavailable option and require both cohort membership
     And I set the following fields to these values:
-      | Cohort(s)                                    | SBC1,SBC2 |
-      | bo_cond_enrolledincohorts_cohortids_operator | User has to be member of all cohorts |
-      | Hide bookingoption when condition not met    | 1 |
+      | Cohort(s)                                    | System booking cohort 1,System booking cohort 2        |
+      | bo_cond_enrolledincohorts_cohortids_operator | User has to be member of all cohorts                   |
+      ##| bo_cond_enrolledincohorts_cohortids_operator | User has to be member to at least one of these cohorts |
+      | bo_cond_enrolledincohorts_sqlfiltercheck     | 1 |
     And I press "Save"
-    ## Check availability as student2 and student3
-    When I am on the "My booking" Activity page logged in as student2
-    Then I should not see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
-    When I am on the "My booking" Activity page logged in as student3
+    ## Check availability as students
+    When I am on the "My booking" Activity page logged in as student1
+    ##Then I should not see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait "15" seconds
+    And I am on the "My booking" Activity page logged in as student2
+    And I should not see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
+    And I am on the "My booking" Activity page logged in as student3
     And I should see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     ## Teacher: show unavailable option
@@ -428,21 +433,12 @@ Feature: Test booking options avaialbility conditions
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Availability conditions"
     And I set the following fields to these values:
-      | Hide bookingoption when condition not met    | |
+      | bo_cond_enrolledincohorts_sqlfiltercheck    | |
     And I press "Save"
-    ## Check availability as student 2
-    And I am on the "My booking" Activity page logged in as student2
+    ## Check availability as student1
+    And I am on the "My booking" Activity page logged in as student1
+    And I wait "15" seconds
     And I should see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
+    ##And I should see "Booking not allowed because you are not enrolled in at least one of the following cohort(s): System booking cohort 1, System booking cohort 2" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Booking not allowed because you are not enrolled in all of the following cohort(s): System booking cohort 1, System booking cohort 2" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Book now" in the ".allbookingoptionstable_r1" "css_element"
-    ## Teacher: reqire only one cohort membership
-    And I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I follow "Availability conditions"
-    And I set the following fields to these values:
-      | bo_cond_enrolledincohorts_cohortids_operator | User has to be member to at least one of these cohorts |
-    And I press "Save"
-    ## Check availability as student 2
-    And I am on the "My booking" Activity page logged in as student2
-    And I should see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
