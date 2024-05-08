@@ -422,7 +422,6 @@ Feature: Test booking options avaialbility conditions
     When I am on the "My booking" Activity page logged in as student1
     Then I should not see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
     And I log out
-    ##And I wait "15" seconds
     And I am on the "My booking" Activity page logged in as student2
     And I should not see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
@@ -438,20 +437,15 @@ Feature: Test booking options avaialbility conditions
     And I follow "Availability conditions"
     And I wait "1" seconds
     And I set the field "bo_cond_enrolledincohorts_sqlfiltercheck" to ""
-    ##And I set the following fields to these values:
-    ##  | bo_cond_enrolledincohorts_sqlfiltercheck    | |
     And I press "Save"
-    And I wait "15" seconds
     And I log out
     ## Check availability as student2
     And I am on the "My booking" Activity page logged in as student2
-    And I wait "5" seconds
     And I should see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Booking not allowed because you are not enrolled in all of the following cohort(s): System booking cohort 1, System booking cohort 2" in the ".allbookingoptionstable_r1" "css_element"
     And I log out
     ## Check availability as student1
     And I am on the "My booking" Activity page logged in as student1
-    And I wait "10" seconds
     And I should see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
     ##And I should see "Booking not allowed because you are not enrolled in at least one of the following cohort(s): System booking cohort 1, System booking cohort 2" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Booking not allowed because you are not enrolled in all of the following cohort(s): System booking cohort 1, System booking cohort 2" in the ".allbookingoptionstable_r1" "css_element"
