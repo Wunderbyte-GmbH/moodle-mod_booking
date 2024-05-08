@@ -146,8 +146,7 @@ class enrolledincohorts implements bo_condition {
                 $where = "
                 availability IS NOT NULL
                 AND (NOT JSON_CONTAINS(availability, '{\"sqlfilter\": \"1\"}'))";
-            }
-            else {
+            } else {
                 return ["", "", "", [], ""];
             }
 
