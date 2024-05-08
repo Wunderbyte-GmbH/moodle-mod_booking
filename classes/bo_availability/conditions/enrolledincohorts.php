@@ -111,7 +111,7 @@ class enrolledincohorts implements bo_condition {
                 if (empty($difference)) {
                     $isavailable = true;
                 }
-            } else if ($difference < count($enrolledcohorts)) {
+            } else if (count($difference) < count($neededcohorts)) {
                 $isavailable = true;
                 // We only get true, if the user is enrolled in at least one of the cohorts of the condition.
             }
