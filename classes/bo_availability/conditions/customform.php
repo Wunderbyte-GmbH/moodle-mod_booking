@@ -203,45 +203,50 @@ class customform implements bo_condition {
 
             $formelementsarray = [
                 0 => get_string('noelement', 'mod_booking'),
-                'checkbox' => get_string('checkbox', 'mod_booking'),
+                'advcheckbox' => get_string('checkbox', 'mod_booking'),
                 'static' => get_string('displaytext', 'mod_booking'),
-                // phpcs:ignore moodle.Commenting.InlineComment.NotCapital,Squiz.PHP.CommentedOutCode.Found
-                // 'shorttext' => get_string('shorttext', 'mod_booking'),
+                'shorttext' => get_string('shorttext', 'mod_booking'),
             ];
 
             // We add four potential elements.
             $counter = 1;
             $previous = 0;
-            while ($counter < 3) {
+            while ($counter < 10) {
 
                 $buttonarray = [];
-
-                if ($counter == 1) {
-                    $formelementsarray = ['static' => get_string('displaytext', 'mod_booking')];
-                } else if ($counter == 2) {
-                    $formelementsarray = ['advcheckbox' => get_string('checkbox', 'mod_booking')];
-                }
 
                 // Create a select to chose which tpye of form element to display.
                 $buttonarray[] =& $mform->createElement('select', 'bo_cond_customform_select_1_' . $counter,
                     get_string('formtype', 'mod_booking'), $formelementsarray);
 
                 // We need to create all possible elements and hide them via "hideif" right now.
-
-                if ($counter == 1) {
-                    // Here we create the display-text element.
-                    $buttonarray[] =& $mform->createElement('textarea', 'bo_cond_customform_value_1_' . $counter,
+                $buttonarray[] =& $mform->createElement('text', 'bo_cond_customform_label_1_' . $counter,
                         get_string('bo_cond_customform_label', 'mod_booking'), []);
-                } else if ($counter == 2) {
-                    $buttonarray[] =& $mform->createElement('text', 'bo_cond_customform_label_1_' . $counter,
-                    get_string('bo_cond_customform_label', 'mod_booking'), []);
+                $mform->setType('bo_cond_customform_label_1_' . $counter, PARAM_TEXT);
 
-                    $mform->setType('bo_cond_customform_label_1_' . $counter, PARAM_TEXT);
-                    // If the select is not currently on this element, we hide it.
-                }
+                $mform->disabledIf('bo_cond_customform_label_1_' . $counter,
+                    'bo_cond_customform_select_1_' . $counter,
+                    'eq', 0);
 
                 $mform->addGroup($buttonarray, 'formgroupelement_1_' . $counter, '', '', false, []);
                 $mform->hideIf('formgroupelement_1_' . $counter, 'bo_cond_customform_restrict', 'notchecked');
+
+                 // We need to create all possible elements and hide them via "hideif" right now.
+                 $mform->addElement('textarea', 'bo_cond_customform_value_1_' . $counter,
+                 get_string('bo_cond_customform_label', 'mod_booking'), []);
+
+                $mform->hideIf('bo_cond_customform_value_1_' . $counter,
+                    'bo_cond_customform_select_1_' . $counter,
+                    'eq', 0);
+
+                // We need to create all possible elements and hide them via "hideif" right now.
+                $mform->addElement('text', 'bo_cond_customform_validate_1_' . $counter,
+                        get_string('bo_cond_customform_validate', 'mod_booking'), []);
+                $mform->setType('bo_cond_customform_validate_1_' . $counter, PARAM_TEXT);
+
+                $mform->hideIf('bo_cond_customform_validate_1_' . $counter,
+                    'bo_cond_customform_select_1_' . $counter,
+                    'eq', 0);
 
                 if (!empty($previous)) {
                     $mform->hideIf('formgroupelement_1_' . $counter,

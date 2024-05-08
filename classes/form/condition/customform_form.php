@@ -158,9 +158,13 @@ class customform_form extends dynamic_form {
                             '',
                             $formelementvalue->value);
                         break;
-                    default:
-                        $mform->addElement($formelementvalue->formtype, 'customform_checkbox_' . $counter, '',
-                        $formelementvalue->label ?? "Label " . $counter);
+                    case 'advcheckbox':
+                        $mform->addElement('advcheckbox', 'customform_checkbox_' . $counter,
+                        $formelementvalue->label ?? "Label " . $counter, $formelementvalue->label ?? "Label " . $counter);
+                        break;
+                    case 'shorttext':
+                        $mform->addElement('text', 'customform_shorttext_' . $counter,
+                        $formelementvalue->label ?? "Label " . $counter, $formelementvalue->label ?? "Label " . $counter);
                         break;
                 }
 
