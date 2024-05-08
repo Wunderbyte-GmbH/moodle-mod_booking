@@ -160,21 +160,19 @@ class enrolledincohorts implements bo_condition {
             $cohortids = array_map(fn($c) => '"' . $c->id. '"', $usercohorts);
             $appendwhere1 = implode(', ', $cohortids);
 
-            // Can be appended as params.
             $cohorts = [];
-            $params = [];
+            $appendwhere2 = "";
             foreach ($usercohorts as $cohort) {
-                $cohorts[] = ":cohortparam_$cohort->id";
-                $params["cohortparam_$cohort->id"] = "\"$cohort->id\"";
+                $cohorts[] = "'$cohort->id'";
             }
             // List of current cohorts of user.
-            $appendwhere2 = implode(' , ', $cohorts);
+            $appendwhere2 = implode(', ', $cohorts);
 
             // Depending on the cohortidsoperator check either if user in enrolled in all or at least one cohorts selected.
             // Default is AND - all cohorts must be met by user.
             $where = "
             availability IS NOT NULL
-            AND (NOT availability::jsonb @> '[{\"sqlfilter\": \"1\"}]'::jsonb)
+            AND ((NOT availability::jsonb @> '[{\"sqlfilter\": \"1\"}]'::jsonb)
             OR (CASE
                 WHEN (availability::jsonb->0->>'cohortidsoperator') = 'OR' THEN
                     EXISTS (
@@ -195,8 +193,8 @@ class enrolledincohorts implements bo_condition {
                         AND NOT (obj->'cohortids')::jsonb <@ '[$appendwhere1]'::jsonb
                     )
                 END
-            )";
-            return ['', '', '', $params, $where];
+            ))";
+            return ['', '', '', [], $where];
         } else if ($databasetype == 'mysql') {
 
             $cohortstrings = array_map(fn($c) => "JSON_UNQUOTE(JSON_SEARCH(j.cohortids, 'one', '" . $c->id. "')) IS NULL
@@ -205,7 +203,7 @@ class enrolledincohorts implements bo_condition {
 
             $where = "
             availability IS NOT NULL
-            AND (NOT JSON_CONTAINS(availability, '{\"sqlfilter\": \"1\"}'))
+            AND ((NOT JSON_CONTAINS(availability, '{\"sqlfilter\": \"1\"}'))
             OR (EXISTS (
                 SELECT 1
                 FROM JSON_TABLE(availability, '$[*]' COLUMNS (
@@ -219,7 +217,7 @@ class enrolledincohorts implements bo_condition {
                     WHERE $appendwheremaria 1=1
                 )
                 )
-                )
+                ))
             ";
             return ['', '', '', [], $where];
         } else {
