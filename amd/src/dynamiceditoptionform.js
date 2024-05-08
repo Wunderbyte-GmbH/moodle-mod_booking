@@ -76,7 +76,7 @@ export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => 
     var checkbox1 = document.querySelector('[name="restrictanswerperiodopening"]');
     var checkbox2 = document.querySelector('[name="restrictanswerperiodclosing"]');
     var conditionalCheckbox = document.querySelector('[name="bo_cond_booking_time_sqlfiltercheck"]');
-    let closest = conditionalCheckbox.closest('[class="form-group row  fitem  "]');
+    let closest = conditionalCheckbox.closest('[class^="form-group row"],[class*=" fitem"]');
 
     dynamicForm.addEventListener('change', e => {
         // eslint-disable-next-line no-console
@@ -109,8 +109,9 @@ function hidecheckbox(checkbox1, checkbox2, closest, conditionalCheckbox, withel
         return;
     }
     if (!checkbox1.checked && !checkbox2.checked) {
+        conditionalCheckbox.value = "";
+        conditionalCheckbox.checked = false;
         closest.style.display = "none";
-        conditionalCheckbox.value = "0";
     } else if (withelse) {
         closest.style.display = "";
     }
