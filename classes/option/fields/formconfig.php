@@ -137,6 +137,13 @@ class formconfig extends field_base {
                     '',
                     $msg
                 );
+            } else {
+                $mform->addElement(
+                    'static',
+                    'formconfiglabel_more',
+                    '',
+                    get_string('nopermissiontoaccesspage', 'mod_booking')
+                );
             }
         }
     }

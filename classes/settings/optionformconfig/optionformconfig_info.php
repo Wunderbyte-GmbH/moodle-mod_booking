@@ -189,7 +189,9 @@ class optionformconfig_info {
      */
     public static function return_configured_fields_for_capability(int $contextid, string $capability) {
 
-        if (isset(self::$arrayoffieldsets[$contextid][$capability])) {
+        if (empty($capability)) {
+            $json = '[{"id":25,"classname":"formconfig","checked":true,"necessary":0,"incompatible":[],"subfields":[]}]';
+        } else if (isset(self::$arrayoffieldsets[$contextid][$capability])) {
             $json = self::$arrayoffieldsets[$contextid][$capability];
         } else if ($record = self::return_capabilities_from_db($contextid, $capability)) {
             $json = $record->json;
