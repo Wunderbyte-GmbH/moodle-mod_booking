@@ -259,7 +259,7 @@ $bookingoption->option->autoenrol = $bookingoption->booking->settings->autoenrol
 $tableallbookings = new \mod_booking\all_userbookings('mod_booking_all_users_sort_new', $bookingoption, $cm, $optionid);
 
 // Bugfix: Replace special characters to prevent errors.
-$filename = str_replace(' ', '_', $titlestring); // Replaces all spaces with underscores.
+$filename = str_replace(' ', '_', $titlestring ?? ''); // Replaces all spaces with underscores.
 $filename = preg_replace('/[^A-Za-z0-9\_]/', '', $filename); // Removes special chars.
 $filename = preg_replace('/\_+/', '_', $filename); // Replace multiple underscores with exactly one.
 $filename = format_string($filename);
@@ -580,7 +580,7 @@ if (!$tableallbookings->is_downloading()) {
 
     foreach ($customform as $counter => $customformfield) {
         $columns[] = 'formfield_' . $counter;
-        $headers[] = $customformfield->label;
+        $headers[] = !empty($customformfield->label) ? $customformfield->label : 'label_' . $counter;
     }
 
     $strbooking = get_string("modulename", "booking");
@@ -956,6 +956,16 @@ if (!$tableallbookings->is_downloading()) {
             strtolower($profilefield->shortname);
         }
     }
+
+    // Add responses from forms.
+    $settings = singleton_service::get_instance_of_booking_option_settings((int)$optionid);
+    $customform = customform::return_formelements($settings);
+
+    foreach ($customform as $counter => $customformfield) {
+        $columns[] = 'formfield_' . $counter;
+        $headers[] = !empty($customformfield->label) ? $customformfield->label : 'label_' . $counter;
+    }
+
     if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS &&
             !has_capability('moodle/site:accessallgroups', \context_course::instance($course->id))) {
         list($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql(
