@@ -1,3 +1,11 @@
+## Version 8.2.9 (2024050800)
+* Improvement: For teachers responsible for a bookingoption, link to teacherpage instead of user profile.
+* Improvement: Allow confirmation when there is is no pre booking page.
+* Bugfix: Users on notification list must not be enroled in moodle course.
+* Bugfix: Check if already booked before booking again.
+* Bugfix: Remove unnecessary inclusion of question/category from requirements.
+* Bugfix: Create bookingcampaign via DB and view as teacher.
+
 ## Version 8.2.8 (2024042900)
 * Bugfix: Cashiers can still overbook when waitinglist is full
 
