@@ -2053,6 +2053,9 @@ $string['textarea'] = "Textarea";
 $string['shorttext'] = "Shorttext";
 $string['formtype'] = "Type of form";
 $string['bo_cond_customform_label'] = "Label";
+$string['bo_cond_customform_notempty'] = 'Must not be empty';
+$string['bo_cond_customform_value'] = 'Value';
+$string['bo_cond_customform_value_help'] = 'When a dropdown menu is selected, please enter one value per line. The values and displayed values can be entered separately, for example, "1 => My first value" etc.';
 
 // Teacher_performed_units_report.php.
 $string['error:wrongteacherid'] = 'Error: No user could be found for the provided "teacherid".';

@@ -23,6 +23,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\bo_availability\conditions\customform;
 use mod_booking\booking_option;
 use mod_booking\output\booked_users;
 use mod_booking\singleton_service;
@@ -573,6 +574,15 @@ if (!$tableallbookings->is_downloading()) {
         }
     }
 
+    // Add responses from forms.
+    $settings = singleton_service::get_instance_of_booking_option_settings((int)$optionid);
+    $customform = customform::return_formelements($settings);
+
+    foreach ($customform as $counter => $customformfield) {
+        $columns[] = 'formfield_' . $counter;
+        $headers[] = $customformfield->label;
+    }
+
     $strbooking = get_string("modulename", "booking");
     $strbookings = get_string("modulenameplural", "booking");
     $strresponses = get_string("responses", "booking");
@@ -595,6 +605,7 @@ if (!$tableallbookings->is_downloading()) {
 
     // ALL USERS - START To make compatible MySQL and PostgreSQL - http://hyperpolyglot.org/db.
     $fields = 'ba.id, ' . $mainuserfields . ',
+            ba.optionid,
             u.username,
             u.institution,
             u.city,

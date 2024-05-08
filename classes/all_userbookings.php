@@ -25,6 +25,7 @@ namespace mod_booking;
 use coding_exception;
 use mod_booking\output\report_edit_bookingnotes;
 use html_writer;
+use mod_booking\bo_availability\conditions\customform;
 use moodle_url;
 use stdClass;
 defined('MOODLE_INTERNAL') || die();
@@ -305,7 +306,30 @@ class all_userbookings extends \table_sql {
             } else {
                 return '';
             }
+        } else if (substr($colname, 0, 10) === "formfield_") {
+            $settings = singleton_service::get_instance_of_booking_option_settings((int)$value->optionid);
+            $ba = singleton_service::get_instance_of_booking_answers($settings);
+
+            if ($answer = $ba->usersonlist[(int)$value->userid] ?? false) {
+                list($prefix, $counter) = explode('_', $colname);
+
+                if ($jsonobject = json_decode($answer->json)) {
+                    if (isset($jsonobject->condition_customform)) {
+                        foreach ($jsonobject->condition_customform as $key => $value) {
+
+                            $array = explode('_', $key);
+                            if (isset($array[2]) &&  $array[2] == $counter) {
+                                return "$value";
+                            }
+                        }
+                    }
+                }
+            }
+            return '';
         }
+
+
+
     }
 
     /**

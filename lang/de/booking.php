@@ -1919,8 +1919,12 @@ $string['checkbox'] = "Checkbox";
 $string['displaytext'] = "Text anzeigen";
 $string['textarea'] = "Textbereich";
 $string['shorttext'] = "Kurztext";
+$string['select'] = "DropDown Menü";
 $string['formtype'] = "Formulartyp";
 $string['bo_cond_customform_label'] = "Bezeichnung";
+$string['bo_cond_customform_notempty'] = 'Darf nicht leer sein';
+$string['bo_cond_customform_value'] = 'Wert';
+$string['bo_cond_customform_value_help'] = 'Wenn ein DropDown Menü ausgewählt ist bitte einen Wert pro Zeile eingeben. Die Werte und angezeigte Werte können getrennt eingegeben werden, also z.b. "1 => Mein erster Wert" usw.';
 
 // Teacher_performed_units_report.php.
 $string['error:wrongteacherid'] = 'Fehler: Für die angegebene "teacherid" wurde kein:e Nutzer:in gefunden.';

@@ -28,6 +28,7 @@ namespace mod_booking\bo_availability\conditions;
 
 use cache;
 use context_system;
+use Exception;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
@@ -206,6 +207,7 @@ class customform implements bo_condition {
                 'advcheckbox' => get_string('checkbox', 'mod_booking'),
                 'static' => get_string('displaytext', 'mod_booking'),
                 'shorttext' => get_string('shorttext', 'mod_booking'),
+                'select' => get_string('select', 'mod_booking'),
             ];
 
             // We add four potential elements.
@@ -219,34 +221,48 @@ class customform implements bo_condition {
                 $buttonarray[] =& $mform->createElement('select', 'bo_cond_customform_select_1_' . $counter,
                     get_string('formtype', 'mod_booking'), $formelementsarray);
 
-                // We need to create all possible elements and hide them via "hideif" right now.
-                $buttonarray[] =& $mform->createElement('text', 'bo_cond_customform_label_1_' . $counter,
-                        get_string('bo_cond_customform_label', 'mod_booking'), []);
-                $mform->setType('bo_cond_customform_label_1_' . $counter, PARAM_TEXT);
-
-                $mform->disabledIf('bo_cond_customform_label_1_' . $counter,
-                    'bo_cond_customform_select_1_' . $counter,
-                    'eq', 0);
-
                 $mform->addGroup($buttonarray, 'formgroupelement_1_' . $counter, '', '', false, []);
                 $mform->hideIf('formgroupelement_1_' . $counter, 'bo_cond_customform_restrict', 'notchecked');
 
-                 // We need to create all possible elements and hide them via "hideif" right now.
-                 $mform->addElement('textarea', 'bo_cond_customform_value_1_' . $counter,
-                 get_string('bo_cond_customform_label', 'mod_booking'), []);
+                $mform->addElement('text', 'bo_cond_customform_label_1_' . $counter,
+                        get_string('bo_cond_customform_label', 'mod_booking'), []);
+                $mform->setType('bo_cond_customform_label_1_' . $counter, PARAM_TEXT);
 
-                $mform->hideIf('bo_cond_customform_value_1_' . $counter,
+                // We need a few rules. We don't show label...
+                // ... when no element is chosen, when upper button is not checked.
+                $mform->hideIf('bo_cond_customform_label_1_' . $counter, 'bo_cond_customform_restrict', 'notchecked');
+                $mform->hideIf('bo_cond_customform_label_1_' . $counter,
                     'bo_cond_customform_select_1_' . $counter,
                     'eq', 0);
 
                 // We need to create all possible elements and hide them via "hideif" right now.
-                $mform->addElement('text', 'bo_cond_customform_validate_1_' . $counter,
-                        get_string('bo_cond_customform_validate', 'mod_booking'), []);
-                $mform->setType('bo_cond_customform_validate_1_' . $counter, PARAM_TEXT);
+                $mform->addElement('textarea', 'bo_cond_customform_value_1_' . $counter,
+                    get_string('bo_cond_customform_value', 'mod_booking'), []);
+                $mform->addHelpButton('bo_cond_customform_value_1_' . $counter, 'bo_cond_customform_value', 'mod_booking');
 
-                $mform->hideIf('bo_cond_customform_validate_1_' . $counter,
+                // We need a few rules. We don't show label...
+                // ... when no element is chosen, when upper button is not checked, when form element is static.
+                $mform->hideIf('bo_cond_customform_value_1_' . $counter, 'bo_cond_customform_restrict', 'notchecked');
+                $mform->hideIf('bo_cond_customform_value_1_' . $counter,
                     'bo_cond_customform_select_1_' . $counter,
                     'eq', 0);
+                $mform->hideIf('bo_cond_customform_value_1_' . $counter,
+                    'bo_cond_customform_select_1_' . $counter,
+                    'eq', 'advcheckbox');
+
+                // We need to create all possible elements and hide them via "hideif" right now.
+                $mform->addElement('advcheckbox', 'bo_cond_customform_notempty_1_' . $counter,
+                        get_string('bo_cond_customform_notempty', 'mod_booking'), []);
+
+                // We need a few rules. We don't show label...
+                // ... when no element is chosen, when upper button is not checked.
+                $mform->hideIf('bo_cond_customform_notempty_1_' . $counter, 'bo_cond_customform_restrict', 'notchecked');
+                $mform->hideIf('bo_cond_customform_notempty_1_' . $counter,
+                    'bo_cond_customform_select_1_' . $counter,
+                    'eq', 0);
+                $mform->hideIf('bo_cond_customform_notempty_1_' . $counter,
+                    'bo_cond_customform_select_1_' . $counter,
+                    'eq', 'static');
 
                 if (!empty($previous)) {
                     $mform->hideIf('formgroupelement_1_' . $counter,
@@ -343,11 +359,14 @@ class customform implements bo_condition {
             $key = 'bo_cond_customform_value_' . $formcounter . '_' . $counter;
             $formobject->value = $fromform->{$key} ?? null;
 
+            $key = 'bo_cond_customform_notempty_' . $formcounter . '_' . $counter;
+            $formobject->notempty = $fromform->{$key} ?? null;
+
             $newform[$counter] = $formobject;
 
             // If the next key is not there, we increase $formcounter, else $counter.
             $key = 'bo_cond_customform_select_' . $formcounter . '_' . ($counter + 1);
-            if (isset($fromform->{$key})) {
+            if (!empty($fromform->{$key})) {
                 $counter++;
             } else {
 
@@ -390,6 +409,9 @@ class customform implements bo_condition {
 
                 $key = 'bo_cond_customform_value_' . $formcounter . '_' . $counter;
                 $defaultvalues->{$key} = $formelement->value;
+
+                $key = 'bo_cond_customform_notempty_' . $formcounter . '_' . $counter;
+                $defaultvalues->{$key} = $formelement->notempty ?? 0;
 
             }
 
@@ -491,6 +513,27 @@ class customform implements bo_condition {
             ];
 
             $newanswer->json = json_encode($data);
+        }
+    }
+
+    /**
+     * This interprets the availability column, looks for an entry from this class and returns the fields.
+     * @param booking_option_settings $settings
+     * @return array
+     */
+    public static function return_formelements(booking_option_settings $settings) {
+
+        try {
+            $availabilities = json_decode($settings->availability);
+            $formelements = [];
+            foreach ($availabilities as $availability) {
+                if ($availability->id === MOD_BOOKING_BO_COND_JSON_CUSTOMFORM) {
+                    $formelements = $availability->formsarray->{1};
+                }
+            }
+            return $formelements;
+        } catch (Exception $e) {
+            return [];
         }
     }
 }
