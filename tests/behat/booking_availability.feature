@@ -416,8 +416,9 @@ Feature: Test booking options avaialbility conditions
     ## Teacher: hide unavailable option and require both cohort membership
     And I set the following fields to these values:
       | Cohort(s)                                    | System booking cohort 1,System booking cohort 2        |
+      ## Configuration of Operator disabled because MySQL does not support it. The "OR" logic used by default.
       ## | bo_cond_enrolledincohorts_cohortids_operator | User has to be member of all cohorts                   |
-      | bo_cond_enrolledincohorts_cohortids_operator | User has to be member to at least one of these cohorts |
+      ## | bo_cond_enrolledincohorts_cohortids_operator | User has to be member to at least one of these cohorts |
       | bo_cond_enrolledincohorts_sqlfiltercheck     | 1 |
     And I press "Save"
     And I log out
