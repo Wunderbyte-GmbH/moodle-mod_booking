@@ -325,7 +325,7 @@ class enrolledincohorts implements bo_condition {
 
                 $mform->addElement('select', 'bo_cond_enrolledincohorts_cohortids_operator',
                 get_string('overrideoperator', 'mod_booking'), $cohortoperator);
-                $mform->setDefault('bo_cond_enrolledincohorts_cohortids_operator', 'AND');
+                $mform->setDefault('bo_cond_enrolledincohorts_cohortids_operator', 'OR');
                 $mform->hideIf('bo_cond_enrolledincohorts_cohortids_operator', 'bo_cond_enrolledincohorts_restrict', 'notchecked');
             }
 
