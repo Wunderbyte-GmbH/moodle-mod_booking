@@ -362,15 +362,17 @@ Feature: Test booking options avaialbility conditions
     And I set the field "Form needs to be filled out before booking" to "checked"
     And I wait "1" seconds
     And I set the following fields to these values:
-      | bo_cond_customform_value_1_1 | Confirm your intention |
-      | bo_cond_customform_label_1_2 | Yes                    |
+      | bo_cond_customform_select_1_1   | select                           |
+      | bo_cond_customform_label_1_1    | Choose what you agree            |
+      | bo_cond_customform_value_1_1    | 1 => option one/n2 => option two |
+      | bo_cond_customform_notempty_1_1 | 1                                |
     And I press "Save"
     ## Check availability as students
     Given I am on the "My booking" Activity page logged in as student1
     Then I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
-    Then I should see "Confirm your intention" in the ".condition-customform" "css_element"
-    And I set the field "customform_checkbox_2" to "checked"
+    Then I should see "Choose what you agree" in the ".condition-customform" "css_element"
+    And I set the field "customform_select_1" to "option one"
     And I follow "Continue"
     And I should see "You have successfully booked Option - advanced availability" in the ".condition-confirmation" "css_element"
     And I follow "Close"
@@ -388,15 +390,16 @@ Feature: Test booking options avaialbility conditions
     And I set the field "Form needs to be filled out before booking" to "checked"
     And I wait "1" seconds
     And I set the following fields to these values:
-      | bo_cond_customform_value_1_1 | Confirm your intention |
-      | bo_cond_customform_label_1_2 | Yes                    |
+      | bo_cond_customform_select_1_1   | advcheckbox            |
+      | bo_cond_customform_label_1_1    | Confirm your intention |
+      | bo_cond_customform_notempty_1_1 | 1                      |
     And I press "Save"
     ## Check availability as students
     Given I am on the "My booking" Activity page logged in as student1
     Then I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
     Then I should see "Confirm your intention" in the ".allbookingoptionstable_r1 .condition-customform" "css_element"
-    And I set the field "customform_checkbox_2" to "checked"
+    And I set the field "customform_advcheckbox_1" to "checked"
     And I follow "Continue"
     And I should see "You have successfully booked Option - advanced availability" in the ".allbookingoptionstable_r1 .condition-confirmation" "css_element"
     And I follow "Close"
