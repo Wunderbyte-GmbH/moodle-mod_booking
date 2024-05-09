@@ -329,11 +329,11 @@ class enrolledincohorts implements bo_condition {
                 $mform->hideIf('bo_cond_enrolledincohorts_cohortids_operator', 'bo_cond_enrolledincohorts_restrict', 'notchecked');
             }
 
-            $mform->addElement('checkbox', 'bo_cond_enrolledincohorts_sqlfiltercheck',
+            $mform->addElement('advcheckbox', 'bo_cond_enrolledincohorts_sqlfiltercheck',
                 get_string('sqlfiltercheckstring', 'mod_booking'));
             $mform->hideIf('bo_cond_enrolledincohorts_sqlfiltercheck', 'bo_cond_enrolledincohorts_restrict', 'notchecked');
 
-            $mform->addElement('checkbox', 'bo_cond_enrolledincohorts_overrideconditioncheckbox',
+            $mform->addElement('advcheckbox', 'bo_cond_enrolledincohorts_overrideconditioncheckbox',
                 get_string('overrideconditioncheckbox', 'mod_booking'));
             $mform->hideIf(
                 'bo_cond_enrolledincohorts_overrideconditioncheckbox',
@@ -421,7 +421,7 @@ class enrolledincohorts implements bo_condition {
             $conditionobject->class = $classname;
             $conditionobject->cohortids = $fromform->bo_cond_enrolledincohorts_cohortids;
             $conditionobject->cohortidsoperator = $fromform->bo_cond_enrolledincohorts_cohortids_operator;
-            $conditionobject->sqlfilter = $fromform->bo_cond_enrolledincohorts_sqlfiltercheck;
+            $conditionobject->sqlfilter = $fromform->bo_cond_enrolledincohorts_sqlfiltercheck ?? 0;
 
             if (!empty($fromform->bo_cond_enrolledincohorts_overrideconditioncheckbox)) {
                 $conditionobject->overrides = $fromform->bo_cond_enrolledincohorts_overridecondition;
