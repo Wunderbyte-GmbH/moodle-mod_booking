@@ -336,7 +336,10 @@ class bookingoption_description implements renderable, templatable {
                     ['teacherid' => $settings->responsiblecontact]
                 );
             } else {
-                $this->responsiblecontactuser->link = new moodle_url('/user/profile.php', ['id' => $this->responsiblecontactuser->id]);
+                $this->responsiblecontactuser->link = new moodle_url(
+                    '/user/profile.php',
+                    ['id' => $this->responsiblecontactuser->id]
+                );
             }
         }
 

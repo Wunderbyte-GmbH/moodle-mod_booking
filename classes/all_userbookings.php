@@ -324,7 +324,6 @@ class all_userbookings extends \table_sql {
         }
     }
 
-
     /**
      *
      * {@inheritDoc}
