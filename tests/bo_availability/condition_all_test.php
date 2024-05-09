@@ -280,10 +280,10 @@ class condition_all_test extends advanced_testcase {
         $record->bookingid = $booking1->id;
         $record->text = 'Test option1 (availability by cohort and time)';
         $record->courseid = $course1->id;
-        $record->maxanswers = 2;
+
         // Set test availability setting(s).
         $record->bo_cond_enrolledincohorts_restrict = 1;
-        $record->bo_cond_enrolledincohorts_cohortids = [$cohort2->id];
+        $record->bo_cond_enrolledincohorts_cohortids = [$cohort1->id, $cohort2->id];
         $record->bo_cond_enrolledincohorts_cohortids_operator = 'OR';
         $record->bo_cond_enrolledincohorts_sqlfiltercheck = 1;
 
@@ -294,21 +294,32 @@ class condition_all_test extends advanced_testcase {
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
         $boinfo = new bo_info($settings);
 
-        // Try to book student2 - alloved.
+        // Try to book student1 - allowed.
+        $this->setUser($student1);
+
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Try to book student2 - allowed.
         $this->setUser($student2);
 
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS, $id);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
 
         $result = booking_bookit::bookit('option', $settings->id, $student2->id);
         $result = booking_bookit::bookit('option', $settings->id, $student2->id);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
-        // Try to book student1 - NOT allowed.
-        $this->setUser($student1);
+        // Try to book student3 - NOT allowed.
+        $this->setUser($student3);
 
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student3->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS, $id);
     }
 
