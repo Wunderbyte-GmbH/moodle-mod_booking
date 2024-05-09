@@ -100,7 +100,8 @@ class condition_all_test extends advanced_testcase {
 
         $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
 
-        $this->getDataGenerator()->enrol_user($admin->id, $course->id);
+        $this->setAdminUser();
+
         $this->getDataGenerator()->enrol_user($student1->id, $course->id);
         $this->getDataGenerator()->enrol_user($student2->id, $course->id);
         $this->getDataGenerator()->enrol_user($student3->id, $course->id);
@@ -126,6 +127,7 @@ class condition_all_test extends advanced_testcase {
         $boinfo = new bo_info($settings);
 
         // Check option availability if user is not logged yet.
+        require_logout();
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, false);
         $this->assertEquals(MOD_BOOKING_BO_COND_ISLOGGEDIN, $id);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
@@ -178,7 +180,7 @@ class condition_all_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_FULLYBOOKED, $id);
 
         // Now we add waitinglist to option.
-        $this->setUser($admin);
+        $this->setAdminUser();
         $record->id = $option1->id;
         $record->maxoverbooking = 1;
         $record->cmid = $settings->cmid;
@@ -504,6 +506,8 @@ class condition_all_test extends advanced_testcase {
 
         $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
 
+        $this->setAdminUser();
+
         $this->getDataGenerator()->enrol_user($admin->id, $course1->id);
         $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
         $this->getDataGenerator()->enrol_user($student2->id, $course1->id);
@@ -543,6 +547,7 @@ class condition_all_test extends advanced_testcase {
         $boinfo = new bo_info($settings);
 
         // Check option availability if user is not logged yet.
+        require_logout();
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, false);
         $this->assertEquals(MOD_BOOKING_BO_COND_ISLOGGEDINPRICE, $id);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);

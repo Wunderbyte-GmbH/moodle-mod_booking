@@ -262,7 +262,7 @@ class condition_bookingpolicy_test extends advanced_testcase {
         // Book the first user without any problem.
         $boinfo = new bo_info($settings);
 
-        // Book the student right away.
+        // Book the student1.
         $this->setUser($student1);
 
         // We are allowed to book.
@@ -275,10 +275,15 @@ class condition_bookingpolicy_test extends advanced_testcase {
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
+        $this->setAdminUser();
+
         // Create 2nd option.
         $record->text = 'Test option2';
         $option2 = $plugingenerator->create_option($record);
         $settings = singleton_service::get_instance_of_booking_option_settings($option2->id);
+
+        // Book the student1.
+        $this->setUser($student1);
 
         // We are not allowed to book 2nd option - maxperuser exceeded.
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
@@ -394,6 +399,8 @@ class condition_bookingpolicy_test extends advanced_testcase {
         list($id, $isavailable, $description) = $boinfo1->is_available($settings2->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
+        $this->setAdminUser();
+
         // The 3nd option in the course1.
         $record = new stdClass();
         $record->bookingid = $booking1->id;
@@ -407,7 +414,7 @@ class condition_bookingpolicy_test extends advanced_testcase {
         $settings3 = singleton_service::get_instance_of_booking_option_settings($option3->id);
         $boinfo3 = new bo_info($settings3);
 
-        // Book the student right away.
+        // Book the student1.
         $this->setUser($student1);
 
         // Student1 not allowed to book option3 in course1.

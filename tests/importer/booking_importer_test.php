@@ -116,18 +116,21 @@ class booking_importer_test extends advanced_testcase {
 
         $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
 
-        // Finish to configure users.
-        $this->setUser($user1);
+        // Finish to configure users (must be done from admin).
+        $this->setAdminUser();
 
-        $this->getDataGenerator()->enrol_user($user1->id, $course->id);
-        $this->getDataGenerator()->enrol_user($user2->id, $course->id);
-        $this->getDataGenerator()->enrol_user($user3->id, $course->id);
+        $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'teacher');
+        $this->getDataGenerator()->enrol_user($user3->id, $course->id, 'student');
 
         // Get coursemodule of bookjng instance.
         $cmb1 = get_coursemodule_from_instance('booking', $booking1->id);
 
         // Get booking instance.
         $bookingobj1 = new booking($cmb1->id);
+
+        // Prepare import (should work in behalf of teacher).
+        $this->setUser($user1);
 
         // Prepare import options.
         $formdata = new stdClass;

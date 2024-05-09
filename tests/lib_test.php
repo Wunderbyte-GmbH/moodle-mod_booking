@@ -95,6 +95,8 @@ class lib_test extends advanced_testcase {
 
         $cm = get_coursemodule_from_instance('booking', $booking->id);
 
+        $this->setAdminUser();
+
         $record = new stdClass();
         $record->bookingid = $booking->id;
         $record->text = 'Test option';
@@ -103,8 +105,7 @@ class lib_test extends advanced_testcase {
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $option = $plugingenerator->create_option(
-                $record);
+        $option = $plugingenerator->create_option($record);
 
         $group = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
 
