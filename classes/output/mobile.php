@@ -121,6 +121,75 @@ class mobile {
 
         global $OPTION, $DB, $OUTPUT, $USER;
 
+        $fakedata = [
+          "id" => 16,
+          "name" => "customform",
+          "class" => "mod_booking\\bo_availability\\conditions\\customform",
+          "formsarray" => [
+              "1" => [
+                  "1" => [
+                      "formtype" => "advcheckbox",
+                      "label" => "checkboxlabel",
+                      "value" => "1",
+                      "notempty" => "1"
+                  ],
+                  "2" => [
+                      "formtype" => "static",
+                      "label" => null,
+                      "value" => "display text",
+                      "notempty" => 0
+                  ],
+                  "3" => [
+                      "formtype" => "shorttext",
+                      "label" => "kurztext",
+                      "value" => "shorttext",
+                      "notempty" => "1"
+                  ],
+                  "4" => [
+                      "formtype" => "select",
+                      "label" => "Dropdown",
+                      "value" => "0 => no selection\n1 => eins\n2 => zwei",
+                      "notempty" => "1"
+                  ],
+                  "5" => [
+                      "formtype" => "advcheckbox",
+                      "label" => "checkbox2",
+                      "value" => null,
+                      "notempty" => "1"
+                  ],
+                  "6" => [
+                      "formtype" => "static",
+                      "label" => null,
+                      "value" => "display text 2",
+                      "notempty" => 0
+                  ],
+                  "7" => [
+                      "formtype" => "shorttext",
+                      "label" => "shorttext 2 label",
+                      "value" => "shorttext 2 value",
+                      "notempty" => "1"
+                  ],
+                  "8" => [
+                      "formtype" => "select",
+                      "label" => "selection 2",
+                      "value" => "0 => no selection\n1 => eins\n2 => zwei",
+                      "notempty" => "0"
+                  ]
+              ],
+              "2" => [
+                  "8" => [
+                      "formtype" => "0",
+                      "label" => null,
+                      "value" => null,
+                      "notempty" => null
+                  ]
+              ]
+          ]
+        ];
+
+        $ionsubmissionhtml = self::build_submission_form($fakedata['formsarray']);
+
+
         if (empty($args['optionid'])) {
             throw new moodle_exception('nooptionid', 'mod_booking');
         }
@@ -153,11 +222,13 @@ class mobile {
             $data['nosubmit']['label'] = $button->data['main']['label'] ?? get_string('notbookable', 'mod_booking');
         }
 
+
+        $detailhtml = $OUTPUT->render_from_template('mod_booking/mobile/mobile_booking_option_details', $data);
         return [
             'templates' => [
                 [
                     'id' => 'main',
-                    'html' => $OUTPUT->render_from_template('mod_booking/mobile/mobile_booking_option_details', $data),
+                    'html' => $detailhtml . $ionsubmissionhtml,
                 ],
             ],
             'javascript' => '',
@@ -526,5 +597,56 @@ class mobile {
             'name' => $values->option->text, 'text' => $text, 'button' => $button,
             'delete' => $delete,
         ];
+    }
+
+    /**
+     * Builds form for ionic mobile app
+     *
+     * @param array $formsarray
+     * @return string
+     */
+    public static function build_submission_form(array $formsarray) {
+      global $OUTPUT;
+      $ionichtml = '';
+      foreach ($formsarray as $formarray) {
+          foreach ($formarray as $submission) {
+              $data = [
+                'myform' => $submission,
+              ];
+              switch ($submission['formtype']) {
+                case 'advcheckbox':
+                    $ionichtml .= $OUTPUT->render_from_template('mod_booking/mobile/ionform/advcheckbox', $data);
+                    break;
+                case 'static':
+                    $ionichtml .= $OUTPUT->render_from_template('mod_booking/mobile/ionform/static', $data);
+                    break;
+                case 'shorttext':
+                    $ionichtml .= $OUTPUT->render_from_template('mod_booking/mobile/ionform/shorttext', $data);
+                    break;
+                case 'select':
+                    //$data['myform']['values'] = self::get_select_options($data['myform']['value']);
+                    $ionichtml .= $OUTPUT->render_from_template('mod_booking/mobile/ionform/select', $data);
+                    break;
+              }
+          }
+      }
+      if ($ionichtml != '') {
+        $ionichtml = 
+          '<ion-card><ion-card-content>' .
+          $ionichtml .
+          '</ion-card-content></ion-card>';
+      } 
+      return $ionichtml;
+    }
+
+    /**
+     * Returns select array
+     *
+     * @param string $formsstring
+     * @return array
+     */
+    public static function get_select_options(string $formsstring) {
+        $formsarray = [];
+        return $formsarray;
     }
 }

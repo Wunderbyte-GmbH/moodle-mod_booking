@@ -1,0 +1,19 @@
+{{=<% %>=}}
+
+<%#arguments%>
+            <% key %>
+            <br>
+            <% value %>
+<%/arguments%>
+
+<div>
+<%#myform%>
+    <ion-item>
+      <ion-label>
+        <% label %>
+      </ion-label>
+      <ion-checkbox slot="start" [checked]=<% value %>>
+      </ion-checkbox>
+    </ion-item>
+  <%/myform%>
+</div>
