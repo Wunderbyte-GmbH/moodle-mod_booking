@@ -71,7 +71,6 @@ class mobile {
         list($fields, $from, $where, $params, $filter) =
                 booking::get_options_filter_sql(0, 0, '', null, null, [], $wherearray);
 
-
         $sql = "SELECT $fields
                 FROM $from
                 WHERE $where";
@@ -79,15 +78,27 @@ class mobile {
         $records = $DB->get_records_sql($sql, $params);
 
         $outputdata = [];
-
+        $pattern = '/<br\s*\/?>/i';
+        $maxdatabeforecollapsable = get_config('booking', 'collapseshowsettings');
+        if ($maxdatabeforecollapsable === false) {
+            $maxdatabeforecollapsable = '2';
+        }
         foreach ($records as $record) {
-
             $settings = singleton_service::get_instance_of_booking_option_settings($record->id);
-            $outputdata[] = $settings->return_booking_option_information();
+            $tmpoutputdata = $settings->return_booking_option_information();
+            $tmpoutputdata['maxsessions'] = $maxdatabeforecollapsable;
+            $data = $settings->return_booking_option_information();
+            $data['description'] = preg_split($pattern, $data['description']);
+            if (count($settings->sessions) > $maxdatabeforecollapsable) {
+                $data['collapsedsessions'] = $data['sessions'];
+                unset($data['sessions']);
+            }
+            $outputdata[] = $data;
         }
 
-        $data = ['mybookings' => $outputdata];
-
+        $data = [
+          'mybookings' => $outputdata,
+        ];
         return [
             'templates' => [
                 [
@@ -293,11 +304,11 @@ class mobile {
                 'showmybookingsonly' => get_string('showmybookingsonly', 'booking'),
                 'next' => get_string('next', 'booking'),
                 'previous' => get_string('previous', 'booking'),
+                'show_dates' => get_string('show_dates', 'booking'),
             ], 'btnnp' => self::npbuttons($allpages, $pagnumber), 'bcolorshowall' => $bcolorshowall,
             'bcolorshowactive' => $bcolorshowactive, 'bcolormybooking' => $bcolormybooking,
         ];
         return [
-
             'templates' => [
 
                 [

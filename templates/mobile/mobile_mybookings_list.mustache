@@ -15,28 +15,62 @@
             </h3>
         </ion-card-header>
         <ion-card-content>
-            <%# description %>
+            <%# description.0 %>
                 <b>
                 {{ 'plugin.mod_booking.description' | translate }}
-                </b> <% description %> <br>
+                </b> 
+                <%# description %>
+                  <% . %> <br>
+                <%/ description %>
                 <br>
-            <%/ description %>
+            <%/ description.0 %>
             <%# teachers %>
                 <div><% firstname %> <% lastname %> (<% email %>)</div>
             <%/ teachers %>
             <%# teachers.0 %>
             <br>
             <%/ teachers.0 %>
+
             <%# sessions %>
                 <div><% coursestarttime %> - <% courseendtime %></div>
             <%/ sessions %>
+
+            <%# collapsedsessions.0 %>
+            <ion-accordion-group
+              style="padding-bottom: 3px !important;"
+            >
+              <ion-accordion value="first">
+                <ion-item slot="header" color="light">
+                  <ion-label>
+                    {{ 'plugin.mod_booking.show_dates' | translate }}
+                    <ion-icon name="calendar-outline" />
+                  </ion-label>
+                </ion-item>
+                <%# collapsedsessions %>
+                  <div 
+                    class="ion-padding" 
+                    style="padding-bottom: 9px !important; padding-top: 3px !important;"
+                    slot="content"
+                  >
+                    <% coursestarttime %> - <% courseendtime %>
+                  </div>
+                <%/ collapsedsessions %>
+              </ion-accordion>
+            </ion-accordion-group>
+            <%/ collapsedsessions.0 %>
+
             <%# sessions.0 %>
             <br>
             <%/ sessions.0 %>
 
             <%# price %>
+            <ion-text>
+                <b>
+                  {{ 'plugin.mod_booking.mobileapp_price' | translate }}
+                </b> 
                 <h4><% price %> <% currency %></h4>
                 <br>
+            </ion-text>
             <%/ price %>
 
             <ion-button core-site-plugins-new-content

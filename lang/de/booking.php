@@ -2269,3 +2269,7 @@ $string['mobileappsetinstance'] = "Buchungsinstanz";
 $string['mobileappsetinstancedesc'] = "Wählen Sie die Buchungsinstanz aus, die in der mobilen App angezeigt werden soll.";
 $string['details'] = 'Details';
 $string['notbookable'] = "Nicht buchbar";
+$string['next'] = 'Nächste';
+$string['previous'] = 'Vorherige';
+$string['show_dates'] = 'Zeige Termine';
+$string['mobileapp_price'] = 'Preis';

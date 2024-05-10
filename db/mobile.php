@@ -54,6 +54,8 @@ $addons = [
             ['showmybookingsonly', 'booking'],
             ['mybookingsbooking', 'booking'],
             ['details', 'mod_booking'],
+            ['show_dates', 'mod_booking'],
+            ['mobileapp_price', 'mod_booking'],
             ['status', 'booking'],
             ['coursestarttime', 'booking'],
             ['courseendtime', 'booking'],
