@@ -38,17 +38,14 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * Condition to identify the user who triggered an event (userid of event).
  *
  * @package mod_booking
- * @copyright 2024 Wunderbyte GmbH <info@wunderbyte.at>
+ * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
  * @author Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class select_user_from_event implements booking_rule_condition {
+class select_user_shopping_cart implements booking_rule_condition {
 
     /** @var string $conditionname */
-    public $conditionname = 'select_user_from_event';
-
-    /** @var string $conditiontype */
-    public $userfromeventtype = '0';
+    public $conditionname = 'select_user_shopping_cart';
 
     /** @var int $userid the user who triggered an event */
     public $userid = 0;
@@ -66,10 +63,26 @@ class select_user_from_event implements booking_rule_condition {
      */
     public function can_be_combined_with_bookingruletype(string $bookingruletype): bool {
         // This rule cannot be combined with the "days before" rule as it has no event.
-        if ($bookingruletype == 'rule_daysbefore') {
+        global $DB;
+
+        // This condition needs support for json access to db.
+        // If this is not the case, we return false.
+        $dbfamily = $DB->get_dbfamily();
+
+        $supporteddbs = [
+            'postgres',
+            'mysql',
+        ];
+
+        if (!in_array($dbfamily, $supporteddbs)) {
             return false;
-        } else {
+        }
+
+
+        if ($bookingruletype == 'rule_daysbefore') {
             return true;
+        } else {
+            return false;
         }
     }
 
@@ -115,28 +128,8 @@ class select_user_from_event implements booking_rule_condition {
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, array &$ajaxformdata = null) {
 
-        // The event selected in the form.
-        $eventnameonly = str_replace("\\mod_booking\\event\\", "", $ajaxformdata["rule_react_on_event_event"]);
-
-        // This is a list of events supporting relateduserid (affected user of the event).
-        $eventssupportingrelateduserid = [
-            'bookingoption_completed',
-            // More events yet to come...
-        ];
-
-        $mform->addElement('static', 'condition_select_user_from_event', '',
-                get_string('condition_select_user_from_event_desc', 'mod_booking'));
-
-        // We need to check if the event supports relateduserid (affected user of the event).
-        $userfromeventoptions["0"] = get_string('choose...', 'mod_booking');
-        if (empty($eventnameonly) || in_array($eventnameonly, $eventssupportingrelateduserid)) {
-            $userfromeventoptions["relateduserid"] = get_string('useraffectedbyevent', 'mod_booking');
-        }
-        // Userid (user who triggered) must be supported by every event. If not, the event was not created correctly.
-        $userfromeventoptions["userid"] = get_string('userwhotriggeredevent', 'mod_booking');
-
-        $mform->addElement('select', 'condition_select_user_from_event_type',
-                get_string('condition_select_user_from_event_type', 'mod_booking'), $userfromeventoptions);
+        $mform->addElement('static', 'condition_select_user_shopping_cart', '',
+                get_string('condition_select_user_shopping_cart_desc', 'mod_booking'));
 
     }
 
@@ -164,7 +157,6 @@ class select_user_from_event implements booking_rule_condition {
 
         $jsonobject->conditionname = $this->conditionname;
         $jsonobject->conditiondata = new stdClass();
-        $jsonobject->conditiondata->userfromeventtype = $data->condition_select_user_from_event_type ?? '0';
 
         $data->rulejson = json_encode($jsonobject);
     }
@@ -179,7 +171,6 @@ class select_user_from_event implements booking_rule_condition {
         $data->bookingruleconditiontype = $this->conditionname;
 
         $jsonobject = json_decode($record->rulejson);
-        $data->condition_select_user_from_event_type = $jsonobject->conditiondata->userfromeventtype;
     }
 
     /**
@@ -187,31 +178,70 @@ class select_user_from_event implements booking_rule_condition {
      *
      * @param stdClass $sql
      * @param array $params
+     * @param bool $testmode
      * @return array
      */
-    public function execute(stdClass &$sql, array &$params) {
+    public function execute(stdClass &$sql,
+                            array &$params,
+                            $testmode = false,
+                            $nextruntime = 0) {
 
         global $DB;
 
-        switch ($this->userfromeventtype) {
-            case "userid":
-                // The user who triggered the event.
-                $chosenuserid = $this->userid;
-                break;
-            case "relateduserid":
-                $chosenuserid = $this->relateduserid;
-                // The user affected by the event.
-                break;
-            default:
-                throw new moodle_exception('error: missing userid type for userfromevent condition');
+        $newparams = [
+            'paymentstatus' => LOCAL_SHOPPING_CART_PAYMENT_SUCCESS,
+            'componentname' => 'mod_booking',
+            'area' => 'option',
+        ];
+
+        $params = array_merge($params, $newparams);
+
+        $dbfamily = $DB->get_dbfamily();
+
+        $concat = $DB->sql_concat("bo.id", "'-'", " (payments_info.payment_data->>'id') ");
+
+        switch ($dbfamily) {
+
+            case 'postgres':
+                $sql->select = "$concat as uniquid,
+                                bo.id optionid,
+                                cm.id cmid,
+                                sch.userid,
+                                (payments_info.payment_data->>'timestamp')::int AS datefield,
+                                (payments_info.payment_data->>'paid')::numeric AS paid,
+                                (payments_info.payment_data->>'price')::numeric AS price,
+                                (payments_info.payment_data->>'id')::int AS payment_id
+                                ";
+                $sql->from .= " RIGHT JOIN {local_shopping_cart_history} sch
+                                ON sch.itemid = bo.id AND sch.componentname =:componentname AND sch.area=:area,
+                                LATERAL (
+                                    SELECT jsonb_array_elements(sch.json::jsonb->'installments'->'payments') AS payment_data
+                                ) AS payments_info"; // We want to join only the chosen user.
+                                // We only want those payments that are
+
+                // When we are in testmode, we fetch all the records which are before a certain moment.
+                $sql->where = " (payments_info.payment_data->>'paid')::numeric = 0
+                                AND sch.installments > 0
+                                AND sch.paymentstatus = :paymentstatus
+                                AND sch.json IS NOT NULL
+                                AND sch.json <> ''";
+
+                // If we are in testmode, we check for a very specific payment from one user.
+                if ($testmode) {
+                    $sql->where .= " AND sch.userid = :userid ";
+
+                    // And we know exactly when the payment was due.
+                    $nextruntime = $nextruntime + $params['numberofdays'] * 86400;
+
+                    $sql->where .= " AND (payments_info.payment_data->>'timestamp')::int = :nextruntime ";
+                    $params['nextruntime'] = $nextruntime;
+                } else {
+                    // If we are not in testmode, we want to get all future payments.
+                    $sql->where .= " AND (payments_info.payment_data->>'timestamp')::int
+                                        >= ( :nowparam + (86400 * :numberofdays ))";
+                }
+
+
         }
-
-        $concat = $DB->sql_concat("bo.id", "'-'", "u.id");
-        // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
-        $sql->select = " $concat uniqueid, " . $sql->select;
-        $sql->select .= ", u.id userid";
-        $sql->from .= " JOIN {user} u ON u.id = :chosenuserid "; // We want to join only the chosen user.
-
-        $params['chosenuserid'] = $chosenuserid;
     }
 }

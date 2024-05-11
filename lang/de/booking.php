@@ -2046,6 +2046,9 @@ $string['useraffectedbyevent'] = 'Vom Ereignis betroffene:r Nutzer:in';
 $string['userwhotriggeredevent'] = 'Nutzer:in, die das Ereignis ausgelöst hat';
 $string['condition_select_user_from_event_type'] = 'Rolle wählen';
 
+$string['select_user_shopping_cart'] = "Wähle Nutzer:in die Ratenzahlung zu leisten hat";
+$string['condition_select_user_shopping_cart_desc'] = "Nutzer:in mit Zahlungsverpflichtung ist ausgewählt";
+
 // Booking rules actions.
 $string['bookingaction'] = "Aktion";
 $string['sendcopyofmailsubjectprefix'] = 'Vorangestellter Text für den Betreff';

@@ -2175,6 +2175,9 @@ $string['useraffectedbyevent'] = 'User affected by the event';
 $string['userwhotriggeredevent'] = 'User who triggered the event';
 $string['condition_select_user_from_event_type'] = 'Choose role';
 
+$string['select_user_shopping_cart'] = "Choose user who has to pay installments";
+$string['condition_select_user_shopping_cart_desc'] = "User with payment obligation is chosen";
+
 // Booking rules actions.
 $string['bookingaction'] = "Action";
 $string['sendcopyofmailsubjectprefix'] = 'Subject prefix for the copy';

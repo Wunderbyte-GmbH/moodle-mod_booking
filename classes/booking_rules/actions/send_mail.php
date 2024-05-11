@@ -185,6 +185,9 @@ class send_mail implements booking_rule_action {
             'cmid' => $record->cmid,
             'customsubject' => $this->subject,
             'custommessage' => $this->template,
+            'installmentnr' => $record->payment_id ?? 0,
+            'duedate' => $record->datefield ?? 0,
+            'price' => $record->price ?? 0,
         ];
         $task->set_custom_data($taskdata);
         $task->set_userid($record->userid);

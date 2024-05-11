@@ -114,6 +114,13 @@ class rule_daysbefore implements booking_rule {
             'bookingclosingtime' => get_string('rule_optionfield_bookingclosingtime', 'mod_booking'),
         ];
 
+        // We support special treatments for shopping cart notifications.
+        if (class_exists('local_shopping_cart\shopping_cart')) {
+
+            $datefields['installmentpayment'] = get_string('installment', 'local_shopping_cart')
+                . " (" . get_string('pluginname', 'local_shopping_cart') . ")";
+        }
+
         $mform->addElement('static', 'rule_daysbefore_desc', '',
             get_string('rule_daysbefore_desc', 'mod_booking'));
 
@@ -257,9 +264,13 @@ class rule_daysbefore implements booking_rule {
      * @param int $optionid
      * @param int $userid
      * @param bool $testmode
+     * @param int $nextruntime
      * @return array
      */
-    public function get_records_for_execution(int $optionid = 0, int $userid = 0, bool $testmode = false) {
+    public function get_records_for_execution(int $optionid = 0,
+                                              int $userid = 0,
+                                              bool $testmode = false,
+                                              int $nextruntime = 0) {
         global $DB;
 
         // Execution of a rule is a complex action.
@@ -310,7 +321,7 @@ class rule_daysbefore implements booking_rule {
 
         $condition->set_conditiondata_from_json($this->rulejson);
 
-        $condition->execute($sql, $params);
+        $condition->execute($sql, $params, $testmode, $nextruntime);
 
         $sqlstring = "SELECT $sql->select FROM $sql->from WHERE $sql->where";
 
