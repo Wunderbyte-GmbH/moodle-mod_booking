@@ -78,7 +78,6 @@ class select_user_shopping_cart implements booking_rule_condition {
             return false;
         }
 
-
         if ($bookingruletype == 'rule_daysbefore') {
             return true;
         } else {
@@ -179,7 +178,8 @@ class select_user_shopping_cart implements booking_rule_condition {
      * @param stdClass $sql
      * @param array $params
      * @param bool $testmode
-     * @return array
+     * @param int $nextruntime
+     *
      */
     public function execute(stdClass &$sql,
                             array &$params,
@@ -217,7 +217,7 @@ class select_user_shopping_cart implements booking_rule_condition {
                                 LATERAL (
                                     SELECT jsonb_array_elements(sch.json::jsonb->'installments'->'payments') AS payment_data
                                 ) AS payments_info"; // We want to join only the chosen user.
-                                // We only want those payments that are
+                                // We only want those payments that are.
 
                 // When we are in testmode, we fetch all the records which are before a certain moment.
                 $sql->where = " (payments_info.payment_data->>'paid')::numeric = 0
@@ -240,7 +240,6 @@ class select_user_shopping_cart implements booking_rule_condition {
                     $sql->where .= " AND (payments_info.payment_data->>'timestamp')::int
                                         >= ( :nowparam + (86400 * :numberofdays ))";
                 }
-
 
         }
     }

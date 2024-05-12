@@ -151,7 +151,7 @@ class select_student_in_bo implements booking_rule_condition {
      * We receive an array of stdclasses with the keys optinid & cmid.
      * @param stdClass $sql
      * @param array $params
-     * @return array
+     *
      */
     public function execute(stdClass &$sql, array &$params) {
 
