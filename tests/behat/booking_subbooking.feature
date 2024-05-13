@@ -30,7 +30,7 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     And I log out
 
   @javascript
-  Scenario: Add single subbooking option for a booking option as a teacher
+  Scenario: Add single subbooking option for a booking option as a teacher and verify as students
     Given I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -70,6 +70,40 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
       | person_firstname_2 | Tomm  |
       | person_lastname_2  | Smith |
       | person_age_2       | 30    |
+    And I click on "Book now" "text" in the ".subbooking-additionalperson-form" "css_element"
+    And I should see "Booked" in the ".subbooking-additionalperson-form" "css_element"
+    And I follow "Continue"
+    And I should see "Thank you! You have successfully booked" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
+    And I should see "Test option 1" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
+    And I follow "Close"
+    And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+
+  @javascript
+  Scenario: Add subbooking via DB to a booking option and verify as students
+    Given the following "mod_booking > subbookings" exist:
+      | name    | type                        | option        | block | json                                                                                                                                     |
+      | Partner | subbooking_additionalperson | Test option 1 | 0     | {"name":"Partner(s)","type":"subbooking_additionalperson","data":{"description":"You can invite your partner:","descriptionformat":"1"}} |
+    ## Verify subbokings working: book as stundet with subbokings
+    When I am on the "Course 1" course page logged in as student1
+    And I follow "My booking"
+    And I wait until the page is ready
+    Then I should see "Test option 1" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I wait "1" seconds
+    And I should see "Do you want to book Test option 1?" in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
+    And I click on "Book now" "text" in the ".modal-dialog.modal-xl .booking-button-area" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".modal-dialog.modal-xl .booking-button-area" "css_element"
+    And I should see "Booked" in the ".modal-dialog.modal-xl .booking-button-area" "css_element"
+    And I follow "Continue"
+    And I should see "Partner(s)" in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
+    And I press "Partner(s)"
+    And I set the field "Add additional person(s)" to "1"
+    And I wait "1" seconds
+    And I set the following fields to these values:
+      | person_firstname_1 | Ann   |
+      | person_lastname_1  | Smith |
+      | person_age_1       | 20    |
     And I click on "Book now" "text" in the ".subbooking-additionalperson-form" "css_element"
     And I should see "Booked" in the ".subbooking-additionalperson-form" "css_element"
     And I follow "Continue"
