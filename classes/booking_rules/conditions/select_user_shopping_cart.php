@@ -99,23 +99,6 @@ class select_user_shopping_cart implements booking_rule_condition {
      */
     public function set_conditiondata_from_json(string $json) {
         $this->rulejson = $json;
-        $ruleobj = json_decode($json);
-
-        if (!empty($ruleobj->conditiondata->userfromeventtype)) {
-            $this->userfromeventtype = $ruleobj->conditiondata->userfromeventtype;
-        }
-
-        $datafromevent = $ruleobj->datafromevent;
-
-        // The user who triggered the event.
-        if (!empty($datafromevent->userid)) {
-            $this->userid = $datafromevent->userid;
-        }
-
-        // The user affected by the event.
-        if (!empty($datafromevent->relateduserid)) {
-            $this->relateduserid = $datafromevent->relateduserid;
-        }
     }
 
     /**
