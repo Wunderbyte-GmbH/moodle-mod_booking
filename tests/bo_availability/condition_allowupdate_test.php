@@ -327,6 +327,119 @@ class condition_allowupdate_test extends advanced_testcase {
     }
 
     /**
+     * Test subbookings.
+     *
+     * @covers \condition\campaign_blockbooking::is_available
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_booking_bookit_subbookings(array $bdata) {
+        global $DB, $CFG;
+
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create users.
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $student3 = $this->getDataGenerator()->create_user();
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course->id);
+        $this->getDataGenerator()->enrol_user($student2->id, $course->id);
+        $this->getDataGenerator()->enrol_user($student3->id, $course->id);
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id);
+
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1';
+        $record->courseid = $course->id;
+        $record->useprice = 0;
+        $record->maxanswers = 3;
+        $record->optiondateid_1 = "0";
+        $record->daystonotify_1 = "0";
+        $record->coursestarttime_1 = strtotime('now + 3 day');
+        $record->courseendtime_1 = strtotime('now + 6 day');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $option1 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option1->id); // Mandatory there.
+
+        // Create subbokingdata.
+        $subbokingdata = (object)[
+            'name' => 'Partner(s)',
+            'type' => 'subbooking_additionalperson',
+            'data' => (object)[
+                'description' => 'You can invite your partner(s):',
+                'descriptionformat' => 1,
+            ],
+        ];
+        $subboking = (object)[
+            'name' => 'Partner(s)', 'type' => 'subbooking_additionalperson',
+            'block' => 0, 'optionid' => $option1->id,
+            'json' => json_encode($subbokingdata),
+        ];
+        $plugingenerator->create_subbooking($subboking);
+
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $boinfo1 = new bo_info($settings1);
+
+        $this->setUser($student1);
+        // Validate that subboking is available and non-bloking.
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student1->id, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_SUBBOOKING, $id);
+
+        // Book option1 by student1.
+        $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
+        $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Set blocking subbooking.
+        $this->setAdminUser();
+        $record->text = 'Test option2 (bloked)';
+        $option2 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option2->id); // Mandatory there.
+        // Create blocking subboking.
+        $subboking = (object)[
+            'name' => 'Partner(s)', 'type' => 'subbooking_additionalperson',
+            'block' => 1, 'optionid' => $option2->id,
+            'json' => json_encode($subbokingdata),
+        ];
+        $plugingenerator->create_subbooking($subboking);
+
+        $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
+        $boinfo2 = new bo_info($settings2);
+
+        // Try to book option2 with student2.
+        $this->setUser($student2);
+        // Validate that subboking is available and non-bloking.
+        list($id, $isavailable, $description) = $boinfo2->is_available($settings2->id, $student2->id, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_SUBBOOKINGBLOCKS, $id);
+
+        // Book option2 by student2.
+        $result = booking_bookit::bookit('option', $settings2->id, $student2->id);
+        $result = booking_bookit::bookit('option', $settings2->id, $student2->id);
+        list($id, $isavailable, $description) = $boinfo2->is_available($settings2->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+        // TODO: how to make subboking in code?
+    }
+
+    /**
      * Data provider for condition_allowupdate_test
      *
      * @return array
