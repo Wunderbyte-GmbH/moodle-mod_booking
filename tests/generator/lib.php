@@ -1,4 +1,5 @@
 <?php
+use mod_booking\bo_availability\conditions\subbooking;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -32,6 +33,7 @@ use mod_booking\price;
 use mod_booking\semester;
 use mod_booking\customfield\booking_handler;
 use mod_booking\booking_campaigns\campaigns_info;
+use mod_booking\subbookings\subbookings_info;
 use mod_booking\singleton_service;
 
 /**
@@ -212,6 +214,36 @@ class mod_booking_generator extends testing_module_generator {
         }
 
         campaigns_info::save_booking_campaign($record);
+    }
+
+    /**
+     * Function to create a dummy subooking option.
+     *
+     * @param array|stdClass $record
+     * @return stdClass the booking subbooking DB object
+     */
+    public function create_subbooking($record = null) {
+        global $DB, $USER;
+
+        $record = (object) $record;
+
+        $record->timemodified = time();
+        $record->usermodified = $USER->id;
+
+        $record->id = $DB->insert_record('booking_subbooking_options', $record);
+
+        // Every time we save the subbooking, we have to invalidate caches.
+        // Trigger an event that booking option has been updated.
+        $booking = singleton_service::get_instance_of_booking_by_optionid($record->optionid);
+        $context = context_module::instance($booking->cmid);
+        $event = \mod_booking\event\bookingoption_updated::create([
+                                                                    'context' => $context,
+                                                                    'objectid' => $record->optionid,
+                                                                    'userid' => $USER->id,
+                                                                ]);
+        $event->trigger();
+
+        return $record;
     }
 
     /**
