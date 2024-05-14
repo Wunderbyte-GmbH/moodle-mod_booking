@@ -208,7 +208,8 @@ class enrolledincohorts implements bo_condition {
             $andcases = rtrim($andcases, ' +');
 
             $where = "
-            ((availability IS NULL OR NOT JSON_CONTAINS(availability, '{\"sqlfilter\": \"1\"}'))
+            availability IS NOT NULL
+            AND ((NOT JSON_CONTAINS(availability, '{\"sqlfilter\": \"1\"}'))
             OR (
                 id IN (
                     SELECT id
@@ -323,18 +324,15 @@ class enrolledincohorts implements bo_condition {
                 get_string('cohort_s', 'mod_booking'), $cohortssarray, $enrolledincohortsoptions);
             $mform->hideIf('bo_cond_enrolledincohorts_cohortids', 'bo_cond_enrolledincohorts_restrict', 'notchecked');
 
-            if ($DB->get_dbfamily() == 'postgres') {
-                // For the moment, only postgres supports AND check for cohorts, other DBs check if user is in any cohort.
-                $cohortoperator = [
-                    'OR' => get_string('onecohortmustbefound', 'mod_booking'),
-                    'AND' => get_string('allcohortsmustbefound', 'mod_booking'),
-                ];
+            $cohortoperator = [
+                'OR' => get_string('onecohortmustbefound', 'mod_booking'),
+                'AND' => get_string('allcohortsmustbefound', 'mod_booking'),
+            ];
 
-                $mform->addElement('select', 'bo_cond_enrolledincohorts_cohortids_operator',
-                get_string('overrideoperator', 'mod_booking'), $cohortoperator);
-                $mform->setDefault('bo_cond_enrolledincohorts_cohortids_operator', 'OR');
-                $mform->hideIf('bo_cond_enrolledincohorts_cohortids_operator', 'bo_cond_enrolledincohorts_restrict', 'notchecked');
-            }
+            $mform->addElement('select', 'bo_cond_enrolledincohorts_cohortids_operator',
+            get_string('overrideoperator', 'mod_booking'), $cohortoperator);
+            $mform->setDefault('bo_cond_enrolledincohorts_cohortids_operator', 'OR');
+            $mform->hideIf('bo_cond_enrolledincohorts_cohortids_operator', 'bo_cond_enrolledincohorts_restrict', 'notchecked');
 
             $mform->addElement('advcheckbox', 'bo_cond_enrolledincohorts_sqlfiltercheck',
                 get_string('sqlfiltercheckstring', 'mod_booking'));
