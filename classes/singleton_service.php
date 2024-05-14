@@ -85,6 +85,9 @@ class singleton_service {
     /** @var array $cohorts */
     public array $cohorts = [];
 
+    /** @var array $usercohorts */
+    public array $usercohorts = [];
+
 
     /**
      * Constructor
@@ -550,5 +553,23 @@ class singleton_service {
         }
 
         return $instance->cohorts[$cohortid];
+    }
+
+    /**
+     * Return cohorts of a given user.
+     *
+     * @param int $userid
+     * @return array
+     */
+    public static function get_cohorts_of_user(int $userid): array {
+
+        $instance = self::get_instance();
+
+        if (!isset($instance->usercohorts[$userid])) {
+            $usercohorts = cohort_get_user_cohorts($userid);
+            $instance->usercohorts[$userid] = $usercohorts;
+        }
+
+        return $instance->usercohorts[$userid];
     }
 }

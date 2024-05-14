@@ -98,12 +98,12 @@ class enrolledincohorts implements bo_condition {
 
         // This is the return value. Not available to begin with.
         $isavailable = false;
-        $enrolledcohorts = array_keys(cohort_get_user_cohorts($userid));
         $neededcohorts = $this->customsettings->cohortids;
 
         if (empty($neededcohorts)) {
             $isavailable = true;
         } else {
+            $enrolledcohorts = array_keys(singleton_service::get_cohorts_of_user($userid));
             $isavailable = false;
             $difference = array_diff($neededcohorts, $enrolledcohorts);
             if (empty($this->customsettings->cohortidsoperator) || $this->customsettings->cohortidsoperator != 'OR') {
@@ -134,7 +134,7 @@ class enrolledincohorts implements bo_condition {
      */
     public function return_sql(): array {
         global $USER, $DB;
-        $usercohorts = cohort_get_user_cohorts($USER->id);
+        $usercohorts = singleton_service::get_cohorts_of_user($USER->id);
         $databasetype = $DB->get_dbfamily();
         if (empty($usercohorts)) {
 
