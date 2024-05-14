@@ -34,6 +34,14 @@ $functions = [
         'ajax' => true,
         'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE, 'moodle_mobile_app'],
     ],
+    'mod_booking_get_submission_mobile' => [
+      'classname' => 'mod_booking\external\get_submission_mobile',
+      'description' => 'Checks the submission form',
+      'type' => 'read',
+      'capabilities' => '',
+      'ajax' => 1,
+      'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE, 'moodle_mobile_app'],
+    ],
     'mod_booking_addbookingoption' => [ // Function will be added manually to service, only for admin use.
         'classname' => 'mod_booking\external\addbookingoption',
         'description' => 'Add Booking option',

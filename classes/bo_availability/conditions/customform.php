@@ -519,7 +519,7 @@ class customform implements bo_condition {
     /**
      * This interprets the availability column, looks for an entry from this class and returns the fields.
      * @param booking_option_settings $settings
-     * @return array
+     * @return object
      */
     public static function return_formelements(booking_option_settings $settings) {
 
