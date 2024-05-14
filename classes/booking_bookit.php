@@ -126,7 +126,7 @@ class booking_bookit {
                     // Right now, the logic is just linked to one right.
                     $context = context_module::instance(($settings->cmid));
                     if (has_capability('mod/booking:bookforothers', $context)) {
-                        // We still render the alert, but just in supplement to the other butotn.
+                        // We still render the alert, but just in supplement to the other button.
                         $extrabuttoncondition = $result['classname'];
                     } else {
                         $buttoncondition = $result['classname'];

@@ -218,7 +218,7 @@ class enrolledincohorts implements bo_condition {
                             JSON_UNQUOTE(JSON_EXTRACT(availability, '$[0].cohortidsoperator')) AS operator,
                             JSON_LENGTH(JSON_EXTRACT(availability, '$[*].cohortids[*]')) AS length,
                                 ($andcases) AS true_conditions_count
-                        FROM m_booking_options
+                        FROM {booking_options}
                     WHERE availability IS NOT NULL
                 ) s1
             WHERE (CASE

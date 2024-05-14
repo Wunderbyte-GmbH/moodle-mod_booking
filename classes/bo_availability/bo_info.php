@@ -488,7 +488,7 @@ class bo_info {
         $paramsarray = [];
 
         $cm = $PAGE->cm;
-        if ($cm && (has_capability('mod/booking:updatebooking', $cm->context))) {
+        if ($cm && ((has_capability('mod/booking:updatebooking', $cm->context)))) {
             // With this capability, ignore filter for sql check.
             // Because of missing $cm this will not work for display outside a course i.e. in shortcodes display.
             // A teacher would not see hidden bookingconditions on startpage but in courselist they would be displayed.
