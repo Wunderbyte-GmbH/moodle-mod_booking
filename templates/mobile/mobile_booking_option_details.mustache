@@ -5,7 +5,11 @@
             <% text %>
         </ion-card-header>
         <ion-card-content>
-            <b>{{ 'plugin.mod_booking.description' | translate }}</b>: <% description %><br>
+            <b>{{ 'plugin.mod_booking.description' | translate }}</b>: 
+            <ion-text>
+              <% description %>
+            </ion-text>
+            <br>
             <b>{{ 'plugin.mod_booking.location' | translate }}</b>: <% location %> <br>
             <b>{{ 'plugin.mod_booking.address' | translate }}</b>: <% address %> <br>
 

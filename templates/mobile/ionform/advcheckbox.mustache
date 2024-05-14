@@ -12,7 +12,12 @@
       <ion-label>
         <% label %>
       </ion-label>
-      <ion-checkbox slot="start" [checked]=<% value %>>
+      <ion-checkbox 
+        slot="start"
+        name="<% name %>"
+        [checked]="<% value %>"
+        [(ngModel)]='CONTENT_OTHERDATA.data["<% name %>"]'
+      >
       </ion-checkbox>
     </ion-item>
   <%/myform%>

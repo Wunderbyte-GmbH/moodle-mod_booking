@@ -8,10 +8,14 @@
 
 <div>
   <%#myform%>
-    <ion-item>
-      <ion-text>
-          <% value %>
-      </ion-text>
+    <ion-item>  
+      <ion-input 
+        label="<% value %>"
+        name="<% name %>"
+        style="--background: #f0f0f0;"
+        [(ngModel)]='CONTENT_OTHERDATA.data["<% name %>"]'
+        >
+      </ion-input>
     </ion-item>
   <%/myform%>
 </div>
