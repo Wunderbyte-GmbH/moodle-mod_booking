@@ -197,28 +197,35 @@ class enrolledincohorts implements bo_condition {
             return ['', '', '', [], $where];
         } else if ($databasetype == 'mysql') {
 
-            $cohortstrings = array_map(fn($c) => "JSON_UNQUOTE(JSON_SEARCH(j.cohortids, 'one', '" . $c->id. "')) IS NULL
-            AND ", $usercohorts);
-            $appendwheremaria = implode(' ', $cohortstrings);
+            $andcases = '';
+            foreach (array_keys($usercohorts) as $cohortid) {
+                $andcases .= "
+                CASE
+                    WHEN JSON_SEARCH(availability, 'one', '$cohortid', NULL, '\$[*].cohortids') IS NOT NULL THEN 1
+                    ELSE 0
+                END +";
+            }
+            $andcases = rtrim($andcases, ' +');
 
             $where = "
-            availability IS NOT NULL
-            AND ((NOT JSON_CONTAINS(availability, '{\"sqlfilter\": \"1\"}'))
-            OR (EXISTS (
-                SELECT 1
-                FROM JSON_TABLE(availability, '$[*]' COLUMNS (
-                    cohortids JSON PATH '$.cohortids'
-                )) AS j
-                WHERE NOT EXISTS (
-                    SELECT 1
-                    FROM JSON_TABLE(availability, '$[*]' COLUMNS (
-                        cohortids JSON PATH '$.cohortids'
-                    )) AS j2
-                    WHERE $appendwheremaria 1=1
-                )
-                )
-                ))
-            ";
+            ((availability IS NULL OR NOT JSON_CONTAINS(availability, '{\"sqlfilter\": \"1\"}'))
+            OR (
+                id IN (
+                    SELECT id
+                        FROM (
+                            SELECT id,
+                            JSON_UNQUOTE(JSON_EXTRACT(availability, '$[0].cohortidsoperator')) AS operator,
+                            JSON_LENGTH(JSON_EXTRACT(availability, '$[*].cohortids[*]')) AS length,
+                                ($andcases) AS true_conditions_count
+                        FROM m_booking_options
+                    WHERE availability IS NOT NULL
+                ) s1
+            WHERE (CASE
+                    WHEN operator LIKE \"AND\" THEN length = true_conditions_count
+                    ELSE true_conditions_count > 0
+                END)
+            )
+            ))";
             return ['', '', '', [], $where];
         } else {
             return ['', '', '', [], ''];
