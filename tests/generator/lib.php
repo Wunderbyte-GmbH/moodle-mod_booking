@@ -1,5 +1,4 @@
 <?php
-use mod_booking\bo_availability\conditions\subbooking;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -29,11 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
 use mod_booking\booking_option;
-use mod_booking\price;
-use mod_booking\semester;
-use mod_booking\customfield\booking_handler;
 use mod_booking\booking_campaigns\campaigns_info;
-use mod_booking\subbookings\subbookings_info;
 use mod_booking\singleton_service;
 
 /**
