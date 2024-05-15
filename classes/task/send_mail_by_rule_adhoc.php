@@ -94,8 +94,17 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
                 // Use message controller to send the message.
                 $messagecontroller = new message_controller(
                     MOD_BOOKING_MSGCONTRPARAM_SEND_NOW, MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE,
-                    $taskdata->cmid, null, $taskdata->optionid,
-                    $taskdata->userid, null, null, $taskdata->customsubject, $taskdata->custommessage
+                    $taskdata->cmid,
+                    null,
+                    $taskdata->optionid,
+                    $taskdata->userid,
+                    null,
+                    null,
+                    $taskdata->customsubject,
+                    $taskdata->custommessage,
+                    $taskdata->installmentnr,
+                    $taskdata->duedate,
+                    $taskdata->price,
                 );
             } catch (Exception $e) {
                 if (get_config('booking', 'bookingdebugmode')) {

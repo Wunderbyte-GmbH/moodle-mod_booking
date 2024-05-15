@@ -608,6 +608,10 @@ $string['title'] = "Titel";
 $string['usercalendarurl'] = "Nutzer:innen Kalender";
 $string['username'] = "Usernamen";
 $string['loopprevention'] = 'Den Platzhalter {$a} hier zu verwenden führt zu einem Loop. Bitte entfernen Sie ihn .';
+$string['duedate'] = 'Fälligkeitsdatum';
+$string['numberofinstallment'] = 'Anzahl Ratenzahlung';
+$string['numberofinstallmentstring'] = '{$a}. Ratenzahlung';
+$string['installmentprice'] = 'Ratenzahlungspreis';
 
 $string['configurefields'] = 'Spalten und Felder anpassen';
 $string['manageresponsespagefields'] = 'Buchungen verwalten - Seite';

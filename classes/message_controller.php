@@ -121,10 +121,14 @@ class message_controller {
      * @param array $changes array of changes for change notifications
      * @param string $customsubject subject of custom messages
      * @param string $custommessage body of custom messages
+     * @param int $installmentnr number of installment
+     * @param int $duedate UNIX timestamp for duedate of installment
+     * @param float $price price of installment
      */
     public function __construct(int $msgcontrparam, int $messageparam, int $cmid, int $bookingid = null,
         int $optionid, int $userid, int $optiondateid = null, $changes = null,
-        string $customsubject = '', string $custommessage = '') {
+        string $customsubject = '', string $custommessage = '',
+        int $installmentnr = 0, int $duedate = 0, float $price = 0.0) {
 
         global $USER, $PAGE;
 
@@ -173,6 +177,9 @@ class message_controller {
         $this->userid = $userid;
         $this->optiondateid = $optiondateid;
         $this->changes = $changes;
+        $this->installmentnr = $installmentnr;
+        $this->duedate = $duedate;
+        $this->price = $price;
         $this->params = new stdClass();
 
         // For custom messages only.
@@ -284,6 +291,7 @@ class message_controller {
 
         // We apply the default placeholders.
         $text = placeholders_info::render_text($text, $this->optionsettings->cmid, $this->optionid, $this->userid,
+            $this->installmentnr, $this->duedate, $this->price,
             $this->descriptionparam ?? MOD_BOOKING_DESCRIPTION_WEBSITE);
 
         return $text;

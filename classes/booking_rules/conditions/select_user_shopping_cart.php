@@ -223,7 +223,6 @@ class select_user_shopping_cart implements booking_rule_condition {
                     $sql->where .= " AND (payments_info.payment_data->>'timestamp')::int
                                         >= ( :nowparam + (86400 * :numberofdays ))";
                 }
-
         }
     }
 }

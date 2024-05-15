@@ -18,7 +18,7 @@
  * Handle fields for booking option.
  *
  * @package mod_booking
- * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @copyright 2024 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -36,10 +36,10 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * Control and manage placeholders for booking instances, options and mails.
  *
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
- * @author Georg Maißer
+ * @author Magdalena Holczik
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class participant {
+class duedate {
 
     /**
      * Function which takes a text, replaces the placeholders...
@@ -68,32 +68,17 @@ class participant {
 
         $classname = substr(strrchr(get_called_class(), '\\'), 1);
 
-        if (!empty($userid)) {
-
-            // The cachekey depends on the kind of placeholder and it's ttl.
-            // If it's the same for all users, we don't use userid.
-            // If it's the same for all options of a cmid, we don't use optionid.
-            $currlang = current_language();
-            $cachekey = "$classname-$currlang-$userid";
-            if (isset(placeholders_info::$placeholders[$cachekey])) {
-                return placeholders_info::$placeholders[$cachekey];
-            }
-
-            $user = singleton_service::get_instance_of_user($userid);
-            $value = fullname($user);
-
-            // Save the value to profit from singleton.
-            placeholders_info::$placeholders[$cachekey] = $value;
-
-        } else {
+        if (empty($duedate)) {
             throw new moodle_exception(
                 'paramnotpresent',
                 'mod_booking',
                 '',
                 '',
-                "You can't use param {{$classname}} without providing an option id.");
+                "You can't use param {{$classname}} without providing a duedate.");
         }
 
-        return $value;
+        $timeformat = get_string('strftimedate', 'langconfig');
+
+        return userdate($duedate, $timeformat);
     }
 }

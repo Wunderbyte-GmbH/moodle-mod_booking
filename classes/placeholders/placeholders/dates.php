@@ -48,6 +48,9 @@ class dates {
      * @param int $cmid
      * @param int $optionid
      * @param int $userid
+     * @param int $installmentnr
+     * @param int $duedate
+     * @param float $price
      * @param string $text
      * @param array $params
      * @param int $descriptionparam
@@ -57,6 +60,9 @@ class dates {
         int $cmid = 0,
         int $optionid = 0,
         int $userid = 0,
+        int $installmentnr = 0,
+        int $duedate = 0,
+        float $price = 0,
         string &$text = '',
         array &$params = [],
         int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE) {
