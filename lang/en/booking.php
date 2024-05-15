@@ -617,6 +617,10 @@ $string['title'] = "title";
 $string['usercalendarurl'] = "usercalendarurl";
 $string['username'] = "username";
 $string['loopprevention'] = 'The placeholder {$a} causes a loop. Please replace it.';
+$string['duedate'] = 'duedate of installment';
+$string['numberofinstallment'] = 'numberofinstallment';
+$string['numberofinstallmentstring'] = 'installment number {$a}';
+$string['installmentprice'] = 'installmentprice';
 
 $string['configurefields'] = 'Configure fields and columns';
 $string['manageresponsespagefields'] = 'Manage responses - Page';

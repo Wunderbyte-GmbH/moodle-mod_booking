@@ -60,6 +60,9 @@ class placeholders_info {
      * @param int $cmid
      * @param int $optionid
      * @param int $userid
+     * @param int $installmentnr
+     * @param int $duedate
+     * @param float $price
      * @param int $descriptionparam
      * @return string
      */
@@ -68,6 +71,9 @@ class placeholders_info {
         int $cmid = 0,
         int $optionid = 0,
         int $userid = 0,
+        int $installmentnr = 0,
+        int $duedate = 0,
+        float $price = 0,
         int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE) {
 
         global $USER;
@@ -106,6 +112,9 @@ class placeholders_info {
                     $cmid,
                     $optionid,
                     $userid,
+                    $installmentnr,
+                    $duedate,
+                    $price,
                     $text, // Text can be changed in this function, if we need to replace sth.
                     $placeholders, // Placeholders can be changed in this function, if we need to replace sth.
                     $descriptionparam);
