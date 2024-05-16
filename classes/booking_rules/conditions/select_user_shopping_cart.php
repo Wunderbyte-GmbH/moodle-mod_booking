@@ -223,6 +223,46 @@ class select_user_shopping_cart implements booking_rule_condition {
                     $sql->where .= " AND (payments_info.payment_data->>'timestamp')::int
                                         >= ( :nowparam + (86400 * :numberofdays ))";
                 }
+                break;
+            case 'mariadb':
+                $sql->select = "$concat as uniquid,
+                    bo.id optionid,
+                    cm.id cmid,
+                    sch.userid,
+                    CAST(JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.timestamp')) AS UNSIGNED) AS datefield,
+                    CAST(JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.paid')) AS DECIMAL(10, 2)) AS paid,
+                    CAST(JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.price')) AS DECIMAL(10, 2)) AS price,
+                    CAST(JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.id')) AS UNSIGNED) AS payment_id
+                    ";
+                $sql->from .= " RIGHT JOIN {local_shopping_cart_history} sch
+                    ON sch.itemid = bo.id AND sch.componentname = :componentname AND sch.area = :area
+                    JOIN JSON_TABLE(
+                        sch.json,
+                        '$.installments.payments[*]' COLUMNS (
+                            payment_data JSON PATH '$'
+                        )
+                    ) AS payments_info";
+                $sql->where = "CAST(JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.paid')) AS DECIMAL(10, 2)) = 0
+                    AND sch.installments > 0
+                    AND sch.paymentstatus = :paymentstatus
+                    AND sch.json IS NOT NULL
+                    AND sch.json <> ''";
+
+                if ($testmode) {
+                    $sql->where .= " AND sch.userid = :userid ";
+
+                    // And we know exactly when the payment was due.
+                    $nextruntime = $nextruntime + $params['numberofdays'] * 86400;
+
+                    $sql->where .= " AND CAST(JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.timestamp')) AS UNSIGNED) = :nextruntime ";
+                    $params['nextruntime'] = $nextruntime;
+                } else {
+                    // If we are not in testmode, we want to get all future payments.
+                    $sql->where .= " AND CAST(JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.timestamp')) AS UNSIGNED)
+                                        >= ( :nowparam + (86400 * :numberofdays ))";
+                }
+
+                break;
         }
     }
 }
