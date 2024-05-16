@@ -326,9 +326,8 @@ class bookingoption_description implements renderable, templatable {
             // For teachers of this course, link to teacherpage instead of user profile.
             foreach ($settings->teachers as $teacher) {
                 if ($this->responsiblecontactuser->id == $teacher->userid) {
-                    continue;
+                    $isteacher = true;
                 }
-                $isteacher = true;
             }
             if ($isteacher) {
                 $this->responsiblecontactuser->link = new moodle_url(
