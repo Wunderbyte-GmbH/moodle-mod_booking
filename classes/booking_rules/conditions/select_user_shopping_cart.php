@@ -172,7 +172,7 @@ class select_user_shopping_cart implements booking_rule_condition {
         global $DB;
 
         $newparams = [
-            'paymentstatus' => LOCAL_SHOPPING_CART_PAYMENT_SUCCESS,
+            'paymentstatus' => 2, // LOCAL_SHOPPING_CART_PAYMENT_SUCCESS.
             'componentname' => 'mod_booking',
             'area' => 'option',
         ];
