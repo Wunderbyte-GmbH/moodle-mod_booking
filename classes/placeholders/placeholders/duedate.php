@@ -66,17 +66,6 @@ class duedate {
         array &$params = [],
         int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE) {
 
-        $classname = substr(strrchr(get_called_class(), '\\'), 1);
-
-        if (empty($duedate)) {
-            throw new moodle_exception(
-                'paramnotpresent',
-                'mod_booking',
-                '',
-                '',
-                "You can't use param {{$classname}} without providing a duedate.");
-        }
-
         $timeformat = get_string('strftimedate', 'langconfig');
 
         return userdate($duedate, $timeformat);
