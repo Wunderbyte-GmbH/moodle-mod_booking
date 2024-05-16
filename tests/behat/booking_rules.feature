@@ -341,8 +341,10 @@ Feature: Create global booking rules as admin and insure they are working.
     ## Add new booking option schedulled for tomorrow
     When I log in as "admin"
     And I set the following administration settings values:
-      | Default timezone | UTC |
-      | Force timezone | UTC |
+      | Default timezone | Europe/Kyiv |
+      | Force timezone | Europe/Kyiv |
+      ##| Default timezone | UTC |
+      ##| Force timezone | UTC |
     And I am on the "BookingCMP" Activity page
     And I change viewport size to "1366x10000"
     And I follow "New booking option"
@@ -351,25 +353,24 @@ Feature: Create global booking rules as admin and insure they are working.
     And I press "Add date"
     And I wait "1" seconds
     And I set the following fields to these values:
-      | coursestarttime_1[day]    | ## +1 day 1 minute ## %d ## |
-      | coursestarttime_1[month]  | ## +1 day 1 minute ## %B ## |
-      | coursestarttime_1[year]   | ## +1 day 1 minute ## %Y ## |
+      | coursestarttime_1[day]    | ## +1 day +1 minute ## %d ## |
+      | coursestarttime_1[month]  | ## +1 day +1 minute ## %B ## |
+      | coursestarttime_1[year]   | ## +1 day +1 minute ## %Y ## |
       ## Does not work, place +5 ..8 hours... 
-      ##| coursestarttime_1[hour]   | ## +1 day 1 minute ## %H ## |
-      | coursestarttime_1[minute] | ## +1 day 1 minute ## %M ## |
+      ##| coursestarttime_1[hour]   | ## +1 day +1 minute ## %H ## |
+      | coursestarttime_1[minute] | ## +1 day +1 minute ## %M ## |
     And I set the following fields to these values:
       | courseendtime_1[day]    | ## + 1 year ## %d ## |
       | courseendtime_1[month]  | ## + 1 year ## %B ## |
       | courseendtime_1[year]   | ## + 1 year ## %Y ## |
       | courseendtime_1[hour]   | 00                   |
       | courseendtime_1[minute] | 00                   |
+    ##And I wait "10" seconds
     And I press "Save"
     And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     And I trigger cron
-    And I wait "5" seconds
     And I visit "/report/loglive/index.php"
     And I wait "9" seconds
-    ##And I should see "Substitution teacher was added"
-    ##And I should see "An e-mail with subject 'teacher subst' has been sent to user with id: '2'"
+    And I should see "Custom message: An e-mail with subject '1daybefore' has been sent to user with id: '2'"
     ## Logout is mandatory for admin pages to avoid error
     And I log out
