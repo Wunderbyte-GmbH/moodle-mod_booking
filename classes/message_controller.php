@@ -109,6 +109,15 @@ class message_controller {
     /** @var int $descriptionparam param to render booking option description for mails, websites etc. */
     private $descriptionparam;
 
+    /** @var int $installmentnr number of installment - starting with 0. */
+    private $installmentnr;
+
+    /** @var int $duedate duedate of installment. */
+    private $duedate;
+
+    /** @var float $price price given in installment */
+    private $price;
+
     /**
      * Constructor
      * @param int $msgcontrparam message controller param (send now | queue adhoc)
