@@ -13,12 +13,19 @@
         aria-label="true" 
         placeholder="<% label %>"
         name="<% name %>"
+        value="<% selectedvalue %>"
         [(ngModel)]='CONTENT_OTHERDATA.data["<% name %>"]'
       >
         <%# values %>
           <ion-select-option value="<% key_select %>"><% value_select %></ion-select-option>
         <%/ values %>
       </ion-select>
+      <%# error %>
+        <ion-text color="danger">
+          {{ 'plugin.mod_booking.mobile_field_required' | translate }}
+          This field is required.
+        </ion-text>
+      <%/ error %>
     </ion-item>
   <%/myform%>
 </div>

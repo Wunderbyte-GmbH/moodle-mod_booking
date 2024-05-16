@@ -109,7 +109,6 @@ class customform_form extends dynamic_form {
 
         $cache = cache::make('mod_booking', 'customformuserdata');
         $cachekey = $userid . "_" . $data->id . '_customform';
-
         $cache->set($cachekey, $data);
 
         return $data;

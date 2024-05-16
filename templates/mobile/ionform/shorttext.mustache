@@ -10,12 +10,21 @@
   <%#myform%>
     <ion-item>  
       <ion-input 
-        label="<% value %>"
+        label="<% label %>"
+        value="<% value %>"
+        placeholder="<% value %>" 
+        ng-reflect-model="<% value %>"
         name="<% name %>"
         style="--background: #f0f0f0;"
         [(ngModel)]='CONTENT_OTHERDATA.data["<% name %>"]'
         >
       </ion-input>
+      <%# error %>
+        <ion-text color="danger">
+          {{ 'plugin.mod_booking.mobile_field_required' | translate }}  
+        </ion-text>
+      <%/ error %>
+      
     </ion-item>
   <%/myform%>
 </div>

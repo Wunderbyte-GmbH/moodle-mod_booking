@@ -60,6 +60,8 @@ class get_submission_mobile extends external_api {
         return new external_function_parameters([
           'itemid'  => new external_value(PARAM_INT, 'coursecategoryid', VALUE_DEFAULT, 0),
           'userid'  => new external_value(PARAM_INT, 'coursecategoryid', VALUE_DEFAULT, 0),
+          'sessionkey'  => new external_value(PARAM_RAW, 'coursecategoryid', VALUE_DEFAULT, ''),
+          'reset'  => new external_value(PARAM_BOOL, 'reset flag', VALUE_DEFAULT, 'false'),
           'data' => new external_multiple_structure(
               new external_single_structure(
                   [
@@ -76,30 +78,30 @@ class get_submission_mobile extends external_api {
      * Webservice for update the notes in booking_answers table.
      *
      * @param string $itemid
+     * @param string $sessionkey
      * @param string $userid
-     * @param string $data
+     * @param array $data
      *
      * @return array
      */
-    public static function execute($itemid, $userid, $data): array {
+    public static function execute($itemid, $userid, $sessionkey, $reset, $data): array {
         global $DB;
-
         $params = external_api::validate_parameters(self::execute_parameters(), [
           'itemid' => $itemid,
           'userid' => $userid,
+          'sessionkey' => $sessionkey,
+          'reset' => $reset,
           'data' => $data,
         ]);
-
-        $formclass = 'mod_booking\\form\\condition\\customform_form';
-        $formdatastr = self::build_formdata_string($itemid, $userid, $data);
-
-        dynamic_form::execute_parameters();
-        $output = dynamic_form::execute($formclass, $formdatastr);
-
         $cache = cache::make('mod_booking', 'customformuserdata');
         $cachekey = $userid . "_" . $itemid . '_customform';
-
-        return mobile::mobile_booking_submission_view($output);
+        if ($reset) {
+            $cache->delete($cachekey);
+        } else {
+            $data = self::merge_data($cache->get($cachekey), $data);
+            $cache->set($cachekey, $data);
+        }
+        return $data;
     }
 
     /**
@@ -109,7 +111,7 @@ class get_submission_mobile extends external_api {
      */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
-            'status' => new external_value(PARAM_INT, '1 for success', VALUE_DEFAULT, 0),
+            'submitted' => new external_value(PARAM_INT, '1 for success', VALUE_DEFAULT, 0),
             'message' => new external_value(PARAM_RAW, 'Message if any', VALUE_DEFAULT, ''),
             'template' => new external_value(PARAM_TEXT, 'Button template', VALUE_DEFAULT, ''),
             'json' => new external_value(PARAM_RAW, 'Data as json', VALUE_DEFAULT, ''),
@@ -119,17 +121,39 @@ class get_submission_mobile extends external_api {
 
     /**
      * Returns description of method result value.
+     * @param array $cacheddata
+     * @param array $data
+     * @return array
+     */
+    public static function merge_data($cacheddata, $data): array {
+        foreach ($cacheddata as $olddata) {
+            $transmit = true;
+            foreach ($data as $newdata) {
+                if ($newdata['name'] == $olddata['name']) {
+                    $transmit = false;
+                    break;
+                }
+            }
+            if ($transmit) {
+                $data[] = $olddata;
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * Returns description of method result value.
      * @param string $itemid
      * @param string $userid
      * @param array $data
      * @return string
      */
-    public static function build_formdata_string($itemid, $userid, $data): string {
+    public static function build_formdata_string($itemid, $userid, $sesskey, $data): string {
         $formdatastr =
           'id=' . $itemid .
           '&userid=' .  $userid .
-          '&sesskey=RGDEolNWr7&
-          _qf__mod_booking_form_condition_customform_form=1';
+          '&sesskey=' . $sesskey .
+          '&_qf__mod_booking_form_condition_customform_form=1';
         foreach ($data as $subvalue) {
             if (str_contains($subvalue['name'], 'shorttext')) {
                 $formdatastr .= '&' . $subvalue['name'] . '=' . str_replace(' ', '+', $subvalue['value']);

@@ -27,9 +27,11 @@ namespace mod_booking\output;
 
 defined('MOODLE_INTERNAL') || die();
 
+use cache;
 use context_module;
 use context;
 use core_form\external\dynamic_form;
+use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\booking;
 use mod_booking\booking_bookit;
@@ -144,19 +146,36 @@ class mobile {
         $data['teachers'] = $teachers;
         $data['userid'] = $USER->id;
 
+        // $boinfo = new bo_info($settings);
+        // list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $USER->id, false);
+        // if ($id == MOD_BOOKING_BO_COND_JSON_CUSTOMFORM) {
+
+        // }
         // Now we render the button for this option & user.
-
         list($templates, $button) = booking_bookit::render_bookit_template_data($settings);
-
-        $ba = singleton_service::get_instance_of_booking_answers($settings);
         $button = reset($button);
-        if (!empty($customform)) {
-            $ionsubmissionhtml = self::build_submission_form($customform, $data);
-        }
-
-        if (isset($button->data['nojs']) && $button->data['nojs'] === false) {
-
-            $data['submit']['label'] = $button->data['main']['label'];
+        if (!isset($button->data['nojs']) || $button->data['nojs'] === false) {
+            if (!empty($customform)) {
+                $cache = cache::make('mod_booking', 'customformuserdata');
+                $cachekey = $USER->id . "_" . $data['id'] . '_customform';
+                //$cache->delete($cachekey);
+                $customformuserdata = $cache->get($cachekey);
+                $formvalidated = false;
+                if ($customformuserdata !== false) {
+                    $customform = self::validation_data($customform, $customformuserdata);
+                }
+                if ($customformuserdata) {
+                    $formvalidated = self::form_validation($customform);
+                }
+                if ($formvalidated) {
+                    $data['submit']['label'] = $button->data['main']['label'];
+                    $ionsubmissionhtml = self::submission_form_submitted($button);
+                } else {
+                    $ionsubmissionhtml = self::build_submission_form($customform, $data);
+                }
+            } else {
+                $data['submit']['label'] = $button->data['main']['label'];
+            }
         } else {
             $data['nosubmit']['label'] = $button->data['main']['label'] ?? get_string('notbookable', 'mod_booking');
         }
@@ -171,6 +190,51 @@ class mobile {
             'javascript' => '',
             'otherdata' => ['data' => '{}'],
         ];
+    }
+
+
+    public static function form_validation ($customform) {
+        foreach ($customform as $customitem) {
+            if (isset($customitem->error) && $customitem->error) {
+                return false;
+            } else if ($customitem->notempty == 1 && $customitem->value == '') {
+                return false;
+            }
+        }
+        return true;
+    }
+    public static function validation_data ($customform, $customformuserdata) {
+        foreach ($customform as $key => &$customitem) {
+            if (empty($customformuserdata) && $customitem->notempty == '1') {
+                $customitem->error = true;
+            } else {
+                $found = false;
+                foreach ($customformuserdata as $customformitem) {
+                    if ($customformitem['name'] == 'customform_' . $customitem->formtype . '_' . $key) {
+                        $found = true;
+                        if (str_contains($customitem->formtype, 'select')) {
+                            $customitem->selectedvalue = $customformitem['value'];
+                            if ($customitem->notempty == '1' && !empty($customitem->selectedvalue)) {
+                                $customitem->error = true;
+                            } else {
+                                $customitem->error = false;
+                            }
+                        } else {
+                            $customitem->value = $customformitem['value'];
+                            if ($customitem->notempty == '1' && empty($customformitem['value'])) {
+                                $customitem->error = true;
+                            } else {
+                                $customitem->error = false;
+                            }
+                        }
+                    }
+                }
+                if (!$found && $customitem->notempty == '1') {
+                    $customitem->error = true;
+                }
+            }
+        }
+        return $customform;
     }
 
     /**
@@ -313,6 +377,11 @@ class mobile {
                 'next' => get_string('next', 'booking'),
                 'previous' => get_string('previous', 'booking'),
                 'show_dates' => get_string('show_dates', 'booking'),
+                'mobile_notification' => get_string('mobile_notification', 'booking'),
+                'mobile_submitted_success' => get_string('mobile_submitted_success', 'booking'),
+                'mobile_reset_submission' => get_string('mobile_reset_submission', 'booking'),
+                'mobile_set_submission' => get_string('mobile_set_submission', 'booking'),
+                'mobile_field_required' => get_string('mobile_field_required', 'booking'),
             ], 'btnnp' => self::npbuttons($allpages, $pagnumber), 'bcolorshowall' => $bcolorshowall,
             'bcolorshowactive' => $bcolorshowactive, 'bcolormybooking' => $bcolormybooking,
         ];
@@ -539,6 +608,31 @@ class mobile {
 
     /**
      * Builds form for ionic mobile app
+     * @param object $button
+     * @return string
+     */
+    public static function submission_form_submitted($button) :string {
+        return
+          '<ion-card style="background: #ffffff; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px;">
+            <ion-card-header style="color: #10dc60; font-size: 1.2rem;">
+              <ion-icon name="checkmark-circle-outline" slot="start" style="color: #10dc60; font-size: 1.5rem;"></ion-icon>
+              ' . get_string('mobile_notification', 'mod_booking') . '
+            </ion-card-header>
+            <ion-card-content>
+              <ion-list lines="none">
+                <ion-item>
+                  <ion-label style="color: #323232;">
+                  ' . get_string('mobile_submitted_success', 'mod_booking') . '
+                  </ion-label>
+                </ion-item>
+                ' . $button->buttonhtml .
+              '</ion-list>
+            </ion-card-content>
+          </ion-card>';
+    }
+
+    /**
+     * Builds form for ionic mobile app
      *
      * @param object $formsarray
      * @param array $data
@@ -547,6 +641,8 @@ class mobile {
     public static function build_submission_form(object $formsarray, array $dataglobal) {
         global $OUTPUT;
         $ionichtml = '';
+        $resetsubmissionform = '';
+
         foreach ($formsarray as $key => $submission) {
             $data = [
               'myform' => (array)$submission,
@@ -554,23 +650,42 @@ class mobile {
             if ($submission->formtype != 'static') {
                 $data['myform']['name'] = 'customform_' . $submission->formtype . '_' . $key;
             }
-            switch ($submission->formtype) {
-                case 'advcheckbox':
-                    $ionichtml .= $OUTPUT->render_from_template('mod_booking/mobile/ionform/advcheckbox', $data);
-                    break;
-                case 'static':
-                    $ionichtml .= $OUTPUT->render_from_template('mod_booking/mobile/ionform/static', $data);
-                    break;
-                case 'shorttext':
-                    $ionichtml .= $OUTPUT->render_from_template('mod_booking/mobile/ionform/shorttext', $data);
-                    break;
-                case 'select':
-                    $data['myform']['values'] = self::get_select_options($data['myform']['value']);
-                    $ionichtml .= $OUTPUT->render_from_template('mod_booking/mobile/ionform/select', $data);
-                    break;
+            if (!isset($submission->error) || $submission->error) {
+                switch ($submission->formtype) {
+                    case 'advcheckbox':
+                        $ionichtml .= $OUTPUT->render_from_template('mod_booking/mobile/ionform/advcheckbox', $data);
+                        break;
+                    case 'static':
+                        $ionichtml .= $OUTPUT->render_from_template('mod_booking/mobile/ionform/static', $data);
+                        break;
+                    case 'shorttext':
+                        $ionichtml .= $OUTPUT->render_from_template('mod_booking/mobile/ionform/shorttext', $data);
+                        break;
+                    case 'select':
+                        $data['myform'] = self::get_select_options($data['myform']);
+                        $ionichtml .= $OUTPUT->render_from_template('mod_booking/mobile/ionform/select', $data);
+                        break;
+                }
+            } else if (isset($submission->error) && !$submission->error) {
+                $resetsubmissionform =
+                  '<ion-button
+                    expand="block"
+                    type="submit"
+                    core-site-plugins-call-ws
+                    name="mod_booking_get_submission_mobile"
+                    [params]="{itemid: ' .
+                      ($dataglobal['id'] ?? 0) .
+                    ', userid: ' .
+                    ($dataglobal['userid'] ?? 0) .
+                    ', sessionkey: 0, data: {}, reset: true}"
+                    refreshOnSuccess="true"
+                  >
+                  ' . get_string('mobile_reset_submission', 'mod_booking') . '
+                  </ion-button>';
             }
         }
         if ($ionichtml != '') {
+            $sessionkey = ", sessionkey:'" . sesskey() . "'";
             $ionichtml =
               '<ion-card><ion-list>' .
               $ionichtml .
@@ -583,10 +698,13 @@ class mobile {
               ($dataglobal['id'] ?? 0) .
               ', userid: ' .
               ($dataglobal['userid'] ?? 0) .
-              ', data: CoreUtilsProvider.objectToArrayOfObjects(CONTENT_OTHERDATA.data, ' . "'name'" . ', ' . "'value'" . ')}"
+              $sessionkey .
+              ', reset: false, data:
+              CoreUtilsProvider.objectToArrayOfObjects(CONTENT_OTHERDATA.data, ' . "'name'" . ', ' . "'value'" . ')}"
+              refreshOnSuccess="true"
             >
-              Click me
-            </ion-button></ion-list></ion-card>';
+            ' . get_string('mobile_set_submission', 'mod_booking') . '
+            </ion-button>' . $resetsubmissionform . '</ion-list></ion-card>';
         }
         return $ionichtml;
     }
@@ -594,60 +712,28 @@ class mobile {
     /**
      * Returns select array
      *
-     * @param string $formsstring
+     * @param array $myform
      * @return array
      */
-    public static function get_select_options(string $formsstring) {
-        $lines = explode(PHP_EOL, $formsstring);
+    public static function get_select_options(array $myform) {
+        $lines = explode(PHP_EOL, $myform['value']);
         $options = [];
         foreach ($lines as $key => $line) {
             $linearray = explode(' => ', $line);
             if (count($linearray) > 1) {
-                $options[] = [
+                $newselect = [
                   'key_select' => $linearray[0],
                   'value_select' => $linearray[1],
                 ];
             } else {
-                $options[] = [
+                $newselect = [
                   'key_select' => $key,
                   'value_select' => $line,
                 ];
             }
+            $options[] = $newselect;
         }
-        return $options;
-    }
-
-    /**
-     * Returns select array
-     *
-     * @param array $args
-     * @return array
-     */
-    public static function mobile_booking_option_ionic($params) {
-        $formclass = 'mod_booking\\form\\condition\\customform_form';
-
-        $test = 'testing';
-        return $test;
-    }
-
-    /**
-     * Returns detail view of booking option
-     *
-     * @param array $args Arguments from tool_mobile_get_content WS
-     * @return array HTML, javascript and otherdata
-     */
-    public static function mobile_booking_submission_view($output) {
-        global $OUTPUT;
-        $detailhtml = $OUTPUT->render_from_template('mod_booking/mobile/mobile_booking_submission_check', []);
-        return [
-            'templates' => [
-                [
-                    'id' => 'main',
-                    'html' => $detailhtml,
-                ],
-            ],
-            'javascript' => '',
-            'otherdata' => ['data' => '{}'],
-        ];
+        $myform['values'] = $options;
+        return $myform;
     }
 }

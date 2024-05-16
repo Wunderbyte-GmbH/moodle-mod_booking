@@ -70,6 +70,11 @@ $addons = [
             ['booking:choose', 'mod_booking'],
             ['areyousure:book', 'mod_booking'],
             ['booked', 'mod_booking'],
+            ['mobile_notification', 'mod_booking'],
+            ['mobile_submitted_success', 'mod_booking'],
+            ['mobile_reset_submission', 'mod_booking'],
+            ['mobile_set_submission', 'mod_booking'],
+            ['mobile_field_required', 'mod_booking'],
         ]
     ]
 ];

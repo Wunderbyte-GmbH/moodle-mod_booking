@@ -15,10 +15,19 @@
       <ion-checkbox 
         slot="start"
         name="<% name %>"
-        [checked]="<% value %>"
+        value="<% value %>"
+        <%# value %>
+          [class.checkbox-checked]="<% value %> == 1"
+          [class.checkbox-unchecked]="<% value %> != 1"
+        <%/ value %>
         [(ngModel)]='CONTENT_OTHERDATA.data["<% name %>"]'
       >
       </ion-checkbox>
+      <%# error %>
+        <ion-text color="danger">
+          {{ 'plugin.mod_booking.mobile_field_required' | translate }}
+        </ion-text>
+      <%/ error %>
     </ion-item>
   <%/myform%>
 </div>

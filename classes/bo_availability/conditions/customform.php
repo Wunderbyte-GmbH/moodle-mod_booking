@@ -102,10 +102,7 @@ class customform implements bo_condition {
 
         if (empty($this->customsettings->formsarray)) {
             $isavailable = true;
-        }
-        // TODO: Fix caching - currently it does not work correctly.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* else {
+        } else {
 
             $cache = cache::make('mod_booking', 'customformuserdata');
             $cachekey = $userid . "_" . $settings->id . '_customform';
@@ -113,7 +110,7 @@ class customform implements bo_condition {
             if ($formdata = $cache->get($cachekey)) {
                 $isavailable = true;
             }
-        } */
+        }
 
         // If it's inversed, we inverse.
         if ($not) {
