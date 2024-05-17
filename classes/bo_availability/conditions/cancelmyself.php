@@ -126,6 +126,7 @@ class cancelmyself implements bo_condition {
                     $item = (object)[
                         'itemid' => $settings->id,
                         'componentname' => 'mod_booking',
+                        'canceluntil' => $canceluntil,
                     ];
                     // Shopping cart allows to cancel.
                     if (!shopping_cart::allowed_to_cancel_for_item($item, 'option')) {
