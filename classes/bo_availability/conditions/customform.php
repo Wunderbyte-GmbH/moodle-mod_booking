@@ -105,7 +105,7 @@ class customform implements bo_condition {
         } else {
             $customformstore = new customformstore($userid, $settings->id);
             if ($customformstore->get_customform_data()) {
-                $isavailable = true;
+                // $isavailable = true;
             }
         }
 

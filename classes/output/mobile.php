@@ -39,6 +39,7 @@ use mod_booking\form\condition\customform_form;
 use mod_booking\local\customformstore;
 use mod_booking\local\mobileformbuilder;
 use mod_booking\places;
+use mod_booking\price;
 use mod_booking\singleton_service;
 use moodle_exception;
 use stdClass;
@@ -147,38 +148,60 @@ class mobile {
         $data['teachers'] = $teachers;
         $data['userid'] = $USER->id;
 
+        $boinfo = new bo_info($settings);
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $USER->id, false);
+
         // Now we render the button for this option & user.
-        list($templates, $button) = booking_bookit::render_bookit_template_data($settings);
+        list($templates, $button) = booking_bookit::render_bookit_template_data($settings, 0, false);
         $button = reset($button);
-        if (!isset($button->data['nojs']) || $button->data['nojs'] === false) {
-            if (!empty($customform)) {
-                $customformstore = new customformstore($USER->id, $data['id']);
-                $customformuserdata = $customformstore->get_customform_data();
-                $formvalidated = [false];
-                if ($customformuserdata !== false) {
-                    $customform = $customformstore->validation_data($customform, $customformuserdata);
+
+        $ionsubmissionhtml = '';
+
+        switch ($id) {
+            case MOD_BOOKING_BO_COND_JSON_CUSTOMFORM:
+                if (!empty($customform)) {
+                    $customformstore = new customformstore($USER->id, $data['id']);
+                    $customformuserdata = $customformstore->get_customform_data();
+                    $formvalidated = [false];
+                    if ($customformuserdata !== false) {
+                        $customform = $customformstore->validation_data($customform, $customformuserdata);
+                    }
+                    if ($customformuserdata) {
+                        $formvalidated = $customformstore->validation($customform, (array)$customformuserdata);
+                    }
+                    if (empty($formvalidated)) {
+                        $data['submit']['label'] = $button->data['main']['label'];
+                        $ionsubmissionhtml = $mobileformbuilder::submission_form_submitted($button);
+                    } else {
+                        $ionsubmissionhtml = $mobileformbuilder::build_submission_entitites($customform, $data);
+                    }
                 }
-                if ($customformuserdata) {
-                    $formvalidated = $customformstore->validation($customform, (array)$customformuserdata);
-                }
-                if (empty($formvalidated)) {
-                    $data['submit']['label'] = $button->data['main']['label'];
-                    $ionsubmissionhtml = $mobileformbuilder::submission_form_submitted($button);
-                } else {
-                    $ionsubmissionhtml = $mobileformbuilder::build_submission_entitites($customform, $data);
-                }
-            } else {
-                $data['submit']['label'] = $button->data['main']['label'];
-            }
-        } else {
-            $data['nosubmit']['label'] = $button->data['main']['label'] ?? get_string('notbookable', 'mod_booking');
+                break;
+            case MOD_BOOKING_BO_COND_BOOKITBUTTON:
+            case MOD_BOOKING_BO_COND_CONFIRMBOOKIT:
+                $data['submit']['label']
+                    = $description;
+                break;
+            case MOD_BOOKING_BO_COND_PRICEISSET:
+                $price = price::get_price('option', $settings->id);
+                $data['nosubmit']['label'] = $price['price'] . " " . $price['currency'];
+                break;
+            case MOD_BOOKING_BO_COND_BOOKINGPOLICY:
+                $data['nosubmit']['label'] = get_string('', 'mod_booking');
+                break;
+            default:
+
+                $data['nosubmit']['label']
+                    = !empty($description) ? $description : get_string('notbookable', 'mod_booking');
+                break;
         }
+
         $detailhtml = $OUTPUT->render_from_template('mod_booking/mobile/mobile_booking_option_details', $data);
         return [
             'templates' => [
                 [
                     'id' => 'main',
-                    'html' => $detailhtml . $ionsubmissionhtml,
+                    'html' => $detailhtml . $ionsubmissionhtml ?? '',
                 ],
             ],
             'javascript' => '',
@@ -258,7 +281,7 @@ class mobile {
     public static function mobile_course_view($args) {
         global $DB, $OUTPUT, $USER;
 
-        $cmid = $args->cmid ?? $args['cmid'];
+        $cmid = $args['cmid'];
 
         if (empty($cmid)) {
             throw new moodle_exception('nocmidselected', 'mod_booking');
