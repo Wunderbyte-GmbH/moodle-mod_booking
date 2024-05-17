@@ -30,6 +30,7 @@ global $CFG;
 use mod_booking\booking_option;
 use mod_booking\booking_campaigns\campaigns_info;
 use mod_booking\singleton_service;
+use mod_booking\bo_availability\bo_info;
 
 /**
  * Class to handle module booking data generator
@@ -173,6 +174,28 @@ class mod_booking_generator extends testing_module_generator {
         }
 
         return $record;
+    }
+
+    /**
+     * Function to create a dummy student's answer on option.
+     *
+     * @param array|stdClass $record
+     * @return int $id the booking answer status
+     */
+    public function create_answer($record = null) {
+        global $DB;
+
+        $record = (object) $record;
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($record->optionid);
+        $boinfo = new bo_info($settings);
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $user = $DB->get_record('user', ['id' => (int)$record->userid], '*', MUST_EXIST);
+        $option->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED);
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $record->userid, true);
+        // Value of $id expected to be MOD_BOOKING_BO_COND_ALREADYBOOKED.
+
+        return $id;
     }
 
     /**
