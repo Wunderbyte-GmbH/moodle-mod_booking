@@ -26,12 +26,12 @@
 
 namespace mod_booking\bo_availability\conditions;
 
-use cache;
 use context_system;
 use Exception;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
+use mod_booking\local\customformstore;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
 use MoodleQuickForm;
@@ -103,11 +103,8 @@ class customform implements bo_condition {
         if (empty($this->customsettings->formsarray)) {
             $isavailable = true;
         } else {
-
-            $cache = cache::make('mod_booking', 'customformuserdata');
-            $cachekey = $userid . "_" . $settings->id . '_customform';
-
-            if ($formdata = $cache->get($cachekey)) {
+            $customformstore = new customformstore($userid, $settings->id);
+            if ($customformstore->get_customform_data()) {
                 $isavailable = true;
             }
         }
@@ -498,19 +495,18 @@ class customform implements bo_condition {
             return;
         }
 
-        $cache = cache::make('mod_booking', 'customformuserdata');
-        $cachekey = $userid . "_" . $settings->id . '_customform';
+        $customformstore = new customformstore($userid, $settings->id);
+        $data = $customformstore->get_customform_data();
 
         // Only if we find the form in cache, we save it to the answer.
         // We can just overwrite any preivous answer.
-        if ($data = $cache->get($cachekey)) {
-
+        if ($data) {
             $data = (object)[
                 "condition_customform" => $data,
             ];
-
             $newanswer->json = json_encode($data);
         }
+        $customformstore->delete_customform_data();
     }
 
     /**

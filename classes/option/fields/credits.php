@@ -143,7 +143,6 @@ class credits extends field_base {
             $jsonobject->paidwithcredits = 1;
 
             $cache->delete($cachekey);
-
             $newanswer->json = json_encode($jsonobject);
         }
     }

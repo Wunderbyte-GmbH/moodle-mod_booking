@@ -30,11 +30,11 @@ global $CFG;
 require_once("$CFG->libdir/formslib.php");
 require_once("$CFG->dirroot/mod/booking/lib.php");
 
-use cache;
 use context;
 use context_system;
 use core_form\dynamic_form;
 use mod_booking\bo_availability\conditions\customform;
+use mod_booking\local\customformstore;
 use mod_booking\singleton_service;
 use moodle_url;
 use stdClass;
@@ -84,11 +84,10 @@ class customform_form extends dynamic_form {
         $optionid = $formdata['id'];
         $userid = $formdata['userid'] ?? $USER->id;
 
-        $cache = cache::make('mod_booking', 'conditionforms');
+        $customformstore = new customformstore($userid, $optionid);
+        $cachedata = $customformstore->get_customform_data();
 
-        $cachekey = $userid . '_' . $optionid . '_customform';
-
-        if ($cachedata = $cache->get($cachekey)) {
+        if ($cachedata) {
             $data->customform_advcheckbox = $cachedata->customform_advcheckbox;
         }
 
@@ -107,9 +106,8 @@ class customform_form extends dynamic_form {
 
         $userid = $data->userid ?? $USER->id;
 
-        $cache = cache::make('mod_booking', 'customformuserdata');
-        $cachekey = $userid . "_" . $data->id . '_customform';
-        $cache->set($cachekey, $data);
+        $customformstore = new customformstore($userid, $data->id);
+        $customformstore->set_customform_data($data);
 
         return $data;
     }
@@ -215,18 +213,8 @@ class customform_form extends dynamic_form {
         $settings = singleton_service::get_instance_of_booking_option_settings((int)$id);
         $customform = customform::return_formelements($settings);
 
-        foreach ($customform as $key => $formelement) {
-
-            if (!empty($formelement->notempty)) {
-                $identifier = 'customform_' . $formelement->formtype . "_" . $key;
-
-                if (empty($data[$identifier])) {
-                    $errors[$identifier] = get_string('error:mustnotbeempty', 'mod_booking');
-                }
-            }
-        }
-
-        return $errors;
+        $customformstore = new customformstore($data['userid'], $id);
+        return $customformstore->validation($customform, $data);
     }
 
     /**

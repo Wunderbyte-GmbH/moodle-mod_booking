@@ -80,7 +80,7 @@ class get_submission_mobile extends external_api {
      * @param string $itemid
      * @param string $sessionkey
      * @param string $userid
-     * @param array $data
+     * @param object $data
      *
      * @return array
      */
@@ -98,8 +98,8 @@ class get_submission_mobile extends external_api {
         if ($reset) {
             $cache->delete($cachekey);
         } else {
-            $data = self::merge_data($cache->get($cachekey), $data);
-            $cache->set($cachekey, $data);
+            $data = self::merge_data($cache->get($cachekey), $data, $itemid, $userid);
+            $cache->set($cachekey, (object)$data);
         }
         return $data;
     }
@@ -123,22 +123,24 @@ class get_submission_mobile extends external_api {
      * Returns description of method result value.
      * @param array $cacheddata
      * @param array $data
+     * @param int $itemid
+     * @param int $userid
      * @return array
      */
-    public static function merge_data($cacheddata, $data): array {
-        foreach ($cacheddata as $olddata) {
-            $transmit = true;
-            foreach ($data as $newdata) {
-                if ($newdata['name'] == $olddata['name']) {
-                    $transmit = false;
-                    break;
-                }
-            }
-            if ($transmit) {
-                $data[] = $olddata;
+    public static function merge_data($cacheddata, $data, $itemid, $userid): array {
+        $datacache = [
+          'id' => $itemid,
+          'userid' => $userid,
+        ];
+        foreach ($data as $newvalues) {
+            $datacache[$newvalues['name']] = $newvalues['value'];
+        }
+        foreach ($cacheddata as $key => $olddata) {
+            if ($key != 'id' && $key != 'userid' && !isset($datacache[$key])) {
+                $datacache[$key] = $olddata;
             }
         }
-        return $data;
+        return $datacache;
     }
 
     /**
