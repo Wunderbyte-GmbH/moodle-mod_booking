@@ -18,15 +18,6 @@ defined('MOODLE_INTERNAL') || die();
 $addons = [
     "mod_booking" => [
         'handlers' => [
-            'bookingslist' => [
-                'displaydata' => [
-                'icon' => $CFG->wwwroot . '/mod/booking/pix/icon.png', 'class' => ''
-                ],
-                'delegate' => 'CoreMainMenuDelegate',
-                'method' => 'mobile_system_view',
-                'offlinefunctions' => [
-                ]
-            ],
             'coursebooking' => [
                     'displaydata' => [
                     'icon' => $CFG->wwwroot . '/mod/booking/pix/icon.png', 'class' => ''
@@ -35,17 +26,6 @@ $addons = [
                     'method' => 'mobile_course_view',
                     'offlinefunctions' => [
                     ]
-            ],
-            'mybookingslist' => [ // Handler unique name (alphanumeric).
-                'displaydata' => [
-                    'title' => 'showmybookingsonly',
-                    'icon' => 'document',
-                    'class' => '',
-                ],
-                'delegate' => 'CoreMainMenuDelegate', // Delegate (where to display the link to the plugin).
-                'method' => 'mobile_mybookings_list', // Main function in \mod_certificate\output\mobile.
-                'offlinefunctions' => [
-                ], // Function that needs to be downloaded for offline.
             ]
         ],
         'lang' => [
