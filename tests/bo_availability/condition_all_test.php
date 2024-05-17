@@ -838,6 +838,7 @@ class condition_all_test extends advanced_testcase {
         $teacher = $this->getDataGenerator()->create_user($users[2]);
         $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
 
+        $bdata['cancancelbook'] = 1;
         $bdata['course'] = $course1->id;
         $bdata['bookingmanager'] = $bookingmanager->username;
 
@@ -886,6 +887,18 @@ class condition_all_test extends advanced_testcase {
         $result = booking_bookit::bookit('option', $settings1->id, $student2->id);
         list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // When we run it again, we might want to cancel.
+        $result = booking_bookit::bookit('option', $settings1->id, $student2->id);
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMCANCEL, $id);
+        // Now confirm cancel.
+        $result = booking_bookit::bookit('option', $settings1->id, $student2->id);
+
+        // The result is, that we see the bookingbutton again.
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKWITHCREDITS, $id);
+
         // Book the student1.
         $this->setUser($student1);
         singleton_service::destroy_user($student1->id);
