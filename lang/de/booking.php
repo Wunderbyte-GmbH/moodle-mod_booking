@@ -2019,7 +2019,7 @@ $string['rule_datefield'] = 'Datumsfeld';
 $string['rule_customprofilefield'] = 'Benutzerdefiniertes User-Profilfeld';
 $string['rule_operator'] = 'Operator';
 $string['rule_value'] = 'Wert';
-$string['rule_days'] = 'Anzahl Tage vorher';
+$string['rule_days'] = 'Anzahl Tage';
 
 $string['rule_optionfield'] = 'Buchungsoptionsfeld, das verglichen werden soll';
 $string['rule_optionfield_coursestarttime'] = 'Beginn (coursestarttime)';
@@ -2035,8 +2035,8 @@ $string['rule_sendmail_cpf_desc'] = 'Wählen Sie ein Event aus, auf das reagiert
 (Sie können auch Platzhalter wie {bookingdetails} verwenden) und legen Sie fest, an welche Nutzer:innen die E-Mail versendet werden soll.
 Beispiel: Alle Nutzer:innen, die im benutzerdefinierten Feld "Studienzentrumsleitung" den Wert "SZL Wien" stehen haben.';
 
-$string['rule_daysbefore'] = 'Reagiere n Tage vor einem bestimmtem Datum';
-$string['rule_daysbefore_desc'] = 'Wählen Sie die Anzahl der Tage VOR einem gewissen Datum einer Buchungsoption aus.';
+$string['rule_daysbefore'] = 'Reagiere n Tage vor/nach einem bestimmtem Datum';
+$string['rule_daysbefore_desc'] = 'Wählen Sie die Anzahl der Tage in Bezug zu einem gewissen Datum einer Buchungsoption aus.';
 $string['rule_react_on_event'] = 'Reagiere auf Ereignis';
 $string['rule_react_on_event_desc'] = 'Wählen Sie ein Ereignis aus, durch das die Regel ausgelöst werden soll.<br>
 <b>Tipp:</b> Verwenden Sie den Platzhalter <code>{eventdescription}</code> um eine Beschreibung des Ereignisses anzuzeigen.';
@@ -2282,3 +2282,32 @@ $string['mobile_submitted_success'] = 'Sie können fortfahren und den Kurs buche
 $string['mobile_reset_submission'] = 'Einreichungsformular zurücksetzen';
 $string['mobile_set_submission'] = 'Einreichen';
 $string['mobile_field_required'] = 'Dieses Feld ist erforderlich';
+// Days before and after.
+$string['daybefore1'] = '1 Tag davor';
+$string['dayafter1'] = '1 Tag danach';
+$string['daybefore2'] = '2 Tage davor';
+$string['dayafter2'] = '2 Tage danach';
+$string['daybefore3'] = '3 Tage davor';
+$string['dayafter3'] = '3 Tage danach';
+$string['daybefore4'] = '4 Tage davor';
+$string['dayafter4'] = '4 Tage danach';
+$string['daybefore5'] = '5 Tage davor';
+$string['dayafter5'] = '5 Tage danach';
+$string['daybefore6'] = '6 Tage davor';
+$string['dayafter6'] = '6 Tage danach';
+$string['daybefore7'] = '7 Tage davor';
+$string['dayafter7'] = '7 Tage danach';
+$string['daybefore8'] = '8 Tage davor';
+$string['dayafter8'] = '8 Tage danach';
+$string['daybefore9'] = '9 Tage davor';
+$string['dayafter9'] = '9 Tage danach';
+$string['daybefore10'] = '10 Tage davor';
+$string['dayafter10'] = '10 Tage danach';
+$string['daybefore15'] = '15 Tage davor';
+$string['dayafter15'] = '15 Tage danach';
+$string['daybefore20'] = '20 Tage davor';
+$string['dayafter20'] = '20 Tage danach';
+$string['daybefore25'] = '25 Tage davor';
+$string['dayafter25'] = '25 Tage danach';
+$string['daybefore30'] = '30 Tage davor';
+$string['dayafter30'] = '30 Tage danach';
