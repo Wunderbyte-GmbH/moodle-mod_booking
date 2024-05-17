@@ -181,11 +181,11 @@ class select_user_shopping_cart implements booking_rule_condition {
 
         $dbfamily = $DB->get_dbfamily();
 
-        $concat = $DB->sql_concat("bo.id", "'-'", " (payments_info.payment_data->>'id') ");
-
         switch ($dbfamily) {
 
             case 'postgres':
+                $concat = $DB->sql_concat("bo.id", "'-'", " (payments_info.payment_data->>'id') ");
+
                 $sql->select = "$concat as uniquid,
                                 bo.id optionid,
                                 cm.id cmid,
@@ -224,8 +224,9 @@ class select_user_shopping_cart implements booking_rule_condition {
                                         >= ( :nowparam + (86400 * :numberofdays ))";
                 }
                 break;
-            case 'mariadb':
-                $sql->select = "$concat as uniquid,
+            case 'mysql':
+                $sql->select = "
+                    CONCAT('', bo.id, '-', JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.id'))) AS uniquid,
                     bo.id optionid,
                     cm.id cmid,
                     sch.userid,
