@@ -115,5 +115,83 @@ class mobileformbuilder {
             ' . get_string('mobile_set_submission', 'mod_booking') . '
             </ion-button>' . $resetsubmissionform . '</ion-list></ion-card>';
         return $ionichtml;
-  }
+    }
+
+    /**
+     * Builds form for ionic mobile app
+     *
+     * @param object $formsarray
+     * @param array $data
+     * @return string
+     */
+    public static function build_submission_entitites(object $formsarray, array $dataglobal) {
+        global $OUTPUT;
+        $ionichtml = '';
+        $resetsubmissionform = '';
+
+        foreach ($formsarray as $key => $submission) {
+            $data = [
+              'myform' => (array)$submission,
+            ];
+            if ($submission->formtype != 'static') {
+                $data['myform']['name'] = 'customform_' . $submission->formtype . '_' . $key;
+            }
+            if (!isset($submission->error) || $submission->error) {
+                switch ($submission->formtype) {
+                    case 'advcheckbox':
+                        $ionichtml .= $OUTPUT->render_from_template('mod_booking/mobile/ionform/advcheckbox', $data);
+                        break;
+                    case 'static':
+                        $ionichtml .= $OUTPUT->render_from_template('mod_booking/mobile/ionform/static', $data);
+                        break;
+                    case 'shorttext':
+                        $ionichtml .= $OUTPUT->render_from_template('mod_booking/mobile/ionform/shorttext', $data);
+                        break;
+                    case 'select':
+                        $data['myform'] = self::get_select_options($data['myform']);
+                        $ionichtml .= $OUTPUT->render_from_template('mod_booking/mobile/ionform/select', $data);
+                        break;
+                }
+            } else if (isset($submission->error) && !$submission->error) {
+                $resetsubmissionform = self::reset_submission_form_btn($dataglobal);
+            }
+        }
+        if ($ionichtml != '') {
+
+            $ionichtml = self::build_submission_form(
+              $dataglobal,
+              $ionichtml,
+              $resetsubmissionform
+            );
+        }
+        return $ionichtml;
+    }
+
+    /**
+     * Returns select array
+     *
+     * @param array $myform
+     * @return array
+     */
+    public static function get_select_options(array $myform) {
+        $lines = explode(PHP_EOL, $myform['value']);
+        $options = [];
+        foreach ($lines as $key => $line) {
+            $linearray = explode(' => ', $line);
+            if (count($linearray) > 1) {
+                $newselect = [
+                  'key_select' => $linearray[0],
+                  'value_select' => $linearray[1],
+                ];
+            } else {
+                $newselect = [
+                  'key_select' => $key,
+                  'value_select' => $line,
+                ];
+            }
+            $options[] = $newselect;
+        }
+        $myform['values'] = $options;
+        return $myform;
+    }
 }

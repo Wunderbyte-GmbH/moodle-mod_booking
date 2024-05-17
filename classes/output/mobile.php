@@ -154,7 +154,7 @@ class mobile {
             if (!empty($customform)) {
                 $customformstore = new customformstore($USER->id, $data['id']);
                 $customformuserdata = $customformstore->get_customform_data();
-                $formvalidated = false;
+                $formvalidated = [false];
                 if ($customformuserdata !== false) {
                     $customform = $customformstore->validation_data($customform, $customformuserdata);
                 }
