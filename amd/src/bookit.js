@@ -204,6 +204,10 @@ export function bookit(itemid, area, userid, data) {
 
                 const backdrop = document.querySelector(SELECTORS.STATICBACKDROP);
 
+                if (area === 'subbooking') {
+                    skipreload = true;
+                }
+
                 // eslint-disable-next-line no-console
                 console.log('skipreload', skipreload);
 
