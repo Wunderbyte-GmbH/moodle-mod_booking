@@ -245,7 +245,7 @@ Feature: Create global booking rules as admin and insure they are working.
   @javascript
   Scenario: Booking rules: create booking rule for event of completion and notify user matching profile field with option name
     Given the following "mod_booking > options" exist:
-      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | teachersforoption  |
+      | booking    | text     | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | teachersforoption  |
       | BookingCMP | football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | teacher1, teacher2 |
     And the following "mod_booking > rules" exist:
       | conditionname          | contextid | conditiondata                                           | name         | actionname | actiondata                                                                         | rulename            | ruledata                                                    |
@@ -270,13 +270,13 @@ Feature: Create global booking rules as admin and insure they are working.
     And I log out
 
   @javascript
-  Scenario: Booking rule for: copy to admin a custom message sent to users who booked option
+  Scenario: Booking rule for: copy to relateduser a custom message sent to users who booked option
     Given the following "mod_booking > options" exist:
       | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
-      | conditionname          | contextid | conditiondata                  | name        | actionname        | actiondata                                                  | rulename            | ruledata                                                |
-      | select_user_from_event | 1         | {"userfromeventtype":"userid"} | copytoadmin | send_copy_of_mail | {"subjectprefix":"Custom msg copy","messageprefix":"copy:"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\custom_message_sent"} |
+      | conditionname          | contextid | conditiondata                         | name          | actionname        | actiondata                                                  | rulename            | ruledata                                                |
+      | select_user_from_event | 1         | {"userfromeventtype":"relateduserid"} | copytotrigger | send_copy_of_mail | {"subjectprefix":"Custom msg copy","messageprefix":"copy:"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\custom_message_sent"} |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -296,7 +296,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And I visit "/report/loglive/index.php"
     Then I should see "Custom message sent"
     And I should see "A custom message e-mail with subject 'Rule send_copy_of_mail test' has been sent to user with id:"
-    And I should see "Custom message: An e-mail with subject 'Custom msg copy: Rule send_copy_of_mail test' has been sent to user with id: '2'"
+    And I should see "Custom message: An e-mail with subject 'Custom msg copy: Rule send_copy_of_mail test' has been sent to user with id:"
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
@@ -306,8 +306,8 @@ Feature: Create global booking rules as admin and insure they are working.
       | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
-      | conditionname          | contextid | conditiondata                  | name        | actionname        | actiondata                                                       | rulename            | ruledata                                                     |
-      | select_user_from_event | 1         | {"userfromeventtype":"userid"} | bulktoadmin | send_copy_of_mail | {"subjectprefix":"Custom bulk msg copy","messageprefix":"copy:"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\custom_bulk_message_sent"} |
+      | conditionname | contextid | conditiondata     | name        | actionname        | actiondata                                                       | rulename            | ruledata                                                     |
+      | select_users  | 1         | {"userids":["2"]} | bulktoadmin | send_copy_of_mail | {"subjectprefix":"Custom bulk msg copy","messageprefix":"copy:"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\custom_bulk_message_sent"} |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
