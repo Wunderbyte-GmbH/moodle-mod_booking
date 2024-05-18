@@ -116,11 +116,15 @@ class select_user_from_event implements booking_rule_condition {
     public function add_condition_to_mform(MoodleQuickForm &$mform, array &$ajaxformdata = null) {
 
         // The event selected in the form.
-        $eventnameonly = str_replace("\\mod_booking\\event\\", "", $ajaxformdata["rule_react_on_event_event"]);
+        $eventnameonly = '';
+        if (!empty($ajaxformdata["rule_react_on_event_event"])) {
+            $eventnameonly = str_replace("\\mod_booking\\event\\", "", $ajaxformdata["rule_react_on_event_event"]);
+        }
 
         // This is a list of events supporting relateduserid (affected user of the event).
         $eventssupportingrelateduserid = [
             'bookingoption_completed',
+            'custom_message_sent',
             // More events yet to come...
         ];
 
