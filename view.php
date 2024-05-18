@@ -47,9 +47,11 @@ list($course, $cm) = get_course_and_cm_from_cmid($cmid, 'booking');
 require_course_login($course, false, $cm);
 $context = context_module::instance($cm->id);
 
+// phpcs:disable
 // $return = mobile::mobile_system_view([]);
 // $settings = singleton_service::get_instance_of_booking_option_settings(8485);
 // $data = $settings->return_settings_as_stdclass();
+// phpcs:enable
 
 require_capability('mod/booking:view', $context);
 

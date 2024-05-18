@@ -17,7 +17,7 @@
 /**
  * The cartstore class handles the in and out of the cache.
  *
- * @package local_shopping_cart
+ * @package mod_booking
  * @author Georg Maißer
  * @copyright 2024 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -41,7 +41,7 @@ class mobileformbuilder {
      * Builds form for ionic mobile app
      * @return string
      */
-    public static function submission_form_submitted() :string {
+    public static function submission_form_submitted(): string {
         return
           '<ion-card style="background: #ffffff; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px;">
             <ion-card-header style="color: #10dc60; font-size: 1.2rem;">
@@ -65,7 +65,7 @@ class mobileformbuilder {
      * @param object $customform
      * @return string
      */
-    public static function reset_submission_form_btn($dataglobal) :string {
+    public static function reset_submission_form_btn($dataglobal): string {
         $resetsubmissionform =
         '<ion-button
           expand="block"
@@ -93,7 +93,7 @@ class mobileformbuilder {
       $dataglobal,
       $ionichtml,
       $resetsubmissionform
-    ) :string {
+    ): string {
         $sessionkey = ", sessionkey:'" . sesskey() . "'";
         $ionichtml =
               '<ion-card><ion-list>' .

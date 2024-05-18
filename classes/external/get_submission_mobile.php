@@ -70,7 +70,7 @@ class get_submission_mobile extends external_api {
                   ]
               ),
               'The data to be saved', VALUE_DEFAULT, []
-          )
+            ),
         ]);
     }
 

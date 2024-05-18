@@ -13,6 +13,15 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Booking module mobile app features
+ *
+ * @package mod_booking
+ * @author Georg Maißer
+ * @copyright 2024 Wunderbyte GmbH
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 defined('MOODLE_INTERNAL') || die();
 
 $addons = [
@@ -20,13 +29,14 @@ $addons = [
         'handlers' => [
             'coursebooking' => [
                     'displaydata' => [
-                    'icon' => $CFG->wwwroot . '/mod/booking/pix/icon.png', 'class' => ''
+                        'icon' => $CFG->wwwroot . '/mod/booking/pix/icon.png',
+                        'class' => '',
                     ],
                     'delegate' => 'CoreCourseModuleDelegate',
                     'method' => 'mobile_course_view',
                     'offlinefunctions' => [
-                    ]
-            ]
+                    ],
+                ],
         ],
         'lang' => [
             ['pluginname', 'booking'],
@@ -55,6 +65,6 @@ $addons = [
             ['mobile_reset_submission', 'mod_booking'],
             ['mobile_set_submission', 'mod_booking'],
             ['mobile_field_required', 'mod_booking'],
-        ]
-    ]
+        ],
+    ],
 ];

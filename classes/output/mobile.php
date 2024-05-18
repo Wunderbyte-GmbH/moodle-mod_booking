@@ -127,7 +127,7 @@ class mobile {
      */
     public static function mobile_booking_option_details($args) {
 
-        global $OPTION, $DB, $OUTPUT, $USER;
+        global $DB, $OUTPUT, $USER;
 
         if (empty($args['optionid'])) {
             throw new moodle_exception('nooptionid', 'mod_booking');

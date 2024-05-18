@@ -255,7 +255,8 @@ class select_user_shopping_cart implements booking_rule_condition {
                     // And we know exactly when the payment was due.
                     $nextruntime = $nextruntime + $params['numberofdays'] * 86400;
 
-                    $sql->where .= " AND CAST(JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.timestamp')) AS UNSIGNED) = :nextruntime ";
+                    $sql->where .= " AND CAST(JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.timestamp')) AS UNSIGNED)
+                                        = :nextruntime ";
                     $params['nextruntime'] = $nextruntime;
                 } else {
                     // If we are not in testmode, we want to get all future payments.

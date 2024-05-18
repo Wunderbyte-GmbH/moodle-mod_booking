@@ -104,9 +104,11 @@ class customform implements bo_condition {
             $isavailable = true;
         } else {
             $customformstore = new customformstore($userid, $settings->id);
+            // phpcs:disable
             if ($customformstore->get_customform_data()) {
                 // $isavailable = true;
             }
+            // phpcs:enable
         }
 
         // If it's inversed, we inverse.

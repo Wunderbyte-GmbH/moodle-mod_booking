@@ -17,7 +17,7 @@
 /**
  * The cartstore class handles the in and out of the cache.
  *
- * @package local_shopping_cart
+ * @package mod_booking
  * @author Georg Maißer
  * @copyright 2024 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
