@@ -62,7 +62,7 @@ class mobileformbuilder {
 
     /**
      * Builds form for ionic mobile app
-     * @param object $customform
+     * @param array $dataglobal
      * @return string
      */
     public static function reset_submission_form_btn($dataglobal): string {
@@ -86,7 +86,9 @@ class mobileformbuilder {
 
     /**
      * Builds form for ionic mobile app
-     * @param object $customform
+     * @param array $dataglobal
+     * @param string $ionichtml
+     * @param string $resetsubmissionform
      * @return string
      */
     public static function build_submission_form(
@@ -121,7 +123,7 @@ class mobileformbuilder {
      * Builds form for ionic mobile app
      *
      * @param object $formsarray
-     * @param array $data
+     * @param array $dataglobal
      * @return string
      */
     public static function build_submission_entitites(object $formsarray, array $dataglobal) {

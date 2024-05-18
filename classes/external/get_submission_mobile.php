@@ -77,10 +77,11 @@ class get_submission_mobile extends external_api {
     /**
      * Webservice for update the notes in booking_answers table.
      *
-     * @param string $itemid
+     * @param int $itemid
+     * @param int $userid
      * @param string $sessionkey
-     * @param string $userid
-     * @param object $data
+     * @param bool $reset
+     * @param array $data
      *
      * @return array
      */
@@ -147,6 +148,7 @@ class get_submission_mobile extends external_api {
      * Returns description of method result value.
      * @param string $itemid
      * @param string $userid
+     * @param string $sesskey
      * @param array $data
      * @return string
      */
