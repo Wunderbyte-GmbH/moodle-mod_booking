@@ -88,6 +88,7 @@ class coursecategories {
 
         $sql = "SELECT cm.id,
                        b.name,
+                       b.id as bookingid,
                        b.intro,
                        COUNT(bo.id) bookingoptions,
                        SUM(booked) booked,
@@ -114,11 +115,34 @@ class coursecategories {
               GROUP BY ba.optionid
               ) s3 ON s3.optionid = bo.id
         WHERE " . implode(' AND ', $where) .
-        " GROUP BY cm.id, b.name, b.intro  ";
+        " GROUP BY cm.id, b.name, b.id, b.intro  ";
 
         $records = $DB->get_records_sql($sql, $params);
 
         return $records;
+    }
+
+    /**
+     * Returns true if booking setup was adjusted.
+     * @param int $bookingid
+     * @return bool
+     */
+    public static function set_configured_booking_instances(int $bookingid) {
+        $multibookingconfig = explode(',', get_config('local_berta', 'multibookinginstances'));
+        if (in_array($bookingid, $multibookingconfig)) {
+            $index = array_search($bookingid, $multibookingconfig);
+            if ($index !== false) {
+                unset($multibookingconfig[$index]);
+                $multibookingconfig = array_values($multibookingconfig);
+            } else {
+                return false;
+            }
+        } else {
+            $multibookingconfig[] = $bookingid;
+        }
+        $multibookingconfig = implode(',', $multibookingconfig);
+        set_config('multibookinginstances', $multibookingconfig, 'local_berta');
+        return true;
     }
 
 }

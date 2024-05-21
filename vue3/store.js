@@ -116,6 +116,11 @@ export function createAppStore() {
                 json: index.json,
               });
             },
+            async setCheckedBookingInstance(context, index) {
+              await ajax('mod_booking_set_checked_booking_instance', {
+                id: index.bookingid,
+              });
+            },
         }
     });
 }

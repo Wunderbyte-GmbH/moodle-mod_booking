@@ -2232,6 +2232,7 @@ $string['mod/booking:reducedoptionform4'] = 'Buchungsoption reduziert 4';
 $string['mod/booking:reducedoptionform5'] = 'Buchungsoption reduziert 5';
 
 // Vue strings.
+$string['vue_dashboard_checked'] = 'Default Ausgewählt';
 $string['vue_dashboard_name'] = 'Name';
 $string['vue_dashboard_course_count'] = 'Anzahl der Kurse';
 $string['vue_dashboard_path'] = 'Pfad';
@@ -2264,6 +2265,7 @@ $string['vue_notification_title_action_success'] = 'Die Konfiguration wurde erfo
 $string['vue_notification_text_action_success'] = 'Die Konfiguration wurde erfolgreich {$a}.';
 $string['vue_notification_title_action_fail'] = 'Die Konfiguration wurde nicht erfolgreich {$a}';
 $string['vue_notification_text_action_fail'] = 'Beim Speichern ist ein Fehler aufgetreten. Die Änderungen wurden nicht vorgenommen.';
+$string['vue_dashboard_goto_category'] = 'Zur Kategorie';
 
 // Mobile.
 $string['mobileapp_heading'] = "Mobile App";

@@ -53,6 +53,7 @@
         <TabInformation
           :content="content"
           :strings="store.state.strings"
+          :indextab="indexTab"
         />
         <BookingStats :bookingstats="content" />
         <CapabilityButtons
@@ -101,7 +102,7 @@
   const check = ref(null)
   const changesMade = ref({})
   const showConfirmationModal = ref(false)
-  const indexTab = ref(null)
+  const indexTab = ref(0)
 
   // Trigger web services on mount
   onMounted(async() => {
@@ -112,7 +113,6 @@
     tabsstored.value = store.state.tabs
     tabs.value = store.state.tabs
     content.value = store.state.content
-
   });
 
   watch(() => store.state.tabs, async () => {

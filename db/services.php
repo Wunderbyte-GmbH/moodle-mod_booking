@@ -161,6 +161,13 @@ $functions = [
         'capabilities' => '',
         'ajax' => 1,
     ],
+    'mod_booking_set_checked_booking_instance' => [
+        'classname' => 'mod_booking\external\set_checked_booking_instance',
+        'description' => 'Set booking instance config',
+        'type' => 'read',
+        'capabilities' => '',
+        'ajax' => 1,
+    ],
 ];
 
 $services = [

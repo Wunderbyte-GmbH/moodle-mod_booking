@@ -38,7 +38,6 @@ function init() {
     /* eslint-disable no-undef */
     __webpack_public_path__ = M.cfg.wwwroot + '/mod/booking/amd/build/';
     /* eslint-enable no-undef */
-
     const localBookingAppElement = document.getElementById('mod-booking-app');
     if (!localBookingAppElement.__vue_app__) {
 

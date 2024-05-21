@@ -3,6 +3,7 @@
     <table class="table mt-2">
       <thead>
         <tr>
+          <th>{{ store.state.strings.vue_dashboard_checked }}</th>
           <th>{{ store.state.strings.vue_dashboard_name }}</th>
           <th>{{ store.state.strings.vue_booking_stats_booking_options }}</th>
           <th>{{ store.state.strings.vue_booking_stats_booked }}</th>
@@ -15,6 +16,15 @@
           v-for="bookingStat in bookingstats.json.booking"
           :key="'bookingstats' + bookingStat.id"
         >
+          <td>
+            <input
+              :id="'checkbox_' + bookingStat.id"
+              type="checkbox"
+              class="mr-2"
+              :checked="bookingStat.checked"
+              @change="handleCheckboxChange(bookingStat)"
+            >
+          </td>
           <td>
             <a :href="'/mod/booking/view.php?id=' + bookingStat.id">
               {{ bookingStat.name }}
@@ -41,5 +51,9 @@
       default: null,
     },
   });
+
+  const handleCheckboxChange = async (bookingStat) => {
+    await store.dispatch('setCheckedBookingInstance', bookingStat)
+  }
 
 </script>

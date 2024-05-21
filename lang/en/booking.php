@@ -2360,6 +2360,7 @@ $string['mod/booking:reducedoptionform4'] = 'Reduced booking option 4';
 $string['mod/booking:reducedoptionform5'] = 'Reduced booking option 5';
 
 // Vue strings.
+$string['vue_dashboard_checked'] = 'Default Checked';
 $string['vue_dashboard_name'] = 'Name';
 $string['vue_dashboard_course_count'] = 'Course Count';
 $string['vue_dashboard_path'] = 'Path';
@@ -2392,6 +2393,7 @@ $string['vue_notification_title_action_success'] = 'Configuration was {$a}';
 $string['vue_notification_text_action_success'] = 'Configuration was {$a} successfully.';
 $string['vue_notification_title_action_fail'] = 'Configuration was not  {$a}';
 $string['vue_notification_text_action_fail'] = 'Something went wrong while saving. The changes have not been made.';
+$string['vue_dashboard_goto_category'] = 'Go to category';
 
 // Mobile.
 $string['mobileapp_heading'] = "Mobile App";
