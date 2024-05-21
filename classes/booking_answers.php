@@ -552,7 +552,7 @@ class booking_answers {
      * @return (string|int[])[]
      */
     public static function return_sql_for_booked_users(int $optionid, int $statusparam) {
-
+        // We need to set a limit for the query in mysqlfamily.
         $fields = 's1.*';
         $from = " (SELECT ba.id,
                           u.id as userid,
@@ -567,6 +567,7 @@ class booking_answers {
                     JOIN {user} u ON ba.userid = u.id
                     WHERE ba.optionid=:optionid AND ba.waitinglist=:statusparam
                     ORDER BY ba.timemodified, ba.id ASC
+                    LIMIT 10000000000
                     ) s1";
         $where = '1=1';
         $params = [
