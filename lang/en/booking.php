@@ -2139,6 +2139,9 @@ $string['bookingrule'] = 'Rule';
 $string['addbookingrule'] = 'Add rule';
 $string['deletebookingrule'] = 'Delete rule';
 $string['deletebookingrule_confirmtext'] = 'Do you really want to delete the following rule?';
+$string['bookingruletemplates'] = 'Load a template rule';
+$string['bookinguseastemplate'] = 'Set this rule as template';
+$string['bookingdefaulttemplate'] = 'Choose template...';
 
 $string['rule_event'] = 'Event';
 $string['rule_mailtemplate'] = 'Mail template';

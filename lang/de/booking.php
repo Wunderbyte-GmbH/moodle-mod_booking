@@ -2013,6 +2013,9 @@ $string['bookingrule'] = 'Regel';
 $string['addbookingrule'] = 'Regel hinzufügen';
 $string['deletebookingrule'] = 'Regel löschen';
 $string['deletebookingrule_confirmtext'] = 'Wollen Sie die folgende Regel wirklich löschen?';
+$string['bookingruletemplates'] = 'Lade eine Template-Regel';
+$string['bookinguseastemplate'] = 'Setze diese Regel als Template';
+$string['bookingdefaulttemplate'] = 'Wähle Template...';
 
 $string['rule_event'] = 'Event';
 $string['rule_mailtemplate'] = 'E-Mail-Vorlage';

@@ -180,6 +180,10 @@ class rule_daysbefore implements booking_rule {
         $jsonobject->ruledata = new stdClass();
         $jsonobject->ruledata->days = $data->rule_daysbefore_days ?? 0;
         $jsonobject->ruledata->datefield = $data->rule_daysbefore_datefield ?? '';
+        if (isset($data->useastemplate)) {
+            $jsonobject->useastemplate = $data->useastemplate;
+            $record->useastemplate = $data->useastemplate;
+        }
 
         $record->rulejson = json_encode($jsonobject);
         $record->rulename = $this->rulename;

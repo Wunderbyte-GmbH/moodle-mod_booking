@@ -26,7 +26,8 @@
 namespace mod_booking\booking_rules;
 
 use dml_exception;
-use Exception;
+use context_system;
+use mod_booking\local\templaterule;
 use MoodleQuickForm;
 use stdClass;
 
@@ -72,14 +73,26 @@ class rules_info {
         $mform->setType('rule_name', PARAM_TEXT);
         $repeateloptions['rule_name']['type'] = PARAM_TEXT;
 
-        $mform->registerNoSubmitButton('btn_bookingruletype');
+        $templates = templaterule::get_template_rules();
         $buttonargs = ['class' => 'd-none'];
-        $categoryselect = [
-            $mform->createElement('select', 'bookingruletype',
-            get_string('bookingrule', 'mod_booking'), $rulesforselect),
-            $mform->createElement('submit', 'btn_bookingruletype', get_string('bookingrule', 'mod_booking'), $buttonargs),
-        ];
-        $mform->addGroup($categoryselect, 'bookingruletype', get_string('bookingrule', 'mod_booking'), [' '], false);
+
+        $mform->registerNoSubmitButton('btn_bookingruletemplates');
+        $mform->addElement('select', 'bookingruletemplate',
+              get_string('bookingruletemplates', 'mod_booking'), $templates);
+        $mform->addElement('submit', 'btn_bookingruletemplates',
+              get_string('bookingruletemplates', 'mod_booking'), $buttonargs);
+        $mform->setType('btn_bookingruletemplates', PARAM_NOTAGS);
+
+        if (has_capability('mod/booking:manageoptiontemplates', context_system::instance())) {
+            $mform->addElement('advcheckbox', 'useastemplate',
+                get_string('bookinguseastemplate', 'mod_booking'));
+        }
+
+        $mform->registerNoSubmitButton('btn_bookingruletype');
+        $mform->addElement('select', 'bookingruletype',
+            get_string('bookingrule', 'mod_booking'), $rulesforselect);
+        $mform->addElement('submit', 'btn_bookingruletype',
+            get_string('bookingrule', 'mod_booking'), $buttonargs);
         $mform->setType('btn_bookingruletype', PARAM_NOTAGS);
 
         if (isset($ajaxformdata['bookingruletype'])) {
@@ -179,12 +192,11 @@ class rules_info {
         $action = actions_info::get_action($rulejsonobject->actionname);
 
         // These function just add their bits to the object.
+        $data->useastemplate = $record->useastemplate;
         $condition->set_defaults($data, $record);
         $action->set_defaults($data, $record);
         $rule->set_defaults($data, $record);
-
         return (object)$data;
-
     }
 
     /**

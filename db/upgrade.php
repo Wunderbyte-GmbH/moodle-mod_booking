@@ -3765,5 +3765,19 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024052200, 'booking');
     }
 
+    if ($oldversion < 2024052102) {
+        // Define field id to be added to booking_rules.
+        $table = new xmldb_table('booking_rules');
+        $field = new xmldb_field('useastemplate', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', null);
+
+        // Conditionally launch add field id.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2024052102, 'booking');
+    }
+
     return true;
 }
