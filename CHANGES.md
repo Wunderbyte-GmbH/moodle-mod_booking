@@ -1,3 +1,6 @@
+## Version 8.3.1 (2024052101)
+* Bugfix: Sorting of waitinglist in mysql dbfamily.
+
 ## Version 8.3.0 (2024052100)
 * Improvement: Add placeholders for installments (local_shopping_cart)
 * Improvement: Support moodle mobile app. Support for booking options and using custom forms.
