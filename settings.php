@@ -321,6 +321,41 @@ if ($ADMIN->fulltree) {
                     get_string('newcoursecategorycfield', 'mod_booking'),
                     get_string('newcoursecategorycfielddesc', 'mod_booking'),
                     "-1", $customfieldsarray));
+
+        $sql = "SELECT DISTINCT t.id, t.name
+        FROM {tag} t
+        LEFT JOIN {tag_instance} ti ON t.id=ti.tagid
+        WHERE ti.component=:component AND ti.itemtype=:itemtype AND t.isstandard=1";
+
+        $params = [
+            'component' => 'core',
+            'itemtype' => 'course',
+        ];
+
+        $records = $DB->get_records_sql($sql, $params);
+        $options = [0 => 'notags'];
+        foreach ($records as $record) {
+            $options[$record->id] = $record->name;
+        }
+
+        $settings->add(
+            new admin_setting_configmultiselect(
+            'booking/templatetags',
+            get_string('choosetags', 'mod_booking'),
+            get_string('choosetags_desc', 'mod_booking'),
+            [],
+            $options));
+
+        // $settings->add(
+        //     new admin_setting_configcheckbox('booking/usecoursecategorytemplates',
+        //             get_string('usecoursecategorytemplates', 'mod_booking'),
+        //             get_string('usecoursecategorytemplates_desc', 'mod_booking'), 0));
+
+        // $settings->add(
+        //     new admin_setting_configtext('booking/templatecategoryname',
+        //         get_string('templatecategoryname', 'mod_booking'),
+        //         get_string('templatecategoryname_desc', 'mod_booking'), '', PARAM_TEXT));
+
     } else {
         $settings->add(
             new admin_setting_heading('newcoursecategorycfieldheading',

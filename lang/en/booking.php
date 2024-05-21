@@ -1293,6 +1293,11 @@ $string['duplicationrestoresubbookings'] = 'Include subbookings ' . $badgepro;
 $string['duplicationrestoreoption'] = 'Booking options: Duplication settings ' . $badgepro;
 $string['duplicationrestoreoption_desc'] = 'Special settings for the duplication of booking options.';
 
+$string['coursesheader'] = 'Moodle Courses';
+$string['nomoodlecourseconnection'] = 'No connection to Moodle course';
+$string['createnewmoodlecourse'] = 'Create new empty Moodle course';
+$string['createnewmoodlecoursefromtemplate'] = 'Create new Moodle course from template';
+
 $string['waitinglistheader'] = 'Waiting list';
 $string['waitinglistheader_desc'] = 'Here you can set how the booking waiting list should behave.';
 $string['turnoffwaitinglist'] = 'Turn off waiting list globally';
@@ -1379,6 +1384,15 @@ $string['duplicatemoodlecourses'] = 'Duplicate Moodle course';
 $string['duplicatemoodlecourses_desc'] = 'When this setting is active and you duplicate a booking option,
 then the connected Moodle course will also be duplicated. This will be done with an adhoc task,
 so be sure that CRON runs regularly.';
+
+$string['choosetags'] = 'Choose tags';
+$string['choosetags_desc'] = 'Courses marked with these tags can be used as templates. If a booking option is linked to such a template, a copy of the template course will be automatically created upon first saving.';
+
+$string['templatecategoryname'] = 'Short name of the course category where the template courses are located.';
+$string['templatecategoryname_desc'] = 'Booking options can be linked to Moodle courses. This feature allows the courses to be created upon the first saving of the booking option.';
+
+$string['usecoursecategorytemplates'] = 'Use templates for newly created Moodle courses';
+$string['usecoursecategorytemplates_desc'] = '';
 
 $string['coolingoffperiod'] = 'Cancellation possible after x seconds';
 $string['coolingoffperiod_desc'] = 'To prevent users from canceling due to, for example, accidentally clicking the booking button too quickly, a cooling off period can be set in seconds. During this time, cancellation is not possible. Do not set more than a few seconds, as the waiting time is not explicitly shown to users.';

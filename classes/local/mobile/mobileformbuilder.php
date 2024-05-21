@@ -23,7 +23,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_booking\local;
+namespace mod_booking\local\mobile;
 
 defined('MOODLE_INTERNAL') || die();
 

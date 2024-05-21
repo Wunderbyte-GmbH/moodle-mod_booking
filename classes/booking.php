@@ -305,12 +305,6 @@ class booking {
             'shortname' => get_string('nocourseselected', 'mod_booking'),
             'fullname' => get_string('nocourseselected', 'mod_booking'),
         ];
-        // Minus 1 means, a new course will be created.
-        $coursearray[-1] = (object)[
-            'id' => -1,
-            'shortname' => get_string('newcourse', 'mod_booking'),
-            'fullname' => get_string('newcourse', 'mod_booking'),
-        ];
 
         $rs->close();
 

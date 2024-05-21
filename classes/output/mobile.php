@@ -27,17 +27,13 @@ namespace mod_booking\output;
 
 defined('MOODLE_INTERNAL') || die();
 
-use cache;
-use context_module;
 use context;
-use core_form\external\dynamic_form;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\booking;
 use mod_booking\booking_bookit;
-use mod_booking\form\condition\customform_form;
-use mod_booking\local\customformstore;
-use mod_booking\local\mobileformbuilder;
+use mod_booking\local\mobile\customformstore;
+use mod_booking\local\mobile\mobileformbuilder;
 use mod_booking\places;
 use mod_booking\price;
 use mod_booking\singleton_service;

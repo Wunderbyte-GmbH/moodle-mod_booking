@@ -34,7 +34,7 @@ use context;
 use context_system;
 use core_form\dynamic_form;
 use mod_booking\bo_availability\conditions\customform;
-use mod_booking\local\customformstore;
+use mod_booking\local\mobile\customformstore;
 use mod_booking\singleton_service;
 use moodle_url;
 use stdClass;

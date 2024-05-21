@@ -27,6 +27,7 @@ namespace mod_booking\option\fields;
 use context_course;
 use core_course_external;
 use mod_booking\booking_option_settings;
+use mod_booking\local\connectedcourse;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use mod_booking\singleton_service;
@@ -63,7 +64,7 @@ class courseid extends field_base {
      * This identifies the header under which this particular field should be displayed.
      * @var string
      */
-    public static $header = MOD_BOOKING_HEADER_GENERAL;
+    public static $header = MOD_BOOKING_HEADER_COURSES;
 
     /**
      * An int value to define if this field is standard or used in a different context.
@@ -103,58 +104,13 @@ class courseid extends field_base {
 
         global $DB;
 
+        if (is_array($formdata->courseid)) {
+            $formdata->courseid = reset($formdata->courseid);
+        }
+
         /* Create a new course and put it either in a new course category
         or in an already existing one. */
-        if (!empty($formdata->courseid) && $formdata->courseid == -1) {
-            $categoryid = 1; // By default, we use the first category.
-            if (!empty(get_config('booking', 'newcoursecategorycfield'))) {
-                // FEATURE add more settingfields add customfield_ to ...
-                // ... settingsvalue from customfields allwo only Textfields or Selects.
-                $cfforcategory = 'customfield_' . get_config('booking', 'newcoursecategorycfield');
-                $category = new stdClass();
-                $category->name = $formdata->{$cfforcategory};
-
-                if (!empty($category->name)) {
-                    $categories = core_course_external::get_categories([
-                            ['key' => 'name', 'value' => $category->name],
-                    ]);
-
-                    if (empty($categories)) {
-                        $category->idnumber = $category->name;
-                        $categories = [
-                                ['name' => $category->name, 'idnumber' => $category->idnumber, 'parent' => 0],
-                        ];
-                        $createdcats = core_course_external::create_categories($categories);
-                        $categoryid = $createdcats[0]['id'];
-                    } else {
-                        $categoryid = $categories[0]['id'];
-                    }
-                }
-            }
-
-            // Create course.
-            $fullnamewithprefix = '';
-            if (!empty($formdata->titleprefix)) {
-                $fullnamewithprefix .= $formdata->titleprefix . ' - ';
-            }
-            $fullnamewithprefix .= $formdata->text;
-
-            // Courses need to have unique shortnames.
-            $i = 1;
-            $shortname = $fullnamewithprefix;
-            while ($DB->get_record('course', ['shortname' => $shortname])) {
-                $shortname = $fullnamewithprefix . '_' . $i;
-                $i++;
-            };
-            $newcourse['fullname'] = $fullnamewithprefix;
-            $newcourse['shortname'] = $shortname;
-            $newcourse['categoryid'] = $categoryid;
-
-            $courses = [$newcourse];
-            $createdcourses = core_course_external::create_courses($courses);
-            $newoption->courseid = $createdcourses[0]['id'];
-            $formdata->courseid = $newoption->courseid;
-        }
+        connectedcourse::handle_user_choice($newoption, $formdata);
 
         return parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
     }
@@ -169,6 +125,11 @@ class courseid extends field_base {
     public static function validation(array $data, array $files, array &$errors) {
 
         global $DB;
+
+        if (is_array($data['courseid'])) {
+            $data['courseid'] = reset($data['courseid']);
+        }
+
         // Minus 1 (-1) means we need to create a new course, that's ok.
         if (!empty($data['courseid']) && $data['courseid'] != -1) {
             if (!$DB->record_exists('course', ['id' => $data['courseid']])) {
@@ -223,6 +184,15 @@ class courseid extends field_base {
         fields_info::add_header_to_mform($mform, self::$header);
 
         $options = [
+            0 => get_string('nomoodlecourseconnection', 'mod_booking'),
+            1 => get_string('connectedmoodlecourse', 'mod_booking'),
+            2 => get_string('createnewmoodlecourse', 'mod_booking'),
+            3 => get_string('createnewmoodlecoursefromtemplate', 'mod_booking'),
+        ];
+
+        $mform->addElement('select', 'chooseorcreatecourse', get_string("connectedmoodlecourse", "booking"), $options);
+
+        $options = [
             'tags' => false,
             'multiple' => false,
             'ajax' => 'mod_booking/form_courses_selector',
@@ -267,6 +237,23 @@ class courseid extends field_base {
 
         $mform->addElement('autocomplete', 'courseid', get_string("connectedmoodlecourse", "booking"), [], $options);
         $mform->addHelpButton('courseid', 'connectedmoodlecourse', 'mod_booking');
+        $mform->hideIf('courseid', 'chooseorcreatecourse', 'neq', 1);
+
+        $templatetags = get_config('booking', 'templatetags');
+        $tags = explode(',', $templatetags);
+
+        $options = [
+            'tags' => false,
+            'multiple' => false,
+            'ajax' => 'mod_booking/form_templates_selector',
+            'noselectionstring' => get_string('nocourseselected', 'mod_booking'),
+            'valuehtmlcallback' => function($a) {
+                return get_string('nocourseselected', 'mod_booking');
+            }
+        ];
+
+        $mform->addElement('autocomplete', 'coursetemplateid', get_string("createnewmoodlecoursefromtemplate", "mod_booking"), [], $options);
+        $mform->hideIf('coursetemplateid', 'chooseorcreatecourse', 'neq', 3);
     }
 
     /**
@@ -304,9 +291,11 @@ class courseid extends field_base {
 
             }
         } else {
+
             $key = fields_info::get_class_name(static::class);
             // Normally, we don't call set data after the first time loading.
             if (isset($data->{$key})) {
+
                 return;
             }
 
@@ -318,6 +307,11 @@ class courseid extends field_base {
 
             // If there is no $newcourseid, then the old courseid ($settings->{$key}) will be taken.
             $value = $newcourseid ?? $settings->{$key} ?? null;
+
+            if (!empty($value)) {
+                $data->chooseorcreatecourse = 1;
+            }
+
             $data->{$key} = $value;
         }
     }

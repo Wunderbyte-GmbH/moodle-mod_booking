@@ -1253,6 +1253,11 @@ $string['duplicationrestoresubbookings'] = 'Zusatzbuchungen inkludieren ' . $bad
 $string['duplicationrestoreoption'] = 'Buchungsoptionen: Duplizieren ' . $badgepro;
 $string['duplicationrestoreoption_desc'] = 'Spezielle Einstellungen für das Duplizieren von Buchungsoptionen.';
 
+$string['coursesheader'] = 'Moodle Kurse';
+$string['nomoodlecourseconnection'] = 'Keine Verbindung zu Moodle Kurs';
+$string['createnewmoodlecourse'] = 'Erstelle neuen, leeren Moodle Kurs';
+$string['createnewmoodlecoursefromtemplate'] = 'Erstelle neuen Kurs von Template';
+
 $string['waitinglistheader'] = 'Warteliste';
 $string['waitinglistheader_desc'] = 'Hier können Sie Einstellungen zum Verhalten der Warteliste vornehmen.';
 $string['turnoffwaitinglist'] = 'Warteliste global deaktivieren';
@@ -1345,6 +1350,14 @@ $string['duplicatemoodlecourses_desc'] = 'Wenn diese Einstellung aktiviert ist, 
 auch der verbundene Moodle-Kurs dupliziert (Achtung: Nutzer:innen-Daten des Moodle-Kurses werden nicht mit-dupliziert!).
 Da das Duplizieren asynchron über einen Adhoc-Task gemacht wird, stellen Sie bitte sicher, dass der CRON-Task regelmäßig läuft.';
 
+$string['choosetags'] = 'Wähle Tags';
+$string['choosetags_desc'] = 'Kurse, die mit diesen Tags markiert sind, können als Vorlagen verwendet werden. Wird eine Buchungsoption mit so einer Vorlage verknüpft, wird beim ersten Speichern automatisch eine Kopie des Vorlagen-Kurses erstellt.';
+
+$string['templatecategoryname'] = 'Kurzname der Kurskategorie, in der sich die Vorlagenkurse befinden.';
+$string['templatecategoryname_desc'] = 'Buchungsoptionen können mit Moodle Kursen verknüpft werden. Dieses Feature erlaubt es, die Kurse beim ersten Speichern der Buchungsoption zu erstellen.';
+
+$string['usecoursecategorytemplates'] = 'Verwende Vorlagen für neu zu erstellende Moodle Kurse';
+$string['usecoursecategorytemplates_desc'] = '';
 $string['coolingoffperiod'] = 'Stornierung möglich nach x Sekunden';
 $string['coolingoffperiod_desc'] = 'Um zu vermeiden, dass NutzerInnen z.B. irrtümlich durch zu schnelles Klicken auf den Buchen-Button wieder stornieren, kann eine Cooling Off Period in Sekunden eingestellt werden. In dieser Zeit ist Stornieren nicht möglich. Nicht mehr als wenige Sekunden einstellen, die Wartezeit wird den UserInne nicht extra angezeigt.';
 

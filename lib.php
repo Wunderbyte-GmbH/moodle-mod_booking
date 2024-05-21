@@ -258,6 +258,7 @@ define('MOD_BOOKING_HEADER_AVAILABILITY', 'availabilityconditionsheader');
 define('MOD_BOOKING_HEADER_SUBBOOKINGS', 'bookingsubbookingsheader');
 define('MOD_BOOKING_HEADER_CUSTOMFIELDS', 'category_'); // There can be multiple headers, with custom names.
 define('MOD_BOOKING_HEADER_TEMPLATESAVE', 'templateheader');
+define('MOD_BOOKING_HEADER_COURSES', 'coursesheader');
 
 define('MOD_BOOKING_MAX_CUSTOM_FIELDS', 3);
 define('MOD_BOOKING_FORM_OPTIONDATEID', 'optiondateid_');
