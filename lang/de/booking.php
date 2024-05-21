@@ -1795,6 +1795,7 @@ $string['bo_cond_enrolledincohorts_full_not_available'] = 'Nur Benutzer:innen, d
 $string['bo_cond_enrolledincohorts_not_available_and'] = 'Buchen nicht möglich, da Sie nicht in alle der folgenden globalen Grupppen eingeschrieben sind: {$a}';
 $string['bo_cond_enrolledincohorts_full_not_available_and'] = 'Nur Benutzer:innen, die in alle folgenden globalen Grupppen eingeschrieben sind, dürfen buchen: {$a}
 <br>Sie haben aber das Recht dennoch zu buchen.';
+$string['bo_cond_enrolledincohorts_warning'] = 'Sie haben eine sehr hohe Anzahl an Globalen Gruppen auf Ihrem System. Nicht alle werden als Auswahl angezeigt. Wenn das ein Problem für Sie ist, kontaktieren Sie <a mailto="contact@wunderyte.at">Wunderbyte</a>';
 
 $string['bo_cond_enrolledincourse_available'] = 'Buchen';
 $string['bo_cond_enrolledincourse_full_available'] = 'Buchen möglich';

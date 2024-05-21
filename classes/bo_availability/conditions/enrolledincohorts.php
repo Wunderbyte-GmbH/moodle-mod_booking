@@ -299,8 +299,15 @@ class enrolledincohorts implements bo_condition {
 
             $cohortssarray = [];
 
-            $cohorts = cohort_get_all_cohorts(0, 200);
+            $cohorts = cohort_get_all_cohorts(0, 500);
+
             if ($cohorts) {
+
+                if ($cohorts["totalcohorts"] > count($cohorts["cohorts"])) {
+                    $mform->addElement('static', 'bo_cond_enrolledincohorts_warning', '',
+                    get_string('bo_cond_enrolledincohorts_warning', 'mod_booking'));
+                }
+
                 foreach ($cohorts['cohorts'] as $cohortrecord) {
                     $cohortssarray[$cohortrecord->id] =
                         "$cohortrecord->name (ID: $cohortrecord->id)";

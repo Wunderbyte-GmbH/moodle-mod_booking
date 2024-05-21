@@ -1941,6 +1941,8 @@ $string['bo_cond_enrolledincohorts_full_not_available'] = 'Only users who are en
 $string['bo_cond_enrolledincohorts_not_available_and'] = 'Booking not allowed because you are not enrolled in all of the following cohort(s): {$a}';
 $string['bo_cond_enrolledincohorts_full_not_available_and'] = 'Only users who are enrolled in all of the following cohort(s) are allowed to book: {$a}
     <br>But you have the right to book a user anyways.';
+$string['bo_cond_enrolledincohorts_warning'] = 'You have a very high number of cohorts on your system. Not all of them will be available here. If that is a problem for you, please contact <a mailto="contact@wunderyte.at">Wunderbyte</a>';
+
 
 $string['bo_cond_enrolledincourse_available'] = 'Book it';
 $string['bo_cond_enrolledincourse_full_available'] = 'Booking is possible';
