@@ -152,11 +152,11 @@ class dynamicholidaysform extends dynamic_form {
         foreach ($holidaysarray as $holiday) {
 
             // If it's a new holiday id: insert.
-            if (!in_array($holiday->id, $existingholidayids)) {
+            if (!in_array($holiday->id, array_keys($existingholidays))) {
                 $DB->insert_record('booking_holidays', $holiday);
             } else {
                 // If it's an existing holiday id: update.
-                $existingrecord = $DB->get_record('booking_holidays', ['id' => $holiday->id]);
+                $existingrecord = $existingholidays[$holiday->id];
                 $holiday->id = $existingrecord->id;
                 $DB->update_record('booking_holidays', $holiday);
             }
@@ -214,9 +214,7 @@ class dynamicholidaysform extends dynamic_form {
         $repeatedholidays[] = $mform->createElement('html', '<hr/>');
 
         $numberofholidaystoshow = 1;
-        if ($existingholidays = $DB->get_records('booking_holidays')) {
-            $numberofholidaystoshow = count($existingholidays);
-        }
+        $numberofholidaystoshow = $DB->count_records('booking_holidays') ?? 1;
 
         $this->repeat_elements($repeatedholidays, $numberofholidaystoshow,
             $repeateloptions, 'holidays', 'addholiday', 1, get_string('addholiday', 'mod_booking'), true, 'deleteholiday');
