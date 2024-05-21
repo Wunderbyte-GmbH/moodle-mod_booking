@@ -299,8 +299,8 @@ class enrolledincohorts implements bo_condition {
 
             $cohortssarray = [];
 
-            $cohorts = cohort_get_all_cohorts();
-            if ($cohorts = cohort_get_all_cohorts()) {
+            $cohorts = cohort_get_all_cohorts(0, 200);
+            if ($cohorts) {
                 foreach ($cohorts['cohorts'] as $cohortrecord) {
                     $cohortssarray[$cohortrecord->id] =
                         "$cohortrecord->name (ID: $cohortrecord->id)";
