@@ -1,3 +1,10 @@
+## Version 8.3.0 (2024052100)
+* Improvement: Add placeholders for installments (local_shopping_cart)
+* Improvement: Support moodle mobile app. Support for booking options and using custom forms.
+* Improvement: Enable rule for timestamps (days) after dueday.
+* Improvement: Enable sql filter for mariadb/mysql.
+* Bugfix: For teachers responsible for a bookingoption, link to teacherpage instead of user profile.
+
 ## Version 8.2.9 (2024050800)
 * Improvement: For teachers responsible for a bookingoption, link to teacherpage instead of user profile.
 * Improvement: Allow confirmation when there is is no pre booking page.
