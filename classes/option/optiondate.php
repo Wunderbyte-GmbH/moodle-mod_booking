@@ -192,6 +192,7 @@ class optiondate {
                 $newdata = $data;
                 $newdata['optiondateid'] = $id;
                 $oldrecord->optiondateid = $id;
+                $newdata['eventid'] = !empty($data['eventid']) ? $data['eventid'] : $oldrecord->eventid;
 
                 // Now we compare the old record and the new record.
                 if (!self::compare_optiondates((array)$oldrecord, $newdata, 1)) {
