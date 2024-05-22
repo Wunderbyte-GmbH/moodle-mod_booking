@@ -67,9 +67,7 @@ class set_checked_booking_instance extends external_api {
      * @return array
      * @throws dml_exception
      */
-    public static function execute(
-        int $id,
-        ): array {
+    public static function execute(int $id): array {
 
         $params = external_api::validate_parameters(self::execute_parameters(),
             [
