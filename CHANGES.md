@@ -1,5 +1,11 @@
-## Version 8.3.3 (2024052200)
+## Version 8.3.4 (2024052201)
+* Bugfix: Update events on booking optiondate change (instead of insert).
+* Bugfix: Don't impose dark text in bookingoption form.
 
+## Version 8.3.3 (2024052200)
+* Improvement: Add warning when exceeding max n of cohorts (set to 500).
+* Improvement: Checkbox for booking instance.
+* Bugfix: Check for berta settings.
 
 ## Version 8.3.1 (2024052101)
 * Bugfix: Sorting of waitinglist in mysql dbfamily.
