@@ -151,7 +151,9 @@ class cancelmyself implements bo_condition {
                         }
                     }
 
-                } else if ($canceluntil != 0 && $now > $canceluntil) {
+                }
+
+                if ($now > $canceluntil) {
                     $isavailable = true;
                 }
             }
