@@ -2916,6 +2916,10 @@ class booking_option {
         // Default: We use the booking option coursestarttime field.
         $starttime = $optionsettings->coursestarttime;
 
+        if (empty($starttime)) {
+            return 0;
+        }
+
         // We check on which date field it's dependent on.
         if (get_config('booking', 'canceldependenton') == "semesterstart") {
             if (!empty($bookingsettings->semesterid)) {
