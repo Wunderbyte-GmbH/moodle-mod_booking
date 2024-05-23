@@ -423,7 +423,9 @@ export const loadPreBookingPage = (
         },
         done: function(response) {
             // Will always be 1, if shopping cart is not installed!
-            if (response.success == 1) {
+            if (response.success == 1
+                || response.success == 5 // Already booked, we need this for subbokings.
+            ) {
                 Ajax.call([{
                     methodname: "mod_booking_load_pre_booking_page",
                     args: {
