@@ -26,6 +26,18 @@ Feature: Enabling installments as admin configuring installments as a teacher an
       | 1        | default    | Price | 88           | 0        | 1                 |
       | 2        | discount1  | Disc1 | 77           | 0        | 2                 |
       | 3        | discount2  | Disc2 | 66           | 0        | 3                 |
+    And the following "core_payment > payment accounts" exist:
+      | name           |
+      | Account1       |
+    And the following "local_shopping_cart > payment gateways" exist:
+      | account  | gateway | enabled | config                                                                                |
+      | Account1 | paypal  | 1       | {"brandname":"Test paypal","clientid":"Test","secret":"Test","environment":"sandbox"} |
+    And the following "local_shopping_cart > user credits" exist:
+      | user     | credits | currency | balance |
+      | student1 | 100     | EUR      | 100     |
+    And the following "local_shopping_cart > plugin setup" exist:
+      | account  |
+      | Account1 |
     ## Default - enable installments by admin.
     And I log in as "admin"
     And I set the following administration settings values:
@@ -68,3 +80,25 @@ Feature: Enabling installments as admin configuring installments as a teacher an
       | Due nr. of days after initial purchase | 0  |
       | Due nr. of days before coursestart     | 1  |
     And I log out
+
+  @javascript
+  Scenario: Add an installment for a booking option via DB and brought it as student
+    Given the following "mod_booking > options" exist:
+      | booking     | text               | course | description | useprice | sch_allowinstallment | sch_downpayment | sch_numberofpayments | sch_duedaysbeforecoursestart | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | BookingInst | Option-installment | C1     | Deskr2      | 1        | 1                    | 44              | 2                    | 1                            | 0              | 0              | ## +6 days ##     | ## +8 days ##   |
+    And I am on the "BookingInst" Activity page logged in as student1
+    And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I visit "/local/shopping_cart/checkout.php"
+    And I wait until the page is ready
+    And I set the field "Use installment payments" to "1"
+    And I should see "Down payment for Option-installment"
+    And I should see "44 EUR instead of 88 EUR"
+    And I should see "Further payments"
+    And I should see "2" occurrences of "22 EUR on" in the ".sc_installments .furtherpayments" "css_element"
+    When I press "Checkout"
+    And I wait "1" seconds
+    And I press "Confirm"
+    And I wait until the page is ready
+    Then I should see "Payment successful!"
+    And I should see "Option-installment" in the ".payment-success ul.list-group" "css_element"
+    And I should see "44.00 EUR" in the ".payment-success ul.list-group" "css_element"
