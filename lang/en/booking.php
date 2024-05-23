@@ -1380,6 +1380,9 @@ $string['duplicatemoodlecourses_desc'] = 'When this setting is active and you du
 then the connected Moodle course will also be duplicated. This will be done with an adhoc task,
 so be sure that CRON runs regularly.';
 
+$string['coolingoffperiod'] = 'Cancellation possible after x seconds';
+$string['coolingoffperiod_desc'] = 'To prevent users from canceling due to, for example, accidentally clicking the booking button too quickly, a cooling off period can be set in seconds. During this time, cancellation is not possible. Do not set more than a few seconds, as the waiting time is not explicitly shown to users.';
+
 // Privacy API.
 $string['privacy:metadata:booking_answers'] = 'Represents a booking of an event';
 $string['privacy:metadata:booking_answers:userid'] = 'User that is booked for this event';

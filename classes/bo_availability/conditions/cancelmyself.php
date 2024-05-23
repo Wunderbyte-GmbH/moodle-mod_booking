@@ -156,6 +156,10 @@ class cancelmyself implements bo_condition {
                 if (!empty($canceluntil) && $now > $canceluntil) {
                     $isavailable = true;
                 }
+
+                if (self::apply_coolingoff_period($settings, $userid)) {
+                    $isavailable = true;
+                }
             }
         }
 
@@ -307,5 +311,25 @@ class cancelmyself implements bo_condition {
     private function get_description_string() {
         return get_string('cancelsign', 'mod_booking') . "&nbsp;" .
             get_string('cancelmyself', 'mod_booking');
+    }
+
+    /**
+     * Returns false if we are still within the coolingoff period
+     * @param booking_option_settings $settings
+     * @param int $userid
+     * @return bool
+     */
+    public static function apply_coolingoff_period($settings, $userid) {
+
+        $coolingoffperiod = get_config('booking', 'coolingoffperiod');
+        if ($coolingoffperiod > 0) {
+
+            $ba = singleton_service::get_instance_of_booking_answers($settings);
+            $timemodified = $ba->users[$userid]->timemodified ?? 0;
+            if (strtotime("+ $coolingoffperiod seconds", $timemodified) > time()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

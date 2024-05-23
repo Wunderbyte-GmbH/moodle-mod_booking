@@ -1345,6 +1345,9 @@ $string['duplicatemoodlecourses_desc'] = 'Wenn diese Einstellung aktiviert ist, 
 auch der verbundene Moodle-Kurs dupliziert (Achtung: Nutzer:innen-Daten des Moodle-Kurses werden nicht mit-dupliziert!).
 Da das Duplizieren asynchron über einen Adhoc-Task gemacht wird, stellen Sie bitte sicher, dass der CRON-Task regelmäßig läuft.';
 
+$string['coolingoffperiod'] = 'Stornierung möglich nach x Sekunden';
+$string['coolingoffperiod_desc'] = 'Um zu vermeiden, dass NutzerInnen z.B. irrtümlich durch zu schnelles Klicken auf den Buchen-Button wieder stornieren, kann eine Cooling Off Period in Sekunden eingestellt werden. In dieser Zeit ist Stornieren nicht möglich. Nicht mehr als wenige Sekunden einstellen, die Wartezeit wird den UserInne nicht extra angezeigt.';
+
 // Optiontemplatessettings.php.
 $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';
 $string['defaulttemplate'] = 'Standard-Vorlage';
