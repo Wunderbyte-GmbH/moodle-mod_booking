@@ -26,9 +26,6 @@ Feature: Enabling installments as admin configuring installments as a teacher an
       | 1        | default    | Price | 88           | 0        | 1                 |
       | 2        | discount1  | Disc1 | 77           | 0        | 2                 |
       | 3        | discount2  | Disc2 | 66           | 0        | 3                 |
-    And the following "mod_booking > options" exist:
-      | booking     | text               | course | description | useprice | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
-      | BookingInst | Option-installment | C1     | Deskr2      | 1        | 1            | 4          | 1           | 0              | 0              | ## +5 days ##     | ## +8 days ##   |
     ## Default - enable installments by admin.
     And I log in as "admin"
     And I set the following administration settings values:
@@ -40,7 +37,10 @@ Feature: Enabling installments as admin configuring installments as a teacher an
 
   @javascript
   Scenario: Add an installmetn for a booking option as a teacher and verify it
-    Given I am on the "BookingInst" Activity page logged in as admin
+    Given the following "mod_booking > options" exist:
+      | booking     | text               | course | description | useprice | limitanswers | maxanswers | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | BookingInst | Option-installment | C1     | Deskr2      | 1        | 1            | 4          | 0              | 0              | ## +5 days ##     | ## +8 days ##   |
+    And I am on the "BookingInst" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I wait until the page is ready
@@ -58,4 +58,13 @@ Feature: Enabling installments as admin configuring installments as a teacher an
     And I set the following fields to these values:
       | Due nr. of days after initial purchase | 0 |
     And I press "Save"
-    And I wait "10" seconds
+    And I wait "1" seconds
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until the page is ready
+    And the following fields match these values:
+      | Down payment                           | 44 |
+      | Number of Payments                     | 2  |
+      | Due nr. of days after initial purchase | 0  |
+      | Due nr. of days before coursestart     | 1  |
+    And I log out
