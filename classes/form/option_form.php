@@ -27,7 +27,6 @@ namespace mod_booking\form;
 use dml_exception;
 use coding_exception;
 use core_form\dynamic_form;
-use mod_booking\output\eventslist;
 use context;
 use context_module;
 use context_system;

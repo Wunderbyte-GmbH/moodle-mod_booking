@@ -112,6 +112,8 @@ class eventslist extends field_base {
             $formdata['id'] ?? $formdata['optionid'],
             ['\mod_booking\event\bookingoption_updated']
         );
+        $data->icon = 'fa fa-wrench';
+        $data->title = get_string('showrecentupdates', 'mod_booking');
 
         $html = $OUTPUT->render_from_template('mod_booking/eventslist', (array) $data);
         $mform->addElement('static', 'eventslist', '', $html);

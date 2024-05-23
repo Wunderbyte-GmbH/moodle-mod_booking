@@ -74,8 +74,9 @@ class event_log_table extends wunderbyte_table {
         unset($values->username);
 
         $event = $values->eventname::restore((array)$values, []);
+        $description = $event->get_description();
 
-        return $event->get_description();
+        return $description;
     }
 
     /**

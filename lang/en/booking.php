@@ -525,6 +525,7 @@ $string['viewparam:cards'] = 'Cards view';
 
 $string['eventslist'] = 'Recent updates';
 $string['showrecentupdates'] = 'Show recent updates';
+$string['showmessages'] = 'Show messages';
 
 $string['error:semestermissingbutcanceldependentonsemester'] = 'The setting to calculate cancellation periods from semester start is active but semester is missing!';
 

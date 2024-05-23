@@ -26,6 +26,7 @@
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\booking_option;
 use mod_booking\output\booked_users;
+use mod_booking\output\eventslist;
 use mod_booking\singleton_service;
 
 require_once(__DIR__ . '/../../config.php');
@@ -934,6 +935,12 @@ if (!$tableallbookings->is_downloading()) {
     $signinform = new mod_booking\output\signin_downloadform($bookingoption, $baseurl);
     $renderer = $PAGE->get_renderer('mod_booking');
     echo $renderer->render_signin_pdfdownloadform($signinform);
+
+    $eventslist = new eventslist($optionid, ['\mod_booking\event\message_sent']);
+    $eventslist->icon = 'fa-regular fa-envelope';
+    $eventslist->title = get_string('showmessages', 'mod_booking');
+
+    echo $OUTPUT->render_from_template('mod_booking/eventslist', (array) $eventslist);
 
     echo $OUTPUT->footer();
 } else {
