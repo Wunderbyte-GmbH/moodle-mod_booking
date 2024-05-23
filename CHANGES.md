@@ -1,3 +1,7 @@
+
+## Version 8.3.5 (2024052300)
+* Bugfix: Look at cancel until date also for cancel purchase button
+
 ## Version 8.3.4 (2024052201)
 * Bugfix: Update events on booking optiondate change (instead of insert).
 * Bugfix: Don't impose dark text in bookingoption form.

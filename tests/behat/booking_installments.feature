@@ -27,7 +27,7 @@ Feature: Enabling installments as admin configuring installments as a teacher an
       | 2        | discount1  | Disc1 | 77           | 0        | 2                 |
       | 3        | discount2  | Disc2 | 66           | 0        | 3                 |
     And the following "mod_booking > options" exist:
-      | booking     | text               | course | description | useprice | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | 
+      | booking     | text               | course | description | useprice | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
       | BookingInst | Option-installment | C1     | Deskr2      | 1        | 1            | 4          | 1           | 0              | 0              | ## +5 days ##     | ## +8 days ##   |
     ## Default - enable installments by admin.
     And I log in as "admin"
