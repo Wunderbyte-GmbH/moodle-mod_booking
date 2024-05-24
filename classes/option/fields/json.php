@@ -123,7 +123,10 @@ class json extends field_base {
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
         global $DB;
-
-        $data->json = $settings->json ?? '{}';
+        if (!empty($data->importing)) {
+            $data->json = $data->json ?? $settings->json ?? '{}';
+        } else {
+            $data->json = $settings->json ?? '{}';
+        }
     }
 }

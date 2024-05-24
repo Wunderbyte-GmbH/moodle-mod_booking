@@ -204,11 +204,14 @@ class customform implements bo_condition {
                 'static' => get_string('displaytext', 'mod_booking'),
                 'shorttext' => get_string('shorttext', 'mod_booking'),
                 'select' => get_string('select', 'mod_booking'),
+                'url' => get_string('bo_cond_customform_url', 'mod_booking'),
+                'mail' => get_string('bo_cond_customform_mail', 'mod_booking'),
             ];
 
             // We add four potential elements.
             $counter = 1;
             $previous = 0;
+
             while ($counter < 10) {
 
                 $buttonarray = [];
@@ -235,7 +238,6 @@ class customform implements bo_condition {
                 $mform->addElement('textarea', 'bo_cond_customform_value_1_' . $counter,
                     get_string('bo_cond_customform_value', 'mod_booking'), []);
                 $mform->addHelpButton('bo_cond_customform_value_1_' . $counter, 'bo_cond_customform_value', 'mod_booking');
-
                 // We need a few rules. We don't show label...
                 // ... when no element is chosen, when upper button is not checked, when form element is static.
                 $mform->hideIf('bo_cond_customform_value_1_' . $counter, 'bo_cond_customform_restrict', 'notchecked');

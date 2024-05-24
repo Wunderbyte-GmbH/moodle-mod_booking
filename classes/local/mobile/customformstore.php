@@ -98,15 +98,36 @@ class customformstore {
     public function validation($customform, $data): array {
         $errors = [];
         foreach ($customform as $key => $formelement) {
-            if (!empty($formelement->notempty)) {
-                $identifier = 'customform_' . $formelement->formtype . "_" . $key;
-
+            $identifier = 'customform_' . $formelement->formtype . "_" . $key;
+            if (
+              $formelement->formtype == 'url' &&
+              !self::isvalidhttpurl($data[$identifier], FILTER_VALIDATE_EMAIL)
+            ) {
+                $errors[$identifier] = get_string('bo_cond_customform_url_error', 'mod_booking');
+            } else if (
+              $formelement->formtype == 'mail' &&
+              !filter_var($data[$identifier], FILTER_VALIDATE_EMAIL)
+            ) {
+                $errors[$identifier] = get_string('bo_cond_customform_mail_error', 'mod_booking');
+            } else if (!empty($formelement->notempty)) {
                 if (empty($data[$identifier])) {
                     $errors[$identifier] = get_string('error:mustnotbeempty', 'mod_booking');
                 }
             }
         }
         return $errors;
+    }
+
+    /**
+     * Validates each submission entry.
+     * @param string $url
+     * @return bool
+     */
+    public function isvalidhttpurl($url) {
+        if (filter_var($url, FILTER_VALIDATE_URL) === false) {
+            return false;
+        }
+        return preg_match('/^https?:\/\//', $url);
     }
 
     /**

@@ -416,6 +416,7 @@ $string['bookingsaved'] = 'Your booking was successfully saved. You can now proc
 $string['booknow'] = 'Book now';
 $string['bookotherusers'] = 'Book other users';
 $string['cancelbooking'] = 'Cancel booking';
+$string['generateprolicense'] = 'Generate Pro License';
 $string['closed'] = 'Booking closed';
 $string['confirmbookingoffollowing'] = 'Please confirm the booking of following course';
 $string['confirmdeletebookingoption'] = 'Do you really want to delete this booking option?';
@@ -2085,6 +2086,10 @@ $string['checkbox'] = "Checkbox";
 $string['displaytext'] = "Display text";
 $string['textarea'] = "Textarea";
 $string['shorttext'] = "Shorttext";
+$string['bo_cond_customform_url'] = "Url";
+$string['bo_cond_customform_url_error'] = "The URL is not valid or does not start with http or https.";
+$string['bo_cond_customform_mail'] = "E-Mail";
+$string['bo_cond_customform_mail_error'] = "The email address is invalid.";
 $string['formtype'] = "Type of form";
 $string['bo_cond_customform_label'] = "Label";
 $string['bo_cond_customform_notempty'] = 'Must not be empty';
@@ -2389,6 +2394,14 @@ $string['actionoperator:set'] = 'Replace';
 $string['actionoperator:subtract'] = 'Subtract';
 $string['actionoperator'] = 'Action';
 $string['actionoperator:adddate'] = 'Add date';
+$string['customformparams_value'] = "Customform parameter";
+$string['customformparams_desc'] = "Use parameter that are set in the customform.";
+$string['adminparameter_value'] = "Admin parameter";
+$string['adminparameter_desc'] = "Use parameter that are set in the admin settings.";
+$string['userparameter_value'] = "User parameter";
+$string['userparameter_desc'] = "Use user parameter.";
+$string['editaction'] = "Edit Action";
+
 
 // Dates class.
 $string['adddatebutton'] = "Add date";

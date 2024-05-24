@@ -24,6 +24,7 @@ use coding_exception;
 use context;
 use context_system;
 use core_form\dynamic_form;
+use mod_booking\bo_actions\action_types\generateprolicense;
 use mod_booking\bo_actions\actions_info;
 use moodle_url;
 
@@ -111,7 +112,9 @@ class actionsform extends dynamic_form {
      */
     public function validation($data, $files) {
         $errors = [];
-
+        if ( $data['action_type'] == 'generateprolicense') {
+            $errors = generateprolicense::validate_action_form($data);
+        }
         return $errors;
     }
 
