@@ -430,6 +430,9 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         // Make sure, we have local_entities installed.
         if (get_config('booking', 'duplicationrestoreentities') && class_exists('local_entities\entitiesrelation_handler')) {
             $data = (object) $data;
+            if ($data->area == 'optiondate') {
+                return;
+            }
             if ($data->area != 'option') {
                 throw new moodle_exception('entityrelationhasinvalidarea');
             }
@@ -452,6 +455,9 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         // Make sure, we have local_entities installed.
         if (get_config('booking', 'duplicationrestoreentities') && class_exists('local_entities\entitiesrelation_handler')) {
             $data = (object) $data;
+            if ($data->area == 'option') {
+                return;
+            }
             if ($data->area != 'optiondate') {
                 throw new moodle_exception('entityrelationhasinvalidarea');
             }
