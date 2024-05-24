@@ -42,7 +42,19 @@ use templatable;
  */
 class eventslist implements renderable, templatable {
 
+    /**
+     * The icon for events table.
+     *
+     * @var string
+     */
+    public $icon = '';
 
+    /**
+     * The title for events table.
+     *
+     * @var string
+     */
+    public $title = '';
     /**
      * Eventlist stores the events fetched from db.
      *
