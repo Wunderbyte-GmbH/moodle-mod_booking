@@ -133,7 +133,8 @@ if (!$agree && empty($formsubmitted) && (!empty($bookingoption->booking->setting
 
                     // If there is a price on the booking option, we don't want to subscribe the user directly.
                     if (class_exists('local_shopping_cart\shopping_cart')
-                        && !empty($optionsettings->jsonobject->useprice)) {
+                        && !empty($optionsettings->jsonobject->useprice)
+                        && empty(get_config('booking', 'turnoffwaitinglist'))) {
                         $status = 3; // This added without confirmation.
                     } else {
                         $status = 0;
@@ -250,6 +251,16 @@ if ($fromform = $mform->get_data()) {
         debugging('subscribeusers.php: Exception in redirect function.');
     }
 
+}
+
+// Under some circumstances, we don't allow direct booking of user.
+if (class_exists('local_shopping_cart\shopping_cart')
+                        && !empty($optionsettings->jsonobject->useprice)
+                        && empty(get_config('booking', 'turnoffwaitinglist'))) {
+
+    $message = get_string('nodirectbookingbecauseofprice', 'mod_booking');
+    $type = \core\notification::INFO;
+    \core\notification::add($message, $type);
 }
 
 echo $OUTPUT->header();

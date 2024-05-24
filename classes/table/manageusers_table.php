@@ -172,7 +172,8 @@ class manageusers_table extends wunderbyte_table {
             $user = singleton_service::get_instance_of_user($userid);
 
             // If booking option is booked with a price, we don't book directly but just allow to book.
-            if (!empty($settings->jsonobject->useprice)) {
+            if (!empty($settings->jsonobject->useprice)
+                && empty(get_config('booking', 'turnoffwaitinglist'))) {
                 $option->user_submit_response($user, 0, 0, 2, MOD_BOOKING_VERIFIED);
 
             } else {
