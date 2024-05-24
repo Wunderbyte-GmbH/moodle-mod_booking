@@ -333,12 +333,13 @@ Feature: Create global booking rules as admin and insure they are working.
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
-  @javascript
+  ## @javascript
   Scenario: Booking rule for: ndays before booking course start time
     Given I log in as "admin"
-    And I set the following administration settings values:
-      | Default timezone | Europe/Kyiv |
-      | Force timezone | Europe/Kyiv |
+    And the following config values are set as admin:
+      | config        | value       |
+      | timezone      | Europe/Kyiv |
+      | forcetimezone | Europe/Kyiv |
     And the following "mod_booking > rules" exist:
       | conditionname | contextid | conditiondata     | name       | actionname | actiondata                                                                     | rulename        | ruledata                                   |
       | select_users  | 1         | {"userids":["2"]} | 1daybefore | send_mail  | {"subject":"1daybefore","template":"will start tomorrow","templateformat":"1"} | rule_daysbefore | {"days":"1","datefield":"coursestarttime"} |

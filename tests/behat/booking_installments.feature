@@ -40,10 +40,15 @@ Feature: Enabling installments as admin configuring installments as a teacher an
       | Account1 |
     ## Default - enable installments by admin.
     And I log in as "admin"
-    And I set the following administration settings values:
-      | Enable Installments    | 1 |
-      | Time Between Payments  | 2 |
-      | Reminder x days before | 1 |
+    And the following config values are set as admin:
+      | config              | value | plugin              |
+      | enableinstallments  | 1     | local_shopping_cart |
+      | timebetweenpayments | 2     | local_shopping_cart |
+      | reminderdaysbefore  | 1     | local_shopping_cart |
+    ## TinyMCE has misbehavior in Moodle 4.3 as well as performance problems. So - we disable it.
+    And the following config values are set as admin:
+      | config      | value         |
+      | texteditors | atto,textarea |
     And I change viewport size to "1366x10000"
     And I log out
 
