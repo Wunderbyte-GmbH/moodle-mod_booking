@@ -85,7 +85,6 @@ class message_sent extends \core\event\base {
                 "The mail was sent from the user with id: '{$this->relateduserid}'.";
         }
 
-
     }
 
     /**
