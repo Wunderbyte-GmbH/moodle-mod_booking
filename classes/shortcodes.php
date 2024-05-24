@@ -383,7 +383,10 @@ class shortcodes {
 
         view::apply_standard_params_for_bookingtable($table, $optionsfields, true, true, true);
 
-        unset($table->subcolumns['rightside']);
+        // If "rightside" is in the "exclude" array, then we do not show the rightside area (containing the "Book now" button).
+        if (!empty($exclude) && in_array('rightside', $exclude)) {
+            unset($table->subcolumns['rightside']);
+        }
 
         $out = $table->outhtml($perpage, true);
 

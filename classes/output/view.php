@@ -287,7 +287,8 @@ class view implements renderable, templatable {
         if (in_array('showfieldofstudy', $showviews)) {
             // If we show this table first, we don't load it lazy.
             $lazy = $whichview !== 'showfieldofstudy';
-            $this->renderedfieldofstudyoptionstable = format_text('[fieldofstudyoptions]');
+            $this->renderedfieldofstudyoptionstable
+                = format_text('[fieldofstudyoptions sortby="coursestarttime" sortorder="desc"]');
         }
     }
 
