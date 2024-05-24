@@ -1,4 +1,13 @@
 
+## Version 8.3.6 (2024052400)
+* Improvement: Upgrade fields pollurlteachers & pollurl up to 1000 chars.
+* Improvement: Display sent messages in bo report.
+* Improvement: Add coolingoffperiod to avoid unintentional double clicks.
+* Bugfix: Avoid errors for restorement.
+* Bugfix: Fieldofstudy Display.
+* Bugfix: Fix prepage for subbooking.
+* Bugfix: Fix filter display on view.php.
+
 ## Version 8.3.5 (2024052300)
 * Bugfix: Look at cancel until date also for cancel purchase button
 
