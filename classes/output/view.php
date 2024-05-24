@@ -292,7 +292,6 @@ class view implements renderable, templatable {
         }
     }
 
-
     /**
      * Render table for elective.
      * @return array the rendered table

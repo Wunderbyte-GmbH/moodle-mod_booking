@@ -1482,6 +1482,14 @@ $string['enablecompletion'] = 'Count of entries';
 $string['confirmuserswith'] = 'Confirm users who completed activity or received badge';
 $string['confirmusers'] = 'Confirm users activity';
 
+$string['nodirectbookingbecauseofprice'] = 'Booking for others is only partially possible with this booking option. The reasons for this are as follows:
+    <ul>
+    <li>a price is entered</li>
+    <li>the Shopping Cart module is installed</li>
+    <li>the waiting list is not globally deactivated</li>
+    </ul>
+    The intention of this behaviour is to prevent "mixed" bookings with and without shopping cart. Please use shopping cart cashier function to book users.';
+
 // Optiontemplatessettings.php.
 $string['optiontemplatessettings'] = 'Booking option templates';
 $string['defaulttemplate'] = 'Default template';

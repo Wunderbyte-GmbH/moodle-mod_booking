@@ -317,6 +317,13 @@ $string['scgfselectcohorts'] = 'Globale Gruppe(n) wählen';
 $string['scgfbookgroupscohorts'] = 'Globale Gruppe(n) oder Gruppe(n) buchen';
 $string['scgfselectgroups'] = 'Gruppe(n) auswählen';
 
+$string['nodirectbookingbecauseofprice'] = 'Das Buchen von anderen ist bei dieser Buchungsoption nur eingeschränkt möglich. Die Gründe dafür sind folgende:
+<ul>
+<li>ein Preis ist hinterlegt</li>
+<li>das Shopping Cart Modul ist installiert</li>
+<li>die Warteliste ist global nicht deaktiivert</li>
+</ul>
+Der Zweck dieses Verhaltens ist es, "gemischte" Buchungen mit und ohne Warenkorb zu verhindern. Bitte verwenden Sie die Kassierfunktion des Warenkorbs, um Benutzer:innen zu buchen.';
 
 // Bookingform.
 $string['address'] = 'Adresse';
