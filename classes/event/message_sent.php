@@ -69,9 +69,22 @@ class message_sent extends \core\event\base {
      */
     public function get_description() {
 
-        return $this->transform_msgparam( $this->other['messageparam'] ) . ": " .
-            "An e-mail with subject '" . $this->other['subject'] . "' has been sent to user with id: '{$this->userid}'. " .
-            "The mail was sent from the user with id: '{$this->relateduserid}'.";
+        if (is_string($this->other)) {
+            $other = json_decode($this->other);
+            $messageparam = $other->messageparam ?? 0;
+            $subject = $other->subject ?? '';
+            $userid = $this->data['userid'] ?? 'unknown';
+            $relateduserid = $this->data['relateduserid'] ?? 'unknown';
+
+            return $this->transform_msgparam( $messageparam ) . ": " .
+                "An e-mail with subject '" . $subject . "' has been sent to user with id: '$userid'. " .
+                "The mail was sent from the user with id: '$relateduserid'.";
+        } else {
+            return $this->transform_msgparam( $this->other['messageparam'] ) . ": " .
+                "An e-mail with subject '" . $this->other['subject'] . "' has been sent to user with id: '{$this->userid}'. " .
+                "The mail was sent from the user with id: '{$this->relateduserid}'.";
+        }
+
     }
 
     /**

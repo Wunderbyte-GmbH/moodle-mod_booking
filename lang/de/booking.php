@@ -515,6 +515,7 @@ $string['viewparam:cards'] = 'Karten-Ansicht';
 
 $string['eventslist'] = 'Letzte Bearbeitungen';
 $string['showrecentupdates'] = 'Zeige die letzten Bearbeitungen';
+$string['showmessages'] = 'Zeige Nachrichten';
 
 $string['error:semestermissingbutcanceldependentonsemester'] = 'Die Einstellung zur Berechnung der
 Stornierungsfrist ab Semesterbeginn ist aktiv, aber das Semester fehlt!';
