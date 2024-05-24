@@ -334,43 +334,23 @@ Feature: Create global booking rules as admin and insure they are working.
     And I log out
 
   @javascript
-  Scenario: Booking rules: create booking rule for booking course start time
-    Given the following "mod_booking > rules" exist:
-      | conditionname | contextid | conditiondata     | name       | actionname | actiondata                                                                     | rulename        | ruledata                                   |
-      | select_users  | 1         | {"userids":["2"]} | 2daybefore | send_mail  | {"subject":"1daybefore","template":"will start tomorrow","templateformat":"1"} | rule_daysbefore | {"days":"1","datefield":"coursestarttime"} |
-    ## Add new booking option schedulled for tomorrow
-    When I log in as "admin"
+  Scenario: Booking rule for: ndays before booking course start time
+    Given I log in as "admin"
     And I set the following administration settings values:
       | Default timezone | Europe/Kyiv |
       | Force timezone | Europe/Kyiv |
-      ##| Default timezone | UTC |
-      ##| Force timezone | UTC |
+    And the following "mod_booking > rules" exist:
+      | conditionname | contextid | conditiondata     | name       | actionname | actiondata                                                                     | rulename        | ruledata                                   |
+      | select_users  | 1         | {"userids":["2"]} | 1daybefore | send_mail  | {"subject":"1daybefore","template":"will start tomorrow","templateformat":"1"} | rule_daysbefore | {"days":"1","datefield":"coursestarttime"} |
+    ## It is important to setup next day exactly in minutes
+    And the following "mod_booking > options" exist:
+      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1   | courseendtime_1 |
+      | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +1440 minutes ## | ## +3 days ##   |
     And I am on the "BookingCMP" Activity page
-    And I change viewport size to "1366x10000"
-    And I follow "New booking option"
-    And I set the following fields to these values:
-      | Booking option name | Test option - Webinar |
-    And I press "Add date"
-    And I wait "1" seconds
-    And I set the following fields to these values:
-      | coursestarttime_1[day]    | ## +1 day +1 minute ## %d ## |
-      | coursestarttime_1[month]  | ## +1 day +1 minute ## %B ## |
-      | coursestarttime_1[year]   | ## +1 day +1 minute ## %Y ## |
-      ## Does not work, place +5 ..8 hours... 
-      ##| coursestarttime_1[hour]   | ## +1 day +1 minute ## %H ## |
-      | coursestarttime_1[minute] | ## +1 day +1 minute ## %M ## |
-    And I set the following fields to these values:
-      | courseendtime_1[day]    | ## + 1 year ## %d ## |
-      | courseendtime_1[month]  | ## + 1 year ## %B ## |
-      | courseendtime_1[year]   | ## + 1 year ## %Y ## |
-      | courseendtime_1[hour]   | 00                   |
-      | courseendtime_1[minute] | 00                   |
-    ##And I wait "10" seconds
-    And I press "Save"
     And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     And I trigger cron
     And I visit "/report/loglive/index.php"
-    And I wait "9" seconds
+    And I wait "1" seconds
     And I should see "Custom message: An e-mail with subject '1daybefore' has been sent to user with id: '2'"
     ## Logout is mandatory for admin pages to avoid error
     And I log out
