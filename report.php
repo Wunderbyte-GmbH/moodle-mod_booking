@@ -937,7 +937,7 @@ if (!$tableallbookings->is_downloading()) {
     echo $renderer->render_signin_pdfdownloadform($signinform);
 
     $eventslist = new eventslist($optionid, ['\mod_booking\event\message_sent']);
-    $eventslist->icon = 'fa-regular fa-envelope';
+    $eventslist->icon = 'fa fa-envelope-o';
     $eventslist->title = get_string('showmessages', 'mod_booking');
 
     echo $OUTPUT->render_from_template('mod_booking/eventslist', (array) $eventslist);
