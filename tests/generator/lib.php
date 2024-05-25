@@ -31,6 +31,8 @@ use mod_booking\booking_option;
 use mod_booking\booking_campaigns\campaigns_info;
 use mod_booking\singleton_service;
 use mod_booking\bo_availability\bo_info;
+use local_shopping_cart\shopping_cart;
+use local_shopping_cart\local\cartstore;
 
 /**
  * Class to handle module booking data generator
@@ -318,6 +320,30 @@ class mod_booking_generator extends testing_module_generator {
         $record->id = $DB->insert_record('booking_rules', $record);
 
         return $record;
+    }
+
+    /**
+     * Function to create a dummy user purchase record.
+     *
+     * @param array|stdClass $record
+     * @return array
+     */
+    public function create_user_purchase($record) {
+        if (class_exists('local_shopping_cart\shopping_cart')) {
+            // Clean cart.
+            shopping_cart::delete_all_items_from_cart($record['userid']);
+            // Set user to buy in behalf of.
+            shopping_cart::buy_for_user($record['userid']);
+            // Get cached data or setup defaults.
+            $cartstore = cartstore::instance($record['userid']);
+            // Put in a test item with given ID (or default if ID > 4).
+            shopping_cart::add_item_to_cart('booking', 'option', $record['optionid'], -1);
+            // Confirm cash payment.
+            $res = shopping_cart::confirm_payment($record['userid'], LOCAL_SHOPPING_CART_PAYMENT_METHOD_CASHIER_CASH);
+            return $res;
+        } else {
+            throw new Exception('The shopping_cart plugin has not installed!');
+        }
     }
 
     /**
