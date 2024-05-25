@@ -28,7 +28,16 @@ Feature: Create booking option with price and force students answer as admin tha
       | booking     | text            | course | description    | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | useprice | canceluntil    | canceluntilcheckbox |
       | BookingCMP  | Option-tenis    | C1     | Price-tenis    | 2          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 1        | ## tomorrow ## | 1                   |
       | BookingCMP  | Option-football | C1     | Price-football | 2          | 1           | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | ## tomorrow ## | 1                   |
-    And the following "mod_booking > answers" exist:
+    And the following "core_payment > payment accounts" exist:
+      | name           |
+      | Account1       |
+    And the following "local_shopping_cart > payment gateways" exist:
+      | account  | gateway | enabled | config                                                                                |
+      | Account1 | paypal  | 1       | {"brandname":"Test paypal","clientid":"Test","secret":"Test","environment":"sandbox"} |
+    And the following "local_shopping_cart > plugin setup" exist:
+      | account  | cancelationfee |
+      | Account1 | 0              |
+    And the following "mod_booking > user purchases" exist:
       | booking     | option          | user     |
       | BookingCMP  | Option-tenis    | student1 |
       | BookingCMP  | Option-football | student2 |
@@ -39,11 +48,11 @@ Feature: Create booking option with price and force students answer as admin tha
     Given I am on the "BookingCMP" Activity page logged in as student1
     And I should see "Option-tenis" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "Booked" in the ".allbookingoptionstable_r2" "css_element"
-    And I wait "11" seconds
+    ##And I wait "1" seconds
     And I click on "Cancel purchase" "text" in the ".allbookingoptionstable_r2 .booknow" "css_element"
-    Then I should see "Click again to confirm cancellation" in the ".allbookingoptionstable_r2" "css_element"
-    And I click on "Click again to confirm cancellation" "text" in the ".allbookingoptionstable_r2" "css_element"
+    Then I should see "Do you really want to cancel this purchase?" in the ".modal.show .modal-body" "css_element"
+    And I should see "You'll get the costs of your purchase (88 EUR) minus a cancelation fee (0 EUR) as credit (88 EUR) for your next purchase." in the ".modal.show .modal-body" "css_element"
+    And I click on "Cancel purchase" "button" in the ".modal.show .modal-footer" "css_element"
+    And I should see "Successfully canceled" in the ".notifications" "css_element"
     And I should see "88.00 EUR" in the ".allbookingoptionstable_r2 .booknow" "css_element"
-    And I should see "Price" in the ".allbookingoptionstable_r2 .booknow" "css_element"
-    And I should not see "Book now" in the ".allbookingoptionstable_r2 .booknow" "css_element"
-    And I should not see "Add to cart" in the ".allbookingoptionstable_r2 .booknow" "css_element"
+    And I should see "Add to cart" in the ".allbookingoptionstable_r2 .booknow" "css_element"
