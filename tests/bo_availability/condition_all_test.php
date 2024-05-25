@@ -31,6 +31,10 @@ use coding_exception;
 use mod_booking\price;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
+use local_shopping_cart\shopping_cart;
+use local_shopping_cart\shopping_cart_history;
+use local_shopping_cart\local\cartstore;
+use local_shopping_cart\output\shoppingcart_history_list;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -44,6 +48,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @category test
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
  */
 class condition_all_test extends advanced_testcase {
 
@@ -67,10 +72,12 @@ class condition_all_test extends advanced_testcase {
      * Test of booking option with price as well as cancellation by user.
      *
      * @covers \condition\priceset::is_available
+     * @covers \condition\cancelmyself::is_available
      * @throws \coding_exception
      * @throws \dml_exception
      *
      * @dataProvider booking_common_settings_provider
+     *
      */
     public function test_booking_bookit_with_price_and_cancellation() {
         global $DB, $CFG;
@@ -78,7 +85,7 @@ class condition_all_test extends advanced_testcase {
         // Set parems requred for cancellation.
         $bdata['cancancelbook'] = 1;
         if (class_exists('local_shopping_cart\shopping_cart')) {
-            set_config('cancelationfee', 1, 'local_shopping_cart');
+            set_config('cancelationfee', 0, 'local_shopping_cart');
         }
 
         // Setup test data.
@@ -158,8 +165,20 @@ class condition_all_test extends advanced_testcase {
         // Verify price.
         $price = price::get_price('option', $settings->id);
         // Default price expected.
-        $this->assertEquals($price["price"], 100);
-
+        $this->assertEquals($pricecategorydata->defaultvalue, $price["price"]);
+        // Purchase item in behalf of user if shopping_cart installed.
+        if (class_exists('local_shopping_cart\shopping_cart')) {
+            // Clean cart.
+            shopping_cart::delete_all_items_from_cart($student1->id);
+            // Set user to buy in behalf of.
+            shopping_cart::buy_for_user($student1->id);
+            // Get cached data or setup defaults.
+            $cartstore = cartstore::instance($student1->id);
+            // Put in a test item with given ID (or default if ID > 4).
+            shopping_cart::add_item_to_cart('mod_booking', 'option', $settings->id, -1);
+            // Confirm cash payment.
+            $res = shopping_cart::confirm_payment($student1->id, LOCAL_SHOPPING_CART_PAYMENT_METHOD_CASHIER_CASH);
+        }
         // In this test, we book the user directly (we don't test the payment process).
         $option->user_submit_response($student1, 0, 0, 0, MOD_BOOKING_VERIFIED);
 
@@ -175,11 +194,22 @@ class condition_all_test extends advanced_testcase {
         // Render to see if "cancel purchase" present.
         $buttons = booking_bookit::render_bookit_button($settings, $student1->id);
         $this->assertStringContainsString('Cancel purchase', $buttons);
-        // Actual cancellation of purcahse.
-        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        // Cancellation of purcahse if shopping_cart installed.
+        if (class_exists('local_shopping_cart\shopping_cart')) {
+            // Getting history of purchased item and verify.
+            $item = shopping_cart_history::get_most_recent_historyitem('mod_booking', 'option', $settings->id, $student1->id);
+            shopping_cart::add_quota_consumed_to_item($item, $student1->id);
+            shoppingcart_history_list::add_round_config($item);
+            $this->assertEquals($settings->id, $item->itemid);
+            $this->assertEquals($student1->id, $item->userid);
+            $this->assertEquals($pricecategorydata->defaultvalue, (int)$item->price);
+            $this->assertEquals(0, $item->quotaconsumed);
+            // Actual cancellation of purcahse and verify.
+            $res = shopping_cart::cancel_purchase($settings->id, 'option', $student1->id, 'mod_booking', $item->id,  0);
+            $this->assertEquals(1, $res['success']);
+            $this->assertEquals($pricecategorydata->defaultvalue, $res['credit']);
+            $this->assertEmpty($res['error']);
+        }
     }
 
     /**
