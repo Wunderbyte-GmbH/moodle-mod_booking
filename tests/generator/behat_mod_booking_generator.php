@@ -70,6 +70,12 @@ class behat_mod_booking_generator extends behat_generator_base {
                 ],
                 'switchids' => ['booking' => 'bookingid'],
             ],
+            'user purchases' => [
+                'singular' => 'user purchase',
+                'datagenerator' => 'user_purchase',
+                'required' => ['user', 'option'],
+                'switchids' => ['user' => 'userid', 'option' => 'optionid'],
+            ],
         ];
     }
 
