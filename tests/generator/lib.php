@@ -326,7 +326,7 @@ class mod_booking_generator extends testing_module_generator {
      * Function to create a dummy user purchase record.
      *
      * @param array|stdClass $record
-     * @return array
+     * @return int
      */
     public function create_user_purchase($record) {
         if (class_exists('local_shopping_cart\shopping_cart')) {
@@ -337,9 +337,11 @@ class mod_booking_generator extends testing_module_generator {
             // Get cached data or setup defaults.
             $cartstore = cartstore::instance($record['userid']);
             // Put in a test item with given ID (or default if ID > 4).
-            shopping_cart::add_item_to_cart('booking', 'option', $record['optionid'], -1);
+            shopping_cart::add_item_to_cart('mod_booking', 'option', $record['optionid'], -1);
             // Confirm cash payment.
             $res = shopping_cart::confirm_payment($record['userid'], LOCAL_SHOPPING_CART_PAYMENT_METHOD_CASHIER_CASH);
+            $res = $this->create_answer($record);
+            // Value of $res expected to be MOD_BOOKING_BO_COND_ALREADYBOOKED.
             return $res;
         } else {
             throw new Exception('The shopping_cart plugin has not installed!');
