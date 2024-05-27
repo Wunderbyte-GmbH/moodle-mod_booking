@@ -94,6 +94,7 @@ class bookingoptionimage extends field_base {
         int $updateparam,
         $returnvalue = null): array {
 
+        parent::prepare_save_field($formdata, $newoption, $updateparam, '');
         $changes = self::check_for_changes($formdata);
 
         return $changes;
