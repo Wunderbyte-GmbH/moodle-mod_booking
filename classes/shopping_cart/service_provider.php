@@ -117,7 +117,8 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 $item['canceluntil'],
                 $serviceperiodstart,
                 $serviceperiodend,
-                null, 0,
+                'A',
+                0,
                 $costcenter
             );
 
@@ -161,7 +162,8 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 $item['canceluntil'],
                 $serviceperiodstart,
                 $serviceperiodend,
-                null, 0,
+                'A',
+                0,
                 $costcenter
             );
 
@@ -465,7 +467,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                     $item['canceluntil'],
                     $item['coursestarttime'],
                     $item['courseendtime'],
-                    null,
+                    'A',
                     0,
                     $item['costcenter']
                 );
