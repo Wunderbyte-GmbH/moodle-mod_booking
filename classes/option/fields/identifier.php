@@ -93,7 +93,7 @@ class identifier extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): string {
+        $returnvalue = null): array {
 
         return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
     }

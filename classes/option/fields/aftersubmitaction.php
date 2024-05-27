@@ -93,7 +93,7 @@ class aftersubmitaction extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): string {
+        $returnvalue = null): array {
 
         if (isset($formdata->aftersubmitaction)) {
             switch ($formdata->aftersubmitaction) {
@@ -122,7 +122,7 @@ class aftersubmitaction extends field_base {
                     break;;
             }
         }
-        return '';
+        return [];
     }
 
     /**

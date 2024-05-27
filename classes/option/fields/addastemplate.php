@@ -91,7 +91,7 @@ class addastemplate extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): string {
+        $returnvalue = null): array {
 
         // When the addastemplate is not null, we set bookingid to 0.
         if (!empty($formdata->addastemplate)) {

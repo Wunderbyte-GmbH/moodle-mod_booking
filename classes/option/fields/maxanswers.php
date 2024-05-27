@@ -90,7 +90,7 @@ class maxanswers extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): string {
+        $returnvalue = null): array {
 
         if (!empty($formdata->maxanswers)) {
             $newoption->limitanswers = 1;

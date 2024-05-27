@@ -97,7 +97,7 @@ class easy_bookingopeningtime extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): string {
+        $returnvalue = null): array {
 
         $key = 'bookingopeningtime';
         $value = $formdata->{$key} ?? null;
@@ -112,7 +112,7 @@ class easy_bookingopeningtime extends field_base {
             }
         }
 
-        return '';
+        return [];
     }
 
     /**

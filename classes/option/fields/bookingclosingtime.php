@@ -96,7 +96,7 @@ class bookingclosingtime extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): string {
+        $returnvalue = null): array {
 
         $key = fields_info::get_class_name(static::class);
         $value = $formdata->{$key} ?? null;
@@ -116,7 +116,7 @@ class bookingclosingtime extends field_base {
             }
         }
 
-        return '';
+        return [];
     }
 
     /**

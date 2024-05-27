@@ -95,7 +95,7 @@ class id extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): string {
+        $returnvalue = null): array {
 
         if (!empty($formdata->id)) {
             $newoption->id = $formdata->id;
@@ -110,7 +110,7 @@ class id extends field_base {
         $newoption->bookingid = $formdata->bookingid;
 
         // We can return an warning message here.
-        return '';
+        return [];
     }
 
     /**

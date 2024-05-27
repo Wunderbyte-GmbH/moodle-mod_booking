@@ -91,7 +91,7 @@ class actions extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): string {
+        $returnvalue = null): array {
 
         // In the actions, we don't actually save, but we want to pass on json, if there is any.
         // But we don't want to overwrite already altered values.
@@ -104,7 +104,7 @@ class actions extends field_base {
 
         booking_option::add_data_to_json($newoption, 'boactions', $boactions);
 
-        return '';
+        return [];
     }
 
     /**

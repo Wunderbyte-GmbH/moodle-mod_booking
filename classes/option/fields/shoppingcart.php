@@ -90,14 +90,14 @@ class shoppingcart extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): string {
+        $returnvalue = null): array {
 
         if (class_exists('local_shopping_cart\shopping_cart_handler')) {
 
             // We only run this line to make sure we have the constants.
             $schhandler = new shopping_cart_handler('mod_booking', 'option');
         }
-        return '';
+        return [];
     }
 
     /**

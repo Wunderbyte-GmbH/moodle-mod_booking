@@ -91,7 +91,7 @@ class entities extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): string {
+        $returnvalue = null): array {
 
         if (class_exists('local_entities\entitiesrelation_handler')) {
 
@@ -133,7 +133,7 @@ class entities extends field_base {
                 }
             }
         }
-        return '';
+        return [];
     }
 
     /**

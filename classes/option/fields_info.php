@@ -62,8 +62,9 @@ class fields_info {
     public static function prepare_save_fields(stdClass &$formdata, stdClass &$newoption,
         int $updateparam = MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT): array {
 
-        $warnings = [];
+        $feedback = [];
         $error = [];
+        // TODO: implement error handling.
 
         $context = context_module::instance($formdata->cmid);
         $classes = self::get_field_classes($context->id);
@@ -79,18 +80,18 @@ class fields_info {
 
                 // Execute the prepare function of every field.
                 try {
-                    $warning = $classname::prepare_save_field($formdata, $newoption, $updateparam);
+                    $returnvalue = $classname::prepare_save_field($formdata, $newoption, $updateparam);
                 } catch (\Exception $e) {
                     $error[] = $e;
                 }
 
-                if (!empty($warning)) {
-                    $warnings[] = $warning;
+                if (!empty($returnvalue)) {
+                    $feedback[$classname] = $returnvalue;
                 }
             }
         }
 
-        return $warnings;
+        return $feedback;
     }
 
     /**
@@ -213,13 +214,13 @@ class fields_info {
      * @param stdClass $formdata
      * @param stdClass $option
      * @param int $updateparam
-     * @return void
+     * @return array
      */
-    public static function save_fields_post(stdClass &$formdata, stdClass &$option, int $updateparam) {
+    public static function save_fields_post(stdClass &$formdata, stdClass &$option, int $updateparam): array {
 
         $context = context_module::instance($formdata->cmid);
         $classes = self::get_field_classes($context->id, MOD_BOOKING_EXECUTION_POSTSAVE);
-
+        $changes = [];
         foreach ($classes as $classname) {
 
             // We want to ignore some classes here.
@@ -227,8 +228,9 @@ class fields_info {
                 continue;
             }
 
-            $classname::save_data($formdata, $option);
+            $changes[$classname] = $classname::save_data($formdata, $option);
         }
+        return $changes;
     }
 
     /**
