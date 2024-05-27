@@ -93,12 +93,10 @@ class generateprolicense extends booking_action {
 
     /**
      * Add action to mform
-     *
-     * @param object $actiondata
      * @param object $bookinganswer
+     * @param object $actiondata
      *
-     * @return array
-     *
+     * @return string
      */
     public static function get_script_response($bookinganswer, $actiondata) {
         $params = json_decode($bookinganswer->json);
@@ -125,7 +123,7 @@ class generateprolicense extends booking_action {
 
         $curl = curl_init();
 
-        curl_setopt_array($curl, array(
+        curl_setopt_array($curl, [
           CURLOPT_URL => $actiondata->rest_script ?? null,
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_ENCODING => '',
@@ -135,10 +133,10 @@ class generateprolicense extends booking_action {
           CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
           CURLOPT_CUSTOMREQUEST => 'POST',
           CURLOPT_POSTFIELDS => $params,
-          CURLOPT_HTTPHEADER => array(
-            'Cookie: XDEBUG_SESSION=VSCODE'
-          ),
-        ));
+          CURLOPT_HTTPHEADER => [
+            'Cookie: XDEBUG_SESSION=VSCODE',
+          ],
+        ]);
         $response = curl_exec($curl);
         curl_close($curl);
 

@@ -136,6 +136,7 @@ class message_controller {
      * @param int $installmentnr number of installment
      * @param int $duedate UNIX timestamp for duedate of installment
      * @param float $price price of installment
+     * @param string $rulejson event data
      */
     public function __construct(int $msgcontrparam, int $messageparam, int $cmid, int $bookingid = null,
         int $optionid, int $userid, int $optiondateid = null, $changes = null,
