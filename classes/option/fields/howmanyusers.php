@@ -92,6 +92,7 @@ class howmanyusers extends field_base {
         int $updateparam,
         $returnvalue = null): array {
 
+        parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
         $changes = self::check_for_changes($formdata);
 
         return $changes;
