@@ -27,6 +27,7 @@ namespace mod_booking\option\fields;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
 
@@ -92,11 +93,46 @@ class maxanswers extends field_base {
         int $updateparam,
         $returnvalue = null): array {
 
+        parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
+
+        $changes = self::check_for_changes($formdata);
+
         if (!empty($formdata->maxanswers)) {
             $newoption->limitanswers = 1;
         }
 
-        return parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
+        return $changes;
+    }
+
+    /**
+     * Return changes in array.
+     *
+     * @param stdClass $formdata
+     *
+     * @return array
+     *
+     */
+    private static function check_for_changes(stdClass $formdata): array {
+        $key = fields_info::get_class_name(static::class);
+        $value = $formdata->{$key} ?? '';
+
+        $changes = [];
+        // Check if there were changes and return these.
+        if (!empty($formdata->id) && !empty($value)) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($formdata->id);
+            $valueclass = new stdClass;
+            $valueclass->id = $formdata->id; // Just any id to make sure settings are applied.
+            self::set_data($valueclass, $settings);
+            if ($valueclass->{$key} != $value) {
+                $changes = [
+                    'changes' => [
+                        'oldvalue' => $valueclass->{$key},
+                        'newvalue' => $value,
+                    ],
+                ];
+            }
+        }
+        return $changes;
     }
 
     /**
