@@ -97,7 +97,7 @@ class easy_availability_selectusers extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): string {
+        $returnvalue = null): array {
 
         // Select users condition.
         if ($formdata->bo_cond_selectusers_restrict == 1 && !empty(($formdata->bo_cond_selectusers_userids))) {
@@ -133,7 +133,7 @@ class easy_availability_selectusers extends field_base {
         bo_info::save_json_conditions_from_form($formdata);
         $newoption->availability = $formdata->availability;
 
-        return '';
+        return [];
     }
 
     /**

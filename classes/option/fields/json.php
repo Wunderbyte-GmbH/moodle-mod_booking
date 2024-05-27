@@ -92,11 +92,11 @@ class json extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): string {
+        $returnvalue = null): array {
 
         $newoption->json = $formdata->json ?? '{}';
 
-        return '';
+        return [];
     }
 
     /**

@@ -73,13 +73,13 @@ abstract class field_base implements fields {
      * @param stdClass $newoption
      * @param int $updateparam
      * @param mixed $returnvalue
-     * @return string // If no warning, empty string.
+     * @return array // Covers changes & warnings, if nothing to report: empty array.
      */
     public static function prepare_save_field(
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = ''): string {
+        $returnvalue = ''): array {
 
         $key = fields_info::get_class_name(static::class);
         $value = $formdata->{$key} ?? null;
@@ -90,8 +90,8 @@ abstract class field_base implements fields {
             $newoption->{$key} = $returnvalue;
         }
 
-        // We can return an warning message here.
-        return '';
+        // We can return an warning message here. Or report changes.
+        return [];
     }
 
     /**

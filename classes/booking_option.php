@@ -3475,7 +3475,7 @@ class booking_option {
         }
 
         $newoption = new stdClass();
-        fields_info::prepare_save_fields($data, $newoption, $updateparam);
+        $feedbackformchanges = fields_info::prepare_save_fields($data, $newoption, $updateparam);
 
         if (!empty($newoption->id)) {
             // Save the changes to DB.
@@ -3492,7 +3492,7 @@ class booking_option {
             $data->id = $optionid;
         }
 
-        fields_info::save_fields_post($data, $newoption, $updateparam);
+        $feedbackpostchanges = fields_info::save_fields_post($data, $newoption, $updateparam);
 
         // We need to keep the previous values (before purging caches).
         $oldsettings = singleton_service::get_instance_of_booking_option_settings($optionid);

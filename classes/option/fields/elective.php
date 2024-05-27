@@ -90,7 +90,7 @@ class elective extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): string {
+        $returnvalue = null): array {
 
         $value = $formdata->mustcombine ?? null;
 
@@ -124,7 +124,7 @@ class elective extends field_base {
         }
 
         // We can return an warning message here.
-        return '';
+        return [];
     }
 
     /**

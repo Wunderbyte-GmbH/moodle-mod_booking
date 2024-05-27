@@ -97,7 +97,7 @@ class easy_availability_previouslybooked extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): string {
+        $returnvalue = null): array {
 
         // Previously booked condition.
         if ($formdata->bo_cond_previouslybooked_restrict == 1 && !empty(($formdata->bo_cond_previouslybooked_optionid))) {
@@ -132,7 +132,7 @@ class easy_availability_previouslybooked extends field_base {
         bo_info::save_json_conditions_from_form($formdata);
         $newoption->availability = $formdata->availability;
 
-        return '';
+        return [];
     }
 
     /**

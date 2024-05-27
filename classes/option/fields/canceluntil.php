@@ -92,7 +92,7 @@ class canceluntil extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): string {
+        $returnvalue = null): array {
 
         // We store the information until when a booking option can be cancelled in the JSON.
         // So this has to happen BEFORE JSON is saved!
@@ -102,7 +102,7 @@ class canceluntil extends field_base {
         } else {
             booking_option::add_data_to_json($newoption, "canceluntil", $formdata->canceluntil);
         }
-        return '';
+        return [];
     }
 
     /**

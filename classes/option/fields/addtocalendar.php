@@ -91,7 +91,7 @@ class addtocalendar extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): string {
+        $returnvalue = null): array {
 
         global $DB;
 
@@ -124,12 +124,14 @@ class addtocalendar extends field_base {
      * Save data
      * @param stdClass $data
      * @param stdClass $option
-     * @return void
+     * @return array
      * @throws \dml_exception
      */
-    public static function save_data(stdClass &$data, stdClass &$option) {
+    public static function save_data(stdClass &$data, stdClass &$option): array {
 
         global $DB;
+
+        $changes = [];
 
         if (isset($data->addtocalendar) && $data->addtocalendar == 1) {
 
@@ -145,6 +147,7 @@ class addtocalendar extends field_base {
                 }
             }
         }
+        return $changes;
     }
 
     /**

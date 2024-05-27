@@ -91,7 +91,7 @@ class attachment extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): string {
+        $returnvalue = null): array {
 
         $key = 'myfilemanageroption';
         $value = $formdata->{$key} ?? null;
@@ -103,7 +103,7 @@ class attachment extends field_base {
         }
 
         // We can return an warning message here.
-        return '';
+        return [];
     }
 
     /**

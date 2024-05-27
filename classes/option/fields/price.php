@@ -94,7 +94,7 @@ class price extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): string {
+        $returnvalue = null): array {
 
         // We store the information if we use a price in the JSON.
         // So this has to happen BEFORE JSON is saved!
