@@ -136,9 +136,10 @@ class easy_bookingclosingtime extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
-        // The form is not locked and can be used normally.
-        $mform->addElement('hidden', 'restrictanswerperiodclosing');
+        $mform->addElement('advcheckbox', 'restrictanswerperiodclosing',
+                get_string('restrictanswerperiodopening', 'mod_booking'));
         $mform->setType('restrictanswerperiodclosing', PARAM_INT);
+        $mform->disabledIf('bookingclosingtime', 'restrictanswerperiodclosing', 'neq', "1");
 
         $mform->addElement('date_time_selector', 'bookingclosingtime',
             get_string('easyavailability:closingtime', 'local_musi'));
@@ -158,7 +159,7 @@ class easy_bookingclosingtime extends field_base {
             && !empty($settings->bookingclosingtime)) {
 
             $data->bookingclosingtime = $settings->bookingclosingtime;
+            $data->restrictanswerperiodclosing = 1;
         }
-        $data->restrictanswerperiodclosing = 1;
     }
 }

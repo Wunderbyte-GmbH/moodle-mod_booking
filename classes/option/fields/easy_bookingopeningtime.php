@@ -137,8 +137,10 @@ class easy_bookingopeningtime extends field_base {
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
         // The form is not locked and can be used normally.
-        $mform->addElement('hidden', 'restrictanswerperiodopening');
+        $mform->addElement('advcheckbox', 'restrictanswerperiodopening',
+                get_string('restrictanswerperiodopening', 'mod_booking'));
         $mform->setType('restrictanswerperiodopening', PARAM_INT);
+        $mform->disabledIf('bookingopeningtime', 'restrictanswerperiodopening', 'neq', "1");
 
         $mform->addElement('date_time_selector', 'bookingopeningtime',
             get_string('easyavailability:openingtime', 'local_musi'));
@@ -158,7 +160,7 @@ class easy_bookingopeningtime extends field_base {
             && !empty($settings->bookingopeningtime)) {
 
             $data->bookingopeningtime = $settings->bookingopeningtime;
+            $data->restrictanswerperiodopening = 1;
         }
-        $data->restrictanswerperiodopening = 1;
     }
 }
