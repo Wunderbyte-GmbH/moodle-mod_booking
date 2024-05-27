@@ -25,8 +25,8 @@
 namespace mod_booking\bo_actions\action_types;
 
 use mod_booking\bo_actions\booking_action;
+use mod_booking\event\rest_script_succes;
 use mod_booking\singleton_service;
-use mod_lti\local\ltiservice\response;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -53,62 +53,97 @@ class generateprolicense extends booking_action {
      */
     public function apply_action(stdClass $actiondata, int $userid = 0) {
 
-        global $DB, $USER;
+        global $USER;
 
-        $option = singleton_service::get_instance_of_booking_option($actiondata->cmid, $actiondata->optionid);
-
+        $settings = singleton_service::get_instance_of_booking_option_settings($actiondata->optionid);
+        $ba = singleton_service::get_instance_of_booking_answers($settings);
         if (empty($userid)) {
             $userid = $USER->id;
         }
 
-        $params = [
-            'optionid' => $actiondata->optionid,
-            'userid' => $userid,
-        ];
-
-        $sql = "SELECT * FROM {booking_answers}
-                WHERE optionid = :optionid
-                AND userid = :userid
-                ORDER BY timecreated DESC
-                LIMIT 1";
-
-        $bookinganswer = $DB->get_record_sql($sql, $params);
-
-        if ($bookinganswer) {
-            $getprolicense = self::get_pro_licnense($bookinganswer, $actiondata);
+        if (isset($ba->usersonlist[$userid])) {
+            $bajson = $ba->usersonlist[$userid];
+            $restscriptresponse = self::get_script_response($bajson, $actiondata);
+            if ($restscriptresponse) {
+                $event = rest_script_succes::create([
+                    'objectid' => $actiondata->optionid,
+                    'context' => context_module::instance($actiondata->cmid),
+                    'userid' => $userid, // The user triggered the action.
+                    'other' => [
+                        'json' => json_encode($bajson),
+                        'action' => json_encode($actiondata),
+                        'restscriptresponse' => $restscriptresponse,
+                    ],
+                ]);
+            } else {
+                $event = rest_script_succes::create([
+                    'objectid' => $actiondata->optionid,
+                    'context' => context_module::instance($actiondata->cmid),
+                    'userid' => $userid,
+                    'other' => [
+                        'json' => json_encode($bajson),
+                        'action' => json_encode($actiondata),
+                    ],
+                ]);
+            }
+            $event->trigger(); // This will trigger the observer function.
         }
-
-        $option->user_delete_response($userid);
-
         return 1; // We want to abort all other after actions.
     }
 
     /**
      * Add action to mform
      *
+     * @param object $actiondata
      * @param object $bookinganswer
-     * @param array $actiondata
      *
      * @return array
      *
      */
-    public static function get_pro_licnense($bookinganswer, $actiondata) {
-        $response = [];
-
-        $url = 'http://10.111.0.2:8000/wb_license/generate_license.php';
+    public static function get_script_response($bookinganswer, $actiondata) {
         $params = json_decode($bookinganswer->json);
+        $params = (array)$params->condition_customform;
 
-        $ch = curl_init();
+        foreach ($params as $customkey => $custominput) {
+            if (str_contains($customkey, 'customform_url')) {
+                $params['wwwroot'] = $custominput;
+                break;
+            }
+        }
+        if (
+            isset($actiondata->userparameter) &&
+            $actiondata->userparameter == '1'
+        ) {
+            $user = singleton_service::get_instance_of_user($bookinganswer->userid);
+            $params['firstname'] = $user->firstname;
+            $params['lastname'] = $user->lastname;
+            $params['email'] = $user->email;
+            $params['username'] = $user->username;
+        }
+        $params['numberofdays'] = $actiondata->numberofdays ?? null;
+        $params['submit'] = true;
 
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
-        $response = curl_exec($ch);
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => $actiondata->rest_script ?? null,
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => '',
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 0,
+          CURLOPT_FOLLOWLOCATION => true,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => 'POST',
+          CURLOPT_POSTFIELDS => $params,
+          CURLOPT_HTTPHEADER => array(
+            'Cookie: XDEBUG_SESSION=VSCODE'
+          ),
+        ));
+        $response = curl_exec($curl);
+        curl_close($curl);
 
         return $response;
     }
-
 
     /**
      * Add action to mform
@@ -121,6 +156,12 @@ class generateprolicense extends booking_action {
     public static function add_action_to_mform(&$mform) {
 
         $mform->addElement('text', 'boactionname', get_string('boactionname', 'mod_booking'));
+
+        $mform->addElement('text', 'rest_script', get_string('bopathtoscript', 'mod_booking'));
+        $mform->setType('rest_script', PARAM_URL);
+
+        $mform->addElement('text', 'numberofdays', get_string('bonumberofdays', 'mod_booking'));
+        $mform->setType('numberofdays', PARAM_INT);
 
         $mform->addElement('advcheckbox',
             'customformparameter',
@@ -149,25 +190,14 @@ class generateprolicense extends booking_action {
      */
     public static function validate_action_form($data) {
         $errors = [];
-        $onevalid = false;
         foreach ($data as $key => $value) {
-            if (str_contains($key, 'parameter')) {
-                if ($value == '1') {
-                    $onevalid = true;
-                } else {
-                    $errors[$key] = 'One must be valid';
-                }
+            if (
+                $key == 'numberofdays' &&
+                !is_null($value) &&
+                !is_number($value)
+            ) {
+                $errors[$key] = get_string('bo_cond_customform_numbers_error', 'mod_booking');
             }
-        }
-        if ($onevalid) {
-            $errors = [];
-        }
-        if (
-            $data['customformparameter'] == '1' &&
-            $data['userparameter'] == '1'
-        ) {
-            $errors['customformparameter'] = 'Is not compatible with user parameter';
-            $errors['userparameter'] = 'Is not compatible with customform parameter';
         }
         return $errors;
     }

@@ -112,6 +112,9 @@ class message_controller {
     /** @var int $installmentnr number of installment - starting with 0. */
     private $installmentnr;
 
+    /** @var string $rulejson eventdata string */
+    private $rulejson;
+
     /** @var int $duedate duedate of installment. */
     private $duedate;
 
@@ -137,7 +140,7 @@ class message_controller {
     public function __construct(int $msgcontrparam, int $messageparam, int $cmid, int $bookingid = null,
         int $optionid, int $userid, int $optiondateid = null, $changes = null,
         string $customsubject = '', string $custommessage = '',
-        int $installmentnr = 0, int $duedate = 0, float $price = 0.0) {
+        int $installmentnr = 0, int $duedate = 0, float $price = 0.0, string $rulejson = '') {
 
         global $USER, $PAGE;
 
@@ -189,6 +192,7 @@ class message_controller {
         $this->installmentnr = $installmentnr;
         $this->duedate = $duedate;
         $this->price = $price;
+        $this->rulejson = $rulejson;
         $this->params = new stdClass();
 
         // For custom messages only.
@@ -301,7 +305,7 @@ class message_controller {
         // We apply the default placeholders.
         $text = placeholders_info::render_text($text, $this->optionsettings->cmid, $this->optionid, $this->userid,
             $this->installmentnr, $this->duedate, $this->price,
-            $this->descriptionparam ?? MOD_BOOKING_DESCRIPTION_WEBSITE);
+            $this->descriptionparam ?? MOD_BOOKING_DESCRIPTION_WEBSITE, $this->rulejson);
 
         return $text;
     }

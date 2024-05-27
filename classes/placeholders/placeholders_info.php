@@ -64,6 +64,7 @@ class placeholders_info {
      * @param int $duedate
      * @param float $price
      * @param int $descriptionparam
+     * @param string $rulejson
      * @return string
      */
     public static function render_text(
@@ -74,7 +75,9 @@ class placeholders_info {
         int $installmentnr = 0,
         int $duedate = 0,
         float $price = 0,
-        int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE) {
+        int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE,
+        string $rulejson = null
+    ) {
 
         global $USER;
 
@@ -117,7 +120,9 @@ class placeholders_info {
                     $price,
                     $text, // Text can be changed in this function, if we need to replace sth.
                     $placeholders, // Placeholders can be changed in this function, if we need to replace sth.
-                    $descriptionparam);
+                    $descriptionparam,
+                    $rulejson
+                );
 
                 // In some cases, we might receive an array instead of string.
                 if (is_array($value)) {

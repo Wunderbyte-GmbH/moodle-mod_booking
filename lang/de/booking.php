@@ -398,6 +398,9 @@ $string['optiondates_teacher_added'] = 'Vertretung wurde eingetragen';
 $string['optiondates_teacher_deleted'] = 'Trainer:in wurde aus Trainingsjournal entfernt';
 $string['booking_failed'] = 'Buchung gescheitert';
 $string['booking_afteractionsfailed'] = 'Actions nach der Buchung gescheitert';
+$string['rest_script_succes'] = 'Rest Skript Ausführung';
+$string['rest_script_failed'] = 'Skript konnte nicht ausgeführt werden';
+$string['rest_script_executed'] = 'Nach dem Rest-Skript Aufruf';
 
 // View.php.
 $string['bookingpolicyagree'] = 'Ich habe die Buchungsbedingungen gelesen und erkläre mich damit einverstanden.';
@@ -618,6 +621,7 @@ $string['qr_id'] = "QR_id";
 $string['qr_username'] = "QR_nutzerinnenname";
 $string['startdate'] = "Startdatum";
 $string['starttime'] = "Startzeit";
+$string['rest_response'] = "rest_response";
 $string['title'] = "Titel";
 $string['usercalendarurl'] = "Nutzer:innen Kalender";
 $string['username'] = "Usernamen";
@@ -1956,6 +1960,7 @@ $string['textarea'] = "Textbereich";
 $string['shorttext'] = "Kurztext";
 $string['bo_cond_customform_url'] = "Url";
 $string['bo_cond_customform_url_error'] = "Die URL ist nicht valide oder beginnt nicht mit http oder https.";
+$string['bo_cond_customform_numbers_error'] = "Bitte trage eine gültige Zahl an Tagen ein.";
 $string['bo_cond_customform_mail'] = "E-Mail";
 $string['bo_cond_customform_mail_error'] = "Die E-Mail ist nicht richtig.";
 $string['select'] = "DropDown Menü";
@@ -2253,6 +2258,8 @@ Sie können es ausprobieren, aber bitte verwenden Sie es noch auf keiner Produkt
 $string['boactions'] = 'Aktionen nach der Buchung ' . $badgepro . ' ' . $badgeexp;
 $string['onlyaddactionsonsavedoption'] = "Aktionen nach der Buchung könnnen nur zu schon gespeicherte Optionen hinzugefügt werden.";
 $string['boactionname'] = "Name der Aktion";
+$string['bonumberofdays'] = "Anzahl der tage";
+$string['bopathtoscript'] = "Pfad zur REST-Skript";
 $string['showboactions'] = "Aktiviere Aktionen nach der Buchung";
 $string['boactionselectuserprofilefield'] = "Wähle Profilfeld";
 $string['boactioncancelbookingvalue'] = "Activate immediate cancelation";

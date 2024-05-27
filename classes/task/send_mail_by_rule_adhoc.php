@@ -117,6 +117,7 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
                     $taskdata->installmentnr ?? 0,
                     $taskdata->duedate ?? 0,
                     $taskdata->price ?? 0,
+                    $taskdata->rulejson ?? 0,
                 );
             } catch (Exception $e) {
                 if (get_config('booking', 'bookingdebugmode')) {
