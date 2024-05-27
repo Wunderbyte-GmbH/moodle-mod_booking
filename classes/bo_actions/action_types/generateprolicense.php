@@ -27,6 +27,8 @@ namespace mod_booking\bo_actions\action_types;
 use mod_booking\bo_actions\booking_action;
 use mod_booking\event\rest_script_succes;
 use mod_booking\singleton_service;
+use context_module;
+use mod_booking\event\rest_script_failed;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -76,7 +78,7 @@ class generateprolicense extends booking_action {
                     ],
                 ]);
             } else {
-                $event = rest_script_succes::create([
+                $event = rest_script_failed::create([
                     'objectid' => $actiondata->optionid,
                     'context' => context_module::instance($actiondata->cmid),
                     'userid' => $userid,

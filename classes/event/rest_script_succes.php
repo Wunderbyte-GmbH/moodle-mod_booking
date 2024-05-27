@@ -64,7 +64,7 @@ class rest_script_succes extends \core\event\base {
      */
     public function get_description() {
         return "Script could not be executed properly! Userid: '{$this->userid}',
-            Objectid: '{$this->objectid}', Contextid: '{$this->context}'.";
+            Objectid: '{$this->objectid}', Contextid: '{$this->context->id}'.";
     }
 
     /**
