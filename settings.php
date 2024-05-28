@@ -346,6 +346,7 @@ if ($ADMIN->fulltree) {
             [],
             $options));
 
+        // phpcs:disable
         // $settings->add(
         //     new admin_setting_configcheckbox('booking/usecoursecategorytemplates',
         //             get_string('usecoursecategorytemplates', 'mod_booking'),
@@ -355,6 +356,7 @@ if ($ADMIN->fulltree) {
         //     new admin_setting_configtext('booking/templatecategoryname',
         //         get_string('templatecategoryname', 'mod_booking'),
         //         get_string('templatecategoryname_desc', 'mod_booking'), '', PARAM_TEXT));
+        // phpcs:enable
 
     } else {
         $settings->add(

@@ -30,9 +30,6 @@ use mod_booking\singleton_service;
 use moodle_exception;
 use stdClass;
 
-// defined('MOODLE_INTERNAL') || die();
-// require_once($CFG->dirroot . '/user/externallib.php');
-
 /**
  * Connected course class.
  * This class handles the logic of the creation of a moodle course.
