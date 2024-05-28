@@ -159,9 +159,6 @@ class mobile {
                     $customformstore = new customformstore($USER->id, $data['id']);
                     $customformuserdata = $customformstore->get_customform_data();
                     $formvalidated = [false];
-                    if ($customformuserdata !== false) {
-                        $customform = $customformstore->validation_data($customform, $customformuserdata);
-                    }
                     if ($customformuserdata) {
                         $formvalidated = $customformstore->validation($customform, (array)$customformuserdata);
                     }
@@ -169,6 +166,9 @@ class mobile {
                         $data['submit']['label'] = $button->data['main']['label'];
                         $ionsubmissionhtml = $mobileformbuilder::submission_form_submitted($button);
                     } else {
+                        if ($customformuserdata !== false) {
+                            $customform = $customformstore->translate_errors($customform, $formvalidated);
+                        }
                         $ionsubmissionhtml = $mobileformbuilder::build_submission_entitites($customform, $data);
                     }
                 }

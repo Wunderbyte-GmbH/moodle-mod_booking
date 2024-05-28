@@ -109,7 +109,8 @@ class customformstore {
               !filter_var($data[$identifier], FILTER_VALIDATE_EMAIL)
             ) {
                 $errors[$identifier] = get_string('bo_cond_customform_mail_error', 'mod_booking');
-            } else if (!empty($formelement->notempty)) {
+            }
+            if (!empty($formelement->notempty)) {
                 if (empty($data[$identifier])) {
                     $errors[$identifier] = get_string('error:mustnotbeempty', 'mod_booking');
                 }
@@ -133,41 +134,16 @@ class customformstore {
     /**
      * Validates each submission entry.
      * @param object $customform
-     * @param object $customformuserdata
+     * @param array $errors
      * @return object
      */
-    public static function validation_data($customform, $customformuserdata) {
+    public function translate_errors($customform, $errors) {
         foreach ($customform as $key => &$customitem) {
-            if (!empty($customitem->notempty)) {
-                if (empty($customformuserdata)) {
-                    $customitem->error = true;
-                } else {
-                    $found = false;
-                    foreach ($customformuserdata as $keyformitem => $customformitem) {
-                        if ($keyformitem == 'customform_' . $customitem->formtype . '_' . $key) {
-                            $found = true;
-                            if (str_contains($customitem->formtype, 'select')) {
-                                $customitem->selectedvalue = $customformitem;
-                                $selecttype = gettype($customitem->selectedvalue);
-                                if ($selecttype != 'string') {
-                                    $customitem->error = true;
-                                } else {
-                                    $customitem->error = false;
-                                }
-                            } else {
-                                $customitem->value = $customformitem;
-                                if (empty($customformitem)) {
-                                    $customitem->error = true;
-                                } else {
-                                    $customitem->error = false;
-                                }
-                            }
-                        }
-                    }
-                    if (!$found) {
-                        $customitem->error = true;
-                    }
-                }
+            $keyerroritem = 'customform_' . $customitem->formtype . '_' . $key;
+            if (isset($errors[$keyerroritem])) {
+                $customitem->error = $errors[$keyerroritem];
+            } else {
+                $customitem->error = false;
             }
         }
         return $customform;

@@ -147,6 +147,8 @@ class mobileformbuilder {
                         $ionichtml .= $OUTPUT->render_from_template('mod_booking/mobile/ionform/static', $data);
                         break;
                     case 'shorttext':
+                    case 'mail':
+                    case 'url':
                         $ionichtml .= $OUTPUT->render_from_template('mod_booking/mobile/ionform/shorttext', $data);
                         break;
                     case 'select':
