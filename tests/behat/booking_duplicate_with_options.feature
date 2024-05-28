@@ -57,8 +57,14 @@ Feature: In a booking create booking option with multiple custom options
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I wait until the page is ready
     And I set the following fields to these values:
-      | Booking option name                   | Duplication source |
-      | Connected Moodle course               | Course 1           |
+      | Booking option name                   | Duplication source      |
+      | chooseorcreatecourse                  | Connected Moodle course |
+      ##| Connected Moodle course               | Course 1           |
+    ## TODO: duplication of field names "Connected Moodle course" must be eliminated to use more efficient command (above)
+    And I open the autocomplete suggestions list in the "//div[contains(@id, 'id_coursesheader_')]//div[contains(@id, 'fitem_id_courseid_')]" "xpath_element"
+    And I wait "1" seconds
+    And I should see "Course 1" in the "//div[contains(@id, 'fitem_id_courseid_')]//ul[contains(@class, 'form-autocomplete-suggestions')]" "xpath_element"
+    And I click on "Course 1" "text" in the "//div[contains(@id, 'fitem_id_courseid_')]//ul[contains(@class, 'form-autocomplete-suggestions')]" "xpath_element"
     And I press "Save"
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     When I click on "Duplicate this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -69,8 +75,6 @@ Feature: In a booking create booking option with multiple custom options
     And I am on "Course 1 (copy)" course homepage
     And I follow "My booking"
     Then I should see "Duplication - Copy1"
-    And I wait "30" seconds
-    ## And I should not see "Duplication source"
 
   @javascript
   Scenario: Duplicate booking option with multiple customized settings
