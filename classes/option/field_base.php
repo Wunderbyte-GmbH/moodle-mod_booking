@@ -190,7 +190,7 @@ abstract class field_base implements fields {
      *
      * @param object $formdata
      * @param field_base $self
-     * @param mixed $dummyobj // Only needed if there the object needs params for the save_data function.
+     * @param mixed $mockdata // Only needed if there the object needs params for the save_data function.
      * @param string $key
      * @param mixed $value
      *
@@ -200,33 +200,30 @@ abstract class field_base implements fields {
     public function check_for_changes(
         object $formdata,
         field_base $self,
-        mixed $dummyobj = '',
+        mixed $mockdata = '',
         string $key = '',
         mixed $value = ''): array {
 
         $changes = [];
         $key = empty($key) ? fields_info::get_class_name(static::class) : $key;
         $value = empty($value) ? ($formdata->{$key} ?? '') : $value;
-        if ($dummyobj != '') {
-            $valueclass = $dummyobj;
-        } else {
-            $valueclass = new stdClass;
-        }
+
+        $mockdata = empty($mockdata) ? new stdClass : $mockdata;
 
         // Check if there were changes and return these.
         if (!empty($formdata->id) && !empty($value)) {
             $settings = singleton_service::get_instance_of_booking_option_settings($formdata->id);
-            $self::set_data($valueclass, $settings);
+            $self::set_data($mockdata, $settings);
 
             // Handling for textfields.
-            if (is_array($valueclass->{$key})
+            if (is_array($mockdata->{$key})
                 && is_array($value)
-                && isset($valueclass->{$key}['text'])
+                && isset($mockdata->{$key}['text'])
                 && isset($value['text'])) {
-                    $oldvalue = $valueclass->{$key}['text'];
+                    $oldvalue = $mockdata->{$key}['text'];
                     $newvalue = $value['text'];
             } else { // Default handling.
-                $oldvalue = $valueclass->{$key};
+                $oldvalue = $mockdata->{$key};
                 $newvalue = $value;
             }
 
