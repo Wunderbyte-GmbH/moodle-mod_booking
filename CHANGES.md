@@ -1,5 +1,9 @@
 
 ## Version 8.3.6 (2024052400)
+* Feature: New moodle course template handling
+* Feature: New waitinglist handling & notifications (via booking rules)
+
+## Version 8.3.6 (2024052400)
 * Improvement: Upgrade fields pollurlteachers & pollurl up to 1000 chars.
 * Improvement: Display sent messages in bo report.
 * Improvement: Add coolingoffperiod to avoid unintentional double clicks.
