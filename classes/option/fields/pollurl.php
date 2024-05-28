@@ -91,7 +91,8 @@ class pollurl extends field_base {
         stdClass &$newoption,
         int $updateparam,
         $returnvalue = null): array {
-
+        $instance = new pollurl();
+        $changes = [];
         $key = fields_info::get_class_name(static::class);
         $value = $formdata->{$key} ?? null;
 
@@ -100,7 +101,7 @@ class pollurl extends field_base {
         } else {
             $newoption->{$key} = '';
         }
-
+        $changes[$key] = $instance->check_for_changes($formdata, $instance, null, $key, $value);
         // We also need to take care of pollurlteachers.
 
         $key = 'pollurlteachers';
@@ -112,8 +113,10 @@ class pollurl extends field_base {
             $newoption->{$key} = '';
         }
 
+        $changes[$key] = $instance->check_for_changes($formdata, $instance, null, $key, $value);
+
         // We can return an warning message here.
-        return [];
+        return $changes;
     }
 
     /**
