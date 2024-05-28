@@ -66,7 +66,7 @@ class rest_response {
         string &$text = '',
         array &$params = [],
         int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE,
-        string $rulejson = '',
+        string $rulejson = ''
     ) {
         $rulejson = json_decode($rulejson);
         if (
