@@ -105,7 +105,11 @@ class price extends field_base {
             booking_option::add_data_to_json($newoption, "useprice", 1); // 11 means we have a price.
         }
 
-        return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
+        parent::prepare_save_field($formdata, $newoption, $updateparam, '');
+
+        // Don't notify about price changes.
+        $changes = [];
+        return $changes;
     }
 
     /**
