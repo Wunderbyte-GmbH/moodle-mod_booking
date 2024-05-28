@@ -203,9 +203,17 @@ abstract class field_base implements fields {
         mixed $mockdata = '',
         string $key = '',
         mixed $value = ''): array {
+        $excludeclassesfromtrackingchanges = [
+            'price',
+            'addtocalendar'
+        ];
+        $classname = fields_info::get_class_name(static::class);
+        if (in_array($classname, $excludeclassesfromtrackingchanges)) {
+            return [];
+        }
 
         $changes = [];
-        $key = empty($key) ? fields_info::get_class_name(static::class) : $key;
+        $key = empty($key) ? $classname : $key;
         $value = empty($value) ? ($formdata->{$key} ?? '') : $value;
 
         $mockdata = empty($mockdata) ? new stdClass : $mockdata;
