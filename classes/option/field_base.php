@@ -211,7 +211,7 @@ abstract class field_base implements fields {
         $mockdata = empty($mockdata) ? new stdClass : $mockdata;
 
         // Check if there were changes and return these.
-        if (!empty($formdata->id) && !empty($value)) {
+        if (!empty($formdata->id) && isset($value)) {
             $settings = singleton_service::get_instance_of_booking_option_settings($formdata->id);
             $self::set_data($mockdata, $settings);
 
