@@ -28,6 +28,7 @@ use coding_exception;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields;
 use mod_booking\option\fields_info;
+use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
 
@@ -182,5 +183,62 @@ abstract class field_base implements fields {
      */
     public static function get_subfields() {
         return [];
+    }
+
+    /**
+     * Check if there is a difference between the former and the new values of the formdata.
+     *
+     * @param object $formdata
+     * @param field_base $self
+     * @param mixed $dummyobj // Only needed if there the object needs params for the save_data function.
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return array
+     *
+     */
+    public function check_for_changes(
+        object $formdata,
+        field_base $self,
+        mixed $dummyobj = '',
+        string $key = '',
+        mixed $value = ''): array {
+
+        $changes = [];
+        $key = empty($key) ? fields_info::get_class_name(static::class) : $key;
+        $value = empty($value) ? ($formdata->{$key} ?? '') : $value;
+        if ($dummyobj != '') {
+            $valueclass = $dummyobj;
+        } else {
+            $valueclass = new stdClass;
+        }
+
+        // Check if there were changes and return these.
+        if (!empty($formdata->id) && !empty($value)) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($formdata->id);
+            $self::set_data($valueclass, $settings);
+
+            // Handling for textfields.
+            if (is_array($valueclass->{$key})
+                && is_array($value)
+                && isset($valueclass->{$key}['text'])
+                && isset($value['text'])) {
+                    $oldvalue = $valueclass->{$key}['text'];
+                    $newvalue = $value['text'];
+            } else { // Default handling.
+                $oldvalue = $valueclass->{$key};
+                $newvalue = $value;
+            }
+
+            if ($oldvalue != $newvalue) {
+                $changes = [
+                    'changes' => [
+                        'oldvalue' => $oldvalue,
+                        'newvalue' => $newvalue,
+                    ],
+                ];
+            }
+        }
+        return $changes;
     }
 }

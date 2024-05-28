@@ -96,7 +96,8 @@ class annotation extends field_base {
         $key = fields_info::get_class_name(static::class);
         $value = $formdata->{$key} ?? null;
 
-        $changes = self::check_for_changes($formdata, $key);
+        $instance = new annotation();
+        $changes = $instance->check_for_changes($formdata, $instance, null, $key, $value);
 
         if (!empty($value)) {
             // The form comes in the form of an array.
@@ -110,36 +111,6 @@ class annotation extends field_base {
         }
 
         // We can return an warning message here.
-        return [];
-    }
-
-    /**
-     * Check if there is a difference between the former and the new values of the formdata.
-     *
-     * @param mixed $formdata
-     * @param mixed $key
-     *
-     * @return array
-     *
-     */
-    private static function check_for_changes($formdata, $key): array {
-
-        $changes = [];
-        $value = $formdata->{$key} ?? '';
-        // Check if there were changes and return these.
-        if (!empty($formdata->id) && !empty($value)) {
-            $settings = singleton_service::get_instance_of_booking_option_settings($formdata->id);
-            $valueclass = new stdClass;
-            self::set_data($valueclass, $settings);
-            if ($valueclass->{$key}['text'] != $value['text']) {
-                $changes = [
-                    'changes' => [
-                        'oldvalue' => $valueclass->{$key}['text'],
-                        'newvalue' => $value['text'],
-                    ],
-                ];
-            }
-        }
         return $changes;
     }
 
