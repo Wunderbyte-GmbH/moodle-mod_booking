@@ -70,15 +70,6 @@ class send_mail implements booking_rule_action {
         $jsonobject = json_decode($json);
         $actiondata = $jsonobject->actiondata;
 
-        if (!empty($jsonobject->datafromevent)) {
-            /* If the template contains the {eventdescription} placeholder,
-            we replace it here, because we have the eventdescription in the $datafromevent
-            which is part of the JSON. */
-            $event = $jsonobject->ruledata->boevent::restore((array)$jsonobject->datafromevent, []);
-            $actiondata->template = str_replace('{eventdescription}', $event->get_description() ?? "",
-                $actiondata->template);
-        }
-
         $this->subject = $actiondata->subject;
         $this->template = $actiondata->template;
     }

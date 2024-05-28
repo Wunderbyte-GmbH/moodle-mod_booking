@@ -625,6 +625,7 @@ $string['qr_username'] = "qr_username";
 $string['startdate'] = "startdate";
 $string['starttime'] = "starttime";
 $string['rest_response'] = "rest_response";
+$string['eventdescription'] = "eventdescription";
 $string['title'] = "title";
 $string['usercalendarurl'] = "usercalendarurl";
 $string['username'] = "username";
