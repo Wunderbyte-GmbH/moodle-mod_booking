@@ -122,7 +122,7 @@ class addtogroup extends field_base {
 
             $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
 
-            if (!empty($bookingsettings->addtogroup) && $option->courseid > 0) {
+            if (!empty($bookingsettings->addtogroup) && !empty($option->courseid)) {
                 $bo = singleton_service::get_instance_of_booking_option($cmid, $optionid);
                 // TODO: This looks kind of strange. Was this copied from legacy code? Does it still work?
                 // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
