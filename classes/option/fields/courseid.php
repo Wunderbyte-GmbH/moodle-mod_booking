@@ -112,7 +112,11 @@ class courseid extends field_base {
         or in an already existing one. */
         connectedcourse::handle_user_choice($newoption, $formdata);
 
-        return parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
+        parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
+
+        $instance = new courseid();
+        $changes = $instance->check_for_changes($formdata, $instance);
+        return $changes;
     }
 
     /**
