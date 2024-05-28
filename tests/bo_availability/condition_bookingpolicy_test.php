@@ -175,6 +175,7 @@ class condition_bookingpolicy_test extends advanced_testcase {
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'Test option1';
+        $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course1->id;
         // Set test objective setting(s).
         $record->bo_cond_customform_restrict = 1;
@@ -251,6 +252,7 @@ class condition_bookingpolicy_test extends advanced_testcase {
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'Test option1';
+        $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course1->id;
 
         /** @var mod_booking_generator $plugingenerator */
@@ -336,6 +338,7 @@ class condition_bookingpolicy_test extends advanced_testcase {
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'Test option1';
+        $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course1->id;
         // Set test availability setting(s).
         $record->bo_cond_selectusers_restrict = 1;
@@ -351,6 +354,7 @@ class condition_bookingpolicy_test extends advanced_testcase {
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'Test option2';
+        $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course1->id;
         // Set test availability setting(s).
         $record->bo_cond_previouslybooked_restrict = 1;
@@ -405,6 +409,7 @@ class condition_bookingpolicy_test extends advanced_testcase {
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'Test option3';
+        $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course1->id;
         // Set test availability setting(s).
         $record->bo_cond_enrolledincourse_restrict = 1;
@@ -488,6 +493,7 @@ class condition_bookingpolicy_test extends advanced_testcase {
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'Test option1';
+        $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course1->id;
         // Set test availability setting(s).
         $record->bo_cond_userprofilefield_1_default_restrict = 1;
@@ -505,6 +511,7 @@ class condition_bookingpolicy_test extends advanced_testcase {
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'Test option2';
+        $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course1->id;
         // Set test availability setting(s).
         $record->bo_cond_userprofilefield_2_custom_restrict = 1;

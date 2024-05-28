@@ -273,6 +273,7 @@ class condition_allowupdate_test extends advanced_testcase {
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'Test option1';
+        $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course->id;
         $record->useprice = 0;
         $record->maxanswers = 3;
@@ -365,6 +366,7 @@ class condition_allowupdate_test extends advanced_testcase {
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'Test option1';
+        $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course->id;
         $record->useprice = 0;
         $record->maxanswers = 3;

@@ -117,6 +117,7 @@ class condition_all_test extends advanced_testcase {
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'Test option1';
+        $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course2->id;
         $record->maxanswers = 2;
         $record->useprice = 1; // Use price from the default category.
@@ -428,6 +429,7 @@ class condition_all_test extends advanced_testcase {
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'Test option1 (availability by cohort and time)';
+        $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course1->id;
 
         // Set test availability setting(s).
@@ -538,7 +540,8 @@ class condition_all_test extends advanced_testcase {
 
         $record = new stdClass();
         $record->bookingid = $booking1->id;
-        $record->text = 'Test option1';
+        $record->text = 'Test option1 (enroll to group)';
+        $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course2->id;
         $record->maxanswers = 2;
 
@@ -546,6 +549,7 @@ class condition_all_test extends advanced_testcase {
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
         $option1 = $plugingenerator->create_option($record);
 
+        singleton_service::destroy_booking_option_singleton($option1->id);
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
         // To avoid retrieving the singleton with the wrong settings, we destroy it.
         singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
@@ -633,6 +637,7 @@ class condition_all_test extends advanced_testcase {
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'Test option1 (option time)';
+        $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course2->id;
         $record->maxanswers = 2;
         $record->restrictanswerperiodopening = 1;
@@ -711,6 +716,7 @@ class condition_all_test extends advanced_testcase {
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'Test option1';
+        $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course2->id;
         $record->maxanswers = 2;
         $record->waitforconfirmation = 1;
@@ -791,6 +797,7 @@ class condition_all_test extends advanced_testcase {
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'Test option1';
+        $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course2->id;
         $record->maxanswers = 2;
         $record->maxoverbooking = 2;
@@ -1009,6 +1016,7 @@ class condition_all_test extends advanced_testcase {
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'Test option1';
+        $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course1->id;
         $record->credits = 100;
 
@@ -1105,6 +1113,7 @@ class condition_all_test extends advanced_testcase {
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'Test option1';
+        $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course2->id;
         $record->maxanswers = 1;
         $record->maxoverbooking = 0;  // Disable waitinglist.

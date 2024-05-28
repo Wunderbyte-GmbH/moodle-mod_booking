@@ -120,6 +120,7 @@ class send_reminder_mails_test extends advanced_testcase {
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'Option Test Reminders 1';
+        $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course->id;
         $record->description = 'Test description';
         $record->optiondateid_1 = "0";

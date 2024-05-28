@@ -100,6 +100,7 @@ class lib_test extends advanced_testcase {
         $record = new stdClass();
         $record->bookingid = $booking->id;
         $record->text = 'Test option';
+        $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course->id;
         $record->description = 'Test description';
 
