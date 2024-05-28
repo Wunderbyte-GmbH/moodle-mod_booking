@@ -91,7 +91,10 @@ class minanswers extends field_base {
         int $updateparam,
         $returnvalue = null): array {
 
-        return parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
+        parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
+        $instance = new minanswers();
+        $changes = $instance->check_for_changes($formdata, $instance);
+        return $changes;
     }
 
     /**
