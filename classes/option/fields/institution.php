@@ -97,7 +97,8 @@ class institution extends field_base {
         $key = fields_info::get_class_name(static::class);
         $value = $formdata->{$key} ?? '';
 
-        $changes = self::check_for_changes($formdata, $key);
+        $instance = new institution();
+        $changes = $instance->check_for_changes($formdata, $instance, null, $key, $value);
 
         if (!empty($value)) {
             $newoption->{$key} = $value;
@@ -106,36 +107,6 @@ class institution extends field_base {
         }
 
         // We can return a warning message here.
-        return $changes;
-    }
-
-    /**
-     * Check if there is a difference between the former and the new values of the formdata.
-     *
-     * @param mixed $formdata
-     * @param mixed $key
-     *
-     * @return array
-     *
-     */
-    private static function check_for_changes($formdata, $key): array {
-
-        $changes = [];
-        $value = $formdata->{$key} ?? '';
-        // Check if there were changes and return these.
-        if (!empty($formdata->id) && !empty($value)) {
-            $settings = singleton_service::get_instance_of_booking_option_settings($formdata->id);
-            $valueclass = new stdClass;
-            self::set_data($valueclass, $settings);
-            if ($valueclass->{$key} != $value) {
-                $changes = [
-                    'changes' => [
-                        'oldvalue' => $valueclass->{$key},
-                        'newvalue' => $value,
-                    ],
-                ];
-            }
-        }
         return $changes;
     }
 
