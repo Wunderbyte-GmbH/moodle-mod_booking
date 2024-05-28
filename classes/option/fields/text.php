@@ -96,10 +96,10 @@ class text extends field_base {
 
         parent::prepare_save_field($formdata, $newoption, $updateparam, '');
 
-        $valueclass = new stdClass;
-        $valueclass->id = $formdata->id;
+        $mockdata = new stdClass;
+        $mockdata->id = $formdata->id;
         $instance = new text();
-        $changes = $instance->check_for_changes($formdata, $instance, $valueclass);
+        $changes = $instance->check_for_changes($formdata, $instance, $mockdata);
 
         return $changes;
     }
