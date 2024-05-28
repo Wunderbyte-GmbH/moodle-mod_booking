@@ -116,25 +116,26 @@ class addtocalendar extends field_base {
                 }
             }
         }
+        parent::prepare_save_field($formdata, $newoption, $updateparam, '');
 
-        return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
+        $instance = new addtocalendar();
+        $changes = $instance->check_for_changes($formdata, $instance);
+
+        return $changes;
     }
 
     /**
      * Save data
      * @param stdClass $data
      * @param stdClass $option
-     * @return array
+     * @return void
      * @throws \dml_exception
      */
-    public static function save_data(stdClass &$data, stdClass &$option): array {
+    public static function save_data(stdClass &$data, stdClass &$option) {
 
         global $DB;
 
-        $changes = [];
-
         if (isset($data->addtocalendar) && $data->addtocalendar == 1) {
-
             $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
             // We need to make sure not to run the calendar function on a tmeplate without a cmid.
             if (!empty($settings->cmid) &&
@@ -146,8 +147,7 @@ class addtocalendar extends field_base {
                     calendar::booking_optiondate_add_to_cal($settings->cmid, $option->id, $optiondate, $settings->calendarid);
                 }
             }
-        }
-        return $changes;
+        };
     }
 
     /**
