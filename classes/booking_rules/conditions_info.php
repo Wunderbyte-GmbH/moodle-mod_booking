@@ -60,16 +60,12 @@ class conditions_info {
             $conditionsforselect[$shortclassname] = $condition->get_name_of_condition();
         }
 
-        $mform->registerNoSubmitButton('btn_bookingruleconditiontype');
         $buttonargs = ['style' => 'visibility:hidden;'];
-        $categoryselect = [
-            $mform->createElement('select', 'bookingruleconditiontype',
-            get_string('bookingrulecondition', 'mod_booking'), $conditionsforselect),
-            $mform->createElement('submit', 'btn_bookingruleconditiontype', get_string('bookingrulecondition', 'mod_booking'),
-                $buttonargs),
-        ];
-        $mform->addGroup($categoryselect, 'bookingruleconditiontype', get_string('bookingrulecondition', 'mod_booking'),
-            [' '], false);
+        $mform->registerNoSubmitButton('btn_bookingruleconditiontype');
+        $mform->addElement('select', 'bookingruleconditiontype',
+            get_string('bookingrulecondition', 'mod_booking'), $conditionsforselect);
+        $mform->addElement('submit', 'btn_bookingruleconditiontype',
+            get_string('bookingrulecondition', 'mod_booking'), $buttonargs);
         $mform->setType('btn_bookingruleconditiontype', PARAM_NOTAGS);
 
         if (isset($ajaxformdata['bookingruleconditiontype'])) {
