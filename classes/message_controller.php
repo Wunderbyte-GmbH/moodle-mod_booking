@@ -465,6 +465,7 @@ class message_controller {
 
             if (!empty($bookingsettings->sendmail)) {
                 $sendtask = new send_confirmation_mails();
+                $this->messagedata->optionid = $this->optionid;
                 $sendtask->set_custom_data($this->messagedata);
                 \core\task\manager::queue_adhoc_task($sendtask);
             }
