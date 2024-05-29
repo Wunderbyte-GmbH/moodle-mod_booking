@@ -241,7 +241,7 @@ $string['bookingoption_booked'] = 'Buchungsoption durchgeführt';
 $string['bookingoption_freetobookagain'] = 'Wieder freie Plätze';
 $string['bookingoption_completed'] = 'Buchungsoption abgeschlossen';
 $string['bookingoption_created'] = 'Buchungsoption angelegt';
-$string['bookingoption_updated'] = 'Buchungsoption upgedatet';
+$string['bookingoption_updated'] = 'Buchungsoption aktualisiert';
 $string['bookingoption_deleted'] = 'Buchungsoption gelöscht';
 $string['bookinginstance_updated'] = 'Buchungsinstanz upgedated';
 $string['records_imported'] = 'Buchungsoptionen importiert via CSV';
@@ -606,6 +606,7 @@ $string['helptext:placeholders'] = '<div class="alert alert-info" style="margin-
 $string['bookingdetails'] = "Buchungsdetails";
 $string['gotobookingoption'] = "Buchungslink";
 $string['bookinglink'] = "Buchungsinstanzlink";
+$string['changes'] = "Änderungen";
 $string['coursecalendarurl'] = "Kurskalenderlink";
 $string['courselink'] = "Kurslink";
 $string['duration'] = "Dauer";
