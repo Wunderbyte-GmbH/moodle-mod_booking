@@ -3537,7 +3537,8 @@ class booking_option {
         // Change notification will be sent (if active).
         // Action logs will be stored ("Shwo recent updates..." link on bottom of option form).
         $bu = new booking_utils();
-        if ($changes = $bu->booking_option_get_changes($originaloption, $newoption)) {
+        $changes = array_merge($feedbackformchanges, $feedbackpostchanges);
+        if (!empty($changes)) {
 
             $cmid = $originaloption->cmid ?? 0;
 
