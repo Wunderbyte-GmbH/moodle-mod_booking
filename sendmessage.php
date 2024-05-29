@@ -123,6 +123,7 @@ function send_custom_message(int $optionid, string $subject, string $message, ar
                 'bookingid' => $bookingid,
                 'subject' => $subject,
                 'message' => $message,
+                'objectid' => $optionid,
             ],
         ]);
         $event->trigger();
@@ -147,6 +148,7 @@ function send_custom_message(int $optionid, string $subject, string $message, ar
                     'bookingid' => $bookingid,
                     'subject' => $subject,
                     'message' => $message,
+                    'objectid' => $optionid,
                 ],
             ]);
             $event->trigger();

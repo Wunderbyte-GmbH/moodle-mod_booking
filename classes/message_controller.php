@@ -432,9 +432,11 @@ class message_controller {
                         'context' => context_system::instance(),
                         'userid' => $this->messagedata->userto->id,
                         'relateduserid' => $this->messagedata->userfrom->id,
+                        'objectid' => $this->optionid ?? 0,
                         'other' => [
                             'messageparam' => $this->messageparam,
                             'subject' => $this->messagedata->subject,
+                            'objectid' => $this->optionid ?? 0,
                         ],
                     ]);
                     $event->trigger();
