@@ -552,7 +552,7 @@ class singleton_service {
             $instance->cohorts[$cohortid] = $cohort;
         }
 
-        return $instance->cohorts[$cohortid];
+        return $instance->cohorts[$cohortid] ?: new stdClass();
     }
 
     /**
