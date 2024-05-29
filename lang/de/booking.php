@@ -1964,12 +1964,14 @@ $string['bo_cond_customform_url_error'] = "Die URL ist nicht valide oder beginnt
 $string['bo_cond_customform_numbers_error'] = "Bitte trage eine gültige Zahl an Tagen ein.";
 $string['bo_cond_customform_mail'] = "E-Mail";
 $string['bo_cond_customform_mail_error'] = "Die E-Mail ist nicht richtig.";
+$string['bo_cond_customform_fully_booked'] = 'Die Option "{$a}" ist bereits voll gebucht.';
 $string['select'] = "DropDown Menü";
 $string['formtype'] = "Formulartyp";
 $string['bo_cond_customform_label'] = "Bezeichnung";
 $string['bo_cond_customform_notempty'] = 'Darf nicht leer sein';
 $string['bo_cond_customform_value'] = 'Wert';
-$string['bo_cond_customform_value_help'] = 'Wenn ein DropDown Menü ausgewählt ist bitte einen Wert pro Zeile eingeben. Die Werte und angezeigte Werte können getrennt eingegeben werden, also z.b. "1 => Mein erster Wert" usw.';
+$string['bo_cond_customform_value_help'] = 'Wenn ein DropDown Menü ausgewählt ist bitte einen Wert pro Zeile eingeben. Die Werte und angezeigte Werte können getrennt eingegeben werden, also z.b. "1 => Mein erster Wert => anzahl_der_möglichkeiten" usw.';
+$string['bo_cond_customform_available'] = 'verfügbar';
 
 // Teacher_performed_units_report.php.
 $string['error:wrongteacherid'] = 'Fehler: Für die angegebene "teacherid" wurde kein:e Nutzer:in gefunden.';

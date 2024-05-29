@@ -169,17 +169,32 @@ class customform_form extends dynamic_form {
                         break;
                     case 'select':
                         // Create the array.
+                        $identifier = 'customform_select_' . $counter;
                         $lines = explode(PHP_EOL, $formelementvalue->value);
                         $options = [];
                         foreach ($lines as $line) {
                             $linearray = explode(' => ', $line);
                             if (count($linearray) > 1) {
                                 $options[$linearray[0]] = $linearray[1];
+                                if (count($linearray) > 2) {
+                                    $ba = singleton_service::get_instance_of_booking_answers($settings);
+                                    $expectedvalue = $linearray[0];
+                                    $filteredba = array_filter($ba->usersonlist, function($userbookings) use ($identifier, $expectedvalue) {
+                                        return isset($userbookings->$identifier) && $userbookings->$identifier === $expectedvalue;
+                                    });
+                                    $leftover = $linearray[2] - count($filteredba);
+                                    if ( $leftover == 0) {
+                                        unset($options[$linearray[0]]);
+                                    } else {
+                                        $options[$linearray[0]] .= ', ' . $leftover  .
+                                            ' ' . get_string('bo_cond_customform_available', 'mod_booking');
+                                    }
+                                }
                             } else {
                                 $options[] = $line;
                             }
                         }
-                        $mform->addElement('select', 'customform_select_' . $counter,
+                        $mform->addElement('select', $identifier,
                         $formelementvalue->label ?? "Label " . $counter, $options);
                         break;
                     case 'url':

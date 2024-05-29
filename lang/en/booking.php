@@ -2096,11 +2096,13 @@ $string['bo_cond_customform_url_error'] = "The URL is not valid or does not star
 $string['bo_cond_customform_numbers_error'] = "Please insert a valid number of days.";
 $string['bo_cond_customform_mail'] = "E-Mail";
 $string['bo_cond_customform_mail_error'] = "The email address is invalid.";
+$string['bo_cond_customform_fully_booked'] = 'The option "{$a}" is already fully booked.';
 $string['formtype'] = "Type of form";
 $string['bo_cond_customform_label'] = "Label";
 $string['bo_cond_customform_notempty'] = 'Must not be empty';
 $string['bo_cond_customform_value'] = 'Value';
-$string['bo_cond_customform_value_help'] = 'When a dropdown menu is selected, please enter one value per line. The values and displayed values can be entered separately, for example, "1 => My first value" etc.';
+$string['bo_cond_customform_value_help'] = 'When a dropdown menu is selected, please enter one value per line. The values and displayed values can be entered separately, for example, "1 => My first value => number_of_availability" etc.';
+$string['bo_cond_customform_available'] = 'available';
 
 // Teacher_performed_units_report.php.
 $string['error:wrongteacherid'] = 'Error: No user could be found for the provided "teacherid".';

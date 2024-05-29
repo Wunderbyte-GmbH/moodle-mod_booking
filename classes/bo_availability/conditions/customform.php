@@ -533,4 +533,26 @@ class customform implements bo_condition {
             return [];
         }
     }
+
+    /**
+     * Appends the customform values to answer.
+     * @param object $answer
+     * @return object
+     */
+    public static function append_customform_elements($answer) {
+        if (isset($answer->json)) {
+            $answerjson = json_decode($answer->json);
+            if (
+                isset($answerjson->condition_customform) &&
+                !empty($answerjson->condition_customform)
+            ) {
+                foreach ($answerjson->condition_customform as $key => $value) {
+                    if (str_contains($key, 'customform_')) {
+                        $answer->$key = $value;
+                    }
+                }
+            }
+        }
+        return $answer;
+    }
 }
