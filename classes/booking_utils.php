@@ -448,42 +448,6 @@ class booking_utils {
     }
 
     /**
-     * Helper function to return an array containing all relevant session update changes.
-     *
-     * @param stdClass $oldoptiondate the original session object
-     * @param stdClass $newoptiondate the new session object
-     *
-     * @return array an array containing the changes that have been made
-     */
-    public function booking_optiondate_get_changes($oldoptiondate, $newoptiondate) {
-        $changes = [];
-
-        if (isset($oldoptiondate->coursestarttime)
-            && $oldoptiondate->coursestarttime != $newoptiondate->coursestarttime) {
-            $changes[] = [
-                'info' => get_string('coursestarttime', 'booking') . get_string('changeinfochanged', 'booking'),
-                'fieldname' => 'coursestarttime',
-                'oldvalue' => $oldoptiondate->coursestarttime,
-                'newvalue' => $newoptiondate->coursestarttime,
-            ];
-        }
-
-        if (isset($oldoptiondate->courseendtime)
-            && $oldoptiondate->courseendtime != $newoptiondate->courseendtime) {
-            $changes[] = [
-                'info' => get_string('courseendtime', 'booking') . get_string('changeinfochanged', 'booking'),
-                'fieldname' => 'courseendtime',
-                'oldvalue' => $oldoptiondate->courseendtime,
-                'newvalue' => $newoptiondate->courseendtime,
-            ];
-        }
-
-        return [
-            'changes' => $changes,
-        ];
-    }
-
-    /**
      * Helper function to hide all option user events.
      *
      * We need this if we switch from option to multisession.
