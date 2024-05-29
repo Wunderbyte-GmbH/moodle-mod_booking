@@ -67,6 +67,9 @@ class campaign_customfield implements booking_campaign {
     /** @var string $fieldvalue */
     public $fieldvalue = '';
 
+    /** @var bool $userspecificprice */
+    public $userspecificprice = false;
+
     /**
      * Load json data from DB into the object.
      * @param stdClass $record a campaign record from DB

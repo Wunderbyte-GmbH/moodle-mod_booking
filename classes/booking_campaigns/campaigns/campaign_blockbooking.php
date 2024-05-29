@@ -74,6 +74,9 @@ class campaign_blockbooking implements booking_campaign {
     /** @var string $hascapability */
     public $hascapability = '';
 
+    /** @var bool $userspecificprice */
+    public $userspecificprice = false;
+
     /**
      * Load json data from DB into the object.
      * @param stdClass $record a campaign record from DB

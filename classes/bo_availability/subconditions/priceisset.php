@@ -83,7 +83,7 @@ class priceisset implements bo_subcondition {
         $isavailable = false;
 
         // Only if there is no price on the option, we can return true.
-        $priceitems = price::get_prices_from_cache_or_db('option', $settings->id);
+        $priceitems = price::get_prices_from_cache_or_db('option', $settings->id, $userid);
 
         if (empty($settings->jsonobject->useprice)) {
 

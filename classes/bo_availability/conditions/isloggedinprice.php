@@ -196,7 +196,13 @@ class isloggedinprice implements bo_condition {
     public function render_button(booking_option_settings $settings,
         int $userid = 0, bool $full = false, bool $not = false, bool $fullwidth = true): array {
 
-        $priceitems = price::get_prices_from_cache_or_db('option', $settings->id);
+        global $USER;
+
+        if (empty($userid)) {
+            $userid = $USER->id;
+        }
+
+        $priceitems = price::get_prices_from_cache_or_db('option', $settings->id, $userid);
         $sortedpriceitems = [];
         foreach ($priceitems as $priceitem) {
 

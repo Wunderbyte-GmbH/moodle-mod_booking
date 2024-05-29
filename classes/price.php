@@ -689,7 +689,7 @@ class price {
 
         $categoryidentifier = singleton_service::get_pricecategory_for_user($user);
 
-        $prices = self::get_prices_from_cache_or_db($area, $itemid);
+        $prices = self::get_prices_from_cache_or_db($area, $itemid, $user->id);
 
         if (empty($prices)) {
             return [];
@@ -775,52 +775,78 @@ class price {
 
     /**
      * Return the cache or DB records of all prices for the option.
+     * This function also applies price changes from campaigns.
+     * As these changes can now be also individually adjusted, we take care of this, too.
      *
      * @param string $area
      * @param int $itemid
+     * @param int $userid
      * @return array
      */
-    public static function get_prices_from_cache_or_db(string $area, int $itemid): array {
-        global $DB;
+    public static function get_prices_from_cache_or_db(string $area, int $itemid, int $userid = 0): array {
+        global $DB, $USER;
+
+        if (empty($userid)) {
+            $userid = $USER->id;
+        }
 
         $cache = \cache::make('mod_booking', 'cachedprices');
         // We need to combine area with itemid for uniqueness!
-        $cachedprices = $cache->get($area . $itemid);
 
-        // If we don't have the cache, we need to retrieve the value from db.
-        if (!$cachedprices) {
+        $usercachekey = $area . $itemid . "_" . $userid;
+        $cachekey = $area . $itemid;
 
-            if (!$prices = $DB->get_records('booking_prices', ['area' => $area, 'itemid' => $itemid])) {
-                $cache->set($area . $itemid, true);
+        $cacheduserprices = $cache->get($usercachekey);
+
+        // For speed, we have cached prices for all and individual prices as well.
+        // If we have a cached user price, we can return it right away.
+        // If not, we look for the price for all.
+        if ($cacheduserprices === true) {
+            return [];
+        } else if ($cacheduserprices) {
+            $prices = $cacheduserprices;
+        } else {
+            // Here, we haven't found a user price. We still might have a general price.
+            $cachedprices = $cache->get($cachekey);
+            if ($cachedprices === true) {
+                // We set the user price, to know the next time.
+                $cache->set($usercachekey, true);
                 return [];
-            }
+            } else if ($cachedprices) {
+                $prices = $cachedprices;
 
-            // Currently, we only have campaigns for booking options.
-            if ($area === 'option') {
-                // Check if there are active campaigns.
-                // If yes, we need to apply the price factor.
-                $campaigns = campaigns_info::get_all_campaigns();
-                $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
-                foreach ($campaigns as $camp) {
-                    /** @var booking_campaign $campaign */
-                    $campaign = $camp;
-                    if ($campaign->campaign_is_active($itemid, $settings)) {
-                        foreach ($prices as &$price) {
-                            $price->price = $campaign->get_campaign_price($price->price);
-                            // Render all prices to 2 fixed decimals.
-                            $price->price = number_format(round((float) $price->price , 2), 2, '.', '');
-                            // Campaign price factor has been applied.
-                        }
-                    }
+                // At this point, we have the general prices, but we might have a user specific camapaign override.
+                // Save the user specific prices.
+                self::apply_campaigns($itemid, $prices, true);
+                $cache->set($usercachekey, $cachedprices);
+            } else {
+                // Here, we haven't found user specific prices and we haven't found general prices.
+                // Therefore, we need to have a look in the DB.
+                if (!$prices = $DB->get_records('booking_prices', ['area' => $area, 'itemid' => $itemid])) {
+                    // If there are no prices at all, we can't have a campaign either.
+                    $cache->set($cachekey, true);
+                    $cache->set($usercachekey, true);
+                    return [];
+                }
+
+                // Here, we can first add the prices to campaigns that have no user specific data.
+                // Currently, we only have campaigns for booking options.
+                if ($area === 'option') {
+                    // Check if there are active campaigns.
+                    // If yes, we need to apply the price factor.
+                    // Save the general prices.
+                    self::apply_campaigns($itemid, $prices, false);
+                    $cache->set($cachekey, $prices);
+
+                    // Save the user specific prices.
+                    self::apply_campaigns($itemid, $prices, true);
+                    $cache->set($usercachekey, $prices);
+
+                } else {
+                    $cache->set($cachekey, $prices);
+                    $cache->set($usercachekey, $prices);
                 }
             }
-
-            $data = json_encode($prices);
-            $cache->set($area . $itemid, $data);
-        } else if ($cachedprices === true) {
-            return [];
-        } else {
-            $prices = json_decode($cachedprices);
         }
         return (array) $prices;
     }
@@ -941,5 +967,35 @@ class price {
         }
         // It's not in the time scope.
         return false;
+    }
+
+    /**
+     * Apply the campaigns to the prices.
+     * @param int $itemid
+     * @param array $prices
+     * @param bool $userspecificprice
+     * @return void
+     */
+    public static function apply_campaigns(int $itemid, array &$prices, $userspecificprice = false) {
+
+        $campaigns = campaigns_info::get_all_campaigns();
+        $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
+        // First we run through all campaigns with no user specific prices.
+        foreach ($campaigns as $camp) {
+            /** @var booking_campaign $campaign */
+            $campaign = $camp;
+
+            if ($campaign->userspecificprice !== $userspecificprice) {
+                continue;
+            }
+            if ($campaign->campaign_is_active($itemid, $settings)) {
+                foreach ($prices as &$price) {
+                    $price->price = $campaign->get_campaign_price($price->price);
+                    // Render all prices to 2 fixed decimals.
+                    $price->price = number_format(round((float) $price->price , 2), 2, '.', '');
+                    // Campaign price factor has been applied.
+                }
+            }
+        }
     }
 }
