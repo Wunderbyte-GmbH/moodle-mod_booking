@@ -205,7 +205,7 @@ abstract class field_base implements fields {
         mixed $value = ''): array {
         $excludeclassesfromtrackingchanges = [
             'price',
-            'addtocalendar'
+            'addtocalendar',
         ];
         $classname = fields_info::get_class_name(static::class);
         if (in_array($classname, $excludeclassesfromtrackingchanges)) {
