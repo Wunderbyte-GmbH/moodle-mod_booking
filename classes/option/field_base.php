@@ -234,10 +234,12 @@ abstract class field_base implements fields {
                 $oldvalue = $mockdata->{$key};
                 $newvalue = $value;
             }
-
+            $infotext = get_string($classname, 'booking') . get_string('changeinfochanged', 'booking');
             if ($oldvalue != $newvalue) {
                 $changes = [
                     'changes' => [
+                        'info' => $infotext,
+                        'fieldname' => $classname,
                         'oldvalue' => $oldvalue,
                         'newvalue' => $newvalue,
                     ],
