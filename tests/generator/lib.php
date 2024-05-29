@@ -260,6 +260,7 @@ class mod_booking_generator extends testing_module_generator {
                                                                     'context' => $context,
                                                                     'objectid' => $record->optionid,
                                                                     'userid' => $USER->id,
+                                                                    'relateduserid' => $USER->id,
                                                                 ]);
         $event->trigger();
 

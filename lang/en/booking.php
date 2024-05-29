@@ -609,6 +609,7 @@ $string['helptext:placeholders'] = '<div class="alert alert-info" style="margin-
 $string['bookingdetails'] = "bookingdetails";
 $string['gotobookingoption'] = "gotobookingoption";
 $string['bookinglink'] = "bookinglink";
+$string['changes'] = "changes";
 $string['coursecalendarurl'] = "coursecalendarurl";
 $string['courselink'] = "courselink";
 $string['duration'] = "duration";

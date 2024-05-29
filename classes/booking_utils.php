@@ -271,6 +271,7 @@ class booking_utils {
                         'context' => $context,
                         'objectid' => $optionid,
                         'userid' => $USER->id,
+                        'relateduserid' => $USER->id,
                         'other' => [
                             'changes' => $changes ?? '',
                         ],

@@ -173,6 +173,7 @@ class subbookings_info {
                                                                     'context' => $context,
                                                                     'objectid' => $data->optionid,
                                                                     'userid' => $USER->id,
+                                                                    'relateduserid' => $USER->id,
                                                                 ]);
         $event->trigger();
 
