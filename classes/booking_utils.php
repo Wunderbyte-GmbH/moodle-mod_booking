@@ -246,19 +246,6 @@ class booking_utils {
             return;
         }
 
-        // If changes concern only the add to calendar_field, we don't want to send a mail.
-        $index = null;
-        $addtocalendar = 0;
-        foreach ($changes as $key => $value) {
-            if (isset($value['fieldname']) && $value['fieldname'] == 'addtocalendar') {
-                $addtocalendar = $value['newvalue'];
-                $index = $key;
-            }
-        }
-        if ($index !== null) {
-            array_splice($changes, $key, 1);
-        }
-
         $bo = singleton_service::get_instance_of_booking_option($cmid, $optionid);
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
         $sendmail = $bookingsettings->sendmail ?? false;
@@ -274,11 +261,10 @@ class booking_utils {
             }
         }
 
-        // Todo: We could delete all calendar entries of this option here, if addtocalendar is 0.
-        // But we are not sure if it's a good idea.
+        $changes = $this->prepare_changes_array($changes);
 
-        // We trigger the event only if we have real changes OR if we set the calendar entry to 1.
-        if (count($changes) > 0 || $addtocalendar == 1) {
+        // We trigger the event only if we have changes.
+        if (count($changes) > 0) {
             // Also, we need to trigger the bookingoption_updated event, in order to update calendar entries.
             $event = bookingoption_updated::create(
                 [
@@ -294,6 +280,30 @@ class booking_utils {
 
             cache_helper::purge_by_event('setbackeventlogtable');
         }
+    }
+
+    private function prepare_changes_array(array $changes): array {
+
+        $newchanges = [];
+        foreach ($changes as $class => $change) {
+            if (empty($change)) {
+                continue;
+            }
+            if (isset($change['changes'])) {
+                // Is there something to check for?
+                $newchanges[] = $change['changes'];
+
+            } else {
+                foreach ($change['changes'] as $field => $change) {
+                    // For classes that return values of multiple fields.
+                    if (isset($change['changes'])) {
+                        // Is there something to check for?
+                        $newchanges[] = $change['changes'];
+                    }
+                }
+            }
+        }
+        return $newchanges;
     }
 
     /**
