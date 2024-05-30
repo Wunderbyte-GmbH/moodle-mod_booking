@@ -178,7 +178,7 @@ class send_reminder_mails_test extends advanced_testcase {
         // Checking that the 1st event - message to student 1 - contains the expected values.
         $this->assertInstanceOf('\mod_booking\event\message_sent', $events[0]);
         $this->assertEquals(context_system::instance(), $events[0]->get_context());
-        $this->assertNull($events[0]->objectid);
+        $this->assertNotNull($events[0]->objectid);
         $this->assertEquals("sent", $events[0]->action);
         $this->assertEquals($user1->id, $events[0]->userid);
         $this->assertEquals("Your booking will start soon", $events[0]->other["subject"]);
@@ -196,7 +196,7 @@ class send_reminder_mails_test extends advanced_testcase {
         // Checking that the 3rd event - message to student 2 - contains the expected values.
         $this->assertInstanceOf('\mod_booking\event\message_sent', $events[2]);
         $this->assertEquals(context_system::instance(), $events[2]->get_context());
-        $this->assertNull($events[2]->objectid);
+        $this->assertNotNull($events[2]->objectid);
         $this->assertEquals("sent", $events[2]->action);
         $this->assertEquals($user1->id, $events[2]->userid);
         $this->assertEquals("Your booking will start soon", $events[0]->other["subject"]);
@@ -214,7 +214,7 @@ class send_reminder_mails_test extends advanced_testcase {
         // Checking that the 5th event - message to teacher 2 - contains the expected values.
         $this->assertInstanceOf('\mod_booking\event\message_sent', $events[4]);
         $this->assertEquals(context_system::instance(), $events[4]->get_context());
-        $this->assertNull($events[4]->objectid);
+        $this->assertNotNull($events[4]->objectid);
         $this->assertEquals("sent", $events[4]->action);
         $this->assertEquals($user2->id, $events[4]->userid);
         $this->assertEquals("Your booking will start soon", $events[4]->other["subject"]);
