@@ -32,14 +32,17 @@ Feature: In a booking delete
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Delete this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I wait until the page is ready
-    Then I should see "Do you really want to delete this booking option?"
+    And I should see "Do you really want to delete this booking option?"
     And I click on "Continue" "button"
     And I wait until the page is ready
     And "//div[@id, 'allbookingoptionstable_r1']" "xpath_element" should not exist
-    ## Next step(s) cause faiure:
-    ## Then I trigger cron
-    ## And I wait "1" seconds
-    ## And I run all adhoc tasks
+    And I log out
+    When I log in as "admin"
+    And I trigger cron
+    And I run all adhoc tasks
+    And I visit "/report/loglive/index.php"
+    Then I should see "Booking option deleted"
+    And I log out
 
   @javascript
   Scenario: Delete user from booking option as teacher
@@ -51,9 +54,14 @@ Feature: In a booking delete
     And I click on "Add" "button"
     And I follow "<< Back to responses"
     And I wait until the page is ready
-    Then I click on "selectall" "checkbox"
+    And I click on "selectall" "checkbox"
     And I click on "Delete responses" "button"
-    ## Next step(s) cause faiure:
-    ## Then I trigger cron
-    ## And I wait "1" seconds
-    ## And I run all adhoc tasks
+    When I log in as "admin"
+    And I trigger cron
+    And I run all adhoc tasks
+    And I visit "/report/loglive/index.php"
+    Then I should see "The user \"Teacher 1 (ID:"
+    And I should see "cancelled \"Student 1 (ID:"
+    And I should see "cancelled \"Student 2 (ID:"
+    And I should see "from \"New option (ID:"
+    And I log out
