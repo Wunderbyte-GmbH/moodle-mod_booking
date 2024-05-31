@@ -334,7 +334,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And I log out
 
   ## @javascript
-  Scenario: Booking rule for: ndays before booking course start time
+  Scenario: Booking rule for: a day before booking course start time and after closing time
     Given I log in as "admin"
     And the following config values are set as admin:
       | config        | value       |
@@ -343,15 +343,18 @@ Feature: Create global booking rules as admin and insure they are working.
     And the following "mod_booking > rules" exist:
       | conditionname | contextid | conditiondata     | name       | actionname | actiondata                                                                     | rulename        | ruledata                                   |
       | select_users  | 1         | {"userids":["2"]} | 1daybefore | send_mail  | {"subject":"1daybefore","template":"will start tomorrow","templateformat":"1"} | rule_daysbefore | {"days":"1","datefield":"coursestarttime"} |
+      | select_users  | 1         | {"userids":["2"]} | 1dayafter  | send_mail  | {"subject":"1dayafter","template":"was ended yesterday","templateformat":"1"}  | rule_daysbefore | {"days":"-1","datefield":"courseendtime"}  |
     ## It is important to setup next day exactly in minutes
     And the following "mod_booking > options" exist:
-      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1   | courseendtime_1 |
-      | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +1440 minutes ## | ## +3 days ##   |
+      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1   | courseendtime_1       |
+      | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +1440 minutes ## | ## +3 days ##         |
+      | BookingCMP | Option-tennis   | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## -3 days ##       | ## -1440 minutes ##   |
     And I am on the "BookingCMP" Activity page
     And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     And I trigger cron
     And I visit "/report/loglive/index.php"
     And I wait "1" seconds
     And I should see "Custom message: An e-mail with subject '1daybefore' has been sent to user with id: '2'"
+    And I should see "Custom message: An e-mail with subject '1dayafter' has been sent to user with id: '2'"
     ## Logout is mandatory for admin pages to avoid error
     And I log out
