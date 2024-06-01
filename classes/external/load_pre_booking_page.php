@@ -56,8 +56,7 @@ class load_pre_booking_page extends external_api {
             'optionid' => new external_value(PARAM_INT, 'option id'),
             'userid' => new external_value(PARAM_INT, 'user id', VALUE_DEFAULT, 0),
             'pagenumber' => new external_value(PARAM_INT, 'number of page we want to load'),
-            ]
-        );
+            ]);
     }
 
     /**
@@ -73,11 +72,13 @@ class load_pre_booking_page extends external_api {
         global $USER;
 
         $params = self::validate_parameters(
-                self::execute_parameters(),
-                ['optionid' => $optionid,
+            self::execute_parameters(),
+            [
+                'optionid' => $optionid,
                 'userid' => $userid,
                 'pagenumber' => $pagenumber,
-                ]);
+            ]
+        );
 
         $result = bo_info::load_pre_booking_page($params['optionid'], $params['pagenumber'], $params['userid']);
 
@@ -91,20 +92,23 @@ class load_pre_booking_page extends external_api {
      */
     public static function execute_returns(): external_function_parameters {
         return new external_function_parameters(
-                [
-                    'json' => new external_value(
-                        PARAM_RAW,
-                        'The data object in jsonformat to render the content.',
-                        VALUE_REQUIRED),
-                    'template' => new external_value(
-                        PARAM_RAW,
-                        'The name of the template which is needed to render the content.',
-                        VALUE_REQUIRED),
-                    'buttontype' => new external_value(
-                        PARAM_INT,
-                        '0 for no button, 1 for continue, 2 for last button.',
-                        VALUE_REQUIRED),
-                ]
+            [
+                'json' => new external_value(
+                    PARAM_RAW,
+                    'The data object in jsonformat to render the content.',
+                    VALUE_REQUIRED
+                ),
+                'template' => new external_value(
+                    PARAM_RAW,
+                    'The name of the template which is needed to render the content.',
+                    VALUE_REQUIRED
+                ),
+                'buttontype' => new external_value(
+                    PARAM_INT,
+                    '0 for no button, 1 for continue, 2 for last button.',
+                    VALUE_REQUIRED
+                ),
+            ]
         );
     }
 }

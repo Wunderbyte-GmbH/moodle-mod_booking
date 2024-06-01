@@ -425,6 +425,7 @@ export const loadPreBookingPage = (
             // Will always be 1, if shopping cart is not installed!
             if (response.success == 1
                 || response.success == 5 // Already booked, we need this for subbokings.
+                || response.success == 0 // Already in cart, we need this for subbokings.
             ) {
                 Ajax.call([{
                     methodname: "mod_booking_load_pre_booking_page",
@@ -456,6 +457,8 @@ export const loadPreBookingPage = (
                 }]);
             } else {
 
+                // eslint-disable-next-line no-console
+                console.log('closeModal');
                 closeModal(optionid, false);
                 closeInline(optionid, false);
 
@@ -617,6 +620,9 @@ function returnVisibleElement(optionid, uniquid, appendedSelector) {
  * @param {int} userid
  */
 export function continueToNextPage(optionid, userid) {
+
+    // eslint-disable-next-line no-console
+    console.log('continueToNextPage', optionid, userid, currentbookitpage[optionid], totalbookitpages[optionid]);
     if (currentbookitpage[optionid] < totalbookitpages[optionid]) {
         currentbookitpage[optionid]++;
         loadPreBookingPage(optionid, userid);

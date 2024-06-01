@@ -56,14 +56,14 @@ export async function init(shoppingcartisinstalled) {
         // eslint-disable-next-line no-console
         console.log(bookitbutton, continuebutton);
 
-        dynamicForm.addEventListener(dynamicForm.events.FORM_SUBMITTED, e => {
+        dynamicForm.addEventListener(dynamicForm.events.FORM_SUBMITTED, async e => {
             const response = e.detail;
 
             if (response) {
 
-                unblockButtons(id, container);
+                await dynamicForm.load({id: id});
 
-                dynamicForm.load({id: id});
+                unblockButtons(id, container);
             }
         });
 
@@ -164,9 +164,11 @@ function blockButton(button, dynamicForm) {
         button.addEventListener('click', () => {
 
             // eslint-disable-next-line no-console
-            console.log('click');
+            console.log('click', button.dataset.blocked, button.dataset.blocked == true);
 
-            dynamicForm.submitFormAjax();
+            if (button.dataset.blocked === 'true') {
+                dynamicForm.submitFormAjax();
+            }
         });
     }
 }
@@ -182,8 +184,9 @@ function unblockButtons(id, container) {
 
     const bookitbutton = container.closest(SELECTOR.MODALBODY).querySelector(SELECTOR.BOOKINGBUTTON + id);
 
-    if (bookitbutton) {
+    if (bookitbutton && bookitbutton.dataset.blocked === 'true') {
         bookitbutton.dataset.blocked = 'false';
+        bookitbutton.click();
     }
 }
 
