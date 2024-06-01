@@ -206,10 +206,14 @@ export function bookit(itemid, area, userid, data) {
 
                 if (area === 'subbooking') {
                     skipreload = true;
+                } else {
+                    if (currentbookitpage[itemid] < totalbookitpages[itemid]) {
+                        skipreload = true;
+                    }
                 }
 
                 // eslint-disable-next-line no-console
-                console.log('skipreload', skipreload);
+                console.log('skipreload', skipreload, currentbookitpage[itemid], totalbookitpages[itemid]);
 
                 if (!backdrop && !skipreload) {
                     reloadAllTables();
