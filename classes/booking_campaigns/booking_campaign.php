@@ -87,9 +87,10 @@ interface booking_campaign {
     /**
      * Function to apply the campaign price factor.
      * @param float $price the original price
+     * @param int $userid for userspecific campaigns.
      * @return float the new price
      */
-    public function get_campaign_price(float $price): float;
+    public function get_campaign_price(float $price, int $userid = 0): float;
 
     /**
      * Function to apply the logic of the particular campaign.

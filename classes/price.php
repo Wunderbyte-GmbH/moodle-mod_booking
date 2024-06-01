@@ -817,7 +817,7 @@ class price {
 
                 // At this point, we have the general prices, but we might have a user specific camapaign override.
                 // Save the user specific prices.
-                self::apply_campaigns($itemid, $prices, true);
+                self::apply_campaigns($itemid, $prices, $userid);
                 $cache->set($usercachekey, $cachedprices);
             } else {
                 // Here, we haven't found user specific prices and we haven't found general prices.
@@ -835,11 +835,11 @@ class price {
                     // Check if there are active campaigns.
                     // If yes, we need to apply the price factor.
                     // Save the general prices.
-                    self::apply_campaigns($itemid, $prices, false);
+                    self::apply_campaigns($itemid, $prices, 0);
                     $cache->set($cachekey, $prices);
 
                     // Save the user specific prices.
-                    self::apply_campaigns($itemid, $prices, true);
+                    self::apply_campaigns($itemid, $prices, $userid);
                     $cache->set($usercachekey, $prices);
 
                 } else {
@@ -973,10 +973,10 @@ class price {
      * Apply the campaigns to the prices.
      * @param int $itemid
      * @param array $prices
-     * @param bool $userspecificprice
+     * @param int $userid
      * @return void
      */
-    public static function apply_campaigns(int $itemid, array &$prices, $userspecificprice = false) {
+    public static function apply_campaigns(int $itemid, array &$prices, $userid = 0) {
 
         $campaigns = campaigns_info::get_all_campaigns();
         $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
@@ -985,12 +985,14 @@ class price {
             /** @var booking_campaign $campaign */
             $campaign = $camp;
 
+            $userspecificprice = empty($userid) ? false : true;
+
             if ($campaign->userspecificprice !== $userspecificprice) {
                 continue;
             }
             if ($campaign->campaign_is_active($itemid, $settings)) {
                 foreach ($prices as &$price) {
-                    $price->price = $campaign->get_campaign_price($price->price);
+                    $price->price = $campaign->get_campaign_price($price->price, $userid);
                     // Render all prices to 2 fixed decimals.
                     $price->price = number_format(round((float) $price->price , 2), 2, '.', '');
                     // Campaign price factor has been applied.

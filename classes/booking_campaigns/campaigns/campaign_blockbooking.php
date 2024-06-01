@@ -312,11 +312,12 @@ class campaign_blockbooking implements booking_campaign {
     }
 
     /**
-     * Does not apply for this campaign type.
+     * Function to apply the campaign price factor.
      * @param float $price the original price
+     * @param int $userid for userspecific campaigns.
      * @return float the new price
      */
-    public function get_campaign_price(float $price): float {
+    public function get_campaign_price(float $price, int $userid = 0): float {
         return $price;
     }
 

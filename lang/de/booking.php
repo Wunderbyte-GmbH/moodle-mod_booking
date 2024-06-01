@@ -2001,6 +2001,10 @@ $string['campaign_blockbooking'] = 'Bestimmte Buchungen blockieren';
 $string['campaign_blockbooking_descriptiontext'] = 'Betrifft: Benutzerdefiniertes Buchungsoptionsfeld "{$a->fieldname}"
 mit dem Wert "{$a->fieldvalue}".';
 
+$string['userspecificcampaignwarning'] = "Wenn Sie ein unten ein benutzerdefiniertes User Profilfeld auswählen, wird der Preis-Teil der Kampagne nur für jene NutzerInnen wirksam, die auch dieses Feld ausgewählt haben.";
+$string['customuserprofilefield'] = "Benutzerdefiniertes User Profilfeld";
+$string['customuserprofilefield_help'] = "Wenn Sie hier ein Feld auswählen, ist der Preis-Teil der Kampagne nur für NutzerInnen wirksam, die auch einen bestimmten Wert in einem bestimmten Profilfeld haben.";
+
 $string['blockoperator'] = 'Operator';
 $string['blockoperator_help'] = '<b>Blockiere über</b> ... Sobald der angegebene Prozentsatz an Buchungen erreicht ist, wird das Online-Buchen geblockt,
 es kann dann nur noch an der Kassa oder durch einen Admin gebucht werden.<br>

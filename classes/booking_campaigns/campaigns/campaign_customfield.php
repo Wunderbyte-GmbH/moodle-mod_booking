@@ -67,6 +67,15 @@ class campaign_customfield implements booking_campaign {
     /** @var string $fieldvalue */
     public $fieldvalue = '';
 
+    /** @var string $cpfield */
+    public $cpfield = '';
+
+    /** @var string $operator */
+    public $operator = '';
+
+    /** @var string $textfield */
+    public $textfield = '';
+
     /** @var bool $userspecificprice */
     public $userspecificprice = false;
 
@@ -86,6 +95,15 @@ class campaign_customfield implements booking_campaign {
         $jsonobj = json_decode($record->json);
         $this->fieldname = $jsonobj->fieldname;
         $this->fieldvalue = $jsonobj->fieldvalue;
+
+        if (!empty($jsonobj->cpfield)) {
+
+            $this->userspecificprice = true;
+
+            $this->cpfield = $jsonobj->cpfield ?? 0;
+            $this->operator = $jsonobj->operator ?? '';
+            $this->textfield = $jsonobj->textfield ?? '';
+        }
     }
 
     /**
@@ -158,6 +176,39 @@ class campaign_customfield implements booking_campaign {
             get_string('campaignfieldvalue', 'mod_booking'), $fieldvalues, $options);
         $mform->addHelpButton('fieldvalue', 'campaignfieldvalue', 'mod_booking');
 
+        // Custom user profile field to be checked.
+        $customuserprofilefields = $DB->get_records('user_info_field', null, '', 'id, name, shortname');
+        if (!empty($customuserprofilefields)) {
+            $customuserprofilefieldsarray = [];
+            $customuserprofilefieldsarray[0] = get_string('choose...', 'mod_booking');
+
+            $mform->addElement('static', 'warning', '',
+                get_string('userspecificcampaignwarning', 'mod_booking'));
+
+            // Create an array of key => value pairs for the dropdown.
+            foreach ($customuserprofilefields as $customuserprofilefield) {
+                $customuserprofilefieldsarray[$customuserprofilefield->shortname] = $customuserprofilefield->name;
+            }
+
+            $mform->addElement('select', 'cpfield',
+                get_string('customuserprofilefield', 'mod_booking'), $customuserprofilefieldsarray);
+
+            $mform->addHelpButton('cpfield', 'customuserprofilefield', 'mod_booking');
+
+            $operators = [
+                '=' => get_string('equals', 'mod_booking'),
+                '~' => get_string('contains', 'mod_booking'),
+            ];
+            $mform->addElement('select', 'operator',
+                get_string('blockoperator', 'mod_booking'), $operators);
+            $mform->hideIf('operator', 'cpfield', 'eq', "0");
+
+            $mform->addElement('text', 'textfield',
+                get_string('textfield', 'mod_booking'));
+            $mform->setType('textfield', PARAM_TEXT);
+            $mform->hideIf('textfield', 'cpfield', 'eq', "0");
+        }
+
         $mform->addElement('date_time_selector', 'starttime', get_string('campaignstart', 'mod_booking'));
         $mform->setType('starttime', PARAM_INT);
         $mform->addHelpButton('starttime', 'campaignstart', 'mod_booking');
@@ -204,6 +255,13 @@ class campaign_customfield implements booking_campaign {
 
         $jsonobject->fieldname = $data->fieldname;
         $jsonobject->fieldvalue = $data->fieldvalue;
+
+        if (!empty($data->cpfield)) {
+            $jsonobject->cpfield = $data->cpfield;
+            $jsonobject->operator = $data->operator ?? '';
+            $jsonobject->textfield = $data->textfield ?? '';
+        }
+
         $record->json = json_encode($jsonobject);
 
         $record->name = $data->name;
@@ -244,11 +302,15 @@ class campaign_customfield implements booking_campaign {
         $data->pricefactor = $record->pricefactor;
         $data->limitfactor = $record->limitfactor;
 
-        if ($jsonboject = json_decode($record->json)) {
+        if ($jsonobject = json_decode($record->json)) {
             switch ($record->type) {
                 case MOD_BOOKING_CAMPAIGN_TYPE_CUSTOMFIELD:
-                    $data->fieldname = $jsonboject->fieldname;
-                    $data->fieldvalue = $jsonboject->fieldvalue;
+                    $data->fieldname = $jsonobject->fieldname;
+                    $data->fieldvalue = $jsonobject->fieldvalue;
+
+                    $data->cpfield = $jsonobject->cpfield ?? 0;
+                    $data->operator = $jsonobject->operator ?? '';
+                    $data->textfield = $jsonobject->textfield ?? '';
                     break;
             }
         }
@@ -288,10 +350,31 @@ class campaign_customfield implements booking_campaign {
     /**
      * Function to apply the campaign price factor.
      * @param float $price the original price
+     * @param int $userid for userspecific campaigns.
      * @return float the new price
      */
-    public function get_campaign_price(float $price): float {
-        $campaignprice = $price * $this->pricefactor;
+    public function get_campaign_price(float $price, int $userid = 0): float {
+
+        if (!$this->userspecificprice || empty($userid)) {
+            $campaignprice = $price * $this->pricefactor;
+        } else {
+            $campaignprice = $price;
+            $user = singleton_service::get_instance_of_user($userid);
+            if ($fieldvalue = $user->profile[$this->cpfield]) {
+                switch ($this->operator) {
+                    case '=':
+                        if ($fieldvalue == $this->textfield) {
+                            $campaignprice = $price * $this->pricefactor;
+                        }
+                        break;
+                    case '~':
+                        if ($fieldvalue == $this->textfield) {
+                            $campaignprice = $price * $this->pricefactor;
+                        }
+                        break;
+                }
+            }
+        }
 
         $discountprecision = 2;
 

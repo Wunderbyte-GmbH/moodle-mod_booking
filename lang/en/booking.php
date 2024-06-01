@@ -2132,6 +2132,11 @@ $string['campaign_blockbooking'] = 'Block certain booking options';
 $string['campaign_blockbooking_descriptiontext'] = 'Affects: Booking option custom field "{$a->fieldname}"
 having the value "{$a->fieldvalue}".';
 
+$string['userspecificcampaignwarning'] = "If you choose a user profile field here beneath, the price part of the campaign will only be effective for users with the defined value in the custom user profile field.";
+$string['customuserprofilefield'] = "Custom user profile field";
+$string['customuserprofilefield_help'] = "If you choose a value here, the price part of the camapaign will only be valid for users with the defined value in the defined custom field.";
+
+
 $string['blockoperator'] = 'Operator';
 $string['blockoperator_help'] = '<b>Block above</b> ... Online booking will be blocked once the given percentage
 of bookings is reached. Booking will only be possible for a cashier or admin afterwards.<br>
