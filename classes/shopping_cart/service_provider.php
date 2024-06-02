@@ -164,7 +164,9 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 $serviceperiodend,
                 'A',
                 0,
-                $costcenter
+                $costcenter,
+                null,
+                'option_' . $settings->id // This is the form of the settings identifier area_itemid.
             );
 
             return ['cartitem' => $cartitem];
