@@ -2097,15 +2097,16 @@ function xmldb_booking_upgrade($oldversion) {
         // Adding keys to table booking_customreport.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
+        // Conditionally launch create table for booking_customreport.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
         $index = new xmldb_index('course', XMLDB_INDEX_NOTUNIQUE, ['course']);
         if (!$dbman->index_exists($table, $index)) {
             $dbman->add_index($table, $index);
         }
 
-        // Conditionally launch create table for booking_customreport.
-        if (!$dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2020082601, 'booking');
     }
@@ -3136,6 +3137,8 @@ function xmldb_booking_upgrade($oldversion) {
         if ($dbman->index_exists($table, $index)) {
             $dbman->drop_index($table, $index);
         }
+
+        fix_booking_templateid();
 
         $table = new xmldb_table('booking');
         $field = new xmldb_field('templateid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'allowupdatedays');

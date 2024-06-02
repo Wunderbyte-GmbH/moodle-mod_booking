@@ -115,3 +115,24 @@ function migrate_contextids_2024040901() {
         SET contextid = 1"
     );
 }
+
+/**
+ * Make sure we have no NULL value in template id.
+ *
+ * @return [type]
+ *
+ */
+function fix_booking_templateid() {
+
+    global $DB;
+
+    $sql = "SELECT id, templateid
+            FROM {booking}
+            WHERE templateid IS NULL";
+    $records = $DB->get_records_sql($sql);
+
+    foreach ($records as $record) {
+        $record->templateid = 0;
+        $DB->update_record('booking', $record);
+    }
+}
