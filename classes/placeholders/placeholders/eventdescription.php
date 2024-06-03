@@ -76,13 +76,7 @@ class eventdescription {
             $description = $event->get_description();
             $value = $description;
         } else {
-            throw new moodle_exception(
-                'paramnotpresent',
-                'mod_booking',
-                '',
-                '',
-                "Something went wrong with the event execution."
-            );
+            $value = '';
         }
 
         return $value;
