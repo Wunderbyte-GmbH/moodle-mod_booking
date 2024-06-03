@@ -68,17 +68,21 @@ class eventdescription {
     ) {
         $rulejson = json_decode($rulejson);
         if (
-            !empty($rulejson) &&
-            isset($rulejson->datafromevent->eventdescription)
+            !empty($rulejson)
+            && !empty($rulejson->datafromevent)
         ) {
-            $value = $rulejson->datafromevent->eventdescription;
+            $class = $rulejson->datafromevent->eventname;
+            $event = $class::restore((array)$rulejson->datafromevent, []);
+            $description = $event->get_description();
+            $value = $description;
         } else {
             throw new moodle_exception(
                 'paramnotpresent',
                 'mod_booking',
                 '',
                 '',
-                "Something went wrong with the event execution.");
+                "Something went wrong with the event execution."
+            );
         }
 
         return $value;
