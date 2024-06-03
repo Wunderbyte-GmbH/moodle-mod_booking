@@ -110,17 +110,14 @@ class generateprolicense extends booking_action {
                 break;
             }
         }
-        if (
-            isset($actiondata->userparameter) &&
-            $actiondata->userparameter == '1'
-        ) {
+        if (!empty($actiondata->userparameter == '1')) {
             $user = singleton_service::get_instance_of_user($bookinganswer->userid);
             $params['firstname'] = $user->firstname;
             $params['lastname'] = $user->lastname;
             $params['email'] = $user->email;
             $params['username'] = $user->username;
         }
-        $params['numberofdays'] = $actiondata->numberofdays ?? null;
+        $params['numberofdays'] = $actiondata->numberofdays ?? 365;
         $params['submit'] = true;
 
         $curl = curl_init();
@@ -135,11 +132,17 @@ class generateprolicense extends booking_action {
           CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
           CURLOPT_CUSTOMREQUEST => 'POST',
           CURLOPT_POSTFIELDS => $params,
+          CURLOPT_SSL_VERIFYPEER => false,
+          CURLOPT_SSL_VERIFYHOST => false,
           CURLOPT_HTTPHEADER => [
             'Cookie: XDEBUG_SESSION=VSCODE',
           ],
         ]);
         $response = curl_exec($curl);
+
+        $info = curl_getinfo($curl);
+        $error = curl_error($curl);
+
         curl_close($curl);
 
         return $response;
