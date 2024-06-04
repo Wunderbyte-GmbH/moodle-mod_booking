@@ -119,7 +119,7 @@ class booked_users implements renderable, templatable {
             $table = new manageusers_table($tablename);
 
             $table->define_cache('mod_booking', 'bookedusertable');
-            $table->define_columns(['name', 'action_confirm_delete']);
+            $table->define_columns(['rank', 'name', 'action_confirm_delete']);
             $table->sortablerows = true;
             $table->set_sql($fields, $from, $where, $params);
 

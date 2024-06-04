@@ -572,7 +572,7 @@ class booking_answers {
      */
     public static function return_sql_for_booked_users(int $optionid, int $statusparam) {
         // We need to set a limit for the query in mysqlfamily.
-        $fields = 's1.*';
+        $fields = 's1.*, ROW_NUMBER() OVER (ORDER BY s1.timemodified, s1.id DESC) AS rank';
         $from = " (SELECT ba.id,
                           u.id as userid,
                           u.firstname,
