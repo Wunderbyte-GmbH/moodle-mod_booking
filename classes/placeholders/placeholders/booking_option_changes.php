@@ -71,21 +71,19 @@ class booking_option_changes {
         $rulejson = json_decode($rulejson);
         if (
             !empty($rulejson) &&
-            isset($rulejson->datafromevent->other->changes[0]->info) &&
-            isset($rulejson->datafromevent->other->changes[0]->newvalue)
+            isset($rulejson->datafromevent->other->changes)
         ) {
-            $value =
-                $rulejson->datafromevent->other->changes[0]->info .
-                $rulejson->datafromevent->other->changes[0]->newvalue;
+            $value = '';
+            foreach ($rulejson->datafromevent->other->changes as $changes) {
+                $value .=
+                    $changes->info .
+                    ' ' .
+                    $changes->newvalue .
+                    "<br>";
+            }
         } else {
-            throw new moodle_exception(
-                'paramnotpresent',
-                'mod_booking',
-                '',
-                '',
-                "Something went wrong with the changes.");
+            $value = "Something went wrong with the changes.";
         }
-
         return $value;
     }
 }
