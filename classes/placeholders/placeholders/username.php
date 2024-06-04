@@ -82,12 +82,7 @@ class username {
             $user = singleton_service::get_instance_of_user($userid);
             $value = $user->username;
         } else {
-            throw new moodle_exception(
-                'paramnotpresent',
-                'mod_booking',
-                '',
-                '',
-                "You can't use param {{$classname}} without providing an option id.");
+            $value = "Something went wrong with the " . $classname . " placeholder.";
         }
 
         return $value;

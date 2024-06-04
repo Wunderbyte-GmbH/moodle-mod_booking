@@ -82,12 +82,7 @@ class teacher {
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
             $value = array_values(array_map(fn($a) => "$a->firstname $a->lastname", $settings->teachers));
         } else {
-            throw new moodle_exception(
-                'paramnotpresent',
-                'mod_booking',
-                '',
-                '',
-                "You can't use param {{$classname}} without providing an option id.");
+            $value = "Something went wrong with the " . $classname . " placeholder.";
         }
 
         return $value;

@@ -82,7 +82,8 @@ class booking_option_changes {
                     "<br>";
             }
         } else {
-            $value = "Something went wrong with the changes.";
+            $classname = substr(strrchr(get_called_class(), '\\'), 1);
+            $value = "Something went wrong with the " . $classname . " placeholder.";
         }
         return $value;
     }
