@@ -103,12 +103,7 @@ class profilepicture {
                 }
             }
         } else {
-            throw new moodle_exception(
-                'paramnotpresent',
-                'mod_booking',
-                '',
-                '',
-                "You can't use param {{$classname}} without providing a user id.");
+            $value = "Something went wrong with the " . $classname . " placeholder.";
         }
 
         return $value;

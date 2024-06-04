@@ -90,12 +90,7 @@ class usercalendarurl {
             placeholders_info::$placeholders[$cachekey] = $value;
 
         } else {
-            throw new moodle_exception(
-                'paramnotpresent',
-                'mod_booking',
-                '',
-                '',
-                "You can't use param {{$classname}} without providing an option id.");
+            $value = "Something went wrong with the " . $classname . " placeholder.";
         }
 
         return $value;

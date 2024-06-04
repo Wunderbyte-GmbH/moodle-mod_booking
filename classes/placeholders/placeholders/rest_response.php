@@ -75,12 +75,8 @@ class rest_response {
         ) {
             $value = $rulejson->datafromevent->other->restscriptresponse;
         } else {
-            throw new moodle_exception(
-                'paramnotpresent',
-                'mod_booking',
-                '',
-                '',
-                "Something went wrong with the rest script execution.");
+            $classname = substr(strrchr(get_called_class(), '\\'), 1);
+            $value = "Something went wrong with the " . $classname . " placeholder.";
         }
 
         return $value;
