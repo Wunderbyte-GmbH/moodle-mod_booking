@@ -1945,8 +1945,8 @@ $string['bo_cond_askforconfirmation_full_not_available'] = 'Book it - on waiting
 
 $string['bo_cond_onwaitinglist_available'] = 'Book it';
 $string['bo_cond_onwaitinglist_full_available'] = 'Booking is possible';
-$string['bo_cond_onwaitinglist_not_available'] = 'Fully booked - You are on the waiting list';
-$string['bo_cond_onwaitinglist_full_not_available'] = 'Fully booked - User is on the waiting list';
+$string['bo_cond_onwaitinglist_not_available'] = 'You are on the waiting list';
+$string['bo_cond_onwaitinglist_full_not_available'] = 'User is on the waiting list';
 
 $string['bo_cond_priceisset_available'] = 'Book it';
 $string['bo_cond_priceisset_full_available'] = 'Booking is possible';
