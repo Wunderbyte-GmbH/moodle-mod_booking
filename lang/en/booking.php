@@ -641,6 +641,8 @@ $string['numberofinstallment'] = 'numberofinstallment';
 $string['numberofinstallmentstring'] = 'installment number {$a}';
 $string['installmentprice'] = 'installmentprice';
 
+$string['userinfosasstring'] = '{$a->firstname} {$a->lastname} (ID:{$a->id})';
+
 $string['configurefields'] = 'Configure fields and columns';
 $string['manageresponsespagefields'] = 'Manage responses - Page';
 $string['manageresponsesdownloadfields'] = 'Manage responses - Download (CSV, XLSX...)';

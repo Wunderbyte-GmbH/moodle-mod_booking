@@ -207,6 +207,10 @@ abstract class field_base implements fields {
             'addtocalendar',
             'bookingoptionimage',
         ];
+        $areaswithuseridstoresolve = [
+            'responisblecontact',
+            'teachersforoption',
+        ];
         $classname = fields_info::get_class_name(static::class);
         if (in_array($classname, $excludeclassesfromtrackingchanges)) {
             return [];
@@ -235,7 +239,43 @@ abstract class field_base implements fields {
                 $newvalue = $value;
             }
             $infotext = get_string($classname, 'booking') . get_string('changeinfochanged', 'booking');
-            if ($oldvalue != $newvalue) {
+            // In some cases, formvalues are ids of users, we make them readable.
+            if ($oldvalue != $newvalue
+                && in_array($classname, $areaswithuseridstoresolve)) {
+                    $oldvaluestring = "";
+                    $newvaluestring = "";
+
+                if (is_array($oldvalue)) {
+                    foreach ($oldvalue as $userid) {
+                        $ov = $this->resolve_userid_as_readable_personparams((int) $userid, $oldvaluestring);
+                    };
+                } else {
+                    $ov = $this->resolve_userid_as_readable_personparams((int) $oldvalue, $oldvaluestring);
+                }
+                if (!$ov) {
+                    $oldvaluestring = $oldvalue;
+                }
+
+                if (is_array($newvalue)) {
+                    foreach ($newvalue as $userid) {
+                        $nv = $this->resolve_userid_as_readable_personparams((int) $userid, $newvaluestring);
+                    };
+                } else {
+                    $nv = $this->resolve_userid_as_readable_personparams((int) $newvalue, $newvaluestring);
+                }
+                if (!$nv) {
+                    $newvaluestring = $newvalue;
+                }
+
+                $changes = [
+                    'changes' => [
+                        'info' => $infotext,
+                        'fieldname' => $classname,
+                        'oldvalue' => $oldvaluestring,
+                        'newvalue' => $newvaluestring,
+                    ],
+                ];
+            } else if ($oldvalue != $newvalue) {
                 $changes = [
                     'changes' => [
                         'info' => $infotext,
@@ -247,5 +287,22 @@ abstract class field_base implements fields {
             }
         }
         return $changes;
+    }
+    /**
+     * Appends the information about a given user(id) to the string.
+     *
+     * @param int $userid
+     * @param string $returnvalue
+     *
+     * @return bool
+     *
+     */
+    private function resolve_userid_as_readable_personparams(int $userid, string &$returnvalue) {
+        $user = singleton_service::get_instance_of_user((int)$userid);
+        if (empty($user)) {
+            return false;
+        }
+        $returnvalue .= get_string('userinfosasstring', 'mod_booking', $user) . " ";
+        return true;
     }
 }
