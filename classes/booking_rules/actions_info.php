@@ -67,6 +67,9 @@ class actions_info {
         $buttonargs = ['style' => 'visibility:hidden;'];
         $mform->addElement('select', 'bookingruleactiontype',
             get_string('bookingruleaction', 'mod_booking'), $actionsforselect);
+        if (isset($ajaxformdata['bookingruleactiontype'])) {
+            $mform->setDefault('bookingruleactiontype', $ajaxformdata['bookingruleactiontype']);
+        }
         $mform->addElement('submit', 'btn_bookingruleactiontype',
             get_string('bookingruleaction', 'mod_booking'), $buttonargs);
         $mform->setType('btn_bookingruleactiontype', PARAM_NOTAGS);
