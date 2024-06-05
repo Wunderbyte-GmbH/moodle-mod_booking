@@ -18,6 +18,7 @@ namespace mod_booking;
 
 use core_user;
 use Exception;
+use local_entities\entitiesrelation_handler;
 use mod_booking\booking;
 use mod_booking\booking_answers;
 use mod_booking\booking_option;
@@ -88,6 +89,8 @@ class singleton_service {
     /** @var array $usercohorts */
     public array $usercohorts = [];
 
+    /** @var array $entities */
+    public array $entities = [];
     /** @var array $customfields */
     public array $customfields = [];
 
@@ -576,6 +579,14 @@ class singleton_service {
         return $instance->usercohorts[$userid];
     }
 
+    public static function get_entity_by_id(int $id) {
+        $instance = self::get_instance();
+
+        if (!isset($instance->entities[$id])) {
+            $instance->entities[$id] = entitiesrelation_handler::get_entities_by_id($id);
+        }
+
+        return $instance->entities[$id] ?: new stdClass();
     /**
      * We store the options of the customfield.
      *
