@@ -220,7 +220,7 @@ class mod_booking_observer {
 
             foreach ($optiondates as $optiondate) {
                 // Create or update the sessions.
-                option_optiondate_update_event($optionid, $optiondate, $cmid);
+                option_optiondate_update_event($optionid, $cmid, $optiondate);
             }
         }
 

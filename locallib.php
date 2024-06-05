@@ -512,11 +512,13 @@ function optiondate_duplicatecustomfields($oldoptiondateid, $newoptiondateid) {
 
 /**
  * Helper function to update user calendar events after an option or optiondate (a session of a booking option) has been changed.
+ *
  * @param int $optionid
- * @param ?stdClass $optiondate
  * @param int $cmid
+ * @param ?stdClass $optiondate
+ *
  */
-function option_optiondate_update_event(int $optionid, ?stdClass $optiondate = null, int $cmid) {
+function option_optiondate_update_event(int $optionid, int $cmid, ?stdClass $optiondate = null) {
     global $DB, $USER;
 
     $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
