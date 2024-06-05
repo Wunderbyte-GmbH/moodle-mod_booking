@@ -64,7 +64,7 @@ class placeholders_info {
      * @param int $duedate
      * @param float $price
      * @param int $descriptionparam
-     * @param string $rulejson
+     * @param ?string $rulejson
      * @return string
      */
     public static function render_text(
@@ -76,7 +76,7 @@ class placeholders_info {
         int $duedate = 0,
         float $price = 0,
         int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE,
-        string $rulejson = null
+        ?string $rulejson = null
     ) {
 
         global $USER;

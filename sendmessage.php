@@ -106,8 +106,8 @@ function send_custom_message(int $optionid, string $subject, string $message, ar
     foreach ($selecteduserids as $currentuserid) {
 
         $messagecontroller = new message_controller(
-            MOD_BOOKING_MSGCONTRPARAM_SEND_NOW, MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE, $cmid,
-            $bookingid, $optionid, $currentuserid, null, null, $subject, $message
+            MOD_BOOKING_MSGCONTRPARAM_SEND_NOW, MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE, $cmid, $optionid, $currentuserid,
+            $bookingid, null, null, $subject, $message
         );
         $messagecontroller->send_or_queue();
 

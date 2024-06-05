@@ -84,9 +84,9 @@ $messagecontroller = new message_controller(
     MOD_BOOKING_MSGCONTRPARAM_VIEW_CONFIRMATION,
     $msgparam,
     $cmid,
-    $bookingoption->bookingid,
     $bookingoption->optionid,
-    $user->id
+    $user->id,
+    $bookingoption->bookingid
 );
 
 // Get the message from message controller (DO NOT SEND, we only want to show it here).

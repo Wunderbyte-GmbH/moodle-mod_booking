@@ -725,7 +725,7 @@ class booking_option {
             // Let's send the cancel e-mails by using adhoc tasks.
             $messagecontroller = new message_controller(
                 MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC, $msgparam,
-                $this->cmid, $this->bookingid, $this->optionid, $userid
+                $this->cmid, $this->optionid, $userid, $this->bookingid
             );
             $messagecontroller->send_or_queue();
         }
@@ -866,7 +866,7 @@ class booking_option {
                     self::purge_cache_for_answers($this->optionid);
                     $messagecontroller = new message_controller(
                         MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC, MOD_BOOKING_MSGPARAM_STATUS_CHANGED,
-                        $this->cmid, $this->bookingid, $this->optionid, $currentanswer->userid
+                        $this->cmid, $this->optionid, $currentanswer->userid, $this->bookingid
                     );
                     $messagecontroller->send_or_queue();
                 }
@@ -887,7 +887,7 @@ class booking_option {
                 self::purge_cache_for_answers($this->optionid);
                 $messagecontroller = new message_controller(
                     MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC, MOD_BOOKING_MSGPARAM_STATUS_CHANGED,
-                    $this->cmid, $this->bookingid, $this->optionid, $currentanswer->userid
+                    $this->cmid, $this->optionid, $currentanswer->userid, $this->bookingid
                 );
                 $messagecontroller->send_or_queue();
             }
@@ -913,7 +913,7 @@ class booking_option {
                 self::purge_cache_for_answers($this->optionid);
                 $messagecontroller = new message_controller(
                     MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC, MOD_BOOKING_MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM,
-                    $this->cmid, $this->bookingid, $this->optionid, $currentanswer->userid
+                    $this->cmid, $this->optionid, $currentanswer->userid, $this->bookingid
                 );
                 $messagecontroller->send_or_queue();
             }
@@ -929,7 +929,7 @@ class booking_option {
                 self::purge_cache_for_answers($this->optionid);
                 $messagecontroller = new message_controller(
                     MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC, MOD_BOOKING_MSGPARAM_STATUS_CHANGED,
-                    $this->cmid, $this->bookingid, $this->optionid, $currentanswer->userid
+                    $this->cmid, $this->optionid, $currentanswer->userid, $this->bookingid
                 );
                 $messagecontroller->send_or_queue();
             }
@@ -1374,8 +1374,8 @@ class booking_option {
 
         // Use message controller to send the message.
         $messagecontroller = new message_controller(
-            MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC, $msgparam, $this->cmid, $this->bookingid,
-            $this->optionid, $user->id, null, $changes
+            MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC, $msgparam, $this->cmid,
+            $this->optionid, $user->id, $this->bookingid, null, $changes
         );
         $messagecontroller->send_or_queue();
 
@@ -2229,7 +2229,7 @@ class booking_option {
             // Use message controller to send the Poll URL to every selected user.
             $messagecontroller = new message_controller(
                 MOD_BOOKING_MSGCONTRPARAM_SEND_NOW, MOD_BOOKING_MSGPARAM_POLLURL_PARTICIPANT,
-                $this->cmid, $this->bookingid, $this->optionid, $userid
+                $this->cmid, $this->optionid, $userid, $this->bookingid
             );
             $messagecontroller->send_or_queue();
         }
@@ -2260,7 +2260,7 @@ class booking_option {
             // Use message controller to send the Poll URL to teacher(s).
             $messagecontroller = new message_controller(
                 MOD_BOOKING_MSGCONTRPARAM_SEND_NOW, MOD_BOOKING_MSGPARAM_POLLURL_TEACHER,
-                $this->cmid, $this->bookingid, $this->optionid, $teacher->userid
+                $this->cmid, $this->optionid, $teacher->userid, $this->bookingid
             );
             $messagecontroller->send_or_queue();
         }
@@ -2306,8 +2306,8 @@ class booking_option {
         foreach ($allusers as $user) {
 
             $messagecontroller = new message_controller(
-                MOD_BOOKING_MSGCONTRPARAM_SEND_NOW, $messageparam, $this->cmid,
-                $this->bookingid, $this->optionid, $user->id, $optiondateid
+                MOD_BOOKING_MSGCONTRPARAM_SEND_NOW, $messageparam, $this->cmid, $this->optionid, $user->id,
+                $this->bookingid, $optiondateid
             );
             $messagecontroller->send_or_queue();
         }
