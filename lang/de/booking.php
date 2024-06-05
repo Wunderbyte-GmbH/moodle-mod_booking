@@ -638,6 +638,8 @@ $string['numberofinstallment'] = 'Anzahl Ratenzahlung';
 $string['numberofinstallmentstring'] = '{$a}. Ratenzahlung';
 $string['installmentprice'] = 'Ratenzahlungspreis';
 
+$string['userinfosasstring'] = '{$a->firstname} {$a->lastname} (ID:{$a->id})';
+
 $string['configurefields'] = 'Spalten und Felder anpassen';
 $string['manageresponsespagefields'] = 'Buchungen verwalten - Seite';
 $string['manageresponsesdownloadfields'] = 'Buchungen verwalten - Download (CSV, XLSX...)';
