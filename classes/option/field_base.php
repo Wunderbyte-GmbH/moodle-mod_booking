@@ -206,6 +206,7 @@ abstract class field_base implements fields {
         $excludeclassesfromtrackingchanges = [
             'addtocalendar',
             'bookingoptionimage',
+            'annotation',
         ];
         $areaswithuseridstoresolve = [
             'responisblecontact',
