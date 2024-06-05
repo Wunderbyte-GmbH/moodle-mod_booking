@@ -72,7 +72,13 @@ class eventdescription {
             && !empty($rulejson->datafromevent)
         ) {
             $class = $rulejson->datafromevent->eventname;
-            $event = $class::restore((array)$rulejson->datafromevent, []);
+            $event = $rulejson->datafromevent;
+            if ($class == '\mod_booking\event\bookingoption_updated') {
+                $other = json_encode($event->other);
+                $event->other = $other;
+            }
+
+            $event = $class::restore((array)$event, []);
             $description = $event->get_description();
             $value = $description;
         } else {
