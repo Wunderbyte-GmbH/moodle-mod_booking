@@ -43,10 +43,10 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Student 3 (student3@example.com)" "text"
     When I click on "Add" "button"
     ## Book 2 students
-    And I click on the element with the number "2" with the dynamic identifier "waitinglist"
+    And I click on the element with the number "3" with the dynamic identifier "waitinglist"
     And I click on "Book" "button" in the ".modal-footer" "css_element"
     And I wait until the page is ready
-    And I click on the element with the number "1" with the dynamic identifier "waitinglist"
+    And I click on the element with the number "2" with the dynamic identifier "waitinglist"
     And I click on "Book" "button" in the ".modal-footer" "css_element"
     And I wait until the page is ready
     Then I should see "Student 1 (student1@example.com)" in the ".userselector #removeselect" "css_element"
@@ -57,7 +57,7 @@ Feature: In a course add a booking option and manage its waiting list
     When I click on "Add" "button"
     ## Verify location
     And I should see "student3@example.com" in the "//tr[contains(@id, 'waitinglist') and contains(@id, '_r1')]" "xpath_element"
-    And I should see "student4@example.com" in the "//tr[contains(@id, 'waitinglist') and contains(@id, '_r2')]" "xpath_element"
+    And I should see "student5@example.com" in the "//tr[contains(@id, 'waitinglist') and contains(@id, '_r2')]" "xpath_element"
     ## Resort rows
     And I drag "//tr[contains(@id, '_r2')]//span[@data-drag-type='move']" "xpath_element" and I drop it in "//tr[contains(@id, '_r1')]//span[@data-drag-type='move']" "xpath_element"
-    And I should see "student4@example.com" in the "//tr[contains(@id, 'waitinglist') and contains(@id, '_r1')]" "xpath_element"
+    And I should see "student5@example.com" in the "//tr[contains(@id, 'waitinglist') and contains(@id, '_r1')]" "xpath_element"

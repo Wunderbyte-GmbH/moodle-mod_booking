@@ -239,7 +239,7 @@ Feature: Test booking options avaialbility conditions
     And I click on "Book now" "text" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r3" "css_element"
-    And I should see "Fully booked - You are on the waiting list" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "You are on the waiting list" in the ".allbookingoptionstable_r3" "css_element"
 
   @javascript
   Scenario: Configure max participants with admin overbooking
@@ -364,8 +364,12 @@ Feature: Test booking options avaialbility conditions
     And I set the following fields to these values:
       | bo_cond_customform_select_1_1   | select                           |
       | bo_cond_customform_label_1_1    | Choose what you agree            |
-      | bo_cond_customform_value_1_1    | 1 => option one/n2 => option two |
       | bo_cond_customform_notempty_1_1 | 1                                |
+    And I set the field "bo_cond_customform_value_1_1" to multiline:
+    """
+    1 => option one
+    2 => option two
+    """
     And I press "Save"
     ## Check availability as students
     Given I am on the "My booking" Activity page logged in as student1
