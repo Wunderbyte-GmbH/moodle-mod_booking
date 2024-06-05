@@ -138,10 +138,22 @@ class message_controller {
      * @param float $price price of installment
      * @param string $rulejson event data
      */
-    public function __construct(int $msgcontrparam, int $messageparam, int $cmid, int $optionid, int $userid,
-        ?int $optiondateid = null, ?array $changes = null,
-        ?int $bookingid = null, string $customsubject = '', string $custommessage = '',
-        int $installmentnr = 0, int $duedate = 0, float $price = 0.0, string $rulejson = '') {
+    public function __construct(
+        int $msgcontrparam,
+        int $messageparam,
+        int $cmid,
+        int $optionid,
+        int $userid,
+        ?int $bookingid = null,
+        ?int $optiondateid = null,
+        ?array $changes = null,
+        string $customsubject = '',
+        string $custommessage = '',
+        int $installmentnr = 0,
+        int $duedate = 0,
+        float $price = 0.0,
+        string $rulejson = ''
+    ) {
 
         global $USER, $PAGE;
 
