@@ -224,7 +224,7 @@ class signinsheet_generator {
      * @param ?\mod_booking\booking_option $bookingoption
      * @param \stdClass $pdfoptions
      */
-    public function __construct(?\mod_booking\booking_option $bookingoption = null, \stdClass $pdfoptions) {
+    public function __construct(\stdClass $pdfoptions, ?\mod_booking\booking_option $bookingoption = null) {
 
         $this->optionid = $bookingoption->optionid;
         $this->bookingoption = $bookingoption;
