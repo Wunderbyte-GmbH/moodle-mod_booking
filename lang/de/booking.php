@@ -626,7 +626,6 @@ $string['qr_username'] = "QR_nutzerinnenname";
 $string['startdate'] = "Startdatum";
 $string['starttime'] = "Startzeit";
 $string['rest_response'] = "rest_response";
-$string['booking_option_changes'] = "booking_option_changes";
 $string['eventdescription'] = "eventdescription";
 $string['customform'] = "customform";
 $string['title'] = "Titel";
