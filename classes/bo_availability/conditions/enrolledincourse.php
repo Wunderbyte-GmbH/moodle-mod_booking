@@ -57,10 +57,10 @@ class enrolledincourse implements bo_condition {
     /**
      * Constructor.
      *
-     * @param int $id
+     * @param ?int $id
      * @return void
      */
-    public function __construct(int $id = null) {
+    public function __construct(?int $id = null) {
         if ($id) {
             $this->id = $id;
         }

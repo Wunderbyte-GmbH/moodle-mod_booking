@@ -54,11 +54,11 @@ class booking_utils {
     /**
      * [Description for Constructor
      *
-     * @param object $booking
-     * @param object $bookingoption
+     * @param ?object $booking
+     * @param ?object $bookingoption
      *
      */
-    public function __construct($booking = null, $bookingoption = null) {
+    public function __construct(?object $booking = null, ?object $bookingoption = null) {
 
         if ($booking) {
             $this->booking = $booking;
@@ -106,10 +106,10 @@ class booking_utils {
      * Prepares the data to be sent with confirmation mail
      *
      * @param stdClass $settings
-     * @param stdClass $option
+     * @param ?stdClass $option
      * @return stdClass data to be sent via mail
      */
-    public function generate_params(stdClass $settings, stdClass $option = null): stdClass {
+    public function generate_params(stdClass $settings, ?stdClass $option = null): stdClass {
         global $DB, $CFG;
 
         $params = new stdClass();

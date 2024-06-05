@@ -126,11 +126,11 @@ class message_controller {
      * @param int $msgcontrparam message controller param (send now | queue adhoc)
      * @param int $messageparam the message type
      * @param int $cmid course module id
-     * @param int $bookingid booking id
+     * @param ?int $bookingid booking id
      * @param int $optionid option id
      * @param int $userid user id
-     * @param int|null $optiondateid optional id of a specific session (optiondate)
-     * @param array $changes array of changes for change notifications
+     * @param ?int|null $optiondateid optional id of a specific session (optiondate)
+     * @param ?array $changes array of changes for change notifications
      * @param string $customsubject subject of custom messages
      * @param string $custommessage body of custom messages
      * @param int $installmentnr number of installment
@@ -138,8 +138,8 @@ class message_controller {
      * @param float $price price of installment
      * @param string $rulejson event data
      */
-    public function __construct(int $msgcontrparam, int $messageparam, int $cmid, int $bookingid = null,
-        int $optionid, int $userid, int $optiondateid = null, $changes = null,
+    public function __construct(int $msgcontrparam, int $messageparam, int $cmid, ?int $bookingid = null,
+        int $optionid, int $userid, ?int $optiondateid = null, ?array $changes = null,
         string $customsubject = '', string $custommessage = '',
         int $installmentnr = 0, int $duedate = 0, float $price = 0.0, string $rulejson = '') {
 

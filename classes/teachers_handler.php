@@ -469,9 +469,9 @@ class teachers_handler {
      * Helper function to remove all entries in booking_optiondates_teachers
      * for a specific booking instance (by bookingid).
      * @param int $bookingid the id of the booking instance
-     * @param int $userid (optional) teacher id - if set only entries for this teacher will be deleted
+     * @param ?int $userid (optional) teacher id - if set only entries for this teacher will be deleted
      */
-    public static function delete_booking_optiondates_teachers_by_bookingid(int $bookingid, int $userid = null) {
+    public static function delete_booking_optiondates_teachers_by_bookingid(int $bookingid, ?int $userid = null) {
         global $DB;
 
         if (empty($bookingid)) {

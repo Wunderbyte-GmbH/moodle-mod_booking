@@ -87,10 +87,10 @@ class match_userprofilefield implements booking_rule_condition {
      * Only customizable functions need to return their necessary form elements.
      *
      * @param MoodleQuickForm $mform
-     * @param array $ajaxformdata
+     * @param ?array $ajaxformdata
      * @return void
      */
-    public function add_condition_to_mform(MoodleQuickForm &$mform, array &$ajaxformdata = null) {
+    public function add_condition_to_mform(MoodleQuickForm &$mform, ?array &$ajaxformdata = null) {
         global $DB;
 
         // Get a list of allowed option fields to compare with custom user profile field.

@@ -221,10 +221,10 @@ class signinsheet_generator {
     /**
      * Define basic variable values for signinsheet pdf
      *
-     * @param \mod_booking\booking_option $bookingoption
+     * @param ?\mod_booking\booking_option $bookingoption
      * @param \stdClass $pdfoptions
      */
-    public function __construct(\mod_booking\booking_option $bookingoption = null, \stdClass $pdfoptions) {
+    public function __construct(?\mod_booking\booking_option $bookingoption = null, \stdClass $pdfoptions) {
 
         $this->optionid = $bookingoption->optionid;
         $this->bookingoption = $bookingoption;

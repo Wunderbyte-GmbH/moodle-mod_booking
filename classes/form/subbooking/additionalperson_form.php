@@ -206,10 +206,10 @@ class additionalperson_form extends dynamic_form {
      * Helper function to store data in cache.
      *
      * @param object $data
-     * @param object $user
+     * @param ?object $user
      * @return void
      */
-    public static function store_data_in_cache($data, $user = null) {
+    public static function store_data_in_cache($data, ?object $user = null) {
 
         global $USER;
 
@@ -237,7 +237,7 @@ class additionalperson_form extends dynamic_form {
      * @param object|null $user
      * @return object
      */
-    public static function get_data_from_cache($subbookingid, $user = null) {
+    public static function get_data_from_cache($subbookingid, ?object $user = null) {
 
         global $USER;
 

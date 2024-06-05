@@ -313,10 +313,10 @@ class subbooking_additionalitem implements booking_subbooking {
      * But normally the itemid here is the same as the subboooking it.
      *
      * @param int $itemid
-     * @param object $user
+     * @param ?object $user
      * @return array
      */
-    public function return_subbooking_information(int $itemid = 0, $user = null): array {
+    public function return_subbooking_information(int $itemid = 0, ?object $user = null): array {
 
         return [];
     }

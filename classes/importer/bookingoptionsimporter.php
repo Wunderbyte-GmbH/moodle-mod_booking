@@ -102,11 +102,11 @@ class bookingoptionsimporter {
      */
     private static function define_settings(
         array $definedcolumns,
-        string $callbackfunction = null,
+        ?string $callbackfunction = null,
         bool $acceptunknowncolumns = false,
-        string $delimiter = null,
-        string $encoding = null,
-        string $dateformat = null
+        ?string $delimiter = null,
+        ?string $encoding = null,
+        ?string $dateformat = null
         ) {
 
         $settings = new csvsettings($definedcolumns);

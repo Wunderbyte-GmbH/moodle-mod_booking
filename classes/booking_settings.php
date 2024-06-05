@@ -370,7 +370,7 @@ class booking_settings {
      * @param object|null $dbrecord
      * @return object|null $dbrecordid
      */
-    private function set_values(int $cmid, object $dbrecord = null) {
+    private function set_values(int $cmid, ?object $dbrecord = null) {
         global $DB;
 
         // If we don't get the cached object, we have to fetch it here.

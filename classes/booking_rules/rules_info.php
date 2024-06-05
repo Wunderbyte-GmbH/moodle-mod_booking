@@ -45,12 +45,12 @@ class rules_info {
      *
      * @param MoodleQuickForm $mform
      * @param array $repeateloptions
-     * @param array $ajaxformdata
+     * @param ?array $ajaxformdata
      * @return void
      */
     public static function add_rules_to_mform(MoodleQuickForm &$mform,
         array &$repeateloptions,
-        array &$ajaxformdata = null) {
+        ?array &$ajaxformdata = null) {
 
         // First, get all the type of rules there are.
         $rules = self::get_rules();

@@ -339,11 +339,11 @@ class singleton_service {
      * Service to create and return singleton instance of booking_option_settings.
      *
      * @param int $optionid
-     * @param stdClass $dbrecord
+     * @param ?stdClass $dbrecord
      *
      * @return booking_option_settings
      */
-    public static function get_instance_of_booking_option_settings($optionid, stdClass $dbrecord = null): booking_option_settings {
+    public static function get_instance_of_booking_option_settings($optionid, ?stdClass $dbrecord = null): booking_option_settings {
         $instance = self::get_instance();
 
         if (empty($optionid)) {

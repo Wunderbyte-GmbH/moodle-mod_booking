@@ -279,10 +279,10 @@ class booking_option_settings {
      * This permits performance increase, because we can request all the records once and then
      *
      * @param int $optionid Booking option id.
-     * @param stdClass $dbrecord of bookig option.
+     * @param stdClass|null $dbrecord of bookig option.
      * @throws dml_exception
      */
-    public function __construct(int $optionid, stdClass $dbrecord = null) {
+    public function __construct(int $optionid, ?stdClass $dbrecord = null) {
 
         // Even if we have a record, we still get the cache...
         // Because in the cache, we have also information from other tables.
@@ -320,7 +320,7 @@ class booking_option_settings {
      * @param object|null $dbrecord
      * @return stdClass|null
      */
-    private function set_values(int $optionid, object $dbrecord = null) {
+    private function set_values(int $optionid, ?object $dbrecord = null) {
         global $DB;
 
         if (empty($optionid)) {
@@ -1230,10 +1230,10 @@ class booking_option_settings {
      * Especially to create a shopping cart and such...
      * ... we want one central function where we always get all the necessary keys.
      *
-     * @param object $user
+     * @param object|null $user
      * @return array
      */
-    public function return_booking_option_information(object $user = null): array {
+    public function return_booking_option_information(?object $user = null): array {
 
         global $USER;
 
@@ -1278,10 +1278,10 @@ class booking_option_settings {
      * ... we want one central function where we always get all the necessary keys.
      *
      * @param int $subbookingid
-     * @param object $user
+     * @param object|null $user
      * @return array
      */
-    public function return_subbooking_option_information(int $subbookingid, object $user = null): array {
+    public function return_subbooking_option_information(int $subbookingid, ?object $user = null): array {
 
         global $USER;
 

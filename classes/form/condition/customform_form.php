@@ -179,9 +179,12 @@ class customform_form extends dynamic_form {
                                 if (count($linearray) > 2) {
                                     $ba = singleton_service::get_instance_of_booking_answers($settings);
                                     $expectedvalue = $linearray[0];
-                                    $filteredba = array_filter($ba->usersonlist, function($userbookings) use ($identifier, $expectedvalue) {
-                                        return isset($userbookings->$identifier) && $userbookings->$identifier === $expectedvalue;
-                                    });
+                                    $filteredba = array_filter($ba->usersonlist,
+                                        function($userbookings) use ($identifier, $expectedvalue) {
+                                            return isset($userbookings->$identifier)
+                                                    && $userbookings->$identifier === $expectedvalue;
+                                        }
+                                    );
                                     $leftover = $linearray[2] - count($filteredba);
                                     if ( $leftover == 0) {
                                         unset($options[$linearray[0]]);

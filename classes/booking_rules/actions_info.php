@@ -47,7 +47,7 @@ class actions_info {
      */
     public static function add_actions_to_mform(MoodleQuickForm &$mform,
         array &$repeateloptions,
-        array &$ajaxformdata = null) {
+        ?array &$ajaxformdata = null) {
 
         $actions = self::get_actions();
 

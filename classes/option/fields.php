@@ -42,7 +42,7 @@ interface fields {
      * @param stdClass $formdata
      * @param stdClass $newoption
      * @param int $updateparam
-     * @param mixed $returnvalue
+     * @param ?mixed $returnvalue
      *
      * @return string // If no errormessage, empty string.
      */

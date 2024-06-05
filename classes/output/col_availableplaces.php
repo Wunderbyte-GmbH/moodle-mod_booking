@@ -69,9 +69,9 @@ class col_availableplaces implements renderable, templatable {
      *
      * @param mixed $values
      * @param booking_option_settings $settings
-     * @param bool $buyforuser
+     * @param ?\stdClass $buyforuser
      */
-    public function __construct($values, booking_option_settings $settings, $buyforuser = null) {
+    public function __construct($values, booking_option_settings $settings, ?\stdClass $buyforuser = null) {
         global $CFG;
 
         $this->buyforuser = $buyforuser;

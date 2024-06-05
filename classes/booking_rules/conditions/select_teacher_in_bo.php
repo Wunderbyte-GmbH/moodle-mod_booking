@@ -73,10 +73,10 @@ class select_teacher_in_bo implements booking_rule_condition {
      * Only customizable functions need to return their necessary form elements.
      *
      * @param MoodleQuickForm $mform
-     * @param array $ajaxformdata
+     * @param ?array $ajaxformdata
      * @return void
      */
-    public function add_condition_to_mform(MoodleQuickForm &$mform, array &$ajaxformdata = null) {
+    public function add_condition_to_mform(MoodleQuickForm &$mform, ?array &$ajaxformdata = null) {
         $mform->addElement('static', 'condition_select_teacher_in_bo', '',
                 get_string('condition_select_teacher_in_bo_desc', 'mod_booking'));
 

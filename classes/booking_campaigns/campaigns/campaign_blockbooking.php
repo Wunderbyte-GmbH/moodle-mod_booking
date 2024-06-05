@@ -100,10 +100,10 @@ class campaign_blockbooking implements booking_campaign {
     /**
      * Add the campaign to the mform.
      * @param MoodleQuickForm $mform
-     * @param array $ajaxformdata reference to form data
+     * @param ?array $ajaxformdata reference to form data
      * @return void
      */
-    public function add_campaign_to_mform(MoodleQuickForm &$mform, array &$ajaxformdata = null) {
+    public function add_campaign_to_mform(MoodleQuickForm &$mform, ?array &$ajaxformdata = null) {
 
         global $DB;
 

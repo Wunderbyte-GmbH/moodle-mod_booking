@@ -50,11 +50,11 @@ class campaigns_info {
      * Add form fields to mform.
      *
      * @param MoodleQuickForm $mform
-     * @param array $ajaxformdata
+     * @param ?array $ajaxformdata
      * @return void
      */
     public static function add_campaigns_to_mform(MoodleQuickForm &$mform,
-        array &$ajaxformdata = null) {
+        ?array &$ajaxformdata = null) {
 
         // First, get all the type of campaigns there are.
         $campaigns = self::get_campaigns();

@@ -110,13 +110,13 @@ class bo_info {
      * This function displays debugging() messages if the availability
      * information is invalid.
      *
-     * @param int $optionid
+     * @param ?int $optionid
      * @param int $userid If set, specifies a different user ID to check availability for
      * @param bool $hardblock
      * @param bool $noblockingpages
      * @return array [isavailable, description]
      */
-    public function is_available(int $optionid = null, int $userid = 0, bool $hardblock = false,
+    public function is_available(?int $optionid = null, int $userid = 0, bool $hardblock = false,
         bool $noblockingpages = false): array {
 
         if (!$optionid) {
@@ -164,7 +164,7 @@ class bo_info {
      * @param bool $onlyhardblock
      * @return array
      */
-    public static function get_condition_results(int $optionid = null, int $userid = 0, bool $onlyhardblock = false): array {
+    public static function get_condition_results(?int $optionid = null, int $userid = 0, bool $onlyhardblock = false): array {
         global $USER, $CFG;
 
         require_once($CFG->dirroot . '/mod/booking/lib.php');
@@ -356,11 +356,11 @@ class bo_info {
      * This function displays debugging() messages if the availability
      * information is invalid.
      *
-     * @param \course_modinfo $modinfo Usually leave as null for default
+     * @param ?\course_modinfo $modinfo Usually leave as null for default
      * @return string Information string (for admin) about all restrictions on
      *   this item
      */
-    public function get_full_information(\course_modinfo $modinfo = null) {
+    public function get_full_information(?\course_modinfo $modinfo = null) {
         // Do nothing if there are no availability restrictions.
         if (is_null($this->availability)) {
             return '';
@@ -386,10 +386,10 @@ class bo_info {
      *
      * @param MoodleQuickForm $mform
      * @param int $optionid
-     * @param \moodleform $moodleform
+     * @param ?\moodleform $moodleform
      * @return void
      */
-    public static function add_conditions_to_mform(MoodleQuickForm &$mform, int $optionid, $moodleform = null) {
+    public static function add_conditions_to_mform(MoodleQuickForm &$mform, int $optionid, ?\moodleform $moodleform = null) {
         global $DB;
 
         $mform->addElement('header', 'availabilityconditions', get_string('availabilityconditionsheader', 'mod_booking'));
@@ -702,9 +702,9 @@ class bo_info {
      * @param string $style any bootstrap style like 'success', 'danger' or 'warning'
      * @param int $optionid option id
      * @param bool $showprice true if price should be shown
-     * @param stdClass $optionvalues object containing option data to render col_price
+     * @param ?stdClass $optionvalues object containing option data to render col_price
      * @param bool $shownotificationlist true for symbol to subscribe to notification list
-     * @param stdClass $usertobuyfor user to buy for
+     * @param ?stdClass $usertobuyfor user to buy for
      * @param bool $modalfordescription
      */
     public static function render_conditionmessage(
@@ -712,9 +712,9 @@ class bo_info {
             string $style = 'warning',
             int $optionid = 0,
             bool $showprice = false,
-            stdClass $optionvalues = null,
+            ?stdClass $optionvalues = null,
             bool $shownotificationlist = false,
-            stdClass $usertobuyfor = null,
+            ?stdClass $usertobuyfor = null,
             bool $modalfordescription = false) {
 
         global $PAGE;

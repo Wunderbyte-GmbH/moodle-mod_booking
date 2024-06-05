@@ -252,10 +252,10 @@ class subbooking_timeslot implements booking_subbooking {
      * But normally the itemid here is the same as the subboooking it.
      *
      * @param int $itemid
-     * @param object $user
+     * @param ?object $user
      * @return array
      */
-    public function return_subbooking_information(int $itemid = 0, $user = null): array {
+    public function return_subbooking_information(int $itemid = 0, ?object $user = null): array {
 
         // In the case of this subbooking type, the itemid refers to the slots.
         // In other types, the itemid is actually $this->id.
@@ -293,10 +293,10 @@ class subbooking_timeslot implements booking_subbooking {
      * Evey subbooking type can decide what to store in the answer json.
      *
      * @param int $itemid
-     * @param object $user
+     * @param ?object $user
      * @return string
      */
-    public function return_answer_json(int $itemid, $user = null): string {
+    public function return_answer_json(int $itemid, ?object $user = null): string {
 
         return '';
     }

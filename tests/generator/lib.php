@@ -71,7 +71,7 @@ class mod_booking_generator extends testing_module_generator {
      * @return stdClass
      *
      */
-    public function create_instance($record = null, array $options = null) {
+    public function create_instance($record = null, ?array $options = null) {
         global $CFG;
 
         require_once($CFG->dirroot . '/mod/booking/lib.php');
@@ -106,7 +106,7 @@ class mod_booking_generator extends testing_module_generator {
     /**
      * Function to create a dummy option.
      *
-     * @param array|stdClass $record
+     * @param ?array|stdClass $record
      * @return stdClass the booking option object
      */
     public function create_option($record = null) {
@@ -181,7 +181,7 @@ class mod_booking_generator extends testing_module_generator {
     /**
      * Function to create a dummy student's answer on option.
      *
-     * @param array|stdClass $record
+     * @param ?array|stdClass $record
      * @return int $id the booking answer status
      */
     public function create_answer($record = null) {
@@ -203,7 +203,7 @@ class mod_booking_generator extends testing_module_generator {
     /**
      * Function to create a dummy pricecategory option.
      *
-     * @param array|stdClass $record
+     * @param ?array|stdClass $record
      * @return stdClass the booking pricecategory object
      */
     public function create_pricecategory($record = null) {
@@ -219,7 +219,7 @@ class mod_booking_generator extends testing_module_generator {
     /**
      * Function to create a dummy campaign option.
      *
-     * @param array|stdClass $record
+     * @param ?array|stdClass $record
      */
     public function create_campaign($record = null) {
 
@@ -239,7 +239,7 @@ class mod_booking_generator extends testing_module_generator {
     /**
      * Function to create a dummy subooking option.
      *
-     * @param array|stdClass $record
+     * @param ?array|stdClass $record
      * @return stdClass the booking subbooking DB object
      */
     public function create_subbooking($record = null) {
@@ -269,7 +269,7 @@ class mod_booking_generator extends testing_module_generator {
     /**
      * Function to create a dummy semester option.
      *
-     * @param array|stdClass $record
+     * @param ?array|stdClass $record
      * @return stdClass the booking semester object
      */
     public function create_semester($record = null) {
@@ -285,7 +285,7 @@ class mod_booking_generator extends testing_module_generator {
     /**
      * Function to create a dummy rule for bookings.
      *
-     * @param array|stdClass $ruledraft
+     * @param ?array|stdClass $ruledraft
      * @return stdClass the booking rule object
      */
     public function create_rule($ruledraft = null) {

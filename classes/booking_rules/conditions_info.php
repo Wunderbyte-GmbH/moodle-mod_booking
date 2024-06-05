@@ -40,11 +40,11 @@ class conditions_info {
      * Add form fields to mform.
      *
      * @param MoodleQuickForm $mform
-     * @param array $ajaxformdata
+     * @param ?array $ajaxformdata
      * @return void
      */
     public static function add_conditions_to_mform(MoodleQuickForm &$mform,
-        array &$ajaxformdata = null) {
+        ?array &$ajaxformdata = null) {
 
         $conditions = self::get_conditions();
 

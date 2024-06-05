@@ -105,10 +105,10 @@ class select_user_shopping_cart implements booking_rule_condition {
      * Add condition to mform.
      *
      * @param MoodleQuickForm $mform
-     * @param array $ajaxformdata
+     * @param ?array $ajaxformdata
      * @return void
      */
-    public function add_condition_to_mform(MoodleQuickForm &$mform, array &$ajaxformdata = null) {
+    public function add_condition_to_mform(MoodleQuickForm &$mform, ?array &$ajaxformdata = null) {
 
         $mform->addElement('static', 'condition_select_user_shopping_cart', '',
                 get_string('condition_select_user_shopping_cart_desc', 'mod_booking'));

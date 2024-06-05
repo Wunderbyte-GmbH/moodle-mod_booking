@@ -78,11 +78,11 @@ class db {
     /**
      * Get all badges for course.
      *
-     * @param int $courseid
+     * @param ?int $courseid
      *
      * @return array
      */
-    public function getbadges($courseid = null) {
+    public function getbadges(?int $courseid = null) {
         global $DB;
 
         if (!empty($courseid)) {
@@ -133,11 +133,11 @@ class db {
      * Get all users that have certain badge.
      *
      * @param int $badgeid
-     * @param int $optionid
+     * @param ?int $optionid
      *
      * @return array of matching users.
      */
-    public function getusersbadges($badgeid = null, $optionid = null) {
+    public function getusersbadges($badgeid = null, ?int $optionid = null) {
         global $DB;
 
         $ud = [];

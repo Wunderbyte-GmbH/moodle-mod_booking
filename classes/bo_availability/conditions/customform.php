@@ -61,10 +61,10 @@ class customform implements bo_condition {
     /**
      * Constructor.
      *
-     * @param int $id
+     * @param ?int $id
      * @return void
      */
-    public function __construct(int $id = null) {
+    public function __construct(?int $id = null) {
 
         if ($id) {
             $this->id = $id;
@@ -186,10 +186,10 @@ class customform implements bo_condition {
      *
      * @param MoodleQuickForm $mform
      * @param int $optionid
-     * @param moodleform $moodleform
+     * @param ?\moodleform $moodleform
      * @return void
      */
-    public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0, $moodleform = null) {
+    public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0, ?\moodleform $moodleform = null) {
         global $DB;
 
         // Check if PRO version is activated.

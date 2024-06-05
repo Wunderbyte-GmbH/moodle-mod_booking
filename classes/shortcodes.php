@@ -519,7 +519,7 @@ class shortcodes {
      * @param ?string $uniquetablename
      * @return bookingoptions_wbtable
      */
-    private static function init_table_for_courses($booking = null, $uniquetablename = null) {
+    private static function init_table_for_courses(?booking $booking = null, ?string $uniquetablename = null) {
 
         $tablename = $uniquetablename ?? bin2hex(random_bytes(12));
 

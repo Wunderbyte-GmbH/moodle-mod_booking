@@ -622,11 +622,11 @@ class price {
      * @param int $itemid
      * @param string $categoryidentifier
      * @param string $price
-     * @param string $currency
+     * @param ?string $currency
      * @return void
      */
     public static function add_price(string $area, int $itemid, string $categoryidentifier,
-        string $price, string $currency = null) {
+        string $price, ?string $currency = null) {
 
         global $DB;
 
@@ -679,7 +679,7 @@ class price {
      *
      * @return array
      */
-    public static function get_price(string $area, int $itemid, $user = null): array {
+    public static function get_price(string $area, int $itemid, ?object $user = null): array {
 
         global $USER;
 

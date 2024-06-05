@@ -171,8 +171,8 @@ class bookingoption_description implements renderable, templatable {
             $bookingevent = null,
             int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE,
             bool $withcustomfields = true,
-            bool $forbookeduser = null,
-            object $user = null) {
+            ?bool $forbookeduser = null,
+            ?object $user = null) {
 
         global $CFG, $PAGE, $USER;
 

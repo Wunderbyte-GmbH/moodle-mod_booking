@@ -371,10 +371,10 @@ class dates_handler {
 
     /**
      * Create an array of localized weekdays.
-     * @param string $lang optional language identifier, e.g. "de", "en"0
+     * @param ?string $lang optional language identifier, e.g. "de", "en"0
      * @return array
      */
-    public static function get_localized_weekdays(string $lang = null): array {
+    public static function get_localized_weekdays(?string $lang = null): array {
         $weekdays = [];
         if (empty($lang)) {
             $weekdays['monday'] = get_string('monday', 'mod_booking');

@@ -73,10 +73,10 @@ class semester {
      * If we have passed on the cached object, we use this one.
      *
      * @param int $id the semester id
-     * @param stdClass $dbrecord
+     * @param ?stdClass $dbrecord
      * @return stdClass|null
      */
-    private function set_values(int $id, stdClass $dbrecord = null) {
+    private function set_values(int $id, ?stdClass $dbrecord = null) {
         global $DB;
 
         // If we don't get the cached object, we have to fetch it here.

@@ -140,7 +140,7 @@ class booking_tags {
      * @return stdClass
      *
      */
-    public function booking_replace(stdClass $settings = null): stdClass {
+    public function booking_replace(?stdClass $settings = null): stdClass {
         $newsettings = clone $settings;
         foreach ($newsettings as $key => $value) {
             if (in_array($key, $this->bookingtextfields) && (!is_null($newsettings->{$key}))) {
@@ -158,7 +158,7 @@ class booking_tags {
      * @return stdClass
      *
      */
-    public function option_replace(stdClass $optionsettings = null): stdClass {
+    public function option_replace(?stdClass $optionsettings = null): stdClass {
         $newoptionsettings = clone $optionsettings;
         foreach ($newoptionsettings as $key => $value) {
             if (in_array($key, $this->optiontextfields) && (!is_null($newoptionsettings->{$key}))) {

@@ -60,11 +60,11 @@ class previouslybooked implements bo_condition {
     /**
      * Constructor.
      *
-     * @param int $id
-     * @param booking_option_settings $settings
+     * @param ?int $id
+     * @param ?booking_option_settings $settings
      * @return void
      */
-    public function __construct(int $id = null, booking_option_settings $settings = null) {
+    public function __construct(?int $id = null, ?booking_option_settings $settings = null) {
 
         if ($id) {
             $this->id = $id;

@@ -374,10 +374,10 @@ class subbooking_additionalperson implements booking_subbooking {
      * Evey subbooking type can decide what to store in the answer json.
      *
      * @param int $itemid
-     * @param object $user
+     * @param ?object $user
      * @return string
      */
-    public function return_answer_json(int $itemid, $user = null): string {
+    public function return_answer_json(int $itemid, ?object $user = null): string {
 
         // When choosing the elements from the subbookings, we store our current state in the cache.
         $data = additionalperson_form::get_data_from_cache($this->id);

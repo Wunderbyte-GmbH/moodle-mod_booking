@@ -94,7 +94,7 @@ class booking {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function __construct(int $cmid, course_modinfo $cm = null) {
+    public function __construct(int $cmid, ?course_modinfo $cm = null) {
         global $DB;
 
         $this->cmid = $cmid;
@@ -985,11 +985,17 @@ class booking {
      * @param int $limitfrom
      * @param int $limitnum
      * @param string $searchtext
-     * @param string $fields
-     * @param object $context
+     * @param ?string $fields
+     * @param ?object $context
      * @return array
      */
-    public function get_all_options_sql($limitfrom = 0, $limitnum = 0, $searchtext = '', $fields = null, $context = null) {
+    public function get_all_options_sql(
+        $limitfrom = 0,
+        $limitnum = 0,
+        $searchtext = '',
+        ?string $fields = null,
+        ?object $context = null
+    ) {
         global $DB;
 
         return self::get_options_filter_sql($limitfrom, $limitnum, $searchtext, $fields, $context, [],
