@@ -283,6 +283,14 @@ class booking_utils {
         }
     }
 
+    /**
+     * Convert the array to the expected format.
+     *
+     * @param array $changes
+     *
+     * @return array
+     *
+     */
     private function prepare_changes_array(array $changes): array {
 
         $newchanges = [];
