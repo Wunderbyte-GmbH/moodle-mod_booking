@@ -26,7 +26,7 @@ namespace mod_booking\placeholders\placeholders;
 
 use mod_booking\placeholders\placeholders_info;
 use context_user;
-use moodle_exception;
+
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -103,7 +103,7 @@ class profilepicture {
                 }
             }
         } else {
-            $value = "Something went wrong with the " . $classname . " placeholder.";
+            $value = get_string('sthwentwrongwithplaceholder', 'mod_booking', $classname);
         }
 
         return $value;

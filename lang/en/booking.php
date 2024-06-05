@@ -639,6 +639,7 @@ $string['duedate'] = 'duedate of installment';
 $string['numberofinstallment'] = 'numberofinstallment';
 $string['numberofinstallmentstring'] = 'installment number {$a}';
 $string['installmentprice'] = 'installmentprice';
+$string['sthwentwrongwithplaceholder'] = ''; // Returnvalue for failed placeholders. {$a} returns classname.
 
 $string['userinfosasstring'] = '{$a->firstname} {$a->lastname} (ID:{$a->id})';
 

@@ -27,7 +27,6 @@ namespace mod_booking\placeholders\placeholders;
 use html_writer;
 use mod_booking\placeholders\placeholders_info;
 use mod_booking\singleton_service;
-use moodle_exception;
 use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
@@ -96,7 +95,7 @@ class bookinglink {
 
         } else {
             $classname = substr(strrchr(get_called_class(), '\\'), 1);
-            $value = "Something went wrong with the " . $classname . " placeholder.";
+            $value = get_string('sthwentwrongwithplaceholder', 'mod_booking', $classname);
         }
 
         return $value;
