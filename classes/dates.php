@@ -522,13 +522,25 @@ class dates {
      *
      * @param stdClass $formdata
      * @param stdClass $option
-     * @return void
+     * @return array // Array of changes.
      */
-    public static function save_optiondates_from_form(stdClass $formdata, stdClass &$option) {
+    public static function save_optiondates_from_form(stdClass $formdata, stdClass &$option): array {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         list($newoptiondates, $highesindex) = self::get_list_of_submitted_dates((array)$formdata);
         $olddates = $settings->sessions;
+        // For tracking of changes, store infos about old optiondates including entities.
+        $memory = [];
+        if (!empty($olddates)) {
+            $handler = new entitiesrelation_handler('mod_booking', 'optiondate');
+            foreach ($olddates as $oldd) {
+                if ($data = $handler->get_instance_data($oldd->optiondateid)) {
+                    $oldd->entityid = $data->id ?? 0;
+                    $oldd->entityarea = $data->area ?? '';
+                }
+                $memory[] = $oldd;
+            }
+        }
 
         $datestosave = [];
         $datestodelete = [];
@@ -572,7 +584,8 @@ class dates {
         // Saving and updating uses the same routines anyway.
 
         $datestosave = array_merge($datestosave, $datestoupdate);
-
+        $nd = [];
+        $newdates = "";
         foreach ($datestosave as $date) {
             $optiondate = optiondate::save(
                 (int)$date['optiondateid'] ?? 0,
@@ -586,7 +599,40 @@ class dates {
                 0,
                 (int)$date['entityid'] ?? 0,
                 $date['customfields'] ?? []);
+            $newdate = dates_handler::prettify_datetime((int)$date['coursestarttime'],
+            (int)$date['courseendtime']);
+            $newdates = $newdate->datestring;
+            if (!empty($date['entityid'])) {
+                $entity = singleton_service::get_entity_by_id($date['entityid']);
+                $newdates .= " " . $entity[$date['entityid']]->name;
+            }
+            $nd[] = $newdates;
         }
+
+        $od = [];
+        $olddates = "";
+        foreach ($memory as $old) {
+            $olddate = dates_handler::prettify_datetime((int)$old->coursestarttime,
+            (int)$old->courseendtime);
+
+            $olddates = $olddate->datestring;
+            if (!empty($old->entityid)) {
+                $entity = singleton_service::get_entity_by_id($old->entityid);
+                $olddates .= " " . $entity[$old->entityid]->name;
+            }
+            $od[] = $olddates;
+
+        }
+
+        $changes = [
+            'changes' => [
+                'info' => get_string('dates', 'booking') . get_string('changeinfochanged', 'booking'),
+                'fieldname' => 'dates',
+                'oldvalue' => $od,
+                'newvalue' => $nd,
+            ],
+        ];
+        return $changes;
     }
 
     /**

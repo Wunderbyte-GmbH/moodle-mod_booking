@@ -180,12 +180,12 @@ class optiondates extends field_base {
      *
      * @param stdClass $formdata
      * @param stdClass $option
-     * @return void
+     * @return array
      * @throws \dml_exception
      */
-    public static function save_data(stdClass &$formdata, stdClass &$option) {
+    public static function save_data(stdClass &$formdata, stdClass &$option): array {
 
-        dates::save_optiondates_from_form($formdata, $option);
+        return dates::save_optiondates_from_form($formdata, $option);
     }
 
     /**
