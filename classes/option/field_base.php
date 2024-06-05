@@ -241,30 +241,33 @@ abstract class field_base implements fields {
             $infotext = get_string($classname, 'booking') . get_string('changeinfochanged', 'booking');
             // In some cases, formvalues are ids of users, we make them readable.
             if ($oldvalue != $newvalue
-                && in_array($classname, $areaswithuseridstoresolve)) {
+                && in_array($key, $areaswithuseridstoresolve)) {
                     $oldvaluestring = "";
                     $newvaluestring = "";
 
-                if (is_array($oldvalue)) {
-                    foreach ($oldvalue as $userid) {
-                        $ov = $this->resolve_userid_as_readable_personparams((int) $userid, $oldvaluestring);
-                    };
-                } else {
-                    $ov = $this->resolve_userid_as_readable_personparams((int) $oldvalue, $oldvaluestring);
+                if (!empty($oldvalue)) {
+                    if (is_array($oldvalue)) {
+                        foreach ($oldvalue as $userid) {
+                            $ov = $this->resolve_userid_as_readable_personparams((int) $userid, $oldvaluestring);
+                        };
+                    } else {
+                        $ov = $this->resolve_userid_as_readable_personparams((int) $oldvalue, $oldvaluestring);
+                    }
+                    if (!$ov) {
+                        $oldvaluestring = $oldvalue;
+                    }
                 }
-                if (!$ov) {
-                    $oldvaluestring = $oldvalue;
-                }
-
-                if (is_array($newvalue)) {
-                    foreach ($newvalue as $userid) {
-                        $nv = $this->resolve_userid_as_readable_personparams((int) $userid, $newvaluestring);
-                    };
-                } else {
-                    $nv = $this->resolve_userid_as_readable_personparams((int) $newvalue, $newvaluestring);
-                }
-                if (!$nv) {
-                    $newvaluestring = $newvalue;
+                if (!empty($newvalue)) {
+                    if (is_array($newvalue)) {
+                        foreach ($newvalue as $userid) {
+                            $nv = $this->resolve_userid_as_readable_personparams((int) $userid, $newvaluestring);
+                        };
+                    } else {
+                        $nv = $this->resolve_userid_as_readable_personparams((int) $newvalue, $newvaluestring);
+                    }
+                    if (!$nv) {
+                        $newvaluestring = $newvalue;
+                    }
                 }
 
                 $changes = [
