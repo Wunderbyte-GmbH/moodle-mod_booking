@@ -636,6 +636,7 @@ $string['duedate'] = 'Fälligkeitsdatum';
 $string['numberofinstallment'] = 'Anzahl Ratenzahlung';
 $string['numberofinstallmentstring'] = '{$a}. Ratenzahlung';
 $string['installmentprice'] = 'Ratenzahlungspreis';
+$string['sthwentwrongwithplaceholder'] = ''; // Returnvalue for failed placeholders. {$a} returns classname.
 
 $string['userinfosasstring'] = '{$a->firstname} {$a->lastname} (ID:{$a->id})';
 

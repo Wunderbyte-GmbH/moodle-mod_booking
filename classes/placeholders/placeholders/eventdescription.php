@@ -24,7 +24,7 @@
 
 namespace mod_booking\placeholders\placeholders;
 
-use moodle_exception;
+
 
 defined('MOODLE_INTERNAL') || die();
 
