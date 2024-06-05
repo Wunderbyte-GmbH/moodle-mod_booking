@@ -71,7 +71,12 @@ class col_price implements renderable, templatable {
      * @param context|null $context
      *
      */
-    public function __construct(stdClass $values, booking_option_settings $settings, ?object $buyforuser = null, ?context $context = null) {
+    public function __construct(
+        stdClass $values,
+        booking_option_settings $settings,
+        ?object $buyforuser = null,
+        ?context $context = null
+    ) {
 
         global $USER;
 
