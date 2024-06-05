@@ -123,13 +123,14 @@ class message_controller {
 
     /**
      * Constructor
+     *
      * @param int $msgcontrparam message controller param (send now | queue adhoc)
      * @param int $messageparam the message type
      * @param int $cmid course module id
      * @param int $optionid option id
      * @param int $userid user id
      * @param ?int $bookingid booking id
-     * @param ?int|null $optiondateid optional id of a specific session (optiondate)
+     * @param ?int $optiondateid optional id of a specific session (optiondate)
      * @param ?array $changes array of changes for change notifications
      * @param string $customsubject subject of custom messages
      * @param string $custommessage body of custom messages

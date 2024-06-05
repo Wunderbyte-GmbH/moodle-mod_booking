@@ -173,8 +173,8 @@ class addbookingoption extends external_api {
      * @param string|null $bookingclosingtime
      * @param int|null $enrolmentstatus
      * @param string|null $description
-     * @param int $descriptionformat
-     * @param int $limitanswers
+     * @param int|null $descriptionformat
+     * @param int|null $limitanswers
      * @param int|null $addtocalendar
      * @param string|null $pollurl
      * @param string|null $location
@@ -185,25 +185,24 @@ class addbookingoption extends external_api {
      * @param int|null $removeafterminutes
      * @param string|null $notifcationtext
      * @param int|null $notifcationtextformat
-     * @param int $disablebookingusers
+     * @param int|null $disablebookingusers
      * @param string|null $beforebookedtext
      * @param string|null $beforecompletedtext
      * @param string|null $aftercompletedtext
      * @param string|null $shorturl
-     * @param int $duration
+     * @param int|null $duration
      * @param string|null $useremail
      * @param string|null $teacheremail
      * @param string|null $userusername
      * @param string|null $coursestarttime
      * @param string|null $courseendtime
-     * @param int $invisible
+     * @param int|null $invisible
      * @param string|null $responsiblecontact
      * @param string|null $boavenrolledincourse
      * @param string|null $recommendedin
      * @param int|null $mergeparam
-     *
      * @return array
-     *
+     * @throws \invalid_parameter_exception
      */
     public static function execute(
                         string $name,

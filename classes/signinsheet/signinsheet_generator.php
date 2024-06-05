@@ -221,8 +221,9 @@ class signinsheet_generator {
     /**
      * Define basic variable values for signinsheet pdf
      *
-     * @param ?\mod_booking\booking_option $bookingoption
      * @param \stdClass $pdfoptions
+     * @param ?\mod_booking\booking_option $bookingoption
+     *
      */
     public function __construct(\stdClass $pdfoptions, ?\mod_booking\booking_option $bookingoption = null) {
 
