@@ -547,7 +547,7 @@ class customform implements bo_condition {
                 !empty($answerjson->condition_customform)
             ) {
                 foreach ($answerjson->condition_customform as $key => $value) {
-                    if (str_contains($key, 'customform_')) {
+                    if (strpos($key, 'customform_') !== false) {
                         $answer->$key = $value;
                     }
                 }
