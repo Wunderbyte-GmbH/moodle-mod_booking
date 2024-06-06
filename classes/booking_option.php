@@ -1353,6 +1353,11 @@ class booking_option {
      */
     public function send_confirm_message(stdClass $user, bool $optionchanged = false, ?array $changes = null) {
 
+        if (!get_config('booking', 'uselegacymailtemplates')) {
+            // Check if this deprecated method should really still be used.
+            return false;
+        }
+
         global $DB;
 
         $user = $DB->get_record('user', ['id' => $user->id]);
