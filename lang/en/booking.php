@@ -584,7 +584,11 @@ $string['mailtemplatessource_help'] = '<b>Caution:</b> If you choose global e-ma
 templates won\'t be used. Instead the e-mail templates specified in the booking plugin settings will be used. <br><br>
 Please make sure that there are existing e-mail templates in the booking settings for each e-mail type.';
 $string['mailtemplatesinstance'] = 'Use mail templates from this booking instance (default)';
-$string['mailtemplatesglobal'] = 'Use global mail templates from plugin settings';
+$string['mailtemplatesglobal'] = 'Still use legacy mail templates';
+$string['uselegacymailtemplates'] = 'Still use legacy mail templates';
+$string['uselegacymailtemplates_desc'] = 'This function is deprecated and will be removed in the near future. We strongly encourage you to migrate your templates & settings to <a href="{$a}">Booking Rules</a>.
+<span class="text-danger"><b>Be careful:</b> If you uncheck this box, your email templates in your booking-instances won\'t be shown and used anymore.</span>';
+
 
 $string['feedbackurl_help'] = 'Enter a link to a feedback form that should be sent to participants.
  It can be added to e-mails with the <b>{pollurl}</b> placeholder.';

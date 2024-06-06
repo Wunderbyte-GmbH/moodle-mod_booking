@@ -781,6 +781,15 @@ if ($ADMIN->fulltree) {
         new admin_setting_heading('globalmailtemplates_heading',
             get_string('globalmailtemplates', 'mod_booking'),
             get_string('globalmailtemplates_desc', 'mod_booking')));
+
+    $url = new moodle_url('/mod/booking/edit_rules.php');
+    $linktorules = $url->out();
+    $settings->add(new admin_setting_configcheckbox('booking/uselegacymailtemplates',
+        get_string('uselegacymailtemplates', 'mod_booking'),
+        get_string('uselegacymailtemplates_desc', 'mod_booking', $linktorules),
+        1)
+        );
+
     if ($proversion) {
         $settings->add(new admin_setting_confightmleditor('booking/globalbookedtext',
             get_string('globalbookedtext', 'booking'), '', ''));
