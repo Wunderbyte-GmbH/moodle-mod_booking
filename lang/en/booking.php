@@ -26,6 +26,7 @@ global $CFG;
 
 $badgepro = '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $badgeexp = '<span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimental</span>';
+$badgedepr = '<span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Deprecated</span>';
 
 // General strings.
 $string['accept'] = 'Accept';
@@ -584,10 +585,10 @@ $string['mailtemplatessource_help'] = '<b>Caution:</b> If you choose global e-ma
 templates won\'t be used. Instead the e-mail templates specified in the booking plugin settings will be used. <br><br>
 Please make sure that there are existing e-mail templates in the booking settings for each e-mail type.';
 $string['mailtemplatesinstance'] = 'Use mail templates from this booking instance (default)';
-$string['mailtemplatesglobal'] = 'Still use legacy mail templates';
+$string['mailtemplatesglobal'] = 'Use global mail templates from plugin settings';
 $string['uselegacymailtemplates'] = 'Still use legacy mail templates';
 $string['uselegacymailtemplates_desc'] = 'This function is deprecated and will be removed in the near future. We strongly encourage you to migrate your templates & settings to <a href="{$a}">Booking Rules</a>.
-<span class="text-danger"><b>Be careful:</b> If you uncheck this box, your email templates in your booking-instances won\'t be shown and used anymore.</span>';
+ <span class="text-danger"><b>Be careful:</b> If you uncheck this box, your email templates in your booking-instances won\'t be shown and used anymore.</span>';
 
 
 $string['feedbackurl_help'] = 'Enter a link to a feedback form that should be sent to participants.
@@ -1184,19 +1185,19 @@ $string['bookingdebugmode'] = 'Booking debug mode';
 $string['bookingdebugmode_desc'] = 'Booking debug mode should only be activated by developers.';
 $string['globalcurrency'] = 'Currency';
 $string['globalcurrencydesc'] = 'Choose the currency for booking option prices';
-$string['globalmailtemplates'] = 'Global mail templates ' . $badgepro;
+$string['globalmailtemplates'] = 'Legacy mail templates ' . $badgedepr;
 $string['globalmailtemplates_desc'] = 'After activation, you can go to the settings of a booking instance and set the source of mail templates to global.';
-$string['globalbookedtext'] = 'Booking confirmation (global template)';
-$string['globalwaitingtext'] = 'Waiting list confirmation (global template)';
-$string['globalnotifyemail'] = 'Participant notification before start (global template)';
-$string['globalnotifyemailteachers'] = 'Teacher notification before start (global template)';
-$string['globalstatuschangetext'] = 'Status change message (global template)';
-$string['globaluserleave'] = 'User has cancelled his/her own booking (global template)';
-$string['globaldeletedtext'] = 'Cancelled booking message (global template)';
-$string['globalbookingchangedtext'] = 'Message to be sent when a booking option changes (will only be sent to users who have already booked). Use the placeholder {changes} to show the changes. Enter 0 to turn off change notifications. (Global template)';
-$string['globalpollurltext'] = 'Message for sending poll url to booked users (global template)';
-$string['globalpollurlteacherstext'] = 'Message for the poll url sent to teachers (global template)';
-$string['globalactivitycompletiontext'] = 'Message to be sent to user when booking option is completed (global template)';
+$string['globalbookedtext'] = 'Booking confirmation (global template) ' . $badgedepr;
+$string['globalwaitingtext'] = 'Waiting list confirmation (global template) ' . $badgedepr;
+$string['globalnotifyemail'] = 'Participant notification before start (global template) ' . $badgedepr;
+$string['globalnotifyemailteachers'] = 'Teacher notification before start (global template) ' . $badgedepr;
+$string['globalstatuschangetext'] = 'Status change message (global template) ' . $badgedepr;
+$string['globaluserleave'] = 'User has cancelled his/her own booking (global template) ' . $badgedepr;
+$string['globaldeletedtext'] = 'Cancelled booking message (global template) ' . $badgedepr;
+$string['globalbookingchangedtext'] = 'Message to be sent when a booking option changes (will only be sent to users who have already booked). Use the placeholder {changes} to show the changes. Enter 0 to turn off change notifications. (Global template) ' . $badgedepr;
+$string['globalpollurltext'] = 'Message for sending poll url to booked users (global template) ' . $badgedepr;
+$string['globalpollurlteacherstext'] = 'Message for the poll url sent to teachers (global template) ' . $badgedepr;
+$string['globalactivitycompletiontext'] = 'Message to be sent to user when booking option is completed (global template) ' . $badgedepr;
 $string['licensekeycfg'] = 'Activate PRO version';
 $string['licensekeycfgdesc'] = 'With a PRO license you can create as many booking templates as you like and use PRO features such as global mail templates, waiting list info texts or teacher notifications.';
 $string['licensekey'] = 'PRO license key';
