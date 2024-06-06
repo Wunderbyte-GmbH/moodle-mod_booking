@@ -2482,33 +2482,8 @@ $string['mobile_set_submission'] = 'Submit';
 $string['mobile_field_required'] = 'This field is required';
 // Days before or after.
 $string['choose...'] = 'Choose...';
-$string['daybefore1'] = '1 day before';
-$string['dayafter1'] = '1 day after';
-$string['daybefore2'] = '2 days before';
-$string['dayafter2'] = '2 days after';
-$string['daybefore3'] = '3 days before';
-$string['dayafter3'] = '3 days after';
-$string['daybefore4'] = '4 days before';
-$string['dayafter4'] = '4 days after';
-$string['daybefore5'] = '5 days before';
-$string['dayafter5'] = '5 days after';
-$string['daybefore6'] = '6 days before';
-$string['dayafter6'] = '6 days after';
-$string['daybefore7'] = '7 days before';
-$string['dayafter7'] = '7 days after';
-$string['daybefore8'] = '8 days before';
-$string['dayafter8'] = '8 days after';
-$string['daybefore9'] = '9 days before';
-$string['dayafter9'] = '9 days after';
-$string['daybefore10'] = '10 days before';
-$string['dayafter10'] = '10 days after';
-$string['daybefore15'] = '15 days before';
-$string['dayafter15'] = '15 days after';
-$string['daybefore20'] = '20 days before';
-$string['dayafter20'] = '20 days after';
-$string['daybefore25'] = '25 days before';
-$string['dayafter25'] = '25 days after';
-$string['daybefore30'] = '30 days before';
-$string['dayafter30'] = '30 days after';
+$string['daysbefore'] = '{$a} day(s) before';
+$string['daysafter'] = '{$a} day(s) after';
+$string['sameday'] = 'same day';
 
 

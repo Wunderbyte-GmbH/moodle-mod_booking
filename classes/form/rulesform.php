@@ -121,9 +121,6 @@ class rulesform extends dynamic_form {
                 $errors['bookingruletype'] = get_string('error:choosevalue', 'mod_booking');
                 break;
             case 'rule_daysbefore':
-                if ($data['rule_daysbefore_days'] == '0') {
-                    $errors['rule_daysbefore_days'] = get_string('error:choosevalue', 'mod_booking');
-                }
                 if ($data['rule_daysbefore_datefield'] == '0') {
                     $errors['rule_daysbefore_datefield'] = get_string('error:choosevalue', 'mod_booking');
                 }

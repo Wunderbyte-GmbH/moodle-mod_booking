@@ -87,37 +87,12 @@ class rule_daysbefore implements booking_rule {
     public function add_rule_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
         global $DB;
 
-        $numberofdaysbefore = [
-            0 => get_string('choose...', 'mod_booking'),
-            1 => get_string('daybefore1', 'mod_booking'),
-            -1 => get_string('dayafter1', 'mod_booking'),
-            2 => get_string('daybefore2', 'mod_booking'),
-            -2 => get_string('dayafter2', 'mod_booking'),
-            3 => get_string('daybefore3', 'mod_booking'),
-            -3 => get_string('dayafter3', 'mod_booking'),
-            4 => get_string('daybefore4', 'mod_booking'),
-            -4 => get_string('dayafter4', 'mod_booking'),
-            5 => get_string('daybefore5', 'mod_booking'),
-            -5 => get_string('dayafter5', 'mod_booking'),
-            6 => get_string('daybefore6', 'mod_booking'),
-            -6 => get_string('dayafter6', 'mod_booking'),
-            7 => get_string('daybefore7', 'mod_booking'),
-            -7 => get_string('dayafter7', 'mod_booking'),
-            8 => get_string('daybefore8', 'mod_booking'),
-            -8 => get_string('dayafter8', 'mod_booking'),
-            9 => get_string('daybefore9', 'mod_booking'),
-            -9 => get_string('dayafter9', 'mod_booking'),
-            10 => get_string('daybefore10', 'mod_booking'),
-            -10 => get_string('dayafter10', 'mod_booking'),
-            15 => get_string('daybefore15', 'mod_booking'),
-            -15 => get_string('dayafter15', 'mod_booking'),
-            20 => get_string('daybefore20', 'mod_booking'),
-            -20 => get_string('dayafter20', 'mod_booking'),
-            25 => get_string('daybefore25', 'mod_booking'),
-            -25 => get_string('dayafter25', 'mod_booking'),
-            30 => get_string('daybefore30', 'mod_booking'),
-            -30 => get_string('dayafter30', 'mod_booking'),
-        ];
+        $numberofdaysbefore = [];
+        for ($i = -30; $i <= 30; $i++) {
+            if (($i >= -10 && $i <= 10) || ($i % 5 == 0)) {
+                $this->fill_days_select($numberofdaysbefore, $i);
+            }
+        }
 
         // Get a list of allowed option fields (only date fields allowed).
         $datefields = [
@@ -141,6 +116,7 @@ class rule_daysbefore implements booking_rule {
         // Number of days before.
         $mform->addElement('select', 'rule_daysbefore_days',
             get_string('rule_days', 'mod_booking'), $numberofdaysbefore);
+        $mform->setDefault('rule_daysbefore_days', 0);
         $repeateloptions['rule_daysbefore_days']['type'] = PARAM_TEXT;
 
         // Date field needed in combination with the number of days before.
@@ -150,6 +126,25 @@ class rule_daysbefore implements booking_rule {
 
     }
 
+    /**
+     * Fill array of select with right keys and values.
+     *
+     * @param array $selectarray
+     * @param int $value
+     *
+     * @return void
+     *
+     */
+    private function fill_days_select(array &$selectarray, int $value) {
+        if ($value < 0) {
+            $int = $value * -1;
+            $selectarray[$value] = get_string('daysafter', 'mod_booking', $int);
+        } else if ($value > 0) {
+            $selectarray[$value] = get_string('daysbefore', 'mod_booking', $value);
+        } else if ($value == 0) {
+            $selectarray[$value] = get_string('sameday', 'mod_booking', $value);
+        }
+    }
     /**
      * Get the name of the rule.
      * @param bool $localized
