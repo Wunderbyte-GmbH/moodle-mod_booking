@@ -623,6 +623,7 @@ $string['startdate'] = "Startdatum";
 $string['starttime'] = "Startzeit";
 $string['rest_response'] = "rest_response";
 $string['eventdescription'] = "eventdescription";
+$string['customform'] = "customform";
 $string['title'] = "Titel";
 $string['usercalendarurl'] = "Nutzer:innen Kalender";
 $string['username'] = "Usernamen";

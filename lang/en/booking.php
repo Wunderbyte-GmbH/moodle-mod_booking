@@ -626,6 +626,7 @@ $string['startdate'] = "startdate";
 $string['starttime'] = "starttime";
 $string['rest_response'] = "rest_response";
 $string['eventdescription'] = "eventdescription";
+$string['customform'] = "customform";
 $string['title'] = "title";
 $string['usercalendarurl'] = "usercalendarurl";
 $string['username'] = "username";

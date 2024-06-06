@@ -1292,12 +1292,21 @@ class booking_option {
 
         $this->enrol_user_coursestart($user->id);
 
+        $other = [];
+        $ba = singleton_service::get_instance_of_booking_answers($this->settings);
+        if (isset($ba->usersonlist[$user->id])) {
+            $answer = $ba->usersonlist[$user->id];
+            $other['baid'] = $answer->baid;
+            $other['json'] = $answer->json ?? '';
+        }
+
         $event = event\bookingoption_booked::create(
-                ['objectid' => $this->optionid,
-                    'context' => context_module::instance($this->cmid),
-                    'userid' => $USER->id,
-                    'relateduserid' => $user->id,
-                ]);
+            ['objectid' => $this->optionid,
+                'context' => context_module::instance($this->cmid),
+                'userid' => $USER->id,
+                'relateduserid' => $user->id,
+                'other' => $other,
+            ]);
         $event->trigger();
 
         $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
