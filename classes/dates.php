@@ -611,6 +611,9 @@ class dates {
 
         $od = [];
         $olddates = "";
+        if (empty($datestodelete) && empty($datestosave)) {
+            return [];
+        }
         foreach ($memory as $old) {
             $olddate = dates_handler::prettify_datetime((int)$old->coursestarttime,
             (int)$old->courseendtime);
