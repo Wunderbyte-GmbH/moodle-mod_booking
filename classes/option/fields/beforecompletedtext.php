@@ -119,6 +119,11 @@ class beforecompletedtext extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
+        // This field is deprecated and will only be added if defined so in setting.
+        if (!get_config('booking', 'uselegacymailtemplates')) {
+            return;
+        };
+
         // Standardfunctionality to add a header to the mform (only if its not yet there).
         fields_info::add_header_to_mform($mform, self::$header);
 
