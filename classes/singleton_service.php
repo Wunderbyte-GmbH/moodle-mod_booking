@@ -580,11 +580,11 @@ class singleton_service {
     }
 
     /**
-     * Return entitiy.
+     * Return entity object by id.
      *
      * @param int $id
      *
-     * @return stdClass
+     * @return object
      *
      */
     public static function get_entity_by_id(int $id) {
