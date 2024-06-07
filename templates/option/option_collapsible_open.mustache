@@ -29,7 +29,7 @@
     }
 }}
 
-<div id="{{accordionid}}">
+<div id="{{accordionid}}" name="optiondate-element">
   <div class="card bg-white mb-2">
       <div class="card-header border-0 p-1" id="{{headerid}}">
           <h5 class="mb-0">
@@ -38,7 +38,9 @@
               data-target="#{{collapseid}}"
               aria-expanded="{{expanded}}"
               aria-controls="{{collapseid}}">
-              <i class="fa fa-fw fa-calendar-o" aria-hidden="true"></i>&nbsp;{{headername}}
+              <i class="fa fa-fw fa-calendar-o" aria-hidden="true"></i>
+              &nbsp;{{headername}}&nbsp;
+              <i class="fa fa-fw fa-trash-o deleteoptiondate" aria-hidden="true"></i>
           </span>
           </h5>
       </div>
@@ -48,3 +50,4 @@
       aria-labelledby="{{headerid}}"
       data-parent="#{{accordionid}}">
   <div class="card-body">
+</div>

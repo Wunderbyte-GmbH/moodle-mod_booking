@@ -30,6 +30,13 @@
  */
 import DynamicForm from 'core_form/dynamicform';
 
+const SELECTORS = {
+    OPTIONDATELEMENT: '[name="optiondate-element"]',
+    DELETEOPTIONDATE: 'deleteoptiondate',
+    DELETEOPTIONDATEBUTTON: '[name^="deletedate_"]',
+    PAGE: '[id="page"]'
+};
+
 
 export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => {
     // Initialize the form - pass the container element and the form class name.
@@ -94,6 +101,55 @@ export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => 
         }
     });
     hidecheckbox(checkbox1, checkbox2, closest, conditionalCheckbox, false);
+
+
+    const page = document.querySelector(SELECTORS.PAGE);
+
+    if (page) {
+
+        page.addEventListener('click', e => {
+
+            const element = e.target;
+
+            // eslint-disable-next-line no-console
+            console.log('target', element);
+
+            if (element.classList.contains(SELECTORS.DELETEOPTIONDATE)) {
+
+                const container = element.closest(SELECTORS.OPTIONDATELEMENT);
+
+                // eslint-disable-next-line no-console
+                console.log('container', container, container.querySelector('.bg-white'));
+
+                if (container) {
+
+                    const card = container.querySelector('.bg-white');
+                    if (card) {
+
+                        // eslint-disable-next-line no-console
+                        console.log('card', card);
+
+                        card.classList.remove('bg-white');
+                        card.classList.add('bg-danger');
+                    }
+
+                    const deletebutton = container.querySelector(SELECTORS.DELETEOPTIONDATEBUTTON);
+                    if (deletebutton) {
+
+                        // eslint-disable-next-line no-console
+                        console.log('deletebutton', deletebutton);
+
+                        deletebutton.click();
+                    }
+                }
+            }
+        });
+    }
+
+    const optiondateelements = document.querySelectorAll(SELECTORS.OPTIONDATELEMENT);
+
+    // eslint-disable-next-line no-console
+    console.log(optiondateelements);
 };
 
 /**
