@@ -199,7 +199,7 @@ abstract class field_base implements fields {
      */
     public function check_for_changes(
         stdClass $formdata,
-        field_base|null $self,
+        ?field_base $self,
         mixed $mockdata = '',
         string $key = '',
         mixed $value = ''): array {
