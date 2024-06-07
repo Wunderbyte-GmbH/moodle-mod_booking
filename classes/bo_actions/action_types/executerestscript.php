@@ -45,7 +45,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @copyright 2023 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class generateprolicense extends booking_action {
+class executerestscript extends booking_action {
 
     /**
      * Apply action.
@@ -118,6 +118,7 @@ class generateprolicense extends booking_action {
             $params['username'] = $user->username;
         }
         $params['numberofdays'] = $actiondata->numberofdays ?? 365;
+        $params['token'] = $actiondata->secrettoken ?? '';
         $params['submit'] = true;
 
         $curl = curl_init();
@@ -165,6 +166,9 @@ class generateprolicense extends booking_action {
 
         $mform->addElement('text', 'numberofdays', get_string('bonumberofdays', 'mod_booking'));
         $mform->setType('numberofdays', PARAM_INT);
+
+        $mform->addElement('text', 'secrettoken', get_string('bosecrettoken', 'mod_booking'));
+        $mform->setType('secrettoken', PARAM_TEXT);
 
         $mform->addElement('advcheckbox',
             'customformparameter',
