@@ -192,6 +192,7 @@ class actions_info {
             unset($optionvalues->jsonobject->boactions[$data->id]);
 
             $optionvalues->json = json_encode($optionvalues->jsonobject);
+            $optionvalues->boactions = $optionvalues->jsonobject->boactions;
 
             $context = context_module::instance($data->cmid);
 
