@@ -869,20 +869,23 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('advcheckbox', 'removeuseronunenrol', get_string("removeuseronunenrol", "booking"));
 
         // Booking option text.
-        $mform->addElement('header', 'bookingoptiontextheader',
-                get_string('textdependingonstatus', 'booking'));
+        if (!get_config('booking', 'uselegacymailtemplates')) {
+            // Check if these deprecated fields should really still be used.
+            $mform->addElement('header', 'bookingoptiontextheader',
+            get_string('textdependingonstatus', 'booking'));
 
-        $mform->addElement('editor', 'beforecompletedtext',
-                get_string("beforecompletedtext", "booking"), null, null);
-        $mform->setType('beforecompletedtext', PARAM_CLEANHTML);
+            $mform->addElement('editor', 'beforecompletedtext',
+                    get_string("beforecompletedtext", "booking"), null, null);
+            $mform->setType('beforecompletedtext', PARAM_CLEANHTML);
 
-        $mform->addElement('editor', 'aftercompletedtext',
-                get_string("aftercompletedtext", "booking"), null, null);
-        $mform->setType('aftercompletedtext', PARAM_CLEANHTML);
+            $mform->addElement('editor', 'aftercompletedtext',
+                    get_string("aftercompletedtext", "booking"), null, null);
+            $mform->setType('aftercompletedtext', PARAM_CLEANHTML);
 
-        $mform->addElement('editor', 'beforebookedtext', get_string("beforebookedtext", "booking"),
-                null, null);
-        $mform->setType('beforebookedtext', PARAM_CLEANHTML);
+            $mform->addElement('editor', 'beforebookedtext', get_string("beforebookedtext", "booking"),
+                    null, null);
+            $mform->setType('beforebookedtext', PARAM_CLEANHTML);
+        }
 
         // Sign-In Sheet Configuration.
         $mform->addElement('header', 'cfgsigninheader', get_string('cfgsignin', 'booking'));
