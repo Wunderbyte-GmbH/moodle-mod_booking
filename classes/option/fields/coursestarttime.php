@@ -87,8 +87,8 @@ class coursestarttime extends field_base {
      * @param stdClass $formdata
      * @param stdClass $newoption
      * @param int $updateparam
-     * @param mixed $returnvalue
-     * @return array // If no warning, empty string.
+     * @param ?mixed $returnvalue
+     * @return array // If no warning, empty array.
      */
     public static function prepare_save_field(
         stdClass &$formdata,
