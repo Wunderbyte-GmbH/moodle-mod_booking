@@ -98,6 +98,9 @@ class placeholders_info {
 
         foreach ($placeholders as $placeholder) {
 
+            // Ignore when starts with # or /
+            // continue;
+
             // We might need more complex placeholder for iteration...
             // ... (like {{# sessiondates}} or {{teacher 1}}). Therefore...
             // ... we need to explode the placeholders here.
@@ -155,6 +158,10 @@ class placeholders_info {
             if (!empty($value)) {
                 $searchstring = '{' . $placeholder . '}';
                 $text = str_replace($searchstring, $value, $text);
+
+                // Look for enclosing placeholder. Delete them.
+            } else {
+                // Delete everything beetween enclosing placeholder.
             }
         }
         return $text;
