@@ -189,6 +189,9 @@ class booking_option_settings {
     /** @var array $customfields */
     public $customfields = [];
 
+    /** @var array $customfieldsfortemplates */
+    public $customfieldsfortemplates = [];
+
     /** @var string $editoptionurl */
     public $editoptionurl = null;
 
@@ -884,19 +887,35 @@ class booking_option_settings {
      * @param int $optionid
      */
     private function load_customfields(int $optionid) {
+        global $DB;
+
         $handler = booking_handler::create();
 
         $datas = $handler->get_instance_data($optionid, true);
 
         foreach ($datas as $data) {
 
-            $getfield = $data->get_field();
-            $shortname = $getfield->get('shortname');
-
+            $field = $data->get_field();
+            $shortname = $field->get('shortname');
+            $label = $field->get('name');
+            $type = $field->get('type');
+            $fieldid = $field->get('id');
             $value = $data->get_value();
 
             if (!empty($value)) {
                 $this->customfields[$shortname] = $value;
+
+                if ($type === 'select') {
+                    $options = singleton_service::get_customfields_select_options($fieldid);
+                    $value = $options[$value];
+                }
+
+                // We also return the customfieldsfortemplates where we get the real values of the selects.
+                $this->customfieldsfortemplates[$shortname] = [
+                    'label' => $label,
+                    'key' => $shortname,
+                    'value' => $value,
+                ];
             }
         }
     }

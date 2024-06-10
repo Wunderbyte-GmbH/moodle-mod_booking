@@ -88,6 +88,9 @@ class singleton_service {
     /** @var array $usercohorts */
     public array $usercohorts = [];
 
+    /** @var array $customfields */
+    public array $customfields = [];
+
 
     /**
      * Constructor
@@ -571,5 +574,41 @@ class singleton_service {
         }
 
         return $instance->usercohorts[$userid];
+    }
+
+    /**
+     * We store the options of the customfield.
+     *
+     * @param int $fieldid
+     *
+     * @return array
+     *
+     */
+    public static function get_customfields_select_options(int $fieldid): array {
+
+        global $DB;
+
+        $customfields = [];
+        $instance = self::get_instance();
+
+        if (!isset($instance->customfields[$fieldid])) {
+            $field = $DB->get_record('customfield_field', ['id' => $fieldid], 'configdata');
+            $configdata = json_decode($field->configdata, true);
+
+            $options = $configdata['options'];
+            $optionlist = explode("\n", $options);
+            $counter = 0;
+
+            foreach ($optionlist as $option) {
+                $option =
+
+                $customfields[$counter] = trim($option);
+                $counter++;
+            }
+
+            $instance->customfields[$fieldid] = $customfields;
+        }
+
+        return $instance->customfields[$fieldid];
     }
 }
