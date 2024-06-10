@@ -186,7 +186,7 @@ class select_user_shopping_cart implements booking_rule_condition {
             case 'postgres':
                 $concat = $DB->sql_concat("bo.id", "'-'", " (payments_info.payment_data->>'id') ");
 
-                $sql->select = "$concat as uniquid,
+                $sql->select .= "$concat as uniquid,
                                 bo.id optionid,
                                 cm.id cmid,
                                 sch.userid,
@@ -203,7 +203,7 @@ class select_user_shopping_cart implements booking_rule_condition {
                                 // We only want those payments that are.
 
                 // When we are in testmode, we fetch all the records which are before a certain moment.
-                $sql->where = " (payments_info.payment_data->>'paid')::numeric = 0
+                $sql->where .= " (payments_info.payment_data->>'paid')::numeric = 0
                                 AND sch.installments > 0
                                 AND sch.paymentstatus = :paymentstatus
                                 AND sch.json IS NOT NULL
@@ -225,7 +225,7 @@ class select_user_shopping_cart implements booking_rule_condition {
                 }
                 break;
             case 'mysql':
-                $sql->select = "
+                $sql->select .= "
                     CONCAT('', bo.id, '-', JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.id'))) AS uniquid,
                     bo.id optionid,
                     cm.id cmid,
@@ -243,7 +243,7 @@ class select_user_shopping_cart implements booking_rule_condition {
                             payment_data JSON PATH '$'
                         )
                     ) AS payments_info";
-                $sql->where = "CAST(JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.paid')) AS DECIMAL(10, 2)) = 0
+                $sql->where .= "CAST(JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.paid')) AS DECIMAL(10, 2)) = 0
                     AND sch.installments > 0
                     AND sch.paymentstatus = :paymentstatus
                     AND sch.json IS NOT NULL

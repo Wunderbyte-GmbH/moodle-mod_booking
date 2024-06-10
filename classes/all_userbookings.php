@@ -313,7 +313,9 @@ class all_userbookings extends \table_sql {
             if ($answer = $ba->usersonlist[(int)$value->userid] ?? false) {
                 list($prefix, $counter) = explode('_', $colname);
 
-                if ($jsonobject = json_decode($answer->json)) {
+                if (
+                    isset($answer->json) &&
+                    $jsonobject = json_decode($answer->json)) {
                     if (isset($jsonobject->condition_customform)) {
                         foreach ($jsonobject->condition_customform as $key => $value) {
 
