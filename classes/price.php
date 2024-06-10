@@ -987,6 +987,7 @@ class price {
 
             $userspecificprice = empty($userid) ? false : true;
 
+            // TODO: Check if this is done correctly. Fieldname and fieldvalue can be empty now...
             if ($campaign->userspecificprice !== $userspecificprice) {
                 continue;
             }
