@@ -95,11 +95,9 @@ class placeholders_info {
 
             self::return_list_of_placeholders();
         }
+        $noreturn = [];
 
         foreach ($placeholders as $placeholder) {
-
-            // Ignore when starts with # or /
-            // continue;
 
             // We might need more complex placeholder for iteration...
             // ... (like {{# sessiondates}} or {{teacher 1}}). Therefore...
@@ -158,10 +156,45 @@ class placeholders_info {
             if (!empty($value)) {
                 $searchstring = '{' . $placeholder . '}';
                 $text = str_replace($searchstring, $value, $text);
-
                 // Look for enclosing placeholder. Delete them.
             } else {
+                $firstchar = mb_substr($placeholder, 0, 1);
+                if ($firstchar == "#" || $firstchar == "/") {
+                    continue;
+                }
+                $noreturn[] = $placeholder;
+            }
+        }
+
+        foreach ($placeholders as $index => $placeholder) {
+            $firstchar = mb_substr($placeholder, 0, 1);
+            $nameafterfirstchar = substr($placeholder, 1);
+            $emptyph = in_array($nameafterfirstchar, $noreturn); // Without first char.
+
+            if (($firstchar == "#") && $emptyph) {
+                // Case 1: Placeholder is found and it's empty.
+                foreach ($placeholders as $index => $ph) {
+                    // Check if we find the end of the section.
+                    $name = substr($ph, 1);
+                    $first = mb_substr($ph, 0, 1);
+
+                    if ($nameafterfirstchar == $name && $first == "/") {
+                        $end = $matches[0][$index];
+                        break;
+                    } else {
+                        $end = "";
+                    }
+                }
                 // Delete everything beetween enclosing placeholder.
+                if (!empty($end)) {
+                    $pattern = '/' . preg_quote('{' . $placeholder . '}', '/') . '.*?' . preg_quote($end, '/') . '/';
+                } else {
+                    $pattern = '/\$\{placeholder\}/';
+                }
+                $text = preg_replace($pattern, '', $text);
+            } else if ($firstchar == "#" || $firstchar == "/") {
+                // Case 2: Placeholder is not empty, remove the enclosing placeholders.
+                $text = str_replace('{' . $placeholder . '}', '', $text);
             }
         }
         return $text;

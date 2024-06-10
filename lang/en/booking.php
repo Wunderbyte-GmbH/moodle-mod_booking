@@ -159,6 +159,7 @@ $string['error:entervalue'] = 'You have to enter a value here.';
 $string['error:negativevaluenotallowed'] = 'Please enter a positive value.';
 $string['error:pricemissing'] = 'Please enter a price.';
 $string['error:missingcapability'] = 'Necessary capability is missing. Please contact an administrator.';
+$string['error:noendtagfound'] = 'End the placeholder section "{$a}" with backslash ("/").';
 
 // Index.php.
 $string['week'] = "Week";

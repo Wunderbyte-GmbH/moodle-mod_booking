@@ -192,6 +192,18 @@ class rulesform extends dynamic_form {
                 }
                 break;
         }
+        // Check if {#placeholder} is closed with a {/placeholder}.
+        if (isset($data['action_send_mail_template']['text'])) {
+            $text = $data['action_send_mail_template']['text'];
+            preg_match_all('/\{#(\w+)\}/', $text, $matches);
+
+            foreach ($matches[1] as $word) {
+                $endtag = '{/' . $word . '}';
+                if (strpos($text, $endtag) == false) {
+                    $errors['action_send_mail_template'] = get_string('error:noendtagfound', 'mod_booking', $word);
+                }
+            }
+        }
 
         return $errors;
     }
