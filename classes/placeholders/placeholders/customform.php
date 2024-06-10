@@ -24,6 +24,7 @@
 
 namespace mod_booking\placeholders\placeholders;
 use mod_booking\singleton_service;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -139,10 +140,13 @@ class customform {
     /**
      * This function returns the value fromo an option, if necessary.
      *
+     * @param stdClass $options
+     * @param stdClass $eventdata
+     *
      * @return string
      *
      */
-    private static function return_selected_value_string(stdClass $options, \stdClass $eventdata) {
+    private static function return_selected_value_string(stdClass $options, stdClass $eventdata) {
 
         // If the field is actually no array, we just return the value.
         $linesarray = explode(PHP_EOL, $options->value);
