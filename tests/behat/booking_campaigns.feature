@@ -49,7 +49,7 @@ Feature: Create booking campaigns for booking options as admin and booking it as
       | Price factor                 | 0.5                |
       | Booking limit factor         | 2                  |
     ## Mandatory workaround for autocomplete field
-    And I set the field "Field" to "Sport1"
+    And I set the field "Booking option field" to "Sport1"
     And I wait "1" seconds
     And I set the field "Value" to "tenis"
     And I click on "Save changes" "button"
