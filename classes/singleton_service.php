@@ -579,6 +579,14 @@ class singleton_service {
         return $instance->usercohorts[$userid];
     }
 
+    /**
+     * Return entitiy.
+     *
+     * @param int $id
+     *
+     * @return stdClass
+     *
+     */
     public static function get_entity_by_id(int $id) {
         $instance = self::get_instance();
 
