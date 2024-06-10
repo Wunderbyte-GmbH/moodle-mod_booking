@@ -24,6 +24,7 @@
 
 namespace mod_booking\option\fields;
 
+use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use MoodleQuickForm;
@@ -112,5 +113,26 @@ class maxanswers extends field_base {
 
         $mform->addElement('text', 'maxanswers', get_string('maxparticipantsnumber', 'mod_booking'));
         $mform->setType('maxanswers', PARAM_INT);
+    }
+
+    /**
+     * Standard function to transfer stored value to form.
+     * @param stdClass $data
+     * @param booking_option_settings $settings
+     * @return void
+     * @throws dml_exception
+     */
+    public static function set_data(stdClass &$data, booking_option_settings $settings) {
+        global $DB;
+
+        $key = fields_info::get_class_name(static::class);
+        // Normally, we don't call set data after the first time loading.
+        if (isset($data->{$key})) {
+            return;
+        }
+        // Fetch the original value from the DB, because in settings object might be overwritten by campaigns.
+        $value = $DB->get_field('booking_options', 'maxanswers', ['id' => $settings->id]);
+
+        $data->{$key} = $value;
     }
 }
