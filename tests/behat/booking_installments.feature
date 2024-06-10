@@ -33,8 +33,8 @@ Feature: Enabling installments as admin configuring installments as a teacher an
       | account  | gateway | enabled | config                                                                                |
       | Account1 | paypal  | 1       | {"brandname":"Test paypal","clientid":"Test","secret":"Test","environment":"sandbox"} |
     And the following "local_shopping_cart > user credits" exist:
-      | user     | credits | currency | balance |
-      | student1 | 100     | EUR      | 100     |
+      | user     | credit | currency |
+      | student1 | 100    | EUR      |
     And the following "local_shopping_cart > plugin setup" exist:
       | account  |
       | Account1 |
