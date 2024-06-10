@@ -2128,7 +2128,8 @@ $string['bookingcampaigns'] = 'Booking: Campaigns (PRO)';
 $string['bookingcampaign'] = 'Campaign';
 $string['bookingcampaignssubtitle'] = 'Campaigns allow you to discount the prices of selected booking options
  for a specified period of time and increase the booking limit for that period. For campaigns to work, the
- Moodle cron job must run regularly.';
+ Moodle cron job must run regularly.<br>
+ Overlapping campaigns will add up. Two matching 50% price campaigns will result in a 25% price.';
 $string['campaigntype'] = 'Campaign type';
 $string['editcampaign'] = 'Edit campaign';
 $string['addbookingcampaign'] = 'Add campaign';
@@ -2138,7 +2139,7 @@ $string['campaign_name'] = 'Custom name for the campaign';
 $string['campaign_customfield'] = 'Change price or booking limit';
 $string['campaign_customfield_descriptiontext'] = 'Affects: Booking option custom field "{$a->fieldname}"
  having the value "{$a->fieldvalue}".';
-$string['campaignfieldname'] = 'Field';
+$string['campaignfieldname'] = 'Booking option field';
 $string['campaignfieldvalue'] = 'Value';
 $string['campaignstart'] = 'Start of campaign';
 $string['campaignend'] = 'End of campaign';
@@ -2147,7 +2148,8 @@ $string['campaign_blockbooking'] = 'Block certain booking options';
 $string['campaign_blockbooking_descriptiontext'] = 'Affects: Booking option custom field "{$a->fieldname}"
 having the value "{$a->fieldvalue}".';
 
-$string['userspecificcampaignwarning'] = "If you choose a user profile field here beneath, the price part of the campaign will only be effective for users with the defined value in the custom user profile field.";
+$string['optionspecificcampaignwarning'] = "If you choose a Booking option field specific field here beneath, the price and limit part of the campaign will apply only for booking options that fullfill the requirements.<br><br>If you choose a Booking option field AND a Custom user profile field, both requirements have to be fullfilled.";
+$string['userspecificcampaignwarning'] = "If you choose a Custom user profile field here beneath, the price part of the campaign will only be effective for users with the defined value in the custom user profile field.";
 $string['customuserprofilefield'] = "Custom user profile field";
 $string['customuserprofilefield_help'] = "If you choose a value here, the price part of the camapaign will only be valid for users with the defined value in the defined custom field.";
 
@@ -2487,5 +2489,3 @@ $string['choose...'] = 'Choose...';
 $string['daysbefore'] = '{$a} day(s) before';
 $string['daysafter'] = '{$a} day(s) after';
 $string['sameday'] = 'same day';
-
-

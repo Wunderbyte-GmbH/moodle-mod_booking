@@ -1997,7 +1997,8 @@ $string['bookingcampaigns'] = 'Buchung: Kampagnen (PRO)';
 $string['bookingcampaign'] = 'Kampagne';
 $string['bookingcampaignssubtitle'] = 'Mit Kampagnen können Sie für einen festgelegten Zeitraum die Preise von ausgewählten
  Buchungsoptionen vergünstigen und das Buchungslimit für diesen Zeitraum erhöhen. Damit die Kampagnen funktionieren, muss der
- Moodle Cron-Job regelmäßig laufen.';
+ Moodle Cron-Job regelmäßig laufen.<br>
+ Überschneidende Kampagnen werden addiert. Zwei 50% Kampagnen führen zu einem 25% Preis.';
 $string['campaigntype'] = 'Kampagnentyp';
 $string['editcampaign'] = 'Kampagne bearbeiten';
 $string['addbookingcampaign'] = 'Kampagne hinzufügen';
@@ -2007,7 +2008,7 @@ $string['campaign_name'] = 'Eigener Name der Kampagne';
 $string['campaign_customfield'] = 'Preis oder Buchungslimit anpassen';
 $string['campaign_customfield_descriptiontext'] = 'Betrifft: Benutzerdefiniertes Buchungsoptionsfeld "{$a->fieldname}"
  mit dem Wert "{$a->fieldvalue}".';
-$string['campaignfieldname'] = 'Feld';
+$string['campaignfieldname'] = 'Buchungsoptionsfeld';
 $string['campaignfieldvalue'] = 'Wert';
 $string['campaignstart'] = 'Beginn der Kampagne';
 $string['campaignend'] = 'Ende der Kampagne';
@@ -2016,9 +2017,10 @@ $string['campaign_blockbooking'] = 'Bestimmte Buchungen blockieren';
 $string['campaign_blockbooking_descriptiontext'] = 'Betrifft: Benutzerdefiniertes Buchungsoptionsfeld "{$a->fieldname}"
 mit dem Wert "{$a->fieldvalue}".';
 
-$string['userspecificcampaignwarning'] = "Wenn Sie ein unten ein benutzerdefiniertes User Profilfeld auswählen, wird der Preis-Teil der Kampagne nur für jene NutzerInnen wirksam, die auch dieses Feld ausgewählt haben.";
+$string['optionspecificcampaignwarning'] = "Wenn Sie ein Buchungsoptionsfeld auswählen, werden Preis und Limit nur für jene Buchungsoptionen geändert, die diese Anforderungen erfüllen.<br><br>Wenn Sie auch ein Benutzerdefiniertes User Profilfeld wählen, wird der Preis nur dann geändert, wenn BEIDE Anforderungen erfüllt sind.";
+$string['userspecificcampaignwarning'] = "Wenn Sie ein unten ein Benutzerdefiniertes User Profilfeld auswählen, wird der Preis-Teil der Kampagne nur für jene NutzerInnen wirksam, die auch dieses Feld ausgewählt haben.";
 $string['customuserprofilefield'] = "Benutzerdefiniertes User Profilfeld";
-$string['customuserprofilefield_help'] = "Wenn Sie hier ein Feld auswählen, ist der Preis-Teil der Kampagne nur für NutzerInnen wirksam, die auch einen bestimmten Wert in einem bestimmten Profilfeld haben.";
+$string['customuserprofilefield_help'] = "Wenn Sie ein Benutzerdefiniertes User Profilfeld auswählen, ist der Preis-Teil der Kampagne nur für NutzerInnen wirksam, die auch einen bestimmten Wert in einem bestimmten Profilfeld haben.";
 
 $string['blockoperator'] = 'Operator';
 $string['blockoperator_help'] = '<b>Blockiere über</b> ... Sobald der angegebene Prozentsatz an Buchungen erreicht ist, wird das Online-Buchen geblockt,
