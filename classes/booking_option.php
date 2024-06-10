@@ -3578,23 +3578,8 @@ class booking_option {
     public static function render_attachments(int $optionid, string $classes = ''): string {
         $ret = '';
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        $cmid = $settings->cmid;
-        $context = context_module::instance($cmid);
 
-        $fs = get_file_storage();
-        $files = $fs->get_area_files($context->id, 'mod_booking', 'myfilemanageroption', $optionid);
-
-        if (count($files) > 1) {
-            $attachedfiles = [];
-            foreach ($files as $file) {
-                if ($file->get_filesize() > 0) {
-                    $filename = $file->get_filename();
-                    $url = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(),
-                        $file->get_itemid(), $file->get_filepath(), $file->get_filename(), true);
-                    $attachedfiles[] = html_writer::link($url, $filename);
-                }
-            }
-        }
+        $attachedfiles = $settings->attachedfiles;
         if (!empty($attachedfiles)) {
             $ret .= html_writer::start_div($classes);
             foreach ($attachedfiles as $attachedfile) {
