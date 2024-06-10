@@ -136,39 +136,4 @@ class customform {
 
         return $value;
     }
-
-    /**
-     * This function returns the value fromo an option, if necessary.
-     *
-     * @param stdClass $options
-     * @param stdClass $eventdata
-     *
-     * @return string
-     *
-     */
-    private static function return_selected_value_string(stdClass $options, stdClass $eventdata) {
-
-        // If the field is actually no array, we just return the value.
-        $linesarray = explode(PHP_EOL, $options->value);
-
-        // We don't actually have lines.
-        // We basically just return the same string that came in.
-        if (count($linesarray) < 1) {
-            return $options->value;
-        }
-
-        // When we have lines, we want to see if there are key value pairs.
-        $counter = 0;
-        foreach ($linesarray as $line) {
-            $linearray = explode(' => ', $line);
-            // If there are no key - value pairs, we use the counter.
-            if (count($linearray) < 2) {
-
-
-            }
-        }
-
-
-        return '';
-    }
 }
