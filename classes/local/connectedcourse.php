@@ -122,8 +122,8 @@ class connectedcourse {
      */
     private static function retrieve_categoryid(stdClass &$newoption, stdClass &$formdata) {
 
-        $categoryid = 1; // By default, we use the first category.
-        if (!empty(get_config('booking', 'newcoursecategorycfield'))) {
+        $config = get_config('booking', 'newcoursecategorycfield');
+        if (!empty($config) && $config !== "-1") {
             // FEATURE add more settingfields add customfield_ to ...
             // ... settingsvalue from customfields allwo only Textfields or Selects.
             $cfforcategory = 'customfield_' . get_config('booking', 'newcoursecategorycfield');
@@ -146,6 +146,10 @@ class connectedcourse {
                     $categoryid = $categories[0]['id'];
                 }
             }
+        } else {
+            $categories = core_course_external::get_categories();
+            $firstcat = reset($categories);
+            $categoryid = $firstcat['id'];
         }
 
         return $categoryid;
