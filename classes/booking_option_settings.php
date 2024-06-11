@@ -494,7 +494,7 @@ class booking_option_settings {
 
             if (!isset($dbrecord->attachedfiles)) {
                 $this->load_attachments($dbrecord);
-                $dbrecord->attachedfiles = !empty($this->attachedfiles) ? $this->attachedfiles : true;
+                $dbrecord->attachedfiles = !empty($this->attachedfiles) ? $this->attachedfiles : [];
             } else {
                 $this->attachedfiles = $dbrecord->attachedfiles;
             }
@@ -1059,8 +1059,9 @@ class booking_option_settings {
         $fs = get_file_storage();
         $files = $fs->get_area_files($context->id, 'mod_booking', 'myfilemanageroption', $dbrecord->id);
 
+        $attachedfiles = [];
+
         if (count($files) > 1) {
-            $attachedfiles = [];
             foreach ($files as $file) {
                 if ($file->get_filesize() > 0) {
                     $filename = $file->get_filename();
