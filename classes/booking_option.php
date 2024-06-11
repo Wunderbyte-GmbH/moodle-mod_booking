@@ -38,6 +38,7 @@ use html_writer;
 use invalid_parameter_exception;
 use local_entities\entitiesrelation_handler;
 use mod_booking\bo_availability\conditions\customform;
+use mod_booking\event\booking_rulesexecutionfailed;
 use mod_booking\option\dates_handler;
 use mod_booking\bo_actions\actions_info;
 use mod_booking\booking_rules\rules_info;
@@ -3437,7 +3438,7 @@ class booking_option {
     public static function update($data, ?context $context = null,
         int $updateparam = MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT) {
 
-        global $DB;
+        global $DB, $CFG, $USER;
 
         // When we come here, we have the following possibilities:
         // A) Normal saving via Form of an existing option.
@@ -3509,9 +3510,26 @@ class booking_option {
             // We have less places now, so we only sync if the setting to keep users booked is turned off.
             $option->sync_waiting_list();
         }
-
-        // Now check, if there are rules to execute.
-        rules_info::execute_rules_for_option($newoption->id);
+        try {
+            // Now check, if there are rules to execute.
+            rules_info::execute_rules_for_option($newoption->id);
+        } catch (Exception $e) {
+            if ($CFG->debug == DEBUG_DEVELOPER) {
+                throw $e;
+            } else {
+                $message = $e->getMessage();
+                // Log cancellation of user.
+                $event = booking_rulesexecutionfailed::create([
+                    'objectid' => $newoption->id,
+                    'context' => context_system::instance(),
+                    'userid' => $USER->id, // The user triggered the action.
+                    'other' => [
+                        'error' => $message,
+                    ],
+                ]);
+                $event->trigger(); // This will trigger the observer function.
+            }
+        }
 
         // If there have been changes to significant fields, we react on changes.
         // Change notification will be sent (if active).
