@@ -300,12 +300,19 @@ class calendar {
             $instance = 0;
             $visible = 1;
 
+            // Get the user language to make sure, calendar entries are set in the right language.
+            $user = singleton_service::get_instance_of_user($userid);
+            $currentlang = current_language();
+            force_current_language($user->lang);
+
             $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
             // If the user is booked, we have a different kind of description.
             $bookedusers = $bookingoption->get_all_users_booked();
             $forbookeduser = isset($bookedusers[$userid]);
             $fulldescription = get_rendered_eventdescription($optionid, $cmid,
                 MOD_BOOKING_DESCRIPTION_CALENDAR, $forbookeduser);
+            // Reset to system language.
+            force_current_language($currentlang);
         } else {
             // Event calendar.
             $courseid = !empty($bookingsettings->course) ? $bookingsettings->course : 0;
