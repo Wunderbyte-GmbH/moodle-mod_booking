@@ -28,6 +28,7 @@ use local_entities\entitiesrelation_handler;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
 
@@ -198,11 +199,12 @@ class entities extends field_base {
      * @param stdClass $formdata
      * @param stdClass $option
      * @param int $index
-     * @return void
+     * @return array
      * @throws \dml_exception
      */
-    public static function save_data(stdClass &$formdata, stdClass &$option, int $index = 0) {
+    public static function save_data(stdClass &$formdata, stdClass &$option, int $index = 0): array {
 
+        $changes = [];
         // This is to save entity relation data.
         // The id key has to be set to option id.
         if (class_exists('local_entities\entitiesrelation_handler')
@@ -210,7 +212,25 @@ class entities extends field_base {
 
             $erhandler = new entitiesrelation_handler('mod_booking', 'option');
             $erhandler->instance_form_save($formdata, $option->id, $index);
+
+            // Compare current formdata to previously saved formdata (settings).
+            $settings = singleton_service::get_instance_of_booking_option_settings($formdata->id);
+            $key = LOCAL_ENTITIES_FORM_ENTITYID . "0";
+            $oldentity = $settings->entity;
+            $newentityid = $formdata->$key;
+
+            if ($oldentity['id'] != $newentityid) {
+                $newentity = singleton_service::get_entity_by_id($newentityid)[$newentityid];
+                $changes = [ 'changes' => [
+                        'info' => get_string('entitiesfieldname', 'booking') . get_string('changeinfochanged', 'booking'),
+                        'fieldname' => 'entities',
+                        'oldvalue' => get_string('changesinentity', 'mod_booking', $oldentity),
+                        'newvalue' => get_string('changesinentity', 'mod_booking', $newentity),
+                    ],
+                ];
+            }
         }
+        return $changes;
     }
 
     /**
