@@ -573,8 +573,10 @@ class booking_option_settings {
             if (!isset($dbrecord->customfields)) {
                 $this->load_customfields($optionid);
                 $dbrecord->customfields = $this->customfields;
+                $dbrecord->customfieldsfortemplates = $this->customfieldsfortemplates ?? [];
             } else {
                 $this->customfields = $dbrecord->customfields;
+                $this->customfieldsfortemplates = $dbrecord->customfieldsfortemplates ?? [];
             }
 
             // If a cost center is defined in plugin settings, we load it directly into the booking option settings.
