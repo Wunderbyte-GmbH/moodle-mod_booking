@@ -184,7 +184,7 @@ class select_user_shopping_cart implements booking_rule_condition {
         switch ($dbfamily) {
 
             case 'postgres':
-                $concat = $DB->sql_concat("bo.id", "'-'", " (payments_info.payment_data->>'id') ");
+                $concat = $DB->sql_concat("bo.id", "'-'", " (payments_info.payment_data->>'id') ", "'-'", " (payments_info.payment_data->>'timestamp') ");
 
                 $sql->select = "$concat as uniquid,
                                 bo.id optionid,
@@ -226,7 +226,8 @@ class select_user_shopping_cart implements booking_rule_condition {
                 break;
             case 'mysql':
                 $sql->select = "
-                    CONCAT('', bo.id, '-', JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.id'))) AS uniquid,
+                    CONCAT('', bo.id, '-', JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.id')),
+                    '-', JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.timestamp'))) AS uniquid,
                     bo.id optionid,
                     cm.id cmid,
                     sch.userid,
