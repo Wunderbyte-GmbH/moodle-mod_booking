@@ -359,8 +359,6 @@ class booking_option_settings {
                     AND bo.id=:id";
             $cmid = $DB->get_field_sql($sql, $params);
 
-
-
             if ($cmid) {
                 $context = context_module::instance($cmid);
             } else {
@@ -761,7 +759,6 @@ class booking_option_settings {
      */
     private function generate_editoption_url(int $optionid) {
 
-
         if (!empty($this->cmid) && !empty($optionid)) {
 
             /* IMPORTANT NOTICE: We CANNOT use new moodle_url here, as it is already used in the
@@ -779,10 +776,7 @@ class booking_option_settings {
     private function generate_manageresponses_url(int $optionid) {
         global $CFG;
 
-
         if (!empty($this->cmid) && !empty($optionid)) {
-
-
             $manageresponsesmoodleurl = new moodle_url('/mod/booking/report.php',
                 ['id' => $this->cmid, 'optionid' => $optionid]);
 
@@ -805,10 +799,7 @@ class booking_option_settings {
     private function generate_optiondatesteachers_url(int $optionid) {
         global $CFG;
 
-
         if (!empty($this->cmid) && !empty($optionid)) {
-
-
             $optiondatesteachersmoodleurl = new moodle_url('/mod/booking/optiondates_teachers_report.php',
                 ['cmid' => $this->cmid, 'optionid' => $optionid]);
 
@@ -849,7 +840,6 @@ class booking_option_settings {
                 "/mod_booking/bookingoptionimage/" . $optionid . $imgfile->filepath . $imgfile->filename;
 
             return;
-
         } else {
             // Fix: Option templates have bookingid 0 as they are global and not instance-specific.
             if (empty($bookingid)) {
