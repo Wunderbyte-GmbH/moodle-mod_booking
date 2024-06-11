@@ -595,6 +595,7 @@ class singleton_service {
         }
 
         return $instance->entities[$id] ?: new stdClass();
+    }
     /**
      * We store the options of the customfield.
      *
