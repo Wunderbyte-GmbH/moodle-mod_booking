@@ -970,6 +970,7 @@ Link zur Umfrage: <a href="{pollurlteachers}" target="_blank">{pollurlteachers}<
 
 $string['reportremindersubject'] = 'Erinnerung: Ihr gebuchter Kurs';
 $string['reportremindermessage'] = '{$a->bookingdetails}';
+$string['changesinentity'] = '{$a->name} (ID: {$a->id})';
 
 // Report.php and bookingmanagusers.class.php.
 $string['allmailssend'] = 'Alle Benachrichtigungen wurden erfolgreich versandt!';
@@ -1709,6 +1710,7 @@ $string['easy_availability_previouslybooked'] = 'Einfache bereits gebuchte Vorau
 $string['invisible'] = 'Unsichtbar';
 $string['annotation'] = 'Interne Anmerkung';
 $string['courseid'] = 'Kurs, in den eingeschrieben wird';
+$string['entitiesfieldname'] = 'Ort(e)';
 $string['entities'] = 'Orte mit Entities Plugin auswählen';
 $string['shoppingcart'] = 'Zahlungsoptionen mit Shopping Cart Plugin definieren';
 $string['optiondates'] = 'Termine';

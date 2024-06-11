@@ -969,6 +969,7 @@ Survey URL: <a href="{pollurlteachers}" target="_blank">{pollurlteachers}</a>
 
 $string['reportremindersubject'] = 'Reminder: Your booked course';
 $string['reportremindermessage'] = '{$a->bookingdetails}';
+$string['changesinentity'] = '{$a->name} (ID: {$a->id})';
 
 // Report.php.
 $string['allmailssend'] = 'All e-mails to the users have been sent!';
@@ -1834,6 +1835,7 @@ $string['invisible'] = 'Invisible';
 $string['annotation'] = 'Internal annotation';
 $string['courseid'] = 'Course to subscribe to';
 $string['entities'] = 'Choose places with entities plugin';
+$string['entitiesfieldname'] = 'Place(s)';
 $string['shoppingcart'] = 'Set payment options with shopping cart plugin';
 $string['optiondates'] = 'Dates';
 $string['actions'] = 'Booking actions';
