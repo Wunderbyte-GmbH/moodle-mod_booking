@@ -308,7 +308,7 @@ if ($ADMIN->fulltree) {
                 get_string('automaticcoursecreation', 'mod_booking'),
                 ''));
 
-        $sql = "SELECT cff.name, cff.shortname FROM {customfield_category} cfc
+        $sql = "SELECT cff.shortname, cff.name FROM {customfield_category} cfc
         JOIN {customfield_field} cff ON cfc.id = cff.categoryid
         WHERE cfc.component = 'mod_booking'";
 

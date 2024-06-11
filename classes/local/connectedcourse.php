@@ -146,14 +146,15 @@ class connectedcourse {
                     $categoryid = $categories[0]['id'];
                 }
             }
-        } else {
+        }
+
+        if (!isset($categoryid)) {
             $categories = core_course_external::get_categories();
             $firstcat = reset($categories);
             $categoryid = $firstcat['id'];
         }
 
         return $categoryid;
-
     }
 
     /**
