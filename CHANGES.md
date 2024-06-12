@@ -1,3 +1,12 @@
+## Version 8.4.1 (2024061200)
+* Improvement: Add customform placeholder.
+* Improvement: Trash icon in collapsable optiondate in bookingoption.
+* Improvement: Enable enclosing placeholders ({#ph} {ph} {/ph}).
+* Improvement: Failing rules trigger event not error (except in debug mode).
+* Bugfix: Improve performance regarding attached files.
+* Bugfix: Always use userlanguage for calendar entries.
+* Bugfix: Smaller SQL fixes.
+
 ## Version 8.4.0 (2024060600)
 * Improvement: Add rank number to waiting list.
 * Improvement: New placeholder eventdescription.
