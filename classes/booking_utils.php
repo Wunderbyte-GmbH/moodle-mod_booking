@@ -299,14 +299,12 @@ class booking_utils {
                 continue;
             }
             if (isset($change['changes'])) {
-                // Is there something to check for?
-                $newchanges[] = $change['changes'];
-
-            } else {
-                foreach ($change['changes'] as $field => $change) {
+                foreach ($change['changes'] as $field => $subchange) {
                     // For classes that return values of multiple fields.
-                    if (isset($change['changes'])) {
+                    if (isset($subchange['changes'])) {
                         // Is there something to check for?
+                        $newchanges[] = $subchange['changes'];
+                    } else {
                         $newchanges[] = $change['changes'];
                     }
                 }
