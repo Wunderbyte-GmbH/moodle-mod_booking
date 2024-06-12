@@ -251,6 +251,8 @@ $string['bookingoption_deleted'] = 'Booking option deleted';
 $string['bookinginstance_updated'] = 'Booking instance updated';
 $string['records_imported'] = 'Booking options imported via csv';
 $string['records_imported_description'] = '{$a} booking options imported via csv';
+$string['bookingoption_confirmed'] = 'Booking option confirmed';
+$string['bookingoptionconfirmed:description'] = 'User with ID {$a->userid} enabled booking of bookingoption {$a->objectid} for user with ID {$a->relateduserid}.';
 
 $string['eventreport_viewed'] = 'Report viewed';
 $string['eventuserprofilefields_updated'] = 'Userprofile updated';

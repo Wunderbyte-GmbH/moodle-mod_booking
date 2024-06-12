@@ -23,6 +23,7 @@
  */
 
 namespace mod_booking\table;
+use mod_booking\event\bookingoption_confirmed;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -152,7 +153,7 @@ class manageusers_table extends wunderbyte_table {
      */
     public function action_confirmbooking(int $id, string $data): array {
 
-        global $DB;
+        global $DB, $USER;
 
         $jsonobject = json_decode($data);
         $baid = $jsonobject->id;
@@ -175,6 +176,16 @@ class manageusers_table extends wunderbyte_table {
             if (!empty($settings->jsonobject->useprice)
                 && empty(get_config('booking', 'turnoffwaitinglist'))) {
                 $option->user_submit_response($user, 0, 0, 2, MOD_BOOKING_VERIFIED);
+
+                $event = bookingoption_confirmed::create(
+                    [
+                        'objectid' => $option->id,
+                        'context' => \context_system::instance(),
+                        'userid' => $USER->id,
+                        'relateduserid' => $user->id,
+                    ]);
+                $event->trigger();
+                // Event zu rules dazu. -> bookinglink.
 
             } else {
 

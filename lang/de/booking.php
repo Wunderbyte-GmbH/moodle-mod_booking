@@ -246,6 +246,8 @@ $string['bookingoption_deleted'] = 'Buchungsoption gelöscht';
 $string['bookinginstance_updated'] = 'Buchungsinstanz upgedated';
 $string['records_imported'] = 'Buchungsoptionen importiert via CSV';
 $string['records_imported_description'] = '{$a} Buchungsoptionen importiert via CSV';
+$string['bookingoption_confirmed'] = 'Buchungsoption bestätigt';
+$string['bookingoptionconfirmed:description'] = 'NutzerIn mit ID {$a->userid} hat NutzerIn mit ID {$a->relateduserid} für die Buchung der Option Nr. {$a->objectid} freigeschaltet.';
 
 $string['eventreport_viewed'] = 'Report angesehen';
 $string['eventuserprofilefields_updated'] = 'Nutzerprofil aktualisiert';
