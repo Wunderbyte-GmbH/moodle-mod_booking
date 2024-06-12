@@ -1221,7 +1221,7 @@ class mod_booking_mod_form extends moodleform_mod {
             $errors['semesterid'] = get_string('error:semestermissingbutcanceldependentonsemester', 'mod_booking');
         }
 
-        if ($DB->count_records('user', ['username' => $data['bookingmanager']]) != 1) {
+        if (isset($data['bookingmanager']) && $DB->count_records('user', ['username' => $data['bookingmanager']]) != 1) {
             $errors['bookingmanager'] = get_string('bookingmanagererror', 'booking');
         }
 
