@@ -238,7 +238,7 @@ $string['datenotset'] = 'Date not set';
 $string['daystonotify'] = 'Number of days in advance of the event-start to notify participants';
 $string['daystonotify_help'] = "Will work only if start and end date of option are set! 0 for disabling this functionality.";
 $string['daystonotify2'] = 'Second notification before start of event to notify participants.';
-$string['daystonotifyteachers'] = 'Number of days in advance of the event-start to notify teachers' . $badgepro;
+$string['daystonotifyteachers'] = 'Number of days in advance of the event-start to notify teachers';
 $string['bookinganswer_cancelled'] = 'Booking option cancelled for/by user';
 
 // Booking option events.
@@ -576,11 +576,15 @@ $string['notes'] = 'Booking notes';
 $string['uploadheaderimages'] = 'Header images for booking options';
 $string['bookingimagescustomfield'] = 'Booking option custom field to match the header images with';
 $string['bookingimages'] = 'Upload header images for booking options - they need to have the exact same name as the value of the selected customfield in each booking option.';
-$string['emailsettings'] = 'E-mail settings';
+$string['emailsettings'] = 'E-mail settings '. $badgedepr;
+$string['helptext:emailsettings'] = '<div class="alert alert-warning style="margin-left: 200px;">
+<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+<span>&nbsp;Deprecated function, please migrate your templates & settings to <a href="{$a}">Booking Rules</a></span>!
+</div>';
 
 // Mail templates (instance specific or global).
 $string['mailtemplatesadvanced'] = 'Activate advanced settings for e-mail templates';
-$string['mailtemplatessource'] = 'Set source of mail templates ' . $badgepro;
+$string['mailtemplatessource'] = 'Set source of mail templates';
 $string['mailtemplatessource_help'] = '<b>Caution:</b> If you choose global e-mail templates, the instance-specific mail
 templates won\'t be used. Instead the e-mail templates specified in the booking plugin settings will be used. <br><br>
 Please make sure that there are existing e-mail templates in the booking settings for each e-mail type.';
@@ -907,7 +911,7 @@ You have <b>{$a->numberparticipants} booked participants</b> and <b>{$a->numberw
 To view all your booked courses click on the following link: {$a->bookinglink}
 The associated course can be found here: {$a->courselink}
 ';
-$string['notifyemailteachers'] = 'Teacher notification before start ' . $badgepro;
+$string['notifyemailteachers'] = 'Teacher notification before start';
 
 $string['userleavesubject'] = 'You successfully unsubscribed from {$a->title}';
 $string['userleavemessage'] = 'Hello {$a->participant},

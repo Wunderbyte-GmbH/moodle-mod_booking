@@ -505,80 +505,78 @@ class mod_booking_mod_form extends moodleform_mod {
             ['subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 500, 'accepted_types' => ['image']]);
 
         // Confirmation message.
-        $mform->addElement('header', 'emailsettings',
-                get_string('emailsettings', 'mod_booking'));
+        if (!get_config('booking', 'uselegacymailtemplates')) {
+            $mform->addElement('header', 'emailsettings',
+                    get_string('emailsettings', 'mod_booking'));
 
-        $mform->addElement('advcheckbox', 'sendmail', get_string("activatemails", "mod_booking"));
+            $url = new moodle_url('/mod/booking/edit_rules.php');
+            $linktorules = $url->out();
+            $mform->addElement('html', get_string('helptext:emailsettings', 'mod_booking', $linktorules));
 
-        $mform->addElement('advcheckbox', 'copymail',
-                get_string("copymail", "booking"));
+            $mform->addElement('advcheckbox', 'sendmail', get_string("activatemails", "mod_booking"));
 
-        $mform->addElement('advcheckbox', 'sendmailtobooker',
-                get_string('sendmailtobooker', 'booking'));
-        $mform->addHelpButton('sendmailtobooker', 'sendmailtobooker', 'booking');
+            $mform->addElement('advcheckbox', 'copymail',
+                    get_string("copymail", "booking"));
 
-        $mform->addElement('text', 'daystonotify', get_string('daystonotify', 'booking'));
-        $mform->setType('daystonotify', PARAM_INT);
-        $mform->setDefault('daystonotify', 0);
-        $mform->addHelpButton('daystonotify', 'daystonotify', 'booking');
+            $mform->addElement('advcheckbox', 'sendmailtobooker',
+                    get_string('sendmailtobooker', 'booking'));
+            $mform->addHelpButton('sendmailtobooker', 'sendmailtobooker', 'booking');
 
-        $mform->addElement('text', 'daystonotify2', get_string('daystonotify2', 'booking'));
-        $mform->setType('daystonotify2', PARAM_INT);
-        $mform->setDefault('daystonotify2', 0);
-        $mform->addHelpButton('daystonotify2', 'daystonotify', 'booking');
+            $mform->addElement('text', 'daystonotify', get_string('daystonotify', 'booking'));
+            $mform->setType('daystonotify', PARAM_INT);
+            $mform->setDefault('daystonotify', 0);
+            $mform->addHelpButton('daystonotify', 'daystonotify', 'booking');
 
-        // PRO feature: Teacher notifications.
-        if ($isproversion) {
+            $mform->addElement('text', 'daystonotify2', get_string('daystonotify2', 'booking'));
+            $mform->setType('daystonotify2', PARAM_INT);
+            $mform->setDefault('daystonotify2', 0);
+            $mform->addHelpButton('daystonotify2', 'daystonotify', 'booking');
+
             $mform->addElement('text', 'daystonotifyteachers', get_string('daystonotifyteachers', 'booking'));
             $mform->setDefault('daystonotifyteachers', 0);
             $mform->addHelpButton('daystonotifyteachers', 'daystonotify', 'booking');
-        } else {
-            $mform->addElement('hidden', 'daystonotifyteachers', 0);
-        }
-        $mform->setType('daystonotifyteachers', PARAM_INT);
+            $mform->setType('daystonotifyteachers', PARAM_INT);
 
-        // Booking manager.
-        $contextbooking = $this->get_context();
-        $choosepotentialmanager = [];
-        $potentials[$USER->id] = $USER;
-        $potentials1 = get_users_by_capability($contextbooking, 'mod/booking:readresponses',
-            'u.id, u.firstname, u.lastname, u.username, u.email');
-        $potentials2 = get_users_by_capability($contextbooking, 'moodle/course:update',
-            'u.id, u.firstname, u.lastname, u.username, u.email');
-        $potentialmanagers = array_merge ($potentials1, $potentials2, $potentials);
+            // Booking manager.
+            $contextbooking = $this->get_context();
+            $choosepotentialmanager = [];
+            $potentials[$USER->id] = $USER;
+            $potentials1 = get_users_by_capability($contextbooking, 'mod/booking:readresponses',
+                'u.id, u.firstname, u.lastname, u.username, u.email');
+            $potentials2 = get_users_by_capability($contextbooking, 'moodle/course:update',
+                'u.id, u.firstname, u.lastname, u.username, u.email');
+            $potentialmanagers = array_merge ($potentials1, $potentials2, $potentials);
 
-        // Before creating the array, we have to check if there is a booking manager already set.
-        // If so, but the user has left the course, an arbitrary value will be shown. Therefore we add the...
-        // ... existing bookingmanager to the array.
-        if (((int)$this->_instance)
-            && ($existingmanager = $DB->get_field('booking', 'bookingmanager', ['id' => $this->_instance]))) {
-            if ($existinguser = $DB->get_record('user', ['username' => $existingmanager])) {
-                $found = false;
-                foreach ($potentialmanagers as $user) {
-                    if ($user->id == $existinguser->id) {
-                        $found = true;
+            // Before creating the array, we have to check if there is a booking manager already set.
+            // If so, but the user has left the course, an arbitrary value will be shown. Therefore we add the...
+            // ... existing bookingmanager to the array.
+            if (((int)$this->_instance)
+                && ($existingmanager = $DB->get_field('booking', 'bookingmanager', ['id' => $this->_instance]))) {
+                if ($existinguser = $DB->get_record('user', ['username' => $existingmanager])) {
+                    $found = false;
+                    foreach ($potentialmanagers as $user) {
+                        if ($user->id == $existinguser->id) {
+                            $found = true;
+                        }
+                    }
+                    if (!$found) {
+                        $potentialmanagers = array_merge($potentialmanagers, [$existinguser]);
                     }
                 }
-                if (!$found) {
-                    $potentialmanagers = array_merge($potentialmanagers, [$existinguser]);
-                }
             }
-        }
 
-        foreach ($potentialmanagers as $potentialmanager) {
-            $choosepotentialmanager[$potentialmanager->username] = $potentialmanager->firstname
-                    . ' ' . $potentialmanager->lastname . ' (' .
-            $potentialmanager->email . ')';
-        }
-        $mform->addElement('autocomplete', 'bookingmanager',
-                get_string('usernameofbookingmanager', 'booking'), $choosepotentialmanager);
-        $mform->addHelpButton('bookingmanager', 'usernameofbookingmanager', 'booking');
-        $mform->setType('bookingmanager', PARAM_TEXT);
-        $mform->setDefault('bookingmanager', $USER->username);
-        $mform->addRule('bookingmanager', null, 'required', null, 'client');
+            foreach ($potentialmanagers as $potentialmanager) {
+                $choosepotentialmanager[$potentialmanager->username] = $potentialmanager->firstname
+                        . ' ' . $potentialmanager->lastname . ' (' .
+                $potentialmanager->email . ')';
+            }
+            $mform->addElement('autocomplete', 'bookingmanager',
+                    get_string('usernameofbookingmanager', 'booking'), $choosepotentialmanager);
+            $mform->addHelpButton('bookingmanager', 'usernameofbookingmanager', 'booking');
+            $mform->setType('bookingmanager', PARAM_TEXT);
+            $mform->setDefault('bookingmanager', $USER->username);
+            $mform->addRule('bookingmanager', null, 'required', null, 'client');
 
-        // PRO feature: Let the user choose between instance specific or global mail templates.
-        if ($isproversion) {
             $mailtemplatessource = [];
             $mailtemplatessource[0] = get_string('mailtemplatesinstance', 'booking');
             $mailtemplatessource[1] = get_string('mailtemplatesglobal', 'booking');
@@ -586,168 +584,157 @@ class mod_booking_mod_form extends moodleform_mod {
                 get_string('mailtemplatessource', 'booking'), $mailtemplatessource);
             $mform->setDefault('mailtemplatessource', 0); // Instance specific mail templates are the default.
             $mform->addHelpButton('mailtemplatessource', 'mailtemplatessource', 'booking');
-        } else {
-            // Without a license key only instance specific mail templates are available.
-            $mform->addElement('hidden', 'mailtemplatessource', 0);
-        }
-        $mform->setType('mailtemplatessource', PARAM_INT);
 
-        // Placeholders info text.
-        $placeholders = placeholders_info::return_list_of_placeholders();
-        $mform->addElement('html', get_string('helptext:placeholders', 'mod_booking', $placeholders));
+            $mform->setType('mailtemplatessource', PARAM_INT);
 
-        // Add the fields to allow editing of the default text.
-        $editoroptions = [
-            'subdirs' => false,
-            'maxfiles' => 0,
-            'maxbytes' => 0,
-            'trusttext' => false,
-            'context' => $systemcontext,
-        ];
+            // Placeholders info text.
+            $placeholders = placeholders_info::return_list_of_placeholders();
+            $mform->addElement('html', get_string('helptext:placeholders', 'mod_booking', $placeholders));
 
-        $fieldmapping = (object) ['status' => '{status}', 'participant' => '{participant}',
-            'title' => '{title}', 'duration' => '{duration}', 'starttime' => '{starttime}',
-            'endtime' => '{endtime}', 'startdate' => '{startdate}', 'enddate' => '{enddate}',
-            'courselink' => '{courselink}', 'bookinglink' => '{bookinglink}',
-            'location' => '{location}', 'institution' => '{institution}', 'address' => '{address}',
-            'eventtype' => '{eventtype}', 'email' => '{email}', 'bookingdetails' => '{bookingdetails}',
-            'gotobookingoption' => '{gotobookingoption}', 'changes' => '{changes}',
-            'usercalendarurl' => '{usercalendarurl}', 'coursecalendarurl' => '{coursecalendarurl}',
-            'numberparticipants' => '{numberparticipants}', 'numberwaitinglist' => '{numberwaitinglist}',
-        ];
+            // Add the fields to allow editing of the default text.
+            $editoroptions = [
+                'subdirs' => false,
+                'maxfiles' => 0,
+                'maxbytes' => 0,
+                'trusttext' => false,
+                'context' => $systemcontext,
+            ];
 
-        $mform->addElement('editor', 'bookedtext', get_string('bookedtext', 'booking'), null,
-                $editoroptions);
-        $default = [
-            'text' => get_string('bookedtextmessage', 'mod_booking', $fieldmapping),
-            'format' => FORMAT_HTML,
-        ];
-        $default['text'] = str_replace("\n", '<br/>', $default['text']);
-        $mform->setDefault('bookedtext', $default);
-        $mform->addHelpButton('bookedtext', 'placeholders', 'mod_booking');
-        $mform->disabledIf('bookedtext', 'mailtemplatessource', 'eq', 1);
+            $fieldmapping = (object) ['status' => '{status}', 'participant' => '{participant}',
+                'title' => '{title}', 'duration' => '{duration}', 'starttime' => '{starttime}',
+                'endtime' => '{endtime}', 'startdate' => '{startdate}', 'enddate' => '{enddate}',
+                'courselink' => '{courselink}', 'bookinglink' => '{bookinglink}',
+                'location' => '{location}', 'institution' => '{institution}', 'address' => '{address}',
+                'eventtype' => '{eventtype}', 'email' => '{email}', 'bookingdetails' => '{bookingdetails}',
+                'gotobookingoption' => '{gotobookingoption}', 'changes' => '{changes}',
+                'usercalendarurl' => '{usercalendarurl}', 'coursecalendarurl' => '{coursecalendarurl}',
+                'numberparticipants' => '{numberparticipants}', 'numberwaitinglist' => '{numberwaitinglist}',
+            ];
 
-        $mform->addElement('editor', 'waitingtext', get_string('waitingtext', 'booking'), null,
-                $editoroptions);
-        $default = [
-            'text' => get_string('waitingtextmessage', 'mod_booking', $fieldmapping),
-            'format' => FORMAT_HTML,
-        ];
-        $default['text'] = str_replace("\n", '<br/>', $default['text']);
-        $mform->setDefault('waitingtext', $default);
-        $mform->addHelpButton('waitingtext', 'placeholders', 'mod_booking');
-        $mform->disabledIf('waitingtext', 'mailtemplatessource', 'eq', 1);
+            $mform->addElement('editor', 'bookedtext', get_string('bookedtext', 'booking'), null,
+                    $editoroptions);
+            $default = [
+                'text' => get_string('bookedtextmessage', 'mod_booking', $fieldmapping),
+                'format' => FORMAT_HTML,
+            ];
+            $default['text'] = str_replace("\n", '<br/>', $default['text']);
+            $mform->setDefault('bookedtext', $default);
+            $mform->addHelpButton('bookedtext', 'placeholders', 'mod_booking');
+            $mform->disabledIf('bookedtext', 'mailtemplatessource', 'eq', 1);
 
-        $mform->addElement('editor', 'notifyemail', get_string('notifyemail', 'booking'), null,
-                $editoroptions);
-        $default = [
-            'text' => get_string('notifyemailmessage', 'booking', $fieldmapping),
-            'format' => FORMAT_HTML,
-        ];
-        $default['text'] = str_replace("\n", '<br/>', $default['text']);
-        $mform->setDefault('notifyemail', $default);
-        $mform->addHelpButton('notifyemail', 'placeholders', 'booking');
-        $mform->disabledIf('notifyemail', 'mailtemplatessource', 'eq', 1);
+            $mform->addElement('editor', 'waitingtext', get_string('waitingtext', 'booking'), null,
+                    $editoroptions);
+            $default = [
+                'text' => get_string('waitingtextmessage', 'mod_booking', $fieldmapping),
+                'format' => FORMAT_HTML,
+            ];
+            $default['text'] = str_replace("\n", '<br/>', $default['text']);
+            $mform->setDefault('waitingtext', $default);
+            $mform->addHelpButton('waitingtext', 'placeholders', 'mod_booking');
+            $mform->disabledIf('waitingtext', 'mailtemplatessource', 'eq', 1);
 
-        // BEGIN - PRO feature: Teacher notifications.
-        $default = [
-            'text' => get_string('notifyemailteachersmessage', 'booking', $fieldmapping),
-            'format' => FORMAT_HTML,
-        ];
-        $default['text'] = str_replace("\n", '<br/>', $default['text']);
-        // Check if PRO version is active.
-        if ($isproversion) {
+            $mform->addElement('editor', 'notifyemail', get_string('notifyemail', 'booking'), null,
+                    $editoroptions);
+            $default = [
+                'text' => get_string('notifyemailmessage', 'booking', $fieldmapping),
+                'format' => FORMAT_HTML,
+            ];
+            $default['text'] = str_replace("\n", '<br/>', $default['text']);
+            $mform->setDefault('notifyemail', $default);
+            $mform->addHelpButton('notifyemail', 'placeholders', 'booking');
+            $mform->disabledIf('notifyemail', 'mailtemplatessource', 'eq', 1);
+
+            $default = [
+                'text' => get_string('notifyemailteachersmessage', 'booking', $fieldmapping),
+                'format' => FORMAT_HTML,
+            ];
+            $default['text'] = str_replace("\n", '<br/>', $default['text']);
+
             $mform->addElement('editor', 'notifyemailteachers', get_string('notifyemailteachers', 'booking'),
                 null, $editoroptions);
             $mform->setDefault('notifyemailteachers', $default);
             $mform->addHelpButton('notifyemailteachers', 'placeholders', 'booking');
             $mform->disabledIf('notifyemailteachers', 'mailtemplatessource', 'eq', 1);
-        } else {
-            // Array elements need to be stored in separate 'hidden' elements.
-            $mform->addElement('hidden', 'notifyemailteachers[text]', $default['text']);
-            $mform->addElement('hidden', 'notifyemailteachers[format]', FORMAT_HTML);
+            $mform->setType('notifyemailteachers', PARAM_RAW);
+
+            $mform->addElement('editor', 'statuschangetext', get_string('statuschangetext', 'booking'),
+                    null, $editoroptions);
+            $default = [
+                'text' => get_string('statuschangetextmessage', 'mod_booking', $fieldmapping),
+                'format' => FORMAT_HTML,
+            ];
+            $default['text'] = str_replace("\n", '<br/>', $default['text']);
+            $mform->setDefault('statuschangetext', $default);
+            $mform->addHelpButton('statuschangetext', 'placeholders', 'mod_booking');
+            $mform->disabledIf('statuschangetext', 'mailtemplatessource', 'eq', 1);
+
+            $mform->addElement('editor', 'userleave', get_string('userleave', 'booking'), null,
+                    $editoroptions);
+            $default = [
+                'text' => get_string('userleavemessage', 'mod_booking', $fieldmapping),
+                'format' => FORMAT_HTML,
+            ];
+            $default['text'] = str_replace("\n", '<br/>', $default['text']);
+            $mform->setDefault('userleave', $default);
+            $mform->addHelpButton('userleave', 'placeholders', 'mod_booking');
+            $mform->disabledIf('userleave', 'mailtemplatessource', 'eq', 1);
+
+            $mform->addElement('editor', 'deletedtext', get_string('deletedtext', 'booking'), null,
+                    $editoroptions);
+            $default = [
+                'text' => get_string('deletedbookingusermessage', 'mod_booking', $fieldmapping),
+                'format' => FORMAT_HTML,
+            ];
+            $default['text'] = str_replace("\n", '<br/>', $default['text']);
+            $mform->setDefault('deletedtext', $default);
+            $mform->addHelpButton('deletedtext', 'placeholders', 'mod_booking');
+            $mform->disabledIf('deletedtext', 'mailtemplatessource', 'eq', 1);
+
+            // Message to be sent when fields relevant for a booking option calendar entry (or ical) change.
+            $mform->addElement('editor', 'bookingchangedtext', get_string('bookingchangedtext', 'booking'), null,
+                $editoroptions);
+            $default = [
+                'text' => get_string('bookingchangedtextmessage', 'mod_booking', $fieldmapping),
+                'format' => FORMAT_HTML,
+            ];
+            $default['text'] = str_replace("\n", '<br/>', $default['text']);
+            $mform->setDefault('bookingchangedtext', $default);
+            $mform->addHelpButton('bookingchangedtext', 'bookingchangedtext', 'mod_booking');
+            $mform->disabledIf('bookingchangedtext', 'mailtemplatessource', 'eq', 1);
+
+            $mform->addElement('editor', 'pollurltext',
+                get_string('pollurltext', 'booking'), null, $editoroptions);
+            $default = [
+                'text' => get_string('pollurltextmessage', 'mod_booking', $fieldmapping),
+                'format' => FORMAT_HTML,
+            ];
+            $default['text'] = str_replace("\n", '<br/>', $default['text']);
+            $mform->setDefault('pollurltext', $default);
+            $mform->addHelpButton('pollurltext', 'placeholders', 'mod_booking');
+            $mform->disabledIf('pollurltext', 'mailtemplatessource', 'eq', 1);
+
+            $mform->addElement('editor', 'pollurlteacherstext',
+                get_string('pollurlteacherstext', 'booking'), null, $editoroptions);
+            $default = [
+                'text' => get_string('pollurlteacherstextmessage', 'mod_booking', $fieldmapping),
+                'format' => FORMAT_HTML,
+            ];
+            $default['text'] = str_replace("\n", '<br/>', $default['text']);
+            $mform->setDefault('pollurlteacherstext', $default);
+            $mform->addHelpButton('pollurlteacherstext', 'placeholders', 'mod_booking');
+            $mform->disabledIf('pollurlteacherstext', 'mailtemplatessource', 'eq', 1);
+
+            $mform->addElement('editor', 'activitycompletiontext', get_string('activitycompletiontext', 'booking'),
+                    null, $editoroptions);
+            $default = [
+                'text' => get_string('activitycompletiontextmessage', 'booking', $fieldmapping),
+                'format' => FORMAT_HTML,
+            ];
+            $default['text'] = str_replace("\n", '<br/>', $default['text']);
+            $mform->setDefault('activitycompletiontext', $default);
+            $mform->addHelpButton('activitycompletiontext', 'placeholders', 'booking');
+            $mform->disabledIf('activitycompletiontext', 'mailtemplatessource', 'eq', 1);
         }
-        $mform->setType('notifyemailteachers', PARAM_RAW);
-        // END - PRO feature: Teacher notifications.
-
-        $mform->addElement('editor', 'statuschangetext', get_string('statuschangetext', 'booking'),
-                null, $editoroptions);
-        $default = [
-            'text' => get_string('statuschangetextmessage', 'mod_booking', $fieldmapping),
-            'format' => FORMAT_HTML,
-        ];
-        $default['text'] = str_replace("\n", '<br/>', $default['text']);
-        $mform->setDefault('statuschangetext', $default);
-        $mform->addHelpButton('statuschangetext', 'placeholders', 'mod_booking');
-        $mform->disabledIf('statuschangetext', 'mailtemplatessource', 'eq', 1);
-
-        $mform->addElement('editor', 'userleave', get_string('userleave', 'booking'), null,
-                $editoroptions);
-        $default = [
-            'text' => get_string('userleavemessage', 'mod_booking', $fieldmapping),
-            'format' => FORMAT_HTML,
-        ];
-        $default['text'] = str_replace("\n", '<br/>', $default['text']);
-        $mform->setDefault('userleave', $default);
-        $mform->addHelpButton('userleave', 'placeholders', 'mod_booking');
-        $mform->disabledIf('userleave', 'mailtemplatessource', 'eq', 1);
-
-        $mform->addElement('editor', 'deletedtext', get_string('deletedtext', 'booking'), null,
-                $editoroptions);
-        $default = [
-            'text' => get_string('deletedbookingusermessage', 'mod_booking', $fieldmapping),
-            'format' => FORMAT_HTML,
-        ];
-        $default['text'] = str_replace("\n", '<br/>', $default['text']);
-        $mform->setDefault('deletedtext', $default);
-        $mform->addHelpButton('deletedtext', 'placeholders', 'mod_booking');
-        $mform->disabledIf('deletedtext', 'mailtemplatessource', 'eq', 1);
-
-        // Message to be sent when fields relevant for a booking option calendar entry (or ical) change.
-        $mform->addElement('editor', 'bookingchangedtext', get_string('bookingchangedtext', 'booking'), null,
-            $editoroptions);
-        $default = [
-            'text' => get_string('bookingchangedtextmessage', 'mod_booking', $fieldmapping),
-            'format' => FORMAT_HTML,
-        ];
-        $default['text'] = str_replace("\n", '<br/>', $default['text']);
-        $mform->setDefault('bookingchangedtext', $default);
-        $mform->addHelpButton('bookingchangedtext', 'bookingchangedtext', 'mod_booking');
-        $mform->disabledIf('bookingchangedtext', 'mailtemplatessource', 'eq', 1);
-
-        $mform->addElement('editor', 'pollurltext',
-            get_string('pollurltext', 'booking'), null, $editoroptions);
-        $default = [
-            'text' => get_string('pollurltextmessage', 'mod_booking', $fieldmapping),
-            'format' => FORMAT_HTML,
-        ];
-        $default['text'] = str_replace("\n", '<br/>', $default['text']);
-        $mform->setDefault('pollurltext', $default);
-        $mform->addHelpButton('pollurltext', 'placeholders', 'mod_booking');
-        $mform->disabledIf('pollurltext', 'mailtemplatessource', 'eq', 1);
-
-        $mform->addElement('editor', 'pollurlteacherstext',
-            get_string('pollurlteacherstext', 'booking'), null, $editoroptions);
-        $default = [
-            'text' => get_string('pollurlteacherstextmessage', 'mod_booking', $fieldmapping),
-            'format' => FORMAT_HTML,
-        ];
-        $default['text'] = str_replace("\n", '<br/>', $default['text']);
-        $mform->setDefault('pollurlteacherstext', $default);
-        $mform->addHelpButton('pollurlteacherstext', 'placeholders', 'mod_booking');
-        $mform->disabledIf('pollurlteacherstext', 'mailtemplatessource', 'eq', 1);
-
-        $mform->addElement('editor', 'activitycompletiontext', get_string('activitycompletiontext', 'booking'),
-                null, $editoroptions);
-        $default = [
-            'text' => get_string('activitycompletiontextmessage', 'booking', $fieldmapping),
-            'format' => FORMAT_HTML,
-        ];
-        $default['text'] = str_replace("\n", '<br/>', $default['text']);
-        $mform->setDefault('activitycompletiontext', $default);
-        $mform->addHelpButton('activitycompletiontext', 'placeholders', 'booking');
-        $mform->disabledIf('activitycompletiontext', 'mailtemplatessource', 'eq', 1);
-
         // Miscellaneous settings.
         $mform->addElement('header', 'miscellaneoussettingshdr',
                 get_string('advancedoptions', 'mod_booking'));
