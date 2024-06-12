@@ -554,7 +554,9 @@ if (!$tableallbookings->is_downloading()) {
                 $headers[] = get_string('department');
                 break;
             case 'waitinglist':
-                if ($bookingoption->option->limitanswers == 1 && $bookingoption->option->maxoverbooking > 0) {
+                if (
+                    !empty($bookingoption->option->waitforconfirmation)
+                    || ($bookingoption->option->limitanswers == 1 && $bookingoption->option->maxoverbooking > 0)) {
                     $columns[] = 'waitinglist';
                     $headers[] = get_string('searchwaitinglist', 'mod_booking');
                 }
