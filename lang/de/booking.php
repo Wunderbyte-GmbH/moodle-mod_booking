@@ -499,7 +499,7 @@ $string['cancelallusers'] = 'Alle gebuchten Teilnehmer:innen stornieren';
 // Mod_form.
 $string['signinlogoheader'] = 'Logo in der Kopfzeile auf der Unterschriftenliste';
 $string['signinlogofooter'] = 'Logo in der Fußzeile auf der Unterschriftenliste';
-$string['textdependingonstatus'] = 'Statusabhängiger Buchungsoptionstext ' . $badgedepr;
+$string['textdependingonstatus'] = 'Statusabhängiger Buchungsoptionstext ';
 $string['beforebookedtext'] = 'Vor der Buchung';
 $string['beforecompletedtext'] = 'Nach der Buchung';
 $string['beforecompletedtext_help'] = 'Text der vor dem Abschluss angezeigt wird';
