@@ -29,12 +29,12 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     Given I am on the "My booking" Activity page logged in as teacher1
     Then I follow "Settings"
     And I set the following fields to these values:
-      | pollurl | https://example.com |
-    And I set the field "Send confirmation e-mail" to "Yes"
-    And I set the following fields to these values:
-      | Booking confirmation          | {bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option) |
-      | Max current bookings per user | 30                                                                                                    |
+      | Booking instance name         | BookingUpd          |
+      | pollurl                       | https://example.com |
+      | Max current bookings per user | 30 |
     And I press "Save and display"
+    And I wait until the page is ready
+    And I should see "BookingUpd"
 
   @javascript
   Scenario: Settings - show organizer
