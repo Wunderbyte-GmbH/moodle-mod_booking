@@ -1018,6 +1018,7 @@ $string['signature'] = 'Unterschrift';
 $string['userssucesfullygetnewpresencestatus'] = 'Anwesenheitsstatus für ausgewählte Nutzer:innen erfolgreich aktualisiert';
 $string['copytotemplate'] = 'Buchungsoption als Vorlage speichern';
 $string['copytotemplatesucesfull'] = 'Buchungsoption erfolgreich als Vorlage gespeichert';
+$string['successfullybooked'] = 'Erfolgreich gebucht';
 
 // Send message.
 $string['booking:cansendmessages'] = 'Kann Nachrichten schicken.';

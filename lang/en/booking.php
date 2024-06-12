@@ -1050,6 +1050,7 @@ $string['signature'] = 'Signature';
 $string['userssucesfullygetnewpresencestatus'] = 'Presence status for selected users successfully updated';
 $string['copytotemplate'] = 'Save booking option as template';
 $string['copytotemplatesucesfull'] = 'Booking option was sucesfully saved as template.';
+$string['successfullybooked'] = 'Successfully booked';
 
 
 // Send message.
