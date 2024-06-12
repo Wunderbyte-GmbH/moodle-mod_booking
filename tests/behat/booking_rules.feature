@@ -20,6 +20,7 @@ Feature: Create global booking rules as admin and insure they are working.
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
       | teacher1 | C1     | manager        |
+      | teacher2 | C1     | editingteacher |
       | student1 | C1     | student        |
       | student2 | C1     | student        |
       | student3 | C1     | student        |
@@ -330,6 +331,34 @@ Feature: Create global booking rules as admin and insure they are working.
     Then I should see "Custom message sent"
     And I should see "A custom message e-mail with subject 'Rule send_copy_of_bulk_mail test' has been sent to user with id:"
     And I should see "Custom message: An e-mail with subject 'Custom bulk msg copy: Rule send_copy_of_bulk_mail test' has been sent to user with id: '2'"
+    ## Logout is mandatory for admin pages to avoid error
+    And I log out
+
+  @javascript
+  Scenario: Booking rules: create booking rule for option update and notify teachers about it
+    Given the following "mod_booking > options" exist:
+      | booking     | text           | course | description   | limitanswers | maxanswers | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | teachersforoption  |
+      | BookingCMP  | Option-created | C1     | Deskr-created | 0            | 0          | 0              | 0              | 2346937200        | 2347110000      | teacher1, teacher2 |
+      ## 2044/05/15 - 2044/05/17
+    And the following "mod_booking > rules" exist:
+      | conditionname        | contextid | name         | actionname | actiondata                                                                       | rulename            | ruledata                                                                  |
+      | select_teacher_in_bo | 1         | emailchanges | send_mail  | {"subject":"OptionChanged","template":"Changes: {changes}","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_updated","condition":"0"} |
+    When I am on the "BookingCMP" Activity page logged in as admin
+    And I change viewport size to "1366x10000"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I set the following fields to these values:
+      | Booking option name         | Option-updated |
+      | Description                 | Deskr-updated  |
+      | Max. number of participants | 5              |
+      | Assign teachers             | admin          |
+    And I press "Save"
+    ## Send messages via cron and verify via events log
+    And I trigger cron
+    And I visit "/report/loglive/index.php"
+    And I wait "21" seconds
+    Then I should see "Booking option updated"
+    And I should see "Custom message: An e-mail with subject 'OptionChanged' has been sent to user with id: '2'"
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
