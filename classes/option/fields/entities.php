@@ -219,7 +219,7 @@ class entities extends field_base {
             $oldentity = $settings->entity;
             $newentityid = $formdata->$key;
 
-            if ($oldentity['id'] != $newentityid) {
+            if (isset($oldentity['id']) && $oldentity['id'] != $newentityid) {
                 $newentity = singleton_service::get_entity_by_id($newentityid)[$newentityid];
                 $changes = [ 'changes' => [
                         'info' => get_string('entitiesfieldname', 'booking') . get_string('changeinfochanged', 'booking'),

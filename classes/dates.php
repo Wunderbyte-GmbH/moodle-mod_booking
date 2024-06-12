@@ -531,10 +531,10 @@ class dates {
         $olddates = $settings->sessions;
         // For tracking of changes, store infos about old optiondates including entities.
         $memory = [];
-        if (!empty($olddates)) {
+        if (!empty($olddates) && class_exists('local_entities\entitiesrelation_handler')) {
             $handler = new entitiesrelation_handler('mod_booking', 'optiondate');
             foreach ($olddates as $oldd) {
-                if ($data = $handler->get_instance_data($oldd->optiondateid)) {
+                if (isset($oldd->optiondateid) && $data = $handler->get_instance_data($oldd->optiondateid)) {
                     $oldd->entityid = $data->id ?? 0;
                     $oldd->entityarea = $data->area ?? '';
                 }
