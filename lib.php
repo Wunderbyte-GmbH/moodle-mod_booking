@@ -829,17 +829,17 @@ function booking_update_instance($booking) {
         $booking->bookingpolicy = '';
     }
 
-    $booking->bookedtext = $booking->bookedtext['text'];
-    $booking->waitingtext = $booking->waitingtext['text'];
-    $booking->notifyemail = $booking->notifyemail['text'];
-    $booking->notifyemailteachers = $booking->notifyemailteachers['text'] ?? '';
-    $booking->statuschangetext = $booking->statuschangetext['text'];
-    $booking->deletedtext = $booking->deletedtext['text'];
-    $booking->bookingchangedtext = $booking->bookingchangedtext['text'] ?? '';
-    $booking->pollurltext = $booking->pollurltext['text'];
-    $booking->pollurlteacherstext = $booking->pollurlteacherstext['text'];
-    $booking->activitycompletiontext = $booking->activitycompletiontext['text'] ?? '';
-    $booking->userleave = $booking->userleave['text'];
+    $booking->bookedtext = $booking->bookedtext['text'] ?? $booking->bookedtext ?? null;
+    $booking->waitingtext = $booking->waitingtext['text'] ?? $booking->waitingtext ?? null;
+    $booking->notifyemail = $booking->notifyemail['text'] ?? $booking->notifyemail ?? null;
+    $booking->notifyemailteachers = $booking->notifyemailteachers['text'] ?? $booking->notifyemailteachers ?? null;
+    $booking->statuschangetext = $booking->statuschangetext['text'] ?? $booking->statuschangetext ?? null;
+    $booking->deletedtext = $booking->bookingchangedtext['text'] ?? $booking->bookingchangedtext ?? null;
+    $booking->bookingchangedtext = $booking->bookingchangedtext['text'] ?? $booking->bookingchangedtext ?? null;
+    $booking->pollurltext = $booking->pollurltext['text'] ?? $booking->pollurltext ?? null;
+    $booking->pollurlteacherstext = $booking->pollurlteacherstext['text'] ?? $booking->pollurlteacherstext ?? null;
+    $booking->activitycompletiontext = $booking->activitycompletiontext['text'] ?? $booking->activitycompletiontext ?? null;
+    $booking->userleave = $booking->userleave['text'] ?? $booking->userleave ?? null;
 
     // Get JSON from bookingsettings.
     $booking->json = $bookingsettings->json;
