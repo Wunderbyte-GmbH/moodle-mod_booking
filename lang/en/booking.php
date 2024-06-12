@@ -502,7 +502,7 @@ $string['cancelallusers'] = 'Cancel all booked users';
 // Mod_form.
 $string['signinlogoheader'] = 'Logo in header to display on the sign-in sheet';
 $string['signinlogofooter'] = 'Logo in footer to display on the sign-in sheet';
-$string['textdependingonstatus'] = "Text depending on booking status " . $badgedepr;
+$string['textdependingonstatus'] = "Text depending on booking status ";
 $string['beforebookedtext'] = 'Before booked';
 $string['beforebookedtext_help'] = 'Message shown before option being booked';
 $string['beforecompletedtext'] = 'After booked';
