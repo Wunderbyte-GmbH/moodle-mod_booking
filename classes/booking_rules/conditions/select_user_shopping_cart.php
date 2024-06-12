@@ -184,7 +184,13 @@ class select_user_shopping_cart implements booking_rule_condition {
         switch ($dbfamily) {
 
             case 'postgres':
-                $concat = $DB->sql_concat("bo.id", "'-'", " (payments_info.payment_data->>'id') ", "'-'", " (payments_info.payment_data->>'timestamp') ");
+                $concat = $DB->sql_concat(
+                        "bo.id",
+                        "'-'",
+                        " (payments_info.payment_data->>'id') ",
+                        "'-'",
+                        " (payments_info.payment_data->>'timestamp') "
+                );
 
                 $sql->select = "$concat as uniquid,
                                 bo.id optionid,
