@@ -505,7 +505,7 @@ class mod_booking_mod_form extends moodleform_mod {
             ['subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 500, 'accepted_types' => ['image']]);
 
         // Confirmation message.
-        if (!get_config('booking', 'uselegacymailtemplates')) {
+        if (get_config('booking', 'uselegacymailtemplates')) {
             $mform->addElement('header', 'emailsettings',
                     get_string('emailsettings', 'mod_booking'));
 
