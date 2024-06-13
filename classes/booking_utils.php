@@ -306,6 +306,7 @@ class booking_utils {
                         $newchanges[] = $subchange['changes'];
                     } else {
                         $newchanges[] = $change['changes'];
+                        break;
                     }
                 }
             }
