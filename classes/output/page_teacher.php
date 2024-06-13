@@ -218,7 +218,8 @@ class page_teacher implements renderable, templatable {
                 $class = $firsttable ? 'active show' : '';
                 $firsttable = false;
 
-                $tablename = preg_replace("/[^a-z]/", '', $booking->settings->name);
+                // Keep only lowercaseletters and digits.
+                $tablename = preg_replace("/[^a-z0-9]/", '', $booking->settings->name);
 
                 $newtable = [
                     'bookingid' => $bookingid,
