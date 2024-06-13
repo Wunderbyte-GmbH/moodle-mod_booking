@@ -2492,3 +2492,5 @@ $string['choose...'] = 'Choose...';
 $string['daysbefore'] = '{$a} day(s) before';
 $string['daysafter'] = '{$a} day(s) after';
 $string['sameday'] = 'same day';
+
+$string['reportfields'] = 'Report fields';

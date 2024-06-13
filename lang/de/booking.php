@@ -2359,3 +2359,5 @@ $string['mobile_field_required'] = 'Dieses Feld ist erforderlich';
 $string['daysbefore'] = '{$a} Tag(e) davor';
 $string['daysafter'] = '{$a} Tag(e) danach';
 $string['sameday'] = 'Selber Tag';
+
+$string['reportfields'] = 'Felder reportieren';
