@@ -460,15 +460,15 @@ class booking_answers {
             if ($bookinginformation['freeonlist'] == 0) {
                 // No places left.
                 $bookinginformation['bookingplacesinfotext'] = get_string('bookingplacesfullmessage', 'mod_booking');
-                $bookinginformation['bookingplacesclass'] = 'text-danger';
+                $bookinginformation['bookingplacesclass'] = 'text-danger fullavail';
             } else if ($actualpercentage <= $bookingplaceslowpercentage) {
                 // Only a few places left.
                 $bookinginformation['bookingplacesinfotext'] = get_string('bookingplaceslowmessage', 'mod_booking');
-                $bookinginformation['bookingplacesclass'] = 'text-danger';
+                $bookinginformation['bookingplacesclass'] = 'text-danger lowavail';
             } else {
                 // Still enough places left.
                 $bookinginformation['bookingplacesinfotext'] = get_string('bookingplacesenoughmessage', 'mod_booking');
-                $bookinginformation['bookingplacesclass'] = 'text-success';
+                $bookinginformation['bookingplacesclass'] = 'text-success avail';
             }
         }
         // Waiting list places.
