@@ -214,7 +214,7 @@ abstract class field_base implements fields {
             'annotation',
         ];
         $areaswithuseridstoresolve = [
-            'responisblecontact',
+            'responsiblecontact',
             'teachersforoption',
         ];
         $classname = fields_info::get_class_name(static::class);
