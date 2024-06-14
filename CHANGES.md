@@ -1,3 +1,8 @@
+## Version 8.4.2 (2024061400)
+* Improvement: Bookingoption_confirmed event & rule for "Book only after confirmation" with price set.
+* Improvement: Show "on waitinglist" in report php also when we just use the confirmation feature.
+* Bugfix: Keep digits in tabnames.
+
 ## Version 8.4.1 (2024061200)
 * Improvement: Add customform placeholder.
 * Improvement: Trash icon in collapsable optiondate in bookingoption.
