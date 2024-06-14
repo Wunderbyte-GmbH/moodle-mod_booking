@@ -189,7 +189,7 @@ abstract class field_base implements fields {
      * Check if there is a difference between the former and the new values of the formdata.
      *
      * @param stdClass $formdata
-     * @param ?field_base $self // Should always be given. Otherwise this will not
+     * @param field_base $self // Should always be given. Otherwise this will not
      * @param mixed $mockdata // Only needed if there the object needs params for the save_data function.
      * @param string $key
      * @param mixed $value
@@ -199,10 +199,10 @@ abstract class field_base implements fields {
      */
     public function check_for_changes(
         stdClass $formdata,
-        ?field_base $self = null,
-        mixed $mockdata = '',
+        field_base $self,
+        $mockdata = '',
         string $key = '',
-        mixed $value = ''): array {
+        $value = ''): array {
 
         if (!isset($self)) {
             return [];
