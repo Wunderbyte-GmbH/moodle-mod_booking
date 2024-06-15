@@ -28,6 +28,7 @@ namespace mod_booking;
 use advanced_testcase;
 use context_course;
 use mod_booking\booking_rules\booking_rules;
+use mod_booking\booking_rules\rules\rule_react_on_event;
 use stdClass;
 
 /**
@@ -89,22 +90,8 @@ class rules_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
         $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'student');
 
-        $coursectx = context_course::instance($course->id);
-
-        $record = new stdClass();
-        $record->bookingid = $booking->id;
-        $record->text = 'Test option';
-        $record->chooseorcreatecourse = 1; // Reqiured.
-        $record->courseid = $course->id;
-        $record->description = 'Test description';
-        $record->optiondateid_1 = "0";
-        $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('now + 2 day');
-        $record->courseendtime_1 = strtotime('now + 6 day');
-
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $option = $plugingenerator->create_option($record);
 
         $ruledata = [
             'name' => 'notifyadmin',
@@ -117,10 +104,19 @@ class rules_test extends advanced_testcase {
             'ruledata' => '{"boevent":"\\mod_booking\\event\\optiondates_teacher_added"}',
         ];
 
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $rule = $plugingenerator->create_rule($ruledata);
 
-        $this->setAdminUser();
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Test option';
+        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->courseid = $course->id;
+        $record->description = 'Test description';
+        $record->optiondateid_1 = "0";
+        $record->daystonotify_1 = "0";
+        $record->coursestarttime_1 = strtotime('now + 2 day');
+        $record->courseendtime_1 = strtotime('now + 6 day');
+        $option = $plugingenerator->create_option($record);
 
         // Trigger and capture the event and email.
         unset_config('noemailever');
@@ -128,14 +124,18 @@ class rules_test extends advanced_testcase {
         $messagesink = $this->redirectEmails();
         $sink = $this->redirectEvents();
 
-        $rule = $plugingenerator->create_rule($ruledata);
+        // Debug - check rule exist.
         $rules = booking_rules::get_list_of_saved_rules_by_context();
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+
         $record->id = $option->id;
         $record->cmid = $settings->cmid;
         $record->teachersforoption = [$user1->id];
         booking_option::update($record);
+
+        //$rinstance = new rule_react_on_event();
+        //$rinstance->execute($option->id);
 
         // Create event.
         //$params = ['relateduserid' => $user1->id, 'objectid' => $option->id, 'context' => $coursectx];
