@@ -13,11 +13,13 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Defines backup_booking_activity_task class
  *
  * @package mod_booking
- * @copyright 2012 onwards David Bogner
+ * @copyright 2012 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author David Bogner
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
