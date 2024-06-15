@@ -31,7 +31,7 @@ use coding_exception;
 use mod_booking\option\dates_handler;
 use mod_booking\price;
 use mod_booking_generator;
-use context_course;
+use context_module;
 use stdClass;
 use mod_booking\importer\bookingoptionsimporter;
 
@@ -59,6 +59,135 @@ class booking_option_test extends advanced_testcase {
      *
      */
     public function tearDown(): void {
+    }
+
+    /**
+     * Test update of bookig option and tracking changes.
+     *
+     * @covers \mod_booking\event\teacher_added
+     * @covers \mod_booking\booking_option::update
+     * @covers \mod_booking\option\field_base->check_for_changes
+     * @throws \coding_exception
+     */
+    public function test_option_changes() {
+
+        $bdata = ['name' => 'Test Booking', 'eventtype' => 'Test event',
+                    'bookedtext' => ['text' => 'text'], 'waitingtext' => ['text' => 'text'],
+                    'notifyemail' => ['text' => 'text'], 'statuschangetext' => ['text' => 'text'],
+                    'deletedtext' => ['text' => 'text'], 'pollurltext' => ['text' => 'text'],
+                    'pollurlteacherstext' => ['text' => 'text'],
+                    'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
+                    'bookingpolicy' => 'bookingpolicy', 'tags' => '',
+                    'showviews' => ['showall,showactive,mybooking,myoptions,myinstitution'],
+        ];
+
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course();
+        $users = [
+            ['username' => 'teacher1', 'firstname' => 'Teacher', 'lastname' => '1', 'email' => 'teacher1@example.com'],
+            ['username' => 'teacher2', 'firstname' => 'Teacher', 'lastname' => '2', 'email' => 'teacher2@sample.com'],
+            ['username' => 'student1', 'firstname' => 'Student', 'lastname' => '1', 'email' => 'student1@sample.com'],
+        ];
+        $user1 = $this->getDataGenerator()->create_user($users[0]);
+        $user2 = $this->getDataGenerator()->create_user($users[1]);
+        $user3 = $this->getDataGenerator()->create_user($users[2]);
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $user2->username;
+
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($user3->id, $course->id, 'student');
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Option-created';
+        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->courseid = $course->id;
+        $record->description = 'Deskr-created';
+        $record->teachersforoption = $user1->username;
+        $record->optiondateid_1 = "0";
+        $record->daystonotify_1 = "0";
+        $record->coursestarttime_1 = strtotime('20 June 2050');
+        $record->courseendtime_1 = strtotime('20 July 2050');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $plugingenerator->create_option($record);
+
+        $this->setAdminUser();
+
+        // Trigger and capture events.
+        unset_config('noemailever');
+        ob_start();
+        $sink = $this->redirectEvents();
+
+        // Required to solve cahce issue.
+        singleton_service::destroy_user($user1->id);
+        singleton_service::destroy_user($user2->id);
+
+        // Update booking option.
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $record->id = $option->id;
+        $record->cmid = $settings->cmid;
+        $record->text = 'Option-updated';
+        $record->description = 'Deskr-updated';
+        $record->limitanswers = 1;
+        $record->maxanswers = 5;
+        $record->coursestarttime_1 = strtotime('10 April 2055');
+        $record->courseendtime_1 = strtotime('10 May 2055');
+        $record->teachersforoption = [$user2->id];
+        booking_option::update($record);
+
+        // Required to solve cahce issue.
+        singleton_service::destroy_booking_option_singleton($option->id);
+
+        $events = $sink->get_events();
+
+        $res = ob_get_clean();
+        $sink->close();
+
+        $this->assertCount(5, $events);
+
+        // Last event must be on the option update.
+        $event = end($events);
+        // Checking that the event contains the expected values.
+        $this->assertInstanceOf('mod_booking\event\bookingoption_updated', $event);
+        $modulecontext = context_module::instance($settings->cmid);
+        $this->assertEquals($modulecontext, $event->get_context());
+        $this->assertEventContextNotUsed($event);
+        $data = $event->get_data();
+        $this->assertIsArray($data);
+        $this->assertIsArray($data['other']['changes']);
+        $changes = $data['other']['changes'];
+        foreach ($changes as $change) {
+            switch ($change['fieldname']) {
+                case 'text':
+                    $this->assertEquals('Option-updated', $change['newvalue']);
+                    $this->assertEquals('Option-created', $change['oldvalue']);
+                    break;
+                case 'description':
+                    $this->assertEquals('Deskr-updated', $change['newvalue']);
+                    $this->assertEquals('Deskr-created', $change['oldvalue']['text']);
+                    break;
+                case 'maxanswers':
+                    $this->assertEquals(5, $change['newvalue']);
+                    $this->assertEmpty($change['oldvalue']);
+                    break;
+                case 'dates':
+                    $this->assertEquals("10 April 2055, 12:00 AM - 10 May 2055, 12:00 AM", $change['newvalue'][0]);
+                    $this->assertEquals("20 June 2050, 12:00 AM - 20 July 2050, 12:00 AM", $change['oldvalue'][0]);
+                    break;
+                case 'teachers':
+                    $this->assertStringContainsString('Teacher 2', $change['newvalue']);
+                    $this->assertStringContainsString('Teacher 1', $change['oldvalue']);
+                    break;
+            }
+        }
     }
 
     /**
