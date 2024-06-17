@@ -247,7 +247,8 @@ abstract class field_base implements fields {
             $infotext = get_string($classname, 'booking') . get_string('changeinfochanged', 'booking');
             // In some cases, formvalues are ids of users, we make them readable.
             if ($oldvalue != $newvalue
-                && in_array($key, $areaswithuseridstoresolve)) {
+                && in_array($key, $areaswithuseridstoresolve)
+                && !(empty($oldvalue) && empty($newvalue)) ) {
                     $oldvaluestring = "";
                     $newvaluestring = "";
 
@@ -284,7 +285,8 @@ abstract class field_base implements fields {
                         'newvalue' => $newvaluestring,
                     ],
                 ];
-            } else if ($oldvalue != $newvalue) {
+            } else if ($oldvalue != $newvalue
+            && !(empty($oldvalue) && empty($newvalue))) {
                 $changes = [
                     'changes' => [
                         'info' => $infotext,
