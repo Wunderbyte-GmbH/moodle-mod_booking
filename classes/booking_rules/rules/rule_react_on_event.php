@@ -145,6 +145,21 @@ class rule_react_on_event implements booking_rule {
 
         $mform->addElement('select', 'rule_react_on_event_condition',
             get_string('rule_event_condition', 'mod_booking'), $conditions);
+
+        $mform->addElement('text', 'rule_react_on_event_after_completion',
+        get_string('rule_react_on_event_after_completion', 'mod_booking'));
+        $mform->setType('rule_react_on_event_after_completion', PARAM_INT);
+        $mform->addHelpButton('rule_react_on_event_after_completion', 'rule_react_on_event_after_completion', 'mod_booking');
+
+        // TODO: hideif event not within array of bookingoptions.
+
+        $notborelatedevents = [
+            '\mod_booking\event\custom_message_sent',
+            '\mod_booking\event\custom_bulk_message_sent',
+            '\mod_booking\event\rest_script_succes',
+        ];
+
+        $mform->hideIf('rule_react_on_event_after_completion', 'rule_react_on_event_event', 'in', $notborelatedevents);
     }
 
     /**
@@ -177,6 +192,7 @@ class rule_react_on_event implements booking_rule {
         $jsonobject->ruledata = new stdClass();
         $jsonobject->ruledata->boevent = $data->rule_react_on_event_event ?? '';
         $jsonobject->ruledata->condition = $data->rule_react_on_event_condition ?? '';
+        $jsonobject->ruledata->aftercompletion = $data->rule_react_on_event_after_completion ?? '';
 
         $record->rulejson = json_encode($jsonobject);
         $record->rulename = $this->rulename;
@@ -212,6 +228,7 @@ class rule_react_on_event implements booking_rule {
         $data->rule_name = $jsonobject->name;
         $data->rule_react_on_event_event = $ruledata->boevent;
         $data->rule_react_on_event_condition = $ruledata->condition;
+        $data->rule_react_on_event_after_completion = $ruledata->aftercompletion;
 
     }
 
@@ -266,6 +283,10 @@ class rule_react_on_event implements booking_rule {
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $ba = singleton_service::get_instance_of_booking_answers($settings);
 
+        if (!$this->rule_still_in_time($jsonobject, $settings)) {
+            return false;
+        }
+
         switch ($ruledata->condition ?? self::ALWAYS) {
             case self::ALWAYS:
                 return true;
@@ -293,6 +314,37 @@ class rule_react_on_event implements booking_rule {
 
         // For this rule, we don't need to check because everything is sent directly after event was triggered.
         return true;
+    }
+
+    /**
+     * Checks if the courseendtime defined in bookingoption is not after time defined in rule.
+     *
+     * @param object $ruledata
+     * @param object $bookingoption
+     *
+     * @return bool
+     *
+     */
+    private static function rule_still_in_time(object $ruledata, object $bookingoption): bool {
+        $aftercompletiondays = $ruledata->ruledata->aftercompletion;
+        if (empty($aftercompletiondays)) {
+            return true;
+        };
+
+        $endtime = (int)$bookingoption->courseendtime ?? 0;
+        if (empty($endtime)) {
+            return true;
+        }
+
+        $now = time();
+        $days = (int)$aftercompletiondays;
+        $add = $days * 24 * 60 * 60;
+        if ($endtime + $add <= $now) {
+            return false;
+        } else {
+            return true;
+        }
+
     }
 
     /**
