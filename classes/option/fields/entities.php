@@ -213,6 +213,10 @@ class entities extends field_base {
             $erhandler = new entitiesrelation_handler('mod_booking', 'option');
             $erhandler->instance_form_save($formdata, $option->id, $index);
 
+            // See if entities are excluded from tracking changes.
+            if (in_array('entities', MOD_BOOKING_CLASSES_EXCLUDED_FROM_CHANGES_TRACKING)) {
+                return [];
+            };
             // Compare current formdata to previously saved formdata (settings).
             $settings = singleton_service::get_instance_of_booking_option_settings($formdata->id);
             $key = LOCAL_ENTITIES_FORM_ENTITYID . "0";

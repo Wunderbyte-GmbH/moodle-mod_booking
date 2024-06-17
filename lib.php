@@ -271,6 +271,15 @@ define('MOD_BOOKING_FORM_DELETEDATE', 'deletedate_');
 define('MOD_BOOKING_SQL_FILTER_INACTIVE', 0);
 define('MOD_BOOKING_SQL_FILTER_ACTIVE_JSON_BO', 1);
 define('MOD_BOOKING_SQL_FILTER_ACTIVE_BO_TIME', 2);
+
+// Tracking of changes can be excluded for classes (fields).
+// Implement this as setting if needed.
+define('MOD_BOOKING_CLASSES_EXCLUDED_FROM_CHANGES_TRACKING', [
+    'addtocalendar',
+    'bookingoptionimage',
+    'annotation',
+]);
+
 /**
  * Booking get coursemodule info.
  *

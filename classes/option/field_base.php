@@ -208,11 +208,7 @@ abstract class field_base implements fields {
             return [];
         }
 
-        $excludeclassesfromtrackingchanges = [
-            'addtocalendar',
-            'bookingoptionimage',
-            'annotation',
-        ];
+        $excludeclassesfromtrackingchanges = MOD_BOOKING_CLASSES_EXCLUDED_FROM_CHANGES_TRACKING;
         $areaswithuseridstoresolve = [
             'responsiblecontact',
             'teachersforoption',

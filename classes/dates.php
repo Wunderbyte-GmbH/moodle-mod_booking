@@ -614,6 +614,11 @@ class dates {
         if (empty($datestodelete) && empty($datestosave)) {
             return [];
         }
+        // Checking for changes.
+        if (in_array('dates', MOD_BOOKING_CLASSES_EXCLUDED_FROM_CHANGES_TRACKING)) {
+            return [];
+        };
+
         foreach ($memory as $old) {
             $olddate = dates_handler::prettify_datetime((int)$old->coursestarttime,
             (int)$old->courseendtime);
