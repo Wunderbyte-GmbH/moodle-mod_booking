@@ -3481,8 +3481,6 @@ class booking_option {
 
         $newoption = new stdClass();
         $feedbackformchanges = fields_info::prepare_save_fields($data, $newoption, $updateparam);
-        // TODO: We need a handling for classes that take care of more than one field, like pollurl.
-        // In this case, changes will be nested 1 level deeper.
 
         if (!empty($newoption->id)) {
             // Save the changes to DB.
