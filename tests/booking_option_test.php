@@ -164,7 +164,6 @@ class booking_option_test extends advanced_testcase {
         $this->assertIsArray($data);
         $this->assertIsArray($data['other']['changes']);
         $changes = $data['other']['changes'];
-        var_dump($changes);
         foreach ($changes as $change) {
             switch ($change['fieldname']) {
                 case 'text':
