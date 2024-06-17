@@ -1140,8 +1140,6 @@ class bo_info {
                 return " ($dbcolumn->>'$jsonkey')";
             case 'mysql':
                 return " JSON_EXTRACT($dbcolumn, '$jsonkey')";
-            case 'mariadb':
-                return " JSON_EXTRACT($dbcolumn, '$jsonkey')";
             default:
                 return '';
         }
