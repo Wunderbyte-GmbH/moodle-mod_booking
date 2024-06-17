@@ -326,7 +326,7 @@ class rule_react_on_event implements booking_rule {
      *
      */
     private static function rule_still_in_time(object $ruledata, object $bookingoption): bool {
-        $aftercompletiondays = $ruledata->ruledata->aftercompletion;
+        $aftercompletiondays = $ruledata->ruledata->aftercompletion ?? null;
         if (empty($aftercompletiondays)) {
             return true;
         };
