@@ -24,6 +24,8 @@
 
 namespace mod_booking\output;
 
+use mod_booking\option\dates_handler;
+use mod_booking\singleton_service;
 use renderer_base;
 use renderable;
 use templatable;
@@ -108,6 +110,13 @@ class bookingoption_changes implements renderable, templatable {
                             'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime', 'langconfig')),
                         ];
                     }
+                } else if ($entry['fieldname'] == 'dates') {
+                    $oldvalue = isset($entry['oldvalue']) ? $this->prepare_dates_array($entry['oldvalue']) : "";
+                    $newvalue = isset($entry['newvalue']) ? $this->prepare_dates_array($entry['newvalue']) : "";
+                    $temparray = [
+                        'oldvalue' => $oldvalue,
+                        'newvalue' => $newvalue,
+                    ];
                 } else {
                     $temparray = [
                         'fieldname' => get_string($entry['fieldname'], 'booking'),
@@ -167,5 +176,22 @@ class bookingoption_changes implements renderable, templatable {
         return [
             'changes' => $newchangesarray,
         ];
+
+    }
+
+    private function prepare_dates_array(array $dates): array {
+        $returndates = [];
+        foreach ($dates as $date) {
+            $date = (object)$date;
+            $d = dates_handler::prettify_datetime((int)$date->coursestarttime,
+            (int)$date->courseendtime);
+            $datestring = $d->datestring;
+            if (!empty($date->entityid)) {
+                $entity = singleton_service::get_entity_by_id($date->entityid);
+                $datestring .= " " . $entity[$date->entityid]->name;
+            }
+            $returndates[] = $datestring;
+        }
+        return $returndates;
     }
 }

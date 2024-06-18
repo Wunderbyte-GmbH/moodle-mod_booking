@@ -529,18 +529,6 @@ class dates {
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         list($newoptiondates, $highesindex) = self::get_list_of_submitted_dates((array)$formdata);
         $olddates = $settings->sessions;
-        // For tracking of changes, store infos about old optiondates including entities.
-        $memory = [];
-        if (!empty($olddates) && class_exists('local_entities\entitiesrelation_handler')) {
-            $handler = new entitiesrelation_handler('mod_booking', 'optiondate');
-            foreach ($olddates as $oldd) {
-                if (isset($oldd->optiondateid) && $data = $handler->get_instance_data($oldd->optiondateid)) {
-                    $oldd->entityid = $data->id ?? 0;
-                    $oldd->entityarea = $data->area ?? '';
-                }
-                $memory[] = $oldd;
-            }
-        }
 
         $datestosave = [];
         $datestodelete = [];
@@ -570,22 +558,29 @@ class dates {
         }
 
         $datestodelete = array_merge($olddates, $datestodelete);
+        if (class_exists('local_entities\entitiesrelation_handler')) {
+            $handler = new entitiesrelation_handler('mod_booking', 'optiondate');
+        }
 
+        $memory = [];
         foreach ($datestodelete as $date) {
             $date = (array)$date;
 
             if (!empty($date['optiondateid'])) {
 
                 optiondate::delete($date['optiondateid']);
-
+                // For tracking of changes, store infos about old optiondates including entities.
+                if ($data = $handler->get_instance_data($date['optiondateid'])) {
+                    $date['entityid'] = $data->id ?? 0;
+                    $date['entityarea'] = $data->area ?? '';
+                }
             }
+                $memory[] = $date;
         }
+        $memory = array_merge($memory, $datestoupdate);
 
         // Saving and updating uses the same routines anyway.
-
         $datestosave = array_merge($datestosave, $datestoupdate);
-        $nd = [];
-        $newdates = "";
         foreach ($datestosave as $date) {
             $optiondate = optiondate::save(
                 (int)$date['optiondateid'] ?? 0,
@@ -599,43 +594,20 @@ class dates {
                 0,
                 (int)$date['entityid'] ?? 0,
                 $date['customfields'] ?? []);
-            $newdate = dates_handler::prettify_datetime((int)$date['coursestarttime'],
-            (int)$date['courseendtime']);
-            $newdates = $newdate->datestring;
-            if (!empty($date['entityid'])) {
-                $entity = singleton_service::get_entity_by_id($date['entityid']);
-                $newdates .= " " . $entity[$date['entityid']]->name;
-            }
-            $nd[] = $newdates;
         }
 
-        $od = [];
-        $olddates = "";
         // Checking for changes.
-        if ((empty($datestodelete) && empty($datestosave))
+        if ((empty($memory) && empty($datestosave))
             || in_array('dates', MOD_BOOKING_CLASSES_EXCLUDED_FROM_CHANGES_TRACKING)) {
             return [];
-        }
-
-        foreach ($memory as $old) {
-            $olddate = dates_handler::prettify_datetime((int)$old->coursestarttime,
-            (int)$old->courseendtime);
-
-            $olddates = $olddate->datestring;
-            if (!empty($old->entityid)) {
-                $entity = singleton_service::get_entity_by_id($old->entityid);
-                $olddates .= " " . $entity[$old->entityid]->name;
-            }
-            $od[] = $olddates;
-
         }
 
         $changes = [
             'changes' => [
                 'info' => get_string('dates', 'booking') . get_string('changeinfochanged', 'booking'),
                 'fieldname' => 'dates',
-                'oldvalue' => $od,
-                'newvalue' => $nd,
+                'oldvalue' => $memory,
+                'newvalue' => $datestosave,
             ],
         ];
         return $changes;
