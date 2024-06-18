@@ -147,7 +147,8 @@ $string['displayloginbuttonforbookingoptions'] = 'Zeige in Buchungsoption Button
 $string['displayloginbuttonforbookingoptions_desc'] = 'Wird nur für nicht eingeloggte Benutzer angezeigt';
 $string['loginbuttonforbookingoptionscoloroptions'] = 'Stil (Farbe) des angezeigten Buttons';
 $string['loginbuttonforbookingoptionscoloroptions_desc'] = 'Nutzt Bootstrap 4 Styles. Die Farben sind für die Standardanwendung.';
-
+$string['linktomoodlecourseonbookedbutton'] = 'Zeige Link auf Moodle Kurs direkt am Buchen-Button';
+$string['linktomoodlecourseonbookedbutton_desc'] = 'Statt eines extra Links auf den Moodle Kurs wird diese Option den Buchungsbutton in einen Link auf den gebuchten Moodle Kurs umwandeln';
 // Bootstrap 4 styles.
 $string['cdo:buttoncolor:primary'] = 'Primary (Blau)';
 $string['cdo:buttoncolor:secondary'] = 'Secondary (Grau)';

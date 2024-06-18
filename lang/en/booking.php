@@ -150,6 +150,9 @@ $string['displayloginbuttonforbookingoptions'] = 'Display a button with redirect
 $string['displayloginbuttonforbookingoptions_desc'] = 'Will be displayed for users not logged in only.';
 $string['loginbuttonforbookingoptionscoloroptions'] = 'Choose style (color) of displayed button';
 $string['loginbuttonforbookingoptionscoloroptions_desc'] = 'Uses bootstrap 4 styles. Colors are for default application.';
+$string['linktomoodlecourseonbookedbutton'] = 'Show Link to Moodle course directly on booked button';
+$string['linktomoodlecourseonbookedbutton_desc'] = 'Instead of an extra link, this will transform the booked button the a link to the moodle course';
+
 
 // Bootstrap 4 styles.
 $string['cdo:buttoncolor:primary'] = 'Primary (blue)';
