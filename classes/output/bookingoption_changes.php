@@ -179,6 +179,14 @@ class bookingoption_changes implements renderable, templatable {
 
     }
 
+    /**
+     * Create human readable strings of dates, times and entities (if given).
+     *
+     * @param array $dates
+     *
+     * @return array
+     *
+     */
     private function prepare_dates_array(array $dates): array {
         $returndates = [];
         foreach ($dates as $date) {
