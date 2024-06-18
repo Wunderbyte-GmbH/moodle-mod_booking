@@ -851,7 +851,7 @@ class booking_option {
             $noofuserstobook = $settings->maxanswers - count($ba->usersonlist) - count($ba->usersreserved);
 
             // We want to enrol people who have been waiting longer first.
-            usort($usersonwaitinglist, fn($a, $b) => $a->timecreated < $b->timecreated ? -1 : 1);
+            usort($usersonwaitinglist, fn($a, $b) => $a->timemodified < $b->timemodified ? -1 : 1);
             if ($noofuserstobook > 0 && !empty($ba->usersonwaitinglist)) {
                 while ($noofuserstobook > 0) {
                     $noofuserstobook--; // Decrement.
@@ -875,7 +875,7 @@ class booking_option {
 
             // 2. Update and inform users who have been put on the waiting list because of changed limits.
             $usersonlist = array_merge($ba->usersonlist, $ba->usersreserved);
-            usort($usersonlist, fn($a, $b) => $a->timecreated < $b->timecreated ? -1 : 1);
+            usort($usersonlist, fn($a, $b) => $a->timemodified < $b->timemodified ? -1 : 1);
             while (count($usersonlist) > $settings->maxanswers) {
                 $currentanswer = array_pop($usersonlist);
                 array_push($usersonwaitinglist, $currentanswer);
