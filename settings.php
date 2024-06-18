@@ -231,6 +231,12 @@ if ($ADMIN->fulltree) {
                 $coloroptions));
 
     $settings->add(
+        new admin_setting_configcheckbox('booking/linktomoodlecourseonbookedbutton',
+            get_string('linktomoodlecourseonbookedbutton', 'mod_booking'),
+            get_string('linktomoodlecourseonbookedbutton', 'mod_booking'), 1));
+
+
+    $settings->add(
         new admin_setting_configcheckbox('booking/bookingdebugmode',
             get_string('bookingdebugmode', 'mod_booking'),
             get_string('bookingdebugmode_desc', 'mod_booking'), 0));

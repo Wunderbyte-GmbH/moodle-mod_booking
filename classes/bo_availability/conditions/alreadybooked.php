@@ -196,9 +196,28 @@ class alreadybooked implements bo_condition {
     public function render_button(booking_option_settings $settings,
         int $userid = 0, bool $full = false, bool $not = false, bool $fullwidth = true): array {
 
-        $label = $this->get_description_string(false, $full);
+        $link = '';
+        if (get_config('booking', 'linktomoodlecourseonbookedbutton')
+            && !empty($settings->courseid)) {
+            $label = 'Zum Moodle Kurs';
+            $url = new \moodle_url('/course/view.php', ['id' => $settings->courseid]);
+            $link = $url->out();
+        } else {
+            $label = $this->get_description_string(false, $full);
+        }
 
-        return bo_info::render_button($settings, $userid, $label, 'alert alert-success', true, $fullwidth, 'alert', 'option');
+        return bo_info::render_button(
+            $settings,
+            $userid,
+            $label,
+            'alert alert-success',
+            true,
+            $fullwidth,
+            'alert',
+            'option',
+            true,
+            '',
+            $link);
     }
 
     /**
