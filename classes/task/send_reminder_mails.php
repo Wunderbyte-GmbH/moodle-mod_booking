@@ -223,7 +223,12 @@ class send_reminder_mails extends \core\task\scheduled_task {
             $bookingid = $record->bookingid;
             $cm = get_coursemodule_from_instance('booking', $bookingid);
             $cmid = $cm->id;
-            $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+            try {
+                $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+            } catch (\Exception $e) {
+                // If the bookingoption doesn't exist anymore, we just abort the task.
+                return true;
+            }
 
             switch ($messageparam) {
                 case MOD_BOOKING_MSGPARAM_SESSIONREMINDER:
