@@ -232,6 +232,7 @@ $string['booking:reducedoptionform1'] = "1. Reduziertes Buchungsoptionsformular 
 $string['booking:reducedoptionform2'] = "2. Reduziertes Buchungsoptionsformular für Kursbereich.";
 $string['booking:reducedoptionform3'] = "3. Reduziertes Buchungsoptionsformular für Kursbereich.";
 $string['booking:reducedoptionform4'] = "4. Reduziertes Buchungsoptionsformular für Kursbereich.";
+$string['booking:reducedoptionform5'] = "5. Reduziertes Buchungsoptionsformular für Kursbereich.";
 
 $string['manageoptiontemplates'] = 'Kann Buchungsoptionsvorlagen erstellen';
 $string['bookingfull'] = 'Ausgebucht';
@@ -2329,6 +2330,8 @@ $string['mod/booking:reducedoptionform2'] = 'Buchungsoption reduziert 2';
 $string['mod/booking:reducedoptionform3'] = 'Buchungsoption reduziert 3';
 $string['mod/booking:reducedoptionform4'] = 'Buchungsoption reduziert 4';
 $string['mod/booking:reducedoptionform5'] = 'Buchungsoption reduziert 5';
+$string['booking:editoptionformconfig'] = 'Buchungsoptionsfelder bearbeiten';
+$string['booking:bookanyone'] = 'Darf alle Nutzer:innen buchen';
 $string['mod/booking:bookanyone'] = 'JedeN buchen';
 $string['mod/booking:seepersonalteacherinformation'] = 'Detailinfos über Lehrende anzeigen';
 
