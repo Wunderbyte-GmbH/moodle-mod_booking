@@ -224,7 +224,7 @@ class connectedcourse {
                     foreach ($tags as $index => $tag) {
                         $tag = $DB->get_record('tag', ['id' => $tag], 'id, name');
                         if (!$tag) {
-                            throw new moodle_exception('tagnotfoundindb', 'local_catquiz');
+                            throw new moodle_exception('tagnotfoundindb', 'mod_booking');
                         }
                         $params['tag'. $indexparam] = $tag->id;
                         $where .= "t.tagid";
