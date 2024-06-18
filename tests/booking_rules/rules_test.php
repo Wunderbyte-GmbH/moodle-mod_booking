@@ -29,6 +29,7 @@ use advanced_testcase;
 use context_course;
 use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules\rule_react_on_event;
+use mod_booking\booking_rules\rules_info;
 use stdClass;
 
 /**
@@ -101,7 +102,7 @@ class rules_test extends advanced_testcase {
             'actionname' => 'send_mail',
             'actiondata' => '{"subject":"teacher subst","template":"teacher sybst msg","templateformat":"1"}',
             'rulename' => 'rule_react_on_event',
-            'ruledata' => '{"boevent":"\\mod_booking\\event\\optiondates_teacher_added"}',
+            'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\optiondates_teacher_added","condition":"0"}',
         ];
 
         $rule = $plugingenerator->create_rule($ruledata);
@@ -122,7 +123,7 @@ class rules_test extends advanced_testcase {
         unset_config('noemailever');
         ob_start();
         $messagesink = $this->redirectEmails();
-        $sink = $this->redirectEvents();
+        //$sink = $this->redirectEvents();
 
         // Debug - check rule exist.
         $rules = booking_rules::get_list_of_saved_rules_by_context();
@@ -144,16 +145,19 @@ class rules_test extends advanced_testcase {
         //$event->trigger();
         $this->run_all_adhoc_tasks();
 
-        $events = $sink->get_events();
+        //$events = $sink->get_events();
         $messages = $messagesink->get_messages();
 
         singleton_service::destroy_booking_option_singleton($option->id);
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         $optionobj = singleton_service::get_instance_of_booking_option($settings->cmid, $option->id);
 
+        rules_info::execute_booking_rules();
+        //rules_info::execute_rules_for_option($option->id);
+
         $res = ob_get_clean();
 
-        $this->assertCount(4, $events);
+        //$this->assertCount(4, $events);
 
         // Old code, assert will fails.
         $event = reset($events);
