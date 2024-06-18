@@ -237,6 +237,8 @@ $string['booking:reducedoptionform1'] = "1. Reduced option form for course categ
 $string['booking:reducedoptionform2'] = "2. Reduced option form for course category";
 $string['booking:reducedoptionform3'] = "3. Reduced option form for course category";
 $string['booking:reducedoptionform4'] = "4. Reduced option form for course category";
+$string['booking:reducedoptionform5'] = "5. Reduced option form for course category";
+
 
 $string['booking:comment'] = 'Add comments';
 $string['booking:managecomments'] = 'Manage comments';
@@ -2321,6 +2323,8 @@ $string['booking:view'] = 'View booking instances';
 $string['booking:viewreports'] = 'Allow access for viewing reports';
 $string['booking:manageoptiondates'] = 'Manage option dates';
 $string['booking:limitededitownoption'] = 'Less than addeditownoption, only allows very limited actions';
+$string['booking:editoptionformconfig'] = 'Edit option config form';
+$string['booking:bookanyone'] = 'Allowed to book anyone';
 
 // Booking_handler.php.
 $string['error:newcoursecategorycfieldmissing'] = 'You need to create a <a href="{$a->bookingcustomfieldsurl}"
