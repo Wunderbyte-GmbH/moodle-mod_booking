@@ -771,6 +771,7 @@ class bo_info {
      * @param string $area
      * @param bool $nojs
      * @param string $dataaction
+     * @param string $link
      * @return array
      */
     public static function render_button(
@@ -783,7 +784,8 @@ class bo_info {
         string $role = 'alert',
         string $area = 'option',
         bool $nojs = true,
-        string $dataaction = '' // Use 'noforward' to disable automatic forwarding.
+        string $dataaction = '', // Use 'noforward' to disable automatic forwarding.
+        string $link = ''
     ) {
 
         $user = singleton_service::get_instance_of_user($userid);
@@ -813,6 +815,11 @@ class bo_info {
                 'role' => $role,
             ],
         ];
+
+        if (!empty($link)) {
+            $data['main']['link'] = $link;
+            $data['main']['role'] = 'button';
+        }
 
         // Only if the user can not book anyways, we want to show him the price he or she should see.
         $context = context_module::instance($settings->cmid);

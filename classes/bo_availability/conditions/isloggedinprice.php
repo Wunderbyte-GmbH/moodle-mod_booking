@@ -229,7 +229,26 @@ class isloggedinprice implements bo_condition {
             $returnarray['fullwidth'] = $fullwidth;
         }
 
+        self::add_loginbutton($returnarray);
+
         return ['mod_booking/col_price', $returnarray];
+    }
+
+    /**
+     * Append data of loginbutton to dataarray for template
+     *
+     * @param array $data
+     *
+     * @return void
+     *
+     */
+    public static function add_loginbutton(array &$data) {
+        $showbutton = get_config('booking', 'displayloginbuttonforbookingoptions');
+        if (!empty($showbutton)) {
+            $style = get_config('booking', 'loginbuttonforbookingoptionscoloroptions');
+            $data['showbutton'] = 1;
+            $data['buttonstyle'] = $style;
+        }
     }
 
     /**

@@ -189,8 +189,22 @@ class isloggedin implements bo_condition {
         int $userid = 0, bool $full = false, bool $not = false, bool $fullwidth = true): array {
 
         $label = $this->get_description_string(false, $full);
+        $style = 'btn btn-' . get_config('booking', 'loginbuttonforbookingoptionscoloroptions') ?? 'btn btn-warning';
 
-        return bo_info::render_button($settings, $userid, $label, 'alert alert-warning', true, $fullwidth, 'alert', 'option');
+        $button = bo_info::render_button(
+            $settings,
+            $userid,
+            $label,
+            $style,
+            true,
+            $fullwidth,
+            'alert',
+            'option',
+            true,
+            '',
+            "/login/index.php");
+
+        return $button;
     }
 
     /**

@@ -146,6 +146,18 @@ $string['allmoodleusers'] = 'All users of this site';
 $string['enrolledusers'] = 'Users enrolled in course';
 $string['nopriceisset'] = 'No price has been set for pricecategory {$a}';
 $string['youareediting'] = 'You are editing "<b>{$a}</b>".';
+$string['displayloginbuttonforbookingoptions'] = 'Display a button with redirect to login site for bookingoption';
+$string['displayloginbuttonforbookingoptions_desc'] = 'Will be displayed for users not logged in only.';
+$string['loginbuttonforbookingoptionscoloroptions'] = 'Choose style (color) of displayed button';
+$string['loginbuttonforbookingoptionscoloroptions_desc'] = 'Uses bootstrap 4 styles. Colors are for default application.';
+
+// Bootstrap 4 styles.
+$string['cdo:buttoncolor:primary'] = 'Primary (blue)';
+$string['cdo:buttoncolor:secondary'] = 'Secondary (grey)';
+$string['cdo:buttoncolor:success'] = 'Success (green)';
+$string['cdo:buttoncolor:warning'] = 'Warning (yellow)';
+$string['cdo:buttoncolor:danger'] = 'Danger (red)';
+
 
 // Badges.
 $string['badge:pro'] = $badgepro;

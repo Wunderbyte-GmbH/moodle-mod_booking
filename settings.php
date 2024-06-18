@@ -208,6 +208,26 @@ if ($ADMIN->fulltree) {
             get_string('maxperuserdontcountnoshow_desc', 'mod_booking'), 1));
 
     $settings->add(
+        new admin_setting_configcheckbox('booking/displayloginbuttonforbookingoptions',
+            get_string('displayloginbuttonforbookingoptions', 'mod_booking'),
+            get_string('displayloginbuttonforbookingoptions_desc', 'mod_booking'), 1));
+
+    $coloroptions = [
+        'primary' => get_string('cdo:buttoncolor:primary', 'mod_booking'),
+        'secondary' => get_string('cdo:buttoncolor:secondary', 'mod_booking'),
+        'success' => get_string('cdo:buttoncolor:success', 'mod_booking'),
+        'warning' => get_string('cdo:buttoncolor:warning', 'mod_booking'),
+        'danger' => get_string('cdo:buttoncolor:danger', 'mod_booking'),
+    ];
+
+    $settings->add(
+        new admin_setting_configselect('booking/loginbuttonforbookingoptionscoloroptions',
+                get_string('loginbuttonforbookingoptionscoloroptions', 'mod_booking'),
+                get_string('loginbuttonforbookingoptionscoloroptions_desc', 'mod_booking'),
+                'primary',
+                $coloroptions));
+
+    $settings->add(
         new admin_setting_configcheckbox('booking/bookingdebugmode',
             get_string('bookingdebugmode', 'mod_booking'),
             get_string('bookingdebugmode_desc', 'mod_booking'), 0));
