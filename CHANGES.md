@@ -1,3 +1,9 @@
+## Version 8.4.3 (2024061900)
+* Improvement: Track changes of booking option and enable rule for it.
+* Improvement: Display Login Button in bookingoption for users not logged in (config setting).
+* Improvement: Expand userlist in booking option: add userpictures, indexnumber and change naming of bookingdate.
+* Bugfix: Don't throw error when option was deleted.
+
 ## Version 8.4.2 (2024061400)
 * Improvement: Bookingoption_confirmed event & rule for "Book only after confirmation" with price set.
 * Improvement: Show "on waitinglist" in report php also when we just use the confirmation feature.
