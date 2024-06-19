@@ -182,7 +182,12 @@ class booking_option_test extends advanced_testcase {
                     $this->assertStringContainsString('Teacher 2', $change['newvalue']);
                     $this->assertStringContainsString('Teacher 1', $change['oldvalue']);
                     break;
-                // TODO: case 'dates'.
+                case 'dates':
+                    $this->assertEquals(strtotime('10 April 2055'), $change['newvalue'][0]['coursestarttime']);
+                    $this->assertEquals(strtotime('10 May 2055'), $change['newvalue'][0]['courseendtime']);
+                    $this->assertEquals(strtotime('20 June 2050'), $change['oldvalue'][0]['coursestarttime']);
+                    $this->assertEquals(strtotime('20 July 2050'), $change['oldvalue'][0]['courseendtime']);
+                    break;
             }
         }
     }
