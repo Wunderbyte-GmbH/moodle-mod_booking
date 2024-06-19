@@ -638,7 +638,11 @@ class singleton_service {
     /**
      * Returns ascending index for userids.
      *
+     * @param string $uniqueid
+     * @param string $indexid
+     *
      * @return int
+     *
      */
     public static function get_index_number(string $uniqueid, string $indexid): int {
         $instance = self::get_instance();
