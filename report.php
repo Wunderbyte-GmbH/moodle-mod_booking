@@ -531,7 +531,7 @@ if (!$tableallbookings->is_downloading()) {
                 break;
             case 'timecreated':
                 $columns[] = 'timecreated';
-                $headers[] = get_string('timecreated', 'mod_booking');
+                $headers[] = get_string('bookingdate', 'mod_booking');
                 break;
             case 'institution':
                 $columns[] = 'institution';
@@ -561,6 +561,14 @@ if (!$tableallbookings->is_downloading()) {
                     $headers[] = get_string('searchwaitinglist', 'mod_booking');
                 }
                 break;
+            case 'userpic':
+                $columns[] = 'userpic';
+                $headers[] = get_string('userpic');
+                break;
+            case 'indexnumber':
+                $columns[] = 'indexnumber';
+                $headers[] = get_string('indexnumber', 'mod_booking');
+                break;
         }
     }
     $customfields = '';
@@ -584,6 +592,7 @@ if (!$tableallbookings->is_downloading()) {
     foreach ($customform as $counter => $customformfield) {
         $columns[] = 'formfield_' . $counter;
         $headers[] = !empty($customformfield->label) ? $customformfield->label : 'label_' . $counter;
+        $tableallbookings->no_sorting('formfield_' . $counter);
     }
 
     $strbooking = get_string("modulename", "booking");
@@ -629,6 +638,26 @@ if (!$tableallbookings->is_downloading()) {
              AND ba.waitinglist < 2 ' . $addsqlwhere;
 
     $tableallbookings->set_sql($fields, $from, $where, $sqlvalues);
+
+    // Sort order of columns & headers.
+    $desiredsortorder = ['selected', 'indexnumber', 'userpic'];
+    $orderedcol = [];
+    $orderedheaders = [];
+    $remainingcol = $columns;
+    $remaininghead = $headers;
+    foreach ($desiredsortorder as $value) {
+        $index = array_search($value, $columns);
+        if ($index !== false) {
+            $orderedcol[] = $value;
+            $orderedheaders[] = $headers[$index];
+            unset($remainingcol[$index]);
+            unset($remaininghead[$index]);
+        }
+    }
+    $remainingcol = array_values($remainingcol);
+    $remaininghead = array_values($remaininghead);
+    $columns = array_merge($orderedcol, $remainingcol);
+    $headers = array_merge($orderedheaders, $remaininghead);
 
     $tableallbookings->define_columns($columns);
     $tableallbookings->define_headers($headers);

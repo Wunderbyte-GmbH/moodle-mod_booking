@@ -349,9 +349,12 @@ class mod_booking_mod_form extends moodleform_mod {
             'city' => new lang_string('city'),
             'department' => new lang_string('department'),
             'notes' => get_string('notes', 'mod_booking'),
+            'userpic' => get_string('userpic'),
+            'indexnumber' => get_string('indexnumber', 'mod_booking'),
         ];
 
-        $reportfields = ['optionid' => get_string("optionid", "booking"),
+        $reportfields = [
+            'optionid' => get_string("optionid", "booking"),
             'booking' => get_string("bookingoptionname", "booking"),
             'institution' => get_string("institution", "booking"),
             'location' => get_string("location", "booking"),

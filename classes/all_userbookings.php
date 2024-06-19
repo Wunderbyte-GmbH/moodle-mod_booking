@@ -30,6 +30,7 @@ use html_writer;
 use mod_booking\bo_availability\conditions\customform;
 use moodle_url;
 use stdClass;
+use user_picture;
 defined('MOODLE_INTERNAL') || die();
 require_once('../../lib/tablelib.php');
 
@@ -282,6 +283,37 @@ class all_userbookings extends \table_sql {
         $renderer = $PAGE->get_renderer('mod_booking');
         $renderednote = new report_edit_bookingnotes($data);
         return $renderer->render($renderednote);
+    }
+
+    /**
+     * Renders image of user.
+     *
+     * @param mixed $values
+     *
+     * @return string
+     *
+     */
+    public function col_userpic($values): string {
+        global $PAGE;
+        $user = singleton_service::get_instance_of_user($values->userid);
+        $userpic = new user_picture($user);
+        $userpic->size = 200;
+        $userpictureurl = $userpic->get_url($PAGE);
+        return html_writer::img(
+            $userpictureurl, "link", ['height' => 100]);
+    }
+
+    /**
+     * Renders image of user.
+     *
+     * @param mixed $values
+     *
+     * @return string
+     *
+     */
+    public function col_indexnumber($values): string {
+        $optionid = $values->optionid;
+        return singleton_service::get_index_number($this->uniqueid . $optionid, $values->id);
     }
 
     /**

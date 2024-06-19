@@ -94,6 +94,9 @@ class singleton_service {
     /** @var array $customfields */
     public array $customfields = [];
 
+    /** @var array $index */
+    public array $index = [];
+
 
     /**
      * Constructor
@@ -630,5 +633,26 @@ class singleton_service {
         }
 
         return $instance->customfields[$fieldid];
+    }
+
+    /**
+     * Returns ascending index for userids.
+     *
+     * @return int
+     */
+    public static function get_index_number(string $uniqueid, string $indexid): int {
+        $instance = self::get_instance();
+
+        if (!isset($instance->index[$uniqueid])) {
+            $instance->index[$uniqueid] = [
+                'counter' => 1,
+            ];
+            $instance->index[$uniqueid][$indexid] = 1;
+        } else if (!isset($instance->index[$uniqueid][$indexid])) {
+            $instance->index[$uniqueid]['counter'] ++;
+            $instance->index[$uniqueid][$indexid] = $instance->index[$uniqueid]['counter'];
+        }
+
+        return $instance->index[$uniqueid][$indexid];
     }
 }

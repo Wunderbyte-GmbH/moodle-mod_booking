@@ -1079,7 +1079,8 @@ $string['userssucesfullygetnewpresencestatus'] = 'Presence status for selected u
 $string['copytotemplate'] = 'Save booking option as template';
 $string['copytotemplatesucesfull'] = 'Booking option was sucesfully saved as template.';
 $string['successfullybooked'] = 'Successfully booked';
-
+$string['indexnumber'] = 'Numbering';
+$string['bookingdate'] = 'Booking date';
 
 // Send message.
 $string['booking:cansendmessages'] = 'Can send messages';

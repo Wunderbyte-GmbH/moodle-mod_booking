@@ -1045,6 +1045,8 @@ $string['userssucesfullygetnewpresencestatus'] = 'Anwesenheitsstatus für ausgew
 $string['copytotemplate'] = 'Buchungsoption als Vorlage speichern';
 $string['copytotemplatesucesfull'] = 'Buchungsoption erfolgreich als Vorlage gespeichert';
 $string['successfullybooked'] = 'Erfolgreich gebucht';
+$string['indexnumber'] = 'Nummerierung';
+$string['bookingdate'] = 'Buchungsdatum';
 
 // Send message.
 $string['booking:cansendmessages'] = 'Kann Nachrichten schicken.';
