@@ -12,6 +12,9 @@ Feature: Configure and validate different course connection settings for booking
       | teacher2 | Teacher   | 2        | teacher2@example.com | T2       |
       | student1 | Student   | 1        | student1@example.com | S1       |
       | student2 | Student   | 2        | student2@example.com | S2       |
+    And the following "categories" exist:
+      | name     | category | idnumber |
+      | BookCat1 | 0        | BCAT1    |
     And the following "courses" exist:
       | fullname | shortname | category | enablecompletion |
       | Course 1 | C1        | 0        | 1                |
@@ -64,3 +67,38 @@ Feature: Configure and validate different course connection settings for booking
     And I click on "Go to Moodle course" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Enroll_now" in the "#page-header" "css_element"
     And I should see "General" in the ".course-content" "css_element"
+
+  @javascript
+  Scenario: Booking courseconnection: create empty course under category and enroll users immediately
+    Given the following "custom field categories" exist:
+      | name    | component   | area    | itemid |
+      | bookcat | mod_booking | booking | 0      |
+    And the following "custom fields" exist:
+      | name      | category | type | shortname | configdata[defaultvalue] |
+      | coursecat | bookcat  | text | coursecat |                          |
+    And the following config values are set as admin:
+      | config                  | value     | plugin  |
+      | newcoursecategorycfield | coursecat | booking |
+    And the following "mod_booking > options" exist:
+      | booking    | text            | course | description | chooseorcreatecourse | customfield_coursecat | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | My booking | Enroll_existcat | C1     | existcat    | 2                    | BookCat1              | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +1 days ##     | ## +3 days ##   |
+      | My booking | Enroll_newcat   | C1     | newcat      | 2                    | NewBookCat            | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
+    And I am on the "My booking" Activity page logged in as student1
+    When I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Go to Moodle course" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Enroll_existcat" in the "#page-header" "css_element"
+    And I log out
+    And I am on the "My booking" Activity page logged in as student2
+    When I click on "Book now" "text" in the ".allbookingoptionstable_r2 .booknow" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r2" "css_element"
+    Then I should see "Booked" in the ".allbookingoptionstable_r2" "css_element"
+    And I click on "Go to Moodle course" "link" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "Enroll_newcat" in the "#page-header" "css_element"
+    And I log out
+    And I am logged in as admin
+    And I am on the "Enroll_existcat" "course editing" page
+    And I should see "BookCat1"
+    And I am on the "Enroll_newcat" "course editing" page
+    And I should see "NewBookCat"
