@@ -16,6 +16,7 @@ Feature: Configure and validate different course connection settings for booking
       | fullname | shortname | category | enablecompletion |
       | Course 1 | C1        | 0        | 1                |
       | Course 2 | C2        | 0        | 1                |
+      | Course 3 | C3        | 0        | 1                |
     And the following "course enrolments" exist:
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
@@ -31,25 +32,21 @@ Feature: Configure and validate different course connection settings for booking
   @javascript
   Scenario: Booking courseconnection: connect existing course and enroll users immediately
     Given the following "mod_booking > options" exist:
-      | booking    | text          | course | description  | chooseorcreatecourse | course | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
-      | My booking | Option-course | C1     | Deskr-course | 1                    | C2     | 1               | 0            | 0          | teacher1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+      | booking    | text         | course | description  | chooseorcreatecourse | course | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | My booking | Enroll_later | C1     | Enroll_later | 1                    | C2     | 0               | 0            | 0          | teacher1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+      | My booking | Enroll_now   | C1     | Enroll_now   | 1                    | C3     | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
+    ## enrolmentstatus: 0 enrol at coursestart; 1 enrolment done; 2 immediately enrol
     And the following "mod_booking > answers" exist:
-      | booking    | option        | user     |
-      | My booking | Option-course | student1 |
+      | booking    | option       | user     |
+      | My booking | Enroll_later | student1 |
     And I am on the "My courses" page logged in as student1
     And I should see "Course 1" in the "#region-main" "css_element"
     And I should not see "Course 2" in the "#region-main" "css_element"
     And I log out
-    And I am on the "My booking" Activity page logged in as admin
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I set the field "enrolmentstatus" to ""
-    And I press "Save"
-    And I log out
     And I am on the "My booking" Activity page logged in as student2
-    When I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
-    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Go to Moodle course" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Course 2" in the "#page-header" "css_element"
+    When I click on "Book now" "text" in the ".allbookingoptionstable_r2 .booknow" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r2" "css_element"
+    Then I should see "Booked" in the ".allbookingoptionstable_r2" "css_element"
+    And I click on "Go to Moodle course" "link" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "Course 3" in the "#page-header" "css_element"
     And I should see "Topic 1" in the ".course-content" "css_element"
