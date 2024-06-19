@@ -70,21 +70,44 @@ class message_sent extends \core\event\base {
      */
     public function get_description() {
 
-        if (is_string($this->other)) {
-            $other = json_decode($this->other);
-            $messageparam = $other->messageparam ?? 0;
-            $subject = $other->subject ?? '';
-            $userid = $this->data['userid'] ?? 'unknown';
-            $relateduserid = $this->data['relateduserid'] ?? 'unknown';
+        // For the collapsibles, we need a uniqueid.
+        $uniqueid = uniqid();
 
-            return $this->transform_msgparam( $messageparam ) . ": " .
-                "An e-mail with subject '" . $subject . "' has been sent to user with id: '$userid'. " .
-                "The mail was sent from the user with id: '$relateduserid'.";
+        $data = $this->get_data();
+
+        if (is_string($data['other'])) {
+            $other = (object)json_decode($data['other']);
+            $messageparam = $other->messageparam ?? 0;
+            $userid = $data['userid'] ?? 'unknown';
+            $relateduserid = $data['relateduserid'] ?? 'unknown';
         } else {
-            return $this->transform_msgparam( $this->other['messageparam'] ) . ": " .
-                "An e-mail with subject '" . $this->other['subject'] . "' has been sent to user with id: '{$this->userid}'. " .
-                "The mail was sent from the user with id: '{$this->relateduserid}'.";
+            $other = (object)$data['other'];
+            $userid = $data['userid'];
+            $relateduserid = $data['relateduserid'];
+
         }
+        $subject = $other->subject ?? '';
+        $message = $other->message ?? 'Message body not saved.';
+        $messageparam = $other->messageparam ?? '';
+
+        $messagetype = $this->transform_msgparam( $messageparam );
+
+        return '
+            <a class=""
+                data-toggle="collapse"
+                href="#a' . $uniqueid . '"
+                role="button" aria-expanded="false"
+                aria-controls="collapseExample">
+
+                ' . $messagetype . ' A message e-mail with subject "' . $subject .
+                '" has been sent to user with id: '. $relateduserid .
+                ' by the user ' . $userid  .'
+            </a>
+            <div class="collapse" id="a' . $uniqueid . '">
+                <div class="card card-body">
+                    ' . $message . '
+                </div>
+            </div>';
 
     }
 
