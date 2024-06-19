@@ -66,9 +66,84 @@ class custom_message_sent extends \core\event\base {
      */
     public function get_description() {
 
-        return
-            "A custom message e-mail with subject '" . $this->other['subject'] .
-            "' has been sent to user with id: '{$this->relateduserid}'. " .
-            "The mail was sent by the user with id: '{$this->userid}'.";
+        // For the collapsibles, we need a uniqueid.
+        $uniqueid = uniqid();
+
+        $data = $this->get_data();
+
+        if (is_string($data['other'])) {
+            $other = (object)json_decode($data['other']);
+            $messageparam = $other->messageparam ?? 0;
+            $userid = $data['userid'] ?? 'unknown';
+            $relateduserid = $data['relateduserid'] ?? 'unknown';
+        } else {
+            $other = (object)$data['other'];
+            $userid = $data['userid'];
+            $relateduserid = $data['relateduserid'];
+
+        }
+        $subject = $other->subject ?? '';
+        $message = $other->message ?? 'Message body not saved.';
+        $messageparam = $other->messageparam ?? '';
+
+        $messagetype = $this->transform_msgparam( $messageparam );
+
+        return '
+            <a class=""
+                data-toggle="collapse"
+                href="#a' . $uniqueid . '"
+                role="button" aria-expanded="false"
+                aria-controls="collapseExample">
+
+                ' . $messagetype . ' A message e-mail with subject "' . $subject .
+                '" has been sent to user with id: '. $relateduserid .
+                ' by the user ' . $userid  .'
+            </a>
+            <div class="collapse" id="a' . $uniqueid . '">
+                <div class="card card-body">
+                    ' . $message . '
+                </div>
+            </div>';
+    }
+
+    /**
+     * Helper function to transform the message param.
+     * @param int $msgparam the message parameter
+     * @return string
+     */
+    private function transform_msgparam(int $msgparam): string {
+
+        switch ($msgparam) {
+            case MOD_BOOKING_MSGPARAM_CONFIRMATION:
+                return 'Booking confirmation';
+            case MOD_BOOKING_MSGPARAM_WAITINGLIST:
+                return 'Waiting list confirmation';
+            case MOD_BOOKING_MSGPARAM_REMINDER_PARTICIPANT:
+                return 'Reminder';
+            case MOD_BOOKING_MSGPARAM_REMINDER_TEACHER:
+                return 'Teacher reminder';
+            case MOD_BOOKING_MSGPARAM_STATUS_CHANGED:
+                return 'Status change';
+            case MOD_BOOKING_MSGPARAM_CANCELLED_BY_PARTICIPANT:
+                return 'Option cancelled by participant';
+            case MOD_BOOKING_MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM:
+                return 'Option cancelled by teacher or system';
+            case MOD_BOOKING_MSGPARAM_CHANGE_NOTIFICATION:
+                return 'Change notification';
+            case MOD_BOOKING_MSGPARAM_POLLURL_PARTICIPANT:
+                return 'Poll URL message';
+            case MOD_BOOKING_MSGPARAM_POLLURL_TEACHER:
+                return 'Teacher\'s poll URL message';
+            case MOD_BOOKING_MSGPARAM_COMPLETED:
+                return 'Booking option completion';
+            case MOD_BOOKING_MSGPARAM_SESSIONREMINDER:
+                return 'Session reminder';
+            case MOD_BOOKING_MSGPARAM_REPORTREMINDER:
+                return 'Reminder sent from report';
+            case MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE:
+                return 'Custom message';
+            default:
+                return 'Unknown message type';
+        }
     }
 }

@@ -462,6 +462,7 @@ class message_controller {
                             'messageparam' => $this->messageparam,
                             'subject' => $this->messagedata->subject,
                             'objectid' => $this->optionid ?? 0,
+                            'message' => $this->messagedata->fullmessage ?? '',
                         ],
                     ]);
                     $event->trigger();
