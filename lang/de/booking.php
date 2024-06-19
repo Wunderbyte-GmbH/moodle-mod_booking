@@ -415,7 +415,7 @@ $string['optiondates_teacher_added'] = 'Vertretung wurde eingetragen';
 $string['optiondates_teacher_deleted'] = 'Trainer:in wurde aus Trainingsjournal entfernt';
 $string['booking_failed'] = 'Buchung gescheitert';
 $string['booking_afteractionsfailed'] = 'Actions nach der Buchung gescheitert';
-$string['rest_script_succes'] = 'Rest Skript Ausführung';
+$string['rest_script_success'] = 'Rest Skript Ausführung';
 $string['rest_script_failed'] = 'Skript konnte nicht ausgeführt werden';
 $string['rest_script_executed'] = 'Nach dem Rest-Skript Aufruf';
 

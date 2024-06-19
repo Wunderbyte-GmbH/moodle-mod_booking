@@ -32,7 +32,7 @@ namespace mod_booking\event;
  * @copyright 2023 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class rest_script_succes extends \core\event\base {
+class rest_script_success extends \core\event\base {
 
     /**
      * Init
@@ -53,7 +53,7 @@ class rest_script_succes extends \core\event\base {
      *
      */
     public static function get_name() {
-        return get_string('rest_script_succes', 'booking');
+        return get_string('rest_script_success', 'booking');
     }
 
     /**
