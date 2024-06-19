@@ -113,7 +113,7 @@ class rule_react_on_event implements booking_rule {
             'optiondates_teacher_added',
             'optiondates_teacher_deleted',
             'bookingoption_updated',
-            'rest_script_succes',
+            'rest_script_success',
         ];
 
         // Get a list of all booking events.
@@ -156,7 +156,7 @@ class rule_react_on_event implements booking_rule {
         $notborelatedevents = [
             '\mod_booking\event\custom_message_sent',
             '\mod_booking\event\custom_bulk_message_sent',
-            '\mod_booking\event\rest_script_succes',
+            '\mod_booking\event\rest_script_success',
         ];
 
         $mform->hideIf('rule_react_on_event_after_completion', 'rule_react_on_event_event', 'in', $notborelatedevents);
