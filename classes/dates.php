@@ -570,7 +570,7 @@ class dates {
 
                 optiondate::delete($date['optiondateid']);
                 // For tracking of changes, store infos about old optiondates including entities.
-                if (isset($date['optiondateid']) &&
+                if (isset($date['optiondateid']) && isset($handler) &&
                     $data = $handler->get_instance_data($date['optiondateid'])) {
                     $date['entityid'] = $data->id ?? 0;
                     $date['entityarea'] = $data->area ?? '';
