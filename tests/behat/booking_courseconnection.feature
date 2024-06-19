@@ -50,3 +50,17 @@ Feature: Configure and validate different course connection settings for booking
     And I click on "Go to Moodle course" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "Course 3" in the "#page-header" "css_element"
     And I should see "Topic 1" in the ".course-content" "css_element"
+
+  @javascript
+  Scenario: Booking courseconnection: create default empty course and enroll users immediately
+    Given the following "mod_booking > options" exist:
+      | booking    | text         | course | description  | chooseorcreatecourse | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | My booking | Enroll_now   | C1     | Enroll_now   | 2                    | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
+    ## enrolmentstatus: 0 enrol at coursestart; 1 enrolment done; 2 immediately enrol
+    And I am on the "My booking" Activity page logged in as student1
+    When I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Go to Moodle course" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Enroll_now" in the "#page-header" "css_element"
+    And I should see "General" in the ".course-content" "css_element"
