@@ -33,38 +33,50 @@ Feature: Configure and validate different course connection settings for booking
     And I change viewport size to "1366x10000"
 
   @javascript
-  Scenario: Booking courseconnection: connect existing course and enroll users immediately
+  Scenario: Booking courseconnection: connect existing course and enroll users
     Given the following "mod_booking > options" exist:
       | booking    | text         | course | description  | chooseorcreatecourse | course | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
       | My booking | Enroll_later | C1     | Enroll_later | 1                    | C2     | 0               | 0            | 0          | teacher1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
       | My booking | Enroll_now   | C1     | Enroll_now   | 1                    | C3     | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
     ## enrolmentstatus: 0 enrol at coursestart; 1 enrolment done; 2 immediately enrol
+    ## Verify enroll later (at course start)
     And the following "mod_booking > answers" exist:
       | booking    | option       | user     |
       | My booking | Enroll_later | student1 |
     And I am on the "My courses" page logged in as student1
     And I should see "Course 1" in the "#region-main" "css_element"
-    And I should not see "Course 2" in the "#region-main" "css_element"
+    And I should not see "Enroll_later" in the "#region-main" "css_element"
     And I log out
     And I am on the "My booking" Activity page logged in as student2
     When I click on "Book now" "text" in the ".allbookingoptionstable_r2 .booknow" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r2" "css_element"
     Then I should see "Booked" in the ".allbookingoptionstable_r2" "css_element"
+    ## Verify enrolled immediately
     And I click on "Go to Moodle course" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "Course 3" in the "#page-header" "css_element"
     And I should see "Topic 1" in the ".course-content" "css_element"
 
   @javascript
-  Scenario: Booking courseconnection: create default empty course and enroll users immediately
+  Scenario: Booking courseconnection: create default empty course and enroll users
     Given the following "mod_booking > options" exist:
       | booking    | text         | course | description  | chooseorcreatecourse | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | My booking | Enroll_later | C1     | Enroll_later | 2                    | 0               | 0            | 0          | teacher1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
       | My booking | Enroll_now   | C1     | Enroll_now   | 2                    | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
     ## enrolmentstatus: 0 enrol at coursestart; 1 enrolment done; 2 immediately enrol
-    And I am on the "My booking" Activity page logged in as student1
-    When I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
-    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Go to Moodle course" "link" in the ".allbookingoptionstable_r1" "css_element"
+    ## Verify enroll later (at course start)
+    And the following "mod_booking > answers" exist:
+      | booking    | option       | user     |
+      | My booking | Enroll_later | student1 |
+    And I am on the "My courses" page logged in as student1
+    And I should see "Course 1" in the "#region-main" "css_element"
+    And I should not see "Enroll_later" in the "#region-main" "css_element"
+    And I log out
+    And I am on the "My booking" Activity page logged in as student2
+    When I click on "Book now" "text" in the ".allbookingoptionstable_r2 .booknow" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r2" "css_element"
+    Then I should see "Booked" in the ".allbookingoptionstable_r2" "css_element"
+    ## Verify enrolled immediately
+    And I click on "Go to Moodle course" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "Enroll_now" in the "#page-header" "css_element"
     And I should see "General" in the ".course-content" "css_element"
 
@@ -97,6 +109,7 @@ Feature: Configure and validate different course connection settings for booking
     And I click on "Go to Moodle course" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "Enroll_newcat" in the "#page-header" "css_element"
     And I log out
+    ## Verify is course categories are correct
     And I am logged in as admin
     And I am on the "Enroll_existcat" "course editing" page
     And I should see "BookCat1"
