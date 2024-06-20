@@ -69,9 +69,16 @@
         </div>
     {{/top}}
     {{#main}}
-        <div class="booking-button-mainarea p-1 {{class}}" role="{{role}}">
-            {{{label}}}
-        </div>
+        {{#link}}
+            <a class="booking-button-mainarea p-1 {{class}}" role="{{role}}" href="{{link}}">
+                {{{label}}}
+            </a>
+        {{/link}}
+        {{^link}}
+            <div class="booking-button-mainarea p-1 {{class}}" role="{{role}}">
+                {{{label}}}
+            </div>
+        {{/link}}
     {{/main}}
     {{#sub}}
         <div class="booking-button-subarea h6 mb-1 mt-1 p-1 {{class}}" role="{{role}}">
