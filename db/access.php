@@ -331,4 +331,12 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    // Capability to view reports without write access.
+    'mod/booking:seepersonalteacherinformation' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
 ];

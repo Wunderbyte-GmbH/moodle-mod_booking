@@ -52,7 +52,7 @@
 </a>
 <div class="collapse card bg-light rounded p-2 page-allteachers-teachersmailinglist" id="collapsiblelistofteachers">
     {{#teachers}}
-        "{{firstname}} {{lastname}}" &lt;{{email}}&gt;;<br>
+        "{{lastname}} {{firstname}}" &lt;{{email}}&gt;;<br>
     {{/teachers}}
 </div>
 {{/canedit}}
@@ -61,7 +61,7 @@
         <div class="card m-2 page-allteachers-card">
             <div class="card-header bg-dark d-flex justify-content-between align-items-center">
                 <a href="{{link}}" style="text-decoration: none;">
-                    <div class="text-white h3 mb-0 page-allteachers-teachername">{{firstname}} {{lastname}}</div>
+                    <div class="text-white h3 mb-0 page-allteachers-teachername">{{lastname}} {{firstname}}</div>
                 </a>
                 <div class="page-allteachers-orderletter bg-light rounded text-center">{{orderletter}}</div>
             </div>

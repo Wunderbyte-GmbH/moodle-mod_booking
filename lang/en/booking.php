@@ -2463,6 +2463,8 @@ $string['mod/booking:reducedoptionform2'] = 'Reduced booking option 2';
 $string['mod/booking:reducedoptionform3'] = 'Reduced booking option 3';
 $string['mod/booking:reducedoptionform4'] = 'Reduced booking option 4';
 $string['mod/booking:reducedoptionform5'] = 'Reduced booking option 5';
+$string['mod/booking:bookanyone'] = 'Book anyone';
+$string['mod/booking:seepersonalteacherinformation'] = 'See personal teacher information';
 
 // Vue strings.
 $string['vue_dashboard_checked'] = 'Default Checked';

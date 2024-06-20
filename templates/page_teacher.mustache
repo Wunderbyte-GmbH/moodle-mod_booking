@@ -59,9 +59,13 @@
     {{#teacher}}
         <div class="card">
             {{#link}}<a href="{{.}}">{{/link}}
-                {{#image}}<img src="{{.}}" class="card-img-teacher rounded-circle p-3">{{/image}}
+                {{#image}}
+                    <a href="/user/profile.php?id={{teacherid}}">
+                    <img src="{{.}}" class="card-img-teacher rounded-circle p-3">
+                    </a>
+                {{/image}}
                 <div class="card-body">
-                    <h1 class="card-title font-weight-bold">{{firstname}} {{lastname}}</h1>
+                    <h1 class="card-title font-weight-bold">{{lastname}} {{firstname}}</h1>
                     {{#email}}
                     <div>
                         <a href="mailto:{{email}}" class="page-teacher-email btn btn-link">
@@ -70,6 +74,14 @@
                         </a>
                     </div>
                     {{/email}}
+                    {{#phones}}
+                        <div>
+                            <a href="tel:{{.}}" id="phone-teacher-{{teacherid}}" class="page-teacher-phone btn btn-link">
+                                <i class="fa fa-phone" aria-hidden="true"></i>
+                                {{.}}
+                            </a>
+                        <div>
+                    {{/phones}}
                     {{#messagingispossible}}
                     <div>
                         <a id="message-user-button" role="button" data-conversationid="0"
