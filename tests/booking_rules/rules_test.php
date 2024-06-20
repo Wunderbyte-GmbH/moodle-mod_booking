@@ -58,7 +58,11 @@ class rules_test extends advanced_testcase {
     /**
      * Test teacher_added event.
      *
-     * @covers \mod_booking\event\teacher_added
+     * @covers \mod_booking\booking_option::update
+     * @covers \mod_booking\option\field_base->check_for_changes
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event->execute
+     * @covers \mod_booking\booking_rules\actions\send_mail->execute
+     * @covers \mod_booking\placeholders\placeholders\changes->return_value
      * @throws \coding_exception
      */
     public function test_rule_on_teacher_added() {
@@ -99,8 +103,8 @@ class rules_test extends advanced_testcase {
         $record->description = 'Test description';
         $record->optiondateid_1 = "0";
         $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('now + 1 day');
-        $record->courseendtime_1 = strtotime('now + 3 day');
+        $record->coursestarttime_1 = strtotime('20 June 2050');
+        $record->courseendtime_1 = strtotime('20 July 2050');
         $option = $plugingenerator->create_option($record);
 
         // Create booking rule.
@@ -110,7 +114,7 @@ class rules_test extends advanced_testcase {
             'contextid' => 1,
             'conditiondata' => '',
             'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"OptionChanged","template":"Changes:","templateformat":"1"}',
+            'actiondata' => '{"subject":"OptionChanged","template":"Changes:{changes}","templateformat":"1"}',
             'rulename' => 'rule_react_on_event',
             'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_updated","condition":"0","aftercompletion":0}',
         ];
@@ -121,15 +125,12 @@ class rules_test extends advanced_testcase {
         ob_start();
         $messagesink = $this->redirectMessages();
 
-        // Debug - check rule exist.
-        $rules = booking_rules::get_list_of_saved_rules_by_context();
-
         // Update booking.
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         $record->id = $option->id;
         $record->cmid = $settings->cmid;
-        $record->coursestarttime_1 = strtotime('now + 2 day');
-        $record->courseendtime_1 = strtotime('now + 4 day');
+        $record->coursestarttime_1 = strtotime('10 April 2055');
+        $record->courseendtime_1 = strtotime('10 May 2055');
         $record->teachersforoption = [$user1->id];
         booking_option::update($record);
 
@@ -139,14 +140,19 @@ class rules_test extends advanced_testcase {
         $res = ob_get_clean();
         $messagesink->close();
 
-//var_dump($messages);
-
-        // Validate email.
+        // Validate console output.
         $expected = "send_mail_by_rule_adhoc task: mail successfully sent for option " . $option->id . " to user " . $user1->id;
         $this->assertStringContainsString($expected,  $res);
+        // Validate email.
         $this->assertCount(1, $messages);
         $message = reset($messages);
         $this->assertEquals("OptionChanged",  $message->subject);
-        $this->assertStringContainsString("Changes",  $message->fullmessage);
+        $this->assertStringContainsString("Dates has changed",  $message->fullmessage);
+        $this->assertStringContainsString("20 June 2050",  $message->fullmessage);
+        $this->assertStringContainsString("20 July 2050",  $message->fullmessage);
+        $this->assertStringContainsString("10 April 2055",  $message->fullmessage);
+        $this->assertStringContainsString("10 May 2055",  $message->fullmessage);
+        $this->assertStringContainsString("Teachers has changed",  $message->fullmessage);
+        $this->assertStringContainsString("Teacher 1 (ID:",  $message->fullmessage);
     }
 }
