@@ -157,7 +157,7 @@ class page_teacher implements renderable, templatable {
             // Add given phonenumbers.
             $returnarray['teacher']['phones'] = array_filter([
                 $this->teacher->phone1 ?? null,
-                $this->teacher->phone2 ?? null
+                $this->teacher->phone2 ?? null,
             ]);
         }
         // Include wwwroot for links.
