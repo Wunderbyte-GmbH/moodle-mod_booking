@@ -231,15 +231,25 @@ abstract class field_base implements fields {
 
             // Handling for textfields.
             if (is_array($mockdata->{$key})
-                && is_array($value)
-                && isset($mockdata->{$key}['text'])
-                && isset($value['text'])) {
-                    $oldvalue = $mockdata->{$key}['text'];
-                    $newvalue = $value['text'];
+                && isset($mockdata->{$key}['text'])) {
+                    $oldvalue = $mockdata->{$key}->text;
+            } else if (is_object($mockdata->{$key})
+                && isset($mockdata->{$key}->text)) {
+                    $oldvalue = $mockdata->{$key}->text;
             } else { // Default handling.
                 $oldvalue = $mockdata->{$key};
+            }
+
+            if (is_array($value)
+            && isset($value['text'])) {
+                $newvalue = $value['text'];
+            } else if (is_object($value)
+                && isset($value->text)) {
+                    $newvalue = $value->text;
+            } else { // Default handling.
                 $newvalue = $value;
             }
+
             $infotext = get_string($classname, 'booking') . get_string('changeinfochanged', 'booking');
             // In some cases, formvalues are ids of users, we make them readable.
             if ($oldvalue != $newvalue
