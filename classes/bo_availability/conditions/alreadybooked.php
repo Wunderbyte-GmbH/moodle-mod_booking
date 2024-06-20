@@ -199,7 +199,7 @@ class alreadybooked implements bo_condition {
         $link = '';
         if (get_config('booking', 'linktomoodlecourseonbookedbutton')
             && !empty($settings->courseid)) {
-            $label = 'Zum Moodle Kurs';
+            $label = get_string('course_start', 'mod_booking');
             $url = new \moodle_url('/course/view.php', ['id' => $settings->courseid]);
             $link = $url->out();
         } else {
@@ -210,14 +210,16 @@ class alreadybooked implements bo_condition {
             $settings,
             $userid,
             $label,
-            'alert alert-success',
+            $link !== '' ? 'linkbutton' : 'alert alert-success',
             true,
             $fullwidth,
             'alert',
             'option',
             true,
             '',
-            $link);
+            $link,
+            'fa-play'
+        );
     }
 
     /**

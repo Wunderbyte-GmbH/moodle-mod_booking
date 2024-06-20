@@ -785,7 +785,8 @@ class bo_info {
         string $area = 'option',
         bool $nojs = true,
         string $dataaction = '', // Use 'noforward' to disable automatic forwarding.
-        string $link = ''
+        string $link = '',
+        string $showicon = '',
     ) {
 
         $user = singleton_service::get_instance_of_user($userid);
@@ -815,6 +816,10 @@ class bo_info {
                 'role' => $role,
             ],
         ];
+
+        if (!empty($showicon)) {
+            $data['main']['showicon'] = $showicon;
+        }
 
         if (!empty($link)) {
             $data['main']['link'] = $link;

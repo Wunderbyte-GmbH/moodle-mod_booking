@@ -585,6 +585,7 @@ $string['allcomments'] = 'Everybody can comment';
 $string['enrolledcomments'] = 'Only enrolled';
 $string['completedcomments'] = 'Only with completed activity';
 $string['ratings'] = 'Bookingoption ratings';
+$string['option_noimage'] = 'No image';
 $string['noratings'] = 'Ratings disabled';
 $string['allratings'] = 'Everybody can rate';
 $string['enrolledratings'] = 'Only enrolled';
@@ -1294,6 +1295,7 @@ $string['bookingplacesenoughmessage'] = 'Still enough places available.';
 $string['bookingplacesfullmessage'] = 'Fully booked.';
 $string['eventalreadyover'] = 'This event is already over.';
 $string['nobookingpossible'] = 'No booking possible.';
+$string['availplaces_full'] = 'Full';
 
 $string['pricecategories'] = 'Booking: Price categories';
 
@@ -1624,6 +1626,7 @@ $string['tableheader_maxoverbooking'] = 'Waiting list places';
 $string['tableheader_minanswers'] = 'Min. number of participants';
 $string['tableheader_coursestarttime'] = 'Course start';
 $string['tableheader_courseendtime'] = 'Course end';
+$string['course_start'] = 'Starten';
 
 // Customfields.
 $string['booking_customfield'] = 'Booking customfields for booking options';

@@ -584,6 +584,7 @@ $string['enrolledratings'] = 'Nur Eingeschriebene können bewerten';
 $string['completedratings'] = 'Nur diejenigen, die Aktivität abgeschlossen haben';
 $string['notes'] = 'Anmerkungen zur Buchung';
 $string['uploadheaderimages'] = 'Header-Bilder für Buchungsoptionen';
+$string['option_noimage'] = 'Kein Bild';
 $string['bookingimagescustomfield'] = 'Benutzerdefiniertes Feld von Buchungsoptionen, mit dem die Header-Bilder gematcht werden';
 $string['bookingimages'] = 'Header-Bilder für Buchungsoptionen hochladen - diese müssen exakt den selben Namen haben, wie der jeweilige Wert, den das ausgewählte benutzerdefinierte Feld in der jeweiligen Buchungsoption hat.';
 $string['emailsettings'] = 'E-Mail-Einstellungen ' . $badgedepr;
@@ -1256,6 +1257,7 @@ $string['bookingplacesenoughmessage'] = 'Noch Plätze verfügbar.';
 $string['bookingplacesfullmessage'] = 'Ausgebucht.';
 $string['eventalreadyover'] = 'Diese Veranstaltung ist bereits vorüber.';
 $string['nobookingpossible'] = 'Keine Buchung möglich.';
+$string['availplaces_full'] = 'Voll';
 
 $string['pricecategories'] = 'Buchung: Preiskategorien';
 
@@ -1497,6 +1499,7 @@ $string['tableheader_maxoverbooking'] = 'Wartelistenplätze';
 $string['tableheader_minanswers'] = 'Mindestteilnehmerzahl';
 $string['tableheader_coursestarttime'] = 'Kursbeginn';
 $string['tableheader_courseendtime'] = 'Kursende';
+$string['course_start'] = 'Starten';
 
 // Customfields.
 $string['booking_customfield'] = 'Benutzerdefinierte Felder für Buchungsoptionen';
