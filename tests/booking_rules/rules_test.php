@@ -26,10 +26,7 @@
 namespace mod_booking;
 
 use advanced_testcase;
-use context_course;
 use mod_booking\booking_rules\booking_rules;
-use mod_booking\booking_rules\rules\rule_react_on_event;
-use mod_booking\booking_rules\rules_info;
 use stdClass;
 
 /**
@@ -94,19 +91,6 @@ class rules_test extends advanced_testcase {
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
-        $ruledata = [
-            'name' => 'notifyadmin',
-            'conditionname' => 'select_users',
-            'contextid' => 1,
-            'conditiondata' => '{"userids":["2"]}',
-            'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"teacher subst","template":"teacher sybst msg","templateformat":"1"}',
-            'rulename' => 'rule_react_on_event',
-            'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\optiondates_teacher_added","condition":"0"}',
-        ];
-
-        $rule = $plugingenerator->create_rule($ruledata);
-
         $record = new stdClass();
         $record->bookingid = $booking->id;
         $record->text = 'Test option';
@@ -115,56 +99,54 @@ class rules_test extends advanced_testcase {
         $record->description = 'Test description';
         $record->optiondateid_1 = "0";
         $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('now + 2 day');
-        $record->courseendtime_1 = strtotime('now + 6 day');
+        $record->coursestarttime_1 = strtotime('now + 1 day');
+        $record->courseendtime_1 = strtotime('now + 3 day');
         $option = $plugingenerator->create_option($record);
 
-        // Trigger and capture the event and email.
+        // Create booking rule.
+        $ruledata = [
+            'name' => 'emailchanges',
+            'conditionname' => 'select_teacher_in_bo',
+            'contextid' => 1,
+            'conditiondata' => '',
+            'actionname' => 'send_mail',
+            'actiondata' => '{"subject":"OptionChanged","template":"Changes:","templateformat":"1"}',
+            'rulename' => 'rule_react_on_event',
+            'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_updated","condition":"0","aftercompletion":0}',
+        ];
+        $rule = $plugingenerator->create_rule($ruledata);
+
+        // Trigger and capture emails.
         unset_config('noemailever');
         ob_start();
-        $messagesink = $this->redirectEmails();
-        //$sink = $this->redirectEvents();
+        $messagesink = $this->redirectMessages();
 
         // Debug - check rule exist.
         $rules = booking_rules::get_list_of_saved_rules_by_context();
 
+        // Update booking.
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
-
         $record->id = $option->id;
         $record->cmid = $settings->cmid;
+        $record->coursestarttime_1 = strtotime('now + 2 day');
+        $record->courseendtime_1 = strtotime('now + 4 day');
         $record->teachersforoption = [$user1->id];
         booking_option::update($record);
 
-        //$rinstance = new rule_react_on_event();
-        //$rinstance->execute($option->id);
+        $this->runAdhocTasks();
 
-        // Create event.
-        //$params = ['relateduserid' => $user1->id, 'objectid' => $option->id, 'context' => $coursectx];
-        //$event = \mod_booking\event\teacher_added::create($params);
-
-        //$event->trigger();
-        $this->run_all_adhoc_tasks();
-
-        //$events = $sink->get_events();
         $messages = $messagesink->get_messages();
-
-        singleton_service::destroy_booking_option_singleton($option->id);
-        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
-        $optionobj = singleton_service::get_instance_of_booking_option($settings->cmid, $option->id);
-
-        rules_info::execute_booking_rules();
-        //rules_info::execute_rules_for_option($option->id);
-
         $res = ob_get_clean();
+        $messagesink->close();
 
-        //$this->assertCount(4, $events);
+//var_dump($messages);
 
-        // Old code, assert will fails.
-        $event = reset($events);
-        // Checking that the event contains the expected values.
-        //$this->assertInstanceOf('\mod_booking\event\teacher_added', $event);
-        //$this->assertEquals($coursectx, $event->get_context());
-        //$this->assertEventContextNotUsed($event);
-        //$this->assertNotEmpty($event->get_name());
+        // Validate email.
+        $expected = "send_mail_by_rule_adhoc task: mail successfully sent for option " . $option->id . " to user " . $user1->id;
+        $this->assertStringContainsString($expected,  $res);
+        $this->assertCount(1, $messages);
+        $message = reset($messages);
+        $this->assertEquals("OptionChanged",  $message->subject);
+        $this->assertStringContainsString("Changes",  $message->fullmessage);
     }
 }
