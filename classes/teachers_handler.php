@@ -206,22 +206,16 @@ class teachers_handler {
             if (in_array($newteacherid, $oldteacherids)) {
                 // Teacher is already subscribed to booking option.
                 // But we still need to check if the teacher is enrolled in the associated course.
-                if (isset($formdata->courseid) && $formdata->courseid == -1) {
-                    $dosubscribe = true;
-                } else {
-                    if (empty($formdata->courseid)) {
-                        // Teacher is already subscribed to booking option and there is no course.
+                if ($DB->record_exists('course', ['id' => $formdata->courseid])) {
+                            // There is a course, so check if the teacher is already enrolled.
+                    $coursecontext = context_course::instance($formdata->courseid);
+                    if (is_enrolled($coursecontext, $newteacherid, '', true)) {
+                        // Teacher is already subscribed AND enrolled to the course.
+                        // We do not need to call the subscribe function.
                         $dosubscribe = false;
-                    } else if ($DB->record_exists('course', ['id' => $formdata->courseid])) {
-                        // There is a course, so check if the teacher is already enrolled.
-                        $coursecontext = context_course::instance($formdata->courseid);
-                        if (is_enrolled($coursecontext, $newteacherid, '', true)) {
-                            // Teacher is already subscribed AND enrolled to the course.
-                            // We do not need to call the subscribe function.
-                            $dosubscribe = false;
-                        }
                     }
                 }
+
             }
             if ($dosubscribe) {
                 // It's a new teacher or the teacher was not enrolled into the course.
@@ -230,7 +224,8 @@ class teachers_handler {
                     $this->optionid,
                     $optionsettings->cmid,
                     null,
-                    $doenrol)) {
+                    $doenrol,
+                    $formdata->courseid)) {
                     // Add teacher to group not yet implemented! (Third parameter of the function).
                     throw new moodle_exception('cannotaddsubscriber', 'booking', '', null,
                         'Cannot add subscriber with id: ' . $newteacherid);
@@ -257,10 +252,11 @@ class teachers_handler {
      * @param int $cmid
      * @param mixed $groupid the group object or group id
      * @param bool $doenrol true if we want to enrol the teacher into the relevant course
+     * @param int $courseid true if we want to enrol the teacher into the relevant course
      * @return bool true if teacher was subscribed
      */
     public function subscribe_teacher_to_booking_option(int $userid, int $optionid, int $cmid, $groupid = null,
-        bool $doenrol = true) {
+        bool $doenrol = true, int $courseid = 0) {
 
         global $DB, $USER;
 
@@ -272,8 +268,9 @@ class teachers_handler {
 
             // Event if teacher already exists in DB, we still might want to enrol it into a new course.
             if ($doenrol) {
+                $option->enrol_user($userid, true, $bookingsettings->teacherroleid, true, $courseid);
+
                 // We enrol teacher with the type defined in settings.
-                $option->enrol_user($userid, true, $bookingsettings->teacherroleid, true);
 
                 /* NOTE: In the future, we might need a teacher_enrolled event here (or inside enrol_user)
                 which indicates that a teacher has been enrolled into a Moodle course. */

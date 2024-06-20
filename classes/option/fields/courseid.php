@@ -111,6 +111,7 @@ class courseid extends field_base {
         /* Create a new course and put it either in a new course category
         or in an already existing one. */
         connectedcourse::handle_user_choice($newoption, $formdata);
+        $formdata->courseid = $newoption->courseid;
 
         parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
 
