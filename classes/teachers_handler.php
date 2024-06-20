@@ -206,7 +206,7 @@ class teachers_handler {
             if (in_array($newteacherid, $oldteacherids)) {
                 // Teacher is already subscribed to booking option.
                 // But we still need to check if the teacher is enrolled in the associated course.
-                if ($DB->record_exists('course', ['id' => $formdata->courseid])) {
+                if (!empty($formdata->courseid) && $DB->record_exists('course', ['id' => $formdata->courseid])) {
                             // There is a course, so check if the teacher is already enrolled.
                     $coursecontext = context_course::instance($formdata->courseid);
                     if (is_enrolled($coursecontext, $newteacherid, '', true)) {
@@ -225,7 +225,7 @@ class teachers_handler {
                     $optionsettings->cmid,
                     null,
                     $doenrol,
-                    $formdata->courseid)) {
+                    $formdata->courseid ?? 0)) {
                     // Add teacher to group not yet implemented! (Third parameter of the function).
                     throw new moodle_exception('cannotaddsubscriber', 'booking', '', null,
                         'Cannot add subscriber with id: ' . $newteacherid);
