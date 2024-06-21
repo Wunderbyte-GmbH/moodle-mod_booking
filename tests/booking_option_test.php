@@ -172,7 +172,7 @@ class booking_option_test extends advanced_testcase {
                     break;
                 case 'description':
                     $this->assertEquals('Deskr-updated', $change['newvalue']);
-                    $this->assertEquals('Deskr-created', $change['oldvalue']['text']);
+                    $this->assertEquals('Deskr-created', $change['oldvalue']);
                     break;
                 case 'maxanswers':
                     $this->assertEquals(5, $change['newvalue']);
