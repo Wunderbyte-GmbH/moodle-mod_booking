@@ -232,7 +232,7 @@ abstract class field_base implements fields {
             // Handling for textfields.
             if (is_array($mockdata->{$key})
                 && isset($mockdata->{$key}['text'])) {
-                    $oldvalue = $mockdata->{$key}->text;
+                    $oldvalue = $mockdata->{$key}['text'];
             } else if (is_object($mockdata->{$key})
                 && isset($mockdata->{$key}->text)) {
                     $oldvalue = $mockdata->{$key}->text;
