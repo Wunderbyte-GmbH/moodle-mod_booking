@@ -131,6 +131,7 @@ class rules_test extends advanced_testcase {
         $record->cmid = $settings->cmid;
         $record->coursestarttime_1 = strtotime('10 April 2055');
         $record->courseendtime_1 = strtotime('10 May 2055');
+        $record->description = 'Description updated';
         $record->teachersforoption = [$user1->id];
         booking_option::update($record);
 
@@ -154,5 +155,8 @@ class rules_test extends advanced_testcase {
         $this->assertStringContainsString("10 May 2055",  $message->fullmessage);
         $this->assertStringContainsString("Teachers has changed",  $message->fullmessage);
         $this->assertStringContainsString("Teacher 1 (ID:",  $message->fullmessage);
+        $this->assertStringContainsString("Description has changed",  $message->fullmessage);
+        $this->assertStringContainsString("Test description",  $message->fullmessage);
+        $this->assertStringContainsString("Description updated",  $message->fullmessage);
     }
 }
