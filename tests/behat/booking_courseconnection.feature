@@ -115,3 +115,55 @@ Feature: Configure and validate different course connection settings for booking
     And I should see "BookCat1"
     And I am on the "Enroll_newcat" "course editing" page
     And I should see "NewBookCat"
+
+  @javascript
+  Scenario: Booking courseconnection: create course from template and enroll users immediately
+    Given the following "tags" exist:
+      | name           | isstandard |
+      | optiontemplate | 1          |
+    And the following "courses" exist:
+      | fullname | shortname | category | enablecompletion | tags           |
+      | Course 4 | C4        | 0        | 1                | optiontemplate |
+    And the following "activities" exist:
+      | activity | name      | intro     | course | idnumber |
+      | page     | TempPage1 | PageDesc1 | C4     | PAGE1    |
+    And the following "custom field categories" exist:
+      | name    | component   | area    | itemid |
+      | bookcat | mod_booking | booking | 0      |
+    And the following "custom fields" exist:
+      | name      | category | type | shortname | configdata[defaultvalue] |
+      | coursecat | bookcat  | text | coursecat |                          |
+    And the following config values are set as admin:
+      | config                  | value            | plugin  |
+      | newcoursecategorycfield | coursecat        | booking |
+    ## The "templatetags" value must be set only visually OR customstep required (name to id conversion).
+    And I log in as "admin"
+    And I set the following administration settings values:
+      | templatetags | optiontemplate |
+    And I log out
+    And the following "mod_booking > options" exist:
+      | booking    | text            | course | description | chooseorcreatecourse | customfield_coursecat | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | My booking | Enroll_newcat   | C1     | newcat      | 3                    | NewBookCat            | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
+    ## Set course template visually to ensure all above defaults are OK.
+    And I am on the "My booking" Activity page logged in as admin
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I set the following fields to these values:
+      | Connected Moodle course                | Create new Moodle course from template |
+      | Create new Moodle course from template | Course 4  |
+    And I press "Save"
+    And I log out
+    # Book as student and verify course content.
+    And I am on the "My booking" Activity page logged in as student1
+    When I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait "1" seconds
+    And I click on "Go to Moodle course" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Enroll_newcat" in the "#page-header" "css_element"
+    And I should see "TempPage1" in the ".course-content" "css_element"
+    And I log out
+    ## Verify that course category is correct
+    And I am logged in as admin
+    And I am on the "Enroll_newcat" "course editing" page
+    And I should see "NewBookCat"
