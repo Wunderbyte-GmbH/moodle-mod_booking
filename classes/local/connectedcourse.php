@@ -66,11 +66,12 @@ class connectedcourse {
 
         $categoryid = self::retrieve_categoryid($newoption, $formdata);
 
-        $courseinfo = \core_course_external::duplicate_course($origincourseid,
+        $courseinfo = \core_course_external::duplicate_course(
+            $origincourseid,
             $settings->text,
             $shortname,
             $categoryid,
-            0
+            1
         );
         if (!empty($courseinfo["id"])) {
             $newoption->courseid = $courseinfo["id"];
@@ -118,7 +119,7 @@ class connectedcourse {
      * Create a new course in the category.
      * @param stdClass $newoption
      * @param stdClass $formdata
-     * @return object
+     * @return int
      */
     private static function retrieve_categoryid(stdClass &$newoption, stdClass &$formdata) {
 
