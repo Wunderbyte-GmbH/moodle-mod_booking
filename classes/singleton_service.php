@@ -620,7 +620,7 @@ class singleton_service {
 
             $options = $configdata['options'];
             $optionlist = explode("\n", $options);
-            $counter = 0;
+            $counter = 1;
 
             foreach ($optionlist as $option) {
                 $option =
