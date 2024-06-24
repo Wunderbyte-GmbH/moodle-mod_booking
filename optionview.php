@@ -72,9 +72,8 @@ if ($settings = singleton_service::get_instance_of_booking_option_settings($opti
 
     $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
 
-    $PAGE->navbar->add($settings->text);
     $PAGE->set_title(format_string($settings->get_title_with_prefix()));
-    $PAGE->set_pagelayout('standard');
+    $PAGE->set_pagelayout('base');
 
     echo $OUTPUT->header();
 
