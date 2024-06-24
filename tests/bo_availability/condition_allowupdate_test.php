@@ -439,6 +439,10 @@ class condition_allowupdate_test extends advanced_testcase {
         list($id, $isavailable, $description) = $boinfo2->is_available($settings2->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
         // TODO: how to make subboking in code?
+
+        // Mandatory to solve potential cache issues.
+        singleton_service::destroy_booking_option_singleton($option1->id);
+        singleton_service::destroy_booking_option_singleton($option2->id);
     }
 
     /**

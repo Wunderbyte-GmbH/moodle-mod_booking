@@ -289,5 +289,9 @@ class rules_test extends advanced_testcase {
         $this->assertEquals("bookingconfirmation",  $message->eventtype);
         $this->assertEquals("2",  $message->useridto);
         $this->assertStringContainsString("was ended yesterday",  $message->fullmessage);
+
+        // Mandatory to solve potential cache issues.
+        singleton_service::destroy_booking_option_singleton($option1->id);
+        singleton_service::destroy_booking_option_singleton($option2->id);
     }
 }
