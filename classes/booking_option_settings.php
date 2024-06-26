@@ -696,7 +696,7 @@ class booking_option_settings {
         global $DB;
 
         $teachers = $DB->get_records_sql(
-            'SELECT DISTINCT t.userid, u.firstname, u.lastname, u.email, u.institution
+            'SELECT DISTINCT t.userid, u.firstname, u.lastname, u.email, u.institution, u.description, u.descriptionformat
                     FROM {booking_teachers} t
                LEFT JOIN {user} u ON t.userid = u.id
                    WHERE t.optionid = :optionid', ['optionid' => $this->id]);
