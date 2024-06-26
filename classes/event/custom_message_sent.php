@@ -84,7 +84,7 @@ class custom_message_sent extends \core\event\base {
         }
         $subject = $other->subject ?? '';
         $message = $other->message ?? 'Message body not saved.';
-        $messageparam = $other->messageparam ?? '';
+        $messageparam = $other->messageparam ?? 0;
 
         $messagetype = $this->transform_msgparam( $messageparam );
 
