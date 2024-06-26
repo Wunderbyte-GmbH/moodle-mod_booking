@@ -2407,7 +2407,8 @@ class booking_option {
     public function return_array_of_sessions($bookingevent = null,
                                             $descriptionparam = 0,
                                             $withcustomfields = false,
-                                            $forbookeduser = false) {
+                                            $forbookeduser = false,
+                                            $ashtml = false) {
 
         // If we didn't set a $bookingevent (record from booking_optiondates) we retrieve all of them for this option.
         // Else, we check if there are sessions.
@@ -2417,7 +2418,7 @@ class booking_option {
             $data->id = $bookingevent->id;
             $sessions = [$data];
         } else {
-            $sessions = dates_handler::return_dates_with_strings($this->settings);
+            $sessions = dates_handler::return_dates_with_strings($this->settings, '', false, $ashtml);
         }
 
         $returnarray = [];
@@ -2457,6 +2458,10 @@ class booking_option {
                     $returnsession['entitylink'] = html_writer::link($entityurl->out(false), $entityfullname,
                         ['target' => '_blank']);
                 }
+            }
+
+            if (!empty($date->htmlstring)) {
+                $returnsession['htmlstring'] = $date->htmlstring;
             }
 
             $returnarray[] = $returnsession;
