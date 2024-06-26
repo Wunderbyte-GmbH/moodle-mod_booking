@@ -477,7 +477,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
             return $courseurl;
         }
 
-        // When we have this seeting, we never show the link here:
+        // When we have this seeting, we never show the link here.
         if (get_config('booking', 'linktomoodlecourseonbookedbutton')) {
             return '';
         }
