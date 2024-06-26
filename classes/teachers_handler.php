@@ -217,7 +217,7 @@ class teachers_handler {
                 }
 
             }
-            if ($dosubscribe) {
+            if ($dosubscribe && !empty($formdata->courseid)) {
                 // It's a new teacher or the teacher was not enrolled into the course.
                 if (!self::subscribe_teacher_to_booking_option(
                     $newteacherid,
