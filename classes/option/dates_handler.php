@@ -23,6 +23,7 @@
  */
 
 namespace mod_booking\option;
+use html_writer;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -647,7 +648,7 @@ class dates_handler {
      * @return array
      */
     public static function return_dates_with_strings(booking_option_settings $settings,
-        string $lang = '', bool $showweekdays = false) {
+        string $lang = '', bool $showweekdays = false, bool $ashtml = false) {
 
         $sessions = [];
 
@@ -662,7 +663,8 @@ class dates_handler {
                 $data = self::prettify_datetime($session->coursestarttime,
                     $session->courseendtime,
                     $lang,
-                    $showweekdays);
+                    $showweekdays,
+                    $ashtml);
                 $data->id = $session->id;
                 $sessions[] = $data;
             }
@@ -691,7 +693,8 @@ class dates_handler {
      * @param bool $showweekdays
      * @return stdClass
      */
-    public static function prettify_datetime(int $starttime, int $endtime = 0, $lang = '', $showweekdays = false) {
+    public static function prettify_datetime(int $starttime, int $endtime = 0,
+     $lang = '', $showweekdays = false, bool $ashtml = false) {
 
         if (empty($lang)) {
             $lang = current_language();
@@ -719,6 +722,23 @@ class dates_handler {
             $date->endtime = userdate($endtime, $strftimetime); // 10:30.
         }
 
+        if ($ashtml) {
+            $date->startdate = userdate($starttime, $strftimedaydate); // Friday, 3. February 2023.
+            $date->startdatetime = userdate($starttime, $strftimedaydatetime); // Friday, 3. February 2023, 11:45.
+            $datespan = html_writer::span($date->startdate, 'date');
+            $timespan = html_writer::span($date->starttime, 'time');
+
+            if (!empty($endtime)) {
+                $date->enddatetime = userdate($endtime, $strftimedaydatetime); // Friday, 3. February 2023, 12:45.
+                $date->enddate = userdate($endtime, $strftimedaydate); // Friday, 3. February 2023.
+                $timespan = html_writer::span($date->starttime . ' - ' . $date->endtime, 'time');
+                if ($date->startdate !== $date->enddate) {
+                    $datespan = html_writer::span($date->startdate . ' - ' . $date->enddate, 'date');
+                }
+            }
+
+            $date->htmlstring = $datespan . $timespan;
+        }
         if ($showweekdays) {
             $date->startdate = userdate($starttime, $strftimedaydate); // Friday, 3. February 2023.
             $date->startdatetime = userdate($starttime, $strftimedaydatetime); // Friday, 3. February 2023, 11:45.
