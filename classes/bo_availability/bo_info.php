@@ -772,6 +772,7 @@ class bo_info {
      * @param bool $nojs
      * @param string $dataaction
      * @param string $link
+     * @param string $showicon
      * @return array
      */
     public static function render_button(
