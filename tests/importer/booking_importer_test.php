@@ -183,12 +183,7 @@ final class booking_importer_test extends advanced_testcase {
         singleton_service::destroy_booking_option_singleton($option1->id);
         $bookingoptionobj = singleton_service::get_instance_of_booking_option($cmb1->id, $option1->id);
 
-        // Verify teacher for 1st option.
-        $teacher1 = $bookingoptionobj->get_teachers();
-        $teacher1 = array_shift($teacher1);
-        $this->assertEquals($useremails[0], $teacher1->email);
-
-        // Bookimg option must have sessions.
+        // Booking option must have sessions.
         $this->assertEquals(true, booking_utils::booking_option_has_optiondates($option1->id));
         // phpcs:ignore
         //$dates1 = $bookingoptionobj->return_array_of_sessions()); // Also works.

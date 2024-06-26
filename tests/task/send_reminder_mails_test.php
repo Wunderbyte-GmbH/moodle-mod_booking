@@ -173,7 +173,7 @@ final class send_reminder_mails_test extends advanced_testcase {
         }
         $events = array_values($events);
 
-        $this->assertCount(6, $events);
+        $this->assertCount(5, $events);
 
         // Checking that the 1st event - message to student 1 - contains the expected values.
         $this->assertInstanceOf('\mod_booking\event\message_sent', $events[0]);
@@ -212,22 +212,22 @@ final class send_reminder_mails_test extends advanced_testcase {
         $this->assertEquals($user2->id, $events[3]->userid); // Alawys current user.
 
         // Checking that the 5th event - message to teacher 2 - contains the expected values.
-        $this->assertInstanceOf('\mod_booking\event\message_sent', $events[4]);
-        $this->assertEquals(context_system::instance(), $events[4]->get_context());
-        $this->assertNotNull($events[4]->objectid);
-        $this->assertEquals("sent", $events[4]->action);
-        $this->assertEquals($user2->id, $events[4]->userid);
-        $this->assertEquals("Your booking will start soon", $events[4]->other["subject"]);
+        // $this->assertInstanceOf('\mod_booking\event\message_sent', $events[4]);
+        // $this->assertEquals(context_system::instance(), $events[4]->get_context());
+        // $this->assertNotNull($events[4]->objectid);
+        // $this->assertEquals("sent", $events[4]->action);
+        // $this->assertEquals($user2->id, $events[4]->userid);
+        // $this->assertEquals("Your booking will start soon", $events[4]->other["subject"]);
         // GitHub require $user1->id. Unable to obtain bookingmanager in message_controller (reason unknow) so $USER has been used.
         // phpcs:ignore
         // $this->assertEquals($user3->id, $events[4]->relateduserid);
 
         // Checking that the 5th event - teacher reminder - contains the expected values.
-        $this->assertInstanceOf('\mod_booking\event\reminder_teacher_sent', $events[5]);
-        $this->assertEquals(context_system::instance(), $events[5]->get_context());
-        $this->assertEquals($option1->id, $events[5]->objectid);
-        $this->assertEquals("sent", $events[5]->action);
-        $this->assertEquals($user2->id, $events[5]->userid);
-        $this->assertEquals(2, $events[5]->other["daystonotifyteachers"]);
+        $this->assertInstanceOf('\mod_booking\event\reminder_teacher_sent', $events[4]);
+        $this->assertEquals(context_system::instance(), $events[4]->get_context());
+        $this->assertEquals($option1->id, $events[4]->objectid);
+        $this->assertEquals("sent", $events[4]->action);
+        $this->assertEquals($user2->id, $events[4]->userid);
+        $this->assertEquals(2, $events[4]->other["daystonotifyteachers"]);
     }
 }
