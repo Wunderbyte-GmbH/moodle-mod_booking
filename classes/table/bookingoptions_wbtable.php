@@ -628,8 +628,18 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $status = $answersobject->user_status($USER->id);
 
         // Set the returnurl to navigate back to after form is saved.
-        $viewphpurl = new moodle_url('/mod/booking/view.php', ['id' => $cmid]);
-        $returnurl = $viewphpurl->out();
+
+        $returnurloptions = ['id' => $cmid];
+        if (!empty(optional_param('whichview', '', PARAM_ALPHAEXT))) {
+            $returnurloptions['whichview'] = optional_param('whichview', '', PARAM_ALPHAEXT);
+        }
+
+        if (!empty(optional_param('optionid', '', PARAM_INT))) {
+            $returnurloptions['optionid'] = optional_param('optionid', '', PARAM_INT);
+        }
+
+        $viewphpurl = new moodle_url('/mod/booking/view.php', $returnurloptions);
+        $returnurl = $viewphpurl->out(false);
 
         // Capabilities.
         $canupdate = has_capability('mod/booking:updatebooking', $context);
