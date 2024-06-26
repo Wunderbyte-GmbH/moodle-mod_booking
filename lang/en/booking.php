@@ -791,6 +791,7 @@ $string['optionvisibility'] = 'Visibility';
 $string['optionvisibility_help'] = 'Here you can choose whether the option should be visible for everyone or if it should be hidden from normal users and be visible to entitled users only.';
 $string['optionvisible'] = 'Visible to everyone (default)';
 $string['optioninvisible'] = 'Hide from normal users (visible to entitled users only)';
+$string['optionvisibledirectlink'] = 'Normal users can only see this option with a direct link';
 $string['invisibleoption'] = '<i class="fa fa-eye-slash" aria-hidden="true"></i> Invisible';
 $string['optionannotation'] = 'Internal annotation';
 $string['optionannotation_help'] = 'Add internal remarks, annotations or anything you want. It will only be shown in this form and nowhere else.';

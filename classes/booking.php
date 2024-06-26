@@ -1060,8 +1060,14 @@ class booking {
 
         // If the user does not have the capability to see invisible options...
         if (!$context || !has_capability('mod/booking:canseeinvisibleoptions', $context)) {
-            // ... then only show visible options.
-            $where = "invisible = 0 ";
+
+            // If we have a direct link, we only hide totally invisible options.
+            if (isset($where['id'])) {
+                $where = " invisible <> 1 ";
+            } else {
+                // ... then only show visible options.
+                $where = "invisible = 0 ";
+            }
         } else {
             // The "Where"-clause is always added so we have to have something here for the sql to work.
             $where = "1=1 ";
@@ -1227,9 +1233,15 @@ class booking {
      */
     public static function get_all_options_of_teacher_sql(int $teacherid, int $bookingid) {
 
-        return self::get_options_filter_sql(0, 0, '', '*', null, [], ['bookingid' => $bookingid,
+        $options = [
             'teacherobjects' => '%"id":' . $teacherid . ',%',
-        ]);
+        ];
+
+        if (!empty($bookingid)) {
+            $options['bookingid'] = $bookingid;
+        }
+
+        return self::get_options_filter_sql(0, 0, '', '*', null, [], $options);
     }
 
     /**

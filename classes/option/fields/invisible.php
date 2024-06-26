@@ -118,6 +118,7 @@ class invisible extends field_base {
         $visibilityoptions = [
             0 => get_string('optionvisible', 'mod_booking'),
             1 => get_string('optioninvisible', 'mod_booking'),
+            2 => get_string('optionvisibledirectlink', 'mod_booking'),
         ];
         $mform->addElement('select', 'invisible', get_string('optionvisibility', 'mod_booking'), $visibilityoptions);
         $mform->setType('invisible', PARAM_INT);
