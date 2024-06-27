@@ -934,7 +934,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
             return strip_tags($description);
         }
 
-        $ret = $description;
+        $ret = format_text($description);
 
         if (!empty(get_config('booking', 'collapsedescriptionmaxlength'))) {
 
