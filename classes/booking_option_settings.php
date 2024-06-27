@@ -968,6 +968,7 @@ class booking_option_settings {
                 'name' => $data->name,
                 'shortname' => $data->shortname,
                 'parentname' => $data->parentname,
+                'description' => $data->description,
                 'maplink' => $data->maplink,
                 'mapembed' => $data->mapembed,
             ];
