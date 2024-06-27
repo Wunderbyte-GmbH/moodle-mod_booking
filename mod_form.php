@@ -23,6 +23,7 @@
  */
 
 use mod_booking\booking;
+use mod_booking\customfield\booking_handler;
 use mod_booking\elective;
 use mod_booking\output\eventslist;
 use mod_booking\placeholders\placeholders_info;
@@ -490,12 +491,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('header', 'uploadheaderimages',
                 get_string('uploadheaderimages', 'booking'));
 
-        $customfieldsrecords = $DB->get_records_sql(
-            "SELECT cff.id, cff.name, cff.shortname
-            FROM {customfield_field} cff
-            LEFT JOIN {customfield_category} cfc
-            ON cff.categoryid = cfc.id
-            WHERE cfc.component = 'mod_booking'");
+        $customfieldsrecords = booking_handler::get_customfields();
         $customfieldsarray = [];
         foreach ($customfieldsrecords as $customfieldsrecord) {
             $customfieldsarray[$customfieldsrecord->id] = $customfieldsrecord->name . ' (' . $customfieldsrecord->shortname . ')';

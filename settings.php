@@ -1,4 +1,5 @@
 <?php
+use mod_booking\customfield\booking_handler;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -327,12 +328,7 @@ if ($ADMIN->fulltree) {
             new admin_setting_heading('newcoursecategorycfieldheading',
                 get_string('automaticcoursecreation', 'mod_booking'),
                 ''));
-
-        $sql = "SELECT cff.shortname, cff.name FROM {customfield_category} cfc
-        JOIN {customfield_field} cff ON cfc.id = cff.categoryid
-        WHERE cfc.component = 'mod_booking'";
-
-        $records = $DB->get_records_sql($sql);
+        $records = booking_handler::get_customfields();
         foreach ($records as $record) {
             $customfieldsarray[$record->shortname] = "$record->name ($record->shortname)";
         }

@@ -84,6 +84,26 @@ class booking_handler extends \core_customfield\handler {
     }
 
     /**
+     * Returns the customfields of the mod_booking component.
+     *
+     * @return array
+     *
+     */
+    public static function get_customfields(): array {
+        global $DB;
+
+        $sql = "SELECT cff.id, cff.name, cff.shortname
+        FROM {customfield_field} cff
+        LEFT JOIN {customfield_category} cfc
+        ON cff.categoryid = cfc.id
+        WHERE cfc.component = 'mod_booking'";
+
+        $records = $DB->get_records_sql($sql);
+
+        return $records;
+    }
+
+    /**
      * Saves the given data for custom fields, must be called after the instance is saved and id is present
      *
      * @param int $instanceid id received from a form

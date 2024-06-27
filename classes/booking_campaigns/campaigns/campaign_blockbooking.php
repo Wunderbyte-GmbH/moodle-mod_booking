@@ -19,6 +19,7 @@ namespace mod_booking\booking_campaigns\campaigns;
 use context_system;
 use mod_booking\booking_campaigns\booking_campaign;
 use mod_booking\booking_option_settings;
+use mod_booking\customfield\booking_handler;
 use mod_booking\singleton_service;
 use mod_booking\task\purge_campaign_caches;
 use MoodleQuickForm;
@@ -111,13 +112,7 @@ class campaign_blockbooking implements booking_campaign {
         $mform->addHelpButton('name', 'campaign_name', 'mod_booking');
 
         // Custom field name.
-        $sql = "SELECT cf.shortname, cf.name
-            FROM {customfield_field} cf
-            JOIN {customfield_category} cc
-            ON cf.categoryid = cc.id
-            WHERE cc.area = 'booking'";
-
-        $records = $DB->get_records_sql($sql);
+        $records = booking_handler::get_customfields();
 
         $fieldnames = [];
         $fieldnames[0] = get_string('choose...', 'mod_booking');

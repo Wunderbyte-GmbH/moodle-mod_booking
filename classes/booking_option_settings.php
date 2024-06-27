@@ -1119,15 +1119,7 @@ class booking_option_settings {
         global $DB;
 
          // Find out how many customfields are there for mod_booking.
-
-         $sql = "SELECT cff.shortname
-                 FROM {customfield_field} cff
-                 JOIN {customfield_category} cfc
-                 ON cfc.id=cff.categoryid
-                 WHERE cfc.component=:componentname";
-         $params = ['componentname' => 'mod_booking'];
-
-         $customfields = $DB->get_records_sql($sql, $params);
+         $customfields = booking_handler::get_customfields();
 
          $select = '';
          $from = '';
