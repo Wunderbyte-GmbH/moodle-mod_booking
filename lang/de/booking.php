@@ -990,6 +990,7 @@ Link zur Umfrage: <a href="{pollurlteachers}" target="_blank">{pollurlteachers}<
 $string['reportremindersubject'] = 'Erinnerung: Ihr gebuchter Kurs';
 $string['reportremindermessage'] = '{$a->bookingdetails}';
 $string['changesinentity'] = '{$a->name} (ID: {$a->id})';
+$string['entitydeleted'] = 'Ort wurde gelöscht';
 
 // Report.php and bookingmanagusers.class.php.
 $string['allmailssend'] = 'Alle Benachrichtigungen wurden erfolgreich versandt!';

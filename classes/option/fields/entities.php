@@ -224,7 +224,16 @@ class entities extends field_base {
             $newentityid = $formdata->$key;
 
             if (isset($oldentity['id']) && $oldentity['id'] != $newentityid) {
-                $newentity = singleton_service::get_entity_by_id($newentityid)[$newentityid];
+
+                if (!empty($newentityid)) {
+                    $newentity = singleton_service::get_entity_by_id($newentityid)[$newentityid];
+                } else {
+                    $newentity = (object)[
+                        'id' => 0,
+                        'name' => get_string('entitydeleted', 'mod_booking'),
+                    ];
+                }
+
                 $changes = [ 'changes' => [
                         'info' => get_string('entitiesfieldname', 'booking') . get_string('changeinfochanged', 'booking'),
                         'fieldname' => 'entities',
