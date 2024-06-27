@@ -92,7 +92,9 @@ class mybookings_table extends table_sql {
             'optionid' => $values->optionid,
             'whichview' => 'showonlyone',
         ]);
-        return "<a href='{$optionurl}'>{$values->text}</a>";
+
+        $text = format_text($values->text);
+        return "<a href='{$optionurl}'>{$text}</a>";
     }
 
     /**
@@ -105,7 +107,12 @@ class mybookings_table extends table_sql {
         $bookingurl = new moodle_url("/mod/booking/view.php?id={$values->cmid}");
         $courseurl = new moodle_url("/course/view.php?id={$values->courseid}");
 
-        return "<a href='{$bookingurl}'>{$values->name}</a> (<a href='{$courseurl}'>{$values->fullname}</a>)";
+        $name = format_text($values->name);
+        $name = strip_tags($name);
+        $fullname = format_text($values->fullname);
+        $fullname = strip_tags($fullname);
+
+        return "<a href='{$bookingurl}'>{$name}</a> (<a href='{$courseurl}'>{$fullname}</a>)";
     }
 
     /**
