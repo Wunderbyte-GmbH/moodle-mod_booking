@@ -219,7 +219,7 @@ class page_teacher implements renderable, templatable {
                 $firsttable = false;
 
                 // Keep only lowercaseletters and digits.
-                $tablename = preg_replace("/[^a-z0-9]/", '', $booking->settings->name);
+                $tablename = preg_replace("/[^a-z0-9]/", '', strtolower($booking->settings->name));
 
                 $newtable = [
                     'bookingid' => $bookingid,
