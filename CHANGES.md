@@ -1,3 +1,9 @@
+## Version 8.4.4 (2024062700)
+* Improvement: Additional information in teacher page.
+* Improvement: Convert capital letters to lowercase and keep in tabname.
+* Bugfix: Don't throw error when option was deleted.
+* Bugfix: Autoenrolment in created course via bookingoption.
+
 ## Version 8.4.3 (2024061900)
 * Improvement: Track changes of booking option and enable rule for it.
 * Improvement: Display Login Button in bookingoption for users not logged in (config setting).
