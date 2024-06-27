@@ -137,10 +137,10 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     And I log out
     When I visit "/mod/booking/teachers.php"
     And I wait until the page is ready
-    Then I should see "Teacher 1" in the ".page-allteachers-card" "css_element"
+    Then I should see "1 Teacher" in the ".page-allteachers-card" "css_element"
     And I should not see "Mail" in the ".page-allteachers-card" "css_element"
     And I follow "Teacher"
-    And I should see "Teacher 1" in the ".card-title" "css_element"
+    And I should see "1 Teacher" in the ".card-title" "css_element"
     And I should not see "teacher1@example.com" in the ".card-title" "css_element"
     And I log in as "admin"
     And I set the following administration settings values:
@@ -149,10 +149,10 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     And I log out
     And I visit "/mod/booking/teachers.php"
     And I wait until the page is ready
-    And I should see "Teacher 1" in the ".page-allteachers-card" "css_element"
+    And I should see "1 Teacher" in the ".page-allteachers-card" "css_element"
     And I should see "Mail" in the ".page-allteachers-card" "css_element"
     And I follow "Teacher"
-    And I should see "Teacher 1" in the ".card-title" "css_element"
+    And I should see "1 Teacher" in the ".card-title" "css_element"
     And I should see "teacher1@example.com" in the ".card-body" "css_element"
 
   @javascript
