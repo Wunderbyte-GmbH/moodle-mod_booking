@@ -993,6 +993,7 @@ Survey URL: <a href="{pollurlteachers}" target="_blank">{pollurlteachers}</a>
 $string['reportremindersubject'] = 'Reminder: Your booked course';
 $string['reportremindermessage'] = '{$a->bookingdetails}';
 $string['changesinentity'] = '{$a->name} (ID: {$a->id})';
+$string['entitydeleted'] = 'Location has been deleted';
 
 // Report.php.
 $string['allmailssend'] = 'All e-mails to the users have been sent!';
