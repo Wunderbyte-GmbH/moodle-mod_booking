@@ -25,7 +25,8 @@ Feature: In a course add a booking instance and manage it
     Given I log in as "teacher1"
     And I change viewport size to "1366x7000"
     And I am on "Course 1" course homepage with editing mode on
-    And I add a "Booking" to section "0"
+    ##And I add a "Booking" to section "0"
+    And I add a "Booking" to section 0 using the activity chooser
     And I set the following fields to these values:
       | Booking instance name            | Test booking                                           |
       | Event type                       | Webinar                                                |
@@ -69,7 +70,8 @@ Feature: In a course add a booking instance and manage it
     And I should see "This booking instance was sucesfully saved as template."
     ## Create a booking instance useing template
     And I am on "Course 1" course homepage with editing mode on
-    And I add a "Booking" to section "0"
+    ##And I add a "Booking" to section "0"
+    And I add a "Booking" to section 0 using the activity chooser
     And I wait "1" seconds
     And I set the field "Populate from template" to "InstanceTemplate"
     And I wait "1" seconds
