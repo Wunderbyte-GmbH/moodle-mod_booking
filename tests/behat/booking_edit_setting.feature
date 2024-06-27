@@ -121,9 +121,9 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     And I log out
     And I visit "/mod/booking/teachers.php"
     And I wait until the page is ready
-    Then I should see "Teacher 1" in the ".page-allteachers-card" "css_element"
+    Then I should see "1 Teacher" in the ".page-allteachers-card" "css_element"
     And I follow "Teacher"
-    And I should see "Teacher 1" in the ".card-title" "css_element"
+    And I should see "1 Teacher" in the ".card-title" "css_element"
 
   @javascript
   Scenario: Booking settings - display teachers email pages without login
