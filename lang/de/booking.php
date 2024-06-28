@@ -2128,7 +2128,7 @@ $string['rule_react_on_event'] = 'Reagiere auf Ereignis';
 $string['rule_react_on_event_desc'] = 'Wählen Sie ein Ereignis aus, durch das die Regel ausgelöst werden soll.<br>
 <b>Tipp:</b> Verwenden Sie den Platzhalter <code>{eventdescription}</code> um eine Beschreibung des Ereignisses anzuzeigen.';
 $string['rule_react_on_event_after_completion'] = "Anzahl der Tage nach dem Ende der Buchungsoption, in denen die Regel weiterhin gilt";
-$string['rule_react_on_event_after_completion_help'] = "Feld leer lassen oder auf 0 setzen, wenn die Aktion nach dem Ende der Buchungsoption nicht mehr durchgeführt gelten soll. Sie können negative Zahlen eingeben, damit die Regel bereits vor dem angebenen Ende ausgesetzt wird.";
+$string['rule_react_on_event_after_completion_help'] = "Feld leer lassen oder auf 0 setzen, wenn die Aktion unbegrenzt gelten soll. Sie können negative Zahlen eingeben, damit die Regel bereits vor dem Kursende ausgesetzt wird.";
 
 $string['error:nofieldchosen'] = 'Sie müssen ein Feld auswählen.';
 $string['error:mustnotbeempty'] = 'Darf nicht leer sein.';

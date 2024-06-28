@@ -2257,7 +2257,7 @@ $string['rule_react_on_event'] = "React on event";
 $string['rule_react_on_event_desc'] = "Choose an event that should trigger the rule.<br>
 <b>Hint:</b> You can use the placeholder <code>{eventdescription}</code> to show a description of the event.";
 $string['rule_react_on_event_after_completion'] = "Number of days after end of booking option, where rule still applies";
-$string['rule_react_on_event_after_completion_help'] = "Leave this field empty or set to 0 if you don't want to execute the action after ending of bookingoption. You can use negative numbers if the rule should be suspended before the specified end.";
+$string['rule_react_on_event_after_completion_help'] = "Leave this field empty or set to 0 if you want to keep executing the action. You can use negative numbers if the rule should be suspended before the specified courseend.";
 
 $string['error:nofieldchosen'] = 'You have to choose a field.';
 $string['error:mustnotbeempty'] = 'Must not be empty.';
