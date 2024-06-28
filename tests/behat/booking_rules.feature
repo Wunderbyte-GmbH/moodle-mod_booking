@@ -169,8 +169,8 @@ Feature: Create global booking rules as admin and insure they are working.
   @javascript
   Scenario: Booking rules: create booking rule for teacher removal event and notify other teachers
     Given the following "mod_booking > options" exist:
-      | booking     | text           | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | teachersforoption |
-      | BookingCMP  | Option-teacher | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | teacher2, teacher1, admin   |
+      | booking     | text           | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | teachersforoption         |
+      | BookingCMP  | Option-teacher | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | teacher2, teacher1, admin |
     And the following "mod_booking > rules" exist:
       | conditionname        | contextid | name        | actionname | actiondata                                                                          | rulename            | ruledata                                                        |
       | select_teacher_in_bo | 1         | notifyadmin | send_mail  | {"subject":"teacher removed","template":"teacher removed msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\optiondates_teacher_deleted"} |
@@ -189,7 +189,8 @@ Feature: Create global booking rules as admin and insure they are working.
     And I trigger cron
     And I visit "/report/loglive/index.php"
     Then I should see "Teacher deleted from teaching journal"
-    And I should see "An e-mail with subject 'teacher removed' has been sent to user with id: '2'"
+    ## And I should see "An e-mail with subject 'teacher removed' has been sent to user with id: '2'"
+    And I should see "Custom message A message e-mail with subject \"teacher removed\" has been sent to user with id:"
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
