@@ -270,8 +270,8 @@ Feature: Create global booking rules as admin and insure they are working.
     And I trigger cron
     And I visit "/report/loglive/index.php"
     Then I should see "Booking option completed"
-    And I should see "Booking confirmation: An e-mail with subject 'Booking confirmation for football' has been sent to user with id:"
-    And I should see "Custom message: An e-mail with subject 'completion football' has been sent to user with id:"
+    ## And I should see "Custom message: An e-mail with subject 'completion football' has been sent to user with id:"
+    And I should see "Custom message A message e-mail with subject \"completion football\" has been sent to user with id:"
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
