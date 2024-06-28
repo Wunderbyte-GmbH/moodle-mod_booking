@@ -133,8 +133,8 @@ Feature: Create global booking rules as admin and insure they are working.
     And I visit "/report/loglive/index.php"
     And I should see "Booking option cancelled"
     And I should see "Booking option cancelled for/by user"
-    ## And I should see "An e-mail with subject 'Booking confirmation for Option-football' has been sent to user with id:"
-    And I should see "Custom message: An e-mail with subject 'cancellation' has been sent to user with id:"
+    ## And I should see "Custom message: An e-mail with subject 'cancellation' has been sent to user with id:"
+    And I should see "Custom message A message e-mail with subject \"cancellation\" has been sent to user with id:"
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
