@@ -337,8 +337,10 @@ Feature: Create global booking rules as admin and insure they are working.
     And I trigger cron
     And I visit "/report/loglive/index.php"
     Then I should see "Custom message sent"
-    And I should see "A custom message e-mail with subject 'Rule send_copy_of_bulk_mail test' has been sent to user with id:"
-    And I should see "Custom message: An e-mail with subject 'Custom bulk msg copy: Rule send_copy_of_bulk_mail test' has been sent to user with id: '2'"
+    ## And I should see "A custom message e-mail with subject 'Rule send_copy_of_bulk_mail test' has been sent to user with id:"
+    And I should see "Custom message A message e-mail with subject \"Rule send_copy_of_bulk_mail test\" has been sent to user with id:"
+    ## And I should see "Custom message: An e-mail with subject 'Custom bulk msg copy: Rule send_copy_of_bulk_mail test' has been sent to user with id: '2'"
+    And I should see "Custom message A message e-mail with subject \"Custom bulk msg copy: Rule send_copy_of_bulk_mail test\" has been sent to user with id:"
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
