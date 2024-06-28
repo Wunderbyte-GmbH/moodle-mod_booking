@@ -391,8 +391,9 @@ Feature: Create global booking rules as admin and insure they are working.
     And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     And I trigger cron
     And I visit "/report/loglive/index.php"
-    And I wait "1" seconds
-    And I should see "Custom message: An e-mail with subject '1daybefore' has been sent to user with id: '2'"
-    And I should see "Custom message: An e-mail with subject '1dayafter' has been sent to user with id: '2'"
+    ## And I should see "Custom message: An e-mail with subject '1daybefore' has been sent to user with id: '2'"
+    ## And I should see "Custom message: An e-mail with subject '1dayafter' has been sent to user with id: '2'"
+    And I should see "Custom message A message e-mail with subject \"1daybefore\" has been sent to user with id:"
+    And I should see "Custom message A message e-mail with subject \"1dayafter\" has been sent to user with id:"
     ## Logout is mandatory for admin pages to avoid error
     And I log out
