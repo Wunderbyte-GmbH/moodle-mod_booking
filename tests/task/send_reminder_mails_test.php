@@ -209,8 +209,9 @@ final class send_reminder_mails_test extends advanced_testcase {
         $this->assertEquals(context_system::instance(), $events[1]->get_context());
         $this->assertEquals($option1->id, $events[3]->objectid);
         $this->assertEquals("sent", $events[3]->action);
-        $this->assertEquals($user2->id, $events[3]->userid); // Alawys current user.
+        $this->assertEquals($user2->id, $events[3]->userid);
 
+        // phpcs:disable
         // Checking that the 5th event - message to teacher 2 - contains the expected values.
         // $this->assertInstanceOf('\mod_booking\event\message_sent', $events[4]);
         // $this->assertEquals(context_system::instance(), $events[4]->get_context());
@@ -221,6 +222,7 @@ final class send_reminder_mails_test extends advanced_testcase {
         // GitHub require $user1->id. Unable to obtain bookingmanager in message_controller (reason unknow) so $USER has been used.
         // phpcs:ignore
         // $this->assertEquals($user3->id, $events[4]->relateduserid);
+        // phpcs:enable
 
         // Checking that the 5th event - teacher reminder - contains the expected values.
         $this->assertInstanceOf('\mod_booking\event\reminder_teacher_sent', $events[4]);

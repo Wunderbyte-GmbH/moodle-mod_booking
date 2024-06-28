@@ -2400,6 +2400,7 @@ class booking_option {
      * @param int $descriptionparam
      * @param bool $withcustomfields
      * @param bool $forbookeduser
+     * @param bool $ashtml
      *
      * @return array
      * @throws \dml_exception

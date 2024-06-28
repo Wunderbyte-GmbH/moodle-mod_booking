@@ -164,6 +164,7 @@ class bookingoption_description implements renderable, templatable {
      * @param bool $withcustomfields
      * @param bool|null $forbookeduser
      * @param object|null $user
+     * @param bool $ashtml
      *
      */
     public function __construct(
