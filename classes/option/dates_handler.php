@@ -496,10 +496,10 @@ class dates_handler {
      * It will return only one item containing course start and endtime if no optiondates exist.
      *
      * @param int $optionid
+     *
      * @return array array of optiondates objects
-     * @throws \dml_exception
      */
-    public static function return_array_of_sessions_simple(int $optionid) {
+    public static function return_array_of_sessions_simple(int $optionid): array {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $sessions = self::return_dates_with_strings($settings);
@@ -645,10 +645,12 @@ class dates_handler {
      * @param booking_option_settings $settings
      * @param string $lang
      * @param bool $showweekdays
+     * @param bool $ashtml
+     *
      * @return array
      */
     public static function return_dates_with_strings(booking_option_settings $settings,
-        string $lang = '', bool $showweekdays = false, bool $ashtml = false) {
+        string $lang = '', bool $showweekdays = false, bool $ashtml = false): array {
 
         $sessions = [];
 
@@ -685,12 +687,14 @@ class dates_handler {
     }
 
     /**
-     * Undocumented function
+     * Prettify datetime function
      *
      * @param int $starttime
      * @param int $endtime
      * @param string $lang
      * @param bool $showweekdays
+     * @param bool $ashtml
+     *
      * @return stdClass
      */
     public static function prettify_datetime(int $starttime, int $endtime = 0,
