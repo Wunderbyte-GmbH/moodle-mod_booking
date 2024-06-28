@@ -91,6 +91,10 @@ Feature: In a booking create booking option with multiple custom options
       | Max. number of places on waiting list | 5                     |
       | Min. number of participants           | 3                     |
       | Teachers poll url                     | https://google.com    |
+      | chooseorcreatecourse                  | Connected Moodle course |
+    And I wait "1" seconds
+    And I set the field with xpath "//*[contains(@id, 'fitem_id_courseid_')]//*[contains(@id, 'form_autocomplete_input-')]" to "Course 1"
+    And I set the field "Assign teachers:" to "Teacher 1"
     And I press "Add date"
     And I wait "1" seconds
     And I set the following fields to these values:
@@ -107,7 +111,6 @@ Feature: In a booking create booking option with multiple custom options
       | daystonotify_1 | 1 |
     And I set the field "Add to course calendar" to "Add to calendar (visible only to course participants)"
     ##And I set the field "Institution" to "TNMU" ## Error Other element would receive the click:
-    And I set the field "Assign teachers:" to "Teacher 1"
     And I wait "1" seconds
     And I set the field "Only book with price" to "checked"
     And I set the following fields to these values:
@@ -134,6 +137,7 @@ Feature: In a booking create booking option with multiple custom options
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I wait until the page is ready
     And I expand all fieldsets
+    And I should see "Course 1" in the "//div[contains(@id, 'fitem_id_courseid_')]//span[contains(@class, 'course-suggestion')]" "xpath_element"
     And I should see "Teacher 1" in the "//div[contains(@id, 'id_bookingoptionteachers_')]//span[contains(@class, 'user-suggestion')]" "xpath_element"
     And I should see "March" in the "//span[@aria-controls='booking_optiondate_collapse1']" "xpath_element"
     And the following fields match these values:
@@ -146,6 +150,7 @@ Feature: In a booking create booking option with multiple custom options
       | Max. number of places on waiting list | 5                             |
       | Min. number of participants           | 3                             |
       | Teachers poll url                     | https://google.com            |
+      | chooseorcreatecourse                  | Connected Moodle course       |
       | pricegroup_default[bookingprice_default]           | 75               |
       | pricegroup_specialprice[bookingprice_specialprice] | 65               |
       | customfield_spt1                      | tenis                         |
