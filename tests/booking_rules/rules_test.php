@@ -163,6 +163,9 @@ class rules_test extends advanced_testcase {
         $this->assertStringContainsString("Description has changed",  $message->fullmessage);
         $this->assertStringContainsString("Test description",  $message->fullmessage);
         $this->assertStringContainsString("Description updated",  $message->fullmessage);
+
+        // Mandatory to solve potential cache issues.
+        singleton_service::destroy_booking_option_singleton($option->id);
     }
 
     /**
