@@ -215,20 +215,27 @@ class teachers_handler {
                         $dosubscribe = false;
                     }
                 }
-
             }
-            if ($dosubscribe && !empty($formdata->courseid)) {
+            if ($dosubscribe) {
                 // It's a new teacher or the teacher was not enrolled into the course.
-                if (!self::subscribe_teacher_to_booking_option(
-                    $newteacherid,
-                    $this->optionid,
-                    $optionsettings->cmid,
-                    null,
-                    $doenrol,
-                    $formdata->courseid ?? 0)) {
+                if (
+                    !self::subscribe_teacher_to_booking_option(
+                        $newteacherid,
+                        $this->optionid,
+                        $optionsettings->cmid,
+                        null,
+                        $doenrol,
+                        $formdata->courseid ?? 0
+                    )
+                ) {
                     // Add teacher to group not yet implemented! (Third parameter of the function).
-                    throw new moodle_exception('cannotaddsubscriber', 'booking', '', null,
-                        'Cannot add subscriber with id: ' . $newteacherid);
+                    throw new moodle_exception(
+                        'cannotaddsubscriber',
+                        'booking',
+                        '',
+                        null,
+                        'Cannot add subscriber with id: ' . $newteacherid
+                    );
                 }
             }
         }
