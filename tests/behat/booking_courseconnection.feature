@@ -34,7 +34,11 @@ Feature: Configure and validate different course connection settings for booking
 
   @javascript
   Scenario: Booking courseconnection: connect existing course and enroll users
-    Given the following "mod_booking > options" exist:
+    Given the following config values are set as admin:
+      | config                           | value | plugin  |
+      | linktomoodlecourseonbookedbutton | 1     | booking |
+    ## New behavior - direct link to the connected course
+    And the following "mod_booking > options" exist:
       | booking    | text         | course | description  | chooseorcreatecourse | course | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
       | My booking | Enroll_later | C1     | Enroll_later | 1                    | C2     | 0               | 0            | 0          | teacher1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
       | My booking | Enroll_now   | C1     | Enroll_now   | 1                    | C3     | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
@@ -50,15 +54,19 @@ Feature: Configure and validate different course connection settings for booking
     And I am on the "My booking" Activity page logged in as student2
     When I click on "Book now" "text" in the ".allbookingoptionstable_r2 .booknow" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r2" "css_element"
-    Then I should see "Booked" in the ".allbookingoptionstable_r2" "css_element"
+    Then I should see "Start" in the ".allbookingoptionstable_r2" "css_element"
     ## Verify enrolled immediately
-    And I click on "Go to Moodle course" "link" in the ".allbookingoptionstable_r2" "css_element"
+    And I click on "Start" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "Course 3" in the "#page-header" "css_element"
     And I should see "General" in the ".course-content" "css_element"
 
   @javascript
   Scenario: Booking courseconnection: create default empty course and enroll users
-    Given the following "mod_booking > options" exist:
+    Given the following config values are set as admin:
+      | config                           | value | plugin  |
+      | linktomoodlecourseonbookedbutton | 0     | booking |
+    ## OLD behavior - "Booked" label and "Go to course" link to the connected course
+    And the following "mod_booking > options" exist:
       | booking    | text         | course | description  | chooseorcreatecourse | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
       | My booking | Enroll_later | C1     | Enroll_later | 2                    | 0               | 0            | 0          | teacher1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
       | My booking | Enroll_now   | C1     | Enroll_now   | 2                    | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
@@ -89,8 +97,10 @@ Feature: Configure and validate different course connection settings for booking
       | name      | category | type | shortname | configdata[defaultvalue] |
       | coursecat | bookcat  | text | coursecat |                          |
     And the following config values are set as admin:
-      | config                  | value     | plugin  |
-      | newcoursecategorycfield | coursecat | booking |
+      | config                           | value     | plugin  |
+      | newcoursecategorycfield          | coursecat | booking |
+      | linktomoodlecourseonbookedbutton | 0         | booking |
+    ## OLD behavior - "Booked" label and "Go to course" link to the connected course
     And the following "mod_booking > options" exist:
       | booking    | text            | course | description | chooseorcreatecourse | customfield_coursecat | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
       | My booking | Enroll_existcat | C1     | existcat    | 2                    | BookCat1              | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +1 days ##     | ## +3 days ##   |
@@ -134,8 +144,10 @@ Feature: Configure and validate different course connection settings for booking
       | name      | category | type | shortname | configdata[defaultvalue] |
       | coursecat | bookcat  | text | coursecat |                          |
     And the following config values are set as admin:
-      | config                  | value            | plugin  |
-      | newcoursecategorycfield | coursecat        | booking |
+      | config                           | value     | plugin  |
+      | linktomoodlecourseonbookedbutton | 0         | booking |
+    ## OLD behavior - "Booked" label and "Go to course" link to the connected course
+      | newcoursecategorycfield          | coursecat | booking |
     ## The "templatetags" value must be set only visually OR customstep required (name to id conversion).
     And I log in as "admin"
     And I set the following administration settings values:
