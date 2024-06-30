@@ -132,6 +132,9 @@ class events_test extends advanced_testcase {
         $this->assertEventContextNotUsed($event);
 
         $this->assertNotEmpty($event->get_name());
+
+        // Mandatory to solve potential cache issues.
+        singleton_service::destroy_booking_option_singleton($option->id);
     }
 
     /**
@@ -162,5 +165,8 @@ class events_test extends advanced_testcase {
         $this->assertEventContextNotUsed($event);
 
         $this->assertNotEmpty($event->get_name());
+
+        // Mandatory to solve potential cache issues.
+        singleton_service::destroy_booking_option_singleton($option->id);
     }
 }
