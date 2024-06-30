@@ -1104,6 +1104,8 @@ $string['messagesend'] = 'Your message has been sent.';
 $string['messagesubject'] = 'Subject';
 $string['messagetext'] = 'Message';
 $string['sendmessage'] = 'Send message';
+$string['from'] = 'From';
+$string['to'] = 'To';
 
 // Teachers_handler.php.
 $string['teachersforoption'] = 'Teachers';
