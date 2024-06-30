@@ -127,7 +127,8 @@ class booking_importer_test extends advanced_testcase {
         $cmb1 = get_coursemodule_from_instance('booking', $booking1->id);
 
         // Get booking instance.
-        $bookingobj1 = new booking($cmb1->id);
+        singleton_service::destroy_booking_singleton_by_cmid($cmb1->id);
+        $bookingobj1 = singleton_service::get_instance_of_booking_by_bookingid($booking1->id);
 
         // Prepare import (should work in behalf of teacher).
         $this->setUser($user1);
@@ -179,7 +180,8 @@ class booking_importer_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_STATUSPARAM_BOOKED, $ba->user_status($user3->id));
 
         // Create booking option object to get extra detsils.
-        $bookingoptionobj = new booking_option($cmb1->id, $option1->id);
+        singleton_service::destroy_booking_option_singleton($option1->id);
+        singleton_service::get_instance_of_booking_option($cmb1->id, $option1->id);
 
         // Verify teacher for 1st option.
         $teacher1 = $bookingoptionobj->get_teachers();
