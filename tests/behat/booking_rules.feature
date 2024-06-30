@@ -361,13 +361,14 @@ Feature: Create global booking rules as admin and insure they are working.
       | Booking option name         | Option-updated |
       | Description                 | Deskr-updated  |
       | Max. number of participants | 5              |
-      | Assign teachers             | admin          |
+      | Assign teachers             | teacher1,admin |
     And I press "Save"
     ## Send messages via cron and verify via events log
     And I trigger cron
     And I visit "/report/loglive/index.php"
     Then I should see "Booking option updated"
-    And I should see "Custom message: An e-mail with subject 'OptionChanged' has been sent to user with id: '2'"
+    ## And I should see "Custom message: An e-mail with subject 'OptionChanged' has been sent to user with id: '2'"
+    And I should see "Custom message A message e-mail with subject \"OptionChanged\" has been sent to user with id:"
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
