@@ -1628,7 +1628,7 @@ $string['tableheader_maxoverbooking'] = 'Waiting list places';
 $string['tableheader_minanswers'] = 'Min. number of participants';
 $string['tableheader_coursestarttime'] = 'Course start';
 $string['tableheader_courseendtime'] = 'Course end';
-$string['course_start'] = 'Starten';
+$string['course_start'] = 'Start';
 
 // Customfields.
 $string['booking_customfield'] = 'Booking customfields for booking options';
