@@ -26,7 +26,6 @@
 namespace mod_booking;
 
 use advanced_testcase;
-use mod_booking\booking_rules\booking_rules;
 use stdClass;
 
 /**
