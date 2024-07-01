@@ -54,7 +54,7 @@ Feature: Configure and validate different course connection settings for booking
     ## Verify enrolled immediately
     And I click on "Go to Moodle course" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "Course 3" in the "#page-header" "css_element"
-    And I should see "Topic 1" in the ".course-content" "css_element"
+    And I should see "General" in the ".course-content" "css_element"
 
   @javascript
   Scenario: Booking courseconnection: create default empty course and enroll users
