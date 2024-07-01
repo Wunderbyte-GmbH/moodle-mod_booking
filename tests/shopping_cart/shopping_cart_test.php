@@ -51,7 +51,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-class shopping_cart_test extends advanced_testcase {
+final class shopping_cart_test extends advanced_testcase {
 
     /**
      * Tests set up.
@@ -80,7 +80,7 @@ class shopping_cart_test extends advanced_testcase {
      * @dataProvider booking_common_settings_provider
      *
      */
-    public function test_booking_bookit_with_price_and_installment() {
+    public function test_booking_bookit_with_price_and_installment(): void {
         global $DB, $CFG;
 
         // Skip this test if shopping_cart not installed.

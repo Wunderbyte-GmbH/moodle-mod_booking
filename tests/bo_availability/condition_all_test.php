@@ -50,7 +50,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-class condition_all_test extends advanced_testcase {
+final class condition_all_test extends advanced_testcase {
 
     /**
      * Tests set up.
@@ -78,7 +78,7 @@ class condition_all_test extends advanced_testcase {
      * @dataProvider booking_common_settings_provider
      *
      */
-    public function test_booking_bookit_with_price_and_cancellation() {
+    public function test_booking_bookit_with_price_and_cancellation(): void {
         global $DB, $CFG;
 
         // Set parems requred for cancellation.
@@ -227,7 +227,7 @@ class condition_all_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_booking_bookit_simple() {
+    public function test_booking_bookit_simple(): void {
         global $DB, $CFG;
 
         $bdata['cancancelbook'] = 1;
@@ -376,7 +376,7 @@ class condition_all_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_booking_bookit_cohorts_and_bookingtime() {
+    public function test_booking_bookit_cohorts_and_bookingtime(): void {
         global $DB, $CFG;
 
         $bdata['cancancelbook'] = 1;
@@ -502,7 +502,7 @@ class condition_all_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_booking_bookit_add_to_group() {
+    public function test_booking_bookit_add_to_group(): void {
         global $DB, $CFG;
 
         $bdata['cancancelbook'] = 1;
@@ -600,7 +600,7 @@ class condition_all_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_booking_bookit_bookingtime() {
+    public function test_booking_bookit_bookingtime(): void {
         global $DB, $CFG;
 
         $bdata['cancancelbook'] = 1;
@@ -679,7 +679,7 @@ class condition_all_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_booking_bookit_askforconfirmation() {
+    public function test_booking_bookit_askforconfirmation(): void {
         global $DB, $CFG;
 
         $bdata['cancancelbook'] = 1;
@@ -760,7 +760,7 @@ class condition_all_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_booking_bookit_askforconfirmation_with_price() {
+    public function test_booking_bookit_askforconfirmation_with_price(): void {
         global $DB, $CFG;
 
         $bdata['cancancelbook'] = 1;
@@ -970,7 +970,7 @@ class condition_all_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_booking_bookwithcredits(array $bdata) {
+    public function test_booking_bookwithcredits(array $bdata): void {
         global $CFG;
 
         $this->resetAfterTest();
@@ -1080,7 +1080,7 @@ class condition_all_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_booking_bookit_overbooking_with_price() {
+    public function test_booking_bookit_overbooking_with_price(): void {
         global $DB, $CFG;
 
         // Setup test data.
