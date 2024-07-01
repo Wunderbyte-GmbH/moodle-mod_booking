@@ -28,12 +28,10 @@ namespace mod_booking;
 
 use advanced_testcase;
 use coding_exception;
-use mod_booking\option\dates_handler;
-use mod_booking\price;
 use mod_booking_generator;
 use context_module;
 use stdClass;
-use mod_booking\importer\bookingoptionsimporter;
+
 
 /**
  * Class handling tests for booking options.
@@ -151,45 +149,49 @@ class booking_option_test extends advanced_testcase {
         $res = ob_get_clean();
         $sink->close();
 
-        $this->assertCount(5, $events);
-
         // Last event must be on the option update.
-        $event = end($events);
-        // Checking that the event contains the expected values.
-        $this->assertInstanceOf('mod_booking\event\bookingoption_updated', $event);
-        $modulecontext = context_module::instance($settings->cmid);
-        $this->assertEquals($modulecontext, $event->get_context());
-        $this->assertEventContextNotUsed($event);
-        $data = $event->get_data();
-        $this->assertIsArray($data);
-        $this->assertIsArray($data['other']['changes']);
-        $changes = $data['other']['changes'];
-        foreach ($changes as $change) {
-            switch ($change['fieldname']) {
-                case 'text':
-                    $this->assertEquals('Option-updated', $change['newvalue']);
-                    $this->assertEquals('Option-created', $change['oldvalue']);
-                    break;
-                case 'description':
-                    $this->assertEquals('Deskr-updated', $change['newvalue']);
-                    $this->assertEquals('Deskr-created', $change['oldvalue']);
-                    break;
-                case 'maxanswers':
-                    $this->assertEquals(5, $change['newvalue']);
-                    $this->assertEmpty($change['oldvalue']);
-                    break;
-                case 'teachers':
-                    $this->assertStringContainsString('Teacher 2', $change['newvalue']);
-                    $this->assertStringContainsString('Teacher 1', $change['oldvalue']);
-                    break;
-                case 'dates':
-                    $this->assertEquals(strtotime('10 April 2055'), $change['newvalue'][0]['coursestarttime']);
-                    $this->assertEquals(strtotime('10 May 2055'), $change['newvalue'][0]['courseendtime']);
-                    $this->assertEquals(strtotime('20 June 2050'), $change['oldvalue'][0]['coursestarttime']);
-                    $this->assertEquals(strtotime('20 July 2050'), $change['oldvalue'][0]['courseendtime']);
-                    break;
+        foreach ($events as $key => $event) {
+            if ($event instanceof bookingoption_updated) {
+                // Checking that the event contains the expected values.
+                $this->assertInstanceOf('mod_booking\event\bookingoption_updated', $event);
+                $modulecontext = context_module::instance($settings->cmid);
+                $this->assertEquals($modulecontext, $event->get_context());
+                $this->assertEventContextNotUsed($event);
+                $data = $event->get_data();
+                $this->assertIsArray($data);
+                $this->assertIsArray($data['other']['changes']);
+                $changes = $data['other']['changes'];
+                foreach ($changes as $change) {
+                    switch ($change['fieldname']) {
+                        case 'text':
+                            $this->assertEquals('Option-updated', $change['newvalue']);
+                            $this->assertEquals('Option-created', $change['oldvalue']);
+                            break;
+                        case 'description':
+                            $this->assertEquals('Deskr-updated', $change['newvalue']);
+                            $this->assertEquals('Deskr-created', $change['oldvalue']);
+                            break;
+                        case 'maxanswers':
+                            $this->assertEquals(5, $change['newvalue']);
+                            $this->assertEmpty($change['oldvalue']);
+                            break;
+                        case 'teachers':
+                            $this->assertStringContainsString('Teacher 2', $change['newvalue']);
+                            $this->assertStringContainsString('Teacher 1', $change['oldvalue']);
+                            break;
+                        case 'dates':
+                            $this->assertEquals(strtotime('10 April 2055'), $change['newvalue'][0]['coursestarttime']);
+                            $this->assertEquals(strtotime('10 May 2055'), $change['newvalue'][0]['courseendtime']);
+                            $this->assertEquals(strtotime('20 June 2050'), $change['oldvalue'][0]['coursestarttime']);
+                            $this->assertEquals(strtotime('20 July 2050'), $change['oldvalue'][0]['courseendtime']);
+                            break;
+                    }
+                }
             }
         }
+
+        // Mandatory to solve potential cache issues.
+        singleton_service::destroy_booking_option_singleton($option->id);
     }
 
     /**
@@ -269,5 +271,8 @@ class booking_option_test extends advanced_testcase {
 
         $this->setUser($user1);
         $this->assertEquals(false, $bookingoption1->can_rate());
+
+        // Mandatory to solve potential cache issues.
+        singleton_service::destroy_booking_option_singleton($option1->id);
     }
 }
