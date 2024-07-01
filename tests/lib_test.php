@@ -44,7 +44,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Andraž Prinčič {@link https://www.princic.net}
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class lib_test extends advanced_testcase {
+final class lib_test extends advanced_testcase {
 
     /**
      * Tests set up.
@@ -70,7 +70,7 @@ class lib_test extends advanced_testcase {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function test_subscribe_teacher_to_booking_option() {
+    public function test_subscribe_teacher_to_booking_option(): void {
 
         global $DB;
 

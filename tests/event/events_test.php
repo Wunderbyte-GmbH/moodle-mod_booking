@@ -37,7 +37,7 @@ use stdClass;
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class events_test extends advanced_testcase {
+final class events_test extends advanced_testcase {
 
     /**
      * Tests set up.
@@ -110,7 +110,7 @@ class events_test extends advanced_testcase {
      * @covers \mod_booking\event\teacher_added
      * @throws \coding_exception
      */
-    public function test_teacher_added() {
+    public function test_teacher_added(): void {
 
         list($user1, $option, $coursectx) = $this->returntestdata();
 
@@ -143,7 +143,7 @@ class events_test extends advanced_testcase {
      * @covers \mod_booking\event\teacher_removed
      * @throws \coding_exception
      */
-    public function test_teacher_removed() {
+    public function test_teacher_removed(): void {
 
         list($user1, $option, $coursectx) = $this->returntestdata();
 

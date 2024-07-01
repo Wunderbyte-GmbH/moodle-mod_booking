@@ -41,7 +41,7 @@ use stdClass;
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class booking_option_test extends advanced_testcase {
+final class booking_option_test extends advanced_testcase {
 
     /**
      * Tests set up.
@@ -67,7 +67,7 @@ class booking_option_test extends advanced_testcase {
      * @covers \mod_booking\option\field_base->check_for_changes
      * @throws \coding_exception
      */
-    public function test_option_changes() {
+    public function test_option_changes(): void {
 
         $bdata = ['name' => 'Test Booking', 'eventtype' => 'Test event',
                     'bookedtext' => ['text' => 'text'], 'waitingtext' => ['text' => 'text'],
@@ -201,7 +201,7 @@ class booking_option_test extends advanced_testcase {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function test_delete_responses_activitycompletion() {
+    public function test_delete_responses_activitycompletion(): void {
         global $DB, $CFG;
 
         $CFG->enablecompletion = 1;

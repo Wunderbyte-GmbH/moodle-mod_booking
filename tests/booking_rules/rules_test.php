@@ -36,7 +36,7 @@ use stdClass;
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class rules_test extends advanced_testcase {
+final class rules_test extends advanced_testcase {
 
     /**
      * Tests set up.
@@ -64,7 +64,7 @@ class rules_test extends advanced_testcase {
      * @covers \mod_booking\placeholders\placeholders\changes->return_value
      * @throws \coding_exception
      */
-    public function test_rule_on_booking_option_update() {
+    public function test_rule_on_booking_option_update(): void {
 
         $bdata = ['name' => 'Test Booking', 'eventtype' => 'Test event',
                     'bookedtext' => ['text' => 'text'], 'waitingtext' => ['text' => 'text'],
@@ -181,7 +181,7 @@ class rules_test extends advanced_testcase {
      * @covers \mod_booking\placeholders\placeholders\changes->return_value
      * @throws \coding_exception
      */
-    public function test_rule_on_beforeafter_cursestart() {
+    public function test_rule_on_beforeafter_cursestart(): void {
 
         set_config('timezone', 'Europe/Kyiv');
         set_config('forcetimezone', 'Europe/Kyiv');

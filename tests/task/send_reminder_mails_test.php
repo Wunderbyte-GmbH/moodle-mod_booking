@@ -43,7 +43,7 @@ use core\event\notification_sent;
  * @copyright 2024 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class send_reminder_mails_test extends advanced_testcase {
+final class send_reminder_mails_test extends advanced_testcase {
 
     /**
      * Tests set up.
@@ -68,7 +68,7 @@ class send_reminder_mails_test extends advanced_testcase {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function test_send_teacher_remimder() {
+    public function test_send_teacher_remimder(): void {
         global $DB, $CFG;
 
         // It is important to set timezone to have all dates correct!
