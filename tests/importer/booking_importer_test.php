@@ -181,7 +181,7 @@ class booking_importer_test extends advanced_testcase {
 
         // Create booking option object to get extra detsils.
         singleton_service::destroy_booking_option_singleton($option1->id);
-        singleton_service::get_instance_of_booking_option($cmb1->id, $option1->id);
+        $bookingoptionobj = singleton_service::get_instance_of_booking_option($cmb1->id, $option1->id);
 
         // Booking option must have sessions.
         $this->assertEquals(true, booking_utils::booking_option_has_optiondates($option1->id));
