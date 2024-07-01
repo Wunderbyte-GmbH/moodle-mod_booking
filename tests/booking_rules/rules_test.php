@@ -148,20 +148,24 @@ class rules_test extends advanced_testcase {
         // Validate console output.
         $expected = "send_mail_by_rule_adhoc task: mail successfully sent for option " . $option->id . " to user " . $user1->id;
         $this->assertStringContainsString($expected,  $res);
-        // Validate email.
-        $this->assertCount(1, $messages);
-        $message = reset($messages);
-        $this->assertEquals("OptionChanged",  $message->subject);
-        $this->assertStringContainsString("Dates has changed",  $message->fullmessage);
-        $this->assertStringContainsString("20 June 2050",  $message->fullmessage);
-        $this->assertStringContainsString("20 July 2050",  $message->fullmessage);
-        $this->assertStringContainsString("10 April 2055",  $message->fullmessage);
-        $this->assertStringContainsString("10 May 2055",  $message->fullmessage);
-        $this->assertStringContainsString("Teachers has changed",  $message->fullmessage);
-        $this->assertStringContainsString("Teacher 1 (ID:",  $message->fullmessage);
-        $this->assertStringContainsString("Description has changed",  $message->fullmessage);
-        $this->assertStringContainsString("Test description",  $message->fullmessage);
-        $this->assertStringContainsString("Description updated",  $message->fullmessage);
+
+        // Validate emails. Might be more than one dependitg to Moodle's version.
+        foreach ($messages as $key => $message) {
+            if (strpos($message->subject, "OptionChanged")) {
+                // Validate email on option change.
+                $this->assertEquals("OptionChanged",  $message->subject);
+                $this->assertStringContainsString("Dates has changed",  $message->fullmessage);
+                $this->assertStringContainsString("20 June 2050",  $message->fullmessage);
+                $this->assertStringContainsString("20 July 2050",  $message->fullmessage);
+                $this->assertStringContainsString("10 April 2055",  $message->fullmessage);
+                $this->assertStringContainsString("10 May 2055",  $message->fullmessage);
+                $this->assertStringContainsString("Teachers has changed",  $message->fullmessage);
+                $this->assertStringContainsString("Teacher 1 (ID:",  $message->fullmessage);
+                $this->assertStringContainsString("Description has changed",  $message->fullmessage);
+                $this->assertStringContainsString("Test description",  $message->fullmessage);
+                $this->assertStringContainsString("Description updated",  $message->fullmessage);
+            }
+        }
 
         // Mandatory to solve potential cache issues.
         singleton_service::destroy_booking_option_singleton($option->id);
