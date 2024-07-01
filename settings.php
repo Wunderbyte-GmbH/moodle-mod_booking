@@ -1,5 +1,4 @@
 <?php
-use mod_booking\customfield\booking_handler;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -22,6 +21,9 @@ use mod_booking\customfield\booking_handler;
  * @copyright 2017 David Bogner, http://www.edulabs.org
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use mod_booking\customfield\booking_handler;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG, $DB, $ADMIN, $DB;
