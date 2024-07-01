@@ -399,7 +399,6 @@ class courseid extends field_base {
 
         // Create the ad-hoc task to perform the course copy.
         $asynctask = new \core\task\asynchronous_copy_task();
-        $asynctask->set_blocking(false);
         $asynctask->set_custom_data($copyids);
         \core\task\manager::queue_adhoc_task($asynctask);
 
