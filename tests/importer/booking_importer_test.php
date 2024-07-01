@@ -42,7 +42,7 @@ use mod_booking\importer\bookingoptionsimporter;
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class booking_importer_test extends advanced_testcase {
+final class booking_importer_test extends advanced_testcase {
 
     /**
      * Tests set up.
@@ -67,7 +67,7 @@ class booking_importer_test extends advanced_testcase {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function test_csv_import_process_data() {
+    public function test_csv_import_process_data(): void {
         $this->resetAfterTest();
         // It is important to set timezone to have all dates correct!
         $this->setTimezone('Europe/London');

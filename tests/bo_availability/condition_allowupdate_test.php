@@ -45,7 +45,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class condition_allowupdate_test extends advanced_testcase {
+final class condition_allowupdate_test extends advanced_testcase {
 
     /**
      * Tests set up.
@@ -74,7 +74,7 @@ class condition_allowupdate_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_booking_bookit_allowupdate(array $bdata) {
+    public function test_booking_bookit_allowupdate(array $bdata): void {
         global $DB, $CFG;
 
         $bdata['cancancelbook'] = 1;
@@ -151,7 +151,7 @@ class condition_allowupdate_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_booking_bookit_isbookable(array $bdata) {
+    public function test_booking_bookit_isbookable(array $bdata): void {
         global $DB, $CFG;
 
         // Setup test data.
@@ -224,7 +224,7 @@ class condition_allowupdate_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_booking_bookit_campaign_blockbooking(array $bdata) {
+    public function test_booking_bookit_campaign_blockbooking(array $bdata): void {
         global $DB, $CFG;
 
         // Setup test data.
@@ -337,7 +337,7 @@ class condition_allowupdate_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_booking_bookit_subbookings(array $bdata) {
+    public function test_booking_bookit_subbookings(array $bdata): void {
         global $DB, $CFG;
 
         // Setup test data.

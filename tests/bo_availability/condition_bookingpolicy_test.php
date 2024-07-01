@@ -44,7 +44,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class condition_bookingpolicy_test extends advanced_testcase {
+final class condition_bookingpolicy_test extends advanced_testcase {
 
     /**
      * Tests set up.
@@ -73,7 +73,7 @@ class condition_bookingpolicy_test extends advanced_testcase {
      *
      * @dataProvider booking_settings_provider
      */
-    public function test_booking_policy(array $bdata) {
+    public function test_booking_policy(array $bdata): void {
 
         // Set test objective setting(s).
         $bdata['bookingpolicy'] = 'policy';
@@ -144,7 +144,7 @@ class condition_bookingpolicy_test extends advanced_testcase {
      *
      * @dataProvider booking_settings_provider
      */
-    public function test_booking_customform(array $bdata) {
+    public function test_booking_customform(array $bdata): void {
 
         // Setup test data.
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
@@ -220,7 +220,7 @@ class condition_bookingpolicy_test extends advanced_testcase {
      *
      * @dataProvider booking_settings_provider
      */
-    public function test_booking_maxperuser(array $bdata) {
+    public function test_booking_maxperuser(array $bdata): void {
 
         // Set test objective setting(s).
         $bdata['maxperuser'] = 1;
@@ -306,7 +306,7 @@ class condition_bookingpolicy_test extends advanced_testcase {
      *
      * @dataProvider booking_settings_provider
      */
-    public function test_booking_jsonconditions(array $bdata) {
+    public function test_booking_jsonconditions(array $bdata): void {
 
         $this->resetAfterTest();
         // Setup test data.
@@ -452,7 +452,7 @@ class condition_bookingpolicy_test extends advanced_testcase {
      *
      * @dataProvider booking_settings_provider
      */
-    public function test_booking_jsonuserfields(array $bdata) {
+    public function test_booking_jsonuserfields(array $bdata): void {
         global $CFG;
 
         $this->resetAfterTest();
