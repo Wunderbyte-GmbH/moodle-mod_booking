@@ -74,6 +74,8 @@ final class shopping_cart_test extends advanced_testcase {
      *
      * @covers \condition\priceset::is_available
      * @covers \condition\cancelmyself::is_available
+     *
+     * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
      *

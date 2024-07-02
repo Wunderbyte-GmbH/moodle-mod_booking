@@ -72,6 +72,8 @@ final class condition_all_test extends advanced_testcase {
      * Test of booking option with price as well as cancellation by user.
      *
      * @covers \condition\priceset::is_available
+     *
+     * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
      *
@@ -222,6 +224,7 @@ final class condition_all_test extends advanced_testcase {
      * @covers \condition\notifymelist::is_available
      * @covers \condition\isloggedin::is_available
      *
+     * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
      *
@@ -371,6 +374,8 @@ final class condition_all_test extends advanced_testcase {
      * Test of booking option availability by cohorts and bookingtime.
      *
      * @covers \condition\boking_time::is_available
+     *
+     * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
      *
@@ -497,6 +502,8 @@ final class condition_all_test extends advanced_testcase {
      *
      * @covers \booking_option->enrol_user
      * @covers \option\fields\addtogroup::save_data
+     *
+     * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
      *
@@ -595,6 +602,8 @@ final class condition_all_test extends advanced_testcase {
      * Test add to group.
      *
      * @covers \condition\boking_time::is_available
+     *
+     * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
      *
@@ -674,6 +683,8 @@ final class condition_all_test extends advanced_testcase {
      * @covers \condition\confirmation::is_available
      * @covers \condition\onwaitinglist::is_available
      * @covers \condition\askforconfirmation::render_page
+     *
+     * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
      *
@@ -755,6 +766,8 @@ final class condition_all_test extends advanced_testcase {
      * @covers \condition\askforconfirmation::is_available
      * @covers \condition\onwaitinglist::is_available
      * @covers \condition\priceset::is_available
+     *
+     * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
      *
@@ -1075,6 +1088,8 @@ final class condition_all_test extends advanced_testcase {
      * @covers \condition\askforconfirmation::is_available
      * @covers \condition\onwaitinglist::is_available
      * @covers \condition\priceset::is_available
+     *
+     * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
      *
