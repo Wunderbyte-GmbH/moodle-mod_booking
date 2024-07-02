@@ -66,18 +66,10 @@ final class booking_option_test extends advanced_testcase {
      * @covers \mod_booking\booking_option::update
      * @covers \mod_booking\option\field_base->check_for_changes
      * @throws \coding_exception
+     *
+     * @dataProvider booking_common_settings_provider
      */
-    public function test_option_changes(): void {
-
-        $bdata = ['name' => 'Test Booking', 'eventtype' => 'Test event',
-                    'bookedtext' => ['text' => 'text'], 'waitingtext' => ['text' => 'text'],
-                    'notifyemail' => ['text' => 'text'], 'statuschangetext' => ['text' => 'text'],
-                    'deletedtext' => ['text' => 'text'], 'pollurltext' => ['text' => 'text'],
-                    'pollurlteacherstext' => ['text' => 'text'],
-                    'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
-                    'bookingpolicy' => 'bookingpolicy', 'tags' => '',
-                    'showviews' => ['showall,showactive,mybooking,myoptions,myinstitution'],
-        ];
+    public function test_option_changes(array $bdata): void {
 
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
@@ -92,6 +84,7 @@ final class booking_option_test extends advanced_testcase {
 
         $bdata['course'] = $course->id;
         $bdata['bookingmanager'] = $user2->username;
+        unset($bdata['completion']);
 
         $booking = $this->getDataGenerator()->create_module('booking', $bdata);
 
@@ -200,21 +193,14 @@ final class booking_option_test extends advanced_testcase {
      * @covers ::delete_responses_activitycompletion
      * @throws \coding_exception
      * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
      */
-    public function test_delete_responses_activitycompletion(): void {
+    public function test_delete_responses_activitycompletion(array $bdata): void {
         global $DB, $CFG;
 
         $CFG->enablecompletion = 1;
 
-        $bdata = ['name' => 'Test Booking 1', 'eventtype' => 'Test event', 'enablecompletion' => 1,
-            'bookedtext' => ['text' => 'text'], 'waitingtext' => ['text' => 'text'],
-            'notifyemail' => ['text' => 'text'], 'statuschangetext' => ['text' => 'text'],
-            'deletedtext' => ['text' => 'text'], 'pollurltext' => ['text' => 'text'],
-            'pollurlteacherstext' => ['text' => 'text'],
-            'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
-            'bookingpolicy' => 'bookingpolicy', 'tags' => '', 'completion' => 2,
-            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
-        ];
         // Setup test data.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
@@ -274,5 +260,32 @@ final class booking_option_test extends advanced_testcase {
 
         // Mandatory to solve potential cache issues.
         singleton_service::destroy_booking_option_singleton($option1->id);
+    }
+
+    /**
+     * Data provider for booking_option_test
+     *
+     * @return array
+     * @throws \UnexpectedValueException
+     */
+    public static function booking_common_settings_provider(): array {
+        $bdata = [
+            'name' => 'Test Booking 1',
+            'eventtype' => 'Test event',
+            'enablecompletion' => 1,
+            'bookedtext' => ['text' => 'text'],
+            'waitingtext' => ['text' => 'text'],
+            'notifyemail' => ['text' => 'text'],
+            'statuschangetext' => ['text' => 'text'],
+            'deletedtext' => ['text' => 'text'],
+            'pollurltext' => ['text' => 'text'],
+            'pollurlteacherstext' => ['text' => 'text'],
+            'notificationtext' => ['text' => 'text'],
+            'userleave' => ['text' => 'text'],
+            'tags' => '',
+            'completion' => 2,
+            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
+        ];
+        return ['bdata' => [$bdata]];
     }
 }
