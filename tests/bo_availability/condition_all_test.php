@@ -78,7 +78,7 @@ final class condition_all_test extends advanced_testcase {
      * @dataProvider booking_common_settings_provider
      *
      */
-    public function test_booking_bookit_with_price_and_cancellation(): void {
+    public function test_booking_bookit_with_price_and_cancellation(array $bdata): void {
         global $DB, $CFG;
 
         // Set parems requred for cancellation.
@@ -227,7 +227,7 @@ final class condition_all_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_booking_bookit_simple(): void {
+    public function test_booking_bookit_simple(array $bdata): void {
         global $DB, $CFG;
 
         $bdata['cancancelbook'] = 1;
@@ -376,7 +376,7 @@ final class condition_all_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_booking_bookit_cohorts_and_bookingtime(): void {
+    public function test_booking_bookit_cohorts_and_bookingtime(array $bdata): void {
         global $DB, $CFG;
 
         $bdata['cancancelbook'] = 1;
@@ -502,7 +502,7 @@ final class condition_all_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_booking_bookit_add_to_group(): void {
+    public function test_booking_bookit_add_to_group(array $bdata): void {
         global $DB, $CFG;
 
         $bdata['cancancelbook'] = 1;
@@ -600,7 +600,7 @@ final class condition_all_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_booking_bookit_bookingtime(): void {
+    public function test_booking_bookit_bookingtime(array $bdata): void {
         global $DB, $CFG;
 
         $bdata['cancancelbook'] = 1;
@@ -679,7 +679,7 @@ final class condition_all_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_booking_bookit_askforconfirmation(): void {
+    public function test_booking_bookit_askforconfirmation(array $bdata): void {
         global $DB, $CFG;
 
         $bdata['cancancelbook'] = 1;
@@ -760,7 +760,7 @@ final class condition_all_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_booking_bookit_askforconfirmation_with_price(): void {
+    public function test_booking_bookit_askforconfirmation_with_price(array $bdata): void {
         global $DB, $CFG;
 
         $bdata['cancancelbook'] = 1;
@@ -1080,7 +1080,7 @@ final class condition_all_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_booking_bookit_overbooking_with_price(): void {
+    public function test_booking_bookit_overbooking_with_price(array $bdata): void {
         global $DB, $CFG;
 
         // Setup test data.
