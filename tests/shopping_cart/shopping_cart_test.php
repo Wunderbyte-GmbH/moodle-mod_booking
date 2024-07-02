@@ -80,7 +80,7 @@ final class shopping_cart_test extends advanced_testcase {
      * @dataProvider booking_common_settings_provider
      *
      */
-    public function test_booking_bookit_with_price_and_installment(): void {
+    public function test_booking_bookit_with_price_and_installment(array $bdata): void {
         global $DB, $CFG;
 
         // Skip this test if shopping_cart not installed.
