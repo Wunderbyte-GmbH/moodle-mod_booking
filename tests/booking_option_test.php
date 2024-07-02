@@ -65,6 +65,8 @@ final class booking_option_test extends advanced_testcase {
      * @covers \mod_booking\event\teacher_added
      * @covers \mod_booking\booking_option::update
      * @covers \mod_booking\option\field_base->check_for_changes
+     *
+     * @param array $bdata
      * @throws \coding_exception
      *
      * @dataProvider booking_common_settings_provider
@@ -191,6 +193,8 @@ final class booking_option_test extends advanced_testcase {
      * Test delete responses.
      *
      * @covers ::delete_responses_activitycompletion
+     *
+     * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
      *
