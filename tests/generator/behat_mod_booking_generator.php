@@ -35,7 +35,7 @@ class behat_mod_booking_generator extends behat_generator_base {
             'options' => [
                 'singular' => 'option',
                 'datagenerator' => 'option',
-                'required' => ['booking', 'text', 'course', 'description'],
+                'required' => ['booking', 'text', 'description'],
                 'switchids' => ['booking' => 'bookingid', 'course' => 'courseid', 'semester' => 'semesterid'],
             ],
             'answers' => [
