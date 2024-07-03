@@ -1,3 +1,13 @@
+## Version 8.4.5 (2024070300)
+* Feature: Add possibility to add "invisible" except for direct link.
+* Improvement: Add more unit & behat tests.
+* Improvement: Add Message body to custom messages
+* Improvement: Add returnurl support for show only one option
+* Improvement: Add maplink & mapembed to entitiy cached properties
+* Improvment: Format description text to support mlang filter
+* Bugfix: Sync waitinglist with timemodified instead of time created logic. (this enables the resorting)
+* Bugfixes: Add more unit & behat tests.
+
 ## Version 8.4.4 (2024062700)
 * Improvement: Additional information in teacher page.
 * Improvement: Convert capital letters to lowercase and keep in tabname.
