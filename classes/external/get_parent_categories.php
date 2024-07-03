@@ -76,6 +76,10 @@ class get_parent_categories extends external_api {
         $records = coursecategories::return_course_categories($params['coursecategoryid']);
 
         $coursecount = 0;
+        $bookingoptionscount = 0;
+        $bookedcount = 0;
+        $waitinglistcount = 0;
+        $reservedcount = 0;
 
         if (empty($params['coursecategoryid'])) {
             $returnarray = [
@@ -101,6 +105,10 @@ class get_parent_categories extends external_api {
                 continue;
             }
             $coursecount += $record->coursecount;
+            $record->bookingoptionscount = 0;
+            $record->bookedcount = 0;
+            $record->waitinglistcount = 0;
+            $record->reservedcount = 0;
 
             if ($bookingoptions
                     = coursecategories::return_booking_information_for_coursecategory((int)$record->contextid)) {
@@ -111,16 +119,33 @@ class get_parent_categories extends external_api {
                         $defaultchecked = true;
                     }
                     $value->checked = $defaultchecked;
+
+                    $record->bookingoptionscount += $value->bookingoptions;
+                    $record->bookedcount += $value->booked;
+                    $record->waitinglistcount += $value->waitinglist ?? 0;
+                    $record->reservedcount += $value->reserved ?? 0;
+
                 }
                 $record->json = json_encode([
                     'booking' => array_values($bookingoptions),
                 ]);
             }
             $returnarray[] = (array)$record;
+
+            $bookingoptionscount += $record->bookingoptionscount;
+            $bookedcount += $record->bookedcount;
+            $waitinglistcount += $record->waitinglistcount;
+            $reservedcount += $record->reservedcount;
         }
 
-        // We set the combined coursecount.
-        $returnarray[0]['coursecount'] = $coursecount;
+        // We set the combined coursecount, if there is a general tab.
+        if (isset($returnarray[0]) && $returnarray[0]['id'] == 0) {
+            $returnarray[0]['coursecount'] = $coursecount;
+            $returnarray[0]['bookingoptionscount'] = $bookingoptionscount;
+            $returnarray[0]['bookedcount'] = $bookedcount;
+            $returnarray[0]['waitinglistcount'] = $waitinglistcount;
+            $returnarray[0]['reservedcount'] = $reservedcount;
+        }
 
         return $returnarray;
     }
@@ -138,6 +163,10 @@ class get_parent_categories extends external_api {
                     'name' => new external_value(PARAM_RAW, 'Item name', VALUE_DEFAULT, ''),
                     'contextid' => new external_value(PARAM_TEXT, 'Contextid', VALUE_DEFAULT, 1),
                     'coursecount' => new external_value(PARAM_TEXT, 'Coursecount', VALUE_DEFAULT, 0),
+                    'bookingoptionscount' => new external_value(PARAM_TEXT, 'Bookingoptions count', VALUE_DEFAULT, 0),
+                    'bookedcount' => new external_value(PARAM_TEXT, 'Booked count', VALUE_DEFAULT, 0),
+                    'waitinglistcount' => new external_value(PARAM_TEXT, 'Waitinglist count', VALUE_DEFAULT, 0),
+                    'reservedcount' => new external_value(PARAM_TEXT, 'Reserved count', VALUE_DEFAULT, 0),
                     'description' => new external_value(PARAM_RAW, 'description', VALUE_DEFAULT, ''),
                     'path' => new external_value(PARAM_TEXT, 'path', VALUE_DEFAULT, ''),
                     'json' => new external_value(PARAM_RAW, 'json', VALUE_DEFAULT, '{}'),
