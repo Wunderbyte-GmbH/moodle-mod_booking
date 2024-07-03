@@ -75,6 +75,8 @@ class get_parent_categories extends external_api {
 
         $records = coursecategories::return_course_categories($params['coursecategoryid']);
 
+        usort($records, fn($a, $b) => strcmp(strtolower($a->name), strtolower($b->name)));
+
         $coursecount = 0;
         $bookingoptionscount = 0;
         $bookedcount = 0;
