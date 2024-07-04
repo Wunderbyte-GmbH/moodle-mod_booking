@@ -244,6 +244,10 @@ class mod_booking_observer {
 
         $optionid = $event->other['optionid'];
 
+        if (empty($optionid)) {
+            return;
+        }
+
         new calendar($event->contextinstanceid, $optionid, 0,
             calendar::MOD_BOOKING_TYPEOPTIONDATE, $event->objectid);
 

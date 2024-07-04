@@ -525,7 +525,7 @@ function option_optiondate_update_event(int $optionid, int $cmid, ?stdClass $opt
 
     // We either do this for option or optiondate
     // different way to retrieve the right events.
-    if ($optiondate) {
+    if ($optiondate && !empty($settings->id)) {
         // Check if we have already associated userevents.
         if (!isset($optiondate->eventid) || (!$event = $DB->get_record('event', ['id' => $optiondate->eventid]))) {
 

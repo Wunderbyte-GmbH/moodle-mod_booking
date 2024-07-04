@@ -217,7 +217,7 @@ class optiondate {
 
             // When we create a template, we may not have a cmid.
 
-            if (!empty($settings->cmid)) {
+            if (!empty($settings->cmid) && !empty($optionid)) {
 
                 // We trigger the event, where we take care of events in calendar etc. First we get the context.
                 $event = bookingoptiondate_created::create([
