@@ -131,10 +131,15 @@ class connectedcourse {
             $category = new stdClass();
             $category->name = $formdata->{$cfforcategory};
 
-            if (!empty($category->name)) {
-                $categories = core_course_external::get_categories([
+            if (is_string($category->name) && !empty($category->name)) {
+
+                try {
+                    $categories = core_course_external::get_categories([
                         ['key' => 'name', 'value' => $category->name],
-                ]);
+                    ]);
+                } catch (\Exception $e) {
+                    $categories = [];
+                }
 
                 if (empty($categories)) {
                     $category->idnumber = $category->name;
