@@ -123,6 +123,8 @@ class connectedcourse {
      */
     private static function retrieve_categoryid(stdClass &$newoption, stdClass &$formdata) {
 
+        global $DB;
+
         $config = get_config('booking', 'newcoursecategorycfield');
         if (!empty($config) && $config !== "-1") {
             // FEATURE add more settingfields add customfield_ to ...
@@ -130,6 +132,10 @@ class connectedcourse {
             $cfforcategory = 'customfield_' . get_config('booking', 'newcoursecategorycfield');
             $category = new stdClass();
             $category->name = $formdata->{$cfforcategory};
+
+            if (is_array($category->name)) {
+                $category->name = reset($categoryname);
+            }
 
             if (is_string($category->name) && !empty($category->name)) {
 
@@ -150,6 +156,11 @@ class connectedcourse {
                     $categoryid = $createdcats[0]['id'];
                 } else {
                     $categoryid = $categories[0]['id'];
+                }
+            } else if (is_int($category->name)) {
+                // We check if this is a valid category.
+                if ($DB->record_exists("course_categories", ['id' => $category->name])) {
+                    $categoryid = $category->name;
                 }
             }
         }
