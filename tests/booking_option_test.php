@@ -29,8 +29,9 @@ namespace mod_booking;
 use advanced_testcase;
 use coding_exception;
 use mod_booking_generator;
-use mod_booking\bo_availability\bo_info;
+use context_system;
 use context_module;
+use core_course_category;
 use stdClass;
 
 
@@ -283,6 +284,9 @@ final class booking_option_test extends advanced_testcase {
 
         $bdata['autoenrol'] = "1";
 
+        // Create designated course category.
+        $category1 = $this->getDataGenerator()->create_category(['name' => 'BookCat1', 'idnumber' => 'BCAT1']);
+
         // Setup test courses.
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1, 'startdate' => strtotime('now + 2 day')]);
@@ -385,11 +389,75 @@ final class booking_option_test extends advanced_testcase {
         $this->assertEquals(true, in_array('Option4-empty_course-enrol_now', array_column($courses, 'fullname')));
         $this->assertEquals(false, in_array('Option3-empty_course-enrol_at_start', array_column($courses, 'fullname')));
 
+        // Create custom booking field category and field.
+        $categorydata            = new stdClass();
+        $categorydata->name      = 'bookcat';
+        $categorydata->component = 'mod_booking';
+        $categorydata->area      = 'booking';
+        $categorydata->itemid    = 0;
+        $categorydata->contextid = context_system::instance()->id;
+        $bookingcat = $this->getDataGenerator()->create_custom_field_category((array)$categorydata);
+        $bookingcat->save();
+
+        $fielddata                = new stdClass();
+        $fielddata->categoryid    = $bookingcat->get('id');
+        $fielddata->name       = 'CourseCat';
+        $fielddata->shortname  = 'coursecat';
+        $fielddata->type = 'text';
+        $fielddata->configdata    = "";
+        $bookingfield = $this->getDataGenerator()->create_custom_field((array)$fielddata);
+        $bookingfield->save();
+        $this->assertTrue(\core_customfield\field::record_exists($bookingfield->get('id')));
+
+        // Set params requred for installment.
+        set_config('newcoursecategorycfield', 'coursecat', 'booking');
+
+        // Create 5th booking option - new empty course, enrol at coursestart.
+        $record->text = 'Option5-empty_course_existing_cat-enrol';
+        $record->chooseorcreatecourse = 2;
+        $record->enrolmentstatus = 2; // Enroll now.
+        $record->customfield_coursecat = 'BookCat1';
+        $option5 = $plugingenerator->create_option($record);
+
+        $settings5 = singleton_service::get_instance_of_booking_option_settings($option5->id);
+        // To avoid retrieving the singleton with the wrong settings, we destroy it.
+        singleton_service::destroy_booking_singleton_by_cmid($settings5->cmid);
+
+        // Create 6th booking option - new empty course, enrol immediately.
+        $record->text = 'Option6-empty_course_new_cat-enrol';
+        $record->chooseorcreatecourse = 2;
+        $record->enrolmentstatus = 2; // Enroll now.
+        $record->customfield_coursecat = 'NewBookCat';
+        $option6 = $plugingenerator->create_option($record);
+
+        $settings6 = singleton_service::get_instance_of_booking_option_settings($option6->id);
+        // To avoid retrieving the singleton with the wrong settings, we destroy it.
+        singleton_service::destroy_booking_singleton_by_cmid($settings6->cmid);
+
+        // Booking options by the 1st student.
+        $result = $plugingenerator->create_answer(['optionid' => $option5->id, 'userid' => $student1->id]);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $result);
+        $result = $plugingenerator->create_answer(['optionid' => $option6->id, 'userid' => $student1->id]);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $result);
+
+        // Now check if the user is enrolled to the course. We should get three courses.
+        $courses = enrol_get_users_courses($student1->id);
+        $this->assertEquals(count($courses), 5);
+        $this->assertEquals(true, in_array('Option5-empty_course_existing_cat-enrol', array_column($courses, 'fullname')));
+        $this->assertEquals(true, in_array('Option6-empty_course_new_cat-enrol', array_column($courses, 'fullname')));
+        $key = array_search('Option5-empty_course_existing_cat-enrol', array_column($courses, 'fullname', 'id'));
+        $this->assertEquals($category1->id, (int) $courses[$key]->category);
+        $key = array_search('Option6-empty_course_new_cat-enrol', array_column($courses, 'fullname', 'id'));
+        $coursecat = core_course_category::get((int) $courses[$key]->category);
+        $this->assertEquals('NewBookCat', $coursecat->get_formatted_name());
+
         // Mandatory to solve potential cache issues.
         singleton_service::destroy_booking_option_singleton($option1->id);
         singleton_service::destroy_booking_option_singleton($option2->id);
         singleton_service::destroy_booking_option_singleton($option3->id);
         singleton_service::destroy_booking_option_singleton($option4->id);
+        singleton_service::destroy_booking_option_singleton($option5->id);
+        singleton_service::destroy_booking_option_singleton($option6->id);
     }
 
     /**
