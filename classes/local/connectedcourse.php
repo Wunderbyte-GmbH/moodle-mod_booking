@@ -134,7 +134,7 @@ class connectedcourse {
             $category->name = $formdata->{$cfforcategory};
 
             if (is_array($category->name)) {
-                $category->name = reset($categoryname);
+                $category->name = reset($category->name);
             }
 
             if (is_string($category->name) && !empty($category->name)) {
