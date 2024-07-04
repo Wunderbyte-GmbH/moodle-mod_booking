@@ -67,6 +67,9 @@ class get_parent_categories extends external_api {
      * @return array
      */
     public static function execute(int $coursecategoryid): array {
+
+        global $DB;
+
         require_login();
 
         $params = self::validate_parameters(self::execute_parameters(), [
@@ -111,6 +114,12 @@ class get_parent_categories extends external_api {
             $record->bookedcount = 0;
             $record->waitinglistcount = 0;
             $record->reservedcount = 0;
+
+
+            $sql = "SELECT c.id, c.fullname
+                    FROM {course} c
+                    WHERE c.category=:categoryid";
+            $record->courses = $DB->get_records_sql($sql, ['categoryid' => $record->id], IGNORE_MISSING) ?: [];
 
             if ($bookingoptions
                     = coursecategories::return_booking_information_for_coursecategory((int)$record->contextid)) {
