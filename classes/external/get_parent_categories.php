@@ -115,7 +115,6 @@ class get_parent_categories extends external_api {
             $record->waitinglistcount = 0;
             $record->reservedcount = 0;
 
-
             $sql = "SELECT c.id, c.fullname
                     FROM {course} c
                     WHERE c.category=:categoryid";
