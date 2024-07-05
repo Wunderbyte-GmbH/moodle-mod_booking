@@ -67,6 +67,18 @@ $definitions = [
         'staticaccelerationsize' => 100,
         'invalidationevents' => ['setbackoptionstable', 'setbackencodedtables'],
     ],
+    'mybookingoptionstable' => [ // This cache uses hashed sql queries as keys. We destroy it when a user has booked.
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 100,
+        'invalidationevents' => [
+            'setbackmyoptionstable',
+            'setbackmyencodedtables',
+            'setbackoptionstable',
+            'setbackencodedtables',
+        ],
+    ],
     'bookingoptionsettings' => [ // This cache uses optionids as keys.
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,

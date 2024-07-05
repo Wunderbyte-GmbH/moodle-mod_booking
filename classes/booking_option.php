@@ -2935,6 +2935,9 @@ class booking_option {
 
         // We also need to destroy the booked_user_information.
         cache_helper::purge_by_event('setbackbookedusertable');
+
+        // We also need to destroy the booked_user_information.
+        cache_helper::purge_by_event('setbackmyoptionstable');
     }
 
     /**

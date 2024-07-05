@@ -415,6 +415,9 @@ class view implements renderable, templatable {
         // In the future, we can parametrize this function so we can use it on many different places.
         $this->wbtable_initialize_list_layout($mybookingoptionstable, true, true, true);
 
+        // For mybookingstable we need to apply a different cache, because it changes with every booking of a user.
+        $mybookingoptionstable->define_cache('mod_booking', 'mybookingoptionstable');
+
         if ($lazy) {
             list($idstring, $encodedtable, $out)
                 = $mybookingoptionstable->lazyouthtml($booking->get_pagination_setting(), true);
