@@ -321,7 +321,7 @@ export const initprepageinline = (optionid, userid, totalnumberofpages, uniquid)
         button.addEventListener('click', e => {
 
             // Get the row element.
-            let rowcontainer = e.target.closest('.row');
+            let rowcontainer = e.target.closest('.mod-booking-row');
 
             const transferarea = !rowcontainer.lastElementChild.classList.contains('inlineprepagearea');
             // We move the inlineprepagearea only if we need to.
