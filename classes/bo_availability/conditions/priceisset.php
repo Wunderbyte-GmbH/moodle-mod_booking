@@ -29,8 +29,10 @@
 use context_module;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\booking_option_settings;
+use mod_booking\local\modechecker;
 use mod_booking\price;
 use mod_booking\singleton_service;
+use moodle_url;
 use MoodleQuickForm;
 
 defined('MOODLE_INTERNAL') || die();
@@ -213,7 +215,7 @@ class priceisset implements bo_condition {
     public function render_button(booking_option_settings $settings,
         int $userid = 0, bool $full = false, bool $not = false, bool $fullwidth = true): array {
 
-        global $USER;
+        global $USER, $PAGE;
 
         $userid = !empty($userid) ? $userid : $USER->id;
 
@@ -233,6 +235,34 @@ class priceisset implements bo_condition {
 
         if ($fullwidth) {
             $data['fullwidth'] = $fullwidth;
+        }
+
+        // The book only on details page avoid js and allows booking only on the details page.
+        if (
+            get_config('booking', 'bookonlyondetailspage')
+            && !modechecker::is_ajax_or_webservice_request()
+        ) {
+            $currenturl = $PAGE->url->out_omit_querystring(); // Get the current URL without the query string
+            // Define the target URL path you want to check.
+            $targetpath = '/mod/booking/optionview.php';
+
+            // Check if the current URL matches the target path.
+            if (strpos($currenturl, $targetpath) === false) {
+
+                $returnurl = $PAGE->url->out();
+
+                // The current page is not /mod/booking/optionview.php.
+                $url = new moodle_url("/mod/booking/optionview.php", [
+                    "optionid" => (int)$settings->id,
+                    "cmid" => (int)$settings->cmid,
+                    "userid" => (int)$userid,
+                    'returnto' => 'url',
+                    'returnurl' => $returnurl,
+                ]);
+                $data['link'] = $url->out(false);
+                $data['nojs'] = true;
+                $data['role'] = '';
+            }
         }
 
         return ['mod_booking/bookit_price', $data];

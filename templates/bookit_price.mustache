@@ -56,9 +56,11 @@
             {{price}} {{currency}}
         </span>
         {{#shoppingcartisavailable}}
+            {{#link}}<a href="{{link}}" target="_blank" data-action='bookondetails'>{{/link}}
             <div class="bookit-addtocartbtn-area">
                 {{> local_shopping_cart/addtocartdb }}
             </div>
+            {{#link}}</a>{{/link}}
         {{/shoppingcartisavailable}}
         {{#priceitems}}
             <p><i>{{pricecategoryname}}</i></p>

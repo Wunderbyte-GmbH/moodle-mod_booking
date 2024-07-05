@@ -215,6 +215,11 @@ if ($ADMIN->fulltree) {
             get_string('displayloginbuttonforbookingoptions', 'mod_booking'),
             get_string('displayloginbuttonforbookingoptions_desc', 'mod_booking'), 1));
 
+    $settings->add(
+        new admin_setting_configcheckbox('booking/bookonlyondetailspage',
+            get_string('bookonlyondetailspage', 'mod_booking'),
+            get_string('bookonlyondetailspage_desc', 'mod_booking'), 0));
+
     $coloroptions = [
         'primary' => get_string('cdo:buttoncolor:primary', 'mod_booking'),
         'secondary' => get_string('cdo:buttoncolor:secondary', 'mod_booking'),

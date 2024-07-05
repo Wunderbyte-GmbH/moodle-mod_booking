@@ -38,6 +38,9 @@ $cmid = required_param('cmid', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT);
 $userid = optional_param('userid', 0, PARAM_INT);
 
+$returnto = optional_param('returnto', '', PARAM_ALPHA);
+$returnurl = optional_param('returnurl', '', PARAM_URL);
+
 $syscontext = context_system::instance();
 $modcontext = context_module::instance($cmid);
 
@@ -77,9 +80,23 @@ if ($settings = singleton_service::get_instance_of_booking_option_settings($opti
 
     echo $OUTPUT->header();
 
-    // TODO: The following lines change the context of the PAGE object and have therefore to be called after printing the header.
+    // TODO: The following lines change the context of the PAGE object...
+    // ... and have therefore to be called after printing the header.
     // This needs to be fixed.
 
+    if (
+        $returnto == 'url'
+        && !empty($returnurl)
+    ) {
+        echo html_writer::tag(
+            'a',
+            get_string('back'),
+            [
+                'class' => 'btn btn-primary',
+                'href' => $returnurl,
+            ]
+        );
+    }
     $output = $PAGE->get_renderer('mod_booking');
     $data = new bookingoption_description($settings->id, null, MOD_BOOKING_DESCRIPTION_OPTIONVIEW, true, null, $user, true);
 

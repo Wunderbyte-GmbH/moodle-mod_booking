@@ -91,6 +91,12 @@ export const initbookitbutton = (itemid, area) => {
 
             const userid = button.dataset.userid;
 
+            if (button.querySelector('[data-action="bookondetail"]')) {
+                // eslint-disable-next-line no-console
+                console.log('bookondetail abort');
+                return;
+            }
+
             button.addEventListener('click', (e) => {
 
                 // E.stopPropagation();
@@ -247,6 +253,12 @@ export const initprepagemodal = (optionid, userid, totalnumberofpages, uniquid) 
 
         elements.forEach(element => {
 
+            if (!element.querySelector('[data-action="bookondetail"]')) {
+                // eslint-disable-next-line no-console
+                console.log('bookondetail abort');
+                return;
+            }
+
             optionid = element.dataset.optionid;
             uniquid = element.dataset.uniquid;
             userid = element.dataset.userid;
@@ -318,7 +330,16 @@ export const initprepageinline = (optionid, userid, totalnumberofpages, uniquid)
         // eslint-disable-next-line no-console
         console.log('add listener to button', button, button.dataset.action);
 
+        if (button.querySelector('[data-action="bookondetail"]')) {
+            // eslint-disable-next-line no-console
+            console.log('bookondetail abort');
+            return;
+        }
+
         button.addEventListener('click', e => {
+
+            // eslint-disable-next-line no-console
+            console.log('e.target', e.target);
 
             // Get the row element.
             let rowcontainer = e.target.closest('.mod-booking-row');

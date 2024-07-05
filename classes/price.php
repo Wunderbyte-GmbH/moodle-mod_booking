@@ -812,7 +812,7 @@ class price {
                 // We set the user price, to know the next time.
                 $cache->set($usercachekey, true);
                 return [];
-            } else if ($cachedprices) {
+            } else if ($cachedprices && is_array($cachedprices)) {
                 $prices = $cachedprices;
 
                 // At this point, we have the general prices, but we might have a user specific camapaign override.
