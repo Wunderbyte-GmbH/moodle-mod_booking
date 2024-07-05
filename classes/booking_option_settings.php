@@ -835,7 +835,7 @@ class booking_option_settings {
                                  AND itemid = :optionid
                                  AND filearea = 'bookingoptionimage'
                                  AND filesize > 0
-                                 AND source is not null", ['optionid' => $optionid])) {
+                                 AND source is not null", ['optionid' => $optionid], IGNORE_MULTIPLE)) {
 
             // If an image has been uploaded for the option, let's create the according URL.
             $this->imageurl = $CFG->wwwroot . "/pluginfile.php/" . $imgfile->contextid .
