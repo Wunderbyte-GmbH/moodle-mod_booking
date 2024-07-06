@@ -31,6 +31,7 @@ use coding_exception;
 use mod_booking\price;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\booking_rules\booking_rules;
 use local_shopping_cart\shopping_cart;
 use local_shopping_cart\shopping_cart_history;
 use local_shopping_cart\local\cartstore;
@@ -218,6 +219,25 @@ final class shopping_cart_test extends advanced_testcase {
         $exppadate = userdate(strtotime('now + 2 days'), get_string('strftimedate', 'langconfig'));
         $this->assertEquals($exppadate, $installment['payments'][1]['date']);
 
+        // Trigger and capture emails.
+        unset_config('noemailever');
+        ob_start();
+        $messagesink = $this->redirectMessages();
+
+        // Create booking rule - "ndays before".
+        $ruledata = [
+            'name' => 'installment',
+            'conditionname' => 'select_user_shopping_cart',
+            'contextid' => 1,
+            'conditiondata' => '{}',
+            'actionname' => 'send_mail',
+            'actiondata' => '{"subject":"installment_custom_subj","template":"installment_custom_msg","templateformat":"1"}',
+            'rulename' => 'rule_daysbefore',
+            'ruledata' => '{"days":"2","datefield":"installmentpayment"}',
+        ];
+        $rule1 = $plugingenerator->create_rule($ruledata);
+        //$rules = booking_rules::get_list_of_saved_rules_by_context(1);var_dump($rules);
+
         // Confirm cash payment.
         $res = shopping_cart::confirm_payment($student1->id, LOCAL_SHOPPING_CART_PAYMENT_METHOD_CREDITS);
         // Validate payment.
@@ -228,6 +248,14 @@ final class shopping_cart_test extends advanced_testcase {
         // In this test, we book the user directly (we don't test the payment process).
         $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
         $option->user_submit_response($student1, 0, 0, 0, MOD_BOOKING_VERIFIED);
+
+        $this->runAdhocTasks();
+
+        $messages = $messagesink->get_messages();
+        var_dump($messages);
+        $res = ob_get_clean();
+        var_dump($res);
+        $messagesink->close();
 
         // User 1 should be booked now.
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
