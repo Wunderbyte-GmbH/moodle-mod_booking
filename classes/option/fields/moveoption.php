@@ -176,7 +176,7 @@ class moveoption extends field_base {
 
         $changes = [];
 
-        if (!empty((int)$data->moveoption)) {
+        if (isset($data->moveoption) && !empty((int)$data->moveoption)) {
             $instance = new moveoption();
             $changes = $instance->check_for_changes($data, $instance, '', 'moveoption', $option->bookingid);
 

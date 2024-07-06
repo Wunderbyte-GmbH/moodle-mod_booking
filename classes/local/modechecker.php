@@ -68,7 +68,10 @@ class modechecker {
      */
     private static function is_webservice_request() {
         // Check for web service specific parameters.
-        if (!empty(optional_param('wsfunction', '', PARAM_ALPHANUMEXT)) || !empty(optional_param('wstoken', '', PARAM_ALPHANUMEXT))) {
+        if (
+            !empty(optional_param('wsfunction', '', PARAM_ALPHANUMEXT))
+            || !empty(optional_param('wstoken', '', PARAM_ALPHANUMEXT))
+        ) {
             return true;
         }
 
