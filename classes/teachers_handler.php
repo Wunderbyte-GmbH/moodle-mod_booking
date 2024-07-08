@@ -265,7 +265,7 @@ class teachers_handler {
     public function subscribe_teacher_to_booking_option(int $userid, int $optionid, int $cmid, $groupid = null,
         bool $doenrol = true, int $courseid = 0) {
 
-        global $DB, $USER;
+        global $DB, $USER, $COURSE;
 
         // On template creation, we don't have a cmid, we don't want to enrol the user.
         if (!empty($cmid)) {
@@ -273,11 +273,16 @@ class teachers_handler {
             // Get settings of the booking instance (do not confuse with option settings).
             $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
 
-            // Event if teacher already exists in DB, we still might want to enrol it into a new course.
-            if ($doenrol) {
-                $option->enrol_user($userid, true, $bookingsettings->teacherroleid, true, $courseid);
+            // Always enrol into current course with defined role.
+            $teacherrole = get_config('booking', 'definedteacherrole');
+            if ($teacherrole) {
+                $option->enrol_user($userid, true, $teacherrole, true, $COURSE->id);
+            }
 
+            // Even if teacher already exists in DB, we still might want to enrol him/her into a new course.
+            if ($doenrol) {
                 // We enrol teacher with the type defined in settings.
+                $option->enrol_user($userid, true, $bookingsettings->teacherroleid, true, $courseid);
 
                 /* NOTE: In the future, we might need a teacher_enrolled event here (or inside enrol_user)
                 which indicates that a teacher has been enrolled into a Moodle course. */

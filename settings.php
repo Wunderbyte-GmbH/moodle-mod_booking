@@ -278,6 +278,24 @@ if ($ADMIN->fulltree) {
             new admin_setting_configcheckbox('booking/teachersallowmailtobookedusers',
                 get_string('teachersallowmailtobookedusers', 'mod_booking'),
                 get_string('teachersallowmailtobookedusers_desc', 'mod_booking'), 0));
+
+        $teacherroleid = [0 => ''];
+        $allrolenames = role_get_names();
+        $assignableroles = get_roles_for_contextlevels(CONTEXT_COURSE);
+        foreach ($allrolenames as $value) {
+            if (in_array($value->id, $assignableroles)) {
+                $teacherroleid[$value->id] = $value->localname;
+            }
+        }
+
+        $settings->add(
+            new admin_setting_configselect('booking/definedteacherrole',
+            get_string('definedteacherrole', 'mod_booking'),
+            get_string('definedteacherrole_descr', 'mod_booking'),
+            'definedteacherrole',
+            $teacherroleid));
+
+
     } else {
         $settings->add(
             new admin_setting_heading('teachersettings',

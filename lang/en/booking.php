@@ -1390,6 +1390,8 @@ $string['allowoverbooking'] = 'Allow overbooking';
 $string['allowoverbookingheader'] = 'Overbooking of booking options ' . $badgepro;
 $string['allowoverbookingheader_desc'] = 'Allow administrators and entitled users to overbook booking options.
   (Be careful: This can lead to unexpected behavior. Only activate this if you really need it.)';
+$string['definedteacherrole'] = 'Teachers of booking option are assigned to this role';
+$string['definedteacherrole_desc'] = 'When a teacher is added to a bookingoption, he/she will be assigned to this role in the corresponding course.';
 
 $string['appearancesettings'] = 'Appearance ' . $badgepro;
 $string['appearancesettings_desc'] = 'Configure the appearance of the booking plugin.';
