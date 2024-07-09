@@ -291,7 +291,7 @@ if ($ADMIN->fulltree) {
         $settings->add(
             new admin_setting_configselect('booking/definedteacherrole',
             get_string('definedteacherrole', 'mod_booking'),
-            get_string('definedteacherrole_descr', 'mod_booking'),
+            get_string('definedteacherrole_desc', 'mod_booking'),
             'definedteacherrole',
             $teacherroleid));
 
