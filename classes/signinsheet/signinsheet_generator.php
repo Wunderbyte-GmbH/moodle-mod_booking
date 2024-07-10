@@ -320,7 +320,7 @@ class signinsheet_generator {
         }
 
         $users = $DB->get_records_sql(
-                "SELECT u.id, " . $mainuserfields . $userfields .
+                "SELECT u.id, ba.timecreated as bookingtime, " . $mainuserfields . $userfields .
             " FROM {booking_answers} ba
             LEFT JOIN {user} u ON u.id = ba.userid
             WHERE ba.optionid = :optionid AND ba.waitinglist = 0 " .
@@ -511,14 +511,14 @@ class signinsheet_generator {
                         break;
                     case 'userpic':
                         $name = "";
-                        $user = singleton_service::get_instance_of_user($user->id);
-                        if (empty($user->id) || empty($user)) {
+                        $userobj = singleton_service::get_instance_of_user($user->id);
+                        if (empty($user->id) || empty($userobj)) {
                             // In case row is empty. No user given.
                             // Make sure column with is respected.
                             $w = 20;
                             break;
                         }
-                        $userpic = new user_picture($user);
+                        $userpic = new user_picture($userobj);
                         if (empty($userpic)) {
                             break;
                         }
@@ -529,7 +529,12 @@ class signinsheet_generator {
                         true, 400, '', false, false, 1, false, false, false);
                         $escape = true;
                         break;
-                    case 'indexnumber':
+                    case 'timecreated':
+                        $w = 30;
+                        $name = "";
+                        if ($user->bookingtime > 0) {
+                            $name = userdate($user->bookingtime, get_string('strftimedatetime', 'langconfig'));
+                        }
                         break;
                     case 'signinextracols1':
                     case 'signinextracols2':
@@ -918,6 +923,10 @@ class signinsheet_generator {
                 case 'userpic':
                     $w = 20;
                     $name = get_string('userpic');
+                    break;
+                case 'timecreated':
+                    $w = 30;
+                    $name = get_string('bookingdate', 'mod_booking');
                     break;
                 default:
                     $rotate = true;
