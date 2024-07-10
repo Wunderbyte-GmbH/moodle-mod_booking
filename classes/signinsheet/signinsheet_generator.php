@@ -726,6 +726,8 @@ class signinsheet_generator {
             $this->pdf->Image('@' . $this->signinsheetlogo->get_content(), '', '', $this->w, $this->h, '', '', 'T',
                     true, 150, 'R', false, false, 0, false, false, false);
         }
+        // Empty multicell for spacing.
+        $this->pdf->MultiCell(55, 5, '', 0, '', 0, 1, '', '', true);
 
         $this->pdf->SetFont('freesans', '', 10);
 
