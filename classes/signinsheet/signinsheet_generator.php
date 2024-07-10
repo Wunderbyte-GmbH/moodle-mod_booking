@@ -526,7 +526,7 @@ class signinsheet_generator {
                         $userpictureurl = $userpic->get_url($PAGE);
                         $out = $userpictureurl->out();
                         $this->pdf->Image($out, '', '', 0, $h, '', '', 'T',
-                        true, 400, '', false, false, 0, false, false, false);
+                        true, 400, '', false, false, 1, false, false, false);
                         $escape = true;
                         break;
                     case 'indexnumber':
