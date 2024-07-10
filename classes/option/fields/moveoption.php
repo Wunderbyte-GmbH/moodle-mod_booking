@@ -24,6 +24,7 @@
 
 namespace mod_booking\option\fields;
 
+use Exception;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields;
 use mod_booking\option\fields_info;
@@ -33,6 +34,7 @@ use mod_booking\utils\wb_payment;
 use moodle_exception;
 use MoodleQuickForm;
 use stdClass;
+use context_module;
 
 /**
  * Class to handle one property of the booking_option_settings class.
@@ -131,7 +133,14 @@ class moveoption extends field_base {
             )"
         )) {
             foreach ($records as $record) {
-                $allowedinstances[$record->cmid] = "$record->bookingname ($record->coursename, ID: $record->cmid)";
+                // A user should only be able to move the option to a cm where she has access.
+                $context = context_module::instance($record->cmid);
+                if (
+                    has_capability('mod/booking:updatebooking', $context)
+                    || has_capability('mod/booking:addeditownoption', $context)
+                ) {
+                    $allowedinstances[$record->cmid] = "$record->bookingname ($record->coursename, ID: $record->cmid)";
+                }
             }
         }
 
@@ -180,17 +189,24 @@ class moveoption extends field_base {
             $instance = new moveoption();
             $changes = $instance->check_for_changes($data, $instance, '', 'moveoption', $option->bookingid);
 
-            $elements = get_course_and_cm_from_cmid((int)$data->moveoption);
-            $cm = $elements[1];
+            try {
+                $elements = get_course_and_cm_from_cmid((int)$data->moveoption);
+                $cm = $elements[1];
 
-            if ($option->bookingid != $cm->instance) {
-                $option->cmid = $cm->id;
-                $option->bookingid = $cm->instance;
-                $data->cmid = $cm->id;
-                $data->bookingid = $cm->instance;
+                if (!empty($cm) && ($option->bookingid != $cm->instance)) {
+                    $option->cmid = $cm->id;
+                    $option->bookingid = $cm->instance;
+                    $data->cmid = $cm->id;
+                    $data->bookingid = $cm->instance;
 
-                $DB->update_record('booking_options', ['id' => $data->id, 'bookingid' => $cm->instance]);
+                    $DB->update_record('booking_options', ['id' => $data->id, 'bookingid' => $cm->instance]);
+                }
+            } catch (Exception $e) {
+                // We don't want to throw an error here but just ignore it.
+                // Might occur when a cm is chosen that does not exist anymore.
+                $changes = [];
             }
+
         }
 
         return $changes;
