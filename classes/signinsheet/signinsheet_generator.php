@@ -17,6 +17,7 @@
 namespace mod_booking\signinsheet;
 
 use mod_booking\singleton_service;
+use user_picture;
 
 /**
  * Class for generating the signin sheet as PDF using TCPDF
@@ -284,7 +285,7 @@ class signinsheet_generator {
      * Generate PDF and prepare it for download
      */
     public function download_signinsheet() {
-        global $DB;
+        global $DB, $PAGE;
         $groupparams = [];
         $addsqlwhere = '';
 
@@ -297,7 +298,16 @@ class signinsheet_generator {
                     $this->bookingoption->booking->course->id);
             $addsqlwhere .= " AND u.id IN ($groupsql)";
         }
-        $remove = ['signinextracols1', 'signinextracols2', 'signinextracols3', 'fullname', 'signature', 'rownumber', 'role'];
+        $remove = [
+            'signinextracols1',
+            'signinextracols2',
+            'signinextracols3',
+            'fullname',
+            'signature',
+            'rownumber',
+            'role',
+            'userpic',
+        ];
 
         $mainuserfields = \core_user\fields::for_name()->get_sql('u')->selects;
         $mainuserfields = trim($mainuserfields, ', ');
@@ -398,7 +408,6 @@ class signinsheet_generator {
             }
             $profiletext = '';
             profile_load_custom_fields($user);
-            $userprofile = $user->profile;
             if (!empty($user->profile) && $user->id > 0) {
                 $profiletext .= " ";
                 foreach ($user->profile as $profilename => $value) {
@@ -426,12 +435,18 @@ class signinsheet_generator {
             if ($this->showrownumbers) {
                 $this->rownumber++;
             }
-
+            if (in_array('userpic', $this->allfields)) {
+                // If there is an image to be displayed, create higher rows.
+                $h = 20;
+            } else {
+                // Initialize height with 0.
+                $h = 0;
+            }
             foreach ($this->allfields as $value) {
                 $c++;
                 $w = ($this->colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_RIGHT) / (count($this->allfields));
-                $h = 0; // Initialize height with 0.
                 $rotate = false;
+                $escape = false;
                 switch ($value) {
                     case 'rownumber':
                         $name = "{$this->rownumber}";
@@ -494,6 +509,28 @@ class signinsheet_generator {
                             $name = '';
                         }
                         break;
+                    case 'userpic':
+                        $name = "";
+                        $user = singleton_service::get_instance_of_user($user->id);
+                        if (empty($user->id) || empty($user)) {
+                            // In case row is empty. No user given.
+                            // Make sure column with is respected.
+                            $w = 20;
+                            break;
+                        }
+                        $userpic = new user_picture($user);
+                        if (empty($userpic)) {
+                            break;
+                        }
+                        $userpic->size = 200;
+                        $userpictureurl = $userpic->get_url($PAGE);
+                        $out = $userpictureurl->out();
+                        $this->pdf->Image($out, '', '', 0, $h, '', '', 'T',
+                        true, 400, '', false, false, 0, false, false, false);
+                        $escape = true;
+                        break;
+                    case 'indexnumber':
+                        break;
                     case 'signinextracols1':
                     case 'signinextracols2':
                     case 'signinextracols3':
@@ -504,14 +541,17 @@ class signinsheet_generator {
                         $rotate = true;
                         $name = '';
                 }
+                if ($escape) {
+                    continue;
+                }
                 if ($rotate) {
-                    $this->pdf->Cell(6, 0, $name, 1, (count($this->allfields) == $c ? 1 : 0),
+                    $this->pdf->Cell(6, $h, $name, 1, (count($this->allfields) == $c ? 1 : 0),
                         '', 0, "", 1);
                 } else {
                     if ($c == 1) {
                         $this->pdf->SetY($this->pdf->GetY() - 5, false);
                     }
-                    $this->pdf->Cell($w, 0, $name, 1, (count($this->allfields) == $c ? 1 : 0), '', 0, '', 1);
+                    $this->pdf->Cell($w, $h, $name, 1, (count($this->allfields) == $c ? 1 : 0), '', 0, '', 1);
                 }
             }
             $this->pdf->SetY($this->pdf->GetY() + 5);
@@ -872,6 +912,10 @@ class signinsheet_generator {
                     break;
                 case 'role':
                     $name = new \lang_string('role');
+                    break;
+                case 'userpic':
+                    $w = 20;
+                    $name = get_string('userpic');
                     break;
                 default:
                     $rotate = true;
