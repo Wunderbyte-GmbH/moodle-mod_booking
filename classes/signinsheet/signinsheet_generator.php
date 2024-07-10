@@ -680,15 +680,12 @@ class signinsheet_generator {
         $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
 
         // Get header and footer logo for signin sheet.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $this->pdf->SetXY(18, $this->pdf->getY() - 15); */
+        $this->pdf->SetXY(18, $this->pdf->getY() - 15);
 
-        // TODO: Fix signinsheet logo!
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* if ($this->get_signinsheet_logo()) {
+        if ($this->get_signinsheet_logo()) {
             $this->pdf->Image('@' . $this->signinsheetlogo->get_content(), '', '', $this->w, $this->h, '', '', 'T',
                     true, 150, 'R', false, false, 0, false, false, false);
-        } */
+        }
 
         $this->pdf->SetFont('freesans', '', 10);
 
