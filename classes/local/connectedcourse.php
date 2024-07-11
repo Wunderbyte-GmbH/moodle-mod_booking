@@ -137,7 +137,12 @@ class connectedcourse {
                 $category->name = reset($category->name);
             }
 
-            if (is_string($category->name) && !empty($category->name)) {
+            if (is_numeric($category->name)) {
+                // We check if this is a valid category.
+                if ($DB->record_exists("course_categories", ['id' => $category->name])) {
+                    $categoryid = $category->name;
+                }
+            } else if (is_string($category->name) && !empty($category->name)) {
 
                 try {
                     $categories = core_course_external::get_categories([
@@ -156,11 +161,6 @@ class connectedcourse {
                     $categoryid = $createdcats[0]['id'];
                 } else {
                     $categoryid = $categories[0]['id'];
-                }
-            } else if (is_int($category->name)) {
-                // We check if this is a valid category.
-                if ($DB->record_exists("course_categories", ['id' => $category->name])) {
-                    $categoryid = $category->name;
                 }
             }
         }
