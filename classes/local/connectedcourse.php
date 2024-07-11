@@ -78,9 +78,9 @@ class connectedcourse {
             $formdata->courseid = $courseinfo["id"];
 
             // Also, we need to take away all tags from the newly created course.
-            $tags = \core_tag_tag::get_item_tags_array('core', 'course', $newoption->courseid);
-            \core_tag_tag::delete_tags(array_keys($tags));
+            $tags = \core_tag_tag::get_item_tags('core', 'course', $newoption->courseid);
 
+            \core_tag_tag::delete_instances_by_id(array_keys($tags));
         }
     }
 
