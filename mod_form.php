@@ -419,7 +419,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'address' => new lang_string('address'),
             'role' => new lang_string('role'),
             'userpic' => get_string('userpic'),
-            'timecreated' => get_string('timecreated', 'mod_booking'),
+            'timecreated' => get_string('bookingdate', 'mod_booking'),
         ];
 
         for ($i = 1; $i < 4; $i++) {

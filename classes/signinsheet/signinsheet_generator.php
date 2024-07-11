@@ -532,7 +532,7 @@ class signinsheet_generator {
                     case 'timecreated':
                         $w = 30;
                         $name = "";
-                        if ($user->bookingtime > 0) {
+                        if (isset($user->bookingtime) && $user->bookingtime > 0) {
                             $name = userdate($user->bookingtime, get_string('strftimedatetime', 'langconfig'));
                         }
                         break;
