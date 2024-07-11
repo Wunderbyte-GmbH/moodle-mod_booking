@@ -143,7 +143,7 @@ class page_teacher implements renderable, templatable {
             $returnarray['image'] = $imageurl;
         }
 
-        if (self::teacher_messaging_is_possible($this->teacher->id)) {
+        if (get_config('booking', 'alwaysenablemessaging') || self::teacher_messaging_is_possible($this->teacher->id)) {
             $returnarray['messagingispossible'] = true;
         }
 

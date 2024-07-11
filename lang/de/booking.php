@@ -1392,6 +1392,8 @@ $string['teachersallowmailtobookedusers_desc'] = 'Wenn Sie diese Einstellung akt
     wenn es die Datenschutzbestimmungen Ihrer Organisation erlauben.</span>';
 $string['definedteacherrole'] = 'Rolle die Trainer:innen einer Buchungsoption erhalten';
 $string['definedteacherrole_desc'] = 'Wird ein:e Trainer:in einer Buchungsoption hinzugefügt, erhält sie im zugehörigen Kurs die ausgewählte Rolle.';
+$string['teachersalwaysenablemessaging'] = 'Nutzer:innen erlauben, allen Trainer:innen Nachrichten zu senden.';
+$string['teachersalwaysenablemessaging_desc'] = 'Wenn Sie diese Einstellung aktivieren, können Nutzer:innen Nachrichten an Trainer:innen senden, auch wenn sie in keinem ihrer Kurse eingeschrieben sind.';
 
 $string['cancellationsettings'] = 'Stornierungseinstellungen ' . $badgepro;
 $string['canceldependenton'] = 'Stornierungsfristen abhängig von';

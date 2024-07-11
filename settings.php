@@ -295,6 +295,11 @@ if ($ADMIN->fulltree) {
             'definedteacherrole',
             $teacherroleid));
 
+        $settings->add(
+            new admin_setting_configcheckbox('booking/alwaysenablemessaging',
+                get_string('teachersalwaysenablemessaging', 'mod_booking'),
+                get_string('teachersalwaysenablemessaging_desc', 'mod_booking'), 1));
+
 
     } else {
         $settings->add(

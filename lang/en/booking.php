@@ -1425,6 +1425,8 @@ $string['teachersallowmailtobookedusers_desc'] = 'If you activate this setting, 
     to all booked users using their own mail client - the e-mail-addresses of all users will be visible.
     <span class="text-danger"><b>Be careful:</b> This might be a privacy issue. Only activate this,
     if you are sure it corresponds with your organization\'s privacy policy.</span>';
+$string['teachersalwaysenablemessaging'] = 'Allow users to send message all teachers';
+$string['teachersalwaysenablemessaging_desc'] = 'If you activate this setting, users can send messages to teachers even if they aren\'t enroled in any of their courses.';
 
 $string['cancellationsettings'] = 'Cancellation settings ' . $badgepro;
 $string['canceldependenton'] = 'Cancellation period dependent on';
