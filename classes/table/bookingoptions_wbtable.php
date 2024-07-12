@@ -477,15 +477,25 @@ class bookingoptions_wbtable extends wunderbyte_table {
             return $courseurl;
         }
 
-        // When we have this seeting, we never show the link here.
-        if (get_config('booking', 'linktomoodlecourseonbookedbutton')) {
+        $isteacherofthisoption = booking_check_if_teacher($values);
+
+        if (!empty($settings->cmid)) {
+            $context = context_module::instance($settings->cmid);
+        } else {
+            $context = $this->get_context();
+        }
+
+        // When we have this seeting, we never show the link here:
+        if (
+            get_config('booking', 'linktomoodlecourseonbookedbutton')
+            && (!has_capability('mod/booking:updatebooking', $context)
+            && !$isteacherofthisoption)
+        ) {
             return '';
         }
 
         $answersobject = singleton_service::get_instance_of_booking_answers($settings);
         $status = $answersobject->user_status($USER->id);
-
-        $context = context_module::instance($settings->cmid);
 
         $isteacherofthisoption = booking_check_if_teacher($values);
         if (!empty($settings->courseid) && (
