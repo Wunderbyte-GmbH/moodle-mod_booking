@@ -225,7 +225,7 @@ class teachers_handler {
                         $optionsettings->cmid,
                         null,
                         $doenrol,
-                        $formdata->courseid ?? 0
+                        (int)$formdata->courseid ?? 0
                     )
                 ) {
                     // Add teacher to group not yet implemented! (Third parameter of the function).
