@@ -349,13 +349,14 @@ class fileparser {
     private function validate_data($csvrecord, $line) {
         // Validate data.
 
-        $recordempty = true;
-        foreach ($csvrecord as $column => $value) {
+        // We want to have at least one column with data, even when nothing is mandatory.
+        $foundvalues = array_filter($line, fn($a) => !empty($a));
+        if (empty($foundvalues)) {
+            $this->add_csverror("No data was found in this record", implode(', ', $line));
+            return false;
+        }
 
-            // We want to have at least one column with data, even when nothing is mandatory.
-            if (!empty($value) && $column !== 'cmid') {
-                $recordempty = false;
-            }
+        foreach ($csvrecord as $column => $value) {
 
             // Value "0" counts as value and returns valueisset true.
             !$valueisset = (("" !== $value) && (null !== $value)) ? true : false;
@@ -411,11 +412,6 @@ class fileparser {
                 }
             }
         };
-
-        if ($recordempty) {
-            $this->add_csverror("No data was found in this record", $linevalues);
-            return false;
-        }
         return true;
     }
     /**
