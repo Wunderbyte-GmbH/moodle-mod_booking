@@ -208,11 +208,18 @@ class dates {
             if (
                 (!empty($defaultvalues->starttime) && !empty($defaultvalues->endtime))
                 || (!empty($defaultvalues->coursestarttime) && !empty($defaultvalues->courseendtime))
-                || (!empty($defaultvalues->startdate) && !empty($defaultvalues->enddate))) {
+                || (!empty($defaultvalues->startdate) && !empty($defaultvalues->enddate))
+                || (!empty($defaultvalues->coursestartdate) && !empty($defaultvalues->courseenddate))) {
 
                 // If there is no dayofweektime, we might have a single coursestartdate and courseeneddate.
-                $starttime = $defaultvalues->starttime ?? $defaultvalues->startdate ?? $defaultvalues->coursestarttime;
-                $endtime = $defaultvalues->endtime ?? $defaultvalues->enddate ?? $defaultvalues->courseendtime;
+                $starttime = $defaultvalues->starttime
+                    ?? $defaultvalues->startdate
+                    ?? $defaultvalues->coursestarttime
+                    ?? $defaultvalues->coursestartdate;
+                $endtime = $defaultvalues->endtime
+                    ?? $defaultvalues->enddate
+                    ?? $defaultvalues->courseendtime
+                    ?? $defaultvalues->courseenddate;
 
                 $defaultvalues->{MOD_BOOKING_FORM_OPTIONDATEID . 0} = 0;
                 $defaultvalues->{MOD_BOOKING_FORM_COURSESTARTTIME . 0} = strtotime($starttime);
