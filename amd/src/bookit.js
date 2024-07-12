@@ -91,12 +91,6 @@ export const initbookitbutton = (itemid, area) => {
 
             const userid = button.dataset.userid;
 
-            if (button.querySelector('[data-action="bookondetail"]')) {
-                // eslint-disable-next-line no-console
-                console.log('bookondetail abort');
-                return;
-            }
-
             button.addEventListener('click', (e) => {
 
                 // E.stopPropagation();
@@ -120,7 +114,10 @@ export const initbookitbutton = (itemid, area) => {
 
 
                 } else if (e.target.classList.contains('btn')) {
-                    bookit(itemid, area, userid, data);
+
+                    if (!e.target.href || e.target.href.length < 2) {
+                        bookit(itemid, area, userid, data);
+                    }
                 }
             });
         }
