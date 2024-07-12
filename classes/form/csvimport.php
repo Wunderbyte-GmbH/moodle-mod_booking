@@ -25,6 +25,7 @@ require_once($CFG->libdir . "/csvlib.class.php");
 
 use context;
 use context_system;
+use context_module;
 use core_form\dynamic_form;
 use moodle_url;
 use stdClass;
@@ -174,7 +175,15 @@ class csvimport extends dynamic_form {
      */
     protected function get_context_for_dynamic_submission(): context {
 
-        return context_system::instance();
+        $mform = $this->_form;
+        $data = (object) $this->_ajaxformdata;
+
+        if (!empty($data->cmid)) {
+            $context = context_module::instance($data->cmid);
+        } else {
+            $context = context_system::instance();
+        }
+        return $context;
     }
 
     /**

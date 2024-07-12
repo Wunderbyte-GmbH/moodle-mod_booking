@@ -348,7 +348,14 @@ class fileparser {
      */
     private function validate_data($csvrecord, $line) {
         // Validate data.
+
+        $recordempty = true;
         foreach ($csvrecord as $column => $value) {
+
+            // We want to have at least one column with data, even when nothing is mandatory.
+            if (!empty($value) && $column !== 'cmid') {
+                $recordempty = false;
+            }
 
             // Value "0" counts as value and returns valueisset true.
             !$valueisset = (("" !== $value) && (null !== $value)) ? true : false;
@@ -367,7 +374,7 @@ class fileparser {
                 }
             } else {
                 // Validation of field type.
-                switch($this->get_param_value($column, "type")) {
+                switch ($this->get_param_value($column, "type")) {
                     case "date":
                         if (!$this->validate_datefields($value)) {
                             $format = $this->settings->dateformat;
@@ -381,7 +388,7 @@ class fileparser {
                         break;
                 }
                 // Validation of field format.
-                switch($this->get_param_value($column, "format")) {
+                switch ($this->get_param_value($column, "format")) {
                     case PARAM_INT:
                         $value = $this->cast_string_to_int($value);
                         if (is_string($value)) {
@@ -403,8 +410,12 @@ class fileparser {
                         break;
                 }
             }
-
         };
+
+        if ($recordempty) {
+            $this->add_csverror("No data was found in this record", $linevalues);
+            return false;
+        }
         return true;
     }
     /**
