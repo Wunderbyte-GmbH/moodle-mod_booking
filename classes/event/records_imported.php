@@ -63,8 +63,14 @@ class records_imported extends \core\event\base {
      */
     public function get_description() {
         $data = $this->data;
-        $otherarray = json_decode($data['other']);
-        $itemcount = $otherarray->itemcount ?? 0;
+        if (is_string($data['other'])) {
+            $otherarray = json_decode($data['other']);
+            $itemcount = $otherarray->itemcount ?? 0;
+        } else if (is_array($data['other'])) {
+            $itemcount = $data['other']['itemcount'];
+        } else {
+            $itemcount = 0;
+        }
 
         return get_string('records_imported_description', 'mod_booking', $itemcount);
     }

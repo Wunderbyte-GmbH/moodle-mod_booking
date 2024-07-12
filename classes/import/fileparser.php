@@ -321,7 +321,7 @@ class fileparser {
             $this->records['numberofsuccessfullyupdatedrecords'] = count($this->records) - 1;
             // If data was parsed successfully, return 1, else return 0.
             $this->records['success'] = 1;
-            $this->trigger_records_imported_event(count($this->records) - 1);
+            $this->trigger_records_imported_event($this->records['numberofsuccessfullyupdatedrecords']);
 
         } else {
             $this->records['success'] = 0;
