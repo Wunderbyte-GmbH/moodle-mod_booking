@@ -135,44 +135,6 @@ class courseid extends field_base {
             $data['courseid'] = reset($data['courseid']);
         }
 
-        // Minus 1 (-1) means we need to create a new course, that's ok.
-        if (!empty($data['courseid']) && $data['courseid'] != -1) {
-            if (!$DB->record_exists('course', ['id' => $data['courseid']])) {
-                $errors['courseid'] = get_string('coursedoesnotexist', 'mod_booking', $data['courseid']);
-            }
-        }
-
-        // First, we check, if user chose to automatically create a new moodle course.
-        if (isset($data['courseid']) && $data['courseid'] == -1) {
-            if (wb_payment::pro_version_is_activated()) {
-
-                // URLs needed for error message.
-                $bookingcustomfieldsurl = new moodle_url('/mod/booking/customfield.php');
-                $settingsurl = new moodle_url('/admin/settings.php', ['section' => 'modsettingbooking']);
-
-                // Object for string.
-                $a = new stdClass;
-                $a->bookingcustomfieldsurl = $bookingcustomfieldsurl->out(false);
-                $a->settingsurl = $settingsurl->out(false);
-
-                if (get_config('booking', 'newcoursecategorycfield') == "-1" ||
-                    empty(get_config('booking', 'newcoursecategorycfield'))) {
-                    $errors['courseid'] = get_string('error:newcoursecategorycfieldmissing', 'mod_booking', $a);
-                } else {
-                    // A custom field for the category for automatically created new Moodle courses has been set.
-                    $newcoursecategorycfield = get_config('booking', 'newcoursecategorycfield');
-
-                    // So now we need to check, if a value for that custom field was set to in option form.
-                    if (empty($data["customfield_$newcoursecategorycfield"])) {
-                        $errors["customfield_$newcoursecategorycfield"] =
-                            get_string('error:coursecategoryvaluemissing', 'mod_booking');
-                    }
-                }
-            } else {
-                $errors['courseid'] = get_string('infotext:prolicensenecessary', 'mod_booking');
-            }
-        }
-
         return $errors;
     }
 
