@@ -485,7 +485,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $context = $this->get_context();
         }
 
-        // When we have this seeting, we never show the link here:
+        // When we have this seeting, we never show the link here.
         if (
             get_config('booking', 'linktomoodlecourseonbookedbutton')
             && (!has_capability('mod/booking:updatebooking', $context)
