@@ -43,20 +43,12 @@ class booking_option_settings {
     /** @var int $id The ID of the booking option. */
     public $id = null;
 
-    /** @var int $bookingid */
     /**
-     * [Description for $bookingid]
+     * Id of booking instance
      *
-     * @var null
-     */
-    /**
-     * [Description for $bookingid]
-     *
-     * @var null
+     * @var int
      */
     public $bookingid = null;
-
-
 
     /** @var int $cmid */
     public $cmid = null;
@@ -659,15 +651,13 @@ class booking_option_settings {
             // ... coursestarttime and courseendtime, then store them as if they were a session.
             if (!empty($this->coursestarttime) && !empty($this->courseendtime)) {
 
-                // Days to notify comes from the booking instance.
-
                 $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
 
                 $singlesession = new stdClass;
                 $singlesession->id = 0;
                 $singlesession->coursestarttime = $this->coursestarttime;
                 $singlesession->courseendtime = $this->courseendtime;
-                $singlesession->daystonotify = $bookingsettings->daystonotify ?? 0;
+                $singlesession->daystonotify = 0; // We don't take the value from the booking instance anymore, as this led to confusion.
                 $this->sessions[] = $singlesession;
             } else {
                 // Else we have no sessions.
