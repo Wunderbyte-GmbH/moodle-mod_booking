@@ -3557,7 +3557,7 @@ class booking_option {
             return !empty($value);
         });
         $changes = array_merge($feedbackpost, $feedbackformchanges);
-        $cmid = $originaloption->cmid ?? 0;
+        $cmid = $originaloption->cmid ?? $data->cmid ?? 0;
         if (!empty($changes)) {
 
             // If we have no cmid, it's most possibly a template.
