@@ -1314,6 +1314,15 @@ $string['coursesheader'] = 'Moodle Kurse';
 $string['nomoodlecourseconnection'] = 'Keine Verbindung zu Moodle Kurs';
 $string['createnewmoodlecourse'] = 'Erstelle neuen, leeren Moodle Kurs';
 $string['createnewmoodlecoursefromtemplate'] = 'Erstelle neuen Kurs von Template';
+$string['createnewmoodlecoursefromtemplate_help'] = 'Vorlagen können nur verwendet werden, wenn sie das in den Einstellugnen definierte Tag haben und wenn die Nutzer:in folgende Rechte auf den Vorlagen-Kurs besitzt:
+<br>
+Am einfachsten ist es, in den Vorlagen-Kurs als Lehrende eingeschrieben zu sein.
+<br>
+moodle/course:view
+moodle/backup:backupcourse
+moodle/restore:restorecourse
+moodle/question:add
+';
 
 $string['waitinglistheader'] = 'Warteliste';
 $string['waitinglistheader_desc'] = 'Hier können Sie Einstellungen zum Verhalten der Warteliste vornehmen.';

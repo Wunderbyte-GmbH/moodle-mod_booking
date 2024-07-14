@@ -214,7 +214,7 @@ class courseid extends field_base {
             'multiple' => false,
             'ajax' => 'mod_booking/form_templates_selector',
             'noselectionstring' => get_string('nocourseselected', 'mod_booking'),
-            'valuehtmlcallback' => function($a) {
+            'valuehtmlcallback' => function ($a) {
                 return get_string('nocourseselected', 'mod_booking');
             },
         ];
@@ -225,6 +225,7 @@ class courseid extends field_base {
                         [],
                         $options);
         $mform->hideIf('coursetemplateid', 'chooseorcreatecourse', 'neq', 3);
+        $mform->addHelpButton('coursetemplateid','createnewmoodlecoursefromtemplate', 'mod_booking');
     }
 
     /**

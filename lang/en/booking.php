@@ -1352,6 +1352,15 @@ $string['coursesheader'] = 'Moodle Courses';
 $string['nomoodlecourseconnection'] = 'No connection to Moodle course';
 $string['createnewmoodlecourse'] = 'Create new empty Moodle course';
 $string['createnewmoodlecoursefromtemplate'] = 'Create new Moodle course from template';
+$string['createnewmoodlecoursefromtemplate_help'] = 'Templates need to be tagged with the tag defined in settings and the current user needs to have the following capabilities on the source course:
+<br>
+Easiest way to achieve is to be inscribed in the template course as teacher.
+<br>
+moodle/course:view
+moodle/backup:backupcourse
+moodle/restore:restorecourse
+moodle/question:add
+';
 
 $string['waitinglistheader'] = 'Waiting list';
 $string['waitinglistheader_desc'] = 'Here you can set how the booking waiting list should behave.';

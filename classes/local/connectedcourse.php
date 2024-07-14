@@ -29,6 +29,7 @@ use core_course_external;
 use mod_booking\singleton_service;
 use moodle_exception;
 use stdClass;
+use context_course;
 
 /**
  * Connected course class.
@@ -58,17 +59,29 @@ class connectedcourse {
             $newoption->courseid = 0;
         }
 
-        $shortname = 'newcourseshortname';
-
-        while ($DB->record_exists('course', ['shortname' => $shortname])) {
-            $shortname = $shortname . '1';
+        // Create course.
+        $fullnamewithprefix = '';
+        if (!empty($formdata->titleprefix)) {
+            $fullnamewithprefix .= $formdata->titleprefix . ' - ';
         }
+
+        $fullname = $settings->text ?? $fullnamewithprefix;
+
+        $fullnamewithprefix .= self::clean_text($formdata->text);
+
+        // Courses need to have unique shortnames.
+        $i = 1;
+        $shortname = !empty($fullnamewithprefix) ? $fullnamewithprefix : 'newshortname';
+        while ($DB->get_record('course', ['shortname' => $shortname])) {
+            $shortname = $fullnamewithprefix . '_' . $i;
+            $i++;
+        };
 
         $categoryid = self::retrieve_categoryid($newoption, $formdata);
 
-        $courseinfo = \core_course_external::duplicate_course(
+        $courseinfo = core_course_external::duplicate_course(
             $origincourseid,
-            $settings->text,
+            $fullname,
             $shortname,
             $categoryid,
             1
@@ -191,11 +204,11 @@ class connectedcourse {
         if (!empty($formdata->titleprefix)) {
             $fullnamewithprefix .= $formdata->titleprefix . ' - ';
         }
-        $fullnamewithprefix .= $formdata->text;
+        $fullnamewithprefix .= self::clean_text($formdata->text);
 
         // Courses need to have unique shortnames.
         $i = 1;
-        $shortname = $fullnamewithprefix;
+        $shortname = !empty($fullnamewithprefix) ? $fullnamewithprefix : 'newshortname';
         while ($DB->get_record('course', ['shortname' => $shortname])) {
             $shortname = $fullnamewithprefix . '_' . $i;
             $i++;
@@ -209,6 +222,7 @@ class connectedcourse {
         $newoption->courseid = $createdcourses[0]['id'];
         $formdata->courseid = $newoption->courseid;
 
+        return $formdata;
     }
 
     /**
@@ -258,14 +272,30 @@ class connectedcourse {
             $where .= ")";
         }
 
-        return self::get_course_records($where, $params);
+        $courses = self::get_course_records($where, $params);
+
+        foreach ($courses as $key => $course) {
+
+            $context = context_course::instance($course->id);
+            if (
+                !has_capability('moodle/course:view', $context)
+                || !has_capability('moodle/backup:backupcourse', $context)
+                || !has_capability('moodle/restore:restorecourse', $context)
+                || !has_capability('moodle/question:add', $context)
+                // || !has_capability('moodle/role:assign', $context)
+            ) {
+                unset($courses[$key]);
+            }
+        }
+
+        return $courses;
     }
 
     /**
      * Build sql query with config filters.
-     * @param str $whereclause
+     * @param string $whereclause
      * @param array $params
-     * @return object
+     * @return array
      */
     protected static function get_course_records($whereclause, $params) {
         global $DB;
@@ -279,5 +309,22 @@ class connectedcourse {
         $list = $DB->get_records_sql($sql,
             ['contextcourse' => CONTEXT_COURSE] + $params);
         return $list;
+    }
+
+    /**
+     * Clean text to be able to use it as shortname.
+     *
+     * @param string $text
+     * @return string
+     *
+     */
+    private static function clean_text($text) {
+        // Convert the text to lowercase
+        $lowertext = strtolower($text);
+        // Remove all whitespace characters (spaces, tabs, newlines, etc.)
+        $nowhitespacetext = preg_replace('/\s+/', '', $lowertext);
+        // Remove all non-alphanumeric characters
+        $cleantext = preg_replace('/[^a-z0-9]/', '', $nowhitespacetext);
+        return $cleantext;
     }
 }
