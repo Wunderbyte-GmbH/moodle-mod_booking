@@ -282,7 +282,6 @@ class connectedcourse {
                 || !has_capability('moodle/backup:backupcourse', $context)
                 || !has_capability('moodle/restore:restorecourse', $context)
                 || !has_capability('moodle/question:add', $context)
-                // || !has_capability('moodle/role:assign', $context)
             ) {
                 unset($courses[$key]);
             }
@@ -319,11 +318,11 @@ class connectedcourse {
      *
      */
     private static function clean_text($text) {
-        // Convert the text to lowercase
+        // Convert the text to lowercase.
         $lowertext = strtolower($text);
-        // Remove all whitespace characters (spaces, tabs, newlines, etc.)
+        // Remove all whitespace characters (spaces, tabs, newlines, etc.).
         $nowhitespacetext = preg_replace('/\s+/', '', $lowertext);
-        // Remove all non-alphanumeric characters
+        // Remove all non-alphanumeric characters.
         $cleantext = preg_replace('/[^a-z0-9]/', '', $nowhitespacetext);
         return $cleantext;
     }

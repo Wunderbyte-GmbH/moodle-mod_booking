@@ -225,7 +225,7 @@ class courseid extends field_base {
                         [],
                         $options);
         $mform->hideIf('coursetemplateid', 'chooseorcreatecourse', 'neq', 3);
-        $mform->addHelpButton('coursetemplateid','createnewmoodlecoursefromtemplate', 'mod_booking');
+        $mform->addHelpButton('coursetemplateid', 'createnewmoodlecoursefromtemplate', 'mod_booking');
     }
 
     /**

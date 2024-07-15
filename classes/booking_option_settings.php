@@ -657,7 +657,8 @@ class booking_option_settings {
                 $singlesession->id = 0;
                 $singlesession->coursestarttime = $this->coursestarttime;
                 $singlesession->courseendtime = $this->courseendtime;
-                $singlesession->daystonotify = 0; // We don't take the value from the booking instance anymore, as this led to confusion.
+                // We don't take the daystonotify value from the booking instance anymore, as this led to confusion.
+                $singlesession->daystonotify = 0;
                 $this->sessions[] = $singlesession;
             } else {
                 // Else we have no sessions.
