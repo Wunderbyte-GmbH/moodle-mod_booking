@@ -43,4 +43,8 @@ $shortcodes = [
         'callback' => 'mod_booking\shortcodes::fieldofstudycohortoptions',
         'description' => 'fieldofstudycohortoptions',
     ],
+    'bulkoperations' => [
+        'callback' => 'mod_booking\shortcodes::bulkoperations',
+        'description' => 'bulkoperations',
+    ],
 ];

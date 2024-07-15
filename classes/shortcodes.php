@@ -27,10 +27,12 @@
 namespace mod_booking;
 
 use core_cohort\reportbuilder\local\entities\cohort;
+use local_wunderbyte_table\filters\types\standardfilter;
 use mod_booking\booking;
 use mod_booking\output\view;
 use mod_booking\singleton_service;
 use mod_booking\table\bookingoptions_wbtable;
+use mod_booking\table\bulkoperations_table;
 use mod_booking\utils\wb_payment;
 use moodle_url;
 
@@ -513,6 +515,81 @@ class shortcodes {
 
         return $out;
     }
+
+    /**
+     * List bookingoptions with checkboxes and buttons to trigger bulkoperations.
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return string
+     */
+    public static function bulkoperations($shortcode, $args, $content, $env, $next): string {
+
+        global $PAGE;
+
+        if (!is_siteadmin()) {
+            return get_string('nopermissiontoaccesscontent', 'mod_booking');
+        }
+
+        if (
+            !isset($args['perpage'])
+            || !is_int((int)$args['perpage'])
+            || !$perpage = ($args['perpage'])
+        ) {
+            $perpage = 100;
+        }
+
+        $table = new bulkoperations_table(bin2hex(random_bytes(12)));
+        $columns = [
+            'id' => get_string('id', 'local_wunderbyte_table'),
+            'text' => get_string('text', 'mod_booking'),
+            'action' => get_string('action'),
+        ];
+
+        $table->define_headers(array_values($columns));
+        $table->define_columns(array_keys($columns));
+        $table->addcheckboxes = true;
+        $standardfilter = new standardfilter('text', get_string('text', 'mod_booking'));
+        $table->add_filter($standardfilter);
+        $table->showfilterontop = true;
+        $table->filteronloadinactive = true;
+
+        // TODO: search und sort -> affecting url for the moment.
+        // $table->define_fulltextsearchcolumns(['id', 'text']);
+        // $table->define_sortablecolumns(['id', 'text']);
+        // $table->sort_default_column = 'id';
+        // $table->sort_default_order = SORT_DESC;
+
+        list($fields, $from, $where, $params, $filter) =
+                booking::get_options_filter_sql(0, 0, '', null, null, [], []);
+
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
+
+        $table->actionbuttons[] = [
+            'label' => get_string('editbookingoptions', 'mod_booking'),
+            'class' => 'btn btn-info',
+            'href' => '#',
+            'formname' => 'mod_booking\\form\\option_form_bulk',
+            'nomodal' => false,
+            'selectionmandatory' => true,
+            'id' => '-1',
+            'data' => [
+            ]
+        ];
+        $table->pageable(true);
+        $table->stickyheader = true;
+        $table->showcountlabel = true;
+        $table->showrowcountselect = true;
+
+        $out = $table->outhtml($perpage, true);
+
+        return $out;
+    }
+
+
 
     /**
      * Base function for standard table configuration

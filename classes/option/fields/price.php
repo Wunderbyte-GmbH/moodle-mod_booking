@@ -135,7 +135,6 @@ class price extends field_base {
      */
     public static function validation(array $data, array $files, array &$errors) {
 
-        // Save the prices.
         $price = new Mod_bookingPrice('option', $data['id']);
         $price->validation($data, $errors);
     }

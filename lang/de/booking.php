@@ -1669,6 +1669,7 @@ $string['erroroptiondateend'] = 'Terminende muss nach dem Terminbeginn liegen.';
 // Optiondates_teachers_report.php & optiondates_teachers_table.php.
 $string['accessdenied'] = 'Zugriff verweigert';
 $string['nopermissiontoaccesspage'] = '<div class="alert alert-danger" role="alert">Sie sind nicht berechtigt, auf diese Seite zuzugreifen.</div>';
+$string['nopermissiontoaccesscontent'] = '<div class="alert alert-danger" role="alert">Sie sind nicht berechtigt, auf diese Inhalte zuzugreifen.</div>';
 $string['optiondatesteachersreport'] = 'Vertretungen & Absagen';
 $string['optiondatesteachersreport_desc'] = 'In diesem Report erhalten Sie eine Übersicht, welche:r Trainer:in an welchem Termin geleitet hat.<br>
 Standardmäßig werden alle Termine mit dem/den eingestellten Trainer:innen der Buchungsoption befüllt. Sie können einzelne Termine mit Vertretungen überschreiben.';
@@ -2274,6 +2275,7 @@ $string['definefieldofstudy'] = 'Sie können hier alle Buchungsoptionen aus dem 
  Gruppe "Philosophie" ist, werden ihm:ihr alle Buchungsoptionen aus Kursen angezeigt, in denen mindestens einer der "Philosophie"-Kurse empfohlen wird.';
 $string['definecmidforshortcode'] = "Um diesen Shortcode verwenden zu können, muss die cmid einer Booking instanz folgendermaßen zum shortcode hinzugefügt werden: [courselist cmid=23]";
 $string['courselist'] = 'Show all the booking options of a bookin instance';
+$string['bulkoperations'] = 'Show list of bookingoptions to enable bulk operations';
 
 // Elective.
 $string['elective'] = "Wahlfach";
@@ -2420,3 +2422,6 @@ $string['daysafter'] = '{$a} Tag(e) danach';
 $string['sameday'] = 'Selber Tag';
 
 $string['reportfields'] = 'Felder reportieren';
+
+// Bulk Operations.
+$string['editbookingoptions'] = 'Buchungsoptionen bearbeiten';

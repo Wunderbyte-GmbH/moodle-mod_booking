@@ -1796,6 +1796,7 @@ $string['erroroptiondateend'] = 'Date end needs to be after date start.';
 // Optiondates_teachers_report.php & optiondates_teachers_table.php.
 $string['accessdenied'] = 'Access denied';
 $string['nopermissiontoaccesspage'] = '<div class="alert alert-danger" role="alert">You have no permission to access this page.</div>';
+$string['nopermissiontoaccesscontent'] = '<div class="alert alert-danger" role="alert">You have no permission to access this content.</div>';
 $string['optiondatesteachersreport'] = 'Substitutions / Cancelled dates';
 $string['optiondatesteachersreport_desc'] = 'This report gives an overview of which teacher was present at which specific date.<br>
 By default, every date will be filled in with the option\'s teacher. You can overwrite specific dates with replacement teachers.';
@@ -2410,6 +2411,7 @@ $string['definefieldofstudy'] = 'You can show here all booking options from the 
  to "philosophy", she will see all the booking options in which at least one of the "philosohpy"-courses is recommended.';
  $string['definecmidforshortcode'] = "To use this shortcode, enter the id of a booking instance like this: [courselist cmid=23]";
  $string['courselist'] = 'Zeige alle Buchungsoptionen einer Buchungsinstanz';
+ $string['bulkoperations'] = 'Zeige Liste von Buchungsoptionen um Massenoperationen zu ermöglichen';
 
 // Elective.
 $string['elective'] = "Elective";
@@ -2557,3 +2559,6 @@ $string['daysafter'] = '{$a} day(s) after';
 $string['sameday'] = 'same day';
 
 $string['reportfields'] = 'Report fields';
+
+// Bulk Operations.
+$string['editbookingoptions'] = 'Edit Bookingoptions';
