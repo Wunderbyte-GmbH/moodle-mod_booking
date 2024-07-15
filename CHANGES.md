@@ -1,3 +1,33 @@
+## Version 8.4.7 (2024071500)
+* Feature: Add feature to move booking option to different booking instance
+* Feature: Add setting "bookondetail" to allow booking only on details page
+* Improvment: Assign teacher of bookingoption to course and role according to settings
+* Improvment: Add userpic to sign-in sheet
+* Improvment: Add time of booking to sign-in sheet
+* Improvment: Setting to enable messaging to all teachers
+* Improvment: Only show move to for cms where there is the right capability
+* Improvment: Skip empty records on import of bookingoptions
+* Improvment: Add key to accepted datesfield for importer
+* Improvement: Make sure to show linkt on moodle course for teachers, even when they are not booked
+* Improvement: Take out coursevalidation
+* Bugfix: Trigger bookingoption_updated event for imported bookingoption.
+* Bugfix: Allow cancel when linkt to moodle course is present.
+* Bugfix: Correct itemcount for imported records event
+* Bugfix: Display header image in sign-in sheet
+* Bugfix: Create new courses in the correct course categories
+* Bugfix: Correctly delete tags of instance
+* Bugfix: Fix create new course from template with limited rights.
+* Bugfix: Don't take instance "daystonotify" value as optiondates value if there is only one session.
+* Bugfixes: Add more unit & behat tests.
+
+## Version 8.4.6 (2024070300)
+* Improvement: Also fetch courses from within category in webservice
+* Improvement: Check if the field has a categoryid as id, if so, use it
+* Improvement: Make sure we don't depend on arbitrary row class when using prepage code.
+* Improvement: Move mybookings to separate cache so we can invalidate on booking without big performance penality
+* Bugfix: Deal with array in course creation.
+* Bugfix: Avoid running into missing optionid
+
 ## Version 8.4.5 (2024070300)
 * Feature: Add possibility to add "invisible" except for direct link.
 * Improvement: Add more unit & behat tests.
