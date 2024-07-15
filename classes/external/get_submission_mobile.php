@@ -27,7 +27,7 @@ declare(strict_types=1);
 namespace mod_booking\external;
 
 use cache;
-use core_external\external_multiple_structure;
+use external_multiple_structure;
 use core_form\external\dynamic_form;
 use external_api;
 use external_function_parameters;
