@@ -557,11 +557,13 @@ class shortcodes {
         $table->showfilterontop = true;
         $table->filteronloadinactive = true;
 
+        // phpcs:disable
         // TODO: search und sort -> affecting url for the moment.
         // $table->define_fulltextsearchcolumns(['id', 'text']);
         // $table->define_sortablecolumns(['id', 'text']);
         // $table->sort_default_column = 'id';
         // $table->sort_default_order = SORT_DESC;
+        // phpcs:enable
 
         list($fields, $from, $where, $params, $filter) =
                 booking::get_options_filter_sql(0, 0, '', null, null, [], []);
@@ -577,7 +579,7 @@ class shortcodes {
             'selectionmandatory' => true,
             'id' => '-1',
             'data' => [
-            ]
+            ],
         ];
         $table->pageable(true);
         $table->stickyheader = true;
