@@ -65,13 +65,14 @@ class connectedcourse {
             $fullnamewithprefix .= $formdata->titleprefix . ' - ';
         }
 
-        $fullname = $settings->text ?? $fullnamewithprefix;
+        // phpcs:ignore
+        //$fullname = $settings->text ?? $fullnamewithprefix; // Preserved upon decision.
 
-        $fullnamewithprefix .= self::clean_text($formdata->text);
+        $fullnamewithprefix .= trim($formdata->text);
 
         // Courses need to have unique shortnames.
         $i = 1;
-        $shortname = !empty($fullnamewithprefix) ? $fullnamewithprefix : 'newshortname';
+        $shortname = !empty(self::clean_text($fullnamewithprefix)) ? self::clean_text($fullnamewithprefix) : 'newshortname';
         while ($DB->get_record('course', ['shortname' => $shortname])) {
             $shortname = $fullnamewithprefix . '_' . $i;
             $i++;
@@ -81,7 +82,7 @@ class connectedcourse {
 
         $courseinfo = core_course_external::duplicate_course(
             $origincourseid,
-            $fullname,
+            $fullnamewithprefix,
             $shortname,
             $categoryid,
             1
@@ -204,11 +205,11 @@ class connectedcourse {
         if (!empty($formdata->titleprefix)) {
             $fullnamewithprefix .= $formdata->titleprefix . ' - ';
         }
-        $fullnamewithprefix .= self::clean_text($formdata->text);
+        $fullnamewithprefix .= trim($formdata->text);
 
         // Courses need to have unique shortnames.
         $i = 1;
-        $shortname = !empty($fullnamewithprefix) ? $fullnamewithprefix : 'newshortname';
+        $shortname = !empty(self::clean_text($fullnamewithprefix)) ? self::clean_text($fullnamewithprefix) : 'newshortname';
         while ($DB->get_record('course', ['shortname' => $shortname])) {
             $shortname = $fullnamewithprefix . '_' . $i;
             $i++;
