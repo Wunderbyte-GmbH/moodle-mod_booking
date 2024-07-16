@@ -92,7 +92,7 @@ class booking_handler extends \core_customfield\handler {
     public static function get_customfields(): array {
         global $DB;
 
-        $sql = "SELECT cff.id, cff.name, cff.shortname
+        $sql = "SELECT cff.id, cff.name, cff.shortname, cff.configdata
         FROM {customfield_field} cff
         LEFT JOIN {customfield_category} cfc
         ON cff.categoryid = cfc.id
