@@ -121,7 +121,6 @@ class option_form_bulk extends dynamic_form {
         if (isset($submitdata['checkedids'])) {
             // On second load of mform, these keys will be lost.
             $mform->addElement('hidden', 'checkedids', $submitdata['checkedids']);
-
         }
     }
 
