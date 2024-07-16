@@ -596,7 +596,7 @@ class shortcodes {
             'id' => '-1',
             'data' => [
                 'title' => get_string('bulkoperationsheader', 'mod_booking'),
-            ]
+            ],
         ];
         $table->actionbuttons[] = [
             'label' => get_string('sendmailtoteachers', 'mod_booking'),
@@ -611,7 +611,7 @@ class shortcodes {
                 'titlestring' => 'blabla',
                 'bodystring' => 'adddatabody',
                 'submitbuttonstring' => get_string('send', 'mod_booking'),
-            ]
+            ],
         ];
         $table->pageable(true);
         $table->stickyheader = true;

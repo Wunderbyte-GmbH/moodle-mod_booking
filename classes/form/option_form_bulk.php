@@ -77,7 +77,6 @@ class option_form_bulk extends dynamic_form {
             'availability',
             'canceluntil',
             'courseid',
-            // 'credits',
             'disablebookingusers',
             'disablecancel',
             'easy_availability_previouslybooked',
@@ -121,7 +120,6 @@ class option_form_bulk extends dynamic_form {
 
         if (isset($submitdata['checkedids'])) {
             $mform->addElement('hidden', 'checkedids', $submitdata['checkedids']);
-
         }
     }
 
@@ -211,7 +209,6 @@ class option_form_bulk extends dynamic_form {
             $settings = singleton_service::get_instance_of_booking_option_settings($bookingoptionid);
             $data->cmid = $settings->cmid;
             $data->id = $bookingoptionid;
-            // $data->importing = true;
             $copy = clone($data);
             fields_info::set_data($copy);
             foreach ($data as $key => $value) {
