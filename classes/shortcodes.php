@@ -579,13 +579,6 @@ class shortcodes {
         $table->define_sortablecolumns(array_keys($filtercolumns));
         $table->sort_default_column = 'id';
         $table->sort_default_order = SORT_DESC;
-        // phpcs:disable
-        // TODO: search und sort -> affecting url for the moment.
-        // $table->define_fulltextsearchcolumns(['id', 'text']);
-        // $table->define_sortablecolumns(['id', 'text']);
-        // $table->sort_default_column = 'id';
-        // $table->sort_default_order = SORT_DESC;
-        // phpcs:enable
 
         // Templates are excluded here.
         list($fields, $from, $where, $params, $filter) =
