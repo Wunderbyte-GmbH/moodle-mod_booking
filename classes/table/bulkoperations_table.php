@@ -23,6 +23,7 @@
  */
 
 namespace mod_booking\table;
+use mod_booking\singleton_service;
 use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
@@ -48,10 +49,9 @@ class bulkoperations_table extends wunderbyte_table {
      */
     public function col_action($values) {
 
-        $cmid = optional_param('id', 0, PARAM_INT);
-
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($values->bookingid);
         $url = new moodle_url('/mod/booking/editoptions.php', [
-            'id' => $cmid,
+            'id' => $bookingsettings->cmid,
             'optionid' => $values->id,
         ]);
 

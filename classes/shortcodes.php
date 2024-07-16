@@ -29,6 +29,7 @@ namespace mod_booking;
 use core_cohort\reportbuilder\local\entities\cohort;
 use local_wunderbyte_table\filters\types\standardfilter;
 use mod_booking\booking;
+use mod_booking\customfield\booking_handler;
 use mod_booking\output\view;
 use mod_booking\singleton_service;
 use mod_booking\table\bookingoptions_wbtable;
@@ -546,17 +547,38 @@ class shortcodes {
         $columns = [
             'id' => get_string('id', 'local_wunderbyte_table'),
             'text' => get_string('text', 'mod_booking'),
-            'action' => get_string('action'),
+            'action' => get_string('edit'),
         ];
+        // Add defined customfields from args to columns.
+        if (isset($args['customfields'])) {
+            $customfieldnames = explode(",", $args['customfields']);
+            $definedcustomfields = booking_handler::get_customfields();
+            foreach ($definedcustomfields as $customfield) {
+                if (!in_array($customfield->shortname, $customfieldnames)) {
+                    continue;
+                }
+                $columns[$customfield->shortname] = $customfield->name;
+            }
+        }
 
         $table->define_headers(array_values($columns));
         $table->define_columns(array_keys($columns));
         $table->addcheckboxes = true;
-        $standardfilter = new standardfilter('text', get_string('text', 'mod_booking'));
-        $table->add_filter($standardfilter);
+
+        // Exclude column action from columns for filter, sorting, search.
+        $filtercolumns = array_diff_key($columns, array_flip(['action']));
+        foreach ($filtercolumns as $key => $localized) {
+            $standardfilter = new standardfilter($key, $localized);
+            $table->add_filter($standardfilter);
+        }
+
         $table->showfilterontop = true;
         $table->filteronloadinactive = true;
 
+        $table->define_fulltextsearchcolumns(array_keys($filtercolumns));
+        $table->define_sortablecolumns(array_keys($filtercolumns));
+        $table->sort_default_column = 'id';
+        $table->sort_default_order = SORT_DESC;
         // phpcs:disable
         // TODO: search und sort -> affecting url for the moment.
         // $table->define_fulltextsearchcolumns(['id', 'text']);
@@ -565,8 +587,9 @@ class shortcodes {
         // $table->sort_default_order = SORT_DESC;
         // phpcs:enable
 
+        // Templates are excluded here.
         list($fields, $from, $where, $params, $filter) =
-                booking::get_options_filter_sql(0, 0, '', null, null, [], []);
+                booking::get_options_filter_sql(0, 0, '', null, null, [], [], null, [], ' bookingid > 0');
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
