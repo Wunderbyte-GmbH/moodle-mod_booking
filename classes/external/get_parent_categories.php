@@ -179,6 +179,14 @@ class get_parent_categories extends external_api {
                     'reservedcount' => new external_value(PARAM_TEXT, 'Reserved count', VALUE_DEFAULT, 0),
                     'description' => new external_value(PARAM_RAW, 'description', VALUE_DEFAULT, ''),
                     'path' => new external_value(PARAM_TEXT, 'path', VALUE_DEFAULT, ''),
+                    'courses' => new external_multiple_structure(
+                        new external_single_structure(
+                            [
+                                'id' => new external_value(PARAM_INT, 'Course ID'),
+                                'fullname' => new external_value(PARAM_TEXT, 'Full course name'),
+                            ]
+                        ), 'List of courses', VALUE_OPTIONAL
+                    ),
                     'json' => new external_value(PARAM_RAW, 'json', VALUE_DEFAULT, '{}'),
                 ]
             )

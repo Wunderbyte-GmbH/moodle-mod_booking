@@ -1712,6 +1712,23 @@ $string['teachingconfigforinstance'] = 'Bearbeite Buchungsoptionsformular für '
 $string['dashboard_summary'] = 'Allgemein.';
 $string['dashboard_summary_desc'] = 'Enthält Konfiguration und Einstellungen für die gesamte Moodle Seite.';
 
+// Dashboard Vue.
+$string['dashboard_new_bookings'] = 'Neue Buchungen';
+$string['dashboard_ppl_wl'] = 'Personen in Wartelisten';
+$string['dashboard_neue_stornos'] = 'Neue Stornos';
+$string['dashboard_noshows'] = 'Nicht erschienen';
+$string['dashboard_managelocation'] = 'Standorte verwalten';
+
+$string['dashboard_overview'] = 'Übersicht';
+$string['dashboard_bookingfields'] = 'Buchungsoptionsfelder';
+$string['dashboard_stats'] = 'Auswertung';
+$string['dashboard_mydashboard'] = 'Mein Dashboard';
+
+$string['dashboard_zeitraum'] = 'Zeitraum';
+$string['dashboard_organisation'] = 'Organisation';
+$string['dashboard_auswertung'] = 'Auswertung';
+
+
 // Optionformconfig.php / optionformconfig_form.php.
 $string['optionformconfig'] = 'Formulare für Buchungsoptionen anpassen (PRO)';
 $string['optionformconfig_infotext'] = 'Mit diesem PRO-Feature können Sie sich mit Drag & Drop und den Checkboxen beliebige Buchungsoptionsformulare zusammenstellen.
@@ -2398,6 +2415,7 @@ $string['vue_notification_text_action_success'] = 'Die Konfiguration wurde erfol
 $string['vue_notification_title_action_fail'] = 'Die Konfiguration wurde nicht erfolgreich {$a}';
 $string['vue_notification_text_action_fail'] = 'Beim Speichern ist ein Fehler aufgetreten. Die Änderungen wurden nicht vorgenommen.';
 $string['vue_dashboard_goto_category'] = 'Zur Kategorie';
+$string['vue_dashboard_booking_instances'] = 'Booking instances';
 
 // Mobile.
 $string['mobileapp_heading'] = "Mobile App";

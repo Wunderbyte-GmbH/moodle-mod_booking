@@ -1,7 +1,8 @@
 <template>
   <div v-if="bookingstats.json && bookingstats.json.booking">
+    <h5>{{store.state.strings.vue_dashboard_booking_instances}}</h5>
     <table class="table mt-2">
-      <thead>
+      <thead class="thead-light">
         <tr>
           <th>{{ store.state.strings.vue_dashboard_checked }}</th>
           <th>{{ store.state.strings.vue_dashboard_name }}</th>
@@ -57,3 +58,13 @@
   }
 
 </script>
+
+
+
+<style lang="scss" scoped>
+ @import './scss/custom.scss';
+
+  .thead-light th {
+    background: $vuelightcontent;
+  }
+</style>

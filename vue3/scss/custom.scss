@@ -1,0 +1,15 @@
+@import "vue-select/dist/vue-select.css";
+
+$vueprimary: #0063A6;
+$vuesecondary: #0CB9C5;
+$vuelightcontent: #D9E1E7;
+
+.button-primary {
+    background: $vueprimary;
+    color: white;
+}
+
+.button-secondary{
+    background: #0CB9C5;
+    color: white;
+}

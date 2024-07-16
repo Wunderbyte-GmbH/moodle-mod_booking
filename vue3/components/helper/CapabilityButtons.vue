@@ -124,11 +124,11 @@ const props = defineProps({
       default: null,
     },
   activeTab: {
-    type: Array,
+    type: Number,
     default: null,
   },
   changesMade: {
-    type: Array,
+    type: Object || Array,
     default: null,
   },
 });

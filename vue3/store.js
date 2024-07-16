@@ -99,8 +99,23 @@ export function createAppStore() {
                 }
                 // we get back an array, so we need to get the first element for tab.
                 const tabcontent = content[0];
+
+                // We have all the Data at once.
+                // if (content.length > 1) {
+                    
+                // }
                 if (tabcontent.json.length > 3) {
                   tabcontent.json = JSON.parse(tabcontent.json)
+                } else if (content.length > 1) {
+                  // combine all arrays for general:
+                  let jsonCombined = [];
+                  content.forEach((ce, index) => {
+                    if (ce.json.length > 3) {
+                        const parsejson =  JSON.parse(ce.json);
+                        jsonCombined.push(parsejson);
+                    }
+                  });
+                  content[0].json = jsonCombined;
                 }
                 context.commit('setContent', tabcontent);
                 const configlist = await ajax('mod_booking_get_option_field_config', {
