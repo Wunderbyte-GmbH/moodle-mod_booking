@@ -2568,3 +2568,4 @@ $string['bulkoperationsheader'] = 'Update data for selected bookingoption(s)';
 $string['emailbody'] = 'Email body';
 $string['subject'] = 'Subject';
 $string['send'] = 'Send';
+$string['selectfieldofbookingoption'] = 'Select field of booking option';
