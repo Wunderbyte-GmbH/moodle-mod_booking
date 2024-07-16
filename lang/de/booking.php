@@ -2425,3 +2425,9 @@ $string['reportfields'] = 'Felder reportieren';
 
 // Bulk Operations.
 $string['editbookingoptions'] = 'Buchungsoptionen bearbeiten';
+$string['sendmailtoteachers'] = 'E-Mail an TrainerInnen senden';
+$string['sendmailheading'] = 'E-Mail an alle TrainerInnen der ausgewählten Buchungsoptionen senden';
+$string['bulkoperationsheader'] = 'Daten der ausgewählten Buchungsoptionen überschreiben';
+$string['emailbody'] = 'E-Mail Text';
+$string['subject'] = 'Betreff';
+$string['send'] = 'Senden';
