@@ -595,14 +595,30 @@ class shortcodes {
 
         $table->actionbuttons[] = [
             'label' => get_string('editbookingoptions', 'mod_booking'),
-            'class' => 'btn btn-info',
+            'class' => 'btn btn-warning',
             'href' => '#',
             'formname' => 'mod_booking\\form\\option_form_bulk',
             'nomodal' => false,
             'selectionmandatory' => true,
             'id' => '-1',
             'data' => [
-            ],
+                'title' => get_string('bulkoperationsheader', 'mod_booking'),
+            ]
+        ];
+        $table->actionbuttons[] = [
+            'label' => get_string('sendmailtoteachers', 'mod_booking'),
+            'class' => 'btn btn-info',
+            'href' => '#',
+            'formname' => 'mod_booking\\form\\send_mail_to_teachers',
+            'nomodal' => false,
+            'selectionmandatory' => true,
+            'id' => '-1',
+            'data' => [
+                'title' => get_string('sendmailheading', 'mod_booking'),
+                'titlestring' => 'blabla',
+                'bodystring' => 'adddatabody',
+                'submitbuttonstring' => get_string('send', 'mod_booking'),
+            ]
         ];
         $table->pageable(true);
         $table->stickyheader = true;

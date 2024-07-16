@@ -31,8 +31,8 @@ use core_form\dynamic_form;
 use context;
 use context_module;
 use context_system;
-use mod_booking\option\fields\price;
-use mod_booking\price as Mod_bookingPrice;
+use Exception;
+use mod_booking\message_controller;
 
 defined('MOODLE_INTERNAL') || die();
 require_once("$CFG->libdir/formslib.php");
@@ -43,17 +43,16 @@ use mod_booking\option\fields_info;
 use mod_booking\singleton_service;
 use moodle_exception;
 use moodle_url;
-use required_capability_exception;
 use stdClass;
 
 /**
- * Class to handle option form
+ * Class to send mails to teachers.
  *
  * @package mod_booking
  * @copyright 2024 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class option_form_bulk extends dynamic_form {
+class send_mail_to_teachers extends dynamic_form {
 
     /**
      * {@inheritDoc}
@@ -64,86 +63,14 @@ class option_form_bulk extends dynamic_form {
 
         $submitdata = $this->_ajaxformdata;
 
-        // Select to fetch all fields.
-        $fields = core_component::get_component_classes_in_namespace(
-            "mod_booking",
-            'option\fields'
-        );
-        $options = [];
-
-        // Array of things to include.
-        $includedclasses = [
-            'addtocalendar',
-            'availability',
-            'canceluntil',
-            'courseid',
-            'disablebookingusers',
-            'disablecancel',
-            'easy_availability_previouslybooked',
-            "easy_bookingclosingtime",
-            "easy_bookingopeningtime",
-            "elective",
-            "enrolmentstatus",
-            "entities",
-            "howmanyusers",
-            "institution",
-            "invisible",
-            "maxanswers",
-            "maxoverbooking",
-            "minanswers",
-            "notificationtext",
-            "pollurl",
-            "price",
-            "removeafterminutes",
-            "responsiblecontact",
-            "shoppingcart",
-            "teachers",
-            "text",
-            "titleprefix",
-            "waitforconfirmation",
-        ];
-
-        foreach (array_keys($fields) as $field) {
-            $name = $field::return_classname_name();
-            if (in_array(MOD_BOOKING_OPTION_FIELD_NECESSARY, $field::$fieldcategories)
-                || !in_array($name, $includedclasses)) {
-                continue;
-            }
-
-            $options[$field] = get_string($name, 'mod_booking');
-        }
-
-        $mform->addElement('select', 'choosefields', 'string', $options);
-        $mform->registerNoSubmitButton('btn_bookingruletemplates');
-        $mform->addElement('submit', 'btn_bookingruletemplates',
-              get_string('bookingruletemplates', 'mod_booking'));
+        $mform->addElement('text', 'subject', get_string('subject'),
+        ['size' => '64']);
+        $mform->addElement('editor', 'emailbody', get_string('emailbody', 'booking'));
 
         if (isset($submitdata['checkedids'])) {
-            // On second load of mform, these keys will be lost.
             $mform->addElement('hidden', 'checkedids', $submitdata['checkedids']);
-
         }
     }
-
-    /**
-     * Definition after data.
-     * @return void
-     * @throws coding_exception
-     */
-    public function definition_after_data() {
-
-        $mform = $this->_form;
-        $formdata = $this->_customdata ?? $this->_ajaxformdata;
-
-        if (!empty($formdata['choosefields'])) {
-            $class = $formdata['choosefields'];
-            $formdata = [
-                'id' => 0, // Just any of the ids.
-            ];
-            $class::instance_form_definition($mform, $formdata, []);
-        }
-    }
-
 
     /**
      * Validation function.
@@ -206,17 +133,35 @@ class option_form_bulk extends dynamic_form {
         $data = $this->get_data();
         $checkedids = explode(",", $data->checkedids);
         // Apply values to each of the bookingoptions.
-
+        $alreadysentto = [];
         foreach ($checkedids as $bookingoptionid) {
             $settings = singleton_service::get_instance_of_booking_option_settings($bookingoptionid);
-            $data->cmid = $settings->cmid;
-            $data->id = $bookingoptionid;
-            $copy = clone($data);
-            fields_info::set_data($copy);
-            foreach ($data as $key => $value) {
-                $copy->{$key} = $value;
+            $boteachers = $settings->teachers;
+            foreach ($boteachers as $teacherid => $teacher) {
+                // Because it's a bulk operation, make sure, teacher didn't recieve mail yet.
+                if (in_array($teacherid, $alreadysentto)) {
+                    continue;
+                }
+                $alreadysentto[] = $teacherid;
+                try {
+                    // Use message controller to send the message.
+                    $messagecontroller = new message_controller(
+                        MOD_BOOKING_MSGCONTRPARAM_SEND_NOW,
+                        MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE,
+                        $settings->cmid,
+                        $bookingoptionid,
+                        $teacherid,
+                        null,
+                        null,
+                        null,
+                        $data->subject ?? '',
+                        $data->emailbody['text'] ?? '',
+                    );
+                    $messagecontroller->send_or_queue();
+                } catch (Exception $e) {
+                    continue;
+                }
             }
-            booking_option::update($copy);
         }
 
         return $data;

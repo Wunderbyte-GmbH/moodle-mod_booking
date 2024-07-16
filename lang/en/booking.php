@@ -2562,3 +2562,9 @@ $string['reportfields'] = 'Report fields';
 
 // Bulk Operations.
 $string['editbookingoptions'] = 'Edit Bookingoptions';
+$string['sendmailtoteachers'] = 'Send mail to teacher(s)';
+$string['sendmailheading'] = 'Send mail to all teachers of selected bookingoption(s)';
+$string['bulkoperationsheader'] = 'Update data for selected bookingoption(s)';
+$string['emailbody'] = 'Email body';
+$string['subject'] = 'Subject';
+$string['send'] = 'Send';
