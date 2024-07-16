@@ -215,7 +215,7 @@ final class rules_test extends advanced_testcase {
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
         // Create booking rule - "ndays before".
-        $ruledata = [
+        $ruledata1 = [
             'name' => '1daybefore',
             'conditionname' => 'select_users',
             'contextid' => 1,
@@ -225,10 +225,10 @@ final class rules_test extends advanced_testcase {
             'rulename' => 'rule_daysbefore',
             'ruledata' => '{"days":"1","datefield":"coursestarttime"}',
         ];
-        $rule1 = $plugingenerator->create_rule($ruledata);
+        $rule1 = $plugingenerator->create_rule($ruledata1);
 
         // Create booking rule - "ndays after".
-        $ruledata = [
+        $ruledata2 = [
             'name' => '1dayafter',
             'conditionname' => 'select_users',
             'contextid' => 1,
@@ -238,12 +238,7 @@ final class rules_test extends advanced_testcase {
             'rulename' => 'rule_daysbefore',
             'ruledata' => '{"days":"-1","datefield":"courseendtime"}',
         ];
-        $rule2 = $plugingenerator->create_rule($ruledata);
-
-        // Trigger and capture emails.
-        unset_config('noemailever');
-        ob_start();
-        $messagesink = $this->redirectMessages();
+        $rule2 = $plugingenerator->create_rule($ruledata2);
 
         // Create booking option 1.
         $record = new stdClass();
@@ -254,50 +249,38 @@ final class rules_test extends advanced_testcase {
         $record->description = 'Will start tomorrow';
         $record->optiondateid_1 = "0";
         $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('+1440 minutes');
-        $record->courseendtime_1 = strtotime('+2 days');
+        $record->coursestarttime_1 = strtotime('20 June 2050 15:00');
+        $record->courseendtime_1 = strtotime('20 July 2050 14:00');
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
 
-        // Create booking option 2.
-        $record->text = 'Option-yesterday';
-        $record->description = 'Ended yesterday';
-        $record->coursestarttime_1 = strtotime('-3 days');
-        $record->courseendtime_1 = strtotime('-1440 minutes');
-        $option2 = $plugingenerator->create_option($record);
-        singleton_service::destroy_booking_option_singleton($option2->id);
+        $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
 
-        $this->runAdhocTasks();
-
-        $messages = $messagesink->get_messages();
-        $res = ob_get_clean();
-        $messagesink->close();
-
-        // Validate console output.
-        $expected = "send_mail_by_rule_adhoc task: mail successfully sent for option " . $option1->id . " to user 2";
-        $this->assertStringContainsString($expected,  $res);
-        $expected = "send_mail_by_rule_adhoc task: mail successfully sent for option " . $option2->id . " to user 2";
-        $this->assertStringContainsString($expected,  $res);
-        // Validate emails.
-        $this->assertCount(3, $messages);
-        $message = $messages[0];
-        $this->assertEquals("1daybefore",  $message->subject);
-        $this->assertEquals("bookingconfirmation",  $message->eventtype);
-        $this->assertEquals("2",  $message->useridto);
-        $this->assertStringContainsString("will start tomorrow",  $message->fullmessage);
-        $message = $messages[1];
-        $this->assertEquals("1dayafter",  $message->subject);
-        $this->assertEquals("bookingconfirmation",  $message->eventtype);
-        $this->assertEquals("2",  $message->useridto);
-        $this->assertStringContainsString("was ended yesterday",  $message->fullmessage);
-        $message = $messages[2];
-        $this->assertEquals("1dayafter",  $message->subject);
-        $this->assertEquals("bookingconfirmation",  $message->eventtype);
-        $this->assertEquals("2",  $message->useridto);
-        $this->assertStringContainsString("was ended yesterday",  $message->fullmessage);
+        // Validate scheduled adhoc tasks.
+        $this->assertCount(2, $messages);
+        $keys = array_keys($messages);
+        // Task 1 has to be "1daybefore".
+        $message = $messages[$keys[0]];
+        $customdata = $message->get_custom_data();
+        $this->assertEquals(strtotime('19 June 2050 15:00'), $message->get_next_run_time());
+        $this->assertEquals("1daybefore",  $customdata->customsubject);
+        $this->assertEquals("will start tomorrow",  $customdata->custommessage);
+        $this->assertEquals("2",  $customdata->userid);
+        $this->assertStringContainsString($ruledata1['ruledata'],  $customdata->rulejson);
+        $this->assertStringContainsString($ruledata1['conditiondata'],  $customdata->rulejson);
+        $this->assertStringContainsString($ruledata1['actiondata'],  $customdata->rulejson);
+        // Task 2 has to be "1dayafter".
+        $message = $messages[$keys[1]];
+        $customdata = $message->get_custom_data();
+        $this->assertEquals(strtotime('21 July 2050 14:00'), $message->get_next_run_time());
+        $this->assertEquals("1dayafter",  $customdata->customsubject);
+        $this->assertEquals("was ended yesterday",  $customdata->custommessage);
+        $this->assertEquals("2",  $customdata->userid);
+        $this->assertStringContainsString($ruledata2['ruledata'],  $customdata->rulejson);
+        $this->assertStringContainsString($ruledata2['conditiondata'],  $customdata->rulejson);
+        $this->assertStringContainsString($ruledata2['actiondata'],  $customdata->rulejson);
 
         // Mandatory to solve potential cache issues.
         singleton_service::destroy_booking_option_singleton($option1->id);
-        singleton_service::destroy_booking_option_singleton($option2->id);
     }
 }
