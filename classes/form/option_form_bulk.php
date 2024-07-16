@@ -113,7 +113,7 @@ class option_form_bulk extends dynamic_form {
             $options[$field] = get_string($name, 'mod_booking');
         }
 
-        $mform->addElement('select', 'choosefields', 'string', $options);
+        $mform->addElement('select', 'choosefields', get_string('selectfieldofbookingoption', 'mod_booking'), $options);
         $mform->registerNoSubmitButton('btn_bookingruletemplates');
         $mform->addElement('submit', 'btn_bookingruletemplates',
               get_string('bookingruletemplates', 'mod_booking'));
@@ -208,7 +208,7 @@ class option_form_bulk extends dynamic_form {
 
         foreach ($checkedids as $bookingoptionid) {
             $settings = singleton_service::get_instance_of_booking_option_settings($bookingoptionid);
-            $data->cmid = $settings->cmid;
+            $data->cmid = $settings->cmid ?? $data->cmid;
             $data->id = $bookingoptionid;
             $copy = clone($data);
             fields_info::set_data($copy);

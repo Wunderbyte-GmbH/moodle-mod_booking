@@ -2431,3 +2431,4 @@ $string['bulkoperationsheader'] = 'Daten der ausgewählten Buchungsoptionen übe
 $string['emailbody'] = 'E-Mail Text';
 $string['subject'] = 'Betreff';
 $string['send'] = 'Senden';
+$string['selectfieldofbookingoption'] = 'Bereich der Buchungsoption auswählen';
