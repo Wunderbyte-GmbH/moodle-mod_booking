@@ -77,6 +77,12 @@ if ((has_capability('mod/booking:updatebooking', $context) || (has_capability(
 // We don't need this anymore.
 $optionid = $optionid < 0 ? 0 : $optionid;
 
+$settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+if (!empty($settings->cmid) && $settings->cmid != $cmid) {
+    throw new moodle_exception('badcontext');
+}
+
 // New code.
 $params = [
     'cmid' => $cmid,
