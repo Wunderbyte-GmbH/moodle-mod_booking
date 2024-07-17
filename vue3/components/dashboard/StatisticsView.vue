@@ -1,7 +1,7 @@
 <template>
   <div class="w-100" ref="root" >
     <div>{{ date }} {{ orga }}</div>
-    <div
+    <!-- <div
         class="infoblock d-flex flex-row"
       >
         <div class="col-md-6 pt-3 pl-5">
@@ -28,7 +28,7 @@
       :style="chartStyle"
       :data="dataLine"
       :options="options"
-    /></div>
+    /></div> -->
   
   </div>
 </template>

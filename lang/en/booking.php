@@ -1838,10 +1838,9 @@ $string['teachers_instance_config'] = 'Edit booking option form';
 $string['teachingconfigforinstance'] = 'Edit booking option form for ';
 $string['dashboard_summary'] = 'General';
 $string['dashboard_summary_desc'] = 'Contains the settings and stats for the whole Moodle site';
-$string['dashboard_new_bookings'] = 'Neue Buchungen';
 
 // Dashboard Vue.
-$string['dashboard_new_bookings'] = 'New bookings';
+$string['dashboard_new_bookings'] = 'Bookings';
 $string['dashboard_ppl_wl'] = 'People in queue';
 $string['dashboard_neue_stornos'] = 'Cancellations';
 $string['dashboard_noshows'] = 'No shows';

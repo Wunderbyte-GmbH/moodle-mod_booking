@@ -128,7 +128,7 @@ class coursecategories {
      * @return bool
      */
     public static function set_configured_booking_instances(int $bookingid) {
-        $multibookingconfig = explode(',', get_config('local_berta', 'multibookinginstances'));
+        $multibookingconfig = explode(',', get_config('local_urise', 'multibookinginstances'));
         if (in_array($bookingid, $multibookingconfig)) {
             $index = array_search($bookingid, $multibookingconfig);
             if ($index !== false) {
@@ -141,7 +141,7 @@ class coursecategories {
             $multibookingconfig[] = $bookingid;
         }
         $multibookingconfig = implode(',', $multibookingconfig);
-        set_config('multibookinginstances', $multibookingconfig, 'local_berta');
+        set_config('multibookinginstances', $multibookingconfig, 'local_urise');
         return true;
     }
 

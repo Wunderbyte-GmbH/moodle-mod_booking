@@ -1713,7 +1713,7 @@ $string['dashboard_summary'] = 'Allgemein.';
 $string['dashboard_summary_desc'] = 'Enthält Konfiguration und Einstellungen für die gesamte Moodle Seite.';
 
 // Dashboard Vue.
-$string['dashboard_new_bookings'] = 'Neue Buchungen';
+$string['dashboard_new_bookings'] = 'Buchungen';
 $string['dashboard_ppl_wl'] = 'Personen in Wartelisten';
 $string['dashboard_neue_stornos'] = 'Neue Stornos';
 $string['dashboard_noshows'] = 'Nicht erschienen';

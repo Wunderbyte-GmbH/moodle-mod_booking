@@ -81,7 +81,7 @@
           <div class="card h-100">
             <div class="d-flex align-items-center  mb-auto">
               <h1 class="font-weight-normal mr-auto">
-                8
+                0
               </h1>
               <i class="fa-regular fa-circle-xmark text-danger" />
             </div>
@@ -94,7 +94,7 @@
           <div class="card h-100">
             <div class="d-flex align-items-center  mb-auto">
               <h1 class="font-weight-normal mr-auto">
-                112
+                0
               </h1>
               <i class="fa-solid fa-thumbs-down text-warning" />
             </div>
