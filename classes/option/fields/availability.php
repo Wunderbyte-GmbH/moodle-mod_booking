@@ -102,6 +102,9 @@ class availability extends field_base {
 
         // Save the additional JSON conditions (the ones which have been added to the mform).
         bo_info::save_json_conditions_from_form($formdata);
+        // As availability class can be used without also calling bookingopening and -closing time, we need to call them here.
+        bookingopeningtime::prepare_save_field($formdata, $newoption, $updateparam);
+        bookingclosingtime::prepare_save_field($formdata, $newoption, $updateparam);
 
         $newoption->availability = $formdata->availability;
         if (empty($newoption->sqlfilter)) {
@@ -168,6 +171,8 @@ class availability extends field_base {
             }
         } else {
             $availability = $settings->availability ?? "{}";
+            bookingopeningtime::set_data($data, $settings);
+            bookingclosingtime::set_data($data, $settings);
         }
 
         if (!empty($availability)) {

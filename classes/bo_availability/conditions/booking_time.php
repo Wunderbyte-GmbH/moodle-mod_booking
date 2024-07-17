@@ -197,21 +197,21 @@ class booking_time implements bo_condition {
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
         global $DB;
 
-        $mform->addElement('checkbox', 'restrictanswerperiodopening',
+        $mform->addElement('advcheckbox', 'restrictanswerperiodopening',
                 get_string('restrictanswerperiodopening', 'mod_booking'));
 
         $mform->addElement('date_time_selector', 'bookingopeningtime', get_string('from', 'mod_booking'));
         $mform->setType('bookingopeningtime', PARAM_INT);
         $mform->hideIf('bookingopeningtime', 'restrictanswerperiodopening', 'notchecked');
 
-        $mform->addElement('checkbox', 'restrictanswerperiodclosing',
+        $mform->addElement('advcheckbox', 'restrictanswerperiodclosing',
                 get_string('restrictanswerperiodclosing', 'mod_booking'));
 
         $mform->addElement('date_time_selector', 'bookingclosingtime', get_string('until', 'mod_booking'));
         $mform->setType('bookingclosingtime', PARAM_INT);
         $mform->hideIf('bookingclosingtime', 'restrictanswerperiodclosing', 'notchecked');
 
-        $mform->addElement('checkbox', 'bo_cond_booking_time_sqlfiltercheck',
+        $mform->addElement('advcheckbox', 'bo_cond_booking_time_sqlfiltercheck',
             get_string('sqlfiltercheckstring', 'mod_booking'));
 
         // Override conditions should not be necessary here - but let's keep it if we change our mind.

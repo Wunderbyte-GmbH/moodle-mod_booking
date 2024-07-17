@@ -103,6 +103,7 @@ class bookingopeningtime extends field_base {
 
         if (empty($formdata->restrictanswerperiodopening)) {
             $newoption->{$key} = 0;
+            $formdata->restrictanswerperiodopening = 0;
         } else {
             if (!empty($value)) {
                 $newoption->{$key} = $value;
