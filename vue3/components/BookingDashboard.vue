@@ -21,7 +21,7 @@
             </div>
           </div>
         </div>
-        <a @click="scrollRight()" class="text-white mr5em" style="font-size: 1.3em;
+        <a @click="scrollRight()" class="text-white mr5em ml-auto" style="font-size: 1.3em;
     margin-left: 1rem; padding-bottom: 10px;"><i class="fa-solid fa-arrow-right"></i></a>
         <!-- Confirmation dialog -->
         <div v-if="showConfirmationModal">

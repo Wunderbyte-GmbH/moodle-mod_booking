@@ -106,7 +106,7 @@ class get_parent_categories extends external_api {
 
             $context = context_coursecat::instance($record->id);
 
-            if (!has_capability('local/berta:view', $context)) {
+            if (!has_capability('local/urise:view', $context)) {
                 continue;
             }
             $coursecount += $record->coursecount;
@@ -122,7 +122,7 @@ class get_parent_categories extends external_api {
 
             if ($bookingoptions
                     = coursecategories::return_booking_information_for_coursecategory((int)$record->contextid)) {
-                $multibookingconfig = explode(',', get_config('local_berta', 'multibookinginstances') ?: '');
+                $multibookingconfig = explode(',', get_config('local_urise', 'multibookinginstances') ?: '');
                 foreach ($bookingoptions as &$value) {
                     $defaultchecked = false;
                     if (in_array($value->bookingid, $multibookingconfig)) {
