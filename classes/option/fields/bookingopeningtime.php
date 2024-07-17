@@ -169,7 +169,7 @@ class bookingopeningtime extends field_base {
         } else {
 
             // Normally, we don't call set data after the first time loading.
-            if (isset($data->{$key})) {
+            if (isset($data->{$key}) && !empty($data->{$key})) {
                 $data->restrictanswerperiodopening = 1;
                 return;
             }
