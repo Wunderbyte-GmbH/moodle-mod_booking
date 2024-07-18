@@ -25,7 +25,7 @@
 namespace mod_booking\bo_actions\action_types;
 
 use mod_booking\bo_actions\booking_action;
-use mod_booking\event\rest_script_succes;
+use mod_booking\event\rest_script_success;
 use mod_booking\singleton_service;
 use context_module;
 use mod_booking\event\rest_script_failed;
@@ -67,7 +67,7 @@ class executerestscript extends booking_action {
             $bajson = $ba->usersonlist[$userid];
             $restscriptresponse = self::get_script_response($bajson, $actiondata);
             if ($restscriptresponse) {
-                $event = rest_script_succes::create([
+                $event = rest_script_success::create([
                     'objectid' => $actiondata->optionid,
                     'context' => context_module::instance($actiondata->cmid),
                     'userid' => $userid, // The user triggered the action.
