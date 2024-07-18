@@ -1309,8 +1309,11 @@ class booking_option_settings {
         if (empty($user)) {
             $user = $USER;
         }
-
-        $price = price::get_price('option', $this->id, $user);
+        if (!empty($this->jsonobject->useprice)) {
+            $price = price::get_price('option', $this->id, $user);
+        } else {
+            $price = [];
+        }
 
         $canceluntil = booking_option::return_cancel_until_date($this->id);
 

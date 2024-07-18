@@ -82,9 +82,10 @@ class alreadyreserved implements bo_condition {
 
         $bookinginformation = $bookinganswer->return_all_booking_information($userid);
 
-        // If the user is not yet booked we return true.
-        if (!isset($bookinginformation['iamreserved'])) {
-
+        if (empty($settings->jsonobject->useprice)) {
+            $isavailable = true;
+        } else if (!isset($bookinginformation['iamreserved'])) {
+            // If the user is not yet booked we return true.
             $isavailable = true;
         }
 
