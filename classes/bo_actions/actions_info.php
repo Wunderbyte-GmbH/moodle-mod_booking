@@ -291,6 +291,10 @@ class actions_info {
         $returnstatus = 0;
         foreach ($settings->boactions as $actiondata) {
 
+            // Use ID & cmid from current bookingoption.
+            $actiondata->cmid = $settings->cmid;
+            $actiondata->id = $settings->id;
+
             $action = self::return_action($actiondata);
 
             $status = $action->apply_action($actiondata, $userid);

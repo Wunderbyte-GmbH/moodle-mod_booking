@@ -80,6 +80,9 @@ abstract class booking_action {
             // Also if we have a data id, we need to first treat the boactions as array.
             $jsonobject->boactions = (array)$jsonobject->boactions;
         }
+        unset($data->optionid);
+        $cmid = $data->cmid;
+        unset($data->cmid);
 
         // In any case, we use the data-id as key for this action.
         $jsonobject->boactions[$data->id] = $data;
@@ -91,10 +94,10 @@ abstract class booking_action {
         $newdata->json = json_encode($jsonobject);
         // Via the identifier, we get all the values we need.
         $newdata->identifier = $settings->identifier;
-        $newdata->cmid = $data->cmid;
+        $newdata->cmid = $cmid;
         $newdata->importing = true;
 
-        $context = context_module::instance($data->cmid);
+        $context = context_module::instance($cmid);
         booking_option::update($newdata, $context);
     }
 
