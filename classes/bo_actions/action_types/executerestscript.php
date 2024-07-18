@@ -90,7 +90,7 @@ class executerestscript extends booking_action {
             }
             $event->trigger(); // This will trigger the observer function.
         }
-        return 1; // We want to abort all other after actions.
+        return 0; // We want to abort all other after actions.
     }
 
     /**
