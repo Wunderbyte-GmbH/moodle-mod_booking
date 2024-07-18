@@ -213,7 +213,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         $title = "<div class='bookingoptions-wbtable-option-title'><a href='$url' target='_blank'>$title</a></div>";
 
-        return $title;
+        return format_text($title);
     }
 
     /**
@@ -951,7 +951,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $maxlength = (int)get_config('booking', 'collapsedescriptionmaxlength');
 
             // Show collapsible for long descriptions.
-            $shortdescription = strip_tags($description, '<br>');
+            $shortdescription = strip_tags($ret, '<br>');
             if (strlen($shortdescription) > $maxlength) {
                 $ret =
                     '<div>
@@ -961,7 +961,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                             get_string('showdescription', 'mod_booking') . '...</a>
                     </div>
                     <div class="collapse" id="collapseDescription' . $values->id . '">
-                        <div class="card card-body border-1 mt-1 mb-1 mr-3">' . $description . '</div>
+                        <div class="card card-body border-1 mt-1 mb-1 mr-3">' . $ret . '</div>
                     </div>';
             }
         }
