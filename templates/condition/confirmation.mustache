@@ -31,15 +31,15 @@
 
 <div class="condition-confirmation w-100 ml-3 mr-3 mb-1 mt-1 p-2 text-center bg-light border border-secondary rounded">
     {{#alreadybooked}}
-        {{#str}} thankyoubooked, mod_booking, {{title}} {{/str}}
+        {{#str}} thankyoubooked, mod_booking, {{{title}}} {{/str}}
     {{/alreadybooked}}
     {{#alreadyreserved}}
-        {{#str}} thankyoucheckout, mod_booking, {{title}} {{/str}}
+        {{#str}} thankyoucheckout, mod_booking, {{{title}}} {{/str}}
     {{/alreadyreserved}}
     {{#onwaitinglist}}
-        {{#str}} thankyouwaitinglist, mod_booking, {{title}} {{/str}}
+        {{#str}} thankyouwaitinglist, mod_booking, {{{title}}} {{/str}}
     {{/onwaitinglist}}
     {{#notyetbooked}}
-        {{#str}} thankyouerror, mod_booking, {{title}} {{/str}}
+        {{#str}} thankyouerror, mod_booking, {{{title}}} {{/str}}
     {{/notyetbooked}}
 </div>

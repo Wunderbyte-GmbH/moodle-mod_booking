@@ -143,11 +143,11 @@
         </div>
     </div>
 {{/booknowbutton}}
-<h4>{{#titleprefix}}{{.}} - {{/titleprefix}}{{title}}</h4>
+<h4>{{#titleprefix}}{{.}} - {{/titleprefix}}{{{title}}}</h4>
 {{#invisible}}
 <div class="booking-option-info-invisible">{{#str}} invisibleoption, mod_booking {{/str}}</div>
 {{/invisible}}
-{{#imageurl}}<p><img src="{{{.}}}" class="img-fluid" alt="{{title}}"></p>{{/imageurl}}
+{{#imageurl}}<p><img src="{{{.}}}" class="img-fluid" alt="{{{title}}}"></p>{{/imageurl}}
 {{#dayofweektime}}
     <div class="bo_dayofweektime">
         {{#str}}dayofweektime, mod_booking{{/str}}: {{.}}

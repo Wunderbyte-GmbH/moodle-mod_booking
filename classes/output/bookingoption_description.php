@@ -467,7 +467,7 @@ class bookingoption_description implements renderable, templatable {
      */
     public function get_returnarray(): array {
         $returnarray = [
-            'title' => $this->title,
+            'title' => format_text($this->title),
             'titleprefix' => $this->titleprefix,
             'invisible' => $this->invisible,
             'annotation' => $this->annotation,
