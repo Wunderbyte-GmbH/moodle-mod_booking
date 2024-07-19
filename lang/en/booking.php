@@ -546,6 +546,7 @@ $string['btnbooknowname'] = 'Name of button: Book now';
 $string['btncacname'] = 'Name of button: Confirm activity completion';
 $string['btncancelname'] = 'Name of button: Cancel booking';
 $string['btnviewavailable'] = "View available options";
+$string['bulkoperations'] = 'Zeige Liste von Buchungsoptionen um Massenoperationen zu ermöglichen';
 $string['bulkoperationsheader'] = 'Update data for selected bookingoption(s)';
 $string['cachedef_bookedusertable'] = 'Booked users table (cache)';
 $string['cachedef_bookingoptions'] = 'Booking options (cache)';
@@ -679,7 +680,6 @@ $string['condition_select_user_shopping_cart_desc'] = "User with payment obligat
 $string['condition_select_users_userids'] = "Select the users you want to target";
 $string['condition_textfield'] = 'Value';
 $string['configurefields'] = 'Configure fields and columns';
-
 $string['confirmactivtyfrom'] = 'Confirm users activity from';
 $string['confirmationmessagesettings'] = 'Confirmation e-mail settings';
 $string['confirmbooking'] = 'Confirmation of this booking';
@@ -724,6 +724,7 @@ $string['courseduplicating'] = 'DO NOT REMOVE this item. Moodle course is being 
 $string['courseendtime'] = 'End time of the course';
 $string['courseid'] = 'Course to subscribe to';
 $string['courselink'] = "courselink";
+$string['courselist'] = 'Zeige alle Buchungsoptionen einer Buchungsinstanz';
 $string['coursepageshortinfo'] = 'If you want to book yourself for this course, click on "View available options", choose a booking option and then click on "Book now".';
 $string['coursepageshortinfolbl'] = 'Short info';
 $string['coursepageshortinfolbl_help'] = 'Choose a short info text to show on the course page.';
@@ -825,6 +826,7 @@ $string['defaulttemplate'] = 'Default template';
 $string['defaulttemplatedesc'] = 'Default booking option template when creating a new booking option.';
 $string['defaultvalue'] = 'Default price value';
 $string['defaultvalue_help'] = 'Enter a default value for every price in this category. Of course, this value can be overwritten later.';
+$string['definecmidforshortcode'] = "To use this shortcode, enter the id of a booking instance like this: [courselist cmid=23]";
 $string['definedteacherrole'] = 'Teachers of booking option are assigned to this role';
 $string['definedteacherrole_desc'] = 'When a teacher is added to a bookingoption, he/she will be assigned to this role in the corresponding course.';
 $string['definefieldofstudy'] = 'You can show here all booking options from the whole field fo study. To make this work,
@@ -833,9 +835,6 @@ $string['definefieldofstudy'] = 'You can show here all booking options from the 
  Now add the custom booking field with the shortname "recommendedin", where you add the comma separated
  shortcodes of those courses, in which a booking option should be recommended. If a user is subscribed
  to "philosophy", she will see all the booking options in which at least one of the "philosohpy"-courses is recommended.';
- $string['definecmidforshortcode'] = "To use this shortcode, enter the id of a booking instance like this: [courselist cmid=23]";
- $string['courselist'] = 'Zeige alle Buchungsoptionen einer Buchungsinstanz';
- $string['bulkoperations'] = 'Zeige Liste von Buchungsoptionen um Massenoperationen zu ermöglichen';
 $string['delcustfield'] = 'Delete this field and all associated field settings in the booking options';
 $string['delete'] = 'Delete';
 $string['deletebooking'] = 'Delete this booking';
@@ -1882,6 +1881,7 @@ Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
 Go to the booking option: {$a->gotobookingoption}
 ';
 $string['statuschangetextsubject'] = 'Booking status has changed for {$a->title}';
+// phpcs:ignore
 $string['sthwentwrongwithplaceholder'] = ''; // Returnvalue for failed placeholders. {$a} returns classname.
 $string['studentbooked'] = 'Users who booked';
 $string['studentdeleted'] = 'Users who were already deleted';
@@ -2167,9 +2167,11 @@ $string['youareusingconfig'] = 'Your are using the following form configuration:
 $string['yourplaceonwaitinglist'] = 'You are on place {$a} on the waitinglist';
 $string['yourselection'] = 'Your selection';
 $string['zoommeeting'] = 'Zoom meeting';
-// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+
+// phpcs:disable
 /*$string['er_saverelationsforoptiondates'] = 'Save entity for each date too';
 $string['confirm:er_saverelationsforoptiondates'] = '<span class="text-danger">
 <b>Be careful:</b> This booking option has dates with various entities.
 Do you really want to set this entity for ALL dates?</span>';
 $string['error:er_saverelationsforoptiondates'] = 'Please confirm that you want to overwrite deviating entities.'; */
+// phpcs:enable
