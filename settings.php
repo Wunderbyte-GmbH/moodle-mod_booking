@@ -447,6 +447,38 @@ if ($ADMIN->fulltree) {
         new admin_setting_configcheckbox('booking/usenotificationlist',
                 get_string('usenotificationlist', 'mod_booking'), '', 0));
 
+    // Rules settings.
+    $url = new moodle_url('/mod/booking/edit_rules.php');
+    $linktorules = $url->out();
+    $settings->add(
+        new admin_setting_heading('rulessettings',
+            get_string('rulessettings', 'mod_booking'),
+            get_string('rulessettingsdesc', 'mod_booking', $linktorules)));
+
+    $settings->add(
+        new admin_setting_configcheckbox('booking/limitchangestrackinginrules',
+                get_string('limitchangestrackinginrules', 'mod_booking'), '', 0));
+
+    $limitchangestrackinginrules = get_config('booking', 'limitchangestrackinginrules') == 1;
+    if ($limitchangestrackinginrules) {
+        $settings->add(
+            new admin_setting_configcheckbox('booking/listentotimestampchange',
+                    get_string('listentotimestampchange', 'mod_booking'),
+                    '', 1));
+
+        $settings->add(
+            new admin_setting_configcheckbox('booking/listentoteacherschange',
+                    get_string('listentoteacherschange', 'mod_booking'), '', 1));
+
+        $settings->add(
+            new admin_setting_configcheckbox('booking/listentoresponsiblepersonchange',
+                    get_string('listentoresponsiblepersonchange', 'mod_booking'), '', 1));
+
+        $settings->add(
+            new admin_setting_configcheckbox('booking/listentoaddresschange',
+                    get_string('listentoaddresschange', 'mod_booking'), '', 1));
+    }
+
     $settings->add(
         new admin_setting_heading('educationalunitinminutes',
             get_string('educationalunitinminutes', 'mod_booking'), ''));

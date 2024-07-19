@@ -20,6 +20,7 @@ use mod_booking\booking_rules\actions_info;
 use mod_booking\booking_rules\booking_rule;
 use mod_booking\booking_rules\conditions_info;
 use mod_booking\singleton_service;
+use moodle_url;
 use MoodleQuickForm;
 use stdClass;
 
@@ -112,7 +113,6 @@ class rule_react_on_event implements booking_rule {
             'custom_bulk_message_sent',
             'optiondates_teacher_added',
             'optiondates_teacher_deleted',
-            'bookingoption_updated',
             'rest_script_success',
         ];
 
@@ -135,6 +135,17 @@ class rule_react_on_event implements booking_rule {
         $mform->addElement('select', 'rule_react_on_event_event',
             get_string('rule_event', 'mod_booking'), $allowedevents);
 
+        $limitchangestrackinginrules = get_config('booking', 'limitchangestrackinginrules') == 1;
+        if ($limitchangestrackinginrules || true) {
+
+            $url = new moodle_url('/admin/category.php', ['category' => 'modbookingfolder']);
+            $linktosettings = $url->out();
+
+            $mform->addElement('static', 'react_on_change_info',
+                '',
+                get_string('rule_react_on_change_event_desc', 'mod_booking', $linktosettings));
+        }
+
         $conditions = [
             self::ALWAYS => get_string('always', 'mod_booking'),
             self::FULLYBOOKED => get_string('fullybooked', 'mod_booking'),
@@ -150,8 +161,6 @@ class rule_react_on_event implements booking_rule {
         get_string('rule_react_on_event_after_completion', 'mod_booking'));
         $mform->setType('rule_react_on_event_after_completion', PARAM_INT);
         $mform->addHelpButton('rule_react_on_event_after_completion', 'rule_react_on_event_after_completion', 'mod_booking');
-
-        // TODO: hideif event not within array of bookingoptions.
 
         $notborelatedevents = [
             '\mod_booking\event\custom_message_sent',
