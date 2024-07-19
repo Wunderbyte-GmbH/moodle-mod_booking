@@ -293,7 +293,7 @@ class actions_info {
 
             // Use ID & cmid from current bookingoption.
             $actiondata->cmid = $settings->cmid;
-            $actiondata->id = $settings->id;
+            $actiondata->optionid = $settings->id;
 
             $action = self::return_action($actiondata);
 
