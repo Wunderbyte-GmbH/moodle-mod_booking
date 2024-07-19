@@ -1,3 +1,7 @@
+## Version 8.4.10 (2024071800)
+* Improvement: Enable up to 3 bookingrules for free version
+* Improvement: Vue Dashboard
+
 ## Version 8.4.9 (2024071800)
 * Bugfix: Bookingopening and bookingclosing in bulk operations
 * Bugfix: Avoid unwanted moving of booking option
