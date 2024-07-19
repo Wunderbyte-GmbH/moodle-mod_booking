@@ -277,7 +277,7 @@ if (has_capability('mod/booking:bookanyone', $context) && $bookanyone) {
                                                             ]);
     echo '<a class="btn btn-sm btn-light" href="' . $url . '">' . get_string('bookanyoneswitchoff', 'mod_booking') . '</a>';
     echo '<div class="alert alert-warning p-1 mt-1 text-center">' . get_string('bookanyonewarning', 'mod_booking')  . '</div>';
-} else {
+} else if (has_capability('mod/booking:bookanyone', $context)) {
     set_user_preference('bookanyone', '0');
     // Show button to turn it off again.
     $url = new moodle_url(
