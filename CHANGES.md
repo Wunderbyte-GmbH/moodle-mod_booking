@@ -1,4 +1,4 @@
-## Version 8.4.10 (2024071800)
+## Version 8.5.0 (2024071801)
 * Improvement: Enable up to 3 bookingrules for free version
 * Improvement: Vue Dashboard
 
