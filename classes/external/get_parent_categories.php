@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 namespace mod_booking\external;
 
+use core_plugin_manager;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;
@@ -100,6 +101,13 @@ class get_parent_categories extends external_api {
             ];
         } else {
             $returnarray = [];
+        }
+
+        // Check if urise plugin is installed.
+        $pluginman = core_plugin_manager::instance();
+        $plugininfo = $pluginman->get_plugin_info('local_urise');
+        if (!$plugininfo) {
+            return [];
         }
 
         foreach ($records as $record) {
