@@ -969,8 +969,7 @@ $string['error:identifierexists'] = 'Wählen Sie einen anderen Identifikator. Di
 $string['error:invalidcmid'] = 'Der Bericht kann nicht geöffnet werden, weil keine gültige Kursmodul-ID (cmid) übergeben wurde. Die cmid muss auf eine Buchungsinstanz verweisen!';
 $string['error:limitfactornotbetween1and2'] = 'Sie müssen einen Wert zwischen 0 und 2 eingeben. Um das Buchungslimit z.B. um 20% zu erhöhen,
  geben Sie den Wert 1,2 ein.';
- $string['error:missingblockinglabel'] = 'Geben Sie die Nachricht ein, die angezeigt werden soll, wenn Buchungen blockiert werden.';
- $string['error:percentageavailableplaces'] = 'Geben Sie einen gültigen Prozentsatz zwischen 0 und 100 an (ohne %-Zeichen!).';
+$string['error:missingblockinglabel'] = 'Geben Sie die Nachricht ein, die angezeigt werden soll, wenn Buchungen blockiert werden.';
 $string['error:missingcapability'] = 'Erforderliche Berechtigung fehlt. Bitte wenden Sie sich an einen Administrator.';
 $string['error:missingteacherid'] = 'Fehler: Report kann nicht geladen werden, da die teacherid fehlt.';
 $string['error:mustnotbeempty'] = 'Darf nicht leer sein.';
@@ -981,6 +980,7 @@ $string['error:newcoursecategorycfieldmissing'] = 'Sie müssen zuerst ein <a hre
  auch in den <a href="{$a->settingsurl}" target="_blank">Plugin-Einstellungen des Buchungsmoduls</a> ausgewählt haben.';
 $string['error:noendtagfound'] = 'Beenden Sie den begonnenen Placeholder-Abschnitt "{$a}" durch einen Backslash ("/").';
 $string['error:nofieldchosen'] = 'Sie müssen ein Feld auswählen.';
+$string['error:percentageavailableplaces'] = 'Geben Sie einen gültigen Prozentsatz zwischen 0 und 100 an (ohne %-Zeichen!).';
 $string['error:pricefactornotbetween0and1'] = 'Sie müssen einen Wert zwischen 0 und 1 eingeben. Um die Preise z.B. um 10% zu reduzieren,
  geben Sie den Wert 0,9 ein.';
 $string['error:pricemissing'] = 'Bitte geben Sie einen Preis ein.';
@@ -1813,6 +1813,7 @@ Termin:  {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
 Link zur Buchungsoption: {$a->gotobookingoption}
 ';
 $string['statuschangetextsubject'] = 'Buchungstatus für {$a->title} geändert';
+// phpcs:ignore
 $string['sthwentwrongwithplaceholder'] = ''; // Returnvalue for failed placeholders. {$a} returns classname.
 $string['studentbooked'] = 'Nutzer:innen, die gebucht haben';
 $string['studentdeleted'] = 'Nutzer:innen, die bereits entfernt wurden';
@@ -2093,9 +2094,10 @@ $string['yourplaceonwaitinglist'] = 'Sie sind auf Platz {$a} auf der Warteliste'
 $string['yourselection'] = 'Ihre Auswahl';
 $string['zoommeeting'] = 'Zoom-Meeting';
 
-// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+// phpcs:disable
 /*$string['er_saverelationsforoptiondates'] = 'Entity auch für jeden Termin speichern';
 $string['confirm:er_saverelationsforoptiondates'] = '<span class="text-danger">
 <b>Achtung:</b> Diese Buchungsoption hat Termine mit unterschiedlichen Entities.
 Wollen Sie wirklich ALLE Termine mit der ausgewählten Entity überschreiben?</span>';
 $string['error:er_saverelationsforoptiondates'] = 'Bitte bestätigen Sie, dass Sie abweichende Entities überschreiben wollen.';*/
+// phpcs:enable
