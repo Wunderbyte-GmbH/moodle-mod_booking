@@ -27,6 +27,7 @@
 namespace mod_booking;
 
 use core_cohort\reportbuilder\local\entities\cohort;
+use html_writer;
 use local_wunderbyte_table\filters\types\standardfilter;
 use mod_booking\booking;
 use mod_booking\customfield\booking_handler;
@@ -394,6 +395,53 @@ class shortcodes {
         }
 
         $out = $table->outhtml($perpage, true);
+
+        return $out;
+    }
+
+    /**
+     * A small shortcode to add links to the booking options which link to this course.
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return string
+     */
+    public static function linkbacktocourse($shortcode, $args, $content, $env, $next) {
+
+        global $COURSE, $USER, $DB, $CFG;
+
+        if (!wb_payment::pro_version_is_activated()) {
+            return get_string('infotext:prolicensenecessary', 'mod_booking');
+        }
+
+        $out = '';
+
+        $wherearray = ['courseid' => (int)$COURSE->id];
+
+        // Even though this is huge and fetches way to much data, we still use it as it will take care of invisible options etc.
+        list($fields, $from, $where, $params, $filter) =
+                booking::get_options_filter_sql(0, 0, '', null, null, [], $wherearray);
+
+        $optionids = $DB->get_records_sql(" SELECT $fields FROM $from WHERE $where", $params);
+
+        foreach ($optionids as $option) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+            $url = new moodle_url('/mod/booking/optionview.php', [
+                'optionid' => $option->id,
+                'cmid' => $settings->cmid,
+                'userid' => $USER->id,
+            ]);
+            $out .= html_writer::tag('a', $settings->get_title_with_prefix(),
+                [
+                    'class' => 'mod-booking-linkbacktocourse btn btn-nolabel',
+                    'href' => $url->out(false),
+                ]
+            );
+
+        }
 
         return $out;
     }

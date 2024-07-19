@@ -2452,3 +2452,5 @@ $string['emailbody'] = 'E-Mail Text';
 $string['subject'] = 'Betreff';
 $string['send'] = 'Senden';
 $string['selectfieldofbookingoption'] = 'Bereich der Buchungsoption auswählen';
+
+$string['linkbacktocourse'] = 'Link zu Buchungsoptionen';

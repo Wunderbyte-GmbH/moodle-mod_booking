@@ -47,4 +47,8 @@ $shortcodes = [
         'callback' => 'mod_booking\shortcodes::bulkoperations',
         'description' => 'bulkoperations',
     ],
+    'linkbacktocourse' => [
+        'callback' => 'mod_booking\shortcodes::linkbacktocourse',
+        'description' => 'linkbacktocourse',
+    ],
 ];

@@ -2588,3 +2588,5 @@ $string['emailbody'] = 'Email body';
 $string['subject'] = 'Subject';
 $string['send'] = 'Send';
 $string['selectfieldofbookingoption'] = 'Select field of booking option';
+
+$string['linkbacktocourse'] = 'Link back to Booking option';
