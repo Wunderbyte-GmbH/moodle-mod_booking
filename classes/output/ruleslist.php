@@ -44,14 +44,18 @@ class ruleslist implements renderable, templatable {
     /** @var int $contextid */
     public $contextid = 1;
 
+    /** @var bool $enableaddbutton */
+    public $enableaddbutton = true;
+
     /**
      * Constructor takes the rules to render and saves them as array.
      * @param array $rules
      * @param int $contextid
+     * @param bool $enableaddbutton
      * @return void
      * @throws coding_exception
      */
-    public function __construct(array $rules, int $contextid) {
+    public function __construct(array $rules, int $contextid, bool $enableaddbutton = true) {
 
         foreach ($rules as $rule) {
 
@@ -67,6 +71,7 @@ class ruleslist implements renderable, templatable {
             $this->rules[] = (array)$rule;
         }
         $this->contextid = $contextid;
+        $this->enableaddbutton = $enableaddbutton;
     }
 
     /**
@@ -81,6 +86,7 @@ class ruleslist implements renderable, templatable {
         return [
                 'rules' => $this->rules,
                 'contextid' => $this->contextid,
+                'enableaddbutton' => $this->enableaddbutton,
         ];
     }
 }

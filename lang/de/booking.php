@@ -2114,7 +2114,7 @@ $string['error:campaignend'] = 'Kampagnenende muss nach dem Kampagnenbeginn sein
 
 // Booking rules.
 $string['bookingruleswithbadge'] = 'Buchung: Regeln ' . $badgepro;
-$string['bookingrules'] = 'Buchung: Regeln (PRO)';
+$string['bookingrules'] = 'Buchung: Regeln';
 $string['bookingrule'] = 'Regel';
 $string['addbookingrule'] = 'Regel hinzufügen';
 $string['deletebookingrule'] = 'Regel löschen';
@@ -2124,6 +2124,8 @@ $string['bookinguseastemplate'] = 'Setze diese Regel als Template';
 $string['bookingdefaulttemplate'] = 'Wähle Template...';
 $string['interval'] = "Interval";
 $string['interval_help'] = "In Minuten. 1440 für 24h.";
+$string['useprotoenablemorerules'] = 'Sie benötigen Booking PRO, um weitere Regeln hinzu zu fügen.
+<a href="https://wunderbyte.at/kontakt" target="_blank">Kontaktieren Sie Wunderbyte</a>, wenn Sie eine Lizenz erwerben möchten.';
 
 $string['rule_event'] = 'Event';
 $string['rule_event_condition'] = 'Führe aus wenn...';

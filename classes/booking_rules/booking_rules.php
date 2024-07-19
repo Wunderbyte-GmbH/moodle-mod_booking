@@ -48,13 +48,14 @@ class booking_rules {
      * Returns the rendered html for a list of rules.
      *
      * @param int $contextid
+     * @param bool $enableaddbutton
      * @return string
      */
-    public static function get_rendered_list_of_saved_rules($contextid = 1) {
+    public static function get_rendered_list_of_saved_rules($contextid = 1, $enableaddbutton = true) {
         global $PAGE;
 
         $rules = self::get_list_of_saved_rules($contextid);
-        $data = new ruleslist($rules, $contextid);
+        $data = new ruleslist($rules, $contextid, $enableaddbutton);
         $output = $PAGE->get_renderer('booking');
         return $output->render_ruleslist($data);
     }
@@ -66,7 +67,7 @@ class booking_rules {
      * @throws coding_exception
      * @throws dml_exception
      */
-    private static function get_list_of_saved_rules(int $contextid = 0) {
+    public static function get_list_of_saved_rules(int $contextid = 0) {
 
         global $DB;
 

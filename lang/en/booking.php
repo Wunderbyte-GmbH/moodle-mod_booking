@@ -2247,8 +2247,8 @@ $string['error:campaignstart'] = 'Campaign start has to be before campaign end.'
 $string['error:campaignend'] = 'Campaign end has to be after campaign start.';
 
 // Booking rules.
-$string['bookingruleswithbadge'] = 'Booking: Rules ' . $badgepro;
-$string['bookingrules'] = 'Booking: Rules (PRO)';
+$string['bookingruleswithprobadge'] = 'Booking: Rules ' . $badgepro;
+$string['bookingrules'] = 'Booking: Rules';
 $string['bookingrule'] = 'Rule';
 $string['addbookingrule'] = 'Add rule';
 $string['deletebookingrule'] = 'Delete rule';
@@ -2256,6 +2256,8 @@ $string['deletebookingrule_confirmtext'] = 'Do you really want to delete the fol
 $string['bookingruletemplates'] = 'Load a template rule';
 $string['bookinguseastemplate'] = 'Set this rule as template';
 $string['bookingdefaulttemplate'] = 'Choose template...';
+$string['useprotoenablemorerules'] = 'You need a Booking PRO license if you want to add more rules.
+<a href="https://wunderbyte.at/en/contact" target="_blank">Contact Wunderbyte</a> if you want to buy a PRO license.';
 
 $string['rule_event'] = 'Event';
 $string['rule_event_condition'] = 'Execute when...';

@@ -89,14 +89,21 @@ $PAGE->set_title(
 $output = $PAGE->get_renderer('booking');
 
 echo $output->header();
-echo $output->heading(get_string('bookingruleswithbadge', 'mod_booking'));
+echo $output->heading(get_string('bookingrules', 'mod_booking'));
 
-// Check if PRO version is active.
+// Check if PRO version is active. In free version, up to three rules can be edited for whole plugin, but none for coursemodule.
 if (wb_payment::pro_version_is_activated()) {
     echo booking_rules::get_rendered_list_of_saved_rules($contextid);
 
-} else {
+} else if (!empty($cmid)) {
     echo html_writer::div(get_string('infotext:prolicensenecessary', 'mod_booking'), 'alert alert-warning');
+} else {
+    $rules = booking_rules::get_list_of_saved_rules($contextid);
+    if (isset($rules) && count($rules) < 3) {
+        echo booking_rules::get_rendered_list_of_saved_rules($contextid);
+    } else if (isset($rules) && count($rules) >= 3) {
+        echo booking_rules::get_rendered_list_of_saved_rules($contextid, false);
+    }
 }
 
 $PAGE->requires->js_call_amd(
