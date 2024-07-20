@@ -127,7 +127,7 @@ jobs:
           moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
         env:
           DB: ${{ matrix.database }}
-          IGNORE_PATHS: moodle/tests/fixtures,moodle/Sniffs
+          IGNORE_PATHS: vue3,moodle/tests/fixtures,moodle/Sniffs,moodle/vue3
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
           CODECHECKER_IGNORE_PATHS: OpenTBS, TinyButStrong
           PHPDOCCHECKER_IGNORE_PATHS: OpenTBS, TinyButStrong
