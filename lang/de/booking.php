@@ -22,9 +22,6 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-global $CFG;
-
-
 $string['aboutmodaloptiondateform'] = 'Hier können Sie benutzerdefinierte Termine anlegen
 (z.B. bei Block-Veranstaltungen oder wenn einzelne Termine von der Terminserie abweichen).';
 $string['accept'] = 'Akzeptieren';
@@ -1558,7 +1555,7 @@ $string['priceformulainfo'] = '<a data-toggle="collapse" href="#priceformula" ro
 <div class="collapse" id="priceformula">
 <samp>{$a->formula}</samp>
 </div><br>
-<a href="' . $CFG->wwwroot . '/admin/settings.php?section=modsettingbooking" target="_blank"><i class="fa fa-edit"></i> Formel bearbeiten...</a><br><br>
+<a href="{$CFG->wwwroot}/admin/settings.php?section=modsettingbooking" target="_blank"><i class="fa fa-edit"></i> Formel bearbeiten...</a><br><br>
 Unterhalb können Sie zusätzlich einen manuellen Faktor (Multiplikation) und einen Absolutwert (Addition) hinzufügen.';
 $string['priceformulaisactive'] = 'Beim Speichern Preise mit Preisformel neu berechnen (aktuelle Preise werden überschrieben).';
 $string['priceformulamultiply'] = 'Manueller Faktor';
@@ -1887,7 +1884,7 @@ $string['teachersforoption'] = 'Trainer:innen';
 $string['teachersforoption_help'] = '<b>ACHTUNG:</b> Wenn Sie hier Trainer:innen hinzufügen werden diese im Training-Journal <b>zu JEDEM ZUKÜNFTIGEN Termin hinzugefügt</b>.
 Wenn Sie hier Trainer:innen löschen, werden diese im Training-Journal <b>von JEDEM ZUKÜNFTIGEN Termin entfernt</b>.';
 $string['teachersinstancereport:subtitle'] = '<strong>Hinweis:</strong> Die Anzahl der UE berechnet sich anhand des gesetzten Terminserien-Textfeldes (z.B. "Mo, 16:00-17:30")
- und der in den <a href="' . $CFG->wwwroot . '/admin/settings.php?section=modsettingbooking" target="_blank">Einstellungen festgelegten Dauer</a> einer UE. Für Blockveranstaltungen oder
+ und der in den <a href="{$CFG->wwwroot}/admin/settings.php?section=modsettingbooking" target="_blank">Einstellungen festgelegten Dauer</a> einer UE. Für Blockveranstaltungen oder
  Buchungsoptionen bei denen das Feld nicht gesetzt ist, können die UE nicht berechnet werden!';
 $string['teacherslinkonteacher'] = 'Links zu Trainer:innen-Seiten hinzufügen';
 $string['teacherslinkonteacher_desc'] = 'Sind bei einer Buchungsoption Trainer:innen definiert, so werden die Namen automatisch mit einer Überblicksseite für diese Trainer:innen verknüpft.';
@@ -1903,7 +1900,7 @@ $string['teachingreportforinstance'] = 'Trainer:innen-Gesamtbericht für ';
 $string['teachingreportfortrainer'] = 'Leistungs-Report für Trainer:in';
 $string['teachingreportfortrainer:subtitle'] = '<strong>Hinweis:</strong> Sie können die Dauer einer Unterrichtseinheit
 in den Einstellungen anpassen. (Z.B. 45 statt 60 Minuten).<br/>
-<a href="' . $CFG->wwwroot . '/admin/settings.php?section=modsettingbooking" target="_blank">
+<a href="{$CFG->wwwroot}/admin/settings.php?section=modsettingbooking" target="_blank">
 &gt;&gt; Zu den Einstellungen...
 </a>';
 $string['teamsmeeting'] = 'Teams-Meeting';
