@@ -22,8 +22,6 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-global $CFG;
-
 $string['aboutmodaloptiondateform'] = 'Create custom dates
 (e.g. for blocked events or for single dates that differ from the date series).';
 $string['accept'] = 'Accept';
@@ -1562,7 +1560,7 @@ $string['priceformulainfo'] = '<a data-toggle="collapse" href="#priceformula" ro
 <div class="collapse" id="priceformula">
 <samp>{$a->formula}</samp>
 </div><br>
-<a href="' . $CFG->wwwroot . '/admin/settings.php?section=modsettingbooking" target="_blank"><i class="fa fa-edit"></i> Edit formula...</a><br><br>
+<a href="{$CFG->wwwroot}/admin/settings.php?section=modsettingbooking" target="_blank"><i class="fa fa-edit"></i> Edit formula...</a><br><br>
 Below, you can additionally add a manual factor (multiplication) and an absolute value (addition) to be added to the formula.';
 $string['priceformulaisactive'] = 'On saving, calculate prices with price formula (this will overwrite current prices).';
 $string['priceformulamultiply'] = 'Manual factor';
@@ -1959,7 +1957,7 @@ $string['teachersforoption'] = 'Teachers';
 $string['teachersforoption_help'] = '<b>BE CAREFUL: </b>When adding teachers here, they will also be <b>added to each date in the future</b> in the teaching report.
 When deleting teachers here, they will be <b>removed from each date in the future</b> in the teaching report!';
 $string['teachersinstancereport:subtitle'] = '<strong>Hint:</strong> The number of units of a course (booking option) is calculated by the duration of an educational unit
- which you can <a href="' . $CFG->wwwroot . '/admin/settings.php?section=modsettingbooking" target="_blank">set in the booking settings</a> and the specified date series string (e.g. "Tue, 16:00-17:30").
+ which you can <a href="{$CFG->wwwroot}/admin/settings.php?section=modsettingbooking" target="_blank">set in the booking settings</a> and the specified date series string (e.g. "Tue, 16:00-17:30").
  For blocked events or booking options missing this string, the number of units cannot be calculated!';
 $string['teacherslinkonteacher'] = 'Add links to teacher pages';
 $string['teacherslinkonteacher_desc'] = 'When there are teachers added to booking options, this setting will add a link to an overview page for each teacher.';
@@ -1974,7 +1972,7 @@ $string['teachingreportforinstance'] = 'Teaching overview report for ';
 $string['teachingreportfortrainer'] = 'Report of performed teaching units for trainer';
 $string['teachingreportfortrainer:subtitle'] = '<strong>Hint:</strong> You can change the duration of
 an educational unit in the plugin settings (e.g. 45 instead of 60 minutes).<br/>
-<a href="' . $CFG->wwwroot . '/admin/settings.php?section=modsettingbooking" target="_blank">
+<a href="{$CFG->wwwroot}/admin/settings.php?section=modsettingbooking" target="_blank">
 &gt;&gt; Go to plugin settings...
 </a>';
 $string['teamsmeeting'] = 'Teams meeting';
