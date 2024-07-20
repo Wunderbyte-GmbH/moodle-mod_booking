@@ -24,10 +24,6 @@
 
 global $CFG;
 
-$badgepro = '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
-$badgeexp = '<span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimental</span>';
-$badgedepr = '<span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Deprecated</span>';
-
 $string['aboutmodaloptiondateform'] = 'Create custom dates
 (e.g. for blocked events or for single dates that differ from the date series).';
 $string['accept'] = 'Accept';
@@ -88,11 +84,11 @@ $string['allcomments'] = 'Everybody can comment';
 $string['allcoursesmustbefound'] = 'User has to be subscribed to all courses';
 $string['allmailssend'] = 'All e-mails to the users have been sent!';
 $string['allmoodleusers'] = 'All users of this site';
-$string['alloptionsinreport'] = 'One report for a booking activity ' . $badgepro;
+$string['alloptionsinreport'] = 'One report for a booking activity ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['alloptionsinreportdesc'] = 'The report of one booking option will include all the bookings of all booking options within this instance.';
 $string['allowbookingafterstart'] = 'Allow booking after course start';
 $string['allowoverbooking'] = 'Allow overbooking';
-$string['allowoverbookingheader'] = 'Overbooking of booking options ' . $badgepro;
+$string['allowoverbookingheader'] = 'Overbooking of booking options ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['allowoverbookingheader_desc'] = 'Allow administrators and entitled users to overbook booking options.
   (Be careful: This can lead to unexpected behavior. Only activate this if you really need it.)';
 $string['allowupdate'] = 'Allow booking to be updated';
@@ -106,7 +102,7 @@ $string['always'] = 'Always';
 $string['annotation'] = 'Internal annotation';
 $string['answer'] = "Answer";
 $string['answered'] = 'Answered';
-$string['appearancesettings'] = 'Appearance ' . $badgepro;
+$string['appearancesettings'] = 'Appearance ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['appearancesettings_desc'] = 'Configure the appearance of the booking plugin.';
 $string['apply'] = 'Apply';
 $string['applyunitfactor'] = 'Apply unit factor';
@@ -131,17 +127,17 @@ $string['autcrwhatitis'] = 'If this option is enabled it automatically creates a
  a user as booking manager / teacher to it. Users are selected based on a custom user profile field value.';
 $string['autoenrol'] = 'Automatically enrol users';
 $string['autoenrol_help'] = 'If selected, users will be enrolled onto the relevant course as soon as they make the booking and unenrolled from that course as soon as the booking is cancelled.';
-$string['automaticcoursecreation'] = 'Automatic creation of Moodle courses ' . $badgepro;
+$string['automaticcoursecreation'] = 'Automatic creation of Moodle courses ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['availability'] = 'Still available';
 $string['availabilityconditions'] = 'Availability conditions';
 $string['availabilityconditionsheader'] = '<i class="fa fa-fw fa-key" aria-hidden="true"></i>&nbsp;Availability conditions';
-$string['availabilityinfotexts_heading'] = 'Availability info texts for booking places and waiting list ' . $badgepro;
+$string['availabilityinfotexts_heading'] = 'Availability info texts for booking places and waiting list ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['available'] = 'Places available';
 $string['availableplaces'] = 'Places available: {$a->available} of {$a->maxanswers}';
 $string['availplaces_full'] = 'Full';
 $string['backtoresponses'] = '&lt;&lt; Back to responses';
-$string['badge:exp'] = $badgeexp;
-$string['badge:pro'] = $badgepro;
+$string['badge:exp'] = '<span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimental</span>';
+$string['badge:pro'] = '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['banusernames'] = 'Ban usernames';
 $string['banusernames_help'] = 'To limit which usernames can`t apply just write in this field, and separate with coma. To ban usernames, that end with gmail.com and yahoo.com just write: gmail.com, yahoo.com';
 $string['banusernameswarning'] = "Your username is banned so you can't book.";
@@ -337,7 +333,7 @@ $string['bo_cond_userprofilefield_value'] = 'Value';
 $string['boactioncancelbooking_desc'] = "Wird verwendet, wenn eine Option mehrmals gekauft werden können soll.";
 $string['boactioncancelbookingvalue'] = "Aktiviere sofortige Ausbuchung";
 $string['boactionname'] = "Name of action";
-$string['boactions'] = 'Actions after booking ' . $badgepro . ' ' . $badgeexp;
+$string['boactions'] = 'Actions after booking ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>' . ' ' . '<span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimental</span>';
 $string['boactions_desc'] = "Booking actions after booking are still an EXPERIMENTAL feature. You can try them if you want.
 But do not use them in a productive environment yet!";
 $string['boactionselectuserprofilefield'] = "Choose profile field";
@@ -421,7 +417,7 @@ $string['bookingcampaignssubtitle'] = 'Campaigns allow you to discount the price
  for a specified period of time and increase the booking limit for that period. For campaigns to work, the
  Moodle cron job must run regularly.<br>
  Overlapping campaigns will add up. Two matching 50% price campaigns will result in a 25% price.';
-$string['bookingcampaignswithbadge'] = 'Booking: Campaigns ' . $badgepro;
+$string['bookingcampaignswithbadge'] = 'Booking: Campaigns ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['bookingcategory'] = 'Category';
 $string['bookingchangedtext'] = 'Message to be sent when a booking option changes (will only be sent to users who have already booked). Use the placeholder {changes} to show the changes. Enter 0 to turn off change notifications.';
 $string['bookingchangedtext_help'] = 'Enter 0 to turn change notifications off.';
@@ -501,7 +497,7 @@ $string['bookingrule'] = 'Rule';
 $string['bookingruleaction'] = "Action of the rule";
 $string['bookingrulecondition'] = "Condition of the rule";
 $string['bookingrules'] = 'Booking: Rules (PRO)';
-$string['bookingruleswithbadge'] = 'Booking: Rules ' . $badgepro;
+$string['bookingruleswithbadge'] = 'Booking: Rules ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['bookingruletemplates'] = 'Load a template rule';
 $string['bookings'] = 'Bookings';
 $string['bookingsaved'] = 'Your booking was successfully saved. You can now proceed to book other courses.';
@@ -601,7 +597,7 @@ $string['canceldependenton_desc'] = 'Choose the date that should be used as "sta
 "Disallow users to cancel their booking n days before start. Minus means, that users can still cancel n
 days AFTER course start.".<br>
 This will also set the <i>service period</i> of courses in shopping cart accordingly (if shopping cart is installed).';
-$string['cancellationsettings'] = 'Cancellation settings ' . $badgepro;
+$string['cancellationsettings'] = 'Cancellation settings ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['cancelmyself'] = 'Undo my booking';
 $string['canceloption'] = "Cancel boooking option";
 $string['canceloption_desc'] = "Canceling a boooking option means that it is no longer bookabel, but it is still shown in list.";
@@ -903,10 +899,10 @@ $string['duplicatename'] = 'This booking option name already exists. Please choo
 $string['duplicationrestore'] = 'Booking instances: Duplication, backup and restore';
 $string['duplicationrestoredesc'] = 'Here you can set which information you want to include when duplicating or backing up / restoring booking instances.';
 $string['duplicationrestoreentities'] = 'Include entities';
-$string['duplicationrestoreoption'] = 'Booking options: Duplication settings ' . $badgepro;
+$string['duplicationrestoreoption'] = 'Booking options: Duplication settings ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['duplicationrestoreoption_desc'] = 'Special settings for the duplication of booking options.';
 $string['duplicationrestoreprices'] = 'Include prices';
-$string['duplicationrestoresubbookings'] = 'Include subbookings ' . $badgepro;
+$string['duplicationrestoresubbookings'] = 'Include subbookings ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['duplicationrestoreteachers'] = 'Include teachers';
 $string['duration'] = "duration";
 $string['duration:minutes'] = 'Duration (minutes)';
@@ -938,7 +934,7 @@ $string['electivesbookedsuccess'] = 'Your selected electives have been booked su
 $string['electivesettings'] = 'Elective Settings';
 $string['email'] = "email";
 $string['emailbody'] = 'Email body';
-$string['emailsettings'] = 'E-mail settings '. $badgedepr;
+$string['emailsettings'] = 'E-mail settings '. '<span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Deprecated</span>';
 $string['enable'] = 'Enable';
 $string['enablecompletion'] = 'At least one of the booked options has to be marked as completed';
 $string['enablecompletiongroup'] = 'Require entries';
@@ -1074,21 +1070,21 @@ $string['generaterecnum'] = "Generate numbers";
 $string['generaterecnumareyousure'] = "This will generate new numbers and permanently delete the old one!";
 $string['generaterecnumnotification'] = "New numbers have been generated.";
 $string['global'] = 'global';
-$string['globalactivitycompletiontext'] = 'Message to be sent to user when booking option is completed (global template) ' . $badgedepr;
-$string['globalbookedtext'] = 'Booking confirmation (global template) ' . $badgedepr;
-$string['globalbookingchangedtext'] = 'Message to be sent when a booking option changes (will only be sent to users who have already booked). Use the placeholder {changes} to show the changes. Enter 0 to turn off change notifications. (Global template) ' . $badgedepr;
+$string['globalactivitycompletiontext'] = 'Message to be sent to user when booking option is completed (global template) ' . '<span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Deprecated</span>';
+$string['globalbookedtext'] = 'Booking confirmation (global template) ' . '<span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Deprecated</span>';
+$string['globalbookingchangedtext'] = 'Message to be sent when a booking option changes (will only be sent to users who have already booked). Use the placeholder {changes} to show the changes. Enter 0 to turn off change notifications. (Global template) ' . '<span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Deprecated</span>';
 $string['globalcurrency'] = 'Currency';
 $string['globalcurrencydesc'] = 'Choose the currency for booking option prices';
-$string['globaldeletedtext'] = 'Cancelled booking message (global template) ' . $badgedepr;
-$string['globalmailtemplates'] = 'Legacy mail templates ' . $badgedepr;
+$string['globaldeletedtext'] = 'Cancelled booking message (global template) ' . '<span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Deprecated</span>';
+$string['globalmailtemplates'] = 'Legacy mail templates ' . '<span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Deprecated</span>';
 $string['globalmailtemplates_desc'] = 'After activation, you can go to the settings of a booking instance and set the source of mail templates to global.';
-$string['globalnotifyemail'] = 'Participant notification before start (global template) ' . $badgedepr;
-$string['globalnotifyemailteachers'] = 'Teacher notification before start (global template) ' . $badgedepr;
-$string['globalpollurlteacherstext'] = 'Message for the poll url sent to teachers (global template) ' . $badgedepr;
-$string['globalpollurltext'] = 'Message for sending poll url to booked users (global template) ' . $badgedepr;
-$string['globalstatuschangetext'] = 'Status change message (global template) ' . $badgedepr;
-$string['globaluserleave'] = 'User has cancelled his/her own booking (global template) ' . $badgedepr;
-$string['globalwaitingtext'] = 'Waiting list confirmation (global template) ' . $badgedepr;
+$string['globalnotifyemail'] = 'Participant notification before start (global template) ' . '<span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Deprecated</span>';
+$string['globalnotifyemailteachers'] = 'Teacher notification before start (global template) ' . '<span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Deprecated</span>';
+$string['globalpollurlteacherstext'] = 'Message for the poll url sent to teachers (global template) ' . '<span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Deprecated</span>';
+$string['globalpollurltext'] = 'Message for sending poll url to booked users (global template) ' . '<span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Deprecated</span>';
+$string['globalstatuschangetext'] = 'Status change message (global template) ' . '<span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Deprecated</span>';
+$string['globaluserleave'] = 'User has cancelled his/her own booking (global template) ' . '<span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Deprecated</span>';
+$string['globalwaitingtext'] = 'Waiting list confirmation (global template) ' . '<span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Deprecated</span>';
 $string['gotobooking'] = '&lt;&lt; Bookings';
 $string['gotobookingoption'] = "gotobookingoption";
 $string['gotomanageresponses'] = '&lt;&lt; Manage bookings';
@@ -1454,7 +1450,7 @@ By default, every date will be filled in with the option\'s teacher. You can ove
 $string['optiondatestime'] = 'Session time';
 $string['optionformconfig'] = 'Configure booking option forms (PRO)';
 $string['optionformconfig:nobooking'] = 'You need to create at least one booking instance before you can use this form!';
-$string['optionformconfig_getpro'] = ' With Booking ' . $badgepro . ' you have the possibility to create individual forms with drag and drop
+$string['optionformconfig_getpro'] = ' With Booking ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>' . ' you have the possibility to create individual forms with drag and drop
 for specific user roles and contexts (e.g. for a specific booking instance or system wide).';
 $string['optionformconfig_infotext'] = 'With this PRO feature, you can create your individual booking option forms by using drag & drop
 and the checkboxes. The forms are stored on a specific context level (e.g. booking instance, system-wide...). Users can only access the forms
@@ -1558,7 +1554,7 @@ $string['pricefactor'] = 'Price factor';
 $string['pricefactor_help'] = 'Specify a value by which to multiply the price. For example, to discount the prices by 20%, enter the value <b>0.8</b>.';
 $string['priceformulaadd'] = 'Absolute value';
 $string['priceformulaadd_help'] = 'Additional value to <strong>add</strong> to the result.';
-$string['priceformulaheader'] = 'Price formula ' . $badgepro;
+$string['priceformulaheader'] = 'Price formula ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['priceformulaheader_desc'] = "Use a price formula to automatically calculate prices for booking options.";
 $string['priceformulainfo'] = '<a data-toggle="collapse" href="#priceformula" role="button" aria-expanded="false" aria-controls="priceformula">
 <i class="fa fa-code"></i> Show JSON for price formula...
@@ -1636,7 +1632,7 @@ $string['problemsofcohortorgroupbooking'] = '<br><p>Not all users could be booke
 <li>{$a->notsubscribedusers} users not booked for other reasons</li>
 </ul>';
 $string['profilepicture'] = 'Profile picture';
-$string['progressbars'] = 'Progress bars of time passed ' . $badgepro;
+$string['progressbars'] = 'Progress bars of time passed ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['progressbars_desc'] = 'Get a visual representation of the time which has already passed for a booking option.';
 $string['progressbarscollapsible'] = 'Make progress bars collapsible';
 $string['proversion:cardsview'] = 'With Booking PRO you can also use cards view.';
@@ -1901,7 +1897,7 @@ $string['subbooking_duration'] = "Duration in minutes";
 $string['subbooking_name'] = "Name of the subbooking";
 $string['subbooking_timeslot'] = "Timeslot booking";
 $string['subbooking_timeslot_desc'] = "This opens timeslots for every booking date with a set duration.";
-$string['subbookings'] = 'Subbookings ' . $badgepro;
+$string['subbookings'] = 'Subbookings ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['subbookings_desc'] = 'Activate subbookings in order to enable the booking of additional items or time slots (e.g. for tennis courts).';
 $string['subject'] = 'Subject';
 $string['submitandadd'] = 'Add a new booking option';
@@ -1957,7 +1953,7 @@ $string['teachersallowmailtobookedusers_desc'] = 'If you activate this setting, 
     if you are sure it corresponds with your organization\'s privacy policy.</span>';
 $string['teachersalwaysenablemessaging'] = 'Allow users to send message all teachers';
 $string['teachersalwaysenablemessaging_desc'] = 'If you activate this setting, users can send messages to teachers even if they aren\'t enroled in any of their courses.';
-$string['teachersettings'] = 'Teachers ' . $badgepro;
+$string['teachersettings'] = 'Teachers ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['teachersettings_desc'] = 'Teacher-specific settings.';
 $string['teachersforoption'] = 'Teachers';
 $string['teachersforoption_help'] = '<b>BE CAREFUL: </b>When adding teachers here, they will also be <b>added to each date in the future</b> in the teaching report.
