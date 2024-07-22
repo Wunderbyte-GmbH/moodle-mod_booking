@@ -1211,6 +1211,8 @@ $string['licensekeydesc'] = 'Upload a valid license key to activate the PRO vers
 $string['limit'] = 'Limit';
 $string['limitanswers'] = 'Limit the number of participants';
 $string['limitanswers_help'] = 'If you change this option and you have booked people, you can remove them without notification!';
+$string['limitchangestrackinginrules'] = "Limit reactions on changes in booking rules";
+$string['limitchangestrackinginrulesdesc'] = "If you activate this settings, the booking rule react on change will only apply to the selected fields.";
 $string['limitfactor'] = 'Booking limit factor';
 $string['limitfactor_help'] = 'Specify a value by which to multiply the booking limit. For example, to increase the booking limit by 20%, enter the value <b>1.2</b>.';
 $string['linkgotobookingoption'] = 'Go to booked option: {$a}</a>';
@@ -1221,6 +1223,10 @@ If it is a meeting you have booked, please check again, shortly before start.';
 $string['linktomoodlecourseonbookedbutton'] = 'Show Link to Moodle course directly on booked button';
 $string['linktomoodlecourseonbookedbutton_desc'] = 'Instead of an extra link, this will transform the booked button the a link to the moodle course';
 $string['linktoteachersinstancereport'] = '<p><a href="{$a}" target="_self">&gt;&gt; Go to teachers report for booking instance</a></p>';
+$string['listentoaddresschange'] = "React on change of address of bookingoption";
+$string['listentoresponsiblepersonchange'] = "React on change of responsible person of bookingoption";
+$string['listentoteacherschange'] = "React on change of teacher of bookingoption";
+$string['listentotimestampchange'] = "React on change of time (and day) of bookingoption";
 $string['location'] = 'Location';
 $string['location_help'] = 'You can either enter the location name manually or choose from a list of previous locations.
                                     You can choose one location only. Once you save, the location will be added to the list.';
@@ -1717,6 +1723,7 @@ $string['rule_optionfield_courseendtime'] = 'End (courseendtime)';
 $string['rule_optionfield_coursestarttime'] = 'Begin (coursestarttime)';
 $string['rule_optionfield_location'] = 'Location (location)';
 $string['rule_optionfield_text'] = 'Name of the booking option (text)';
+$string['rule_react_on_change_event_desc'] = 'For the "Booking option updated" event, you can specify options here: <a href="{$a}">Booking Plugin Settings</a>.';
 $string['rule_react_on_event'] = "React on event";
 $string['rule_react_on_event_after_completion'] = "Number of days after end of booking option, where rule still applies";
 $string['rule_react_on_event_after_completion_help'] = "Leave this field empty or set to 0 if you want to keep executing the action. You can use negative numbers if the rule should be suspended before the specified courseend.";
@@ -1727,6 +1734,8 @@ $string['rule_sendmail_cpf_desc'] = 'Choose an event that should trigger the "Se
  (you can use placeholders like {bookingdetails}) and define to which users the e-mail should be sent.
   Example: All users having the value "Vienna center" in a custom user profile field called "Study center".';
 $string['rule_value'] = 'Value';
+$string['rulessettings'] = "Settings for Booking Rules";
+$string['rulessettingsdesc'] = 'Settings that apply to the <a href="{$a}">Booking Rules Feature</a>.';
 $string['sameday'] = 'same day';
 $string['saturday'] = 'Saturday';
 $string['saveinstanceastemplate'] = 'Add booking instance to template';

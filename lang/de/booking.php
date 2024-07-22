@@ -1204,6 +1204,8 @@ $string['licensekeydesc'] = 'Laden Sie hier einen gültigen Schlüssel hoch, um 
 $string['limit'] = 'Maximale Anzahl';
 $string['limitanswers'] = 'Teilnehmeranzahl beschränken';
 $string['limitanswers_help'] = 'Bei Änderung dieser Einstellung und vorhandenen Buchungen, werden die Buchungen für die betroffenen Nutzer:innen ohne Benachrichtigung entfernt.';
+$string['limitchangestrackinginrules'] = "Reaktionen auf Änderungen in Buchungs Regeln begrenzen";
+$string['limitchangestrackinginrulesdesc'] = "Wenn Sie diese Einstellung aktivieren, gilt die Reaktion auf Änderungen in Buchungs Regeln nur für die ausgewählten Felder.";
 $string['limitfactor'] = 'Buchungslimit-Faktor';
 $string['limitfactor_help'] = 'Geben Sie einen Wert an, mit dem das Buchungslimit multipliziert werden soll. Um das Buchungslimit beispielsweise um 20% zu erhöhen, geben Sie den Wert 1.2 ein.';
 $string['linkbacktocourse'] = 'Link zu Buchungsoptionen';
@@ -1215,6 +1217,10 @@ Bitte probieren Sie es kurz vor Beginn noch einmal, wenn Sie dieses Event gebuch
 $string['linktomoodlecourseonbookedbutton'] = 'Zeige Link auf Moodle Kurs direkt am Buchen-Button';
 $string['linktomoodlecourseonbookedbutton_desc'] = 'Statt eines extra Links auf den Moodle Kurs wird diese Option den Buchungsbutton in einen Link auf den gebuchten Moodle Kurs umwandeln';
 $string['linktoteachersinstancereport'] = '<p><a href="{$a}" target="_self">&gt;&gt; Zum Trainer:innen-Gesamtbericht für die Buchungsinstanz</a></p>';
+$string['listentoaddresschange'] = "Reagieren auf Änderungen des Ortes der Buchungsoption";
+$string['listentoresponsiblepersonchange'] = "Reagieren auf Änderungen der verantwortlichen Person der Buchungsoption";
+$string['listentoteacherschange'] = "Reagieren auf Änderungen des Lehrerenden der Buchungsoption";
+$string['listentotimestampchange'] = "Reagieren auf Änderungen der Zeitpunktes (und Tages) der Buchungsoption";
 $string['location'] = 'Ort';
 $string['location_help'] = 'Sie können den Namen des Orts manuell eingeben oder aus einer Liste von
                             früheren Orten auswählen. Sie können nur einen Ort angeben. Sobald
@@ -1655,6 +1661,7 @@ $string['rule_optionfield_courseendtime'] = 'Ende (coursestarttime)';
 $string['rule_optionfield_coursestarttime'] = 'Beginn (coursestarttime)';
 $string['rule_optionfield_location'] = 'Ort (location)';
 $string['rule_optionfield_text'] = 'Name der Buchungsoption (text)';
+$string['rule_react_on_change_event_desc'] = 'Für das "Buchungsoption aktualisiert" Event können Sie Ihre Einstellungen hier ändern: <a href="{$a}">Einstellungen</a>';
 $string['rule_react_on_event'] = 'Reagiere auf Ereignis';
 $string['rule_react_on_event_after_completion'] = "Anzahl der Tage nach dem Ende der Buchungsoption, in denen die Regel weiterhin gilt";
 $string['rule_react_on_event_after_completion_help'] = "Feld leer lassen oder auf 0 setzen, wenn die Aktion unbegrenzt gelten soll. Sie können negative Zahlen eingeben, damit die Regel bereits vor dem Kursende ausgesetzt wird.";
@@ -1665,6 +1672,8 @@ $string['rule_sendmail_cpf_desc'] = 'Wählen Sie ein Event aus, auf das reagiert
 (Sie können auch Platzhalter wie {bookingdetails} verwenden) und legen Sie fest, an welche Nutzer:innen die E-Mail versendet werden soll.
 Beispiel: Alle Nutzer:innen, die im benutzerdefinierten Feld "Studienzentrumsleitung" den Wert "SZL Wien" stehen haben.';
 $string['rule_value'] = 'Wert';
+$string['rulessettings'] = "Einstellungen für Regeln";
+$string['rulessettingsdesc'] = 'Einstellungen, die für die <a href="{$a}">Funktion Buchungs Regeln</a> gelten.';
 $string['sameday'] = 'Selber Tag';
 $string['saturday'] = 'Samstag';
 $string['saveinstanceastemplate'] = 'Buchung als Vorlage hinzufügen';
