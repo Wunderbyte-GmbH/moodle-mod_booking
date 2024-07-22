@@ -174,6 +174,7 @@ define('MOD_BOOKING_OPTION_FIELD_EASY', 3); // This field is part of easy.
 define('MOD_BOOKING_OPTION_FIELD_PREPARE_IMPORT', 1); // Has to be the first field class.
 define('MOD_BOOKING_OPTION_FIELD_ID', 10);
 define('MOD_BOOKING_OPTION_FIELD_JSON', 11);
+define('MOD_BOOKING_OPTION_FIELD_DUPLICATION', 12); // Needed for duplication to work.
 define('MOD_BOOKING_OPTION_FIELD_RETURNURL', 20);
 define('MOD_BOOKING_OPTION_FIELD_FORMCONFIG', 25);
 define('MOD_BOOKING_OPTION_FIELD_MOVEOPTION', 28);

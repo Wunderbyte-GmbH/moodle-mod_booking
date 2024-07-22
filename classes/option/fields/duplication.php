@@ -41,13 +41,13 @@ use stdClass;
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class template extends field_base {
+class duplication extends field_base {
 
     /**
      * This ID is used for sorting execution.
      * @var int
      */
-    public static $id = MOD_BOOKING_OPTION_FIELD_TEMPLATE;
+    public static $id = MOD_BOOKING_OPTION_FIELD_DUPLICATION;
 
     /**
      * Some fields are saved with the booking option...
@@ -67,7 +67,7 @@ class template extends field_base {
      * An int value to define if this field is standard or used in a different context.
      * @var array
      */
-    public static $fieldcategories = [MOD_BOOKING_OPTION_FIELD_STANDARD];
+    public static $fieldcategories = [MOD_BOOKING_OPTION_FIELD_NECESSARY];
 
     /**
      * Additionally to the classname, there might be others keys which should instantiate this class.
@@ -108,44 +108,7 @@ class template extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
-        if (!empty($formdata['id'])) {
-            return;
-        }
-
-        global $DB;
-
-        // Option templates.
-        $optiontemplates = ['' => ''];
-        $alloptiontemplates = $DB->get_records('booking_options', ['bookingid' => 0], '', $fields = 'id, text', 0, 0);
-
-        if (empty($alloptiontemplates)) {
-            return;
-        }
-
-        // Standardfunctionality to add a header to the mform (only if its not yet there).
-        fields_info::add_header_to_mform($mform, self::$header);
-
-        // Button to attach JavaScript to reload the form.
-        $mform->registerNoSubmitButton('btn_changetemplate');
-        $mform->addElement('submit', 'btn_changetemplate', 'xxx',
-            [
-            'class' => 'd-none',
-            'data-action' => 'btn_changetemplate',
-        ]);
-
-        // If there is no license key and there is more than one template, we only use the first one.
-        if (count($alloptiontemplates) > 1 && !wb_payment::pro_version_is_activated()) {
-            $alloptiontemplates = [reset($alloptiontemplates)];
-            $mform->addElement('static', 'nolicense', get_string('licensekeycfg', 'mod_booking'),
-                get_string('licensekeycfgdesc', 'mod_booking'));
-        }
-
-        foreach ($alloptiontemplates as $key => $value) {
-            $optiontemplates[$value->id] = $value->text;
-        }
-
-        $mform->addElement('select', 'optiontemplateid', get_string('populatefromtemplate', 'mod_booking'),
-            $optiontemplates);
+        // No definition needed.
     }
 
     /**
@@ -161,10 +124,10 @@ class template extends field_base {
             return;
         }
 
-        if (isset($data->btn_changetemplate)) {
+        if (!empty($data->copyoptionid)) {
             // First, retrieve the template we want to use.
 
-            $optionid = $data->optiontemplateid;
+            $optionid = $data->copyoptionid;
             // Now, we need to create the data for this option the same way we would create it otherwise...
             $templateoption = (object)[
                 'cmid' => $data->cmid,
@@ -201,37 +164,6 @@ class template extends field_base {
                 }
             }
             throw new moodle_exception('loadtemplate', 'mod_booking');
-        }
-    }
-
-    /**
-     * Definition after data callback
-     * @param MoodleQuickForm $mform
-     * @param mixed $formdata
-     * @return void
-     * @throws coding_exception
-     */
-    public static function definition_after_data(MoodleQuickForm &$mform, $formdata) {
-
-        if (!empty($formdata->id)) {
-            return;
-        }
-
-        $values = $mform->_defaultValues;
-        $formdata = $values;
-
-        // If we have applied the change template value, we override all the values we have submitted.
-        if (!empty($formdata['btn_changetemplate'])) {
-            foreach ($values as $k => $v) {
-
-                if ($mform->elementExists($k) && $v !== null) {
-
-                    if ($mform->elementExists($k)) {
-                        $element = $mform->getElement($k);
-                        $element->setValue($v);
-                    }
-                }
-            }
         }
     }
 }
