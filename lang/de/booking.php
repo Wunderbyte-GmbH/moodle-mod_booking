@@ -885,6 +885,7 @@ auch der verbundene Moodle-Kurs dupliziert (Achtung: Nutzer:innen-Daten des Mood
 Da das Duplizieren asynchron über einen Adhoc-Task gemacht wird, stellen Sie bitte sicher, dass der CRON-Task regelmäßig läuft.';
 $string['duplicatename'] = 'Diese Bezeichnung für eine Buchungsoption existiert bereits. Bitte wählen Sie eine andere.';
 $string['duplicationrestore'] = 'Buchungsinstanzen: Duplizieren, Backup und Wiederherstellen';
+$string['duplication'] = 'Duplizierung';
 $string['duplicationrestoredesc'] = 'Hier können Sie einstellen, welche Informationen beim Duplizieren bzw. beim Backup / Wiederherstellen von Buchungsinstanzen inkludiert werden sollen.';
 $string['duplicationrestoreentities'] = 'Entities inkludieren';
 $string['duplicationrestoreoption'] = 'Buchungsoptionen: Duplizieren ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';

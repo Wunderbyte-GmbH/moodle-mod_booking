@@ -894,6 +894,7 @@ $string['duplicatemoodlecourses_desc'] = 'When this setting is active and you du
 then the connected Moodle course will also be duplicated. This will be done with an adhoc task,
 so be sure that CRON runs regularly.';
 $string['duplicatename'] = 'This booking option name already exists. Please choose another one.';
+$string['duplication'] = 'Duplication';
 $string['duplicationrestore'] = 'Booking instances: Duplication, backup and restore';
 $string['duplicationrestoredesc'] = 'Here you can set which information you want to include when duplicating or backing up / restoring booking instances.';
 $string['duplicationrestoreentities'] = 'Include entities';
