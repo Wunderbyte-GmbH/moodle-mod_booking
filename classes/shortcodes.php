@@ -434,15 +434,15 @@ class shortcodes {
                 'cmid' => $settings->cmid,
                 'userid' => $USER->id,
             ]);
-            $out .= html_writer::tag('a', $settings->get_title_with_prefix(),
+            $out .= html_writer::tag(
+                'a',
+                $settings->get_title_with_prefix(),
                 [
                     'class' => 'mod-booking-linkbacktocourse btn btn-nolabel',
                     'href' => $url->out(false),
                 ]
             );
-
         }
-
         return $out;
     }
 

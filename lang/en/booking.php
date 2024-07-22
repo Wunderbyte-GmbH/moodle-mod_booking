@@ -1216,6 +1216,7 @@ $string['limitchangestrackinginrules'] = "Limit reactions on changes in booking 
 $string['limitchangestrackinginrulesdesc'] = "If you activate this setting, the booking rule react on change will only apply to the selected fields.";
 $string['limitfactor'] = 'Booking limit factor';
 $string['limitfactor_help'] = 'Specify a value by which to multiply the booking limit. For example, to increase the booking limit by 20%, enter the value <b>1.2</b>.';
+$string['linkbacktocourse'] = 'Link to booking option';
 $string['linkgotobookingoption'] = 'Go to booked option: {$a}</a>';
 $string['linknotavailableyet'] = "The link to access the meeting is available only 15 minutes before the start
 until the end of the session.";
