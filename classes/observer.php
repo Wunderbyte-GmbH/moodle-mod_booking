@@ -383,6 +383,23 @@ class mod_booking_observer {
         $optionid = $event->objectid ?? 0;
         $eventname = "\\" . get_class($event);
 
+        // Only execute rules for bookingoption_changed event according to settings.
+        if (!empty(get_config('booking', 'limitchangestrackinginrules'))
+            && $eventname == '\mod_booking\event\bookingoption_updated') {
+            if (!empty($data['other']['changes'])) {
+                $changes = $data['other']['changes'];
+                foreach ($changes as $index => $change) {
+                    if (empty($change['fieldname'])) {
+                        continue;
+                    }
+                    if (self::ruleevent_excluded_via_config($change['fieldname'])) {
+                        unset($changes[$index]);
+                    }
+                }
+            }
+
+        }
+
         $contextid = $event->contextid;
         $records = booking_rules::get_list_of_saved_rules_by_context($contextid, $eventname);
 
@@ -406,6 +423,52 @@ class mod_booking_observer {
                     $rule->execute($optionid, 0);
                 }
             }
+        }
+    }
+
+    /**
+     * Check if event is excluded via config.
+     *
+     * @param mixed $fieldname
+     *
+     * @return bool
+     *
+     */
+    private static function ruleevent_excluded_via_config($fieldname): bool {
+
+        if (empty(get_config('booking', 'limitchangestrackinginrules'))) {
+            return false;
+        }
+
+        switch ($fieldname) {
+            // Teacher.
+            case "teachers":
+                $config = get_config('booking', 'listentoteacherschange');
+                break;
+            // Responsiblecontact.
+            case "responsiblecontact":
+                $config = get_config('booking', 'listentoresponsiblepersonchange');
+                break;
+            // Beginning and ending or location of date.
+            case "dates":
+                $config = get_config('booking', 'listentotimestampchange');
+                break;
+            // Address can be with or without entities plugin.
+            case "address":
+                $config = get_config('booking', 'listentoaddresschange');
+                break;
+            case "entities":
+                $config = get_config('booking', 'listentoaddresschange');
+                break;
+            default:
+                return true;
+        }
+
+        // Empty means excluded from tracking.
+        if (empty($config)) {
+            return true;
+        } else {
+            return false;
         }
     }
 
