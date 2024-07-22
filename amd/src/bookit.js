@@ -250,7 +250,7 @@ export const initprepagemodal = (optionid, userid, totalnumberofpages, uniquid) 
 
         elements.forEach(element => {
 
-            if (!element.querySelector('[data-action="bookondetail"]')) {
+            if (element.querySelector('[data-action="bookondetail"]')) {
                 // eslint-disable-next-line no-console
                 console.log('bookondetail abort');
                 return;
