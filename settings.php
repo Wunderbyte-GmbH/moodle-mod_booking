@@ -458,7 +458,7 @@ if ($ADMIN->fulltree) {
     $settings->add(
         new admin_setting_configcheckbox('booking/limitchangestrackinginrules',
                 get_string('limitchangestrackinginrules', 'mod_booking'),
-                get_string('limitchangestrackinginrulesdesc', 'mod_booking'), 0));
+                get_string('limitchangestrackinginrulesdesc', 'mod_booking'), 1));
 
     $limitchangestrackinginrules = get_config('booking', 'limitchangestrackinginrules') == 1;
     if ($limitchangestrackinginrules) {
