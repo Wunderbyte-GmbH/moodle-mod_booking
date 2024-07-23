@@ -436,12 +436,11 @@ class enrolledincourse implements bo_condition {
             $a = '';
             $coursestringsarr = [];
             foreach ($this->customsettings->courseids as $courseid) {
-                if (empty($courseid)) {
-                    continue;
+                if ($course = singleton_service::get_course($courseid)) {
+                    $coursestringsarr[] = $course->fullname;
                 }
-                $course = singleton_service::get_course($courseid);
-                $coursestringsarr[] = $course->fullname;
             }
+
             $a = implode(', ', $coursestringsarr);
 
             if (isset($this->customsettings->courseidsoperator)

@@ -250,6 +250,7 @@ class singleton_service {
             return $instance->bookingsbybookingid[$bookingid];
         } else {
             $cm = get_coursemodule_from_instance('booking', $bookingid);
+
             $booking = new booking($cm->id);
             $instance->bookingsbybookingid[$bookingid] = $booking;
             return $booking;
@@ -309,6 +310,7 @@ class singleton_service {
         } else {
             try {
                 $cm = get_coursemodule_from_instance('booking', $bookingid);
+
                 $settings = new booking_settings($cm->id);
                 $instance->bookingsettingsbybookingid[$bookingid] = $settings;
                 return $settings;
@@ -526,18 +528,21 @@ class singleton_service {
 
     /**
      * Return course with given id.
+     * Returns false if course does not exist anymore.
      *
      * @param int $courseid
-     * @return object
+     * @return object|bool
      */
-    public static function get_course(int $courseid): object {
+    public static function get_course(int $courseid) {
 
         global $DB;
 
         $instance = self::get_instance();
 
         if (!isset($instance->courses[$courseid])) {
-            $course = $DB->get_record('course', ['id' => $courseid], '*', IGNORE_MISSING);
+            if (!$course = $DB->get_record('course', ['id' => $courseid], '*', IGNORE_MISSING)) {
+                return false;
+            }
             $instance->courses[$courseid] = $course;
         }
 
