@@ -26,6 +26,7 @@ namespace mod_booking\bo_availability\conditions;
 
 use context_course;
 use context_system;
+use Exception;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
@@ -103,19 +104,31 @@ class enrolledincourse implements bo_condition {
 
             if (empty($this->customsettings->courseidsoperator) || $this->customsettings->courseidsoperator != 'OR') {
                 foreach ($courseids as $courseid) {
-                    $context = context_course::instance($courseid);
-                    $enrolled = $enrolled && is_enrolled($context, $userid, '', true);
+                    try {
+                        $context = context_course::instance($courseid);
+                        $enrolled = $enrolled && is_enrolled($context, $userid, '', true);
+                    } catch (Exception $e) {
+                        // If the course does not exist anymore, we can't be enrolled.
+                        $enrolled = false;
+                    }
+
                     // We only get true, if the user is enrolled in ALL courses of the condition.
                 }
             } else {
                 $enrolled = false;
                 foreach ($courseids as $courseid) {
-                    $context = context_course::instance($courseid);
-                    // As soon as we find an enrollement, we break.
-                    if (is_enrolled($context, $userid)) {
-                        $enrolled = true;
-                        break;
+
+                    try {
+                        $context = context_course::instance($courseid);
+                        // As soon as we find an enrollement, we break.
+                        if (is_enrolled($context, $userid)) {
+                            $enrolled = true;
+                            break;
+                        }
+                    } catch (Exception $e) {
+                        // Do nothing.
                     }
+
                     // We only get true, if the user is enrolled in one of the courses of the condition.
                 }
             }
