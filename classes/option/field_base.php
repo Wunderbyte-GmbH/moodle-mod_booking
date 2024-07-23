@@ -209,10 +209,7 @@ abstract class field_base implements fields {
         }
 
         $excludeclassesfromtrackingchanges = MOD_BOOKING_CLASSES_EXCLUDED_FROM_CHANGES_TRACKING;
-        $areaswithuseridstoresolve = [
-            'responsiblecontact',
-            'teachersforoption',
-        ];
+
         $classname = fields_info::get_class_name(static::class);
         if (in_array($classname, $excludeclassesfromtrackingchanges)) {
             return [];
@@ -251,48 +248,9 @@ abstract class field_base implements fields {
             }
 
             $infotext = get_string($classname, 'booking') . get_string('changeinfochanged', 'booking');
-            // In some cases, formvalues are ids of users, we make them readable.
+
             if ($oldvalue != $newvalue
-                && in_array($key, $areaswithuseridstoresolve)
-                && !(empty($oldvalue) && empty($newvalue)) ) {
-                    $oldvaluestring = "";
-                    $newvaluestring = "";
-
-                if (!empty($oldvalue)) {
-                    if (is_array($oldvalue)) {
-                        foreach ($oldvalue as $userid) {
-                            $ov = $this->resolve_userid_as_readable_personparams((int) $userid, $oldvaluestring);
-                        };
-                    } else {
-                        $ov = $this->resolve_userid_as_readable_personparams((int) $oldvalue, $oldvaluestring);
-                    }
-                    if (!$ov) {
-                        $oldvaluestring = $oldvalue;
-                    }
-                }
-                if (!empty($newvalue)) {
-                    if (is_array($newvalue)) {
-                        foreach ($newvalue as $userid) {
-                            $nv = $this->resolve_userid_as_readable_personparams((int) $userid, $newvaluestring);
-                        };
-                    } else {
-                        $nv = $this->resolve_userid_as_readable_personparams((int) $newvalue, $newvaluestring);
-                    }
-                    if (!$nv) {
-                        $newvaluestring = $newvalue;
-                    }
-                }
-
-                $changes = [
-                    'changes' => [
-                        'info' => $infotext,
-                        'fieldname' => $classname,
-                        'oldvalue' => $oldvaluestring,
-                        'newvalue' => $newvaluestring,
-                    ],
-                ];
-            } else if ($oldvalue != $newvalue
-            && !(empty($oldvalue) && empty($newvalue))) {
+                && !(empty($oldvalue) && empty($newvalue))) {
                 $changes = [
                     'changes' => [
                         'info' => $infotext,
@@ -303,6 +261,82 @@ abstract class field_base implements fields {
                 ];
             }
         }
+        return $changes;
+    }
+
+    /**
+     * Return values for bookingoption_updated event.
+     *
+     * @param array $changes
+     *
+     * @return array
+     *
+     */
+    public function get_changes_description(array $changes): array {
+        $oldvalue = $changes['oldvalue'];
+        $newvalue = $changes['newvalue'];
+        $fieldname = $changes['fieldname'];
+
+        if ((empty($oldvalue) && empty($newvalue)) || $oldvalue == $newvalue) {
+            return [];
+        }
+
+        $areaswithuseridstoresolve = [
+            'responsiblecontact',
+            'teachers',
+        ];
+
+        $areaswithtimestampstoresolve = [
+            'coursestarttime',
+            'courseendtime',
+        ];
+
+        $infotext = get_string($changes['fieldname'], 'booking') . get_string('changeinfochanged', 'booking');
+        $changes = [
+            'info' => $infotext,
+            'oldvalue' => $oldvalue,
+            'newvalue' => $newvalue,
+        ];
+
+        // In some cases, formvalues are ids of users, we make them readable.
+        if (in_array($fieldname, $areaswithuseridstoresolve)) {
+            $oldvaluestring = "";
+            $newvaluestring = "";
+
+            if (!empty($oldvalue)) {
+                if (is_array($oldvalue)) {
+                    foreach ($oldvalue as $userid) {
+                        $ov = $this->resolve_userid_as_readable_personparams((int) $userid, $oldvaluestring);
+                    };
+                } else {
+                    $ov = $this->resolve_userid_as_readable_personparams((int) $oldvalue, $oldvaluestring);
+                }
+                if (!$ov) {
+                    $oldvaluestring = $oldvalue;
+                }
+            }
+            if (!empty($newvalue)) {
+                if (is_array($newvalue)) {
+                    foreach ($newvalue as $userid) {
+                        $nv = $this->resolve_userid_as_readable_personparams((int) $userid, $newvaluestring);
+                    };
+                } else {
+                    $nv = $this->resolve_userid_as_readable_personparams((int) $newvalue, $newvaluestring);
+                }
+                if (!$nv) {
+                    $newvaluestring = $newvalue;
+                }
+            }
+
+            $changes['oldvalue'] = $oldvaluestring;
+            $changes['newvalue'] = $newvaluestring;
+        } else if (in_array($fieldname, $areaswithtimestampstoresolve)) {
+            // In some cases, values are timestamps that need to be made human readable.
+            $changes['oldvalue'] = empty($oldvalue) ? "" : userdate($oldvalue, get_string('strftimedatetime', 'langconfig'));
+            $changes['newvalue'] = empty($newvalue) ? "" : userdate($newvalue, get_string('strftimedatetime', 'langconfig'));
+        }
+
+        $changes['fieldname'] = get_string($fieldname);
         return $changes;
     }
     /**

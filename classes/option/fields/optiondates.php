@@ -244,4 +244,50 @@ class optiondates extends field_base {
 
         dates::definition_after_data($mform, $formdata);
     }
+
+    /**
+     * Return values for bookingoption_updated event.
+     *
+     * @param array $changes
+     *
+     * @return array
+     *
+     */
+    public function get_changes_description(array $changes): array {
+
+        $infotext = get_string($changes['fieldname'], 'booking') . get_string('changeinfochanged', 'booking');
+        $oldvalue = isset($changes['oldvalue']) ? $this->prepare_dates_array($changes['oldvalue']) : "";
+        $newvalue = isset($changes['newvalue']) ? $this->prepare_dates_array($changes['newvalue']) : "";
+        return [
+            'info' => $infotext,
+            'oldvalue' => $oldvalue,
+            'newvalue' => $newvalue,
+            'fieldname' => get_string($changes['fieldname']),
+        ];
+
+    }
+
+    /**
+     * Create human readable strings of dates, times and entities (if given).
+     *
+     * @param array $dates
+     *
+     * @return array
+     *
+     */
+    private function prepare_dates_array(array $dates): array {
+        $returndates = [];
+        foreach ($dates as $date) {
+            $date = (object)$date;
+            $d = dates_handler::prettify_datetime((int)$date->coursestarttime,
+            (int)$date->courseendtime);
+            $datestring = $d->datestring;
+            if (!empty($date->entityid)) {
+                $entity = singleton_service::get_entity_by_id($date->entityid);
+                $datestring .= " " . $entity[$date->entityid]->name;
+            }
+            $returndates[] = $datestring;
+        }
+        return $returndates;
+    }
 }

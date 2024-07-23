@@ -107,6 +107,23 @@ class fields_info {
     }
 
     /**
+     * A quick way to get namespace from classname.
+     * @param string $classname
+     * @return string
+     */
+    public static function get_namespace_from_class_name($classname) {
+        $namespace = "";
+        if ($classname == "dates") {
+            $classname = "optiondates";
+        }
+        $base = 'mod_booking\\option\\fields\\' . $classname;
+        if (class_exists($base)) {
+            return $base;
+        }
+        return $namespace;
+    }
+
+    /**
      * This is a standard function to add a header, if it is not yet there.
      * @param MoodleQuickForm $mform
      * @param string $headeridentifier

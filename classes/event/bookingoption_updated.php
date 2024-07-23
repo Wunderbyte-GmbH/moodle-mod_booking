@@ -85,7 +85,12 @@ class bookingoption_updated extends \core\event\base {
             $html = '';
         }
 
-        return "User with id '{$this->userid}' updated 'booking option' with id '{$this->objectid}'." . $html;
+        $infos = (object) [
+            'userid' => $this->userid,
+            'objectid' => $this->objectid,
+        ];
+        $infostring = get_string('bookingoption_updated_desc', 'bookingoption', $infos);
+        return $infostring . $html;
     }
 
     /**

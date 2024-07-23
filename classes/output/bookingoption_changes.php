@@ -25,6 +25,7 @@
 namespace mod_booking\output;
 
 use mod_booking\option\dates_handler;
+use mod_booking\option\fields_info;
 use mod_booking\singleton_service;
 use renderer_base;
 use renderable;
@@ -74,64 +75,18 @@ class bookingoption_changes implements renderable, templatable {
 
             $entry = (array)$entry;
             if (isset($entry['fieldname'])) {
-                if ($entry['fieldname'] == 'coursestarttime') {
-                    if (isset($entry['oldvalue']) && isset($entry['newvalue'])) {
-                        $temparray = [
-                            'fieldname' => get_string('coursestarttime', 'booking'),
-                            'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime', 'langconfig')),
-                            'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime', 'langconfig')),
-                        ];
-                    } else if (isset($entry['newvalue'])) {
-                        $temparray = [
-                            'fieldname' => get_string('coursestarttime', 'booking'),
-                            'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime', 'langconfig')),
-                        ];
-                    } else {
-                        $temparray = [
-                            'fieldname' => get_string('coursestarttime', 'booking'),
-                            'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime', 'langconfig')),
-                        ];
-                    }
-                } else if ($entry['fieldname'] == 'courseendtime') {
-                    if (isset($entry['oldvalue']) && isset($entry['newvalue'])) {
-                        $temparray = [
-                            'fieldname' => get_string('courseendtime', 'booking'),
-                            'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime', 'langconfig')),
-                            'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime', 'langconfig')),
-                        ];
-                    } else if (isset($entry['newvalue'])) {
-                        $temparray = [
-                            'fieldname' => get_string('courseendtime', 'booking'),
-                            'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime', 'langconfig')),
-                        ];
-                    } else {
-                        $temparray = [
-                            'fieldname' => get_string('courseendtime', 'booking'),
-                            'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime', 'langconfig')),
-                        ];
-                    }
-                } else if ($entry['fieldname'] == 'dates') {
-                    $oldvalue = isset($entry['oldvalue']) ? $this->prepare_dates_array($entry['oldvalue']) : "";
-                    $newvalue = isset($entry['newvalue']) ? $this->prepare_dates_array($entry['newvalue']) : "";
-                    $temparray = [
-                        'oldvalue' => $oldvalue,
-                        'newvalue' => $newvalue,
-                    ];
+                $fieldname = $entry['fieldname'];
+                $classname = fields_info::get_namespace_from_class_name($fieldname);
+                if (!empty($classname)) {
+                    $fieldsclass = new $classname;
+                    $changes = $fieldsclass->get_changes_description($entry);
                 } else {
-                    $temparray = [
-                        'fieldname' => get_string($entry['fieldname'], 'booking'),
-                        'oldvalue' => $entry['oldvalue'],
-                        'newvalue' => $entry['newvalue'],
-                    ];
-                }
-
-                // If there is an info field, then add it.
-                if (isset($entry['info'])) {
-                    $temparray = array_merge($temparray, ['info' => $entry['info']]);
+                    // Probably the classname doesn't match the namespace.
+                    $changes = [];
                 }
 
                 // Now add the current change to the newchangesarray.
-                $newchangesarray[] = $temparray;
+                $newchangesarray[] = $changes;
 
             } else {
                 // Custom fields with links to video meeting sessions.
@@ -179,27 +134,4 @@ class bookingoption_changes implements renderable, templatable {
 
     }
 
-    /**
-     * Create human readable strings of dates, times and entities (if given).
-     *
-     * @param array $dates
-     *
-     * @return array
-     *
-     */
-    private function prepare_dates_array(array $dates): array {
-        $returndates = [];
-        foreach ($dates as $date) {
-            $date = (object)$date;
-            $d = dates_handler::prettify_datetime((int)$date->coursestarttime,
-            (int)$date->courseendtime);
-            $datestring = $d->datestring;
-            if (!empty($date->entityid)) {
-                $entity = singleton_service::get_entity_by_id($date->entityid);
-                $datestring .= " " . $entity[$date->entityid]->name;
-            }
-            $returndates[] = $datestring;
-        }
-        return $returndates;
-    }
 }
