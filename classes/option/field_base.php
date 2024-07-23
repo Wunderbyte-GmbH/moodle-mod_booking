@@ -247,13 +247,10 @@ abstract class field_base implements fields {
                 $newvalue = $value;
             }
 
-            $infotext = get_string($classname, 'booking') . get_string('changeinfochanged', 'booking');
-
             if ($oldvalue != $newvalue
                 && !(empty($oldvalue) && empty($newvalue))) {
                 $changes = [
                     'changes' => [
-                        'info' => $infotext,
                         'fieldname' => $classname,
                         'oldvalue' => $oldvalue,
                         'newvalue' => $newvalue,
@@ -336,7 +333,7 @@ abstract class field_base implements fields {
             $changes['newvalue'] = empty($newvalue) ? "" : userdate($newvalue, get_string('strftimedatetime', 'langconfig'));
         }
 
-        $changes['fieldname'] = get_string($fieldname);
+        $changes['fieldname'] = get_string($fieldname, 'mod_booking');
         return $changes;
     }
     /**

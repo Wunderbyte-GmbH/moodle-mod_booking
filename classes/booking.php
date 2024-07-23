@@ -1677,10 +1677,7 @@ class booking {
                         break;
                 }
 
-                $localizedstring = $keyslocalization[$key] ?? get_string($fieldname, 'mod_booking');
-
                 $returnarry[] = [
-                    'info' => $localizedstring . get_string('changeinfochanged', 'booking'),
                     'fieldname' => $fieldname,
                     'oldvalue' => $oldoption->{$key},
                     'newvalue' => $value,
