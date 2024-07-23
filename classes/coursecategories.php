@@ -17,6 +17,7 @@
 namespace mod_booking;
 
 use dml_exception;
+use Exception;
 
 /**
  * Manage coursecategories in berta.
@@ -68,10 +69,11 @@ class coursecategories {
     /**
      * Returns specific booking information for any course category.
      * @param int $contextid
+     * @param string $additionalcountfield
      * @return array
      * @throws dml_exception
      */
-    public static function return_booking_information_for_coursecategory(int $contextid) {
+    public static function return_booking_information_for_coursecategory(int $contextid, $additionalcountfield = '') {
 
         global $DB;
 
@@ -86,6 +88,24 @@ class coursecategories {
             $params['path'] = "/1/$contextid/%";
         }
 
+        if (!empty($additionalcountfield)) {
+            $additionalselect = ', SUM (realparticipants) realparticipants ';
+            $intvalue = $DB->sql_cast_char2int('cfd.charvalue');
+            $additionalfrom = "
+                LEFT JOIN (SELECT cfd.instanceid as optionid, SUM( $intvalue ) as realparticipants
+                FROM {customfield_field} cff
+                JOIN {customfield_data} cfd ON cff.id = cfd.fieldid
+                JOIN {customfield_category} cfc ON cff.categoryid = cfc.id
+                WHERE cff.shortname =:additionalcountfield AND cfc.component='mod_booking'
+                GROUP BY optionid
+                ) s4 ON s4.optionid = bo.id
+            ";
+            $params['additionalcountfield'] = $additionalcountfield;
+        } else {
+            $additionalfrom = '';
+            $additionalselect = '';
+        }
+
         $sql = "SELECT cm.id,
                        b.name,
                        b.id as bookingid,
@@ -93,7 +113,7 @@ class coursecategories {
                        COUNT(bo.id) bookingoptions,
                        SUM(booked) booked,
                        SUM(waitinglist) waitinglist,
-                       SUM(reserved) reserved
+                       SUM(reserved) reserved $additionalselect
         FROM {course_modules} cm
         JOIN {modules} m ON cm.module = m.id
         JOIN {booking} b on cm.instance = b.id
@@ -114,10 +134,20 @@ class coursecategories {
               WHERE ba.waitinglist = 2
               GROUP BY ba.optionid
               ) s3 ON s3.optionid = bo.id
+        $additionalfrom
         WHERE " . implode(' AND ', $where) .
         " GROUP BY cm.id, b.name, b.id, b.intro  ";
 
-        $records = $DB->get_records_sql($sql, $params);
+        try {
+            $records = $DB->get_records_sql($sql, $params);
+        } catch (Exception $e) {
+            // If we run into an exception, might be that the field has a wrong value and we can't cast it to int.
+            // Therefore, we just try again without the additional column.
+            if (!empty($additionalcountfield)) {
+                $records = self::return_booking_information_for_coursecategory($contextid);
+            }
+        }
+
 
         return $records;
     }
