@@ -147,8 +147,6 @@ class coursecategories {
                 $records = self::return_booking_information_for_coursecategory($contextid);
             }
         }
-
-
         return $records;
     }
 

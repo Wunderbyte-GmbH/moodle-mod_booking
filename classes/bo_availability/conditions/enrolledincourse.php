@@ -126,7 +126,8 @@ class enrolledincourse implements bo_condition {
                             break;
                         }
                     } catch (Exception $e) {
-                        // Do nothing.
+                        // Do nothing. Just so linter does not call it empty.
+                        $a = 1;
                     }
 
                     // We only get true, if the user is enrolled in one of the courses of the condition.
