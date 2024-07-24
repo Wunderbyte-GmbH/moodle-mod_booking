@@ -594,7 +594,7 @@ class shortcodes {
         $table = new bulkoperations_table(bin2hex(random_bytes(12)));
         $columns = [
             'id' => get_string('id', 'local_wunderbyte_table'),
-            'text' => get_string('text', 'mod_booking'),
+            'text' => get_string('title', 'mod_booking'),
             'action' => get_string('edit'),
         ];
         // Add defined customfields from args to columns.
