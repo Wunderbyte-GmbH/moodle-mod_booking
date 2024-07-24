@@ -299,4 +299,80 @@ class rules_info {
         global $DB;
         $DB->delete_records('booking_rules', ['id' => (int)$ruleid]);
     }
+
+    /**
+     * Execute rules for event.
+     *
+     * @param \core\event\base $event
+     *
+     * @return void
+     *
+     */
+    public static function execute_rules(\core\event\base $event) {
+
+        $data = $event->get_data();
+
+        // Check if rule is from booking plugin or another.
+        if ($data['component'] !== 'mod_booking') {
+            if (!self::proceed_with_event($event, $data)) {
+                return;
+            };
+        }
+        // Triggered again with optionid 1 ??
+        $optionid = $event->objectid ?? $data['other']['optionid'] ?? 0;
+        $eventname = "\\" . get_class($event);
+
+        $contextid = $event->contextid;
+        $records = booking_rules::get_list_of_saved_rules_by_context($contextid, $eventname);
+
+        // Now we check all the existing rules from booking.
+        foreach ($records as $record) {
+            // TODO this needs to be updated: Maybe rulename with namespace from event.
+            $rule = self::get_rule($record->rulename);
+
+            // THIS is the place where we need to add event data to the rulejson!
+            $ruleobj = json_decode($record->rulejson);
+
+            $ruleobj->datafromevent = $data;
+            // We save rulejson again with added event data.
+            $record->rulejson = json_encode($ruleobj);
+            // Save it into the rule.
+            $rule->set_ruledata($record);
+
+            // We only execute if the rule in question listens to the right event.
+            if (!empty($rule->boevent)) {
+                if ($data['eventname'] == $rule->boevent) {
+                    $rule->execute($optionid, 0);
+                }
+            }
+        }
+    }
+
+    /**
+     * Check if booking rules are applicable for this type of event.
+     *
+     * @param \core\event\base $event
+     * @param array $data
+     *
+     * @return bool
+     *
+     */
+    private static function proceed_with_event(\core\event\base $event, array $data): bool {
+
+        switch ($data['component']) {
+            case 'local_shopping_cart':
+                $acceptedeventsfromshoppingcart = [
+                    'item_bought',
+                ];
+                foreach ($acceptedeventsfromshoppingcart as $accepted) {
+                    if (str_contains($data['eventname'], $accepted)) {
+                        return true;
+                    }
+                }
+                return false;
+            default:
+                return false;
+        }
+
+    }
 }

@@ -124,12 +124,31 @@ class rule_react_on_event implements booking_rule {
         $allevents = get_list_of_booking_events();
         $allowedevents["0"] = get_string('choose...', 'mod_booking');
 
-        // Currently, we only allow events affecting booking options.
         foreach ($allevents as $key => $value) {
             $eventnameonly = str_replace("\\mod_booking\\event\\", "", $key);
             if (in_array($eventnameonly, $allowedeventkeys)) {
                 $allowedevents[$key] = $value;
             }
+        }
+
+        // If shoppingcart is installed, we add events from shoppingcart.
+        $pluginman = core_plugin_manager::instance();
+        $shoppingcart = $pluginman->get_plugin_info('local_shopping_cart');
+        if ($shoppingcart) {
+            global $CFG;
+            require_once($CFG->dirroot . '/local/shopping_cart/lib.php');
+            $eventkeysfromshoppingcart = [
+                'item_bought',
+            ];
+            $shoppingcartevents = get_list_of_shoppingcart_events();
+            foreach ($shoppingcartevents as $key => $value) {
+                $eventnameonly = str_replace("\\local_shopping_cart\\event\\", "", $key);
+                if (in_array($eventnameonly, $eventkeysfromshoppingcart)) {
+                    $scallowedevents[$key] = $value;
+                }
+            }
+
+            $allowedevents = array_merge($allowedevents, $scallowedevents);
         }
 
         // Workaround: We need a group to get hideif to work.

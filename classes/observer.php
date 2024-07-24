@@ -24,8 +24,6 @@
  */
 
 use mod_booking\booking_option;
-use mod_booking\booking_rules\booking_rule;
-use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\calendar;
 use mod_booking\elective;
@@ -373,39 +371,7 @@ class mod_booking_observer {
      */
     public static function execute_rule(\core\event\base $event) {
 
-        // We want booking events only.
-        $data = $event->get_data();
-        if ($data['component'] !== 'mod_booking') {
-            return;
-        }
-
-        $optionid = $event->objectid ?? 0;
-        $eventname = "\\" . get_class($event);
-
-        $contextid = $event->contextid;
-        $records = booking_rules::get_list_of_saved_rules_by_context($contextid, $eventname);
-
-        // Now we check all the existing rules.
-        foreach ($records as $record) {
-
-            $rule = rules_info::get_rule($record->rulename);
-
-            // THIS is the place where we need to add event data to the rulejson!
-            $ruleobj = json_decode($record->rulejson);
-
-            $ruleobj->datafromevent = $data;
-            // We save rulejson again with added event data.
-            $record->rulejson = json_encode($ruleobj);
-            // Save it into the rule.
-            $rule->set_ruledata($record);
-
-            // We only execute if the rule in question listens to the right event.
-            if (!empty($rule->boevent)) {
-                if ($data['eventname'] == $rule->boevent) {
-                    $rule->execute($optionid, 0);
-                }
-            }
-        }
+        rules_info::execute_rules($event);
     }
 
     /**
