@@ -262,7 +262,7 @@ class optiondates extends field_base {
             'info' => $infotext,
             'oldvalue' => $oldvalue,
             'newvalue' => $newvalue,
-            'fieldname' => get_string($changes['fieldname']),
+            'fieldname' => get_string($changes['fieldname'], 'booking'),
         ];
 
     }

@@ -310,7 +310,7 @@ class entities extends field_base {
 
         return [
             'info' => $infotext,
-            'fieldname' => get_string($changes['fieldname']),
+            'fieldname' => get_string($changes['fieldname'], 'booking'),
             'oldvalue' => $oldvalue,
             'newvalue' => $newvalue,
         ];
