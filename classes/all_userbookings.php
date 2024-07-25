@@ -107,17 +107,17 @@ class all_userbookings extends \table_sql {
             case 0:
                 return '';
             case 1:
-                return get_string('status_complete', 'booking');
+                return get_string('statuscomplete', 'booking');
             case 2:
-                return get_string('status_incomplete', 'booking');
+                return get_string('statusincomplete', 'booking');
             case 3:
-                return get_string('status_noshow', 'booking');
+                return get_string('statusnoshow', 'booking');
             case 4:
-                return get_string('status_failed', 'booking');
+                return get_string('statusfailed', 'booking');
             case 5:
-                return get_string('status_unknown', 'booking');
+                return get_string('statusunknown', 'booking');
             case 6:
-                return get_string('status_attending', 'booking');
+                return get_string('statusattending', 'booking');
             default:
                 return '';
         }
@@ -578,12 +578,12 @@ class all_userbookings extends \table_sql {
                 // Change presence status.
                 // Status order: Unknown, Attending, Complete, Incomplete, No Show, and Failed.
                 echo "<br>";
-                $presences = [5 => get_string('status_unknown', 'booking'),
-                    6 => get_string('status_attending', 'booking'),
-                    1 => get_string('status_complete', 'booking'),
-                    2 => get_string('status_incomplete', 'booking'),
-                    3 => get_string('status_noshow', 'booking'),
-                    4 => get_string('status_failed', 'booking'),
+                $presences = [5 => get_string('statusunknown', 'booking'),
+                    6 => get_string('statusattending', 'booking'),
+                    1 => get_string('statuscomplete', 'booking'),
+                    2 => get_string('statusincomplete', 'booking'),
+                    3 => get_string('statusnoshow', 'booking'),
+                    4 => get_string('statusfailed', 'booking'),
                 ];
 
                 echo html_writer::select($presences, 'selectpresencestatus', '', ['' => 'choosedots'],

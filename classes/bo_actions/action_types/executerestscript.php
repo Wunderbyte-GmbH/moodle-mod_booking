@@ -172,18 +172,18 @@ class executerestscript extends booking_action {
 
         $mform->addElement('advcheckbox',
             'customformparameter',
-            get_string('customformparams_value', 'mod_booking'),
+            get_string('customformparamsvalue', 'mod_booking'),
             get_string('customformparams_desc', 'mod_booking'));
         $mform->setDefault('customformparameter', 1);
 
         $mform->addElement('advcheckbox',
             'adminparameter',
-            get_string('adminparameter_value', 'mod_booking'),
+            get_string('adminparametervalue', 'mod_booking'),
             get_string('adminparameter_desc', 'mod_booking'));
 
         $mform->addElement('advcheckbox',
             'userparameter',
-            get_string('userparameter_value', 'mod_booking'),
+            get_string('userparametervalue', 'mod_booking'),
             get_string('userparameter_desc', 'mod_booking'));
     }
 
@@ -203,7 +203,7 @@ class executerestscript extends booking_action {
                 !is_null($value) &&
                 !is_number($value)
             ) {
-                $errors[$key] = get_string('bo_cond_customform_numbers_error', 'mod_booking');
+                $errors[$key] = get_string('bocondcustomformnumberserror', 'mod_booking');
             }
         }
         return $errors;

@@ -232,8 +232,8 @@ class subbooking implements bo_condition {
      */
     private function get_description_string($isavailable, $full) {
         if ($isavailable) {
-            $description = $full ? get_string('bo_cond_subbooking_full_available', 'mod_booking') :
-                get_string('bo_cond_subbooking_available', 'mod_booking');
+            $description = $full ? get_string('bocondsubbookingfullavailable', 'mod_booking') :
+                get_string('bocondsubbookingavailable', 'mod_booking');
         } else {
 
             $description = '';

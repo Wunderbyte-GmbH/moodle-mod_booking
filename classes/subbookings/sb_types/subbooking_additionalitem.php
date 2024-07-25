@@ -115,7 +115,7 @@ class subbooking_additionalitem implements booking_subbooking {
         $mform->addElement(
             'editor',
             'subbooking_additionalitem_description_editor',
-            get_string('subbooking_additionalitem_description', 'mod_booking'),
+            get_string('subbookingadditionalitemdescription', 'mod_booking'),
             null,
             $textfieldoptions);
         $mform->setType('subbooking_additionalitem_description', PARAM_RAW);

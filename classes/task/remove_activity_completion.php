@@ -40,7 +40,7 @@ class remove_activity_completion extends \core\task\scheduled_task {
      *
      */
     public function get_name() {
-        return get_string('task_remove_activity_completion', 'mod_booking');
+        return get_string('taskremoveactivitycompletion', 'mod_booking');
     }
 
     /**

@@ -216,14 +216,14 @@ class previouslybooked implements bo_condition {
             }
 
             $mform->addElement('advcheckbox', 'bo_cond_previouslybooked_restrict',
-                    get_string('bo_cond_previouslybooked_restrict', 'mod_booking'));
+                    get_string('bocondpreviouslybookedrestrict', 'mod_booking'));
 
             $previouslybookedoptions = [
                 'tags' => false,
                 'multiple' => false,
             ];
             $mform->addElement('autocomplete', 'bo_cond_previouslybooked_optionid',
-                get_string('bo_cond_previouslybooked_optionid', 'mod_booking'), $bookingoptionarray, $previouslybookedoptions);
+                get_string('bocondpreviouslybookedoptionid', 'mod_booking'), $bookingoptionarray, $previouslybookedoptions);
             $mform->setType('bo_cond_previouslybooked_optionid', PARAM_INT);
             $mform->hideIf('bo_cond_previouslybooked_optionid', 'bo_cond_previouslybooked_restrict', 'notchecked');
 
@@ -290,7 +290,7 @@ class previouslybooked implements bo_condition {
         } else {
             // No PRO license is active.
             $mform->addElement('static', 'bo_cond_previouslybooked_restrict',
-                get_string('bo_cond_previouslybooked_restrict', 'mod_booking'),
+                get_string('bocondpreviouslybookedrestrict', 'mod_booking'),
                 get_string('proversiononly', 'mod_booking'));
         }
 
@@ -387,8 +387,8 @@ class previouslybooked implements bo_condition {
     private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
 
         if ($isavailable) {
-            $description = $full ? get_string('bo_cond_previouslybooked_full_available', 'mod_booking') :
-                get_string('bo_cond_previouslybooked_available', 'mod_booking');
+            $description = $full ? get_string('bocondpreviouslybookedfullavailable', 'mod_booking') :
+                get_string('bocondpreviouslybookedavailable', 'mod_booking');
         } else {
 
             if (!$this->customsettings) {
@@ -413,8 +413,8 @@ class previouslybooked implements bo_condition {
             ]);
 
             $description = $full ?
-                get_string('bo_cond_previouslybooked_full_not_available', 'mod_booking', $url->out(false)) :
-                get_string('bo_cond_previouslybooked_not_available', 'mod_booking', $url->out(false));
+                get_string('bocondpreviouslybookedfullnotavailable', 'mod_booking', $url->out(false)) :
+                get_string('bocondpreviouslybookednotavailable', 'mod_booking', $url->out(false));
         }
 
         return $description;

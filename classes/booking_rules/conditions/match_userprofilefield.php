@@ -97,9 +97,9 @@ class match_userprofilefield implements booking_rule_condition {
         // Currently we only use fields containing VARCHAR in DB.
         $allowedoptionfields = [
             '0' => get_string('choose...', 'mod_booking'),
-            'text' => get_string('rule_optionfield_text', 'mod_booking'),
-            'location' => get_string('rule_optionfield_location', 'mod_booking'),
-            'address' => get_string('rule_optionfield_address', 'mod_booking'),
+            'text' => get_string('ruleoptionfieldtext', 'mod_booking'),
+            'location' => get_string('ruleoptionfieldlocation', 'mod_booking'),
+            'address' => get_string('ruleoptionfieldaddress', 'mod_booking'),
         ];
 
         // Custom user profile field to be checked.
@@ -114,17 +114,17 @@ class match_userprofilefield implements booking_rule_condition {
             }
 
             $mform->addElement('select', 'condition_match_userprofilefield_cpfield',
-                get_string('rule_customprofilefield', 'mod_booking'), $customuserprofilefieldsarray);
+                get_string('rulecustomprofilefield', 'mod_booking'), $customuserprofilefieldsarray);
 
             $operators = [
                 '=' => get_string('equals', 'mod_booking'),
                 '~' => get_string('contains', 'mod_booking'),
             ];
             $mform->addElement('select', 'condition_match_userprofilefield_operator',
-                get_string('rule_operator', 'mod_booking'), $operators);
+                get_string('ruleoperator', 'mod_booking'), $operators);
 
             $mform->addElement('select', 'condition_match_userprofilefield_optionfield',
-                get_string('rule_optionfield', 'mod_booking'), $allowedoptionfields);
+                get_string('ruleoptionfield', 'mod_booking'), $allowedoptionfields);
 
         }
 

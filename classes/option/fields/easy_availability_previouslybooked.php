@@ -192,7 +192,7 @@ class easy_availability_previouslybooked extends field_base {
             },
         ];
         $mform->addElement('autocomplete', 'bo_cond_previouslybooked_optionid',
-            get_string('bo_cond_previouslybooked_optionid', 'mod_booking'), [], $previouslybookedoptions);
+            get_string('bocondpreviouslybookedoptionid', 'mod_booking'), [], $previouslybookedoptions);
         $mform->setType('bo_cond_previouslybooked_optionid', PARAM_INT);
         $mform->hideIf('bo_cond_previouslybooked_optionid', 'bo_cond_previouslybooked_restrict', 'notchecked');
 

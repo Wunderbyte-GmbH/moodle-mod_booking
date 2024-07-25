@@ -59,7 +59,7 @@ class custom_bulk_message_sent extends \core\event\base {
      * @return string
      */
     public static function get_name() {
-        return get_string('custom_bulk_message_sent', 'mod_booking');
+        return get_string('custombulkmessagesent', 'mod_booking');
     }
 
     /**

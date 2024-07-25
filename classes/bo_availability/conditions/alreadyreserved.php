@@ -228,11 +228,11 @@ class alreadyreserved implements bo_condition {
      */
     private function get_description_string($isavailable, $full) {
         if ($isavailable) {
-            $description = $full ? get_string('bo_cond_alreadyreserved_full_available', 'mod_booking') :
-                get_string('bo_cond_alreadyreserved_available', 'mod_booking');
+            $description = $full ? get_string('bocondalreadyreservedfullavailable', 'mod_booking') :
+                get_string('bocondalreadyreservedavailable', 'mod_booking');
         } else {
-            $description = $full ? get_string('bo_cond_alreadyreserved_full_not_available', 'mod_booking') :
-                get_string('bo_cond_alreadyreserved_not_available', 'mod_booking');
+            $description = $full ? get_string('bocondalreadyreservedfullnotavailable', 'mod_booking') :
+                get_string('bocondalreadyreservednotavailable', 'mod_booking');
         }
         return $description;
     }

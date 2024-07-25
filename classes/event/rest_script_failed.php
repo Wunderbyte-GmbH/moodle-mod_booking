@@ -53,7 +53,7 @@ class rest_script_failed extends \core\event\base {
      *
      */
     public static function get_name() {
-        return get_string('rest_script_failed', 'booking');
+        return get_string('restscriptfailed', 'booking');
     }
 
     /**

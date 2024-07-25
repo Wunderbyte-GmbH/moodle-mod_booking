@@ -736,7 +736,7 @@ if (!$tableallbookings->is_downloading()) {
     $actionbuttonstop .=
         '<button class="btn btn-primary btn-sm mr-2" id="downloadsigninsheet-top-btn">
             <i class="fa fa-download fa-fw" aria-hidden="true"></i>&nbsp;' .
-            get_string('sign_in_sheet_download', 'mod_booking') .
+            get_string('signinsheetdownload', 'mod_booking') .
         '</button>';
 
     echo "<p>" .
@@ -945,7 +945,7 @@ if (!$tableallbookings->is_downloading()) {
         ['onclick' => 'copyToClipboard("' . htmlspecialchars_decode($onlyoneurl, ENT_QUOTES) . '"); return false;']);
 
     echo ' | ' . html_writer::link("#", '<i class="fa fa-list fa-fw" aria-hidden="true"></i>&nbsp;' .
-        get_string('sign_in_sheet_configure', 'mod_booking'),
+        get_string('signinsheetconfigure', 'mod_booking'),
         ['id' => 'sign_in_sheet_download']);
 
     if (!empty($bookingoption->booking->settings->customtemplateid)) {

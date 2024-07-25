@@ -1034,7 +1034,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         $navref->add(get_string('recalculateprices', 'mod_booking'),
                 new moodle_url('/mod/booking/recalculateprices.php', ['id' => $cm->id]),
                 navigation_node::TYPE_CUSTOM, null, 'nav_recalculateprices');
-        $navref->add(get_string('teachers_instance_report', 'mod_booking') . " ($bookingsettings->name)",
+        $navref->add(get_string('teachersinstancereport', 'mod_booking') . " ($bookingsettings->name)",
                 new moodle_url('/mod/booking/teachers_instance_report.php', ['cmid' => $cm->id]),
                 navigation_node::TYPE_CUSTOM, null, 'nav_teachers_instance_report');
         if (wb_payment::pro_version_is_activated()) {

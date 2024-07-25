@@ -225,10 +225,10 @@ class selectusers implements bo_condition {
             ];
 
             $mform->addElement('advcheckbox', 'bo_cond_selectusers_restrict',
-                    get_string('bo_cond_selectusers_restrict', 'mod_booking'));
+                    get_string('bocondselectusersrestrict', 'mod_booking'));
 
             $mform->addElement('autocomplete', 'bo_cond_selectusers_userids',
-                get_string('bo_cond_selectusers_userids', 'mod_booking'), [], $options);
+                get_string('bocondselectusersuserids', 'mod_booking'), [], $options);
             $mform->addHelpButton('bo_cond_selectusers_userids', 'bo_cond_selectusers_userids', 'mod_booking');
             $mform->hideIf('bo_cond_selectusers_userids', 'bo_cond_selectusers_restrict', 'notchecked');
 
@@ -295,7 +295,7 @@ class selectusers implements bo_condition {
         } else {
             // No PRO license is active.
             $mform->addElement('static', 'static:selectusers',
-                get_string('bo_cond_selectusers_restrict', 'mod_booking'),
+                get_string('bocondselectusersrestrict', 'mod_booking'),
                 get_string('proversiononly', 'mod_booking'));
         }
 
@@ -395,8 +395,8 @@ class selectusers implements bo_condition {
     private function get_description_string($isavailable, $full, $settings) {
         global $DB;
         if ($isavailable) {
-            $description = $full ? get_string('bo_cond_selectusers_full_available', 'mod_booking') :
-                get_string('bo_cond_selectusers_available', 'mod_booking');
+            $description = $full ? get_string('bocondselectusersfullavailable', 'mod_booking') :
+                get_string('bocondselectusersavailable', 'mod_booking');
         } else {
             if (!$this->customsettings) {
                 // This description can only works with the right custom settings.
@@ -420,9 +420,9 @@ class selectusers implements bo_condition {
                 $allowedusersstring = implode(', ', $allowedusersstringarr);
             }
 
-            $description = $full ? get_string('bo_cond_selectusers_full_not_available',
+            $description = $full ? get_string('bocondselectusersfullnotavailable',
                 'mod_booking', $allowedusersstring) :
-                get_string('bo_cond_selectusers_not_available', 'mod_booking');
+                get_string('bocondselectusersnotavailable', 'mod_booking');
         }
         return $description;
     }

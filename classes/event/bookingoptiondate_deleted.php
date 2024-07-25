@@ -53,7 +53,7 @@ class bookingoptiondate_deleted extends \core\event\base {
      *
      */
     public static function get_name() {
-        return get_string('bookingoptiondate_deleted', 'booking');
+        return get_string('bookingoptiondatedeleted', 'booking');
     }
 
     /**

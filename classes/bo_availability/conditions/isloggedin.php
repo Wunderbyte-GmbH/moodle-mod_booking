@@ -216,11 +216,11 @@ class isloggedin implements bo_condition {
      */
     private function get_description_string($isavailable, $full) {
         if ($isavailable) {
-            $description = $full ? get_string('bo_cond_isloggedin_full_available', 'mod_booking') :
-                get_string('bo_cond_isloggedin_available', 'mod_booking');
+            $description = $full ? get_string('bocondisloggedinfullavailable', 'mod_booking') :
+                get_string('bocondisloggedinavailable', 'mod_booking');
         } else {
-            $description = $full ? get_string('bo_cond_isloggedin_full_not_available', 'mod_booking') :
-                get_string('bo_cond_isloggedin_not_available', 'mod_booking');
+            $description = $full ? get_string('bocondisloggedinfullnotavailable', 'mod_booking') :
+                get_string('bocondisloggedinnotavailable', 'mod_booking');
         }
         return $description;
     }

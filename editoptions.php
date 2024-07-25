@@ -108,7 +108,7 @@ if (!empty($optionid)) {
         'alert alert-info editoption-youareediting-alert'
     );
     if (!wb_payment::pro_version_is_activated()) {
-        echo html_writer::div(get_string('optionformconfig_getpro', 'mod_booking'), 'small mt-2');
+        echo html_writer::div(get_string('optionformconfiggetpro', 'mod_booking'), 'small mt-2');
     }
 }
 

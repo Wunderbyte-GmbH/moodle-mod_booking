@@ -56,7 +56,7 @@ class bookinganswer_cancelled extends \core\event\base {
      *
      */
     public static function get_name() {
-        return get_string('bookinganswer_cancelled', 'mod_booking');
+        return get_string('bookinganswercancelled', 'mod_booking');
     }
 
     /**

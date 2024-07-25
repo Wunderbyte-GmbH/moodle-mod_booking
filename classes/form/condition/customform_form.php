@@ -190,7 +190,7 @@ class customform_form extends dynamic_form {
                                         unset($options[$linearray[0]]);
                                     } else {
                                         $options[$linearray[0]] .= ', ' . $leftover  .
-                                            ' ' . get_string('bo_cond_customform_available', 'mod_booking');
+                                            ' ' . get_string('bocondcustomformavailable', 'mod_booking');
                                     }
                                 }
                             } else {

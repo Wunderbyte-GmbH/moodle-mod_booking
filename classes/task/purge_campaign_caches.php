@@ -48,7 +48,7 @@ class purge_campaign_caches extends \core\task\adhoc_task {
      * @throws \coding_exception
      */
     public function get_name() {
-        return get_string('task_purge_campaign_caches', 'mod_booking');
+        return get_string('taskpurgecampaigncaches', 'mod_booking');
     }
 
     /**

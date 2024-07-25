@@ -272,10 +272,10 @@ class userprofilefield_2_custom implements bo_condition {
                 }
 
                 $mform->addElement('advcheckbox', 'bo_cond_userprofilefield_2_custom_restrict',
-                    get_string('bo_cond_userprofilefield_2_custom_restrict', 'mod_booking'));
+                    get_string('boconduserprofilefield2customrestrict', 'mod_booking'));
 
                 $mform->addElement('select', 'bo_cond_customuserprofilefield_field',
-                    get_string('bo_cond_customuserprofilefield_field', 'mod_booking'), $customuserprofilefieldsarray);
+                    get_string('bocondcustomuserprofilefieldfield', 'mod_booking'), $customuserprofilefieldsarray);
                 $mform->hideIf('bo_cond_customuserprofilefield_field', 'bo_cond_userprofilefield_2_custom_restrict', 'notchecked');
 
                 $operators = [
@@ -291,13 +291,13 @@ class userprofilefield_2_custom implements bo_condition {
                     '(!)' => get_string('isnotempty', 'mod_booking'),
                 ];
                 $mform->addElement('select', 'bo_cond_customuserprofilefield_operator',
-                    get_string('bo_cond_customuserprofilefield_operator', 'mod_booking'), $operators);
+                    get_string('bocondcustomuserprofilefieldoperator', 'mod_booking'), $operators);
                 $mform->hideIf('bo_cond_customuserprofilefield_operator', 'bo_cond_customuserprofilefield_field', 'eq', 0);
                 $mform->hideIf('bo_cond_customuserprofilefield_operator', 'bo_cond_userprofilefield_2_custom_restrict',
                     'notchecked');
 
                 $mform->addElement('text', 'bo_cond_customuserprofilefield_value',
-                    get_string('bo_cond_customuserprofilefield_value', 'mod_booking'));
+                    get_string('bocondcustomuserprofilefieldvalue', 'mod_booking'));
                 $mform->setType('bo_cond_customuserprofilefield_value', PARAM_RAW);
                 $mform->hideIf('bo_cond_customuserprofilefield_value', 'bo_cond_customuserprofilefield_field', 'eq', 0);
                 $mform->hideIf('bo_cond_customuserprofilefield_value', 'bo_cond_userprofilefield_2_custom_restrict', 'notchecked');
@@ -368,7 +368,7 @@ class userprofilefield_2_custom implements bo_condition {
         } else {
             // No PRO license is active.
             $mform->addElement('static', 'bo_cond_userprofilefield_2_custom_restrict',
-                get_string('bo_cond_userprofilefield_2_custom_restrict', 'mod_booking'),
+                get_string('boconduserprofilefield2customrestrict', 'mod_booking'),
                 get_string('proversiononly', 'mod_booking'));
         }
     }
@@ -468,8 +468,8 @@ class userprofilefield_2_custom implements bo_condition {
      */
     private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
         if ($isavailable) {
-            $description = $full ? get_string('bo_cond_customuserprofilefield_full_available', 'mod_booking') :
-                get_string('bo_cond_customuserprofilefield_available', 'mod_booking');
+            $description = $full ? get_string('bocondcustomuserprofilefieldfullavailable', 'mod_booking') :
+                get_string('bocondcustomuserprofilefieldavailable', 'mod_booking');
         } else {
 
             // We need to make sure we have the custom settings ready.
@@ -484,10 +484,10 @@ class userprofilefield_2_custom implements bo_condition {
                     }
                 }
             }
-            $description = $full ? get_string('bo_cond_customuserprofilefield_full_not_available',
+            $description = $full ? get_string('bocondcustomuserprofilefieldfullnotavailable',
                 'mod_booking',
                 $this->customsettings) :
-                get_string('bo_cond_customuserprofilefield_not_available', 'mod_booking');
+                get_string('bocondcustomuserprofilefieldnotavailable', 'mod_booking');
         }
         return $description;
     }

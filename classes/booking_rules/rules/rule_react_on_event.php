@@ -134,7 +134,7 @@ class rule_react_on_event implements booking_rule {
             get_string('rule_react_on_event_desc', 'mod_booking'));
 
         $mform->addElement('select', 'rule_react_on_event_event',
-            get_string('rule_event', 'mod_booking'), $allowedevents);
+            get_string('ruleevent', 'mod_booking'), $allowedevents);
 
         $limitchangestrackinginrules = get_config('booking', 'limitchangestrackinginrules') == 1;
         if ($limitchangestrackinginrules || true) {
@@ -156,10 +156,10 @@ class rule_react_on_event implements booking_rule {
         ];
 
         $mform->addElement('select', 'rule_react_on_event_condition',
-            get_string('rule_event_condition', 'mod_booking'), $conditions);
+            get_string('ruleeventcondition', 'mod_booking'), $conditions);
 
         $mform->addElement('text', 'rule_react_on_event_after_completion',
-        get_string('rule_react_on_event_after_completion', 'mod_booking'));
+        get_string('rulereactoneventaftercompletion', 'mod_booking'));
         $mform->setType('rule_react_on_event_after_completion', PARAM_INT);
         $mform->addHelpButton('rule_react_on_event_after_completion', 'rule_react_on_event_after_completion', 'mod_booking');
 

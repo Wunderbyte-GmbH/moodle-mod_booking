@@ -206,10 +206,10 @@ class teachers_instance_report_table extends table_sql {
                             $this->thousandsseparator);
                         $unitstringpart = get_string('units', 'mod_booking') . ": $units";
                     } else {
-                        $unitstringpart = get_string('units_unknown', 'mod_booking');
+                        $unitstringpart = get_string('unitsunknown', 'mod_booking');
                     }
                 } else {
-                    $unitstringpart = get_string('units_unknown', 'mod_booking');
+                    $unitstringpart = get_string('unitsunknown', 'mod_booking');
                 }
                 if (!$this->is_downloading()) {
                     $optionurl = new moodle_url('/mod/booking/optiondates_teachers_report.php',

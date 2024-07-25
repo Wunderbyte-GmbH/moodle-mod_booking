@@ -102,7 +102,7 @@ class subbooking_timeslot implements booking_subbooking {
 
         // Duration of one particular slot.
         $mform->addElement('text', 'subbooking_timeslot_duration',
-            get_string('subbooking_duration', 'mod_booking'));
+            get_string('subbookingduration', 'mod_booking'));
         $mform->setType('subbooking_timeslot_duration', PARAM_INT);
 
         // For price & entities wie need the id of this subbooking.

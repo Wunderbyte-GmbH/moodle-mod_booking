@@ -59,7 +59,7 @@ class message_sent extends \core\event\base {
      *
      */
     public static function get_name() {
-        return get_string('message_sent', 'booking');
+        return get_string('messagesent', 'booking');
     }
 
     /**

@@ -97,10 +97,10 @@ class rule_daysbefore implements booking_rule {
         // Get a list of allowed option fields (only date fields allowed).
         $datefields = [
             '0' => get_string('choose...', 'mod_booking'),
-            'coursestarttime' => get_string('rule_optionfield_coursestarttime', 'mod_booking'),
-            'courseendtime' => get_string('rule_optionfield_courseendtime', 'mod_booking'),
-            'bookingopeningtime' => get_string('rule_optionfield_bookingopeningtime', 'mod_booking'),
-            'bookingclosingtime' => get_string('rule_optionfield_bookingclosingtime', 'mod_booking'),
+            'coursestarttime' => get_string('ruleoptionfieldcoursestarttime', 'mod_booking'),
+            'courseendtime' => get_string('ruleoptionfieldcourseendtime', 'mod_booking'),
+            'bookingopeningtime' => get_string('ruleoptionfieldbookingopeningtime', 'mod_booking'),
+            'bookingclosingtime' => get_string('ruleoptionfieldbookingclosingtime', 'mod_booking'),
         ];
 
         // We support special treatments for shopping cart notifications.
@@ -115,13 +115,13 @@ class rule_daysbefore implements booking_rule {
 
         // Number of days before.
         $mform->addElement('select', 'rule_daysbefore_days',
-            get_string('rule_days', 'mod_booking'), $numberofdaysbefore);
+            get_string('ruledays', 'mod_booking'), $numberofdaysbefore);
         $mform->setDefault('rule_daysbefore_days', 0);
         $repeateloptions['rule_daysbefore_days']['type'] = PARAM_TEXT;
 
         // Date field needed in combination with the number of days before.
         $mform->addElement('select', 'rule_daysbefore_datefield',
-            get_string('rule_datefield', 'mod_booking'), $datefields);
+            get_string('ruledatefield', 'mod_booking'), $datefields);
         $repeateloptions['rule_daysbefore_datefield']['type'] = PARAM_TEXT;
 
     }

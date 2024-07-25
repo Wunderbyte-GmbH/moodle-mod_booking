@@ -305,7 +305,7 @@ class enrolledincohorts implements bo_condition {
 
                 if ($cohorts["totalcohorts"] > count($cohorts["cohorts"])) {
                     $mform->addElement('static', 'bo_cond_enrolledincohorts_warning', '',
-                    get_string('bo_cond_enrolledincohorts_warning', 'mod_booking'));
+                    get_string('bocondenrolledincohortswarning', 'mod_booking'));
                 }
 
                 foreach ($cohorts['cohorts'] as $cohortrecord) {
@@ -315,7 +315,7 @@ class enrolledincohorts implements bo_condition {
             }
 
             $mform->addElement('advcheckbox', 'bo_cond_enrolledincohorts_restrict',
-                    get_string('bo_cond_enrolledincohorts', 'mod_booking'));
+                    get_string('bocondenrolledincohorts', 'mod_booking'));
 
             $enrolledincohortsoptions = [
                 'tags' => false,
@@ -328,7 +328,7 @@ class enrolledincohorts implements bo_condition {
             ];
 
             $mform->addElement('autocomplete', 'bo_cond_enrolledincohorts_cohortids',
-                get_string('cohort_s', 'mod_booking'), $cohortssarray, $enrolledincohortsoptions);
+                get_string('cohorts', 'mod_booking'), $cohortssarray, $enrolledincohortsoptions);
             $mform->hideIf('bo_cond_enrolledincohorts_cohortids', 'bo_cond_enrolledincohorts_restrict', 'notchecked');
 
             $cohortoperator = [
@@ -407,7 +407,7 @@ class enrolledincohorts implements bo_condition {
         } else {
             // No PRO license is active.
             $mform->addElement('static', 'bo_cond_enrolledincohorts_restrict',
-                get_string('bo_cond_enrolledincohorts', 'mod_booking'),
+                get_string('bocondenrolledincohorts', 'mod_booking'),
                 get_string('proversiononly', 'mod_booking'));
         }
 
@@ -509,8 +509,8 @@ class enrolledincohorts implements bo_condition {
         global $DB;
 
         if ($isavailable) {
-            $description = $full ? get_string('bo_cond_enrolledincohorts_full_available', 'mod_booking') :
-                get_string('bo_cond_enrolledincohorts_available', 'mod_booking');
+            $description = $full ? get_string('bocondenrolledincohortsfullavailable', 'mod_booking') :
+                get_string('bocondenrolledincohortsavailable', 'mod_booking');
         } else {
             if (!$this->customsettings) {
                 // This description can only work with the right custom settings.
@@ -540,12 +540,12 @@ class enrolledincohorts implements bo_condition {
             if (isset($this->customsettings->cohortidsoperator)
                 && $this->customsettings->cohortidsoperator == 'OR') {
                 $description = $full ?
-                    get_string('bo_cond_enrolledincohorts_full_not_available', 'mod_booking', $a) :
-                    get_string('bo_cond_enrolledincohorts_not_available', 'mod_booking', $a);
+                    get_string('bocondenrolledincohortsfullnotavailable', 'mod_booking', $a) :
+                    get_string('bocondenrolledincohortsnotavailable', 'mod_booking', $a);
             } else {
                 $description = $full ?
-                    get_string('bo_cond_enrolledincohorts_full_not_available_and', 'mod_booking', $a) :
-                    get_string('bo_cond_enrolledincohorts_not_available_and', 'mod_booking', $a);
+                    get_string('bocondenrolledincohortsfullnotavailableand', 'mod_booking', $a) :
+                    get_string('bocondenrolledincohortsnotavailableand', 'mod_booking', $a);
             }
 
         }

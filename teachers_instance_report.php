@@ -123,8 +123,8 @@ if (!$teachersinstancereporttable->is_downloading()) {
     $teachersinstancereporttable->define_headers([
         get_string('teacher', 'mod_booking'),
         get_string('email'),
-        get_string('sum_units', 'mod_booking'),
-        get_string('units_courses', 'mod_booking'),
+        get_string('sumunits', 'mod_booking'),
+        get_string('unitscourses', 'mod_booking'),
         get_string('missinghours', 'mod_booking'),
         get_string('substitutions', 'mod_booking'),
     ]);
@@ -193,8 +193,8 @@ if (!$teachersinstancereporttable->is_downloading()) {
         get_string('lastname'),
         get_string('firstname'),
         get_string('email'),
-        get_string('sum_units', 'mod_booking'),
-        get_string('units_courses', 'mod_booking'),
+        get_string('sumunits', 'mod_booking'),
+        get_string('unitscourses', 'mod_booking'),
         get_string('missinghours', 'mod_booking'),
         get_string('substitutions', 'mod_booking'),
     ]);

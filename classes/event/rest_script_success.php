@@ -53,7 +53,7 @@ class rest_script_success extends \core\event\base {
      *
      */
     public static function get_name() {
-        return get_string('rest_script_success', 'booking');
+        return get_string('restscriptsuccess', 'booking');
     }
 
     /**

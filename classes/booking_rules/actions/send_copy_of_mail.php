@@ -131,7 +131,7 @@ class send_copy_of_mail implements booking_rule_action {
      * @return string the name of the rule action
      */
     public function get_name_of_action($localized = true) {
-        return get_string('send_copy_of_mail', 'mod_booking');
+        return get_string('sendcopyofmail', 'mod_booking');
     }
 
     /**

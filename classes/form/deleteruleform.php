@@ -58,7 +58,7 @@ class deleteruleform extends dynamic_form {
         }
 
         $mform->addElement('html', '<div><p>'
-            . get_string('deletebookingrule_confirmtext', 'mod_booking')
+            . get_string('deletebookingruleconfirmtext', 'mod_booking')
             . '</p><p class="text-danger font-weight-bold">'
             . $ajaxformdata['name']
             . '</p></div>');

@@ -51,7 +51,7 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
      * @throws \coding_exception
      */
     public function get_name() {
-        return get_string('task_send_mail_by_rule_adhoc', 'mod_booking');
+        return get_string('tasksendmailbyruleadhoc', 'mod_booking');
     }
 
     /**

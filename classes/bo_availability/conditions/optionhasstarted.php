@@ -213,11 +213,11 @@ class optionhasstarted implements bo_condition {
      */
     private function get_description_string($isavailable, $full) {
         if ($isavailable) {
-            $description = $full ? get_string('bo_cond_optionhasstarted_full_available', 'mod_booking') :
-                get_string('bo_cond_optionhasstarted_available', 'mod_booking');
+            $description = $full ? get_string('bocondoptionhasstartedfullavailable', 'mod_booking') :
+                get_string('bocondoptionhasstartedavailable', 'mod_booking');
         } else {
-            $description = $full ? get_string('bo_cond_optionhasstarted_full_not_available', 'mod_booking') :
-                get_string('bo_cond_optionhasstarted_not_available', 'mod_booking');
+            $description = $full ? get_string('bocondoptionhasstartedfullnotavailable', 'mod_booking') :
+                get_string('bocondoptionhasstartednotavailable', 'mod_booking');
         }
         return $description;
     }

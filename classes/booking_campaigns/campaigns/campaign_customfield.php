@@ -117,7 +117,7 @@ class campaign_customfield implements booking_campaign {
 
         global $DB;
 
-        $mform->addElement('text', 'name', get_string('campaign_name', 'mod_booking'));
+        $mform->addElement('text', 'name', get_string('campaignname', 'mod_booking'));
         $mform->addHelpButton('name', 'campaign_name', 'mod_booking');
 
         $mform->addElement('static', 'warning', '',

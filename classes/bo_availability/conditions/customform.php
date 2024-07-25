@@ -196,7 +196,7 @@ class customform implements bo_condition {
         if (wb_payment::pro_version_is_activated()) {
 
             $mform->addElement('advcheckbox', 'bo_cond_customform_restrict',
-                    get_string('bo_cond_customform_restrict', 'mod_booking'));
+                    get_string('bocondcustomformrestrict', 'mod_booking'));
 
             $formelementsarray = [
                 0 => get_string('noelement', 'mod_booking'),
@@ -204,8 +204,8 @@ class customform implements bo_condition {
                 'static' => get_string('displaytext', 'mod_booking'),
                 'shorttext' => get_string('shorttext', 'mod_booking'),
                 'select' => get_string('select', 'mod_booking'),
-                'url' => get_string('bo_cond_customform_url', 'mod_booking'),
-                'mail' => get_string('bo_cond_customform_mail', 'mod_booking'),
+                'url' => get_string('bocondcustomformurl', 'mod_booking'),
+                'mail' => get_string('bocondcustomformmail', 'mod_booking'),
             ];
 
             // We add four potential elements.
@@ -224,7 +224,7 @@ class customform implements bo_condition {
                 $mform->hideIf('formgroupelement_1_' . $counter, 'bo_cond_customform_restrict', 'notchecked');
 
                 $mform->addElement('text', 'bo_cond_customform_label_1_' . $counter,
-                        get_string('bo_cond_customform_label', 'mod_booking'), []);
+                        get_string('bocondcustomformlabel', 'mod_booking'), []);
                 $mform->setType('bo_cond_customform_label_1_' . $counter, PARAM_TEXT);
 
                 // We need a few rules. We don't show label...
@@ -236,7 +236,7 @@ class customform implements bo_condition {
 
                 // We need to create all possible elements and hide them via "hideif" right now.
                 $mform->addElement('textarea', 'bo_cond_customform_value_1_' . $counter,
-                    get_string('bo_cond_customform_value', 'mod_booking'), []);
+                    get_string('bocondcustomformvalue', 'mod_booking'), []);
                 $mform->addHelpButton('bo_cond_customform_value_1_' . $counter, 'bo_cond_customform_value', 'mod_booking');
                 // We need a few rules. We don't show label...
                 // ... when no element is chosen, when upper button is not checked, when form element is static.
@@ -250,7 +250,7 @@ class customform implements bo_condition {
 
                 // We need to create all possible elements and hide them via "hideif" right now.
                 $mform->addElement('advcheckbox', 'bo_cond_customform_notempty_1_' . $counter,
-                        get_string('bo_cond_customform_notempty', 'mod_booking'), []);
+                        get_string('bocondcustomformnotempty', 'mod_booking'), []);
 
                 // We need a few rules. We don't show label...
                 // ... when no element is chosen, when upper button is not checked.
@@ -275,7 +275,7 @@ class customform implements bo_condition {
         } else {
             // No PRO license is active.
             $mform->addElement('static', 'bo_cond_customform_restrict',
-                get_string('bo_cond_customform_restrict', 'mod_booking'),
+                get_string('bocondcustomformrestrict', 'mod_booking'),
                 get_string('proversiononly', 'mod_booking'));
         }
 
@@ -447,8 +447,8 @@ class customform implements bo_condition {
      */
     private function get_description_string($isavailable, $full, $settings) {
         if ($isavailable) {
-            $description = $full ? get_string('bo_cond_userprofilefield_full_available', 'mod_booking') :
-                get_string('bo_cond_userprofilefield_available', 'mod_booking');
+            $description = $full ? get_string('boconduserprofilefieldfullavailable', 'mod_booking') :
+                get_string('boconduserprofilefieldavailable', 'mod_booking');
         } else {
 
             if (!$this->customsettings) {
@@ -463,10 +463,10 @@ class customform implements bo_condition {
                 }
             }
 
-            $description = $full ? get_string('bo_cond_userprofilefield_full_not_available',
+            $description = $full ? get_string('boconduserprofilefieldfullnotavailable',
                 'mod_booking',
                 $this->customsettings) :
-                get_string('bo_cond_userprofilefield_not_available', 'mod_booking');
+                get_string('boconduserprofilefieldnotavailable', 'mod_booking');
         }
         return $description;
     }

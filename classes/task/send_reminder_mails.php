@@ -54,7 +54,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
      *
      */
     public function get_name() {
-        return get_string('task_send_reminder_mails', 'mod_booking');
+        return get_string('tasksendremindermails', 'mod_booking');
     }
 
     /**

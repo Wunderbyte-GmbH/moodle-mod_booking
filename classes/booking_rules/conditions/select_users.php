@@ -113,7 +113,7 @@ class select_users implements booking_rule_condition {
         ];
 
         $mform->addElement('autocomplete', 'condition_select_users_userids',
-            get_string('condition_select_users_userids', 'mod_booking'), [], $options);
+            get_string('conditionselectusersuserids', 'mod_booking'), [], $options);
 
     }
 

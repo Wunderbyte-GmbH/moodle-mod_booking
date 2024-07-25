@@ -226,11 +226,11 @@ class max_number_of_bookings implements bo_condition {
      */
     private function get_description_string($isavailable, $full) {
         if ($isavailable) {
-            $description = $full ? get_string('bo_cond_max_number_of_bookings_full_available', 'mod_booking') :
-                get_string('bo_cond_max_number_of_bookings_available', 'mod_booking');
+            $description = $full ? get_string('bocondmaxnumberofbookingsfullavailable', 'mod_booking') :
+                get_string('bocondmaxnumberofbookingsavailable', 'mod_booking');
         } else {
-            $description = $full ? get_string('bo_cond_max_number_of_bookings_full_not_available', 'mod_booking') :
-                get_string('bo_cond_max_number_of_bookings_not_available', 'mod_booking');
+            $description = $full ? get_string('bocondmaxnumberofbookingsfullnotavailable', 'mod_booking') :
+                get_string('bocondmaxnumberofbookingsnotavailable', 'mod_booking');
         }
         return $description;
     }

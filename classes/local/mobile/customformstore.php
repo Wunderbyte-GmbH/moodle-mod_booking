@@ -105,12 +105,12 @@ class customformstore {
               $formelement->formtype == 'url' &&
               !self::isvalidhttpurl($data[$identifier], FILTER_VALIDATE_EMAIL)
             ) {
-                $errors[$identifier] = get_string('bo_cond_customform_url_error', 'mod_booking');
+                $errors[$identifier] = get_string('bocondcustomformurlerror', 'mod_booking');
             } else if (
               $formelement->formtype == 'mail' &&
               !filter_var($data[$identifier], FILTER_VALIDATE_EMAIL)
             ) {
-                $errors[$identifier] = get_string('bo_cond_customform_mail_error', 'mod_booking');
+                $errors[$identifier] = get_string('bocondcustomformmailerror', 'mod_booking');
             } else if (
                 $formelement->formtype == 'select'
             ) {
