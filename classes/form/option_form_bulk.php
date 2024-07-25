@@ -216,6 +216,7 @@ class option_form_bulk extends dynamic_form {
                 $copy->{$key} = $value;
             }
             booking_option::update($copy);
+            unset($data->cmid);
         }
 
         return $data;

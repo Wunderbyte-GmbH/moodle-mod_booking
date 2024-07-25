@@ -250,7 +250,7 @@ class fields_info {
             $settings = new booking_option_settings(0);
         }
 
-        $cmid = $data->cmid ?? $settings->cmid ?? 0;
+        $cmid = $settings->cmid ?? $data->cmid ?? 0;
         $context = context_module::instance($cmid);
         $classes = self::get_field_classes($context->id);
 
