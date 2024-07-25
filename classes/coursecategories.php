@@ -96,7 +96,7 @@ class coursecategories {
                 FROM {customfield_field} cff
                 JOIN {customfield_data} cfd ON cff.id = cfd.fieldid
                 JOIN {customfield_category} cfc ON cff.categoryid = cfc.id
-                WHERE cff.shortname =:additionalcountfield AND cfc.component='mod_booking'
+                WHERE cff.shortname =:additionalcountfield AND cfc.component='mod_booking' AND cfd.charvalue <> ''
                 GROUP BY optionid
                 ) s4 ON s4.optionid = bo.id
             ";
