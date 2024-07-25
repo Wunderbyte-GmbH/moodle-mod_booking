@@ -64,9 +64,9 @@ class ruleslist implements renderable, templatable {
             $rule->actionname = $ruleobj->actionname;
             $rule->conditionname = $ruleobj->conditionname;
             // Localize the names.
-            $rule->localizedrulename = get_string($rule->rulename, 'mod_booking');
-            $rule->localizedactionname = get_string($ruleobj->actionname, 'mod_booking');
-            $rule->localizedconditionname = get_string($ruleobj->conditionname, 'mod_booking');
+            $rule->localizedrulename = get_string(str_replace("_", "", $rule->rulename), 'mod_booking');
+            $rule->localizedactionname = get_string(str_replace("_", "", $ruleobj->actionname), 'mod_booking');
+            $rule->localizedconditionname = get_string(str_replace("_", "", $ruleobj->conditionname), 'mod_booking');
 
             $this->rules[] = (array)$rule;
         }

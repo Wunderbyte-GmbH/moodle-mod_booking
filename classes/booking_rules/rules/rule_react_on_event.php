@@ -131,7 +131,7 @@ class rule_react_on_event implements booking_rule {
 
         // Workaround: We need a group to get hideif to work.
         $mform->addElement('static', 'rule_react_on_event_desc', '',
-            get_string('rule_react_on_event_desc', 'mod_booking'));
+            get_string('rulereactonevent_desc', 'mod_booking'));
 
         $mform->addElement('select', 'rule_react_on_event_event',
             get_string('ruleevent', 'mod_booking'), $allowedevents);
