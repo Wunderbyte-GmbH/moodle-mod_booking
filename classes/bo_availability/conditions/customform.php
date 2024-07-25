@@ -520,6 +520,10 @@ class customform implements bo_condition {
      */
     public static function return_formelements(booking_option_settings $settings) {
 
+        if (empty($settings->availability)) {
+            return new stdClass();
+        }
+
         try {
             $availabilities = json_decode($settings->availability);
             $formelements = [];
@@ -530,7 +534,7 @@ class customform implements bo_condition {
             }
             return $formelements;
         } catch (Exception $e) {
-            return [];
+            return new stdClass();
         }
     }
 
