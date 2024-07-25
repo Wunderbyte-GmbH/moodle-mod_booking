@@ -237,7 +237,7 @@ class customform implements bo_condition {
                 // We need to create all possible elements and hide them via "hideif" right now.
                 $mform->addElement('textarea', 'bo_cond_customform_value_1_' . $counter,
                     get_string('bocondcustomformvalue', 'mod_booking'), []);
-                $mform->addHelpButton('bo_cond_customform_value_1_' . $counter, 'bo_cond_customform_value', 'mod_booking');
+                $mform->addHelpButton('bo_cond_customform_value_1_' . $counter, 'bocondcustomformvalue', 'mod_booking');
                 // We need a few rules. We don't show label...
                 // ... when no element is chosen, when upper button is not checked, when form element is static.
                 $mform->hideIf('bo_cond_customform_value_1_' . $counter, 'bo_cond_customform_restrict', 'notchecked');

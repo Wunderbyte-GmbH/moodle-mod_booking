@@ -195,7 +195,7 @@ $string['bocondcustomformrestrict'] = 'Formular muss vor der Buchung ausgefüllt
 $string['bocondcustomformurl'] = "Url";
 $string['bocondcustomformurlerror'] = "Die URL ist nicht valide oder beginnt nicht mit http oder https.";
 $string['bocondcustomformvalue'] = 'Wert';
-$string['bo_cond_customform_value_help'] = 'Wenn ein DropDown Menü ausgewählt ist bitte einen Wert pro Zeile eingeben. Die Werte und angezeigte Werte können getrennt eingegeben werden, also z.b. "1 => Mein erster Wert => anzahl_der_möglichkeiten" usw.';
+$string['bocondcustomformvalue_help'] = 'Wenn ein DropDown Menü ausgewählt ist bitte einen Wert pro Zeile eingeben. Die Werte und angezeigte Werte können getrennt eingegeben werden, also z.b. "1 => Mein erster Wert => anzahl_der_möglichkeiten" usw.';
 $string['bocondcustomuserprofilefieldavailable'] = 'Buchen';
 $string['bocondcustomuserprofilefieldfield'] = 'Profilfeld';
 $string['bocondcustomuserprofilefieldfullavailable'] = 'Buchen möglich';
