@@ -49,7 +49,7 @@ class task_adhoc_reset_optiondates_for_semester extends \core\task\adhoc_task {
      * @throws \coding_exception
      */
     public function get_name() {
-        return get_string('task_adhoc_reset_optiondates_for_semester', 'mod_booking');
+        return get_string('taskadhocresetoptiondatesforsemester', 'mod_booking');
     }
 
     /**

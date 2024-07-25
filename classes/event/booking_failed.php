@@ -53,7 +53,7 @@ class booking_failed extends \core\event\base {
      *
      */
     public static function get_name() {
-        return get_string('booking_failed', 'booking');
+        return get_string('bookingfailed', 'booking');
     }
 
     /**

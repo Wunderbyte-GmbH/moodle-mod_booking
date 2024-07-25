@@ -137,7 +137,7 @@ class dates {
 
             // Button to attach JavaScript to reload the form.
             $mform->registerNoSubmitButton('addoptiondateseries');
-            $elements[] = $mform->addElement('submit', 'addoptiondateseries', get_string('add_optiondate_series', 'mod_booking'),
+            $elements[] = $mform->addElement('submit', 'addoptiondateseries', get_string('addoptiondateseries', 'mod_booking'),
                 [
                 'data-action' => 'addoptiondateseries',
             ]);

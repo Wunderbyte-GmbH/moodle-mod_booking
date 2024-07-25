@@ -53,7 +53,7 @@ class optiondates_teacher_added extends \core\event\base {
      *
      */
     public static function get_name() {
-        return get_string('optiondates_teacher_added', 'mod_booking');
+        return get_string('optiondatesteacheradded', 'mod_booking');
     }
 
     /**

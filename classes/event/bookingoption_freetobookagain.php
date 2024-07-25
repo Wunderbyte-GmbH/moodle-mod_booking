@@ -53,7 +53,7 @@ class bookingoption_freetobookagain extends \core\event\base {
      *
      */
     public static function get_name() {
-        return get_string('bookingoption_freetobookagain', 'booking');
+        return get_string('bookingoptionfreetobookagain', 'booking');
     }
 
     /**

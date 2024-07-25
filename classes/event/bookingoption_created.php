@@ -52,7 +52,7 @@ class bookingoption_created extends \core\event\base {
      *
      */
     public static function get_name() {
-        return get_string('bookingoption_created', 'booking');
+        return get_string('bookingoptioncreated', 'booking');
     }
 
     /**

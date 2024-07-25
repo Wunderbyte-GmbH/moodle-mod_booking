@@ -91,7 +91,7 @@ class get_parent_categories extends external_api {
             $returnarray = [
                 [
                     'id' => 0,
-                    'name' => get_string('dashboard_summary', 'mod_booking'),
+                    'name' => get_string('dashboardsummary', 'mod_booking'),
                     'contextid' => 1,
                     'coursecount' => $coursecount,
                     'description' => get_string('dashboard_summary_desc', 'mod_booking'),

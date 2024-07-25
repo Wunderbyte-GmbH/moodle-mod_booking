@@ -50,7 +50,7 @@ class pricecategory_changed extends \core\event\base {
      * @return string
      */
     public static function get_name() {
-        return get_string('pricecategory_changed', 'mod_booking');
+        return get_string('pricecategorychanged', 'mod_booking');
     }
 
     /**

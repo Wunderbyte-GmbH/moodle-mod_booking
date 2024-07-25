@@ -234,11 +234,11 @@ class fullybooked implements bo_condition {
      */
     private function get_description_string($isavailable, $full) {
         if ($isavailable) {
-            $description = $full ? get_string('bo_cond_fullybooked_full_available', 'mod_booking') :
-                get_string('bo_cond_fullybooked_available', 'mod_booking');
+            $description = $full ? get_string('bocondfullybookedfullavailable', 'mod_booking') :
+                get_string('bocondfullybookedavailable', 'mod_booking');
         } else {
-            $description = $full ? get_string('bo_cond_fullybooked_full_not_available', 'mod_booking') :
-                get_string('bo_cond_fullybooked_not_available', 'mod_booking');
+            $description = $full ? get_string('bocondfullybookedfullnotavailable', 'mod_booking') :
+                get_string('bocondfullybookednotavailable', 'mod_booking');
         }
         return $description;
     }

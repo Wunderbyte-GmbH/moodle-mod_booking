@@ -54,7 +54,7 @@ class reminder2_sent extends \core\event\base {
      *
      */
     public static function get_name() {
-        return get_string('reminder2_sent', 'booking');
+        return get_string('reminder2sent', 'booking');
     }
 
     /**

@@ -245,8 +245,8 @@ class onwaitinglist implements bo_condition {
      */
     private function get_description_string($isavailable, $full, $userid, $settings) {
         if ($isavailable) {
-            $description = $full ? get_string('bo_cond_onwaitinglist_full_available', 'mod_booking') :
-                get_string('bo_cond_onwaitinglist_available', 'mod_booking');
+            $description = $full ? get_string('bocondonwaitinglistfullavailable', 'mod_booking') :
+                get_string('bocondonwaitinglistavailable', 'mod_booking');
         } else {
 
             if (get_config('booking', 'waitinglistshowplaceonwaitinglist')) {
@@ -257,8 +257,8 @@ class onwaitinglist implements bo_condition {
                 $description = get_string('yourplaceonwaitinglist', 'mod_booking', $placeonwaitinglist);
 
             } else {
-                $description = $full ? get_string('bo_cond_onwaitinglist_full_not_available', 'mod_booking') :
-                get_string('bo_cond_onwaitinglist_not_available', 'mod_booking');
+                $description = $full ? get_string('bocondonwaitinglistfullnotavailable', 'mod_booking') :
+                get_string('bocondonwaitinglistnotavailable', 'mod_booking');
             }
         }
 

@@ -971,12 +971,12 @@ class view implements renderable, templatable {
         // Override naming for columns.
         $wbtable->add_classes_to_subcolumns(
             'leftside',
-            ['keystring' => get_string('tableheader_text', 'booking')],
+            ['keystring' => get_string('tableheadertext', 'booking')],
             ['text']
         );
         $wbtable->add_classes_to_subcolumns(
             'leftside',
-            ['keystring' => get_string('tableheader_teacher', 'booking')],
+            ['keystring' => get_string('tableheaderteacher', 'booking')],
             ['teacher']
         );
 
@@ -1140,12 +1140,12 @@ class view implements renderable, templatable {
         // Override naming for columns.
         $wbtable->add_classes_to_subcolumns(
             'leftside',
-            ['keystring' => get_string('tableheader_text', 'booking')],
+            ['keystring' => get_string('tableheadertext', 'booking')],
             ['text']
         );
         $wbtable->add_classes_to_subcolumns(
             'leftside',
-            ['keystring' => get_string('tableheader_teacher', 'booking')],
+            ['keystring' => get_string('tableheaderteacher', 'booking')],
             ['teacher']
         );
 

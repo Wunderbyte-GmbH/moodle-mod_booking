@@ -46,13 +46,13 @@ class mobileformbuilder {
           '<ion-card style="background: #ffffff; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px;">
             <ion-card-header style="color: #10dc60; font-size: 1.2rem;">
               <ion-icon name="checkmark-circle-outline" slot="start" style="color: #10dc60; font-size: 1.5rem;"></ion-icon>
-              ' . get_string('mobile_notification', 'mod_booking') . '
+              ' . get_string('mobilenotification', 'mod_booking') . '
             </ion-card-header>
             <ion-card-content>
               <ion-list lines="none">
                 <ion-item>
                   <ion-label style="color: #323232;">
-                  ' . get_string('mobile_submitted_success', 'mod_booking') . '
+                  ' . get_string('mobilesubmittedsuccess', 'mod_booking') . '
                   </ion-label>
                 </ion-item>
               </ion-list>
@@ -79,7 +79,7 @@ class mobileformbuilder {
           ', sessionkey: 0, data: {}, reset: true}"
           refreshOnSuccess="true"
         >
-        ' . get_string('mobile_reset_submission', 'mod_booking') . '
+        ' . get_string('mobileresetsubmission', 'mod_booking') . '
         </ion-button>';
         return $resetsubmissionform;
     }
@@ -114,7 +114,7 @@ class mobileformbuilder {
               CoreUtilsProvider.objectToArrayOfObjects(CONTENT_OTHERDATA.data, ' . "'name'" . ', ' . "'value'" . ')}"
               refreshOnSuccess="true"
             >
-            ' . get_string('mobile_set_submission', 'mod_booking') . '
+            ' . get_string('mobilesetsubmission', 'mod_booking') . '
             </ion-button>' . $resetsubmissionform . '</ion-list></ion-card>';
         return $ionichtml;
     }

@@ -144,7 +144,7 @@ class select_user_from_event implements booking_rule_condition {
         $userfromeventoptions["userid"] = get_string('userwhotriggeredevent', 'mod_booking');
 
         $mform->addElement('select', 'condition_select_user_from_event_type',
-                get_string('condition_select_user_from_event_type', 'mod_booking'), $userfromeventoptions);
+                get_string('conditionselectuserfromeventtype', 'mod_booking'), $userfromeventoptions);
 
     }
 

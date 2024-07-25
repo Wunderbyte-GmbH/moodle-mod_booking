@@ -44,7 +44,7 @@ class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
      * @throws \coding_exception
      */
     public function get_name() {
-        return get_string('task_enrol_bookedusers_tocourse', 'mod_booking');
+        return get_string('taskenrolbookeduserstocourse', 'mod_booking');
     }
 
     /**

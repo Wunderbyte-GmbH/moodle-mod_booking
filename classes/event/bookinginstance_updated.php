@@ -55,7 +55,7 @@ class bookinginstance_updated extends \core\event\base {
      *
      */
     public static function get_name() {
-        return get_string('bookinginstance_updated', 'booking');
+        return get_string('bookinginstanceupdated', 'booking');
     }
 
     /**

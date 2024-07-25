@@ -231,8 +231,8 @@ class subbooking_blocks implements bo_condition {
      */
     private function get_description_string($isavailable, $full) {
         if ($isavailable) {
-            $description = $full ? get_string('bo_cond_isbookable_full_available', 'mod_booking') :
-                get_string('bo_cond_isbookable_available', 'mod_booking');
+            $description = $full ? get_string('bocondisbookablefullavailable', 'mod_booking') :
+                get_string('bocondisbookableavailable', 'mod_booking');
         } else {
 
             // If we have one or more subbookings, we render the interface here.

@@ -782,7 +782,7 @@ class signinsheet_generator {
         }
 
         $this->pdf->MultiCell($this->cellwidthteachers, 0,
-                get_string('teacher_s', 'mod_booking') . ": " . implode(', ', $this->teachers), 0, 1, '',
+                get_string('teachers', 'mod_booking') . ": " . implode(', ', $this->teachers), 0, 1, '',
                 0);
         $this->pdf->Ln();
 

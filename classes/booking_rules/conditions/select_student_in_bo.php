@@ -96,7 +96,7 @@ class select_student_in_bo implements booking_rule_condition {
         ];
 
         $mform->addElement('select', 'condition_select_student_in_bo_borole',
-                get_string('condition_select_student_in_bo_roles', 'mod_booking'), $courseroles);
+                get_string('conditionselectstudentinboroles', 'mod_booking'), $courseroles);
 
     }
 

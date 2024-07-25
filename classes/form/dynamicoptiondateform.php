@@ -76,7 +76,7 @@ class dynamicoptiondateform extends dynamic_form {
         $optiondateshandler->add_optiondates_for_semesters_to_mform($mform, $loadexistingdates);
 
         // Add submit button to create optiondate series. (Use $this, not $mform for add_action_buttons).
-        $this->add_action_buttons(false, get_string('add_optiondate_series', 'mod_booking'));
+        $this->add_action_buttons(false, get_string('addoptiondateseries', 'mod_booking'));
     }
 
     /**

@@ -189,7 +189,7 @@ class easy_availability_selectusers extends field_base {
             },
         ];
         $mform->addElement('autocomplete', 'bo_cond_selectusers_userids',
-            get_string('bo_cond_selectusers_userids', 'mod_booking'), [], $options);
+            get_string('bocondselectusersuserids', 'mod_booking'), [], $options);
         $mform->hideIf('bo_cond_selectusers_userids', 'bo_cond_selectusers_restrict', 'notchecked');
 
         // This is to transmit the original availability values.

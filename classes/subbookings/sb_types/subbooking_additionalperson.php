@@ -116,7 +116,7 @@ class subbooking_additionalperson implements booking_subbooking {
         ];
 
         $mform->addElement('editor', 'subbooking_additionalperson_description_editor',
-            get_string('subbooking_additionalperson_description', 'mod_booking'),
+            get_string('subbookingadditionalpersondescription', 'mod_booking'),
             null,
             $textfieldoptions);
         $mform->setType('subbooking_additionalperson_description_editor', PARAM_RAW);
@@ -330,7 +330,7 @@ class subbooking_additionalperson implements booking_subbooking {
         $bp = $data->subbooking_addpersons ?? 1;
 
         $templatedata = [
-            'introduction' => get_string('subbooking_bookedpersons', 'mod_booking'),
+            'introduction' => get_string('subbookingbookedpersons', 'mod_booking'),
             'personbooked' => [],
         ];
 

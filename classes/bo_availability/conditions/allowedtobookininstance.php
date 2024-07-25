@@ -208,11 +208,11 @@ class allowedtobookininstance implements bo_condition {
      */
     private function get_description_string($isavailable, $full): string {
         if ($isavailable) {
-            $description = $full ? get_string('bo_cond_allowedtobookininstance_full_available', 'mod_booking') :
-                get_string('bo_cond_allowedtobookininstance_available', 'mod_booking');
+            $description = $full ? get_string('bocondallowedtobookininstancefullavailable', 'mod_booking') :
+                get_string('bocondallowedtobookininstanceavailable', 'mod_booking');
         } else {
-            $description = $full ? get_string('bo_cond_allowedtobookininstance_full_not_available', 'mod_booking') :
-                get_string('bo_cond_allowedtobookininstance_not_available', 'mod_booking');
+            $description = $full ? get_string('bocondallowedtobookininstancefullnotavailable', 'mod_booking') :
+                get_string('bocondallowedtobookininstancenotavailable', 'mod_booking');
         }
         return $description;
     }

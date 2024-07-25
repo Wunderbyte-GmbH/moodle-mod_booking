@@ -45,7 +45,7 @@ class clean_booking_db extends \core\task\scheduled_task {
      * @throws \coding_exception
      */
     public function get_name() {
-        return get_string('task_clean_booking_db', 'mod_booking');
+        return get_string('taskcleanbookingdb', 'mod_booking');
     }
 
     /**

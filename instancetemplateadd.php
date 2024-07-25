@@ -80,7 +80,7 @@ if ($mform->is_cancelled()) {
     } else {
         // If the user does not match the requirements he will be redirected to view.php
         // ... with the corresponding message.
-        redirect($urlredirect, get_string('instance_not_saved_no_valid_license', 'booking'), 1, notification::NOTIFY_ERROR);
+        redirect($urlredirect, get_string('instancenotsavednovalidlicense', 'booking'), 1, notification::NOTIFY_ERROR);
     }
 
 } else {

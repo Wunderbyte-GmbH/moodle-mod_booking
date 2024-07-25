@@ -209,11 +209,11 @@ class isbookable implements bo_condition {
      */
     private function get_description_string($isavailable, $full) {
         if ($isavailable) {
-            $description = $full ? get_string('bo_cond_isbookable_full_available', 'mod_booking') :
-                get_string('bo_cond_isbookable_available', 'mod_booking');
+            $description = $full ? get_string('bocondisbookablefullavailable', 'mod_booking') :
+                get_string('bocondisbookableavailable', 'mod_booking');
         } else {
-            $description = $full ? get_string('bo_cond_isbookable_full_not_available', 'mod_booking') :
-                get_string('bo_cond_isbookable_not_available', 'mod_booking');
+            $description = $full ? get_string('bocondisbookablefullnotavailable', 'mod_booking') :
+                get_string('bocondisbookablenotavailable', 'mod_booking');
         }
         return $description;
     }

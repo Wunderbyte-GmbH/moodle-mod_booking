@@ -116,7 +116,7 @@ class send_mail_interval implements booking_rule_action {
      * @return string the name of the rule action
      */
     public function get_name_of_action($localized = true) {
-        return get_string('send_mail_interval', 'mod_booking');
+        return get_string('sendmailinterval', 'mod_booking');
     }
 
     /**

@@ -53,7 +53,7 @@ class optiondates_teacher_deleted extends \core\event\base {
      *
      */
     public static function get_name() {
-        return get_string('optiondates_teacher_deleted', 'mod_booking');
+        return get_string('optiondatesteacherdeleted', 'mod_booking');
     }
 
     /**

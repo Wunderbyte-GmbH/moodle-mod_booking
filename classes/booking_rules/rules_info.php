@@ -69,7 +69,7 @@ class rules_info {
 
         // The custom name of the role has to be at this place, but every rule will implement save and set of rule_name.
         $mform->addElement('text', 'rule_name',
-            get_string('rule_name', 'mod_booking'), ['size' => '50']);
+            get_string('rulename', 'mod_booking'), ['size' => '50']);
         $mform->setType('rule_name', PARAM_TEXT);
         $repeateloptions['rule_name']['type'] = PARAM_TEXT;
 

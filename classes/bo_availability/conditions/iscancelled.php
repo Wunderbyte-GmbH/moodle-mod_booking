@@ -203,11 +203,11 @@ class iscancelled implements bo_condition {
      */
     private function get_description_string($isavailable, $full) {
         if ($isavailable) {
-            $description = $full ? get_string('bo_cond_iscancelled_full_available', 'mod_booking') :
-                get_string('bo_cond_iscancelled_available', 'mod_booking');
+            $description = $full ? get_string('bocondiscancelledfullavailable', 'mod_booking') :
+                get_string('bocondiscancelledavailable', 'mod_booking');
         } else {
-            $description = $full ? get_string('bo_cond_iscancelled_full_not_available', 'mod_booking') :
-                get_string('bo_cond_iscancelled_not_available', 'mod_booking');
+            $description = $full ? get_string('bocondiscancelledfullnotavailable', 'mod_booking') :
+                get_string('bocondiscancellednotavailable', 'mod_booking');
         }
         return $description;
     }

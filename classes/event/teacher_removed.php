@@ -52,7 +52,7 @@ class teacher_removed extends \core\event\base {
      * @return string
      */
     public static function get_name() {
-        return get_string('eventteacher_removed', 'mod_booking');
+        return get_string('eventteacherremoved', 'mod_booking');
     }
 
     /**

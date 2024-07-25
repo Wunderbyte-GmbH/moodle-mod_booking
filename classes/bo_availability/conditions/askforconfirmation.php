@@ -280,7 +280,7 @@ class askforconfirmation implements bo_condition {
 
         // In this case, we dont differentiate between availability, because when it blocks...
         // ... it just means that it can be booked. Blocking has a different functionality here.
-        $description = get_string('bo_cond_askforconfirmation_not_available', 'mod_booking');
+        $description = get_string('bocondaskforconfirmationnotavailable', 'mod_booking');
 
         return $description;
     }

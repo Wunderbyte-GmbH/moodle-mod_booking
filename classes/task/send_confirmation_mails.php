@@ -51,7 +51,7 @@ class send_confirmation_mails extends \core\task\adhoc_task {
      * @var \stdClass
      */
     public function get_name() {
-        return get_string('task_send_confirmation_mails', 'mod_booking');
+        return get_string('tasksendconfirmationmails', 'mod_booking');
     }
 
     /**

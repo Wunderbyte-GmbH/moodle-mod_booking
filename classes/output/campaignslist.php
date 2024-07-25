@@ -57,8 +57,8 @@ class campaignslist implements renderable, templatable {
                     $a = new stdClass;
                     $a->fieldname = $campaignobj->fieldname;
                     $a->fieldvalue = $campaignobj->fieldvalue;
-                    $campaign->description = get_string('campaign_customfield_descriptiontext', 'mod_booking', $a);
-                    $campaign->localizedtype = get_string('campaign_customfield', 'mod_booking');
+                    $campaign->description = get_string('campaigncustomfielddescriptiontext', 'mod_booking', $a);
+                    $campaign->localizedtype = get_string('campaigncustomfield', 'mod_booking');
                     $campaign->localizedstart = $this->render_localized_timestamp($campaign->starttime, current_language());
                     $campaign->localizedend = $this->render_localized_timestamp($campaign->endtime, current_language());
                     break;
@@ -68,8 +68,8 @@ class campaignslist implements renderable, templatable {
                     $a = new stdClass;
                     $a->fieldname = $campaignobj->fieldname;
                     $a->fieldvalue = $campaignobj->fieldvalue;
-                    $campaign->description = get_string('campaign_blockbooking_descriptiontext', 'mod_booking', $a);
-                    $campaign->localizedtype = get_string('campaign_blockbooking', 'mod_booking');
+                    $campaign->description = get_string('campaignblockbookingdescriptiontext', 'mod_booking', $a);
+                    $campaign->localizedtype = get_string('campaignblockbooking', 'mod_booking');
                     $campaign->localizedstart = $this->render_localized_timestamp($campaign->starttime, current_language());
                     $campaign->localizedend = $this->render_localized_timestamp($campaign->endtime, current_language());
                     break;
