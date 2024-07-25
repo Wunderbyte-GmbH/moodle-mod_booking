@@ -79,6 +79,8 @@ class courseid extends field_base {
     public static $alternativeimportidentifiers = [
         'enroltocourseshortname',
         'courseid',
+        'coursenumber',
+        'chooseorcreatecourse',
     ];
 
     /**
