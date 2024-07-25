@@ -19,7 +19,9 @@ namespace mod_booking\booking_rules\rules;
 use core_plugin_manager;
 use mod_booking\booking_rules\actions_info;
 use mod_booking\booking_rules\booking_rule;
+use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\conditions_info;
+use mod_booking\booking_rules\rules_info;
 use mod_booking\singleton_service;
 use moodle_url;
 use MoodleQuickForm;
@@ -193,6 +195,33 @@ class rule_react_on_event implements booking_rule {
         ];
 
         $mform->hideIf('rule_react_on_event_after_completion', 'rule_react_on_event_event', 'in', $notborelatedevents);
+
+        $rules = booking_rules::get_list_of_saved_rules_by_context();
+
+        $rulesselect = [];
+        foreach ($rules as $rule) {
+            if (empty($rule)) {
+                continue;
+            }
+
+
+            // TODO: Better description where this rule comes from.
+            $ruleobject = json_decode($rule->rulejson);
+            $rulesselect[$rule->id] = $ruleobject->name . " ($rule->contextid)";
+        }
+
+        $options = [
+            'multiple' => true,
+            'noselectionstring' => get_string('noselection', 'mod_booking'),
+        ];
+
+        $mform->addElement(
+            'autocomplete',
+            'rule_react_on_event_cancelrules',
+            get_string('rule:react:on:event:cancelrules', 'mod_booking'),
+            $rulesselect,
+            $options
+        );
     }
 
     /**
@@ -226,6 +255,7 @@ class rule_react_on_event implements booking_rule {
         $jsonobject->ruledata->boevent = $data->rule_react_on_event_event ?? '';
         $jsonobject->ruledata->condition = $data->rule_react_on_event_condition ?? '';
         $jsonobject->ruledata->aftercompletion = $data->rule_react_on_event_after_completion ?? '';
+        $jsonobject->ruledata->cancelrules = $data->rule_react_on_event_cancelrules ?? [];
 
         $record->rulejson = json_encode($jsonobject);
         $record->rulename = $this->rulename;
@@ -262,6 +292,7 @@ class rule_react_on_event implements booking_rule {
         $data->rule_react_on_event_event = $ruledata->boevent;
         $data->rule_react_on_event_condition = $ruledata->condition;
         $data->rule_react_on_event_after_completion = $ruledata->aftercompletion;
+        $data->rule_react_on_event_cancelrules = $ruledata->cancelrules;
 
     }
 

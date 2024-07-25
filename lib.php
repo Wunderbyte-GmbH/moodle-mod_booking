@@ -1,4 +1,5 @@
 <?php
+use mod_booking\booking_rules\rules_info;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -2041,3 +2042,8 @@ function clean_string(string $text) {
     ];
     return preg_replace(array_keys($utf8), array_values($utf8), $text);
 }
+
+// With this function, we can execute code at the last moment.
+register_shutdown_function(function() {
+    rules_info::filter_rules_and_execute();
+});

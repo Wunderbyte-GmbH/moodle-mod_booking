@@ -41,6 +41,13 @@ use stdClass;
 class rules_info {
 
     /**
+     * Collect events to execute them at the end of the request.
+     *
+     * @var array
+     */
+    public static $rulestoexecute = [];
+
+    /**
      * Add form fields to mform.
      *
      * @param MoodleQuickForm $mform
@@ -48,9 +55,11 @@ class rules_info {
      * @param ?array $ajaxformdata
      * @return void
      */
-    public static function add_rules_to_mform(MoodleQuickForm &$mform,
+    public static function add_rules_to_mform(
+        MoodleQuickForm &$mform,
         array &$repeateloptions,
-        ?array &$ajaxformdata = null) {
+        ?array &$ajaxformdata = null
+    ) {
 
         // First, get all the type of rules there are.
         $rules = self::get_rules();
@@ -68,8 +77,12 @@ class rules_info {
         $mform->setType('contextid', PARAM_INT);
 
         // The custom name of the role has to be at this place, but every rule will implement save and set of rule_name.
-        $mform->addElement('text', 'rule_name',
-            get_string('rulename', 'mod_booking'), ['size' => '50']);
+        $mform->addElement(
+            'text',
+            'rule_name',
+            get_string('rule_name', 'mod_booking'),
+            ['size' => '50']
+        );
         $mform->setType('rule_name', PARAM_TEXT);
         $repeateloptions['rule_name']['type'] = PARAM_TEXT;
 
@@ -308,7 +321,7 @@ class rules_info {
      * @return void
      *
      */
-    public static function execute_rules(\core\event\base $event) {
+    public static function collect_rules_for_execution(\core\event\base $event) {
 
         $data = $event->get_data();
 
@@ -319,7 +332,7 @@ class rules_info {
             };
         }
         // Triggered again with optionid 1 ??
-        $optionid = $event->objectid ?? $data['other']['optionid'] ?? 0;
+        $optionid = $event->objectid ?? $data['other']['itemid'] ?? 0;
         $eventname = "\\" . get_class($event);
 
         $contextid = $event->contextid;
@@ -342,9 +355,45 @@ class rules_info {
             // We only execute if the rule in question listens to the right event.
             if (!empty($rule->boevent)) {
                 if ($data['eventname'] == $rule->boevent) {
-                    $rule->execute($optionid, 0);
+                    self::$rulestoexecute[$rule->ruleid] = [
+                        'optionid' => $optionid,
+                        'rule' => $rule,
+                        'ruleid' => $rule->ruleid,
+                    ];
                 }
             }
+        }
+    }
+
+    /**
+     * Run through all the collected events, filter them and execute them.
+     *
+     * @return void     *
+     */
+    public static function filter_rules_and_execute() {
+
+        // 1. Determine which rules exclude each other and delete those rules.
+        // 2. Execute remaing rules.
+
+        $allrules = self::$rulestoexecute;
+
+        $rulestoexecute = $allrules;
+
+        foreach ($allrules as $ruleid => $rulearray) {
+            // Run through all the excluded rules of this array and unset them.
+            $rule = $rulearray['rule'];
+            $ruleobject = json_decode($rule->rulejson);
+            $ruledata = $ruleobject->ruledata;
+            if (empty($ruledata->cancelrules)) {
+                foreach ($ruledata->cancelrules as $cancelrule) {
+                    unset($rulestoexecute[$cancelrule]);
+                }
+            }
+        }
+
+        foreach ($rulestoexecute as $ruleid => $rulearray) {
+            $rule = $rulearray['rule'];
+            $rule->execute($rulearray['optionid'], 0);
         }
     }
 
@@ -365,7 +414,11 @@ class rules_info {
                     'item_bought',
                 ];
                 foreach ($acceptedeventsfromshoppingcart as $accepted) {
-                    if (str_contains($data['eventname'], $accepted)) {
+                    if (
+                        str_contains($data['eventname'], $accepted)
+                        && $data['other']['component'] == 'mod_booking'
+                    ) {
+
                         return true;
                     }
                 }
