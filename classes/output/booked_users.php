@@ -70,12 +70,13 @@ class booked_users implements renderable, templatable {
      *
      */
     public function __construct(
-            int $optionid,
-            bool $showbooked = false,
-            bool $showwaiting = false,
-            bool $showreserved = false,
-            bool $showtonotifiy = false,
-            bool $showdeleted = false) {
+        int $optionid,
+        bool $showbooked = false,
+        bool $showwaiting = false,
+        bool $showreserved = false,
+        bool $showtonotifiy = false,
+        bool $showdeleted = false
+    ) {
 
         if ($showreserved) {
             list($fields, $from, $where, $params)
@@ -153,8 +154,10 @@ class booked_users implements renderable, templatable {
             $table = new manageusers_table($tablename);
 
             $table->define_cache('mod_booking', 'bookedusertable');
-            $table->define_columns(['name']);
+            $table->define_columns(['name', 'timemodified']);
             $table->set_sql($fields, $from, $where, $params);
+
+            $table->use_pages = true;
 
             $html = $table->outhtml(20, false);
             $this->deletedusers = count($table->rawdata) > 0 ? $html : null;
