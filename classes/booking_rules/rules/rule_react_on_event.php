@@ -16,6 +16,7 @@
 
 namespace mod_booking\booking_rules\rules;
 
+use core_plugin_manager;
 use mod_booking\booking_rules\actions_info;
 use mod_booking\booking_rules\booking_rule;
 use mod_booking\booking_rules\conditions_info;
