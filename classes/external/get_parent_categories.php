@@ -94,7 +94,7 @@ class get_parent_categories extends external_api {
                     'name' => get_string('dashboardsummary', 'mod_booking'),
                     'contextid' => 1,
                     'coursecount' => $coursecount,
-                    'description' => get_string('dashboard_summary_desc', 'mod_booking'),
+                    'description' => get_string('dashboardsummary_desc', 'mod_booking'),
                     'path' => '',
                     'json' => '',
                 ],

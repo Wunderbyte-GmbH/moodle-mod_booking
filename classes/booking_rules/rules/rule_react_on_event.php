@@ -144,7 +144,7 @@ class rule_react_on_event implements booking_rule {
 
             $mform->addElement('static', 'react_on_change_info',
                 '',
-                get_string('rule_react_on_change_event_desc', 'mod_booking', $linktosettings));
+                get_string('rulereactonchangeevent_desc', 'mod_booking', $linktosettings));
         }
 
         $conditions = [
@@ -161,7 +161,7 @@ class rule_react_on_event implements booking_rule {
         $mform->addElement('text', 'rule_react_on_event_after_completion',
         get_string('rulereactoneventaftercompletion', 'mod_booking'));
         $mform->setType('rule_react_on_event_after_completion', PARAM_INT);
-        $mform->addHelpButton('rule_react_on_event_after_completion', 'rule_react_on_event_after_completion', 'mod_booking');
+        $mform->addHelpButton('rule_react_on_event_after_completion', 'rulereactoneventaftercompletion', 'mod_booking');
 
         $notborelatedevents = [
             '\mod_booking\event\custom_message_sent',

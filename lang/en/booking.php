@@ -294,7 +294,7 @@ $string['bocondselectusersfullnotavailable'] = 'Only the following users are all
 $string['bocondselectusersnotavailable'] = 'Booking not allowed';
 $string['bocondselectusersrestrict'] = 'Only specific user(s) are allowed to book';
 $string['bocondselectusersuserids'] = 'User(s) allowed to book';
-$string['bo_cond_selectusers_userids_help'] = '<p>If you use this condition, only selected people will be able to book this event.</p>
+$string['bocondselectusersuserids_help'] = '<p>If you use this condition, only selected people will be able to book this event.</p>
 <p>However, you can also use this condition to allow certain people to bypass other restrictions:</p>
 <p>(1) To do this, click the "Has relation to other condition" checkbox.<br>
 (2) Make sure that the "OR" operator is selected.<br>
@@ -572,7 +572,7 @@ $string['campaigncustomfield'] = 'Change price or booking limit';
 $string['campaigncustomfielddescriptiontext'] = 'Affects: Booking option custom field "{$a->fieldname}"
  having the value "{$a->fieldvalue}".';
 $string['campaignname'] = 'Custom name for the campaign';
-$string['campaign_name_help'] = 'Specify any name for the campaign - for example, "Christmas Campaign 2023" or "Easter Discount 2023".';
+$string['campaignname_help'] = 'Specify any name for the campaign - for example, "Christmas Campaign 2023" or "Easter Discount 2023".';
 $string['campaignend'] = 'End of campaign';
 $string['campaignend_help'] = 'When does the campaign end?';
 $string['campaignfieldname'] = 'Booking option field';
@@ -666,12 +666,12 @@ $string['completedcomments'] = 'Only with completed activity';
 $string['completedratings'] = 'Only with completed activity';
 $string['completionmodule'] = 'Upon completion of the selected course activity, enable bulk deletion of user bookings';
 $string['completionmodule_help'] = 'Display bulk deletion button for booking answers, if another course module has been completed. The bookings of users will be deleted with a click of a button on the report page! Only activities with completion enabled can be selected from the list.';
-$string['condition_select_student_in_bo_desc'] = 'Select all students of the booking option (affected by the rule) having a certain role.';
+$string['conditionselectstudentinbo_desc'] = 'Select all students of the booking option (affected by the rule) having a certain role.';
 $string['conditionselectstudentinboroles'] = 'Choose role';
-$string['condition_select_teacher_in_bo_desc'] = 'Select the teachers of the booking option (affected by the rule).';
-$string['condition_select_user_from_event_desc'] = 'Choose a user who is somehow connected to the event';
+$string['conditionselectteacherinbo_desc'] = 'Select the teachers of the booking option (affected by the rule).';
+$string['conditionselectuserfromevent_desc'] = 'Choose a user who is somehow connected to the event';
 $string['conditionselectuserfromeventtype'] = 'Choose role';
-$string['condition_select_user_shopping_cart_desc'] = "User with payment obligation is chosen";
+$string['conditionselectusershoppingcart_desc'] = "User with payment obligation is chosen";
 $string['conditionselectusersuserids'] = "Select the users you want to target";
 $string['conditiontextfield'] = 'Value';
 $string['configurefields'] = 'Configure fields and columns';
@@ -787,7 +787,7 @@ $string['customreporttemplates'] = 'Custom report templates';
 $string['customuserprofilefield'] = "Custom user profile field";
 $string['customuserprofilefield_help'] = "If you choose a value here, the price part of the camapaign will only be valid for users with the defined value in the defined custom field.";
 $string['dashboardsummary'] = 'General';
-$string['dashboard_summary_desc'] = 'Contains the settings and stats for the whole Moodle site';
+$string['dashboardsummary_desc'] = 'Contains the settings and stats for the whole Moodle site';
 $string['dataincomplete'] = 'Record with componentid {$a->id} is incomplete and could not be treated entirely. Check field "{$a->field}".';
 $string['dates'] = 'Date(s)';
 $string['dateandtime'] = 'Date and time';
@@ -1292,7 +1292,7 @@ $string['mobileresetsubmission'] = 'Reset Submission form';
 $string['mobilesetsubmission'] = 'Submit';
 $string['mobilesubmittedsuccess'] = 'You can continue and book the course';
 $string['mobileappheading'] = "Mobile App";
-$string['mobileapp_heading_desc'] = "Choose your booking instance to display on the connected Moodle Mobile Apps.";
+$string['mobileappheading_desc'] = "Choose your booking instance to display on the connected Moodle Mobile Apps.";
 $string['mobileappprice'] = 'Price';
 $string['mobileappnobookinginstance'] = "No booking instance on your plattform";
 $string['mobileappnobookinginstance_desc'] = "You need to create at least one booking instance";
@@ -1712,7 +1712,7 @@ $string['rulecustomprofilefield'] = 'Custom user profile field';
 $string['ruledatefield'] = 'Date field';
 $string['ruledays'] = 'Number of days';
 $string['ruledaysbefore'] = 'Trigger n days in relation to a certain date';
-$string['rule_daysbefore_desc'] = 'Choose a date field of booking options and the number of days in relation to that date.';
+$string['ruledaysbefore_desc'] = 'Choose a date field of booking options and the number of days in relation to that date.';
 $string['ruleevent'] = 'Event';
 $string['ruleeventcondition'] = 'Execute when...';
 $string['rulemailtemplate'] = 'Mail template';
@@ -1726,14 +1726,14 @@ $string['ruleoptionfieldcourseendtime'] = 'End (courseendtime)';
 $string['ruleoptionfieldcoursestarttime'] = 'Begin (coursestarttime)';
 $string['ruleoptionfieldlocation'] = 'Location (location)';
 $string['ruleoptionfieldtext'] = 'Name of the booking option (text)';
-$string['rule_react_on_change_event_desc'] = 'For the "Booking option updated" event, you can specify options here: <a href="{$a}">Booking Plugin Settings</a>.';
+$string['rulereactonchangeevent_desc'] = 'For the "Booking option updated" event, you can specify options here: <a href="{$a}">Booking Plugin Settings</a>.';
 $string['rulereactonevent'] = "React on event";
 $string['rulereactoneventaftercompletion'] = "Number of days after end of booking option, where rule still applies";
-$string['rule_react_on_event_after_completion_help'] = "Leave this field empty or set to 0 if you want to keep executing the action. You can use negative numbers if the rule should be suspended before the specified courseend.";
-$string['rule_react_on_event_desc'] = "Choose an event that should trigger the rule.<br>
+$string['rulereactoneventaftercompletion_help'] = "Leave this field empty or set to 0 if you want to keep executing the action. You can use negative numbers if the rule should be suspended before the specified courseend.";
+$string['rulereactonevent_desc'] = "Choose an event that should trigger the rule.<br>
 <b>Hint:</b> You can use the placeholder <code>{eventdescription}</code> to show a description of the event.";
 $string['rulesendmailcpf'] = '[Preview] Send an e-mail to user with custom profile field';
-$string['rule_sendmail_cpf_desc'] = 'Choose an event that should trigger the "Send an e-mail" rule. Enter an e-mail template
+$string['rulesendmailcpf_desc'] = 'Choose an event that should trigger the "Send an e-mail" rule. Enter an e-mail template
  (you can use placeholders like {bookingdetails}) and define to which users the e-mail should be sent.
   Example: All users having the value "Vienna center" in a custom user profile field called "Study center".';
 $string['rulevalue'] = 'Value';
@@ -1894,11 +1894,11 @@ $string['studentdeleted'] = 'Users who were already deleted';
 $string['studentnotificationlist'] = 'Users on the notification list';
 $string['studentwaitinglist'] = 'Users on the waiting list';
 $string['subbookingadditionalitem'] = "Additional item booking";
-$string['subbooking_additionalitem_desc'] = "This permits you to add optinally bookable items to this booking option,
+$string['subbookingadditionalitem_desc'] = "This permits you to add optinally bookable items to this booking option,
  eg. you can book a better special seat etc. or breakfast to your hotel room.";
 $string['subbookingadditionalitemdescription'] = "Describe the additionally bookable item:";
 $string['subbookingadditionalperson'] = "Additional person booking";
-$string['subbooking_additionalperson_desc'] = "This permits you to add other persons to this booking option,
+$string['subbookingadditionalperson_desc'] = "This permits you to add other persons to this booking option,
  e.g. to book places for your family members.";
 $string['subbookingadditionalpersondescription'] = "Describe the additional person booking option";
 $string['subbookingaddpersons'] = "Add additional person(s)";
@@ -1906,7 +1906,7 @@ $string['subbookingbookedpersons'] = "The following person(s) are added:";
 $string['subbookingduration'] = "Duration in minutes";
 $string['subbookingname'] = "Name of the subbooking";
 $string['subbookingtimeslot'] = "Timeslot booking";
-$string['subbooking_timeslot_desc'] = "This opens timeslots for every booking date with a set duration.";
+$string['subbookingtimeslot_desc'] = "This opens timeslots for every booking date with a set duration.";
 $string['subbookings'] = 'Subbookings ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['subbookings_desc'] = 'Activate subbookings in order to enable the booking of additional items or time slots (e.g. for tennis courts).';
 $string['subject'] = 'Subject';

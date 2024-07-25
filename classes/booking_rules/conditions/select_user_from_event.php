@@ -133,7 +133,7 @@ class select_user_from_event implements booking_rule_condition {
         ];
 
         $mform->addElement('static', 'condition_select_user_from_event', '',
-                get_string('condition_select_user_from_event_desc', 'mod_booking'));
+                get_string('conditionselectuserfromevent_desc', 'mod_booking'));
 
         // We need to check if the event supports relateduserid (affected user of the event).
         $userfromeventoptions["0"] = get_string('choose...', 'mod_booking');
