@@ -377,6 +377,10 @@ class rules_info {
 
         $allrules = self::$rulestoexecute;
 
+        if (empty($allrules)) {
+            return;
+        }
+
         $rulestoexecute = $allrules;
 
         foreach ($allrules as $ruleid => $rulearray) {
@@ -384,7 +388,7 @@ class rules_info {
             $rule = $rulearray['rule'];
             $ruleobject = json_decode($rule->rulejson);
             $ruledata = $ruleobject->ruledata;
-            if (empty($ruledata->cancelrules)) {
+            if (!empty($ruledata->cancelrules)) {
                 foreach ($ruledata->cancelrules as $cancelrule) {
                     unset($rulestoexecute[$cancelrule]);
                 }
