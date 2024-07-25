@@ -767,6 +767,33 @@ if (!$tableallbookings->is_downloading()) {
     $renderer = $PAGE->get_renderer('mod_booking');
     echo $renderer->render_booked_users($data);
 
+    // We call the template render to display how many users are currently reserved.
+    $data = new booked_users($optionid, false, false, false, false, true);
+    $deletedlist = $renderer->render_booked_users($data);
+
+    if (!empty($deletedlist)) {
+        echo html_writer::tag(
+            'a',
+            get_string('deletedusers', 'mod_booking'),
+            [
+                'class' => 'h5',
+                'data-toggle' => "collapse",
+                'href' => "#collapseDeletedlist",
+                'role' => "button",
+                'aria-expanded' => "false",
+                'aria-controls' => "collapseDeletedlist",
+            ]
+        );
+        echo html_writer::tag(
+            'div',
+            $deletedlist,
+            [
+                'class' => "collapse",
+                'id' => "collapseDeletedlist",
+            ]
+        );
+    }
+
     $hidden = "";
 
     foreach ($urlparams as $key => $value) {

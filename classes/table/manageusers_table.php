@@ -75,6 +75,17 @@ class manageusers_table extends wunderbyte_table {
     }
 
     /**
+     * Return dragable column.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_timemodified(stdClass $values) {
+
+        return userdate($values->timemodified);
+    }
+
+    /**
      * Return name column.
      *
      * @param stdClass $values
