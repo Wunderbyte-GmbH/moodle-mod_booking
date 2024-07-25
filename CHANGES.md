@@ -1,3 +1,16 @@
+## Version 8.6.0 (2024072500)
+* Improvement: Integrate Requirements for github workflow tests for Moodle 4.4
+* Improvement: Add btn-primary to "Go to Moodle Course"
+* Improvement: Customize rules reaction on change event as settings
+* Improvement: Add bookingoption_cancelled event to rules list
+* Improvement: Add possibility to add a sum for a customfield in category statistics
+* Improvement: Possibility to select user affected by bookinganswer_cancelled event in rules.
+* Bugfix: Changes tracking for entities
+* Bugfix: Duplication is separated from templates
+* Bugfix: Make sure newly created booking option fields are still shown in the configurations
+* Bugfix: Fix linkbacktocourse shortcode
+* Bugfix: Deleted course does not break the plattform.
+
 ## Version 8.5.0 (2024071801)
 * Improvement: Enable up to 3 bookingrules for free version
 * Improvement: Vue Dashboard
