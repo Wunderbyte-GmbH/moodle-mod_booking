@@ -261,7 +261,7 @@ class booking_time implements bo_condition {
                             && isset($currentcondition->overridable)
                             && ($currentcondition->overridable == true)) {
                             $overrideconditionsarray[$jsoncondition->id] = get_string('bocond' .
-                                $jsoncondition->name, 'mod_booking');
+                                str_replace("_", "", $jsoncondition->name), 'mod_booking');
                         }
                     }
                 }
