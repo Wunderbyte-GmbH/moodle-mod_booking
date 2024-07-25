@@ -199,7 +199,7 @@ $string['bocondcustomformrestrict'] = 'Form needs to be filled out before bookin
 $string['bocondcustomformurl'] = "Url";
 $string['bocondcustomformurlerror'] = "The URL is not valid or does not start with http or https.";
 $string['bocondcustomformvalue'] = 'Value';
-$string['bo_cond_customform_value_help'] = 'When a dropdown menu is selected, please enter one value per line. The values and displayed values can be entered separately, for example, "1 => My first value => number_of_availability" etc.';
+$string['bocondcustomformvalue_help'] = 'When a dropdown menu is selected, please enter one value per line. The values and displayed values can be entered separately, for example, "1 => My first value => number_of_availability" etc.';
 $string['bocondcustomuserprofilefieldavailable'] = 'Book it';
 $string['bocondcustomuserprofilefieldfield'] = 'Profile field';
 $string['bocondcustomuserprofilefieldfullavailable'] = 'Booking is possible';

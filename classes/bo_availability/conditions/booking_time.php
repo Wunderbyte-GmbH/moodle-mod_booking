@@ -243,7 +243,7 @@ class booking_time implements bo_condition {
             $classnameparts = explode('\\', $fullclassname);
             $shortclassname = end($classnameparts); // Without namespace.
             $overrideconditionsarray[$overridecondition->id] =
-                get_string('bo_cond_' . $shortclassname, 'mod_booking');
+                get_string('bocond' . $shortclassname, 'mod_booking');
         }
 
         // Check for json conditions that might have been saved before.
@@ -259,7 +259,7 @@ class booking_time implements bo_condition {
                         if ($jsoncondition->id != MOD_BOOKING_BO_COND_BOOKING_TIME
                             && isset($currentcondition->overridable)
                             && ($currentcondition->overridable == true)) {
-                            $overrideconditionsarray[$jsoncondition->id] = get_string('bo_cond_' .
+                            $overrideconditionsarray[$jsoncondition->id] = get_string('bocond' .
                                 $jsoncondition->name, 'mod_booking');
                         }
                     }
