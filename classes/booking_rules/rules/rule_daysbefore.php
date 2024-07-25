@@ -111,7 +111,7 @@ class rule_daysbefore implements booking_rule {
         }
 
         $mform->addElement('static', 'rule_daysbefore_desc', '',
-            get_string('rule_daysbefore_desc', 'mod_booking'));
+            get_string('ruledaysbefore_desc', 'mod_booking'));
 
         // Number of days before.
         $mform->addElement('select', 'rule_daysbefore_days',

@@ -134,7 +134,7 @@ class additionalperson_form extends dynamic_form {
         $mform->addElement('hidden', 'id', $id);
 
         $mform->addElement('static', 'subbookingaddpersondescription', '',
-            $subbooking->description ?? get_string('subbooking_additionalperson_desc', 'mod_booking'));
+            $subbooking->description ?? get_string('subbookingadditionalperson_desc', 'mod_booking'));
 
         $mform->registerNoSubmitButton('btn_addperson');
         $buttonargs = ['style' => 'visibility:hidden;'];

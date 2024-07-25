@@ -98,7 +98,7 @@ class subbooking_timeslot implements booking_subbooking {
     public function add_subbooking_to_mform(MoodleQuickForm &$mform, &$formdata) {
 
         $mform->addElement('static', 'subbooking_timeslot_desc', '',
-            get_string('subbooking_timeslot_desc', 'mod_booking'));
+            get_string('subbookingtimeslot_desc', 'mod_booking'));
 
         // Duration of one particular slot.
         $mform->addElement('text', 'subbooking_timeslot_duration',

@@ -101,7 +101,7 @@ class subbooking_additionalperson implements booking_subbooking {
     public function add_subbooking_to_mform(MoodleQuickForm &$mform, array &$formdata) {
 
         $mform->addElement('static', 'subbooking_additionalperson_desc', '',
-            get_string('subbooking_additionalperson_desc', 'mod_booking'));
+            get_string('subbookingadditionalperson_desc', 'mod_booking'));
 
         // Add a description with the potential inclusion of files.
 
