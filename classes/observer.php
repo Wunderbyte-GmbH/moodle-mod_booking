@@ -371,7 +371,7 @@ class mod_booking_observer {
      */
     public static function execute_rule(\core\event\base $event) {
 
-        rules_info::execute_rules($event);
+        rules_info::collect_rules_for_execution($event);
     }
 
     /**
