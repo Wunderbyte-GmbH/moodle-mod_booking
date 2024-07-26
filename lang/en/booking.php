@@ -721,7 +721,6 @@ $string['coursepageshortinfo'] = 'If you want to book yourself for this course, 
 $string['coursepageshortinfolbl'] = 'Short info';
 $string['coursepageshortinfolbl_help'] = 'Choose a short info text to show on the course page.';
 $string['courses'] = 'Courses';
-$string['courses'] = 'Kurs(e)';
 $string['coursesheader'] = 'Moodle Courses';
 $string['coursestart'] = 'Start';
 $string['coursestarttime'] = 'Start time of the course';
@@ -793,7 +792,6 @@ $string['dateerror'] = 'Wrong date in line {$a}: ';
 $string['datenotset'] = 'Date not set';
 $string['dateparseformat'] = 'Date parse format';
 $string['dateparseformat_help'] = 'Please, use date format like specified in CSV file. Help with <a href="http://php.net/manual/en/function.date.php">this</a> resource for options.';
-$string['dates'] = 'Date(s)';
 $string['dates'] = 'Dates';
 $string['dayofweek'] = 'Weekday';
 $string['dayofweektime'] = 'Day & Time';
@@ -1143,7 +1141,6 @@ $string['importdescription'] = 'Beschreibung der Buchungsoption';
 $string['importexcelbutton'] = 'Import activity completion';
 $string['importexceltitle'] = 'Import activity completion';
 $string['importfailed'] = 'Import failed';
-$string['importfailed'] = 'The import failed due to following reason: ';
 $string['importfinished'] = 'Importing finished!';
 $string['importidentifier'] = 'Einzigartiger Identifikator einer Buchungsoption';
 $string['importinfo'] = 'Import info: You can use the following columns in the csv upload (Explanation in parenthesis)';
@@ -1824,7 +1821,6 @@ $string['showcoursesofteacher'] = 'Courses';
 $string['showcustomfields'] = 'Custom booking option fields';
 $string['showcustomfields_desc'] = 'Select the custom booking option fields to be shown on the sign-in sheet';
 $string['showdates'] = 'Show dates';
-$string['showdates'] = 'Show dates';
 $string['showdescription'] = 'Show description';
 $string['showinapi'] = 'Show in API?';
 $string['showlistoncoursepage'] = 'Show extra information on course page';
@@ -1881,13 +1877,12 @@ Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
 Go to the booking option: {$a->gotobookingoption}
 ';
 $string['statuschangetextsubject'] = 'Booking status has changed for {$a->title}';
-// phpcs:ignore
 $string['statuscomplete'] = "Complete";
 $string['statusfailed'] = "Failed";
 $string['statusincomplete'] = "Incomplete";
 $string['statusnoshow'] = "No show";
 $string['statusunknown'] = "Unknown";
-$string['sthwentwrongwithplaceholder'] = ''; // Returnvalue for failed placeholders. {$a} returns classname.
+$string['sthwentwrongwithplaceholder'] = '';
 $string['studentbooked'] = 'Users who booked';
 $string['studentdeleted'] = 'Users who were already deleted';
 $string['studentnotificationlist'] = 'Users on the notification list';
@@ -1951,7 +1946,6 @@ $string['tasksendremindermails'] = 'Booking: Send reminder mails';
 $string['teacher'] = 'Teacher';
 $string['teachernotfound'] = 'Teacher could not be found or does not exist.';
 $string['teacherroleid'] = 'Subscribe teacher with that role to the course';
-$string['teachers'] = 'Teacher(s)';
 $string['teachers'] = 'Teachers';
 $string['teachersallowmailtobookedusers'] = 'Allow teachers to send an e-mail to all booked users using their own mail client';
 $string['teachersallowmailtobookedusers_desc'] = 'If you activate this setting, teachers can click a button to send an e-mail
