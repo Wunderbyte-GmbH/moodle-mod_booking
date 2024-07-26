@@ -49,6 +49,9 @@ class campaign_customfield implements booking_campaign {
     /** @var string $bookingcampaigntype */
     public $bookingcampaigntype = 'campaign_customfield';
 
+    /** @var string $bookingcampaigntypestringid */
+    public $bookingcampaigntypestringid = 'campaigncustomfield';
+
     /** @var int $starttime */
     public $starttime = 0;
 
@@ -234,7 +237,7 @@ class campaign_customfield implements booking_campaign {
      * @return string
      */
     public function get_name_of_campaign_type(bool $localized = true): string {
-        return $localized ? get_string($this->bookingcampaigntype, 'mod_booking') : $this->bookingcampaigntype;
+        return $localized ? get_string($this->bookingcampaigntypestringid, 'mod_booking') : $this->bookingcampaigntype;
     }
 
     /**
