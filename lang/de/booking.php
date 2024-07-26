@@ -1585,8 +1585,8 @@ $string['progressbars_desc'] = 'Mit diesem Feature erhalten Sie eine visuelle Da
 $string['progressbarscollapsible'] = 'Fortschrittsbalken können ausgeklappt werden';
 $string['proversion:cardsview'] = 'Mit Booking PRO können Sie auch die Karten-Ansicht aktivieren.';
 $string['proversiononly'] = 'Nur in der PRO-Version verfügbar.';
-$string['qr_id'] = "QR_id";
-$string['qr_username'] = "QR_nutzerinnenname";
+$string['qrid'] = "QR_id";
+$string['qrusername'] = "QR_nutzerinnenname";
 $string['question'] = "Frage";
 $string['ratings'] = 'Bewertung der Buchungsoption';
 $string['ratingsuccessful'] = 'Die Bewertungen wurden erfolgreich aktualisiert';
@@ -1627,7 +1627,7 @@ $string['responsiblecontactcanedit'] = 'Kontaktpersonen das Editieren erlauben';
 $string['responsiblecontactcanedit_desc'] = 'Aktivieren Sie diese Einstellung, um es Kontaktpersonen zu erlauben,
 die Buchungsoptionen, bei denen Sie eingetragen sind, zu editieren und Teilnehmer:innen-Listen einzusehen.<br>
 <b>Wichtig:</b> Die Kontaktperson braucht zusätzlich das Recht <b>mod/booking:addeditownoption</b>.';
-$string['rest_response'] = "rest_response";
+$string['restresponse'] = "rest_response";
 $string['restscriptexecuted'] = 'Nach dem Rest-Skript Aufruf';
 $string['restscriptfailed'] = 'Skript konnte nicht ausgeführt werden';
 $string['restscriptsuccess'] = 'Rest Skript Ausführung';

@@ -3214,9 +3214,9 @@ class booking_option {
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
         $params->status = $bookingoption->get_user_status_string($userid, $bookinganswer->user_status($userid));
 
-        $params->qr_id = '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' .
+        $params->qrid = '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' .
             rawurlencode($userid) . '&choe=UTF-8" title="Link to Google.com" />';
-        $params->qr_username = isset($user->username) ?
+        $params->qrusername = isset($user->username) ?
             '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' .
             rawurlencode($user->username) . '&choe=UTF-8" title="QR encoded username" />' : '';
 
