@@ -25,7 +25,6 @@
 
     Example context (json):
     {
-        "titleprefix" : "titleprefix",
         "location" : "location",
         "institution" : "institution",
         "address" : "address",
@@ -49,7 +48,7 @@
     }
 }}
 
-<h4>{{#titleprefix}}{{.}} - {{/titleprefix}}{{{title}}}</h4>
+<h4>{{{title}}}</h4>
 {{#location}}{{#str}} location, mod_booking {{/str}}: {{{.}}}<br>{{/location}}
 {{#institution}}{{#str}} institution, mod_booking {{/str}}: {{.}}<br>{{/institution}}
 {{#address}}{{#str}} address, mod_booking {{/str}}:  {{.}}<br>{{/address}}
