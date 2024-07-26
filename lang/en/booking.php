@@ -1644,8 +1644,8 @@ $string['progressbars_desc'] = 'Get a visual representation of the time which ha
 $string['progressbarscollapsible'] = 'Make progress bars collapsible';
 $string['proversion:cardsview'] = 'With Booking PRO you can also use cards view.';
 $string['proversiononly'] = 'Upgrade to Booking PRO to use this feature.';
-$string['qr_id'] = "qr_id";
-$string['qr_username'] = "qr_username";
+$string['qrid'] = "qr_id";
+$string['qrusername'] = "qr_username";
 $string['question'] = "Question";
 $string['ratings'] = 'Bookingoption ratings';
 $string['ratingsuccessful'] = 'The ratings were successfully updated';
@@ -1690,7 +1690,7 @@ $string['responsiblecontactcanedit_desc'] = 'Activate this setting if you want t
 to edit their booking options and to see and edit the list of booked users.<br>
 <b>Important:</b> The responsible contact person additionally needs the capability
 <b>mod/booking:addeditownoption</b>.';
-$string['rest_response'] = "rest_response";
+$string['restresponse'] = "rest_response";
 $string['restscriptexecuted'] = 'After the rest call has been executed';
 $string['restscriptfailed'] = 'Script execution has failed';
 $string['restscriptsuccess'] = 'Rest script execution';
