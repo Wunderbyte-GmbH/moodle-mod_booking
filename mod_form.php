@@ -431,6 +431,7 @@ class mod_booking_mod_form extends moodleform_mod {
         foreach ($tmpaddfields as $field) {
             $responsesfields[$field->shortname] = $field->name;
             $reportfields[$field->shortname] = $field->name;
+            $signinsheetfields[$field->shortname] = $field->name;
         }
 
         // Fields for booking option overview.

@@ -16,6 +16,7 @@
 
 namespace mod_booking\signinsheet;
 
+use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use user_picture;
 
@@ -298,6 +299,8 @@ class signinsheet_generator {
                     $this->bookingoption->booking->course->id);
             $addsqlwhere .= " AND u.id IN ($groupsql)";
         }
+
+        $userinfofields = $DB->get_records('user_info_field', []);
         $remove = [
             'signinextracols1',
             'signinextracols2',
@@ -309,6 +312,10 @@ class signinsheet_generator {
             'userpic',
         ];
 
+        foreach ($userinfofields as $field) {
+            $remove[] = $field->shortname;
+        }
+
         $mainuserfields = \core_user\fields::for_name()->get_sql('u')->selects;
         $mainuserfields = trim($mainuserfields, ', ');
 
@@ -319,13 +326,19 @@ class signinsheet_generator {
             $userfields = '';
         }
 
+        list($select1, $from1, $filter1, $params1) = booking_option_settings::return_sql_for_custom_profile_field($userinfofields);
+
+        $sql =
+        "SELECT u.id, ba.timecreated as bookingtime, " . $mainuserfields . $userfields . $select1 .
+        " FROM {booking_answers} ba
+        LEFT JOIN {user} u ON u.id = ba.userid
+        $from1
+        WHERE ba.optionid = :optionid AND ba.waitinglist = 0" .
+                 $addsqlwhere . "ORDER BY u.{$this->orderby} ASC";
+
         $users = $DB->get_records_sql(
-                "SELECT u.id, ba.timecreated as bookingtime, " . $mainuserfields . $userfields .
-            " FROM {booking_answers} ba
-            LEFT JOIN {user} u ON u.id = ba.userid
-            WHERE ba.optionid = :optionid AND ba.waitinglist = 0 " .
-                         $addsqlwhere . "ORDER BY u.{$this->orderby} ASC",
-                        array_merge($groupparams,
+                $sql,
+                array_merge($groupparams,
                                 ['optionid' => $this->optionid]));
 
         // Create fake users for adding empty rows.
@@ -388,35 +401,10 @@ class signinsheet_generator {
 
         $this->set_page_header();
 
-        $profilefields = explode(',', get_config('booking', 'custprofilefields'));
-        $profiles = profile_get_custom_fields();
-        $profilefieldnames = [];
-        if (!empty($profiles)) {
-            $profilefieldnames = array_map(
-                    function ($object) {
-                        return $object->shortname;
-                    }, $profiles);
-        }
-        foreach ($profilefieldnames as $key => $value) {
-            if (!in_array($key, $profilefields)) {
-                unset($profilefieldnames[$key]);
-            }
-        }
         foreach ($users as $user) {
             if (!isset($user->isteacher)) {
                 $user->isteacher = false;
             }
-            $profiletext = '';
-            profile_load_custom_fields($user);
-            if (!empty($user->profile) && $user->id > 0) {
-                $profiletext .= " ";
-                foreach ($user->profile as $profilename => $value) {
-                    if (in_array($profilename, $profilefieldnames)) {
-                        $profiletext .= $value . " ";
-                    }
-                }
-            }
-
             // The first time a teacher is processed a new page should be made.
             if ($this->processteachers != $user->isteacher) {
                 $this->processteachers = true;
@@ -545,6 +533,14 @@ class signinsheet_generator {
                         $w = 5;
                         $rotate = true;
                         $name = '';
+
+                        // Handling for custom user profile fields.
+                        if (isset($user->$value)) {
+                            $name = format_string($user->$value);
+                            $w = 20;
+                            $rotate = false;
+                        }
+
                 }
                 if ($escape) {
                     continue;
@@ -854,10 +850,12 @@ class signinsheet_generator {
      * Setup the header row with the column headings for each column
      */
     private function set_table_headerrow() {
+        global $DB;
 
         $this->pdf->SetFont('freesans', 'B', 10);
         $c = 0;
 
+        $customuserfields = $DB->get_records('user_info_field', []);
         // Setup table header row.
         foreach ($this->allfields as $value) {
             $rotate = false;
@@ -929,9 +927,21 @@ class signinsheet_generator {
                     $name = get_string('bookingdate', 'mod_booking');
                     break;
                 default:
-                    $rotate = true;
-                    $this->hasrotatedfields = true;
-                    $name = $value;
+                    $userfield = false;
+                    foreach ($customuserfields as $customuserfield) {
+                        if ($value == $customuserfield->shortname) {
+                            $name = format_string($customuserfield->name);
+                            $w = 20;
+                            $userfield = true;
+                            break;
+                        }
+                    }
+                    if (!$userfield) {
+                        $rotate = true;
+                        $this->hasrotatedfields = true;
+                        $name = $value;
+                    }
+
             }
 
             if ($rotate) {

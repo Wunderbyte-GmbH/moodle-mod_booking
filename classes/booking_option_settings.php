@@ -1160,6 +1160,59 @@ class booking_option_settings {
     }
 
     /**
+     * Function to include all the values of the given custom profile fields to a table.
+     * The table is joined via userinfodata.userid = bookinganswer.userid & userinfofield.id = userinfodata.fieldid
+     * To be able to filter for the same param twice, we use this structure for searchparams [[$fieldnmae => $fieldvalue]]
+     *
+     * @param array $userinfofields
+     * @return array
+     */
+    public static function return_sql_for_custom_profile_field($userinfofields = []): array {
+
+        global $DB;
+
+        if (empty($userinfofields)) {
+            $userinfofields = $DB->get_records('user_info_field', []);
+        }
+
+         $select = '';
+         $from = '';
+         $where = '';
+         $params = [];
+        // Now we have the names of the customfields. We can now run through them and add them as colums.
+
+        $counter = 1;
+        if (!empty($userinfofields)) {
+            $select = " , ";
+        }
+        foreach ($userinfofields as $userinfofield) {
+            $name = $userinfofield->shortname;
+
+            $select .= "s$counter.data as $name ";
+
+            // After the last instance, we don't add a comma.
+            $select .= $counter >= count($userinfofields) ? "" : ", ";
+
+            $from .= " LEFT JOIN
+            (
+                SELECT ud.id, ud.data, ud.userid
+                FROM {user_info_data} ud
+                JOIN {user_info_field} uif
+                ON ud.fieldid = uif.id
+                WHERE uif.shortname LIKE '$name' AND ud.data <> ''
+            ) s$counter
+            ON s$counter.userid = ba.userid ";
+
+            // // Add the variables to the params array.
+            // $params[$name . '_componentname'] = 'mod_booking';
+            // $params["cf_$name"] = $name;
+            $counter++;
+        }
+
+        return [$select, $from, $where, $params];
+    }
+
+    /**
      * Function to match ad the teachers sql to the booking_options request.
      *
      * @param array $searchparams

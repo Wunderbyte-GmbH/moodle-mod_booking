@@ -822,19 +822,6 @@ if ($ADMIN->fulltree) {
             'mod_booking_signinlogo_footer', 0, $fileoptions);
     $settings->add($setting);
 
-    $name = 'booking/custprofilefields';
-    $visiblename = get_string('signincustfields', 'mod_booking');
-    $description = get_string('signincustfields_desc', 'mod_booking');
-    $profiles = profile_get_custom_fields();
-    $choices = array_map(function ($object) {
-        return $object->name;
-    }, $profiles);
-    if (!empty($choices)) {
-        $setting = new admin_setting_configmulticheckbox($name, $visiblename, $description, [],
-                $choices);
-        $settings->add($setting);
-    }
-
     $name = 'booking/showcustfields';
     $visiblename = get_string('showcustomfields', 'mod_booking');
     $description = get_string('showcustomfields_desc', 'mod_booking');
