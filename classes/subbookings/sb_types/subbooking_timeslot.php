@@ -51,6 +51,9 @@ class subbooking_timeslot implements booking_subbooking {
     /** @var string $type type of subbooking as the name of this class */
     public $type = 'subbooking_timeslot';
 
+    /** @var string $typestringid localized string to display type of subbooking at various froms */
+    public $typestringid = 'subbookingtimeslot';
+
     /** @var string $name given name to this configured subbooking*/
     public $name = '';
 
@@ -125,7 +128,7 @@ class subbooking_timeslot implements booking_subbooking {
      * @return string
      */
     public function get_name_of_subbooking($localized = true): string {
-        return $localized ? get_string($this->type, 'mod_booking') : $this->type;
+        return $localized ? get_string($this->typestringid, 'mod_booking') : $this->type;
     }
 
     /**
