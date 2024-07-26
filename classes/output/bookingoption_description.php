@@ -297,10 +297,10 @@ class bookingoption_description implements renderable, templatable {
         booking_context_helper::fix_booking_page_context($PAGE, $cmid);
 
         // Description from booking option settings formatted as HTML.
-        $this->description = format_text($settings->description, FORMAT_HTML);
+        $this->description = $settings->description;
 
         // Do the same for internal annotation.
-        $this->annotation = format_text($settings->annotation, FORMAT_HTML);
+        $this->annotation = $settings->annotation;
 
         // Currently, this will only get the description for the current user.
         $this->statusdescription = $bookingoption->get_text_depending_on_status($bookinganswers);
@@ -467,14 +467,14 @@ class bookingoption_description implements renderable, templatable {
      */
     public function get_returnarray(): array {
         $returnarray = [
-            'title' => format_text($this->title),
+            'title' => format_string($this->title),
             'titleprefix' => $this->titleprefix,
             'invisible' => $this->invisible,
-            'annotation' => $this->annotation,
+            'annotation' => format_text($this->annotation),
             'identifier' => $this->identifier,
             'modalcounter' => $this->modalcounter,
             'userid' => $this->userid,
-            'description' => $this->description,
+            'description' => format_text($this->description),
             'attachments' => $this->attachments,
             'statusdescription' => $this->statusdescription,
             'imageurl' => $this->imageurl,
@@ -491,7 +491,7 @@ class bookingoption_description implements renderable, templatable {
             'priceformulaadd' => $this->priceformulaadd,
             'priceformulamultiply' => $this->priceformulamultiply,
             'currency' => $this->currency,
-            'pricecategoryname' => $this->pricecategoryname,
+            'pricecategoryname' => format_string($this->pricecategoryname),
             'dayofweektime' => $this->dayofweektime,
             'bookinginformation' => $this->bookinginformation,
             'bookitsection' => $this->bookitsection,
