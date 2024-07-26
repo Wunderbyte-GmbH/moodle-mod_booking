@@ -702,7 +702,6 @@ $string['courselist'] = 'Show all the booking options of a bookin instance';
 $string['coursepageshortinfo'] = 'Wenn Sie diesen Kurs buchen wollen, klicken Sie auf "Verfügbare Optionen anzeigen", treffen Sie eine Auswahl und klicken Sie auf "Jetzt buchen".';
 $string['coursepageshortinfolbl'] = 'Kurzinfo';
 $string['coursepageshortinfolbl_help'] = 'Geben Sie den Kurzinfo-Text ein, der auf der Kursseite angezeigt werden soll.';
-$string['courses'] = 'Kurs(e)';
 $string['courses'] = 'Kurse';
 $string['coursesheader'] = 'Moodle Kurse';
 $string['coursestart'] = 'Starten';
@@ -786,7 +785,6 @@ $string['dateerror'] = 'Falsche Datumsangabe in Zeile {$a}: ';
 $string['datenotset'] = 'Datum nicht angegeben';
 $string['dateparseformat'] = 'Datumsformat';
 $string['dateparseformat_help'] = 'Bitte Datum so wie es im CSV definiert wurde verwenden. Hilfe unter <a href="http://php.net/manual/en/function.date.php">Datumsdokumentation</a> für diese Einstellung.';
-$string['dates'] = 'Termin(e)';
 $string['dates'] = 'Termine';
 $string['dayofweek'] = 'Wochentag';
 $string['dayofweektime'] = 'Tag & Uhrzeit';
@@ -1132,7 +1130,6 @@ $string['importdefault'] = 'Standardpreis einer Buchungsoption. Nur wenn der Sta
 $string['importdescription'] = 'Beschreibung der Buchungsoption';
 $string['importexcelbutton'] = 'Aktivitätsabschluss importieren';
 $string['importexceltitle'] = 'Aktivitätsabschluss importieren';
-$string['importfailed'] = 'Der CSV-Import wurde aufgrund folgendes Fehlers nicht durchgeführt: ';
 $string['importfailed'] = 'Import fehlgeschlagen.';
 $string['importfinished'] = 'Importieren beendet!';
 $string['importidentifier'] = 'Einzigartiger Identifikator einer Buchungsoption';
@@ -1756,7 +1753,6 @@ $string['showcoursesofteacher'] = 'Kurse';
 $string['showcustomfields'] = 'Anzuzeigende benutzerdefnierte Buchungsoptionsfelder';
 $string['showcustomfields_desc'] = 'Wählen Sie die benutzerdefinierte Buchungsoptionfelder, die auf der Unterschriftenliste abgedruckt werden sollen';
 $string['showdates'] = 'Zeige Termine';
-$string['showdates'] = 'Zeige Termine';
 $string['showdescription'] = 'Beschreibung anzeigen';
 $string['showinapi'] = 'In API anzeigen?';
 $string['showlistoncoursepage'] = 'Extra-Info auf Kursseite anzeigen';
@@ -1812,13 +1808,12 @@ Termin:  {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
 Link zur Buchungsoption: {$a->gotobookingoption}
 ';
 $string['statuschangetextsubject'] = 'Buchungstatus für {$a->title} geändert';
-// phpcs:ignore
 $string['statuscomplete'] = "Abgeschlossen";
 $string['statusfailed'] = "Nicht erfolgreich";
 $string['statusincomplete'] = "Nicht abgeschlossen";
 $string['statusnoshow'] = "Nicht aufgetaucht";
 $string['statusunknown'] = "Unbekannt";
-$string['sthwentwrongwithplaceholder'] = ''; // Returnvalue for failed placeholders. {$a} returns classname.
+$string['sthwentwrongwithplaceholder'] = '';
 $string['studentbooked'] = 'Nutzer:innen, die gebucht haben';
 $string['studentdeleted'] = 'Nutzer:innen, die bereits entfernt wurden';
 $string['studentnotificationlist'] = 'Nutzer:innen auf der Benachrichtigungsliste';
@@ -1877,7 +1872,6 @@ $string['tasksendremindermails'] = 'Booking: Erinnerungs-Mails versenden';
 $string['teacher'] = 'Trainer:in';
 $string['teachernotfound'] = 'Trainer:in konnte nicht gefunden werden oder existiert nicht.';
 $string['teacherroleid'] = 'Wähle folgende Rolle, um Lehrkräfte in den Kurs einzuschreiben.';
-$string['teachers'] = 'Trainer:in(nen)';
 $string['teachers'] = 'Trainer:innen';
 $string['teachersallowmailtobookedusers'] = 'Trainer:innen erlauben, eine Direkt-Mail an gebuchte Nutzer:innen zu senden';
 $string['teachersallowmailtobookedusers_desc'] = 'Wenn Sie diese Einstellung aktivieren, können Trainer:innen eine Direktnachricht
