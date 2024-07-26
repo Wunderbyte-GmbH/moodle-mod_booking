@@ -229,7 +229,6 @@ class subbookings_info {
             $fullclassname = get_class($subbooking); // With namespace.
             $classnameparts = explode('\\', $fullclassname);
             $shortclassname = end($classnameparts); // Without namespace.
-            $shortclassname = str_replace("_", "", $shortclassname); // Remove underscroll.
             $subbookingsforselect[$shortclassname] = $subbooking->get_name_of_subbooking();
         }
 
