@@ -66,7 +66,6 @@ class campaigns_info {
             $fullclassname = get_class($campaign); // With namespace.
             $classnameparts = explode('\\', $fullclassname);
             $shortclassname = end($classnameparts); // Without namespace.
-            $shortclassname = str_replace("_", "", $shortclassname); // Remove underscroll.
             $campaignsforselect[$shortclassname] = $campaign->get_name_of_campaign_type();
         }
 
