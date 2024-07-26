@@ -40,6 +40,9 @@ class select_teacher_in_bo implements booking_rule_condition {
     /** @var string $rulename */
     public $conditionname = 'select_teacher_in_bo';
 
+    /** @var string $conditionnamestringid Id of localized string for name of rule condition*/
+    protected $conditionnamestringid = 'selectteacherinbo';
+
     /** @var string $rulejson a json string for a booking rule */
     public $rulejson = '';
 
@@ -89,7 +92,7 @@ class select_teacher_in_bo implements booking_rule_condition {
      * @return string the name of the rule
      */
     public function get_name_of_condition($localized = true) {
-        return $localized ? get_string($this->conditionname, 'mod_booking') : $this->conditionname;
+        return $localized ? get_string($this->conditionnamestringid, 'mod_booking') : $this->conditionname;
     }
 
     /**

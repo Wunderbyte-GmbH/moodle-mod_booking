@@ -40,6 +40,9 @@ class match_userprofilefield implements booking_rule_condition {
     /** @var string $rulename */
     public $conditionname = 'match_userprofilefield';
 
+    /** @var string $conditionnamestringid Id of localized string for name of rule condition*/
+    protected $conditionnamestringid = 'matchuserprofilefield';
+
     /** @var string $cpfield */
     public $cpfield = null;
 
@@ -137,7 +140,7 @@ class match_userprofilefield implements booking_rule_condition {
      * @return string the name of the rule
      */
     public function get_name_of_condition($localized = true) {
-        return $localized ? get_string($this->conditionname, 'mod_booking') : $this->conditionname;
+        return $localized ? get_string($this->conditionnamestringid, 'mod_booking') : $this->conditionname;
     }
 
     /**
