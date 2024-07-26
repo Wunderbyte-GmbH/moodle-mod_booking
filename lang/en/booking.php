@@ -1236,6 +1236,7 @@ $string['loginbuttonforbookingoptionscoloroptions'] = 'Choose style (color) of d
 $string['loginbuttonforbookingoptionscoloroptions_desc'] = 'Uses bootstrap 4 styles. Colors are for default application.';
 $string['loopprevention'] = 'The placeholder {$a} causes a loop. Please replace it.';
 $string['lowerthan'] = 'is lower than (number)';
+$string['mail'] = 'Mail';
 $string['mailconfirmationsent'] = 'You will shortly receive a confirmation e-mail';
 $string['mailtemplatesadvanced'] = 'Activate advanced settings for e-mail templates';
 $string['mailtemplatesglobal'] = 'Use global mail templates from plugin settings';

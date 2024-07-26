@@ -1230,6 +1230,7 @@ $string['loginbuttonforbookingoptionscoloroptions'] = 'Stil (Farbe) des angezeig
 $string['loginbuttonforbookingoptionscoloroptions_desc'] = 'Nutzt Bootstrap 4 Styles. Die Farben sind für die Standardanwendung.';
 $string['loopprevention'] = 'Den Platzhalter {$a} hier zu verwenden führt zu einem Loop. Bitte entfernen Sie ihn .';
 $string['lowerthan'] = 'ist kleiner als (Zahl)';
+$string['mail'] = 'Mail';
 $string['mailconfirmationsent'] = 'Sie erhalten in Kürze ein Bestätigungsmail an die in Ihrem Profil angegebene E-Mail Adresse';
 $string['mailtemplatesadvanced'] = 'Erweiterte Einstelllungen für E-Mail-Vorlagen aktivieren';
 $string['mailtemplatesglobal'] = 'Globale E-Mail-Vorlagen aus den Plugin-Einstellungen verwenden';
