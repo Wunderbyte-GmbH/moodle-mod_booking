@@ -47,6 +47,9 @@ class select_user_from_event implements booking_rule_condition {
     /** @var string $conditionname */
     public $conditionname = 'select_user_from_event';
 
+    /** @var string $conditionnamestringid Id of localized string for name of rule condition*/
+    protected $conditionnamestringid = 'selectuserfromevent';
+
     /** @var string $conditiontype */
     public $userfromeventtype = '0';
 
@@ -155,7 +158,7 @@ class select_user_from_event implements booking_rule_condition {
      * @return string the name of the condition
      */
     public function get_name_of_condition($localized = true) {
-        return $localized ? get_string($this->conditionname, 'mod_booking') : $this->conditionname;
+        return $localized ? get_string($this->conditionnamestringid, 'mod_booking') : $this->conditionname;
     }
 
     /**

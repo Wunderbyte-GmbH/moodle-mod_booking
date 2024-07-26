@@ -57,7 +57,6 @@ class conditions_info {
             $fullclassname = get_class($condition); // With namespace.
             $classnameparts = explode('\\', $fullclassname);
             $shortclassname = end($classnameparts); // Without namespace.
-            $shortclassname = str_replace("_", "", $shortclassname); // Remove underscroll.
             $conditionsforselect[$shortclassname] = $condition->get_name_of_condition();
         }
 

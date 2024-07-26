@@ -44,6 +44,9 @@ class rule_react_on_event implements booking_rule {
     /** @var string $rulename */
     protected $rulename = 'rule_react_on_event';
 
+    /** @var string $rulenamestringid ID of localized string for name of rule*/
+    protected $rulenamestringid = 'rulereactonevent';
+
     /** @var string $name */
     public $name = null;
 
@@ -178,7 +181,7 @@ class rule_react_on_event implements booking_rule {
      * @return string
      */
     public function get_name_of_rule(bool $localized = true): string {
-        return $localized ? get_string($this->rulename, 'mod_booking') : $this->rulename;
+        return $localized ? get_string($this->rulenamestringid, 'mod_booking') : $this->rulename;
     }
 
     /**

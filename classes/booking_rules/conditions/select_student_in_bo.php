@@ -40,6 +40,9 @@ class select_student_in_bo implements booking_rule_condition {
     /** @var string $rulename */
     public $conditionname = 'select_student_in_bo';
 
+    /** @var string $conditionnamestringid Id of localized string for name of rule condition*/
+    protected $conditionnamestringid = 'selectstudentinbo';
+
     /** @var string $role */
     public $borole = null;
 
@@ -107,7 +110,7 @@ class select_student_in_bo implements booking_rule_condition {
      * @return string the name of the rule
      */
     public function get_name_of_condition($localized = true) {
-        return $localized ? get_string($this->conditionname, 'mod_booking') : $this->conditionname;
+        return $localized ? get_string($this->conditionnamestringid, 'mod_booking') : $this->conditionname;
     }
 
     /**
