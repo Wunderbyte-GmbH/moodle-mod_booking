@@ -80,7 +80,7 @@ class actions_info {
 
                 $actionname = $action->get_name_of_action();
                 if ($ajaxformdata['bookingruleactiontype']
-                    && $actionname == get_string($ajaxformdata['bookingruleactiontype'], 'mod_booking')) {
+                    && $actionname == get_string(str_replace("_", "", $ajaxformdata['bookingruleactiontype']), 'mod_booking')) {
                     // For each rule, add the appropriate form fields.
                     $action->add_action_to_mform($mform, $repeateloptions);
                 }
