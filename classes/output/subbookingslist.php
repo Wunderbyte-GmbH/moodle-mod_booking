@@ -61,9 +61,8 @@ class subbookingslist implements renderable, templatable {
 
         foreach ($subbookings as $subbooking) {
 
-            $subbooking->name = $subbooking->name;
             // Localize the names.
-            $subbooking->localizedsubbookingname = get_string($subbooking->type, 'mod_booking');
+            $subbooking->localizedsubbookingname = get_string(str_replace("_", "", $subbooking->type), 'mod_booking');
 
             $this->subbookings[] = (array)$subbooking;
         }
