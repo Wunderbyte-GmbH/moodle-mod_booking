@@ -61,6 +61,7 @@ class rules_info {
             $fullclassname = get_class($rule); // With namespace.
             $classnameparts = explode('\\', $fullclassname);
             $shortclassname = end($classnameparts); // Without namespace.
+            $shortclassname = str_replace("_", "", $shortclassname); // Remove underscroll.
             $rulesforselect[$shortclassname] = $rule->get_name_of_rule();
         }
 
