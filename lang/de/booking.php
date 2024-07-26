@@ -642,7 +642,6 @@ $string['close'] = 'Schließen';
 $string['closed'] = 'Buchung beendet';
 $string['cohort'] = 'Globale Gruppe';
 $string['cohorts'] = 'Globale Gruppe(n)';
-$string['cohorts'] = 'Globale Gruppen';
 $string['collapsedescriptionmaxlength'] = 'Beschreibungen einklappen (Zeichenanzahl)';
 $string['collapsedescriptionmaxlength_desc'] = 'Geben Sie die maximale Anzahl an Zeichen, die eine Beschreibung haben darf, ein.
 Beschreibungen, die länger sind werden eingeklappt.';
@@ -1727,7 +1726,6 @@ $string['sendmailinterval'] = 'Eine Nachricht zeitversetzt an mehrere Nutzer:inn
 $string['sendcopyofmailmessageprefix'] = 'Vorangestellter Text für die Nachricht';
 $string['sendcopyofmailsubjectprefix'] = 'Vorangestellter Text für den Betreff';
 $string['sendcustommsg'] = 'Persönliche Nachricht senden';
-$string['sendmail'] = 'Mail';
 $string['sendmailheading'] = 'E-Mail an alle TrainerInnen der ausgewählten Buchungsoptionen senden';
 $string['sendmailtoallbookedusers'] = 'E-Mail an alle gebuchten Nutzer:innen senden';
 $string['sendmailtobooker'] = 'Buchung für andere User durchführen: Mail an User, der Buchung durchführt, anstatt an gebuchte User senden';
