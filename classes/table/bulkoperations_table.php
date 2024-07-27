@@ -57,7 +57,7 @@ class bulkoperations_table extends wunderbyte_table {
 
         $urlout = $url->out();
         $string = get_string('editbookingoption', 'mod_booking');
-        $link = '<a href="' . $urlout .
+        $link = '<a title="'. $string .'" href="' . $urlout .
                 '" ><i class="fa fa-pencil" aria-label="'. $string .'"></i></a>';
         return $link;
     }
