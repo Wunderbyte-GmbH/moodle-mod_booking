@@ -101,3 +101,8 @@ Feature: As admin - apply bulk operations under booking options.
     And I click on "2" "text" in the "ul.pagination" "css_element"
     And I should see "Option11-j" in the "//tr[contains(@id, '_optionbulkoperationstable_r1')]" "xpath_element"
     And I should not see "Option10-b"
+    ## Verify Edit link
+    And I click on "Edit booking option" "link" in the "//tr[contains(@id, '_optionbulkoperationstable_r1')]" "xpath_element"
+    And I wait to be redirected
+    And I should see "BookingCMP" in the ".h2" "css_element"
+    And I should see "You are editing \"Option11-j\"."
