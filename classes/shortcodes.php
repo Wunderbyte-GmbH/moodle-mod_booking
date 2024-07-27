@@ -591,7 +591,7 @@ class shortcodes {
             $perpage = 100;
         }
 
-        $table = new bulkoperations_table(bin2hex(random_bytes(12)));
+        $table = new bulkoperations_table(bin2hex(random_bytes(8)) . '_optionbulkoperationstable');
         $columns = [
             'id' => get_string('id', 'local_wunderbyte_table'),
             'text' => get_string('title', 'mod_booking'),
