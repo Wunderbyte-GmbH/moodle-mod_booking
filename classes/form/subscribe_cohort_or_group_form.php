@@ -62,7 +62,7 @@ class subscribe_cohort_or_group_form extends moodleform {
 
         $context = context_system::instance();
         $options = [
-            'ajax' => 'tool_lp/form-cohort-selector',
+            'ajax' => 'core/form-cohort-selector',
             'multiple' => true,
             'data-contextid' => $context->id,
             'data-includes' => 'all',

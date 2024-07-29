@@ -25,11 +25,15 @@
 
 namespace mod_booking;
 
+defined('MOODLE_INTERNAL') || die();
+
 use cache_helper;
 use html_writer;
 use mod_booking\event\bookingoption_updated;
 use moodle_url;
 use stdClass;
+
+require_once($CFG->dirroot.'/cohort/lib.php');
 
 /**
  * Class for booking utils.
@@ -432,8 +436,11 @@ class booking_utils {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public static function book_cohort_or_group_members(stdClass $fromform, booking_option $bookingoption,
-        mixed $context): stdClass {
+    public static function book_cohort_or_group_members(
+        stdClass $fromform,
+        booking_option $bookingoption,
+        $context
+    ): stdClass {
 
         global $DB;
 
