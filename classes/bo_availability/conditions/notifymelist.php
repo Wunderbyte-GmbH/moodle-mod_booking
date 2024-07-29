@@ -108,6 +108,8 @@ class notifymelist implements bo_condition {
             if (isset($bookinginformation['notbooked'])) {
                 if ($bookinginformation['notbooked']['fullybooked'] === false) {
                     $isavailable = true;
+                } else if ($bookinginformation['notbooked']['freeonwaitinglist'] ?? 0 > 0) {
+                    $isavailable = true;
                 }
             }
 
