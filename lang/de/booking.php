@@ -1529,6 +1529,7 @@ $string['percentageavailableplaces_help'] = 'Geben Sie einen gültigen Prozentsa
 $string['personnr'] = 'Person Nr. {$a}';
 $string['placeholders'] = 'Platzhalter';
 $string['placeholders_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden.';
+$string['places'] = 'Places';
 $string['pluginadministration'] = 'Booking administration';
 $string['pluginname'] = 'Booking';
 $string['pollstartdate'] = "Umfragestartdatum";

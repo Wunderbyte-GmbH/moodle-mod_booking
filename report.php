@@ -569,6 +569,10 @@ if (!$tableallbookings->is_downloading()) {
                 $columns[] = 'indexnumber';
                 $headers[] = get_string('indexnumber', 'mod_booking');
                 break;
+            case 'places':
+                $columns[] = 'places';
+                $headers[] = get_string('places', 'mod_booking');
+                break;
         }
     }
     $customfields = '';
@@ -628,6 +632,7 @@ if (!$tableallbookings->is_downloading()) {
             ba.userid,
             ba.waitinglist,
             ba.notes,
+            ba.places,
             \'\' otheroptions,
             ba.numrec' . $customfields;
     $from = ' {booking_answers} ba
@@ -1059,6 +1064,7 @@ if (!$tableallbookings->is_downloading()) {
                     ba.waitinglist AS waitinglist,
                     ba.status,
                     ba.notes,
+                    ba.places,
                     u.idnumber as idnumber
                     {$customfields}";
     $from = '{booking_answers} ba

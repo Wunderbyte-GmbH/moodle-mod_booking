@@ -1535,6 +1535,7 @@ $string['percentageavailableplaces_help'] = 'You need to enter a valid percentag
 $string['personnr'] = 'Person n° {$a}';
 $string['placeholders'] = 'Placeholders';
 $string['placeholders_help'] = 'Leave this blank to use the site default text.';
+$string['places'] = 'Places';
 $string['pluginadministration'] = 'Booking administration';
 $string['pluginname'] = 'Booking';
 $string['pollstartdate'] = "pollstartdate";
