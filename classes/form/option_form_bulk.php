@@ -98,7 +98,6 @@ class option_form_bulk extends dynamic_form {
             "responsiblecontact",
             "shoppingcart",
             "teachers",
-            "text",
             "titleprefix",
             "waitforconfirmation",
         ];
