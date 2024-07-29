@@ -3803,5 +3803,21 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2024081600, 'booking');
     }
+
+    if ($oldversion < 2024072900) {
+
+        // Define field places to be added to booking_answers.
+        $table = new xmldb_table('booking_answers');
+        $field = new xmldb_field('places', XMLDB_TYPE_INTEGER, '10', null, null, null, '1', 'status');
+
+        // Conditionally launch add field places.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2024072900, 'booking');
+    }
+
     return true;
 }
