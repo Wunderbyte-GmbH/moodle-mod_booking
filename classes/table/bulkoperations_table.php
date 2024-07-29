@@ -25,6 +25,7 @@
 namespace mod_booking\table;
 use mod_booking\singleton_service;
 use moodle_url;
+use html_writer;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -48,17 +49,26 @@ class bulkoperations_table extends wunderbyte_table {
      * @return string
      */
     public function col_action($values) {
+        global $PAGE, $OUTPUT;
 
+        $returnurl = $PAGE->url->out(false);
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($values->bookingid);
-        $url = new moodle_url('/mod/booking/editoptions.php', [
-            'id' => $bookingsettings->cmid,
-            'optionid' => $values->id,
-        ]);
 
-        $urlout = $url->out();
-        $string = get_string('editbookingoption', 'mod_booking');
-        $link = '<a title="'. $string .'" href="' . $urlout .
-                '" ><i class="fa fa-pencil" aria-label="'. $string .'"></i></a>';
+        $link = html_writer::link(
+            new moodle_url('/mod/booking/editoptions.php', [
+                'id' => $bookingsettings->cmid,
+                'optionid' => $values->id,
+                'returnto' => 'url',
+                'returnurl' => $returnurl,
+            ]),
+            $OUTPUT->pix_icon('i/edit', get_string('editbookingoption', 'mod_booking')),
+            [
+                'target' => '_self',
+                'class' => 'text-primary',
+                'aria-label' => get_string('editbookingoption', 'mod_booking'),
+            ]
+        );
+
         return $link;
     }
 
