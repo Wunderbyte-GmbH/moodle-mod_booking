@@ -3815,6 +3815,8 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
+        fix_places_for_booking_answers();
+
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2024072900, 'booking');
     }

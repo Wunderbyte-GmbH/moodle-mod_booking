@@ -138,23 +138,23 @@ class coursecategories {
         JOIN {modules} m ON cm.module = m.id
         JOIN {booking} b on cm.instance = b.id
         LEFT JOIN {booking_options} bo ON b.id = bo.bookingid
-        LEFT JOIN (SELECT ba.optionid, COUNT(ba.id) as booked
+        LEFT JOIN (SELECT ba.optionid, SUM(ba.places) as booked
               FROM {booking_answers} ba
               WHERE ba.waitinglist = 0
               GROUP BY ba.optionid
               ) s1 ON s1.optionid = bo.id
         $from
-        LEFT JOIN (SELECT ba.optionid, COUNT(ba.id) as waitinglist
+        LEFT JOIN (SELECT ba.optionid, SUM(ba.places) as waitinglist
               FROM {booking_answers} ba
               WHERE ba.waitinglist = 1
               GROUP BY ba.optionid
               ) s2 ON s2.optionid = bo.id
-        LEFT JOIN (SELECT ba.optionid, COUNT(ba.id) as reserved
+        LEFT JOIN (SELECT ba.optionid, SUM(ba.places) as reserved
               FROM {booking_answers} ba
               WHERE ba.waitinglist = 2
               GROUP BY ba.optionid
               ) s3 ON s3.optionid = bo.id
-        LEFT JOIN (SELECT ba.optionid, COUNT(ba.id) as noshows
+        LEFT JOIN (SELECT ba.optionid, SUM(ba.places) as noshows
               FROM {booking_answers} ba
               WHERE ba.status = 3
               GROUP BY ba.optionid

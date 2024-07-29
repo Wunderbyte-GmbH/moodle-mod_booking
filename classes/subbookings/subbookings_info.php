@@ -85,6 +85,11 @@ class subbookings_info {
         $path = $CFG->dirroot . '/mod/booking/classes/subbookings/sb_types/*.php';
         $filelist = glob($path);
 
+        $supportedsubookingtypes = [
+            'subbooking_additionalperson',
+            'subbooking_additionalitem',
+        ];
+
         $subbookings = [];
 
         // We just want filenames, as they are also the classnames.
@@ -96,13 +101,7 @@ class subbookings_info {
             // But right now, we ONLY use the additional person booking.
             // So we use the next 3 lines to skip anything else.
             if (
-                !in_array(
-                    $path['filename'],
-                    [
-                        'subbooking_additionalperson',
-                        'subbooking_additionalitem',
-                    ]
-                )
+                !in_array($path['filename'], $supportedsubookingtypes)
             ) {
                 continue;
             }

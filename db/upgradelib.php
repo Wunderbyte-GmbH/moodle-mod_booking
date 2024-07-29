@@ -140,7 +140,7 @@ function fix_booking_templateid() {
 /**
  * Function to add the "places" information to all the existing booking_answer records.
  *
- * @return [type]
+ * @return void
  *
  */
 function fix_places_for_booking_answers() {
