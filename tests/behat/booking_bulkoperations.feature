@@ -101,8 +101,45 @@ Feature: As admin - apply bulk operations under booking options.
     And I click on "2" "text" in the "ul.pagination" "css_element"
     And I should see "Option11-j" in the "//tr[contains(@id, '_optionbulkoperationstable_r1')]" "xpath_element"
     And I should not see "Option10-b"
-    ## Verify Edit link
+
+  @javascript
+  Scenario: Booking bulkoperations: processing of booking options
+    Given I am on the "bulkoptionpage1" Activity page logged in as admin
+    ## Edit a single option
+    And I should see "Option12-s" in the "//tr[contains(@id, '_optionbulkoperationstable_r1')]" "xpath_element"
     And I click on "Edit booking option" "link" in the "//tr[contains(@id, '_optionbulkoperationstable_r1')]" "xpath_element"
     And I wait to be redirected
     And I should see "BookingCMP" in the ".h2" "css_element"
-    And I should see "You are editing \"Option11-j\"."
+    And I should see "You are editing \"Option12-s\"."
+    And I set the field "Booking option name" to "Option12-ski"
+    And I press "Save"
+    And I should see "Option12-ski" in the "//tr[contains(@id, '_optionbulkoperationstable_r1')]" "xpath_element"
+    ## Edit multiple options
+    And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_r1')]//input[contains(@name, '_optionbulkoperationstable-')]" to "checked"
+    And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_r3')]//input[contains(@name, '_optionbulkoperationstable-')]" to "checked"
+    And I click on "Edit Bookingoptions" "text" in the ".wunderbyteTableClass" "css_element"
+    ## Below is working too but replaced with teacher selection to server further testing steps
+    ## And I set the field "Select field of booking option" to "Titel"
+    ## And I click on "btn_bookingruletemplates" "button" in the ".modal-body" "css_element"
+    ## And I wait "1" seconds
+    ## And I set the field "Booking option name" to "Options-bulk"
+    ## And I click on "Save changes" "button"
+    ## And I should see "Options-bulk" in the "//tr[contains(@id, '_optionbulkoperationstable_r1')]" "xpath_element"
+    ## And I should see "Options-bulk" in the "//tr[contains(@id, '_optionbulkoperationstable_r3')]" "xpath_element"
+    And I set the field "Select field of booking option" to "Teachers"
+    And I click on "btn_bookingruletemplates" "button" in the ".modal-body" "css_element"
+    And I wait "1" seconds
+    And I set the field "Assign teachers:" to "Teacher 1"
+    And I click on "Save changes" "button"
+    ## Send multiple emails
+    And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_r1')]//input[contains(@name, '_optionbulkoperationstable-')]" to "checked"
+    And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_r3')]//input[contains(@name, '_optionbulkoperationstable-')]" to "checked"
+    And I click on "Send mail to teacher(s)" "text" in the ".wunderbyteTableClass" "css_element"
+    And I wait "1" seconds
+    And I set the field "Subject" to "Bulkoperations-subj"
+    And I set the field "Email body" to "Bulkoperations-message_body"
+    And I click on "Send" "button" in the ".modal-footer" "css_element"
+    ## Send messages via cron and verify via events log
+    And I trigger cron
+    And I visit "/report/loglive/index.php"
+    And I should see "Custom message A message e-mail with subject \"Bulkoperations-subj\" has been sent to user with id"
