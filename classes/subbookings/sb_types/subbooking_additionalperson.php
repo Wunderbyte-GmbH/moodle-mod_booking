@@ -163,6 +163,7 @@ class subbooking_additionalperson implements booking_subbooking {
         $jsonobject->data = new stdClass();
         $jsonobject->data->description = ''; // Updated later.
         $jsonobject->data->descriptionformat = 0; // Updated later.
+        $jsonobject->data->useprice = $data->useprice ?? 0;
         $record->name = $data->subbooking_name;
         $record->type = $this->type;
         $record->optionid = $data->optionid;
@@ -248,11 +249,14 @@ class subbooking_additionalperson implements booking_subbooking {
             $context,
             'mod_booking',
             'subbookings',
-            $record->id);
+            $record->id
+        );
 
         // Add price.
         $price = new price('subbooking', $record->id);
         $price->set_data($data);
+
+        $data->useprice = $jsonobject->data->useprice ?? 0;
     }
 
     /**
@@ -361,7 +365,7 @@ class subbooking_additionalperson implements booking_subbooking {
      * But normally the itemid here is the same as the subboooking it.
      *
      * @param int $itemid
-     * @param object $user
+     * @param ?object $user
      * @return array
      */
     public function return_subbooking_information(int $itemid = 0, $user = null): array {
