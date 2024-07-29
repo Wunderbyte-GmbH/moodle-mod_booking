@@ -1,3 +1,9 @@
+## Version 8.6.1 (2024072900)
+* Bugfix: Refactor underscores in strings
+* Bugfix: remove false format_string
+* Bugfix: Notificationlist and book only on waitinglist combination working.
+* Bugfix: Cohort upload in booking
+
 ## Version 8.6.0 (2024072500)
 * Improvement: Integrate Requirements for github workflow tests for Moodle 4.4
 * Improvement: Add btn-primary to "Go to Moodle Course"
