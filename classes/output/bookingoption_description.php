@@ -508,7 +508,8 @@ class bookingoption_description implements renderable, templatable {
         if ($this->customfields) {
             foreach ($this->customfields as $key => $value) {
                 if (!isset($returnarray[$key])) {
-                    $returnarray[$key] = is_array($value) ? reset($value) : $value;
+                    $printvalue = is_array($value) ? reset($value) : $value;
+                    $returnarray[$key] = format_string($printvalue);
                 }
             }
         }
