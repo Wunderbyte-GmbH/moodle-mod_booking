@@ -136,3 +136,23 @@ function fix_booking_templateid() {
         $DB->update_record('booking', $record);
     }
 }
+
+/**
+ * Function to add the "places" information to all the existing booking_answer records.
+ *
+ * @return [type]
+ *
+ */
+function fix_places_for_booking_answers() {
+
+    global $DB;
+
+    // Define your SQL update query.
+    $sql = "UPDATE {booking_answers} SET places = :places";
+
+    // Define the parameters for the query.
+    $params = ['places' => 1];
+
+    // Execute the query.
+    $DB->execute($sql, $params);
+}
