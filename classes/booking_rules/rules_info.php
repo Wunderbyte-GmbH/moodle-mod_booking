@@ -80,7 +80,7 @@ class rules_info {
         $mform->addElement(
             'text',
             'rule_name',
-            get_string('rule_name', 'mod_booking'),
+            get_string('rulename', 'mod_booking'),
             ['size' => '50']
         );
         $mform->setType('rule_name', PARAM_TEXT);
