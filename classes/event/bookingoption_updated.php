@@ -89,7 +89,7 @@ class bookingoption_updated extends \core\event\base {
             'userid' => $this->userid,
             'objectid' => $this->objectid,
         ];
-        $infostring = get_string('bookingoption_updated_desc', 'mod_booking', $infos);
+        $infostring = get_string('bookingoptionupdateddesc', 'mod_booking', $infos);
         return $infostring . $html;
     }
 

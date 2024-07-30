@@ -217,7 +217,7 @@ class rule_react_on_event implements booking_rule {
         $mform->addElement(
             'autocomplete',
             'rule_react_on_event_cancelrules',
-            get_string('rule:react:on:event:cancelrules', 'mod_booking'),
+            get_string('rulereactoneventcancelrules', 'mod_booking'),
             $rulesselect,
             $options
         );
