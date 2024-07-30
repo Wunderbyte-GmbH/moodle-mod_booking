@@ -15,24 +15,24 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The bookingoption_booked event.
+ * The bookingoptionwaitinglist_booked event.
  *
  * @package mod_booking
- * @copyright 2014 David Bogner, http://www.edulabs.org
+ * @copyright 2024 Wunderbyte, http://www.wunderbyte.at
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_booking\event;
 
 /**
- * The bookingoption_booked event class.
+ * The bookingoptionwaitinglist_booked event class.
  *
  * @property-read array $other { Extra information about event. Acesss an instance of the booking module }
- * @since Moodle 2.7
- * @copyright 2014 David Bogner
+ * @since Moodle 3.8
+ * @copyright 2024 Wunderbyte
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class bookingoption_booked extends \core\event\base {
+class bookingoptionwaitinglist_booked extends \core\event\base {
 
     /**
      * Init
@@ -53,7 +53,7 @@ class bookingoption_booked extends \core\event\base {
      *
      */
     public static function get_name() {
-        return get_string('bookingoptionbooked', 'booking');
+        return get_string('bookingoptionwaitinglistbooked', 'booking');
     }
 
     /**
@@ -69,9 +69,9 @@ class bookingoption_booked extends \core\event\base {
             'objectid' => $this->objectid,
         ];
         if ($this->userid != $this->data['relateduserid']) {
-            return get_string('bookingoptionbookedotheruserdesc', 'mod_booking', $data);
+            return get_string('bookingoptionbookedotheruserwaitinglistdesc', 'mod_booking', $data);
         } else {
-            return get_string('bookingoptionbookedsameuserdesc', 'mod_booking', $data);
+            return get_string('bookingoptionbookedsameuserwaitinglistdesc', 'mod_booking', $data);
         }
     }
 
