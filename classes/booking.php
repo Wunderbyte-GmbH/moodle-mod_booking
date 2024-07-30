@@ -1699,8 +1699,12 @@ class booking {
      * @param bool $withencodedtables
      * @param bool $destroysingleton
      */
-    public static function purge_cache_for_booking_instance_by_cmid(int $cmid, bool $withsemesters = true,
-        bool $withencodedtables = true, bool $destroysingleton = true) {
+    public static function purge_cache_for_booking_instance_by_cmid(
+        int $cmid,
+        bool $withsemesters = true,
+        bool $withencodedtables = true,
+        bool $destroysingleton = true
+    ) {
         cache_helper::invalidate_by_event('setbackbookinginstances', [$cmid]);
         cache_helper::purge_by_event('setbackoptionsettings');
         cache_helper::purge_by_event('setbackoptionstable');

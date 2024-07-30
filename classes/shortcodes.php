@@ -26,6 +26,7 @@
 
 namespace mod_booking;
 
+use cache_helper;
 use core_cohort\reportbuilder\local\entities\cohort;
 use html_writer;
 use local_wunderbyte_table\filters\types\standardfilter;
@@ -590,6 +591,8 @@ class shortcodes {
         ) {
             $perpage = 100;
         }
+
+        cache_helper::purge_by_event('changesinwunderbytetable');
 
         $table = new bulkoperations_table(bin2hex(random_bytes(8)) . '_optionbulkoperationstable');
         $columns = [
