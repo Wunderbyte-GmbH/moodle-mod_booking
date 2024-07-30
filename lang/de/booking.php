@@ -1665,9 +1665,9 @@ $string['rulereactonchangeevent_desc'] = 'Für das "Buchungsoption aktualisiert"
 $string['rulereactonevent'] = 'Reagiere auf Ereignis';
 $string['rulereactonevent_desc'] = 'Wählen Sie ein Ereignis aus, durch das die Regel ausgelöst werden soll.<br>
 <b>Tipp:</b> Verwenden Sie den Platzhalter <code>{eventdescription}</code> um eine Beschreibung des Ereignisses anzuzeigen.';
-$string['rulereactoneventcancelrules'] = 'Diese Regel aussetzen';
 $string['rulereactoneventaftercompletion'] = "Anzahl der Tage nach dem Ende der Buchungsoption, in denen die Regel weiterhin gilt";
 $string['rulereactoneventaftercompletion_help'] = "Feld leer lassen oder auf 0 setzen, wenn die Aktion unbegrenzt gelten soll. Sie können negative Zahlen eingeben, damit die Regel bereits vor dem Kursende ausgesetzt wird.";
+$string['rulereactoneventcancelrules'] = 'Diese Regel aussetzen';
 $string['rulesendmailcpf'] = '[Vorschau] E-Mail versenden an User:in mit benutzerdefiniertem Feld';
 $string['rulesendmailcpf_desc'] = 'Wählen Sie ein Event aus, auf das reagiert werden soll. Legen Sie eine E-Mail-Vorlage an
 (Sie können auch Platzhalter wie {bookingdetails} verwenden) und legen Sie fest, an welche Nutzer:innen die E-Mail versendet werden soll.

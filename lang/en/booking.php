@@ -1728,9 +1728,9 @@ $string['rulereactonchangeevent_desc'] = 'For the "Booking option updated" event
 $string['rulereactonevent'] = "React on event";
 $string['rulereactonevent_desc'] = "Choose an event that should trigger the rule.<br>
 <b>Hint:</b> You can use the placeholder <code>{eventdescription}</code> to show a description of the event.";
-$string['rulereactoneventcancelrules'] = 'Skip this rule';
 $string['rulereactoneventaftercompletion'] = "Number of days after end of booking option, where rule still applies";
 $string['rulereactoneventaftercompletion_help'] = "Leave this field empty or set to 0 if you want to keep executing the action. You can use negative numbers if the rule should be suspended before the specified courseend.";
+$string['rulereactoneventcancelrules'] = 'Skip this rule';
 $string['rulesendmailcpf'] = '[Preview] Send an e-mail to user with custom profile field';
 $string['rulesendmailcpf_desc'] = 'Choose an event that should trigger the "Send an e-mail" rule. Enter an e-mail template
  (you can use placeholders like {bookingdetails}) and define to which users the e-mail should be sent.
