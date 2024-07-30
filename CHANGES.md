@@ -1,3 +1,17 @@
+## Version 8.6.2 (2024073000)
+* Improvement: Alternative importfields for courseid
+* Improvement: Enable item_bought event from shopping_cart plugin
+* Improvement: Add "skip rule" functionality to booking rules
+* Improvement: Show deleted users on report.php
+* Improvement: Enable custom user profile fields in sign-in sheet
+* Improvement: Use formated strings for config of bo fields and columns selects
+* Improvement: Enable filter formated strings {mlang}
+* Improvement: Add no shows for dashboard
+* Bugfix: Bookingoption changed event containing only relevant data
+* Bugfix: Display title prefix only once
+* Bugfix: Move deleted users to the right place
+
+
 ## Version 8.6.1 (2024072900)
 * Bugfix: Refactor underscores in strings
 * Bugfix: remove false format_string
