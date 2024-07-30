@@ -1203,9 +1203,11 @@ class booking_option_settings {
             ) s$counter
             ON s$counter.userid = ba.userid ";
 
-            // // Add the variables to the params array.
+            // phpcs:disable
+            // Add the variables to the params array.
             // $params[$name . '_componentname'] = 'mod_booking';
             // $params["cf_$name"] = $name;
+            // phpcs:enable
             $counter++;
         }
 

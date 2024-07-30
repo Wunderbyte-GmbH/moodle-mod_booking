@@ -1,5 +1,4 @@
 <?php
-use mod_booking\booking_rules\rules_info;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -40,6 +39,7 @@ use mod_booking\output\coursepage_shortinfo_and_button;
 use mod_booking\singleton_service;
 use mod_booking\teachers_handler;
 use mod_booking\utils\wb_payment;
+use mod_booking\booking_rules\rules_info;
 
 // Default fields for bookingoptions in view.php and for download.
 define('MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS', "identifier,titleprefix,text,description,teacher,responsiblecontact," .

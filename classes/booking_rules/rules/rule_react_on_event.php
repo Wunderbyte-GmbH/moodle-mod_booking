@@ -204,7 +204,6 @@ class rule_react_on_event implements booking_rule {
                 continue;
             }
 
-
             // TODO: Better description where this rule comes from.
             $ruleobject = json_decode($rule->rulejson);
             $rulesselect[$rule->id] = $ruleobject->name . " ($rule->contextid)";
