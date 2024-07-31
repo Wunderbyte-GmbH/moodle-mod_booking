@@ -111,6 +111,9 @@ class notifymelist implements bo_condition {
                 } else if ($bookinginformation['notbooked']['freeonwaitinglist'] ?? 0 > 0) {
                     $isavailable = true;
                 }
+            } else if (isset($bookinganswer->usersonwaitinglist[$userid])) {
+                // If the user is already booked on waitinglist, this is also true.
+                $isavailable = true;
             }
 
         }
