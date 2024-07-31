@@ -478,6 +478,7 @@ $string['bookingoptionsmenu'] = 'Booking options';
 $string['bookingoptiontitle'] = 'Booking option title';
 $string['bookingoptionupdated'] = 'Booking option updated';
 $string['bookingoptionupdateddesc'] = 'User with id "{$a->userid}" updated bookingoption with id "{$a->objectid}".';
+$string['bookingoptionwaitinglistbooked'] = 'Booked on waitinglist';
 $string['bookingorganizatorname'] = 'Organizer name';
 $string['bookingpassed'] = 'Your event has ended.';
 $string['bookingplacesenoughmessage'] = 'Still enough places available.';

@@ -1301,6 +1301,18 @@ class booking_option {
             $other['json'] = $answer->json ?? '';
         }
 
+        if ($waitinglist == MOD_BOOKING_STATUSPARAM_WAITINGLIST) {
+            // Booked on waitinglist -> trigger corresponding event.
+            $event = event\bookingoptionwaitinglist_booked::create(
+                ['objectid' => $this->optionid,
+                    'context' => context_module::instance($this->cmid),
+                    'userid' => $USER->id,
+                    'relateduserid' => $user->id,
+                    'other' => $other,
+                ]);
+            $event->trigger();
+        }
+
         $event = event\bookingoption_booked::create(
             ['objectid' => $this->optionid,
                 'context' => context_module::instance($this->cmid),

@@ -112,6 +112,7 @@ class rule_react_on_event implements booking_rule {
             'bookingoption_freetobookagain',
             'bookinganswer_cancelled',
             'bookingoption_booked',
+            'bookingoptionwaitinglist_booked',
             'bookingoption_completed',
             'bookingoption_confirmed',
             'bookingoption_updated',
@@ -204,7 +205,7 @@ class rule_react_on_event implements booking_rule {
                 continue;
             }
 
-            // TODO: Better description where this rule comes from.
+            // TODO: Better description where this rule comes from. For the moment we simply hand over the contextid.
             $ruleobject = json_decode($rule->rulejson);
             $rulesselect[$rule->id] = $ruleobject->name . " ($rule->contextid)";
         }
