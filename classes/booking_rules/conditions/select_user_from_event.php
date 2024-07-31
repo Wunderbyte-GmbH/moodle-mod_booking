@@ -132,6 +132,8 @@ class select_user_from_event implements booking_rule_condition {
             'custom_message_sent',
             'bookingoption_confirmed',
             'bookinganswer_cancelled',
+            'bookingoptionwaitinglist_booked',
+            'bookingoption_booked',
             // More events yet to come...
         ];
 
