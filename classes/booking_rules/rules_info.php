@@ -419,7 +419,7 @@ class rules_info {
                 ];
                 foreach ($acceptedeventsfromshoppingcart as $accepted) {
                     if (
-                        str_contains($data['eventname'], $accepted)
+                        strpos($data['eventname'], $accepted) !== false
                         && $data['other']['component'] == 'mod_booking'
                     ) {
 
