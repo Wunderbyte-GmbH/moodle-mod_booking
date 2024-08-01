@@ -45,6 +45,6 @@ $handler = booking_handler::create();
 $outputpage = new \core_customfield\output\management($handler);
 
 echo $output->header(),
-        $output->heading(new lang_string('booking_customfield', 'mod_booking')),
+        $output->heading(new lang_string('bookingcustomfield', 'mod_booking')),
         $output->render($outputpage),
         $output->footer();
