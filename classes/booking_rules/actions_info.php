@@ -62,7 +62,7 @@ class actions_info {
             }
             $actionsforselect[$shortclassname] = $action->get_name_of_action();
         }
-
+        $actionsforselect = array_reverse($actionsforselect);
         $mform->registerNoSubmitButton('btn_bookingruleactiontype');
         $buttonargs = ['style' => 'visibility:hidden;'];
         $mform->addElement('select', 'bookingruleactiontype',
