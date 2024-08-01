@@ -130,7 +130,7 @@ class select_user_from_event implements booking_rule_condition {
         $eventssupportingrelateduserid = [
             'bookingoption_completed',
             'custom_message_sent',
-            'bookingoption_confirmed',
+            'bookinganswer_confirmed',
             'bookinganswer_cancelled',
             'bookingoptionwaitinglist_booked',
             'bookingoption_booked',

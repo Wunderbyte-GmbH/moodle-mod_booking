@@ -23,7 +23,7 @@
  */
 
 namespace mod_booking\table;
-use mod_booking\event\bookingoption_confirmed;
+use mod_booking\event\bookinganswer_confirmed;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -187,21 +187,18 @@ class manageusers_table extends wunderbyte_table {
             if (!empty($settings->jsonobject->useprice)
                 && empty(get_config('booking', 'turnoffwaitinglist'))) {
                 $option->user_submit_response($user, 0, 0, 2, MOD_BOOKING_VERIFIED);
-
-                $event = bookingoption_confirmed::create(
-                    [
-                        'objectid' => $option->id,
-                        'context' => \context_system::instance(),
-                        'userid' => $USER->id,
-                        'relateduserid' => $user->id,
-                    ]);
-                $event->trigger();
-                // Event zu rules dazu. -> bookinglink.
-
             } else {
-
                 $option->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED);
             }
+            // Event is triggered no matter if a bookinganswer with or without price was confirmed.
+            $event = bookinganswer_confirmed::create(
+                [
+                    'objectid' => $option->id,
+                    'context' => \context_system::instance(),
+                    'userid' => $USER->id,
+                    'relateduserid' => $user->id,
+                ]);
+            $event->trigger();
             return [
                 'success' => 1,
                 'message' => get_string('successfullybooked', 'mod_booking'),
