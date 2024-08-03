@@ -316,6 +316,17 @@ class mod_booking_generator extends testing_module_generator {
             $record->eventname = $ruleobject->ruledata->boevent;
         }
 
+        // Setup rule overriding.
+        $ruleobject->ruledata->cancelrules = [];
+        if (!empty($ruledraft->cancelrules)) {
+            $cancelrules = explode(',', $ruledraft->cancelrules);
+            foreach ($cancelrules as $cancelrule) {
+                if ($ruleid = $this->get_rule($cancelrule)) {
+                    $ruleobject->ruledata->cancelrules[] = $ruleid;
+                }
+            }
+        }
+
         $record->rulejson = json_encode($ruleobject);
 
         $record->id = $DB->insert_record('booking_rules', $record);
@@ -359,6 +370,22 @@ class mod_booking_generator extends testing_module_generator {
 
         if (!$id = $DB->get_field('user', 'id', ['username' => $username])) {
             throw new Exception('The specified user with username "' . $username . '" does not exist');
+        }
+        return $id;
+    }
+
+    /**
+     * Function to get ruleid by rulename from json.
+     * @param string $rulename
+     * @return int
+     */
+    private function get_rule(string $rulename) {
+        global $DB;
+
+        $param = '\"name\":\"' . $rulename . '\"';
+        $sql = 'SELECT id FROM {booking_rules} WHERE rulejson LIKE \'%'. $param .'%\'';
+        if (!$id = $DB->get_field_sql($sql)) {
+            throw new Exception('The specified rule with name "' . $rulename . '" does not exist');
         }
         return $id;
     }
