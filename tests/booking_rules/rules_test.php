@@ -62,22 +62,16 @@ final class rules_test extends advanced_testcase {
      * @covers \mod_booking\booking_rules\rules\rule_react_on_event->execute
      * @covers \mod_booking\booking_rules\actions\send_mail->execute
      * @covers \mod_booking\placeholders\placeholders\changes->return_value
+     *
+     * @param array $bdata
      * @throws \coding_exception
+     *
+     * @dataProvider booking_common_settings_provider
      */
-    public function test_rule_on_booking_option_update(): void {
-
-        $bdata = ['name' => 'Test Booking', 'eventtype' => 'Test event',
-                    'bookedtext' => ['text' => 'text'], 'waitingtext' => ['text' => 'text'],
-                    'notifyemail' => ['text' => 'text'], 'statuschangetext' => ['text' => 'text'],
-                    'deletedtext' => ['text' => 'text'], 'pollurltext' => ['text' => 'text'],
-                    'pollurlteacherstext' => ['text' => 'text'],
-                    'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
-                    'bookingpolicy' => 'bookingpolicy', 'tags' => '',
-                    'showviews' => ['showall,showactive,mybooking,myoptions,myinstitution'],
-        ];
+    public function test_rule_on_booking_option_update(array $bdata): void {
 
         // Setup test data.
-        $course = $this->getDataGenerator()->create_course();
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $users = [
             ['username' => 'teacher1', 'firstname' => 'Teacher', 'lastname' => '1', 'email' => 'teacher1@example.com'],
             ['username' => 'student1', 'firstname' => 'Student', 'lastname' => '1', 'email' => 'student1@sample.com'],
@@ -179,25 +173,19 @@ final class rules_test extends advanced_testcase {
      * @covers \mod_booking\booking_rules\rules\rule_react_on_event->execute
      * @covers \mod_booking\booking_rules\actions\send_mail->execute
      * @covers \mod_booking\placeholders\placeholders\changes->return_value
+     *
+     * @param array $bdata
      * @throws \coding_exception
+     *
+     * @dataProvider booking_common_settings_provider
      */
-    public function test_rule_on_beforeafter_cursestart(): void {
+    public function test_rule_on_beforeafter_cursestart(array $bdata): void {
 
         set_config('timezone', 'Europe/Kyiv');
         set_config('forcetimezone', 'Europe/Kyiv');
 
-        $bdata = ['name' => 'Test Booking', 'eventtype' => 'Test event',
-                    'bookedtext' => ['text' => 'text'], 'waitingtext' => ['text' => 'text'],
-                    'notifyemail' => ['text' => 'text'], 'statuschangetext' => ['text' => 'text'],
-                    'deletedtext' => ['text' => 'text'], 'pollurltext' => ['text' => 'text'],
-                    'pollurlteacherstext' => ['text' => 'text'],
-                    'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
-                    'bookingpolicy' => 'bookingpolicy', 'tags' => '',
-                    'showviews' => ['showall,showactive,mybooking,myoptions,myinstitution'],
-        ];
-
         // Setup test data.
-        $course = $this->getDataGenerator()->create_course();
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
 
@@ -223,7 +211,7 @@ final class rules_test extends advanced_testcase {
             'actionname' => 'send_mail',
             'actiondata' => '{"subject":"1daybefore","template":"will start tomorrow","templateformat":"1"}',
             'rulename' => 'rule_daysbefore',
-            'ruledata' => '{"days":"1","datefield":"coursestarttime"}',
+            'ruledata' => '{"days":"1","datefield":"coursestarttime","cancelrules":[]}',
         ];
         $rule1 = $plugingenerator->create_rule($ruledata1);
 
@@ -236,7 +224,7 @@ final class rules_test extends advanced_testcase {
             'actionname' => 'send_mail',
             'actiondata' => '{"subject":"1dayafter","template":"was ended yesterday","templateformat":"1"}',
             'rulename' => 'rule_daysbefore',
-            'ruledata' => '{"days":"-1","datefield":"courseendtime"}',
+            'ruledata' => '{"days":"-1","datefield":"courseendtime","cancelrules":[]}',
         ];
         $rule2 = $plugingenerator->create_rule($ruledata2);
 
@@ -282,5 +270,32 @@ final class rules_test extends advanced_testcase {
 
         // Mandatory to solve potential cache issues.
         singleton_service::destroy_booking_option_singleton($option1->id);
+    }
+
+    /**
+     * Data provider for condition_bookingpolicy_test
+     *
+     * @return array
+     * @throws \UnexpectedValueException
+     */
+    public static function booking_common_settings_provider(): array {
+        $bdata = [
+            'name' => 'Rule Booking Test',
+            'eventtype' => 'Test event',
+            'enablecompletion' => 1,
+            'bookedtext' => ['text' => 'text'],
+            'waitingtext' => ['text' => 'text'],
+            'notifyemail' => ['text' => 'text'],
+            'statuschangetext' => ['text' => 'text'],
+            'deletedtext' => ['text' => 'text'],
+            'pollurltext' => ['text' => 'text'],
+            'pollurlteacherstext' => ['text' => 'text'],
+            'notificationtext' => ['text' => 'text'],
+            'userleave' => ['text' => 'text'],
+            'tags' => '',
+            'completion' => 2,
+            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
+        ];
+        return ['bdata' => [$bdata]];
     }
 }
