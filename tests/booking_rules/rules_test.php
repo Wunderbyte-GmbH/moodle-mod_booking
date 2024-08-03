@@ -27,6 +27,8 @@ namespace mod_booking;
 
 use advanced_testcase;
 use stdClass;
+use mod_booking\booking_rules\booking_rules;
+use mod_booking\booking_rules\rules_info;
 
 /**
  * Tests for booking rules.
@@ -69,7 +71,7 @@ final class rules_test extends advanced_testcase {
      * @dataProvider booking_common_settings_provider
      */
     public function test_rule_on_booking_option_update(array $bdata): void {
-
+        $this->resetAfterTest(true);
         // Setup test data.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $users = [
@@ -105,7 +107,7 @@ final class rules_test extends advanced_testcase {
         $option = $plugingenerator->create_option($record);
 
         // Create booking rule.
-        $ruledata = [
+        $ruledata1 = [
             'name' => 'emailchanges',
             'conditionname' => 'select_teacher_in_bo',
             'contextid' => 1,
@@ -113,9 +115,9 @@ final class rules_test extends advanced_testcase {
             'actionname' => 'send_mail',
             'actiondata' => '{"subject":"OptionChanged","template":"Changes:{changes}","templateformat":"1"}',
             'rulename' => 'rule_react_on_event',
-            'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_updated","condition":"0","aftercompletion":0}',
+            'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_updated","condition":"0","aftercompletion":""}',
         ];
-        $rule = $plugingenerator->create_rule($ruledata);
+        $rule1 = $plugingenerator->create_rule($ruledata1);
 
         // Trigger and capture emails.
         unset_config('noemailever');
@@ -163,6 +165,7 @@ final class rules_test extends advanced_testcase {
 
         // Mandatory to solve potential cache issues.
         singleton_service::destroy_booking_option_singleton($option->id);
+        rules_info::delete_rule($rule1->id);
     }
 
     /**
@@ -180,7 +183,7 @@ final class rules_test extends advanced_testcase {
      * @dataProvider booking_common_settings_provider
      */
     public function test_rule_on_beforeafter_cursestart(array $bdata): void {
-
+        $this->resetAfterTest(true);
         set_config('timezone', 'Europe/Kyiv');
         set_config('forcetimezone', 'Europe/Kyiv');
 
@@ -270,6 +273,120 @@ final class rules_test extends advanced_testcase {
 
         // Mandatory to solve potential cache issues.
         singleton_service::destroy_booking_option_singleton($option1->id);
+        rules_info::delete_rule($rule1->id);
+        rules_info::delete_rule($rule2->id);
+    }
+
+    /**
+     * Test rule on rule override.
+     *
+     * @covers \mod_booking\option\field_base->check_for_changes
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event->execute
+     * @covers \mod_booking\booking_rules\actions\send_mail->execute
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_rule_on_rule_override(array $bdata): void {
+        $this->resetAfterTest(true);
+        set_config('timezone', 'Europe/Kyiv');
+        set_config('forcetimezone', 'Europe/Kyiv');
+
+        // Allow optioncacellation.
+        $bdata['cancancelbook'] = 1;
+
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $user1 = $this->getDataGenerator()->create_user();
+        $user2 = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $user2->username;
+
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'student');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        // Create booking rule - "bookinganswer_cancelled".
+        $ruledata1 = [
+            'name' => 'notifyadmin',
+            'conditionname' => 'select_users',
+            'contextid' => 1,
+            'conditiondata' => '{"userids":["2"]}',
+            'actionname' => 'send_mail',
+            'actiondata' => '{"subject":"answcancsubj","template":"answcancmsg","templateformat":"1"}',
+            'rulename' => 'rule_react_on_event',
+            'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\bookinganswer_cancelled","aftercompletion":"","condition":"0"}',
+        ];
+        $rule1 = $plugingenerator->create_rule($ruledata1);
+
+        // Create booking rule - "override".
+        $ruledata2 = [
+            'name' => 'override',
+            'conditionname' => 'select_teacher_in_bo',
+            'contextid' => 1,
+            'conditiondata' => '',
+            'actionname' => 'send_mail',
+            'actiondata' => '{"subject":"overridesubj","template":"overridemsg","templateformat":"1"}',
+            'rulename' => 'rule_react_on_event',
+            'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_cancelled","aftercompletion":"","condition":"0"}',
+            'cancelrules' => $ruledata1['name'],
+        ];
+        $rule2 = $plugingenerator->create_rule($ruledata2);
+
+        // Create booking option 1.
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Option-tomorrow';
+        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->courseid = $course->id;
+        $record->description = 'Will start tomorrow';
+        $record->optiondateid_1 = "0";
+        $record->daystonotify_1 = "0";
+        $record->coursestarttime_1 = strtotime('20 June 2050 15:00');
+        $record->courseendtime_1 = strtotime('20 July 2050 14:00');
+        $record->teachersforoption = $user1->username;
+        $option1 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option1->id);
+
+        $rules = booking_rules::get_list_of_saved_rules_by_context();
+        var_dump($rules);
+        // Create a booking option answer.
+        $result = $plugingenerator->create_answer(['optionid' => $option1->id, 'userid' => $user2->id]);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $result);
+        singleton_service::destroy_booking_answers($option1->id);
+
+        // Cancel entire booking option.
+        booking_option::cancelbookingoption($option1->id);
+
+        // Get messages.
+        $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+
+        // Validate scheduled adhoc tasks.
+        $this->assertCount(1, $messages);
+        $keys = array_keys($messages);
+        // Task 1 has to be "override".
+        $message = $messages[$keys[0]];
+        $customdata = $message->get_custom_data();
+        $this->assertEquals("overridesubj",  $customdata->customsubject);
+        $this->assertEquals("overridemsg",  $customdata->custommessage);
+        $this->assertEquals($user1->id,  $customdata->userid);
+        $this->assertStringContainsString($ruledata1['ruledata'],  $customdata->rulejson);
+        $this->assertStringContainsString($ruledata1['conditiondata'],  $customdata->rulejson);
+        $this->assertStringContainsString($ruledata1['actiondata'],  $customdata->rulejson);
+
+        // Mandatory to solve potential cache issues.
+        singleton_service::destroy_booking_option_singleton($option1->id);
+        rules_info::delete_rule($rule1->id);
+        rules_info::delete_rule($rule2->id);
     }
 
     /**
