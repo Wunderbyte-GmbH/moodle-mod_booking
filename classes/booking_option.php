@@ -39,7 +39,7 @@ use invalid_parameter_exception;
 use local_entities\entitiesrelation_handler;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\event\booking_rulesexecutionfailed;
-use mod_booking\event\bookinganswer_waitingforconfimation;
+use mod_booking\event\bookinganswer_waitingforconfirmation;
 use mod_booking\option\dates_handler;
 use mod_booking\bo_actions\actions_info;
 use mod_booking\booking_rules\rules_info;
@@ -1079,7 +1079,7 @@ class booking_option {
 
                 $waitinglist = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
 
-                $event = bookinganswer_waitingforconfimation::create([
+                $event = bookinganswer_waitingforconfirmation::create([
                     'objectid' => $this->optionid,
                     'context' => context_module::instance($this->cmid),
                     'userid' => $USER->id, // The user triggered the action.

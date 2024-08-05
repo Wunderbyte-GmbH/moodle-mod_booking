@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The bookinganswer_waitingforconfimation event.
+ * The bookinganswer_waitingforconfirmation event.
  *
  * @package mod_booking
  * @copyright 2024 Wunderbyte
@@ -25,14 +25,14 @@
 namespace mod_booking\event;
 
 /**
- * The bookinganswer_waitingforconfimation event class.
+ * The bookinganswer_waitingforconfirmation event class.
  *
  * @property-read array $other { Extra information about event. Acesss an instance of the booking module }
  * @since Moodle 2.7
  * @copyright 2024 Wunderbyte
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class bookinganswer_waitingforconfimation extends \core\event\base {
+class bookinganswer_waitingforconfirmation extends \core\event\base {
 
     /**
      * Init
