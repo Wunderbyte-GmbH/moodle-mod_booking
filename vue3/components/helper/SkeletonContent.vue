@@ -1,23 +1,23 @@
 <template>
   <div>
     <p class="mb-0">
-      <strong>{{ store.state.strings.vue_dashboard_name }}:</strong> 
-      <span 
-        class="loading-animation" 
+      <strong>{{ store.state.strings.vuedashboardname }}:</strong>
+      <span
+        class="loading-animation"
         :style="{ width: generateRandomWidth() }"
       />
     </p>
     <p class="mb-0">
-      <strong>{{ store.state.strings.vue_dashboard_course_count }}:</strong>
-      <span 
-        class="loading-animation" 
+      <strong>{{ store.state.strings.vuedashboardcoursecount }}:</strong>
+      <span
+        class="loading-animation"
         :style="{ width: generateRandomWidth() }"
       />
     </p>
     <p class="mb-0">
-      <strong>{{ store.state.strings.vue_dashboard_path }}:</strong> 
-      <span 
-        class="loading-animation" 
+      <strong>{{ store.state.strings.vuedashboardpath }}:</strong>
+      <span
+        class="loading-animation"
         :style="{ width: generateRandomWidth() }"
       />
     </p>

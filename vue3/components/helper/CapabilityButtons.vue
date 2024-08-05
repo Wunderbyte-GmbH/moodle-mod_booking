@@ -1,32 +1,32 @@
 <template>
   <div class="mt-4">
     <div v-if="!showButtons">
-      <p><strong>{{ store.state.strings.vue_booking_stats_capability }}: {{ choosenCapability.name }}</strong></p>
+      <p><strong>{{ store.state.strings.bookingstatscapability }}: {{ choosenCapability.name }}</strong></p>
       <div class="row mt-2">
         <div class="col-md-12">
           <button
             class="btn btn-secondary mr-2"
             @click="handleBackButtonClick"
           >
-            {{ store.state.strings.vue_booking_stats_back }}
+            {{ store.state.strings.bookingstatsback }}
           </button>
           <button
             class="btn btn-primary mr-2"
             @click="saveContent"
           >
-            {{ store.state.strings.vue_booking_stats_save }}
+            {{ store.state.strings.bookingstatssave }}
           </button>
           <button
             class="btn btn-warning"
             :disabled="showConfirmation"
             @click="showConfirmation=true"
           >
-            {{ store.state.strings.vue_booking_stats_restore }}
+            {{ store.state.strings.bookingstatsrestore }}
           </button>
 
           <!-- Confirmation dialog -->
           <div v-if="showConfirmationBack">
-            <ConfirmationModal 
+            <ConfirmationModal
               :show-confirmation-modal="showConfirmationBack"
               :strings="store.state.strings"
               @confirmBack="confirmBack"
@@ -34,34 +34,34 @@
           </div>
 
           <transition name="slide-fade">
-            <div 
+            <div
               v-if="changesMade.changesMade"
               class="unsaved-dialog"
             >
-              {{ store.state.strings.vue_capability_unsaved_changes }}
+              {{ store.state.strings.capabilityunsavedchanges }}
             </div>
           </transition>
           <transition name="slide-fade">
-            <div 
-              v-if="showConfirmation" 
+            <div
+              v-if="showConfirmation"
               class="confirmation-dialog"
             >
               <div class="confirmation-content">
                 <p>
-                  {{ store.state.strings.vue_capability_unsaved_continue }}
+                  {{ store.state.strings.capabilityunsavedcontinue }}
                 </p>
                 <div class="btn-row">
                   <button
                     class="btn btn-secondary mr-2"
                     @click="showConfirmation=false"
                   >
-                    {{ store.state.strings.vue_booking_stats_no }}
+                    {{ store.state.strings.bookingstatsno }}
                   </button>
                   <button
                     class="btn btn-primary mr-2"
                     @click="restoreContent"
                   >
-                    {{ store.state.strings.vue_booking_stats_yes }}
+                    {{ store.state.strings.bookingstatsyes }}
                   </button>
                 </div>
               </div>
@@ -81,7 +81,7 @@
                   type="checkbox"
                   @change="editAll"
                 >
-                <label :for="'select_all'"><strong>{{ store.state.strings.vue_booking_stats_select_all }}</strong></label>
+                <label :for="'select_all'"><strong>{{ store.state.strings.bookingstatsselectall }}</strong></label>
               </span>
             </li>
           </ul>
@@ -167,8 +167,8 @@ const saveContent = async () => {
     notificationSet(result, 'saved')
   } else {
     notify({
-      title: store.state.strings.vue_notification_title_unsave,
-      text: store.state.strings.vue_notification_text_unsave,
+      title: store.state.strings.notificationtitleunsave,
+      text: store.state.strings.notificationtextunsave,
       type: 'warn'
     });
   }
@@ -190,18 +190,18 @@ const restoreContent = async () => {
 const notificationSet = (result, action) => {
   if(result.status == 'success'){
     notify({
-      title: store.state.strings.vue_notification_title_action_success.replace('{$a}', action),
-      text: store.state.strings.vue_notification_text_action_success.replace('{$a}', action),
+      title: store.state.strings.notificationtitleactionsuccess.replace('{$a}', action),
+      text: store.state.strings.notificationtextactionsuccess.replace('{$a}', action),
       type: 'success'
     });
   }else {
     notify({
-      title: store.state.strings.vue_notification_title_action_fail.replace('{$a}', action),
-      text: store.state.strings.vue_notification_text_action_fail.replace('{$a}', action),
+      title: store.state.strings.notificationtitleactionfail.replace('{$a}', action),
+      text: store.state.strings.notificationtextactionfail.replace('{$a}', action),
       type: 'warn'
     });
   }
-} 
+}
 
 const editAll = () => {
   emit('checkAll', selectAllChecked.value)

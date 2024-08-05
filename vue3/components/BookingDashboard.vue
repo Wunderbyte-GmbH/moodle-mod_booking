@@ -3,7 +3,7 @@
     <notifications width="100%" />
     <Searchbar :tabs="tabsstored" @filteredTabs="updateFilteredTabs" />
     <div class="bgfull">
-      <span class="dbhead">{{ store.state.strings.dashboard_mydashboard }}</span>
+      <span class="dbhead">{{ store.state.strings.dashboardmydashboard }}</span>
       <div class="d-flex align-items-end">
         <a @click="scrollLeft()" class="text-white ml5em" style="font-size: 1.3em;
     margin-right: 1rem; padding-bottom: 10px"><i class="fa-solid fa-arrow-left"></i></a>
@@ -36,19 +36,19 @@
           <li class="nav-item" role="presentation">
             <button id="home-tab" class="nav-link active" data-toggle="tab" data-target="#home" type="button" role="tab"
               aria-controls="home" aria-selected="true">
-              {{ store.state.strings.dashboard_overview }}
+              {{ store.state.strings.dashboardoverview }}
             </button>
           </li>
           <li class="nav-item" role="presentation">
             <button id="profile-tab" class="nav-link" data-toggle="tab" data-target="#profile" type="button" role="tab"
               aria-controls="profile" aria-selected="false">
-              {{ store.state.strings.dashboard_bookingfields }}
+              {{ store.state.strings.dashboardbookingfields }}
             </button>
           </li>
           <li class="nav-item" role="presentation">
             <button id="contact-tab" class="nav-link" data-toggle="tab" data-target="#contact" type="button" role="tab"
               aria-controls="contact" aria-selected="false">
-              {{ store.state.strings.dashboard_stats }}
+              {{ store.state.strings.dashboardstats }}
             </button>
           </li>
         </ul>

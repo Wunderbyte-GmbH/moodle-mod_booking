@@ -23,13 +23,13 @@
           >
           <label :for="'checkbox_' + key">
             <strong>
-              <div 
+              <div
                 class="mr-2"
-                v-html="store.state.strings[value.classname]" 
+                v-html="store.state.strings[value.classname]"
               />
             </strong>
           </label>
-          <i> {{ store.state.strings.vue_capability_options_necessary }}</i>
+          <i> {{ store.state.strings.vuecapabilityoptionsnecessary }}</i>
         </span>
         <span v-else>
           <input
@@ -46,17 +46,17 @@
             </strong>
           </label>
         </span>
-        
+
         <span class="blocked-message">
           <transition name="slide-fade">
             <span v-if="getBlockMessage(value)">{{ getBlockMessage(value) }}</span>
           </transition>
         </span>
-        <SubLists 
+        <SubLists
           :subfields="value.subfields"
           :subfields-visible="subfieldsVisible"
           @handleCheckboxChange="handleCheckboxChange"
-        /> 
+        />
       </li>
     </ul>
   </div>
@@ -87,7 +87,7 @@ const emit = defineEmits([
   'changesMade'
 ])
 
-onMounted(() => {  
+onMounted(() => {
   getConfigurationList()
 });
 
@@ -122,7 +122,7 @@ watch(() => props.check, async () => {
         for (let key in configuration.subfields) {
           configuration.subfields[key].checked = props.check
         }
-      } 
+      }
     }
   })
 }, { deep: true } );

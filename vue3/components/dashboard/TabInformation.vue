@@ -15,7 +15,7 @@
             <template v-if="content.coursecount">
               <p>
                 <i class="fa-regular fa-calendar mr-2 text-primary" />
-                <strong>{{ strings.vue_dashboard_course_count }}: </strong> {{ content.coursecount }}
+                <strong>{{ strings.dashboardcoursecount }}: </strong> {{ content.coursecount }}
               </p>
             </template>
           </div>
@@ -24,27 +24,27 @@
           <template v-if="indextab == 0">
             <a role="button" href="/course/editcategory.php?parent=0" class="mb-0 block-link btn button-primary">
               <i class="fa-solid fa-plus mr-1" />
-              {{ strings.vue_dashboard_create_oe }}
+              {{ strings.dashboardcreateoe }}
             </a>
           </template>
           <template v-if="content.contextid">
             <a role="button" :href="'/admin/roles/assign.php?contextid=' + content.contextid"
               class="mb-0 block-link btn button-primary">
               <i class="fa-solid fa-person mr-1" />
-              {{ strings.vue_dashboard_assign_role }}
+              {{ strings.dashboardassignrole }}
             </a>
           </template>
           <template v-if="content.id">
             <a role="button" :href="'/course/edit.php?category=' + content.id"
               class="mb-0 block-link btn button-secondary">
               <i class="fa-solid fa-plus mr-1" />
-              {{ strings.vue_dashboard_new_course }}
+              {{ strings.dashboardnewcourse }}
             </a>
           </template>
           <a role="button" :href="'/course/index.php?categoryid=' + content.id"
             class="mb-0 block-link btn button-secondary">
             <i class="fa-solid fa-list mr-1" />
-            {{ strings.vue_dashboard_goto_category }}
+            {{ strings.dashboardgotocategory }}
           </a>
         </div>
       </div>
@@ -59,7 +59,7 @@
               <i class="fa-regular fa-bookmark text-success" />
             </div>
             <div class="d-flex align-items-center justify-content-start">
-              <span class="pre">{{ strings.dashboard_new_bookings }}</span>
+              <span class="pre">{{ strings.dashboardnewbookings }}</span>
             </div>
           </div>
         </div>
@@ -73,7 +73,7 @@
               <i class="fa-solid fa-bolt text-info" />
             </div>
             <div class="d-flex align-items-center justify-content-start">
-              <span class="pre">{{ strings.dashboard_ppl_wl }}</span>
+              <span class="pre">{{ strings.dashboardpplwl }}</span>
             </div>
           </div>
         </div>
@@ -86,7 +86,7 @@
               <i class="fa-regular fa-circle-xmark text-danger" />
             </div>
             <div class="d-flex align-items-center justify-content-start">
-              <span class="pre">{{ strings.dashboard_neue_stornos }}</span>
+              <span class="pre">{{ strings.dashboardneuestornos }}</span>
             </div>
           </div>
         </div>
@@ -99,7 +99,7 @@
               <i class="fa-solid fa-thumbs-down text-warning" />
             </div>
             <div class="d-flex align-items-center justify-content-start">
-              <span class="pre" v-cloak>{{ strings.dashboard_noshows }}</span>
+              <span class="pre" v-cloak>{{ strings.dashboardnoshows }}</span>
             </div>
           </div>
         </div>
@@ -109,7 +109,7 @@
               <i class="fa-solid fa-location-dot text-dark ml-auto" />
             </div>
             <div class="d-flex align-items-center justify-content-start mt-auto">
-              <span class="text-dark pre" v-cloak>{{ strings.dashboard_managelocation }}</span>
+              <span class="text-dark pre" v-cloak>{{ strings.dashboardmanagelocation }}</span>
             </div>
           </a>
         </div>

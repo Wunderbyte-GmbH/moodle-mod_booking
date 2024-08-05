@@ -24,8 +24,8 @@
 
 <template>
   <div class="NotFound">
-    <h2>{{ store.state.strings.vue_not_found_route_not_found }}</h2>
-    <h3>{{ store.state.strings.vue_not_found_try_again }}</h3>
+    <h2>{{ store.state.strings.vuenotfoundroutenotfound }}</h2>
+    <h3>{{ store.state.strings.vuenotfoundtryagain }}</h3>
   </div>
 </template>
 
