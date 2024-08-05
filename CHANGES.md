@@ -1,3 +1,15 @@
+## Version 8.6.3 (2024080500)
+* Improvement: New automated tests
+* Improvement: Allow coursecreators to update bookings
+* Improvement: Add event for booking on waitinglist
+* Improvement: choose between related user and user in more events
+* Improvement: Rename bookingoption_confirmed event to bookinganwer_confirmed and always trigger on confirmation (no matter if price is set)
+* Improvement: Revert order of options in rules select action
+* Improvement: add new event for bookinganswers_waitingforconfirmations
+* Bugfixes: Don't block booking via notifymelist for users already on waitinglist
+* Bugfixes: Improvements of bulkoperations
+* Bugfix: Serveral strings after refactoring legacy
+
 ## Version 8.6.2 (2024073000)
 * Improvement: Alternative importfields for courseid
 * Improvement: Enable item_bought event from shopping_cart plugin
