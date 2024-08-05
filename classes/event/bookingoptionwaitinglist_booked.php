@@ -53,7 +53,7 @@ class bookingoptionwaitinglist_booked extends \core\event\base {
      *
      */
     public static function get_name() {
-        return get_string('bookingoptionwaitinglistbooked', 'booking');
+        return get_string('bookingoptionwaitinglistbooked', 'mod_booking');
     }
 
     /**
