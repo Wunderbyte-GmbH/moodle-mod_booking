@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The bookingoption_booked event.
+ * The bookingoption_completed event.
  *
  * @package mod_booking
  * @copyright 2014 David Bogner, http://www.edulabs.org

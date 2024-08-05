@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The bookingoption_booked event.
+ * The bookingoption_freetobookagain event.
  *
  * @package mod_booking
  * @copyright 2014 David Bogner, http://www.edulabs.org
@@ -25,7 +25,7 @@
 namespace mod_booking\event;
 
 /**
- * The bookingoption_booked event class.
+ * The bookingoption_freetobookagain event class.
  *
  * @property-read array $other { Extra information about event. Acesss an instance of the booking module }
  * @since Moodle 2.7
