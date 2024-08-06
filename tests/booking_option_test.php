@@ -193,6 +193,83 @@ final class booking_option_test extends advanced_testcase {
     }
 
     /**
+     * Test adding of entiy to the bookig option.
+     *
+     * @covers \mod_booking\booking_option::create
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_option_entities(array $bdata): void {
+
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course();
+        $users = [
+            ['username' => 'teacher1', 'firstname' => 'Teacher', 'lastname' => '1', 'email' => 'teacher1@example.com'],
+            ['username' => 'teacher2', 'firstname' => 'Teacher', 'lastname' => '2', 'email' => 'teacher2@sample.com'],
+            ['username' => 'student1', 'firstname' => 'Student', 'lastname' => '1', 'email' => 'student1@sample.com'],
+        ];
+        $user1 = $this->getDataGenerator()->create_user($users[0]);
+        $user2 = $this->getDataGenerator()->create_user($users[1]);
+        $user3 = $this->getDataGenerator()->create_user($users[2]);
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $user2->username;
+        unset($bdata['completion']);
+
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($user3->id, $course->id, 'student');
+
+        // Create entities.
+        $entitydata1 = [
+            'name' => 'Entity1',
+            'shortname' => 'entity1',
+            'description' => 'Ent1desc',
+        ];
+        $entitydata2 = [
+            'name' => 'Entity2',
+            'shortname' => 'entity2',
+            'description' => 'Ent2desc',
+        ];
+
+        /** @var local_entities_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('local_entities');
+        $entityid1 = $plugingenerator->create_entities($entitydata1);
+        $entityid2 = $plugingenerator->create_entities($entitydata2);
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Option-entity';
+        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->courseid = $course->id;
+        $record->description = 'Deskr-entity';
+        $record->teachersforoption = $user1->username;
+        $record->local_entities_entityid_0 = $entityid1; // Option entity.
+        $record->optiondateid_1 = "0";
+        $record->daystonotify_1 = "0";
+        $record->coursestarttime_1 = strtotime('20 June 2050');
+        $record->courseendtime_1 = strtotime('20 July 2050');
+        $record->er_saverelationsforoptiondates = 1;
+        $record->local_entities_entityarea_1 = "optiondate";
+        $record->local_entities_entityid_1 = $entityid2; // Option date entity.
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $plugingenerator->create_option($record);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+
+        $this->assertEquals($entitydata1['name'], $settings->location);
+    }
+
+    /**
      * Test delete responses.
      *
      * @covers ::delete_responses_activitycompletion
