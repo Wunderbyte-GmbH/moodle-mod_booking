@@ -1428,6 +1428,10 @@ $string['onlythisbookingoption'] = 'Nur diese Buchungsoption';
 $string['onlyusersfrominstitution'] = 'Sie können nur Nutzerinnen von dieser Instition hinzufügen: {$a}';
 $string['onwaitinglist'] = 'Sie sind auf der Warteliste';
 $string['openformat'] = 'offenes Format';
+$string['optionnoimage'] = 'Kein Bild';
+$string['option_template_not_saved_no_valid_license'] = 'Buchungsoption konnte nicht als Vorlage gespeichert werden.
+                                                  Holen Sie sich die PRO-Version, um beliebig viele Vorlagen erstellen
+                                                  zu können.';
 $string['optional'] = 'optional';
 $string['optionannotation'] = 'Interne Anmerkung';
 $string['optionannotation_help'] = 'Fügen Sie interne Notizen bzw. Anmerkungen hinzu. Diese werden NUR in DIESEM Formular und sonst nirgendwo angezeigt.';
