@@ -1,26 +1,26 @@
 <template>
-  <span 
-    v-if="subfields && Object.keys(subfields).length > 0" 
+  <span
+    v-if="subfields && Object.keys(subfields).length > 0"
     class="subfields-wrapper"
   >
     <button @click="toggleSubfields(key)">
-      <i 
-        :class="['fas', subfieldsVisible[key] ? 'fa-chevron-up' : 'fa-chevron-down']" 
+      <i
+        :class="['fas', subfieldsVisible[key] ? 'fa-chevron-up' : 'fa-chevron-down']"
       />
     </button>
     <transition name="slide-fade">
       <ul v-show="subfieldsVisible[key]">
-        <li 
-          v-for="(subvalue, subkey) in subfields" 
+        <li
+          v-for="(subvalue, subkey) in subfields"
           :key="subkey"
         >
           <span class="enumeration-dot" />
           <span>
-            <input 
-              :id="'subcheckbox_' + subkey" 
-              type="checkbox" 
-              class="mr-2" 
-              :checked="subvalue.checked" 
+            <input
+              :id="'subcheckbox_' + subkey"
+              type="checkbox"
+              class="mr-2"
+              :checked="subvalue.checked"
               @change="handleCheckboxChange(subvalue)"
             >
             <label :for="'subcheckbox_' + subkey">

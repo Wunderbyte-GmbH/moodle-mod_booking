@@ -4,12 +4,12 @@
     <table class="table mt-2">
       <thead class="thead-light">
         <tr>
-          <th>{{ store.state.strings.dashboardchecked }}</th>
-          <th>{{ store.state.strings.dashboardname }}</th>
-          <th>{{ store.state.strings.bookingstatsbookingoptions }}</th>
-          <th>{{ store.state.strings.bookingstatsbooked }}</th>
-          <th>{{ store.state.strings.bookingstatswaiting }}</th>
-          <th>{{ store.state.strings.bookingstatsreserved }}</th>
+          <th>{{ store.state.strings.vuedashboardchecked }}</th>
+          <th>{{ store.state.strings.vuedashboardname }}</th>
+          <th>{{ store.state.strings.vuebookingstatsbookingoptions }}</th>
+          <th>{{ store.state.strings.vuebookingstatsbooked }}</th>
+          <th>{{ store.state.strings.vuebookingstatswaiting }}</th>
+          <th>{{ store.state.strings.vuebookingstatsreserved }}</th>
         </tr>
       </thead>
       <tbody>

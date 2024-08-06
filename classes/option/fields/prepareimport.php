@@ -29,26 +29,24 @@ use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use mod_booking\singleton_service;
+use moodle_exception;
 use MoodleQuickForm;
 use stdClass;
 
 /**
  * Class to handle one property of the booking_option_settings class.
  *
- * Courseendtime is fully replaced with the optiondates class.
- * Its only here as a placeholder.
- *
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class easy_text extends field_base {
+class prepareimport extends field_base {
 
     /**
      * This ID is used for sorting execution.
      * @var int
      */
-    public static $id = MOD_BOOKING_OPTION_FIELD_EASY_TEXT;
+    public static $id = MOD_BOOKING_OPTION_FIELD_PREPARE_IMPORT;
 
     /**
      * Some fields are saved with the booking option...
@@ -62,13 +60,15 @@ class easy_text extends field_base {
      * This identifies the header under which this particular field should be displayed.
      * @var string
      */
-    public static $header = MOD_BOOKING_HEADER_AVAILABILITY;
+    public static $header = MOD_BOOKING_HEADER_GENERAL;
 
     /**
      * An int value to define if this field is standard or used in a different context.
-     * @var int
+     * @var array
      */
-    public static $fieldcategories = [MOD_BOOKING_OPTION_FIELD_EASY];
+    public static $fieldcategories = [
+        MOD_BOOKING_OPTION_FIELD_NECESSARY,
+    ];
 
     /**
      * Additionally to the classname, there might be others keys which should instantiate this class.
@@ -80,9 +80,7 @@ class easy_text extends field_base {
      * This is an array of incompatible field ids.
      * @var array
      */
-    public static $incompatiblefields = [
-        MOD_BOOKING_OPTION_FIELD_TEXT,
-    ];
+    public static $incompatiblefields = [];
 
     /**
      * This function interprets the value from the form and, if useful...
@@ -103,18 +101,6 @@ class easy_text extends field_base {
     }
 
     /**
-     * This function adds error keys for form validation.
-     * @param array $data
-     * @param array $files
-     * @param array $errors
-     * @return array
-     */
-    public static function validation(array $data, array $files, array &$errors) {
-
-        return $errors;
-    }
-
-    /**
      * Instance form definition
      * @param MoodleQuickForm $mform
      * @param array $formdata
@@ -123,10 +109,6 @@ class easy_text extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($formdata['id']);
-        $titlewithprefix = $settings->get_title_with_prefix();
-
-        $mform->addElement('html', get_string('easyavailability:heading', 'local_musi', $titlewithprefix));
     }
 
     /**
@@ -138,5 +120,35 @@ class easy_text extends field_base {
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
+        global $DB;
+
+        // Here, we determine if we need fetch data from an existing booking option.
+        // We can only do that if we have an identifier.
+        // Coming from the form, we'll have even with a new option id set to 0.
+        if (!isset($data->id) && !empty($data->identifier)) {
+            $data->importing = true;
+            if ($record = $DB->get_record('booking_options', ['identifier' => $data->identifier])) {
+
+                $data->id = $record->id;
+
+            } else if (empty($data->text) && empty($data->name)) {
+                throw new moodle_exception(
+                    'identifiernotfoundnotenoughdata',
+                    'mod_booking',
+                    '',
+                    $data->identifier,
+                    "The record with the identifier $data->identifier was not found in db");
+            }
+        }
+
+        // If there is no bookingid but there is the cmid, we can work with that.
+        if (empty($data->bookingid) && !empty($data->cmid)) {
+            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($data->cmid);
+            $data->bookingid = $bookingsettings->id;
+        }
+        // We will always set id to 0, if it's not set yet.
+        if (!isset($data->id)) {
+            $data->id = 0;
+        }
     }
 }
