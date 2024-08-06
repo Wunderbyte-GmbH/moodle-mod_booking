@@ -1436,6 +1436,9 @@ $string['onlythisbookingoption'] = 'Only this booking option';
 $string['onlyusersfrominstitution'] = 'You can only add users from this institution: {$a}';
 $string['onwaitinglist'] = 'You are on the waiting list';
 $string['openformat'] = 'open format';
+$string['optionnoimage'] = 'No image';
+$string['option_template_not_saved_no_valid_license'] = 'Booking option template could not be saved as template.
+                                                  Upgrade to PRO version to save an unlimited number of templates.';
 $string['optional'] = 'optional';
 $string['optionannotation'] = 'Internal annotation';
 $string['optionannotation_help'] = 'Add internal remarks, annotations or anything you want. It will only be shown in this form and nowhere else.';
