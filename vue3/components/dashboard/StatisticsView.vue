@@ -1,35 +1,7 @@
 <template>
   <div class="w-100" ref="root" >
     <div>{{ date }} {{ orga }}</div>
-    <!-- <div
-        class="infoblock d-flex flex-row"
-      >
-        <div class="col-md-6 pt-3 pl-5">
-          <div class="row d-flex justify-content-start align-items-center h-100">
-              <h3 class="font-weight-normal">
-                {{store.state.strings.dashboard_auswertung}}
-              </h3>
-              <br>
-          </div>
-        </div>
-        <div class="col-md-6 d-dlex justify-content-end align-items-center row m-0">
-          <div class="col-md-6">
-            <span class="inputspan">{{store.state.strings.dashboard_zeitraum}}</span>
-            <VueDatePicker class="myselects" v-model="date" :range="{ fixedStart: false }" :clearable="false" :enable-time-picker="false"/>
-          </div>
-          <div class="col-md-6">
-            <span class="inputspan">{{store.state.strings.dashboard_organisation}}</span>
-            <v-select class="myselects"  v-model="orga" :options="['Organame1', 'Organam2', 'Organam3']" label="country"></v-select>
-          </div>
-        </div>
-      </div>
-    <div> <Line
-      ref="thirdPartyLib"
-      :style="chartStyle"
-      :data="dataLine"
-      :options="options"
-    /></div> -->
-  
+
   </div>
 </template>
 
@@ -170,7 +142,7 @@ const color = '#0063A6';
     background-color: white;
     border: 2px solid $vueprimary;
     border-radius: 8px;
-    
+
 
     input {
       border-radius: 8px !important;

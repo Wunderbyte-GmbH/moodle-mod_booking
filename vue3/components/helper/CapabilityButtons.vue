@@ -1,27 +1,27 @@
 <template>
   <div class="mt-4">
     <div v-if="!showButtons">
-      <p><strong>{{ store.state.strings.bookingstatscapability }}: {{ choosenCapability.name }}</strong></p>
+      <p><strong>{{ store.state.strings.vuebookingstatscapability }}: {{ choosenCapability.name }}</strong></p>
       <div class="row mt-2">
         <div class="col-md-12">
           <button
             class="btn btn-secondary mr-2"
             @click="handleBackButtonClick"
           >
-            {{ store.state.strings.bookingstatsback }}
+            {{ store.state.strings.vuebookingstatsback }}
           </button>
           <button
             class="btn btn-primary mr-2"
             @click="saveContent"
           >
-            {{ store.state.strings.bookingstatssave }}
+            {{ store.state.strings.vuebookingstatssave }}
           </button>
           <button
             class="btn btn-warning"
             :disabled="showConfirmation"
             @click="showConfirmation=true"
           >
-            {{ store.state.strings.bookingstatsrestore }}
+            {{ store.state.strings.vuebookingstatsrestore }}
           </button>
 
           <!-- Confirmation dialog -->
@@ -38,7 +38,7 @@
               v-if="changesMade.changesMade"
               class="unsaved-dialog"
             >
-              {{ store.state.strings.capabilityunsavedchanges }}
+              {{ store.state.strings.vuecapabilityunsavedchanges }}
             </div>
           </transition>
           <transition name="slide-fade">
@@ -48,20 +48,20 @@
             >
               <div class="confirmation-content">
                 <p>
-                  {{ store.state.strings.capabilityunsavedcontinue }}
+                  {{ store.state.strings.vuecapabilityunsavedcontinue }}
                 </p>
                 <div class="btn-row">
                   <button
                     class="btn btn-secondary mr-2"
                     @click="showConfirmation=false"
                   >
-                    {{ store.state.strings.bookingstatsno }}
+                    {{ store.state.strings.vuebookingstatsno }}
                   </button>
                   <button
                     class="btn btn-primary mr-2"
                     @click="restoreContent"
                   >
-                    {{ store.state.strings.bookingstatsyes }}
+                    {{ store.state.strings.vuebookingstatsyes }}
                   </button>
                 </div>
               </div>
@@ -81,7 +81,7 @@
                   type="checkbox"
                   @change="editAll"
                 >
-                <label :for="'select_all'"><strong>{{ store.state.strings.bookingstatsselectall }}</strong></label>
+                <label :for="'select_all'"><strong>{{ store.state.strings.vuebookingstatsselectall }}</strong></label>
               </span>
             </li>
           </ul>
@@ -167,8 +167,8 @@ const saveContent = async () => {
     notificationSet(result, 'saved')
   } else {
     notify({
-      title: store.state.strings.notificationtitleunsave,
-      text: store.state.strings.notificationtextunsave,
+      title: store.state.strings.vuenotificationtitleunsave,
+      text: store.state.strings.vuenotificationtextunsave,
       type: 'warn'
     });
   }
@@ -190,14 +190,14 @@ const restoreContent = async () => {
 const notificationSet = (result, action) => {
   if(result.status == 'success'){
     notify({
-      title: store.state.strings.notificationtitleactionsuccess.replace('{$a}', action),
-      text: store.state.strings.notificationtextactionsuccess.replace('{$a}', action),
+      title: store.state.strings.vuenotificationtitleactionsuccess.replace('{$a}', action),
+      text: store.state.strings.vuenotificationtextactionsuccess.replace('{$a}', action),
       type: 'success'
     });
   }else {
     notify({
-      title: store.state.strings.notificationtitleactionfail.replace('{$a}', action),
-      text: store.state.strings.notificationtextactionfail.replace('{$a}', action),
+      title: store.state.strings.vuenotificationtitleactionfail.replace('{$a}', action),
+      text: store.state.strings.vuenotificationtextactionfail.replace('{$a}', action),
       type: 'warn'
     });
   }

@@ -28,25 +28,26 @@ use core_course_external;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
-use mod_booking\singleton_service;
-use moodle_exception;
 use MoodleQuickForm;
 use stdClass;
 
 /**
  * Class to handle one property of the booking_option_settings class.
  *
+ * Courseendtime is fully replaced with the optiondates class.
+ * Its only here as a placeholder.
+ *
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class prepare_import extends field_base {
+class easybookingopeningtime extends field_base {
 
     /**
      * This ID is used for sorting execution.
      * @var int
      */
-    public static $id = MOD_BOOKING_OPTION_FIELD_PREPARE_IMPORT;
+    public static $id = MOD_BOOKING_OPTION_FIELD_EASY_BOOKINGOPENINGTIME;
 
     /**
      * Some fields are saved with the booking option...
@@ -60,15 +61,13 @@ class prepare_import extends field_base {
      * This identifies the header under which this particular field should be displayed.
      * @var string
      */
-    public static $header = MOD_BOOKING_HEADER_GENERAL;
+    public static $header = MOD_BOOKING_HEADER_AVAILABILITY;
 
     /**
      * An int value to define if this field is standard or used in a different context.
      * @var array
      */
-    public static $fieldcategories = [
-        MOD_BOOKING_OPTION_FIELD_NECESSARY,
-    ];
+    public static $fieldcategories = []; // MOD_BOOKING_OPTION_FIELD_EASY.
 
     /**
      * Additionally to the classname, there might be others keys which should instantiate this class.
@@ -80,7 +79,10 @@ class prepare_import extends field_base {
      * This is an array of incompatible field ids.
      * @var array
      */
-    public static $incompatiblefields = [];
+    public static $incompatiblefields = [
+        MOD_BOOKING_OPTION_FIELD_BOOKINGOPENINGTIME,
+        MOD_BOOKING_OPTION_FIELD_AVAILABILITY,
+    ];
 
     /**
      * This function interprets the value from the form and, if useful...
@@ -97,7 +99,32 @@ class prepare_import extends field_base {
         int $updateparam,
         $returnvalue = null): array {
 
+        $key = 'bookingopeningtime';
+        $value = $formdata->{$key} ?? null;
+
+        if (empty($formdata->restrictanswerperiodopening)) {
+            $newoption->{$key} = 0;
+        } else {
+            if (!empty($value)) {
+                $newoption->{$key} = $value;
+            } else {
+                $newoption->{$key} = 0;
+            }
+        }
+
         return [];
+    }
+
+    /**
+     * This function adds error keys for form validation.
+     * @param array $data
+     * @param array $files
+     * @param array $errors
+     * @return array
+     */
+    public static function validation(array $data, array $files, array &$errors) {
+
+        return $errors;
     }
 
     /**
@@ -109,6 +136,15 @@ class prepare_import extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
+        // The form is not locked and can be used normally.
+        $mform->addElement('advcheckbox', 'restrictanswerperiodopening',
+                get_string('restrictanswerperiodopening', 'mod_booking'));
+        $mform->setType('restrictanswerperiodopening', PARAM_INT);
+        $mform->disabledIf('bookingopeningtime', 'restrictanswerperiodopening', 'neq', "1");
+
+        $mform->addElement('date_time_selector', 'bookingopeningtime',
+            get_string('easyavailability:openingtime', 'local_musi'));
+        $mform->setType('bookingopeningtime', PARAM_INT);
     }
 
     /**
@@ -120,35 +156,11 @@ class prepare_import extends field_base {
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
-        global $DB;
+        if (!isset($data->bookingopeningtime)
+            && !empty($settings->bookingopeningtime)) {
 
-        // Here, we determine if we need fetch data from an existing booking option.
-        // We can only do that if we have an identifier.
-        // Coming from the form, we'll have even with a new option id set to 0.
-        if (!isset($data->id) && !empty($data->identifier)) {
-            $data->importing = true;
-            if ($record = $DB->get_record('booking_options', ['identifier' => $data->identifier])) {
-
-                $data->id = $record->id;
-
-            } else if (empty($data->text) && empty($data->name)) {
-                throw new moodle_exception(
-                    'identifiernotfoundnotenoughdata',
-                    'mod_booking',
-                    '',
-                    $data->identifier,
-                    "The record with the identifier $data->identifier was not found in db");
-            }
-        }
-
-        // If there is no bookingid but there is the cmid, we can work with that.
-        if (empty($data->bookingid) && !empty($data->cmid)) {
-            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($data->cmid);
-            $data->bookingid = $bookingsettings->id;
-        }
-        // We will always set id to 0, if it's not set yet.
-        if (!isset($data->id)) {
-            $data->id = 0;
+            $data->bookingopeningtime = $settings->bookingopeningtime;
+            $data->restrictanswerperiodopening = 1;
         }
     }
 }

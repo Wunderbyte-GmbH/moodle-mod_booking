@@ -41,7 +41,7 @@ use stdClass;
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class easy_bookingclosingtime extends field_base {
+class easybookingclosingtime extends field_base {
 
     /**
      * This ID is used for sorting execution.
