@@ -30,6 +30,8 @@ use advanced_testcase;
 use coding_exception;
 use mod_booking_generator;
 use mod_booking\local\connectedcourse;
+use mod_booking\option\dates_handler;
+use local_entities\entitiesrelation_handler;
 use context_system;
 use context_module;
 use core_course_category;
@@ -267,6 +269,15 @@ final class booking_option_test extends advanced_testcase {
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
 
         $this->assertEquals($entitydata1['name'], $settings->location);
+
+        // Get entity for the 1st (and only) option's date and verify it.
+        $handler = new entitiesrelation_handler('mod_booking', $record->local_entities_entityarea_1);
+        $session = reset($settings->sessions);
+        $entity = $handler->get_instance_data($session->optiondateid);
+
+        $this->assertEquals($entitydata2['name'], $entity->name);
+        $this->assertEquals($entitydata2['description'], $entity->description);
+        $this->assertEquals($entity->instanceid, $session->optiondateid);
     }
 
     /**
