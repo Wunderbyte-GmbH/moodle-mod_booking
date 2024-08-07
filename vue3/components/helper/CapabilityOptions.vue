@@ -25,7 +25,7 @@
             <strong>
               <div
                 class="mr-2"
-                v-html="store.state.strings[value.classname]"
+                v-html="store.state.strings[value.classname.replace(/_/g, '')]"
               />
             </strong>
           </label>
@@ -42,11 +42,11 @@
           >
           <label :for="'checkbox_' + key">
             <strong>
-              <div v-html="store.state.strings[value.classname]" />
+              <div v-html="store.state.strings[value.classname.replace(/_/g, '')]" />
             </strong>
+
           </label>
         </span>
-
         <span class="blocked-message">
           <transition name="slide-fade">
             <span v-if="getBlockMessage(value)">{{ getBlockMessage(value) }}</span>
