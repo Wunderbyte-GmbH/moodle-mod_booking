@@ -500,6 +500,7 @@ $string['bookingpricecategory'] = 'Price category';
 $string['bookingpricecategoryinfo'] = 'Define the name of the category, eg "students"';
 $string['bookingpricesettings'] = 'Price settings';
 $string['bookingpricesettings_desc'] = 'Here you can customize booking prices.';
+$string['bookingreportlink'] = 'bookingreportlink';
 $string['bookingrule'] = 'Rule';
 $string['bookingruleaction'] = "Action of the rule";
 $string['bookingrulecondition'] = "Condition of the rule";

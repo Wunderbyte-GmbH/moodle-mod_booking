@@ -489,6 +489,7 @@ $string['bookingpricecategory'] = 'Preiskategorie"';
 $string['bookingpricecategoryinfo'] = 'Definieren Sie den Namen der Preiskategorie, zum Beispiel "Studierende"';
 $string['bookingpricesettings'] = 'Preis-Einstellungen';
 $string['bookingpricesettings_desc'] = 'Individuelle Einstellungen für die Preise von Buchungen.';
+$string['bookingreportlink'] = 'bookingreportlink';
 $string['bookingrule'] = 'Regel';
 $string['bookingruleaction'] = "Aktion der Regel";
 $string['bookingrulecondition'] = "Kondition der Regel";
