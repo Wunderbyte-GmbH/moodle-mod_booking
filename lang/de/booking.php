@@ -794,6 +794,7 @@ $string['datenotset'] = 'Datum nicht angegeben';
 $string['dateparseformat'] = 'Datumsformat';
 $string['dateparseformat_help'] = 'Bitte Datum so wie es im CSV definiert wurde verwenden. Hilfe unter <a href="http://php.net/manual/en/function.date.php">Datumsdokumentation</a> für diese Einstellung.';
 $string['dates'] = 'Termine';
+$string['datesandentities'] = 'TerminemitOrten';
 $string['dayofweek'] = 'Wochentag';
 $string['dayofweektime'] = 'Tag & Uhrzeit';
 $string['days'] = '{$a} Tage';

@@ -541,6 +541,18 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render function to render a simple string of optiondates separated by ", ".
+     * @param object $data
+     * @return string
+     */
+    public function render_optiondates_with_entities($data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/optiondates_with_entities', $data);
+        return $o;
+    }
+
+    /**
      * Render a bookingoptions_wbtable using wunderbyte_table plugin.
      *
      * @param templatable $bookingoptionswbtable

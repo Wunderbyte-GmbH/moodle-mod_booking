@@ -801,6 +801,7 @@ $string['datenotset'] = 'Date not set';
 $string['dateparseformat'] = 'Date parse format';
 $string['dateparseformat_help'] = 'Please, use date format like specified in CSV file. Help with <a href="http://php.net/manual/en/function.date.php">this</a> resource for options.';
 $string['dates'] = 'Dates';
+$string['datesandentities'] = 'datesandentities';
 $string['dayofweek'] = 'Weekday';
 $string['dayofweektime'] = 'Day & Time';
 $string['days'] = '{$a} days';
