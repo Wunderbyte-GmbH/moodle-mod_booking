@@ -144,6 +144,7 @@ class rule_react_on_event implements booking_rule {
             require_once($CFG->dirroot . '/local/shopping_cart/lib.php');
             $eventkeysfromshoppingcart = [
                 'item_bought',
+                'item_canceled',
             ];
             $shoppingcartevents = get_list_of_shoppingcart_events();
             foreach ($shoppingcartevents as $key => $value) {

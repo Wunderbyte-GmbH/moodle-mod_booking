@@ -416,6 +416,7 @@ class rules_info {
             case 'local_shopping_cart':
                 $acceptedeventsfromshoppingcart = [
                     'item_bought',
+                    'item_canceled'
                 ];
                 foreach ($acceptedeventsfromshoppingcart as $accepted) {
                     if (
