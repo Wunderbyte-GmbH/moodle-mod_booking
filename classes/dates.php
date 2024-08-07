@@ -536,11 +536,13 @@ class dates {
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         list($newoptiondates, $highesindex) = self::get_list_of_submitted_dates((array)$formdata);
         $olddates = $settings->sessions;
+        // For the moment we don't save entities in old (to be deleted) dates since it's not considered as an important information.
+        $memory = $olddates;
 
         $datestosave = [];
         $datestodelete = [];
         $datestoupdate = [];
-
+        // Olddates don't contain location yet.
         foreach ($newoptiondates as $optiondate) {
 
             if (empty($optiondate['optiondateid'])) {
@@ -556,7 +558,7 @@ class dates {
                     // If one of the dates is not exactly the same, we need to delete the current option and add a new one.
                     $datestoupdate[] = $optiondate;
                 }
-                unset($olddates[$oldoptiondate->id]);
+                unset($olddates[$oldoptiondate->id]); // Olddates is unset here but we still need it!
 
             } else {
                 // This would be sign of an error, sth went wrong.
@@ -569,7 +571,6 @@ class dates {
             $handler = new entitiesrelation_handler('mod_booking', 'optiondate');
         }
 
-        $memory = [];
         foreach ($datestodelete as $date) {
             $date = (array)$date;
 
@@ -583,9 +584,7 @@ class dates {
                     $date['entityarea'] = $data->area ?? '';
                 }
             }
-                $memory[] = $date;
         }
-        $memory = array_merge($memory, $datestoupdate);
 
         // Saving and updating uses the same routines anyway.
         $datestosave = array_merge($datestosave, $datestoupdate);
@@ -604,6 +603,11 @@ class dates {
                 $date['customfields'] ?? []);
         }
 
+        if (empty($datestoupdate) && empty($datestodelete)) {
+            $memory = [];
+        } else {
+            $memory = array_values($memory);
+        }
         // Checking for changes.
         if ((empty($memory) && empty($datestosave))
             || in_array('dates', MOD_BOOKING_CLASSES_EXCLUDED_FROM_CHANGES_TRACKING)) {
@@ -612,7 +616,6 @@ class dates {
 
         $changes = [
             'changes' => [
-                'info' => get_string('dates', 'booking') . get_string('changeinfochanged', 'booking'),
                 'fieldname' => 'dates',
                 'oldvalue' => $memory,
                 'newvalue' => $datestosave,

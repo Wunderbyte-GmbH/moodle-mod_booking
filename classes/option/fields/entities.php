@@ -237,7 +237,6 @@ class entities extends field_base {
                 }
 
                 $changes = [ 'changes' => [
-                        'info' => get_string('entitiesfieldname', 'booking') . get_string('changeinfochanged', 'booking'),
                         'fieldname' => 'entities',
                         'oldvalue' => $oldentity,
                         'newvalue' => $newentity,
