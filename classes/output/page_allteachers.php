@@ -126,7 +126,9 @@ class page_allteachers implements renderable, templatable {
                 $teacherarr['email'] = $teacher->email;
             }
 
-            if (page_teacher::teacher_messaging_is_possible($teacher->id)) {
+            if (page_teacher::teacher_messaging_is_possible($teacher->id) ||
+                get_config('booking', 'alwaysenablemessaging')
+            ) {
                 $teacherarr['messagingispossible'] = true;
             }
 
