@@ -42,13 +42,13 @@ use stdClass;
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class easy_availability_previously_booked extends field_base {
+class easy_availability_selectusers extends field_base {
 
     /**
      * This ID is used for sorting execution.
      * @var int
      */
-    public static $id = MOD_BOOKING_OPTION_FIELD_EASY_AVAILABILITY_PREVIOUSLYBOOKED;
+    public static $id = MOD_BOOKING_OPTION_FIELD_EASY_AVAILABILITY_SELECTUSERS;
 
     /**
      * Some fields are saved with the booking option...
@@ -99,23 +99,24 @@ class easy_availability_previously_booked extends field_base {
         int $updateparam,
         $returnvalue = null): array {
 
-        // Previously booked condition.
-        if ($formdata->bo_cond_previouslybooked_restrict == 1 && !empty(($formdata->bo_cond_previouslybooked_optionid))) {
-            $formdata->bo_cond_previouslybooked_overrideconditioncheckbox = true; // Can be hardcoded here.
-            $formdata->bo_cond_previouslybooked_overrideoperator = 'OR'; // Can be hardcoded here.
-            // We always override these 2 conditions, so users are always allowed to book outside time restrictions.
-            $formdata->bo_cond_previouslybooked_overridecondition = [
+        // Select users condition.
+        if ($formdata->bo_cond_selectusers_restrict == 1 && !empty(($formdata->bo_cond_selectusers_userids))) {
+            $formdata->bo_cond_selectusers_overrideconditioncheckbox = true; // Can be hardcoded here.
+            $formdata->bo_cond_selectusers_overrideoperator = 'OR'; // Can be hardcoded here.
+
+            // We always override these conditions, so users are always allowed to book outside time restrictions.
+            $formdata->bo_cond_selectusers_overridecondition = [
                 MOD_BOOKING_BO_COND_BOOKING_TIME,
                 MOD_BOOKING_BO_COND_OPTIONHASSTARTED,
             ];
 
             // If the overbook checkbox has been checked, we also add the conditions so the user(s) can overbook.
-            if (!empty($formdata->previouslybookedoverbookcheckbox)) {
-                $formdata->bo_cond_previouslybooked_overridecondition[] = MOD_BOOKING_BO_COND_FULLYBOOKED;
-                $formdata->bo_cond_previouslybooked_overridecondition[] = MOD_BOOKING_BO_COND_NOTIFYMELIST;
+            if (!empty($formdata->selectusersoverbookcheckbox)) {
+                $formdata->bo_cond_selectusers_overridecondition[] = MOD_BOOKING_BO_COND_FULLYBOOKED;
+                $formdata->bo_cond_selectusers_overridecondition[] = MOD_BOOKING_BO_COND_NOTIFYMELIST;
             }
         } else {
-            $formdata->bo_cond_previouslybooked_restrict = 0;
+            $formdata->bo_cond_selectusers_restrict = 0;
         }
 
         // Here we have to make sure we don't override anything.
@@ -159,48 +160,45 @@ class easy_availability_previously_booked extends field_base {
         // Standardfunctionality to add a header to the mform (only if its not yet there).
         fields_info::add_header_to_mform($mform, self::$header);
 
-        // Add the previouslybooked condition:
-        // Users who previously booked a certain option can override booking_time condition.
-        $mform->addElement('advcheckbox', 'bo_cond_previouslybooked_restrict',
-            get_string('easyavailability:previouslybooked', 'local_musi'));
-        $mform->addElement('checkbox', 'previouslybookedoverbookcheckbox',
-            get_string('easyavailability:overbook', 'local_musi'));
-        $mform->setDefault('previouslybookedoverbookcheckbox', 'checked');
-        $mform->hideIf('previouslybookedoverbookcheckbox', 'bo_cond_previouslybooked_restrict', 'notchecked');
+        // Add the selectusers condition:
+        // Select users who can override booking_time condition.
+        $mform->addElement('advcheckbox', 'bo_cond_selectusers_restrict', get_string('easyavailability:selectusers', 'local_musi'));
 
-        $previouslybookedoptions = [
-            'tags' => false,
-            'multiple' => false,
+        $mform->addElement('checkbox', 'selectusersoverbookcheckbox', get_string('easyavailability:overbook', 'local_musi'));
+        $mform->setDefault('selectusersoverbookcheckbox', 'checked');
+        $mform->hideIf('selectusersoverbookcheckbox', 'bo_cond_selectusers_restrict', 'notchecked');
+
+        $options = [
+            'multiple' => true,
             'noselectionstring' => get_string('choose...', 'mod_booking'),
-            'ajax' => 'mod_booking/form_booking_options_selector',
+            'ajax' => 'local_shopping_cart/form_users_selector',
             'valuehtmlcallback' => function($value) {
                 global $OUTPUT;
                 if (empty($value)) {
                     return get_string('choose...', 'mod_booking');
                 }
-                $optionsettings = singleton_service::get_instance_of_booking_option_settings((int)$value);
-                $instancesettings = singleton_service::get_instance_of_booking_settings_by_cmid($optionsettings->cmid);
-
-                $details = (object)[
-                    'id' => $optionsettings->id,
-                    'titleprefix' => $optionsettings->titleprefix,
-                    'text' => $optionsettings->text,
-                    'instancename' => $instancesettings->name,
+                $user = singleton_service::get_instance_of_user((int)$value);
+                $details = [
+                    'id' => $user->id,
+                    'email' => $user->email,
+                    'firstname' => $user->firstname,
+                    'lastname' => $user->lastname,
                 ];
                 return $OUTPUT->render_from_template(
-                        'mod_booking/form_booking_options_selector_suggestion', $details);
+                        'mod_booking/form-user-selector-suggestion', $details);
             },
         ];
-        $mform->addElement('autocomplete', 'bo_cond_previouslybooked_optionid',
-            get_string('bocondpreviouslybookedoptionid', 'mod_booking'), [], $previouslybookedoptions);
-        $mform->setType('bo_cond_previouslybooked_optionid', PARAM_INT);
-        $mform->hideIf('bo_cond_previouslybooked_optionid', 'bo_cond_previouslybooked_restrict', 'notchecked');
+        $mform->addElement('autocomplete', 'bo_cond_selectusers_userids',
+            get_string('bocondselectusersuserids', 'mod_booking'), [], $options);
+        $mform->hideIf('bo_cond_selectusers_userids', 'bo_cond_selectusers_restrict', 'notchecked');
 
         // This is to transmit the original availability values.
         if (!$mform->elementExists('availability')) {
             $mform->addElement('hidden', 'availability');
             $mform->setType('availability', PARAM_RAW);
         }
+
+        $mform->addElement('html', '<hr>');
     }
 
     /**
@@ -216,16 +214,16 @@ class easy_availability_previously_booked extends field_base {
             $availabilityarray = json_decode($settings->availability ?? '{}');
             foreach ($availabilityarray as $av) {
                 switch ($av->id) {
-                    case MOD_BOOKING_BO_COND_JSON_PREVIOUSLYBOOKED:
-                        if (!empty($av->optionid)) {
-                            $formdata->bo_cond_previouslybooked_restrict = true;
-                            $formdata->bo_cond_previouslybooked_optionid = (int)$av->optionid;
+                    case MOD_BOOKING_BO_COND_JSON_SELECTUSERS:
+                        if (!empty($av->userids)) {
+                            $formdata->bo_cond_selectusers_restrict = true;
+                            $formdata->bo_cond_selectusers_userids = $av->userids;
                         }
                         if (in_array(MOD_BOOKING_BO_COND_FULLYBOOKED, $av->overrides ?? []) &&
                             in_array(MOD_BOOKING_BO_COND_NOTIFYMELIST, $av->overrides ?? [])) {
-                            $formdata->previouslybookedoverbookcheckbox = true;
+                            $formdata->selectusersoverbookcheckbox = true;
                         } else {
-                            $formdata->previouslybookedoverbookcheckbox = false;
+                            $formdata->selectusersoverbookcheckbox = false;
                         }
                         break;
                 }
