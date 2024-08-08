@@ -1,7 +1,7 @@
 <template>
   <div class="mt-4">
     <div v-if="!showButtons">
-      <p><strong>{{ store.state.strings.vuebookingstatscapability }}: {{ choosenCapability.name }}</strong></p>
+      <p><strong>{{ store.state.strings.vuebookingstatscapability }}: {{ store.state.strings[choosenCapability.capability] }}</strong></p>
       <div class="row mt-2">
         <div class="col-md-12">
           <button
