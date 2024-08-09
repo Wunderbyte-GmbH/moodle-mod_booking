@@ -461,6 +461,7 @@ $string['bookingoptiondefaultsdesc'] = 'Hier können Sie Standardwerte für die 
 $string['bookingoptiondeleted'] = 'Buchungsoption gelöscht';
 $string['bookingoptionfreetobookagain'] = 'Wieder freie Plätze';
 $string['bookingoptionimage'] = 'Header-Bild';
+$string['bookingoptiondetaillink'] = 'Buchungsoptiondetaillink';
 $string['bookingoptionname'] = 'Bezeichnung der Buchungsoption';
 $string['bookingoptionnamewithoutprefix'] = 'Name (ohne Präfix)';
 $string['bookingoptionprice'] = 'Preis';

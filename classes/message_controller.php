@@ -216,6 +216,11 @@ class message_controller {
         $this->rulejson = $rulejson;
         $this->params = new stdClass();
 
+        // Apply placeholder to subject.
+        $customsubject = placeholders_info::render_text($customsubject, $this->optionsettings->cmid, $this->optionid, $this->userid,
+        $this->installmentnr, $this->duedate, $this->price,
+        $this->descriptionparam ?? MOD_BOOKING_DESCRIPTION_WEBSITE, $this->rulejson);
+
         // For custom messages only.
         if ($this->messageparam == MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE) {
             $this->customsubject = $customsubject;

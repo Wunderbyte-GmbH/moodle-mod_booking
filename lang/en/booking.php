@@ -472,6 +472,7 @@ $string['bookingoptiondefaultsdesc'] = 'Here you can set default settings for th
 $string['bookingoptiondeleted'] = 'Booking option deleted';
 $string['bookingoptionfreetobookagain'] = 'Free places again';
 $string['bookingoptionimage'] = 'Header image';
+$string['bookingoptiondetaillink'] = 'bookingoptiondetaillink';
 $string['bookingoptionname'] = 'Booking option name';
 $string['bookingoptionnamewithoutprefix'] = 'Name (without prefix)';
 $string['bookingoptionprice'] = 'Price';
