@@ -1,3 +1,12 @@
+## Version 8.6.4 (2024080900)
+* Improvement: Integrate Entities plugin in tests
+* Improvement: Add bookingreportlink to placeholders
+* Improvement: Enable item_canceled event from shoppingcart
+* Improvement: Add datesandentities placeholder
+* Bugfix: Track changes of entities in dates correctly
+* Bugfix: Revert setting to enable messaging for all teachers causing core errors
+* Bugfix: Legacy errors of removing underscores from strings
+
 ## Version 8.6.3 (2024080500)
 * Improvement: New automated tests
 * Improvement: Allow coursecreators to update bookings
