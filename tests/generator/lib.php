@@ -317,7 +317,9 @@ class mod_booking_generator extends testing_module_generator {
         }
 
         // Setup rule overriding.
-        $ruleobject->ruledata->cancelrules = [];
+        if (empty($ruleobject->ruledata->cancelrules)) {
+            $ruleobject->ruledata->cancelrules = []; // Should be defined explicitly.
+        }
         if (!empty($ruledraft->cancelrules)) {
             $cancelrules = explode(',', $ruledraft->cancelrules);
             foreach ($cancelrules as $cancelrule) {
