@@ -71,7 +71,7 @@ final class rules_test extends advanced_testcase {
      * @dataProvider booking_common_settings_provider
      */
     public function test_rule_on_beforeafter_cursestart(array $bdata): void {
-        $this->resetAfterTest(true);
+
         set_config('timezone', 'Europe/Kyiv');
         set_config('forcetimezone', 'Europe/Kyiv');
 
@@ -162,8 +162,7 @@ final class rules_test extends advanced_testcase {
         // Mandatory to solve potential cache issues.
         singleton_service::destroy_booking_option_singleton($option1->id);
         // Mandatory to deal with static variable in the booking_rules.
-        rules_info::delete_rule($rule1->id);
-        rules_info::delete_rule($rule2->id);
+        rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
     }
 
@@ -180,7 +179,7 @@ final class rules_test extends advanced_testcase {
      * @dataProvider booking_common_settings_provider
      */
     public function test_rule_on_rule_override(array $bdata): void {
-        $this->resetAfterTest(true);
+
         set_config('timezone', 'Europe/Kyiv');
         set_config('forcetimezone', 'Europe/Kyiv');
 
@@ -276,8 +275,7 @@ final class rules_test extends advanced_testcase {
         // Mandatory to solve potential cache issues.
         singleton_service::destroy_booking_option_singleton($option1->id);
         // Mandatory to deal with static variable in the booking_rules.
-        rules_info::delete_rule($rule1->id);
-        rules_info::delete_rule($rule2->id);
+        rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
     }
 
@@ -296,8 +294,7 @@ final class rules_test extends advanced_testcase {
      * @dataProvider booking_common_settings_provider
      */
     public function test_rule_on_booking_option_update(array $bdata): void {
-        $this->resetAfterTest(true);
-        $this->resetAllData();
+
         // Setup test data.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $users = [
@@ -316,9 +313,6 @@ final class rules_test extends advanced_testcase {
 
         $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
         $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'student');
-
-        \core\task\manager::clear_static_caches();
-        \core\task\manager::reset_scheduled_tasks_for_component('mod_booking');
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
@@ -395,12 +389,9 @@ final class rules_test extends advanced_testcase {
 
         // Mandatory to solve potential cache issues.
         singleton_service::destroy_booking_option_singleton($option->id);
-        rules_info::delete_rule($rule1->id);
+        // Mandatory to deal with static variable in the booking_rules.
+        rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
-        var_dump('END-test_rule_on_booking_option_update');
-        var_dump(booking_rules::$rules);
-        $rules = booking_rules::get_list_of_saved_rules_by_context();
-        var_dump($rules);
     }
 
     /**
@@ -412,7 +403,7 @@ final class rules_test extends advanced_testcase {
     public static function booking_common_settings_provider(): array {
         $bdata = [
             'name' => 'Rule Booking Test',
-            'eventtype' => 'Test event',
+            'eventtype' => 'Test rules',
             'enablecompletion' => 1,
             'bookedtext' => ['text' => 'text'],
             'waitingtext' => ['text' => 'text'],
