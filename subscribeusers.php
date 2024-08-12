@@ -303,7 +303,7 @@ $data = new booked_users($optionid, false, false, false, false, true);
 $deletedlist = $renderer->render_booked_users($data);
 
 if (!empty($deletedlist)) {
-    echo html_writer::tag(
+    $contents = html_writer::tag(
         'a',
         get_string('deletedusers', 'mod_booking'),
         [
@@ -315,6 +315,7 @@ if (!empty($deletedlist)) {
             'aria-controls' => "collapseDeletedlist",
         ]
     );
+    echo html_writer::tag('div', $contents);
     echo html_writer::tag(
         'div',
         $deletedlist,
