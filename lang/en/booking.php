@@ -520,6 +520,7 @@ $string['bookingtags'] = 'Tags';
 $string['bookingtext'] = 'Booking text';
 $string['bookinguseastemplate'] = 'Set this rule as template';
 $string['booknow'] = 'Book now';
+$string['bookondetail'] = 'More information';
 $string['bookonlyondetailspage'] = 'Booking is only possible on dedicated booking details page';
 $string['bookonlyondetailspage_desc'] = 'This means that booking is not possible from list or card view. To book, you need to be on the details page to see all the booking information.';
 $string['bookotherusers'] = 'Book other users';

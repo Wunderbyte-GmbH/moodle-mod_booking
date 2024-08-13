@@ -30,6 +30,7 @@ use context_module;
 use context_system;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\conditions\cancelmyself;
+use mod_booking\local\modechecker;
 use mod_booking\output\bookingoption_description;
 use mod_booking\output\bookit_button;
 use mod_booking\output\prepagemodal;
@@ -146,8 +147,10 @@ class booking_bookit {
                     $buttoncondition = $result['classname'];
                     break;
                 case MOD_BOOKING_BO_BUTTON_CANCEL:
-                    $justmyalert = false;
-                    $extrabuttoncondition = $result['classname'];
+                    if (modechecker::use_special_details_page_treatment()) {
+                        $justmyalert = false;
+                        $extrabuttoncondition = $result['classname'];
+                    }
                     $renderprepagemodal = false;
                     break;
             }

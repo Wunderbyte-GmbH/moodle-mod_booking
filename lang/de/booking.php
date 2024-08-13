@@ -509,6 +509,7 @@ $string['bookingtags'] = 'Schlagwörter';
 $string['bookingtext'] = 'Buchungsbeschreibung';
 $string['bookinguseastemplate'] = 'Setze diese Regel als Template';
 $string['booknow'] = 'Jetzt buchen';
+$string['bookondetail'] = 'Mehr Info';
 $string['bookonlyondetailspage'] = 'Buchen nur auf der Detailseite der Buchungsoption';
 $string['bookonlyondetailspage_desc'] = 'Das bedeutet, dass das Buchen nicht aus der Liste heraus möglich ist, sondern nur von der Detailseite der Buchungsoption.';
 $string['bookotherusers'] = 'Buchung für andere Nutzer:innen durchführen';

@@ -808,33 +808,6 @@ class bo_info {
             $extraclasses = 'w-100';
         }
 
-        // The book only on details page avoid js and allows booking only on the details page.
-        if (
-            get_config('booking', 'bookonlyondetailspage')
-            && !modechecker::is_ajax_or_webservice_request()
-        ) {
-            $currenturl = $PAGE->url->out_omit_querystring(); // Get the current URL without the query string
-            // Define the target URL path you want to check.
-            $targetpath = '/mod/booking/optionview.php';
-
-            // Check if the current URL matches the target path.
-            if (strpos($currenturl, $targetpath) === false) {
-
-                $returnurl = $PAGE->url->out();
-
-                // The current page is not /mod/booking/optionview.php.
-                $url = new moodle_url("/mod/booking/optionview.php", [
-                    "optionid" => (int)$settings->id,
-                    "cmid" => (int)$settings->cmid,
-                    "userid" => (int)$userid,
-                    'returnto' => 'url',
-                    'returnurl' => $returnurl,
-                ]);
-                $link = $url->out(false);
-                $nojs = true;
-            }
-        }
-
         $data = [
             'itemid' => $settings->id,
             'area' => $area,
