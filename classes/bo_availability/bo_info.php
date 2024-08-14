@@ -849,7 +849,7 @@ class bo_info {
             $data['fullwidth'] = true;
         }
 
-        if ($includeprice) {
+        if ($includeprice && $settings->useprice) {
             if ($price = price::get_price('option', $settings->id, $user)) {
                 $data['price'] = [
                     'price' => $price['price'],
