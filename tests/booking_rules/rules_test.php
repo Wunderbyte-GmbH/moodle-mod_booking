@@ -745,6 +745,111 @@ final class rules_test extends advanced_testcase {
     }
 
     /**
+     * Test rule on option being completed for user.
+     *
+     * @covers \mod_booking\option->completion
+     * @covers \mod_booking\event\bookingoption_completed
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event->execute
+     * @covers \mod_booking\booking_rules\conditions\select_user_from_event->execute
+     * @covers \mod_booking\booking_rules\actions\send_mail->execute
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_rule_on_ption_completion(array $bdata): void {
+
+        set_config('timezone', 'Europe/Kyiv');
+        set_config('forcetimezone', 'Europe/Kyiv');
+
+        // Allow optioncacellation.
+        $bdata['cancancelbook'] = 1;
+
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $user1 = $this->getDataGenerator()->create_user();
+        $user2 = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $user1->username;
+
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'student');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        // Create booking rule - "bookinganswer_cancelled".
+        $ruledata1 = [
+            'name' => 'notifystudent',
+            'conditionname' => 'select_user_from_event',
+            'contextid' => 1,
+            'conditiondata' => '{"userfromeventtype":"relateduserid"}',
+            'actionname' => 'send_mail',
+            'actiondata' => '{"subject":"completionsubj","template":"completionmsg","templateformat":"1"}',
+            'rulename' => 'rule_react_on_event',
+            'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_completed","aftercompletion":"","condition":"0"}',
+        ];
+        $rule1 = $plugingenerator->create_rule($ruledata1);
+
+        // Create booking option 1.
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Option-2050';
+        $record->chooseorcreatecourse = 1; // Connected existing course.
+        $record->courseid = $course->id;
+        $record->description = 'Will start tomorrow';
+        $record->optiondateid_1 = "0";
+        $record->daystonotify_1 = "0";
+        $record->coursestarttime_1 = strtotime('20 June 2050 15:00');
+        $record->courseendtime_1 = strtotime('20 July 2050 14:00');
+        $record->teachersforoption = $user1->username;
+        $option1 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option1->id);
+
+        // Create a booking option answer.
+        $result = $plugingenerator->create_answer(['optionid' => $option1->id, 'userid' => $user2->id]);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $result);
+        singleton_service::destroy_booking_answers($option1->id);
+
+        // Complete booking option for user2.
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+
+        $this->assertEquals(false,  $option->user_completed_option());
+        booking_activitycompletion([$user2->id], $option->booking->settings, $settings->cmid, $option1->id);
+        $this->assertEquals(true,  $option->user_completed_option());
+
+        // Get messages.
+        $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+
+        // Validate adhoc tasks for rule 1.
+        $this->assertCount(1, $messages);
+        $message = reset($messages);
+        $this->assertEquals($user2->id,  $message->get_userid());
+        $customdata = $message->get_custom_data();
+        $this->assertEquals("completionsubj",  $customdata->customsubject);
+        $this->assertEquals("completionmsg",  $customdata->custommessage);
+        $this->assertEquals($user2->id,  $customdata->userid);
+        $this->assertStringContainsString("bookingoption_completed",  $customdata->rulejson);
+        $this->assertStringContainsString($ruledata1['conditiondata'],  $customdata->rulejson);
+        $this->assertStringContainsString($ruledata1['actiondata'],  $customdata->rulejson);
+        $rulejson = json_decode($customdata->rulejson);
+        $this->assertEquals($user2->id, $rulejson->datafromevent->relateduserid);
+
+        // Mandatory to solve potential cache issues.
+        singleton_service::destroy_booking_option_singleton($option1->id);
+        // Mandatory to deal with static variable in the booking_rules.
+        rules_info::$rulestoexecute = [];
+        booking_rules::$rules = [];
+    }
+
+    /**
      * Data provider for condition_bookingpolicy_test
      *
      * @return array
