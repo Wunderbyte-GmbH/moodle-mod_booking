@@ -96,6 +96,7 @@ class select_student_in_bo implements booking_rule_condition {
             MOD_BOOKING_STATUSPARAM_WAITINGLIST => get_string('studentwaitinglist', 'mod_booking'),
             MOD_BOOKING_STATUSPARAM_NOTIFYMELIST => get_string('studentnotificationlist', 'mod_booking'),
             MOD_BOOKING_STATUSPARAM_DELETED => get_string('studentdeleted', 'mod_booking'),
+            "smallerthan" . MOD_BOOKING_STATUSPARAM_WAITINGLIST => get_string('studentbookedandwaitinglist', 'mod_booking'),
         ];
 
         $mform->addElement('select', 'condition_select_student_in_bo_borole',
@@ -176,8 +177,18 @@ class select_student_in_bo implements booking_rule_condition {
 
         $sql->from .= " JOIN {booking_answers} ba ON bo.id = ba.optionid ";
 
-        $sql->where .= " AND ba.waitinglist = :borole $anduserid ";
+        switch ($this->borole) {
+            case 'smallerthan' . MOD_BOOKING_STATUSPARAM_WAITINGLIST:
+                $operator = '<=';
+                $borole = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
+                break;
+            default:
+                $operator = '=';
+                $borole = $this->borole;
+        }
 
-        $params['borole'] = $this->borole;
+        $sql->where .= " AND ba.waitinglist $operator :borole $anduserid ";
+
+        $params['borole'] = $borole;
     }
 }

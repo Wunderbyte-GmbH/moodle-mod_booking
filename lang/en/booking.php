@@ -1900,6 +1900,7 @@ $string['statusnoshow'] = "No show";
 $string['statusunknown'] = "Unknown";
 $string['sthwentwrongwithplaceholder'] = '';
 $string['studentbooked'] = 'Users who booked';
+$string['studentbookedandwaitinglist'] = 'Users who booked and are on waitinglist';
 $string['studentdeleted'] = 'Users who were already deleted';
 $string['studentnotificationlist'] = 'Users on the notification list';
 $string['studentwaitinglist'] = 'Users on the waiting list';

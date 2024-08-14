@@ -1832,6 +1832,7 @@ $string['statusnoshow'] = "Nicht aufgetaucht";
 $string['statusunknown'] = "Unbekannt";
 $string['sthwentwrongwithplaceholder'] = '';
 $string['studentbooked'] = 'Nutzer:innen, die gebucht haben';
+$string['studentbookedandwaitinglist'] = 'Nutzer:innen, die gebucht haben oder auf der Warteliste sind';
 $string['studentdeleted'] = 'Nutzer:innen, die bereits entfernt wurden';
 $string['studentnotificationlist'] = 'Nutzer:innen auf der Benachrichtigungsliste';
 $string['studentwaitinglist'] = 'Nutzer:innen auf der Warteliste';
