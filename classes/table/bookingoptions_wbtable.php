@@ -213,7 +213,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         $title = "<div class='bookingoptions-wbtable-option-title'><a href='$url' target='_blank'>$title</a></div>";
 
-        return format_text($title);
+        return format_string($title);
     }
 
     /**

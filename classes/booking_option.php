@@ -460,7 +460,7 @@ class booking_option {
 
         $text = placeholders_info::render_text($text, $this->settings->cmid, $this->settings->id, $userid);
 
-        return format_text($text);
+        return format_string($text);
     }
 
     /**

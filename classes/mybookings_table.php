@@ -93,7 +93,7 @@ class mybookings_table extends table_sql {
             'whichview' => 'showonlyone',
         ]);
 
-        $text = format_text($values->text);
+        $text = format_string($values->text);
         return "<a href='{$optionurl}'>{$text}</a>";
     }
 
