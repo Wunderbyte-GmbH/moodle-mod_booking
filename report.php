@@ -973,6 +973,34 @@ if (!$tableallbookings->is_downloading()) {
 
     echo $OUTPUT->render_from_template('mod_booking/eventslist', (array) $eventslist);
 
+    // We call the template render to display how many users are currently reserved.
+    $data = new booked_users($optionid, false, false, false, false, true);
+    $deletedlist = $renderer->render_booked_users($data);
+
+    if (!empty($deletedlist)) {
+        $contents = html_writer::tag(
+            'button',
+            '<i class="fa fa-users" aria-hidden="true"></i>' . get_string('deletedusers', 'mod_booking'),
+            [
+                'data-toggle' => "collapse",
+                'href' => "#collapseDeletedlist",
+                'role' => "button",
+                'aria-expanded' => "false",
+                'aria-controls' => "collapseDeletedlist",
+                'class' => "btn btn-link showrecentupdates-btn",
+            ]
+        );
+        echo html_writer::tag('div', $contents);
+        echo html_writer::tag(
+            'div',
+            $deletedlist,
+            [
+                'class' => "collapse",
+                'id' => "collapseDeletedlist",
+            ]
+        );
+    }
+
     echo $OUTPUT->footer();
 } else {
     $columns = [];
