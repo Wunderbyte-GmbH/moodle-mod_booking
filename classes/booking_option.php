@@ -1320,16 +1320,16 @@ class booking_option {
                     'other' => $other,
                 ]);
             $event->trigger();
+        } else {
+            $event = event\bookingoption_booked::create(
+                ['objectid' => $this->optionid,
+                    'context' => context_module::instance($this->cmid),
+                    'userid' => $USER->id,
+                    'relateduserid' => $user->id,
+                    'other' => $other,
+                ]);
+            $event->trigger();
         }
-
-        $event = event\bookingoption_booked::create(
-            ['objectid' => $this->optionid,
-                'context' => context_module::instance($this->cmid),
-                'userid' => $USER->id,
-                'relateduserid' => $user->id,
-                'other' => $other,
-            ]);
-        $event->trigger();
 
         $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
         // Check if the option is a multidates session.
