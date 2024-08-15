@@ -23,9 +23,9 @@
  */
 
 namespace mod_booking\placeholders\placeholders;
+use core_plugin_manager;
 
-use mod_booking\placeholders\placeholders_info;
-use mod_booking\singleton_service;
+
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -38,7 +38,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class firstname {
+class shoppingcartplaceholder {
 
     /**
      * Function which takes a text, replaces the placeholders...
@@ -52,6 +52,7 @@ class firstname {
      * @param string $text
      * @param array $params
      * @param int $descriptionparam
+     * @param string $rulejson
      * @return string
      */
     public static function return_value(
@@ -63,29 +64,26 @@ class firstname {
         float $price = 0,
         string &$text = '',
         array &$params = [],
-        int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE) {
+        int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE,
+        string $rulejson = ''
+    ) {
 
-        $classname = substr(strrchr(get_called_class(), '\\'), 1);
+        global $OUTPUT;
 
-        if (!empty($userid)) {
+        $rulejson = json_decode($rulejson);
 
-            // The cachekey depends on the kind of placeholder and it's ttl.
-            // If it's the same for all users, we don't use userid.
-            // If it's the same for all options of a cmid, we don't use optionid.
-            $currlang = current_language();
-            $cachekey = "$classname-$currlang-$userid";
-            if (isset(placeholders_info::$placeholders[$cachekey])) {
-                return placeholders_info::$placeholders[$cachekey];
+        $value = '';
+
+        if (
+            !empty($rulejson)
+            && !empty($rulejson->datafromevent)
+        ) {
+            $class = $rulejson->datafromevent->eventname;
+            $event = $rulejson->datafromevent;
+            if ($class == '\local_shopping_cart\event\payment_confirmed') {
+                $data = json_decode($event->other->cart, true);
+                $value = $OUTPUT->render_from_template('local_shopping_cart/checkout_success_content', $data);
             }
-
-            $user = singleton_service::get_instance_of_user($userid);
-            $value = $user->firstname;
-
-            // Save the value to profit from singleton.
-            placeholders_info::$placeholders[$cachekey] = $value;
-
-        } else {
-            $value = get_string('sthwentwrongwithplaceholder', 'mod_booking', $classname);
         }
 
         return $value;
@@ -98,6 +96,6 @@ class firstname {
      *
      */
     public static function is_applicable(): bool {
-        return true;
+        return core_plugin_manager::instance()->get_plugin_info('local_shopping_cart') ? true : false;;
     }
 }

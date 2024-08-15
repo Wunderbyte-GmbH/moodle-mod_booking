@@ -24,6 +24,7 @@
 
 namespace mod_booking\placeholders\placeholders;
 
+use core_plugin_manager;
 use mod_booking\option\dates_handler;
 use mod_booking\output\optiondates_only;
 use mod_booking\output\optiondates_with_entities;
@@ -108,5 +109,15 @@ class datesandentities {
         }
 
         return $value;
+    }
+
+    /**
+     * Function determine if placeholder class should be called at all.
+     *
+     * @return bool
+     *
+     */
+    public static function is_applicable(): bool {
+        return core_plugin_manager::instance()->get_plugin_info('local_entities') ? true : false;
     }
 }

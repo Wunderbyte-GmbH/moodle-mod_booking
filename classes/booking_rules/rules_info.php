@@ -391,12 +391,16 @@ class rules_info {
             if (!empty($ruledata->cancelrules)) {
                 foreach ($ruledata->cancelrules as $cancelrule) {
                     unset($rulestoexecute[$cancelrule]);
+                    unset(self::$rulestoexecute[$cancelrule]);
                 }
             }
         }
 
         foreach ($rulestoexecute as $ruleid => $rulearray) {
             $rule = $rulearray['rule'];
+            // Make sure we don't execute this multiple times.
+            unset($rulestoexecute[$ruleid]);
+            unset(self::$rulestoexecute[$ruleid]);
             $rule->execute($rulearray['optionid'], 0);
         }
     }
@@ -416,14 +420,14 @@ class rules_info {
             case 'local_shopping_cart':
                 $acceptedeventsfromshoppingcart = [
                     'item_bought',
-                    'item_canceled'
+                    'item_canceled',
+                    'payment_confirmed',
                 ];
                 foreach ($acceptedeventsfromshoppingcart as $accepted) {
                     if (
                         strpos($data['eventname'], $accepted) !== false
                         && $data['other']['component'] == 'mod_booking'
                     ) {
-
                         return true;
                     }
                 }

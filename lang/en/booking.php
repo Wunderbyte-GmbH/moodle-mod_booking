@@ -651,6 +651,7 @@ and be replaced with dates of the chosen semester.';
 $string['changesemesteradhoctaskstarted'] = 'Success. The dates will be re-generated the next time CRON is running. This may take several minutes.';
 $string['changesinentity'] = '{$a->name} (ID: {$a->id})';
 $string['checkbox'] = "Checkbox";
+$string['checkoutidentifier'] = "Ordernumber";
 $string['checkdelimiter'] = 'Check if data is separated via the selected symbol.';
 $string['checkdelimiteroremptycontent'] = 'Check if data is given and separated via the selected symbol.';
 $string['choose...'] = 'Choose...';
@@ -1828,6 +1829,7 @@ $string['sessionremindermailmessage'] = '<p>Keep in mind: You are booked for the
 $string['sessionremindermailsubject'] = 'Reminder: You have an upcoming session';
 $string['sessions'] = 'Session(s)';
 $string['shoppingcart'] = 'Set payment options with shopping cart plugin';
+$string['shoppingcartplaceholder'] = 'Shoppingcart';
 $string['shortcodenotsupportedonyourdb'] = "This shortcode is not supported on your DB. It only works on postgres & mariadb";
 $string['shorttext'] = "Shorttext";
 $string['showallbookingoptions'] = 'All booking options';

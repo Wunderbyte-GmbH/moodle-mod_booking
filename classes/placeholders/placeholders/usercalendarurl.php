@@ -94,4 +94,14 @@ class usercalendarurl {
 
         return $value;
     }
+
+    /**
+     * Function determine if placeholder class should be called at all.
+     *
+     * @return bool
+     *
+     */
+    public static function is_applicable(): bool {
+        return true;
+    }
 }

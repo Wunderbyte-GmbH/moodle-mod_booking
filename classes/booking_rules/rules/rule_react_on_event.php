@@ -143,6 +143,7 @@ class rule_react_on_event implements booking_rule {
             global $CFG;
             require_once($CFG->dirroot . '/local/shopping_cart/lib.php');
             $eventkeysfromshoppingcart = [
+                'payment_confirmed',
                 'item_bought',
                 'item_canceled',
             ];
@@ -305,14 +306,33 @@ class rule_react_on_event implements booking_rule {
      */
     public function execute(int $optionid = 0, int $userid = 0) {
 
+        $jsonobject = json_decode($this->rulejson);
+        $datafromevent = $jsonobject->datafromevent;
+
         // This rule executes only on event.
         // And every event will have an optionid, because it's linked to a specific option.
         if ($optionid === 0) {
-            return;
-        }
+            // But there is one special case.
+            // The payment_confirmed event may have a couple of options in the cart.
+            // We still need one optionid, so we look in the cart and take the first matching optionid.
+            if (isset($datafromevent->other->cart)) {
 
-        $jsonobject = json_decode($this->rulejson);
-        $datafromevent = $jsonobject->datafromevent;
+                $cart = json_decode($datafromevent->other->cart);
+                foreach (($cart->historyitems ?? []) as $item) {
+                    if (
+                        $item->componentname === 'mod_booking'
+                        && $item->area === 'option'
+                    ) {
+                        $optionid = $item->itemid;
+                        break;
+                    }
+                }
+            }
+            // If there is still no option id, we abort.
+            if ($optionid == 0) {
+                return;
+            }
+        }
 
         // Only execute rules for bookingoption_changed event according to settings.
         if (!empty(get_config('booking', 'limitchangestrackinginrules'))

@@ -137,6 +137,7 @@ class select_user_from_event implements booking_rule_condition {
             'bookinganswer_waitingforconfirmation',
             '\local_shopping_cart\event\item_bought',
             '\local_shopping_cart\event\item_canceled',
+            '\local_shopping_cart\event\payment_confirmed',
             // More events yet to come...
         ];
 
@@ -203,7 +204,7 @@ class select_user_from_event implements booking_rule_condition {
      *
      * @param stdClass $sql
      * @param array $params
-     * @return array
+     * @return void
      */
     public function execute(stdClass &$sql, array &$params) {
 

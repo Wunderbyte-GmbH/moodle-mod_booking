@@ -639,6 +639,7 @@ im ausgewählten Semester ersetzt.';
 $string['changesemesteradhoctaskstarted'] = 'Erfolg. Sobald CRON das nächste Mal läuft, werden die Termine neu erstellt. Dies kann einige Minuten dauern.';
 $string['changesinentity'] = '{$a->name} (ID: {$a->id})';
 $string['checkbox'] = "Checkbox";
+$string['checkoutidentifier'] = "Bestellnummer";
 $string['checkdelimiter'] = 'Überprüfen Sie die Spaltennamen durch das angegebene Zeichen getrennt sind.';
 $string['checkdelimiteroremptycontent'] = 'Überprüfen Sie ob Daten vorhanden und durch das angegebene Zeichen getrennt sind.';
 $string['choose...'] = 'Auswählen...';
@@ -1761,6 +1762,7 @@ $string['sessionremindermailmessage'] = '<p>Erinnerung: Sie haben den folgenden 
 $string['sessionremindermailsubject'] = 'Erinnerung: Sie haben demnächst einen Kurstermin';
 $string['sessions'] = 'Termin(e)';
 $string['shoppingcart'] = 'Zahlungsoptionen mit Shopping Cart Plugin definieren';
+$string['shoppingcartplaceholder'] = 'Warenkorb';
 $string['shortcodenotsupportedonyourdb'] = "Dieser Shortcode funktioniert nur auf Postgres & Mariadb Datenbanken.";
 $string['shorttext'] = "Kurztext";
 $string['showallbookingoptions'] = 'Alle Buchungsoptionen';

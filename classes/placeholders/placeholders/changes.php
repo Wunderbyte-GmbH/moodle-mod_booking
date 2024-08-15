@@ -100,4 +100,14 @@ class changes {
 
         return get_string('changesplaceholdertext', 'mod_booking');
     }
+
+    /**
+     * Function determine if placeholder class should be called at all.
+     *
+     * @return bool
+     *
+     */
+    public static function is_applicable(): bool {
+        return true;
+    }
 }

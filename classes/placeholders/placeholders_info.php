@@ -248,6 +248,11 @@ class placeholders_info {
         ];
 
         foreach ($placeholders as $key => $value) {
+
+            if (!$key::is_applicable()) {
+                continue;
+            }
+
             $class = substr(strrchr($key, '\\'), 1);
 
             if (isset($specialtreatmentclasses[$class])) {
