@@ -1383,6 +1383,7 @@ $string['noselection'] = 'No selection';
 $string['nosemester'] = 'No semester chosen';
 $string['nosubscribers'] = 'There are no teachers assigned!';
 $string['notallbooked'] = 'The following users could not be booked due to reaching the max number of bookings per user or lack of available places for the booking option: {$a}';
+$string['notanswered'] = 'Not answered';
 $string['notateacher'] = 'The user selected is not teaching any courses and is probably not a teacher.';
 $string['notbookable'] = "Not bookable";
 $string['notbookablecombiantion'] = 'This combination of electives is not allowed';

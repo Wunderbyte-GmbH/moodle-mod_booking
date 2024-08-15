@@ -382,7 +382,7 @@ function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedown
 function booking_user_outline($course, $user, $mod, $booking) {
     global $DB;
     if ($answer = $DB->get_record('booking_answers',
-            ['bookingid' => $booking->id, 'userid' => $user->id])) {
+            ['bookingid' => $booking->id, 'userid' => $user->id, 'waitinglist' => 0])) {
         $result = new stdClass();
         $result->info = "'" . format_string(booking_get_option_text($booking, $answer->optionid)) .
                  "'";
