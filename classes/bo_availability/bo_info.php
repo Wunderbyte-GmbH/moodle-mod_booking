@@ -832,7 +832,10 @@ class bo_info {
 
         // Only if the user can not book anyways, we want to show him the price he or she should see.
         $context = context_module::instance($settings->cmid);
-        if (!has_capability('mod/booking:bookforothers', $context)) {
+        if (
+            (!has_capability('mod/booking:bookforothers', $context)
+            || get_config('booking', 'bookonlyondetailspage'))
+            && $settings->useprice) {
             $priceitems = price::get_price('option', $settings->id, $user);
             if (count($priceitems) > 0) {
                 $data['sub'] = [
