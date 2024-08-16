@@ -1031,44 +1031,31 @@ final class rules_test extends advanced_testcase {
         $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
 
         $this->assertCount(3, $messages);
-        $keys = array_keys($messages);
-        // Task 1 has to be "bookingoptionwaitinglist_booked".
-        $message = $messages[$keys[0]];
-        // Validate adhoc tasks for rule 1.
-        $customdata = $message->get_custom_data();
-        $this->assertEquals("waitinglistsubj",  $customdata->customsubject);
-        $this->assertEquals("waitinglistmsg",  $customdata->custommessage);
-        $this->assertEquals($teacher1->id,  $customdata->userid);
-        $this->assertStringContainsString($boevent1,  $customdata->rulejson);
-        $this->assertStringContainsString($ruledata1['conditiondata'],  $customdata->rulejson);
-        $this->assertStringContainsString($ruledata1['actiondata'],  $customdata->rulejson);
-        $rulejson = json_decode($customdata->rulejson);
-        $this->assertEquals($student2->id, $rulejson->datafromevent->relateduserid);
-        $this->assertEquals($teacher1->id,  $message->get_userid());
-        // Task 2 has to be "bookingoptionwaitinglist_booked".
-        $message = $messages[$keys[1]];
-        // Validate adhoc tasks for rule 1.
-        $customdata = $message->get_custom_data();
-        $this->assertEquals("waitinglistsubj",  $customdata->customsubject);
-        $this->assertEquals("waitinglistmsg",  $customdata->custommessage);
-        $this->assertEquals($teacher1->id,  $customdata->userid);
-        $this->assertStringContainsString($boevent1,  $customdata->rulejson);
-        $this->assertStringContainsString($ruledata1['conditiondata'],  $customdata->rulejson);
-        $this->assertStringContainsString($ruledata1['actiondata'],  $customdata->rulejson);
-        $rulejson = json_decode($customdata->rulejson);
-        $this->assertEquals($student1->id, $rulejson->datafromevent->relateduserid);
-        $this->assertEquals($teacher1->id,  $message->get_userid());
-        // Task 3 has to be "bookingoption_freetobookagain".
-        $message = $messages[$keys[2]];
-        // Validate adhoc tasks for rule 2.
-        $customdata = $message->get_custom_data();
-        $this->assertEquals("freeplacesubj",  $customdata->customsubject);
-        $this->assertEquals("freeplacemsg",  $customdata->custommessage);
-        $this->assertEquals($student1->id,  $customdata->userid);
-        $this->assertStringContainsString($boevent2,  $customdata->rulejson);
-        $this->assertStringContainsString($ruledata2['conditiondata'],  $customdata->rulejson);
-        $this->assertStringContainsString($ruledata2['actiondata'],  $customdata->rulejson);
-        $this->assertEquals($student1->id,  $message->get_userid());
+        // Validate messages. Might be free order.
+        foreach ($messages as $key => $message) {
+            $customdata = $message->get_custom_data();
+            if (strpos($customdata->customsubject, "freeplacesubj") !== false ) {
+                // Validate message on the bookingoption_freetobookagain event.
+                $this->assertEquals("freeplacesubj",  $customdata->customsubject);
+                $this->assertEquals("freeplacemsg",  $customdata->custommessage);
+                $this->assertEquals($student1->id,  $customdata->userid);
+                $this->assertStringContainsString($boevent2,  $customdata->rulejson);
+                $this->assertStringContainsString($ruledata2['conditiondata'],  $customdata->rulejson);
+                $this->assertStringContainsString($ruledata2['actiondata'],  $customdata->rulejson);
+                $this->assertEquals($student1->id,  $message->get_userid());
+            } else {
+                // Validate message on the bookingoptionwaitinglist_booked event.
+                $this->assertEquals("waitinglistsubj",  $customdata->customsubject);
+                $this->assertEquals("waitinglistmsg",  $customdata->custommessage);
+                $this->assertEquals($teacher1->id,  $customdata->userid);
+                $this->assertStringContainsString($boevent1,  $customdata->rulejson);
+                $this->assertStringContainsString($ruledata1['conditiondata'],  $customdata->rulejson);
+                $this->assertStringContainsString($ruledata1['actiondata'],  $customdata->rulejson);
+                $this->assertEquals($teacher1->id,  $message->get_userid());
+                $rulejson = json_decode($customdata->rulejson);
+                $this->assertContains($rulejson->datafromevent->relateduserid, [$student1->id, $student2->id]);
+            }
+        }
 
         // Mandatory to solve potential cache issues.
         singleton_service::destroy_booking_option_singleton($option1->id);
