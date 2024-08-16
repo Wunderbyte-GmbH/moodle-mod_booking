@@ -163,6 +163,25 @@ class userprofilefield_1_default implements bo_condition {
                                 $isavailable = true;
                             }
                             break;
+                        case '[~]':
+                            $array = explode(",", $this->customsettings->value);
+                            foreach ($array as $itemvalue) {
+                                if (mb_strpos($value, $itemvalue) === false) {
+                                    $isavailable = true;
+                                    break;
+                                }
+                            }
+                            break;
+                        case '[!~]':
+                            $array = explode(",", $this->customsettings->value);
+                            $isavailable = true;
+                            foreach ($array as $itemvalue) {
+                                if (mb_strpos($value, $itemvalue) === false) {
+                                    $isavailable = false;
+                                    break;
+                                }
+                            }
+                            break;
                         case '()':
                             if (empty($value)) {
                                 $isavailable = true;
@@ -295,6 +314,8 @@ class userprofilefield_1_default implements bo_condition {
                     '!~' => get_string('containsnot', 'mod_booking'),
                     '[]' => get_string('inarray', 'mod_booking'),
                     '[!]' => get_string('notinarray', 'mod_booking'),
+                    '[~]' => get_string('containsinarray', 'mod_booking'),
+                    '[!~]' => get_string('containsnotinarray', 'mod_booking'),
                     '()' => get_string('isempty', 'mod_booking'),
                     '(!)' => get_string('isnotempty', 'mod_booking'),
                 ];

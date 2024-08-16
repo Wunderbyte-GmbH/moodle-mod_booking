@@ -118,8 +118,7 @@ class booking_bookit {
         $extrabuttoncondition = '';
         $justmyalert = null;
         foreach ($results as $result) {
-
-            switch ($result['button'] ) {
+            switch ($result['button']) {
                 case MOD_BOOKING_BO_BUTTON_MYBUTTON:
                     $buttoncondition = $result['classname'];
                     break;

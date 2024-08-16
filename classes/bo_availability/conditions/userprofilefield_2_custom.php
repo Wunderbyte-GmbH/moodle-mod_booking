@@ -112,7 +112,13 @@ class userprofilefield_2_custom implements bo_condition {
 
                 // If the profilefield is not here right away, we might need to retrieve it.
                 if (!isset($user->$profilefield)) {
-                    profile_load_custom_fields($user);
+
+                    $fields = profile_get_user_fields_with_data($userid);
+                    $usercustomfields = new stdClass();
+                    foreach ($fields as $formfield) {
+                        $usercustomfields->{$formfield->field->shortname} = $formfield->data;
+                    }
+                    $user->profile = (array)$usercustomfields ?? [];
                     $value = $user->profile[$profilefield] ?? null;
                 } else {
                     $value = $user->$profilefield;
@@ -161,6 +167,25 @@ class userprofilefield_2_custom implements bo_condition {
                             $array = explode(",", $this->customsettings->value);
                             if (!in_array($value, $array)) {
                                 $isavailable = true;
+                            }
+                            break;
+                        case '[~]':
+                            $array = explode(",", $this->customsettings->value);
+                            foreach ($array as $itemvalue) {
+                                if (mb_strpos($value, $itemvalue) !== false) {
+                                    $isavailable = true;
+                                    break;
+                                }
+                            }
+                            break;
+                        case '[!~]':
+                            $array = explode(",", $this->customsettings->value);
+                            $isavailable = true;
+                            foreach ($array as $itemvalue) {
+                                if (mb_strpos($value, $itemvalue) !== false) {
+                                    $isavailable = false;
+                                    break;
+                                }
                             }
                             break;
                         case '()':
@@ -287,6 +312,8 @@ class userprofilefield_2_custom implements bo_condition {
                     '!~' => get_string('containsnot', 'mod_booking'),
                     '[]' => get_string('inarray', 'mod_booking'),
                     '[!]' => get_string('notinarray', 'mod_booking'),
+                    '[~]' => get_string('containsinarray', 'mod_booking'),
+                    '[!~]' => get_string('containsnotinarray', 'mod_booking'),
                     '()' => get_string('isempty', 'mod_booking'),
                     '(!)' => get_string('isnotempty', 'mod_booking'),
                 ];
