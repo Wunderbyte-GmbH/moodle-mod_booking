@@ -333,7 +333,7 @@ class signinsheet_generator {
         " FROM {booking_answers} ba
         LEFT JOIN {user} u ON u.id = ba.userid
         $from1
-        WHERE ba.optionid = :optionid AND ba.waitinglist = 0" .
+        WHERE ba.optionid = :optionid AND ba.waitinglist = 0 " .
                  $addsqlwhere . "ORDER BY u.{$this->orderby} ASC";
 
         $users = $DB->get_records_sql(
@@ -765,7 +765,7 @@ class signinsheet_generator {
                     '', 0, '', 1);
         }
 
-        if (!empty(trim($settings->address))) {
+        if (!empty(trim($settings->address ?? ''))) {
             $this->pdf->Cell(0, 0,
                     get_string('signinsheetaddress', 'booking') . format_string($settings->address), 0, 1,
                     '', 0, '', 1);
