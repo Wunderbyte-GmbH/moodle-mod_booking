@@ -201,6 +201,7 @@ $string['bocondcustomformnotavailable'] = 'Buchen';
 $string['bocondcustomformnotempty'] = 'Darf nicht leer sein';
 $string['bocondcustomformnumberserror'] = "Bitte trage eine gültige Zahl an Tagen ein.";
 $string['bocondcustomformrestrict'] = 'Formular muss vor der Buchung ausgefüllt werden';
+$string['bocondcustomformstillavailable'] = "noch verfügbar";
 $string['bocondcustomformurl'] = "Url";
 $string['bocondcustomformurlerror'] = "Die URL ist nicht valide oder beginnt nicht mit http oder https.";
 $string['bocondcustomformvalue'] = 'Wert';

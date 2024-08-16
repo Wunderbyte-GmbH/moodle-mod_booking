@@ -153,17 +153,17 @@ class customform_form extends dynamic_form {
 
                     case 'static':
                         $mform->addElement($formelementvalue->formtype, 'customform_element_' . $counter,
-                            $formelementvalue->label,
+                            format_string($formelementvalue->label),
                             $formelementvalue->value);
                         break;
                     case 'advcheckbox':
                         $mform->addElement('advcheckbox', 'customform_advcheckbox_' . $counter,
                         '',
-                        $formelementvalue->label ?? "Label " . $counter);
+                        format_string($formelementvalue->label) ?? "Label " . $counter);
                         break;
                     case 'shorttext':
                         $mform->addElement('text', 'customform_shorttext_' . $counter,
-                        $formelementvalue->label ?? "Label " . $counter);
+                        format_string($formelementvalue->label) ?? "Label " . $counter);
                         $mform->setDefault('customform_shorttext_' . $counter, $formelementvalue->value);
                         $mform->setType('customform_shorttext_' . $counter, PARAM_TEXT);
                         break;
@@ -175,7 +175,7 @@ class customform_form extends dynamic_form {
                         foreach ($lines as $line) {
                             $linearray = explode(' => ', $line);
                             if (count($linearray) > 1) {
-                                $options[$linearray[0]] = $linearray[1];
+                                $options[$linearray[0]] = format_string($linearray[1]);
                                 if (count($linearray) > 2) {
                                     $ba = singleton_service::get_instance_of_booking_answers($settings);
                                     $expectedvalue = $linearray[0];
@@ -190,24 +190,24 @@ class customform_form extends dynamic_form {
                                         unset($options[$linearray[0]]);
                                     } else {
                                         $options[$linearray[0]] .= ', ' . $leftover  .
-                                            ' ' . get_string('bocondcustomformavailable', 'mod_booking');
+                                            ' ' . get_string('bocondcustomformstillavailable', 'mod_booking');
                                     }
                                 }
                             } else {
-                                $options[] = $line;
+                                $options[] = format_string($line);
                             }
                         }
                         $mform->addElement('select', $identifier,
-                        $formelementvalue->label ?? "Label " . $counter, $options);
+                        format_string($formelementvalue->label) ?? "Label " . $counter, $options);
                         break;
                     case 'url':
                         $mform->addElement('text', 'customform_url_' . $counter,
-                        $formelementvalue->label ?? "Label " . $counter);
+                        format_string($formelementvalue->label) ?? "Label " . $counter);
                         $mform->setDefault('customform_url_' . $counter, $formelementvalue->value);
                         break;
                     case 'mail':
                         $mform->addElement('text', 'customform_mail_' . $counter,
-                        $formelementvalue->label ?? "Label " . $counter);
+                        format_string($formelementvalue->label) ?? "Label " . $counter);
                         $mform->setDefault('customform_mail_' . $counter, $formelementvalue->value);
                         break;
                 }

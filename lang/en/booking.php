@@ -204,6 +204,7 @@ $string['bocondcustomformnotavailable'] = 'Book it';
 $string['bocondcustomformnotempty'] = 'Must not be empty';
 $string['bocondcustomformnumberserror'] = "Please insert a valid number of days.";
 $string['bocondcustomformrestrict'] = 'Form needs to be filled out before booking';
+$string['bocondcustomformstillavailable'] = "still available";
 $string['bocondcustomformurl'] = "Url";
 $string['bocondcustomformurlerror'] = "The URL is not valid or does not start with http or https.";
 $string['bocondcustomformvalue'] = 'Value';
