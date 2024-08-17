@@ -361,7 +361,7 @@ if ($ADMIN->fulltree) {
                 ''));
         $records = booking_handler::get_customfields();
         foreach ($records as $record) {
-            $customfieldsarray[$record->shortname] = "$record->name ($record->shortname)";
+            $customfieldsarray[$record->shortname] = format_string("$record->name ($record->shortname)");
         }
         $settings->add(
             new admin_setting_configselect('booking/newcoursecategorycfield',
