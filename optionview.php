@@ -44,7 +44,10 @@ $returnurl = optional_param('returnurl', '', PARAM_URL);
 $syscontext = context_system::instance();
 $modcontext = context_module::instance($cmid);
 
-require_capability('mod/booking:view', $modcontext);
+// If we have this setting,
+if (!get_config('booking', 'bookonlyondetailspage')) {
+    require_capability('mod/booking:view', $modcontext);
+}
 
 $PAGE->set_context($syscontext);
 
@@ -56,7 +59,7 @@ $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 // Make sure, we respect module visibility and activity restrictions on the booking instance.
 $modinfo = get_fast_modinfo($booking->course);
 $cm = $modinfo->get_cm($cmid);
-if (!$cm->uservisible) {
+if (!$cm->uservisible && !get_config('booking', 'bookonlyondetailspage')) {
     echo $OUTPUT->header();
     echo html_writer::div(get_string('invisibleoption:notallowed', 'mod_booking'),
         "alert alert-danger");
