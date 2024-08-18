@@ -69,11 +69,15 @@ class coursecategories {
     /**
      * Returns specific booking information for any course category.
      * @param int $contextid
-     * @param string $additionalcountfield
+     * @param string $firstadditionalcount
+     * @param string $secondadditionalcount
      * @return array
      * @throws dml_exception
      */
-    public static function return_booking_information_for_coursecategory(int $contextid, $additionalcountfield = '') {
+    public static function return_booking_information_for_coursecategory(
+        int $contextid,
+        $firstadditionalcount = '',
+        $secondadditionalcount = '') {
 
         global $DB;
 
@@ -88,7 +92,7 @@ class coursecategories {
             $params['path'] = "/1/$contextid/%";
         }
 
-        if (!empty($additionalcountfield)) {
+        if (!empty($firstadditionalcount)) {
             $additionalselect = ', SUM (realparticipants) realparticipants ';
             $intvalue = $DB->sql_cast_char2int('cfd.charvalue');
             $additionalfrom = "
@@ -96,14 +100,29 @@ class coursecategories {
                 FROM {customfield_field} cff
                 JOIN {customfield_data} cfd ON cff.id = cfd.fieldid
                 JOIN {customfield_category} cfc ON cff.categoryid = cfc.id
-                WHERE cff.shortname =:additionalcountfield AND cfc.component='mod_booking' AND cfd.charvalue <> ''
+                WHERE cff.shortname =:firstadditionalcount AND cfc.component='mod_booking' AND cfd.charvalue <> ''
                 GROUP BY optionid
                 ) s4 ON s4.optionid = bo.id
             ";
-            $params['additionalcountfield'] = $additionalcountfield;
+            $params['firstadditionalcount'] = $firstadditionalcount;
         } else {
             $additionalfrom = '';
             $additionalselect = '';
+        }
+
+        if (!empty($secondadditionalcount)) {
+            $additionalselect .= ', SUM (realcosts) realcosts ';
+            $intvalue = $DB->sql_cast_char2real('cfd.charvalue');
+            $additionalfrom .= "
+                LEFT JOIN (SELECT cfd.instanceid as optionid, SUM( $intvalue ) as realcosts
+                FROM {customfield_field} cff
+                JOIN {customfield_data} cfd ON cff.id = cfd.fieldid
+                JOIN {customfield_category} cfc ON cff.categoryid = cfc.id
+                WHERE cff.shortname =:secondadditionalcount AND cfc.component='mod_booking' AND cfd.charvalue <> ''
+                GROUP BY optionid
+                ) s6 ON s6.optionid = bo.id
+            ";
+            $params['secondadditionalcount'] = $secondadditionalcount;
         }
 
         $sql = "SELECT cm.id,
@@ -149,7 +168,7 @@ class coursecategories {
         } catch (Exception $e) {
             // If we run into an exception, might be that the field has a wrong value and we can't cast it to int.
             // Therefore, we just try again without the additional column.
-            if (!empty($additionalcountfield)) {
+            if (!empty($firstadditionalcount)) {
                 $records = self::return_booking_information_for_coursecategory($contextid);
             }
         }
