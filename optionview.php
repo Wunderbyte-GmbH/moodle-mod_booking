@@ -44,7 +44,7 @@ $returnurl = optional_param('returnurl', '', PARAM_URL);
 $syscontext = context_system::instance();
 $modcontext = context_module::instance($cmid);
 
-// If we have this setting,
+// If we have this setting.
 if (!get_config('booking', 'bookonlyondetailspage')) {
     require_capability('mod/booking:view', $modcontext);
 }
