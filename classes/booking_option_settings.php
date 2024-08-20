@@ -1137,12 +1137,12 @@ class booking_option_settings {
                 JOIN {customfield_field} cff
                 ON cfd.fieldid=cff.id AND cff.shortname=:cf_$name
                 JOIN {customfield_category} cfc
-                ON cff.categoryid=cfc.id AND cfc.component=:" . $name . "_componentname
+                ON cff.categoryid=cfc.id AND cfc.component=:" . $name . "_cn
             ) cfd$counter
             ON bo.id = cfd$counter.instanceid ";
 
             // Add the variables to the params array.
-            $params[$name . '_componentname'] = 'mod_booking';
+            $params[$name . '_cn'] = 'mod_booking';
             $params["cf_$name"] = $name;
 
             foreach ($filterarray as $key => $value) {
