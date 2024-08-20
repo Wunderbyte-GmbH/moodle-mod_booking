@@ -81,6 +81,36 @@ $ADMIN->add('modbookingfolder', $settings);
 
 if ($ADMIN->fulltree) {
 
+    $version = $CFG->version;
+    switch ($version) {
+        // Moodle 4.0 - Absolutely not supported. ok.
+        case ($version < 2022042000):
+            $notsupported = true;
+            break;
+        // Moodle 4.1 - Not supported without patch. ok
+        case ($version < 2022112900):
+            if ($version < 2022112801) {
+                $notsupported = true;
+            }
+            break;
+        // Moodle 4.2 - Not supported without patch. ok
+        case ($version < 2023042500):
+            if ($version < 2023042401) {
+                $notsupported = true;
+            }
+            break;
+        default:
+            // Moodle 4.3+ - Fully supported.
+            $notsupported = false;
+    }
+
+    if ($notsupported) {
+        $settings->add(
+            new admin_setting_heading('installmoodlebugfix',
+                get_string('installmoodlebugfix', 'mod_booking'),
+                get_string('infotext:installmoodlebugfix', 'mod_booking')));
+    }
+
     // Has PRO version been activated?
     $proversion = wb_payment::pro_version_is_activated();
 
