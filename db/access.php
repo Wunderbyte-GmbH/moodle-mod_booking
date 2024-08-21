@@ -286,7 +286,7 @@ $capabilities = [
     // Has to be assigned via global role!
     'mod/booking:editbookingrules' => [
         'captype' => 'write',
-        'contextlevel' => CONTEXT_SYSTEM,
+        'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
             'manager' => CAP_ALLOW,
         ],

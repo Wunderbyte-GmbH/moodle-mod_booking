@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace mod_booking\form;
+use context_module;
+use mod_booking\singleton_service;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -230,7 +232,15 @@ class rulesform extends dynamic_form {
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
-        require_capability('moodle/site:config', context_system::instance());
+
+        $customdata = $this->_customdata;
+        $ajaxformdata = $this->_ajaxformdata;
+
+        $contextid = $ajaxformdata['contextid'] ?? $customdata['contextid'];
+
+        $context = context::instance_by_id($contextid);
+
+        require_capability('mod/booking:editbookingrules', $context);
     }
 
     /**
