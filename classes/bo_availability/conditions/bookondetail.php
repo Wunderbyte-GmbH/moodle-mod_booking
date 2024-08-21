@@ -227,7 +227,7 @@ class bookondetail implements bo_condition {
             true,
             '',
             $link,
-            'fa-play'
+            'fa-arrow-right'
         );
     }
 
