@@ -81,6 +81,7 @@ $ADMIN->add('modbookingfolder', $settings);
 
 if ($ADMIN->fulltree) {
 
+    $notsupported = false;
     $version = $CFG->version;
     switch ($version) {
         // Moodle 4.0 - Absolutely not supported. ok.
