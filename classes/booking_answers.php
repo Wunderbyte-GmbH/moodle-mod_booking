@@ -623,7 +623,7 @@ class booking_answers {
         $places = 0;
 
         foreach ($users as $item) {
-            $places += $item->places;
+            $places += $item->places ?? 0;
         }
 
         return $places;
