@@ -307,7 +307,7 @@ class rule_react_on_event implements booking_rule {
     public function execute(int $optionid = 0, int $userid = 0) {
 
         $jsonobject = json_decode($this->rulejson);
-        $datafromevent = $jsonobject->datafromevent;
+        $datafromevent = $jsonobject->datafromevent ?? null;
 
         // This rule executes only on event.
         // And every event will have an optionid, because it's linked to a specific option.
