@@ -84,10 +84,12 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             $serviceperiodend = $item['courseendtime'];
 
             // If cancellation is dependent on semester start, we also use semester start and end dates for the service period.
-            if (get_config('booking', 'canceldependenton') == "semesterstart") {
-                $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
-                if (!empty($bookingsettings->semesterid)) {
-                    $semester = new semester($bookingsettings->semesterid);
+            if (get_config('booking', 'canceldependenton') == "semesterstart"
+                && !empty($settings->semesterid)) {
+                // We switched here from booking settings to option settings.
+
+                if (!empty($settings->semesterid)) {
+                    $semester = new semester($settings->semesterid);
                     // Now we override.
                     $serviceperiodstart = $semester->startdate;
                     $serviceperiodend = $semester->enddate;
