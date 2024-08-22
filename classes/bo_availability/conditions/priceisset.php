@@ -240,16 +240,9 @@ class priceisset implements bo_condition {
         // The book only on details page avoid js and allows booking only on the details page.
         if (
             get_config('booking', 'bookonlyondetailspage')
-            && !modechecker::is_ajax_or_webservice_request()
+            && !modechecker::use_special_details_page_treatment()
         ) {
-            $currenturl = $PAGE->url->out_omit_querystring(); // Get the current URL without the query string
-            // Define the target URL path you want to check.
-            $targetpath = '/mod/booking/optionview.php';
-
-            // Check if the current URL matches the target path.
-            if (strpos($currenturl, $targetpath) === false) {
-
-                $returnurl = $PAGE->url->out();
+            $returnurl = $PAGE->url->out();
 
                 // The current page is not /mod/booking/optionview.php.
                 $url = new moodle_url("/mod/booking/optionview.php", [
@@ -262,7 +255,6 @@ class priceisset implements bo_condition {
                 $data['link'] = $url->out(false);
                 $data['nojs'] = true;
                 $data['role'] = '';
-            }
         }
 
         return ['mod_booking/bookit_price', $data];

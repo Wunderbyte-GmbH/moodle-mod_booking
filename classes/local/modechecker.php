@@ -63,6 +63,7 @@ class modechecker {
     /**
      * It's hard to know on which page we are when using a webserivce.
      * This function determines if we should show the link to the details page or render the buttons right away.
+     * It returns true when there should not be any special treatment.
      *
      * @return bool
      *
@@ -73,9 +74,16 @@ class modechecker {
         $currenturl = $PAGE->url->out_omit_querystring(); // Get the current URL without the query string
         // Define the target URL path you want to check.
         $targetpath = '/mod/booking/optionview.php';
+        // On the Cashier page of shopping cart, we never want to have book on detail.
+        $cashierpath = '/local/shopping_cart/cashier.php';
 
-        // Check if the current URL matches the target path.
-        if (strpos($currenturl, $targetpath) === false) {
+        // Check if the current URL does not matches the target path.
+        if (
+            !(
+                strpos($currenturl, $targetpath) !== false
+                || (strpos($currenturl, $cashierpath) !== false)
+            )
+        ) {
             // The book only on details page avoid js and allows booking only on the details page.
             if (
                 get_config('booking', 'bookonlyondetailspage')
