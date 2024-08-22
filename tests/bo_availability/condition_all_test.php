@@ -331,6 +331,11 @@ final class condition_all_test extends advanced_testcase {
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student3->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_FULLYBOOKED, $id);
 
+        // Check for guest user too - should be "fully booked" as well.
+        $this->setGuestUser();
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, 1, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_FULLYBOOKED, $id);
+
         // Now we add waitinglist to option.
         $this->setAdminUser();
         $record->id = $option1->id;
@@ -338,6 +343,12 @@ final class condition_all_test extends advanced_testcase {
         $record->cmid = $settings->cmid;
         booking_option::update($record);
 
+        // Check for guest user - should be allowed to booking in general.
+        $this->setGuestUser();
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, 1, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALLOWEDTOBOOKININSTANCE, $id);
+
+        // Book student3 again.
         $this->setUser($student3);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student3->id, false);
 
@@ -351,11 +362,6 @@ final class condition_all_test extends advanced_testcase {
 
         // User really is booked to waitinglist.
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
-
-        // Check for guest user.
-        $this->setGuestUser();
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, 1, false);
-        $this->assertEquals(MOD_BOOKING_BO_COND_ALLOWEDTOBOOKININSTANCE, $id);
 
         // Use notification list.
         $res = set_config('usenotificationlist', 1, 'booking');
