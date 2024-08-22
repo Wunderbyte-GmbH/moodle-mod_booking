@@ -71,7 +71,12 @@ class modechecker {
     public static function use_special_details_page_treatment() {
         global $PAGE;
 
-        $currenturl = $PAGE->url->out_omit_querystring(); // Get the current URL without the query string
+        // Get the current URL without the query string.
+        if (!empty($PAGE->url)) {
+            $currenturl = $PAGE->url->out_omit_querystring();
+        } else {
+            $currenturl = ''; // Usually should happens during unittests.
+        }
         // Define the target URL path you want to check.
         $targetpath = '/mod/booking/optionview.php';
         // On the Cashier page of shopping cart, we never want to have book on detail.
