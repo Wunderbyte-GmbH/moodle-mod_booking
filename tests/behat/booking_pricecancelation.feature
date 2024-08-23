@@ -44,7 +44,7 @@ Feature: Create booking option with price and force students answer as admin tha
     And I change viewport size to "1366x10000"
 
   @javascript
-  Scenario: Booking: option cancellation when price was set without using shopping cart
+  Scenario: Booking: option cancellation when price was set
     Given I am on the "BookingCMP" Activity page logged in as student1
     And I should see "Option-tenis" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "Booked" in the ".allbookingoptionstable_r2" "css_element"
