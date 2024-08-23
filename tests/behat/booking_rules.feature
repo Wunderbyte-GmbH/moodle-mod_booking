@@ -114,7 +114,7 @@ Feature: Create global booking rules as admin and insure they are working.
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
       | conditionname        | contextid | conditiondata  | name        | actionname | actiondata                                                                    | rulename            | ruledata                                                    |
-      | select_student_in_bo | 1         | {"borole":"0"} | notifyadmin | send_mail  | {"subject":"cancellation","template":"cancellation msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_cancelled"} |
+      | select_student_in_bo | 1         | {"borole":"5"} | notifyadmin | send_mail  | {"subject":"cancellation","template":"cancellation msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_cancelled"} |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
