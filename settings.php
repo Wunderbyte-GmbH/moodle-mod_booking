@@ -88,13 +88,13 @@ if ($ADMIN->fulltree) {
         case ($version < 2022042000):
             $notsupported = true;
             break;
-        // Moodle 4.1 - Not supported without patch. ok
+        // Moodle 4.1 - Not supported without patch. ok.
         case ($version < 2022112900):
             if ($version < 2022112801) {
                 $notsupported = true;
             }
             break;
-        // Moodle 4.2 - Not supported without patch. ok
+        // Moodle 4.2 - Not supported without patch. ok.
         case ($version < 2023042500):
             if ($version < 2023042401) {
                 $notsupported = true;
