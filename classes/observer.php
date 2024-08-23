@@ -372,6 +372,10 @@ class mod_booking_observer {
     public static function execute_rule(\core\event\base $event) {
 
         rules_info::collect_rules_for_execution($event);
+        if (PHPUNIT_TEST) {
+            // Process after every event when unit testing.
+            rules_info::filter_rules_and_execute();
+        }
     }
 
     /**
