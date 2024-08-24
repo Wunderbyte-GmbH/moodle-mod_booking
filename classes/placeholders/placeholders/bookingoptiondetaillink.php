@@ -86,7 +86,10 @@ class bookingoptiondetaillink {
 
             $value = '';
             if ($settings->cmid) {
-                $bookingoptiondetaillink = new moodle_url('/mod/booking/optionview.php', ['cmid' => $cmid, 'optionid' => $optionid]);
+                $bookingoptiondetaillink = new moodle_url(
+                    '/mod/booking/optionview.php',
+                    ['cmid' => $cmid, 'optionid' => $optionid]
+                );
                 $value = html_writer::link($bookingoptiondetaillink, $bookingoptiondetaillink->out());
             }
 
