@@ -50,16 +50,20 @@ class subbooking_additionalitem_output implements renderable, templatable {
      * Constructur for render timeslot class.
      *
      * @param booking_option_settings $settings
+     * @param int $userid
      */
-    public function __construct(booking_option_settings $settings) {
+    public function __construct(booking_option_settings $settings, int $userid = 0) {
 
         $data = [];
 
         // There might be more than one relevant subbooking to handle.
         foreach ($settings->subbookings as $subbooking) {
-
             // We only treat our kind of subbookings here.
             if ($subbooking->type !== 'subbooking_additionalitem') {
+                continue;
+            }
+
+            if (!$subbooking->is_blocking($settings, $userid)) {
                 continue;
             }
 

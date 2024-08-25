@@ -84,7 +84,7 @@ class subbooking implements bo_condition {
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
-        if (!subbookings_info::has_soft_subbookings($settings)) {
+        if (!subbookings_info::has_soft_subbookings($settings, $userid)) {
             $isavailable = true;
         }
 
@@ -186,8 +186,10 @@ class subbooking implements bo_condition {
         $templates = [];
         $dataarray = [];
         foreach ($settings->subbookings as $subbooking) {
-            if (!$subbooking->block) {
-                list($data, $template) = $subbooking->return_interface($settings);
+            // Here, we go on the type, not the individual subbooking.
+            // Therefore, we don't ask "is blocking", but just see if it's a soft blocker.
+            if ($subbooking->block == 0) {
+                [$data, $template] = $subbooking->return_interface($settings, $userid);
                 if (!empty($data)) {
                     $dataarray[] = $data;
                     $templates[] = $template;

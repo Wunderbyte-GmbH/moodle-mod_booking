@@ -87,8 +87,10 @@ class customform_form extends dynamic_form {
         $customformstore = new customformstore($userid, $optionid);
         $cachedata = $customformstore->get_customform_data();
 
-        if ($cachedata) {
-            $data->customform_advcheckbox = $cachedata->customform_advcheckbox;
+        foreach ((array)$cachedata as $key => $value) {
+            if (str_contains($key, 'customform_') !== false) {
+                $data->{$key} = $value;
+            }
         }
 
         $this->set_data($data);
@@ -140,36 +142,45 @@ class customform_form extends dynamic_form {
         }
 
         foreach ($customform->formsarray as $formkey => $formvalue) {
-
             $formelements = [];
 
             $mform = $this->_form;
 
             $counter = 1;
             foreach ($formvalue as $formelementkey => $formelementvalue) {
-
                 // We might need custom solutions, therefore we have the switch here.
                 switch ($formelementvalue->formtype) {
-
                     case 'static':
-                        $mform->addElement($formelementvalue->formtype, 'customform_element_' . $counter,
+                        $identifier = 'customform_' . $formelementvalue->formtype . '_' . $counter;
+                        $mform->addElement(
+                            'static',
+                            $identifier,
                             format_string($formelementvalue->label),
-                            $formelementvalue->value);
+                            $formelementvalue->value
+                        );
                         break;
                     case 'advcheckbox':
-                        $mform->addElement('advcheckbox', 'customform_advcheckbox_' . $counter,
-                        '',
-                        format_string($formelementvalue->label) ?? "Label " . $counter);
+                        $identifier = 'customform_' . $formelementvalue->formtype . '_' . $counter;
+                        $mform->addElement(
+                            'advcheckbox',
+                            $identifier,
+                            '',
+                            format_string($formelementvalue->label) ?? "Label " . $counter
+                        );
                         break;
                     case 'shorttext':
-                        $mform->addElement('text', 'customform_shorttext_' . $counter,
-                        format_string($formelementvalue->label) ?? "Label " . $counter);
+                        $identifier = 'customform_' . $formelementvalue->formtype . '_' . $counter;
+                        $mform->addElement(
+                            'text',
+                            $identifier,
+                            format_string($formelementvalue->label) ?? "Label " . $counter
+                        );
                         $mform->setDefault('customform_shorttext_' . $counter, $formelementvalue->value);
                         $mform->setType('customform_shorttext_' . $counter, PARAM_TEXT);
                         break;
                     case 'select':
                         // Create the array.
-                        $identifier = 'customform_select_' . $counter;
+                        $identifier = 'customform_' . $formelementvalue->formtype . '_' . $counter;
                         $lines = explode(PHP_EOL, $formelementvalue->value);
                         $options = [];
                         foreach ($lines as $line) {
@@ -179,14 +190,15 @@ class customform_form extends dynamic_form {
                                 if (count($linearray) > 2) {
                                     $ba = singleton_service::get_instance_of_booking_answers($settings);
                                     $expectedvalue = $linearray[0];
-                                    $filteredba = array_filter($ba->usersonlist,
-                                        function($userbookings) use ($identifier, $expectedvalue) {
+                                    $filteredba = array_filter(
+                                        $ba->usersonlist,
+                                        function ($userbookings) use ($identifier, $expectedvalue) {
                                             return isset($userbookings->$identifier)
                                                     && $userbookings->$identifier === $expectedvalue;
                                         }
                                     );
                                     $leftover = $linearray[2] - count($filteredba);
-                                    if ( $leftover == 0) {
+                                    if ($leftover == 0) {
                                         unset($options[$linearray[0]]);
                                     } else {
                                         $options[$linearray[0]] .= ', ' . $leftover  .
@@ -197,17 +209,29 @@ class customform_form extends dynamic_form {
                                 $options[] = format_string($line);
                             }
                         }
-                        $mform->addElement('select', $identifier,
-                        format_string($formelementvalue->label) ?? "Label " . $counter, $options);
+                        $mform->addElement(
+                            'select',
+                            $identifier,
+                            format_string($formelementvalue->label) ?? "Label " . $counter,
+                            $options
+                        );
                         break;
                     case 'url':
-                        $mform->addElement('text', 'customform_url_' . $counter,
-                        format_string($formelementvalue->label) ?? "Label " . $counter);
+                        $identifier = 'customform_' . $formelementvalue->formtype . '_' . $counter;
+                        $mform->addElement(
+                            'text',
+                            $identifier,
+                            format_string($formelementvalue->label) ?? "Label " . $counter
+                        );
                         $mform->setDefault('customform_url_' . $counter, $formelementvalue->value);
                         break;
                     case 'mail':
-                        $mform->addElement('text', 'customform_mail_' . $counter,
-                        format_string($formelementvalue->label) ?? "Label " . $counter);
+                        $identifier = 'customform_' . $formelementvalue->formtype . '_' . $counter;
+                        $mform->addElement(
+                            'text',
+                            $identifier,
+                            format_string($formelementvalue->label) ?? "Label " . $counter
+                        );
                         $mform->setDefault('customform_mail_' . $counter, $formelementvalue->value);
                         break;
                 }
@@ -216,7 +240,6 @@ class customform_form extends dynamic_form {
             }
 
             $dataarray['data']['formsarray'][] = $formelements;
-
         }
     }
 

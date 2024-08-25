@@ -26,6 +26,7 @@
 namespace mod_booking\local\mobile;
 
 use cache;
+use mod_booking\bo_availability\conditions\customform;
 use mod_booking\singleton_service;
 use stdClass;
 
@@ -172,5 +173,32 @@ class customformstore {
             }
         }
         return $customform;
+    }
+
+    /**
+     * This will return the value a user has submitted for a given form.
+     * If two forms have the same label, the first vlaue will be returned.
+     *
+     * @param string $label
+     *
+     * @return string
+     *
+     */
+    public function return_value_for_label(string $key) {
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->itemid);
+        $formsarray = customform::return_formelements($settings);
+
+        if (!$data = $this->get_customform_data()) {
+            return false;
+        }
+
+        if (!$element = $formsarray->{$key} ?? false) {
+            return false;
+        }
+
+        $identifier = 'customform_' . $element->formtype . "_$key";
+
+        return $data->{$identifier} ?? '';
     }
 }

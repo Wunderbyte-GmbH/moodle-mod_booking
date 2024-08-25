@@ -24,6 +24,7 @@
  */
 
 namespace mod_booking\local;
+use Exception;
 
 
 /**

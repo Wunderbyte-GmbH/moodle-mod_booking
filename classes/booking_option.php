@@ -1477,17 +1477,18 @@ class booking_option {
             }
 
             // TODO: Track enrolment status in booking_answers. It makes no sense to track it in booking_options.
-
             if ($bookingsettings->addtogroup == 1) {
                 $groups = groups_get_all_groups($courseid);
                 if (!is_null($this->option->groupid) && ($this->option->groupid > 0) &&
                         in_array($this->option->groupid, $groups)) {
                     groups_add_member($this->option->groupid, $userid);
                 } else {
-                    if ($groupid = $this->create_group($this->settings->return_settings_as_stdclass())) {
+                    $newoptionstd = $this->settings->return_settings_as_stdclass();
+                    $newoptionstd->courseid = $courseid;
+                    if ($groupid = $this->create_group($newoptionstd)) {
                         groups_add_member($groupid, $userid);
                     } else {
-                        throw new \moodle_exception('groupexists', 'booking');
+                        throw new moodle_exception('groupexists', 'booking');
                     }
                 }
             }

@@ -632,19 +632,28 @@ class bo_info {
             // First, determine if this is a booking option with a price.
 
             // Book this option.
-            if (!self::has_price_set($results)) {
+            if (
+                !self::has_price_set($results)
+                || self::booked_on_waitinglist($results)
+            ) {
 
                 // Check if we are already booked.
                 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
                 $boinfo = new bo_info($settings);
 
                 // Check option availability if user is not logged yet.
-                list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $userid, false);
+                [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $userid, false);
 
-                if ($id !== MOD_BOOKING_BO_COND_ALREADYBOOKED) {
+                if (!(
+                        $id === MOD_BOOKING_BO_COND_ALREADYBOOKED
+                        || $id === MOD_BOOKING_BO_COND_ONWAITINGLIST
+                    )
+                ) {
                     $response = booking_bookit::bookit('option', $optionid, $userid);
-                    // We need to book twice, as confirmation might be in place.
-                    $response = booking_bookit::bookit('option', $optionid, $userid);
+                    if ($response['status'] != 1) {
+                        // We need to book twice, as confirmation might be in place.
+                        $response = booking_bookit::bookit('option', $optionid, $userid);
+                    }
                 }
             } else {
                 if (class_exists('local_shopping_cart\shopping_cart')) {
@@ -899,14 +908,21 @@ class bo_info {
         $showbutton = true;
         $confirmation = null;
         $showcheckout = false;
+        $askforconfirmation = false;
 
         // First, sort all the pages according to this system:
         // Depending on the MOD_BOOKING_BO_PREPAGE_x constant, we order them pre or post the real booking button.
         foreach ($results as $result) {
 
+            if ($result['id'] === MOD_BOOKING_BO_COND_ASKFORCONFIRMATION) {
+                $askforconfirmation = true;
+            }
+
             if ($result['id'] === MOD_BOOKING_BO_COND_PRICEISSET &&
                 class_exists('local_shopping_cart\shopping_cart')) {
-                $showcheckout = true;
+                if (!$askforconfirmation) {
+                    $showcheckout = true;
+                }
             }
 
             // One no button condition tetermines this for all.
@@ -1021,6 +1037,21 @@ class bo_info {
     private static function has_price_set(array $results): bool {
         foreach ($results as $result) {
             if ($result['classname'] == 'mod_booking\bo_availability\conditions\priceisset') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Go through conditions classes to see if somewhere we are on waitinglist.
+     *
+     * @param array $results
+     * @return bool
+     */
+    private static function booked_on_waitinglist(array $results): bool {
+        foreach ($results as $result) {
+            if ($result['classname'] == 'mod_booking\bo_availability\conditions\askforconfirmation') {
                 return true;
             }
         }

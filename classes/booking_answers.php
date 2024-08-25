@@ -448,11 +448,16 @@ class booking_answers {
         // PRO feature: Availability info texts for booking places and waiting list.
         // Booking places.
         $context = context_system::instance();
-        if (!has_capability('mod/booking:updatebooking', $context) &&
-            get_config('booking', 'bookingplacesinfotexts')
-            && !empty($bookinginformation['maxanswers'])) {
 
-            $bookinginformation['showbookingplacesinfotext'] = true;
+        if (
+            !empty($bookinginformation['maxanswers'])
+        ) {
+            if (
+                !has_capability('mod/booking:updatebooking', $context)
+                && get_config('booking', 'bookingplacesinfotexts')
+            ) {
+                $bookinginformation['showbookingplacesinfotext'] = true;
+            }
 
             $bookingplaceslowpercentage = get_config('booking', 'bookingplaceslowpercentage');
             $actualpercentage = ($bookinginformation['freeonlist'] / $bookinginformation['maxanswers']) * 100;
@@ -475,11 +480,15 @@ class booking_answers {
             }
         }
         // Waiting list places.
-        if (!has_capability('mod/booking:updatebooking', $context) &&
-            get_config('booking', 'waitinglistinfotexts')
-            && !empty($bookinginformation['maxoverbooking'])) {
+        if (
+            !empty($bookinginformation['maxoverbooking'])
+        ) {
 
-            $bookinginformation['showwaitinglistplacesinfotext'] = true;
+            if (!has_capability('mod/booking:updatebooking', $context)
+                && get_config('booking', 'waitinglistinfotexts')
+            ) {
+                $bookinginformation['showwaitinglistplacesinfotext'] = true;
+            }
 
             $waitinglistlowpercentage = get_config('booking', 'waitinglistlowpercentage');
             $actualwlpercentage = ($bookinginformation['freeonwaitinglist'] /

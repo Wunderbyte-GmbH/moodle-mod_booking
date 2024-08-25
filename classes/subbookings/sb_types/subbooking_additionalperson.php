@@ -40,7 +40,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class subbooking_additionalperson implements booking_subbooking {
-
     /** @var int $id Id of the configured subbooking */
     public $id = 0;
 
@@ -103,8 +102,12 @@ class subbooking_additionalperson implements booking_subbooking {
      */
     public function add_subbooking_to_mform(MoodleQuickForm &$mform, array &$formdata) {
 
-        $mform->addElement('static', 'subbooking_additionalperson_desc', '',
-            get_string('subbookingadditionalperson_desc', 'mod_booking'));
+        $mform->addElement(
+            'static',
+            'subbooking_additionalperson_desc',
+            '',
+            get_string('subbookingadditionalperson_desc', 'mod_booking')
+        );
 
         // Add a description with the potential inclusion of files.
 
@@ -118,10 +121,13 @@ class subbooking_additionalperson implements booking_subbooking {
             'context' => $context,
         ];
 
-        $mform->addElement('editor', 'subbooking_additionalperson_description_editor',
+        $mform->addElement(
+            'editor',
+            'subbooking_additionalperson_description_editor',
             get_string('subbookingadditionalpersondescription', 'mod_booking'),
             null,
-            $textfieldoptions);
+            $textfieldoptions
+        );
         $mform->setType('subbooking_additionalperson_description_editor', PARAM_RAW);
 
         // For price & entities wie need the id of this subbooking.
@@ -130,7 +136,6 @@ class subbooking_additionalperson implements booking_subbooking {
         // Add price.
         $price = new price('subbooking', $sboid);
         $price->add_price_to_mform($mform, true); // Second param true means no price formula here!
-
     }
 
     /**
@@ -199,7 +204,8 @@ class subbooking_additionalperson implements booking_subbooking {
             $context,
             'mod_booking',
             'subbookings',
-            $this->id);
+            $this->id
+        );
 
         $record->id = $this->id;
 
@@ -215,7 +221,6 @@ class subbooking_additionalperson implements booking_subbooking {
         // Add price.
         $price = new price('subbooking', $this->id);
         $price->save_from_form($data);
-
     }
 
     /**
@@ -251,7 +256,8 @@ class subbooking_additionalperson implements booking_subbooking {
             $context,
             'mod_booking',
             'subbookings',
-            $record->id);
+            $record->id
+        );
 
         // Add price.
         $price = new price('subbooking', $record->id);
@@ -262,13 +268,14 @@ class subbooking_additionalperson implements booking_subbooking {
      * Return interface for this subbooking type as an array of data & template.
      *
      * @param booking_option_settings $settings
+     * @param int $userid
      * @return array
      */
-    public function return_interface(booking_option_settings $settings): array {
+    public function return_interface(booking_option_settings $settings, int $userid): array {
 
         // The interfaces should merge when there are multiple "additional person" subbookings.
         // Therefore, we need to first find out how many of these are present.
-        $arrayofmine = array_filter($settings->subbookings, function($x) {
+        $arrayofmine = array_filter($settings->subbookings, function ($x) {
             return $x->type == $this->type;
         });
 
@@ -278,7 +285,7 @@ class subbooking_additionalperson implements booking_subbooking {
             return [];
         }
 
-        $dataobj = new subbooking_additionalperson_output($settings);
+        $dataobj = new subbooking_additionalperson_output($settings, $userid);
         return [['data' => $dataobj->data], 'mod_booking/subbooking/additionalperson'];
     }
 
@@ -364,10 +371,10 @@ class subbooking_additionalperson implements booking_subbooking {
      * But normally the itemid here is the same as the subboooking it.
      *
      * @param int $itemid
-     * @param object $user
+     * @param int $userid
      * @return array
      */
-    public function return_subbooking_information(int $itemid = 0, $user = null): array {
+    public function return_subbooking_information(int $itemid = 0, int $userid = 0): array {
 
         return [];
     }
@@ -385,5 +392,17 @@ class subbooking_additionalperson implements booking_subbooking {
         // When choosing the elements from the subbookings, we store our current state in the cache.
         $data = additionalperson_form::get_data_from_cache($this->id);
         return json_encode($data);
+    }
+
+    /**
+     * Is blocking. This depends on the settings and user.
+     *
+     * @param int $itemid
+     * @param int $userid
+     * @return bool
+     */
+    public function is_blocking(booking_option_settings $settings, int $userid = 0): bool {
+
+        return !empty($this->block);
     }
 }

@@ -103,12 +103,15 @@ class customform implements bo_condition {
         if (empty($this->customsettings->formsarray)) {
             $isavailable = true;
         } else {
-            $customformstore = new customformstore($userid, $settings->id);
-            // phpcs:disable
-            if ($customformstore->get_customform_data()) {
-                // $isavailable = true;
+            $ba = singleton_service::get_instance_of_booking_answers($settings);
+            // If the user is already on a list...
+            if (($ba->usersonlist[$userid] ?? false) || ($ba->usersonwaitinglist[$userid] ?? false)) {
+                $customformstore = new customformstore($userid, $settings->id);
+                // If the form is already filled out, don't show it again.
+                if ($customformstore->get_customform_data()) {
+                    $isavailable = true;
+                }
             }
-            // phpcs:enable
         }
 
         // If it's inversed, we inverse.
@@ -307,7 +310,6 @@ class customform implements bo_condition {
             'template' => 'mod_booking/condition/customform',
             'buttontype' => 1, // This means that the continue button is disabled.
         ];
-
         return $returnarray;
     }
 
@@ -329,7 +331,7 @@ class customform implements bo_condition {
         $classnameparts = explode('\\', $classname);
         $shortclassname = end($classnameparts); // Without namespace.
 
-        $conditionobject = new stdClass;
+        $conditionobject = new stdClass();
 
         $conditionobject->id = MOD_BOOKING_BO_COND_JSON_CUSTOMFORM;
         $conditionobject->name = $shortclassname;
@@ -367,13 +369,11 @@ class customform implements bo_condition {
             if (!empty($fromform->{$key})) {
                 $counter++;
             } else {
-
                 // Make sure we start a new form and save this one.
                 $conditionobject->formsarray[$formcounter] = $newform;
                 $newform = [];
                 $formcounter++;
             }
-
         }
 
         if (empty($conditionobject->formsarray)) {
@@ -410,9 +410,7 @@ class customform implements bo_condition {
 
                 $key = 'bo_cond_customform_notempty_' . $formcounter . '_' . $counter;
                 $defaultvalues->{$key} = $formelement->notempty ?? 0;
-
             }
-
         }
     }
 
@@ -510,7 +508,11 @@ class customform implements bo_condition {
             ];
             $newanswer->json = json_encode($data);
         }
-        $customformstore->delete_customform_data();
+
+        // We only delete the json when it's booked.
+        if ($newanswer->waitinglist === MOD_BOOKING_STATUSPARAM_BOOKED) {
+            $customformstore->delete_customform_data();
+        }
     }
 
     /**

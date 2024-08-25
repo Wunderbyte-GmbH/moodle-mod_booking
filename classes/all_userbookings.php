@@ -344,8 +344,12 @@ class all_userbookings extends \table_sql {
             $settings = singleton_service::get_instance_of_booking_option_settings((int)$value->optionid);
             $ba = singleton_service::get_instance_of_booking_answers($settings);
 
-            if ($answer = $ba->usersonlist[(int)$value->userid] ?? false) {
-                list($prefix, $counter) = explode('_', $colname);
+            if (
+                $answer = $ba->usersonlist[(int)$value->userid]
+                ?? $ba->usersonwaitinglist[(int)$value->userid]
+                ?? false
+            ) {
+                [$prefix, $counter] = explode('_', $colname);
 
                 if (
                     isset($answer->json) &&

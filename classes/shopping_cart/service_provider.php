@@ -431,6 +431,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 MOD_BOOKING_BO_COND_PRICEISSET,
                 MOD_BOOKING_BO_COND_ALREADYRESERVED,
                 MOD_BOOKING_BO_COND_BOOKITBUTTON,
+                MOD_BOOKING_BO_COND_ONWAITINGLIST,
             ];
 
             if ($id > 0 && !in_array($id, $allowedconditions)) {
@@ -457,7 +458,12 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             }
 
             // TODO: Dont call allow_add_item_to_cart when NOT adding to cart!
-            if ($id !== MOD_BOOKING_BO_COND_BOOKITBUTTON) {
+            if (
+                !(
+                    $id === MOD_BOOKING_BO_COND_BOOKITBUTTON
+                    || $id === MOD_BOOKING_BO_COND_ASKFORCONFIRMATION
+                )
+            ) {
                 $user = singleton_service::get_instance_of_user($userid);
                 $item = $settings->return_booking_option_information($user);
                 $cartitem = new cartitem($itemid,

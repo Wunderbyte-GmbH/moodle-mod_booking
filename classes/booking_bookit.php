@@ -149,8 +149,8 @@ class booking_bookit {
                     if (modechecker::use_special_details_page_treatment()) {
                         $justmyalert = false;
                         $extrabuttoncondition = $result['classname'];
+                        $renderprepagemodal = false;
                     }
-                    $renderprepagemodal = false;
                     break;
             }
         }

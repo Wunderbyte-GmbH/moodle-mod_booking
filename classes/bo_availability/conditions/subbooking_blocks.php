@@ -182,7 +182,7 @@ class subbooking_blocks implements bo_condition {
         $dataarray = [];
         foreach ($settings->subbookings as $subbooking) {
             if ($subbooking->block) {
-                list($data, $template) = $subbooking->return_interface($settings);
+                list($data, $template) = $subbooking->return_interface($settings, $userid);
                 if (!empty($data)) {
                     $dataarray[] = $data;
                     $templates[] = $template;

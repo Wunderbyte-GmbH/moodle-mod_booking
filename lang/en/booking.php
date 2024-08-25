@@ -1369,6 +1369,7 @@ $string['noelement'] = "No Element";
 $string['noeventtypeselected'] = 'No event type selected';
 $string['nofieldchosen'] = 'No field chosen';
 $string['nofieldofstudyfound'] = "No field of study could be determined via cohorts";
+$string['noformlink'] = "No link to form of booking option";
 $string['nogrouporcohortselected'] = 'You need to select at least one group or cohort.';
 $string['noguestchoose'] = 'Sorry, guests are not allowed to enter data';
 $string['noinstitutionselected'] = 'No institution selected';
@@ -1909,6 +1910,9 @@ $string['studentbookedandwaitinglist'] = 'Users who booked and are on waitinglis
 $string['studentdeleted'] = 'Users who were already deleted';
 $string['studentnotificationlist'] = 'Users on the notification list';
 $string['studentwaitinglist'] = 'Users on the waiting list';
+$string['subbookingadditemformlink'] = "Link to the form of this booking option";
+$string['subbookingadditemformlink_help'] = "Select the form element you want to link with this additional booking. The additional booking will only be displayed if the user has selected the corresponding value in the form beforehand.";
+$string['subbookingadditemformlinkvalue'] = "Value that should be selected in the form";
 $string['subbookingadditionalitem'] = "Additional item booking";
 $string['subbookingadditionalitem_desc'] = "This permits you to add optinally bookable items to this booking option,
  eg. you can book a better special seat etc. or breakfast to your hotel room.";
