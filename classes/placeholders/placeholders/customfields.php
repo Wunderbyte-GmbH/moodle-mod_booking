@@ -57,7 +57,8 @@ class customfields {
         int $userid = 0,
         string &$text = '',
         array &$params = [],
-        string $placeholder = '') {
+        string $placeholder = '',
+        bool &$fieldexists = true) {
 
         global $CFG;
 
@@ -87,6 +88,8 @@ class customfields {
             }
             if (isset($user->profile[$placeholder])) {
                 $value = $user->profile[$placeholder];
+            } else {
+                $fieldexists = false;
             }
         }
 

@@ -96,6 +96,7 @@ class placeholders_info {
             self::return_list_of_placeholders();
         }
         $noreturn = [];
+        $return = [];
 
         foreach ($placeholders as $placeholder) {
 
@@ -110,6 +111,7 @@ class placeholders_info {
             $classname = self::$localizedplaceholders[$identifier] ?? $identifier;
 
             // Now we can execute it.
+            $fieldexists = true;
             $class = 'mod_booking\placeholders\placeholders\\' . $classname;
             if (class_exists($class)) {
                 $value = $class::return_value(
@@ -150,19 +152,24 @@ class placeholders_info {
                     $userid,
                     $text,
                     $placeholders,
-                    $placeholder);
+                    $placeholder,
+                    $fieldexists
+                );
             }
 
             if (!empty($value)) {
                 $searchstring = '{' . $placeholder . '}';
                 $text = str_replace($searchstring, $value, $text);
                 // Look for enclosing placeholder. Delete them.
+                $return[] = $placeholder;
             } else {
                 $firstchar = mb_substr($placeholder, 0, 1);
                 if ($firstchar == "#" || $firstchar == "/") {
                     continue;
                 }
-                $noreturn[] = $placeholder;
+                if ($fieldexists) {
+                    $noreturn[] = $placeholder;
+                }
             }
         }
 
@@ -192,7 +199,10 @@ class placeholders_info {
                     $pattern = '/\$\{placeholder\}/';
                 }
                 $text = preg_replace($pattern, '', $text);
-            } else if ($firstchar == "#" || $firstchar == "/") {
+            } else if (
+                ($firstchar == "#" || $firstchar == "/")
+                && in_array($nameafterfirstchar, $return)
+            ) {
                 // Case 2: Placeholder is not empty, remove the enclosing placeholders.
                 $text = str_replace('{' . $placeholder . '}', '', $text);
             }
