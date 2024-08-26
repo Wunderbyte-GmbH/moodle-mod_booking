@@ -81,8 +81,10 @@ class bookondetail implements bo_condition {
         // This is the return value. Not available to begin with.
         $isavailable = true;
 
-        if (!modechecker::use_special_details_page_treatment()) {
-            $isavailable = false;
+        if (isloggedin()) {
+            if (!modechecker::use_special_details_page_treatment()) {
+                $isavailable = false;
+            }
         }
 
         // If it's inversed, we inverse.
