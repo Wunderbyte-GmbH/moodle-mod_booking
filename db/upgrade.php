@@ -3782,7 +3782,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024052300, 'booking');
     }
 
-    if ($oldversion < 2024052400) {
+    if ($oldversion < 2024081600) {
         // Changing precision of fields pollurlteachers & pollurl on table booking_options to (1000).
         $table = new xmldb_table('booking_options');
         $field1 = new xmldb_field('pollurl', XMLDB_TYPE_CHAR, '1000', null, null, null, null, 'address');
@@ -3791,8 +3791,17 @@ function xmldb_booking_upgrade($oldversion) {
         // Launch change of precision for fields pollurlteachers & pollurl.
         $dbman->change_field_type($table, $field1);
         $dbman->change_field_type($table, $field2);
+
+        // Changing precision of fields pollurlteachers & pollurl on table booking_options to (1000).
+        $table = new xmldb_table('booking');
+        $field1 = new xmldb_field('pollurl', XMLDB_TYPE_CHAR, '1000', null, null, null, null);
+        $field2 = new xmldb_field('pollurlteachers', XMLDB_TYPE_CHAR, '1000', null, null, null, null);
+
+        // Launch change of precision for fields pollurlteachers & pollurl.
+        $dbman->change_field_type($table, $field1);
+        $dbman->change_field_type($table, $field2);
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2024052400, 'booking');
+        upgrade_mod_savepoint(true, 2024081600, 'booking');
     }
     return true;
 }
