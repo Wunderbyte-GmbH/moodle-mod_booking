@@ -123,9 +123,11 @@ interface booking_subbooking {
     /**
      * Is blocking. This depends on the settings and user.
      *
-     * @param int $itemid
+     * @param booking_option_settings $settings
      * @param int $userid
+     *
      * @return bool
+     *
      */
     public function is_blocking(booking_option_settings $settings, int $userid = 0): bool;
 }

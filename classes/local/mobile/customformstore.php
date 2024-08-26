@@ -179,7 +179,7 @@ class customformstore {
      * This will return the value a user has submitted for a given form.
      * If two forms have the same label, the first vlaue will be returned.
      *
-     * @param string $label
+     * @param string $key
      *
      * @return string
      *

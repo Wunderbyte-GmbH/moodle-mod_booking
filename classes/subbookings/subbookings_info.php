@@ -305,9 +305,11 @@ class subbookings_info {
      * ... which may want to introduce a page in the booking process.
      * Blocking subbookings are handled by a different bo_condition.
      *
-     * @param object $settings
-     * @param int $userid
-     * @return bool
+     * @param booking_option_settings $settings
+     * @param mixed $userid
+     *
+     * @return [type]
+     *
      */
     public static function has_soft_subbookings(booking_option_settings $settings, $userid) {
 
