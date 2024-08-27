@@ -37,7 +37,7 @@ class modechecker {
      *
      */
     public static function is_ajax_or_webservice_request() {
-        return self::is_ajax_request() || self::is_webservice_request();
+        return self::is_ajax_request() || self::is_webservice_request() || PHPUNIT_TEST;
     }
 
     /**
