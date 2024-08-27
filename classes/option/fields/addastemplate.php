@@ -114,7 +114,8 @@ class addastemplate extends field_base {
 
         // Templates - only visible when adding new.
         if (has_capability('mod/booking:manageoptiontemplates', $formdata['context'])
-            && $formdata['id'] < 1) {
+            && ($formdata['id'] < 1
+                || ($formdata['addastemplate'] ?? 0) > 0)) {
 
             $mform->addElement('header', 'templateheader',
                 '<i class="fa fa-fw fa-clone" aria-hidden="true"></i>&nbsp;' .

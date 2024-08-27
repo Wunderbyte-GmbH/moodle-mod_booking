@@ -109,6 +109,12 @@ class prepare_import extends field_base {
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
 
+        $addastemplate = optional_param('addastemplate', 0, PARAM_INT) ?? 0;
+
+        $addastemplate = $addastemplate = optional_param('addastemplate', 0, PARAM_INT) ?? 0;
+        if (!empty($addastemplate)) {
+            $formdata['addastemplate'] = $addastemplate;
+        }
     }
 
     /**
@@ -143,8 +149,13 @@ class prepare_import extends field_base {
 
         // If there is no bookingid but there is the cmid, we can work with that.
         if (empty($data->bookingid) && !empty($data->cmid)) {
+
             $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($data->cmid);
             $data->bookingid = $bookingsettings->id;
+        }
+        $addastemplate = $data->addastemplate = optional_param('addastemplate', 0, PARAM_INT) ?? 0;
+        if (!empty($addastemplate)) {
+            $data->addastemplate = $addastemplate;
         }
         // We will always set id to 0, if it's not set yet.
         if (!isset($data->id)) {
