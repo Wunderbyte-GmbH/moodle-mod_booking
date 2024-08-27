@@ -472,7 +472,7 @@ class subbookings_info {
      * @param int $userid
      * @param int $newstatus
      * @param array $oldstatus
-     * @return bool
+     * @return void
      */
     private static function update_or_insert_answer(
         object $subbooking,
