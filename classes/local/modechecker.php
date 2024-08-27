@@ -72,7 +72,7 @@ class modechecker {
         global $PAGE;
 
         // Get the current URL without the query string.
-        if (!empty($PAGE->url)) {
+        if (!self::is_ajax_or_webservice_request()) {
             $currenturl = $PAGE->url->out_omit_querystring();
         } else {
             $currenturl = ''; // Usually should happens during unittests.
