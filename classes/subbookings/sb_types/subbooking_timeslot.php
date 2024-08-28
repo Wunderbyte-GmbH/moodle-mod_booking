@@ -499,4 +499,19 @@ class subbooking_timeslot implements booking_subbooking {
     public function is_blocking(booking_option_settings $settings, int $userid = 0): bool {
         return !empty($this->block);
     }
+
+    /**
+     * After booking action.
+     *
+     * @param booking_option_settings $settings
+     * @param int $userid
+     * @param int $recordid
+     *
+     * @return bool
+     *
+     */
+    public function after_booking_action(booking_option_settings $settings, int $userid = 0, int $recordid = 0): bool {
+
+        return true;
+    }
 }

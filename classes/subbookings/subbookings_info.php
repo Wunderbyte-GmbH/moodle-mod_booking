@@ -28,6 +28,7 @@ namespace mod_booking\subbookings;
 use context_module;
 use mod_booking\booking_option_settings;
 use mod_booking\output\subbookingslist;
+use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
 use MoodleQuickForm;
 use stdClass;
@@ -313,6 +314,12 @@ class subbookings_info {
     public static function has_soft_subbookings(booking_option_settings $settings, $userid) {
 
         foreach ($settings->subbookings as $subbooking) {
+
+            if ($subbooking->block != 0) {
+                continue;
+            }
+            // A subbooking can block, which means that it demands to be shown.
+            // This blocking depends on circumstances which are tested in the is_blocking function.
             if ($subbooking->is_blocking($settings, $userid)) {
                 return true;
             }
@@ -349,7 +356,7 @@ class subbookings_info {
      *
      * @param string $area
      * @param int $itemid
-     * @return booking_subbooking
+     * @return object
      */
     public static function get_subbooking_by_area_and_id(string $area, int $itemid) {
         global $DB;
@@ -405,22 +412,27 @@ class subbookings_info {
             return true;
         }
 
+        $settings =
+            singleton_service::get_instance_of_booking_option_settings($subbooking->optionid);
+
         // Do we need to update and if so, which records?
 
         switch ($status) {
             case MOD_BOOKING_STATUSPARAM_BOOKED: // We actually book.
                 // Check if there was a reserved or waiting list entry before.
-                self::update_or_insert_answer(
+                $id = self::update_or_insert_answer(
                     $subbooking,
                     $itemid,
                     $userid,
                     MOD_BOOKING_STATUSPARAM_BOOKED,
                     [MOD_BOOKING_STATUSPARAM_RESERVED, MOD_BOOKING_STATUSPARAM_WAITINGLIST]
                 );
+                // These after booking actions are only called when we have actually booked.
+                $subbooking->after_booking_action($settings, $userid, $id);
                 break;
             case MOD_BOOKING_STATUSPARAM_WAITINGLIST: // We move to the waiting list.
                 // Check if there was a reserved entry before.
-                self::update_or_insert_answer(
+                $id = self::update_or_insert_answer(
                     $subbooking,
                     $itemid,
                     $userid,
@@ -430,7 +442,7 @@ class subbookings_info {
                 break;
             case MOD_BOOKING_STATUSPARAM_RESERVED: // We only want to use shortterm reservation.
                 // Check if there was a reserved or waiting list entry before.
-                self::update_or_insert_answer(
+                $id = self::update_or_insert_answer(
                     $subbooking,
                     $itemid,
                     $userid,
@@ -440,7 +452,7 @@ class subbookings_info {
                 break;
             case MOD_BOOKING_STATUSPARAM_NOTBOOKED: // We only want to delete the shortterm reservation.
                 // Check if there was a reserved entry before.
-                self::update_or_insert_answer(
+                $id = self::update_or_insert_answer(
                     $subbooking,
                     $itemid,
                     $userid,
@@ -450,7 +462,7 @@ class subbookings_info {
                 break;
             case MOD_BOOKING_STATUSPARAM_DELETED: // We delete the existing subscription.
                 // Check if there was a booked entry before.
-                self::update_or_insert_answer(
+                $id = self::update_or_insert_answer(
                     $subbooking,
                     $itemid,
                     $userid,
@@ -459,6 +471,7 @@ class subbookings_info {
                 );
                 break;
         };
+
         return true;
     }
 
@@ -471,7 +484,7 @@ class subbookings_info {
      * @param int $userid
      * @param int $newstatus
      * @param array $oldstatus
-     * @return void
+     * @return int
      */
     private static function update_or_insert_answer(
         object $subbooking,
@@ -485,6 +498,8 @@ class subbookings_info {
 
         $now = time();
 
+        $id = 0;
+
         if ($records = self::return_subbooking_answers($subbooking->id, $itemid, $subbooking->optionid, $userid, $oldstatus)) {
             while (count($records) > 0) {
                 $record = array_pop($records);
@@ -493,6 +508,8 @@ class subbookings_info {
                     $record->timemodified = $now;
                     $record->status = $newstatus;
                     $DB->update_record('booking_subbooking_answers', $record);
+
+                    $id = $record->id;
                 } else {
                     // This is just for cleaning, should never happen.
                     $DB->delete_records('booking_subbooking_answers', ['id' => $record->id]);
@@ -517,8 +534,10 @@ class subbookings_info {
                 'timemodified' => $now,
             ];
 
-            $DB->insert_record('booking_subbooking_answers', $record);
+            $id = $DB->insert_record('booking_subbooking_answers', $record);
         }
+
+        return $id;
     }
 
     /**

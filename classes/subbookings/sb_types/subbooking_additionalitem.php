@@ -433,4 +433,19 @@ class subbooking_additionalitem implements booking_subbooking {
         }
         return false;
     }
+
+    /**
+     * After booking action.
+     *
+     * @param booking_option_settings $settings
+     * @param int $userid
+     * @param int $recordid
+     *
+     * @return bool
+     *
+     */
+    public function after_booking_action(booking_option_settings $settings, int $userid = 0, int $recordid = 0): bool {
+
+        return true;
+    }
 }

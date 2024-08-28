@@ -408,6 +408,52 @@ class subbooking_additionalperson implements booking_subbooking {
      */
     public function is_blocking(booking_option_settings $settings, int $userid = 0): bool {
 
-        return !empty($this->block);
+        return empty($this->block);
+    }
+
+    /**
+     * After booking action.
+     *
+     * @param booking_option_settings $settings
+     * @param int $userid
+     * @param int $recordid
+     *
+     * @return bool
+     *
+     */
+    public function after_booking_action(booking_option_settings $settings, int $userid = 0, int $recordid = 0): bool {
+
+        global $DB;
+
+        // Get number of places.
+        // Get answer object of option.
+        // Update places to the right number..
+
+        $answer = additionalperson_form::get_data_from_cache($this->id);
+        $numberofpersons = $answer->subbooking_addpersons ?? 0;
+
+        if ($numberofpersons == 0) {
+            return false;
+        }
+
+        $id = $DB->get_field(
+            'booking_answers',
+            'id',
+            [
+                'optionid' => $settings->id,
+                'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+            ]
+        );
+
+        // For now, it's enough to set the number of persons here.
+        // If ever there will be a second way to increase this number, we first need to fetch.
+        $data = [
+            'id' => $id,
+            'places' => $numberofpersons + 1,
+        ];
+
+        $DB->update_record('booking_answers', $data);
+
+        return true;
     }
 }
