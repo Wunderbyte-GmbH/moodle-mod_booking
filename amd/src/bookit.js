@@ -537,6 +537,7 @@ async function renderTemplatesOnPage(templates, dataarray, element) {
     modal.querySelector(SELECTORS.MODALBUTTONAREA).innerHTML = '';
     modal.querySelector(SELECTORS.MODALFOOTER).innerHTML = '';
 
+    var counter = 0;
     templates.forEach(async template => {
 
         const data = dataarray.shift();
@@ -570,8 +571,12 @@ async function renderTemplatesOnPage(templates, dataarray, element) {
 
         await Templates.renderForPromise(template, data.data).then(({html, js}) => {
 
-            Templates.replaceNodeContents(targetelement, html, js);
-
+            if (counter < 1) {
+                counter++;
+                Templates.replaceNodeContents(targetelement, html, js);
+            } else {
+                Templates.appendNodeContents(targetelement, html, js);
+            }
             return true;
         }).catch(ex => {
             Notification.addNotification({
