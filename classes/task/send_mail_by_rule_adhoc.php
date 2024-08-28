@@ -77,7 +77,11 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
             if (!$ruleinstance = $DB->get_record('booking_rules', ['id' => $taskdata->ruleid])) {
                 mtrace('send_mail_by_rule_adhoc task: Rule does not exist anymore. Mail was NOT SENT for option ' .
                     $taskdata->optionid . ' and user ' . $taskdata->userid);
-                    return;
+                return;
+            }
+
+            if (empty($ruleinstance)) {
+                return;
             }
 
             // We replace the rulejson if it's already provided by the task.
