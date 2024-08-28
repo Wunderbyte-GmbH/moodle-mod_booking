@@ -29,6 +29,7 @@
 use context_system;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\booking_answers;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
@@ -96,7 +97,7 @@ class askforconfirmation implements bo_condition {
             || (!empty($settings->jsonobject->useprice))
                 && (isset($bookinginformation['notbooked']['fullybooked']) &&
                 $bookinginformation['notbooked']['fullybooked'] === true
-                && ($settings->maxoverbooking > count($bookinganswer->usersonwaitinglist))))) {
+                && ($settings->maxoverbooking > booking_answers::count_places($bookinganswer->usersonwaitinglist))))) {
 
             if (!empty(get_config('booking', 'allowoverbooking'))
                 && has_capability('mod/booking:canoverbook', context_system::instance())) {

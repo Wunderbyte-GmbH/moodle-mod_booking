@@ -565,6 +565,10 @@ if (!$tableallbookings->is_downloading()) {
                 $columns[] = 'userpic';
                 $headers[] = get_string('userpic');
                 break;
+            case 'places':
+                $columns[] = 'places';
+                $headers[] = get_string('places', 'mod_booking');
+                break;
             case 'indexnumber':
                 $columns[] = 'indexnumber';
                 $headers[] = get_string('indexnumber', 'mod_booking');

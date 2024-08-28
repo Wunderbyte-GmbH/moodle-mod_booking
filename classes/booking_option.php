@@ -849,7 +849,8 @@ class booking_option {
 
             // 1. Update, enrol and inform users who have switched from the waiting list to status "booked".
             $usersonwaitinglist = array_replace([], $ba->usersonwaitinglist);
-            $noofuserstobook = $settings->maxanswers - count($ba->usersonlist) - count($ba->usersreserved);
+            $noofuserstobook =
+                $settings->maxanswers - booking_answers::count_places($ba->usersonlist) - booking_answers::count_places($ba->usersreserved);
 
             // We want to enrol people who have been waiting longer first.
             usort($usersonwaitinglist, fn($a, $b) => $a->timemodified < $b->timemodified ? -1 : 1);
@@ -877,7 +878,7 @@ class booking_option {
             // 2. Update and inform users who have been put on the waiting list because of changed limits.
             $usersonlist = array_merge($ba->usersonlist, $ba->usersreserved);
             usort($usersonlist, fn($a, $b) => $a->timemodified < $b->timemodified ? -1 : 1);
-            while (count($usersonlist) > $settings->maxanswers) {
+            while (booking_answers::count_places($usersonlist) > $settings->maxanswers) {
                 $currentanswer = array_pop($usersonlist);
                 array_push($usersonwaitinglist, $currentanswer);
 
@@ -895,7 +896,7 @@ class booking_option {
             }
 
             // 3. If users drop out of the waiting list because of changed limits, delete and inform them.
-            while (count($usersonwaitinglist) > $settings->maxoverbooking) {
+            while (booking_answers::count_places($usersonwaitinglist) > $settings->maxoverbooking) {
                 $currentanswer = array_pop($usersonwaitinglist);
                 // The fourth param needs to be false here, so we do not run into a recursion.
                 $this->user_delete_response($currentanswer->userid, false, false, false);
@@ -3177,167 +3178,6 @@ class booking_option {
         return str_replace('amp;', '',
             htmlspecialchars("mailto:$USER->email?$teachersstring" . "bcc=$emailstring&subject=$subject",
             ENT_QUOTES));
-    }
-
-    /**
-     * Function to load all params used by {placeholders} (e.g. for mail templates).
-     * @param int $optionid option id
-     * @param int $userid optional user id, if not provided the logged in $USER will be used
-     */
-    public static function get_placeholder_params(int $optionid, int $userid = 0) {
-
-        global $CFG, $USER;
-
-        $params = new stdClass();
-
-        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        $cmid = $settings->cmid;
-        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
-        $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
-        if (empty($userid)) {
-            $userid = $USER->id;
-        }
-        $user = singleton_service::get_instance_of_user($userid);
-
-        $timeformat = get_string('strftimetime', 'langconfig');
-        $dateformat = get_string('strftimedate', 'langconfig');
-
-        $courselink = '';
-        if ($settings->courseid) {
-            $courselink = new \moodle_url('/course/view.php', ['id' => $settings->courseid]);
-            $courselink = \html_writer::link($courselink, $courselink->out());
-        }
-        $bookinglink = new \moodle_url('/mod/booking/view.php', ['id' => $cmid]);
-        $bookinglink = \html_writer::link($bookinglink, $bookinglink->out());
-
-        // We add the URLs for the user to subscribe to user and course event calendar.
-        $bu = new booking_utils();
-
-        // These links will not be clickable (beacuse they will be copied by users).
-        $params->usercalendarurl = '<a href="#" style="text-decoration:none; color:#000">' .
-        $bu->booking_generate_calendar_subscription_link($user, 'user') .
-        '</a>';
-
-        $params->coursecalendarurl = '<a href="#" style="text-decoration:none; color:#000">' .
-        $bu->booking_generate_calendar_subscription_link($user, 'courses') .
-        '</a>';
-
-        // Add a placeholder with a link to go to the current booking option.
-        $gotobookingoptionlink = new \moodle_url($CFG->wwwroot . '/mod/booking/view.php', [
-            'id' => $cmid,
-            'optionid' => $optionid,
-            'whichview' => 'showonlyone',
-        ]);
-        $params->gotobookingoption = \html_writer::link($gotobookingoptionlink, $gotobookingoptionlink->out());
-
-        // Important: We have to delete answers cache before calling $bookinganswer->user_status.
-        $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
-        $data = $cache->delete($optionid);
-        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
-        $params->status = $bookingoption->get_user_status_string($userid, $bookinganswer->user_status($userid));
-
-        $params->qrid = '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' .
-            rawurlencode($userid) . '&choe=UTF-8" title="Link to Google.com" />';
-        $params->qrusername = isset($user->username) ?
-            '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' .
-            rawurlencode($user->username) . '&choe=UTF-8" title="QR encoded username" />' : '';
-
-        $params->participant = fullname($user);
-        $params->email = $user->email ?? '';
-        $params->title = format_string($settings->get_title_with_prefix());
-        $params->duration = $bookingsettings->duration;
-        $params->starttime = $settings->coursestarttime ?
-            userdate($settings->coursestarttime, $timeformat) : '';
-        $params->endtime = $settings->courseendtime ?
-            userdate($settings->courseendtime, $timeformat) : '';
-        $params->startdate = $settings->coursestarttime ?
-            userdate($settings->coursestarttime, $dateformat) : '';
-        $params->enddate = $settings->courseendtime ?
-            userdate($settings->courseendtime, $dateformat) : '';
-        $params->courselink = $courselink;
-        $params->bookinglink = $bookinglink;
-        $params->location = $settings->location;
-        $params->institution = $settings->institution;
-        $params->address = $settings->address;
-        $params->eventtype = $bookingsettings->eventtype;
-        $params->pollstartdate = $settings->coursestarttime ?
-            userdate((int) $settings->coursestarttime, get_string('pollstrftimedate', 'booking')) : '';
-        if (empty($settings->pollurl)) {
-            $params->pollurl = $bookingsettings->pollurl;
-        } else {
-            $params->pollurl = $settings->pollurl;
-        }
-        if (empty($settings->pollurlteachers)) {
-            $params->pollurlteachers = $bookingsettings->pollurlteachers;
-        } else {
-            $params->pollurlteachers = $settings->pollurlteachers;
-        }
-
-        // Placeholder for the number of booked users.
-        $params->numberparticipants = strval(count($bookingoption->get_all_users_booked()));
-
-        // Placeholder for the number of users on the waiting list.
-        $params->numberwaitinglist = strval(count($bookingoption->get_all_users_on_waitinglist()));
-
-        // Add placeholders for additional user fields.
-        if (isset($user->username)) {
-            $params->username = $user->username;
-        }
-        if (isset($user->firstname)) {
-            $params->firstname = $user->firstname;
-        }
-        if (isset($user->lastname)) {
-            $params->lastname = $user->lastname;
-        }
-        if (isset($user->department)) {
-            $params->department = $user->department;
-        }
-
-        // Get bookingoption_description instance for rendering certain data.
-        $params->teachers = $settings->render_list_of_teachers();
-
-        // Params for individual teachers.
-        $i = 1;
-        foreach ($settings->teachers as $teacher) {
-            $params->{"teacher" . $i} = $teacher->firstname . ' ' . $teacher->lastname;
-            $i++;
-        }
-        // If there's only one teacher, we can use either {teacher} or {teacher1}.
-        if (!empty($params->teacher1)) {
-            $params->teacher = $params->teacher1;
-        } else {
-            $params->teacher = '';
-        }
-
-        // Add user profile fields to e-mail params.
-        // If user profile fields are missing, we need to load them correctly.
-        if (empty($user->profile)) {
-            $user->profile = [];
-            profile_load_data($user);
-            foreach ($user as $userkey => $uservalue) {
-                if (substr($userkey, 0, 14) == "profile_field_") {
-                    $profilefieldkey = str_replace('profile_field_', '', $userkey);
-                    $user->profile[$profilefieldkey] = $uservalue;
-                }
-            }
-        }
-        foreach ($user->profile as $profilefieldkey => $profilefieldvalue) {
-            // Ignore fields that use a param name that is already in use.
-            if (!isset($params->{$profilefieldkey})) {
-                // Example: There is a user profile field called "Title".
-                // We can now use the placeholder {Title}. (Keep in mind that this is case-sensitive!).
-                $params->{$profilefieldkey} = $profilefieldvalue;
-            }
-        }
-
-        // Add a param to the option's teachers report (training journal).
-        $teachersreportlink = new \moodle_url('/mod/booking/optiondates_teachers_report.php', [
-            'cmid' => $cmid,
-            'optionid' => $optionid,
-        ]);
-        $params->journal = \html_writer::link($teachersreportlink, $teachersreportlink->out());
-
-        return $params;
     }
 
     /**

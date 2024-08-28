@@ -611,21 +611,19 @@ class booking_answers {
     }
 
     /**
-     * We need to count places.
+     * Function to sum up places value.
+     * If no places key is found, we use 1.
      *
      * @param array $users
      *
      * @return int
      *
      */
-    private static function count_places(array $users) {
+    public static function count_places(array $users) {
+        $sum = array_reduce($users, function ($carry, $item) {
+            return $carry + ($item->places ?? 1);
+        }, 0);
 
-        $places = 0;
-
-        foreach ($users as $item) {
-            $places += $item->places ?? 0;
-        }
-
-        return $places;
+        return $sum;
     }
 }

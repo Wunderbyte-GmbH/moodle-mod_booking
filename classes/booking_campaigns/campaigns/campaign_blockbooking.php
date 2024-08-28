@@ -17,6 +17,7 @@
 namespace mod_booking\booking_campaigns\campaigns;
 
 use context_system;
+use mod_booking\booking_answers;
 use mod_booking\booking_campaigns\booking_campaign;
 use mod_booking\booking_option_settings;
 use mod_booking\customfield\booking_handler;
@@ -356,11 +357,13 @@ class campaign_blockbooking implements booking_campaign {
         switch ($this->blockoperator) {
 
             case 'blockbelow':
-                $blocking = ($settings->maxanswers * $this->percentageavailableplaces * 0.01) > count($ba->usersonlist);
+                $blocking = ($settings->maxanswers * $this->percentageavailableplaces * 0.01)
+                    > booking_answers::count_places($ba->usersonlist);
                 break;
 
             case 'blockabove':
-                $blocking = ($settings->maxanswers * $this->percentageavailableplaces * 0.01) < count($ba->usersonlist);
+                $blocking = ($settings->maxanswers * $this->percentageavailableplaces * 0.01)
+                    < booking_answers::count_places($ba->usersonlist);
                 break;
         }
 
