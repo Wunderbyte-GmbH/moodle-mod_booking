@@ -1441,6 +1441,7 @@ $string['numgenerator'] = 'Enable rec. number generation?';
 $string['numrec'] = "Rec. num.";
 $string['onecohortmustbefound'] = 'User has to be member to at least one of these cohorts';
 $string['onecoursemustbefound'] = 'User has to be subscribed to at least only one of these courses';
+$string['onlineoptiondate'] = 'Takes place online';
 $string['onlyaddactionsonsavedoption'] = "Actions after booking can only be added once the booking option is saved.";
 $string['onlyaddentitiesonsavedsubbooking'] = "You need to save this subbooking before you can add an entity.";
 $string['onlyaddsubbookingsonsavedoption'] = "You need to save this booking option before you can add subbookings.";

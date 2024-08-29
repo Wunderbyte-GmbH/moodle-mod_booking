@@ -2579,7 +2579,10 @@ class booking_option {
             case MOD_BOOKING_DESCRIPTION_OPTIONVIEW:
                 // We don't want to show these Buttons at all if the user is not booked.
                 if (!$forbookeduser) {
-                    return [];
+                    return [
+                        'name' => null,
+                        'value' => get_string('onlineoptiondate', 'mod_booking'),
+                ];
                 } else {
                     // We are booked on the web site, we check if we show the real link.
                     if (!$this->show_conference_link($sessionid)) {
