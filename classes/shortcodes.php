@@ -360,7 +360,7 @@ class shortcodes {
         $table = self::init_table_for_courses(null, "courses_" . implode("_", $courseids));
 
         list($fields, $from, $where, $params, $filter) =
-                booking::get_options_filter_sql(0, 0, '', null, null, [], ['recommendedin' => $courseshortnames], null, null, '');
+                booking::get_options_filter_sql(0, 0, '', null, null, [], ['recommendedin' => $courseshortnames], null, [], '');
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
