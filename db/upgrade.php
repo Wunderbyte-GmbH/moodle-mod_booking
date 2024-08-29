@@ -3804,7 +3804,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024081600, 'booking');
     }
 
-    if ($oldversion < 2024082900) {
+    if ($oldversion < 2024082903) {
 
         // Define field places to be added to booking_answers.
         $table = new xmldb_table('booking_answers');
@@ -3818,7 +3818,7 @@ function xmldb_booking_upgrade($oldversion) {
         fix_places_for_booking_answers();
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2024082900, 'booking');
+        upgrade_mod_savepoint(true, 2024082903, 'booking');
     }
 
     return true;
