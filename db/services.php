@@ -175,6 +175,13 @@ $functions = [
         'capabilities' => '',
         'ajax' => 1,
     ],
+    'mod_booking_update_bookingnotes' => [
+        'classname'     => 'mod_booking\external\update_bookingnotes',
+        'description'   => 'Update the booking notes via AJAX',
+        'type'          => 'write',
+        'capabilities'  => 'mod/booking:readresponses',
+        'ajax'          => 1,
+    ],
 ];
 
 $services = [
