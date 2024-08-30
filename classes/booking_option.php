@@ -1463,7 +1463,7 @@ class booking_option {
 
             // If a semester is set for the booking option...
             // ...then we only want to enrol from semester startdate to semester enddate.
-            if (empty($this->settings->semesterid)) {
+            if (empty($this->settings->semesterid) || $isteacher) {
                 // Enrol using the default role.
                 $enrol->enrol_user($instance, $userid, ($roleid > 0 ? $roleid : $instance->roleid));
             } else {
