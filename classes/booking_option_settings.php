@@ -1125,6 +1125,18 @@ class booking_option_settings {
         foreach ($customfields as $customfield) {
             $name = $customfield->shortname;
 
+            // We need to throw an error when there is a space in the shortname.
+
+            if (preg_match('/[^a-z0-9_]/', $name) > 0) {
+                throw new moodle_exception(
+                    'nospacesinshortnames',
+                    'mod_booking',
+                    '',
+                    $name,
+                    "This shorname of a booking customfield contains forbidden characters"
+                );
+            }
+
             $select .= "cfd$counter.value as $name ";
 
             // After the last instance, we don't add a comma.
