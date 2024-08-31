@@ -396,17 +396,16 @@ class subbooking_additionalitem implements booking_subbooking {
      *
      */
     public function is_blocking(booking_option_settings $settings, int $userid = 0): bool {
-
         // We never show the subbooking when we are only in waitforconfirmation.
         if (!empty($settings->waitforconfirmation)) {
-            $waitinglist = new onwaitinglist();
-            $alreadybooked = new alreadybooked();
-
             $ba = singleton_service::get_instance_of_booking_answers($settings);
 
+            // When the user is neither on waitinglist, nor on reserved, don't show subbookings.
             if (
-                $ba->usersonlist[$userid] ?? false
-                && $ba->usersonwaitinglist[$userid] ?? false
+                !(
+                    ($ba->usersonwaitinglist[$userid] ?? false)
+                    || ($ba->usersreserved[$userid] ?? false)
+                )
             ) {
                 return false;
             }
@@ -423,7 +422,7 @@ class subbooking_additionalitem implements booking_subbooking {
             $customformstore->get_customform_data() === false
             || empty($this->subbookingadditemformlink)
         ) {
-            return empty($this->block);
+            return true;
         }
 
         if ($data = $customformstore->return_value_for_label($this->subbookingadditemformlink)) {

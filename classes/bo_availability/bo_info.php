@@ -625,9 +625,10 @@ class bo_info {
         // ... then we need to verify if we are already booked.
         // If not, we need to do it now.
 
-        if (!isset($conditions[$pagenumber]['pre'])
-            && !($conditions[$pagenumber]['id'] === MOD_BOOKING_BO_COND_BOOKITBUTTON)) {
-
+        if (
+            !isset($conditions[$pagenumber]['pre'])
+            && !($conditions[$pagenumber]['id'] === MOD_BOOKING_BO_COND_BOOKITBUTTON)
+        ) {
             // Every time we load a page which is not "pre", we need to check if we are booked.
             // First, determine if this is a booking option with a price.
 
@@ -636,7 +637,6 @@ class bo_info {
                 !self::has_price_set($results)
                 || self::booked_on_waitinglist($results)
             ) {
-
                 // Check if we are already booked.
                 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
                 $boinfo = new bo_info($settings);
@@ -644,7 +644,8 @@ class bo_info {
                 // Check option availability if user is not logged yet.
                 [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $userid, false);
 
-                if (!(
+                if (
+                    !(
                         $id === MOD_BOOKING_BO_COND_ALREADYBOOKED
                         || $id === MOD_BOOKING_BO_COND_ONWAITINGLIST
                     )

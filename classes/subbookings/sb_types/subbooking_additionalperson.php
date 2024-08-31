@@ -23,6 +23,7 @@ use mod_booking\booking_option_settings;
 use mod_booking\form\subbooking\additionalperson_form;
 use mod_booking\output\subbooking_additionalperson_output;
 use mod_booking\price;
+use mod_booking\singleton_service;
 use mod_booking\subbookings\booking_subbooking;
 use MoodleQuickForm;
 use stdClass;
@@ -407,8 +408,22 @@ class subbooking_additionalperson implements booking_subbooking {
      *
      */
     public function is_blocking(booking_option_settings $settings, int $userid = 0): bool {
+        // We never show the subbooking when we are only in waitforconfirmation.
+        if (!empty($settings->waitforconfirmation)) {
+            $ba = singleton_service::get_instance_of_booking_answers($settings);
 
-        return empty($this->block);
+            // When the user is neither on waitinglist, nor on reserved, don't show subbookings.
+            if (
+                !(
+                    ($ba->usersonwaitinglist[$userid] ?? false)
+                    || ($ba->usersreserved[$userid] ?? false)
+                )
+            ) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
