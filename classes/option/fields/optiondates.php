@@ -106,14 +106,13 @@ class optiondates extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
-
+        $returnvalue = null
+    ): array {
         // Run through all dates to make sure we don't have an array.
         // We need to transform dates to timestamps.
-        list($dates, $highesindex) = dates::get_list_of_submitted_dates((array)$formdata);
+        [$dates, $highesindex] = dates::get_list_of_submitted_dates((array)$formdata);
 
         foreach ($dates as $date) {
-
             $newoption->{'coursestarttime_' . $date['index']} = $date['coursestarttime'];
             $newoption->{'courseendtime_' . $date['index']} = $date['courseendtime'];
             $newoption->{'optiondateid_' . $date['index']} = $date['optiondateid'];
@@ -124,7 +123,7 @@ class optiondates extends field_base {
                 $newoption->coursestarttime = $date['coursestarttime'];
             }
             // We want to set the courseendtime to the last courseendtime.
-            $newoption->courseendtime = $date['courseendtime'];;
+            $newoption->courseendtime = $date['courseendtime'];
         }
 
         // If there is no date left, we delete courestartdate & courseenddate.
@@ -210,11 +209,14 @@ class optiondates extends field_base {
                     $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($data->cmid);
                 }
 
-                $data->semesterid = $data->semesterid ?? $settings->semesterid ?? $bookingsettings->semesterid ?? 0;
+                $data->semesterid = !empty($data->semesterid) ? $data->semesterid : (
+                    !empty($settings->semesterid) ? $settings->semesterid : (
+                        !empty($bookingsettings->semesterid) ? $bookingsettings->semesterid : 0
+                    )
+                );
 
                 // If there is not semesterid to be found at this point, we abort.
                 if (empty($data->semesterid)) {
-
                     // Todo: Make a meaningful error message to the cause of this abortion.
                     return;
                 }

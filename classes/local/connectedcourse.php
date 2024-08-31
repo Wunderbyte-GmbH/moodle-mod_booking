@@ -106,8 +106,7 @@ class connectedcourse {
      */
     public static function handle_user_choice(stdClass &$newoption, stdClass &$formdata) {
 
-        switch ($formdata->chooseorcreatecourse) {
-
+        switch ($formdata->chooseorcreatecourse ?? 1) {
             case 0:
                 // Do nothing.
                 $newoption->courseid = 0;
