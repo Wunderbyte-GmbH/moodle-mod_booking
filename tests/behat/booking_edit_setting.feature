@@ -189,3 +189,22 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     And I follow "Settings"
     And I wait until the page is ready
     And "#id_emailsettings" "css_element" should not exist
+
+  @javascript
+  Scenario: Booking settings - display link to Moodle course on booked button
+    Given the following "mod_booking > options" exist:
+      | booking    | text         | course | description  | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | teachersforoption |
+      | My booking | LinkOnBooked | C1     | Option deskr | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | teacher1          |
+    And the following "mod_booking > answers" exist:
+      | booking    | option       | user     |
+      | My booking | LinkOnBooked | student1 |
+    And I am on the "My booking" Activity page logged in as student1
+    And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
+    And I log out
+    And I log in as "admin"
+    And I set the following administration settings values:
+      | Show Link to Moodle course directly on booked button |  |
+    And I press "Save changes"
+    And I log out
+    And I am on the "My booking" Activity page logged in as student1
+    And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
