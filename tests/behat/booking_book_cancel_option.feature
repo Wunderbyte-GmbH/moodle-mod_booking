@@ -40,7 +40,7 @@ Feature: In a booking instance
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
-    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should not see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
 
@@ -54,7 +54,7 @@ Feature: In a booking instance
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Undo my booking" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
@@ -80,7 +80,7 @@ Feature: In a booking instance
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
-    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I log out
     And I am on the "My booking" Activity page logged in as teacher1
@@ -90,7 +90,7 @@ Feature: In a booking instance
     And I press "Save and display"
     And I log out
     When I am on the "My booking" Activity page logged in as student1
-    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
 
   @javascript
@@ -112,7 +112,7 @@ Feature: In a booking instance
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
-    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I log out
     And I am on the "My booking" Activity page logged in as teacher1
@@ -122,7 +122,7 @@ Feature: In a booking instance
     And I press "Save and display"
     And I log out
     When I am on the "My booking" Activity page logged in as student1
-    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
 
   @javascript
@@ -163,7 +163,7 @@ Feature: In a booking instance
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
-    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I log out
     And I am on the "My booking" Activity page logged in as teacher1
@@ -174,7 +174,7 @@ Feature: In a booking instance
     And I press "Save and display"
     And I log out
     When I am on the "My booking" Activity page logged in as student1
-    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
 
   @javascript
@@ -201,7 +201,7 @@ Feature: In a booking instance
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
-    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     ## Verify - self-cancellation IS NOT possible
     And I should not see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I log out
@@ -213,7 +213,7 @@ Feature: In a booking instance
     And I press "Save and display"
     And I log out
     When I am on the "My booking" Activity page logged in as student1
-    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     ## Verify - self-cancellation IS possible
     And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
 
@@ -241,7 +241,7 @@ Feature: In a booking instance
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
-    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     ## Verify - self-cancellation IS NOT possible
     And I should not see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I log out
@@ -253,6 +253,6 @@ Feature: In a booking instance
     And I press "Save and display"
     And I log out
     When I am on the "My booking" Activity page logged in as student1
-    Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     ## Verify - self-cancellation IS possible
     And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"

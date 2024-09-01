@@ -47,7 +47,7 @@ Feature: Create booking option with price and force students answer as admin tha
   Scenario: Booking: option cancellation when price was set
     Given I am on the "BookingCMP" Activity page logged in as student1
     And I should see "Option-tenis" in the ".allbookingoptionstable_r2" "css_element"
-    And I should see "Booked" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "Start" in the ".allbookingoptionstable_r2" "css_element"
     ##And I wait "1" seconds
     And I click on "Cancel purchase" "text" in the ".allbookingoptionstable_r2 .booknow" "css_element"
     Then I should see "Do you really want to cancel this purchase?" in the ".modal.show .modal-body" "css_element"

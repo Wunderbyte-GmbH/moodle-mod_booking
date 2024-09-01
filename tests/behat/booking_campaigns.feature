@@ -94,7 +94,7 @@ Feature: Create booking campaigns for booking options as admin and booking it as
     And I click on "Book now" "text" in the ".allbookingoptionstable_r3 .booknow" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r3" "css_element"
-    And I should see "Booked" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Start" in the ".allbookingoptionstable_r3" "css_element"
     And I log out
     ## Verify "above" blocking campaing - student2 can NOT book
     And I am on the "BookingCMP" Activity page logged in as student2

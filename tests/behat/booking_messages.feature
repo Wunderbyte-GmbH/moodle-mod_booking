@@ -71,7 +71,7 @@ Feature: Test messaging features in a booking
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     ## Next step(s) cause faiure (coding error, email was not sent):
     ## Then I trigger cron
     ## And I wait "1" seconds

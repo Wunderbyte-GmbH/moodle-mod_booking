@@ -138,7 +138,7 @@ Feature: Test booking options avaialbility conditions
     And I click on "Book now" "text" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r3" "css_element"
-    And I should see "Booked" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Start" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Only users who have previously booked" in the ".allbookingoptionstable_r1" "css_element"
 
@@ -210,7 +210,7 @@ Feature: Test booking options avaialbility conditions
     And I click on "Book now" "text" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r3" "css_element"
-    And I should see "Booked" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Start" in the ".allbookingoptionstable_r3" "css_element"
     Given I am on the "My booking" Activity page logged in as student2
     Then I should see "Fully booked" in the ".allbookingoptionstable_r3" "css_element"
     And I should not see "Book now" in the ".allbookingoptionstable_r3" "css_element"
@@ -233,7 +233,7 @@ Feature: Test booking options avaialbility conditions
     And I click on "Add" "button"
     ## Check avaialbility as students
     Given I am on the "My booking" Activity page logged in as student1
-    Then I should see "Booked" in the ".allbookingoptionstable_r3" "css_element"
+    Then I should see "Start" in the ".allbookingoptionstable_r3" "css_element"
     Given I am on the "My booking" Activity page logged in as student3
     Then I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r3" "css_element"
@@ -264,7 +264,7 @@ Feature: Test booking options avaialbility conditions
     And I click on "Book now" "text" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r3" "css_element"
-    And I should see "Booked" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Start" in the ".allbookingoptionstable_r3" "css_element"
 
   @javascript
   Scenario: Configure combined availability conditions - date or option
@@ -291,7 +291,7 @@ Feature: Test booking options avaialbility conditions
     And I click on "Book now" "text" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r3" "css_element"
-    And I should see "Booked" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Start" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Can be booked from" in the ".allbookingoptionstable_r1" "css_element"
     ## Configure OR option
     Given I am on the "My booking" Activity page logged in as teacher1
@@ -305,7 +305,7 @@ Feature: Test booking options avaialbility conditions
     And I set the field with xpath "//*[contains(@id, 'fitem_id_bo_cond_previouslybooked_overridecondition')]//*[contains(@id, 'form_autocomplete_input')]" to "Only bookable within a certain time"
     And I press "Save"
     When I am on the "My booking" Activity page logged in as student1
-    Then I should see "Booked" in the ".allbookingoptionstable_r3" "css_element"
+    Then I should see "Start" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Can be booked from" in the ".allbookingoptionstable_r1" "css_element"
 
@@ -316,7 +316,7 @@ Feature: Test booking options avaialbility conditions
     And I click on "Book now" "text" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r3" "css_element"
-    And I should see "Booked" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Start" in the ".allbookingoptionstable_r3" "css_element"
     ## Setup overbooking given to user
     Given I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
@@ -380,7 +380,7 @@ Feature: Test booking options avaialbility conditions
     And I follow "Continue"
     And I should see "You have successfully booked Option - advanced availability" in the ".condition-confirmation" "css_element"
     And I follow "Close"
-    And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
 
   @javascript
   Scenario: Configure availability to fill inline agreement form
@@ -407,7 +407,7 @@ Feature: Test booking options avaialbility conditions
     And I follow "Continue"
     And I should see "You have successfully booked Option - advanced availability" in the ".allbookingoptionstable_r1 .condition-confirmation" "css_element"
     And I follow "Close"
-    And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
 
   @javascript
   Scenario: Option availability: check users cohort settings
