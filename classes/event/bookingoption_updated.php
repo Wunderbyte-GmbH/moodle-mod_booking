@@ -65,6 +65,38 @@ class bookingoption_updated extends \core\event\base {
      *
      */
     public function get_description() {
+        return $this->generate_description(false);
+    }
+
+    /**
+     * Get_url
+     *
+     * @return \moodle_url
+     *
+     */
+    public function get_url() {
+        return new \moodle_url('/mod/booking/report.php', ['id' => $this->contextinstanceid, 'optionid' => $this->objectid]);
+    }
+
+    /**
+     * Get short description i.e. for display in mail.
+     *
+     * @return string
+     *
+     */
+    public function get_simplified_description() {
+        return $this->generate_description(true);
+    }
+
+    /**
+     * Generate description either from default or simplified template.
+     *
+     * @param bool $simplified
+     *
+     * @return string
+     *
+     */
+    private function generate_description($simplified = false) {
 
         global $PAGE;
 
@@ -85,21 +117,15 @@ class bookingoption_updated extends \core\event\base {
             $html = '';
         }
 
+        if ($simplified) {
+            return $html;
+        }
+
         $infos = (object) [
             'userid' => $this->userid,
             'objectid' => $this->objectid,
         ];
         $infostring = get_string('bookingoptionupdateddesc', 'mod_booking', $infos);
         return $infostring . $html;
-    }
-
-    /**
-     * Get_url
-     *
-     * @return \moodle_url
-     *
-     */
-    public function get_url() {
-        return new \moodle_url('/mod/booking/report.php', ['id' => $this->contextinstanceid, 'optionid' => $this->objectid]);
     }
 }

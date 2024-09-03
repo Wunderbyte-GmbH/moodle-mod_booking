@@ -81,7 +81,7 @@ class changes {
             $other = json_encode($event->other);
             $event->other = $other;
             $event = $class::restore((array)$event, []);
-            $description = $event->get_description();
+            $description = $event->get_simplified_description();
             $value = $description;
         } else {
             $classname = substr(strrchr(get_called_class(), '\\'), 1);
