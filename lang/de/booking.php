@@ -949,6 +949,7 @@ $string['enforceorder_help'] = 'Nutzer:innen werden erst nach Abschluss des vora
 $string['enrolledcomments'] = 'Nur Eingeschriebene können kommentieren';
 $string['enrolledratings'] = 'Nur Eingeschriebene können bewerten';
 $string['enrolledusers'] = 'In den Kurs eingeschriebene Nutzer:innen';
+$string['enrolementstatus'] = 'Modus der Kurseinschreibung';
 $string['enrolmentstatus'] = 'Nutzer:innen erst zu Kursbeginn in den Kurs einschreiben (Standard: Nicht angehakt &rarr; sofort einschreiben.)';
 $string['enrolmentstatus_help'] = 'Achtung: Damit die automatische Einschreibung funktioniert,
  müssen Sie in den Einstellungen der Buchungsinstanz "Nutzer:innen automatisch einschreiben" auf "Ja" setzen.';

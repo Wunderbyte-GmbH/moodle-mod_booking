@@ -115,6 +115,8 @@ class fields_info {
         $namespace = "";
         if ($classname == "dates") {
             $classname = "optiondates";
+        } else if ($classname == "enrolementstatus") {
+            $classname = "enrolmentstatus";
         }
         $base = 'mod_booking\\option\\fields\\' . $classname;
         if (class_exists($base)) {

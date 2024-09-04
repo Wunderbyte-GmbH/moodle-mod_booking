@@ -25,15 +25,12 @@
 namespace mod_booking\option\fields;
 
 use context_course;
-use core_course_external;
 use mod_booking\booking_option_settings;
 use mod_booking\local\connectedcourse;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use mod_booking\singleton_service;
-use mod_booking\utils\wb_payment;
 use moodle_exception;
-use moodle_url;
 use MoodleQuickForm;
 use stdClass;
 

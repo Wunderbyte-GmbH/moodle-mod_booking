@@ -963,6 +963,7 @@ $string['enrolledcomments'] = 'Only enrolled';
 $string['enrolledinoptions'] = "already booked in booking options: ";
 $string['enrolledratings'] = 'Only enrolled';
 $string['enrolledusers'] = 'Users enrolled in course';
+$string['enrolementstatus'] = 'Mode of course enrolment';
 $string['enrolmentstatus'] = 'Enrol users at course start time (Default: Not checked &rarr; enrol them immediately.)';
 $string['enrolmentstatus_help'] = 'Notice: In order for automatic enrolment to work, you need to change the booking instance setting
  "Automatically enrol users" to "Yes".';
