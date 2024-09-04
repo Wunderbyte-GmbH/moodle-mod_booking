@@ -25,6 +25,7 @@
 namespace mod_booking\placeholders\placeholders;
 
 use html_writer;
+use mod_booking\local\modechecker;
 use mod_booking\placeholders\placeholders_info;
 use mod_booking\singleton_service;
 use moodle_url;
@@ -67,6 +68,8 @@ class bookingoptiondetaillink {
         array &$params = [],
         int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE) {
 
+        global $PAGE;
+
         $classname = substr(strrchr(get_called_class(), '\\'), 1);
 
         if (!empty($optionid)) {
@@ -85,11 +88,24 @@ class bookingoptiondetaillink {
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
             $value = '';
+
             if ($settings->cmid) {
-                $bookingoptiondetaillink = new moodle_url(
-                    '/mod/booking/optionview.php',
-                    ['cmid' => $cmid, 'optionid' => $optionid]
-                );
+
+                if (!modechecker::is_ajax_or_webservice_request()) {
+                    $returnurl = $PAGE->url->out();
+                } else {
+                    $returnurl = '/';
+                }
+
+                // The current page is not /mod/booking/optionview.php.
+                $bookingoptiondetaillink = new moodle_url("/mod/booking/optionview.php", [
+                    "optionid" => (int)$settings->id,
+                    "cmid" => (int)$cmid,
+                    "userid" => (int)$userid,
+                    'returnto' => 'url',
+                    'returnurl' => $returnurl,
+                ]);
+
                 $value = html_writer::link($bookingoptiondetaillink, $bookingoptiondetaillink->out());
             }
 

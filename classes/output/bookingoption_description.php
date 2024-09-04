@@ -32,6 +32,7 @@ use mod_booking\booking_answers;
 use mod_booking\booking_bookit;
 use mod_booking\booking_context_helper;
 use mod_booking\booking_option;
+use mod_booking\local\modechecker;
 use mod_booking\option\dates_handler;
 use mod_booking\price;
 use mod_booking\singleton_service;
@@ -82,6 +83,12 @@ class bookingoption_description implements renderable, templatable {
 
     /** @var string $imageurl URL of an uploaded image for the option */
     private $imageurl = null;
+
+    /** @var string $editurl URL to edit the option */
+    private $editurl = null;
+
+    /** @var string $returnurl URL to edit the option */
+    public $returnurl = '';
 
     /** @var string $location as saved in db */
     private $location = null;
@@ -168,13 +175,14 @@ class bookingoption_description implements renderable, templatable {
      *
      */
     public function __construct(
-            int $optionid,
-            $bookingevent = null,
-            int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE,
-            bool $withcustomfields = true,
-            ?bool $forbookeduser = null,
-            ?object $user = null,
-            $ashtml = false) {
+        int $optionid,
+        $bookingevent = null,
+        int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE,
+        bool $withcustomfields = true,
+        ?bool $forbookeduser = null,
+        ?object $user = null,
+        $ashtml = false
+    ) {
 
         global $CFG, $PAGE, $USER;
 
@@ -395,12 +403,30 @@ class bookingoption_description implements renderable, templatable {
         // Manual factor to be applied to price calculation with formula.
         $this->priceformulamultiply = $settings->priceformulamultiply;
 
-        $baseurl = $CFG->wwwroot;
-        $moodleurl = new \moodle_url($baseurl . '/mod/booking/optionview.php', [
-            'optionid' => $settings->id,
-            'cmid' => $cmid,
-            // Do not set userid here as it might be written into calendar event!
+        if (!modechecker::is_ajax_or_webservice_request()) {
+            $returnurl = $PAGE->url->out();
+        } else {
+            $returnurl = false;
+        }
+
+        // The current page is not /mod/booking/optionview.php.
+        $moodleurl = new moodle_url("/mod/booking/optionview.php", [
+            "optionid" => (int)$settings->id,
+            "cmid" => (int)$cmid,
+            "userid" => (int)$user->id,
+            'returnto' => 'url',
+            'returnurl' => $returnurl,
         ]);
+
+        // The current page is not /mod/booking/optionview.php.
+        $editurl = new moodle_url("/mod/booking/editoptions.php", [
+            "optionid" => (int)$settings->id,
+            "id" => (int)$cmid,
+            'returnto' => 'url',
+            'returnurl' => $returnurl,
+        ]);
+
+        $this->editurl = $editurl->out(false);
 
         switch ($descriptionparam) {
             case MOD_BOOKING_DESCRIPTION_WEBSITE:
@@ -497,6 +523,8 @@ class bookingoption_description implements renderable, templatable {
             'bookitsection' => $this->bookitsection,
             'bookingopeningtime' => $this->bookingopeningtime,
             'bookingclosingtime' => $this->bookingclosingtime,
+            'editurl' => $this->editurl,
+            'returnurl' => $this->returnurl,
         ];
 
         if (!empty($this->unitstring)) {

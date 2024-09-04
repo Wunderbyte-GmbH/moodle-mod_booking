@@ -87,21 +87,9 @@ if ($settings = singleton_service::get_instance_of_booking_option_settings($opti
     // ... and have therefore to be called after printing the header.
     // This needs to be fixed.
 
-    if (
-        $returnto == 'url'
-        && !empty($returnurl)
-    ) {
-        echo html_writer::tag(
-            'a',
-            get_string('back'),
-            [
-                'class' => 'btn btn-primary',
-                'href' => $returnurl,
-            ]
-        );
-    }
     $output = $PAGE->get_renderer('mod_booking');
     $data = new bookingoption_description($settings->id, null, MOD_BOOKING_DESCRIPTION_OPTIONVIEW, true, null, $user, true);
+    $data->returnurl = $returnurl ?? false;
 
     // The isinvisible check ONLY checks the "real" invisible option, not the "visible only with direct link".
     // As the option here is only possible with direct link, we don't need to check this.

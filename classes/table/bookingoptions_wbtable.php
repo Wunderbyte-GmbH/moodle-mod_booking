@@ -24,6 +24,7 @@
 
 namespace mod_booking\table;
 use mod_booking\booking_answers;
+use mod_booking\local\modechecker;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -184,6 +185,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      */
     public function col_text($values) {
 
+        global $PAGE;
+
         $title = $values->text;
 
         // If we download, we return the raw title without link or prefix.
@@ -200,10 +203,21 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
         if ($booking) {
-            $url = new moodle_url('/mod/booking/optionview.php', ['optionid' => $optionid,
-                                                                  'cmid' => $cmid,
-                                                                  'userid' => $buyforuser->id,
-                                                                ]);
+
+            if (!modechecker::is_ajax_or_webservice_request()) {
+                $returnurl = $PAGE->url->out();
+            } else {
+                $returnurl = '/';
+            }
+
+            // The current page is not /mod/booking/optionview.php.
+            $url = new moodle_url("/mod/booking/optionview.php", [
+                "optionid" => (int)$settings->id,
+                "cmid" => (int)$cmid,
+                "userid" => (int)$buyforuser->id,
+                'returnto' => 'url',
+                'returnurl' => $returnurl,
+            ]);
         } else {
             $url = '#';
         }

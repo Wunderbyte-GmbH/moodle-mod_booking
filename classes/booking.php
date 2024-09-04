@@ -30,6 +30,7 @@ use course_modinfo;
 use html_writer;
 use local_entities\local\entities\entitydate;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\local\modechecker;
 use mod_booking\teachers_handler;
 use moodle_exception;
 use stdClass;
@@ -1339,7 +1340,7 @@ class booking {
 
         // TODO: Now that the SQL has been changed, we need to fix this function!
 
-        global $DB, $USER;
+        global $DB, $USER, $PAGE;
 
         // Get the SQL to retrieve all the right IDs.
         $sql = self::return_sql_for_options_dates($areas);
@@ -1383,11 +1384,19 @@ class booking {
 
             $optionsettings = singleton_service::get_instance_of_booking_option_settings($record->optionid);
 
-            // Link is always the same.
-            $link = new moodle_url('/mod/booking/optionview.php', [
-                'optionid' => $record->optionid,
-                'cmid' => $optionsettings->cmid,
-                'userid' => $USER->id,
+            if (!modechecker::is_ajax_or_webservice_request()) {
+                $returnurl = $PAGE->url->out();
+            } else {
+                $returnurl = '/';
+            }
+
+            // The current page is not /mod/booking/optionview.php.
+            $link = new moodle_url("/mod/booking/optionview.php", [
+                "optionid" => (int)$optionsettings->id,
+                "cmid" => (int)$optionsettings->cmid,
+                "userid" => (int)$USER->id,
+                'returnto' => 'url',
+                'returnurl' => $returnurl,
             ]);
 
             // Invisible options should be in a light gray.

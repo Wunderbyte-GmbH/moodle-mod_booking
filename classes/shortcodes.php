@@ -32,6 +32,7 @@ use html_writer;
 use local_wunderbyte_table\filters\types\standardfilter;
 use mod_booking\booking;
 use mod_booking\customfield\booking_handler;
+use mod_booking\local\modechecker;
 use mod_booking\output\view;
 use mod_booking\singleton_service;
 use mod_booking\table\bookingoptions_wbtable;
@@ -412,7 +413,7 @@ class shortcodes {
      */
     public static function linkbacktocourse($shortcode, $args, $content, $env, $next) {
 
-        global $COURSE, $USER, $DB, $CFG;
+        global $COURSE, $USER, $DB, $CFG, $PAGE;
 
         if (!wb_payment::pro_version_is_activated()) {
             return get_string('infotext:prolicensenecessary', 'mod_booking');
@@ -430,10 +431,21 @@ class shortcodes {
 
         foreach ($optionids as $option) {
             $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
-            $url = new moodle_url('/mod/booking/optionview.php', [
-                'optionid' => $option->id,
-                'cmid' => $settings->cmid,
-                'userid' => $USER->id,
+
+
+            if (!modechecker::is_ajax_or_webservice_request()) {
+                $returnurl = $PAGE->url->out();
+            } else {
+                $returnurl = '/';
+            }
+
+            // The current page is not /mod/booking/optionview.php.
+            $url = new moodle_url("/mod/booking/optionview.php", [
+                "optionid" => (int)$settings->id,
+                "cmid" => (int)$settings->cmid,
+                "userid" => $USER->id,
+                'returnto' => 'url',
+                'returnurl' => $returnurl,
             ]);
             $out .= html_writer::tag(
                 'a',
