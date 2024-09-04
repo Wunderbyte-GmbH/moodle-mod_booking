@@ -75,7 +75,6 @@ class optiondates_with_entities implements renderable, templatable {
         }
 
         foreach ($sessions as $session) {
-
             $session->starttime = $session->startdatetime;
 
             if ($session->startdate !== $session->enddate) {
@@ -86,7 +85,6 @@ class optiondates_with_entities implements renderable, templatable {
                 $url = new moodle_url('/local/entities/view.php', ['id' => $data->id]);
                 $session->entityurl = $url->out();
             }
-
         }
 
         $this->sessions = $sessions;

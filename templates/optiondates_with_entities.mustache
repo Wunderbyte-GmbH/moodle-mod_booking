@@ -40,16 +40,9 @@
     }
 }}
 {{#showsessions}}
-{{#onesession}}
-{{#sessions}}
-<b>{{{starttime}}} - {{{endtime}}}</b>
-{{/sessions}}
-{{/onesession}}
-{{^onesession}}
-<ul>
-{{#sessions}}
-    <li>{{{starttime}}} - {{{endtime}}} <a href="{{entityurl}}"> {{entityname}} </a></li>
-{{/sessions}}
-</ul>
-{{/onesession}}
+    <ul>
+        {{#sessions}}
+            <li>{{{starttime}}} - {{{endtime}}} {{#entityname}}<a href="{{entityurl}}"> {{entityname}} </a>{{/entityname}}</li>
+        {{/sessions}}
+    </ul>
 {{/showsessions}}
