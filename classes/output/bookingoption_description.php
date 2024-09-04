@@ -408,21 +408,26 @@ class bookingoption_description implements renderable, templatable {
         } else {
             $returnurl = false;
         }
+        if ($returnurl) {
+            // The current page is not /mod/booking/optionview.php.
+            $moodleurl = new moodle_url("/mod/booking/optionview.php", [
+                "optionid" => (int)$settings->id,
+                "cmid" => (int)$cmid,
+                "userid" => (int)$user->id,
+                'returnto' => 'url',
+                'returnurl' => $returnurl,
+            ]);
 
-        // The current page is not /mod/booking/optionview.php.
-        $moodleurl = new moodle_url("/mod/booking/optionview.php", [
-            "optionid" => (int)$settings->id,
-            "cmid" => (int)$cmid,
-            "userid" => (int)$user->id,
-            'returnto' => 'url',
-            'returnurl' => $returnurl,
-        ]);
+            // Set the returnurl to navigate back to after form is saved.
+            $viewphpurl = new moodle_url('/mod/booking/view.php', ['id' => $cmid]);
+            $returnurl = $viewphpurl->out();
+        }
 
-        // Set the returnurl to navigate back to after form is saved.
-        $viewphpurl = new moodle_url('/mod/booking/view.php', ['id' => $cm->id]);
-        $returnurl = $viewphpurl->out();
-
-        if ($isteacher || has_capability('mod/booking:updatebooking', $modcontext)) {
+        if (
+            has_capability('mod/booking:updatebooking', $modcontext)
+            || (has_capability('mod/booking:addeditownoption', $modcontext) && $isteacher)
+            || (has_capability('mod/booking:addeditownoption', $syscontext) && $isteacher)
+        ) {
 
             // The current page is not /mod/booking/optionview.php.
             $editurl = new moodle_url("/mod/booking/editoptions.php", [
@@ -531,7 +536,7 @@ class bookingoption_description implements renderable, templatable {
             'bookingopeningtime' => $this->bookingopeningtime,
             'bookingclosingtime' => $this->bookingclosingtime,
             'editurl' => !empty($this->editurl) ? $this->editurl : false,
-            'returnurl' => $this->returnurl,
+            'returnurl' => !empty($this->returnurl) ? $this->returnurl : false,
         ];
 
         if (!empty($this->unitstring)) {
