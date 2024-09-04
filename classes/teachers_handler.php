@@ -382,7 +382,7 @@ class teachers_handler {
                 if (!empty($timestamp) && $existingoptiondate->coursestarttime < $timestamp) {
                     continue;
                 }
-                $newentry = new stdClass;
+                $newentry = new stdClass();
                 $newentry->optiondateid = $existingoptiondate->id;
                 $newentry->userid = $userid;
                 // 2. Insert the teacher into booking_optiondates_teachers for every optiondate.
@@ -416,7 +416,7 @@ class teachers_handler {
             $teachers = $DB->get_records('booking_teachers', ['optionid' => $optiondate->optionid]);
             if (!empty($teachers)) {
                 foreach ($teachers as $teacher) {
-                    $newentry = new stdClass;
+                    $newentry = new stdClass();
                     $newentry->optiondateid = $optiondate->id;
                     $newentry->userid = $teacher->userid;
                     // Insert the newly created optiondate with each teacher.

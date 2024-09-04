@@ -98,7 +98,7 @@ class teachers extends field_base {
         parent::prepare_save_field($formdata, $newoption, $updateparam, '');
 
         $instance = new teachers();
-        $mockclass = new stdClass;
+        $mockclass = new stdClass();
         $mockclass->id = $formdata->id ?? 0;
         $changes = $instance->check_for_changes($formdata, $instance, $mockclass, 'teachersforoption');
 

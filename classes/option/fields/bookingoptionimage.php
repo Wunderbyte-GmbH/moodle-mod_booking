@@ -96,7 +96,7 @@ class bookingoptionimage extends field_base {
 
         parent::prepare_save_field($formdata, $newoption, $updateparam, '');
 
-        $mockdata = new stdClass;
+        $mockdata = new stdClass();
         $mockdata->id = $formdata->id; // Just any id to make sure settings are applied.
         $mockdata->cmid = $formdata->cmid;
         $instance = new bookingoptionimage();

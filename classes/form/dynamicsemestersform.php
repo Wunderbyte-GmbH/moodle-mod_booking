@@ -80,7 +80,7 @@ class dynamicsemestersform extends dynamic_form {
 
             foreach ($semesterdata->semesteridentifier as $idx => $semesteridentifier) {
 
-                $semester = new stdClass;
+                $semester = new stdClass();
                 $semester->identifier = trim($semesteridentifier);
                 $semester->name = trim($semesterdata->semestername[$idx]);
                 $semester->startdate = $semesterdata->semesterstart[$idx];
@@ -103,7 +103,7 @@ class dynamicsemestersform extends dynamic_form {
     public function set_data_for_dynamic_submission(): void {
         global $DB;
 
-        $data = new stdClass;
+        $data = new stdClass();
 
         if ($existingsemesters = $DB->get_records_sql("SELECT * FROM {booking_semesters} ORDER BY startdate DESC")) {
             $data->semesters = count($existingsemesters);

@@ -96,11 +96,10 @@ class rulesform extends dynamic_form {
             $data = (object)$this->_ajaxformdata;
             $data = rules_info::set_data_for_form($data);
         } else {
-            $data = (Object)$this->_ajaxformdata;
+            $data = (object)$this->_ajaxformdata;
         }
 
         $this->set_data($data);
-
     }
 
     /**

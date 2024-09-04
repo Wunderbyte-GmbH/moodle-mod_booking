@@ -214,7 +214,7 @@ class subbooking_additionalitem implements booking_subbooking {
         $record->usermodified = $USER->id;
 
         // If we can update, we add the id here.
-        if ($data->id) {
+        if ($data->id ?? false) {
             $this->id = $data->id;
             $record->id = $data->id;
             $DB->update_record('booking_subbooking_options', $record);

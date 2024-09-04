@@ -653,7 +653,7 @@ class booking_option_settings {
 
                 $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
 
-                $singlesession = new stdClass;
+                $singlesession = new stdClass();
                 $singlesession->id = 0;
                 $singlesession->coursestarttime = $this->coursestarttime;
                 $singlesession->courseendtime = $this->courseendtime;

@@ -424,7 +424,7 @@ class userprofilefield_1_default implements bo_condition {
      */
     public function get_condition_object_for_json(stdClass $fromform): stdClass {
 
-        $conditionobject = new stdClass;
+        $conditionobject = new stdClass();
 
         if (!empty($fromform->bo_cond_userprofilefield_1_default_restrict)) {
             // Remove the namespace from classname.

@@ -422,7 +422,7 @@ class enrolledincohorts implements bo_condition {
      * @return stdClass|null the object for the JSON
      */
     public function get_condition_object_for_json(stdClass $fromform): stdClass {
-        $conditionobject = new stdClass;
+        $conditionobject = new stdClass();
         if (!empty($fromform->bo_cond_enrolledincohorts_restrict)) {
             // Remove the namespace from classname.
             $classname = __CLASS__;

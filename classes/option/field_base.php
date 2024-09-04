@@ -80,7 +80,8 @@ abstract class field_base implements fields {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = ''): array {
+        $returnvalue = ''
+    ): array {
 
         $key = fields_info::get_class_name(static::class);
         $value = $formdata->{$key} ?? null;
@@ -219,7 +220,7 @@ abstract class field_base implements fields {
         $key = empty($key) ? $classname : $key;
         $value = empty($value) ? ($formdata->{$key} ?? '') : $value;
 
-        $mockdata = empty($mockdata) ? new stdClass : $mockdata;
+        $mockdata = empty($mockdata) ? new stdClass() : $mockdata;
 
         // Check if there were changes and return these.
         if (!empty($formdata->id) && isset($value)) {

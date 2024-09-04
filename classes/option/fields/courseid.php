@@ -311,7 +311,7 @@ class courseid extends field_base {
         $oldcourse = get_course($oldcourseid);
 
         // Gather copy data.
-        $copydata = new stdClass;
+        $copydata = new stdClass();
         $copydata->courseid = $oldcourseid;
         $copydata->fullname = $oldcourse->fullname . " (" . get_string('copy', 'mod_booking') . ")";
         $copydata->shortname = $oldcourse->shortname . "_" . strtolower(get_string('copy', 'mod_booking'));

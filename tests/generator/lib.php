@@ -301,13 +301,13 @@ class mod_booking_generator extends testing_module_generator {
 
         $ruledraft = (object) $ruledraft;
 
-        $record = new stdClass;
+        $record = new stdClass();
         $record->bookingid = isset($ruledraft->bookingid) ? $ruledraft->bookingid : 0;
         $record->contextid = isset($ruledraft->contextid) ? $ruledraft->contextid : 1;
         $record->rulename = $ruledraft->rulename;
         $record->eventname = '';
 
-        $ruleobject = new stdClass;
+        $ruleobject = new stdClass();
         $ruleobject->conditionname = $ruledraft->conditionname;
         $ruleobject->conditiondata = isset($ruledraft->conditiondata) ? json_decode($ruledraft->conditiondata) : '';
         $ruleobject->name = $ruledraft->name;

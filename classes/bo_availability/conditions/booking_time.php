@@ -396,7 +396,7 @@ class booking_time implements bo_condition {
     // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
     /*public function get_condition_object_for_json(stdClass $fromform): stdClass {
 
-        $conditionobject = new stdClass;
+        $conditionobject = new stdClass();
 
         // Booking time is a special case, bookingopeningtime and bookingclosingtime are stored in extra DB fields not in JSON!
 

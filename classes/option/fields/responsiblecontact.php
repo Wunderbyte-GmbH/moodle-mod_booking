@@ -96,7 +96,7 @@ class responsiblecontact extends field_base {
         parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
 
         $instance = new responsiblecontact();
-        $mockclass = new stdClass;
+        $mockclass = new stdClass();
         $mockclass->id = $formdata->id ?? 1;
         $changes = $instance->check_for_changes($formdata, $instance, $mockclass);
 

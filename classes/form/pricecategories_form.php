@@ -53,7 +53,7 @@ class pricecategories_form extends moodleform {
         // Default price always needs to be there, ordernum has to be 1 and identifier has to be 'default'.
         $defaultprice = $DB->get_record_sql("SELECT * FROM {booking_pricecategories} WHERE identifier = 'default'");
         if (empty($defaultprice)) {
-            $defaultprice = new stdClass;
+            $defaultprice = new stdClass();
             $defaultprice->ordernum = 1;
             $defaultprice->identifier = 'default';
             $defaultprice->name = get_string('price', 'booking');

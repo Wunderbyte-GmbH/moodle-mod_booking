@@ -125,7 +125,7 @@ class price {
             null, null, [0, 1]);
             $mform->addHelpButton('priceformulaoff', 'priceformulaoff', 'mod_booking');
 
-            $formulaobj = new stdClass;
+            $formulaobj = new stdClass();
             $formulaobj->formula = $priceformula;
 
             $formulainfo = '<div class="alert alert-warning" role="alert">' .

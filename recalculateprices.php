@@ -52,7 +52,7 @@ $PAGE->set_title(
     format_string($SITE->shortname) . ': ' . get_string('recalculateprices', 'mod_booking')
 );
 
-$data = new stdClass;
+$data = new stdClass();
 $data->cmid = $cmid;
 $url = new \moodle_url('/mod/booking/view.php', ['id' => $cmid]);
 $data->back = $url->out(false);

@@ -74,7 +74,7 @@ class dynamicholidaysform extends dynamic_form {
         if (!empty($data->holidaystart) && is_array($data->holidaystart)) {
 
             foreach ($data->holidaystart as $idx => $holidaystart) {
-                $holiday = new stdClass;
+                $holiday = new stdClass();
                 $holiday->id = $data->holidayid[$idx];
                 if (!empty($data->holidayname[$idx])) {
                     $holiday->name = trim($data->holidayname[$idx]);
@@ -101,7 +101,7 @@ class dynamicholidaysform extends dynamic_form {
     public function set_data_for_dynamic_submission(): void {
         global $DB;
 
-        $data = new stdClass;
+        $data = new stdClass();
 
         if ($existingholidays = $DB->get_records_sql("SELECT * FROM {booking_holidays} ORDER BY startdate DESC")) {
             $data->holidays = count($existingholidays);

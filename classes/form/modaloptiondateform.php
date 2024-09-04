@@ -150,7 +150,7 @@ class modaloptiondateform extends \core_form\dynamic_form {
 
             foreach ($data->optiondatestart as $idx => $optiondatestart) {
 
-                $optiondate = new stdClass;
+                $optiondate = new stdClass();
                 $randomid = bin2hex(random_bytes(4));
                 $optiondate->dateid = 'customdate-' . $randomid;
                 $optiondate->starttimestamp = $optiondatestart;

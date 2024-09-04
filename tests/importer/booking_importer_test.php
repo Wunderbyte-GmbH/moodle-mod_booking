@@ -77,7 +77,7 @@ final class booking_importer_test extends advanced_testcase {
 
         // Create user(s).
         $useremails = ['teacher1@example.com', 'teacher2@example.com', 'user1@example.com'];
-        $userdata = new stdClass;
+        $userdata = new stdClass();
         $userdata->email = $useremails[0];
         $userdata->timezone = 'Europe/London';
         $user1 = $this->getDataGenerator()->create_user($userdata); // Booking manager and teacher.
@@ -134,7 +134,7 @@ final class booking_importer_test extends advanced_testcase {
         $this->setUser($user1);
 
         // Prepare import options.
-        $formdata = new stdClass;
+        $formdata = new stdClass();
         $formdata->delimiter_name = 'comma';
         $formdata->enclosure = '"';
         $formdata->encoding = 'utf-8';

@@ -148,7 +148,7 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
         if (!empty($teachersforoptiondate)) {
             foreach ($teachersforoptiondate as $teacherforoptiondate) {
                 if (!in_array($teacherforoptiondate, $existingteacherids)) {
-                    $newteacherrecord = new stdClass;
+                    $newteacherrecord = new stdClass();
                     $newteacherrecord->optiondateid = $data->optiondateid;
                     $newteacherrecord->userid = $teacherforoptiondate;
                     $DB->insert_record('booking_optiondates_teachers', $newteacherrecord);

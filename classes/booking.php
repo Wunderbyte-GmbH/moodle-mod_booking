@@ -927,7 +927,7 @@ class booking {
 
                     $nrecid = $DB->insert_record('booking_options', $bookingoption, true, false);
 
-                    $newteacher = new stdClass;
+                    $newteacher = new stdClass();
                     $newteacher->bookingid = $this->id;
                     $newteacher->userid = $USER->id;
                     $newteacher->optionid = $nrecid;
