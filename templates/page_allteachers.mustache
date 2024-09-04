@@ -63,6 +63,9 @@
                 <a href="{{link}}" style="text-decoration: none;">
                     <div class="text-white h3 mb-0 page-allteachers-teachername">{{lastname}} {{firstname}}</div>
                 </a>
+                {{#profileediturl}}
+                <div class="page-allteachers-profilelink text-white"><a href="{{profileediturl}}"><i class="fa fa-pencil" aria-hidden="true" style="color: white;"></i></a></div>
+                {{/profileediturl}}
                 <div class="page-allteachers-orderletter bg-light rounded text-center">{{orderletter}}</div>
             </div>
             <div class="card-body bg-light">
