@@ -23,6 +23,7 @@
  */
 
 namespace mod_booking\option;
+use Exception;
 use html_writer;
 
 defined('MOODLE_INTERNAL') || die();
@@ -457,10 +458,14 @@ class dates_handler {
         cache_helper::purge_by_event('setbacksemesters');
 
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
-        $bookingid = $booking->id;
+        if (!$bookingid = $booking->id ?? false) {
+            return;
+        }
 
         // Lastly, we also need to change the semester for the booking instance itself!
-        $bookinginstancerecord = $DB->get_record('booking', ['id' => $bookingid]);
+        if (!$bookinginstancerecord = $DB->get_record('booking', ['id' => $bookingid])) {
+            return;
+        }
         $bookinginstancerecord->semesterid = $semesterid;
         $DB->update_record('booking', $bookinginstancerecord);
 
@@ -471,8 +476,11 @@ class dates_handler {
         // Now we run through all the bookingoptions.
         $options = $DB->get_records('booking_options', ["bookingid" => $bookingid]);
 
-        foreach ($options as $option) {
+        if (empty($options)) {
+            return;
+        }
 
+        foreach ($options as $option) {
             try {
                 $bo = singleton_service::get_instance_of_booking_option($cmid, $option->id);
 
@@ -658,7 +666,7 @@ class dates_handler {
             // If there only is one session, it could be that it's the course start and end time.
             // So check, if it's expanding over more than one day and format accordingly.
 
-            $formattedsession = new stdClass;
+            $formattedsession = new stdClass();
 
             foreach ($settings->sessions as $session) {
 
