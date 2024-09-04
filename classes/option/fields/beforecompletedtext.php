@@ -38,7 +38,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class beforecompletedtext extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -84,16 +83,20 @@ class beforecompletedtext extends field_base {
      * @param stdClass $newoption
      * @param int $updateparam
      * @param ?mixed $returnvalue
-     * @return string // If no warning, empty string.
+     * @return array // If no changes, empty array.
      */
     public static function prepare_save_field(
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = []
+    ): array {
 
         $key = fields_info::get_class_name(static::class);
         $value = $formdata->{$key} ?? null;
+
+        $instance = new beforecompletedtext();
+        $changes = $instance->check_for_changes($formdata, $instance, null, $key, $value);
 
         if (!empty($value)) {
             // The form comes in the form of an array.
@@ -106,8 +109,8 @@ class beforecompletedtext extends field_base {
             $newoption->{$key} = '';
         }
 
-        // We can return an warning message here.
-        return [];
+        // We can return an changes here.
+        return $changes;
     }
 
     /**
