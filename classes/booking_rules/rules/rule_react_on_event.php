@@ -316,7 +316,6 @@ class rule_react_on_event implements booking_rule {
             // The payment_confirmed event may have a couple of options in the cart.
             // We still need one optionid, so we look in the cart and take the first matching optionid.
             if (isset($datafromevent->other->cart)) {
-
                 $cart = json_decode($datafromevent->other->cart);
                 foreach (($cart->historyitems ?? []) as $item) {
                     if (

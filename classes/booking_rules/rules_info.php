@@ -25,9 +25,12 @@
 
 namespace mod_booking\booking_rules;
 
+use context;
+use context_module;
 use dml_exception;
 use context_system;
 use mod_booking\local\templaterule;
+use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
 
@@ -267,15 +270,26 @@ class rules_info {
     public static function execute_rules_for_option(int $optionid, int $userid = 0) {
         global $DB;
 
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $cmid = $settings->cmid;
+
+        $context = context_module::instance($cmid);
+        $contextid = $context->id;
+
         // Only fetch rules which need to be reapplied. At the moment, it's just one.
         // Eventbased rules don't have to be reapplied.
-        if ($records = $DB->get_records('booking_rules', ['rulename' => 'rule_daysbefore'])) {
+        if ($records = booking_rules::get_list_of_saved_rules_by_context($contextid, '')) {
             foreach ($records as $record) {
+                if ($record->rulename != 'rule_daysbefore') {
+                    continue;
+                }
+
                 if (!$rule = self::get_rule($record->rulename)) {
                     continue;
                 }
                 // Important: Load the rule data from JSON into the rule instance.
                 $rule->set_ruledata($record);
+
                 // Now the rule can be executed.
                 $rule->execute($optionid, $userid);
             }
@@ -435,6 +449,5 @@ class rules_info {
             default:
                 return false;
         }
-
     }
 }

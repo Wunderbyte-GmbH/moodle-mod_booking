@@ -16,11 +16,10 @@
 
 namespace mod_booking\booking_rules\rules;
 
+use context;
 use mod_booking\booking_rules\actions_info;
 use mod_booking\booking_rules\booking_rule;
 use mod_booking\booking_rules\conditions_info;
-use mod_booking\singleton_service;
-use mod_booking\task\send_mail_by_rule_adhoc;
 use MoodleQuickForm;
 use stdClass;
 
@@ -37,12 +36,14 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class rule_daysbefore implements booking_rule {
-
     /** @var string $rulename */
     protected $rulename = 'rule_daysbefore';
 
     /** @var string $rulenamestringid ID of localized string for name of rule */
     protected $rulenamestringid = 'ruledaysbefore';
+
+    /** @var int $contextid */
+    public $contextid = 1;
 
     /** @var string $name */
     public $name = null;
@@ -65,6 +66,7 @@ class rule_daysbefore implements booking_rule {
      */
     public function set_ruledata(stdClass $record) {
         $this->ruleid = $record->id ?? 0;
+        $this->contextid = $record->contextid ?? 1; // 1 is system.
         $this->set_ruledata_from_json($record->rulejson);
     }
 
@@ -212,7 +214,6 @@ class rule_daysbefore implements booking_rule {
         $data->rule_name = $jsonobject->name;
         $data->rule_daysbefore_days = $ruledata->days;
         $data->rule_daysbefore_datefield = $ruledata->datefield;
-
     }
 
     /**
@@ -283,10 +284,12 @@ class rule_daysbefore implements booking_rule {
      * @param int $nextruntime
      * @return array
      */
-    public function get_records_for_execution(int $optionid = 0,
-                                              int $userid = 0,
-                                              bool $testmode = false,
-                                              int $nextruntime = 0) {
+    public function get_records_for_execution(
+        int $optionid = 0,
+        int $userid = 0,
+        bool $testmode = false,
+        int $nextruntime = 0
+    ) {
         global $DB;
 
         // Execution of a rule is a complex action.
@@ -315,6 +318,13 @@ class rule_daysbefore implements booking_rule {
             $params['userid'] = $userid;
         }
 
+        // A rule might apply from the start only to a specific context. To check this, sql needs to take care of this.
+
+        $context = context::instance_by_id($this->contextid);
+        $path = $context->path;
+
+        $params['path'] = "$path%";
+
         $sql = new stdClass();
 
         $sql->select = "bo.id optionid, cm.id cmid, bo." . $ruledata->datefield . " datefield";
@@ -323,10 +333,12 @@ class rule_daysbefore implements booking_rule {
                     JOIN {course_modules} cm
                     ON cm.instance = bo.bookingid
                     JOIN {modules} m
-                    ON m.name = 'booking' AND m.id = cm.module";
+                    ON m.name = 'booking' AND m.id = cm.module
+                    JOIN {context} c
+                    ON c.instanceid = cm.id";
 
         // In testmode we don't check the timestamp.
-        $sql->where = " bo." . $ruledata->datefield;
+        $sql->where = " c.path LIKE :path AND bo." . $ruledata->datefield;
         $sql->where .= !$testmode ? " >= ( :nowparam + (86400 * :numberofdays ))" : " IS NOT NULL ";
         $sql->where .= " $andoptionid $anduserid ";
 

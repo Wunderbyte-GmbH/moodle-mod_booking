@@ -137,7 +137,7 @@ final class send_reminder_mails_test extends advanced_testcase {
         $option1 = $plugingenerator->create_option($record);
 
         $teacherhandler = new teachers_handler($option1->id);
-        $teacherdata = new stdClass;
+        $teacherdata = new stdClass();
         $teacherdata->teachersforoption = [$user2->id];
         $teacherhandler->save_from_form($teacherdata);
 
