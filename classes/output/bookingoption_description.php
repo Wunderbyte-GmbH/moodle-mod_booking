@@ -406,29 +406,27 @@ class bookingoption_description implements renderable, templatable {
         if (!modechecker::is_ajax_or_webservice_request()) {
             $returnurl = $PAGE->url->out();
         } else {
-            $returnurl = false;
+            $returnurl = '/';
         }
-        if ($returnurl) {
-            // The current page is not /mod/booking/optionview.php.
-            $moodleurl = new moodle_url("/mod/booking/optionview.php", [
-                "optionid" => (int)$settings->id,
-                "cmid" => (int)$cmid,
-                "userid" => (int)$user->id,
-                'returnto' => 'url',
-                'returnurl' => $returnurl,
-            ]);
 
-            // Set the returnurl to navigate back to after form is saved.
-            $viewphpurl = new moodle_url('/mod/booking/view.php', ['id' => $cmid]);
-            $returnurl = $viewphpurl->out();
-        }
+        // The current page is not /mod/booking/optionview.php.
+        $moodleurl = new moodle_url("/mod/booking/optionview.php", [
+            "optionid" => (int)$settings->id,
+            "cmid" => (int)$cmid,
+            "userid" => (int)$user->id,
+            'returnto' => 'url',
+            'returnurl' => $returnurl,
+        ]);
+
+        // Set the returnurl to navigate back to after form is saved.
+        $viewphpurl = new moodle_url('/mod/booking/view.php', ['id' => $cmid]);
+        $returnurl = $viewphpurl->out();
 
         if (
             has_capability('mod/booking:updatebooking', $modcontext)
             || (has_capability('mod/booking:addeditownoption', $modcontext) && $isteacher)
             || (has_capability('mod/booking:addeditownoption', $syscontext) && $isteacher)
         ) {
-
             // The current page is not /mod/booking/optionview.php.
             $editurl = new moodle_url("/mod/booking/editoptions.php", [
                 "optionid" => (int)$settings->id,
