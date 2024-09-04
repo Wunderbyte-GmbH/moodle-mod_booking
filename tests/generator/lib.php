@@ -261,6 +261,13 @@ class mod_booking_generator extends testing_module_generator {
                                                                     'objectid' => $record->optionid,
                                                                     'userid' => $USER->id,
                                                                     'relateduserid' => $USER->id,
+                                                                    'other' => [
+                                                                        'changes' => [
+                                                                            (object)[
+                                                                                'fieldname' => 'subbookings',
+                                                                            ],
+                                                                        ],
+                                                                    ],
                                                                 ]);
         $event->trigger();
 

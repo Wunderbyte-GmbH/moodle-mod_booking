@@ -274,8 +274,12 @@ abstract class field_base implements fields {
         $newvalue = $changes['newvalue'];
         $fieldname = $changes['fieldname'];
 
+        $infotext = get_string($changes['fieldname'], 'booking') . get_string('changeinfochanged', 'booking');
+
         if ((empty($oldvalue) && empty($newvalue)) || $oldvalue == $newvalue) {
-            return [];
+            return [
+                'info' => $infotext . ".",
+            ];
         }
 
         $areaswithuseridstoresolve = [
@@ -288,9 +292,8 @@ abstract class field_base implements fields {
             'courseendtime',
         ];
 
-        $infotext = get_string($changes['fieldname'], 'booking') . get_string('changeinfochanged', 'booking');
         $changes = [
-            'info' => $infotext,
+            'info' => $infotext . ":",
             'oldvalue' => $oldvalue,
             'newvalue' => $newvalue,
         ];

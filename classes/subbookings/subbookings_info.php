@@ -189,6 +189,13 @@ class subbookings_info {
                                                                     'objectid' => $data->optionid,
                                                                     'userid' => $USER->id,
                                                                     'relateduserid' => $USER->id,
+                                                                    'other' => [
+                                                                        'changes' => [
+                                                                            (object)[
+                                                                                'fieldname' => 'subbookings',
+                                                                            ],
+                                                                        ],
+                                                                    ],
                                                                 ]);
         $event->trigger();
 
@@ -198,10 +205,32 @@ class subbookings_info {
     /**
      * Delete a booking subbooking by its ID.
      * @param int $subbookingid the ID of the subbooking
+     * @param int $cmid
+     * @param int $optionid
      */
-    public static function delete_subbooking(int $subbookingid) {
-        global $DB;
+    public static function delete_subbooking(
+        int $subbookingid,
+        int $cmid,
+        int $optionid
+        ) {
+        global $DB, $USER;
         $DB->delete_records('booking_subbooking_options', ['id' => (int)$subbookingid]);
+
+        $context = context_module::instance($cmid);
+        $event = \mod_booking\event\bookingoption_updated::create([
+                                                                    'context' => $context,
+                                                                    'objectid' => $optionid,
+                                                                    'userid' => $USER->id,
+                                                                    'relateduserid' => $USER->id,
+                                                                    'other' => [
+                                                                        'changes' => [
+                                                                            (object)[
+                                                                                'fieldname' => 'subbookings',
+                                                                            ],
+                                                                        ],
+                                                                    ],
+                                                                ]);
+        $event->trigger();
     }
 
     /**

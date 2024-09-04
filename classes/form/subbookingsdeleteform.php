@@ -51,6 +51,7 @@ class subbookingsdeleteform extends dynamic_form {
 
         $mform->addElement('hidden', 'cmid', $ajaxformdata['cmid']);
         $mform->addElement('hidden', 'name', $ajaxformdata['name']);
+        $mform->addElement('hidden', 'optionid', $ajaxformdata['optionid']);
 
         $mform->addElement('html', '<div><p>'
             . get_string('deletebookingruleconfirmtext', 'mod_booking')
@@ -67,7 +68,7 @@ class subbookingsdeleteform extends dynamic_form {
         $data = parent::get_data();
 
         // Delete the rule by its ID.
-        subbookings_info::delete_subbooking((int)$data->id);
+        subbookings_info::delete_subbooking((int)$data->id, $data->cmid, $data->optionid);
 
         return $data;
     }

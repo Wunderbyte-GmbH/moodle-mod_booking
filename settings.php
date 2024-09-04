@@ -738,7 +738,7 @@ if ($ADMIN->fulltree) {
     if ($proversion) {
         $settings->add(
             new admin_setting_heading('subbookings',
-                get_string('subbookings', 'mod_booking'),
+                get_string('subbookingsheader', 'mod_booking'),
                 get_string('subbookings_desc', 'mod_booking')));
 
         $settings->add(
@@ -747,7 +747,7 @@ if ($ADMIN->fulltree) {
     } else {
         $settings->add(
             new admin_setting_heading('subbookings',
-                get_string('subbookings', 'mod_booking'),
+                get_string('subbookingsheader', 'mod_booking'),
                 get_string('infotext:prolicensenecessary', 'mod_booking')));
     }
 
