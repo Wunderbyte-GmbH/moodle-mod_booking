@@ -81,7 +81,7 @@ Feature: As admin - apply bulk operations under booking options.
     ## Hide filter - required for a new filter tool
     ## Workaround for case when hidden "search" "input" intercepts focus - so we cannot press "Teachers" "button"
     And I click on "//aside[contains(@class, 'wunderbyte_table_components')]" "xpath_element"
-    And I follow "Show all records"
+    And I click on "Show all records" "text" in the ".wb-records-count-label" "css_element"
     And I should see "12 of 12 records found"
     ## Testing searching
     And I set the field with xpath "//input[contains(@name, '_optionbulkoperationstable')]" to "Option0"
