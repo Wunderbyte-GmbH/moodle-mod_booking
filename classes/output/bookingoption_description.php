@@ -418,15 +418,22 @@ class bookingoption_description implements renderable, templatable {
             'returnurl' => $returnurl,
         ]);
 
-        // The current page is not /mod/booking/optionview.php.
-        $editurl = new moodle_url("/mod/booking/editoptions.php", [
-            "optionid" => (int)$settings->id,
-            "id" => (int)$cmid,
-            'returnto' => 'url',
-            'returnurl' => $returnurl,
-        ]);
+        // Set the returnurl to navigate back to after form is saved.
+        $viewphpurl = new moodle_url('/mod/booking/view.php', ['id' => $cm->id]);
+        $returnurl = $viewphpurl->out();
 
-        $this->editurl = $editurl->out(false);
+        if ($isteacher || has_capability('mod/booking:updatebooking', $modcontext)) {
+
+            // The current page is not /mod/booking/optionview.php.
+            $editurl = new moodle_url("/mod/booking/editoptions.php", [
+                "optionid" => (int)$settings->id,
+                "id" => (int)$cmid,
+                'returnto' => 'url',
+                'returnurl' => $returnurl,
+            ]);
+
+            $this->editurl = $editurl->out(false);
+        }
 
         switch ($descriptionparam) {
             case MOD_BOOKING_DESCRIPTION_WEBSITE:
@@ -523,7 +530,7 @@ class bookingoption_description implements renderable, templatable {
             'bookitsection' => $this->bookitsection,
             'bookingopeningtime' => $this->bookingopeningtime,
             'bookingclosingtime' => $this->bookingclosingtime,
-            'editurl' => $this->editurl,
+            'editurl' => !empty($this->editurl) ? $this->editurl : false,
             'returnurl' => $this->returnurl,
         ];
 
