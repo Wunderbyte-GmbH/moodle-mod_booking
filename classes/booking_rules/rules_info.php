@@ -271,7 +271,9 @@ class rules_info {
         global $DB;
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        $cmid = $settings->cmid;
+        if (!$cmid = $settings->cmid) {
+            return;
+        }
 
         $context = context_module::instance($cmid);
         $contextid = $context->id;
