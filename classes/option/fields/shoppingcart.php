@@ -205,14 +205,9 @@ class shoppingcart extends field_base {
         if (in_array($classname, $excludeclassesfromtrackingchanges)) {
             return [];
         }
+        $formvalues = (array) $formdata;
+        $keys = preg_grep('/^sch_/', array_keys($formvalues));
 
-        $changes = [];
-        $keys = [
-            "sch_allowrebooking",
-            "sch_allowinstallment",
-        ];
-        $newresults = [];
-        $oldresults = [];
         foreach ($keys as $key) {
             $newvalue = $formdata->$key;
             if (!empty($formdata->id) && isset($value)) {
@@ -225,68 +220,16 @@ class shoppingcart extends field_base {
 
             if ($oldvalue != $newvalue
                 && !(empty($oldvalue) && empty($newvalue))) {
-                    $newresults[$key] = $newvalue;
-                    $oldresults[$key] = $oldvalue;
+                    // If change was found in any of the shoppingcart fields, return this generic information.
+                    return [
+                        'changes' => [
+                            'fieldname' => 'shoppingcart',
+                        ]
+                        ];
             }
         }
-        $changes = [
-            'changes' => [
-                'fieldname' => $classname,
-                'oldvalue' => $oldresults,
-                'newvalue' => $newresults,
-            ],
-        ];
-
-        return $changes;
+        // No changes were found, so array is empty.
+        return [];
     }
-
-    /**
-     * Return values for bookingoption_updated event.
-     *
-     * @param array $changes
-     *
-     * @return array
-     *
-     */
-    public function get_changes_description(array $changes): array {
-        $oldvalues = $changes['oldvalue'];
-        $newvalues = $changes['newvalue'];
-
-        $infotext = get_string($changes['fieldname'], 'booking') . get_string('changeinfochanged', 'booking');
-
-        $keys = [
-            "sch_allowrebooking",
-            "sch_allowinstallment"
-        ];
-        $oldvaluestring = "";
-        $newvaluestring = "";
-        foreach ($keys as $key) {
-            if (isset($oldvalues->$key)
-            && isset($newvalues->$key)
-            && ($oldvalues->$key != $newvalues->$key)) {
-                $localizedkey = get_string($key, 'mod_booking');
-                $oldvalue = empty($oldvalues->$key) ? get_string("off", "mod_booking") : get_string("on", "mod_booking");
-                $newvalue = empty($newvalues->$key) ? get_string("off", "mod_booking") : get_string("on", "mod_booking");
-                $oldvaluestring .=
-                    $localizedkey
-                    . ": "
-                    . $oldvalue
-                    . "</br>";
-                $newvaluestring .=
-                    get_string($key, 'mod_booking')
-                    . ": "
-                    . $newvalue
-                    . "</br>";
-            };
-
-        }
-
-        return [
-            'info' => $infotext . ":",
-            'oldvalue' => $oldvaluestring,
-            'newvalue' => $newvaluestring,
-        ];
-    }
-
 
 }
