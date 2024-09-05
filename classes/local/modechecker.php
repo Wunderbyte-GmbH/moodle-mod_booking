@@ -25,13 +25,13 @@
 
 namespace mod_booking\local;
 use Exception;
+use mod_booking\price;
 
 
 /**
  * Modechecker allows to check for ajax or webservice requests.
  */
 class modechecker {
-
     /**
      * Checks webservice or ajax request.
      * @return bool
@@ -70,7 +70,7 @@ class modechecker {
      *
      */
     public static function use_special_details_page_treatment() {
-        global $PAGE;
+        global $PAGE, $USER;
 
         // Get the current URL without the query string.
         if (!self::is_ajax_or_webservice_request()) {
@@ -100,6 +100,10 @@ class modechecker {
                     )
                 )
             ) {
+                $buyforuser = price::return_user_to_buy_for();
+                if ($buyforuser->id !== $USER->id) {
+                    return true;
+                }
                 return false;
             }
         }
