@@ -113,6 +113,13 @@ class courseid extends field_base {
         /* Create a new course and put it either in a new course category
         or in an already existing one. */
         connectedcourse::handle_user_choice($newoption, $formdata);
+
+        // If the course does not exist anymore, we set it back to 0.
+        if (!$DB->record_exists('course', ['id' => $newoption->courseid])) {
+            $newoption->courseid = 0;
+            $formdata->chooseorcreatecourse = 0;
+        }
+
         $formdata->courseid = $newoption->courseid;
 
         parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
