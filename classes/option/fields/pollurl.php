@@ -101,9 +101,11 @@ class pollurl extends field_base {
         } else {
             $newoption->{$key} = '';
         }
-        $changes[$key] = $instance->check_for_changes($formdata, $instance, null, $key, $value);
+        $pollurlchanges = $instance->check_for_changes($formdata, $instance, null, $key, $value);
+        if (!empty($pollurlchanges)) {
+            $changes[$key] = $pollurlchanges;
+        };
         // We also need to take care of pollurlteachers.
-
         $key = 'pollurlteachers';
         $value = $formdata->{$key} ?? null;
 
@@ -113,10 +115,14 @@ class pollurl extends field_base {
             $newoption->{$key} = '';
         }
 
-        $changes[$key] = $instance->check_for_changes($formdata, $instance, null, $key, $value);
+        $puteacherschanges = $instance->check_for_changes($formdata, $instance, null, $key, $value);
+        if (!empty($puteacherschanges)) {
+            $puteacherschanges['changes']['fieldname'] = 'pollurlteachers';
+            $changes[$key] = $puteacherschanges;
+        };
 
         // We can return an warning message here.
-        return $changes;
+        return ['changes' => $changes];
     }
 
     /**

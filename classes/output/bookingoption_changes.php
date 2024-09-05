@@ -25,6 +25,7 @@
 namespace mod_booking\output;
 
 use mod_booking\option\dates_handler;
+use mod_booking\option\fields\pollurl;
 use mod_booking\option\fields_info;
 use mod_booking\singleton_service;
 use renderer_base;
@@ -80,6 +81,11 @@ class bookingoption_changes implements renderable, templatable {
                 if (!empty($classname)) {
                     $fieldsclass = new $classname;
                     $changes = $fieldsclass->get_changes_description($entry);
+                } else if ($fieldname == "pollurlteachers") {
+                    // TODO create dummy fields class to access abstract method get_changes_description generically.
+                    $fieldsclass = new pollurl;
+                    $changes = $fieldsclass->get_changes_description($entry);
+                    $changes['fieldname'] = get_string($fieldname, 'mod_booking');
                 } else {
                     // Probably the classname doesn't match the namespace.
                     $changes = [];
