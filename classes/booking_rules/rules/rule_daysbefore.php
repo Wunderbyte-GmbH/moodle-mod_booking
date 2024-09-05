@@ -262,6 +262,10 @@ class rule_daysbefore implements booking_rule {
         // We retrieve the same sql we also use in the execute function.
         $records = $this->get_records_for_execution($optionid, $userid, true);
 
+        if (empty($records)) {
+            $rulestillapplies = false;
+        }
+
         foreach ($records as $record) {
             $oldnextruntime = (int) $record->datefield - ((int) $this->days * 86400);
 
