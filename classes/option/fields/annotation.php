@@ -110,7 +110,7 @@ class annotation extends field_base {
             $newoption->{$key} = '';
         }
 
-        // We can return an warning message here.
+        // We can return changes here.
         return $changes;
     }
 

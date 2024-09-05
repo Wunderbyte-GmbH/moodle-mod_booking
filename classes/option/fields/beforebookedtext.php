@@ -84,7 +84,7 @@ class beforebookedtext extends field_base {
      * @param stdClass $newoption
      * @param int $updateparam
      * @param ?mixed $returnvalue
-     * @return array // If no warning, empty string.
+     * @return array // If no changes, empty array.
      */
     public static function prepare_save_field(
         stdClass &$formdata,
@@ -99,7 +99,6 @@ class beforebookedtext extends field_base {
         $instance = new beforebookedtext();
         $changes = $instance->check_for_changes($formdata, $instance, null, $key, $value);
 
-
         if (!empty($value)) {
             // The form comes in the form of an array.
             if (gettype($value) === 'array') {
@@ -111,7 +110,7 @@ class beforebookedtext extends field_base {
             $newoption->{$key} = '';
         }
 
-        // We can return an warning message here.
+        // We can return changes here.
         return $changes;
     }
 

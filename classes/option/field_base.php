@@ -340,6 +340,7 @@ abstract class field_base implements fields {
         $changes['fieldname'] = get_string($fieldname, 'mod_booking');
         return $changes;
     }
+
     /**
      * Appends the information about a given user(id) to the string.
      *
