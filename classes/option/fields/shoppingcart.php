@@ -27,6 +27,7 @@ namespace mod_booking\option\fields;
 use local_shopping_cart\shopping_cart_handler;
 use mod_booking\booking_option_settings;
 use mod_booking\option\field_base;
+use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
 
@@ -96,6 +97,10 @@ class shoppingcart extends field_base {
 
             // We only run this line to make sure we have the constants.
             $schhandler = new shopping_cart_handler('mod_booking', 'option');
+            parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
+            $instance = new shoppingcart();
+            $changes = $instance->check_for_changes($formdata, $instance);
+            return $changes;
         }
         return [];
     }
@@ -170,4 +175,118 @@ class shoppingcart extends field_base {
             $schhandler->set_data($data);
         }
     }
+
+    /**
+     * Check if there is a difference between the former and the new values of the formdata.
+     *
+     * @param stdClass $formdata
+     * @param field_base $self
+     * @param mixed $mockdata // Only needed if there the object needs params for the save_data function.
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return array
+     *
+     */
+    public function check_for_changes(
+        stdClass $formdata,
+        field_base $self,
+        $mockdata = '',
+        string $key = '',
+        $value = ''): array {
+
+        if (!isset($self)) {
+            return [];
+        }
+
+        $excludeclassesfromtrackingchanges = MOD_BOOKING_CLASSES_EXCLUDED_FROM_CHANGES_TRACKING;
+
+        $classname = 'shoppingcart';
+        if (in_array($classname, $excludeclassesfromtrackingchanges)) {
+            return [];
+        }
+
+        $changes = [];
+        $keys = [
+            "sch_allowrebooking",
+            "sch_allowinstallment",
+        ];
+        $newresults = [];
+        $oldresults = [];
+        foreach ($keys as $key) {
+            $newvalue = $formdata->$key;
+            if (!empty($formdata->id) && isset($value)) {
+                $settings = singleton_service::get_instance_of_booking_option_settings($formdata->id);
+                $mockdata = new stdClass();
+                $mockdata->id = $formdata->id;
+                $self::set_data($mockdata, $settings);
+                $oldvalue = $mockdata->$key;
+            }
+
+            if ($oldvalue != $newvalue
+                && !(empty($oldvalue) && empty($newvalue))) {
+                    $newresults[$key] = $newvalue;
+                    $oldresults[$key] = $oldvalue;
+            }
+        }
+        $changes = [
+            'changes' => [
+                'fieldname' => $classname,
+                'oldvalue' => $oldresults,
+                'newvalue' => $newresults,
+            ],
+        ];
+
+        return $changes;
+    }
+
+    /**
+     * Return values for bookingoption_updated event.
+     *
+     * @param array $changes
+     *
+     * @return array
+     *
+     */
+    public function get_changes_description(array $changes): array {
+        $oldvalues = $changes['oldvalue'];
+        $newvalues = $changes['newvalue'];
+
+        $infotext = get_string($changes['fieldname'], 'booking') . get_string('changeinfochanged', 'booking');
+
+        $keys = [
+            "sch_allowrebooking",
+            "sch_allowinstallment"
+        ];
+        $oldvaluestring = "";
+        $newvaluestring = "";
+        foreach ($keys as $key) {
+            if (isset($oldvalues->$key)
+            && isset($newvalues->$key)
+            && ($oldvalues->$key != $newvalues->$key)) {
+                $localizedkey = get_string($key, 'mod_booking');
+                $oldvalue = empty($oldvalues->$key) ? get_string("off", "mod_booking") : get_string("on", "mod_booking");
+                $newvalue = empty($newvalues->$key) ? get_string("off", "mod_booking") : get_string("on", "mod_booking");
+                $oldvaluestring .=
+                    $localizedkey
+                    . ": "
+                    . $oldvalue
+                    . "</br>";
+                $newvaluestring .=
+                    get_string($key, 'mod_booking')
+                    . ": "
+                    . $newvalue
+                    . "</br>";
+            };
+
+        }
+
+        return [
+            'info' => $infotext . ":",
+            'oldvalue' => $oldvaluestring,
+            'newvalue' => $newvaluestring,
+        ];
+    }
+
+
 }
