@@ -118,6 +118,8 @@ class all_userbookings extends \table_sql {
                 return get_string('statusunknown', 'booking');
             case 6:
                 return get_string('statusattending', 'booking');
+            case 7:
+                return get_string('statusexcused', 'booking');
             default:
                 return '';
         }
@@ -582,13 +584,22 @@ class all_userbookings extends \table_sql {
                 // Change presence status.
                 // Status order: Unknown, Attending, Complete, Incomplete, No Show, and Failed.
                 echo "<br>";
-                $presences = [5 => get_string('statusunknown', 'booking'),
+
+                $possiblepresences = [
+                    5 => get_string('statusunknown', 'booking'),
                     6 => get_string('statusattending', 'booking'),
                     1 => get_string('statuscomplete', 'booking'),
                     2 => get_string('statusincomplete', 'booking'),
                     3 => get_string('statusnoshow', 'booking'),
                     4 => get_string('statusfailed', 'booking'),
+                    7 => get_string('statusexcused', 'booking'),
                 ];
+
+                $presences = [];
+                $storedpresences = explode(',', get_config('booking', 'presenceoptions'));
+                foreach ($storedpresences as $id) {
+                    $presences[$id] = $possiblepresences[$id];
+                }
 
                 echo html_writer::select($presences, 'selectpresencestatus', '', ['' => 'choosedots'],
                     ['class' => 'mt-3']);

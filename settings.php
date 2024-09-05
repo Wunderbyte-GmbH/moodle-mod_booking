@@ -204,6 +204,28 @@ if ($ADMIN->fulltree) {
                     get_string('turnoffmodals', 'mod_booking'),
                     get_string('turnoffmodals_desc', 'mod_booking'), 0));
 
+        // Choose which presence options should be vailabile.
+
+        $presenceoptions = [
+            5 => get_string('statusunknown', 'booking'),
+            6 => get_string('statusattending', 'booking'),
+            1 => get_string('statuscomplete', 'booking'),
+            2 => get_string('statusincomplete', 'booking'),
+            3 => get_string('statusnoshow', 'booking'),
+            4 => get_string('statusfailed', 'booking'),
+            7 => get_string('statusexcused', 'booking'),
+        ];
+
+        $settings->add(
+            new admin_setting_configmultiselect(
+                'booking/presenceoptions',
+                get_string('presenceoptions', 'booking'),
+                get_string('presenceoptions_desc', 'booking'),
+                [5,6,1,2,3,4,7],
+                $presenceoptions
+            )
+    );
+
     } else {
         $settings->add(
             new admin_setting_heading('appearancesettings',

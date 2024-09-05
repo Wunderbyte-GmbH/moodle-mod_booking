@@ -1557,6 +1557,8 @@ $string['populatefromtemplate'] = 'Populate from template';
 $string['potentialsubscribers'] = 'Potential subscribers';
 $string['prepareimport'] = "Prepare Import";
 $string['presence'] = "Presence";
+$string['presenceoptions'] = "Options for attendence status";
+$string['presenceoptions_desc'] = "Which status should be possible?";
 $string['previous'] = 'Previous';
 $string['price'] = 'Price';
 $string['pricecategories'] = 'Booking: Price categories';
@@ -1902,6 +1904,7 @@ Go to the booking option: {$a->gotobookingoption}
 ';
 $string['statuschangetextsubject'] = 'Booking status has changed for {$a->title}';
 $string['statuscomplete'] = "Complete";
+$string['statusexcused'] = "Excused";
 $string['statusfailed'] = "Failed";
 $string['statusincomplete'] = "Incomplete";
 $string['statusnoshow'] = "No show";

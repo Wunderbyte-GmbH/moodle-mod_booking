@@ -1551,6 +1551,8 @@ $string['populatefromtemplate'] = 'Mit Vorlage ausfüllen';
 $string['potentialsubscribers'] = 'Mögliche Nutzer:innen';
 $string['prepareimport'] = "Bereite den Import vor";
 $string['presence'] = "Anwesenheit";
+$string['presenceoptions'] = "Möglicher Präsentstatus";
+$string['presenceoptions_desc'] = "Welcher Status soll zur Verfügung stehen?";
 $string['previous'] = 'Vorherige';
 $string['price'] = 'Preis';
 $string['pricecategories'] = 'Buchung: Preiskategorien';
@@ -1833,6 +1835,7 @@ Link zur Buchungsoption: {$a->gotobookingoption}
 ';
 $string['statuschangetextsubject'] = 'Buchungstatus für {$a->title} geändert';
 $string['statuscomplete'] = "Abgeschlossen";
+$string['statusexcused'] = "Entschuldigt";
 $string['statusfailed'] = "Nicht erfolgreich";
 $string['statusincomplete'] = "Nicht abgeschlossen";
 $string['statusnoshow'] = "Nicht aufgetaucht";

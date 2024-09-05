@@ -133,6 +133,8 @@ class coursecategories {
                        SUM(booked) booked,
                        SUM(waitinglist) waitinglist,
                        SUM(reserved) reserved,
+                       SUM(participated) participated,
+                       SUM(excused) excused,
                        SUM(noshows) noshows $additionalselect
         FROM {course_modules} cm
         JOIN {modules} m ON cm.module = m.id
@@ -154,11 +156,21 @@ class coursecategories {
               WHERE ba.waitinglist = 2
               GROUP BY ba.optionid
               ) s3 ON s3.optionid = bo.id
+        LEFT JOIN (SELECT ba.optionid, SUM(ba.places) as participated
+              FROM {booking_answers} ba
+              WHERE ba.status = 6
+              GROUP BY ba.optionid
+              ) s5 ON s5.optionid = bo.id
+        LEFT JOIN (SELECT ba.optionid, SUM(ba.places) as excused
+              FROM {booking_answers} ba
+              WHERE ba.status = 7
+              GROUP BY ba.optionid
+              ) s7 ON s7.optionid = bo.id
         LEFT JOIN (SELECT ba.optionid, SUM(ba.places) as noshows
               FROM {booking_answers} ba
               WHERE ba.status = 3
               GROUP BY ba.optionid
-              ) s5 ON s5.optionid = bo.id
+              ) s8 ON s8.optionid = bo.id
         $additionalfrom
         WHERE " . implode(' AND ', $where) .
         " GROUP BY cm.id, b.name, b.id, b.intro  ";

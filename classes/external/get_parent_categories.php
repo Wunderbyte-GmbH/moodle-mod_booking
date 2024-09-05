@@ -111,7 +111,6 @@ class get_parent_categories extends external_api {
         }
 
         foreach ($records as $record) {
-
             $context = context_coursecat::instance($record->id);
 
             if (!has_capability('local/urise:view', $context)) {
@@ -128,8 +127,10 @@ class get_parent_categories extends external_api {
                     WHERE c.category=:categoryid";
             $record->courses = $DB->get_records_sql($sql, ['categoryid' => $record->id], IGNORE_MISSING) ?: [];
 
-            if ($bookingoptions
-                    = coursecategories::return_booking_information_for_coursecategory((int)$record->contextid)) {
+            if (
+                $bookingoptions
+                    = coursecategories::return_booking_information_for_coursecategory((int)$record->contextid)
+            ) {
                 $multibookingconfig = explode(',', get_config('local_urise', 'multibookinginstances') ?: '');
                 foreach ($bookingoptions as &$value) {
                     $defaultchecked = false;
@@ -142,7 +143,6 @@ class get_parent_categories extends external_api {
                     $record->bookedcount += $value->booked;
                     $record->waitinglistcount += $value->waitinglist ?? 0;
                     $record->reservedcount += $value->reserved ?? 0;
-
                 }
                 $record->json = json_encode([
                     'booking' => array_values($bookingoptions),
