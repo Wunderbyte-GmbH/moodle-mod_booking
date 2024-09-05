@@ -101,9 +101,16 @@ class bookingclosingtime extends field_base {
         $key = fields_info::get_class_name(static::class);
         $value = $formdata->{$key} ?? null;
 
+        $instance = new bookingclosingtime();
+        $changes = $instance->check_for_changes($formdata, $instance, null, $key, $value);
+
         if (empty($formdata->restrictanswerperiodclosing)) {
             $newoption->{$key} = 0;
             $formdata->restrictanswerperiodclosing = 0;
+            if (empty($changes['changes']['oldvalue'])) {
+                return [];
+            }
+            $changes['changes']['newvalue'] = 0;
         } else {
             if (!empty($value)) {
                 $newoption->{$key} = $value;
@@ -117,7 +124,8 @@ class bookingclosingtime extends field_base {
             }
         }
 
-        return [];
+        // We can return an changes here.
+        return $changes;
     }
 
     /**

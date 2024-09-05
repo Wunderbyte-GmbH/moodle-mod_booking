@@ -90,7 +90,7 @@ class bookingopeningtime extends field_base {
      * @param stdClass $newoption
      * @param int $updateparam
      * @param ?mixed $returnvalue
-     * @return string // If no warning, empty string.
+     * @return array // If changes, empty array.
      */
     public static function prepare_save_field(
         stdClass &$formdata,
@@ -101,9 +101,16 @@ class bookingopeningtime extends field_base {
         $key = fields_info::get_class_name(static::class);
         $value = $formdata->{$key} ?? null;
 
+        $instance = new bookingopeningtime();
+        $changes = $instance->check_for_changes($formdata, $instance, null, $key, $value);
+
         if (empty($formdata->restrictanswerperiodopening)) {
             $newoption->{$key} = 0;
             $formdata->restrictanswerperiodopening = 0;
+            if (empty($changes['changes']['oldvalue'])) {
+                return [];
+            }
+            $changes['changes']['newvalue'] = 0;
         } else {
             if (!empty($value)) {
                 $newoption->{$key} = $value;
@@ -117,7 +124,7 @@ class bookingopeningtime extends field_base {
             }
         }
 
-        return [];
+        return $changes;
     }
 
     /**

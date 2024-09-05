@@ -291,6 +291,8 @@ abstract class field_base implements fields {
         $areaswithtimestampstoresolve = [
             'coursestarttime',
             'courseendtime',
+            'bookingclosingtime',
+            'bookingopeningtime',
         ];
 
         $changes = [
