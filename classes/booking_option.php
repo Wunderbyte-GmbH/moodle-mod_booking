@@ -850,7 +850,9 @@ class booking_option {
             // 1. Update, enrol and inform users who have switched from the waiting list to status "booked".
             $usersonwaitinglist = array_replace([], $ba->usersonwaitinglist);
             $noofuserstobook =
-                $settings->maxanswers - booking_answers::count_places($ba->usersonlist) - booking_answers::count_places($ba->usersreserved);
+                $settings->maxanswers
+                - booking_answers::count_places($ba->usersonlist)
+                - booking_answers::count_places($ba->usersreserved);
 
             // We want to enrol people who have been waiting longer first.
             usort($usersonwaitinglist, fn($a, $b) => $a->timemodified < $b->timemodified ? -1 : 1);
@@ -2588,7 +2590,7 @@ class booking_option {
                     return [
                         'name' => null,
                         'value' => get_string('onlineoptiondate', 'mod_booking'),
-                ];
+                    ];
                 } else {
                     // We are booked on the web site, we check if we show the real link.
                     if (!$this->show_conference_link($sessionid)) {

@@ -1865,8 +1865,8 @@ $string['subbookingbookedpersons'] = "Die folgenden Personen werden hinzugefügt
 $string['subbookingduration'] = "Dauer in Minuten";
 $string['subbookingname'] = "Name der Zusatzbuchung";
 $string['subbookings'] = "Zusatzbuchungen";
-$string['subbookingsheader'] = 'Zusatzbuchungen ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['subbookings_desc'] = 'Schalten Sie Zusatzbuchungen wie z.B. zusätzlich buchbare Items oder Slot-Buchungen für bestimmte Zeiten (z.B. für Tennisplätze) frei.';
+$string['subbookingsheader'] = 'Zusatzbuchungen ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['subbookingtimeslot'] = "Zeitfenster Buchung";
 $string['subbookingtimeslot_desc'] = "Mit dieser Funktion kann die Dauer von buchbaren Zeitfenstern für jedes Datum der Buchungsoption festgelegt werden.";
 $string['subject'] = 'Betreff';

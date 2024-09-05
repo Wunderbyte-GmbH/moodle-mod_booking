@@ -88,8 +88,13 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
                 $ruleinstance->rulename === 'days_before'
                 && ($taskdata->rulejson !== $ruleinstance->rulejson)
             ) {
-                mtrace('send_mail_by_rule_adhoc task: Rule has changed. Mail was NOT SENT for option.' .
-                    $taskdata->optionid . ' and user ' . $taskdata->userid .  PHP_EOL . 'This message is expected and not signn of malfunction.');
+                mtrace('send_mail_by_rule_adhoc task: Rule has changed. Mail was NOT SENT for option.'
+                    . $taskdata->optionid
+                    . ' and user '
+                    . $taskdata->userid
+                    .  PHP_EOL
+                    . 'This message is expected and not signn of malfunction.'
+                );
                 return;
             }
 

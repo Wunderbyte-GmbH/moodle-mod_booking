@@ -353,7 +353,6 @@ class mod_booking_mod_form extends moodleform_mod {
             'notes' => get_string('notes', 'mod_booking'),
             'userpic' => get_string('userpic'),
             'indexnumber' => get_string('indexnumber', 'mod_booking'),
-            'places' => get_string('places', 'mod_booking'),
         ];
 
         $reportfields = [

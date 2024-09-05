@@ -432,7 +432,6 @@ class shortcodes {
         foreach ($optionids as $option) {
             $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
 
-
             if (!modechecker::is_ajax_or_webservice_request()) {
                 $returnurl = $PAGE->url->out();
             } else {
