@@ -88,7 +88,7 @@ class price extends field_base {
      * @param stdClass $newoption
      * @param int $updateparam
      * @param ?mixed $returnvalue
-     * @return string // If no warning, empty string.
+     * @return array // Changes are reported via the event in price class.
      */
     public static function prepare_save_field(
         stdClass &$formdata,
@@ -107,9 +107,9 @@ class price extends field_base {
 
         parent::prepare_save_field($formdata, $newoption, $updateparam, '');
 
-        // Don't notify about price changes.
-        $changes = [];
-        return $changes;
+        // For changes in price fields, the bookingoption_updated event is triggered separately...
+        // ...  in price class (price::add_price()). Hence no changes to report here.
+        return [];
     }
 
     /**

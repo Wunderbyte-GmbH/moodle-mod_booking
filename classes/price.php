@@ -25,6 +25,7 @@
 namespace mod_booking;
 
 use cache_helper;
+use context_module;
 use context_system;
 use dml_exception;
 use mod_booking\option\dates_handler;
@@ -545,7 +546,7 @@ class price {
         // If we don't want to use prices, we can delete all the prices at once.
         if (empty($fromform->useprice)) {
             $price = '';
-            // There might be old, prices lingering, so we make sure we delete everything at onece.
+            // There might be old, prices lingering, so we make sure we delete everything at once.
             $DB->delete_records('booking_prices', ['itemid' => $optionid, 'area' => $this->area]);
             return;
         }
@@ -633,7 +634,7 @@ class price {
         if ($currency === null) {
             $currency = get_config('booking', 'globalcurrency');
         }
-
+        $priceupdated = false;
         // If we retrieve a price record for this entry, we update if necessary.
         if ($data = $DB->get_record('booking_prices', ['area' => $area, 'itemid' => $itemid,
             'pricecategoryidentifier' => $categoryidentifier,
@@ -642,15 +643,17 @@ class price {
             if ($data->price != $price
             || $data->pricecategoryidentifier != $categoryidentifier
             || $data->currency != $currency) {
-
+                $oldprice = $data;
                 // If there is a change and the new price is "", we delete the entry.
                 if ($price === "") {
                     $DB->delete_records('booking_prices', ['id' => $data->id, 'area' => $area]);
+                    $priceupdated = true;
                 } else {
                     $data->price = $price;
                     $data->pricecategoryidentifier = $categoryidentifier;
                     $data->currency = $currency;
                     $DB->update_record('booking_prices', $data);
+                    $priceupdated = true;
                 }
             }
         } else if ($price !== "") { // If there is a price but no price entry, we insert a new one.
@@ -661,8 +664,30 @@ class price {
             $data->price = $price;
             $data->currency = $currency;
             $DB->insert_record('booking_prices', $data);
+            $priceupdated = true;
         }
 
+        if ($priceupdated) {
+            global $USER;
+            $bosettings = singleton_service::get_instance_of_booking_option_settings($itemid);
+            $context = context_module::instance($bosettings->cmid);
+            $event = \mod_booking\event\bookingoption_updated::create([
+                'context' => $context,
+                'objectid' => $data->itemid,
+                'userid' => $USER->id,
+                'relateduserid' => $USER->id,
+                'other' => [
+                    'changes' => [
+                        (object)[
+                            'fieldname' => 'price',
+                        ],
+                    ],
+                ],
+            ]);
+            // Use $oldprice if more information about change is needed.
+            $event->trigger();
+            cache_helper::purge_by_event('setbackeventlogtable');
+        }
         // In any case, invalidate the cache after updating the booking option.
         // If performance is an issue, one could update only the cache of a this single option by key.
         // But right now, it seems reasonable to invalidate the cache from time to time.
