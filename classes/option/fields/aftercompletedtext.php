@@ -84,7 +84,7 @@ class aftercompletedtext extends field_base {
      * @param stdClass $newoption
      * @param int $updateparam
      * @param ?mixed $returnvalue
-     * @return string // If no warning, empty string.
+     * @return array // If no changes, empty array.
      */
     public static function prepare_save_field(
         stdClass &$formdata,
@@ -106,8 +106,11 @@ class aftercompletedtext extends field_base {
             $newoption->{$key} = '';
         }
 
+        $instance = new aftercompletedtext();
+        $changes = $instance->check_for_changes($formdata, $instance);
+
         // We can return an warning message here.
-        return [];
+        return $changes;
     }
 
     /**
