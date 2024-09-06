@@ -86,7 +86,7 @@ class waitforconfirmation extends field_base {
      * @param stdClass $newoption
      * @param int $updateparam
      * @param ?mixed $returnvalue
-     * @return string // If no warning, empty string.
+     * @return array// If no warning, empty array.
      */
     public static function prepare_save_field(
         stdClass &$formdata,
@@ -97,8 +97,11 @@ class waitforconfirmation extends field_base {
         if (isset($formdata->waitforconfirmation)) {
             booking_option::add_data_to_json($newoption, "waitforconfirmation", $formdata->waitforconfirmation);
         }
-
-        return [];
+        $instance = new waitforconfirmation();
+        $mockdata = new stdClass();
+        $mockdata->id = $formdata->id;
+        $changes = $instance->check_for_changes($formdata, $instance, $mockdata);
+        return $changes;
     }
 
     /**
