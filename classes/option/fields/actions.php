@@ -28,6 +28,8 @@ use mod_booking\bo_actions\actions_info;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\option\field_base;
+use mod_booking\option\fields_info;
+use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
 
@@ -101,10 +103,12 @@ class actions extends field_base {
         } else {
             $boactions = $formdata->boactions ?? [];
         }
-
         booking_option::add_data_to_json($newoption, 'boactions', $boactions);
 
-        return [];
+        $instance = new actions();
+        $changes = $instance->check_for_changes($formdata, $instance);
+        // Changes will only be reported this way if actions are deleted. Otherwise event is triggered separately.
+        return $changes;
     }
 
     /**
@@ -119,7 +123,6 @@ class actions extends field_base {
 
         // Actions are not yet finished - so we hide them for now.
         // Add booking actions mform elements.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         actions_info::add_actions_to_mform($mform, $formdata);
     }
 
@@ -142,5 +145,52 @@ class actions extends field_base {
             $data->boactions = booking_option::get_value_of_json_by_key($data->id, 'boactions');
         }
         $data->boactionsjson = json_encode($data->boactions ?? []);
+    }
+
+    /**
+     * Check if there is a difference between the former and the new values of the formdata.
+     *
+     * @param stdClass $formdata
+     * @param field_base $self
+     * @param mixed $mockdata // Only needed if there the object needs params for the save_data function.
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return array
+     *
+     */
+    public function check_for_changes(
+        stdClass $formdata,
+        field_base $self,
+        $mockdata = '',
+        string $key = '',
+        $value = ''): array {
+
+        $changes = [];
+        if (!isset($self)) {
+            return $changes;
+        }
+
+        $excludeclassesfromtrackingchanges = MOD_BOOKING_CLASSES_EXCLUDED_FROM_CHANGES_TRACKING;
+
+        $classname = fields_info::get_class_name(static::class);
+        if (in_array($classname, $excludeclassesfromtrackingchanges)) {
+            return $changes;
+        }
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($formdata->optionid);
+        $mockdata = new stdClass();
+        $mockdata->id = $formdata->optionid;
+        self::set_data($mockdata, $settings);
+        $new = json_decode($formdata->boactionsjson);
+        $old = json_decode($mockdata->boactionsjson);
+        if ($old != $new) {
+            $changes = [
+                'changes' => [
+                    'fieldname' => 'actions',
+                ],
+            ];
+        }
+        return $changes;
     }
 }

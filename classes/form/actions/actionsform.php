@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace mod_booking\form\actions;
+use context_module;
+use mod_booking\booking_option;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -78,9 +80,17 @@ class actionsform extends dynamic_form {
      * @return object $data
      */
     public function process_dynamic_submission() {
+        global $USER;
         $data = parent::get_data();
 
+        $cmid = (int) $data->cmid;
+        $optionid = $data->optionid;
+
         actions_info::save_action($data);
+
+        // Since this update is executed before bookingoption is saved, trigger event here.
+        $context = context_module::instance($cmid);
+        booking_option::trigger_updated_event($context, $optionid, $USER->id, $USER->id, 'actions');
 
         return $data;
     }
