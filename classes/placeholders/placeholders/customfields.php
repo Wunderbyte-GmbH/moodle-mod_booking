@@ -49,7 +49,7 @@ class customfields {
      * @param string $text
      * @param array $params
      * @param string $placeholder
-     * @param boolean $fieldexists
+     * @param bool $fieldexists
      * @return string
      */
     public static function return_value(

@@ -224,7 +224,7 @@ class shoppingcart extends field_base {
                     return [
                         'changes' => [
                             'fieldname' => 'shoppingcart',
-                        ]
+                        ],
                         ];
             }
         }

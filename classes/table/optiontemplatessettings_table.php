@@ -119,7 +119,7 @@ class optiontemplatessettings_table extends table_sql {
             [
             'optionid' => $values->optionid,
             'id' => $this->cmid,
-            'addastemplate' => '1'
+            'addastemplate' => '1',
             ]);
         $output .= $OUTPUT->single_button($url, $edit, 'get');
         return $output;
