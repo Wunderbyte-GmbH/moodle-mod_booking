@@ -25,6 +25,7 @@
 
 namespace mod_booking\subbookings;
 
+use cache_helper;
 use context_module;
 use mod_booking\booking_option_settings;
 use mod_booking\output\subbookingslist;
@@ -198,7 +199,7 @@ class subbookings_info {
                                                                     ],
                                                                 ]);
         $event->trigger();
-
+        cache_helper::purge_by_event('setbackeventlogtable');
         return;
     }
 
@@ -231,6 +232,7 @@ class subbookings_info {
                                                                     ],
                                                                 ]);
         $event->trigger();
+        cache_helper::purge_by_event('setbackeventlogtable');
     }
 
     /**

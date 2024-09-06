@@ -270,6 +270,7 @@ class mod_booking_generator extends testing_module_generator {
                                                                     ],
                                                                 ]);
         $event->trigger();
+        cache_helper::purge_by_event('setbackeventlogtable');
 
         return $record;
     }
