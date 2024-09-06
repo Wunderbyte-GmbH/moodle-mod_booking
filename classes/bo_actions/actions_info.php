@@ -218,8 +218,6 @@ class actions_info {
 
         // TODO: Get existing actions not from table but from json of this option.
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-
         $boactions = booking_option::get_value_of_json_by_key($optionid, 'boactions');
 
         $data = new actionslist($cmid, $optionid, $boactions ?? []);

@@ -221,11 +221,10 @@ if ($ADMIN->fulltree) {
                 'booking/presenceoptions',
                 get_string('presenceoptions', 'booking'),
                 get_string('presenceoptions_desc', 'booking'),
-                [5,6,1,2,3,4,7],
+                [5, 6, 1, 2, 3, 4, 7],
                 $presenceoptions
             )
-    );
-
+        );
     } else {
         $settings->add(
             new admin_setting_heading('appearancesettings',

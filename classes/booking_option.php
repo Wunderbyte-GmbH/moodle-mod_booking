@@ -217,6 +217,18 @@ class booking_option {
         return singleton_service::get_instance_of_booking_option($cm->id, $optionid);
     }
 
+    /**
+     * Trigger the bookingoption_updated event with fieldname if given.
+     *
+     * @param context $context
+     * @param int $optionid
+     * @param int $userid
+     * @param int $relateduserid
+     * @param string $fieldname
+     *
+     * @return void
+     *
+     */
     public static function trigger_updated_event(
         context $context,
         int $optionid,
