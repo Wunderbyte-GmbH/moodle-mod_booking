@@ -883,7 +883,7 @@ $string['delnotificationactivitycompletion'] = 'You deleted {$a->del} of {$a->al
 $string['department'] = 'Department';
 $string['description'] = 'Description';
 $string['details'] = 'Details';
-$string['disablebookingusers'] = 'Disable booking of users - hide Book now button.';
+$string['disablebookingusers'] = 'Disable booking of users - hide Book now button';
 $string['disablecancel'] = "Disable cancellation of this booking option";
 $string['disablecancelforinstance'] = "Disable cancellation for the whole booking instance.
 (If you activate this, then it won't be possible to cancel any booking within this instance.)";

@@ -102,7 +102,11 @@ class canceluntil extends field_base {
         } else {
             booking_option::add_data_to_json($newoption, "canceluntil", $formdata->canceluntil);
         }
-        return [];
+
+        $instance = new canceluntil();
+        $changes = $instance->check_for_changes($formdata, $instance);
+
+        return $changes;
     }
 
     /**
@@ -152,5 +156,70 @@ class canceluntil extends field_base {
                 $data->canceluntil = $canceluntil;
             }
         }
+    }
+
+    /**
+     * Check if there is a difference between the former and the new values of the formdata.
+     *
+     * @param stdClass $formdata
+     * @param field_base $self
+     * @param mixed $mockdata // Only needed if there the object needs params for the save_data function.
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return array
+     *
+     */
+    public function check_for_changes(
+        stdClass $formdata,
+        field_base $self,
+        $mockdata = '',
+        string $key = '',
+        $value = ''): array {
+
+        if (!isset($self)) {
+            return [];
+        }
+
+        $excludeclassesfromtrackingchanges = MOD_BOOKING_CLASSES_EXCLUDED_FROM_CHANGES_TRACKING;
+
+        $classname = 'canceluntil';
+        if (in_array($classname, $excludeclassesfromtrackingchanges)) {
+            return [];
+        }
+
+        $changes = [];
+
+        if (!empty($formdata->canceluntilcheckbox)) {
+            $newvalue = $formdata->canceluntil;
+        } else {
+            $newvalue = "";
+        }
+
+        // Check if there were changes and return these.
+        if (!empty($formdata->id) && isset($value)) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($formdata->id);
+            $mockdata = new stdClass();
+            $mockdata->id = $formdata->id;
+            $self::set_data($mockdata, $settings);
+
+            if (!empty($mockdata->canceluntilcheckbox)) {
+                $oldvalue = $settings->canceluntil;
+            } else {
+                $oldvalue = "";
+            }
+
+            if ($oldvalue != $newvalue
+                && !(empty($oldvalue) && empty($newvalue))) {
+                $changes = [
+                    'changes' => [
+                        'fieldname' => $classname,
+                        'oldvalue' => $oldvalue,
+                        'newvalue' => $newvalue,
+                    ],
+                ];
+            }
+        }
+        return $changes;
     }
 }

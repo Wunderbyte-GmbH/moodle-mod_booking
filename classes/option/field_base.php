@@ -293,6 +293,7 @@ abstract class field_base implements fields {
             'courseendtime',
             'bookingclosingtime',
             'bookingopeningtime',
+            'canceluntil',
         ];
 
         $changes = [

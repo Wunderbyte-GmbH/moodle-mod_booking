@@ -873,7 +873,7 @@ $string['deleteuserfrombooking'] = 'Buchung für Nutzer:innen wirklich storniere
 $string['department'] = 'Abteilung';
 $string['description'] = 'Beschreibung';
 $string['details'] = 'Details';
-$string['disablebookingusers'] = 'Buchung von Teilnehmer:innen deaktivieren - "Jetzt buchen" Button unsichtbar schalten.';
+$string['disablebookingusers'] = 'Buchung von Teilnehmer:innen deaktivieren - "Jetzt buchen" Button unsichtbar schalten';
 $string['disablecancel'] = "Stornieren dieser Buchungsoption nicht möglich";
 $string['disablecancelforinstance'] = "Stornieren für die gesamte Instanz deaktivieren.
 (Wenn Sie diese Einstellung aktivieren können Buchungsoptionen, die sich in dieser Instanz befinden, nicht storniert werden.)";

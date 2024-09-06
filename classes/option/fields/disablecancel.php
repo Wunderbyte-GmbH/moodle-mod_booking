@@ -28,6 +28,7 @@ use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
 
@@ -85,7 +86,7 @@ class disablecancel extends field_base {
      * @param stdClass $newoption
      * @param int $updateparam
      * @param ?mixed $returnvalue
-     * @return string // If no warning, empty string.
+     * @return array // Changes.
      */
     public static function prepare_save_field(
         stdClass &$formdata,
@@ -101,7 +102,12 @@ class disablecancel extends field_base {
         } else {
             booking_option::add_data_to_json($newoption, "disablecancel", 1);
         }
-        return [];
+
+        $instance = new disablecancel();
+        $mockdata = new stdClass();
+        $mockdata->id = $formdata->optionid;
+        $changes = $instance->check_for_changes($formdata, $instance, $mockdata);
+        return $changes;
     }
 
     /**
