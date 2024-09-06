@@ -217,6 +217,33 @@ class booking_option {
         return singleton_service::get_instance_of_booking_option($cm->id, $optionid);
     }
 
+    public static function trigger_updated_event(
+        context $context,
+        int $optionid,
+        int $userid,
+        int $relateduserid,
+        string $fieldname = "") {
+
+        $data = [
+            'context' => $context,
+            'objectid' => $optionid,
+            'userid' => $userid,
+            'relateduserid' => $relateduserid,
+        ];
+        if (!empty($fieldname)) {
+            $data['other'] = [
+                'changes' => [
+                    (object)[
+                        'fieldname' => $fieldname,
+                    ],
+                ],
+            ];
+        }
+        $event = \mod_booking\event\bookingoption_updated::create($data);
+        $event->trigger();
+        cache_helper::purge_by_event('setbackeventlogtable');
+    }
+
     /**
      * This calculates number of user that can be booked to the connected booking option
      * Looks for max participant in the connected booking given the optionid

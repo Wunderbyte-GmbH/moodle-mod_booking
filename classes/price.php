@@ -671,22 +671,7 @@ class price {
             global $USER;
             $bosettings = singleton_service::get_instance_of_booking_option_settings($itemid);
             $context = context_module::instance($bosettings->cmid);
-            $event = \mod_booking\event\bookingoption_updated::create([
-                'context' => $context,
-                'objectid' => $data->itemid,
-                'userid' => $USER->id,
-                'relateduserid' => $USER->id,
-                'other' => [
-                    'changes' => [
-                        (object)[
-                            'fieldname' => 'price',
-                        ],
-                    ],
-                ],
-            ]);
-            // Use $oldprice if more information about change is needed.
-            $event->trigger();
-            cache_helper::purge_by_event('setbackeventlogtable');
+            booking_option::trigger_updated_event($context, $data->itemid, $USER->id, $USER->id, 'price');
         }
         // In any case, invalidate the cache after updating the booking option.
         // If performance is an issue, one could update only the cache of a this single option by key.

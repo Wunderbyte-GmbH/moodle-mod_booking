@@ -27,6 +27,7 @@ namespace mod_booking\subbookings;
 
 use cache_helper;
 use context_module;
+use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\output\subbookingslist;
 use mod_booking\singleton_service;
@@ -183,23 +184,9 @@ class subbookings_info {
 
         // Every time we save the subbooking, we have to invalidate caches.
         // Trigger an event that booking option has been updated.
-
         $context = context_module::instance($data->cmid);
-        $event = \mod_booking\event\bookingoption_updated::create([
-                                                                    'context' => $context,
-                                                                    'objectid' => $data->optionid,
-                                                                    'userid' => $USER->id,
-                                                                    'relateduserid' => $USER->id,
-                                                                    'other' => [
-                                                                        'changes' => [
-                                                                            (object)[
-                                                                                'fieldname' => 'subbookings',
-                                                                            ],
-                                                                        ],
-                                                                    ],
-                                                                ]);
-        $event->trigger();
-        cache_helper::purge_by_event('setbackeventlogtable');
+        booking_option::trigger_updated_event($context, $data->optionid, $USER->id, $USER->id, 'subbookings');
+
         return;
     }
 
@@ -218,21 +205,7 @@ class subbookings_info {
         $DB->delete_records('booking_subbooking_options', ['id' => (int)$subbookingid]);
 
         $context = context_module::instance($cmid);
-        $event = \mod_booking\event\bookingoption_updated::create([
-                                                                    'context' => $context,
-                                                                    'objectid' => $optionid,
-                                                                    'userid' => $USER->id,
-                                                                    'relateduserid' => $USER->id,
-                                                                    'other' => [
-                                                                        'changes' => [
-                                                                            (object)[
-                                                                                'fieldname' => 'subbookings',
-                                                                            ],
-                                                                        ],
-                                                                    ],
-                                                                ]);
-        $event->trigger();
-        cache_helper::purge_by_event('setbackeventlogtable');
+        booking_option::trigger_updated_event($context, $optionid, $USER->id, $USER->id, 'subbookings');
     }
 
     /**
