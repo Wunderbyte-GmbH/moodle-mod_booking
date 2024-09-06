@@ -84,7 +84,7 @@ class notificationtext extends field_base {
      * @param stdClass $newoption
      * @param int $updateparam
      * @param ?mixed $returnvalue
-     * @return string // If no warning, empty string.
+     * @return array // If no changes, empty array.
      */
     public static function prepare_save_field(
         stdClass &$formdata,
@@ -108,8 +108,11 @@ class notificationtext extends field_base {
             $newoption->notificationtextformat = FORMAT_HTML;
         }
 
-        // We can return an warning message here.
-        return [];
+        $instance = new notificationtext();
+        $changes = $instance->check_for_changes($formdata, $instance);
+
+        // We can return changes here.
+        return $changes;
     }
 
     /**
