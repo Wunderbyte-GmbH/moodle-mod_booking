@@ -28,6 +28,7 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
 
@@ -111,7 +112,8 @@ class availability extends field_base {
             $newoption->sqlfilter = $formdata->sqlfilter;
         }
 
-        return [];
+        $instance = new availability();
+        return $instance->check_for_changes($formdata, $instance);
     }
 
     /**
@@ -180,5 +182,45 @@ class availability extends field_base {
             bo_info::set_defaults($data, $jsonobject);
         }
 
+    }
+
+    /**
+     * Check if there is a difference between the former and the new values of the formdata.
+     *
+     * @param stdClass $formdata
+     * @param field_base $self
+     * @param mixed $mockdata // Only needed if there the object needs params for the save_data function.
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return array
+     *
+     */
+    public function check_for_changes(
+        stdClass $formdata,
+        field_base $self,
+        $mockdata = '',
+        string $key = '',
+        $value = ''): array {
+
+        $changes = [];
+
+        $excludeclassesfromtrackingchanges = MOD_BOOKING_CLASSES_EXCLUDED_FROM_CHANGES_TRACKING;
+
+        $classname = fields_info::get_class_name(static::class);
+        if (in_array($classname, $excludeclassesfromtrackingchanges)) {
+            return $changes;
+        }
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($formdata->optionid);
+
+        if ($settings->availability != $formdata->availability) {
+            $changes = [
+                'changes' => [
+                    'fieldname' => 'availability',
+                ],
+            ];
+        }
+        return $changes;
     }
 }
