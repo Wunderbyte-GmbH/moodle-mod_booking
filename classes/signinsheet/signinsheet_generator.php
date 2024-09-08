@@ -221,6 +221,12 @@ class signinsheet_generator {
     public $hasrotatedfields = false;
 
     /**
+     * Customuserfields.
+     * @var array
+     */
+    public $customuserfields = [];
+
+    /**
      * Define basic variable values for signinsheet pdf
      *
      * @param \stdClass $pdfoptions
@@ -228,6 +234,8 @@ class signinsheet_generator {
      *
      */
     public function __construct(\stdClass $pdfoptions, ?\mod_booking\booking_option $bookingoption = null) {
+
+        global $DB;
 
         $this->optionid = $bookingoption->optionid;
         $this->bookingoption = $bookingoption;
@@ -279,6 +287,8 @@ class signinsheet_generator {
             $this->extracols[$i] = trim(get_config('booking', 'signinextracols' . $i));
         }
 
+        $this->customuserfields = $DB->get_records('user_info_field', []);
+
         $this->pdf = new signin_pdf($this->orientation, PDF_UNIT, PDF_PAGE_FORMAT);
     }
 
@@ -310,6 +320,7 @@ class signinsheet_generator {
             'rownumber',
             'role',
             'userpic',
+            'places',
         ];
 
         foreach ($userinfofields as $field) {
@@ -329,7 +340,7 @@ class signinsheet_generator {
         list($select1, $from1, $filter1, $params1) = booking_option_settings::return_sql_for_custom_profile_field($userinfofields);
 
         $sql =
-        "SELECT u.id, ba.timecreated as bookingtime, " . $mainuserfields . $userfields . $select1 .
+        "SELECT u.id, ba.timecreated as bookingtime, ba.places, " . $mainuserfields . $userfields . $select1 .
         " FROM {booking_answers} ba
         LEFT JOIN {user} u ON u.id = ba.userid
         $from1
@@ -484,6 +495,10 @@ class signinsheet_generator {
                     case 'address':
                         $name = $user->address;
                         break;
+                    case 'places':
+                        $w = 15;
+                        $name = $user->places;
+                        break;
                     case 'role':
                             // Check if the user is a fake user.
                         if ($user->id > 0) {
@@ -535,9 +550,11 @@ class signinsheet_generator {
                         $name = '';
 
                         // Handling for custom user profile fields.
-                        if (isset($user->$value)) {
-                            $name = format_string($user->$value);
-                            $w = 20;
+                        if (isset($user->{$value}) || isset($user->{strtolower($value)})) {
+
+                            $name = $user->{$value} ?? $user->{strtolower($value)};
+                            $name = format_string($name);
+                            $w = 25;
                             $rotate = false;
                         }
 
@@ -855,7 +872,7 @@ class signinsheet_generator {
         $this->pdf->SetFont('freesans', 'B', 10);
         $c = 0;
 
-        $customuserfields = $DB->get_records('user_info_field', []);
+
         // Setup table header row.
         foreach ($this->allfields as $value) {
             $rotate = false;
@@ -922,16 +939,20 @@ class signinsheet_generator {
                     $w = 20;
                     $name = get_string('userpic');
                     break;
+                case 'places':
+                    $w = 15;
+                    $name = get_string('places', 'mod_booking');
+                    break;
                 case 'timecreated':
                     $w = 30;
                     $name = get_string('bookingdate', 'mod_booking');
                     break;
                 default:
                     $userfield = false;
-                    foreach ($customuserfields as $customuserfield) {
+                    foreach ($this->customuserfields as $customuserfield) {
                         if ($value == $customuserfield->shortname) {
                             $name = format_string($customuserfield->name);
-                            $w = 20;
+                            $w = 25;
                             $userfield = true;
                             break;
                         }
