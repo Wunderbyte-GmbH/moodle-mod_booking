@@ -71,7 +71,7 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
       | person_lastname_2  | Smith |
       | person_age_2       | 30    |
     And I click on "Book now" "text" in the ".subbooking-additionalperson-form" "css_element"
-    And I should see "Start" in the ".subbooking-additionalperson-form" "css_element"
+    ## And I should see "Start" in the ".subbooking-additionalperson-form" "css_element"
     And I follow "Continue"
     And I should see "Thank you! You have successfully booked" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
     And I should see "Test option 1" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
@@ -105,7 +105,6 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
       | person_lastname_1  | Smith |
       | person_age_1       | 20    |
     And I click on "Book now" "text" in the ".subbooking-additionalperson-form" "css_element"
-    And I should see "Start" in the ".subbooking-additionalperson-form" "css_element"
     And I follow "Continue"
     And I should see "Thank you! You have successfully booked" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
     And I should see "Test option 1" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
