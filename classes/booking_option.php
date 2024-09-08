@@ -2319,6 +2319,12 @@ class booking_option {
         $allusers = [];
 
         $bookingoption = singleton_service::get_instance_of_booking_option($this->cmid, $this->optionid);
+
+        if (empty($bookingoption->id)) {
+            // Abort, when we don't receive option.
+            return;
+        }
+
         $bookingoption->apply_tags(); // Do we need this here?
 
         if (!empty($tousers)) {

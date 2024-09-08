@@ -66,6 +66,8 @@ class send_notification_mails extends \core\task\scheduled_task {
 
         $results = $DB->get_records('booking_answers', ['waitinglist' => MOD_BOOKING_STATUSPARAM_NOTIFYMELIST]);
 
+        mtrace('number of records', count($results ?? 0));
+
         foreach ($results as $result) {
             $bookingid = $result->bookingid;
             $userid = $result->userid;
@@ -77,16 +79,27 @@ class send_notification_mails extends \core\task\scheduled_task {
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
             $now = time();
-            if (!empty($settings->courseendtime) && $now > $settings->courseendtime) {
+            if (
+                (!empty($settings->courseendtime) && $now > $settings->courseendtime)
+                || (empty($booking->id) || empty($settings->id))
+            ) {
                 // If the booking option lies in the past, we remove the user from notification list...
                 // ...and we do not send a notification anymore.
-                $DB->delete_records('booking_answers',
-                    ['userid' => $userid,
-                    'optionid' => $optionid,
-                    'waitinglist' => MOD_BOOKING_STATUSPARAM_NOTIFYMELIST,
-                ]);
+                $DB->delete_records(
+                    'booking_answers',
+                    [
+                        'userid' => $userid,
+                        'optionid' => $optionid,
+                        'waitinglist' => MOD_BOOKING_STATUSPARAM_NOTIFYMELIST,
+                    ]
+                );
                 // Do not forget to purge cache afterwards.
                 booking_option::purge_cache_for_option($optionid);
+
+                if (empty($booking->id) || empty($settings->id)) {
+                    mtrace("booking instance ($bookingid) or booking option ($optionid) were deleted.");
+                    return;
+                }
 
                 mtrace("send_notification_mails task: Option $optionid is already over, " .
                     "so notification was not sent and user $userid was removed from the notification list.");
@@ -123,16 +136,16 @@ class send_notification_mails extends \core\task\scheduled_task {
 
             // Use message controller to send the completion message.
             $messagecontroller = new message_controller(
-                    MOD_BOOKING_MSGCONTRPARAM_SEND_NOW,
-                    MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE,
-                    $booking->cmid,
-                    $optionid,
-                    $userid,
-                    null,
-                    null,
-                    null,
-                    $messagetitle,
-                    $messagebody
+                MOD_BOOKING_MSGCONTRPARAM_SEND_NOW,
+                MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE,
+                $booking->cmid,
+                $optionid,
+                $userid,
+                null,
+                null,
+                null,
+                $messagetitle,
+                $messagebody
             );
 
             if ($messagecontroller->send_or_queue()) {
