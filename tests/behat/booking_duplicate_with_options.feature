@@ -69,9 +69,11 @@ Feature: In a booking create booking option with multiple custom options
       | chooseorcreatecourse                  | Connected Moodle course |
       ##| Connected Moodle course               | Course 1           |
     ## TODO: duplication of field names "Connected Moodle course" must be eliminated to use more efficient command (above)
+    And I click on "Course 1" "text" in the "//div[contains(@id, 'fitem_id_courseid_')]//div[contains(@id, 'form_autocomplete_selection-')]" "xpath_element"
+    And I wait "1" seconds
     And I open the autocomplete suggestions list in the "//div[contains(@id, 'id_coursesheader_')]//div[contains(@id, 'fitem_id_courseid_')]" "xpath_element"
     And I wait "1" seconds
-    And I should see "Course 1" in the "//div[contains(@id, 'fitem_id_courseid_')]//ul[contains(@class, 'form-autocomplete-suggestions')]" "xpath_element"
+    And I should see "Course 1 (ID:" in the "//div[contains(@id, 'fitem_id_courseid_')]//ul[contains(@class, 'form-autocomplete-suggestions')]" "xpath_element"
     And I click on "Course 1" "text" in the "//div[contains(@id, 'fitem_id_courseid_')]//ul[contains(@class, 'form-autocomplete-suggestions')]" "xpath_element"
     And I press "Save"
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
