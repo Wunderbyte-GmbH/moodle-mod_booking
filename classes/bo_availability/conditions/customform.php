@@ -215,8 +215,7 @@ class customform implements bo_condition {
             $counter = 1;
             $previous = 0;
 
-            while ($counter < 10) {
-
+            while ($counter <= 20) {
                 $buttonarray = [];
 
                 // Create a select to chose which tpye of form element to display.
