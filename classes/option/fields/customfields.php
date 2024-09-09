@@ -24,6 +24,7 @@
 
 namespace mod_booking\option\fields;
 
+use core_customfield\api;
 use mod_booking\booking_option_settings;
 use mod_booking\customfield\booking_handler;
 use mod_booking\option\field_base;
@@ -143,16 +144,58 @@ class customfields extends field_base {
      * ... after saving the option. This is so, when we need an option id for saving (because of other table).
      * @param stdClass $formdata
      * @param stdClass $option
-     * @return void
+     * @return array
      * @throws dml_exception
      */
-    public static function save_data(stdClass &$formdata, stdClass &$option) {
+    public static function save_data(stdClass &$formdata, stdClass &$option): array {
 
         // This is to save customfield data
         // The id key has to be set to option id.
         $optionid = $option->id;
         $handler = booking_handler::create();
+        $isnewinstance = $optionid == -1;
+
+        $editablefields = $handler->get_editable_fields($isnewinstance ? 0 : $formdata->id);
+        $oldfields = api::get_instance_fields_data($editablefields, $formdata->id);
+
+        // Tracking of changes here.
+        $changes = [];
+        foreach ($oldfields as $data) {
+            $context = \context_system::instance();
+
+            if (!$data->get('id')) {
+                $data->set('contextid', $context->id);
+            }
+
+            // Fix for dynamic custom fields that allow multiple values (multiselect).
+            $multiselect = $data->get_field()->get_configdata_property('multiselect');
+            $oldvalue = $data->get($data->datafield());
+
+            $key = $data->get_form_element_name();
+            $newvalue = $formdata->$key;
+            // Handling for editor fields.
+            if (is_array($newvalue) && isset($newvalue['text'])) {
+                $newvalue = $newvalue['text'];
+            } else if ($multiselect == "1") {
+                $oldvalue = explode(",", $oldvalue);
+            }
+
+            if ($oldvalue != $newvalue) {
+                // For the moment we don't return exact data about fields and values.
+                // Only report that there was change in the section.
+                // Can be extended when needed.
+
+                $changes = [
+                    'changes' => [
+                        'fieldname' => 'customfields',
+                    ],
+                ];
+                break;
+            }
+        }
+
         $handler->instance_form_save($formdata, $optionid == -1);
+        return $changes;
     }
 
     /**
