@@ -24,6 +24,7 @@
 
 namespace mod_booking\option\fields;
 
+use context_user;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
@@ -99,10 +100,8 @@ class bookingoptionimage extends field_base {
         $mockdata = new stdClass();
         $mockdata->id = $formdata->id; // Just any id to make sure settings are applied.
         $mockdata->cmid = $formdata->cmid;
-        $instance = new bookingoptionimage();
-        $changes = $instance->check_for_changes($formdata, $instance, $mockdata);
 
-        return $changes;
+        return [];
     }
 
     /**
@@ -111,20 +110,51 @@ class bookingoptionimage extends field_base {
      * @param stdClass $formdata
      * @param stdClass $option
      * @param int $index
-     * @return void
+     * @return array
      * @throws \dml_exception
      */
-    public static function save_data(stdClass &$formdata, stdClass &$option, int $index = 0) {
+    public static function save_data(stdClass &$formdata, stdClass &$option, int $index = 0): array {
+        global $USER;
 
         $cmid = $formdata->cmid;
         $optionid = $option->id;
+        $changes = [];
 
         $context = context_module::instance($cmid);
 
-        if ($draftimageid = $formdata->bookingoptionimage ?? false) {
+        if ($draftimageid = $formdata->bookingoptionimage ?? false ?? false ?? false) {
+            $fs = get_file_storage();
+            $usercontext = context_user::instance($USER->id);
+            $newfiles = $fs->get_area_files($usercontext->id, 'user', 'draft', $draftimageid, 'id');
+            $oldfiles = $fs->get_area_files($context->id, 'mod_booking', 'bookingoptionimage', $optionid, 'id');
+            $newhashes = [];
+            $oldhashes = [];
+            foreach ($newfiles as $file) {
+                if (empty($file->get_filesize())) {
+                    continue;
+                }
+                $newhashes[$file->get_filename()] = $file->get_contenthash();
+            }
+
+            foreach ($oldfiles as $file) {
+                if (empty($file->get_filesize())) {
+                    continue;
+                }
+                $oldhashes[$file->get_filename()] = $file->get_contenthash();
+            }
+            if ($oldhashes != $newhashes) {
+
+                $changes = [ 'changes' => [
+                    'fieldname' => 'attachment',
+                    'oldvalue' => array_keys($oldhashes)[0], // There is only one bookingoptionimage accepted, so no need for array.
+                    'newvalue' => array_keys($newhashes)[0],
+                    ],
+                ];
+            }
             file_save_draft_area_files($draftimageid, $context->id, 'mod_booking', 'bookingoptionimage',
                     $optionid, ['subdirs' => false, 'maxfiles' => 1]);
         }
+        return $changes;
     }
 
     /**
