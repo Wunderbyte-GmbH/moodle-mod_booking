@@ -872,7 +872,6 @@ class signinsheet_generator {
         $this->pdf->SetFont('freesans', 'B', 10);
         $c = 0;
 
-
         // Setup table header row.
         foreach ($this->allfields as $value) {
             $rotate = false;
