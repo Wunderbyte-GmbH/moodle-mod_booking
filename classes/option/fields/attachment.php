@@ -124,10 +124,10 @@ class attachment extends field_base {
 
         $changes = [];
         $context = context_module::instance($cmid);
-        $fs = get_file_storage();
-        $usercontext = context_user::instance($USER->id);
 
         if ($draftitemid = $formdata->myfilemanageroption ?? false) {
+            $fs = get_file_storage();
+            $usercontext = context_user::instance($USER->id);
             $newfiles = $fs->get_area_files($usercontext->id, 'user', 'draft', $draftitemid, 'id');
             $oldfiles   = $fs->get_area_files($context->id, 'mod_booking', 'myfilemanageroption', $optionid, 'id');
             $newhashes = [];
