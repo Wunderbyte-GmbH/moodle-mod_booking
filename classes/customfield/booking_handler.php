@@ -175,8 +175,12 @@ class booking_handler extends \core_customfield\handler {
      * @return void
      *
      */
-    public function instance_form_definition(\MoodleQuickForm $mform, int $instanceid = 0,
-    ?string $headerlangidentifier = null, ?string $headerlangcomponent = null, $contextid = 0) {
+    public function instance_form_definition(
+        \MoodleQuickForm $mform,
+        int $instanceid = 0,
+        ?string $headerlangidentifier = null,
+        ?string $headerlangcomponent = null,
+        $contextid = 0) {
 
         global $DB;
 
