@@ -172,7 +172,7 @@ class customfields extends field_base {
             $oldvalue = $data->get($data->datafield());
 
             $key = $data->get_form_element_name();
-            $newvalue = $formdata->$key ?: "";
+            $newvalue = $formdata->$key ?? "";
             // Handling for editor fields.
             if (is_array($newvalue) && isset($newvalue['text'])) {
                 $newvalue = $newvalue['text'];
