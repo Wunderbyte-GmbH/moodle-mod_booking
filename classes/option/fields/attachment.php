@@ -24,9 +24,11 @@
 
 namespace mod_booking\option\fields;
 
+use context_user;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
 use context_module;
@@ -85,7 +87,7 @@ class attachment extends field_base {
      * @param stdClass $newoption
      * @param int $updateparam
      * @param ?mixed $returnvalue
-     * @return string // If no warning, empty string.
+     * @return array // Always empty array, since changes are tracked elsewhere.
      */
     public static function prepare_save_field(
         stdClass &$formdata,
@@ -102,7 +104,7 @@ class attachment extends field_base {
             $newoption->{$key} = $returnvalue;
         }
 
-        // We can return an warning message here.
+        // Changes are tracked in save_data.
         return [];
     }
 
@@ -112,20 +114,53 @@ class attachment extends field_base {
      * @param stdClass $formdata
      * @param stdClass $option
      * @param int $index
-     * @return void
+     * @return array
      * @throws \dml_exception
      */
-    public static function save_data(stdClass &$formdata, stdClass &$option, int $index = 0) {
-
+    public static function save_data(stdClass &$formdata, stdClass &$option, int $index = 0): array {
+        global $USER;
         $cmid = $formdata->cmid;
         $optionid = $option->id;
 
+        $changes = [];
         $context = context_module::instance($cmid);
+        $fs = get_file_storage();
+        $usercontext = context_user::instance($USER->id);
 
         if ($draftitemid = $formdata->myfilemanageroption ?? false) {
+            $newfiles = $fs->get_area_files($usercontext->id, 'user', 'draft', $draftitemid, 'id');
+            $oldfiles   = $fs->get_area_files($context->id, 'mod_booking', 'myfilemanageroption', $optionid, 'id');
+            $newhashes = [];
+            $oldhashes = [];
+            foreach ($newfiles as $file) {
+                if (empty($file->get_filesize())) {
+                    continue;
+                }
+                $newhashes[$file->get_filename()] = $file->get_contenthash();
+            }
+
+            foreach ($oldfiles as $file) {
+                if (empty($file->get_filesize())) {
+                    continue;
+                }
+                $oldhashes[$file->get_filename()] = $file->get_contenthash();
+            }
+            if ($oldhashes != $newhashes) {
+                $new = array_diff_assoc($newhashes, $oldhashes);
+                $old = array_diff_assoc($oldhashes, $newhashes);
+
+                $changes = [ 'changes' => [
+                    'fieldname' => 'attachment',
+                    'oldvalue' => array_keys($old),
+                    'newvalue' => array_keys($new),
+                    ],
+                ];
+            }
             file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'myfilemanageroption',
                     $optionid, ['subdirs' => false, 'maxfiles' => 10]);
         }
+        return $changes;
+
     }
 
     /**
