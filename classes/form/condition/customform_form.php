@@ -88,7 +88,7 @@ class customform_form extends dynamic_form {
         $cachedata = $customformstore->get_customform_data();
 
         foreach ((array)$cachedata as $key => $value) {
-            if (str_contains($key, 'customform_') !== false) {
+            if (strpos($key, 'customform_') !== false) {
                 $data->{$key} = $value;
             }
         }
