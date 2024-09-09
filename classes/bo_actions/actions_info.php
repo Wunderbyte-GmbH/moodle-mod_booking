@@ -178,6 +178,7 @@ class actions_info {
      * @param stdClass $data
      */
     public static function delete_action(stdClass $data) {
+        global $USER;
 
         // Todo: Actually delete information from option.
 
@@ -197,6 +198,8 @@ class actions_info {
             $context = context_module::instance($data->cmid);
 
             booking_option::update($optionvalues, $context, MOD_BOOKING_UPDATE_OPTIONS_PARAM_REDUCED);
+
+            booking_option::trigger_updated_event($context, $optionvalues->optionid, $USER->id, $USER->id, 'actions');
         }
 
     }
