@@ -1560,12 +1560,9 @@ class booking {
         $params = [];
 
         $from = "(
-                    SELECT lsl.id as uniqueid, " .
-                    $DB->sql_concat("u.firstname", "' '", "u.lastname") . " as username,
+                    SELECT
                     lsl.*
                     FROM {logstore_standard_log} lsl
-                    LEFT JOIN {user} u
-                    ON u.id = lsl.userid
                 ) as s1";
 
         $where = 'component = :component ';

@@ -23,6 +23,7 @@
  */
 
 namespace mod_booking\table;
+use mod_booking\singleton_service;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -89,4 +90,15 @@ class event_log_table extends wunderbyte_table {
         return userdate($values->timecreated);
     }
 
+    /**
+     * Transform userid to username.
+     *
+     * @param object $values The row data.
+     * @return string
+     */
+    public function col_userid($values) {
+
+        $user = singleton_service::get_instance_of_user($values->userid);
+        return "$user->firstname $user->lastname";
+    }
 }

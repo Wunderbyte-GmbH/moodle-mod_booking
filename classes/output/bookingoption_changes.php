@@ -73,17 +73,16 @@ class bookingoption_changes implements renderable, templatable {
 
         $newchangesarray = [];
         foreach ($this->changesarray as $entry) {
-
             $entry = (array)$entry;
             if (isset($entry['fieldname'])) {
                 $fieldname = $entry['fieldname'];
                 $classname = fields_info::get_namespace_from_class_name($fieldname);
                 if (!empty($classname)) {
-                    $fieldsclass = new $classname;
+                    $fieldsclass = new $classname();
                     $changes = $fieldsclass->get_changes_description($entry);
                 } else if ($fieldname == "pollurlteachers") {
                     // TODO create dummy fields class to access abstract method get_changes_description generically.
-                    $fieldsclass = new pollurl;
+                    $fieldsclass = new pollurl();
                     $changes = $fieldsclass->get_changes_description($entry);
                     $changes['fieldname'] = get_string($fieldname, 'mod_booking');
                 } else {
@@ -96,9 +95,10 @@ class bookingoption_changes implements renderable, templatable {
 
             } else {
                 // Custom fields with links to video meeting sessions.
-                if (isset($entry['newname']) &&
-                    preg_match('/^((zoom)|(big.*blue.*button)|(teams)).*meeting$/i', $entry['newname'])) {
-
+                if (
+                    isset($entry['newname'])
+                    && preg_match('/^((zoom)|(big.*blue.*button)|(teams)).*meeting$/i', $entry['newname'])
+                ) {
                     // Never show the link directly, but use link.php instead.
                     $baseurl = $CFG->wwwroot;
 
@@ -110,20 +110,24 @@ class bookingoption_changes implements renderable, templatable {
                     }
 
                     if (!empty($entry['optionid'])) {
-                        $link = new moodle_url($baseurl . '/mod/booking/view.php',
-                        [
-                            'id' => $this->cmid,
-                        ]);
+                        $link = new moodle_url(
+                            $baseurl . '/mod/booking/view.php',
+                            [
+                                'id' => $this->cmid,
+                            ]
+                        );
                     } else {
-                        $link = new moodle_url($baseurl . '/mod/booking/link.php',
-                        [
-                            'id' => $this->cmid,
-                            'optionid' => $entry['optionid'],
-                            'action' => 'join',
-                            'sessionid' => $entry['optiondateid'],
-                            'fieldid' => $fieldid,
-                            'meetingtype' => $entry['newname'],
-                        ]);
+                        $link = new moodle_url(
+                            $baseurl . '/mod/booking/link.php',
+                            [
+                                'id' => $this->cmid,
+                                'optionid' => $entry['optionid'],
+                                'action' => 'join',
+                                'sessionid' => $entry['optiondateid'],
+                                'fieldid' => $fieldid,
+                                'meetingtype' => $entry['newname'],
+                            ]
+                        );
                     }
 
                     $entry['newvalue'] = html_writer::link($link, $link->out());

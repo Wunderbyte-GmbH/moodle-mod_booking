@@ -203,8 +203,8 @@ abstract class field_base implements fields {
         field_base $self,
         $mockdata = '',
         string $key = '',
-        $value = ''): array {
-
+        $value = ''
+    ): array {
         if (!isset($self)) {
             return [];
         }

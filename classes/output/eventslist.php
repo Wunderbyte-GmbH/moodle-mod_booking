@@ -90,7 +90,7 @@ class eventslist implements renderable, templatable {
         $table->set_filter_sql($select, $from, $where, $filter, $params);
 
         $columnsarray = [
-            'username' => get_string('user', 'core'),
+            'userid' => get_string('user', 'core'),
             'eventname' => get_string('eventname', 'core'),
             'description' => get_string('description', 'core'),
             'timecreated' => get_string('timecreated', 'core'),
