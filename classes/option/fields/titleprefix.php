@@ -39,7 +39,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class titleprefix extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -85,7 +84,7 @@ class titleprefix extends field_base {
      * @param stdClass $newoption
      * @param int $updateparam
      * @param ?mixed $returnvalue
-     * @return string // If no warning, empty string.
+     * @return array // If no changes, empty array.
      */
     public static function prepare_save_field(
         stdClass &$formdata,
@@ -93,7 +92,11 @@ class titleprefix extends field_base {
         int $updateparam,
         $returnvalue = null): array {
 
-        return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
+        parent::prepare_save_field($formdata, $newoption, $updateparam, '');
+
+        $instance = new titleprefix();
+        $changes = $instance->check_for_changes($formdata, $instance);
+        return $changes;
     }
 
     /**

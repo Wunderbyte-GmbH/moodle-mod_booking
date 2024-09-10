@@ -51,13 +51,11 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class dates {
-
     /**
      * Construct dates class
      *
      */
     public function __construct() {
-
     }
 
     /**
@@ -122,7 +120,8 @@ class dates {
                 'semesterid',
                 get_string('chooseperiod', 'mod_booking'),
                 $semestersarray,
-                $semesteridoptions);
+                $semesteridoptions
+            );
 
             $mform->addHelpButton('semesterid', 'chooseperiod', 'mod_booking');
             $mform->setType('semesterid', PARAM_INT);

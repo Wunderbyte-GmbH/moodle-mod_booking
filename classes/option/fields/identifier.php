@@ -95,7 +95,11 @@ class identifier extends field_base {
         int $updateparam,
         $returnvalue = null): array {
 
-        return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
+        parent::prepare_save_field($formdata, $newoption, $updateparam, '');
+
+        $instance = new identifier();
+        $changes = $instance->check_for_changes($formdata, $instance);
+        return $changes;
     }
 
     /**

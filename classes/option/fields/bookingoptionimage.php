@@ -145,7 +145,7 @@ class bookingoptionimage extends field_base {
             if ($oldhashes != $newhashes) {
 
                 $changes = [ 'changes' => [
-                    'fieldname' => 'attachment',
+                    'fieldname' => 'bookingoptionimage',
                     'oldvalue' => array_keys($oldhashes)[0], // There is only one bookingoptionimage accepted, so no need for array.
                     'newvalue' => array_keys($newhashes)[0],
                     ],
