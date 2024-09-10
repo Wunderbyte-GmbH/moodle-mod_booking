@@ -161,9 +161,9 @@ class addbookingoption extends external_api {
      * @param int|null $targetcourseid
      * @param int|null $courseid
      * @param int|null $bookingid
-     * @param int|null $bookingidnumber
+     * @param string|null $bookingidnumber
      * @param int|null $bookingoptionid
-     * @param int|null $courseidnumber
+     * @param string|null $courseidnumber
      * @param string|null $courseshortname
      * @param string|null $enroltocourseshortname
      * @param int|null $maxanswers
@@ -211,9 +211,9 @@ class addbookingoption extends external_api {
                         ?int $targetcourseid = null,
                         ?int $courseid = null,
                         ?int $bookingid = null,
-                        ?int $bookingidnumber = null,
+                        ?string $bookingidnumber = null,
                         ?int $bookingoptionid = null,
-                        ?int $courseidnumber = null,
+                        ?string $courseidnumber = null,
                         ?string $courseshortname = null,
                         ?string $enroltocourseshortname = null,
                         ?int $maxanswers = null,
