@@ -25,6 +25,8 @@
 
 namespace mod_booking\output;
 
+use ErrorException;
+use Exception;
 use mod_booking;
 use mod_booking\booking;
 use mod_booking\output\instance_description;
@@ -37,6 +39,7 @@ use tabobject;
 use html_writer;
 use plugin_renderer_base;
 use moodle_url;
+use Throwable;
 use user_selector_base;
 use html_table_cell;
 use html_table;
@@ -476,7 +479,11 @@ class renderer extends plugin_renderer_base {
     public function render_bookingoption_description_view(bookingoption_description $data) {
         $o = '';
         $data = $data->export_for_template($this);
-        $o .= $this->render_from_template('mod_booking/bookingoption_description_view', $data);
+        try {
+            $o .= $this->render_from_template('mod_booking/bookingoption_description_view', $data);
+        } catch (Exception $e) {
+            $o .= get_string('bookingoptionupdated', 'mod_booking');
+        }
         return $o;
     }
 
@@ -488,7 +495,14 @@ class renderer extends plugin_renderer_base {
     public function render_bookingoption_changes(bookingoption_changes $data) {
         $o = '';
         $data = $data->export_for_template($this);
-        $o .= $this->render_from_template('mod_booking/bookingoption_changes', $data);
+
+        try {
+            // This line might cause an error or exception.
+            $o .= $this->render_from_template('mod_booking/bookingoption_changes', $data);
+        } catch (Throwable $e) {
+            $o = '';
+        };
+
         return $o;
     }
 

@@ -26,6 +26,7 @@ namespace mod_booking\event;
 use Exception;
 use mod_booking\output\bookingoption_changes;
 use mod_booking\singleton_service;
+use Throwable;
 
 /**
  * The bookingoption_updated event class.
@@ -127,7 +128,7 @@ class bookingoption_updated extends \core\event\base {
             ];
             $infostring = get_string('bookingoptionupdateddesc', 'mod_booking', $infos);
             return $infostring . $html;
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             return get_string('bookingoptionupdated', 'mod_booking');
         }
 
