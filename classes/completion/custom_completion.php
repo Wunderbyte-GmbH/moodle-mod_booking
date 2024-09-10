@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Activity custom completion subclass for the booking activity.
+ * Activity custom completion for the booking activity.
  *
  * @package mod_booking
- * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
+ * @copyright 2024 Wunderbyte GmbH <info@wunderbyte.at>
  * @author Andrii Semenets
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -28,10 +28,24 @@ namespace mod_booking\completion;
 use Exception;
 use core_completion\activity_custom_completion;
 
+/**
+ * Activity custom completion subclass for the booking activity.
+ *
+ * Class for defining mod_booking's custom completion rules and fetching the completion statuses
+ * of the custom completion rules for a given booking instance and a user.
+ *
+ * @package mod_booking
+ * @copyright 2024 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Andrii Semenets
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class custom_completion extends activity_custom_completion {
 
     /**
-     * @inheritDoc
+     * Fetches the completion state for a given completion rule.
+     *
+     * @param string $rule The completion rule.
+     * @return int The completion state.
      */
     public function get_state(string $rule): int {
         global $DB;
@@ -49,21 +63,27 @@ class custom_completion extends activity_custom_completion {
     }
 
     /**
-     * @inheritDoc
+     * Fetch the list of custom completion rules that this module defines.
+     *
+     * @return array
      */
     public static function get_defined_custom_rules(): array {
         return ['completionoptioncompleted'];
     }
 
     /**
-     * @inheritDoc
+     * Returns an associative array of the descriptions of custom completion rules.
+     *
+     * @return array
      */
     public function get_custom_rule_descriptions(): array {
         return ['completionoptioncompleted' => get_string('completionoptioncompletedcminfo', 'booking')];
     }
 
     /**
-     * @inheritDoc
+     * Returns an array of all completion rules, in the order they should be displayed to users.
+     *
+     * @return array
      */
     public function get_sort_order(): array {
         return ['completionoptioncompleted'];
