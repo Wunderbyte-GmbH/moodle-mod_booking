@@ -23,6 +23,7 @@
  */
 
 namespace mod_booking\event;
+use Exception;
 use mod_booking\output\bookingoption_changes;
 use mod_booking\singleton_service;
 
@@ -97,35 +98,38 @@ class bookingoption_updated extends \core\event\base {
      *
      */
     private function generate_description($simplified = false) {
-
         global $PAGE;
 
-        $data = $this->get_data();
+        try {
+            $data = $this->get_data();
+            $jsonstring = isset($data['other']) ? $data['other'] : '[]';
+            if (gettype($jsonstring) == 'string') {
+                $changes = (array) json_decode($jsonstring);
+            }
 
-        $jsonstring = isset($data['other']) ? $data['other'] : '[]';
-        if (gettype($jsonstring) == 'string') {
-            $changes = (array) json_decode($jsonstring);
+            if (!empty($changes) && !empty($data['objectid'])) {
+                $settings = singleton_service::get_instance_of_booking_option_settings($data['objectid']);
+
+                $data = new bookingoption_changes($changes, $settings->cmid);
+                $renderer = $PAGE->get_renderer('mod_booking');
+                $html = $renderer->render_bookingoption_changes($data);
+            } else {
+                $html = '';
+            }
+
+            if ($simplified) {
+                return $html;
+            }
+
+            $infos = (object) [
+                'userid' => $this->userid,
+                'objectid' => $this->objectid,
+            ];
+            $infostring = get_string('bookingoptionupdateddesc', 'mod_booking', $infos);
+            return $infostring . $html;
+        } catch (Exception $e) {
+            return get_string('bookingoptionupdated', 'mod_booking');
         }
 
-        if (!empty($changes) && !empty($data['objectid'])) {
-            $settings = singleton_service::get_instance_of_booking_option_settings($data['objectid']);
-
-            $data = new bookingoption_changes($changes, $settings->cmid);
-            $renderer = $PAGE->get_renderer('mod_booking');
-            $html = $renderer->render_bookingoption_changes($data);
-        } else {
-            $html = '';
-        }
-
-        if ($simplified) {
-            return $html;
-        }
-
-        $infos = (object) [
-            'userid' => $this->userid,
-            'objectid' => $this->objectid,
-        ];
-        $infostring = get_string('bookingoptionupdateddesc', 'mod_booking', $infos);
-        return $infostring . $html;
     }
 }
