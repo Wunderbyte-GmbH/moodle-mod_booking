@@ -264,23 +264,6 @@ class shortcodes {
         $showsort = !empty($args['sort']) ? true : false;
         $showsearch = !empty($args['search']) ? true : false;
 
-        $onlyfilterforcolumns = explode(',', ($args['onlyfilterforcolumns'] ?? ''));
-        if (
-            in_array('dayofweek', $onlyfilterforcolumns)
-        ) {
-            $standardfilter = new standardfilter('dayofweek', get_string('dayofweek', 'local_urise'));
-            $standardfilter->add_options([
-                'monday' => get_string('monday', 'mod_booking'),
-                'tuesday' => get_string('tuesday', 'mod_booking'),
-                'wednesday' => get_string('wednesday', 'mod_booking'),
-                'thursday' => get_string('thursday', 'mod_booking'),
-                'friday' => get_string('friday', 'mod_booking'),
-                'saturday' => get_string('saturday', 'mod_booking'),
-                'sunday' => get_string('sunday', 'mod_booking'),
-            ]);
-            $table->add_filter($standardfilter);
-        }
-
         view::apply_standard_params_for_bookingtable(
             $table,
             $optionsfields,
@@ -289,6 +272,12 @@ class shortcodes {
             $showsort,
             false,
         );
+
+        // Possibility to add customfieldfilter.
+        $customfieldfilter = explode(',', ($args['customfieldfilter'] ?? ''));
+        if (!empty($customfieldfilter)) {
+            self::apply_customfieldfilter($table, $customfieldfilter);
+        }
 
         $table->showcountlabel = false;
 
@@ -300,6 +289,27 @@ class shortcodes {
         $out = $table->outhtml($perpage, true);
 
         return $out;
+    }
+
+    private static function apply_customfieldfilter(&$table, $args) {
+        if (empty($args)) {
+            return;
+        }
+        $customfields = booking_handler::get_customfields();
+        if (empty($customfields)) {
+            return;
+        }
+        foreach ($customfields as $customfield) {
+            if (!isset($customfield->shortname)) {
+                continue;
+            }
+            if (!in_array($customfield->shortname, $args)) {
+                continue;
+            }
+            // Check for multi fields, explode values as settings for standardfilter.
+            $standardfilter = new standardfilter($customfield->shortname, $customfield->name);
+            $table->add_filter($standardfilter);
+        }
     }
 
     /**
