@@ -89,9 +89,9 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $group = [];
         $group[] = & $mform->createElement('checkbox', 'enablecompletionenabled', '',
-                get_string('enablecompletion', 'booking'));
+                get_string('completionoptioncompletedform', 'booking'));
         $group[] = $mform->createElement('text', 'enablecompletion',
-                get_string('enablecompletion', 'booking'), ['size' => '1']);
+                get_string('completionoptioncompletedform', 'booking'), ['size' => '1']);
 
         $mform->addGroup($group, 'enablecompletiongroup',
                 get_string('enablecompletiongroup', 'booking'), [' '], false);

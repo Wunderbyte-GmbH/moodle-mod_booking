@@ -549,40 +549,6 @@ function booking_comment_validate(stdClass $commentparam): bool {
 }
 
 /**
- * Calculate completion state.
- *
- * @param stdClass $course
- * @param stdClass $cm
- * @param int $userid
- * @param bool $type
- *
- * @return bool
- *
- * @throws dml_exception
- */
-function booking_get_completion_state($course, $cm, $userid, $type) {
-    global $CFG, $DB;
-
-    // Get booking details.
-    if (!($booking = $DB->get_record('booking', ['id' => $cm->instance]))) {
-        throw new Exception("Can't find booking {$cm->instance}");
-    }
-
-    if ($booking->enablecompletion > 0) {
-        $user = $DB->count_records('booking_answers',
-                ['bookingid' => $booking->id, 'userid' => $userid, 'completed' => '1']);
-
-        if ($booking->enablecompletion <= $user) {
-            return true;
-        }
-
-        return false;
-    } else {
-        return $type;
-    }
-}
-
-/**
  * Given an object containing all the necessary data this will create a new instance and return the id number of the new instance.
  *
  * @param object $booking
