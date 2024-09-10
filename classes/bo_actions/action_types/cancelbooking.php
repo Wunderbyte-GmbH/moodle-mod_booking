@@ -83,7 +83,7 @@ class cancelbooking extends booking_action {
         $mform->addElement('advcheckbox',
             'boactioncancelbooking',
             get_string('boactioncancelbookingvalue', 'mod_booking'),
-            get_string('boactioncancelbooking_desc', 'mod_booking'));
+            get_string('boactioncancelbookingdesc', 'mod_booking'));
         $mform->setDefault('boactioncancelbooking', 1);
 
     }

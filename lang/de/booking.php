@@ -152,8 +152,8 @@ $string['blockoperator_help'] = '<b>Blockiere über</b> ... Sobald der angegeben
 es kann dann nur noch an der Kassa oder durch einen Admin gebucht werden.<br>
 <b>Blockiere unter</b> ... Das Buchen wird geblockt bis der angegebene Prozentsatz an Buchungen erreicht ist,
 bis dahin kann nur an der Kassa oder durch einen Admin gebucht werden.';
-$string['boactioncancelbooking_desc'] = "Used for options which can be bought multiple times";
-$string['boactioncancelbookingvalue'] = "Activate immediate cancelation";
+$string['boactioncancelbookingdesc'] = "Wird verwendet, wenn eine Option mehrmals gekauft werden können soll.";
+$string['boactioncancelbookingvalue'] = "Aktiviere sofortige Ausbuchung";
 $string['boactionname'] = "Name der Aktion";
 $string['boactions'] = 'Aktionen nach der Buchung ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>' . ' ' . '<span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimentell</span>';
 $string['boactions_desc'] = "Aktionen nach der Buchung sind derzeit ein experimentelles Feature.

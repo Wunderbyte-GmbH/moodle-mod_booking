@@ -156,8 +156,8 @@ $string['blockoperator_help'] = '<b>Block above</b> ... Online booking will be b
 of bookings is reached. Booking will only be possible for a cashier or admin afterwards.<br>
 <b>Block below</b> ... Online booking will be blocked until the given percentage
 of bookings is reached. Before that happens, booking is only possible for cashier or admin.';
-$string['boactioncancelbooking_desc'] = "Wird verwendet, wenn eine Option mehrmals gekauft werden können soll.";
-$string['boactioncancelbookingvalue'] = "Aktiviere sofortige Ausbuchung";
+$string['boactioncancelbookingdesc'] = "Used for options which can be bought multiple times";
+$string['boactioncancelbookingvalue'] = "Activate immediate cancelation";
 $string['boactionname'] = "Name of action";
 $string['boactions'] = 'Actions after booking ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>' . ' ' . '<span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimental</span>';
 $string['boactions_desc'] = "Booking actions after booking are still an EXPERIMENTAL feature. You can try them if you want.
