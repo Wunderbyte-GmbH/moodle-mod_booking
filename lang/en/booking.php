@@ -2097,6 +2097,8 @@ $string['uselegacymailtemplates_desc'] = 'This function is deprecated and will b
  <span class="text-danger"><b>Be careful:</b> If you uncheck this box, your email templates in your booking-instances won\'t be shown and used anymore.</span>';
 $string['usenotificationlist'] = 'Use notification list';
 $string['useprice'] = 'Only book with price';
+$string['useprotoenablemorerules'] = 'You need Booking PRO, to be able to add more rules.
+<a href="https://wunderbyte.at/kontakt" target="_blank">Contact Wunderbyte</a>, if you want to buy a pro license.';
 $string['useraffectedbyevent'] = 'User affected by the event';
 $string['usercalendarentry'] = 'You are booked for <a href="{$a}">this session</a>.';
 $string['usercalendarurl'] = "usercalendarurl";
