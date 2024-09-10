@@ -1,3 +1,108 @@
+## Version 8.6.15 (2024091000)
+* Improvmenet: Also count course status and return
+* Improvement: Fixes for signinsheet generator
+* Improvement: Allow up to 20 fields in customform
+* Improvement: Add enrolmentstatus to tracked changes in bookingoption
+* Improvement: Track changes for shoppingcart field, bookingopening- & -closingtime, canceluntil, desablebookingusers, disablecancel, customfields
+* Improvement: Trigger event if prices are changed
+* Improvement: purge event caches after bookingoption_updated event
+* Improvement: Track changes in actions after booking, attachment, waitformconfirmation
+* Improvement: Add / fix missing string
+* Improvement: Track changes of availability, aftercompletedtext, notificationtext, removeafterminutes
+* Improvement: Resolve 1/0 values as "on"/"off" in event description
+* Improvement: Performance improvement of eventlist
+* Improvement: In case of error in event description of bookingoption_updated, return default message
+* Bugfix: If course does not exist anymore, on save, we delete the reference
+* Bugfix: Book on detail can now handle cashier checkout
+* Bugfix: Notification Task should not fail on deleted booking option
+* Bugfix: Check for changes of all shoppingcart keys
+* Bugfix: Fix changes tracking of pollurl (-teachers)
+* Bugfix: Do not exclude classes from tracking of changes
+* Bugfix: react on changes in bookingoption only for qualified updates
+* Bugfix: Changes in bookingoptionimage
+
+## Version 8.6.14 (2024090500)
+* Bugfix: Don't send Mails to users that don't fullfill the condition anymore.
+
+## Version 8.6.13 (2024090400)
+* Improvement: Add changes handling to beforebookedtext & beforecompledtext
+* Improvement: Don't use one session difference when displaying entites
+* Improvement: Only show editurl when teacher or has capability updatebooking
+* Improvement: Capability check
+* Bugfix: Display simplified changes for placeholders
+* Bugfix: bookingoption_updated event for subbookings
+* Bugfix: fix rule n days before - IMPORTANT!
+* Bugfix: Handle missing booking or option Id in dates handling
+* Bugfix: return button on booking details page
+* Bugfix: Still execute action based rules
+* Bugfix: change string in feature test
+* Bugfix: Fix behat test
+* Bugfix: No error on creation global template
+
+## Version 8.6.12 (2024090300)
+* Improvement: Throw meaningful error when shortnames of booking option fields don't correspond to convention
+* Improvement: New behat scenario
+* Bugfix: Teacher will never be enrolled only for the semester, but will have full access to course.
+* Bugfix: Small importer improvements
+* Bugfix: Fix subbooking logic, especially in combination with bookafterconfirmation
+
+## Version 8.6.10 (2024082901)
+* Improvement: Not booked users will see beforehand if a date is online or not
+* Bugfix: formt_text for beforebookedtext etc.
+* Bugfix: Turn sororder for fieldofstudy
+* Bugfix: Booking notes work again
+
+## Version 8.6.9 (2024082900)
+* Improvement: Save multiple places in booking_answers table
+* Improvement: Count places, not answers
+* Improvement: Render different types of subbookings in one modal
+* Bugfix: Title is link to booking details page again
+* Bugfix: Make sure we really don't execute the send mail by rule adhoc task
+* Bugfix: Allow editing of option templates
+* Feature: Add places to booking_answers table
+
+## Version 8.6.8 (2024082700)
+* Bugfix: More reliable test if page url is available or not
+* Bugfix: Do not continue execution for Rule when it does not exist anymore.
+
+## Version 8.6.7 (2024082601)
+* Bugfix: Avoid destroying foreign placeholders
+* Bugfix: Don't show detail page when not logged in
+
+## Version 8.6.6 (2024082600)
+* Improvement: new phpunit tests
+* Improvement: Add warning when higher Moodle version is needed.
+* Improvment: Include better description for a booking rule.
+* Improvement: Use different icon for bookondetails page
+* Improvement: Only semestersettings of individual booking option determines service period. No Semester means coursestarttime - courseendtime
+* Bugfix: Shorten sql identifier because of possible length restriction
+* Bugfix: Make sure task doesn't fail when rule is deleted
+* Bugfix: Fix access to rulesform
+* Bugfix: notsupported
+* Bugfix: Improved mode checker with regards to cashier page
+* Bugfix: Fix url to optionview page in placeholder
+* Bugfix: Don't call rules after every event, but execute them only once at the last moment in lib.php
+
+## Version 8.6.5 (2024081900)
+* Improvement: Enhancements of rules and placeholders
+* Improvement: Better book on detail page handling
+* Improvement: GH-596 Better feedback for not logged in users
+* Improvement: Use format_string instead of format text when advisable
+* Improvement: Add booked AND on waitinglist selector to bookingoptionusers
+* Improvement: Add deleted users to report.php
+* Improvement: Show price also for admins when details page is on.
+* Improvement: Add new operators for in_array coupled with "contains" in profilefields
+* Improvement: Support localisation via mlang filter in settings
+* Improvement: Support additional columns in coursecategories class.
+* Improvment: Make sure that details of a booking option are visible if 'bookonlyondetailspage' is turned on
+* Bugfix: Add div element for better displaying the deleted users
+* Bugfix: Show price only when useprice is on
+* Bugfix: Fix Outline report functionality
+* Bugfix: Do not trigger bookingoption_booked event when we only book waitinglist
+* Bugfix: {mlang} support for labels and values in customform
+* Bugfix: Fix error null in trim function
+* Feature: Possibility to send mail via booking rule on payment_confirmed event from shopping cart, including shoppingcart placeholder
+
 ## Version 8.6.4 (2024080900)
 * Improvement: Integrate Entities plugin in tests
 * Improvement: Add bookingreportlink to placeholders
@@ -31,7 +136,6 @@
 * Bugfix: Bookingoption changed event containing only relevant data
 * Bugfix: Display title prefix only once
 * Bugfix: Move deleted users to the right place
-
 
 ## Version 8.6.1 (2024072900)
 * Bugfix: Refactor underscores in strings
