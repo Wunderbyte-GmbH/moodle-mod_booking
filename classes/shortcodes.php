@@ -264,6 +264,23 @@ class shortcodes {
         $showsort = !empty($args['sort']) ? true : false;
         $showsearch = !empty($args['search']) ? true : false;
 
+        $onlyfilterforcolumns = explode(',', ($args['onlyfilterforcolumns'] ?? ''));
+        if (
+            in_array('dayofweek', $onlyfilterforcolumns)
+        ) {
+            $standardfilter = new standardfilter('dayofweek', get_string('dayofweek', 'local_urise'));
+            $standardfilter->add_options([
+                'monday' => get_string('monday', 'mod_booking'),
+                'tuesday' => get_string('tuesday', 'mod_booking'),
+                'wednesday' => get_string('wednesday', 'mod_booking'),
+                'thursday' => get_string('thursday', 'mod_booking'),
+                'friday' => get_string('friday', 'mod_booking'),
+                'saturday' => get_string('saturday', 'mod_booking'),
+                'sunday' => get_string('sunday', 'mod_booking'),
+            ]);
+            $table->add_filter($standardfilter);
+        }
+
         view::apply_standard_params_for_bookingtable(
             $table,
             $optionsfields,
