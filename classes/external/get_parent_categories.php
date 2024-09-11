@@ -107,7 +107,7 @@ class get_parent_categories extends external_api {
         $pluginman = core_plugin_manager::instance();
         $plugininfo = $pluginman->get_plugin_info('local_urise');
         if (!$plugininfo) {
-            return [];
+            return $returnarray;
         }
 
         foreach ($records as $record) {
