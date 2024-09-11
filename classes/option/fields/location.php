@@ -84,7 +84,7 @@ class location extends field_base {
      * @param stdClass $newoption
      * @param int $updateparam
      * @param ?mixed $returnvalue
-     * @return string // If no warning, empty string.
+     * @return array // If no warning, empty string.
      */
     public static function prepare_save_field(
         stdClass &$formdata,
@@ -93,7 +93,10 @@ class location extends field_base {
         $returnvalue = null): array {
 
         if (!class_exists('local_entities\entitiesrelation_handler')) {
-            return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
+            parent::prepare_save_field($formdata, $newoption, $updateparam, '');
+            $instance = new location();
+            $changes = $instance->check_for_changes($formdata, $instance);
+            return $changes;
         } else {
             return [];
         }
