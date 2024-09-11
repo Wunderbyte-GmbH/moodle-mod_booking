@@ -307,7 +307,7 @@ class shortcodes {
                 continue;
             }
             // Check for multi fields, explode values as settings for standardfilter.
-            $standardfilter = new standardfilter($customfield->shortname, $customfield->name);
+            $standardfilter = new standardfilter($customfield->shortname, format_string($customfield->name));
             $table->add_filter($standardfilter);
         }
     }
