@@ -660,6 +660,10 @@ class shortcodes {
             $standardfilter = new standardfilter($key, $localized);
             $table->add_filter($standardfilter);
         }
+        $customfieldfilter = explode(',', ($args['customfieldfilter'] ?? ''));
+        if (!empty($customfieldfilter)) {
+            self::apply_customfieldfilter($table, $customfieldfilter);
+        }
 
         $table->showfilterontop = true;
         $table->filteronloadinactive = true;

@@ -107,7 +107,12 @@ class customfields extends field_base {
      * @param array $optionformconfig
      * @return void
      */
-    public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
+    public static function instance_form_definition(
+        MoodleQuickForm &$mform,
+        array &$formdata,
+        array $optionformconfig,
+        array $fieldstoinstanciate = [],
+        ) {
 
         $optionid = $formdata['id'] ?? $formdata['optionid'];
 
@@ -117,12 +122,21 @@ class customfields extends field_base {
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
             $context = context_module::instance($settings->cmid);
         } else {
-            throw new moodle_exception('customfields.php: missing context in function instance_form_definition');
+            // No limit for context.
+            $context = new stdClass();
+            $context->id = 0;
         }
 
         // Add custom fields.
         $handler = booking_handler::create();
-        $handler->instance_form_definition($mform, $optionid, null, null, $context->id);
+        $handler->instance_form_definition(
+            $mform,
+            $optionid,
+            null,
+            null,
+            $context->id,
+            $fieldstoinstanciate
+        );
     }
 
     /**

@@ -31,6 +31,8 @@ use core_form\dynamic_form;
 use context;
 use context_module;
 use context_system;
+use mod_booking\customfield\booking_handler;
+use mod_booking\option\fields\customfields;
 use mod_booking\option\fields\price;
 use mod_booking\price as Mod_bookingPrice;
 
@@ -112,6 +114,12 @@ class option_form_bulk extends dynamic_form {
             $options[$field] = get_string($name, 'mod_booking');
         }
 
+        // Add customfields.
+        $customfields = booking_handler::get_customfields();
+        foreach ($customfields as $customfield) {
+            $options[$customfield->shortname] = format_string($customfield->name);
+        }
+
         $mform->addElement('select', 'choosefields', get_string('selectfieldofbookingoption', 'mod_booking'), $options);
         $mform->registerNoSubmitButton('btn_bookingruletemplates');
         $mform->addElement('submit', 'btn_bookingruletemplates',
@@ -134,11 +142,27 @@ class option_form_bulk extends dynamic_form {
         $formdata = $this->_customdata ?? $this->_ajaxformdata;
 
         if (!empty($formdata['choosefields'])) {
-            $class = $formdata['choosefields'];
-            $formdata = [
-                'id' => 0, // Just any of the ids.
-            ];
-            $class::instance_form_definition($mform, $formdata, []);
+            if (class_exists($formdata['choosefields'])) {
+                $class = $formdata['choosefields'];
+                $formdata = [
+                    'id' => 0, // Just any of the ids.
+                ];
+                $class::instance_form_definition($mform, $formdata, []);
+            } else {
+                $customfields = booking_handler::get_customfields();
+                $shortnames = array_map(function($obj) {
+                    return $obj->shortname;
+                }, $customfields);
+                if (in_array($formdata['choosefields'], $shortnames)) {
+                    $fieldname = $formdata['choosefields'];
+                    $customfields = new customfields();
+                    $formdata = [
+                        'id' => 0, // Just any of the ids.
+                    ];
+                    $customfields::instance_form_definition($mform, $formdata, [], [$fieldname]);
+                }
+            }
+
         }
     }
 

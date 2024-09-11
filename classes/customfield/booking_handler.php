@@ -180,7 +180,9 @@ class booking_handler extends \core_customfield\handler {
         int $instanceid = 0,
         ?string $headerlangidentifier = null,
         ?string $headerlangcomponent = null,
-        $contextid = 0) {
+        int $contextid = 0,
+        array $fieldstoinstanciate = [],
+        ) {
 
         global $DB;
 
@@ -192,9 +194,11 @@ class booking_handler extends \core_customfield\handler {
 
         foreach ($fieldswithdata as $data) {
 
-            if (in_array($data->get_field()->get('shortname'), $uncheckedcustomfields)) {
+            if (in_array($data->get_field()->get('shortname'), $uncheckedcustomfields)
+                || (!empty($fieldstoinstanciate) && !in_array($data->get_field()->get('shortname'), $fieldstoinstanciate))) {
                 continue;
             }
+
             $categoryid = $data->get_field()->get_category()->get('id');
 
             if ($categoryid != $lastcategoryid) {
