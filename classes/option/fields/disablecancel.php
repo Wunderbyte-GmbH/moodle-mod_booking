@@ -105,7 +105,7 @@ class disablecancel extends field_base {
 
         $instance = new disablecancel();
         $mockdata = new stdClass();
-        $mockdata->id = $formdata->optionid;
+        $mockdata->id = $formdata->optionid ?? $formdata->id;
         $changes = $instance->check_for_changes($formdata, $instance, $mockdata);
         return $changes;
     }
@@ -136,7 +136,6 @@ class disablecancel extends field_base {
      * @throws dml_exception
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
-
         $data->disablecancel = booking_option::get_value_of_json_by_key($data->id, "disablecancel");
     }
 }
