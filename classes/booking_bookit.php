@@ -214,6 +214,7 @@ class booking_bookit {
             $condition = new $buttoncondition();
 
             list($template, $data) = $condition->render_button($settings, $userid, $full, false, true);
+            $data['results'] = json_encode(array_keys($results));
 
             // If there is an extra button condition, we don't use two templates but one.
             // We just move the extra condition to a different area.
