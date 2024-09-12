@@ -198,8 +198,13 @@ class noshoppingcart implements bo_condition {
      * @param bool $fullwidth
      * @return array
      */
-    public function render_button(booking_option_settings $settings,
-        int $userid = 0, bool $full = false, bool $not = false, bool $fullwidth = true): array {
+    public function render_button(
+        booking_option_settings $settings,
+        int $userid = 0,
+        bool $full = false,
+        bool $not = false,
+        bool $fullwidth = true
+    ): array {
 
         $user = singleton_service::get_instance_of_user($userid);
 

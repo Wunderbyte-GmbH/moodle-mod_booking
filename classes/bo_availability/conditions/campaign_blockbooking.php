@@ -200,8 +200,13 @@ class campaign_blockbooking implements bo_condition {
      * @param bool $fullwidth
      * @return array
      */
-    public function render_button(booking_option_settings $settings,
-        int $userid = 0, bool $full = false, bool $not = false, bool $fullwidth = true): array {
+    public function render_button(
+        booking_option_settings $settings,
+        int $userid = 0,
+        bool $full = false,
+        bool $not = false,
+        bool $fullwidth = true
+    ): array {
 
         if (empty($this->blockinglabel)) {
             // We register the blockinglabel via this function.

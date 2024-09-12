@@ -397,8 +397,13 @@ class enrolledincourse implements bo_condition {
      * @param bool $fullwidth
      * @return array
      */
-    public function render_button(booking_option_settings $settings,
-        int $userid = 0, bool $full = false, bool $not = false, bool $fullwidth = true): array {
+    public function render_button(
+        booking_option_settings $settings,
+        int $userid = 0,
+        bool $full = false,
+        bool $not = false,
+        bool $fullwidth = true
+    ): array {
 
         $label = $this->get_description_string(false, $full, $settings);
 
