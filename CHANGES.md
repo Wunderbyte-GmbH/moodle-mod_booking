@@ -1,3 +1,4 @@
+## Version 8.6.17 (2024091001)
 * Improvement: Display isloggedinprice rather than info that booking is not yet available
 * Improvement: hand over condition data to bookit button
 * Improvement: Add format_string for customfield names
