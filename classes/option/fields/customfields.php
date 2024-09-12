@@ -112,7 +112,7 @@ class customfields extends field_base {
         MoodleQuickForm &$mform,
         array &$formdata,
         array $optionformconfig,
-        array $fieldstoinstanciate = [],
+        array $fieldstoinstanciate = []
         ) {
 
         $optionid = $formdata['id'] ?? $formdata['optionid'];

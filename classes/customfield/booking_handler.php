@@ -182,7 +182,7 @@ class booking_handler extends \core_customfield\handler {
         ?string $headerlangidentifier = null,
         ?string $headerlangcomponent = null,
         int $contextid = 0,
-        array $fieldstoinstanciate = [],
+        array $fieldstoinstanciate = []
         ) {
 
         global $DB;
@@ -279,7 +279,7 @@ class booking_handler extends \core_customfield\handler {
         } else if ($PAGE->context && $PAGE->context instanceof \context_coursecat) {
             return $PAGE->context;
         }
-        return \context_system::instance();
+        return context_system::instance();
     }
 
     /**
@@ -288,16 +288,16 @@ class booking_handler extends \core_customfield\handler {
      * @return \context the context for configuration
      */
     public function get_configuration_context(): \context {
-        return \context_system::instance();
+        return context_system::instance();
     }
 
     /**
      * URL for configuration of the fields on this handler.
      *
-     * @return \moodle_url The URL to configure custom fields for this component
+     * @return moodle_url The URL to configure custom fields for this component
      */
-    public function get_configuration_url(): \moodle_url {
-        return new \moodle_url('/mod/booking/customfield.php');
+    public function get_configuration_url(): moodle_url {
+        return new moodle_url('/mod/booking/customfield.php');
     }
 
     /**
@@ -307,7 +307,7 @@ class booking_handler extends \core_customfield\handler {
      * @return \context the context for the given record
      */
     public function get_instance_context(int $instanceid = 0): \context {
-            return \context_system::instance();
+            return context_system::instance();
     }
 
     /**
