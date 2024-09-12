@@ -103,68 +103,6 @@ class get_parent_categories extends external_api {
             $returnarray = [];
         }
 
-        // Check if urise plugin is installed.
-        $pluginman = core_plugin_manager::instance();
-        $plugininfo = $pluginman->get_plugin_info('local_urise');
-        if (!$plugininfo) {
-            return $returnarray;
-        }
-
-        foreach ($records as $record) {
-            $context = context_coursecat::instance($record->id);
-
-            if (!has_capability('local/urise:view', $context)) {
-                continue;
-            }
-            $coursecount += $record->coursecount;
-            $record->bookingoptionscount = 0;
-            $record->bookedcount = 0;
-            $record->waitinglistcount = 0;
-            $record->reservedcount = 0;
-
-            $sql = "SELECT c.id, c.fullname
-                    FROM {course} c
-                    WHERE c.category=:categoryid";
-            $record->courses = $DB->get_records_sql($sql, ['categoryid' => $record->id], IGNORE_MISSING) ?: [];
-
-            if (
-                $bookingoptions
-                    = coursecategories::return_booking_information_for_coursecategory((int)$record->contextid)
-            ) {
-                $multibookingconfig = explode(',', get_config('local_urise', 'multibookinginstances') ?: '');
-                foreach ($bookingoptions as &$value) {
-                    $defaultchecked = false;
-                    if (in_array($value->bookingid, $multibookingconfig)) {
-                        $defaultchecked = true;
-                    }
-                    $value->checked = $defaultchecked;
-
-                    $record->bookingoptionscount += $value->bookingoptions;
-                    $record->bookedcount += $value->booked;
-                    $record->waitinglistcount += $value->waitinglist ?? 0;
-                    $record->reservedcount += $value->reserved ?? 0;
-                }
-                $record->json = json_encode([
-                    'booking' => array_values($bookingoptions),
-                ]);
-            }
-            $returnarray[] = (array)$record;
-
-            $bookingoptionscount += $record->bookingoptionscount;
-            $bookedcount += $record->bookedcount;
-            $waitinglistcount += $record->waitinglistcount;
-            $reservedcount += $record->reservedcount;
-        }
-
-        // We set the combined coursecount, if there is a general tab.
-        if (isset($returnarray[0]) && $returnarray[0]['id'] == 0) {
-            $returnarray[0]['coursecount'] = $coursecount;
-            $returnarray[0]['bookingoptionscount'] = $bookingoptionscount;
-            $returnarray[0]['bookedcount'] = $bookedcount;
-            $returnarray[0]['waitinglistcount'] = $waitinglistcount;
-            $returnarray[0]['reservedcount'] = $reservedcount;
-        }
-
         return $returnarray;
     }
 
