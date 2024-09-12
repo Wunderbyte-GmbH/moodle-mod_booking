@@ -291,6 +291,15 @@ class shortcodes {
         return $out;
     }
 
+    /**
+     * Add customfield filter as defined shortnames in args to table.
+     *
+     * @param mixed $table
+     * @param array $args
+     *
+     * @return void
+     *
+     */
     private static function apply_customfieldfilter(&$table, $args) {
         if (empty($args)) {
             return;

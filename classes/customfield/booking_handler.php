@@ -171,6 +171,7 @@ class booking_handler extends \core_customfield\handler {
      * @param string|null $headerlangidentifier
      * @param string|null $headerlangcomponent
      * @param int $contextid
+     * @param array $fieldstoinstanciate
      *
      * @return void
      *
