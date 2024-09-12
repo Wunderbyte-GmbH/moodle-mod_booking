@@ -1,3 +1,12 @@
+* Improvement: Catch throwables for all event descriptions
+* Bugfix: Revert false language in string files
+* Bugfix: cachedef lang files need underscore
+
+## Version 8.6.16 (2024091001)
+* Bugfix: type correction
+* Bugfix: bookingoption_updated empty objects handling
+* Bugfix: Fix try catch for bookingoption description
+
 ## Version 8.6.15 (2024091000)
 * Improvmenet: Also count course status and return
 * Improvement: Fixes for signinsheet generator
