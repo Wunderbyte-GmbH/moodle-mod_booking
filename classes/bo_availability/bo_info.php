@@ -190,6 +190,10 @@ class bo_info {
                 );
             }
 
+            // There are conditions, which need to be executed no matter if there is a json or not.
+            // Eg. allowedbookinstance.
+            // Threfore, if the there are two conditions with the same id in availability & conditions array, we take availability.
+
             $conditions = array_merge($conditions, $availabilityarray);
         }
 

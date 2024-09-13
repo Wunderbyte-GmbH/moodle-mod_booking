@@ -164,6 +164,8 @@ $string['boactions_desc'] = "Booking actions after booking are still an EXPERIME
 But do not use them in a productive environment yet!";
 $string['boactionselectuserprofilefield'] = "Choose profile field";
 $string['boactionuserprofilefieldvalue'] = 'Value';
+$string['bocondallowedtobookininstance'] = "Booking without capability";
+$string['bocondallowedtobookininstanceanyways'] = "Allow booking without the capability 'mod/booking:choose'";
 $string['bocondallowedtobookininstanceavailable'] = 'Book it';
 $string['bocondallowedtobookininstancefullavailable'] = 'Booking is possible';
 $string['bocondallowedtobookininstancefullnotavailable'] = 'No right to book on this booking instance';
@@ -192,6 +194,8 @@ $string['bocondbookingtime'] = 'Only bookable within a certain time';
 $string['bocondbookingtimeavailable'] = 'Within normal booking times.';
 $string['bocondbookingtimenotavailable'] = 'Not within normal booking times.';
 $string['bocondbookitbutton'] = 'bookitbutton: Show the normal booking button.';
+$string['bocondcapbookingchoosenotavailable'] = 'No right to book';
+$string['bocondcapbookingchoosefullnotavailable'] = 'No right to book on this booking instance';
 $string['bocondcustomform'] = 'Fill out form';
 $string['bocondcustomformavailable'] = 'Book it';
 $string['bocondcustomformfullavailable'] = 'Booking is possible';

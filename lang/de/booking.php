@@ -161,6 +161,8 @@ Sie können es ausprobieren, aber bitte verwenden Sie es noch auf keiner Produkt
 $string['boactionselectuserprofilefield'] = "Wähle Profilfeld";
 $string['boactionsheader'] = 'Aktionen nach der Buchung [EXPERIMENTELL]';
 $string['boactionuserprofilefieldvalue'] = 'Wert';
+$string['bocondallowedtobookininstance'] = "Buchen ohne Berechtigung";
+$string['bocondallowedtobookininstanceanyways'] = "Buchen ohne die Berechtigung 'mod/booking:choose'";
 $string['bocondallowedtobookininstanceavailable'] = 'Buchen';
 $string['bocondallowedtobookininstancefullavailable'] = 'Buchen möglich';
 $string['bocondallowedtobookininstancefullnotavailable'] = 'Kein Recht auf dieser Instanz zu buchen';
@@ -189,6 +191,8 @@ $string['bocondbookingtime'] = 'Nur in einer bestimmten Zeit buchbar';
 $string['bocondbookingtimeavailable'] = 'Innerhalb der normalen Buchungszeiten.';
 $string['bocondbookingtimenotavailable'] = 'Nicht innerhalb der normalen Buchungszeiten.';
 $string['bocondbookitbutton'] = 'bookitbutton: Zeige den normalen Buchen-Button.';
+$string['bocondcapbookingchoosenotavailable'] = 'Buchen nicht möglich';
+$string['bocondcapbookingchoosefullnotavailable'] = 'Kein Recht auf dieser Instanz zu buchen';
 $string['bocondcustomform'] = 'Formular ausfüllen';
 $string['bocondcustomformavailable'] = 'Buchen';
 $string['bocondcustomformfullavailable'] = 'Booking is possible';

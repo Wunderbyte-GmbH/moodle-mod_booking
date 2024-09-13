@@ -77,23 +77,12 @@ class capbookingchoose implements bo_condition {
 
         global $DB;
 
-        // This is the return value. Not available to begin with.
-        $isavailable = false;
+        // This check can be overridden by a json condition.
+        // Therefore, we use it's logic.
 
-        $context = context_module::instance($settings->cmid);
-
-        // If the user is not yet booked we return true.
-        if (has_capability('mod/booking:choose', $context)) {
-
-            $isavailable = true;
-        }
-
-        // If it's inversed, we inverse.
-        if ($not) {
-            $isavailable = !$isavailable;
-        }
-
-        return $isavailable;
+        $allowedtobookininstance = new allowedtobookininstance();
+        $allowedtobookininstance->apply_customdata($settings);
+        return $allowedtobookininstance->is_available($settings, $userid, $not);
     }
 
     /**
