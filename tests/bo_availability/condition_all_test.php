@@ -346,7 +346,7 @@ final class condition_all_test extends advanced_testcase {
         // Check for guest user - should be allowed to booking in general.
         $this->setGuestUser();
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, 1, false);
-        $this->assertEquals(MOD_BOOKING_BO_COND_ALLOWEDTOBOOKININSTANCE, $id);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CAPBOOKINGCHOOSE, $id);
 
         // Book student3 again.
         $this->setUser($student3);
