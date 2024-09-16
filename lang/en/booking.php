@@ -2149,7 +2149,7 @@ $string['turnoffwaitinglist'] = 'Turn off waiting list globally';
 $string['turnoffwaitinglist_desc'] = 'Activate this setting, if you do not want to use the waiting list
  feature on this site (e.g. because you only want to use the notification list).';
 $string['turnoffwaitinglistaftercoursestart'] = 'Turn off automatic moving up from waiting list after a booking option has started.';
-$string['turnoffwunderbytelogo'] = 'Do not show Wunderbyte logo und link';
+$string['turnoffwunderbytelogo'] = 'Do not show Wunderbyte logo and link';
 $string['turnoffwunderbytelogo_desc'] = 'If you activate this setting, the Wunderbyte logo and the link to the Wunderbyte website won\'t be shown.';
 $string['unconfirm'] = 'Delete confirmation';
 $string['unconfirmbooking'] = 'Delete confirmation of this booking';
@@ -2273,7 +2273,7 @@ $string['waitinglistinfotextsinfo'] = 'Show short info messages instead of the n
 $string['waitinglistlowmessage'] = 'Only a few waiting list places left!';
 $string['waitinglistlowpercentage'] = 'Percentage for waiting list low message';
 $string['waitinglistlowpercentagedesc'] = 'If the available places on the waiting list reach or get below this percentage a waiting list low message will be shown.';
-$string['waitinglistshowplaceonwaitinglist'] = 'Show place on waitinglist.';
+$string['waitinglistshowplaceonwaitinglist'] = 'Show place on waiting list.';
 $string['waitinglistshowplaceonwaitinglistinfo'] = 'Waitinglist: Shows the exact place of the user on the waitinglist.';
 $string['waitinglisttaken'] = 'On the waiting list';
 $string['waitinglistusers'] = 'Users on waiting list';
