@@ -25,6 +25,7 @@
 namespace mod_booking\form;
 
 use context;
+use context_module;
 use context_system;
 use core_form\dynamic_form;
 use mod_booking\booking_option;
@@ -40,7 +41,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class modal_confirmcancel extends dynamic_form {
-
     /** @var int $cmid */
     private $cmid = null;
 
@@ -49,6 +49,14 @@ class modal_confirmcancel extends dynamic_form {
      * @return context
      */
     protected function get_context_for_dynamic_submission(): context {
+
+        $ajaxformdata = $this->_ajaxformdata;
+
+        if (!empty($ajaxformdata['optionid'])) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($ajaxformdata['optionid']);
+            return context_module::instance($settings->cmid);
+        }
+
         return context_system::instance();
     }
 
@@ -57,7 +65,9 @@ class modal_confirmcancel extends dynamic_form {
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
-        require_capability('mod/booking:updatebooking', context_system::instance());
+
+        $context = $this->get_context_for_dynamic_submission();
+        require_capability('mod/booking:updatebooking', $context);
     }
 
 
@@ -69,7 +79,6 @@ class modal_confirmcancel extends dynamic_form {
 
         $data = (object)$this->_ajaxformdata;
         $this->set_data($data);
-
     }
 
     /**
@@ -102,11 +111,19 @@ class modal_confirmcancel extends dynamic_form {
         $mform->addElement('hidden', 'status', $ajaxformdata['status']);
 
         if ($ajaxformdata['status'] != 1) {
-            $mform->addElement('text', 'cancelreason',
-                get_string("cancelreason", "mod_booking"), ['size' => '40']);
+            $mform->addElement(
+                'text',
+                'cancelreason',
+                get_string("cancelreason", "mod_booking"),
+                ['size' => '40']
+            );
         } else {
-            $mform->addElement('static', 'undocancelreason', '',
-                get_string("undocancelreason", "mod_booking"));
+            $mform->addElement(
+                'static',
+                'undocancelreason',
+                '',
+                get_string("undocancelreason", "mod_booking")
+            );
         }
 
     }
@@ -136,5 +153,4 @@ class modal_confirmcancel extends dynamic_form {
     protected function get_page_url_for_dynamic_submission(): moodle_url {
         return new moodle_url('/mod/booking/semesters.php', ['id' => $this->cmid]);
     }
-
 }
