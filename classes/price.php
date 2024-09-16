@@ -719,7 +719,7 @@ class price {
 
             // We store the default record as a fallback.
             if (
-                get_config('booking', name: 'pricecategoryfallback')
+                get_config('booking', 'pricecategoryfallback')
                 && $pricerecord->pricecategoryidentifier == 'default'
                 && $categoryidentifier !== 'default'
             ) {
