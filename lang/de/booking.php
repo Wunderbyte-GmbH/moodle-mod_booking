@@ -1573,6 +1573,8 @@ $string['pricecategoriessubtitle'] = '<p>Hier können Sie unterschiedliche Kateg
     Sie können Kategorien aber umbenennen oder deaktivieren.</p>';
 $string['pricecategory'] = 'Preiskategorie';
 $string['pricecategorychanged'] = 'Preiskategorie geändert';
+$string['pricecategoryfallback'] = 'Nutze standard Preiskategorie als Fallback';
+$string['pricecategoryfallback_desc'] = 'Nutze default Preiskategorie wenn keine passende Kategorie gefunden wurde';
 $string['pricecategoryfield'] = 'Nutzerprofilfeld für die Preiskategorie';
 $string['pricecategoryfielddesc'] = 'Wählen Sie ein Nutzerprofilfeld aus, in dem für jede/n Nutzer/in der Identifikator der Preiskategorie gesichert wird.';
 $string['pricecategoryidentifier'] = 'Identifikator der Preiskategorie';

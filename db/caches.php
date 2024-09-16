@@ -41,7 +41,7 @@ $definitions = [
     ],
     'cachedpricecategories' => [
         'mode' => cache_store::MODE_APPLICATION,
-        'simplekeys' => true,
+        'simplekeys' => false,
         'staticacceleration' => true,
         'staticaccelerationsize' => 10,
         'invalidationevents' => ['setbackpricecategories'],

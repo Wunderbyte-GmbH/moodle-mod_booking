@@ -571,6 +571,11 @@ if ($ADMIN->fulltree) {
             get_string('pricecategoryfielddesc', 'mod_booking'),
             0, $userprofilefieldsarray));
 
+    $settings->add(
+        new admin_setting_configcheckbox('booking/pricecategoryfallback',
+                get_string('pricecategoryfallback', 'mod_booking'),
+                get_string('pricecategoryfallback_desc', 'mod_booking'), 0));
+
     // Currency dropdown.
     $currenciesobjects = price::get_possible_currencies();
 

@@ -705,9 +705,41 @@ class price {
             return [];
         }
 
+        // There are a few options, how to match the pricecategory.
+        // 1. Look if the $categoryidentifier, which the user has in her profile field, contains the set pricecategory identifier.
+        // 2. Explode pricecategoryidentifier for "," and see if $categoryidentifier is in the array.
+        // 3. Concerning no match, we can either print a message and don't allow booking, or fallback on default price category.
+
+        $default = [];
+
         foreach ($prices as $pricerecord) {
             // We want to support string matching like category student for student@univie.ac.at.
-            if (strpos($categoryidentifier, $pricerecord->pricecategoryidentifier) !== false) {
+
+            $pricecategoryidentifiers = explode(',', $pricerecord->pricecategoryidentifier);
+
+            // We store the default record as a fallback.
+            if (
+                get_config('booking', name: 'pricecategoryfallback')
+                && $pricerecord->pricecategoryidentifier == 'default'
+                && $categoryidentifier !== 'default'
+            ) {
+                $default = [
+                    "price" => $pricerecord->price,
+                    "currency" => $pricerecord->currency,
+                    "pricecategoryidentifier" => $pricerecord->pricecategoryidentifier,
+                    "pricecategoryname" =>
+                        self::get_active_pricecategory_from_cache_or_db($pricerecord->pricecategoryidentifier)->name,
+                ];
+            }
+
+            $pricecategoryfound = false;
+            foreach ($pricecategoryidentifiers as $pricecategoryidentifier) {
+                if (strpos($categoryidentifier, $pricecategoryidentifier) !== false) {
+                    $pricecategoryfound = true;
+                }
+            }
+
+            if ($pricecategoryfound) {
                 return [
                     "price" => $pricerecord->price,
                     "currency" => $pricerecord->currency,
@@ -718,7 +750,7 @@ class price {
             }
         }
 
-        return [];
+        return $default;
     }
 
 
@@ -880,7 +912,6 @@ class price {
 
         // If we don't have the cache, we need to retrieve the value from db.
         if (!$cachedpricecategory) {
-
             if (!$pricecategory = $DB->get_record('booking_pricecategories', ['identifier' => $identifier, 'disabled' => 0])) {
                 $cache->set($identifier, true);
                 return null;

@@ -1579,6 +1579,8 @@ $string['pricecategoriessubtitle'] = '<p>Here you can define different price cat
     Only disable or rename it.</p>';
 $string['pricecategory'] = 'Price category';
 $string['pricecategorychanged'] = 'Price category changed';
+$string['pricecategoryfallback'] = 'Fall back on default price category';
+$string['pricecategoryfallback_desc'] = 'Use default price category when no machting cateogry is found';
 $string['pricecategoryfield'] = 'User profile field for price category';
 $string['pricecategoryfielddesc'] = 'Choose the user profile field, which stores the price category identifier for each user.';
 $string['pricecategoryidentifier'] = 'Price category identifier';
