@@ -100,6 +100,13 @@ $string['andotherfield'] = "UND weiteres Feld";
 $string['annotation'] = 'Interne Anmerkung';
 $string['answer'] = "Antwort";
 $string['answered'] = 'Beantwortet';
+$string['appearanceprofeatures'] = '<ul>
+<li><b>Wunderbyte Logo und Link ausblenden</b></li>
+<li><b>Beschreibungen einklappen</b></li>
+<li><b>Terminanzeige einklappen</b></li>
+<li><b>Modalitäten ausschalten</b></li>
+<li><b>Möglicher Präsentstatus</b></li>
+</ul>';
 $string['appearancesettings'] = 'Darstellung ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['appearancesettings_desc'] = 'Passen Sie die Darstellung des Buchungsplugins an.';
 $string['apply'] = 'Anwenden';
@@ -1217,8 +1224,7 @@ $string['info:teachersforoptiondates'] = 'Wechseln Sie zum <a href="{$a}" target
 $string['infoalreadybooked'] = '<div class="infoalreadybooked"><i>Sie haben diese Option bereits gebucht.</i></div>';
 $string['infonobookingoption'] = 'Um eine Buchungsoption zu erstellen, nutzen Sie den Block Einstellungen oder das Einstellungs-Icon';
 $string['infotext:installmoodlebugfix'] = 'Wunderbyte hat einen Bugfix zum Core von Moodle beigefügt. Dieser Bugfix ist in Ihrer Moodle Version noch nicht eingefügt. Sie erhalten daher an manchen Stellen Javascript Fehlermeldungen. Ab Moodle 4.1 genügt es, die laufenden Sicherheitsupdates einzuspielen.';
-$string['infotext:prolicensenecessary'] = 'Sie benötigen Booking PRO, um dieses Feature nutzen zu können.
- <a href="https://wunderbyte.at/kontakt" target="_blank">Kontaktieren Sie Wunderbyte</a>, wenn Sie eine Lizenz erwerben möchten.';
+$string['infotext:prolicensenecessary'] = '<a href="https://wunderbyte.at/kontakt" target="_blank">Kontaktieren Sie Wunderbyte</a>, wenn Sie eine Lizenz erwerben möchten oder holen Sie sich eine Testlizenz.';
 $string['infowaitinglist'] = '<div class="infowaitinglist"><i>Sie sind auf der Warteliste für diese Option.</i></div>';
 $string['installmentprice'] = 'Ratenzahlungspreis';
 $string['installmoodlebugfix'] = 'Moodle update notwendig <span class="badge bg-danger text-light"><i class="fa fa-cogs" aria-hidden="true"></i> Wichtig</span>';
@@ -1667,6 +1673,7 @@ $string['profilepicture'] = 'Profilbild';
 $string['progressbars'] = 'Fortschrittsbalken für bereits vergangene Zeit ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['progressbars_desc'] = 'Mit diesem Feature erhalten Sie eine visuelle Darstellung der bereits vergangenen Zeit von Buchungsoptionen.';
 $string['progressbarscollapsible'] = 'Fortschrittsbalken können ausgeklappt werden';
+$string['prolicensefeatures'] = 'Sie benötigen Booking PRO, um dieses Feature nutzen zu können. Durch den Kauf einer Pro-Lizenz können Sie die folgenden Funktionen nutzen:';
 $string['proversion:cardsview'] = 'Mit Booking PRO können Sie auch die Karten-Ansicht aktivieren.';
 $string['proversiononly'] = 'Nur in der PRO-Version verfügbar.';
 $string['qrid'] = "QR_id";
