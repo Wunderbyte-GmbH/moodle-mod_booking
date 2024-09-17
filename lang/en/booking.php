@@ -101,6 +101,13 @@ $string['andotherfield'] = "AND additional field";
 $string['annotation'] = 'Internal annotation';
 $string['answer'] = "Answer";
 $string['answered'] = 'Answered';
+$string['appearanceprofeatures'] = '<ul>
+<li><b>hide Wunderbyte logo and link</b></li>
+<li><b>collapse description</b></li>
+<li><b>collapse show dates</b></li>
+<li><b>turn off modals</b></li>
+<li><b>options for attendance status</b></li>
+</ul>';
 $string['appearancesettings'] = 'Appearance ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['appearancesettings_desc'] = 'Configure the appearance of the booking plugin.';
 $string['apply'] = 'Apply';
@@ -1229,8 +1236,8 @@ $string['info:teachersforoptiondates'] = 'Go to the <a href="{$a}" target="_self
 $string['infoalreadybooked'] = '<div class="infoalreadybooked"><i>You are already booked for this option.</i></div>';
 $string['infonobookingoption'] = 'In order to add a booking option please use the settings block or the settings-icon on top of the page';
 $string['infotext:installmoodlebugfix'] = 'Wunderbyte has added a bug fix to the Moodle core. This bug fix has not yet been included in your Moodle version. Therefore, you may encounter JavaScript error messages in certain areas. Starting with Moodle 4.1, it is sufficient to apply the ongoing security updates.';
-$string['infotext:prolicensenecessary'] = 'You need a Booking PRO license if you want to use this feature.
- <a href="https://wunderbyte.at/en/contact" target="_blank">Contact Wunderbyte</a> if you want to buy a PRO license.';
+$string['infotext:prolicensenecessary'] = '<a href="https://wunderbyte.at/en/contact" target="_blank">Contact Wunderbyte</a> if you want to buy a PRO license
+ or get a trial license.';
 $string['infowaitinglist'] = '<div class="infowaitinglist"><i>You are on the waiting list for this option.</i></div>';
 $string['installmentprice'] = 'installmentprice';
 $string['installmoodlebugfix'] = 'Moodle update necessary <span class="badge bg-danger text-light"><i class="fa fa-cogs" aria-hidden="true"></i> Important</span>';
@@ -1618,7 +1625,7 @@ $string['populatefromtemplate'] = 'Populate from template';
 $string['potentialsubscribers'] = 'Potential subscribers';
 $string['prepareimport'] = "Prepare Import";
 $string['presence'] = "Presence";
-$string['presenceoptions'] = "Options for attendence status";
+$string['presenceoptions'] = "Options for attendance status";
 $string['presenceoptions_desc'] = "Which status should be possible?";
 $string['previous'] = 'Previous';
 $string['price'] = 'Price';
@@ -1727,6 +1734,7 @@ $string['profilepicture'] = 'Profile picture';
 $string['progressbars'] = 'Progress bars of time passed ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['progressbars_desc'] = 'Get a visual representation of the time which has already passed for a booking option.';
 $string['progressbarscollapsible'] = 'Make progress bars collapsible';
+$string['prolicensefeatures'] = '<p>You need a Booking PRO license if you want to use this feature. Purchasing a Pro license will allow you to use following features:</p>';
 $string['proversion:cardsview'] = 'With Booking PRO you can also use cards view.';
 $string['proversiononly'] = 'Upgrade to Booking PRO to use this feature.';
 $string['qrid'] = "qr_id";
