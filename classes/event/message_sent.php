@@ -24,6 +24,7 @@
  */
 
 namespace mod_booking\event;
+use mod_booking\singleton_service;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -92,6 +93,11 @@ class message_sent extends \core\event\base {
 
         $messagetype = $this->transform_msgparam( $messageparam );
 
+        $user = singleton_service::get_instance_of_user($userid);
+        $relateduser = singleton_service::get_instance_of_user($relateduserid);
+        $username = empty($user) ? $userid : $user->firstname . " " . $user->lastname;
+        $relatedusername = empty($relateduser) ? $userid : $relateduser->firstname . " " . $relateduser->lastname;
+
         return '
             <a class=""
                 data-toggle="collapse"
@@ -100,8 +106,8 @@ class message_sent extends \core\event\base {
                 aria-controls="collapseExample">
 
                 ' . $messagetype . ' A message e-mail with subject "' . $subject .
-                '" has been sent to user with id: '. $relateduserid .
-                ' by the user ' . $userid  .'
+                '" has been sent to user: "'. $relatedusername .
+                '" by the user "' . $username  .'"
             </a>
             <div class="collapse" id="a' . $uniqueid . '">
                 <div class="card card-body">
