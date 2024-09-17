@@ -1,3 +1,14 @@
+## Version 8.6.19 (2024091700)
+* Improvement: Shortname is same as fullname on create course fromtemplate
+* Bugfix: use context_module in capability check of confirmcancel modal
+* Bugfix: in unit tests
+
+## Version 8.6.18 (2024091600)
+* Improvement: Improvement: More flexible matching of price categories & possible fallback on default price.
+* Improvement: New json condition allowedtobookininstance
+* Improvement: Add bo condition cap booking choose
+* Bugfix: PHP 7.4 ParseError
+
 ## Version 8.6.17 (2024091001)
 * Improvement: Display isloggedinprice rather than info that booking is not yet available
 * Improvement: hand over condition data to bookit button
