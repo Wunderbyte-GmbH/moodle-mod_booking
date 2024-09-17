@@ -561,11 +561,10 @@ class teachers_handler {
         }
         // First we explode teacheremail, there might be mulitple teachers.
         // We always use comma as separator.
-        $teacheremails = explode(',', $userstring);
+        $teacheremails = array_map('strtolower', explode(',', $userstring)); // Convert input to lowercase.
+        $column = $email ? 'LOWER(email)' : 'LOWER(username)';  // Ensure case-insensitive comparison.
 
-        $column = $email ? 'email' : 'username';
-
-        list($inorequal, $params) = $DB->get_in_or_equal($teacheremails, SQL_PARAMS_NAMED);
+        [$inorequal, $params] = $DB->get_in_or_equal($teacheremails, SQL_PARAMS_NAMED);
 
         $sql = "SELECT id
                 FROM {user}
@@ -583,7 +582,8 @@ class teachers_handler {
                 'mod_booking',
                 '',
                 $teacheremails,
-                'The following users were not found ' . json_encode($teacheremails));
+                'The following users were not found ' . json_encode($teacheremails)
+            );
         }
 
         return $teacherids;

@@ -104,14 +104,15 @@ class price {
         foreach ($this->pricecategories as $pricecategory) {
             $formgroup = [];
 
-            $priceelement = $mform->createElement('float', MOD_BOOKING_FORM_PRICE . $pricecategory->identifier);
+            $encodedkey = bin2hex($pricecategory->identifier);
+            $priceelement = $mform->createElement('float', MOD_BOOKING_FORM_PRICE . $encodedkey);
             $formgroup[] = $priceelement;
 
             $currencyelement = $mform->createElement('static', 'bookingpricecurrency', '', get_config('booking', 'globalcurrency'));
             $formgroup[] = $currencyelement;
 
-            $mform->addGroup($formgroup, MOD_BOOKING_FORM_PRICEGROUP . $pricecategory->identifier, $pricecategory->name);
-            $mform->disabledIf(MOD_BOOKING_FORM_PRICEGROUP . $pricecategory->identifier, 'useprice', 'neq', 1);
+            $mform->addGroup($formgroup, MOD_BOOKING_FORM_PRICEGROUP . $encodedkey, $pricecategory->name);
+            $mform->disabledIf(MOD_BOOKING_FORM_PRICEGROUP . $encodedkey, 'useprice', 'neq', 1);
         }
 
         // Only when there is an actual price formula, we do apply it.
@@ -158,9 +159,10 @@ class price {
     public function set_data(stdClass &$data) {
         global $DB;
         foreach ($this->pricecategories as $pricecategory) {
+            $encodedkey = bin2hex($pricecategory->identifier);
 
-            $pricegroup = MOD_BOOKING_FORM_PRICEGROUP . $pricecategory->identifier;
-            $priceidentifier = MOD_BOOKING_FORM_PRICE . $pricecategory->identifier;
+            $pricegroup = MOD_BOOKING_FORM_PRICEGROUP . $encodedkey;
+            $priceidentifier = MOD_BOOKING_FORM_PRICE . $encodedkey;
 
             // We don't want to override set values, only when there are no values present.
             if (!empty($data->{$pricegroup}[$priceidentifier])) {
@@ -168,8 +170,15 @@ class price {
             }
 
             // Get price for current option.
-            $existingprice = $DB->get_field('booking_prices', 'price',
-                ['area' => $this->area, 'itemid' => $this->itemid, 'pricecategoryidentifier' => $pricecategory->identifier]);
+            $existingprice = $DB->get_field(
+                'booking_prices',
+                'price',
+                [
+                    'area' => $this->area,
+                    'itemid' => $this->itemid,
+                    'pricecategoryidentifier' => $pricecategory->identifier,
+                ]
+            );
 
             $data->{$pricegroup}[$priceidentifier] = $existingprice ? $existingprice : $pricecategory->defaultvalue ?? 0;
 
@@ -184,7 +193,6 @@ class price {
         if (!empty($priceformula) && is_json($priceformula)) {
             // Get Settings.
             if (!empty($data->id) && ($data->id > 0)) {
-
                 $optionid = $data->id;
                 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
@@ -552,6 +560,7 @@ class price {
         }
 
         foreach ($this->pricecategories as $pricecategory) {
+            $encodedkey = bin2hex($pricecategory->identifier);
             if (!empty($fromform->priceformulaisactive) && $fromform->priceformulaisactive == "1") {
                 // Price formula is active, so let's calculate the values.
                 $price = self::calculate_price_from_form(
@@ -565,10 +574,10 @@ class price {
                 $price += $fromform->priceformulaadd;
 
             } else {
-                if (isset($fromform->{MOD_BOOKING_FORM_PRICEGROUP . $pricecategory->identifier})) {
+                if (isset($fromform->{MOD_BOOKING_FORM_PRICEGROUP . $encodedkey})) {
                     // Price formula is not active, just save the values from form.
-                    $pricegroup = $fromform->{MOD_BOOKING_FORM_PRICEGROUP . $pricecategory->identifier};
-                    $price = $pricegroup[MOD_BOOKING_FORM_PRICE . $pricecategory->identifier];
+                    $pricegroup = $fromform->{MOD_BOOKING_FORM_PRICEGROUP . $encodedkey};
+                    $price = $pricegroup[MOD_BOOKING_FORM_PRICE . $encodedkey];
                 }
             }
 
@@ -599,15 +608,17 @@ class price {
             $pricecategories = $DB->get_records_sql("SELECT * FROM {booking_pricecategories} WHERE disabled = 0");
             foreach ($pricecategories as $pricecategory) {
                 // Check for negative prices, they are not allowed.
-                if (isset($data["pricegroup_$pricecategory->identifier"]["bookingprice_$pricecategory->identifier"]) &&
-                    $data["pricegroup_$pricecategory->identifier"]["bookingprice_$pricecategory->identifier"] < 0) {
-                    $errors["pricegroup_$pricecategory->identifier"] =
+
+                $encodedkey = bin2hex($pricecategory->identifier);
+                if (isset($data["pricegroup_$encodedkey"]["bookingprice_$encodedkey"]) &&
+                    $data["pricegroup_$encodedkey"]["bookingprice_$encodedkey"] < 0) {
+                    $errors["pricegroup_$encodedkey"] =
                         get_string('error:negativevaluenotallowed', 'mod_booking');
                 }
                 // If checkbox to use prices is turned on, we do not allow empty strings as prices!
-                if (isset($data["pricegroup_$pricecategory->identifier"]["bookingprice_$pricecategory->identifier"]) &&
-                    $data["pricegroup_$pricecategory->identifier"]["bookingprice_$pricecategory->identifier"] === "") {
-                    $errors["pricegroup_$pricecategory->identifier"] =
+                if (isset($data["pricegroup_$encodedkey"]["bookingprice_$encodedkey"]) &&
+                    $data["pricegroup_$encodedkey"]["bookingprice_$encodedkey"] === "") {
+                    $errors["pricegroup_$encodedkey"] =
                         get_string('error:pricemissing', 'mod_booking');
                 }
             }

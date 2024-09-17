@@ -175,7 +175,6 @@ class price extends field_base {
         $priceitems = Mod_bookingPrice::get_prices_from_cache_or_db('option', $data->id);
 
         if (!empty($data->importing)) {
-
             // This is for IMPORTING!
 
             if (!is_array($pricehandler->pricecategories)) {
