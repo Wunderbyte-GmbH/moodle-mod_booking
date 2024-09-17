@@ -240,6 +240,8 @@ if ($ADMIN->fulltree) {
         $settings->add(
             new admin_setting_heading('appearancesettings',
                 get_string('appearancesettings', 'mod_booking'),
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('appearanceprofeatures', 'mod_booking') .
                 get_string('infotext:prolicensenecessary', 'mod_booking')));
     }
 
