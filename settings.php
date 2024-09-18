@@ -418,10 +418,8 @@ if ($ADMIN->fulltree) {
     // Will be needed more than once. So initialize here.
     $customfieldsarray["-1"] = get_string('choose...', 'mod_booking');
 
-    // PRO feature.
+    // Pro feature: Overbooking of booking options.
     if ($proversion) {
-
-        // Global setting to allow overbooking.
         $settings->add(
             new admin_setting_heading('allowoverbookingheader',
                 get_string('allowoverbookingheader', 'mod_booking'),
@@ -430,6 +428,14 @@ if ($ADMIN->fulltree) {
         $settings->add(
             new admin_setting_configcheckbox('booking/allowoverbooking',
                     get_string('allowoverbooking', 'mod_booking'), '', 0));
+    } else {
+        $settings->add(
+            new admin_setting_heading('allowoverbookingheader',
+                get_string('allowoverbookingheader', 'mod_booking'),
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('overbookingprofeatures', 'mod_booking') .
+                get_string('infotext:prolicensenecessary', 'mod_booking')));
+    }
 
     // PRO feature: Automatic creation of Moodle course.
     if ($proversion) {

@@ -1604,6 +1604,9 @@ $string['otherbookinglimit_help'] = "How many users you accept from option. If 0
 $string['otherbookingnumber'] = 'Num. of users';
 $string['otherbookingoptions'] = 'Accepting from';
 $string['otherbookingsuccessfullysaved'] = 'Rule saved!';
+$string['overbookingprofeatures'] = '<ul>
+<li><b>allow overbooking</b></li>
+</ul>';
 $string['overridecondition'] = 'Condition';
 $string['overrideconditioncheckbox'] = 'Has relation to other condition';
 $string['overrideoperator'] = 'Operator';
