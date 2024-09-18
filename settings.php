@@ -780,14 +780,12 @@ if ($ADMIN->fulltree) {
                         get_string('defaulttemplatedesc', 'mod_booking'),
                         1, $alltemplates));
 
-    $settings->add(
-        new admin_setting_heading('availabilityinfotexts_heading',
-            get_string('availabilityinfotextsheading', 'mod_booking'),
-            ''));
-
-    // PRO feature.
+    // PRO feature: Availability info text.
     if ($proversion) {
-
+        $settings->add(
+            new admin_setting_heading('availabilityinfotexts_heading',
+                get_string('availabilityinfotextsheading', 'mod_booking'),
+                ));
         $settings->add(
             new admin_setting_configcheckbox('booking/bookingplacesinfotexts',
                 get_string('bookingplacesinfotexts', 'mod_booking'),
@@ -845,6 +843,14 @@ if ($ADMIN->fulltree) {
             new admin_setting_configcheckbox('booking/waitinglistshowplaceonwaitinglist',
                 get_string('waitinglistshowplaceonwaitinglist', 'mod_booking'),
                 get_string('waitinglistshowplaceonwaitinglistinfo', 'booking'), 0));
+    } else {
+        $settings->add(
+            new admin_setting_heading('availabilityinfotexts_heading',
+                get_string('availabilityinfotextsheading', 'mod_booking'),
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('availabilityinfotextsprofeature', 'mod_booking') .
+                get_string('infotext:prolicensenecessary', 'mod_booking')));
+
     }
 
     // PRO feature: Subbookings.
