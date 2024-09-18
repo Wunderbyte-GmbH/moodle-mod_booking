@@ -795,8 +795,7 @@ if ($ADMIN->fulltree) {
     if ($proversion) {
         $settings->add(
             new admin_setting_heading('availabilityinfotexts_heading',
-                get_string('availabilityinfotextsheading', 'mod_booking'),
-                ));
+                get_string('availabilityinfotextsheading', 'mod_booking'), ''));
         $settings->add(
             new admin_setting_configcheckbox('booking/bookingplacesinfotexts',
                 get_string('bookingplacesinfotexts', 'mod_booking'),
