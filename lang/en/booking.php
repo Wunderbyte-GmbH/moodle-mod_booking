@@ -1692,6 +1692,11 @@ $string['priceformulamultiply_help'] = 'Additional value to <strong>multiply</st
 $string['priceformulaoff'] = 'Prevent recalculation of prices';
 $string['priceformulaoff_help'] = 'Activate this option, in order to prevent the function "Calculate all prices from
  instance with formula" from recalculating the prices for this booking option.';
+$string['priceformulaprofeature'] = '<ul>
+<li><b>use price formula to automatically calculate prices</b></li>
+<li><b>apply unit factor</b></li>
+<li><b>round prices</b></li>
+</ul>';
 $string['priceisalwayson'] = 'Prices always active';
 $string['priceisalwayson_desc'] = 'If you activate this checkbox, you cannot deactive prices for individual booking options.
  However, you can still set a price of 0 EUR.';
