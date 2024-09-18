@@ -142,6 +142,13 @@ $string['availability'] = 'Availability';
 $string['availabilityconditions'] = 'Availability conditions';
 $string['availabilityconditionsheader'] = '<i class="fa fa-fw fa-key" aria-hidden="true"></i>&nbsp;Availability conditions';
 $string['availabilityinfotextsheading'] = 'Availability info texts for booking places and waiting list ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['availabilityinfotextsprofeature'] = '<ul>
+<li><b>show availability info for booking places</b></li>
+<li><b>enable “booking places low” message</b></li>
+<li><b>show availability info for waiting list</b></li>
+<li><b>enable “waiting list places low” message</b></li>
+<li><b>show place on waiting list</b></li>
+</ul>';
 $string['available'] = 'Places available';
 $string['availableplaces'] = 'Places available: {$a->available} of {$a->maxanswers}';
 $string['availplacesfull'] = 'Full';
