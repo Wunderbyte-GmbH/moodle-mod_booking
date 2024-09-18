@@ -132,10 +132,21 @@ $string['autcrwhatitis'] = 'If this option is enabled it automatically creates a
 $string['autoenrol'] = 'Nutzer:innen automatisch einschreiben';
 $string['autoenrol_help'] = 'Fals ausgewählt werden Nutzer:innen automatisch in den Kurs eingeschrieben sobald sie die Buchung durchgeführt haben und wieder ausgetragen, wenn die Buchung storniert wird.';
 $string['automaticcoursecreation'] = 'Automatische Erstellung von Moodle-Kursen ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['automaticcoursecreationprofeatures'] = '<ul>
+<li><b>Benutzerdefiniertes Buchungsoptionfeld, das als Kurskategorie von automatisch erstellten Kursen verwendet werden soll</b></li>
+<li><b>Markieren Sie den Kurs mit Tags, um ihn als Vorlagen zu verwenden</b></li>
+</ul>';
 $string['availability'] = 'Verfügbarkeit';
 $string['availabilityconditions'] = 'Verfügbarkeit einschränken';
 $string['availabilityconditionsheader'] = '<i class="fa fa-fw fa-key" aria-hidden="true"></i>&nbsp;Verfügbarkeit einschränken';
 $string['availabilityinfotextsheading'] = 'Beschreibungstexte für verfügbare Buchungs- und Wartelistenplätze ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['availabilityinfotextsprofeature'] = '<ul>
+<li><b>Beschreibungstexte für verfügbare Buchungsplätze anzeigen</b></li>
+<li><b>Aktivierung der Meldung „Nur wenige Plätze verfügbar“</b></li>
+<li><b>Beschreibungstexte für verfügbare Wartelistenplätze anzeigen</b></li>
+<li><b>Aktivierung der Meldung „Wenige Plätze auf der Warteliste“</b></li>
+<li><b>Platz auf der Warteliste anzeigen</b></li>
+</ul>';
 $string['available'] = 'Plätze verfügbar';
 $string['availableplaces'] = 'Verfügbare Plätze: {$a->available} von {$a->maxanswers}';
 $string['availplacesfull'] = 'Voll';
@@ -167,6 +178,9 @@ $string['boactionname'] = "Name der Aktion";
 $string['boactions'] = 'Aktionen nach der Buchung ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>' . ' ' . '<span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimentell</span>';
 $string['boactions_desc'] = "Aktionen nach der Buchung sind derzeit ein experimentelles Feature.
 Sie können es ausprobieren, aber bitte verwenden Sie es noch auf keiner Produktivplattform!";
+$string['boactionsprofeature'] = '<ul>
+<li><b>Aktionen nach der Buchung aktivieren</b></li>
+</ul>';
 $string['boactionselectuserprofilefield'] = "Wähle Profilfeld";
 $string['boactionsheader'] = 'Aktionen nach der Buchung [EXPERIMENTELL]';
 $string['boactionuserprofilefieldvalue'] = 'Wert';
@@ -530,6 +544,9 @@ $string['bookingsubbookingadd'] = 'Füge eine Zusatzbuchung hinzu';
 $string['bookingsubbookingdelete'] = 'Lösche Zusatzbuchung';
 $string['bookingsubbookingedit'] = 'Bearbeite';
 $string['bookingsubbookingsheader'] = "Zusatzbuchungen";
+$string['subbookingsprofeature'] = '<ul>
+<li><b>Zusatzbuchungen aktivieren</b></li>
+</ul>';
 $string['bookingtags'] = 'Schlagwörter';
 $string['bookingtext'] = 'Buchungsbeschreibung';
 $string['bookinguseastemplate'] = 'Setze diese Regel als Template';
@@ -623,6 +640,10 @@ $string['canceldependenton_desc'] = 'Wählen Sie aus, auf welches Datumsfeld sic
 beziehen soll.<br>Dadurch wird auch die <i>Serviceperiode</i> von Kursen im Warenkorb entsprechend festgelegt
 (wenn Shopping Cart installiert ist). Dies betrifft auch die Ratenzahlung. Entfernen Sie das ausgewählte Semester, wenn Sie Kursstart anstelle von Semesterstart nutzen möchten.';
 $string['cancellationsettings'] = 'Stornierungseinstellungen ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['cancellationsettingsprofeatures'] = '<ul>
+<li><b>Veränderbare Stornierungsfrist</b></li>
+<li><b>Stornierungs Cool Off Period (Sekunden)</b></li>
+</ul>';
 $string['cancelmyself'] = 'Wieder abmelden';
 $string['canceloption'] = "Storniere Buchungsoption";
 $string['canceloption_desc'] = "Stornieren einer Buchungsoption bedeutet, dass die Option nicht mehr buchbar ist, aber weiterhin als storniert in der Liste angezeigt wird.";
@@ -951,6 +972,9 @@ $string['duplicationrestoreentities'] = 'Entities inkludieren';
 $string['duplicationrestoreoption'] = 'Buchungsoptionen: Duplizieren ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['duplicationrestoreoption_desc'] = 'Spezielle Einstellungen für das Duplizieren von Buchungsoptionen.';
 $string['duplicationrestoreprices'] = 'Preise inkludieren';
+$string['duplicationrestoreoptionprofeatures'] = '<ul>
+<li><b>Moodle-Kurs duplizieren, wenn eine Buchungsoption dupliziert wird</b></li>
+</ul>';
 $string['duplicationrestoresubbookings'] = 'Zusatzbuchungen inkludieren ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['duplicationrestoreteachers'] = 'Trainer:innen inkludieren';
 $string['duration'] = "Dauer";
@@ -1575,6 +1599,9 @@ $string['otherbookinglimit_help'] = "Anzahl der Nutzer:innen die von dieser Buch
 $string['otherbookingnumber'] = 'Nutzer:innen-Anzahl';
 $string['otherbookingoptions'] = 'Nutzer:innen dieser Buchungsoption zulassen';
 $string['otherbookingsuccessfullysaved'] = 'Buchungsoption gespeichert!';
+$string['overbookingprofeatures'] = '<ul>
+<li><b>Überbuchen erlauben</b></li>
+</ul>';
 $string['overridecondition'] = 'Einschränkung';
 $string['overrideconditioncheckbox'] = 'Steht in Bezug zu einer anderen Einschränkung';
 $string['overrideoperator'] = 'Operator';
@@ -1660,6 +1687,11 @@ $string['priceformulamultiply_help'] = 'Zusätzlicher Wert mit dem das Ergebnis 
 $string['priceformulaoff'] = 'Neuberechnung der Preise verhindern';
 $string['priceformulaoff_help'] = 'Aktivieren Sie diese Option, um zu verhindern, dass die Funktion "Alle Preise der Instanz mit Formel neu berechnen"
  die Preise für diese Buchungsoption neu berechnet.';
+$string['priceformulaprofeature'] = '<ul>
+<li><b>Eine Preisformel verwenden, um Preise automatisch berechnen zu können</b></li>
+<li><b>Einheitenfaktor anwenden</b></li>
+<li><b>Preise runden (Preisformel)</b></li>
+</ul>';
 $string['priceisalwayson'] = 'Preise immer aktiviert';
 $string['priceisalwayson_desc'] = 'Wenn Sie dieses Häkchen aktivieren, können Preise für einzelne Buchungsoptionen NICHT abgeschalten werden.
  Es ist aber dennoch möglich, 0 EUR als Preis einzustellen.';
@@ -1673,6 +1705,10 @@ $string['profilepicture'] = 'Profilbild';
 $string['progressbars'] = 'Fortschrittsbalken für bereits vergangene Zeit ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['progressbars_desc'] = 'Mit diesem Feature erhalten Sie eine visuelle Darstellung der bereits vergangenen Zeit von Buchungsoptionen.';
 $string['progressbarscollapsible'] = 'Fortschrittsbalken können ausgeklappt werden';
+$string['progressbarsprofeature'] = '<ul>
+<li><b>Fortschrittsbalken für bereits vergangene Zeit anzeigen</b></li>
+<li><b>Fortschrittsbalken können ausgeklappt werden</b></li>
+</ul>';
 $string['prolicensefeatures'] = 'Sie benötigen Booking PRO, um dieses Feature nutzen zu können. Durch den Kauf einer Pro-Lizenz können Sie die folgenden Funktionen nutzen:';
 $string['proversion:cardsview'] = 'Mit Booking PRO können Sie auch die Karten-Ansicht aktivieren.';
 $string['proversiononly'] = 'Nur in der PRO-Version verfügbar.';
@@ -2020,6 +2056,14 @@ $string['teacherslinkonteacher_desc'] = 'Sind bei einer Buchungsoption Trainer:i
 $string['teachersnologinrequired'] = 'Einloggen bei Trainer:innen-Seiten nicht notwendig';
 $string['teachersnologinrequired_desc'] = 'Wenn Sie diese Einstellung aktivieren, dann können die Trainer:innen-Seiten auch von
  nicht-eingeloggten Benutzer:innen gesehen werden.';
+ $string['teachersprofeatures'] = '<ul>
+<li><b>Fügen Sie Links zu Trainer:innen-Seiten hinzu</b></li>
+<li><b>Einloggen für Trainer:innen-Seiten nicht notwendig</b></li>
+<li><b>Allen Nutzer:innen werden immer die E-Mail-Adressen der Trainer:innen angezeigt</b></li>
+<li><b>E-Mail-Adressen von Trainer:innen, bei denen gebucht wurde, anzeigen</b></li>
+<li><b>Trainer:innen können mit ihrem eigenen E-Mail-Client E-Mails an gebuchte Nutzer:innen senden</b></li>
+<li><b>Rolle die Trainer:innen einer Buchungsoption erhalten</b></li>
+</ul>';
 $string['teachersshowemails'] = 'E-Mail-Adressen von Trainer:innen immer anzeigen';
 $string['teachersshowemails_desc'] = 'Wenn Sie diese Einstellung aktivieren, dann werden allen Benutzer:innen die E-Mail-Adressen der Trainer:innen
   angezeigt, selbst wenn diese nicht eingeloggt sind. <span class="text-danger"><b>Achtung:</b> Dies könnte ein Datenschutz-Problem darstellen. Aktivieren Sie dies nur,
