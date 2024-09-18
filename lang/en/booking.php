@@ -134,6 +134,10 @@ $string['autcrwhatitis'] = 'If this option is enabled it automatically creates a
 $string['autoenrol'] = 'Automatically enrol users';
 $string['autoenrol_help'] = 'If selected, users will be enrolled onto the relevant course as soon as they make the booking and unenrolled from that course as soon as the booking is cancelled.';
 $string['automaticcoursecreation'] = 'Automatic creation of Moodle courses ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['automaticcoursecreationprofeatures'] = '<ul>
+<li><b>booking option custom field to be used as course category</b></li>
+<li><b>mark course with tags to use as templates</b></li>
+</ul>';
 $string['availability'] = 'Availability';
 $string['availabilityconditions'] = 'Availability conditions';
 $string['availabilityconditionsheader'] = '<i class="fa fa-fw fa-key" aria-hidden="true"></i>&nbsp;Availability conditions';
