@@ -429,6 +429,8 @@ if ($ADMIN->fulltree) {
             new admin_setting_configcheckbox('booking/allowoverbooking',
                     get_string('allowoverbooking', 'mod_booking'), '', 0));
 
+    // PRO feature: Automatic creation of Moodle course.
+    if ($proversion) {
         /* Booking option custom field to be used as course category
         for automatically created courses. */
         $settings->add(
@@ -485,6 +487,8 @@ if ($ADMIN->fulltree) {
         $settings->add(
             new admin_setting_heading('newcoursecategorycfieldheading',
                 get_string('automaticcoursecreation', 'mod_booking'),
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('automaticcoursecreationprofeatures', 'mod_booking') .
                 get_string('infotext:prolicensenecessary', 'mod_booking')));
     }
 
