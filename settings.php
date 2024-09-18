@@ -719,6 +719,7 @@ if ($ADMIN->fulltree) {
                 get_string('infotext:prolicensenecessary', 'mod_booking')));
     }
 
+    // Booking instances.
     $settings->add(
         new admin_setting_heading('duplicationrestore',
             get_string('duplicationrestore', 'mod_booking'),
@@ -736,12 +737,11 @@ if ($ADMIN->fulltree) {
         new admin_setting_configcheckbox('booking/duplicationrestoreentities',
                 get_string('duplicationrestoreentities', 'mod_booking'), '', 1));
 
-    if ($proversion) {
-        $settings->add(
-            new admin_setting_configcheckbox('booking/duplicationrestoresubbookings',
-                    get_string('duplicationrestoresubbookings', 'mod_booking'), '', 1));
-    }
+    $settings->add(
+        new admin_setting_configcheckbox('booking/duplicationrestoresubbookings',
+                get_string('duplicationrestoresubbookings', 'mod_booking'), '', 1));
 
+    // PRO feature: Duplication settings.
     if ($proversion) {
         $settings->add(
             new admin_setting_configcheckbox('booking/duplicationrestorebookings',
@@ -761,8 +761,9 @@ if ($ADMIN->fulltree) {
         $settings->add(
             new admin_setting_heading('duplicationrestoreoption',
                 get_string('duplicationrestoreoption', 'mod_booking'),
-                get_string('duplicationrestoreoption_desc', 'mod_booking') . " " .
-                    get_string('infotext:prolicensenecessary', 'mod_booking')));
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('duplicationrestoreoptionprofeatures', 'mod_booking') .
+                get_string('infotext:prolicensenecessary', 'mod_booking')));
     }
 
     $settings->add(
