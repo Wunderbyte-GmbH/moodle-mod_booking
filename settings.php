@@ -887,6 +887,8 @@ if ($ADMIN->fulltree) {
         $settings->add(
             new admin_setting_heading('boactions',
                 get_string('boactions', 'mod_booking'),
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('boactionsprofeature', 'mod_booking') .
                 get_string('infotext:prolicensenecessary', 'mod_booking')));
     }
 

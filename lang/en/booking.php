@@ -182,6 +182,9 @@ $string['boactionname'] = "Name of action";
 $string['boactions'] = 'Actions after booking ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>' . ' ' . '<span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimental</span>';
 $string['boactions_desc'] = "Booking actions after booking are still an EXPERIMENTAL feature. You can try them if you want.
 But do not use them in a productive environment yet!";
+$string['boactionsprofeature'] = '<ul>
+<li><b>activate actions after booking</b></li>
+</ul>';
 $string['boactionselectuserprofilefield'] = "Choose profile field";
 $string['boactionuserprofilefieldvalue'] = 'Value';
 $string['bocondallowedtobookininstance'] = "Booking without capability";
