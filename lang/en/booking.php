@@ -2061,6 +2061,9 @@ $string['subbookingname'] = "Name of the subbooking";
 $string['subbookings'] = "Subbookings";
 $string['subbookings_desc'] = 'Activate subbookings in order to enable the booking of additional items or time slots (e.g. for tennis courts).';
 $string['subbookingsheader'] = 'Subbookings ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['subbookingsprofeature'] = '<ul>
+<li><b>activate subbookings</b></li>
+</ul>';
 $string['subbookingtimeslot'] = "Timeslot booking";
 $string['subbookingtimeslot_desc'] = "This opens timeslots for every booking date with a set duration.";
 $string['subject'] = 'Subject';
