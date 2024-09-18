@@ -1763,6 +1763,10 @@ $string['profilepicture'] = 'Profile picture';
 $string['progressbars'] = 'Progress bars of time passed ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['progressbars_desc'] = 'Get a visual representation of the time which has already passed for a booking option.';
 $string['progressbarscollapsible'] = 'Make progress bars collapsible';
+$string['progressbarsprofeature'] = '<ul>
+<li><b>show progress bars of time passed (for booking option)</b></li>
+<li><b>make progress bars collapsible</b></li>
+</ul>';
 $string['prolicensefeatures'] = '<p>You need a Booking PRO license if you want to use this feature. Purchasing a Pro license will allow you to use following features:</p>';
 $string['proversion:cardsview'] = 'With Booking PRO you can also use cards view.';
 $string['proversiononly'] = 'Upgrade to Booking PRO to use this feature.';
