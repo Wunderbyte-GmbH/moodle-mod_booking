@@ -2095,6 +2095,14 @@ $string['teacherslinkonteacher'] = 'Add links to teacher pages';
 $string['teacherslinkonteacher_desc'] = 'When there are teachers added to booking options, this setting will add a link to an overview page for each teacher.';
 $string['teachersnologinrequired'] = 'Login for teacher pages not necessary';
 $string['teachersnologinrequired_desc'] = 'If you activate this setting, everyone can access the teacher pages, regardless if logged in or not.';
+$string['teachersprofeatures'] = '<ul>
+<li><b>add links to teacher pages</b></li>
+<li><b>login for teacher pages not necessary</b></li>
+<li><b>always show teacher’s email addresses to everyone</b></li>
+<li><b>show teacher’s email addresses to booked users</b></li>
+<li><b>teachers can send email to all booked users using own mail client</b></li>
+<li><b>teachers of booking option are assigned to fitting role</b></li>
+</ul>';
 $string['teachersshowemails'] = 'Always show teacher\'s email addresses to everyone';
 $string['teachersshowemails_desc'] = 'If you activate this setting, every user can see
     the e-mail address of any teacher - even if they are not logged in. <span class="text-danger"><b>Be careful:</b> This might be
