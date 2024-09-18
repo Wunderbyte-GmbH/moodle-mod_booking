@@ -866,6 +866,8 @@ if ($ADMIN->fulltree) {
         $settings->add(
             new admin_setting_heading('progressbars',
                 get_string('progressbars', 'mod_booking'),
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('progressbarsprofeature', 'mod_booking') .
                 get_string('infotext:prolicensenecessary', 'mod_booking')));
     }
 
