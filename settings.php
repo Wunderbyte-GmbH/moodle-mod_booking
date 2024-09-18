@@ -642,7 +642,7 @@ if ($ADMIN->fulltree) {
             "-1", $customfieldsarray));
 
 
-    // PRO feature: Progress bars.
+    // PRO feature: Price forumla.
     if ($proversion) {
         $settings->add(
             new admin_setting_heading('priceformulaheader',
@@ -667,6 +667,8 @@ if ($ADMIN->fulltree) {
         $settings->add(
             new admin_setting_heading('priceformulaheader',
                 get_string('priceformulaheader', 'mod_booking'),
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('priceformulaprofeature', 'mod_booking') .
                 get_string('infotext:prolicensenecessary', 'mod_booking')));
     }
 
