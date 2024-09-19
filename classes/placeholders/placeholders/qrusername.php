@@ -86,8 +86,8 @@ class qrusername {
             $user = singleton_service::get_instance_of_user($userid);
 
             $value = isset($user->username) ?
-            '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' .
-            rawurlencode($user->username) . '&choe=UTF-8" title="QR encoded username" />' : '';
+            '<img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' .
+            rawurlencode($user->username) . '">' : '';
 
             // Save the value to profit from singleton.
             placeholders_info::$placeholders[$cachekey] = $value;

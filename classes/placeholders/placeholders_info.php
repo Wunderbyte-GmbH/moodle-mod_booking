@@ -272,5 +272,6 @@ class placeholders_info {
             // We use the localized strings as keys and the classnames as values.
             self::$localizedplaceholders[get_string($class, 'mod_booking')] = $class;
         }
+        return self::$localizedplaceholders;
     }
 }

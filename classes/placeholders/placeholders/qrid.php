@@ -83,8 +83,8 @@ class qrid {
                 return placeholders_info::$placeholders[$cachekey];
             }
 
-            $value = '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' .
-            rawurlencode($userid) . '&choe=UTF-8" title="Link to Google.com" />';
+            $value = '<img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' .
+            rawurlencode($userid) . '">';
 
             // Save the value to profit from singleton.
             placeholders_info::$placeholders[$cachekey] = $value;
