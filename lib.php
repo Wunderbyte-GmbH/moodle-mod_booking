@@ -1050,17 +1050,28 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         $navref->add(get_string('teachersinstancereport', 'mod_booking') . " ($bookingsettings->name)",
                 new moodle_url('/mod/booking/teachers_instance_report.php', ['cmid' => $cm->id]),
                 navigation_node::TYPE_CUSTOM, null, 'nav_teachers_instance_report');
-        if (wb_payment::pro_version_is_activated()) {
-            $navref->add(get_string('optionformconfig', 'mod_booking') . " ($bookingsettings->name)",
-                    new moodle_url('/mod/booking/optionformconfig.php', ['cmid' => $cm->id]),
-                    navigation_node::TYPE_CUSTOM, null, 'nav_optionformconfig');
+        // Pro version entries - visible to all, but greyed out for non-pro users.
+        $proversion = wb_payment::pro_version_is_activated();
 
-            if (has_capability('mod/booking:editbookingrules', $context)) {
-                $navref->add(get_string('bookingrules', 'mod_booking') . " ($bookingsettings->name)",
-                    new moodle_url('/mod/booking/edit_rules.php', ['cmid' => $cm->id]),
-                    navigation_node::TYPE_CUSTOM, null, 'nav_editbookingrules');
-            }
+        // Option Form Config.
+        $optionformconfignode = $navref->add(get_string('optionformconfig', 'mod_booking') . " ($bookingsettings->name)",
+            new moodle_url('/mod/booking/optionformconfig.php', ['cmid' => $cm->id]),
+            navigation_node::TYPE_CUSTOM, null, 'nav_optionformconfig');
+
+        if (!$proversion) {
+            $optionformconfignode->add_class('disabled-option');  // Add a custom class for non-pro users.
         }
+
+        // Booking Rules.
+        if (has_capability('mod/booking:editbookingrules', $context)) {
+            $bookingrulesnode = $navref->add(get_string('bookingrules', 'mod_booking') . " ($bookingsettings->name)",
+                new moodle_url('/mod/booking/edit_rules.php', ['cmid' => $cm->id]),
+                navigation_node::TYPE_CUSTOM, null, 'nav_editbookingrules');
+
+            if (!$proversion) {
+                $bookingrulesnode->add_class('disabled-option');  // Add a custom class for non-pro users.
+            }
+    }
     }
 
     // We currently never show these entries as we are not sure if they work correctly.
