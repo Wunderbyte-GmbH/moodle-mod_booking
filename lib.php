@@ -1358,7 +1358,7 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
     }
 
     // After activity completion, we need to purge caches for the option.
-    booking_option::purge_cache_for_option($optionid);
+    booking_option::purge_cache_for_answers($optionid);
 }
 
 // GRADING AND RATING.

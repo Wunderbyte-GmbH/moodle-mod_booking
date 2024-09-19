@@ -761,7 +761,7 @@ class booking_option {
             }
 
             // Before sending an e-mail, we make sure that caches are purged.
-            self::purge_cache_for_option($this->optionid);
+            self::purge_cache_for_answers($this->optionid);
 
             // Let's send the cancel e-mails by using adhoc tasks.
             $messagecontroller = new message_controller(
@@ -783,7 +783,7 @@ class booking_option {
         }
 
         // After deleting an answer, cache has to be invalidated.
-        self::purge_cache_for_option($this->optionid);
+        self::purge_cache_for_answers($this->optionid);
 
         if ($fullybooked) {
             $ba = singleton_service::get_instance_of_booking_answers($optionsettings);
@@ -1851,7 +1851,7 @@ class booking_option {
         }
 
         // After updating, cache has to be invalidated.
-        self::purge_cache_for_option($this->optionid);
+        self::purge_cache_for_answers($this->optionid);
     }
 
     /**
@@ -2048,7 +2048,7 @@ class booking_option {
         }
 
         // After updating, we have to invalidate cache.
-        self::purge_cache_for_option($this->optionid);
+        self::purge_cache_for_answers($this->optionid);
     }
 
     /**
@@ -2803,7 +2803,7 @@ class booking_option {
                                     ]);
 
                 // Do not forget to purge cache afterwards.
-                self::purge_cache_for_option($optionid);
+                self::purge_cache_for_answers($optionid);
 
                 $status = 0;
             }

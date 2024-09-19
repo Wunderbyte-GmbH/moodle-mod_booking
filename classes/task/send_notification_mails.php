@@ -94,7 +94,7 @@ class send_notification_mails extends \core\task\scheduled_task {
                     ]
                 );
                 // Do not forget to purge cache afterwards.
-                booking_option::purge_cache_for_option($optionid);
+                booking_option::purge_cache_for_answers($optionid);
 
                 if (empty($booking->id) || empty($settings->id)) {
                     mtrace("booking instance ($bookingid) or booking option ($optionid) were deleted.");
