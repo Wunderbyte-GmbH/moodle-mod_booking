@@ -2992,7 +2992,7 @@ class booking_option {
         singleton_service::destroy_booking_option_singleton($optionid);
 
         // We also purge the answers cache.
-        self::purge_cache_for_answers($optionid);
+        self::purge_cache_for_answers(optionid: $optionid);
     }
 
     /**
