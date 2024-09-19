@@ -435,11 +435,14 @@ class allowedtobookininstance implements bo_condition {
      *
      */
     public function apply_customdata(booking_option_settings $settings) {
-        $availabilities = json_decode($settings->availability);
-        foreach ($availabilities as $condtion) {
-            if ($condtion->id === $this->id) {
-                $this->customsettings = $condtion;
-                break;
+
+        if (!empty($settings->availability)) {
+            $availabilities = json_decode($settings->availability);
+            foreach ($availabilities as $condtion) {
+                if ($condtion->id === $this->id) {
+                    $this->customsettings = $condtion;
+                    break;
+                }
             }
         }
     }
