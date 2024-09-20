@@ -156,6 +156,7 @@ class dates {
         $elements[] = $element;
 
         $now = time();
+        $nextfullhour = strtotime(date('Y-m-d H:00:00', $now)) + 3600;
 
         // If we want to show more dates than we currently have...
         // ... we add them here.
@@ -163,8 +164,8 @@ class dates {
             $highestidx++;
             $dates[] = [
                 'index' => $highestidx,
-                'coursestarttime' => $now,
-                'courseendtime' => $now + 3600, // Default: 1 hour after start.
+                'coursestarttime' => $nextfullhour,
+                'courseendtime' => $nextfullhour + 3600, // Default: 1 hour after start.
                 'daystonotify' => 0,
             ];
         }
