@@ -135,9 +135,11 @@ export function initFooterButtons(optionid, userid, shoppingcartisinstalled) {
                         window.location.href = element.dataset.href;
                     break;
                     case 'closemodal':
+                        reloadOnBookingView();
                         closeModal(optionid);
                     break;
                     case 'closeinline':
+                        reloadOnBookingView();
                         closeInline(optionid);
 
                 }
@@ -202,7 +204,6 @@ export function initFooterButtons(optionid, userid, shoppingcartisinstalled) {
  * @param {bool} reloadTables
  */
 export function closeModal(optionid, reloadTables = true) {
-
     jQuery.each(jQuery('[id^="' + SELECTORS.MODALID + optionid + '_"]'), async function() {
 
         // We don't have a good way to check if the modal is ready to execute hide.
@@ -237,7 +238,6 @@ export function closeModal(optionid, reloadTables = true) {
  * @param {bool} reloadTables
  */
 export function closeInline(optionid, reloadTables = true) {
-
     jQuery.each(jQuery('[id^="' + SELECTORS.INLINEID + optionid + '_"]'), function() {
 
         // We don't have a good way to check if the modal is ready to execute hide.
@@ -279,6 +279,18 @@ function listenToCloseInline(optionid) {
             reloadAllTables();
         });
     });
+}
+
+/**
+ * Reload on booking view
+ *
+ */
+function reloadOnBookingView() {
+    const onbookondetail = window.location.href.indexOf("optionview.php");
+
+    if (onbookondetail >= 0) {
+        window.location.reload();
+    }
 }
 
 // /**
