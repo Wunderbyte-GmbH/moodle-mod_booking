@@ -1054,7 +1054,8 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         $proversion = wb_payment::pro_version_is_activated();
 
         // Option Form Config.
-        $optionformconfignode = $navref->add(get_string('optionformconfig', 'mod_booking') . " ($bookingsettings->name)",
+        $optionformconfignode = $navref->add(get_string('optionformconfig', 'mod_booking') . " ($bookingsettings->name)"
+            . '&nbsp;<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>',
             new moodle_url('/mod/booking/optionformconfig.php', ['cmid' => $cm->id]),
             navigation_node::TYPE_CUSTOM, null, 'nav_optionformconfig');
 
@@ -1064,7 +1065,8 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 
         // Booking Rules.
         if (has_capability('mod/booking:editbookingrules', $context)) {
-            $bookingrulesnode = $navref->add(get_string('bookingrules', 'mod_booking') . " ($bookingsettings->name)",
+            $bookingrulesnode = $navref->add(get_string('bookingrules', 'mod_booking') . " ($bookingsettings->name)"
+            . '&nbsp;<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>',
                 new moodle_url('/mod/booking/edit_rules.php', ['cmid' => $cm->id]),
                 navigation_node::TYPE_CUSTOM, null, 'nav_editbookingrules');
 
