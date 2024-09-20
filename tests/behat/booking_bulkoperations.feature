@@ -134,4 +134,6 @@ Feature: As admin - apply bulk operations under booking options.
     ## Send messages via cron and verify via events log
     And I trigger cron
     And I visit "/report/loglive/index.php"
-    And I should see "Custom message A message e-mail with subject \"Bulkoperations-subj\" has been sent to user with id"
+    And I should see "Custom message A message e-mail with subject \"Bulkoperations-subj\" has been sent to user: \"Teacher 1\" by the user \"Teacher 1\""
+    ## Logout is mandatory for admin pages to avoid error
+    And I log out

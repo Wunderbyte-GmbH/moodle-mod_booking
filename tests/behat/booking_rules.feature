@@ -67,8 +67,8 @@ Feature: Create global booking rules as admin and insure they are working.
   @javascript
   Scenario: Booking rules: create booking rule via DB and view as admin
     Given the following "mod_booking > rules" exist:
-      | conditionname | contextid | conditiondata     | name        | actionname | actiondata                                                                      | rulename            | ruledata                                                      |
-      | select_users  | 1         | {"userids":["2"]} | notifyadmin | send_mail  | {"subject":"teacher subst","template":"teacher sybst msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\optiondates_teacher_added"} |
+      | conditionname | contextid | conditiondata     | name        | actionname | actiondata                                                                      | rulename            | ruledata                                                                                           | cancelrules |
+      | select_users  | 1         | {"userids":["2"]} | notifyadmin | send_mail  | {"subject":"teacher subst","template":"teacher sybst msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\optiondates_teacher_added","aftercompletion":"","condition":"0"} |             |
     When I log in as "admin"
     And I visit "/mod/booking/edit_rules.php"
     ## And I wait until the page is ready
@@ -83,8 +83,8 @@ Feature: Create global booking rules as admin and insure they are working.
       | booking     | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
       | BookingCMP  | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
-      | conditionname | contextid | conditiondata     | name        | actionname | actiondata                                                                      | rulename            | ruledata                                                      |
-      | select_users  | 1         | {"userids":["2"]} | notifyadmin | send_mail  | {"subject":"teacher subst","template":"teacher sybst msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\optiondates_teacher_added"} |
+      | conditionname | contextid | conditiondata     | name        | actionname | actiondata                                                                      | rulename            | ruledata                                                                                           | cancelrules |
+      | select_users  | 1         | {"userids":["2"]} | notifyadmin | send_mail  | {"subject":"teacher subst","template":"teacher sybst msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\optiondates_teacher_added","aftercompletion":"","condition":"0"} |             |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Substitutions / Cancelled dates" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -103,7 +103,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And I visit "/report/loglive/index.php"
     And I should see "Substitution teacher was added"
     ## And I should see "An e-mail with subject 'teacher subst' has been sent to user with id: '2'"
-    And I should see "Custom message A message e-mail with subject \"teacher subst\" has been sent to user with id"
+    And I should see "Custom message A message e-mail with subject \"teacher subst\" has been sent to user: \"Teacher 1\" by the user \"Admin User\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
@@ -113,8 +113,8 @@ Feature: Create global booking rules as admin and insure they are working.
       | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
-      | conditionname        | contextid | conditiondata  | name        | actionname | actiondata                                                                    | rulename            | ruledata                                                    |
-      | select_student_in_bo | 1         | {"borole":"5"} | notifyadmin | send_mail  | {"subject":"cancellation","template":"cancellation msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_cancelled"} |
+      | conditionname        | contextid | conditiondata  | name        | actionname | actiondata                                                                    | rulename            | ruledata                                                                                         | cancelrules |
+      | select_student_in_bo | 1         | {"borole":"5"} | notifyadmin | send_mail  | {"subject":"cancellation","template":"cancellation msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_cancelled","aftercompletion":"","condition":"0"} |             |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -133,7 +133,8 @@ Feature: Create global booking rules as admin and insure they are working.
     And I visit "/report/loglive/index.php"
     And I should see "Booking option cancelled for all"
     And I should see "Booking option cancelled for/by user"
-    And I should see "Custom message A message e-mail with subject \"cancellation\" has been sent to user with id:"
+    And I should see "Custom message A message e-mail with subject \"cancellation\" has been sent to user: \"Teacher 1\" by the user \"Student 2\""
+    And I should see "Custom message A message e-mail with subject \"cancellation\" has been sent to user: \"Teacher 1\" by the user \"Student 1\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
@@ -143,8 +144,8 @@ Feature: Create global booking rules as admin and insure they are working.
       | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
-      | conditionname        | contextid | conditiondata  | name        | actionname | actiondata                                                                    | rulename            | ruledata                                                    |
-      | select_student_in_bo | 1         | {"borole":"0"} | notifyadmin | send_mail  | {"subject":"answer cancellation","template":"answer cancellation msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookinganswer_cancelled"} |
+      | conditionname        | contextid | conditiondata  | name        | actionname | actiondata                                                                                  | rulename            | ruledata                                                                                         | cancelrules |
+      | select_student_in_bo | 1         | {"borole":"0"} | notifyadmin | send_mail  | {"subject":"answer cancellation","template":"answer cancellation msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookinganswer_cancelled","aftercompletion":"","condition":"0"} |             |
     And the following "mod_booking > answers" exist:
       | booking    | option          | user     |
       | BookingCMP | Option-football | student1 |
@@ -157,9 +158,8 @@ Feature: Create global booking rules as admin and insure they are working.
     ## Send messages via cron and verify via events log
     And I trigger cron
     And I visit "/report/loglive/index.php"
-    ## And I wait "30" seconds
-    And I should see "Option cancelled by teacher or system A message e-mail with subject \"Deleted booking: Option-football by Student 2\" has been sent"
-    And I should see "Custom message A message e-mail with subject \"answer cancellation\" has been sent to user with id:"
+    And I should see "Option cancelled by teacher or system A message e-mail with subject \"Deleted booking: Option-football by Student 2\" has been sent to user: \"Teacher 1\" by the user \"Student 2\""
+    And I should see "Custom message A message e-mail with subject \"answer cancellation\" has been sent to user: \"Teacher 1\" by the user \"Student 1\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
@@ -169,8 +169,8 @@ Feature: Create global booking rules as admin and insure they are working.
       | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
-      | conditionname | contextid | conditiondata     | name        | actionname | actiondata                                                                       | rulename            | ruledata                                                    |
-      | select_users  | 1         | {"userids":["2"]} | notifyadmin | send_mail  | {"subject":"answer cancellation","template":"cancellation","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookinganswer_cancelled"} |
+      | conditionname | contextid | conditiondata     | name        | actionname | actiondata                                                                       | rulename            | ruledata                                                                                         | cancelrules |
+      | select_users  | 1         | {"userids":["2"]} | notifyadmin | send_mail  | {"subject":"answer cancellation","template":"cancellation","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookinganswer_cancelled","aftercompletion":"","condition":"0"} |             |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -185,9 +185,8 @@ Feature: Create global booking rules as admin and insure they are working.
     And I trigger cron
     And I visit "/report/loglive/index.php"
     And I should see "Booking option cancelled for/by user"
-    And I should see "Option cancelled by teacher or system A message e-mail with subject \"Deleted booking: Option-football by Student 1\" has been sent to user with id:"
-    ## And I should see "Custom message: An e-mail with subject 'answer cancellation' has been sent to user with id: '2'"
-    And I should see "Custom message A message e-mail with subject \"answer cancellation\" has been sent to user with id:"
+    And I should see "Option cancelled by teacher or system A message e-mail with subject \"Deleted booking: Option-football by Student 1\" has been sent to user: \"Teacher 1\" by the user \"Student 1\""
+    And I should see "Custom message A message e-mail with subject \"answer cancellation\" has been sent to user: \"Teacher 1\" by the user \"Admin User\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
@@ -197,8 +196,8 @@ Feature: Create global booking rules as admin and insure they are working.
       | booking     | text           | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | teachersforoption         |
       | BookingCMP  | Option-teacher | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | teacher2, teacher1, admin |
     And the following "mod_booking > rules" exist:
-      | conditionname        | contextid | name        | actionname | actiondata                                                                          | rulename            | ruledata                                                        |
-      | select_teacher_in_bo | 1         | notifyadmin | send_mail  | {"subject":"teacher removed","template":"teacher removed msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\optiondates_teacher_deleted"} |
+      | conditionname        | contextid | name        | actionname | actiondata                                                                          | rulename            | ruledata                                                                                             | cancelrules |
+      | select_teacher_in_bo | 1         | notifyadmin | send_mail  | {"subject":"teacher removed","template":"teacher removed msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\optiondates_teacher_deleted","aftercompletion":"","condition":"0"} |             |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Substitutions / Cancelled dates" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -214,8 +213,9 @@ Feature: Create global booking rules as admin and insure they are working.
     And I trigger cron
     And I visit "/report/loglive/index.php"
     Then I should see "Teacher deleted from teaching journal"
-    ## And I should see "An e-mail with subject 'teacher removed' has been sent to user with id: '2'"
-    And I should see "Custom message A message e-mail with subject \"teacher removed\" has been sent to user with id:"
+    And I should see "Custom message A message e-mail with subject \"teacher removed\" has been sent to user: \"Teacher 1\" by the user \"Teacher 2\""
+    And I should see "Custom message A message e-mail with subject \"teacher removed\" has been sent to user: \"Teacher 1\" by the user \"Teacher 1\""
+    And I should see "Custom message A message e-mail with subject \"teacher removed\" has been sent to user: \"Teacher 1\" by the user \"Admin User\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
@@ -225,8 +225,8 @@ Feature: Create global booking rules as admin and insure they are working.
       | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
-      | conditionname          | contextid | conditiondata                         | name          | actionname | actiondata                                                                | rulename            | ruledata                                                    |
-      | select_user_from_event | 1         | {"userfromeventtype":"relateduserid"} | notifystudent | send_mail  | {"subject":"completion","template":"completion msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_completed"} |
+      | conditionname          | contextid | conditiondata                  | name          | actionname | actiondata                                                                | rulename            | ruledata                                                                                         | cancelrules |
+      | select_user_from_event | 1         | {"userfromeventtype":"userid"} | notifystudent | send_mail  | {"subject":"completion","template":"completion msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_completed","aftercompletion":"","condition":"0"} |             |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -241,9 +241,8 @@ Feature: Create global booking rules as admin and insure they are working.
     And I trigger cron
     And I visit "/report/loglive/index.php"
     Then I should see "Booking option completed"
-    And I should see "Booking option completion A message e-mail with subject \"Booking option completed\" has been sent to user with id:"
-    ## And I should see "Custom message: An e-mail with subject 'completion' has been sent to user with id:"
-    And I should see "Custom message A message e-mail with subject \"completion\" has been sent to user with id:"
+    And I should see "Booking option completion A message e-mail with subject \"Booking option completed\" has been sent to user: \"Teacher 1\" by the user \"Student 1\""
+    And I should see "Custom message A message e-mail with subject \"completion\" has been sent to user: \"Teacher 1\" by the user \"Admin User\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
@@ -253,8 +252,8 @@ Feature: Create global booking rules as admin and insure they are working.
       | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | teachersforoption  |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | teacher1, teacher2 |
     And the following "mod_booking > rules" exist:
-      | conditionname          | contextid | conditiondata                                             | name         | actionname | actiondata                                                                               | rulename            | ruledata                                                    |
-      | enter_userprofilefield | 1         | {"cpfield":"sport","operator":"~","textfield":"football"} | emailteacher | send_mail  | {"subject":"cancellation football","template":"football cancelled","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_cancelled"} |
+      | conditionname          | contextid | conditiondata                                             | name         | actionname | actiondata                                                                               | rulename            | ruledata                                                                                         | cancelrules |
+      | enter_userprofilefield | 1         | {"cpfield":"sport","operator":"~","textfield":"football"} | emailteacher | send_mail  | {"subject":"cancellation football","template":"football cancelled","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_cancelled","aftercompletion":"","condition":"0"} |             |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Cancel this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -266,10 +265,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And I trigger cron
     And I visit "/report/loglive/index.php"
     And I should see "Booking option cancelled"
-    ## Changed since "feature-berta"
-    ## And I should see "Custom message: An e-mail with subject 'cancellation football' has been sent to user with id:"
-    ## And I should see "An e-mail with subject 'cancellation football' has been sent to user with id:"
-    And I should see "Custom message A message e-mail with subject \"cancellation football\" has been sent to user with id:"
+    And I should see "Custom message A message e-mail with subject \"cancellation football\" has been sent to user: \"Teacher 1\" by the user \"Teacher 2\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
@@ -279,8 +275,8 @@ Feature: Create global booking rules as admin and insure they are working.
       | booking    | text     | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | teachersforoption  |
       | BookingCMP | football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | teacher1, teacher2 |
     And the following "mod_booking > rules" exist:
-      | conditionname          | contextid | conditiondata                                           | name         | actionname | actiondata                                                                         | rulename            | ruledata                                                    |
-      | match_userprofilefield | 1         | {"optionfield":"text","operator":"~","cpfield":"sport"} | emailteacher | send_mail  | {"subject":"completion football","template":"completion msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_completed,"aftercompletion":"","condition":"0""} |
+      | conditionname          | contextid | conditiondata                                           | name         | actionname | actiondata                                                                         | rulename            | ruledata                                                                                         | cancelrules |
+      | match_userprofilefield | 1         | {"optionfield":"text","operator":"~","cpfield":"sport"} | emailteacher | send_mail  | {"subject":"completion football","template":"completion msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_completed","aftercompletion":"","condition":"0"} |             |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -295,8 +291,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And I trigger cron
     And I visit "/report/loglive/index.php"
     Then I should see "Booking option completed"
-    ## And I should see "Custom message: An e-mail with subject 'completion football' has been sent to user with id:"
-    And I should see "Custom message A message e-mail with subject \"completion football\" has been sent to user with id:"
+    And I should see "Custom message A message e-mail with subject \"completion football\" has been sent to user: \"Teacher 1\" by the user \"Teacher 2\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
@@ -306,8 +301,8 @@ Feature: Create global booking rules as admin and insure they are working.
       | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
-      | conditionname          | contextid | conditiondata                  | name          | actionname        | actiondata                                                  | rulename            | ruledata                                                                                     |
-      | select_user_from_event | 1         | {"userfromeventtype":"userid"} | copytotrigger | send_copy_of_mail | {"subjectprefix":"Custom msg copy","messageprefix":"copy:"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\custom_message_sent","aftercompletion":"","condition":"0"} |
+      | conditionname          | contextid | conditiondata                  | name          | actionname        | actiondata                                                  | rulename            | ruledata                                                                                     | cancelrules |
+      | select_user_from_event | 1         | {"userfromeventtype":"userid"} | copytotrigger | send_copy_of_mail | {"subjectprefix":"Custom msg copy","messageprefix":"copy:"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\custom_message_sent","aftercompletion":"","condition":"0"} |             |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -339,8 +334,8 @@ Feature: Create global booking rules as admin and insure they are working.
       | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
-      | conditionname | contextid | conditiondata     | name        | actionname        | actiondata                                                       | rulename            | ruledata                                                                                          |
-      | select_users  | 1         | {"userids":["2"]} | bulktoadmin | send_copy_of_mail | {"subjectprefix":"Custom bulk msg copy","messageprefix":"copy:"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\custom_bulk_message_sent","aftercompletion":"","condition":"0"} |
+      | conditionname | contextid | conditiondata     | name        | actionname        | actiondata                                                       | rulename            | ruledata                                                                                          | cancelrules |
+      | select_users  | 1         | {"userids":["2"]} | bulktoadmin | send_copy_of_mail | {"subjectprefix":"Custom bulk msg copy","messageprefix":"copy:"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\custom_bulk_message_sent","aftercompletion":"","condition":"0"} |             |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -374,8 +369,8 @@ Feature: Create global booking rules as admin and insure they are working.
       | BookingCMP  | Option-created | C1     | Deskr-created | 0            | 0          | 0              | 0              | 2346937200        | 2347110000      | teacher1, teacher2 |
       ## 2044/05/15 - 2044/05/17
     And the following "mod_booking > rules" exist:
-      | conditionname        | contextid | name         | actionname | actiondata                                                                       | rulename            | ruledata                                                                                       |
-      | select_teacher_in_bo | 1         | emailchanges | send_mail  | {"subject":"OptionChanged","template":"Changes: {changes}","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_updated","aftercompletion":"","condition":"0"} |
+      | conditionname        | contextid | name         | actionname | actiondata                                                                       | rulename            | ruledata                                                                                       | cancelrules |
+      | select_teacher_in_bo | 1         | emailchanges | send_mail  | {"subject":"OptionChanged","template":"Changes: {changes}","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_updated","aftercompletion":"","condition":"0"} |             |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I change viewport size to "1366x10000"
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
