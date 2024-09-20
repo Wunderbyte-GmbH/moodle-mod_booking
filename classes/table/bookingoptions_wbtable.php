@@ -226,7 +226,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $title = $values->titleprefix . ' - ' . $values->text;
         }
 
-        format_string($title);
+        $title = format_string($title);
 
         $title = "<div class='bookingoptions-wbtable-option-title'><a href='$url' target='_blank'>$title</a></div>";
 

@@ -583,7 +583,7 @@ if (!$tableallbookings->is_downloading()) {
     if ($userprofilefields) {
         foreach ($userprofilefields as $profilefield) {
             $columns[] = "cust" . strtolower($profilefield->shortname);
-            $headers[] = $profilefield->name;
+            $headers[] = format_string($profilefield->name);
             $customfields .= ", (SELECT " . $DB->sql_concat('uif.datatype', "'|'", 'uid.data') . " as custom
                 FROM {user_info_data} uid
                 LEFT JOIN {user_info_field}  uif ON uid.fieldid = uif.id
@@ -598,8 +598,10 @@ if (!$tableallbookings->is_downloading()) {
     $customform = customform::return_formelements($settings);
 
     foreach ($customform as $counter => $customformfield) {
+
+        $label = !empty($customformfield->label) ? $customformfield->label : 'label_' . $counter;
         $columns[] = 'formfield_' . $counter;
-        $headers[] = !empty($customformfield->label) ? $customformfield->label : 'label_' . $counter;
+        $headers[] = format_string($label);
         $tableallbookings->no_sorting('formfield_' . $counter);
     }
 
