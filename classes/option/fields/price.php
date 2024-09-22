@@ -196,8 +196,9 @@ class price extends field_base {
                 }
 
                 if (!empty($price)) {
-                    $pricegroup = MOD_BOOKING_FORM_PRICEGROUP . $category->identifier;
-                    $priceidentifier = MOD_BOOKING_FORM_PRICE . $category->identifier;
+                    $encodedkey = bin2hex($category->identifier);
+                    $pricegroup = MOD_BOOKING_FORM_PRICEGROUP . $encodedkey;
+                    $priceidentifier = MOD_BOOKING_FORM_PRICE . $encodedkey;
                     $data->{$pricegroup}[$priceidentifier] = $price;
                 }
             }
