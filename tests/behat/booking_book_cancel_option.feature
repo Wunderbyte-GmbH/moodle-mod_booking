@@ -20,6 +20,9 @@ Feature: In a booking instance
       | admin1   | C1     | manager        |
       | student1 | C1     | student        |
       | student2 | C1     | student        |
+    And the following "mod_booking > semesters" exist:
+      | identifier | name      | startdate                      | enddate                         |
+      | nextmomth  | NextMonth | ## first day of next month ##  | ## last day of next month ##    |
     And the following "activities" exist:
       | activity | course | name       | intro                  | bookingmanager | eventtype | cancancelbook | Default view for booking options |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | 1             | All bookings                     |
@@ -127,10 +130,7 @@ Feature: In a booking instance
 
   @javascript
   Scenario: Booking option cancellation: try self-cancell ongoing option as a student depending to semester dates
-    Given the following "mod_booking > semesters" exist:
-      | identifier | name      | startdate                      | enddate                         |
-      | nextmomth  | NextMonth | ## first day of next month ##  | ## last day of next month ##    |
-    And the following "mod_booking > options" exist:
+    Given the following "mod_booking > options" exist:
       | booking    | text          | course | description  | semester  |
       | My booking | Test option 1 | C1     | Cancellation | nextmomth |
     And I log in as "admin"

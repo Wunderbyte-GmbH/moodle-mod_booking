@@ -18,13 +18,13 @@ Feature: As a teacher - configure and use booking's semesters feature.
       | admin1   | C1     | manager        |
       | student1 | C1     | student        |
       | student2 | C1     | student        |
-    And the following "activities" exist:
-      | activity | course | name       | intro                  | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail |
-      | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | All bookings                     | Yes                      |
     And the following "mod_booking > semesters" exist:
       | identifier | name       | startdate                         | enddate                            |
       | nextmay    | NextMay    | ## first day of May next year ##  | ## last day of May next year ##    |
       | nextsummer | NextSummer | ## first day of June next year ## | ## last day of August next year ## |
+    And the following "activities" exist:
+      | activity | course | name       | intro                  | bookingmanager | eventtype | semester   | Default view for booking options | Send confirmation e-mail |
+      | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | nextsummer | All bookings                     | Yes                      |
     And the following "mod_booking > options" exist:
       | booking    | text                                         | course | description  | semester   |
       | My booking | Price formula option - Dates In timeslot     | C1     | Option deskr | nextsummer |
