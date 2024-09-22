@@ -30,6 +30,7 @@ global $CFG;
 use mod_booking\booking_option;
 use mod_booking\booking_campaigns\campaigns_info;
 use mod_booking\singleton_service;
+use mod_booking\semester;
 use mod_booking\bo_availability\bo_info;
 use local_shopping_cart\shopping_cart;
 use local_shopping_cart\local\cartstore;
@@ -72,7 +73,7 @@ class mod_booking_generator extends testing_module_generator {
      *
      */
     public function create_instance($record = null, ?array $options = null) {
-        global $CFG;
+        global $CFG, $DB;
 
         require_once($CFG->dirroot . '/mod/booking/lib.php');
 
@@ -99,6 +100,15 @@ class mod_booking_generator extends testing_module_generator {
                 $record->{$name} = $value;
             }
         }
+
+        // To set default semester is mandatory.
+        $semesterid = semester::get_semester_with_highest_id();
+        if (!empty($record->semester)) {
+            if (!$semesterid = $DB->get_field('booking_semesters', 'id', ['identifier' => $record->semester])) {
+                throw new Exception('The specified booking semester with name "' . $record->semester . '" does not exist');
+            }
+        }
+        $record->semesterid = $semesterid;
 
         return parent::create_instance($record, $options);
     }
