@@ -24,6 +24,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     And the following "mod_booking > pricecategories" exist:
       | ordernum | identifier | name       | defaultvalue | disabled | pricecatsortorder |
       | 1        | default    | Base Price | 70.1         | 0        | 1                 |
+      | 2        | special    | Spec Price | 80.1         | 0        | 1                 |
     And the following "activities" exist:
       | activity | course | name       | intro                  | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | All bookings                     | Yes                      |
@@ -130,5 +131,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
     And I follow "Price"
     And I set the field "Only book with price" to "checked"
     Then the following fields match these values:
-      | pricegroup_default[bookingprice_default] | 70.1 |
+    ##  | pricegroup_default[bookingprice_default] | 70.1 |
+      | bookingprice_default | 70.1 |
+      | bookingprice_spec | 80.1 |
     And I should not see "On saving, calculate prices with price formula" in the "#editoptionsformcontainer" "css_element"

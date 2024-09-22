@@ -124,8 +124,10 @@ Feature: In a booking create booking option with multiple custom options
     And I wait "1" seconds
     And I set the field "Only book with price" to "checked"
     And I set the following fields to these values:
-      | pricegroup_default[bookingprice_default]           | 75                            |
-      | pricegroup_specialprice[bookingprice_specialprice] | 65                            |
+      ##| pricegroup_default[bookingprice_default]           | 75                            |
+      ##| pricegroup_specialprice[bookingprice_specialprice] | 65                            |
+      | bookingprice_default                               | 75                            |
+      | bookingprice_specialprice                          | 65                            |
       | customfield_spt1                                   | tenis                         |
       | Notification message                               | Advanced notification message |
       | Before booked                                      | Before booked message         |
@@ -161,8 +163,10 @@ Feature: In a booking create booking option with multiple custom options
       | Min. number of participants           | 3                             |
       | Teachers poll url                     | https://google.com            |
       | chooseorcreatecourse                  | Connected Moodle course       |
-      | pricegroup_default[bookingprice_default]           | 75               |
-      | pricegroup_specialprice[bookingprice_specialprice] | 65               |
+      ##| pricegroup_default[bookingprice_default]           | 75               |
+      ##| pricegroup_specialprice[bookingprice_specialprice] | 65               |
+      | bookingprice_default                  | 75                            |
+      | bookingprice_specialprice             | 65                            |
       | customfield_spt1                      | tenis                         |
       | Notification message                  | Advanced notification message |
       | Before booked                         | Before booked message         |
