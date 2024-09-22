@@ -105,7 +105,13 @@ class price {
             $formgroup = [];
 
             $encodedkey = bin2hex($pricecategory->identifier);
-            $priceelement = $mform->createElement('float', MOD_BOOKING_FORM_PRICE . $encodedkey);
+            // Labels had been added to make element accessible in tests.
+            $priceelement = $mform->createElement(
+                'float',
+                MOD_BOOKING_FORM_PRICE . $encodedkey,
+                MOD_BOOKING_FORM_PRICE . $pricecategory->identifier,
+                ["aria-label" => $pricecategory->name]
+            );
             $formgroup[] = $priceelement;
 
             $currencyelement = $mform->createElement('static', 'bookingpricecurrency', '', get_config('booking', 'globalcurrency'));
