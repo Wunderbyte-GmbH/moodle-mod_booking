@@ -45,6 +45,7 @@ Feature: Enabling installments as admin configuring installments as a teacher an
       | enableinstallments  | 1     | local_shopping_cart |
       | timebetweenpayments | 2     | local_shopping_cart |
       | reminderdaysbefore  | 1     | local_shopping_cart |
+      | pricecategoryfallback | 1   | booking             |
     ## TinyMCE has misbehavior in Moodle 4.3 as well as performance problems. So - we disable it.
     And the following config values are set as admin:
       | config      | value         |
@@ -91,7 +92,7 @@ Feature: Enabling installments as admin configuring installments as a teacher an
     Given the following "mod_booking > options" exist:
       | booking     | text               | course | description | useprice | sch_allowinstallment | sch_downpayment | sch_numberofpayments | sch_duedaysbeforecoursestart | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
       | BookingInst | Option-installment | C1     | Deskr2      | 1        | 1                    | 44              | 2                    | 1                            | 0              | 0              | ## +6 days ##     | ## +8 days ##   |
-    And I am on the "BookingInst" Activity page logged in as student1
+    And I am on the "BookingInst" Activity page logged in as admin
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I visit "/local/shopping_cart/checkout.php"
     And I wait until the page is ready
