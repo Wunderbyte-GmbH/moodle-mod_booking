@@ -673,6 +673,14 @@ class shortcodes {
         if (!empty($customfieldfilter)) {
             self::apply_customfieldfilter($table, $customfieldfilter);
         }
+        // Add defined intrange filter. You might need to purge your caches to make this work.
+        if (isset($args['intrangefilter'])) {
+            $intrangecolumns = explode(",", $args['intrangefilter']);
+            foreach ($intrangecolumns as $colname) {
+                $intrangefilter = new intrange($colname);
+                $table->add_filter($intrangefilter);
+            }
+        }
 
         $table->showfilterontop = true;
         $table->filteronloadinactive = true;
