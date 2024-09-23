@@ -97,6 +97,12 @@ class singleton_service {
     /** @var array $index */
     public array $index = [];
 
+    /** @var int $bookingmoduleid */
+    public int $bookingmoduleid;
+
+    /** @var array $allbookinginstances */
+    public array $allbookinginstances;
+
 
     /**
      * Constructor
@@ -663,5 +669,49 @@ class singleton_service {
         }
 
         return $instance->index[$uniqueid][$indexid];
+    }
+
+    /**
+     * Return id of booking module.
+     *
+     * @param int $id
+     *
+     * @return object
+     *
+     */
+    public static function get_id_of_booking_module() {
+        $instance = self::get_instance();
+
+        if (!isset($instance->bookingmoduleid)) {
+            global $DB;
+
+            $bookingmoduleid = $DB->get_record('modules', ['name' => 'booking'], 'id');
+
+            $instance->bookingmoduleid = $bookingmoduleid->id;
+        }
+
+        return $instance->bookingmoduleid;
+    }
+
+    /**
+     * Return array of all bookinginstance objects.
+     *
+     * @param int $id
+     *
+     * @return array
+     *
+     */
+    public static function get_all_booking_instances() {
+        $instance = self::get_instance();
+
+        if (!isset($instance->allbookinginstances)) {
+            global $DB;
+
+            $bookinginstances = $DB->get_records('booking');
+
+            $instance->allbookinginstances = $bookinginstances;
+        }
+
+        return $instance->allbookinginstances;
     }
 }

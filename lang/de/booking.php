@@ -435,6 +435,7 @@ $string['bookingduration'] = 'Dauer';
 $string['bookingfailed'] = 'Buchung gescheitert';
 $string['bookingfull'] = 'Ausgebucht';
 $string['bookingfulldidntregister'] = 'Es wurden nicht alle Nutzer:innen übertragen, da die Option bereits ausgebucht ist!';
+$string['bookingidfilter'] = 'Buchungsinstanz';
 $string['bookingimages'] = 'Header-Bilder für Buchungsoptionen hochladen - diese müssen exakt den selben Namen haben, wie der jeweilige Wert, den das ausgewählte benutzerdefinierte Feld in der jeweiligen Buchungsoption hat.';
 $string['bookingimagescustomfield'] = 'Benutzerdefiniertes Feld von Buchungsoptionen, mit dem die Header-Bilder gematcht werden';
 $string['bookinginstance'] = 'Buchungsinstanz';

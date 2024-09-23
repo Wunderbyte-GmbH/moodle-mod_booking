@@ -446,6 +446,7 @@ $string['bookingduration'] = 'Duration';
 $string['bookingfailed'] = 'Booking failed';
 $string['bookingfull'] = 'There are no available places';
 $string['bookingfulldidntregister'] = 'Option is full, so I didn\'t transfer all users!';
+$string['bookingidfilter'] = 'Booking Instance';
 $string['bookingimages'] = 'Upload header images for booking options - they need to have the exact same name as the value of the selected customfield in each booking option.';
 $string['bookingimagescustomfield'] = 'Booking option custom field to match the header images with';
 $string['bookinginstance'] = 'Booking instance';
