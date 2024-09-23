@@ -25,9 +25,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2024091901;
+$plugin->version = 2024092300;
 $plugin->requires = 2022112800; // Requires this Moodle version. Current: Moodle 4.1.
-$plugin->release = '8.6.21';
+$plugin->release = '8.6.22';
 $plugin->maturity = MATURITY_STABLE;
 $plugin->component = 'mod_booking';
 $plugin->supported = [401, 404];
