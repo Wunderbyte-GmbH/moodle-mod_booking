@@ -51,6 +51,9 @@ use templatable;
  */
 class bookingoption_description implements renderable, templatable {
 
+    /** @var int $optionid optionid */
+    private $optionid = null;
+
     /** @var string $identifier unique identifier of the booking option */
     private $identifier = null;
 
@@ -206,6 +209,9 @@ class bookingoption_description implements renderable, templatable {
                 $forbookeduser = false;
             }
         }
+
+        // We store the optionid.
+        $this->optionid = $optionid;
 
         // These fields can be gathered directly from settings.
         $this->title = $settings->get_title_with_prefix();
@@ -541,13 +547,25 @@ class bookingoption_description implements renderable, templatable {
             $returnarray['unitstring'] = $this->unitstring;
         }
 
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+
         // We return all the customfields of the option.
         // But we make sure, the shortname of a customfield does not conflict with an existing key.
         if ($this->customfields) {
             foreach ($this->customfields as $key => $value) {
                 if (!isset($returnarray[$key])) {
                     $printvalue = is_array($value) ? reset($value) : $value;
-                    $returnarray[$key] = format_string($printvalue);
+
+                    $type = $settings->customfieldsfortemplates[$key]['type'];
+
+                    switch ($type) {
+                        case 'textarea':
+                            $returnarray[$key] = format_text($printvalue);
+                            break;
+                        default:
+                            $returnarray[$key] = format_string($printvalue);
+                            break;
+                    }
                 }
             }
         }

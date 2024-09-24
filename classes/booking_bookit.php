@@ -122,7 +122,7 @@ class booking_bookit {
                 case MOD_BOOKING_BO_BUTTON_MYBUTTON:
                     $buttoncondition = $result['classname'];
                     break;
-                case MOD_BOOKING_BO_BUTTON_MYALERT;
+                case MOD_BOOKING_BO_BUTTON_MYALERT:
                     // Here we could use a more sophisticated way of rights management.
                     // Right now, the logic is just linked to one right.
                     $context = context_module::instance(($settings->cmid));
@@ -169,7 +169,6 @@ class booking_bookit {
 
         // Big decision: can we render the button right away, or do we need to introduce a modal.
         if ($showprepagemodal) {
-
             // We render the button only from the highest relevant blocking condition.
 
             $data = new prepagemodal(

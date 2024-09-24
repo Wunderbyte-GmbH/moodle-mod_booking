@@ -937,6 +937,7 @@ class booking_option_settings {
                     'label' => $label,
                     'key' => $shortname,
                     'value' => $value,
+                    'type' => $type,
                 ];
             }
         }
