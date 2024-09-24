@@ -106,13 +106,15 @@ class customfields extends field_base {
      * @param array $formdata
      * @param array $optionformconfig
      * @param array $fieldstoinstanciate
+     * @param bool $applyheader
      * @return void
      */
     public static function instance_form_definition(
         MoodleQuickForm &$mform,
         array &$formdata,
         array $optionformconfig,
-        array $fieldstoinstanciate = []
+        $fieldstoinstanciate = [],
+        $applyheader = true,
         ) {
 
         $optionid = $formdata['id'] ?? $formdata['optionid'];

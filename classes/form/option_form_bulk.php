@@ -129,6 +129,23 @@ class option_form_bulk extends dynamic_form {
             // On second load of mform, these keys will be lost.
             $mform->addElement('hidden', 'checkedids', $submitdata['checkedids']);
         }
+
+        if (isset($submitdata['choosefields'])) {
+            $index = 1;
+            $fieldskey = 'selectedfields_';
+
+            // TODO: Check if this field is already appended, if so, skip it.
+            // Make sure to apply customformdata.
+            foreach ($submitdata as $key => $value) {
+                if (str_contains($key, $fieldskey)) {
+                    $mform->addElement('hidden', $key, $value);
+                    $index = str_replace($fieldskey, '', $key);
+                    $index ++;
+                }
+            }
+            // Always append the current field.
+            $mform->addElement('hidden', $fieldskey . $index, $submitdata['choosefields']);
+        }
     }
 
     /**
@@ -142,30 +159,51 @@ class option_form_bulk extends dynamic_form {
         $formdata = $this->_customdata ?? $this->_ajaxformdata;
 
         if (!empty($formdata['choosefields'])) {
-            if (class_exists($formdata['choosefields'])) {
-                $class = $formdata['choosefields'];
-                $formdata = [
-                    'id' => 0, // Just any of the ids.
-                ];
-                $class::instance_form_definition($mform, $formdata, []);
-            } else {
-                $customfields = booking_handler::get_customfields();
-                $shortnames = array_map(function($obj) {
-                    return $obj->shortname;
-                }, $customfields);
-                if (in_array($formdata['choosefields'], $shortnames)) {
-                    $fieldname = $formdata['choosefields'];
-                    $customfields = new customfields();
-                    $formdata = [
-                        'id' => 0, // Just any of the ids.
-                    ];
-                    $customfields::instance_form_definition($mform, $formdata, [], [$fieldname]);
+            foreach ($formdata as $key => $value) {
+                if (str_contains($key, 'selectedfields_') || $key === 'choosefields') {
+                    if (class_exists($value)) {
+                        $this->apply_instance_form_definition($mform, $formdata, $value);
+                    } else {
+                        $customfields = booking_handler::get_customfields();
+                        $shortnames = array_map(function($obj) {
+                            return $obj->shortname;
+                        }, $customfields);
+                        if (in_array($value, $shortnames)) {
+                            $fieldname = $value;
+                            $customfields = new customfields();
+                            $formdata['id'] = 0;
+                            $customfields::instance_form_definition($mform, $formdata, [], [$fieldname]);
+                        }
+                    }
                 }
             }
-
+            // Since Headers are not always rendered correctly, we avoid them.
+            // Even though classes shouldn't return header elements, we still make sure to remove those appended in special cases.
+            foreach ($mform->_elements as $index => $element) {
+                if (get_class($element) == "MoodleQuickForm_header") {
+                    unset($mform->_elements[$index]);
+                }
+            };
         }
     }
 
+    /**
+     * Apply instance form definition of the given class.
+     *
+     * @param mixed $mform
+     * @param mixed $formdata
+     * @param mixed $classname
+     *
+     * @return [type]
+     *
+     */
+    private function apply_instance_form_definition(&$mform, $formdata, $classname) {
+        if (!class_exists($classname)) {
+            return;
+        }
+            $formdata['id'] = 0; // Just any ID.
+            $classname::instance_form_definition($mform, $formdata, [], [], false);
+    }
 
     /**
      * Validation function.
