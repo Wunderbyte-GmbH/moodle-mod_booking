@@ -80,13 +80,11 @@ class isloggedinprice implements bo_condition {
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
-        if (isloggedin()) {
+        if (isloggedin() && !isguestuser()) {
             $isavailable = true;
         } else {
-
             // If the user is not yet booked we return true.
             if (empty($settings->jsonobject->useprice)) {
-
                 $isavailable = true;
             }
         }
