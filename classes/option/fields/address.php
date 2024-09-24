@@ -103,16 +103,26 @@ class address extends field_base {
      * @param MoodleQuickForm $mform
      * @param array $formdata
      * @param array $optionformconfig
+     * @param array $fieldstoinstanciate
+     * @param bool $applyheader
      * @return void
      */
-    public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
+    public static function instance_form_definition(
+        MoodleQuickForm &$mform,
+        array &$formdata,
+        array $optionformconfig,
+        $fieldstoinstanciate = [],
+        $applyheader = true,
+        ) {
 
         global $CFG;
 
         // We don't show the location and address fields if we have entities installed.
         if (!class_exists('local_entities\entitiesrelation_handler')) {
             // Standardfunctionality to add a header to the mform (only if its not yet there).
-            fields_info::add_header_to_mform($mform, self::$header);
+            if ($applyheader) {
+                fields_info::add_header_to_mform($mform, self::$header);
+            }
 
             $mform->addElement('text', 'address', get_string('address', 'mod_booking'),
                     ['size' => '64']);

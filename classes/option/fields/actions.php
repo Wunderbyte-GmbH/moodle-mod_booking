@@ -112,13 +112,20 @@ class actions extends field_base {
 
     /**
      * Instance form definition
-     *
      * @param MoodleQuickForm $mform
      * @param array $formdata
      * @param array $optionformconfig
+     * @param array $fieldstoinstanciate
+     * @param bool $applyheader
      * @return void
      */
-    public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
+    public static function instance_form_definition(
+        MoodleQuickForm &$mform,
+        array &$formdata,
+        array $optionformconfig,
+        $fieldstoinstanciate = [],
+        $applyheader = true,
+        ) {
 
         // Actions are not yet finished - so we hide them for now.
         // Add booking actions mform elements.

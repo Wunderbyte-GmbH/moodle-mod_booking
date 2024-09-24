@@ -101,15 +101,25 @@ class credits extends field_base {
      * @param MoodleQuickForm $mform
      * @param array $formdata
      * @param array $optionformconfig
+     * @param array $fieldstoinstanciate
+     * @param bool $applyheader
      * @return void
      */
-    public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
+    public static function instance_form_definition(
+        MoodleQuickForm &$mform,
+        array &$formdata,
+        array $optionformconfig,
+        $fieldstoinstanciate = [],
+        $applyheader = true,
+        ) {
 
         $cmid = $formdata['cmid'] ?? 0;
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
         // Standardfunctionality to add a header to the mform (only if its not yet there).
-        fields_info::add_header_to_mform($mform, self::$header);
+        if ($applyheader) {
+            fields_info::add_header_to_mform($mform, self::$header);
+        }
 
         // If the form is no elective, and we can pay with credits, we can actually use this.
         if (!$booking->is_elective() && get_config('booking', 'bookwithcreditsactive')) {

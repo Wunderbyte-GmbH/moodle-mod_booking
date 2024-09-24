@@ -105,9 +105,17 @@ class prepare_import extends field_base {
      * @param MoodleQuickForm $mform
      * @param array $formdata
      * @param array $optionformconfig
+     * @param array $fieldstoinstanciate
+     * @param bool $applyheader
      * @return void
      */
-    public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata, array $optionformconfig) {
+    public static function instance_form_definition(
+        MoodleQuickForm &$mform,
+        array &$formdata,
+        array $optionformconfig,
+        $fieldstoinstanciate = [],
+        $applyheader = true,
+        ) {
 
         $addastemplate = optional_param('addastemplate', 0, PARAM_INT) ?? 0;
 
