@@ -674,9 +674,7 @@ class singleton_service {
     /**
      * Return id of booking module.
      *
-     * @param int $id
-     *
-     * @return object
+     * @return int|mixed
      *
      */
     public static function get_id_of_booking_module() {
@@ -695,8 +693,6 @@ class singleton_service {
 
     /**
      * Return array of all bookinginstance objects.
-     *
-     * @param int $id
      *
      * @return array
      *
