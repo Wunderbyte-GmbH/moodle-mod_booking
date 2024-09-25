@@ -1071,6 +1071,7 @@ if (!$tableallbookings->is_downloading()) {
                     ba.status,
                     ba.notes,
                     ba.places,
+                    ba.timecreated,
                     u.idnumber as idnumber
                     {$customfields}";
     $from = '{booking_answers} ba

@@ -891,6 +891,10 @@ class booking {
                         $headers[] = get_string("idnumber");
                     }
                     break;
+                default:
+                    $columns[] = $value;
+                    $headers[] = get_string($value, 'mod_booking');
+                    break;
             }
         }
         return [$columns, $headers, $userprofilefields];
