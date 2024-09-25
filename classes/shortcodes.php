@@ -433,6 +433,9 @@ class shortcodes {
             unset($table->subcolumns['rightside']);
         }
 
+        $table->sort_default_column = 'coursestarttime';
+        $table->sort_default_order = SORT_ASC;
+
         $out = $table->outhtml($perpage, true);
 
         return $out;
