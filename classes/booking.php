@@ -891,6 +891,12 @@ class booking {
                         $headers[] = get_string("idnumber");
                     }
                     break;
+                case 'price': // This is only possible, if local shoppingcart is installed.
+                    $columns[] = 'price';
+                    $headers[] = get_string('price', 'mod_booking');
+                    $columns[] = 'currency';
+                    $headers[] = get_string('currency', 'local_shopping_cart');
+                    break;
                 default:
                     $columns[] = $value;
                     $headers[] = get_string($value, 'mod_booking');

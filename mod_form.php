@@ -355,7 +355,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'indexnumber' => get_string('indexnumber', 'mod_booking'),
         ];
 
-        $reportfields = [
+        $reportfields = [ // This is the download file.
             'optionid' => get_string("optionid", "booking"),
             'booking' => get_string("bookingoptionname", "booking"),
             'institution' => get_string("institution", "booking"),
@@ -374,6 +374,11 @@ class mod_booking_mod_form extends moodleform_mod {
             'idnumber' => get_string("idnumber"),
             'timecreated' => get_string('timecreated', 'mod_booking'),
         ];
+
+        if (class_exists('local_shopping_cart\shopping_cart')) {
+            $reportfields['price'] = get_string('price', 'mod_booking');
+            $responsesfields['price'] = get_string('price', 'mod_booking');
+        }
 
         $optionsfields = [
             'description' => get_string('description', 'mod_booking'),
