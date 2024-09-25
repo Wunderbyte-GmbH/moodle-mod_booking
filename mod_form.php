@@ -372,6 +372,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'status' => get_string('presence', 'mod_booking'), 'groups' => get_string("group"),
             'notes' => get_string('notes', 'mod_booking'),
             'idnumber' => get_string("idnumber"),
+            'timecreated' => get_string('timecreated', 'mod_booking'),
         ];
 
         $optionsfields = [
