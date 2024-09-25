@@ -579,10 +579,6 @@ if (!$tableallbookings->is_downloading()) {
                 $columns[] = 'currency';
                 $headers[] = get_string('currency', 'local_shopping_cart');
                 break;
-            default:
-                $columns[] = $value;
-                $headers[] = get_string($value, 'mod_booking');
-                break;
         }
     }
     $customfields = '';
