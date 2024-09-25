@@ -573,9 +573,15 @@ if (!$tableallbookings->is_downloading()) {
                 $columns[] = 'indexnumber';
                 $headers[] = get_string('indexnumber', 'mod_booking');
                 break;
-            case 'places':
-                $columns[] = 'places';
-                $headers[] = get_string('places', 'mod_booking');
+            case 'price': // This is only possible, if local shoppingcart is installed.
+                $columns[] = 'price';
+                $headers[] = get_string('price', 'mod_booking');
+                $columns[] = 'currency';
+                $headers[] = get_string('currency', 'local_shopping_cart');
+                break;
+            default:
+                $columns[] = $value;
+                $headers[] = get_string($value, 'mod_booking');
                 break;
         }
     }
@@ -624,6 +630,20 @@ if (!$tableallbookings->is_downloading()) {
         // This is only here to support Moodle versions earlier than 3.11.
         $mainuserfields = get_all_user_name_fields(true, 'u');
     }
+    if (class_exists('local_shopping_cart\shopping_cart')) {
+        $shoppingcartfields = ",
+            s2.price price,
+            s2.currency currency ";
+        $shoppingcartfrom = "
+        LEFT JOIN ( SELECT itemid,price,userid, currency FROM {local_shopping_cart_history} sch
+            WHERE itemid = :shitemid AND componentname LIKE 'mod_booking'
+                AND paymentstatus = 2 ORDER BY timecreated LIMIT 1)
+                as s2 ON s2.itemid = ba.optionid AND s2.userid = ba.userid ";
+        $sqlvalues['shitemid'] = $sqlvalues['optionid'];
+    } else {
+        $shoppingcartfields = "";
+        $shoppingcartfrom = "";
+    }
 
     // ALL USERS - START To make compatible MySQL and PostgreSQL - http://hyperpolyglot.org/db.
     $fields = 'ba.id, ' . $mainuserfields . ',
@@ -640,11 +660,11 @@ if (!$tableallbookings->is_downloading()) {
             ba.notes,
             ba.places,
             \'\' otheroptions,
-            ba.numrec' . $customfields;
+            ba.numrec' . $customfields . $shoppingcartfields;
     $from = ' {booking_answers} ba
             JOIN {user} u ON u.id = ba.userid
             JOIN {booking_options} bo ON bo.id = ba.optionid
-            LEFT JOIN {booking_options} otherbookingoption ON otherbookingoption.id = ba.frombookingid ';
+            LEFT JOIN {booking_options} otherbookingoption ON otherbookingoption.id = ba.frombookingid ' . $shoppingcartfrom;
     $where = ' ba.optionid = :optionid
              AND ba.waitinglist < 2 ' . $addsqlwhere;
 
@@ -1051,6 +1071,21 @@ if (!$tableallbookings->is_downloading()) {
         $sqlvalues = array_merge($sqlvalues, $groupparams);
     }
 
+    if (class_exists('local_shopping_cart\shopping_cart')) {
+        $shoppingcartfields = ",
+            s2.price price,
+            s2.currency currency ";
+        $shoppingcartfrom = "
+        LEFT JOIN ( SELECT itemid,price,userid, currency FROM {local_shopping_cart_history} sch
+            WHERE itemid = :shitemid AND componentname LIKE 'mod_booking'
+                AND paymentstatus = 2 ORDER BY timecreated LIMIT 1)
+                as s2 ON s2.itemid = ba.optionid AND s2.userid = ba.userid ";
+        $sqlvalues['shitemid'] = $sqlvalues['optionid'];
+    } else {
+        $shoppingcartfields = "";
+        $shoppingcartfrom = "";
+    }
+
     $fields = "ba.id uniqueid, u.id AS userid,
                     ba.optionid AS optionid,
                     bo.text AS booking,
@@ -1073,10 +1108,10 @@ if (!$tableallbookings->is_downloading()) {
                     ba.places,
                     ba.timecreated,
                     u.idnumber as idnumber
-                    {$customfields}";
+                    {$customfields} " . $shoppingcartfields;
     $from = '{booking_answers} ba
             JOIN {user}  u ON u.id = ba.userid
-            JOIN {booking_options} bo ON bo.id = ba.optionid';
+            JOIN {booking_options} bo ON bo.id = ba.optionid' . $shoppingcartfrom;
 
     if (!get_config('booking', 'alloptionsinreport')) {
         $individualbookingoption = " ba.optionid = :optionid AND ";
