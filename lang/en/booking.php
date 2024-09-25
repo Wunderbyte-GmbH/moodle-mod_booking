@@ -97,6 +97,7 @@ $string['allusersbooked'] = 'All {$a} selected users have successfully been assi
 $string['alreadyonlist'] = 'You will be notified';
 $string['alreadypassed'] = 'Already passed';
 $string['always'] = 'Always';
+$string['andotherfield'] = "AND additional field";
 $string['annotation'] = 'Internal annotation';
 $string['answer'] = "Answer";
 $string['answered'] = 'Answered';
@@ -216,13 +217,17 @@ $string['bocondcustomformurlerror'] = "The URL is not valid or does not start wi
 $string['bocondcustomformvalue'] = 'Value';
 $string['bocondcustomformvalue_help'] = 'When a dropdown menu is selected, please enter one value per line. The values and displayed values can be entered separately, for example, "1 => My first value => number_of_availability" etc.';
 $string['bocondcustomuserprofilefieldavailable'] = 'Book it';
+$string['bocondcustomuserprofilefieldconnectsecondfield'] = 'Connect with other profile field';
 $string['bocondcustomuserprofilefieldfield'] = 'Profile field';
+$string['bocondcustomuserprofilefieldfield2'] = 'Second profile field';
 $string['bocondcustomuserprofilefieldfullavailable'] = 'Booking is possible';
 $string['bocondcustomuserprofilefieldfullnotavailable'] = 'Only users with custom user profile field {$a->profilefield} set to value {$a->value} are allowed to book.
     <br>But you have the right to book a user anyways.';
 $string['bocondcustomuserprofilefieldnotavailable'] = 'Not allowed to book';
 $string['bocondcustomuserprofilefieldoperator'] = 'Operator';
+$string['bocondcustomuserprofilefieldoperator2'] = 'Operator (2nd field)';
 $string['bocondcustomuserprofilefieldvalue'] = 'Value';
+$string['bocondcustomuserprofilefieldvalue2'] = 'Value (2nd field)';
 $string['bocondenrolledincohorts'] = 'User is enrolled in certain cohort(s)';
 $string['bocondenrolledincohortsavailable'] = 'Book it';
 $string['bocondenrolledincohortsfullavailable'] = 'Booking is possible';
@@ -1526,6 +1531,7 @@ $string['optionvisibility'] = 'Visibility';
 $string['optionvisibility_help'] = 'Here you can choose whether the option should be visible for everyone or if it should be hidden from normal users and be visible to entitled users only.';
 $string['optionvisible'] = 'Visible to everyone (default)';
 $string['optionvisibledirectlink'] = 'Normal users can only see this option with a direct link';
+$string['orotherfield'] = 'OR additional field';
 $string['organizatorname'] = 'Organizer name';
 $string['organizatorname_help'] = 'You can either enter the organizer name manually or choose from a list of previous organizers.
                                     You can choose one organizer only. Once you save, the organizer will be added to the list.';
@@ -2114,6 +2120,7 @@ $string['uselegacymailtemplates'] = 'Still use legacy mail templates';
 $string['uselegacymailtemplates_desc'] = 'This function is deprecated and will be removed in the near future. We strongly encourage you to migrate your templates & settings to <a href="{$a}">Booking Rules</a>.
  <span class="text-danger"><b>Be careful:</b> If you uncheck this box, your email templates in your booking-instances won\'t be shown and used anymore.</span>';
 $string['usenotificationlist'] = 'Use notification list';
+$string['useonlyonefield'] = 'No additional field';
 $string['useprice'] = 'Only book with price';
 $string['useprotoenablemorerules'] = 'You need Booking PRO, to be able to add more rules.
 <a href="https://wunderbyte.at/kontakt" target="_blank">Contact Wunderbyte</a>, if you want to buy a pro license.';
