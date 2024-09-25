@@ -96,6 +96,7 @@ $string['allusersbooked'] = 'Alle {$a} Nutzer:innen wurden erfolgreich für dies
 $string['alreadyonlist'] = 'Sie werden benachrichtigt';
 $string['alreadypassed'] = 'Bereits vergangen';
 $string['always'] = 'Immer';
+$string['andotherfield'] = "UND weiteres Feld";
 $string['annotation'] = 'Interne Anmerkung';
 $string['answer'] = "Antwort";
 $string['answered'] = 'Beantwortet';
@@ -213,13 +214,17 @@ $string['bocondcustomformurlerror'] = "Die URL ist nicht valide oder beginnt nic
 $string['bocondcustomformvalue'] = 'Wert';
 $string['bocondcustomformvalue_help'] = 'Wenn ein DropDown Menü ausgewählt ist bitte einen Wert pro Zeile eingeben. Die Werte und angezeigte Werte können getrennt eingegeben werden, also z.b. "1 => Mein erster Wert => anzahl_der_möglichkeiten" usw.';
 $string['bocondcustomuserprofilefieldavailable'] = 'Buchen';
+$string['bocondcustomuserprofilefieldconnectsecondfield'] = 'Mit weiterem Profilfeld verbinden';
 $string['bocondcustomuserprofilefieldfield'] = 'Profilfeld';
+$string['bocondcustomuserprofilefieldfield2'] = 'Zweites Profilfeld';
 $string['bocondcustomuserprofilefieldfullavailable'] = 'Buchen möglich';
 $string['bocondcustomuserprofilefieldfullnotavailable'] = 'Nur Benutzer:innen, bei denen das benutzerdefinierte Profilfeld
  {$a->profilefield} auf den Wert {$a->value} gesetzt ist, dürfen buchen.<br>Sie haben aber das Recht dennoch zu buchen.';
 $string['bocondcustomuserprofilefieldnotavailable'] = 'Buchen nicht möglich';
 $string['bocondcustomuserprofilefieldoperator'] = 'Operator';
+$string['bocondcustomuserprofilefieldoperator2'] = 'Operator (2. Feld)';
 $string['bocondcustomuserprofilefieldvalue'] = 'Wert';
+$string['bocondcustomuserprofilefieldvalue2'] = 'Wert (2. Feld)';
 $string['bocondenrolledincohorts'] = 'Benutzer:in ist in bestimmte(n) globale(n) Gruppe(n) eingeschrieben';
 $string['bocondenrolledincohortsavailable'] = 'Buchen';
 $string['bocondenrolledincohortsfullavailable'] = 'Buchen möglich';
@@ -1523,6 +1528,7 @@ $string['organizatorname'] = 'Name des Organisators';
 $string['organizatorname_help'] = 'Sie können den Namen des Organisators/der Organisatorin manuell eingeben oder aus einer Liste von
                                     früheren Organisator:innen auswählen. Sie können nur eine/n Organisator/in angeben. Sobald
                                     Sie speichern, wird der/die Organisator/in zur Liste hinzugefügt.';
+$string['orotherfield'] = 'ODER weiteres Feld';
 $string['otherbookingaddrule'] = 'Neue Buchungsoption hinzufügen';
 $string['otherbookinglimit'] = "Limit";
 $string['otherbookinglimit_help'] = "Anzahl der Nutzer:innen die von dieser Buchungsoption akzeptiert werden. 0 bedeutet unlimitiert.";
@@ -2038,6 +2044,7 @@ $string['uselegacymailtemplates'] = 'Weiterhin veraltete E-Mail-Vorlagen verwend
 $string['uselegacymailtemplates_desc'] = 'Diese Funktion ist veraltet und wird in naher Zukunft entfernt. Wir empfehlen Ihnen dringend, Ihre Vorlagen und Einstellungen zu <a href="{$a}">Buchungs Regeln</a> zu migrieren.
 <span class="text-danger"><b>Vorsicht:</b> Wenn Sie dieses Kästchen deaktivieren, werden Ihre E-Mail-Vorlagen in Ihren Buchungsinstanzen nicht mehr angezeigt und verwendet.</span>';
 $string['usenotificationlist'] = 'Verwende Benachrichtigungsliste';
+$string['useonlyonefield'] = 'Kein weiteres Feld';
 $string['useprice'] = 'Nur mit Preis buchbar';
 $string['useprotoenablemorerules'] = 'Sie benötigen Booking PRO, um weitere Regeln hinzu zu fügen.
 <a href="https://wunderbyte.at/kontakt" target="_blank">Kontaktieren Sie Wunderbyte</a>, wenn Sie eine Lizenz erwerben möchten.';
