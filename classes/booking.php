@@ -897,9 +897,9 @@ class booking {
                     $columns[] = 'currency';
                     $headers[] = get_string('currency', 'local_shopping_cart');
                     break;
-                default:
-                    $columns[] = $value;
-                    $headers[] = get_string($value, 'mod_booking');
+                case 'timecreated':
+                    $columns[] = 'timecreated';
+                    $headers[] = get_string('timecreated', 'mod_booking');
                     break;
             }
         }
