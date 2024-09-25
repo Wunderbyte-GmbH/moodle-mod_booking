@@ -103,6 +103,7 @@ define('MOD_BOOKING_BO_COND_CONFIRMCANCEL', 170);
 define('MOD_BOOKING_BO_COND_ALREADYBOOKED', 150);
 define('MOD_BOOKING_BO_COND_ALREADYRESERVED', 140);
 define('MOD_BOOKING_BO_COND_ISCANCELLED', 130);
+define('MOD_BOOKING_BO_COND_ISBOOKABLEINSTANCE', 125);
 define('MOD_BOOKING_BO_COND_ISBOOKABLE', 120);
 define('MOD_BOOKING_BO_COND_ONWAITINGLIST', 110);
 
@@ -840,6 +841,12 @@ function booking_update_instance($booking) {
         booking::add_data_to_json($booking, "viewparam", MOD_BOOKING_VIEW_PARAM_LIST);
     } else {
         booking::add_data_to_json($booking, "viewparam", $booking->viewparam);
+    }
+    if (empty($booking->disablebooking)) {
+        // This will store the correct JSON to $optionvalues->json.
+        booking::remove_key_from_json($booking, "disablebooking");
+    } else {
+        booking::add_data_to_json($booking, "disablebooking", 1);
     }
 
     // Update, delete or insert answers.
