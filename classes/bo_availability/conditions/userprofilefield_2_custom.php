@@ -401,7 +401,11 @@ class userprofilefield_2_custom implements bo_condition {
                 ];
                 $mform->addElement('select', 'bo_cond_customuserprofilefield_connectsecondfield',
                     get_string('bocondcustomuserprofilefieldconnectsecondfield', 'mod_booking'), $options);
-                $mform->hideIf('bo_cond_customuserprofilefield_connectsecondfield', 'bo_cond_customuserprofilefield_field', 'eq', 0);
+                $mform->hideIf(
+                    'bo_cond_customuserprofilefield_connectsecondfield',
+                    'bo_cond_customuserprofilefield_field',
+                    'eq',
+                    0);
                 $mform->hideIf('bo_cond_customuserprofilefield_connectsecondfield', 'bo_cond_userprofilefield_2_custom_restrict',
                     'notchecked');
 
