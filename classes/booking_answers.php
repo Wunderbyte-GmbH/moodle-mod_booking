@@ -101,7 +101,6 @@ class booking_answers {
         $data = $cache->get($optionid);
 
         if (!$data) {
-
             $params = ['optionid' => $optionid];
 
             if ($CFG->version >= 2021051700) {

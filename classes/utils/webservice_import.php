@@ -96,7 +96,7 @@ class webservice_import {
 
         $data->importing = 1;
 
-        $bookingoptionid = booking_option::update($data, $context);
+        $bookingoptionid = booking_option::update($data, $context ?? null);
 
         return ['status' => 1];
     }

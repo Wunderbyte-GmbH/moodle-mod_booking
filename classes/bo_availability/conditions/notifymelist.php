@@ -90,13 +90,16 @@ class notifymelist implements bo_condition {
         $shownotificationlist = get_config('booking', 'usenotificationlist');
 
         // If not, this is always true.
-        if (!$shownotificationlist ||
+        if (
+            empty($shownotificationlist)
             // It's also true, if we have the cashier capability...
             // ...as the cashier always needs to be able to book for other users...
             // ...even if the booking option is fully booked.
-            (class_exists('local_shopping_cart\shopping_cart') &&
-                has_capability('local/shopping_cart:cashier', context_system::instance()) &&
-                $userid != $USER->id)
+            || (
+                class_exists('local_shopping_cart\shopping_cart')
+                && has_capability('local/shopping_cart:cashier', context_system::instance())
+                && $userid != $USER->id
+            )
         ) {
             $isavailable = true;
         } else {

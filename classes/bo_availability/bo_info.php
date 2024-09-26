@@ -179,7 +179,6 @@ class bo_info {
         $conditions = self::get_conditions(MOD_BOOKING_CONDPARAM_HARDCODED_ONLY);
 
         if (!empty($settings->availability)) {
-
             $availabilityarray = json_decode($settings->availability);
 
             // If the json is not valid, we throw an error.
@@ -198,7 +197,7 @@ class bo_info {
         }
 
         // Resolve optional parameters.
-        if (!$userid) {
+        if (empty($userid)) {
             $userid = $USER->id;
         }
 

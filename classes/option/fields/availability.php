@@ -201,7 +201,8 @@ class availability extends field_base {
         field_base $self,
         $mockdata = '',
         string $key = '',
-        $value = ''): array {
+        $value = ''
+    ): array {
 
         $changes = [];
 
@@ -212,7 +213,9 @@ class availability extends field_base {
             return $changes;
         }
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($formdata->optionid);
+        $settings = singleton_service::get_instance_of_booking_option_settings(
+            $formdata->optionid ?? $formdata->id
+        );
 
         if ($settings->availability != $formdata->availability) {
             $changes = [
