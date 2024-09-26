@@ -1532,10 +1532,10 @@ $string['optionvisibility'] = 'Visibility';
 $string['optionvisibility_help'] = 'Here you can choose whether the option should be visible for everyone or if it should be hidden from normal users and be visible to entitled users only.';
 $string['optionvisible'] = 'Visible to everyone (default)';
 $string['optionvisibledirectlink'] = 'Normal users can only see this option with a direct link';
-$string['orotherfield'] = 'OR additional field';
 $string['organizatorname'] = 'Organizer name';
 $string['organizatorname_help'] = 'You can either enter the organizer name manually or choose from a list of previous organizers.
                                     You can choose one organizer only. Once you save, the organizer will be added to the list.';
+$string['orotherfield'] = 'OR additional field';
 $string['otherbookingaddrule'] = 'Add new rule';
 $string['otherbookinglimit'] = "Limit";
 $string['otherbookinglimit_help'] = "How many users you accept from option. If 0, you can accept unlimited users.";
