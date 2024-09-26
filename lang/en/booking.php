@@ -1678,6 +1678,7 @@ $string['problemsofcohortorgroupbooking'] = '<br><p>Not all users could be booke
 <li>{$a->notenrolledusers} users are not enrolled in the course</li>
 <li>{$a->notsubscribedusers} users not booked for other reasons</li>
 </ul>';
+$string['problemwithdate'] = 'Please verify dates';
 $string['profilepicture'] = 'Profile picture';
 $string['progressbars'] = 'Progress bars of time passed ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['progressbars_desc'] = 'Get a visual representation of the time which has already passed for a booking option.';

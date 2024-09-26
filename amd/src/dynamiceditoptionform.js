@@ -79,6 +79,11 @@ export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => 
             dynamicForm.load([cmid, id, optionid, bookingid, copyoptionid, returnurl]);
         }
     });
+    dynamicForm.addEventListener(dynamicForm.events.SERVER_VALIDATION_ERROR, () => {
+        showInvalidFeedback();
+        // eslint-disable-next-line no-console
+        console.log('validation error');
+    });
 
     var checkbox1 = document.querySelector('[name="restrictanswerperiodopening"]');
     var checkbox2 = document.querySelector('[name="restrictanswerperiodclosing"]');
@@ -171,4 +176,33 @@ function hidecheckbox(checkbox1, checkbox2, closest, conditionalCheckbox, withel
     } else if (withelse) {
         closest.style.display = "";
     }
+}
+
+/**
+ * Show invalide feedback. Go through closest elements and open them.
+ *
+ *
+ */
+function showInvalidFeedback() {
+
+    // Select all div elements with both 'form-control-feedback' and 'invalid-feedback' classes.
+    const elements = document.querySelectorAll('.invalid-feedback');
+    // Filter to keep only those that have non-empty content.
+    const nonEmptyElements = Array.from(elements).filter(element => element.textContent.trim() !== '');
+
+    // eslint-disable-next-line no-console
+    console.log(nonEmptyElements);
+
+    const container = document.querySelector('#editoptionsformcontainer');
+    nonEmptyElements.forEach((element) => {
+        let currentElement = element;
+
+        while (currentElement && currentElement !== container) {
+            currentElement = currentElement.parentElement;
+
+            if (currentElement && currentElement.classList.contains('collapse')) {
+                currentElement.classList.add('show');
+            }
+        }
+    });
 }
