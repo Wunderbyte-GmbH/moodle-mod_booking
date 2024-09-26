@@ -234,4 +234,16 @@ class availability extends field_base {
         }
         return $changes;
     }
+
+    /**
+     * This function adds error keys for form validation.
+     * @param array $data
+     * @param array $files
+     * @param array $errors
+     * @return array
+     */
+    public static function validation(array $data, array $files, array &$errors) {
+        bo_info::validation($data, $files, $errors);
+        return $errors;
+    }
 }
