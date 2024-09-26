@@ -412,7 +412,6 @@ class userprofilefield_2_custom implements bo_condition {
                 $mform->hideIf('bo_cond_customuserprofilefield_connectsecondfield', 'bo_cond_userprofilefield_2_custom_restrict',
                     'notchecked');
 
-                // TODO validation: make sure, same field isn't selected twice.
                 $mform->addElement('select', 'bo_cond_customuserprofilefield_field2',
                     get_string('bocondcustomuserprofilefieldfield2', 'mod_booking'), $customuserprofilefieldsarray);
                 $mform->hideIf('bo_cond_customuserprofilefield_field2', 'bo_cond_userprofilefield_2_custom_restrict', 'notchecked');
@@ -645,5 +644,21 @@ class userprofilefield_2_custom implements bo_condition {
                 get_string('bocondcustomuserprofilefieldnotavailable', 'mod_booking');
         }
         return $description;
+    }
+
+    /**
+     * This function adds error keys for form validation.
+     * @param array $data
+     * @param array $files
+     * @param array $errors
+     * @return array
+     */
+    public static function validation(array $data, array $files, array &$errors) {
+        if (isset($data['bo_cond_customuserprofilefield_field'])
+            && isset($data['bo_cond_customuserprofilefield_field2'])
+            && ($data['bo_cond_customuserprofilefield_field'] == $data['bo_cond_customuserprofilefield_field2'])) {
+                $errors['bo_cond_customuserprofilefield_field2'] = get_string('choosedifferentvalue', 'mod_booking');
+        }
+        return $errors;
     }
 }

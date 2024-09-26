@@ -669,6 +669,7 @@ $string['checkdelimiter'] = 'Check if data is separated via the selected symbol.
 $string['checkdelimiteroremptycontent'] = 'Check if data is given and separated via the selected symbol.';
 $string['checkoutidentifier'] = "Ordernumber";
 $string['choose...'] = 'Choose...';
+$string['choosedifferentvalue'] = 'Choose different value than in first field';
 $string['choosepdftitle'] = 'Select a title for the sign-in sheet';
 $string['chooseperiod'] = 'Select time period';
 $string['chooseperiod_help'] = 'Select a time period within to create the date series.';

@@ -1198,4 +1198,31 @@ class bo_info {
                 return '';
         }
     }
+
+    /**
+     * This function adds error keys for form validation.
+     * @param array $data
+     * @param array $files
+     * @param array $errors
+     * @return array
+     */
+    public static function validation(array $data, array $files, array &$errors) {
+        $optionid = $data['id'] ?? 0;
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $existingconditions = [];
+        if (!empty($settings->availability)) {
+            $existingconditions = json_decode($settings->availability);
+            foreach ($existingconditions as $existingcondition) {
+                $class = new $existingcondition->class();
+                if (method_exists($class, 'validation')) {
+                    $class->validation($data, $files, $errors);
+                };
+            }
+
+        }
+
+        return $errors;
+    }
+
 }

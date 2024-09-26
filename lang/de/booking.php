@@ -657,6 +657,7 @@ $string['checkdelimiter'] = 'Überprüfen Sie die Spaltennamen durch das angegeb
 $string['checkdelimiteroremptycontent'] = 'Überprüfen Sie ob Daten vorhanden und durch das angegebene Zeichen getrennt sind.';
 $string['checkoutidentifier'] = "Bestellnummer";
 $string['choose...'] = 'Auswählen...';
+$string['choosedifferentvalue'] = 'Wählen Sie einen anderen Wert als im oberen Feld';
 $string['choosepdftitle'] = 'Wählen Sie einen Titel für die Unterschriftenliste';
 $string['chooseperiod'] = 'Zeitraum auswählen';
 $string['chooseperiod_help'] = 'Wählen Sie den Zeitraum innerhalb dessen die Terminserie erstellt werden soll.';
