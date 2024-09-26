@@ -183,7 +183,7 @@ class mobile {
                 $data['nosubmit']['label'] = $price['price'] . " " . $price['currency'];
                 break;
             case MOD_BOOKING_BO_COND_BOOKINGPOLICY:
-                $data['nosubmit']['label'] = get_string('', 'mod_booking');
+                $data['nosubmit']['label'] = get_string('notbookable', 'mod_booking');
                 break;
             default:
 
