@@ -104,7 +104,6 @@ class userprofilefield_2_custom implements bo_condition {
         if (!isset($this->customsettings->profilefield)) {
             $isavailable = true;
         } else {
-
             if (isloggedin()) {
                 // Profilefield is set.
                 $user = singleton_service::get_instance_of_user($userid);
@@ -115,22 +114,26 @@ class userprofilefield_2_custom implements bo_condition {
                     $this->customsettings->operator,
                     $this->customsettings->value
                 );
-                $secondcheck = $this->compare_fields(
-                    $user,
-                    $this->customsettings->profilefield2,
-                    $this->customsettings->operator2,
-                    $this->customsettings->value2
-                );
 
                 if (empty($this->customsettings->connectsecondfield)) {
                     // Availabilty depends only on first field.
                     $isavailable = $firstcheck;
-                } else if ($this->customsettings->connectsecondfield === "&&") {
-                    $isavailable = $firstcheck && $secondcheck;
-                } else if ($this->customsettings->connectsecondfield === "||") {
-                    $isavailable = $firstcheck || $secondcheck;
+                } else {
+                    $secondcheck = $this->compare_fields(
+                        $user,
+                        $this->customsettings->profilefield2,
+                        $this->customsettings->operator2,
+                        $this->customsettings->value2
+                    );
+                    switch ($this->customsettings->connectsecondfield) {
+                        case "&&":
+                            $isavailable = $firstcheck && $secondcheck;
+                            break;
+                        case "||":
+                            $isavailable = $firstcheck || $secondcheck;
+                            break;
+                    }
                 }
-
             }
         }
 
@@ -552,10 +555,10 @@ class userprofilefield_2_custom implements bo_condition {
             $conditionobject->profilefield = $fromform->bo_cond_customuserprofilefield_field;
             $conditionobject->operator = $fromform->bo_cond_customuserprofilefield_operator;
             $conditionobject->value = $fromform->bo_cond_customuserprofilefield_value;
-            $conditionobject->connectsecondfield = $fromform->bo_cond_customuserprofilefield_connectsecondfield;
-            $conditionobject->profilefield2 = $fromform->bo_cond_customuserprofilefield_field2;
-            $conditionobject->operator2 = $fromform->bo_cond_customuserprofilefield_operator2;
-            $conditionobject->value2 = $fromform->bo_cond_customuserprofilefield_value2;
+            $conditionobject->connectsecondfield = $fromform->bo_cond_customuserprofilefield_connectsecondfield ?? 0;
+            $conditionobject->profilefield2 = $fromform->bo_cond_customuserprofilefield_field2 ?? "";
+            $conditionobject->operator2 = $fromform->bo_cond_customuserprofilefield_operator2 ?? "";
+            $conditionobject->value2 = $fromform->bo_cond_customuserprofilefield_value2 ?? "";
 
             if (!empty($fromform->bo_cond_customuserprofilefield_overrideconditioncheckbox)) {
                 $conditionobject->overrides = $fromform->bo_cond_customuserprofilefield_overridecondition;
@@ -577,10 +580,10 @@ class userprofilefield_2_custom implements bo_condition {
             $defaultvalues->bo_cond_customuserprofilefield_field = $acdefault->profilefield;
             $defaultvalues->bo_cond_customuserprofilefield_operator = $acdefault->operator;
             $defaultvalues->bo_cond_customuserprofilefield_value = $acdefault->value;
-            $defaultvalues->bo_cond_customuserprofilefield_connectsecondfield = $acdefault->connectsecondfield;
-            $defaultvalues->bo_cond_customuserprofilefield_field2 = $acdefault->profilefield2;
-            $defaultvalues->bo_cond_customuserprofilefield_operator2 = $acdefault->operator2;
-            $defaultvalues->bo_cond_customuserprofilefield_value2 = $acdefault->value2;
+            $defaultvalues->bo_cond_customuserprofilefield_connectsecondfield = $acdefault->connectsecondfield ?? 0;
+            $defaultvalues->bo_cond_customuserprofilefield_field2 = $acdefault->profilefield2 ?? "";
+            $defaultvalues->bo_cond_customuserprofilefield_operator2 = $acdefault->operator2 ?? "";
+            $defaultvalues->bo_cond_customuserprofilefield_value2 = $acdefault->value2 ?? "";
         }
         if (!empty($acdefault->overrides)) {
             $defaultvalues->bo_cond_customuserprofilefield_overrideconditioncheckbox = "1";
