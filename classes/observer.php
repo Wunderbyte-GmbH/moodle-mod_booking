@@ -23,6 +23,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\event\course_module_updated;
+use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\calendar;
@@ -401,6 +403,24 @@ class mod_booking_observer {
         if ($bookedanswers = $DB->get_records_sql($sql, $params)) {
             // Call the enrolment function.
             elective::enrol_booked_users_to_course();
+        }
+    }
+
+    /**
+     * React on update of course module and purge singleton & caches.
+     *
+     * @param course_module_updated $event
+     *
+     * @return void
+     *
+     */
+    public static function course_module_updated(course_module_updated $event) {
+
+        if (!empty($event->objectid)) {
+            $cm = get_coursemodule_from_id('booking', $event->objectid);
+            if (!empty($cm->id)) {
+                booking::purge_cache_for_booking_instance_by_cmid($cm->id);
+            }
         }
     }
 }
