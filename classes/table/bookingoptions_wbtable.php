@@ -483,6 +483,10 @@ class bookingoptions_wbtable extends wunderbyte_table {
     public function col_course($values) {
         global $USER;
 
+        if (get_config('booking', 'linktomoodlecourseonbookedbutton')) {
+            return '';
+        }
+
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
 
         $ret = '';
