@@ -708,6 +708,7 @@ if ($ADMIN->fulltree) {
                 get_string('bookingplacesinfotextsinfo', 'booking'), 0));
 
         $bookingplaceslowpercentages = [
+            0 => ' 0%',
             5 => ' 5%',
             10 => '10%',
             15 => '15%',
