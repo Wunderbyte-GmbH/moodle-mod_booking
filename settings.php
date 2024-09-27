@@ -510,9 +510,18 @@ if ($ADMIN->fulltree) {
     $limitchangestrackinginrules = get_config('booking', 'limitchangestrackinginrules') == 1;
     if ($limitchangestrackinginrules) {
         $settings->add(
-            new admin_setting_configcheckbox('booking/listentotimestampchange',
-                    get_string('listentotimestampchange', 'mod_booking'),
-                    '', 1));
+            new admin_setting_configcheckbox(
+                'booking/listentotextchange',
+                get_string('listentotextchange', 'mod_booking'),
+                '',
+                1
+                )
+        );
+
+        $settings->add(
+new admin_setting_configcheckbox('booking/listentotimestampchange',
+        get_string('listentotimestampchange', 'mod_booking'),
+        '', 1));
 
         $settings->add(
             new admin_setting_configcheckbox('booking/listentoteacherschange',

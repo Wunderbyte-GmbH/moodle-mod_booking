@@ -519,6 +519,9 @@ class rule_react_on_event implements booking_rule {
 
         switch ($fieldname) {
             // Teacher.
+            case "text":
+                $config = get_config('booking', 'listentotextchange');
+                break;
             case "teachers":
                 $config = get_config('booking', 'listentoteacherschange');
                 break;
