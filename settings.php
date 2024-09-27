@@ -671,6 +671,12 @@ new admin_setting_configcheckbox('booking/listentotimestampchange',
 
     if ($proversion) {
         $settings->add(
+            new admin_setting_configcheckbox('booking/duplicationrestorebookings',
+                    get_string('duplicationrestorebookings', 'mod_booking'), '', 1));
+    }
+
+    if ($proversion) {
+        $settings->add(
             new admin_setting_heading('duplicationrestoreoption',
                 get_string('duplicationrestoreoption', 'mod_booking'),
                 get_string('duplicationrestoreoption_desc', 'mod_booking')));
