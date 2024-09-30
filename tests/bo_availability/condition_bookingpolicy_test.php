@@ -131,6 +131,9 @@ final class condition_bookingpolicy_test extends advanced_testcase {
         // Verify that user already booked.
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Mandatory to solve potential cache issues.
+        singleton_service::destroy_booking_option_singleton($option1->id);
     }
 
     /**
@@ -207,6 +210,9 @@ final class condition_bookingpolicy_test extends advanced_testcase {
         // Verify that user already booked.
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, false);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Mandatory to solve potential cache issues.
+        singleton_service::destroy_booking_option_singleton($option1->id);
     }
 
     /**
@@ -291,6 +297,10 @@ final class condition_bookingpolicy_test extends advanced_testcase {
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_MAX_NUMBER_OF_BOOKINGS, $id);
+
+        // Mandatory to solve potential cache issues.
+        singleton_service::destroy_booking_option_singleton($option1->id);
+        singleton_service::destroy_booking_option_singleton($option2->id);
     }
 
     /**
@@ -437,6 +447,11 @@ final class condition_bookingpolicy_test extends advanced_testcase {
         $result = booking_bookit::bookit('option', $settings3->id, $student2->id);
         list($id, $isavailable, $description) = $boinfo3->is_available($settings3->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Mandatory to solve potential cache issues.
+        singleton_service::destroy_booking_option_singleton($option1->id);
+        singleton_service::destroy_booking_option_singleton($option2->id);
+        singleton_service::destroy_booking_option_singleton($option3->id);
     }
 
 
@@ -463,16 +478,25 @@ final class condition_bookingpolicy_test extends advanced_testcase {
         // Create custom profile field.
         $this->getDataGenerator()->create_custom_profile_field(['datatype' => 'text', 'shortname' => 'sport', 'name' => 'Sport',
         'visible' => PROFILE_VISIBLE_ALL]);
-        set_config('showuseridentity', 'username,email,profile_field_sport');
+        $this->getDataGenerator()->create_custom_profile_field(['datatype' => 'text', 'shortname' => 'credit', 'name' => 'Credit',
+        'visible' => PROFILE_VISIBLE_ALL]);
+        set_config('showuseridentity', 'username,email,profile_field_sport,profile_field_credit');
         // Create users.
         $users = [
+            ['username' => 'teacher', 'email' => 'teacher@sample.com', 'profile_field_sport' => 'yoga'],
             ['username' => 'student1', 'email' => 'student1@example.com', 'profile_field_sport' => 'football'],
             ['username' => 'student2', 'email' => 'student2@sample.com', 'profile_field_sport' => 'tennis'],
-            ['username' => 'teacher', 'email' => 'teacher@sample.com', 'profile_field_sport' => 'yoga'],
+            [
+                'username' => 'student3',
+                'email' => 'student3@example.com',
+                'profile_field_sport' => 'football',
+                'profile_field_credit' => '100',
+            ],
         ];
-        $student1 = $this->getDataGenerator()->create_user($users[0]);
-        $student2 = $this->getDataGenerator()->create_user($users[1]);
-        $teacher = $this->getDataGenerator()->create_user($users[2]);
+        $teacher = $this->getDataGenerator()->create_user($users[0]);
+        $student1 = $this->getDataGenerator()->create_user($users[1]);
+        $student2 = $this->getDataGenerator()->create_user($users[2]);
+        $student3 = $this->getDataGenerator()->create_user($users[3]);
         $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
 
         $bdata['course'] = $course1->id;
@@ -485,10 +509,11 @@ final class condition_bookingpolicy_test extends advanced_testcase {
 
         $this->setAdminUser();
 
-        $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
-        $this->getDataGenerator()->enrol_user($student2->id, $course1->id);
-        $this->getDataGenerator()->enrol_user($teacher->id, $course1->id);
-        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id, 'student');
+        $this->getDataGenerator()->enrol_user($student2->id, $course1->id, 'student');
+        $this->getDataGenerator()->enrol_user($student3->id, $course1->id, 'student');
+        $this->getDataGenerator()->enrol_user($teacher->id, $course1->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id, 'editingteacher');
 
         $record = new stdClass();
         $record->bookingid = $booking1->id;
@@ -523,6 +548,26 @@ final class condition_bookingpolicy_test extends advanced_testcase {
         $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
         $boinfo2 = new bo_info($settings2);
 
+        // The 3nd option in the course1.
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option3';
+        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->courseid = $course1->id;
+        // Set test availability setting(s).
+        $record->bo_cond_userprofilefield_2_custom_restrict = 1;
+        $record->bo_cond_customuserprofilefield_field = 'sport';
+        $record->bo_cond_customuserprofilefield_operator = '=';
+        $record->bo_cond_customuserprofilefield_value = 'football';
+        $record->bo_cond_customuserprofilefield_connectsecondfield = '&&';
+        $record->bo_cond_customuserprofilefield_field2 = 'credit';
+        $record->bo_cond_customuserprofilefield_operator2 = '>';
+        $record->bo_cond_customuserprofilefield_value2 = '50';
+
+        $option3 = $plugingenerator->create_option($record);
+        $settings3 = singleton_service::get_instance_of_booking_option_settings($option3->id);
+        $boinfo3 = new bo_info($settings3);
+
         // Book the student1.
         $this->setUser($student1);
         singleton_service::destroy_user($student1->id);
@@ -541,6 +586,11 @@ final class condition_bookingpolicy_test extends advanced_testcase {
         list($id, $isavailable, $description) = $boinfo2->is_available($settings2->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
+        // Student1 does not allowed to book option3 in course1.
+        $result = booking_bookit::bookit('option', $settings3->id, $student1->id);
+        list($id, $isavailable, $description) = $boinfo3->is_available($settings3->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD, $id);
+
         // Book the student2.
         $this->setUser($student2);
         singleton_service::destroy_user($student2->id);
@@ -558,6 +608,30 @@ final class condition_bookingpolicy_test extends advanced_testcase {
         $result = booking_bookit::bookit('option', $settings1->id, $student2->id);
         list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Student2 does not allowed to book option3 in course1.
+        $result = booking_bookit::bookit('option', $settings3->id, $student2->id);
+        list($id, $isavailable, $description) = $boinfo3->is_available($settings3->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD, $id);
+
+        // Book the student3.
+        $this->setUser($student3);
+        singleton_service::destroy_user($student3->id);
+
+        // Student3 does allowed to book option3 in course1.
+        $result = booking_bookit::bookit('option', $settings3->id, $student3->id);
+        list($id, $isavailable, $description) = $boinfo3->is_available($settings3->id, $student3->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
+
+        $result = booking_bookit::bookit('option', $settings3->id, $student3->id);
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings3->id, $student3->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Mandatory to solve potential cache issues.
+        singleton_service::destroy_booking_option_singleton($option1->id);
+        singleton_service::destroy_booking_option_singleton($option2->id);
+        singleton_service::destroy_booking_option_singleton($option3->id);
+
     }
 
     /**
