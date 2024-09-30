@@ -165,16 +165,13 @@ class rule_react_on_event implements booking_rule {
         $mform->addElement('select', 'rule_react_on_event_event',
             get_string('ruleevent', 'mod_booking'), $allowedevents);
 
-        $limitchangestrackinginrules = get_config('booking', 'limitchangestrackinginrules') == 1;
-        if ($limitchangestrackinginrules || true) {
+        // Add info about settings concerning bookingoption_updated event.
+        $url = new moodle_url('/admin/category.php', ['category' => 'modbookingfolder']);
+        $linktosettings = $url->out();
 
-            $url = new moodle_url('/admin/category.php', ['category' => 'modbookingfolder']);
-            $linktosettings = $url->out();
-
-            $mform->addElement('static', 'react_on_change_info',
-                '',
-                get_string('rulereactonchangeevent_desc', 'mod_booking', $linktosettings));
-        }
+        $mform->addElement('static', 'react_on_change_info',
+            '',
+            get_string('rulereactonchangeevent_desc', 'mod_booking', $linktosettings));
 
         $conditions = [
             self::ALWAYS => get_string('always', 'mod_booking'),
