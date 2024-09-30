@@ -128,7 +128,7 @@ class easy_text extends field_base {
         array &$formdata,
         array $optionformconfig,
         $fieldstoinstanciate = [],
-        $applyheader = true,
+        $applyheader = true
     ) {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($formdata['id']);

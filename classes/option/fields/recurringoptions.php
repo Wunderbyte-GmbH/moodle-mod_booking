@@ -110,7 +110,7 @@ class recurringoptions extends field_base {
         array &$formdata,
         array $optionformconfig,
         $fieldstoinstanciate = [],
-        $applyheader = true,
+        $applyheader = true
     ) {
 
         // Templates and recurring 'events' - only visible when adding new.

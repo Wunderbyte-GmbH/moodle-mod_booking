@@ -109,7 +109,7 @@ class subbookings extends field_base {
         array &$formdata,
         array $optionformconfig,
         $fieldstoinstanciate = [],
-        $applyheader = true,
+        $applyheader = true
     ) {
 
         // TODO: expert/simple mode needs to work with this too!

@@ -110,7 +110,7 @@ class credits extends field_base {
         array &$formdata,
         array $optionformconfig,
         $fieldstoinstanciate = [],
-        $applyheader = true,
+        $applyheader = true
     ) {
 
         $cmid = $formdata['cmid'] ?? 0;

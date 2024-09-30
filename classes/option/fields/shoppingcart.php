@@ -119,7 +119,7 @@ class shoppingcart extends field_base {
         array &$formdata,
         array $optionformconfig,
         $fieldstoinstanciate = [],
-        $applyheader = true,
+        $applyheader = true
     ) {
 
         if (class_exists('local_shopping_cart\shopping_cart_handler')) {

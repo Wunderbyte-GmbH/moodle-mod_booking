@@ -110,7 +110,7 @@ abstract class field_base implements fields {
         array &$formdata,
         array $optionformconfig,
         $fieldstoinstanciate = [],
-        $applyheader = true,
+        $applyheader = true
     ) {
 
     }

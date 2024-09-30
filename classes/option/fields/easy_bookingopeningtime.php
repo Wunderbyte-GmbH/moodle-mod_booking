@@ -141,7 +141,7 @@ class easy_bookingopeningtime extends field_base {
         array &$formdata,
         array $optionformconfig,
         $fieldstoinstanciate = [],
-        $applyheader = true,
+        $applyheader = true
     ) {
 
         // The form is not locked and can be used normally.

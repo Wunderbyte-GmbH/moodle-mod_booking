@@ -115,7 +115,7 @@ class moveoption extends field_base {
         array &$formdata,
         array $optionformconfig,
         $fieldstoinstanciate = [],
-        $applyheader = true,
+        $applyheader = true
     ) {
 
         // Moving works only on saved booking option.
