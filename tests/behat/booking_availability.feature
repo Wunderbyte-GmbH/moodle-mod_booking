@@ -4,13 +4,17 @@ Feature: Test booking options avaialbility conditions
   For different booking options
 
   Background:
+    Given the following "custom profile fields" exist:
+      | datatype | shortname | name   |
+      | text     | sport     | Sport  |
+      | text     | credit    | Credit |
     Given the following "users" exist:
-      | username | firstname | lastname | email                 | idnumber |
-      | teacher1 | Teacher   | 1        | teacher1@example.com  | T1       |
-      | admin1   | Admin     | 1        | admin1@example.com    | A1       |
-      | student1 | Student   | 1        | student1@example1.com | S1       |
-      | student2 | Student   | 2        | student2@example2.com | S2       |
-      | student3 | Student   | 3        | student3@example3.com | S3       |
+      | username | firstname | lastname | email                 | idnumber | profile_field_sport | profile_field_credit |
+      | teacher1 | Teacher   | 1        | teacher1@example.com  | T1       |                     |                      |
+      | admin1   | Admin     | 1        | admin1@example.com    | A1       |                     |                      |
+      | student1 | Student   | 1        | student1@example1.com | S1       | football            |                      |
+      | student2 | Student   | 2        | student2@example2.com | S2       | tennis              |                      |
+      | student3 | Student   | 3        | student3@example3.com | S3       | football            | 100                  |
     And the following "cohorts" exist:
       | name                    | idnumber | visible |
       | System booking cohort 1 | SBC1     | 1       |
@@ -177,6 +181,48 @@ Feature: Test booking options avaialbility conditions
     Given I am on the "My booking" Activity page logged in as student1
     Then I should not see "Not allowed to book" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
+
+  @javascript
+  Scenario: Configure usercustomprofile-dependent availability condition
+    Given I am on the "My booking" Activity page logged in as teacher1
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
+    And I follow "Availability conditions"
+    And I set the field "A custom user profile field should have a certain value" to "checked"
+    And I wait "1" seconds
+    And I set the following fields to these values:
+      | bo_cond_customuserprofilefield_field              | Sport   |
+      | bo_cond_customuserprofilefield_operator           | has exactly this value (text or number) |
+      | bo_cond_customuserprofilefield_value              | football       |
+      | bo_cond_customuserprofilefield_connectsecondfield | AND additional field   |
+      | bo_cond_customuserprofilefield_field2             | Credit   |
+      | bo_cond_customuserprofilefield_operator2          | is bigger than (number) |
+      | bo_cond_customuserprofilefield_value2             | 500       |
+    And I press "Save"
+    And I wait until the page is ready
+    And I should see "Only users with custom user profile field sport set to value football are allowed to book." in the ".allbookingoptionstable_r3" "css_element"
+    ## Verify availability as a student
+    When I am on the "My booking" Activity page logged in as student3
+    Then I should see "Not allowed to book" in the ".allbookingoptionstable_r3" "css_element"
+    And I should not see "Book now" in the ".allbookingoptionstable_r3" "css_element"
+    ## Update availability as a teacher
+    Given I am on the "My booking" Activity page logged in as teacher1
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
+    And I follow "Availability conditions"
+    ##And I set the field "A chosen user profile field should have a certain value" to "checked"
+    ##And I wait "1" seconds
+    And I set the following fields to these values:
+      | bo_cond_customuserprofilefield_value2             | 50       |
+    And I press "Save"
+    ## Verify availability as a student
+    Given I am on the "My booking" Activity page logged in as student3
+    Then I should not see "Not allowed to book" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
+    ## Verify NOT availability as a student
+    When I am on the "My booking" Activity page logged in as student1
+    Then I should see "Not allowed to book" in the ".allbookingoptionstable_r3" "css_element"
+    And I should not see "Book now" in the ".allbookingoptionstable_r3" "css_element"
 
   @javascript
   Scenario: Configure user-dependent availability condition
