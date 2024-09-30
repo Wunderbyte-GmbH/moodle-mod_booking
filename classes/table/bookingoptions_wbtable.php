@@ -228,7 +228,11 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         $title = format_string($title);
 
-        $title = "<div class='bookingoptions-wbtable-option-title'><a href='$url' target='_blank'>$title</a></div>";
+        if (!get_config('booking', 'openbookingdetailinsametab')) {
+            $title = "<div class='bookingoptions-wbtable-option-title'><a href='$url' target='_blank'>$title</a></div>";
+        } else {
+            $title = "<div class='bookingoptions-wbtable-option-title'><a href='$url'>$title</a></div>";
+        }
 
         return $title;
     }

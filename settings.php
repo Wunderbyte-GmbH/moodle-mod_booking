@@ -290,8 +290,12 @@ if ($ADMIN->fulltree) {
     $settings->add(
         new admin_setting_configcheckbox('booking/linktomoodlecourseonbookedbutton',
             get_string('linktomoodlecourseonbookedbutton', 'mod_booking'),
-            get_string('linktomoodlecourseonbookedbutton', 'mod_booking'), 1));
+            get_string('linktomoodlecourseonbookedbutton_desc', 'mod_booking'), 1));
 
+    $settings->add(
+        new admin_setting_configcheckbox('booking/openbookingdetailinsametab',
+            get_string('openbookingdetailinsametab', 'mod_booking'),
+            get_string('openbookingdetailinsametab_desc', 'mod_booking'), 0));
 
     $settings->add(
         new admin_setting_configcheckbox('booking/bookingdebugmode',
