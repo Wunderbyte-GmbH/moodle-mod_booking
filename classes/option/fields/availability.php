@@ -130,7 +130,7 @@ class availability extends field_base {
         array &$formdata,
         array $optionformconfig,
         $fieldstoinstanciate = [],
-        $applyheader = true,
+        $applyheader = true
     ) {
 
         $optionid = $formdata['id'];

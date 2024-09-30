@@ -141,7 +141,7 @@ class easy_bookingclosingtime extends field_base {
         array &$formdata,
         array $optionformconfig,
         $fieldstoinstanciate = [],
-        $applyheader = true,
+        $applyheader = true
     ) {
 
         $mform->addElement('advcheckbox', 'restrictanswerperiodclosing',

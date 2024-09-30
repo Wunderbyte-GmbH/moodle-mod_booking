@@ -124,7 +124,7 @@ class actions extends field_base {
         array &$formdata,
         array $optionformconfig,
         $fieldstoinstanciate = [],
-        $applyheader = true,
+        $applyheader = true
     ) {
 
         // Actions are not yet finished - so we hide them for now.
