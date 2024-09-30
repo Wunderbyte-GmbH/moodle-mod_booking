@@ -114,7 +114,7 @@ class timemodified extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
         // Do nothing.
     }
 }

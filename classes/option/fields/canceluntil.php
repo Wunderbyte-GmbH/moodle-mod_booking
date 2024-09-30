@@ -124,7 +124,7 @@ class canceluntil extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
         $optionid = $formdata['id'];
 

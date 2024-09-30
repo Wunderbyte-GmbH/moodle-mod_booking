@@ -118,7 +118,7 @@ class enrolmentstatus extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
         $mform->addElement('advcheckbox', 'enrolmentstatus', get_string('enrolmentstatus', 'mod_booking'),
             '', ['group' => 1], [2, 0]);

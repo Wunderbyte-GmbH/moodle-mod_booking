@@ -124,7 +124,7 @@ class returnurl extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
         $mform->addElement('hidden', 'returnurl');
         $mform->setType('returnurl', PARAM_LOCALURL);

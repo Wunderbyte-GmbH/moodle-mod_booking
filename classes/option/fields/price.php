@@ -127,7 +127,7 @@ class price extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
         // Add price.
         $price = new Mod_bookingPrice('option', $formdata['id']);

@@ -110,7 +110,7 @@ class subbookings extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
         // TODO: expert/simple mode needs to work with this too!
         // Add subbookings options.

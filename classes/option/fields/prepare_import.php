@@ -115,7 +115,7 @@ class prepare_import extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
         $addastemplate = optional_param('addastemplate', 0, PARAM_INT) ?? 0;
 

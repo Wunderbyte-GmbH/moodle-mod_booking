@@ -111,7 +111,7 @@ class credits extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
         $cmid = $formdata['cmid'] ?? 0;
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);

@@ -126,7 +126,7 @@ class coursestarttime extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
     }
 

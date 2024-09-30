@@ -118,7 +118,7 @@ class responsiblecontact extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
         $mform->addElement('header', 'responsiblecontactheader',
             '<i class="fa fa-fw fa-user" aria-hidden="true"></i>&nbsp;' . get_string('responsiblecontact', 'mod_booking'));

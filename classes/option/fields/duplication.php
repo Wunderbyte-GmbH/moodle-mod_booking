@@ -114,7 +114,7 @@ class duplication extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
         // No definition needed.
     }

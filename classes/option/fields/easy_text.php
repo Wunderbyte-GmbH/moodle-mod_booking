@@ -129,7 +129,7 @@ class easy_text extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($formdata['id']);
         $titlewithprefix = $settings->get_title_with_prefix();

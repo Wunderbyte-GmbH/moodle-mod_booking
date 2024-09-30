@@ -118,7 +118,7 @@ class maxoverbooking extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
         if (!get_config('booking', 'turnoffwaitinglist')) {
             // Standardfunctionality to add a header to the mform (only if its not yet there).

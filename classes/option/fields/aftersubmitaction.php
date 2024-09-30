@@ -140,7 +140,7 @@ class aftersubmitaction extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
         // What to do after submit button is pressed.
         $aftersubmitactions = [
