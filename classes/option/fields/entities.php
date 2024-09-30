@@ -152,7 +152,7 @@ class entities extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
         // Add entities.
         if (class_exists('local_entities\entitiesrelation_handler')) {

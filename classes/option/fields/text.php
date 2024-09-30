@@ -119,7 +119,7 @@ class text extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
         global $CFG, $COURSE;
 

@@ -120,7 +120,7 @@ class teachers extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
         global $CFG;
 

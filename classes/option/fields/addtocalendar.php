@@ -165,7 +165,7 @@ class addtocalendar extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
         // Add to course calendar dropdown.
         $caleventtypes = [

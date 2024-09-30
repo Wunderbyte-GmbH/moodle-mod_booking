@@ -128,7 +128,7 @@ class id extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
         $cmid = $formdata['cmid'] ?? 0;
 

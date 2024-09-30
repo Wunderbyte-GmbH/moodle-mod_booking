@@ -114,7 +114,7 @@ class template extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
         if (!empty($formdata['id'])) {
             return;

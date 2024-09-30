@@ -142,7 +142,7 @@ class elective extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
         // Add elective mform elements..
         Mod_bookingElective::instance_option_form_definition($mform, $formdata);

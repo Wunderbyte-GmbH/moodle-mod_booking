@@ -117,7 +117,7 @@ class location extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
         global $DB, $CFG;
 

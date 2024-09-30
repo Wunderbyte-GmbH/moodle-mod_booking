@@ -176,7 +176,7 @@ class optiondates extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
         $mform->addElement('hidden', 'datesmarker', 0);
         $mform->setType('datesmarker', PARAM_INT);

@@ -155,7 +155,7 @@ class bookingclosingtime extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
     }
 

@@ -110,7 +110,7 @@ class priceformulaadd extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
         // This is not done here but in \mod_booking\price class.
     }

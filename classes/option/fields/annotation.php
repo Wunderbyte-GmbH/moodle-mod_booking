@@ -129,7 +129,7 @@ class annotation extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
         // Standardfunctionality to add a header to the mform (only if its not yet there).
         if ($applyheader) {

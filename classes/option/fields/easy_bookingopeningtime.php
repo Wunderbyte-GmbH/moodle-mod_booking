@@ -142,7 +142,7 @@ class easy_bookingopeningtime extends field_base {
         array $optionformconfig,
         $fieldstoinstanciate = [],
         $applyheader = true,
-        ) {
+    ) {
 
         // The form is not locked and can be used normally.
         $mform->addElement('advcheckbox', 'restrictanswerperiodopening',
