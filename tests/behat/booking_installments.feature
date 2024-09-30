@@ -94,7 +94,7 @@ Feature: Enabling installments as admin configuring installments as a teacher an
     And I visit "/local/shopping_cart/checkout.php"
     And I wait until the page is ready
     And I set the field "Use installment payments" to "1"
-    And I wait "1" seconds
+    And I wait "2" seconds
     And I should see "Down payment for Option-installment"
     And I should see "44 EUR instead of 88 EUR"
     And I should see "Further payments"
