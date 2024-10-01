@@ -700,7 +700,7 @@ $string['confirmbookingtitle'] = "Buchung bestätigen";
 $string['confirmcanceloption'] = "Bestätige die Stornierung der Buchungsoption";
 $string['confirmcanceloptiontitle'] = "Ändere den Status der Buchungsoption";
 $string['confirmchangesemester'] = 'JA, ich möchte wirklich alle Termine der Buchungsinstanz löschen und neue erstellen.';
-$string['confirmdeletebookingoption'] = 'Möchten Sie diese Buchung wirklich löschen?';
+$string['confirmdeletebookingoption'] = 'Möchten Sie diese Buchungsmöglichkeit <b>{$a}</b> wirklich löschen?';
 $string['confirmed'] = 'Bestätigt';
 $string['confirmoptioncompletion'] = 'Abschluss bestätigen';
 $string['confirmoptioncreation'] = 'Wollen Sie diese Buchungsoption splitten sodass aus jedem Einzeltermin eine eigene
@@ -2155,6 +2155,7 @@ $string['youareediting'] = 'Sie bearbeiten "<b>{$a}</b>".';
 $string['youareusingconfig'] = 'Sie verwenden folgende Formular-Konfiguration: {$a}';
 $string['yourplaceonwaitinglist'] = 'Sie sind auf Platz {$a} auf der Warteliste';
 $string['yourselection'] = 'Ihre Auswahl';
+$string['xusersarebooked'] = '{$a} Nutzer:innen sind gebucht';
 $string['zoommeeting'] = 'Zoom-Meeting';
 
 // phpcs:disable

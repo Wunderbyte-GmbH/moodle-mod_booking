@@ -712,7 +712,7 @@ $string['confirmbookingtitle'] = "Confirm booking";
 $string['confirmcanceloption'] = "Confirm cancelation of booking option";
 $string['confirmcanceloptiontitle'] = "Change the status of the booking option";
 $string['confirmchangesemester'] = 'YES, I really want to delete all existing dates of the booking instance and generate new ones.';
-$string['confirmdeletebookingoption'] = 'Do you really want to delete this booking option?';
+$string['confirmdeletebookingoption'] = 'Do you really want to delete this booking option <b>{$a}</b>?';
 $string['confirmed'] = 'Confirmed';
 $string['confirmoptioncompletion'] = '(Un)confirm completion status';
 $string['confirmoptioncreation'] = 'Do you want to split this booking option so that a separate booking option is created
@@ -2232,6 +2232,7 @@ $string['youareediting'] = 'You are editing "<b>{$a}</b>".';
 $string['youareusingconfig'] = 'Your are using the following form configuration: {$a}';
 $string['yourplaceonwaitinglist'] = 'You are on place {$a} on the waitinglist';
 $string['yourselection'] = 'Your selection';
+$string['xusersarebooked'] = '{$a} users are booked';
 $string['zoommeeting'] = 'Zoom meeting';
 
 // phpcs:disable

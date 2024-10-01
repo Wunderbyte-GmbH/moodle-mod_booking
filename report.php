@@ -24,6 +24,7 @@
  */
 
 use mod_booking\bo_availability\conditions\customform;
+use mod_booking\booking_answers;
 use mod_booking\booking_option;
 use mod_booking\output\booked_users;
 use mod_booking\output\eventslist;
@@ -225,7 +226,14 @@ if ($action == 'deletebookingoption' && $confirm == 1 &&
     $continue = $url;
     $cancel = new moodle_url('/mod/booking/report.php', ['id' => $id, 'optionid' => $optionid]);
     $continue->params($confirmarray);
-    echo $OUTPUT->confirm(get_string('confirmdeletebookingoption', 'booking'), $continue, $cancel);
+    $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+    $ba = singleton_service::get_instance_of_booking_answers($settings);
+    $booked = booking_answers::count_places($ba->usersonlist);
+    $title = $settings->get_title_with_prefix();
+    if ($booked > 0) {
+        $title .= ' (' . get_string('xusersarebooked', 'booking', $booked) . ')';
+    }
+    echo $OUTPUT->confirm(get_string('confirmdeletebookingoption', 'booking', $title), $continue, $cancel);
     echo $OUTPUT->footer();
     die();
 }
