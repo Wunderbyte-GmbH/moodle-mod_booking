@@ -201,7 +201,6 @@ function showInvalidFeedback() {
 
     const container = document.querySelector('#editoptionsformcontainer');
 
-    let firstelement = true;
     nonEmptyElements.forEach((element) => {
         let currentElement = element;
 
@@ -210,14 +209,12 @@ function showInvalidFeedback() {
 
             if (currentElement && currentElement.classList.contains('collapse')) {
                 currentElement.classList.add('show');
-                if (firstelement) {
-                    currentElement.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
-                    firstelement = false;
-                }
             }
         }
+    });
+    let firstelement = nonEmptyElements[0];
+    firstelement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
     });
 }
