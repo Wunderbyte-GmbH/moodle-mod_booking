@@ -1,3 +1,45 @@
+## Version 8.6.24 (2024100100)
+* Improvement: Setting to display detailview in same tab
+* Improvement: Show elements with validation errors
+* Improvement: Possibility to load multiple fields for bulk operations
+* Improvement: add timecreated to report download file
+* Improvement: add price to responses in report.php
+* Improvement: possibility to disable booking for all options in instance
+* Improvement: Add second profile field to availability conditions
+* Improvement: Extend unit and behat tests
+* Bugfix: Open collapsible also on client side
+* Bugfix: Correct handling of arrays for printing out customfields.
+* Bugfix: fallback for empty returnurl
+
+## Version 8.6.23 (2024092302)
+* Improvement: add intrangefilter to bulkoperations table
+* Improvement: Add filter for bookinginstance (Semester) to bulkoperations table
+* Improvement: Add 0% to avoid adding classes on low percentage
+* Improvement: don't show second link on course when link is on button
+* Improvement: Add possibility to write mail for text (title) change of booking option
+* Improvement: add possibility to turn off the duplication of booking options in the duplication of booking instances
+* Bugfix: Treat guest users as not logged in
+* Bugfix: use format_text on customfields with type textarea
+* Bugfix: Apply default sorting to field of study
+* Bugfix: Empty get_string mybookinglist mobile.php
+* Bugfix: Listen to event to invalidate cache on updating course module
+
+## Version 8.6.22 (2024092300)
+* Improvement: Reload after using form on bookingdetails page
+* Improvement: Open booking options template with returnurl -> go back to overview on save
+* Improvement: Call format_string on title and column names for better localization possibilities
+* Bugfix: No unnecessary cache invalidations
+* Bugfix: Placeholders: QR Codes and fetching localized placeholders
+
+## Version 8.6.21 (2024091901)
+* Improvement: Display name of user in message_sent event descriptions
+* Improvement: Encode pricegroup identifiers so we can use special characters
+* Improvement: Use next full hour in add date.
+
+## Version 8.6.20 (2024091900)
+* Improvement: Add description for canceldependenton
+* Bugfix: No unnecessary cache invalidations
+
 ## Version 8.6.19 (2024091700)
 * Improvement: Shortname is same as fullname on create course fromtemplate
 * Bugfix: use context_module in capability check of confirmcancel modal
