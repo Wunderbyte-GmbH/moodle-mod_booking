@@ -31,6 +31,7 @@ use mod_booking\utils\wb_payment;
 use moodle_url;
 use context_system;
 use stdClass;
+use Throwable;
 
 /**
  * Handler for booking custom fields.
@@ -426,8 +427,11 @@ class booking_handler extends \core_customfield\handler {
                 $values = explode(',', $instance->{$key});
                 $instance->{$key} = $values;
             }
-
-            $data->instance_form_save($instance);
+            try {
+                $data->instance_form_save($instance);
+            } catch (Throwable $e) {
+                $donothing = true;
+            }
 
             $elementname = $data->get_form_element_name();
         }
