@@ -282,10 +282,17 @@ class dates {
         // This Logic is linked to the webservice importer functionality.
         // We might need to add coursestartime and courseendtime as new session.
         if (!empty($defaultvalues->importing)
-            && !empty($defaultvalues->mergeparam)
+            && isset($defaultvalues->mergeparam)
             && !empty($sessions)) {
 
-            // If we add another session, we need to add it to the sessions object.
+            // If we are importing, we need to set back existing sessions, so we can avoid duplication.
+            if (
+                $defaultvalues->mergeparam <= 1
+            ) {
+                // If Param is 0 or 1, we will only have one session.
+                $sessions = [];
+            }
+
             if ($defaultvalues->mergeparam == 2) {
                 // If we are importing via webservice and have already sessions in this option...
                 // ... and we have already added new coursestarttime and courseendtime, we move them.
@@ -295,6 +302,7 @@ class dates {
                     'courseendtime' => $defaultvalues->{MOD_BOOKING_FORM_COURSEENDTIME . 0},
                     'daystonotify' => 0,
                 ];
+
                 unset($defaultvalues->{MOD_BOOKING_FORM_OPTIONDATEID . 0});
                 unset($defaultvalues->{MOD_BOOKING_FORM_COURSESTARTTIME . 0});
                 unset($defaultvalues->{MOD_BOOKING_FORM_COURSEENDTIME . 0});
