@@ -172,7 +172,7 @@ class select_student_in_bo implements booking_rule_condition {
 
         $concat = $DB->sql_concat("bo.id", "'-'", "ba.userid");
         // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
-        $sql->select = " $concat uniqueid, " . $sql->select;
+        $sql->select = " $concat uniqueid, ba.id as baid, " . $sql->select;
         $sql->select .= ", ba.userid userid ";
 
         $sql->from .= " JOIN {booking_answers} ba ON bo.id = ba.optionid ";

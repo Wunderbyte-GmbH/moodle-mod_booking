@@ -140,7 +140,7 @@ class customform_form extends dynamic_form {
                 $customform = $condition;
             }
         }
-
+        $deleteform = false;
         foreach ($customform->formsarray as $formkey => $formvalue) {
             $formelements = [];
 
@@ -233,6 +233,20 @@ class customform_form extends dynamic_form {
                             format_string($formelementvalue->label) ?? "Label " . $counter
                         );
                         $mform->setDefault('customform_mail_' . $counter, $formelementvalue->value);
+                        break;
+                    case 'deleteinfoscheckbox':
+                        if ($deleteform) {
+                            // Only one will be rendered rendered.
+                            break;
+                        }
+                        $identifier = 'customform_' . $formelementvalue->formtype;
+                        $deleteform = true;
+                        $mform->addElement(
+                            'advcheckbox',
+                            $identifier,
+                            get_string('bocondcustomformdeleteinfoscheckboxtext', 'mod_booking'),
+                            get_string('choose...', 'mod_booking')
+                        );
                         break;
                 }
 

@@ -209,6 +209,7 @@ class customform implements bo_condition {
                 'select' => get_string('select', 'mod_booking'),
                 'url' => get_string('bocondcustomformurl', 'mod_booking'),
                 'mail' => get_string('bocondcustomformmail', 'mod_booking'),
+                'deleteinfoscheckbox' => get_string('bocondcustomformdeleteinfoscheckbox', 'mod_booking'),
             ];
 
             // We add four potential elements.
@@ -218,7 +219,7 @@ class customform implements bo_condition {
             while ($counter <= 20) {
                 $buttonarray = [];
 
-                // Create a select to chose which tpye of form element to display.
+                // Create a select to chose which type of form element to display.
                 $buttonarray[] =& $mform->createElement('select', 'bo_cond_customform_select_1_' . $counter,
                     get_string('formtype', 'mod_booking'), $formelementsarray);
 
@@ -235,6 +236,12 @@ class customform implements bo_condition {
                 $mform->hideIf('bo_cond_customform_label_1_' . $counter,
                     'bo_cond_customform_select_1_' . $counter,
                     'eq', 0);
+                $mform->hideIf( // For deleteinfoscheckbox, we don't need to fill out any information.
+                    'bo_cond_customform_label_1_' . $counter,
+                'bo_cond_customform_select_1_' . $counter,
+                'eq',
+                'deleteinfoscheckbox'
+                );
 
                 // We need to create all possible elements and hide them via "hideif" right now.
                 $mform->addElement('textarea', 'bo_cond_customform_value_1_' . $counter,
@@ -249,6 +256,12 @@ class customform implements bo_condition {
                 $mform->hideIf('bo_cond_customform_value_1_' . $counter,
                     'bo_cond_customform_select_1_' . $counter,
                     'eq', 'advcheckbox');
+                $mform->hideIf(
+                    'bo_cond_customform_value_1_' . $counter,
+                    'bo_cond_customform_select_1_' . $counter,
+                    'eq',
+                    'deleteinfoscheckbox'
+                );
 
                 // We need to create all possible elements and hide them via "hideif" right now.
                 $mform->addElement('advcheckbox', 'bo_cond_customform_notempty_1_' . $counter,
@@ -263,6 +276,12 @@ class customform implements bo_condition {
                 $mform->hideIf('bo_cond_customform_notempty_1_' . $counter,
                     'bo_cond_customform_select_1_' . $counter,
                     'eq', 'static');
+                $mform->hideIf(
+                    'bo_cond_customform_notempty_1_' . $counter,
+                    'bo_cond_customform_select_1_' . $counter,
+                    'eq',
+                    'deleteinfoscheckbox'
+                );
 
                 if (!empty($previous)) {
                     $mform->hideIf('formgroupelement_1_' . $counter,
