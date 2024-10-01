@@ -137,7 +137,7 @@ class option_form_bulk extends dynamic_form {
             // TODO: Check if this field is already appended, if so, skip it.
             // Make sure to apply customformdata.
             foreach ($submitdata as $key => $value) {
-                if (str_contains($key, $fieldskey)) {
+                if (strpos($key, $fieldskey) !== false) {
                     $mform->addElement('hidden', $key, $value);
                     $index = str_replace($fieldskey, '', $key);
                     $index ++;
@@ -160,7 +160,7 @@ class option_form_bulk extends dynamic_form {
 
         if (!empty($formdata['choosefields'])) {
             foreach ($formdata as $key => $value) {
-                if (str_contains($key, 'selectedfields_') || $key === 'choosefields') {
+                if ((strpos($key, 'selectedfields_') !== false) || $key === 'choosefields') {
                     if (class_exists($value)) {
                         $this->apply_instance_form_definition($mform, $formdata, $value);
                     } else {

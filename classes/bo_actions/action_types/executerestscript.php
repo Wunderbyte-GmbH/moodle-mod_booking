@@ -105,7 +105,7 @@ class executerestscript extends booking_action {
         $params = (array)$params->condition_customform;
 
         foreach ($params as $customkey => $custominput) {
-            if (str_contains($customkey, 'customform_url')) {
+            if (strpos($customkey, 'customform_url') !== false) {
                 $params['wwwroot'] = $custominput;
                 break;
             }

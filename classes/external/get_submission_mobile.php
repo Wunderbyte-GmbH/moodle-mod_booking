@@ -159,9 +159,9 @@ class get_submission_mobile extends external_api {
           '&sesskey=' . $sesskey .
           '&_qf__mod_booking_form_condition_customform_form=1';
         foreach ($data as $subvalue) {
-            if (str_contains($subvalue['name'], 'shorttext')) {
+            if (strpos($subvalue['name'], 'shorttext') !== false) {
                 $formdatastr .= '&' . $subvalue['name'] . '=' . str_replace(' ', '+', $subvalue['value']);
-            } else if (str_contains($subvalue['name'], 'select')) {
+            } else if (strpos($subvalue['name'], 'select') !== false) {
                 $formdatastr .= '&' . $subvalue['name'] . '=' . $subvalue['value'];
             } else {
                 $formdatastr .= '&' . $subvalue['name'] . '=' . $subvalue['value'];
