@@ -487,10 +487,6 @@ class bookingoptions_wbtable extends wunderbyte_table {
     public function col_course($values) {
         global $USER;
 
-        if (get_config('booking', 'linktomoodlecourseonbookedbutton')) {
-            return '';
-        }
-
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
 
         $ret = '';
@@ -523,6 +519,14 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $status = $answersobject->user_status($USER->id);
 
         $isteacherofthisoption = booking_check_if_teacher($values);
+
+        if (
+            $status == MOD_BOOKING_STATUSPARAM_BOOKED
+            && get_config('booking', 'linktomoodlecourseonbookedbutton')
+        ) {
+            return '';
+        }
+
         if (!empty($settings->courseid) && (
             $status == MOD_BOOKING_STATUSPARAM_BOOKED ||
             has_capability('mod/booking:updatebooking', $context) ||
