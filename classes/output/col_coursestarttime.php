@@ -57,7 +57,7 @@ class col_coursestarttime implements renderable, templatable {
      * @param bool $collapsed set to true, if dates should be collapsed
      *
      */
-    public function __construct($optionid, $booking=null, $cmid = null, $collapsed = true) {
+    public function __construct($optionid, $booking = null, $cmid = null, $collapsed = true) {
 
         if (empty($booking) && empty($cmid)) {
             throw new moodle_exception('Error: either booking instance or cmid have to be provided.');

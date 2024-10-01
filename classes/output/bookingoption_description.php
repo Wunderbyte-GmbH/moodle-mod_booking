@@ -563,7 +563,11 @@ class bookingoption_description implements renderable, templatable {
                             $returnarray[$key] = format_text($printvalue);
                             break;
                         default:
-                            $returnarray[$key] = format_string($printvalue);
+                            if (is_array($value)) {
+                                $returnarray[$key] = array_map('format_string', $value);
+                            } else {
+                                $returnarray[$key] = format_string($printvalue);
+                            }
                             break;
                     }
                 }
