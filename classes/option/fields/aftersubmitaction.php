@@ -121,12 +121,16 @@ class aftersubmitaction extends field_base {
                     $newoption->returnurl = $newreturnurl->out(false);
                     break;
                 case 'submitandgoback':
-                    $newreturnurl = new moodle_url('/mod/booking/view.php', [
-                        'id' => $formdata->cmid,
-                        'optionid' => $newoption->id,
-                    ]);
-                    $formdata->returnurl = $newreturnurl->out(false);
-                    $newoption->returnurl = $newreturnurl->out(false);
+                    if (empty($formdata->returnurl)) {
+                        $newreturnurl = new moodle_url('/mod/booking/view.php', [
+                            'id' => $formdata->cmid,
+                            'optionid' => $newoption->id,
+                        ]);
+                        $formdata->returnurl = $newreturnurl->out(false);
+                        $newoption->returnurl = $newreturnurl->out(false);
+                    } else {
+                        $newoption->returnurl = $formdata->returnurl;
+                    }
                     break;
             }
         }
