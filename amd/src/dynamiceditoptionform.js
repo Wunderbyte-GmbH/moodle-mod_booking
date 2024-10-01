@@ -85,6 +85,12 @@ export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => 
         console.log('validation error');
     });
 
+    dynamicForm.addEventListener(dynamicForm.events.CLIENT_VALIDATION_ERROR, () => {
+        showInvalidFeedback();
+        // eslint-disable-next-line no-console
+        console.log('validation error');
+    });
+
     var checkbox1 = document.querySelector('[name="restrictanswerperiodopening"]');
     var checkbox2 = document.querySelector('[name="restrictanswerperiodclosing"]');
     var conditionalCheckbox = document.querySelector('[name="bo_cond_booking_time_sqlfiltercheck"]');
@@ -194,6 +200,8 @@ function showInvalidFeedback() {
     console.log(nonEmptyElements);
 
     const container = document.querySelector('#editoptionsformcontainer');
+
+    let firstelement = true;
     nonEmptyElements.forEach((element) => {
         let currentElement = element;
 
@@ -202,6 +210,13 @@ function showInvalidFeedback() {
 
             if (currentElement && currentElement.classList.contains('collapse')) {
                 currentElement.classList.add('show');
+                if (firstelement) {
+                    currentElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                    firstelement = false;
+                }
             }
         }
     });
