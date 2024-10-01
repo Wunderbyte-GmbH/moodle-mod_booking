@@ -134,7 +134,7 @@ class customform {
             $value = '';
         }
 
-        return $value;
+        return format_text($value);
     }
 
     /**
