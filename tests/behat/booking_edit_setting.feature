@@ -26,7 +26,8 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
 
   @javascript
   Scenario: Edit booking instance settings
-    Given I am on the "My booking" Activity page logged in as teacher1
+    Given I change viewport size to "1366x11000"
+    And I am on the "My booking" Activity page logged in as teacher1
     Then I follow "Settings"
     And I set the following fields to these values:
       | Booking instance name         | BookingUpd          |
