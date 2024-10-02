@@ -872,8 +872,10 @@ $string['deletebookinglong'] = 'Do you really want to delete this booking?';
 $string['deletebookingrule'] = 'Delete rule';
 $string['deletebookingruleconfirmtext'] = 'Do you really want to delete the following rule?';
 $string['deletecategory'] = 'Delete';
+$string['deleteconditionsfrombookinganswer'] = 'Delete userdata from booking form';
 $string['deletecustomfield'] = 'Delete custom field?';
 $string['deletecustomfield_help'] = 'Caution: Setting this checkbox will delete the associated custom field when saving.';
+$string['deletedatafrombookinganswer'] = 'Delete userdata from booking form';
 $string['deletedbookingusermessage'] = 'Hello {$a->participant},
 Your booking for {$a->title} ({$a->startdate} {$a->starttime}) has been cancelled.
 ';

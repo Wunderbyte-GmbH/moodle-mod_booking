@@ -865,8 +865,10 @@ $string['deletebookinglong'] = 'Wollen Sie diese Buchung wirklich löschen?';
 $string['deletebookingrule'] = 'Regel löschen';
 $string['deletebookingruleconfirmtext'] = 'Wollen Sie die folgende Regel wirklich löschen?';
 $string['deletecategory'] = 'Löschen';
+$string['deleteconditionsfrombookinganswer'] = 'Userdaten aus Buchungsformular löschen';
 $string['deletecustomfield'] = 'Feld löschen?';
 $string['deletecustomfield_help'] = 'Achtung: Wenn Sie diese Checkbox aktivieren, wird das zugehörige Feld beim Speichern gelöscht!';
+$string['deletedatafrombookinganswer'] = 'Userdaten aus Buchungsformular löschen';
 $string['deletedbookingusermessage'] = 'Guten Tag {$a->participant},
 Die Buchung für {$a->title} wurde erfolgreich storniert
 ';
