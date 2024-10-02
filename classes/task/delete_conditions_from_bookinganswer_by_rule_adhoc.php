@@ -23,6 +23,7 @@
  */
 
 namespace mod_booking\task;
+use mod_booking\event\bookinganswercustomformconditions_deleted;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -138,9 +139,22 @@ class delete_conditions_from_bookinganswer_by_rule_adhoc extends \core\task\adho
                     $data = json_encode($data);
                     $ba->json = $data;
                     $DB->update_record('booking_answers', $ba);
-                }
 
-                // TODO: New Event: Data deleted from bookinganswer.
+                    global $USER;
+                    $event = bookinganswercustomformconditions_deleted::create([
+                        'objectid' => $taskdata->baid,
+                        'context' => \context_module::instance($taskdata->cmid),
+                        'userid' => $USER->id,
+                        'relateduserid' => $taskdata->userid,
+                         'other' => [
+                            'cmid' => $taskdata->cmid,
+                            'optionid' => $taskdata->optionid,
+                            'bookinganswerid' => $taskdata->baid,
+                            'columnconcerened' => 'json',
+                         ],
+                    ]);
+                    $event->trigger();
+                }
 
             } catch (Exception $e) {
                 if (get_config('booking', 'bookingdebugmode')) {
