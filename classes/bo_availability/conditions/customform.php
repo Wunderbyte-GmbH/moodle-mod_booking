@@ -269,6 +269,7 @@ class customform implements bo_condition {
 
                 // We need a few rules. We don't show label...
                 // ... when no element is chosen, when upper button is not checked.
+                // Or if it's only the checkbox for users to delete their own data.
                 $mform->hideIf('bo_cond_customform_notempty_1_' . $counter, 'bo_cond_customform_restrict', 'notchecked');
                 $mform->hideIf('bo_cond_customform_notempty_1_' . $counter,
                     'bo_cond_customform_select_1_' . $counter,
