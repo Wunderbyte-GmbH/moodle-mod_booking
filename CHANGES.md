@@ -1,3 +1,14 @@
+## Version 8.6.25 (2024100200)
+* Improvement: Better feedback when deleting booking option
+* Improvement: If there is an error in importing one custom field, we should not abort the whole process.
+* Improvement: Use filters on return values of customform in placeholder
+* Improvement: Make info about required login to book more important
+* Bugfix: Make sure we don't multiply sessions on webservice import
+* Bugfix: improve handling of array customfields
+* Bugfix: Enable correct language switching
+* Bugfix: Only hide link to course when linktomoodlecourseonbookedbutton and not booked
+* Bugfix: Guest users are treated as not logged in
+
 ## Version 8.6.24 (2024100100)
 * Improvement: Setting to display detailview in same tab
 * Improvement: Show elements with validation errors
