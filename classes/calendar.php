@@ -283,7 +283,7 @@ class calendar {
      */
     public static function booking_optiondate_add_to_cal(int $cmid, int $optionid, stdClass $optiondate,
         int $calendareventid, int $userid = 0, int $addtocalendar = 1) {
-        global $DB;
+        global $DB, $SESSION;
 
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
@@ -302,7 +302,7 @@ class calendar {
 
             // Get the user language to make sure, calendar entries are set in the right language.
             $user = singleton_service::get_instance_of_user($userid);
-            $currentlang = current_language();
+            $currentlang = $SESSION->lang;
             force_current_language($user->lang);
 
             $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);

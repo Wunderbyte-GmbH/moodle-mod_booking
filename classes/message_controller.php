@@ -156,10 +156,10 @@ class message_controller {
         string $rulejson = ''
     ) {
 
-        global $USER, $PAGE;
+        global $USER, $PAGE, $SESSION;
 
         $user = singleton_service::get_instance_of_user($userid);
-        $originallanguage = current_language();
+        $originallanguage = $SESSION->lang;
         force_current_language($user->lang);
         $customsubject = format_text($customsubject, FORMAT_HTML, ['noclean' => true]);
         $custommessage = format_text($custommessage, FORMAT_HTML, ['noclean' => true]);
