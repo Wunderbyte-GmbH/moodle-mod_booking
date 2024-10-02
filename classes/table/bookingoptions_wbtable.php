@@ -172,7 +172,9 @@ class bookingoptions_wbtable extends wunderbyte_table {
         // Render col_price using a template.
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
 
-        return booking_bookit::render_bookit_button($settings, $USER->id);
+        $buyforuser = price::return_user_to_buy_for();
+
+        return booking_bookit::render_bookit_button($settings, $buyforuser->id);
     }
 
     /**
