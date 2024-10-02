@@ -17,7 +17,6 @@
 namespace mod_booking\booking_rules\actions;
 
 use mod_booking\booking_rules\booking_rule_action;
-use mod_booking\placeholders\placeholders_info;
 use mod_booking\task\delete_conditions_from_bookinganswer_by_rule_adhoc;
 use MoodleQuickForm;
 use stdClass;
@@ -60,10 +59,6 @@ class delete_conditions_from_bookinganswer implements booking_rule_action {
     public function set_actiondata_from_json(string $json) {
         $this->rulejson = $json;
         $jsonobject = json_decode($json);
-        $actiondata = $jsonobject->actiondata;
-
-        $this->subject = $actiondata->subject;
-        $this->template = $actiondata->template;
     }
 
     /**

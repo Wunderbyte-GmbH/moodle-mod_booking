@@ -245,7 +245,7 @@ class customform_form extends dynamic_form {
                             'advcheckbox',
                             $identifier,
                             get_string('bocondcustomformdeleteinfoscheckboxtext', 'mod_booking'),
-                            get_string('choose...', 'mod_booking')
+                            get_string('apply', 'mod_booking')
                         );
                         break;
                 }
