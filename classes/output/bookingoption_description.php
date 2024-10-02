@@ -554,7 +554,7 @@ class bookingoption_description implements renderable, templatable {
         if ($this->customfields) {
             foreach ($this->customfields as $key => $value) {
                 if (!isset($returnarray[$key])) {
-                    $printvalue = is_array($value) ? reset($value) : $value;
+                    $printvalue = is_array($value) ? implode(',', $value) : $value;
 
                     $type = $settings->customfieldsfortemplates[$key]['type'];
 
