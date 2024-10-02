@@ -73,11 +73,20 @@ class allow_add_item_to_cart extends external_api {
             'userid' => $userid,
         ]);
 
+        // First check is if this makes sense at all. If we have no price, we return success right away.
+        $settings = singleton_service::get_instance_of_booking_option_settings($params['itemid']);
+        if (empty($settings->useprice)) {
+            return [
+                'success' => 1, /* LOCAL_SHOPPING_CART_CARTPARAM_SUCCESS needs to be hardcoded here
+                    as shopping cart might not be installed! */
+                'itemname' => $settings->get_title_with_prefix(),
+            ];
+        }
+
         if (class_exists('local_shopping_cart\shopping_cart')) {
-            return shopping_cart::allow_add_item_to_cart('mod_booking', 'option', $itemid, $userid);
+            return shopping_cart::allow_add_item_to_cart('mod_booking', 'option', $params['itemid'], $params['userid']);
         } else {
             // If shopping cart is not installed, we want to continue.
-            $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
             return [
                 'success' => 1, /* LOCAL_SHOPPING_CART_CARTPARAM_SUCCESS needs to be hardcoded here
                     as shopping cart might not be installed! */
