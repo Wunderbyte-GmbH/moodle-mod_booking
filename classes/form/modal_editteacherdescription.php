@@ -123,8 +123,8 @@ class modal_editteacherdescription extends dynamic_form {
                 'context' => $context,
             ],
             $context,
-            'mod_booking', // Component name
-            'description', // File area
+            'mod_booking',
+            'description',
             $data->teacherid,
         );
 
