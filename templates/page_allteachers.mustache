@@ -64,7 +64,7 @@
                     <div class="text-white h3 mb-0 page-allteachers-teachername">{{lastname}} {{firstname}}</div>
                 </a>
                 {{#profileediturl}}
-                <div class="page-allteachers-profilelink text-white"><a href="{{profileediturl}}"><i class="fa fa-pencil" aria-hidden="true" style="color: white;"></i></a></div>
+                <div class="page-allteachers-profilelink text-white edit-teacher-description" data-teacherid="{{teacherid}}"><i class="fa fa-pencil" aria-hidden="true" style="color: white;"></i></div>
                 {{/profileediturl}}
                 <div class="page-allteachers-orderletter bg-light rounded text-center">{{orderletter}}</div>
             </div>
@@ -129,3 +129,9 @@
         </div>
     {{/teachers}}
 </div>
+
+{{#js}}
+    require(['mod_booking/edit-teacher-description'], function(init) {
+    init.init();
+    });
+{{/js}}

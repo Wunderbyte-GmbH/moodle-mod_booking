@@ -955,6 +955,7 @@ $string['editotherbooking'] = 'Other booking rules';
 $string['editrule'] = "Edit";
 $string['editsubbooking'] = 'Edit subbooking';
 $string['edittag'] = 'Edit';
+$string['editteacherslink'] = 'Edit teachers';
 $string['editteachers'] = 'Edit';
 $string['educationalunitinminutes'] = 'Length of an educational unit (minutes)';
 $string['educationalunitinminutes_desc'] = 'Enter the length of an educational unit in minutes. It will be used to calculate the performed teaching units.';

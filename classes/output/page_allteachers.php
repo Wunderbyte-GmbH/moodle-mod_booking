@@ -132,7 +132,7 @@ class page_allteachers implements renderable, templatable {
                 $teacherarr['messagingispossible'] = true;
             }
 
-            if (has_capability('moodle/user:editprofile', context_system::instance())) {
+            if (has_capability('mod/booking:editteacherdescription', context_system::instance())) {
                 $url = new moodle_url('/user/editadvanced.php', ['id' => $teacher->id]);
                 $teacherarr['profileediturl'] = $url->out(false);
             }

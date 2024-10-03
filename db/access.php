@@ -340,4 +340,12 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    // Capability to edit user profile descriptions.
+    'mod/booking:editteacherdescription' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
 ];

@@ -106,7 +106,21 @@
                         </a>
                     </div>
                     {{/messagingispossible}}
-                    <p class="card-description">{{{description}}}</p>
+                    <p>
+                    <div class="container card-description">
+                        <div class="row">
+                            {{#canedit}}<div class="col-11">{{/canedit}}
+                            {{^canedit}}<div class="col-12">{{/canedit}}
+                                {{{description}}}
+                            </div>
+                            {{#canedit}}
+                                <div class="col-1 edit-teacher-description" data-teacherid="{{teacherid}}">
+                                    <i class="fas fa-edit" aria-label="{{#str}} edit {{/str}}"></i>
+                                </div>
+                            {{/canedit}}
+                        </div>
+                    </div>
+                    </p>
                     {{#linktoperformedunitsreport}}
                     <a href="{{linktoperformedunitsreport}}" class="btn btn-light" target="_self">
                         <span>
@@ -140,3 +154,9 @@
     {{/teacher}}
 </div>
 {{/error}}
+
+{{#js}}
+    require(['mod_booking/edit-teacher-description'], function(init) {
+    init.init();
+    });
+{{/js}}

@@ -26,6 +26,7 @@ namespace mod_booking\output;
 
 use context_system;
 use context_module;
+use context_user;
 use mod_booking\booking_answers;
 use mod_booking\singleton_service;
 use moodle_url;
@@ -114,12 +115,23 @@ class page_teacher implements renderable, templatable {
         // Get all booking options where the teacher is teaching and sort them by instance.
         $teacheroptiontables = $this->get_option_tables_for_teacher($this->teacher->id);
 
+        $context = context_user::instance($this->teacher->id, MUST_EXIST);
+        $descriptiontext = file_rewrite_pluginfile_urls(
+            $this->teacher->description,
+            'pluginfile.php',
+            $context->id,
+            'user',
+            'profile',
+            null,
+        );
+
         $returnarray['teacher'] = [
             'teacherid' => $this->teacher->id,
             'firstname' => $this->teacher->firstname,
             'lastname' => $this->teacher->lastname,
-            'description' => format_text($this->teacher->description, $this->teacher->descriptionformat),
+            'description' => format_text($descriptiontext, $this->teacher->descriptionformat),
             'optiontables' => $teacheroptiontables,
+            'canedit' => has_capability('mod/booking:editteacherdescription', $context),
         ];
 
         // If the user has set to hide e-mails, we won't show them.

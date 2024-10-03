@@ -18,6 +18,7 @@ namespace mod_booking;
 
 use context_module;
 use context_system;
+use context_user;
 use html_writer;
 use local_entities\entitiesrelation_handler;
 use mod_booking\bo_availability\bo_subinfo;
@@ -690,11 +691,22 @@ class booking_option_settings {
             'SELECT DISTINCT t.userid, u.firstname, u.lastname, u.email, u.institution, u.description, u.descriptionformat
                     FROM {booking_teachers} t
                LEFT JOIN {user} u ON t.userid = u.id
-                   WHERE t.optionid = :optionid', ['optionid' => $this->id]
+                   WHERE t.optionid = :optionid',
+            ['optionid' => $this->id]
         );
 
         foreach ($teachers as $key => $teacher) {
-            $teachers[$key]->description = format_text($teacher->description, $teacher->descriptionformat);
+            $context = context_user::instance($teacher->userid, MUST_EXIST);
+            $descriptiontext = file_rewrite_pluginfile_urls(
+                $teacher->description,
+                'pluginfile.php',
+                $context->id,
+                'user',
+                'profile',
+                null,
+            );
+
+            $teachers[$key]->description = format_text($descriptiontext, $teacher->descriptionformat);
         }
 
         $this->teachers = $teachers;
