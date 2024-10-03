@@ -209,7 +209,7 @@ class customform implements bo_condition {
                 'select' => get_string('select', 'mod_booking'),
                 'url' => get_string('bocondcustomformurl', 'mod_booking'),
                 'mail' => get_string('bocondcustomformmail', 'mod_booking'),
-                'deleteinfoscheckbox' => get_string('bocondcustomformdeleteinfoscheckbox', 'mod_booking'),
+                'deleteinfoscheckboxuser' => get_string('bocondcustomformdeleteinfoscheckboxuser', 'mod_booking'),
             ];
 
             // We add four potential elements.
@@ -236,11 +236,11 @@ class customform implements bo_condition {
                 $mform->hideIf('bo_cond_customform_label_1_' . $counter,
                     'bo_cond_customform_select_1_' . $counter,
                     'eq', 0);
-                $mform->hideIf( // For deleteinfoscheckbox, we don't need to fill out any information.
+                $mform->hideIf( // For deleteinfoscheckboxuser, we don't need to fill out any information.
                     'bo_cond_customform_label_1_' . $counter,
                 'bo_cond_customform_select_1_' . $counter,
                 'eq',
-                'deleteinfoscheckbox'
+                'deleteinfoscheckboxuser'
                 );
 
                 // We need to create all possible elements and hide them via "hideif" right now.
@@ -260,7 +260,7 @@ class customform implements bo_condition {
                     'bo_cond_customform_value_1_' . $counter,
                     'bo_cond_customform_select_1_' . $counter,
                     'eq',
-                    'deleteinfoscheckbox'
+                    'deleteinfoscheckboxuser'
                 );
 
                 // We need to create all possible elements and hide them via "hideif" right now.
@@ -281,7 +281,7 @@ class customform implements bo_condition {
                     'bo_cond_customform_notempty_1_' . $counter,
                     'bo_cond_customform_select_1_' . $counter,
                     'eq',
-                    'deleteinfoscheckbox'
+                    'deleteinfoscheckboxuser'
                 );
 
                 if (!empty($previous)) {

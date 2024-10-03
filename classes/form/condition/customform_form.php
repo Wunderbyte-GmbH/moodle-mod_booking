@@ -234,7 +234,7 @@ class customform_form extends dynamic_form {
                         );
                         $mform->setDefault('customform_mail_' . $counter, $formelementvalue->value);
                         break;
-                    case 'deleteinfoscheckbox':
+                    case 'deleteinfoscheckboxuser':
                         if ($deleteform) {
                             // Only one will be rendered rendered.
                             break;
@@ -244,7 +244,7 @@ class customform_form extends dynamic_form {
                         $mform->addElement(
                             'advcheckbox',
                             $identifier,
-                            get_string('bocondcustomformdeleteinfoscheckboxtext', 'mod_booking'),
+                            get_string('bocondcustomformdeleteinfoscheckboxusertext', 'mod_booking'),
                             get_string('apply', 'mod_booking')
                         );
                         break;
