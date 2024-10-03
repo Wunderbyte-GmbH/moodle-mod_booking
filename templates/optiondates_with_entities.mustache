@@ -41,8 +41,24 @@
 }}
 {{#showsessions}}
     <ul>
-        {{#sessions}}
-            <li>{{{starttime}}} - {{{endtime}}} {{#entityname}}<a href="{{entityurl}}"> {{entityname}} </a>{{/entityname}}</li>
-        {{/sessions}}
+        {{#dates}}
+                <li>
+                    <div>
+                        <b>{{{datestring}}}</b>
+                        {{#entitylink}}
+                            <div class="entity-for-optiondate-area">
+                                <i class="fa fa-fw fa-map-marker" aria-hidden="true"></i>&nbsp;{{{.}}}
+                            </div>
+                        {{/entitylink}}
+                    </div>
+                    <div {{^customfields}}style="display:none"{{/customfields}}>
+                        {{#customfields}}
+                            <div>
+                                {{name}}{{{value}}}
+                            </div>
+                        {{/customfields}}
+                    </div>
+                </li>
+        {{/dates}}
     </ul>
 {{/showsessions}}

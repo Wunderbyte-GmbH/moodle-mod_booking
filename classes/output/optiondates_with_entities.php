@@ -28,6 +28,7 @@ namespace mod_booking\output;
 use local_entities\entitiesrelation_handler;
 use mod_booking\booking_option_settings;
 use mod_booking\option\dates_handler;
+use mod_booking\singleton_service;
 use moodle_url;
 use renderer_base;
 use renderable;
@@ -60,34 +61,8 @@ class optiondates_with_entities implements renderable, templatable {
      */
     public function __construct(booking_option_settings $settings) {
 
-        $sessions = dates_handler::return_dates_with_strings($settings, '', true);
-
-        $numberofsessions = count($sessions);
-
-        $this->onesession = $numberofsessions === 1;
-        $this->showsessions = $numberofsessions > 0;
-
-        $entities = class_exists('local_entities\entitiesrelation_handler');
-
-        // Add entities.
-        if ($entities = class_exists('local_entities\entitiesrelation_handler')) {
-            $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
-        }
-
-        foreach ($sessions as $session) {
-            $session->starttime = $session->startdatetime;
-
-            if ($session->startdate !== $session->enddate) {
-                $session->endtime = $session->enddatetime;
-            }
-            if ($entities && $data = $erhandler->get_instance_data($session->id)) {
-                $session->entityname = $data->name;
-                $url = new moodle_url('/local/entities/view.php', ['id' => $data->id]);
-                $session->entityurl = $url->out();
-            }
-        }
-
-        $this->sessions = $sessions;
+        $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $this->sessions = $bookingoption->return_array_of_sessions(null, MOD_BOOKING_DESCRIPTION_MAIL, true, true);
     }
 
     /**
@@ -103,7 +78,7 @@ class optiondates_with_entities implements renderable, templatable {
         return [
                 'showsessions' => $this->showsessions,
                 'onesession' => $this->onesession,
-                'sessions' => $this->sessions,
+                'dates' => $this->sessions,
         ];
     }
 }

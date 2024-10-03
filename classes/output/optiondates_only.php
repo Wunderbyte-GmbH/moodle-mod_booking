@@ -67,10 +67,10 @@ class optiondates_only implements renderable, templatable {
 
         foreach ($sessions as $session) {
 
-            $session->starttime = $session->startdatetime;
+            $session->datestring = $session->startdatetime;
 
             if ($session->startdate !== $session->enddate) {
-                $session->endtime = $session->enddatetime;
+                $session->datestring .= " - " . $session->enddatetime;
             }
 
         }
@@ -91,7 +91,7 @@ class optiondates_only implements renderable, templatable {
         return [
                 'showsessions' => $this->showsessions,
                 'onesession' => $this->onesession,
-                'sessions' => $this->sessions,
+                'dates' => $this->sessions,
         ];
     }
 }
