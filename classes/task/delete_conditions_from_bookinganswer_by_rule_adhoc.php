@@ -129,8 +129,8 @@ class delete_conditions_from_bookinganswer_by_rule_adhoc extends \core\task\adho
                     // Can be defined from user or from admin (teacher).
                     if ((isset($data['condition_customform']['customform_deleteinfoscheckboxuser'])
                     && !empty($data['condition_customform']['customform_deleteinfoscheckboxuser']))
-                    || (isset($data['condition_customform']['customform_deleteinfoscheckboxadmin'])
-                    && !empty($data['condition_customform']['customform_deleteinfoscheckboxadmin']))) {
+                    || (isset($data['condition_customform']['deleteinfoscheckboxadmin'])
+                    && !empty($data['condition_customform']['deleteinfoscheckboxadmin']))) {
                         // Remove 'condition_customform' key and its value.
                         unset($data['condition_customform']);
                         $change = true;

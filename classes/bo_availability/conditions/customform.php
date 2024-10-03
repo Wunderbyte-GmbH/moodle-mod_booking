@@ -34,6 +34,7 @@ use mod_booking\booking_option_settings;
 use mod_booking\local\mobile\customformstore;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
+use moodle_url;
 use MoodleQuickForm;
 use stdClass;
 
@@ -294,6 +295,24 @@ class customform implements bo_condition {
                 $counter++;
             }
 
+            $url = new moodle_url('/mod/booking/edit_rules.php');
+            $mform->addElement(
+                'advcheckbox',
+                'bo_cond_customform_deleteinfoscheckboxadmin',
+                "",
+                get_string('deleteinfoscheckboxadmin',
+                'mod_booking',
+                $url->out()));
+            $mform->hideIf(
+                'bo_cond_customform_deleteinfoscheckboxadmin',
+                'bo_cond_customform_restrict',
+                'notchecked'
+            );
+            $mform->hideIf(
+                'bo_cond_customform_deleteinfoscheckboxadmin',
+            'bo_cond_customform_select_1_1',
+            'eq',
+            0);
         } else {
             // No PRO license is active.
             $mform->addElement('static', 'bo_cond_customform_restrict',
@@ -355,6 +374,7 @@ class customform implements bo_condition {
         $conditionobject->id = MOD_BOOKING_BO_COND_JSON_CUSTOMFORM;
         $conditionobject->name = $shortclassname;
         $conditionobject->class = $classname;
+        $conditionobject->deleteinfoscheckboxadmin = $fromform->bo_cond_customform_deleteinfoscheckboxadmin ?? 0;
 
         $conditionobject->formsarray = [];
 
@@ -430,6 +450,9 @@ class customform implements bo_condition {
                 $key = 'bo_cond_customform_notempty_' . $formcounter . '_' . $counter;
                 $defaultvalues->{$key} = $formelement->notempty ?? 0;
             }
+        }
+        if (isset($acdefault->deleteinfoscheckboxadmin) && !empty($acdefault->deleteinfoscheckboxadmin)) {
+            $defaultvalues->bo_cond_customform_deleteinfoscheckboxadmin = $acdefault->deleteinfoscheckboxadmin;
         }
     }
 

@@ -141,6 +141,12 @@ class customform_form extends dynamic_form {
             }
         }
         $deleteform = false;
+        if (isset($customform->deleteinfoscheckboxadmin)) {
+            $deleteformvalue = $customform->deleteinfoscheckboxadmin ?? 0;
+            $mform->addElement('hidden', 'deleteinfoscheckboxadmin', $deleteformvalue);
+            $deleteform = true; // If admin checkbox is set, no need to check for usercheckbox.
+        }
+
         foreach ($customform->formsarray as $formkey => $formvalue) {
             $formelements = [];
 

@@ -892,6 +892,11 @@ Booking link: {$a->bookinglink}
 $string['deletedtextsubject'] = 'Deleted booking: {$a->title} by {$a->participant}';
 $string['deletedusers'] = 'Deleted users';
 $string['deleteholiday'] = 'Delete holiday';
+$string['deleteinfoscheckboxadmin'] = 'Delete the data provided by the user after the option has ended.
+<div class="alert alert-warning style="margin-left: 200px;">
+<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+<span> A corresponding <a target="_blank" href="{$a}">booking rule</a> must be configured to execute this option!</span>
+</div>';
 $string['deleteoptiondate'] = 'Remove date';
 $string['deleteresponsesactivitycompletion'] = 'Delete all users with completed activity: {$a}';
 $string['deleterule'] = 'Delete';

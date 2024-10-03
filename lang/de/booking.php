@@ -885,6 +885,10 @@ Link: {$a->bookinglink}
 $string['deletedtextsubject'] = 'Storno von {$a->title}, User: {$a->participant}';
 $string['deletedusers'] = 'Gelöschte Nutzer:innen';
 $string['deleteholiday'] = 'Eintrag löschen';
+$string['deleteinfoscheckboxadmin'] = 'Die vom User angegebenen Daten löschen, nachdem die Option beendet wurde.
+<div class="alert alert-warning style="margin-left: 200px;">
+<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+<span>Für die Ausführung muss eine entsprechende <a target="_blank" href="{$a}">Buchung Regel</a> aktiviert werden</span></div>';
 $string['deleteoptiondate'] = 'Termin entfernen';
 $string['deleterule'] = 'Löschen';
 $string['deletesemester'] = 'Semester löschen';
