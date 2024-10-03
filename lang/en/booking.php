@@ -2228,12 +2228,12 @@ $string['whichviewerror'] = 'You have to include the default view in: Views to s
 $string['withselected'] = 'With selected users:';
 $string['wrongdataallfields'] = 'Please, fill out all fields!';
 $string['wronglabels'] = 'Imported CSV not containing the right labels. Column {$a} can not be imported.';
+$string['xusersarebooked'] = '{$a} users are booked';
 $string['yes'] = 'Yes';
 $string['youareediting'] = 'You are editing "<b>{$a}</b>".';
 $string['youareusingconfig'] = 'Your are using the following form configuration: {$a}';
 $string['yourplaceonwaitinglist'] = 'You are on place {$a} on the waitinglist';
 $string['yourselection'] = 'Your selection';
-$string['xusersarebooked'] = '{$a} users are booked';
 $string['zoommeeting'] = 'Zoom meeting';
 
 // phpcs:disable

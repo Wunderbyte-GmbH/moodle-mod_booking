@@ -2150,12 +2150,12 @@ $string['whichviewerror'] = 'Die Standardansicht muss auch in den Ansichten der 
 $string['withselected'] = 'Ausgewählte Nutzer:innen';
 $string['wrongdataallfields'] = 'Bitte alle Felder ausfüllen!';
 $string['wronglabels'] = 'Die importierten Spaltennamen entsprechen nicht der Vorgabe. {$a} kann nicht importiert werden.';
+$string['xusersarebooked'] = '{$a} Nutzer:innen sind gebucht';
 $string['yes'] = 'Ja';
 $string['youareediting'] = 'Sie bearbeiten "<b>{$a}</b>".';
 $string['youareusingconfig'] = 'Sie verwenden folgende Formular-Konfiguration: {$a}';
 $string['yourplaceonwaitinglist'] = 'Sie sind auf Platz {$a} auf der Warteliste';
 $string['yourselection'] = 'Ihre Auswahl';
-$string['xusersarebooked'] = '{$a} Nutzer:innen sind gebucht';
 $string['zoommeeting'] = 'Zoom-Meeting';
 
 // phpcs:disable
