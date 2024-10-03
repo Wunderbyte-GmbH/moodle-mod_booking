@@ -690,7 +690,12 @@ class booking_option_settings {
             'SELECT DISTINCT t.userid, u.firstname, u.lastname, u.email, u.institution, u.description, u.descriptionformat
                     FROM {booking_teachers} t
                LEFT JOIN {user} u ON t.userid = u.id
-                   WHERE t.optionid = :optionid', ['optionid' => $this->id]);
+                   WHERE t.optionid = :optionid', ['optionid' => $this->id]
+        );
+
+        foreach ($teachers as $key => $teacher) {
+            $teachers[$key]->description = format_text($teacher->description, $teacher->descriptionformat);
+        }
 
         $this->teachers = $teachers;
     }
