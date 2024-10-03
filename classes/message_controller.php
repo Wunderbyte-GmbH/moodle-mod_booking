@@ -159,7 +159,7 @@ class message_controller {
         global $USER, $PAGE, $SESSION;
 
         $user = singleton_service::get_instance_of_user($userid);
-        $originallanguage = $SESSION->lang;
+        $originallanguage = current_language();
         force_current_language($user->lang);
         $customsubject = format_text($customsubject, FORMAT_HTML, ['noclean' => true]);
         $custommessage = format_text($custommessage, FORMAT_HTML, ['noclean' => true]);
