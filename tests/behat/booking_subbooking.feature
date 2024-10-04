@@ -137,3 +137,51 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     And I should see "Test option 1" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
     And I follow "Close"
     And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
+
+@javascript
+  Scenario: Add subbooking item when price set via DB to a booking option and verify as students
+    Given the following "core_payment > payment accounts" exist:
+      | name           |
+      | Account1       |
+    And the following "local_shopping_cart > payment gateways" exist:
+      | account  | gateway | enabled | config                                                                                |
+      | Account1 | paypal  | 1       | {"brandname":"Test paypal","clientid":"Test","secret":"Test","environment":"sandbox"} |
+    And the following "local_shopping_cart > user credits" exist:
+      | user     | credit | currency |
+      | teacher1 | 100    | EUR      | 
+    And the following "mod_booking > pricecategories" exist:
+      | ordernum | identifier | name  | defaultvalue | disabled | pricecatsortorder |
+      | 1        | default    | Price | 88           | 0        | 1                 |
+      | 2        | discount1  | Disc1 | 77           | 0        | 2                 |
+    And the following "mod_booking > options" exist:
+      | booking    | text           | course | description | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | useprice |
+      | My booking | Option-subitem | C1     | Subitem     | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 1        |
+    And the following "mod_booking > subbookings" exist:
+      | name | type                      | option         | block | json                                                                                                                                                                                                |
+      | item | subbooking_additionalitem | Option-subitem | 0     | {"name":"MyItem","type":"subbooking_additionalitem","data":{"description":"item descr","descriptionformat":"1","useprice":"1","subbookingadditemformlink":"0","subbookingadditemformlinkvalue":""}} |
+    ## Verify subbokings working: book as stundet with subbokings
+    When I am on the "Course 1" course page logged in as teacher1
+    And I follow "My booking"
+    And I wait until the page is ready
+    Then I should see "Option-subitem" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I wait "1" seconds
+    And I should see "Do you want to book Option-subitem?" in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
+    And I click on "Book now" "text" in the ".modal-dialog.modal-xl .booking-button-area" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".modal-dialog.modal-xl .booking-button-area" "css_element"
+    And I should see "Start" in the ".modal-dialog.modal-xl .booking-button-area" "css_element"
+    And I follow "Continue"
+    And I should see "Partner(s)" in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
+    And I press "Partner(s)"
+    And I set the field "Add additional person(s)" to "1"
+    And I wait "1" seconds
+    And I set the following fields to these values:
+      | person_firstname_1 | Ann   |
+      | person_lastname_1  | Smith |
+      | person_age_1       | 20    |
+    And I click on "Book now" "text" in the ".subbooking-additionalperson-form" "css_element"
+    And I follow "Continue"
+    And I should see "Thank you! You have successfully booked" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
+    And I should see "Test option 1" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
+    And I follow "Close"
+    And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
