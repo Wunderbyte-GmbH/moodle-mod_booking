@@ -71,7 +71,6 @@ export function editTeacherModal(button) {
     // Listen to events if you want to execute something on form submit.
     // Event detail will contain everything the process() function returned:
     modalForm.addEventListener(modalForm.events.FORM_SUBMITTED, () => {
-
         setTimeout(() => {
             window.location.reload();
         }, 500);
