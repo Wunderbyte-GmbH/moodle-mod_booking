@@ -389,6 +389,7 @@ $string['booking:deleteresponses'] = 'Delete responses';
 $string['booking:downloadresponses'] = 'Download responses';
 $string['booking:editbookingrules'] = "Edit rules (Pro)";
 $string['booking:editoptionformconfig'] = 'Edit option config form';
+$string['booking:editteacherdescription'] = 'Edit teacher description';
 $string['booking:expertoptionform'] = "Expert option form";
 $string['booking:limitededitownoption'] = 'Less than addeditownoption, only allows very limited actions';
 $string['booking:managecomments'] = 'Manage comments';
