@@ -49,7 +49,7 @@
         <tr>
             <td><b>{{.}}: </b></td>
             <td>
-                <div style="color: red;">
+                <div class="changed-old-value">
                     {{#oldvalue}}
                         <div>
                             {{#str}} changeold, mod_booking {{/str}}
@@ -59,7 +59,7 @@
                 </div>
                 <div>
                     {{#newvalue}}
-                        <div>
+                        <div class="changed-new-value">
                             {{#str}} changenew, mod_booking {{/str}}
                             {{{.}}}
                         </div>
@@ -79,7 +79,7 @@
                         {{.}}
                     {{/newname}}
                     {{#oldname}}
-                        <div style="color: red;">
+                        <div class="changed-old-value">
                             {{#str}} changeold, mod_booking {{/str}}
                             <s>{{.}}</s>
                         </div>
@@ -87,9 +87,9 @@
                 </b>
             </td>
             <td>
-                <div style="color: red;">
+                <div>
                     {{#oldvalue}}
-                        <div>
+                        <div class="changed-old-value">
                             {{#str}} changeold, mod_booking {{/str}}
                             <s>{{{.}}}</s>
                         </div>
@@ -97,7 +97,7 @@
                 </div>
                 <div>
                     {{#newvalue}}
-                        <div>
+                        <div class="changed-new-value">
                             {{#str}} changenew, mod_booking {{/str}}
                             {{{.}}}
                         </div>

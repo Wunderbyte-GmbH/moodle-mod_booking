@@ -467,3 +467,6 @@ if there only was one booking option. */
     text-decoration: none;
 }
 
+#page-mod-booking-editoptions .changed-old-value {
+    color: red;
+}
