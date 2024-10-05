@@ -702,9 +702,23 @@ if (!$tableallbookings->is_downloading()) {
     echo $OUTPUT->header();
 
     echo $OUTPUT->heading(
-            html_writer::link(new moodle_url('/mod/booking/view.php', ['id' => $cm->id]),
-                    format_string($bookingoption->booking->settings->name)) . ' > ' .
-                        format_string($titlestring), 4);
+        html_writer::link(
+            new moodle_url('/mod/booking/view.php', ['id' => $cm->id]),
+            format_string($bookingoption->booking->settings->name)
+        ) . ' > ' .
+        html_writer::link(
+            new moodle_url(
+                '/mod/booking/view.php',
+                [
+                    'id' => $cm->id,
+                    'optionid' => $bookingoption->id,
+                    'whichview' => 'showonlyone',
+                ]
+            ),
+            format_string($titlestring),
+        ),
+        4
+    );
 
     // We need this on top, so we have the action to download the sign-in-sheet.
     echo '<input name="action" type="hidden" value="downloadsigninsheet">';
