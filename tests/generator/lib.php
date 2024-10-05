@@ -280,6 +280,35 @@ class mod_booking_generator extends testing_module_generator {
     }
 
     /**
+     * Function to create a dummy price item.
+     *
+     * @param ?array|stdClass $record
+     * @return void
+     */
+    public function create_price($record = null): void {
+        global $DB;
+
+        $record = (object) $record;
+
+        switch ($record->area) {
+            case 'option':
+                if (!$itemid = $DB->get_field('booking_options', 'id', ['text' => $record->itemname])) {
+                    throw new Exception('The specified booking option with name text "' . $record->itemname . '" does not exist');
+                }
+                break;
+            case 'subbooking':
+                if (!$itemid = $DB->get_field('booking_subbooking_options', 'id', ['name' => $record->itemname])) {
+                    throw new Exception('The specified subbooking with name text "' . $record->itemname . '" does not exist');
+                }
+                break;
+            default:
+                $itemid = 0;
+        }
+
+        Mod_bookingPrice::add_price($record->area, $itemid, $record->pricecategoryidentifier,
+        $record->price, $record->currency);
+    }
+    /**
      * Function to create a dummy semester option.
      *
      * @param ?array|stdClass $record

@@ -48,6 +48,11 @@ class behat_mod_booking_generator extends behat_generator_base {
                 'datagenerator' => 'pricecategory',
                 'required' => ['ordernum', 'identifier', 'name', 'defaultvalue'],
             ],
+            'prices' => [
+                'singular' => 'price',
+                'datagenerator' => 'price',
+                'required' => ['itemname', 'area', 'pricecategoryidentifier', 'price', 'currency'],
+            ],
             'campaigns' => [
                 'datagenerator' => 'campaign',
                 'required' => ['name', 'type', 'json', 'starttime', 'endtime', 'pricefactor', 'limitfactor'],
