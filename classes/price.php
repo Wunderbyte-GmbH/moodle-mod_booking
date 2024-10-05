@@ -686,9 +686,17 @@ class price {
 
         if ($priceupdated) {
             global $USER;
-            $bosettings = singleton_service::get_instance_of_booking_option_settings($itemid);
+
+            // Get option id for subbooking.
+            if ($area == 'subbooking') {
+                $optionid = $DB->get_field('booking_subbooking_options', 'optionid', ['id' => $itemid], MUST_EXIST);
+            } else {
+                $optionid = $itemid;
+            }
+            // Get option settings and trigger event.
+            $bosettings = singleton_service::get_instance_of_booking_option_settings($optionid);
             $context = context_module::instance($bosettings->cmid);
-            booking_option::trigger_updated_event($context, $data->itemid, $USER->id, $USER->id, 'price');
+            booking_option::trigger_updated_event($context, $optionid, $USER->id, $USER->id, 'price');
         }
         // In any case, invalidate the cache after updating the booking option.
         // If performance is an issue, one could update only the cache of a this single option by key.
