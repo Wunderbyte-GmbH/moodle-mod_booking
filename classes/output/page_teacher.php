@@ -154,9 +154,12 @@ class page_teacher implements renderable, templatable {
             $imageurl = $picture->get_url($PAGE);
             $returnarray['image'] = $imageurl;
         }
-
-        if (self::teacher_messaging_is_possible($this->teacher->id)) {
-            $returnarray['messagingispossible'] = true;
+        if (!empty($CFG->messaging)) {
+            if (self::teacher_messaging_is_possible($this->teacher->id)) {
+                $returnarray['messagingispossible'] = true;
+            }
+        } else {
+            $returnarray['messagesdeactivated'] = true;
         }
 
         // Add a link to the report of performed teaching units.

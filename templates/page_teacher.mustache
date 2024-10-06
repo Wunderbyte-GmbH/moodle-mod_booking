@@ -83,30 +83,32 @@
                             </a>
                         <div>
                     {{/phones}}
-                    {{#messagingispossible}}
-                    <div>
-                        <a id="message-user-button" role="button" data-conversationid="0"
-                        data-userid="{{teacherid}}" class="btn btn-light"
-                        href="{{wwwroot}}/message/index.php?id={{teacherid}}">
-                            <span>
-                                <i class="icon fa fa-comment-o fa-fw iconsmall" title="{{#str}} messagebutton, mod_booking {{/str}}"
-                                role="img" aria-label="{{#str}} messagebutton, mod_booking {{/str}}"></i>
-                                <span class="header-button-title">{{#str}} messagebutton, mod_booking {{/str}}</span>
-                            </span>
-                        </a>
-                    </div>
-                    {{/messagingispossible}}
-                    {{^messagingispossible}}
-                    <div style="display: inline-block;" data-toggle="tooltip" data-placement="right" title="{{#str}} messagingteacherimpossible, mod_booking {{/str}}">
-                        <a id="message-user-button" role="button" class="btn btn-light disabled">
-                            <span>
-                                <i class="icon fa fa-comment-o fa-fw iconsmall" title="{{#str}} messagebutton, mod_booking {{/str}}"
-                                role="img" aria-label="{{#str}} messagebutton, mod_booking {{/str}}"></i>
-                                <span class="header-button-title">{{#str}} messagebutton, mod_booking {{/str}}</span>
-                            </span>
-                        </a>
-                    </div>
-                    {{/messagingispossible}}
+                    {{^messagesdeactivated}}
+                        {{#messagingispossible}}
+                        <div>
+                            <a id="message-user-button" role="button" data-conversationid="0"
+                            data-userid="{{teacherid}}" class="btn btn-light"
+                            href="{{wwwroot}}/message/index.php?id={{teacherid}}">
+                                <span>
+                                    <i class="icon fa fa-comment-o fa-fw iconsmall" title="{{#str}} messagebutton, mod_booking {{/str}}"
+                                    role="img" aria-label="{{#str}} messagebutton, mod_booking {{/str}}"></i>
+                                    <span class="header-button-title">{{#str}} messagebutton, mod_booking {{/str}}</span>
+                                </span>
+                            </a>
+                        </div>
+                        {{/messagingispossible}}
+                        {{^messagingispossible}}
+                        <div style="display: inline-block;" data-toggle="tooltip" data-placement="right" title="{{#str}} messagingteacherimpossible, mod_booking {{/str}}">
+                            <a id="message-user-button" role="button" class="btn btn-light disabled">
+                                <span>
+                                    <i class="icon fa fa-comment-o fa-fw iconsmall" title="{{#str}} messagebutton, mod_booking {{/str}}"
+                                    role="img" aria-label="{{#str}} messagebutton, mod_booking {{/str}}"></i>
+                                    <span class="header-button-title">{{#str}} messagebutton, mod_booking {{/str}}</span>
+                                </span>
+                            </a>
+                        </div>
+                        {{/messagingispossible}}
+                    {{/messagesdeactivated}}
                     <p>
                     <div class="container card-description">
                         <div class="row">
