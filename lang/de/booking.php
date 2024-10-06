@@ -1080,6 +1080,7 @@ $string['filterbtn'] = 'Filtern';
 $string['filterenddate'] = 'Bis';
 $string['filterstartdate'] = 'Von';
 $string['firstname'] = "Vorname";
+$string['firstnamerelated'] = "Vorname betroffene Person";
 $string['forcourse'] = 'für Kurs';
 $string['format'] = 'Format';
 $string['formconfig'] = 'Anzeige, welches Formular verwendet wird';
@@ -1221,6 +1222,7 @@ $string['keepusersbookedonreducingmaxanswers_desc'] = 'Benutzer:innen weiterhin 
 auch wenn das Limit der verfügbaren Plätze reduziert wird. Beispiel: Ein Kurs hat 5 Plätze.
 Das Limit wird auf 3 reduziert. Die 5 Nutzer:innen, die schon gebucht haben, bleiben trotzdem im Status "gebucht".';
 $string['lastname'] = "Nachname";
+$string['lastname'] = "Nachname betroffene Person";
 $string['lblacceptingfrom'] = 'Bezeichnung für: Annehmen von';
 $string['lblbooking'] = 'Bezeichnung für: Buchung';
 $string['lblbooktootherbooking'] = 'Bezeichnung für den Button "Zu anderer Buchungsoption hinzufügen"';
