@@ -302,8 +302,7 @@ class calendar {
 
             // Get the user language to make sure, calendar entries are set in the right language.
             $user = singleton_service::get_instance_of_user($userid);
-            $currentlang = current_language();
-            force_current_language($user->lang);
+            $currentlang = force_current_language($user->lang);
 
             $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
             // If the user is booked, we have a different kind of description.
