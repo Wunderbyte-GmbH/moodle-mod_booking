@@ -782,23 +782,7 @@ class booking_option {
             $completion->update_state($this->booking->cm, COMPLETION_INCOMPLETE, $userid);
         }
 
-        // After deleting an answer, cache has to be invalidated.
-        self::purge_cache_for_answers($this->optionid);
-
-        if ($fullybooked) {
-            $ba = singleton_service::get_instance_of_booking_answers($optionsettings);
-            // Check if there is, after potential syncing, still a place.
-            if (!$ba->is_fully_booked()) {
-                // Now we trigger the event.
-                // Log cancellation of user.
-                $event = bookingoption_freetobookagain::create([
-                    'objectid' => $this->optionid,
-                    'context' => \context_module::instance($this->cmid),
-                    'userid' => $userid, // The user who did cancel.
-                ]);
-                $event->trigger();
-            }
-        }
+        self::check_if_free_to_book_again($optionsettings, $user->id, $fullybooked);
 
         return true;
     }
@@ -3432,9 +3416,21 @@ class booking_option {
         // Sync the waiting list and send status change mails.
         if ($oldsettings->maxanswers < $newoption->maxanswers) {
             // We have more places now, so we can sync without danger.
+
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+            $ba = singleton_service::get_instance_of_booking_answers($oldsettings);
+            $fullybooked = $ba->is_fully_booked();
+            // Check if the option is fully booked.
             $option->sync_waiting_list();
-        } else if ($oldsettings->maxanswers > $newoption->maxanswers &&
-            !get_config('booking', 'keepusersbookedonreducingmaxanswers')) {
+
+            // If it was fully booked, we need to trigger the places free again event.
+            self::check_if_free_to_book_again($settings, 0, $fullybooked);
+
+        } else if (
+            $oldsettings->maxanswers > $newoption->maxanswers
+            && !get_config('booking', 'keepusersbookedonreducingmaxanswers')
+        ) {
             // We have less places now, so we only sync if the setting to keep users booked is turned off.
             $option->sync_waiting_list();
         }
@@ -3550,5 +3546,44 @@ class booking_option {
             $ret .= html_writer::end_div();
         }
         return $ret;
+    }
+
+    /**
+     * This function checks if the free to book again event should be triggered, and triggers it.
+     *
+     * @param booking_option_settings $settings
+     * @param int $userid
+     * @param bool $fullybooked
+     *
+     * @return void
+     *
+     */
+    private static function check_if_free_to_book_again(booking_option_settings $settings, int $userid, bool $fullybooked) {
+
+        global $USER;
+
+        if (empty($userid)) {
+            $userid = $USER->id;
+        }
+
+        $optionid = $settings->id;
+        // After deleting an answer, cache has to be invalidated.
+        self::purge_cache_for_answers($optionid);
+
+        // If the option was previously fully booked.
+        if ($fullybooked) {
+            $ba = singleton_service::get_instance_of_booking_answers($settings);
+            // Check if there is, after potential syncing, still a place.
+            if (!$ba->is_fully_booked()) {
+                // Now we trigger the event.
+                // Log cancellation of user.
+                $event = bookingoption_freetobookagain::create([
+                    'objectid' => $optionid,
+                    'context' => context_module::instance($settings->cmid),
+                    'userid' => $userid, // The user who did cancel.
+                ]);
+                $event->trigger();
+            }
+        }
     }
 }
