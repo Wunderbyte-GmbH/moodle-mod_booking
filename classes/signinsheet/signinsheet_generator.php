@@ -18,6 +18,7 @@ namespace mod_booking\signinsheet;
 
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
+use Throwable;
 use user_picture;
 
 /**
@@ -31,7 +32,6 @@ use user_picture;
  *
  */
 class signinsheet_generator {
-
     /**
      * @var int $optionid
      */
@@ -528,8 +528,28 @@ class signinsheet_generator {
                         $userpic->size = 200;
                         $userpictureurl = $userpic->get_url($PAGE);
                         $out = $userpictureurl->out();
-                        $this->pdf->Image($out, '', '', 0, $h, '', '', 'T',
-                        true, 400, '', false, false, 1, false, false, false);
+                        if (@getimagesize($out)) {
+                            $this->pdf->Image(
+                                $out,
+                                '',
+                                '',
+                                0,
+                                $h,
+                                '',
+                                '',
+                                'T',
+                                true,
+                                400,
+                                '',
+                                false,
+                                false,
+                                1,
+                                false,
+                                false,
+                                false
+                            );
+                        }
+
                         $escape = true;
                         break;
                     case 'timecreated':
@@ -549,15 +569,15 @@ class signinsheet_generator {
                         $rotate = true;
                         $name = '';
 
-                        // Handling for custom user profile fields.
-                        if (isset($user->{$value}) || isset($user->{strtolower($value)})) {
-
-                            $name = $user->{$value} ?? $user->{strtolower($value)};
-                            $name = format_string($name);
-                            $w = 25;
-                            $rotate = false;
+                        foreach ($this->customuserfields as $customuserfield) {
+                            if ($value == $customuserfield->shortname) {
+                                $name = $user->{$value} ?? $user->{strtolower($value)};
+                                $name = format_string($name);
+                                $w = 25;
+                                $rotate = false;
+                                break;
+                            }
                         }
-
                 }
                 if ($escape) {
                     continue;
