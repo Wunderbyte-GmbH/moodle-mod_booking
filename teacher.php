@@ -45,7 +45,6 @@ $PAGE->set_context($context);
 
 $title = get_string('teacher', 'mod_booking');
 
-$PAGE->set_url('/mod/booking/teacher.php');
 $PAGE->navbar->add($title);
 $PAGE->set_title(format_string($title));
 $PAGE->set_heading($title);
