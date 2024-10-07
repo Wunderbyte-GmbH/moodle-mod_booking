@@ -1,3 +1,23 @@
+## Version 8.7.1 (2024100700)
+* Improvement: Add classes to old & new values in eventlist of booking option for better styling
+* Improvement: Link from report.php to bookingoption -> showonlyone view
+* Improvement: Trigger free to book again event on changing limit of maxanswers
+* Improvement: Add relateduser firstname & relateduser lastname
+* Improvement: Add checkbox to enable users or teachers to delete data (customfield formdata) from bookinganswer after end of bookingoption.
+* Bugfix: correctly include booking_option class
+* Bugfix: Correctly use force_current_language
+* Bugfix: No message button when messages are deactivated on the site.
+* Bugfix: Move mybookinoptionstable to session cache, as it only regards individual users.
+* Bugfix: Fix varying columns width issue in custom fields
+* Bugfix: Don't set wrong url on teacher.php
+
+## Version 8.7.0 (2024100400)
+* Feature: Add possibility to edit teacher description directly
+* Improvement: Display Online Link for Dates and Entities Placeholder
+* Improvement: Support buyforuser functionality in standard wbtable
+* Bugfix: Revert to current_language instead of $SESSION->lang
+* Bugfix: Make sure the teacher description is rendered with format_text (mlang filters!)
+
 ## Version 8.6.25 (2024100200)
 * Improvement: Better feedback when deleting booking option
 * Improvement: If there is an error in importing one custom field, we should not abort the whole process.
