@@ -1089,7 +1089,7 @@ $string['filterbtn'] = 'Filter';
 $string['filterenddate'] = 'Until';
 $string['filterstartdate'] = 'From';
 $string['firstname'] = "firstname";
-$string['firstname'] = "firstname related person";
+$string['firstnamerelated'] = "firstname related person";
 $string['forcourse'] = 'for course';
 $string['format'] = 'format';
 $string['formconfig'] = 'Show which form is used.';
@@ -1230,7 +1230,7 @@ $string['keepusersbookedonreducingmaxanswers'] = 'Keep users booked on limit red
 $string['keepusersbookedonreducingmaxanswers_desc'] = 'Keep users booked even when the limit of bookable places (maxanswers) is reduced.
 Example: A booking option has 5 spots. The limit is reduced to 3. The 5 users who have already booked will still remain booked.';
 $string['lastname'] = "lastname";
-$string['lastname'] = "lastname related person";
+$string['lastnamerelated'] = "lastname related person";
 $string['lblacceptingfrom'] = 'Name of label: Accepting from';
 $string['lblbooking'] = 'Name of label: Booking';
 $string['lblbooktootherbooking'] = 'Name of button: Book users to other booking option';
