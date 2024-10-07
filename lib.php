@@ -941,7 +941,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     $bookingisteacher = false; // Set to false by default.
     if (!is_null($optionid) && $optionid > 0) {
         $option = singleton_service::get_instance_of_booking_option($cm->id, $optionid);
-        $bookingisteacher = booking_check_if_teacher ($option->option);
+        $bookingisteacher = booking_check_if_teacher($option->option);
     }
 
     if (!$course) {
