@@ -18,9 +18,9 @@
             <%# description.0 %>
                 <b>
                 {{ 'plugin.mod_booking.description' | translate }}
-                </b> 
+                </b>
                 <%# description %>
-                  <% . %> <br>
+                  <%{ . }%> <br>
                 <%/ description %>
                 <br>
             <%/ description.0 %>
@@ -47,8 +47,8 @@
                   </ion-label>
                 </ion-item>
                 <%# collapsedsessions %>
-                  <div 
-                    class="ion-padding" 
+                  <div
+                    class="ion-padding"
                     style="padding-bottom: 9px !important; padding-top: 3px !important;"
                     slot="content"
                   >
@@ -67,7 +67,7 @@
             <ion-text>
                 <b>
                   {{ 'plugin.mod_booking.mobileapp_price' | translate }}
-                </b> 
+                </b>
                 <h4><% price %> <% currency %></h4>
                 <br>
             </ion-text>
