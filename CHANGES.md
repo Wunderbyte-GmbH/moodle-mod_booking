@@ -1,3 +1,9 @@
+## Version 8.7.2 (2024100800)
+* Improvement: new generator method to create item prices via API
+* Bugfix: Remove empty get_string mybookinglist from mobile.php
+* Bugfix: html strings render
+* Bugfix: separate processing of subbookings when prices has been added
+
 ## Version 8.7.1 (2024100700)
 * Improvement: Add classes to old & new values in eventlist of booking option for better styling
 * Improvement: Link from report.php to bookingoption -> showonlyone view
