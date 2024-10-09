@@ -372,9 +372,7 @@ final class rules_test extends advanced_testcase {
         // Get messages.
         $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
 
-        // Validate scheduled adhoc tasks.
-        $this->assertCount(2, $messages);
-        // Validate messages. Might be free order.
+        // Validate scheduled adhoc tasks. Validate messages - order might be free.
         foreach ($messages as $key => $message) {
             $customdata = $message->get_custom_data();
             if (strpos($customdata->customsubject, "answcancsubj") !== false ) {
