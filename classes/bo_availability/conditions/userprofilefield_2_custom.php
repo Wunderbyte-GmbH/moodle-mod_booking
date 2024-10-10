@@ -425,9 +425,9 @@ class userprofilefield_2_custom implements bo_condition {
 
                 $mform->addElement('select', 'bo_cond_customuserprofilefield_operator2',
                     get_string('bocondcustomuserprofilefieldoperator2', 'mod_booking'), $operators);
-                $mform->hideIf('bo_cond_customuserprofilefield_operator', 'bo_cond_customuserprofilefield_field', 'eq', 0);
-                $mform->hideIf('bo_cond_customuserprofilefield_operator', 'bo_cond_userprofilefield_2_custom_restrict',
+                $mform->hideIf('bo_cond_customuserprofilefield_operator2', 'bo_cond_userprofilefield_2_custom_restrict',
                     'notchecked');
+                $mform->hideIf('bo_cond_customuserprofilefield_operator2', 'bo_cond_customuserprofilefield_field', 'eq', 0);
                 $mform->hideIf(
                     'bo_cond_customuserprofilefield_operator2',
                     'bo_cond_customuserprofilefield_connectsecondfield',
