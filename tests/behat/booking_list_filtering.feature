@@ -34,7 +34,7 @@ Feature: In a booking - create options and filter it
       | booking    | text              | course | description  | teachersforoption | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
       | My booking | Option - Teacher1 | C1     | Option deskr | teacher1          | 0              | 0              | 2346937200        | 2347110000      |
       | My booking | Option - Teacher2 | C1     | Option deskr | teacher2          | 0              | 0              | 2347110000        | 2347282800      |
-      | My booking | Option - Teacher3 | C1     | Option deskr | teacher3          | 0              | 0              | 2347369200        | 2347542000      |
+      | My booking | Option - Teacher3 | C1     | Option deskr | teacher3,teacher1 | 0              | 0              | 2347369200        | 2347542000      |
     ## 2044/05/15 - 2044/05/17
     ## 2044/05/17 - 2044/05/19
     ## 2044/05/20 - 2044/05/22
@@ -45,14 +45,20 @@ Feature: In a booking - create options and filter it
     Given I am on the "My booking" Activity page logged in as teacher1
     ## And I press "Filter table"
     And I click on "Filter table" "button" in the ".allbookingoptionstable.wunderbyte_table_filter_on" "css_element"
-    ## Filtering by teacher
+    ## Filtering by teacher assigned to a single option
     And I click on "Teachers" "button"
-    ## And I click on "Teachers" "text" in the ".allbookingoptionstable .wunderbyteTableFilter" "css_element"
     And I should see "2, Teacher" in the ".allbookingoptionstable .wunderbyteTableFilter" "css_element"
     And I set the field "2, Teacher" in the ".allbookingoptionstable .wunderbyteTableFilter" "css_element" to "checked"
     And I should see "Teacher 2" in the ".allbookingoptionstable_r1" "css_element"
     And "//div[contains(@class, 'allbookingoptionstable_r2')]" "xpath_element" should not exist
     And I set the field "2, Teacher" in the ".allbookingoptionstable .wunderbyteTableFilter" "css_element" to ""
+    And I should see "Teacher 3" in the ".allbookingoptionstable_r3" "css_element"
+    ## Filtering by teacher assigned to the pair of options
+    And I set the field "1, Teacher" in the ".allbookingoptionstable .wunderbyteTableFilter" "css_element" to "checked"
+    And I should see "Teacher 1" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Teacher 1" in the ".allbookingoptionstable_r2" "css_element"
+    And "//div[contains(@class, 'allbookingoptionstable_r3')]" "xpath_element" should not exist
+    And I set the field "1, Teacher" in the ".allbookingoptionstable .wunderbyteTableFilter" "css_element" to ""
     And I should see "Teacher 3" in the ".allbookingoptionstable_r3" "css_element"
     ## Hide filter - required for a new filter tool
     ## Workaround for case when hidden "search" "input" intercepts focus - so we cannot press "Teachers" "button"
