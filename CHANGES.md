@@ -1,3 +1,9 @@
+## Version 8.7.3 (2024101100)
+* Bugfix: Display deletecheckbox correctly
+* Bugfix: Hide second customfield and operator correctly
+* Bugfix: Behat Scenario: "Boooking option: add multiple session dates by editing booking option" in attempt to solve github issues
+* Bugfix: adjustment for phpunit test to reduce false failures
+
 ## Version 8.7.2 (2024100800)
 * Improvement: new generator method to create item prices via API
 * Bugfix: Remove empty get_string mybookinglist from mobile.php
