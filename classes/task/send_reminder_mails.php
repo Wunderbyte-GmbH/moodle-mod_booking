@@ -32,6 +32,7 @@ use mod_booking\event\reminder2_sent;
 use mod_booking\event\reminder_teacher_sent;
 use mod_booking\singleton_service;
 use stdClass;
+use Throwable;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -225,7 +226,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
             $cmid = $cm->id;
             try {
                 $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
-            } catch (\Exception $e) {
+            } catch (Throwable $e) {
                 // If the bookingoption doesn't exist anymore, we just abort the task.
                 return true;
             }
