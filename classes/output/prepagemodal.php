@@ -100,7 +100,8 @@ class prepagemodal implements renderable, templatable {
             $extracondition = new $extrabuttoncondition();
             list($extratemplate, $extradata) = $extracondition->render_button($settings, $userid, $full);
             if (!empty($data['main'])) {
-                $extradata['top'] = $data['main'];
+                $extradata['top'] = $extradata["main"];
+                $extradata['main'] = $data['main'];
             }
             $data = $extradata;
         }
