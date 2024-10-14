@@ -29,38 +29,26 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
-use cache;
-use cache_helper;
-use coding_exception;
 use context_system;
 use context_module;
-use dml_exception;
-use html_writer;
 use local_wunderbyte_table\output\table;
 use local_wunderbyte_table\wunderbyte_table;
-use moodle_exception;
 use moodle_url;
 use stdClass;
-use mod_booking\booking;
-use mod_booking\booking_bookit;
 use mod_booking\booking_option;
-use mod_booking\option\dates_handler;
-use mod_booking\output\col_availableplaces;
-use mod_booking\output\col_teacher;
-use mod_booking\price;
 use mod_booking\singleton_service;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Class to handle search results for managers are shown in a table.
+ * Table to manage users (used in report.php).
  *
  * @package mod_booking
- * @copyright 2023 Wunderbyte GmbH
+ * @author Georg Maißer, Bernhard Fischer
+ * @copyright 2024 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class manageusers_table extends wunderbyte_table {
-
     /**
      * Return dragable column.
      *
@@ -132,7 +120,6 @@ class manageusers_table extends wunderbyte_table {
         $newtimemodified = 0;
 
         foreach ($ids as $id) {
-
             // The first item is our reference.
             if (empty($newtimemodified)) {
                 $newtimemodified = $this->rawdata[$id]->timemodified;
@@ -179,13 +166,14 @@ class manageusers_table extends wunderbyte_table {
         $context = context_module::instance($settings->cmid);
 
         if (has_capability('mod/booking:bookforothers', $context)) {
-
             $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
             $user = singleton_service::get_instance_of_user($userid);
 
             // If booking option is booked with a price, we don't book directly but just allow to book.
-            if (!empty($settings->jsonobject->useprice)
-                && empty(get_config('booking', 'turnoffwaitinglist'))) {
+            if (
+                !empty($settings->jsonobject->useprice)
+                && empty(get_config('booking', 'turnoffwaitinglist'))
+            ) {
                 $option->user_submit_response($user, 0, 0, 2, MOD_BOOKING_VERIFIED);
             } else {
                 $option->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED);
@@ -197,14 +185,14 @@ class manageusers_table extends wunderbyte_table {
                     'context' => \context_system::instance(),
                     'userid' => $USER->id,
                     'relateduserid' => $user->id,
-                ]);
+                ]
+            );
             $event->trigger();
             return [
                 'success' => 1,
                 'message' => get_string('successfullybooked', 'mod_booking'),
                 'reload' => 1,
             ];
-
         } else {
             return [
                 'success' => 0,
@@ -236,7 +224,6 @@ class manageusers_table extends wunderbyte_table {
         $context = context_module::instance($settings->cmid);
 
         if (has_capability('mod/booking:bookforothers', $context)) {
-
             $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
             $user = singleton_service::get_instance_of_user($userid);
 
@@ -247,7 +234,6 @@ class manageusers_table extends wunderbyte_table {
                 'message' => get_string('successfullybooked', 'mod_booking'),
                 'reload' => 1,
             ];
-
         } else {
             return [
                 'success' => 0,
@@ -274,7 +260,6 @@ class manageusers_table extends wunderbyte_table {
         $context = context_module::instance($settings->cmid);
 
         if (has_capability('mod/booking:bookforothers', $context)) {
-
             $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
 
             $option->user_delete_response($userid, false, false, false);
@@ -332,9 +317,10 @@ class manageusers_table extends wunderbyte_table {
             }
         }
 
-        if ((!$ba->is_fully_booked()
-            || !empty($settings->jsonobject->useprice))
-            && empty($data)) {
+        if (
+            (!$ba->is_fully_booked() || !empty($settings->jsonobject->useprice))
+            && empty($data)
+        ) {
             $data[] = [
                 'label' => '', // Name of your action button.
                 'class' => 'btn btn-nolabel',
