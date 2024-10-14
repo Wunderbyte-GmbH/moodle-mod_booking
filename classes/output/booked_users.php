@@ -15,12 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file contains the definition for the renderable classes for bookingoption dates.
+ * This file contains the definition for the renderable classes for booked users.
  *
- * @package   mod_booking
- * @copyright 2022 Wunderbyte GmbH {@link http://www.wunderbyte.at}
- * @author    Bernhard Fischer
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * It is used to display a configurable list of booked users for a given context.
+ *
+ * @package     mod_booking
+ * @copyright   2024 Wunderbyte GmbH {@link http://www.wunderbyte.at}
+ * @author      Bernhard Fischer
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_booking\output;
@@ -34,15 +36,14 @@ use templatable;
 /**
  * This file contains the definition for the renderable classes for booked users.
  *
- * It is used to display a slightly configurable list of booked users for a given booking option.
+ * It is used to display a configurable list of booked users for a given context.
  *
  * @package     mod_booking
- * @copyright   2022 Wunderbyte GmbH {@link http://www.wunderbyte.at}
+ * @copyright   2024 Wunderbyte GmbH {@link http://www.wunderbyte.at}
  * @author      Bernhard Fischer
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booked_users implements renderable, templatable {
-
     /** @var string $bookedusers rendered table of bookedusers */
     public $bookedusers;
 
@@ -74,94 +75,88 @@ class booked_users implements renderable, templatable {
         bool $showbooked = false,
         bool $showwaiting = false,
         bool $showreserved = false,
-        bool $showtonotifiy = false,
+        bool $showtonotify = false,
         bool $showdeleted = false
     ) {
+        $this->bookedusers = $showbooked ?
+            $this->render_users_table(
+                $optionid,
+                MOD_BOOKING_STATUSPARAM_BOOKED,
+                'booked',
+                ['name', 'action_delete']
+            ) : null;
 
-        if ($showreserved) {
-            list($fields, $from, $where, $params)
-                = booking_answers::return_sql_for_booked_users($optionid, MOD_BOOKING_STATUSPARAM_RESERVED);
+        $this->waitinglist = $showwaiting ? $this->render_users_table(
+            $optionid,
+            MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+            'waitinglist',
+            ['rank', 'name', 'action_confirm_delete'],
+            true
+        ) : null;
 
-            $tablename = 'reserved' . $optionid;
+        $this->reservedusers = $showreserved ? $this->render_users_table(
+            $optionid,
+            MOD_BOOKING_STATUSPARAM_RESERVED,
+            'reserved',
+            ['name', 'action_delete']
+        ) : null;
 
-            $table = new manageusers_table($tablename);
+        $this->userstonotify = $showtonotify ? $this->render_users_table(
+            $optionid,
+            MOD_BOOKING_STATUSPARAM_NOTIFYMELIST,
+            'notifymelist',
+            ['name', 'action_delete']
+        ) : null;
 
-            $table->define_cache('mod_booking', 'bookedusertable');
-            $table->define_columns(['name', 'action_delete']);
-            $table->set_sql($fields, $from, $where, $params);
+        $this->deletedusers = $showdeleted ? $this->render_users_table(
+            $optionid,
+            MOD_BOOKING_STATUSPARAM_DELETED,
+            'deleted',
+            ['name', 'timemodified'],
+            false,
+            true
+        ) : null;
+    }
 
-            $html = $table->outhtml(20, false);
-            $this->reservedusers = count($table->rawdata) > 0 ? $html : null;
-        }
+    /**
+     * Render users table based on status param
+     *
+     * @param int $optionid
+     * @param int $statusparam
+     * @param string $tablenameprefix
+     * @param array $columns
+     * @param bool $sortable
+     * @param bool $paginate
+     * @return ?string
+     */
+    private function render_users_table(
+        int $optionid,
+        int $statusparam,
+        string $tablenameprefix,
+        array $columns,
+        bool $sortable = false,
+        bool $paginate = false
+    ): ?string {
+        [$fields, $from, $where, $params] = booking_answers::return_sql_for_booked_users($optionid, $statusparam);
 
-        if ($showbooked) {
-            list($fields, $from, $where, $params)
-                = booking_answers::return_sql_for_booked_users($optionid, MOD_BOOKING_STATUSPARAM_BOOKED);
+        $tablename = $tablenameprefix . $optionid;
+        $table = new manageusers_table($tablename);
 
-            $tablename = 'booked' . $optionid;
+        $table->define_cache('mod_booking', "bookedusertable");
+        $table->define_columns($columns);
 
-            $table = new manageusers_table($tablename);
-
-            $table->define_cache('mod_booking', 'bookedusertable');
-            $table->define_columns(['name', 'action_delete']);
-            $table->set_sql($fields, $from, $where, $params);
-
-            $html = $table->outhtml(20, false);
-            $this->bookedusers = count($table->rawdata) > 0 ? $html : null;
-        }
-
-        if ($showwaiting) {
-
-            list($fields, $from, $where, $params)
-                = booking_answers::return_sql_for_booked_users($optionid, MOD_BOOKING_STATUSPARAM_WAITINGLIST);
-
-            $tablename = 'waitinglist' . $optionid;
-
-            $table = new manageusers_table($tablename);
-
-            $table->define_cache('mod_booking', 'bookedusertable');
-            $table->define_columns(['rank', 'name', 'action_confirm_delete']);
+        if ($sortable) {
             $table->sortablerows = true;
-            $table->set_sql($fields, $from, $where, $params);
-
-            $html = $table->outhtml(20, false);
-            $this->waitinglist = count($table->rawdata) > 0 ? $html : null;
         }
 
-        if ($showtonotifiy) {
-
-            list($fields, $from, $where, $params)
-                = booking_answers::return_sql_for_booked_users($optionid, MOD_BOOKING_STATUSPARAM_NOTIFYMELIST);
-
-            $tablename = 'notifymelist' . $optionid;
-
-            $table = new manageusers_table($tablename);
-
-            $table->define_cache('mod_booking', 'bookedusertable');
-            $table->define_columns(['name', 'action_delete']);
-            $table->set_sql($fields, $from, $where, $params);
-
-            $html = $table->outhtml(20, false);
-            $this->userstonotify = count($table->rawdata) > 0 ? $html : null;
-        }
-
-        if ($showdeleted) {
-            list($fields, $from, $where, $params)
-                = booking_answers::return_sql_for_booked_users($optionid, MOD_BOOKING_STATUSPARAM_DELETED);
-
-            $tablename = 'deleted' . $optionid;
-
-            $table = new manageusers_table($tablename);
-
-            $table->define_cache('mod_booking', 'bookedusertable');
-            $table->define_columns(['name', 'timemodified']);
-            $table->set_sql($fields, $from, $where, $params);
-
+        if ($paginate) {
             $table->use_pages = true;
-
-            $html = $table->outhtml(20, false);
-            $this->deletedusers = count($table->rawdata) > 0 ? $html : null;
         }
+
+        $table->set_sql($fields, $from, $where, $params);
+
+        $html = $table->outhtml(20, false);
+        return count($table->rawdata) > 0 ? $html : null;
     }
 
     /**
@@ -169,25 +164,13 @@ class booked_users implements renderable, templatable {
      * @param renderer_base $output
      * @return array
      */
-    public function export_for_template(renderer_base $output) {
-
-        $returnarray = [];
-        if (!empty($this->bookedusers)) {
-            $returnarray['bookedusers'] = $this->bookedusers;
-        }
-        if (!empty($this->waitinglist)) {
-            $returnarray['waitinglist'] = $this->waitinglist;
-        }
-        if (!empty($this->reservedusers)) {
-            $returnarray['reservedusers'] = $this->reservedusers;
-        }
-        if (!empty($this->userstonotify)) {
-            $returnarray['userstonotify'] = $this->userstonotify;
-        }
-        if (!empty($this->deletedusers)) {
-            $returnarray['deletedusers'] = $this->deletedusers;
-        }
-
-        return $returnarray;
+    public function export_for_template(renderer_base $output): array {
+        return array_filter([
+            'bookedusers' => $this->bookedusers,
+            'waitinglist' => $this->waitinglist,
+            'reservedusers' => $this->reservedusers,
+            'userstonotify' => $this->userstonotify,
+            'deletedusers' => $this->deletedusers,
+        ]);
     }
 }
