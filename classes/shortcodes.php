@@ -28,9 +28,11 @@ namespace mod_booking;
 
 use cache_helper;
 use core_cohort\reportbuilder\local\entities\cohort;
+use Exception;
 use html_writer;
 use local_wunderbyte_table\filters\types\intrange;
 use local_wunderbyte_table\filters\types\standardfilter;
+use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
 use mod_booking\customfield\booking_handler;
 use mod_booking\local\modechecker;
@@ -667,26 +669,10 @@ class shortcodes {
         $table->define_columns(array_keys($columns));
         $table->addcheckboxes = true;
 
-        // Exclude column action from columns for filter, sorting, search.
-        $filtercolumns = array_diff_key($columns, array_flip(['action']));
-        foreach ($filtercolumns as $key => $localized) {
-            $standardfilter = new standardfilter($key, $localized);
-            $table->add_filter($standardfilter);
-        }
-
-        self::apply_bookinginstance_filter($table);
-
-        $customfieldfilter = explode(',', ($args['customfieldfilter'] ?? ''));
-        if (!empty($customfieldfilter)) {
-            self::apply_customfieldfilter($table, $customfieldfilter);
-        }
-        // Add defined intrange filter. You might need to purge your caches to make this work.
-        if (isset($args['intrangefilter'])) {
-            $intrangecolumns = explode(",", $args['intrangefilter']);
-            foreach ($intrangecolumns as $colname) {
-                $intrangefilter = new intrange($colname);
-                $table->add_filter($intrangefilter);
-            }
+        try {
+            $filtercolumns = self::apply_bulkoperations_filter($table, $columns, $args);
+        } catch (Exception $e) {
+            return '<div class="alert alert-danger p-1 mt-1 text-center">' . $e->getMessage() . '</div>';
         }
 
         $table->showfilterontop = true;
@@ -740,6 +726,46 @@ class shortcodes {
         return $out;
     }
 
+    /**
+     * Modifies table and returns filtercolumns
+     *
+     * @param wunderbyte_table $table
+     * @param array $columns
+     * @param array $args
+     *
+     * @return array
+     *
+     */
+    private static function apply_bulkoperations_filter(wunderbyte_table &$table, array $columns, array $args) {
+
+        // Add defined intrange filter. You might need to purge your caches to make this work.
+        if (isset($args['intrangefilter'])) {
+            $intrangecolumns = explode(",", $args['intrangefilter']);
+            foreach ($intrangecolumns as $colname) {
+                $intrangefilter = new intrange($colname);
+                $table->add_filter($intrangefilter);
+                // Since columns are used as base for filter we need to remove the intrange columns.
+                if (isset($columns[$colname])) {
+                    unset($columns[$colname]);
+                }
+            }
+        }
+
+        // Exclude column action from columns for filter, sorting, search.
+        $filtercolumns = array_diff_key($columns, array_flip(['action']));
+        foreach ($filtercolumns as $key => $localized) {
+            $standardfilter = new standardfilter($key, $localized);
+            $table->add_filter($standardfilter);
+        }
+
+        self::apply_bookinginstance_filter($table);
+
+        $customfieldfilter = explode(',', ($args['customfieldfilter'] ?? ''));
+        if (!empty($customfieldfilter)) {
+            self::apply_customfieldfilter($table, $customfieldfilter);
+        }
+        return $filtercolumns;
+    }
     /**
      * Base function for standard table configuration
      *
