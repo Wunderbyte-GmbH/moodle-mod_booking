@@ -32,28 +32,85 @@
         "deletedusers" : "<div></div>"
     }
 }}
-
-{{#bookedusers}}
-<h5>{{#str}} bookedusers, mod_booking {{/str}}</h5>
-    {{{bookedusers}}}
-{{/bookedusers}}
-
-{{#waitinglist}}
-<h5>{{#str}} waitinglist, mod_booking {{/str}}</h5>
-    {{{waitinglist}}}
-{{/waitinglist}}
-
-{{#reservedusers}}
-<h5>{{#str}} reservedusers, mod_booking {{/str}}</h5>
-    {{{reservedusers}}}
-{{/reservedusers}}
-
-{{#userstonotify}}
-<h5>{{#str}} userstonotify, mod_booking {{/str}}</h5>
-    {{{userstonotify}}}
-{{/userstonotify}}
-
-{{#deletedusers}}
-<h5>{{#str}} deletedusers, mod_booking {{/str}}</h5>
-    {{{deletedusers}}}
-{{/deletedusers}}
+<div class="accordion" id="accordion-usertables">
+    {{#bookedusers}}
+        <div class="card">
+            <div class="card-header" id="accordion-heading-bookedusers">
+            <h2 class="mb-0">
+                <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#accordion-item-bookedusers" aria-expanded="true" aria-controls="accordion-item-bookedusers">
+                <h5>{{#str}} bookedusers, mod_booking {{/str}}</h5>
+                </button>
+            </h2>
+            </div>
+            <div id="accordion-item-bookedusers" class="collapse show" aria-labelledby="accordion-heading-bookedusers" data-parent="#accordion-usertables">
+            <div class="card-body">
+                {{{bookedusers}}}
+            </div>
+            </div>
+        </div>
+    {{/bookedusers}}
+    {{#waitinglist}}
+        <div class="card">
+            <div class="card-header" id="accordion-heading-waitinglist">
+            <h2 class="mb-0">
+                <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#accordion-item-waitinglist" aria-expanded="false" aria-controls="accordion-item-waitinglist">
+                <h5>{{#str}} waitinglist, mod_booking {{/str}}</h5>
+                </button>
+            </h2>
+            </div>
+            <div id="accordion-item-waitinglist" class="collapse" aria-labelledby="accordion-heading-waitinglist" data-parent="#accordion-usertables">
+            <div class="card-body">
+                {{{waitinglist}}}
+            </div>
+            </div>
+        </div>
+    {{/waitinglist}}
+    {{#reservedusers}}
+        <div class="card">
+            <div class="card-header" id="accordion-heading-reservedusers">
+            <h2 class="mb-0">
+                <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#accordion-item-reservedusers" aria-expanded="false" aria-controls="accordion-item-reservedusers">
+                <h5>{{#str}} reservedusers, mod_booking {{/str}}</h5>
+                </button>
+            </h2>
+            </div>
+            <div id="accordion-item-reservedusers" class="collapse" aria-labelledby="accordion-heading-reservedusers" data-parent="#accordion-usertables">
+            <div class="card-body">
+                {{{reservedusers}}}
+            </div>
+            </div>
+        </div>
+    {{/reservedusers}}
+    {{#userstonotify}}
+        <div class="card">
+            <div class="card-header" id="accordion-heading-userstonotify">
+            <h2 class="mb-0">
+                <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#accordion-item-userstonotify" aria-expanded="false" aria-controls="accordion-item-userstonotify">
+                <h5>{{#str}} userstonotify, mod_booking {{/str}}</h5>
+                </button>
+            </h2>
+            </div>
+            <div id="accordion-item-userstonotify" class="collapse" aria-labelledby="accordion-heading-userstonotify" data-parent="#accordion-usertables">
+            <div class="card-body">
+                {{{userstonotify}}}
+            </div>
+            </div>
+        </div>
+    {{/userstonotify}}
+    {{#deletedusers}}
+        <div class="card">
+            <div class="card-header" id="accordion-heading-deletedusers">
+            <h2 class="mb-0">
+                <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#accordion-item-deletedusers" aria-expanded="false" aria-controls="accordion-item-deletedusers">
+                <h5>{{#str}} deletedusers, mod_booking {{/str}}</h5>
+                </button>
+            </h2>
+            </div>
+            <div id="accordion-item-deletedusers" class="collapse" aria-labelledby="accordion-heading-deletedusers" data-parent="#accordion-usertables">
+            <div class="card-body">
+                {{{deletedusers}}}
+            </div>
+            </div>
+        </div>
+    {{/deletedusers}}
+</div>
