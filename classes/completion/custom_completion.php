@@ -27,6 +27,7 @@ namespace mod_booking\completion;
 
 use Exception;
 use core_completion\activity_custom_completion;
+use mod_booking\singleton_service;
 
 /**
  * Activity custom completion subclass for the booking activity.
@@ -52,14 +53,15 @@ class custom_completion extends activity_custom_completion {
 
         $this->validate_rule($rule);
 
-        if (!($booking = $DB->get_record('booking', ['id' => $this->cm->instance]))) {
-            throw new Exception("Can't find booking {$this->cm->instance}");
+        if (!$booking = singleton_service::get_instance_of_booking_by_cmid($this->cm->id)) {
+            throw new Exception("Can't find booking {$this->cm->id}");
         }
+
         // Feedback only supports completionsubmit as a custom rule.
         $status = $DB->count_records('booking_answers',
             ['bookingid' => $booking->id, 'userid' => $this->userid, 'completed' => '1']);
 
-        return $booking->enablecompletion <= $status ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE;
+        return $booking->settings->enablecompletion <= $status ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE;
     }
 
     /**
@@ -77,7 +79,12 @@ class custom_completion extends activity_custom_completion {
      * @return array
      */
     public function get_custom_rule_descriptions(): array {
-        return ['completionoptioncompleted' => get_string('completionoptioncompletedcminfo', 'booking')];
+        $completionoptioncompleted = $this->cm->customdata['customcompletionrules']['completionoptioncompleted'] ?? 0;
+        return ['completionoptioncompleted' => get_string(
+            'completionoptioncompletedcminfo',
+            'booking',
+            $completionoptioncompleted
+        )];
     }
 
     /**

@@ -301,6 +301,11 @@ function booking_get_coursemodule_info($cm) {
     if (!empty($booking->settings->name)) {
         $info->name = $booking->settings->name;
     }
+
+    // Populate the custom completion rules as key => value pairs, but only if the completion mode is 'automatic'.
+    if ($cm->completion == COMPLETION_TRACKING_AUTOMATIC) {
+        $info->customdata['customcompletionrules']['completionoptioncompleted'] = $booking->settings->enablecompletion;
+    }
     return $info;
 }
 
