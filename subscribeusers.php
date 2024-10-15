@@ -47,7 +47,7 @@ $bookanyone = optional_param('bookanyone', false, PARAM_BOOL);
 // If we have already submitted the form, we don't want to fall into the agree policy.
 $formsubmitted = optional_param('submitbutton', '', PARAM_TEXT);
 
-list($course, $cm) = get_course_and_cm_from_cmid($id);
+[$course, $cm] = get_course_and_cm_from_cmid($id);
 
 (bool) $subscribesuccess = false;
 (bool) $unsubscribesuccess = false;
@@ -78,7 +78,7 @@ if (!has_capability('mod/booking:bookforothers', $context)) {
     die();
 }
 
-if (!booking_check_if_teacher ($bookingoption->option)) {
+if (!booking_check_if_teacher($bookingoption->option)) {
     if (!(has_capability('mod/booking:subscribeusers', $context) || has_capability('moodle/site:accessallgroups', $context))) {
         throw new moodle_exception('nopermissions', 'core', $errorurl, get_string('bookotherusers', 'mod_booking'));
     }
@@ -127,14 +127,17 @@ if (!$agree && empty($formsubmitted) && (!empty($bookingoption->booking->setting
             $subscribedusers = [];
             $notsubscribedusers = [];
 
-            if (has_capability('mod/booking:subscribeusers', $context) || (booking_check_if_teacher(
-                    $bookingoption->option))) {
+            if (
+                has_capability('mod/booking:subscribeusers', $context) ||
+                (booking_check_if_teacher($bookingoption->option))
+            ) {
                 foreach ($users as $user) {
-
                     // If there is a price on the booking option, we don't want to subscribe the user directly.
-                    if (class_exists('local_shopping_cart\shopping_cart')
+                    if (
+                        class_exists('local_shopping_cart\shopping_cart')
                         && !empty($optionsettings->jsonobject->useprice)
-                        && empty(get_config('booking', 'turnoffwaitinglist'))) {
+                        && empty(get_config('booking', 'turnoffwaitinglist'))
+                    ) {
                         $status = 3; // This added without confirmation.
                     } else {
                         $status = 0;
@@ -147,8 +150,15 @@ if (!$agree && empty($formsubmitted) && (!empty($bookingoption->booking->setting
                     $subscribedusers[] = $user->id;
                 }
                 if ($subscribesuccess) {
-                    redirect($url,
-                            get_string('allusersbooked', 'mod_booking', count($subscribedusers)), 5);
+                    redirect(
+                        $url,
+                        get_string(
+                            'allusersbooked',
+                            'mod_booking',
+                            count($subscribedusers)
+                        ),
+                        5
+                    );
                 } else {
                     $output = '<br>';
                     if (!empty($notsubscribedusers)) {
@@ -158,11 +168,13 @@ if (!$agree && empty($formsubmitted) && (!empty($bookingoption->booking->setting
                                     FROM {booking_answers} ba
                                     LEFT JOIN {booking_options} bo ON bo.id = ba.optionid
                                     WHERE ba.userid = ? AND ba.waitinglist < ?
-                                    AND ba.bookingid = ?', [
+                                    AND ba.bookingid = ?',
+                                    [
                                         $user->id,
                                         MOD_BOOKING_STATUSPARAM_RESERVED,
                                         $bookingoption->booking->id,
-                                    ]);
+                                    ]
+                            );
                             $output .= "{$user->firstname} {$user->lastname}";
                             if (!empty($result)) {
                                 $r = [];
@@ -180,8 +192,13 @@ if (!$agree && empty($formsubmitted) && (!empty($bookingoption->booking->setting
             } else {
                 throw new moodle_exception('invalidaction');
             }
-        } else if ($unsubscribe && (has_capability('mod/booking:deleteresponses', $context) ||
-                 (booking_check_if_teacher($bookingoption->option)))) {
+        } else if (
+            $unsubscribe
+            && (
+                has_capability('mod/booking:deleteresponses', $context)
+                || (booking_check_if_teacher($bookingoption->option))
+            )
+        ) {
             $users = $existingselector->get_selected_users();
             $unsubscribesuccess = true;
             foreach ($users as $user) {
@@ -210,7 +227,6 @@ $mform->set_data(['id' => $id, 'optionid' => $optionid, 'agree' => "1"]);
 
 // Form processing and displaying is done here.
 if ($fromform = $mform->get_data()) {
-
     $notificationstring = '';
     $delay = 0;
     $notificationtype = notification::NOTIFY_INFO;
@@ -254,10 +270,11 @@ if ($fromform = $mform->get_data()) {
 }
 
 // Under some circumstances, we don't allow direct booking of user.
-if (class_exists('local_shopping_cart\shopping_cart')
-                        && !empty($optionsettings->jsonobject->useprice)
-                        && empty(get_config('booking', 'turnoffwaitinglist'))) {
-
+if (
+    class_exists('local_shopping_cart\shopping_cart')
+    && !empty($optionsettings->jsonobject->useprice)
+    && empty(get_config('booking', 'turnoffwaitinglist'))
+) {
     $message = get_string('nodirectbookingbecauseofprice', 'mod_booking');
     $type = \core\notification::INFO;
     \core\notification::add($message, $type);
@@ -294,12 +311,12 @@ if (has_capability('mod/booking:bookanyone', $context) && $bookanyone) {
 
 
 // We call the template render to display how many users are currently reserved.
-$data = new booked_users($optionid, false, true, true, true);
+$data = new booked_users('bookingoption', $optionid, false, true, true, true);
 $renderer = $PAGE->get_renderer('mod_booking');
 echo $renderer->render_booked_users($data);
 
 // We call the template render to display how many users are currently reserved.
-$data = new booked_users($optionid, false, false, false, false, true);
+$data = new booked_users('bookingoption', $optionid, false, false, false, false, true);
 $deletedlist = $renderer->render_booked_users($data);
 
 if (!empty($deletedlist)) {
