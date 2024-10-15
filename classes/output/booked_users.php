@@ -62,7 +62,8 @@ class booked_users implements renderable, templatable {
     /**
      * Constructor
      *
-     * @param int $optionid
+     * @param string $scope can be system, course, bookinginstance or bookingoption
+     * @param int $scopeid id matching the scope, e.g. optionid for scope bookingoption
      * @param bool $showbooked
      * @param bool $showwaiting
      * @param bool $showreserved
@@ -71,7 +72,8 @@ class booked_users implements renderable, templatable {
      *
      */
     public function __construct(
-        int $optionid,
+        string $scope = 'system',
+        int $scopeid = 0,
         bool $showbooked = false,
         bool $showwaiting = false,
         bool $showreserved = false,
@@ -80,14 +82,16 @@ class booked_users implements renderable, templatable {
     ) {
         $this->bookedusers = $showbooked ?
             $this->render_users_table(
-                $optionid,
+                $scope,
+                $scopeid,
                 MOD_BOOKING_STATUSPARAM_BOOKED,
                 'booked',
                 ['name', 'action_delete']
             ) : null;
 
         $this->waitinglist = $showwaiting ? $this->render_users_table(
-            $optionid,
+            $scope,
+            $scopeid,
             MOD_BOOKING_STATUSPARAM_WAITINGLIST,
             'waitinglist',
             ['rank', 'name', 'action_confirm_delete'],
@@ -95,21 +99,24 @@ class booked_users implements renderable, templatable {
         ) : null;
 
         $this->reservedusers = $showreserved ? $this->render_users_table(
-            $optionid,
+            $scope,
+            $scopeid,
             MOD_BOOKING_STATUSPARAM_RESERVED,
             'reserved',
             ['name', 'action_delete']
         ) : null;
 
         $this->userstonotify = $showtonotify ? $this->render_users_table(
-            $optionid,
+            $scope,
+            $scopeid,
             MOD_BOOKING_STATUSPARAM_NOTIFYMELIST,
             'notifymelist',
             ['name', 'action_delete']
         ) : null;
 
         $this->deletedusers = $showdeleted ? $this->render_users_table(
-            $optionid,
+            $scope,
+            $scopeid,
             MOD_BOOKING_STATUSPARAM_DELETED,
             'deleted',
             ['name', 'timemodified'],
@@ -121,7 +128,8 @@ class booked_users implements renderable, templatable {
     /**
      * Render users table based on status param
      *
-     * @param int $optionid
+     * @param string $scope
+     * @param int $scopeid
      * @param int $statusparam
      * @param string $tablenameprefix
      * @param array $columns
@@ -130,16 +138,17 @@ class booked_users implements renderable, templatable {
      * @return ?string
      */
     private function render_users_table(
-        int $optionid,
+        string $scope,
+        int $scopeid,
         int $statusparam,
         string $tablenameprefix,
         array $columns,
         bool $sortable = false,
         bool $paginate = false
     ): ?string {
-        [$fields, $from, $where, $params] = booking_answers::return_sql_for_booked_users($optionid, $statusparam);
+        [$fields, $from, $where, $params] = booking_answers::return_sql_for_booked_users($scope, $scopeid, $statusparam);
 
-        $tablename = $tablenameprefix . $optionid;
+        $tablename = "{$tablenameprefix}_{$scope}_{$scopeid}";
         $table = new manageusers_table($tablename);
 
         $table->define_cache('mod_booking', "bookedusertable");
