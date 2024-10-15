@@ -812,7 +812,7 @@ if (!$tableallbookings->is_downloading()) {
     }
 
     // We call the template render to display how many users are currently reserved.
-    $data = new booked_users($optionid, false, false, true);
+    $data = new booked_users('bookingoption', $optionid, false, false, true);
     $renderer = $PAGE->get_renderer('mod_booking');
     echo $renderer->render_booked_users($data);
 
@@ -1023,7 +1023,7 @@ if (!$tableallbookings->is_downloading()) {
     echo $OUTPUT->render_from_template('mod_booking/eventslist', (array) $eventslist);
 
     // We call the template render to display how many users are currently reserved.
-    $data = new booked_users($optionid, false, false, false, false, true);
+    $data = new booked_users('bookingoption', $optionid, false, false, false, false, true);
     $deletedlist = $renderer->render_booked_users($data);
 
     if (!empty($deletedlist)) {

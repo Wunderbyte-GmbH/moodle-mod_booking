@@ -578,34 +578,47 @@ class booking_answers {
     /**
      * Returns the sql to fetch booked users with a certain status.
      * Orderd by timemodified, to be able to sort them.
-     * @param int $optionid
+     * @param string $scope
+     * @param int $scopeid
      * @param int $statusparam
      * @return (string|int[])[]
      */
-    public static function return_sql_for_booked_users(int $optionid, int $statusparam) {
-        // We need to set a limit for the query in mysqlfamily.
-        $fields = 's1.*, ROW_NUMBER() OVER (ORDER BY s1.timemodified, s1.id DESC) AS rank';
-        $from = " (SELECT ba.id,
-                          u.id as userid,
-                          u.firstname,
-                          u.lastname,
-                          u.email,
-                          ba.timemodified,
-                          ba.timecreated,
-                          ba.optionid,
-                          ba.json
-                    FROM {booking_answers} ba
-                    JOIN {user} u ON ba.userid = u.id
-                    WHERE ba.optionid=:optionid AND ba.waitinglist=:statusparam
-                    ORDER BY ba.timemodified, ba.id ASC
-                    LIMIT 10000000000
-                    ) s1";
-        $where = '1=1';
-        $params = [
-            'optionid' => $optionid,
-            'statusparam' => $statusparam,
-        ];
+    public static function return_sql_for_booked_users(string $scope, int $scopeid, int $statusparam) {
 
+        // Todo: Support additional scopes (course, bookinginstance, system).
+
+        switch ($scope) {
+            case 'bookingoption':
+                $optionid = $scopeid;
+                // We need to set a limit for the query in mysqlfamily.
+                $fields = 's1.*, ROW_NUMBER() OVER (ORDER BY s1.timemodified, s1.id DESC) AS rank';
+                $from = " (SELECT ba.id,
+                                u.id as userid,
+                                u.firstname,
+                                u.lastname,
+                                u.email,
+                                ba.timemodified,
+                                ba.timecreated,
+                                ba.optionid,
+                                ba.json
+                            FROM {booking_answers} ba
+                            JOIN {user} u ON ba.userid = u.id
+                            WHERE ba.optionid=:optionid AND ba.waitinglist=:statusparam
+                            ORDER BY ba.timemodified, ba.id ASC
+                            LIMIT 10000000000
+                            ) s1";
+                $where = '1=1';
+                $params = [
+                    'optionid' => $optionid,
+                    'statusparam' => $statusparam,
+                ];
+                break;
+            default:
+                $fields = '*';
+                $from = '{booking_answers} ba';
+                $where = '1=0';
+                $params = [];
+        }
         return [$fields, $from, $where, $params];
     }
 
