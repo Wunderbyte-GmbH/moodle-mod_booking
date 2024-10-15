@@ -279,7 +279,7 @@ class teachers_handler {
                 $option->enrol_user($userid, true, $teacherrole, true, $COURSE->id);
             }
 
-            // Even if teacher already exists in DB, we still might want to enrol him/her into a new course.
+            // Even if teacher already exists in DB, we still might want to enrol him/her into a NEW course.
             if ($doenrol) {
                 // We enrol teacher with the type defined in settings.
                 $option->enrol_user($userid, true, $bookingsettings->teacherroleid, true, $courseid);
