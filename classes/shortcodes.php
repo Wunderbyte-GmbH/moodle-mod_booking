@@ -742,7 +742,12 @@ class shortcodes {
         if (isset($args['intrangefilter'])) {
             $intrangecolumns = explode(",", $args['intrangefilter']);
             foreach ($intrangecolumns as $colname) {
-                $intrangefilter = new intrange($colname);
+                if (get_string_manager()->string_exists($colname, 'mod_booking')) {
+                    $localizedstring = get_string($colname, 'mod_booking');
+                } else {
+                    $localizedstring = "";
+                }
+                $intrangefilter = new intrange($colname, $localizedstring);
                 $table->add_filter($intrangefilter);
                 // Since columns are used as base for filter we need to remove the intrange columns.
                 if (isset($columns[$colname])) {
