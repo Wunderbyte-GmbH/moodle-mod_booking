@@ -59,12 +59,40 @@ session)
 + and much more...
 
 ## Features in PRO version
-+ Availability info texts for booking places and waiting list
-+ Global mail templates
-+ Teacher notification e-mails
-+ Webservice importer - import a massive amount of booking options
-(Contact info@wunderbyte.at if you need support with that.)
-+ and many more to come...
++ Appearance:
+    + hide Wunderbyte logo and link
+    + Collapse description and 'show dates'
+    + Turn off modals
+    + Options for attendance status
++ Teachers:
+    + Add links to teacher pages
+    + Login for teacher pages not necessary
+    + Always show teacher’s email addresses to everyone
+    + Show teacher’s email addresses to booked users
+    + Teachers can send email to all booked users using own mail client
+    + Teachers of booking option are assigned to fitting role
++ Cancellation settings:
+    + Adjustable cancellation period
+    + Cancellation cool off period (seconds)
++ Overbooking allowed of booking options
++ Automatic creation of Moodle courses:
+    + Booking option custom field to be used as course category
+    + Mark course with tags to use as templates
++ Price formula:
+    + Use price formula to automatically calculate prices
+    + Added features: applying unit factor, round prices
++ Duplicate moodle course when duplicating a booking option
++ Availability info texts for booking places and waiting list:
+    + Show availability info for booking places
+    + Enable “booking places low” message
+    + Show availability info for waiting list
+    + Enable “waiting list places low” message
+    + Show place on waiting list
++ Activate subbookings
++ Activate actions after booking
++ Progress bars of time passed:
+    + Show progress bars of time passed (for booking option)
+    + Make progress bars collapsible
 
 ## Documentation
 [Visit Moodle docs wiki](https://docs.moodle.org/311/en/Booking_module) for documentation.
