@@ -980,6 +980,7 @@ $string['emailbody'] = 'Email body';
 $string['emailsettings'] = 'E-mail settings '. '<span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Deprecated</span>';
 $string['enable'] = 'Enable';
 $string['enablecompletion'] = 'At least one of the booked options has to be marked as completed';
+$string['enablecompletion_help'] = 'To mark the options as completed, open the "Configure fields and columns" section and add the "Completed" field under "Manage responses". The options can then be marked as completed on the report page.';
 $string['enablecompletiongroup'] = 'Require entries';
 $string['enablepresence'] = 'Enable presence';
 $string['enddate'] = "enddate";

@@ -98,6 +98,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->disabledIf('enablecompletion', 'enablecompletionenabled', 'notchecked');
         $mform->setDefault('enablecompletion', 1);
         $mform->setType('enablecompletion', PARAM_INT);
+        $mform->addHelpButton('enablecompletiongroup', 'enablecompletion', 'mod_booking');
 
         return ['enablecompletiongroup'];
     }
