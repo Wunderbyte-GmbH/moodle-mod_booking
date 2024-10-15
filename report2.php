@@ -29,48 +29,54 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_login(0, false);
 
 use mod_booking\output\booked_users;
+use mod_booking\singleton_service;
 
-/* Context param defines the id, we use:
-    s|system => system context => ID can be empty or 0.
-    c|course => Moodle course context => ID has to be course id
-    i|instance => booking instance context => ID has to be cmid of booking instance
-    o|option => booking option context => ID has to be optionid of booking option
-*/
-$contextparam = required_param('context', PARAM_ALPHA);
-$id = required_param('id', PARAM_INT);
+$optionid = optional_param('optionid', 0, PARAM_INT);
+$cmid = optional_param('cmid', 0, PARAM_INT);
+$courseid = optional_param('courseid', 0, PARAM_INT);
+
+if (!empty($optionid)) {
+    $scope = 'bookingoption'; // If we have an optionid, we want the report for this booking option.
+    $scopeid = $optionid;
+} else if (!empty($cmid)) {
+    $scope = 'bookinginstance';
+    $scopeid = $cmid;
+} else if (!empty($courseid)) {
+    $scope = 'course'; // A moodle course containing (a) booking option(s).
+    $scopeid = $courseid;
+} else {
+    $scope = 'system'; // The whole site.
+    $scopeid = 0;
+}
 
 echo $OUTPUT->header();
 
-switch ($contextparam) {
-    case 's':
-    case 'system':
-        $id = 0;
-        break;
-    case 'c':
-    case 'course':
-        $courseid = $id;
-        break;
-    case 'i':
-    case 'instance':
-        $cmid = $id;
-        break;
-    case 'o':
-    case 'option':
-        $optionid = $id;
+switch ($scope) {
+    case 'bookingoption':
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $cmid = $optionsettings->cmid;
+        $cmcontext = context_module::instance($cmid);
 
-        // We call the template render to display how many users are currently reserved.
-        $data = new booked_users(
-            $optionid,
-            true,
-            true,
-            true,
-            true,
-            true
-        );
-        $renderer = $PAGE->get_renderer('mod_booking');
-        echo $renderer->render_booked_users($data);
+        // Capability checks.
+        $isteacher = booking_check_if_teacher($optionid);
+        if (!($isteacher || has_capability('mod/booking:viewreports', $cmcontext))) {
+            require_capability('mod/booking:readresponses', $cmcontext);
+        }
 
         break;
 }
+
+// Now we render the booked users for the provided scope.
+$data = new booked_users(
+    $scope,
+    $scopeid,
+    true,
+    true,
+    true,
+    true,
+    true
+);
+$renderer = $PAGE->get_renderer('mod_booking');
+echo $renderer->render_booked_users($data);
 
 echo $OUTPUT->footer();
