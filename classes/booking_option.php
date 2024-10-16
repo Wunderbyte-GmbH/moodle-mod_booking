@@ -619,7 +619,7 @@ class booking_option {
 
         $results = [];
         foreach ($todelete as $userid) {
-            $results[$userid] = $this->user_delete_response($userid);
+            $results[$userid] = $this->user_delete_response($userid, false, false, true, true);
         }
 
         return $results;
@@ -637,7 +637,7 @@ class booking_option {
             return $results;
         }
         foreach ($users as $userid) {
-            $results[$userid] = $this->user_delete_response($userid);
+            $results[$userid] = $this->user_delete_response($userid, false, false, true, true);
         }
         return $results;
     }
@@ -651,10 +651,11 @@ class booking_option {
      * @param bool $bookingoptioncancel indicates if the function was called
      *     after the whole booking option was cancelled, false by default
      * @param bool $syncwaitinglist set this to false, if you do not want to sync_waiting_list here (avoid recursions)
+     * @param bool $deleteall set this to true if you want to delete a complete answers too
      * @return bool true if booking was deleted successfully, otherwise false
      */
     public function user_delete_response($userid, $cancelreservation = false,
-        $bookingoptioncancel = false, $syncwaitinglist = true) {
+        $bookingoptioncancel = false, $syncwaitinglist = true, $deleteall = false) {
 
         global $USER, $DB;
 
@@ -674,8 +675,13 @@ class booking_option {
             $syncwaitinglist = false;
         }
 
-        $results = $DB->get_records('booking_answers',
-                ['userid' => $userid, 'optionid' => $this->optionid, 'completed' => 0]);
+        // Delete only incompleted booked options.
+        $conditions = ['userid' => $userid, 'optionid' => $this->optionid];
+        if ($deleteall === false) {
+            // Delete all booked options including completed.
+            $conditions[] = ['completed' => 0];
+        }
+        $results = $DB->get_records('booking_answers', $conditions);
 
         if (count($results) == 0) {
             return false;
