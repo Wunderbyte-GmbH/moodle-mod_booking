@@ -29,6 +29,7 @@ use context_module;
 use context_system;
 use dml_exception;
 use mod_booking\option\dates_handler;
+use moodle_url;
 use MoodleQuickForm;
 use stdClass;
 use lang_string;
@@ -133,9 +134,12 @@ class price {
             null, null, [0, 1]);
             $mform->addHelpButton('priceformulaoff', 'priceformulaoff', 'mod_booking');
 
+            $url = new moodle_url('admin/category.php?category=modbookingfolder');
+            $linktoformular = $url->out();
+
             $formulaobj = new stdClass();
             $formulaobj->formula = $priceformula;
-
+            $formulaobj->url = $linktoformular;
             $formulainfo = '<div class="alert alert-warning" role="alert">' .
                 get_string('priceformulainfo', 'mod_booking', $formulaobj) . '</div>';
 
