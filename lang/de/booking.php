@@ -1627,7 +1627,7 @@ $string['priceformulainfo'] = '<a data-toggle="collapse" href="#priceformula" ro
 <div class="collapse" id="priceformula">
 <samp>{$a->formula}</samp>
 </div><br>
-<a href="{$CFG->wwwroot}/admin/settings.php?section=modsettingbooking" target="_blank"><i class="fa fa-edit"></i> Formel bearbeiten...</a><br><br>
+<a href="{$a->url}" target="_blank"><i class="fa fa-edit"></i> Formel bearbeiten...</a><br><br>
 Unterhalb können Sie zusätzlich einen manuellen Faktor (Multiplikation) und einen Absolutwert (Addition) hinzufügen.';
 $string['priceformulaisactive'] = 'Beim Speichern Preise mit Preisformel neu berechnen (aktuelle Preise werden überschrieben).';
 $string['priceformulamultiply'] = 'Manueller Faktor';

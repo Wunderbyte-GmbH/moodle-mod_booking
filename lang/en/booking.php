@@ -1635,7 +1635,7 @@ $string['priceformulainfo'] = '<a data-toggle="collapse" href="#priceformula" ro
 <div class="collapse" id="priceformula">
 <samp>{$a->formula}</samp>
 </div><br>
-<a href="{$CFG->wwwroot}/admin/settings.php?section=modsettingbooking" target="_blank"><i class="fa fa-edit"></i> Edit formula...</a><br><br>
+<a href="{$a->url}" target="_blank"><i class="fa fa-edit"></i> Edit formula...</a><br><br>
 Below, you can additionally add a manual factor (multiplication) and an absolute value (addition) to be added to the formula.';
 $string['priceformulaisactive'] = 'On saving, calculate prices with price formula (this will overwrite current prices).';
 $string['priceformulamultiply'] = 'Manual factor';
