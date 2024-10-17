@@ -3821,5 +3821,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024082903, 'booking');
     }
 
+    if ($oldversion < 2024101700) {
+
+        // Define field extendlimitforoverbooked to be added to booking_campaigns.
+        $table = new xmldb_table('booking_campaigns');
+        $field = new xmldb_field('extendlimitforoverbooked', XMLDB_TYPE_INTEGER, '2', null, null, null, null, 'limitfactor');
+
+        // Conditionally launch add field extendlimitforoverbooked.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2024101700, 'booking');
+    }
+
     return true;
 }

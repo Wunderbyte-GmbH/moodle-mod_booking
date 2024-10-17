@@ -457,6 +457,7 @@
         <FIELD NAME="endtime" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="End time of the campaign as unix timestamp."/>
         <FIELD NAME="pricefactor" TYPE="number" LENGTH="10" NOTNULL="false" DEFAULT="1" SEQUENCE="false" DECIMALS="2"/>
         <FIELD NAME="limitfactor" TYPE="number" LENGTH="10" NOTNULL="false" DEFAULT="1" SEQUENCE="false" DECIMALS="2" COMMENT="Value to multiply booking limit with."/>
+        <FIELD NAME="extendlimitforoverbooked" TYPE="int" LENGTH="2" NOTNULL="false" SEQUENCE="false" COMMENT="Setting to see if the booking limit should take into overbookings into account."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
