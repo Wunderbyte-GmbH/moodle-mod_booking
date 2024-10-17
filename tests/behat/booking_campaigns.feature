@@ -65,8 +65,8 @@ Feature: Create booking campaigns for booking options as admin and booking it as
   ## @javascript - JS no need for this test
   Scenario: Booking campaigns: create booking campaign via DB and view as teacher
     Given the following "mod_booking > campaigns" exist:
-      | name      | type | json                                      | starttime   | endtime        | pricefactor | limitfactor |
-      | campaign2 | 0    | {"fieldname":"spt1","fieldvalue":"tenis"} | ## today ## | ## + 1 year ## | 0.5         | 2           |
+      | name      | type | json                                      | starttime   | endtime        | pricefactor | limitfactor | extendlimitforoverbooked |
+      | campaign2 | 0    | {"fieldname":"spt1","fieldvalue":"tenis"} | ## today ## | ## + 1 year ## | 0.5         | 2           | 0                        |
     When I am on the "BookingCMP" Activity page logged in as teacher1
     Then I should see "Option-football" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "88.00 EUR" in the ".allbookingoptionstable_r1 .pricecurrency" "css_element"
