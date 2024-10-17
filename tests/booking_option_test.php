@@ -306,6 +306,7 @@ final class booking_option_test extends advanced_testcase {
 
         $bdata['course'] = $course->id;
         $bdata['bookingmanager'] = $user3->username;
+        $bdata['ratings'] = 3; // Option completed.
 
         $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
 
@@ -359,7 +360,7 @@ final class booking_option_test extends advanced_testcase {
         $bookingoption1->user_submit_response($user1, 0, 0, 0, MOD_BOOKING_VERIFIED);
 
         $this->setUser($user1);
-        $this->assertEquals(true, $bookingoption1->can_rate());
+        $this->assertEquals(false, $bookingoption1->can_rate());
 
         // In this test, we set completion to the user directly.
         $this->setAdminUser();
@@ -369,16 +370,22 @@ final class booking_option_test extends advanced_testcase {
 
         // Mandatory to get updates on completion.
         $bookinganswers1 = booking_answers::get_instance_from_optionid($bookingoption1->id);
-        $this->assertEquals(1, $bookinganswers1->is_activity_completed($user1->id));
 
-        // phpcs:disable
+        // Verify completion.
+        $this->assertEquals(1, $bookinganswers1->is_activity_completed($user1->id));
+        // Verify can_rate.
+        $this->setUser($user1);
+        $this->assertEquals(false, $bookingoption1->can_rate());
+
         // Delete responses and verivy absence of completion.
-        //$res = $bookingoption1->delete_responses_activitycompletion();
-        //$bookinganswers1 = booking_answers::get_instance_from_optionid($bookingoption1->id);
-        //$this->setUser($user1);
-        //$this->assertEquals(0, $bookinganswers1->is_activity_completed($user1->id));
-        //$this->assertEquals(false, $bookingoption1->can_rate());
-        // phpcs:enable
+        $this->setAdminUser();
+        $res = $bookingoption1->delete_responses_activitycompletion();
+        $bookinganswers1 = booking_answers::get_instance_from_optionid($bookingoption1->id);
+
+        // Verify absence completion and inability to rate from user's side.
+        $this->setUser($user1);
+        $this->assertEquals(0, $bookinganswers1->is_activity_completed($user1->id));
+        $this->assertEquals(false, $bookingoption1->can_rate());
 
         // Mandatory to solve potential cache issues.
         singleton_service::destroy_booking_option_singleton($option1->id);
