@@ -675,11 +675,11 @@ class booking_option {
             $syncwaitinglist = false;
         }
 
-        // Delete only incompleted booked options.
+        // Delete all booked options including completed.
         $conditions = ['userid' => $userid, 'optionid' => $this->optionid];
         if ($deleteall === false) {
-            // Delete all booked options including completed.
-            $conditions[] = ['completed' => 0];
+            // Delete only incompleted booked options.
+            $conditions['completed'] = 0;
         }
         $results = $DB->get_records('booking_answers', $conditions);
 
