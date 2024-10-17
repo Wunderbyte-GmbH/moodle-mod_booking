@@ -699,7 +699,11 @@ class price {
             }
             // Get option settings and trigger event.
             $bosettings = singleton_service::get_instance_of_booking_option_settings($optionid);
-            $context = context_module::instance($bosettings->cmid);
+            if (empty($bosettings->cmid)) {
+                $context = context_system::instance();
+            } else {
+                $context = context_module::instance($bosettings->cmid);
+            }
             booking_option::trigger_updated_event($context, $optionid, $USER->id, $USER->id, 'price');
         }
         // In any case, invalidate the cache after updating the booking option.
