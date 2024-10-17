@@ -1072,10 +1072,10 @@ $string['excelfile'] = 'CSV Datei mit Aktivitätsabschluss';
 $string['executerestscript'] = 'REST script ausführen';
 $string['existingsubscribers'] = 'Vorhandene Nutzer:innen';
 $string['expired'] = 'Diese Aktivität wurde leider am {$a} beendet und steht nicht mehr zur Verfügung';
-$string['extendlimitforoverbooked'] = 'Überbuchte Kurse in Faktor einbeziehen';
+$string['extendlimitforoverbooked'] = 'Überbuchte Personen zusätzlich zu Faktor addieren';
 $string['extendlimitforoverbooked_help'] = 'Wählen Sie diese Option, passiert folgendes:
     Ein Kurs hat ein Limit von 40. Er ist aber bereits mit 2 TN auf 42 TN überbucht.
-    Wird auf diesen Kurs eine Limiterhöhung um beispielsweise 10% angewandt, wird das Limit auf 46 erhöht (42 + (aufgerundet) 5), statt auf 44 (40+4).';
+    Wird auf diesen Kurs eine Limiterhöhung um beispielsweise 10% angewandt, wird das Limit auf 46 erhöht (40 + 4 (10%) + 2 (bereits überbuchte)), statt auf 44 (40+4).';
 $string['feedbackurl'] = 'Link zur Umfrage';
 $string['feedbackurl_help'] = 'Link zu einem Feedback-Formular, das an Teilnehmer:innen gesendet werden soll.
  Verwenden Sie in E-Mails den Platzhalter <b>{pollurl}</b>.';

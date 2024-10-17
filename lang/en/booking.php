@@ -1083,10 +1083,10 @@ $string['excelfile'] = 'CSV file with activity completion';
 $string['executerestscript'] = 'Execute REST script';
 $string['existingsubscribers'] = 'Existing subscribers';
 $string['expired'] = 'Sorry, this activity closed on {$a} and is no longer available';
-$string['extendlimitforoverbooked'] = 'Include overbooked courses in the factor';
+$string['extendlimitforoverbooked'] = 'Add overbooked seats to applied factor';
 $string['extendlimitforoverbooked_help'] = 'If you select this option, the following happens:
     A course has a limit of 40 but is already overbooked with 2 participants to 42 participants.
-    If a limit increase of, for example, 10% is applied to this course, the limit will be increased to 47 (42 + (rounded up 4.2) 5), instead of 44 (40 + 4).';
+    If a limit increase of, for example, 10% is applied to this course, the limit will be increased to 46 (40 + 4 (10%) + 2 (overbooked seats)), instead of 44 (40 + 4).';
 $string['feedbackurl'] = 'Poll url';
 $string['feedbackurl_help'] = 'Enter a link to a feedback form that should be sent to participants.
  It can be added to e-mails with the <b>{pollurl}</b> placeholder.';
