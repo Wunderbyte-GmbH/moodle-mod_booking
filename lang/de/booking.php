@@ -1072,6 +1072,10 @@ $string['excelfile'] = 'CSV Datei mit Aktivitätsabschluss';
 $string['executerestscript'] = 'REST script ausführen';
 $string['existingsubscribers'] = 'Vorhandene Nutzer:innen';
 $string['expired'] = 'Diese Aktivität wurde leider am {$a} beendet und steht nicht mehr zur Verfügung';
+$string['extendlimitforoverbooked'] = 'Überbuchte Kurse in Faktor einbeziehen';
+$string['extendlimitforoverbooked_help'] = 'Wählen Sie diese Option, passiert folgendes:
+    Ein Kurs hat ein Limit von 40. Er ist aber bereits mit 2 TN auf 42 TN überbucht.
+    Wird auf diesen Kurs eine Limiterhöhung um beispielsweise 10% angewandt, wird das Limit auf 46 erhöht (42 + (aufgerundet) 5), statt auf 44 (40+4).';
 $string['feedbackurl'] = 'Link zur Umfrage';
 $string['feedbackurl_help'] = 'Link zu einem Feedback-Formular, das an Teilnehmer:innen gesendet werden soll.
  Verwenden Sie in E-Mails den Platzhalter <b>{pollurl}</b>.';
@@ -1258,7 +1262,7 @@ $string['limitanswers_help'] = 'Bei Änderung dieser Einstellung und vorhandenen
 $string['limitchangestrackinginrules'] = "Reaktionen auf Änderungen in Buchungs Regeln begrenzen";
 $string['limitchangestrackinginrulesdesc'] = "Wenn Sie diese Einstellung aktivieren, gilt die Reaktion auf Änderungen in Buchungs Regeln nur für die ausgewählten Felder.";
 $string['limitfactor'] = 'Buchungslimit-Faktor';
-$string['limitfactor_help'] = 'Geben Sie einen Wert an, mit dem das Buchungslimit multipliziert werden soll. Um das Buchungslimit beispielsweise um 20% zu erhöhen, geben Sie den Wert 1.2 ein.';
+$string['limitfactor_help'] = 'Geben Sie einen Wert an, mit dem das Buchungslimit multipliziert werden soll. Um das Buchungslimit beispielsweise um 20% zu erhöhen, geben Sie den Wert 1.2 ein. Es wird auf ganze Plätze aufgerundet.';
 $string['linkbacktocourse'] = 'Link zu Buchungsoptionen';
 $string['linkgotobookingoption'] = 'Buchung anzeigen: {$a}</a>';
 $string['linknotavailableyet'] = 'Der Link zum Online-Meeting-Raum ist erst 15 Minuten vor dem Meeting sichtbar

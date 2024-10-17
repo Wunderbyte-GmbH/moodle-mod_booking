@@ -1083,6 +1083,10 @@ $string['excelfile'] = 'CSV file with activity completion';
 $string['executerestscript'] = 'Execute REST script';
 $string['existingsubscribers'] = 'Existing subscribers';
 $string['expired'] = 'Sorry, this activity closed on {$a} and is no longer available';
+$string['extendlimitforoverbooked'] = 'Include overbooked courses in the factor';
+$string['extendlimitforoverbooked_help'] = 'If you select this option, the following happens:
+    A course has a limit of 40 but is already overbooked with 2 participants to 42 participants.
+    If a limit increase of, for example, 10% is applied to this course, the limit will be increased to 47 (42 + (rounded up 4.2) 5), instead of 44 (40 + 4).';
 $string['feedbackurl'] = 'Poll url';
 $string['feedbackurl_help'] = 'Enter a link to a feedback form that should be sent to participants.
  It can be added to e-mails with the <b>{pollurl}</b> placeholder.';
@@ -1267,7 +1271,7 @@ $string['limitanswers_help'] = 'If you change this option and you have booked pe
 $string['limitchangestrackinginrules'] = "Limit reactions on changes in booking rules";
 $string['limitchangestrackinginrulesdesc'] = "If you activate this setting, the booking rule react on change will only apply to the selected fields.";
 $string['limitfactor'] = 'Booking limit factor';
-$string['limitfactor_help'] = 'Specify a value by which to multiply the booking limit. For example, to increase the booking limit by 20%, enter the value <b>1.2</b>.';
+$string['limitfactor_help'] = 'Specify a value by which to multiply the booking limit. For example, to increase the booking limit by 20%, enter the value <b>1.2</b>. Always rounded up.';
 $string['linkbacktocourse'] = 'Link to booking option';
 $string['linkgotobookingoption'] = 'Go to booked option: {$a}</a>';
 $string['linknotavailableyet'] = "The link to access the meeting is available only 15 minutes before the start

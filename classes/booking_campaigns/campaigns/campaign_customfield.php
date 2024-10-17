@@ -64,6 +64,9 @@ class campaign_customfield implements booking_campaign {
     /** @var float $limitfactor */
     public $limitfactor = 1.0;
 
+    /** @var int $extendlimitforoverbooked */
+    public $extendlimitforoverbooked = 0;
+
     // From JSON.
     /** @var string $fieldname */
     public $fieldname = '';
@@ -94,6 +97,7 @@ class campaign_customfield implements booking_campaign {
         $this->endtime = $record->endtime ?? 0;
         $this->pricefactor = $record->pricefactor ?? 1.0;
         $this->limitfactor = $record->limitfactor ?? 1.0;
+        $this->extendlimitforoverbooked = $record->extendlimitforoverbooked ?? 0;
 
         // Set additional data stored in JSON.
         $jsonobj = json_decode($record->json);
@@ -229,6 +233,9 @@ class campaign_customfield implements booking_campaign {
         $mform->addElement('float', 'limitfactor', get_string('limitfactor', 'mod_booking'), null);
         $mform->setDefault('limitfactor', 1);
         $mform->addHelpButton('limitfactor', 'limitfactor', 'mod_booking');
+
+        $mform->addElement('advcheckbox', 'extendlimitforoverbooked', get_string('extendlimitforoverbooked', 'mod_booking'), null);
+        $mform->addHelpButton('extendlimitforoverbooked', 'extendlimitforoverbooked', 'mod_booking');
     }
 
     /**
@@ -272,6 +279,7 @@ class campaign_customfield implements booking_campaign {
         $record->endtime = $data->endtime;
         $record->pricefactor = $data->pricefactor;
         $record->limitfactor = $data->limitfactor;
+        $record->extendlimitforoverbooked = $data->extendlimitforoverbooked;
 
         // We need to create two adhoc tasks to purge caches - one at start time and one at end time.
         $purgetaskstart = new purge_campaign_caches();
@@ -304,6 +312,7 @@ class campaign_customfield implements booking_campaign {
         $data->endtime = $record->endtime;
         $data->pricefactor = $record->pricefactor;
         $data->limitfactor = $record->limitfactor;
+        $data->extendlimitforoverbooked = $record->extendlimitforoverbooked;
 
         if ($jsonobject = json_decode($record->json)) {
             switch ($record->type) {
@@ -420,9 +429,11 @@ class campaign_customfield implements booking_campaign {
 
         $campaignlimit = $limit * $this->limitfactor;
 
-        // If we are overbooked, we need to adjust the max value.
-        if ($nrofbookedusers > $limit) {
-            $campaignlimit = $campaignlimit - $limit + $nrofbookedusers;
+        if (!empty($this->extendlimitforoverbooked)) {
+            // If we are overbooked, we need to adjust the max value.
+            if ($nrofbookedusers > $limit) {
+                $campaignlimit = $campaignlimit - $limit + $nrofbookedusers;
+            }
         }
 
         // We always round up.
