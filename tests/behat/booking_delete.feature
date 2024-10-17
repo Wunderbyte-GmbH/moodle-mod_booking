@@ -54,8 +54,12 @@ Feature: In a booking delete
     And I click on "Add" "button"
     And I follow "<< Back to responses"
     And I wait until the page is ready
+    And I should see "Student 1"
+    And I should see "Student 2"
     And I click on "selectall" "checkbox"
     And I click on "Delete responses" "button"
+    And I should not see "Student 1"
+    And I should not see "Student 2"
     When I log in as "admin"
     And I trigger cron
     And I run all adhoc tasks
