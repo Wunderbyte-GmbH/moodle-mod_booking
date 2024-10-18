@@ -292,7 +292,8 @@ abstract class field_base implements fields {
         $newvalue = $changes['newvalue'];
         $fieldname = $changes['fieldname'];
 
-        $infotext = get_string($changes['fieldname'], 'booking') . get_string('changeinfochanged', 'booking');
+        $fieldnamestring = get_string($changes['fieldname'], 'booking');
+        $infotext = get_string('changeinfochanged', 'booking', $fieldnamestring);
 
         if ((empty($oldvalue) && empty($newvalue)) || $oldvalue == $newvalue) {
             return [
@@ -320,7 +321,6 @@ abstract class field_base implements fields {
         ];
 
         $changes = [
-            'info' => $infotext . ":",
             'oldvalue' => $oldvalue,
             'newvalue' => $newvalue,
         ];
