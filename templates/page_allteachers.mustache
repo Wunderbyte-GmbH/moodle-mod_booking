@@ -86,28 +86,30 @@
                             <div>{{#str}} showcoursesofteacher, mod_booking {{/str}}</div>
                         </div>
                     </a>
-                    {{#messagingispossible}}
-                    <a id="message-user-button" role="button" data-conversationid="0"
-                    data-userid="{{teacherid}}" class="btn btn-light"
-                    href="{{messagelink}}">
-                        <div>
-                            <i class="icon fa fa-comment-o fa-fw iconsmall" title="{{#str}} messagebutton, mod_booking {{/str}}"
-                            role="img" aria-label="{{#str}} messagebutton, mod_booking {{/str}}"></i>
-                            <div class="header-button-title">{{#str}} messagebutton, mod_booking {{/str}}</div>
-                        </div>
-                    </a>
-                    {{/messagingispossible}}
-                    {{^messagingispossible}}
-                    <div data-toggle="tooltip" data-placement="top" title="{{#str}} messagingteacherimpossible, mod_booking {{/str}}">
-                        <a id="message-user-button" role="button" class="btn btn-light disabled">
+                    {{^messagesdeactivated}}
+                        {{#messagingispossible}}
+                        <a id="message-user-button" role="button" data-conversationid="0"
+                        data-userid="{{teacherid}}" class="btn btn-light"
+                        href="{{messagelink}}">
                             <div>
                                 <i class="icon fa fa-comment-o fa-fw iconsmall" title="{{#str}} messagebutton, mod_booking {{/str}}"
                                 role="img" aria-label="{{#str}} messagebutton, mod_booking {{/str}}"></i>
                                 <div class="header-button-title">{{#str}} messagebutton, mod_booking {{/str}}</div>
                             </div>
                         </a>
-                    </div>
-                    {{/messagingispossible}}
+                        {{/messagingispossible}}
+                        {{^messagingispossible}}
+                        <div data-toggle="tooltip" data-placement="top" title="{{#str}} messagingteacherimpossible, mod_booking {{/str}}">
+                            <a id="message-user-button" role="button" class="btn btn-light disabled">
+                                <div>
+                                    <i class="icon fa fa-comment-o fa-fw iconsmall" title="{{#str}} messagebutton, mod_booking {{/str}}"
+                                    role="img" aria-label="{{#str}} messagebutton, mod_booking {{/str}}"></i>
+                                    <div class="header-button-title">{{#str}} messagebutton, mod_booking {{/str}}</div>
+                                </div>
+                            </a>
+                        </div>
+                        {{/messagingispossible}}
+                    {{/messagesdeactivated}}
                     {{#email}}
                     <a href="mailto:{{email}}" class="page-allteachers-email btn btn-light">
                         <div>

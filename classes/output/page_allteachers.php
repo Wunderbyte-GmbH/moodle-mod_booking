@@ -69,7 +69,7 @@ class page_allteachers implements renderable, templatable {
      * @return array
      */
     public function export_for_template(renderer_base $output) {
-        global $PAGE, $USER;
+        global $PAGE, $USER, $CFG;
 
         $returnarray = [];
 
@@ -126,10 +126,14 @@ class page_allteachers implements renderable, templatable {
                 $teacherarr['email'] = $teacher->email;
             }
 
-            if (page_teacher::teacher_messaging_is_possible($teacher->id) ||
-                get_config('booking', 'alwaysenablemessaging')
-            ) {
-                $teacherarr['messagingispossible'] = true;
+            if (!empty($CFG->messaging)) {
+                if (page_teacher::teacher_messaging_is_possible($teacher->id) ||
+                    get_config('booking', 'alwaysenablemessaging')
+                ) {
+                    $teacherarr['messagingispossible'] = true;
+                }
+            } else {
+                $teacherarr['messagesdeactivated'] = true;
             }
 
             if (has_capability('mod/booking:editteacherdescription', context_system::instance())) {
