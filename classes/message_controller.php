@@ -162,7 +162,6 @@ class message_controller {
         $originallanguage = force_current_language($user->lang);
         $customsubject = format_text($customsubject, FORMAT_HTML, ['noclean' => true]);
         $custommessage = format_text($custommessage, FORMAT_HTML, ['noclean' => true]);
-        force_current_language($originallanguage);
 
         // TODO: This is a bad idea. We need to find out the correct places where we really need to purge!
         // Purge booking instance settings before sending mails to make sure, we use correct data.
@@ -281,6 +280,9 @@ class message_controller {
         } else {
             $this->messagedata = $this->get_message_data_send_now();
         }
+
+        // At the end, we set back the original language.
+        force_current_language($originallanguage);
     }
 
     /**
