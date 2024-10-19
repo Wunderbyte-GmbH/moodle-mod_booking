@@ -1130,6 +1130,7 @@ $string['gotomoodlecourse'] = 'Zum Moodle-Kurs';
 $string['groupdeleted'] = 'Diese Buchung erstellt automatisch Gruppen im Zielkurs. Aber die Gruppe wurde im Zielkurs manuell gelöscht. Aktivieren Sie folgende Checkbox, um die Gruppe erneut zu erstellen';
 $string['groupexists'] = 'Die Gruppe existiert bereits im Zielkurs. Bitte verwenden Sie einen anderen Namen für die Buchungsoption';
 $string['groupname'] = 'Gruppenname';
+$string['h'] = ' Uhr';
 $string['hascapability'] = 'Außer mit dieser Fähikgeit';
 $string['helptext:emailsettings'] = '<div class="alert alert-warning style="margin-left: 200px;">
 <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>

@@ -1140,6 +1140,7 @@ $string['gotomoodlecourse'] = 'Go to Moodle course';
 $string['groupdeleted'] = 'This booking instance creates groups automatically in the target course. But the group has been manually deleted in the target course. Activate the following checkbox in order to recreate the group';
 $string['groupexists'] = 'The group already exists in the target course, please choose another name for the booking option';
 $string['groupname'] = 'Group name';
+$string['h'] = '';
 $string['hascapability'] = 'Except has capability';
 $string['helptext:emailsettings'] = '<div class="alert alert-warning style="margin-left: 200px;">
 <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
