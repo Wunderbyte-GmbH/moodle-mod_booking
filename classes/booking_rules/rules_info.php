@@ -42,13 +42,19 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class rules_info {
-
     /**
      * Collect events to execute them at the end of the request.
      *
      * @var array
      */
     public static $rulestoexecute = [];
+
+    /**
+     * Collect events to execute them at the end of the request.
+     *
+     * @var array
+     */
+    public static $eventstoexecute = [];
 
     /**
      * Add form fields to mform.
@@ -371,7 +377,7 @@ class rules_info {
             // We only execute if the rule in question listens to the right event.
             if (!empty($rule->boevent)) {
                 if ($data['eventname'] == $rule->boevent) {
-                    self::$rulestoexecute[$rule->ruleid] = [
+                    self::$rulestoexecute[] = [
                         'optionid' => $optionid,
                         'rule' => $rule,
                         'ruleid' => $rule->ruleid,
@@ -406,17 +412,22 @@ class rules_info {
             $ruledata = $ruleobject->ruledata;
             if (!empty($ruledata->cancelrules)) {
                 foreach ($ruledata->cancelrules as $cancelrule) {
-                    unset($rulestoexecute[$cancelrule]);
-                    unset(self::$rulestoexecute[$cancelrule]);
+
+                    foreach ($rulestoexecute as $key => $rulearray) {
+                        if ($rulearray['ruleid'] == $cancelrule) {
+                            unset($rulestoexecute[$key]);
+                            unset(self::$rulestoexecute[$key]);
+                        }
+                    }
                 }
             }
         }
 
-        foreach ($rulestoexecute as $ruleid => $rulearray) {
+        foreach ($rulestoexecute as $key => $rulearray) {
             $rule = $rulearray['rule'];
             // Make sure we don't execute this multiple times.
-            unset($rulestoexecute[$ruleid]);
-            unset(self::$rulestoexecute[$ruleid]);
+            unset($rulestoexecute[$key]);
+            unset(self::$rulestoexecute[$key]);
             $rule->execute($rulearray['optionid'], 0);
         }
     }
@@ -450,6 +461,20 @@ class rules_info {
                 return false;
             default:
                 return false;
+        }
+    }
+
+    /**
+     * Execute Events that need to be executed after executing rules.
+     *
+     * @return void
+     *
+     */
+    public static function events_to_execute() {
+
+        foreach (self::$eventstoexecute as $key => $event) {
+            unset(self::$eventstoexecute[$key]);
+            $event();
         }
     }
 }

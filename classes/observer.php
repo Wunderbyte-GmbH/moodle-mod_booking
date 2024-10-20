@@ -136,17 +136,20 @@ class mod_booking_observer {
      */
     public static function bookinganswer_cancelled(\mod_booking\event\bookinganswer_cancelled $event) {
 
-        global $DB;
+        rules_info::$eventstoexecute[] = function () use ($event) {
 
-        $userid = $event->relateduserid;
-        $optionid = $event->objectid;
+            global $DB;
 
-        // If a user is removed from a booking option, we also have to delete his/her user events.
-        $records = $DB->get_records('booking_userevents', ['userid' => $userid, 'optionid' => $optionid]);
-        foreach ($records as $record) {
-            $DB->delete_records('event', ['id' => $record->eventid]);
-            $DB->delete_records('booking_userevents', ['id' => $record->id]);
-        }
+            $userid = $event->relateduserid;
+            $optionid = $event->objectid;
+
+            // If a user is removed from a booking option, we also have to delete his/her user events.
+            $records = $DB->get_records('booking_userevents', ['userid' => $userid, 'optionid' => $optionid]);
+            foreach ($records as $record) {
+                $DB->delete_records('event', ['id' => $record->eventid]);
+                $DB->delete_records('booking_userevents', ['id' => $record->id]);
+            }
+        };
     }
 
     /**
@@ -157,21 +160,23 @@ class mod_booking_observer {
      */
     public static function bookingoption_cancelled(\mod_booking\event\bookingoption_cancelled $event) {
 
-        $optionid = $event->objectid;
-        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
-        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+        rules_info::$eventstoexecute[] = function () use ($event) {
+            $optionid = $event->objectid;
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
+            $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
 
-        foreach ($bookinganswer->users as $user) {
-            /* Third param $bookingoptioncancel = true is important,
-            so we do not trigger bookinganswer_cancelled
-            and send no extra cancellation mails to each user.
-            Instead we want to use our new bookingoption_cancelled rule here. */
-            $bookingoption->user_delete_response($user->id, false, true);
+            foreach ($bookinganswer->users as $user) {
+                /* Third param $bookingoptioncancel = true is important,
+                so we do not trigger bookinganswer_cancelled
+                and send no extra cancellation mails to each user.
+                Instead we want to use our new bookingoption_cancelled rule here. */
+                $bookingoption->user_delete_response($user->id, false, true);
 
-            // Also delete user events.
-            calendar::delete_booking_userevents_for_option($optionid, $user->id);
-        }
+                // Also delete user events.
+                calendar::delete_booking_userevents_for_option($optionid, $user->id);
+            }
+        };
     }
 
     /**

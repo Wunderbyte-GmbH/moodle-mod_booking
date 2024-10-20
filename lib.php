@@ -2030,6 +2030,20 @@ function clean_string(string $text) {
 }
 
 // With this function, we can execute code at the last moment.
-register_shutdown_function(function() {
-    rules_info::filter_rules_and_execute();
+register_shutdown_function(function () {
+
+    // To avoid loops, we need a counter.
+
+    $counter = 0;
+
+    while (
+        (count(rules_info::$rulestoexecute) > 0
+        || count(rules_info::$eventstoexecute) > 0)
+        && $counter < 10
+    ) {
+        rules_info::filter_rules_and_execute();
+
+        rules_info::events_to_execute();
+        $counter++;
+    }
 });
