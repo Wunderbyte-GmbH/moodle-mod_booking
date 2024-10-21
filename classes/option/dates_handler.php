@@ -753,16 +753,20 @@ class dates_handler {
         }
         if ($showweekdays) {
             $date->startdate = userdate($starttime, $strftimedaydate); // Friday, 3. February 2023.
-            $date->startdatetime = userdate($starttime, $strftimedaydatetime) . get_string('h', 'mod_booking'); // Friday, 3. February 2023, 11:45.
+            $date->startdatetime = userdate($starttime, $strftimedaydatetime) . get_string('h', 'mod_booking');
+            // Friday, 3. February 2023, 11:45.
             $date->datestring = $date->startdatetime;
 
             if (!empty($endtime)) {
-                $date->enddatetime = userdate($endtime, $strftimedaydatetime) . get_string('h', 'mod_booking'); // Friday, 3. February 2023, 12:45.
+                $date->enddatetime = userdate($endtime, $strftimedaydatetime) . get_string('h', 'mod_booking');
+                // Friday, 3. February 2023, 12:45.
                 $date->enddate = userdate($endtime, $strftimedaydate); // Friday, 3. February 2023.
                 $date->datestring .= " - ";
                 $date->datestring .= $date->startdate != $date->enddate ?
-                    $date->enddatetime . get_string('h', 'mod_booking') : // Friday, 3. February 2023, 11:45 - Saturday, 4. February 2023, 12:45.
-                    $date->endtime . get_string('h', 'mod_booking'); // Friday, 3. February 2023, 11:45 - 12:45.
+                    $date->enddatetime . get_string('h', 'mod_booking') :
+                    // Friday, 3. February 2023, 11:45 - Saturday, 4. February 2023, 12:45.
+                    $date->endtime . get_string('h', 'mod_booking');
+                    // Friday, 3. February 2023, 11:45 - 12:45.
             }
 
         } else {
@@ -774,7 +778,8 @@ class dates_handler {
             if (!empty($endtime)) {
                 $date->enddatetime = userdate($endtime, $strftimedatetime);
                 $date->enddate = userdate($endtime, $strftimedate); // 3. February 2023.
-                $date->enddatetime = userdate($endtime, $strftimedatetime) . get_string('h', 'mod_booking'); // Friday, 3. February 2023, 12:45.
+                $date->enddatetime = userdate($endtime, $strftimedatetime) . get_string('h', 'mod_booking');
+                // Friday, 3. February 2023, 12:45.
                 $date->datestring .= " - ";
                 $date->datestring .= $date->startdate != $date->enddate ?
                     $date->enddatetime . get_string('h', 'mod_booking') : // 3. February 2023, 11:45 - 4. February 2023, 12:45.
