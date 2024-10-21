@@ -131,6 +131,7 @@ class booking_bookit {
                         $extrabuttoncondition = $result['classname'];
                     } else {
                         $buttoncondition = $result['classname'];
+                        $renderprepagemodal = false;
                     }
                     break;
                 case MOD_BOOKING_BO_BUTTON_NOBUTTON:
