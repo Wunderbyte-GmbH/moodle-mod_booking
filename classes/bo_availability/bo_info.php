@@ -916,7 +916,7 @@ class bo_info {
             return '';
         }
         $jsondata = json_decode($instance->settings->json);
-        if (empty($jsondata->billboardtext)) {
+        if (empty($jsondata->billboardtext) || empty($jsondata->overwriteblockingwarnings)) {
             return '';
         }
         return format_text($jsondata->billboardtext);

@@ -879,6 +879,10 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->addElement('advcheckbox', 'overwriteblockingwarnings', get_string("overwriteblockingwarnings", "booking"));
             $mform->addElement('textarea', 'billboardtext',
                 get_string("billboardtext", "booking"), null, null);
+            $mform->setDefault('overwriteblockingwarnings',
+            (int)booking::get_value_of_json_by_key($bookingid, 'overwriteblockingwarnings') ?? 0);
+            $mform->setDefault('billboardtext',
+            booking::get_value_of_json_by_key($bookingid, 'billboardtext') ?? '');
         }
 
         // Booking option text.
