@@ -67,7 +67,7 @@ class booked_users implements renderable, templatable {
      * @param bool $showbooked
      * @param bool $showwaiting
      * @param bool $showreserved
-     * @param bool $showtonotifiy
+     * @param bool $showtonotify
      * @param bool $showdeleted
      *
      */
