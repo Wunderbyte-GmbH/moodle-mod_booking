@@ -522,6 +522,10 @@ class enrolledincohorts implements bo_condition {
      * @return string
      */
     private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
+
+        if (!$isavailable && !empty($desc = bo_info::apply_billboard($this, $settings))) {
+            return $desc;
+        }
         global $DB;
 
         if ($isavailable) {
