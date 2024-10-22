@@ -175,7 +175,7 @@ class priceisset implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        $description = $this->get_description_string($isavailable, $full);
+        $description = $this->get_description_string($isavailable, $full, $settings);
 
         // If shopping cart is not installed, we still want to allow admins to book for others.
         $context = context_module::instance($settings->cmid);
@@ -290,9 +290,10 @@ class priceisset implements bo_condition {
      *
      * @param bool $isavailable
      * @param bool $full
+     * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string($isavailable, $full): string {
+    private function get_description_string($isavailable, $full, $settings): string {
         if ($isavailable) {
             $description = $full ? get_string('bocondpriceissetfullavailable', 'mod_booking') :
                 get_string('bocondpriceissetavailable', 'mod_booking');

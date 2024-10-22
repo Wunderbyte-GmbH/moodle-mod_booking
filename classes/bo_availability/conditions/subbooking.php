@@ -165,7 +165,7 @@ class subbooking implements bo_condition {
         // First we check if there are any subbookings present.
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        $description = $this->get_description_string($isavailable, $full);
+        $description = $this->get_description_string($isavailable, $full, $settings);
 
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_POSTBOOK, MOD_BOOKING_BO_BUTTON_INDIFFERENT];
     }
@@ -246,9 +246,10 @@ class subbooking implements bo_condition {
      *
      * @param bool $isavailable
      * @param bool $full
-     * @return void
+     * @param booking_option_settings $settings
+     * @return string
      */
-    private function get_description_string($isavailable, $full) {
+    private function get_description_string($isavailable, $full, $settings) {
         if ($isavailable) {
             $description = $full ? get_string('bocondsubbookingfullavailable', 'mod_booking') :
                 get_string('bocondsubbookingavailable', 'mod_booking');

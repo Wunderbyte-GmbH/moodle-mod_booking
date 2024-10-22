@@ -153,7 +153,7 @@ class isloggedin implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        $description = $this->get_description_string($isavailable, $full);
+        $description = $this->get_description_string($isavailable, $full, $settings);
 
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_JUSTMYALERT];
     }
@@ -203,7 +203,7 @@ class isloggedin implements bo_condition {
         bool $fullwidth = true
     ): array {
 
-        $label = $this->get_description_string(false, $full);
+        $label = $this->get_description_string(false, $full, $settings);
         $style = 'btn btn-' . get_config('booking', 'loginbuttonforbookingoptionscoloroptions') ?? 'btn btn-warning';
 
         $button = bo_info::render_button(
@@ -227,9 +227,10 @@ class isloggedin implements bo_condition {
      *
      * @param bool $isavailable
      * @param bool $full
+     * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string($isavailable, $full) {
+    private function get_description_string($isavailable, $full, $settings) {
         if ($isavailable) {
             $description = $full ? get_string('bocondisloggedinfullavailable', 'mod_booking') :
                 get_string('bocondisloggedinavailable', 'mod_booking');

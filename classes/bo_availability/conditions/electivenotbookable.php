@@ -167,7 +167,7 @@ class electivenotbookable implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        $description = $this->get_description_string($isavailable, $full);
+        $description = $this->get_description_string($isavailable, $full, $settings);
 
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_BOOK, MOD_BOOKING_BO_BUTTON_MYBUTTON];
     }
@@ -287,9 +287,10 @@ class electivenotbookable implements bo_condition {
      *
      * @param bool $isavailable
      * @param bool $full
+     * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string($isavailable, $full): string {
+    private function get_description_string($isavailable, $full, $settings): string {
 
         // In this case, we dont differentiate between availability, because when it blocks...
         // ... it just means that it can be booked. Blocking has a different functionality here.

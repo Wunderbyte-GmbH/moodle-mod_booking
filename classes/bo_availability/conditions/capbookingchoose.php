@@ -147,7 +147,7 @@ class capbookingchoose implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        $description = $this->get_description_string($isavailable, $full);
+        $description = $this->get_description_string($isavailable, $full, $settings);
 
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_JUSTMYALERT];
     }
@@ -197,7 +197,7 @@ class capbookingchoose implements bo_condition {
         bool $fullwidth = true
     ): array {
 
-        $label = $this->get_description_string(false, $full);
+        $label = $this->get_description_string(false, $full, $settings);
 
         return bo_info::render_button($settings, $userid, $label, 'alert alert-success', true, $fullwidth, 'alert', 'option');
     }
@@ -207,9 +207,10 @@ class capbookingchoose implements bo_condition {
      *
      * @param bool $isavailable
      * @param bool $full
+     * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string($isavailable, $full): string {
+    private function get_description_string($isavailable, $full, $settings): string {
         if ($isavailable) {
             $description = $full ? get_string('bocondcapbookingchoosefullavailable', 'mod_booking') :
                 get_string('bocondcapbookingchooseavailable', 'mod_booking');
