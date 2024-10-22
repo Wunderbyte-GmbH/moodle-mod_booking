@@ -853,6 +853,12 @@ function booking_update_instance($booking) {
     } else {
         booking::add_data_to_json($booking, "disablebooking", 1);
     }
+    if (empty($booking->overwriteblockingwarnings)) {
+        // This will store the correct JSON to $optionvalues->json.
+        booking::remove_key_from_json($booking, "billboardtext");
+    } else {
+        booking::add_data_to_json($booking, "billboardtext", $booking->billboardtext);
+    }
 
     // Update, delete or insert answers.
     if (!empty($booking->option)) {
