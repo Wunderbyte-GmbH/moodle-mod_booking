@@ -230,7 +230,11 @@ class isloggedin implements bo_condition {
      * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string($isavailable, $full, $settings) {
+    private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
+
+        if (!$isavailable && !empty($desc = bo_info::apply_billboard($this, $settings))) {
+            return $desc;
+        }
         if ($isavailable) {
             $description = $full ? get_string('bocondisloggedinfullavailable', 'mod_booking') :
                 get_string('bocondisloggedinavailable', 'mod_booking');
