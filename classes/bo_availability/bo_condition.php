@@ -155,4 +155,11 @@ interface bo_condition {
      * @return array
      */
     public function return_sql(): array;
+
+    /**
+     * Returns the id of the condition.
+     *
+     * @return int
+     */
+    public function get_id(): int;
 }

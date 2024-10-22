@@ -902,20 +902,24 @@ class bo_info {
      * @return void
      *
      */
-    private static function overwrite_warnings_with_billboard(booking_option_settings $settings, string $role, string &$label) {
-        // TODO maybe implement settings for plugin if billboard is activated.
-        if ($role == 'button') {
-            return;
+    public static function apply_billboard(bo_condition $condition, booking_option_settings $settings): string {
+        if (empty(get_config('booking', 'conditionsoverwritingbillboard'))) {
+            return '';
         }
+        if (in_array($condition->get_id(), MOD_BOOKING_CONDTIONS_EXCLUDED_FROM_OVERWRITING_DESCRIPTION_BILLBOARD)) {
+            return '';
+        }
+
         // Fetch settings of instance to see if alert needs to be overwritten.
         $instance = singleton_service::get_instance_of_booking_by_bookingid($settings->bookingid);
+        if (empty($instance->settings->json)) {
+            return '';
+        }
         $jsondata = json_decode($instance->settings->json);
         if (empty($jsondata->billboardtext)) {
-            return;
+            return '';
         }
-        $formattext = format_text($jsondata->billboardtext);
-
-        $label = $formattext;
+        return format_text($jsondata->billboardtext);
     }
 
     /**

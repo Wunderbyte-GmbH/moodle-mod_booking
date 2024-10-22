@@ -50,6 +50,16 @@ class isbookable implements bo_condition {
     public $id = MOD_BOOKING_BO_COND_ISBOOKABLE;
 
     /**
+     * Get the condition id.
+     *
+     * @return int
+     *
+     */
+    public function get_id(): int {
+        return $this->id;
+    }
+
+    /**
      * Needed to see if class can take JSON.
      * @return bool
      */
@@ -150,7 +160,13 @@ class isbookable implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        $description = $this->get_description_string($isavailable, $full);
+        if (!$isavailable && !empty($billboardtext = bo_info::apply_billboard($this, $settings))) {
+            $description = $billboardtext;
+            // Overwrite Buttontype if needed.
+        } else {
+            $description = $this->get_description_string($isavailable, $full);
+
+        }
 
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_MYALERT];
     }

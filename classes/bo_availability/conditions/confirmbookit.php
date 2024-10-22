@@ -51,6 +51,16 @@ class confirmbookit implements bo_condition {
     public $id = MOD_BOOKING_BO_COND_CONFIRMBOOKIT;
 
     /**
+     * Get the condition id.
+     *
+     * @return int
+     *
+     */
+    public function get_id(): int {
+        return $this->id;
+    }
+
+    /**
      * Needed to see if class can take JSON.
      * @return bool
      */

@@ -28,6 +28,7 @@ namespace mod_booking\bo_availability\conditions;
 
 use context_system;
 use mod_booking\bo_availability\bo_condition;
+use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\output\button_notifyme;
 use mod_booking\singleton_service;
@@ -54,6 +55,16 @@ class notifymelist implements bo_condition {
 
     /** @var bool $overridable Indicates if the condition can be overriden. */
     public $overridable = true;
+
+    /**
+     * Get the condition id.
+     *
+     * @return int
+     *
+     */
+    public function get_id(): int {
+        return $this->id;
+    }
 
     /**
      * Needed to see if class can take JSON.

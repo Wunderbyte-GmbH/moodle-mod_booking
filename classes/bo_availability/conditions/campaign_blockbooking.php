@@ -55,6 +55,16 @@ class campaign_blockbooking implements bo_condition {
     private $blockinglabel = '';
 
     /**
+     * Get the condition id.
+     *
+     * @return int
+     *
+     */
+    public function get_id(): int {
+        return $this->id;
+    }
+
+    /**
      * Needed to see if class can take JSON.
      * @return bool
      */
