@@ -155,6 +155,16 @@ define('MOD_BOOKING_BO_COND_CONFIRMBOOKIT', -80);
 define('MOD_BOOKING_BO_COND_BOOKITBUTTON', -90); // This is only used to show the book it button.
 define('MOD_BOOKING_BO_COND_CONFIRMATION', -100); // This is the last page after booking.
 
+// Define the conditions that can not be overwritten via billboard.
+define('MOD_BOOKING_CONDTIONS_EXCLUDED_FROM_OVERWRITING_DESCRIPTION_BILLBOARD', [
+    MOD_BOOKING_BO_COND_ALREADYBOOKED,
+    MOD_BOOKING_BO_COND_ALREADYRESERVED,
+    // MOD_BOOKING_BO_COND_ISCANCELLED,
+    // MOD_BOOKING_BO_COND_ISBOOKABLEINSTANCE,
+    // MOD_BOOKING_BO_COND_ISBOOKABLE,
+    MOD_BOOKING_BO_COND_ONWAITINGLIST,
+]);
+
 // Define conditions parameters.
 define('MOD_BOOKING_CONDPARAM_ALL', 0);
 define('MOD_BOOKING_CONDPARAM_HARDCODED_ONLY', 1);
@@ -288,8 +298,6 @@ define('MOD_BOOKING_SQL_FILTER_ACTIVE_BO_TIME', 2);
 define('MOD_BOOKING_CLASSES_EXCLUDED_FROM_CHANGES_TRACKING', [
 ]);
 
-define('MOD_BOOKING_CONDTIONS_EXCLUDED_FROM_OVERWRITING_DESCRIPTION_BILLBOARD', [
-]);
 /**
  * Booking get coursemodule info.
  *
@@ -856,6 +864,12 @@ function booking_update_instance($booking) {
         booking::add_data_to_json($booking, "disablebooking", 1);
     }
     if (empty($booking->overwriteblockingwarnings)) {
+        // This will store the correct JSON to $optionvalues->json.
+        booking::remove_key_from_json($booking, "overwriteblockingwarnings");
+    } else {
+        booking::add_data_to_json($booking, "overwriteblockingwarnings", 1);
+    }
+    if (empty($booking->billboardtext)) {
         // This will store the correct JSON to $optionvalues->json.
         booking::remove_key_from_json($booking, "billboardtext");
     } else {
