@@ -28,6 +28,7 @@ namespace mod_booking\bo_availability\conditions;
 
 use context_system;
 use mod_booking\bo_availability\bo_condition;
+use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use mod_booking\subbookings\subbookings_info;
@@ -52,6 +53,16 @@ class subbooking implements bo_condition {
     /* Important: Soft subbookings are not overridable as they need to do
     a "soft block" so they appear in prepage modals but do not block the
     booking process. */
+
+    /**
+     * Get the condition id.
+     *
+     * @return int
+     *
+     */
+    public function get_id(): int {
+        return $this->id;
+    }
 
     /**
      * Needed to see if class can take JSON.

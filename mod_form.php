@@ -875,9 +875,11 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $mform->addElement('advcheckbox', 'removeuseronunenrol', get_string("removeuseronunenrol", "booking"));
 
-        $mform->addElement('advcheckbox', 'overwriteblockingwarnings', get_string("overwriteblockingwarnings", "booking"));
-        $mform->addElement('textarea', 'billboardtext',
-            get_string("billboardtext", "booking"), null, null);
+        if (get_config('booking', 'conditionsoverwritingbillboard')) {
+            $mform->addElement('advcheckbox', 'overwriteblockingwarnings', get_string("overwriteblockingwarnings", "booking"));
+            $mform->addElement('textarea', 'billboardtext',
+                get_string("billboardtext", "booking"), null, null);
+        }
 
         // Booking option text.
         $mform->addElement('header', 'bookingoptiontextheader',

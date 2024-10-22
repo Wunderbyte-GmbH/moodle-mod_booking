@@ -27,6 +27,7 @@
  namespace mod_booking\bo_availability\conditions;
 
 use mod_booking\bo_availability\bo_condition;
+use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\price;
 use MoodleQuickForm;
@@ -48,6 +49,16 @@ class isloggedinprice implements bo_condition {
 
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_ISLOGGEDINPRICE;
+
+    /**
+     * Get the condition id.
+     *
+     * @return int
+     *
+     */
+    public function get_id(): int {
+        return $this->id;
+    }
 
     /**
      * Needed to see if class can take JSON.
