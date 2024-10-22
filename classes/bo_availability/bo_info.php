@@ -893,6 +893,32 @@ class bo_info {
     }
 
     /**
+     * If billboard is activated, we want to overwrite the warning messages with the billboard text.
+     *
+     * @param booking_option_settings $settings
+     * @param string $role
+     * @param string $label
+     *
+     * @return void
+     *
+     */
+    private static function overwrite_warnings_with_billboard(booking_option_settings $settings, string $role, string &$label) {
+        // TODO maybe implement settings for plugin if billboard is activated.
+        if ($role == 'button') {
+            return;
+        }
+        // Fetch settings of instance to see if alert needs to be overwritten.
+        $instance = singleton_service::get_instance_of_booking_by_bookingid($settings->bookingid);
+        $jsondata = json_decode($instance->settings->json);
+        if (empty($jsondata->billboardtext)) {
+            return;
+        }
+        $formattext = format_text($jsondata->billboardtext);
+
+        $label = $formattext;
+    }
+
+    /**
      * To sort the prepages, depending on blocking conditions array.
      * This is also used to determine the total number of pages displayed.
      * Just count the pages returned.
