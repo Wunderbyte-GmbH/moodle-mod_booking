@@ -176,7 +176,7 @@ class fullybooked implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        $description = self::get_description_string($isavailable, $full);
+        $description = self::get_description_string($isavailable, $full, $settings);
 
         // If the user is in principle allowed to overbook AND the overbook setting is set in the instance, overbooking is possible.
         if (!empty(get_config('booking', 'allowoverbooking'))
@@ -235,7 +235,7 @@ class fullybooked implements bo_condition {
     ): array {
 
         $isavailable = $this->is_available($settings, $userid);
-        $label = $this->get_description_string($isavailable, $full);
+        $label = $this->get_description_string($isavailable, $full, $settings);
 
         return bo_info::render_button($settings, $userid, $label, 'alert alert-warning', true, $fullwidth, 'alert', 'option');
     }
@@ -245,9 +245,10 @@ class fullybooked implements bo_condition {
      *
      * @param bool $isavailable
      * @param bool $full
+     * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string($isavailable, $full) {
+    private function get_description_string($isavailable, $full, $settings) {
         if ($isavailable) {
             $description = $full ? get_string('bocondfullybookedfullavailable', 'mod_booking') :
                 get_string('bocondfullybookedavailable', 'mod_booking');

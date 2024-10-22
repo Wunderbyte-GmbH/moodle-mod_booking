@@ -233,7 +233,7 @@ class cancelmyself implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
         if (!class_exists('local_shopping_cart\shopping_cart')) {
-            $description = $this->get_description_string($isavailable, $full);
+            $description = $this->get_description_string($isavailable, $full, $settings);
         } else {
             $description = 'sc cancel';
         }

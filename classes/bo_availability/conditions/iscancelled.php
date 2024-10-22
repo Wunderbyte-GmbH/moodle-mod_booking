@@ -154,7 +154,7 @@ class iscancelled implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        $description = $this->get_description_string($isavailable, $full);
+        $description = $this->get_description_string($isavailable, $full, $settings);
 
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_JUSTMYALERT];
     }
@@ -204,7 +204,7 @@ class iscancelled implements bo_condition {
         bool $fullwidth = true
     ): array {
 
-        $label = $this->get_description_string(false, $full);
+        $label = $this->get_description_string(false, $full, $settings);
 
         return bo_info::render_button($settings, $userid, $label, 'alert alert-danger', true, $fullwidth, 'alert', 'option');
     }
@@ -214,9 +214,10 @@ class iscancelled implements bo_condition {
      *
      * @param bool $isavailable
      * @param bool $full
+     * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string($isavailable, $full) {
+    private function get_description_string($isavailable, $full, $settings) {
         if ($isavailable) {
             $description = $full ? get_string('bocondiscancelledfullavailable', 'mod_booking') :
                 get_string('bocondiscancelledavailable', 'mod_booking');

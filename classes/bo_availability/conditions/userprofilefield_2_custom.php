@@ -630,7 +630,7 @@ class userprofilefield_2_custom implements bo_condition {
      * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
+    private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings, booking_option_settings $settings) {
         if ($isavailable) {
             $description = $full ? get_string('bocondcustomuserprofilefieldfullavailable', 'mod_booking') :
                 get_string('bocondcustomuserprofilefieldavailable', 'mod_booking');

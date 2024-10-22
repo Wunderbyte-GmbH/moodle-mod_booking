@@ -120,7 +120,7 @@ class bookitbutton implements bo_subcondition {
 
         $isavailable = $this->is_available($settings, $subbookingid, $userid, $not);
 
-        $description = $this->get_description_string($isavailable, $full);
+        $description = $this->get_description_string();
 
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_BOOK, MOD_BOOKING_BO_BUTTON_MYBUTTON];
     }
