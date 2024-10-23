@@ -895,11 +895,11 @@ class bo_info {
     /**
      * If billboard is activated, we want to overwrite the warning messages with the billboard text.
      *
-     * @param booking_option_settings $settings
-     * @param string $role
-     * @param string $label
      *
-     * @return void
+     * @param bo_condition $condition
+     * @param booking_option_settings $settings
+     *
+     * @return string
      *
      */
     public static function apply_billboard(bo_condition $condition, booking_option_settings $settings): string {
