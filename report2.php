@@ -31,38 +31,58 @@ require_login(0, false);
 use mod_booking\output\booked_users;
 use mod_booking\singleton_service;
 
+global $PAGE;
+
 $optionid = optional_param('optionid', 0, PARAM_INT);
 $cmid = optional_param('cmid', 0, PARAM_INT);
 $courseid = optional_param('courseid', 0, PARAM_INT);
 
 if (!empty($optionid)) {
-    $scope = 'bookingoption'; // If we have an optionid, we want the report for this booking option.
+    $scope = 'option'; // If we have an optionid, we want the report for this booking option.
     $scopeid = $optionid;
+    $urlparams = ["optionid" => $optionid];
 } else if (!empty($cmid)) {
-    $scope = 'bookinginstance';
+    $scope = 'instance';
     $scopeid = $cmid;
+    $urlparams = ["cmid" => $cmid];
 } else if (!empty($courseid)) {
     $scope = 'course'; // A moodle course containing (a) booking option(s).
     $scopeid = $courseid;
+    $urlparams = ["courseid" => $courseid];
 } else {
     $scope = 'system'; // The whole site.
     $scopeid = 0;
+    $urlparams = [];
 }
+
+$url = new moodle_url('/mod/booking/report2.php', $urlparams);
+$PAGE->set_url($url);
 
 echo $OUTPUT->header();
 
 switch ($scope) {
-    case 'bookingoption':
+    case 'option':
         $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $cmid = $optionsettings->cmid;
-        $cmcontext = context_module::instance($cmid);
-
+        $context = context_module::instance($cmid);
         // Capability checks.
         $isteacher = booking_check_if_teacher($optionid);
-        if (!($isteacher || has_capability('mod/booking:viewreports', $cmcontext))) {
-            require_capability('mod/booking:readresponses', $cmcontext);
+        if (!($isteacher || has_capability('mod/booking:viewreports', $context))) {
+            require_capability('mod/booking:readresponses', $context);
         }
-
+        break;
+    case 'instance':
+        $context = context_module::instance($cmid);
+        require_capability('mod/booking:managebookedusers_instance', $context);
+        break;
+    case 'course':
+        $context = context_course::instance($courseid);
+        require_capability('mod/booking:managebookedusers_course', $context);
+        break;
+    case 'system':
+    default:
+        $context = context_system::instance();
+        require_capability('mod/booking:managebookedusers_system', $context);
         break;
 }
 

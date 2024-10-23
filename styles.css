@@ -509,6 +509,11 @@ if there only was one booking option. */
     color: red;
 }
 
+/* Styles for new report.php */
+#accordion-usertables .columnclass.option {
+    max-width: 100px;
+}
+
 .disabled-profeature {
     color: grey;
     pointer-events: none; /* Disables clicks */
