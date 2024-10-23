@@ -102,7 +102,8 @@ interface booking_campaign {
     /**
      * Check if particular campaign is blocking right now.
      * @param booking_option_settings $settings the booking option settings class
+     * @param int $userid blocking can be specific to a user
      * @return array
      */
-    public function is_blocking(booking_option_settings $settings): array;
+    public function is_blocking(booking_option_settings $settings, int $userid): array;
 }
