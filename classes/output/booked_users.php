@@ -62,8 +62,8 @@ class booked_users implements renderable, templatable {
     /**
      * Constructor
      *
-     * @param string $scope can be system, course, bookinginstance or bookingoption
-     * @param int $scopeid id matching the scope, e.g. optionid for scope bookingoption
+     * @param string $scope can be system, course, instance or option
+     * @param int $scopeid id matching the scope, e.g. optionid for scope 'option'
      * @param bool $showbooked
      * @param bool $showwaiting
      * @param bool $showreserved
@@ -80,13 +80,29 @@ class booked_users implements renderable, templatable {
         bool $showtonotify = false,
         bool $showdeleted = false
     ) {
+        $bookeduserscols = ['name', 'action_delete'];
+        $waitinglistcols = ['rank', 'name', 'action_confirm_delete'];
+        $reserveduserscols = ['name', 'action_delete'];
+        $userstonotifycols = ['name', 'action_delete'];
+        $deleteduserscols = ['name', 'timemodified'];
+
+        // If the scope contains more than one option...
+        // ...then we have to add an option column!
+        if ($scope != 'option') {
+            array_unshift($bookeduserscols, 'option');
+            array_unshift($waitinglistcols, 'option');
+            array_unshift($reserveduserscols, 'option');
+            array_unshift($userstonotifycols, 'option');
+            array_unshift($deleteduserscols, 'option');
+        }
+
         $this->bookedusers = $showbooked ?
             $this->render_users_table(
                 $scope,
                 $scopeid,
                 MOD_BOOKING_STATUSPARAM_BOOKED,
                 'booked',
-                ['name', 'action_delete']
+                $bookeduserscols
             ) : null;
 
         $this->waitinglist = $showwaiting ? $this->render_users_table(
@@ -94,7 +110,7 @@ class booked_users implements renderable, templatable {
             $scopeid,
             MOD_BOOKING_STATUSPARAM_WAITINGLIST,
             'waitinglist',
-            ['rank', 'name', 'action_confirm_delete'],
+            $waitinglistcols,
             true
         ) : null;
 
@@ -103,7 +119,7 @@ class booked_users implements renderable, templatable {
             $scopeid,
             MOD_BOOKING_STATUSPARAM_RESERVED,
             'reserved',
-            ['name', 'action_delete']
+            $reserveduserscols,
         ) : null;
 
         $this->userstonotify = $showtonotify ? $this->render_users_table(
@@ -111,7 +127,7 @@ class booked_users implements renderable, templatable {
             $scopeid,
             MOD_BOOKING_STATUSPARAM_NOTIFYMELIST,
             'notifymelist',
-            ['name', 'action_delete']
+            $userstonotifycols
         ) : null;
 
         $this->deletedusers = $showdeleted ? $this->render_users_table(
@@ -119,7 +135,7 @@ class booked_users implements renderable, templatable {
             $scopeid,
             MOD_BOOKING_STATUSPARAM_DELETED,
             'deleted',
-            ['name', 'timemodified'],
+            $deleteduserscols,
             false,
             true
         ) : null;
