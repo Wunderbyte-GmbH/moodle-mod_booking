@@ -108,7 +108,7 @@ class campaignsform extends dynamic_form {
                 }
                 break;
             case 'campaign_blockbooking':
-                if ($data['percentageavailableplaces'] <= 0 || $data['percentageavailableplaces'] >= 100) {
+                if ($data['percentageavailableplaces'] < 0 || $data['percentageavailableplaces'] > 100) {
                     $errors['percentageavailableplaces'] = get_string('error:percentageavailableplaces', 'mod_booking');
                 }
                 if (empty(trim(strip_tags($data['blockinglabel'])))) {
