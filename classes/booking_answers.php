@@ -46,7 +46,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_answers {
-
     /** @var string $optionid ID of booking option */
     public $optionid = null;
 
@@ -238,9 +237,11 @@ class booking_answers {
      */
     public function is_activity_completed(int $userid) {
 
-        if (isset($this->users[$userid])
+        if (
+            isset($this->users[$userid])
             && isset($this->users[$userid]->completed)
-            && $this->users[$userid]->completed == 1) {
+            && $this->users[$userid]->completed == 1
+        ) {
             return 1;
         } else {
             return 0;
@@ -298,8 +299,10 @@ class booking_answers {
         }
 
         // First check list of booked users.
-        if (isset($this->usersonlist[$userid]) && $this->usersonlist[$userid]->waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED) {
-
+        if (
+            isset($this->usersonlist[$userid])
+            && $this->usersonlist[$userid]->waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED
+        ) {
             $answer = $this->usersonlist[$userid];
             if (!empty($answer->json)) {
                 $jsonobject = json_decode($answer->json);
@@ -310,11 +313,15 @@ class booking_answers {
             }
 
             $returnarray = ['iambooked' => $returnarray];
-        } else if (isset($this->usersreserved[$userid])
-            && $this->usersreserved[$userid]->waitinglist == MOD_BOOKING_STATUSPARAM_RESERVED) {
+        } else if (
+            isset($this->usersreserved[$userid])
+            && $this->usersreserved[$userid]->waitinglist == MOD_BOOKING_STATUSPARAM_RESERVED
+        ) {
             $returnarray = ['iamreserved' => $returnarray];
-        } else if (isset($this->usersonwaitinglist[$userid]) &&
-            $this->usersonwaitinglist[$userid]->waitinglist == MOD_BOOKING_STATUSPARAM_WAITINGLIST) {
+        } else if (
+            isset($this->usersonwaitinglist[$userid])
+            && $this->usersonwaitinglist[$userid]->waitinglist == MOD_BOOKING_STATUSPARAM_WAITINGLIST
+        ) {
             // Now check waiting list.
             $returnarray = ['onwaitinglist' => $returnarray];
         } else {
@@ -480,11 +487,9 @@ class booking_answers {
             }
         }
         // Waiting list places.
-        if (
-            !empty($bookinginformation['maxoverbooking'])
-        ) {
-
-            if (!has_capability('mod/booking:updatebooking', $context)
+        if (!empty($bookinginformation['maxoverbooking'])) {
+            if (
+                !has_capability('mod/booking:updatebooking', $context)
                 && get_config('booking', 'waitinglistinfotexts')
             ) {
                 $bookinginformation['showwaitinglistplacesinfotext'] = true;
