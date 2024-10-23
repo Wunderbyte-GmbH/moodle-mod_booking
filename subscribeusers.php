@@ -164,15 +164,15 @@ if (!$agree && empty($formsubmitted) && (!empty($bookingoption->booking->setting
                     if (!empty($notsubscribedusers)) {
                         foreach ($notsubscribedusers as $user) {
                             $result = $DB->get_records_sql(
-                                    'SELECT ba.id answerid, bo.text
-                                    FROM {booking_answers} ba
-                                    LEFT JOIN {booking_options} bo ON bo.id = ba.optionid
-                                    WHERE ba.userid = ? AND ba.waitinglist < ?
-                                    AND ba.bookingid = ?',
-                                    [
-                                        $user->id,
-                                        MOD_BOOKING_STATUSPARAM_RESERVED,
-                                        $bookingoption->booking->id,
+                                'SELECT ba.id answerid, bo.text
+                                FROM {booking_answers} ba
+                                LEFT JOIN {booking_options} bo ON bo.id = ba.optionid
+                                WHERE ba.userid = ? AND ba.waitinglist < ?
+                                AND ba.bookingid = ?',
+                                [
+                                    $user->id,
+                                    MOD_BOOKING_STATUSPARAM_RESERVED,
+                                    $bookingoption->booking->id,
                                     ]
                             );
                             $output .= "{$user->firstname} {$user->lastname}";
