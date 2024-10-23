@@ -61,7 +61,7 @@ class search_templates extends external_api {
         ]);
 
         return [
-            'list' => connectedcourse::return_tagged_template_courses(),
+            'list' => connectedcourse::return_tagged_template_courses($query),
             'warnings' => '',
         ];
     }

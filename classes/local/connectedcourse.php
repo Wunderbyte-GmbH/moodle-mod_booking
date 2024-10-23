@@ -227,10 +227,10 @@ class connectedcourse {
 
     /**
      * Build sql query with config filters.
-     *
+     * @param string $query
      * @return array
      */
-    public static function return_tagged_template_courses() {
+    public static function return_tagged_template_courses(string $query = '') {
         global $DB;
         $where = "c.id IN (SELECT t.itemid FROM {tag_instance} t";
         $configs = get_config('booking', 'templatetags');
@@ -270,6 +270,12 @@ class connectedcourse {
                 }
             }
             $where .= ")";
+            // Add query, if there is any.
+            if (!empty($query)) {
+                $where .= " AND (c.fullname LIKE :query1 OR c.shortname LIKE :query2)";
+                $params['query1'] = '%' . $query . '%';
+                $params['query2'] = '%' . $query . '%';
+            }
         }
 
         $courses = self::get_course_records($where, $params);
