@@ -98,7 +98,7 @@ class campaign_blockbooking implements bo_condition {
         // This is the return value. Not available to begin with.
         $isavailable = true;
 
-        $result = booking_option::is_blocked_by_campaign($settings);
+        $result = booking_option::is_blocked_by_campaign($settings, $userid);
 
         if ($result['status']) {
             $isavailable = false;

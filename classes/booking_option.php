@@ -3359,12 +3359,13 @@ class booking_option {
     /**
      * Returns an array with status and a label to be displayed on the booking button.
      * @param booking_option_settings $settings
+     * @param int $userid
      */
-    public static function is_blocked_by_campaign(booking_option_settings $settings): array {
+    public static function is_blocked_by_campaign(booking_option_settings $settings, int $userid): array {
 
         foreach ($settings->campaigns as $campaign) {
 
-            $result = $campaign->is_blocking($settings);
+            $result = $campaign->is_blocking($settings, $userid);
             if ($result['status'] === true) {
                 return $result;
             }

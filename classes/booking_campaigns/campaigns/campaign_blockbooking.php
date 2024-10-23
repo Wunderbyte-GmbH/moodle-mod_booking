@@ -19,6 +19,7 @@ namespace mod_booking\booking_campaigns\campaigns;
 use context_system;
 use mod_booking\booking_answers;
 use mod_booking\booking_campaigns\booking_campaign;
+use mod_booking\booking_campaigns\campaigns_info;
 use mod_booking\booking_option_settings;
 use mod_booking\customfield\booking_handler;
 use mod_booking\singleton_service;
@@ -73,6 +74,15 @@ class campaign_blockbooking implements booking_campaign {
     /** @var string $fieldvalue */
     public $fieldvalue = '';
 
+    /** @var string $cpfield */
+    public $cpfield = '';
+
+    /** @var string $cpvalue */
+    public $cpvalue = '';
+
+    /** @var string $cpoperator */
+    public $cpoperator = '';
+
     /** @var string $blockinglabel */
     public $blockinglabel = '';
 
@@ -96,6 +106,9 @@ class campaign_blockbooking implements booking_campaign {
         $jsonobj = json_decode($record->json);
         $this->fieldname = $jsonobj->fieldname;
         $this->fieldvalue = $jsonobj->fieldvalue;
+        $this->cpfield = $jsonobj->cpfield ?? "";
+        $this->cpoperator = $jsonobj->cpoperator ?? "";
+        $this->cpvalue = $jsonobj->cpvalue ?? "";
         $this->blockoperator = $jsonobj->blockoperator;
         $this->blockinglabel = $jsonobj->blockinglabel;
         $this->hascapability = $jsonobj->hascapability;
@@ -112,59 +125,7 @@ class campaign_blockbooking implements booking_campaign {
 
         global $DB;
 
-        $mform->addElement('text', 'name', get_string('campaignname', 'mod_booking'));
-        $mform->addHelpButton('name', 'campaignname', 'mod_booking');
-
-        // Custom field name.
-        $records = booking_handler::get_customfields();
-
-        $fieldnames = [];
-        $fieldnames[0] = get_string('choose...', 'mod_booking');
-        foreach ($records as $record) {
-            $fieldnames[$record->shortname] = $record->name;
-        }
-
-        $mform->addElement('select', 'fieldname',
-            get_string('campaignfieldname', 'mod_booking'), $fieldnames);
-        $mform->addHelpButton('fieldname', 'campaignfieldname', 'mod_booking');
-
-        // Custom field value.
-        $sql = "SELECT DISTINCT cd.value
-            FROM {customfield_field} cf
-            JOIN {customfield_category} cc
-            ON cf.categoryid = cc.id
-            JOIN {customfield_data} cd
-            ON cd.fieldid = cf.id
-            WHERE cc.area = 'booking'
-            AND cd.value IS NOT NULL
-            AND cd.value <> ''
-            AND cf.shortname = :fieldname";
-
-        $params = ['fieldname' => ''];
-        if (!empty($ajaxformdata["fieldname"])) {
-            $params['fieldname'] = $ajaxformdata["fieldname"];
-        }
-        $records = $DB->get_fieldset_sql($sql, $params);
-
-        $fieldvalues = [];
-        foreach ($records as $record) {
-            if (strpos($record, ',') !== false) {
-                foreach (explode(',', $record) as $subrecord) {
-                    $fieldvalues[$subrecord] = $subrecord;
-                }
-            } else {
-                $fieldvalues[$record] = $record;
-            }
-        }
-
-        $options = [
-            'noselectionstring' => get_string('choose...', 'mod_booking'),
-            'tags' => true,
-            'multiple' => false,
-        ];
-        $mform->addElement('autocomplete', 'fieldvalue',
-            get_string('campaignfieldvalue', 'mod_booking'), $fieldvalues, $options);
-        $mform->addHelpButton('fieldvalue', 'campaignfieldvalue', 'mod_booking');
+        campaigns_info::add_customfields_to_form($mform, $ajaxformdata);
 
         $mform->addElement('date_time_selector', 'starttime', get_string('campaignstart', 'mod_booking'));
         $mform->setType('starttime', PARAM_INT);
@@ -227,6 +188,9 @@ class campaign_blockbooking implements booking_campaign {
 
         $jsonobject->fieldname = $data->fieldname;
         $jsonobject->fieldvalue = $data->fieldvalue;
+        $jsonobject->cpfield = $data->cpfield;
+        $jsonobject->cpoperator = $data->cpoperator;
+        $jsonobject->cpvalue = $data->cpvalue;
         $jsonobject->blockoperator = $data->blockoperator;
         $jsonobject->blockinglabel = $data->blockinglabel;
         $jsonobject->hascapability = $data->hascapability ?? '';
@@ -272,6 +236,9 @@ class campaign_blockbooking implements booking_campaign {
                 case MOD_BOOKING_CAMPAIGN_TYPE_BLOCKBOOKING:
                     $data->fieldname = $jsonboject->fieldname;
                     $data->fieldvalue = $jsonboject->fieldvalue;
+                    $data->cpfield = $jsonboject->cpfield;
+                    $data->cpoperator = $jsonboject->cpoperator;
+                    $data->cpvalue = $jsonboject->cpvalue;
                     $data->blockoperator = $jsonboject->blockoperator;
                     $data->blockinglabel = $jsonboject->blockinglabel;
                     $data->hascapability = $jsonboject->hascapability;
@@ -348,9 +315,10 @@ class campaign_blockbooking implements booking_campaign {
     /**
      * Check if particular campaign is blocking right now.
      * @param booking_option_settings $settings the booking option settings class
+     * @param int $userid the booking option settings class
      * @return array
      */
-    public function is_blocking(booking_option_settings $settings): array {
+    public function is_blocking(booking_option_settings $settings, int $userid): array {
 
         $ba = singleton_service::get_instance_of_booking_answers($settings);
 
@@ -362,7 +330,6 @@ class campaign_blockbooking implements booking_campaign {
                 $blocking = ($settings->maxanswers * $this->percentageavailableplaces * 0.01)
                     > booking_answers::count_places($ba->usersonlist);
                 break;
-
             case 'blockabove':
                 $blocking = ($settings->maxanswers * $this->percentageavailableplaces * 0.01)
                     < booking_answers::count_places($ba->usersonlist);
@@ -371,17 +338,39 @@ class campaign_blockbooking implements booking_campaign {
                 $blocking = true;
                 break;
         }
-
         if (!$blocking) {
             return [
                 'status' => false,
                 'label' => '',
             ];
-        } else {
+        }
+
+        $user = singleton_service::get_instance_of_user($userid, true);
+        if (isset($this->cpfield) && !empty($fieldname = $this->cpfield)) {
+            // If there is a value, it has to match in order to block.
+            $blocking = false;
+            $operator = $this->cpoperator;
+            $operator = $this->cpvalue;
+
+            // TODO Handle other types of fields like arrays.
+            if (is_string($user->profile->$fieldname)) {
+                switch ($operator) {
+                    case "=": // Equals.
+                        $blocking = $user->profile->$fieldname === $this->cpvalue;
+                    case "~": // Contains.
+                        $blocking = strpos($user->profile->$fieldname, $this->cpvalue) !== false;
+                }
+            }
+        }
+        if ($blocking) {
             return [
                 'status' => true,
                 'label' => $this->blockinglabel,
             ];
         }
+        return [
+            'status' => false,
+            'label' => '',
+        ];
     }
 }

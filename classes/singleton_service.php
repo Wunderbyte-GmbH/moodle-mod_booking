@@ -383,13 +383,20 @@ class singleton_service {
      *
      * @return stdClass
      */
-    public static function get_instance_of_user(int $userid) {
+    public static function get_instance_of_user(int $userid, bool $includeprofilefields = false) {
         $instance = self::get_instance();
 
         if (isset($instance->users[$userid])) {
+            if ($includeprofilefields && !isset($instance->users[$userid]->profile)) {
+                $customfields = profile_user_record($userid);
+                $instance->users[$userid]->profile = $customfields;
+            }
             return $instance->users[$userid];
         } else {
             $user = core_user::get_user($userid);
+            if ($includeprofilefields) {
+                $user->profile = profile_user_record($userid);
+            }
             $instance->users[$userid] = $user;
             return $user;
         }
