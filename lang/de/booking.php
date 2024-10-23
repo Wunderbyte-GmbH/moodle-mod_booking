@@ -143,6 +143,7 @@ $string['beforecompletedtext_help'] = 'Text der vor dem Abschluss angezeigt wird
 $string['bigbluebuttonmeeting'] = 'BigBlueButton-Meeting';
 $string['biggerthan'] = 'ist größer als (Zahl)';
 $string['blockabove'] = 'Blockiere über';
+$string['blockalways'] = 'Blockiere unabhängig von Plätzen';
 $string['blockbelow'] = 'Blockiere unter';
 $string['blockinglabel'] = 'Nachricht beim Blockieren';
 $string['blockinglabel_help'] = 'Geben Sie die Nachricht ein, die angezeigt werden soll, wenn Buchungen blockiert werden.
