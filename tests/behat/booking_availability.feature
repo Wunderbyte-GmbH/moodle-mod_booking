@@ -429,6 +429,41 @@ Feature: Test booking options avaialbility conditions
     And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
 
   @javascript
+  Scenario: Configure availability with modal form and data deletion
+    Given I am on the "My booking" Activity page logged in as teacher1
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I follow "Availability conditions"
+    And I set the field "Form needs to be filled out before booking" to "checked"
+    And I wait "1" seconds
+    And I set the following fields to these values:
+      | bo_cond_customform_select_1_1 | shorttext               |
+      | bo_cond_customform_label_1_1  | Personal requirement:   |
+      | bo_cond_customform_select_1_2 | deleteinfoscheckboxuser |
+    And I press "Save"
+    And I log out
+    ## Check availability as students
+    When I am on the "My booking" Activity page logged in as student1
+    And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Personal requirement:" in the ".condition-customform" "css_element"
+    And I should see "Would you like the information provided here to be deleted after the event is over?" in the ".condition-customform" "css_element"
+    And I set the field "customform_shorttext_1" to "lactose-free milk"
+    And I set the field "customform_deleteinfoscheckboxuser" to "checked"
+    And I follow "Continue"
+    And I should see "You have successfully booked Option - advanced availability" in the ".condition-confirmation" "css_element"
+    And I follow "Close"
+    And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
+    And I log out
+    ## Check customform value as admin
+    And I am on the "My booking" Activity page logged in as teacher1
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I follow "<< Back to responses"
+    And I should see "student1" in the "#mod_booking_all_users_sort_new_r0" "css_element"
+    And I should see "lactose-free milk" in the "#mod_booking_all_users_sort_new_r0" "css_element"
+
+  @javascript
   Scenario: Configure availability to fill inline agreement form
     Given I log in as "admin"
     And I set the following administration settings values:
