@@ -148,6 +148,7 @@ $string['bigbluebuttonmeeting'] = 'BigBlueButton meeting';
 $string['biggerthan'] = 'is bigger than (number)';
 $string['billboardtext'] = 'Text to be displayed instead of blocking alert text';
 $string['blockabove'] = 'Block above';
+$string['blockalways'] = 'Block regardless of places';
 $string['blockbelow'] = 'Block below';
 $string['blockinglabel'] = 'Message when blocking';
 $string['blockinglabel_help'] = 'Enter the message that should be shown, when booking is blocked.
