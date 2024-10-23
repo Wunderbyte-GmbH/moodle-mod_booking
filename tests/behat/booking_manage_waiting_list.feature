@@ -44,13 +44,13 @@ Feature: In a course add a booking option and manage its waiting list
     When I click on "Add" "button"
     ## Book 2 students
     And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
-    And I click on "tr:has(:contains('Student 1')) [data-methodname='confirmbooking']"
+    And I click on "//tr[.//*[text()='Student 1']]//*[@data-methodname='confirmbooking']" "xpath_element"
     # And I click on the element with the number "3" with the dynamic identifier "waitinglist"
     And I wait "1" seconds
     And I click on "Book" "button" in the ".modal-footer" "css_element"
     ## And I wait until the page is ready
     And I wait "1" seconds
-    And I click on "tr:has(:contains('Student 2')) [data-methodname='confirmbooking']"
+    And I click on "//tr[.//*[text()='Student 2']]//*[@data-methodname='confirmbooking']" "xpath_element"
     # And I click on the element with the number "2" with the dynamic identifier "waitinglist"
     And I wait "1" seconds
     And I click on "Book" "button" in the ".modal-footer" "css_element"
