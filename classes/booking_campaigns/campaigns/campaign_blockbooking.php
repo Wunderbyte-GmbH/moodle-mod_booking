@@ -178,6 +178,7 @@ class campaign_blockbooking implements booking_campaign {
         $operators = [
             'blockbelow' => get_string('blockbelow', 'mod_booking'),
             'blockabove' => get_string('blockabove', 'mod_booking'),
+            'blockalways' => get_string('blockalways', 'mod_booking'),
         ];
 
         $mform->addElement('select', 'blockoperator', get_string('blockoperator', 'mod_booking'), $operators);
@@ -187,6 +188,7 @@ class campaign_blockbooking implements booking_campaign {
         $mform->addElement('float', 'percentageavailableplaces', get_string('percentageavailableplaces', 'mod_booking'), null);
         $mform->setDefault('percentageavailableplaces', 50.0);
         $mform->addHelpButton('percentageavailableplaces', 'percentageavailableplaces', 'mod_booking');
+        $mform->hideIf('percentageavailableplaces', 'blockoperator', 'eq', 'blockalways');
 
         $mform->addElement(
             'textarea',
@@ -364,6 +366,9 @@ class campaign_blockbooking implements booking_campaign {
             case 'blockabove':
                 $blocking = ($settings->maxanswers * $this->percentageavailableplaces * 0.01)
                     < booking_answers::count_places($ba->usersonlist);
+                break;
+            case 'blockalways':
+                $blocking = true;
                 break;
         }
 
