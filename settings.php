@@ -625,6 +625,14 @@ if ($ADMIN->fulltree) {
             get_string('cfcostcenter_desc', 'mod_booking'),
             "-1", $customfieldsarray));
 
+    $settings->add(
+        new admin_setting_configtextarea(
+            'booking/sccartdescription',
+            get_string('sccartdescription', 'mod_booking'),
+            get_string('sccartdescription_desc', 'mod_booking'),
+            ''
+        )
+    );
 
     // PRO feature: Progress bars.
     if ($proversion) {

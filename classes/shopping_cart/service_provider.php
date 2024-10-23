@@ -107,6 +107,27 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 $costcenter = reset($costcenter);
             }
 
+            $modifieddescription = get_config('booking', 'sccartdescription');
+            if (!empty($modifieddescription)) {
+
+                $replacements = [];
+                preg_match_all('/\{(.*?)\}/', $modifieddescription, $matches);
+
+                foreach ($matches[1] as $match) {
+                    $value = $settings->$match ?? get_string('invalidplaceholder', 'mod_booking');
+
+                    if (is_numeric($value)) {
+                        $value = userdate(time(), get_string('strftimedaydate', 'core_langconfig'));
+                    }
+
+                    $replacements['{' . $match . '}'] = $value;
+                }
+                $description = str_replace(array_keys($replacements), array_values($replacements), $modifieddescription);
+
+            } else {
+                $description = $item['description'];
+            }
+
             $cartitem = new cartitem(
                 $item['itemid'],
                 $item['title'],
@@ -114,7 +135,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 $item['currency'],
                 'mod_booking',
                 'option',
-                $item['description'],
+                $description,
                 $item['imageurl'],
                 $item['canceluntil'],
                 $serviceperiodstart,
