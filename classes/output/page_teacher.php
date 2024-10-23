@@ -170,10 +170,12 @@ class page_teacher implements renderable, templatable {
         }
         if ((has_capability('mod/booking:seepersonalteacherinformation', $PAGE->context))) {
             // Add given phonenumbers.
-            $returnarray['teacher']['phones'] = array_filter([
-                $this->teacher->phone1 ?? null,
-                $this->teacher->phone2 ?? null,
-            ]);
+            if (!empty($this->teacher->phone1)) {
+                $returnarray['teacher']['phones'][] = $this->teacher->phone1;
+            }
+            if (!empty($this->teacher->phone2)) {
+                $returnarray['teacher']['phones'][] = $this->teacher->phone2;
+            }
         }
         // Include wwwroot for links.
         $returnarray['wwwroot'] = $CFG->wwwroot;
