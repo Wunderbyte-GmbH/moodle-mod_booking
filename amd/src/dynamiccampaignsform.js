@@ -55,6 +55,8 @@ function editCampaignsModal(element) {
     }
 
     if (action == "delete") {
+                // eslint-disable-next-line no-console
+                console.log("delete");
         // A campaign is deleted.
         const deleteForm = new ModalForm({
 
@@ -79,6 +81,9 @@ function editCampaignsModal(element) {
         deleteForm.show();
 
     } else if (action == "edit-or-new") {
+
+        // eslint-disable-next-line no-console
+        console.log("editornew");
         // A campaign is added (campaignid == 0) or edited (campaignid > 0).
         const modalForm = new ModalForm({
             // Name of the class where form is defined (must extend \core_form\dynamic_form):
@@ -108,8 +113,7 @@ function editCampaignsModal(element) {
             if (!e.target.name) {
                 return;
             }
-            if (e.target.name == 'bookingcampaigntype'
-                || e.target.name == 'fieldname') {
+            if (e.target.name == 'bookingcampaigntype') {
                 window.skipClientValidation = true;
                 let button = document.querySelector('[name="btn_bookingcampaigntype"]');
                 modalForm.processNoSubmitButton(button);

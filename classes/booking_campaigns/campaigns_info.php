@@ -26,6 +26,7 @@ namespace mod_booking\booking_campaigns;
 
 use cache_helper;
 use core_component;
+use mod_booking\customfield\booking_handler;
 use mod_booking\output\campaignslist;
 use mod_booking\booking_campaigns\booking_campaign;
 use mod_booking\singleton_service;
@@ -241,5 +242,109 @@ class campaigns_info {
             $campaigns[] = $campaign;
         }
         return $campaigns;
+    }
+
+    /**
+     * Apply part of mform elements that some campaigns have in common.
+     *
+     * @param MoodleQuickForm $mform
+     * @param array|null $ajaxformdata
+     *
+     * @return void
+     *
+     */
+    public static function add_customfields_to_form(MoodleQuickForm &$mform, ?array &$ajaxformdata = null) {
+        global $DB;
+        $mform->addElement('text', 'name', get_string('campaignname', 'mod_booking'));
+        $mform->addHelpButton('name', 'campaign_name', 'mod_booking');
+
+        $mform->addElement('static', 'warning', '',
+                get_string('optionspecificcampaignwarning', 'mod_booking'));
+
+        // Custom field name.
+        $records = booking_handler::get_customfields();
+
+        $fieldnames = [];
+        $fieldnames[0] = get_string('choose...', 'mod_booking');
+        foreach ($records as $record) {
+            $fieldnames[$record->shortname] = $record->name;
+        }
+
+        $operators = [
+            '=' => get_string('equals', 'mod_booking'),
+            '~' => get_string('contains', 'mod_booking'),
+        ];
+
+        $mform->addElement('select', 'fieldname',
+            get_string('campaignfieldname', 'mod_booking'), $fieldnames);
+        $mform->addHelpButton('fieldname', 'campaignfieldname', 'mod_booking');
+
+        // Custom field value.
+        $sql = "SELECT DISTINCT cd.value
+            FROM {customfield_field} cf
+            JOIN {customfield_category} cc
+            ON cf.categoryid = cc.id
+            JOIN {customfield_data} cd
+            ON cd.fieldid = cf.id
+            WHERE cc.area = 'booking'
+            AND cd.value IS NOT NULL
+            AND cd.value <> ''
+            AND cf.shortname = :fieldname";
+
+        $params = ['fieldname' => ''];
+        if (!empty($ajaxformdata["fieldname"])) {
+            $params['fieldname'] = $ajaxformdata["fieldname"];
+        }
+        $records = $DB->get_fieldset_sql($sql, $params);
+
+        $fieldvalues = [];
+        foreach ($records as $record) {
+            if (strpos($record, ',') !== false) {
+                foreach (explode(',', $record) as $subrecord) {
+                    $fieldvalues[$subrecord] = $subrecord;
+                }
+            } else {
+                $fieldvalues[$record] = $record;
+            }
+        }
+
+        $options = [
+            'noselectionstring' => get_string('choose...', 'mod_booking'),
+            'tags' => true,
+            'multiple' => false,
+        ];
+        $mform->addElement('autocomplete', 'fieldvalue',
+            get_string('campaignfieldvalue', 'mod_booking'), $fieldvalues, $options);
+        $mform->addHelpButton('fieldvalue', 'campaignfieldvalue', 'mod_booking');
+        $mform->hideIf('fieldvalue', 'fieldname', 'eq', "0");
+
+        // Custom user profile field to be checked.
+        $customuserprofilefields = $DB->get_records('user_info_field', null, '', 'id, name, shortname');
+        if (!empty($customuserprofilefields)) {
+            $customuserprofilefieldsarray = [];
+            $customuserprofilefieldsarray[0] = get_string('choose...', 'mod_booking');
+
+            $mform->addElement('static', 'warning', '',
+                get_string('userspecificcampaignwarning', 'mod_booking'));
+
+            // Create an array of key => value pairs for the dropdown.
+            foreach ($customuserprofilefields as $customuserprofilefield) {
+                $customuserprofilefieldsarray[$customuserprofilefield->shortname] = $customuserprofilefield->name;
+            }
+
+            $mform->addElement('select', 'cpfield',
+                get_string('customuserprofilefield', 'mod_booking'), $customuserprofilefieldsarray);
+
+            $mform->addHelpButton('cpfield', 'customuserprofilefield', 'mod_booking');
+
+            $mform->addElement('select', 'cpoperator',
+                get_string('blockoperator', 'mod_booking'), $operators);
+            $mform->hideIf('cpoperator', 'cpfield', 'eq', "0");
+
+            $mform->addElement('text', 'cpvalue',
+                get_string('textfield', 'mod_booking'));
+            $mform->setType('cpvalue', PARAM_TEXT);
+            $mform->hideIf('cpvalue', 'cpfield', 'eq', "0");
+        }
     }
 }
