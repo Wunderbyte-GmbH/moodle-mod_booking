@@ -583,46 +583,111 @@ class booking_answers {
     /**
      * Returns the sql to fetch booked users with a certain status.
      * Orderd by timemodified, to be able to sort them.
-     * @param string $scope
-     * @param int $scopeid
+     * @param string $scope option | instance | course | system
+     * @param int $scopeid optionid | cmid | courseid | 0
      * @param int $statusparam
      * @return (string|int[])[]
      */
     public static function return_sql_for_booked_users(string $scope, int $scopeid, int $statusparam) {
 
-        // Todo: Support additional scopes (course, bookinginstance, system).
+        if ($scope != "option") {
+            $advancedsqlstart = "SELECT
+                ba.id,
+                cm.id AS cmid,
+                c.id AS courseid,
+                c.fullname AS coursename,
+                ba.optionid,
+                bo.titleprefix,
+                bo.text,
+                b.name AS instancename,
+                u.id AS userid,
+                u.firstname,
+                u.lastname,
+                u.email,
+                ba.timemodified,
+                ba.timecreated,
+                ba.json
+            FROM {booking_answers} ba
+            JOIN {booking_options} bo ON bo.id = ba.optionid
+            JOIN {user} u ON ba.userid = u.id
+            JOIN {course_modules} cm ON bo.bookingid = cm.instance
+            JOIN {booking} b ON b.id = bo.bookingid
+            JOIN {course} c ON c.id = b.course
+            JOIN {modules} m ON m.id = cm.module
+            WHERE
+                m.name = 'booking'
+                AND ba.waitinglist = :statusparam";
+
+            $advancedsqlend = "ORDER BY bo.titleprefix, bo.text, ba.timemodified, ba.id ASC
+                LIMIT 10000000000";
+        }
+
+        $where = '1=1';
 
         switch ($scope) {
-            case 'bookingoption':
+            case 'option':
                 $optionid = $scopeid;
                 // We need to set a limit for the query in mysqlfamily.
                 $fields = 's1.*, ROW_NUMBER() OVER (ORDER BY s1.timemodified, s1.id DESC) AS rank';
-                $from = " (SELECT ba.id,
-                                u.id as userid,
-                                u.firstname,
-                                u.lastname,
-                                u.email,
-                                ba.timemodified,
-                                ba.timecreated,
-                                ba.optionid,
-                                ba.json
-                            FROM {booking_answers} ba
-                            JOIN {user} u ON ba.userid = u.id
-                            WHERE ba.optionid=:optionid AND ba.waitinglist=:statusparam
-                            ORDER BY ba.timemodified, ba.id ASC
-                            LIMIT 10000000000
-                            ) s1";
-                $where = '1=1';
+                $from = "(
+                    SELECT
+                        ba.id,
+                        u.id AS userid,
+                        u.firstname,
+                        u.lastname,
+                        u.email,
+                        ba.timemodified,
+                        ba.timecreated,
+                        ba.optionid,
+                        ba.json
+                    FROM {booking_answers} ba
+                    JOIN {user} u ON ba.userid = u.id
+                    WHERE ba.optionid=:optionid AND ba.waitinglist=:statusparam
+                    ORDER BY ba.timemodified, ba.id ASC
+                    LIMIT 10000000000
+                ) s1";
                 $params = [
                     'optionid' => $optionid,
                     'statusparam' => $statusparam,
                 ];
                 break;
+            case 'instance':
+                $cmid = $scopeid;
+                $fields = 's1.*';
+                $from = "(
+                    $advancedsqlstart
+                    AND cm.id = :cmid
+                    $advancedsqlend
+                ) s1";
+                $params = [
+                    'cmid' => $cmid,
+                    'statusparam' => $statusparam,
+                ];
+                break;
+            case 'course':
+                $courseid = $scopeid;
+                $fields = 's1.*';
+                $from = "(
+                    $advancedsqlstart
+                    AND c.id = :courseid
+                    $advancedsqlend
+                ) s1";
+                $params = [
+                    'courseid' => $courseid,
+                    'statusparam' => $statusparam,
+                ];
+                break;
+            case 'system':
             default:
-                $fields = '*';
-                $from = '{booking_answers} ba';
-                $where = '1=0';
-                $params = [];
+                $fields = 's1.*';
+                $from = "(
+                    $advancedsqlstart
+                    $advancedsqlend
+                ) s1";
+                $params = [
+                    'statusparam' => $statusparam,
+                ];
+                break;
         }
         return [$fields, $from, $where, $params];
     }

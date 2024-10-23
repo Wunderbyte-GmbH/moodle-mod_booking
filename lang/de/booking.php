@@ -869,6 +869,7 @@ $string['deleteconditionsfrombookinganswer'] = 'Userdaten aus Buchungsformular l
 $string['deletecustomfield'] = 'Feld löschen?';
 $string['deletecustomfield_help'] = 'Achtung: Wenn Sie diese Checkbox aktivieren, wird das zugehörige Feld beim Speichern gelöscht!';
 $string['deletedatafrombookinganswer'] = 'Userdaten aus Buchungsformular löschen';
+$string['deletedbookings'] = 'Gelöschte Buchungen';
 $string['deletedbookingusermessage'] = 'Guten Tag {$a->participant},
 Die Buchung für {$a->title} wurde erfolgreich storniert
 ';
@@ -2093,7 +2094,7 @@ $string['userspecificcampaignwarning'] = "Wenn Sie ein unten ein Benutzerdefinie
 $string['userssuccessfullenrolled'] = 'Alle Nutzer:innen wurden erfolgreich eingeschrieben!';
 $string['userssuccessfullybooked'] = 'Alle Nutzer:innen wurden erfolgreich in die andere Buchungsoption eingeschrieben.';
 $string['userssucesfullygetnewpresencestatus'] = 'Anwesenheitsstatus für ausgewählte Nutzer:innen erfolgreich aktualisiert';
-$string['userstonotify'] = 'Notification list';
+$string['userstonotify'] = 'Benachrichtigungsliste';
 $string['userwhotriggeredevent'] = 'Nutzer:in, die das Ereignis ausgelöst hat';
 $string['viewallresponses'] = '{$a} Buchungen verwalten';
 $string['viewparam'] = 'Ansichtsart';

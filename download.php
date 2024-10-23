@@ -24,6 +24,7 @@
 
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\singleton_service;
+use mod_booking\table\bookingoptions_wbtable;
 
 require_once("../../config.php");
 
@@ -63,7 +64,7 @@ $table->is_downloading($download, $fileandsheetname, $fileandsheetname);
 $table->headers = [];
 $table->columns = [];
 
-list($headers, $columns) = $booking->get_bookingoptions_fields(true); // Param needs to be true for download!
+[$headers, $columns] = $booking->get_bookingoptions_fields(true); // Param needs to be true for download!
 
 if (!empty($headers)) {
     $table->define_headers($headers);

@@ -876,6 +876,7 @@ $string['deleteconditionsfrombookinganswer'] = 'Delete userdata from booking for
 $string['deletecustomfield'] = 'Delete custom field?';
 $string['deletecustomfield_help'] = 'Caution: Setting this checkbox will delete the associated custom field when saving.';
 $string['deletedatafrombookinganswer'] = 'Delete userdata from booking form';
+$string['deletedbookings'] = 'Deleted bookings';
 $string['deletedbookingusermessage'] = 'Hello {$a->participant},
 Your booking for {$a->title} ({$a->startdate} {$a->starttime}) has been cancelled.
 ';

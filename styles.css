@@ -470,3 +470,8 @@ if there only was one booking option. */
 #page-mod-booking-editoptions .changed-old-value {
     color: red;
 }
+
+/* Styles for new report.php */
+#accordion-usertables .columnclass.option {
+    max-width: 100px;
+}
