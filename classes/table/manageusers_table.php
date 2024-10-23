@@ -18,7 +18,8 @@
  * Search results for managers are shown in a table (student search results use the template searchresults_student).
  *
  * @package mod_booking
- * @copyright 2023 Wunderbyte GmbH
+ * @copyright 2024 Wunderbyte GmbH
+ * @author Georg Maißer, Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -71,6 +72,42 @@ class manageusers_table extends wunderbyte_table {
     public function col_timemodified(stdClass $values) {
 
         return userdate($values->timemodified);
+    }
+
+    /**
+     * Return option column.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_option(stdClass $values) {
+
+        global $OUTPUT;
+
+        $optionlink = new moodle_url(
+            '/mod/booking/view.php',
+            [
+                'id' => $values->cmid,
+                'optionid' => $values->optionid,
+                'whichview' => 'showonlyone',
+            ]
+        );
+
+        $instancelink = new moodle_url(
+            '/mod/booking/view.php',
+            ['id' => $values->cmid]
+        );
+
+        $data = [
+            'id' => $values->id,
+            'titleprefix' => $values->titleprefix,
+            'title' => $values->text,
+            'optionlink' => $optionlink,
+            'instancename' => $values->instancename,
+            'instancelink' => $instancelink,
+        ];
+
+        return $OUTPUT->render_from_template('mod_booking/bookingoption_title_and_instance', $data);
     }
 
     /**
@@ -303,7 +340,8 @@ class manageusers_table extends wunderbyte_table {
                     'id' => $values->id,
                     'name' => $values->id,
                     'methodname' => 'unconfirmbooking', // The method needs to be added to your child of wunderbyte_table class.
-                    'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                    // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                    'data' => [
                         'id' => $values->id,
                         'labelcolumn' => 'username',
                         'titlestring' => 'unconfirmbooking',
