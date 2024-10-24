@@ -483,29 +483,27 @@ final class rules_test extends advanced_testcase {
 
         $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
 
-        // Validate scheduled adhoc tasks.
-        $this->assertCount(2, $messages);
-        $keys = array_keys($messages);
-        // Task 1 has to be "1daybefore".
-        $message = $messages[$keys[0]];
-        $customdata = $message->get_custom_data();
-        $this->assertEquals(strtotime('19 June 2050 15:00'), $message->get_next_run_time());
-        $this->assertEquals("1daybefore",  $customdata->customsubject);
-        $this->assertEquals("will start tomorrow",  $customdata->custommessage);
-        $this->assertEquals("2",  $customdata->userid);
-        $this->assertStringContainsString($ruledata1['ruledata'],  $customdata->rulejson);
-        $this->assertStringContainsString($ruledata1['conditiondata'],  $customdata->rulejson);
-        $this->assertStringContainsString($ruledata1['actiondata'],  $customdata->rulejson);
-        // Task 2 has to be "1dayafter".
-        $message = $messages[$keys[1]];
-        $customdata = $message->get_custom_data();
-        $this->assertEquals(strtotime('21 July 2050 14:00'), $message->get_next_run_time());
-        $this->assertEquals("1dayafter",  $customdata->customsubject);
-        $this->assertEquals("was ended yesterday",  $customdata->custommessage);
-        $this->assertEquals("2",  $customdata->userid);
-        $this->assertStringContainsString($ruledata2['ruledata'],  $customdata->rulejson);
-        $this->assertStringContainsString($ruledata2['conditiondata'],  $customdata->rulejson);
-        $this->assertStringContainsString($ruledata2['actiondata'],  $customdata->rulejson);
+        // Validate scheduled adhoc tasks. Validate messages - order might be free.
+        foreach ($messages as $key => $message) {
+            $customdata = $message->get_custom_data();
+            if (strpos($customdata->customsubject, "1daybefore") !== false) {
+                $this->assertEquals(strtotime('19 June 2050 15:00'), $message->get_next_run_time());
+                $this->assertEquals("will start tomorrow",  $customdata->custommessage);
+                $this->assertEquals("2",  $customdata->userid);
+                $this->assertStringContainsString($ruledata1['ruledata'],  $customdata->rulejson);
+                $this->assertStringContainsString($ruledata1['conditiondata'],  $customdata->rulejson);
+                $this->assertStringContainsString($ruledata1['actiondata'],  $customdata->rulejson);
+            } else if (strpos($customdata->customsubject, "1dayafter") !== false) {
+                $this->assertEquals(strtotime('21 July 2050 14:00'), $message->get_next_run_time());
+                $this->assertEquals("was ended yesterday",  $customdata->custommessage);
+                $this->assertEquals("2",  $customdata->userid);
+                $this->assertStringContainsString($ruledata2['ruledata'],  $customdata->rulejson);
+                $this->assertStringContainsString($ruledata2['conditiondata'],  $customdata->rulejson);
+                $this->assertStringContainsString($ruledata2['actiondata'],  $customdata->rulejson);
+            } else {
+                continue;
+            }
+        }
 
         // Mandatory to solve potential cache issues.
         singleton_service::destroy_booking_option_singleton($option1->id);
