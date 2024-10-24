@@ -182,7 +182,7 @@ class alreadybooked implements bo_subcondition {
         if ($userid === null) {
             $userid = $USER->id;
         }
-        $label = $this->get_description_string(false, $full);
+        $label = $this->get_description_string(false, $full, $settings);
 
         $data = [
             'itemid' => $settings->id,
