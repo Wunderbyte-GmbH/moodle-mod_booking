@@ -380,22 +380,25 @@ class singleton_service {
      * Service to create and return singleton instance of Moodle user.
      *
      * @param int $userid
+     * @param bool $includeprofilefields
      *
      * @return stdClass
      */
     public static function get_instance_of_user(int $userid, bool $includeprofilefields = false) {
+        global $CFG;
         $instance = self::get_instance();
 
         if (isset($instance->users[$userid])) {
             if ($includeprofilefields && !isset($instance->users[$userid]->profile)) {
-                $customfields = profile_user_record($userid);
-                $instance->users[$userid]->profile = $customfields;
+                require_once("{$CFG->dirroot}/user/profile/lib.php");
+                profile_load_custom_fields($instance->users[$userid]);
             }
             return $instance->users[$userid];
         } else {
             $user = core_user::get_user($userid);
             if ($includeprofilefields) {
-                $user->profile = profile_user_record($userid);
+                require_once("{$CFG->dirroot}/user/profile/lib.php");
+                profile_load_custom_fields($user);
             }
             $instance->users[$userid] = $user;
             return $user;
