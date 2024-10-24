@@ -350,22 +350,23 @@ class campaign_blockbooking implements booking_campaign {
             // If there is a value, it has to match in order to block.
             $blocking = false;
             $operator = $this->cpoperator;
-            $operator = $this->cpvalue;
 
             // TODO Handle other types of fields like arrays.
-            if (is_string($user->profile->$fieldname)) {
+            if (is_string($user->profile[$fieldname])) {
                 switch ($operator) {
                     case "=": // Equals.
-                        $blocking = $user->profile->$fieldname === $this->cpvalue;
+                        $blocking = $user->profile[$fieldname] === $this->cpvalue;
+                        break;
                     case "~": // Contains.
-                        $blocking = strpos($user->profile->$fieldname, $this->cpvalue) !== false;
+                        $blocking = strpos($user->profile[$fieldname], $this->cpvalue) !== false;
+                        break;
                 }
             }
         }
         if ($blocking) {
             return [
                 'status' => true,
-                'label' => $this->blockinglabel,
+                'label' => format_string($this->blockinglabel),
             ];
         }
         return [

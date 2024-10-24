@@ -61,8 +61,7 @@ class campaigns_info {
         $campaigns = self::get_campaigns();
 
         $campaignsforselect = [];
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $campaignsforselect['0'] = get_string('choose...', 'mod_booking'); */
+        $campaignsforselect['0'] = get_string('choose...', 'mod_booking');
         foreach ($campaigns as $campaign) {
             $fullclassname = get_class($campaign); // With namespace.
             $classnameparts = explode('\\', $fullclassname);
