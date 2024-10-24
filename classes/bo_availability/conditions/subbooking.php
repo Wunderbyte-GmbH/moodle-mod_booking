@@ -50,6 +50,9 @@ class subbooking implements bo_condition {
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_SUBBOOKING;
 
+    /** @var bool $overwrittenbybillboard Indicates if the condition can be overwritten by the billboard. */
+    public $overwrittenbybillboard = false;
+
     /* Important: Soft subbookings are not overridable as they need to do
     a "soft block" so they appear in prepage modals but do not block the
     booking process. */
@@ -251,7 +254,11 @@ class subbooking implements bo_condition {
      */
     private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
 
-        if (!$isavailable && !empty($desc = bo_info::apply_billboard($this, $settings))) {
+        if (
+            !$isavailable
+            && $this->overwrittenbybillboard
+            && !empty($desc = bo_info::apply_billboard($this, $settings))
+        ) {
             return $desc;
         }
         if ($isavailable) {

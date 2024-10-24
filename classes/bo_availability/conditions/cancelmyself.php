@@ -53,6 +53,9 @@ class cancelmyself implements bo_condition {
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_CANCELMYSELF;
 
+    /** @var bool $overwrittenbybillboard Indicates if the condition can be overwritten by the billboard. */
+    public $overwrittenbybillboard = false;
+
     /**
      * Get the condition id.
      *
@@ -324,6 +327,8 @@ class cancelmyself implements bo_condition {
      * @return string
      */
     private function get_description_string() {
+
+        // Do not trigger billboard here.
         return get_string('cancelsign', 'mod_booking') . "&nbsp;" .
             get_string('cancelmyself', 'mod_booking');
     }

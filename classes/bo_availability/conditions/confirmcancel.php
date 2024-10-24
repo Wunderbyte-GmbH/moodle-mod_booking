@@ -51,6 +51,9 @@ class confirmcancel implements bo_condition {
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_CONFIRMCANCEL;
 
+    /** @var bool $overwrittenbybillboard Indicates if the condition can be overridden. */
+    public $overwrittenbybillboard = false;
+
     /**
      * Get the condition id.
      *
@@ -244,6 +247,9 @@ class confirmcancel implements bo_condition {
      * @return string
      */
     private function get_description_string() {
+
+        // Don't trigger billboard here.
+
         return get_string('areyousure:cancel', 'mod_booking');
     }
 }

@@ -50,6 +50,9 @@ class isloggedinprice implements bo_condition {
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_ISLOGGEDINPRICE;
 
+    /** @var bool $overwrittenbybillboard Indicates if the condition can be overwritten by the billboard. */
+    public $overwrittenbybillboard = false;
+
     /**
      * Get the condition id.
      *
@@ -270,9 +273,19 @@ class isloggedinprice implements bo_condition {
      *
      * @param bool $isavailable
      * @param bool $full
-     * @return void
+     * @param booking_option_settings $settings
+     * @return string
      */
-    private function get_description_string($isavailable, $full) {
+    private function get_description_string($isavailable, $full, $settings) {
+
+        if (
+            !$isavailable
+            && $this->overwrittenbybillboard
+            && !empty($desc = bo_info::apply_billboard($this, $settings))
+        ) {
+            return $desc;
+        }
+
         if ($isavailable) {
             $description = $full ? get_string('bocondpriceissetfullavailable', 'mod_booking') :
                 get_string('bocondpriceissetavailable', 'mod_booking');

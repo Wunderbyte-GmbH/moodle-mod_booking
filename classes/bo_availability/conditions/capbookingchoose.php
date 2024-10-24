@@ -49,6 +49,9 @@ class capbookingchoose implements bo_condition {
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_CAPBOOKINGCHOOSE;
 
+    /** @var bool $overwrittenbybillboard Indicates if the condition can be overwritten by the billboard. */
+    public $overwrittenbybillboard = true;
+
     /**
      * Get the condition id.
      *
@@ -211,6 +214,15 @@ class capbookingchoose implements bo_condition {
      * @return string
      */
     private function get_description_string($isavailable, $full, $settings): string {
+
+        if (
+            !$isavailable
+            && $this->overwrittenbybillboard
+            && !empty($desc = bo_info::apply_billboard($this, $settings))
+        ) {
+            return $desc;
+        }
+
         if ($isavailable) {
             $description = $full ? get_string('bocondcapbookingchoosefullavailable', 'mod_booking') :
                 get_string('bocondcapbookingchooseavailable', 'mod_booking');
