@@ -56,6 +56,9 @@ class electivenotbookable implements bo_condition {
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_ELECTIVENOTBOOKABLE;
 
+    /** @var bool $overwrittenbybillboard Indicates if the condition can be overwritten by the billboard. */
+    public $overwrittenbybillboard = false;
+
     /**
      * Get the condition id.
      *
@@ -291,6 +294,14 @@ class electivenotbookable implements bo_condition {
      * @return string
      */
     private function get_description_string($isavailable, $full, $settings): string {
+
+        if (
+            !$isavailable
+            && $this->overwrittenbybillboard
+            && !empty($desc = bo_info::apply_billboard($this, $settings))
+        ) {
+            return $desc;
+        }
 
         // In this case, we dont differentiate between availability, because when it blocks...
         // ... it just means that it can be booked. Blocking has a different functionality here.

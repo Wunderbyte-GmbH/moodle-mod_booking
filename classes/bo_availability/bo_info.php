@@ -907,9 +907,6 @@ class bo_info {
         if (empty(get_config('booking', 'conditionsoverwritingbillboard'))) {
             return '';
         }
-        if (in_array($condition->get_id(), MOD_BOOKING_CONDTIONS_EXCLUDED_FROM_OVERWRITING_DESCRIPTION_BILLBOARD)) {
-            return '';
-        }
 
         // Fetch settings of instance to see if alert needs to be overwritten.
         $instance = singleton_service::get_instance_of_booking_by_bookingid($settings->bookingid);

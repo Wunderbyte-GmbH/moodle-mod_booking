@@ -51,6 +51,9 @@ class bookingpolicy implements bo_condition {
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_BOOKINGPOLICY;
 
+    /** @var bool $overwrittenbybillboard Indicates if the condition can be overwritten by the billboard. */
+    public $overwrittenbybillboard = true;
+
     /**
      * Get the condition id.
      *
@@ -258,7 +261,11 @@ class bookingpolicy implements bo_condition {
      */
     private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
 
-        if (!$isavailable && !empty($desc = bo_info::apply_billboard($this, $settings))) {
+        if (
+            !$isavailable
+            && $this->overwrittenbybillboard
+            && !empty($desc = bo_info::apply_billboard($this, $settings))
+        ) {
             return $desc;
         }
         if ($isavailable) {

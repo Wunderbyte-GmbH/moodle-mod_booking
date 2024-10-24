@@ -56,6 +56,9 @@ class userprofilefield_1_default implements bo_condition {
     /** @var bool $overridable Indicates if the condition can be overriden. */
     public $overridable = true;
 
+    /** @var bool $overwrittenbybillboard Indicates if the condition can be overwritten by the billboard. */
+    public $overwrittenbybillboard = true;
+
     /** @var stdClass $customsettings an stdclass coming from the json which passes custom settings */
     public $customsettings = null;
 
@@ -508,7 +511,11 @@ class userprofilefield_1_default implements bo_condition {
      */
     private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
 
-        if (!$isavailable && !empty($desc = bo_info::apply_billboard($this, $settings))) {
+        if (
+            !$isavailable
+            && $this->overwrittenbybillboard
+            && !empty($desc = bo_info::apply_billboard($this, $settings))
+        ) {
             return $desc;
         }
         if ($isavailable) {

@@ -52,6 +52,9 @@ class customform implements bo_condition {
     /** @var int $id Id is set via json during construction but we still need a default ID */
     public $id = MOD_BOOKING_BO_COND_JSON_CUSTOMFORM;
 
+    /** @var bool $overwrittenbybillboard Indicates if the condition can be overwritten by the billboard. */
+    public $overwrittenbybillboard = false;
+
     // Do NOT set $overridable here!
     // If there IS a custom form, then everyone should fill it out!
     // So it can't be overridable.
@@ -497,7 +500,11 @@ class customform implements bo_condition {
      */
     private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
 
-        if (!$isavailable && !empty($desc = bo_info::apply_billboard($this, $settings))) {
+        if (
+            !$isavailable
+            && $this->overwrittenbybillboard
+            && !empty($desc = bo_info::apply_billboard($this, $settings))
+        ) {
             return $desc;
         }
         if ($isavailable) {
