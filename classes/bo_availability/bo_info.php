@@ -29,6 +29,7 @@ use context_system;
 use local_shopping_cart\shopping_cart;
 use mod_booking\booking;
 use mod_booking\booking_bookit;
+use mod_booking\booking_context_helper;
 use mod_booking\booking_option_settings;
 use mod_booking\local\modechecker;
 use mod_booking\output\bookingoption_description;
@@ -919,7 +920,9 @@ class bo_info {
         if (empty($jsondata->billboardtext) || empty($jsondata->overwriteblockingwarnings)) {
             return '';
         }
-        return format_text($jsondata->billboardtext);
+        global $PAGE;
+        booking_context_helper::fix_booking_page_context($PAGE, $settings->cmid);
+        return format_string($jsondata->billboardtext);
     }
 
     /**
