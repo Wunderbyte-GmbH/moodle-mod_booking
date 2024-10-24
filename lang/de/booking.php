@@ -905,6 +905,8 @@ $string['disablecancelforinstance'] = "Stornieren für die gesamte Instanz deakt
 (Wenn Sie diese Einstellung aktivieren können Buchungsoptionen, die sich in dieser Instanz befinden, nicht storniert werden.)";
 $string['disablepricecategory'] = 'Deaktiviere Preiskategorie';
 $string['disablepricecategory_help'] = 'Wenn Sie eine Preiskategorie deaktivieren, kann diese nicht mehr benützt werden.';
+$string['displayemptyprice'] = 'Preis anzeigen wenn dieser 0 ist';
+$string['displayemptyprice_desc'] = 'Wenn eine Buchungsoption Preise für einige Preiskategorien hat und für andere nicht, können Sie entscheiden, ob NutzerInnen, für die die Option kostenlos ist, den Preis 0 angezeigt bekommen oder ob der Preis komplett ausgeblendet wird.';
 $string['displayloginbuttonforbookingoptions'] = 'Zeige in Buchungsoption Button an, der zur Loginseite führt';
 $string['displayloginbuttonforbookingoptions_desc'] = 'Wird nur für nicht eingeloggte Benutzer angezeigt';
 $string['displaytext'] = "Text anzeigen";

@@ -916,6 +916,8 @@ $string['disablecancelforinstance'] = "Disable cancellation for the whole bookin
 (If you activate this, then it won't be possible to cancel any booking within this instance.)";
 $string['disablepricecategory'] = 'Disable price category';
 $string['disablepricecategory_help'] = 'When you disable a price category, you will not be able to use it anymore.';
+$string['displayemptyprice'] = 'Display price if it is 0';
+$string['displayemptyprice_desc'] = "If a booking option has prices for some price categories and not for others, you can decide if users for whom the option is free see the price 0.";
 $string['displayloginbuttonforbookingoptions'] = 'Display a button with redirect to login site for bookingoption';
 $string['displayloginbuttonforbookingoptions_desc'] = 'Will be displayed for users not logged in only.';
 $string['displaytext'] = "Display text";

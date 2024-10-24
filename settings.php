@@ -633,6 +633,10 @@ if ($ADMIN->fulltree) {
             ''
         )
     );
+    $settings->add(
+        new admin_setting_configcheckbox('booking/displayemptyprice',
+            get_string('displayemptyprice', 'mod_booking'),
+            get_string('displayemptyprice_desc', 'mod_booking'), 1));
 
     // PRO feature: Progress bars.
     if ($proversion) {
