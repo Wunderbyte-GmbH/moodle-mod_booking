@@ -86,6 +86,16 @@ class priceisset implements bo_condition {
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
+        if (!empty($settings->jsonobject->useprice)) {
+
+            $user = singleton_service::get_instance_of_user($userid);
+            $price = price::get_price('option', $settings->id, $user);
+
+            if (empty((float) $price['price'])) {
+                $isavailable = true;
+            }
+        }
+
         if (!get_config('booking', 'priceisalwayson')) {
 
             // If the user is not yet booked we return true.
