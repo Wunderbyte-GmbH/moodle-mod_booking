@@ -919,7 +919,7 @@ class bo_info {
         }
         global $PAGE;
         booking_context_helper::fix_booking_page_context($PAGE, $settings->cmid);
-        return format_string($jsondata->billboardtext);
+        return format_text($jsondata->billboardtext);
     }
 
     /**
