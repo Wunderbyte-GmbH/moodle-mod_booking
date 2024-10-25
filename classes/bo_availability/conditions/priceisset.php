@@ -104,7 +104,7 @@ class priceisset implements bo_condition {
             $user = singleton_service::get_instance_of_user($userid);
             $price = price::get_price('option', $settings->id, $user);
 
-            if (empty((float) $price['price'])) {
+            if (isset($price['price']) && empty((float) $price['price'])) {
                 $isavailable = true;
             }
         }
