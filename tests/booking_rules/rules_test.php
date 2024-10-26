@@ -1247,13 +1247,13 @@ final class rules_test extends advanced_testcase {
         // Create booking rule - "ndays before".
         $ruledata1 = [
             'name' => '1daybefore',
-            'conditionname' => 'select_users',
+            'conditionname' => 'select_student_in_bo',
             'contextid' => 1,
-            'conditiondata' => '{"userids":["2"]}',
+            'conditiondata' => '{"borole":"0"}',
             'actionname' => 'delete_conditions_from_bookinganswer',
             'actiondata' => '{}',
             'rulename' => 'rule_daysbefore',
-            'ruledata' => '{"days":"0","datefield":"bookingclosingtime","cancelrules":[]}',
+            'ruledata' => '{"days":"0","datefield":"courseendtime","cancelrules":[]}',
         ];
         // phpcs:ignore
         $rule1 = $plugingenerator->create_rule($ruledata1);
@@ -1270,7 +1270,9 @@ final class rules_test extends advanced_testcase {
         $record->bo_cond_customform_deleteinfoscheckboxadmin = 1; // Admin-level deletion.
         // phpcs:ignore
         //$record->bookingclosingtime = strtotime('24 February 2022 04:00');
-        $record->bookingclosingtime = strtotime('now - 1 min');
+        //$record->bookingclosingtime = strtotime('now - 1 min');
+        $record->coursestarttime_1 = strtotime('yesterday');
+        $record->courseendtime_1 = strtotime('now - 1 hour');
         $option1 = $plugingenerator->create_option($record);
         $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
 
@@ -1304,7 +1306,7 @@ final class rules_test extends advanced_testcase {
         // Trigger cron tasks.
         ob_start();
         // phpcs:ignore
-        //cron::run_scheduled_tasks(time());
+        //\core\cron::run_scheduled_tasks(time());
         $this->runAdhocTasks();
 
         $res = ob_get_clean();
