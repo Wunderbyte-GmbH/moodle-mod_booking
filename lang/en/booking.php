@@ -1385,6 +1385,7 @@ $string['mailtemplatessource'] = 'Set source of mail templates';
 $string['mailtemplatessource_help'] = '<b>Caution:</b> If you choose global e-mail templates, the instance-specific mail
 templates won\'t be used. Instead the e-mail templates specified in the booking plugin settings will be used. <br><br>
 Please make sure that there are existing e-mail templates in the booking settings for each e-mail type.';
+$string['managebookedusers_heading'] = 'Manage bookings';
 $string['managebooking'] = 'Manage';
 $string['managebookinginstancetemplates'] = 'Manage booking instance templates';
 $string['managecustomreporttemplates'] = 'Manage custom report templates';
@@ -1908,6 +1909,10 @@ $string['repeatthisbooking'] = 'Repeat this option';
 $string['reportfields'] = 'Report fields';
 $string['reportremindermessage'] = '{$a->bookingdetails}';
 $string['reportremindersubject'] = 'Reminder: Your booked course';
+$string['report2label_system'] = 'Site';
+$string['report2label_course'] = 'Moodle course';
+$string['report2label_instance'] = 'Booking instance';
+$string['report2label_option'] = 'Booking option';
 $string['reservedusers'] = 'Shortterm reservations';
 $string['reset'] = 'Reset';
 $string['responses'] = 'Responses';

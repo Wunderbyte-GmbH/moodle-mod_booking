@@ -1377,6 +1377,7 @@ $string['mailtemplatessource'] = 'Quelle von E-Mail-Vorlagen festlegen';
 $string['mailtemplatessource_help'] = '<b>Achtung:</b> Wenn Sie globale E-Mail-Vorlagen wählen, werden die Instanz-spezifischen
 E-Mail-Vorlagen nicht verwendet, sondern die E-Mail-Vorlagen, die in den Einstellungen des Buchungs-Plugins angelegt
 wurden. <br><br>Bitte stellen Sie sicher, dass zu allen E-Mail-Typen eine Vorlage vorhanden ist.';
+$string['managebookedusers_heading'] = 'Buchungsmanager';
 $string['managebooking'] = 'Verwalten';
 $string['managebookinginstancetemplates'] = 'Buchungsinstanz-Vorlagen verwalten';
 $string['managecustomreporttemplates'] = 'Vorlagen für benutzerdefinierte Berichte verwalten';
@@ -1851,6 +1852,10 @@ $string['reoccurringdatestringerror'] = 'Geben Sie einen Text in folgendem Forma
 $string['reportfields'] = 'Felder reportieren';
 $string['reportremindermessage'] = '{$a->bookingdetails}';
 $string['reportremindersubject'] = 'Erinnerung: Ihr gebuchter Kurs';
+$string['report2label_system'] = 'Gesamte Seite';
+$string['report2label_course'] = 'Moodle-Kurs';
+$string['report2label_instance'] = 'Buchungsinstanz';
+$string['report2label_option'] = 'Buchungsoption';
 $string['reservedusers'] = 'Kurzfristige Reservierungen';
 $string['reset'] = 'Zurücksetzen';
 $string['responses'] = 'Buchungen';
