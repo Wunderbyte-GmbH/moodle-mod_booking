@@ -348,32 +348,12 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
-    /* Capability to manage users on (new) report.php for all booking options
-    within a certain booking instance (scope: bookinginstance).  */
-    'mod/booking:managebookedusers_instance' => [
+    /* Capability to manage users on (new) report.php.  */
+    'mod/booking:managebookedusers' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => [
             'manager' => CAP_ALLOW,
         ],
     ],
-    /* Capability to manage users on (new) report.php for all booking options
-    within a certain Moodle course which might contain several booking instances (scope: course).  */
-    'mod/booking:managebookedusers_course' => [
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => [
-            'manager' => CAP_ALLOW,
-        ],
-    ],
-    /* Capability to manage users on (new) report.php for all booking options
-    within the whole site (scope: system).  */
-    'mod/booking:managebookedusers_system' => [
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => [
-            'manager' => CAP_ALLOW,
-        ],
-    ],
-    /* Please note: For option scope, we do not need a new capability, as we already have checks for that. */
 ];
