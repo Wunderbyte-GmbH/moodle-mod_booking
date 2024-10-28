@@ -44,15 +44,12 @@ Feature: In a course add a booking option and manage its waiting list
     When I click on "Add" "button"
     ## Book 2 students
     And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
-    And I change viewport size to "1366x10000"
-    And I wait "1" seconds
-    And I click on ".confirmbooking-username-student1" "css_element"
+    And I click on ".confirmbooking-username-student1 i" "css_element"
     And I wait "1" seconds
     And I click on "Book" "button" in the ".modal-footer" "css_element"
     ## And I wait until the page is ready
-    And I change viewport size to "1366x10000"
-    And I wait "1" seconds
-    And I click on ".confirmbooking-username-student2" "css_element"
+    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I click on ".confirmbooking-username-student2 i" "css_element"
     And I wait "1" seconds
     And I click on "Book" "button" in the ".modal-footer" "css_element"
     And I wait until the page is ready
@@ -63,6 +60,7 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Student 5 (student5@example.com)" "text"
     When I click on "Add" "button"
     ## Verify location
+    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
     And I should see "student3@example.com" in the "//tr[contains(@id, 'waitinglist') and contains(@id, '_r1')]" "xpath_element"
     And I should see "student5@example.com" in the "//tr[contains(@id, 'waitinglist') and contains(@id, '_r2')]" "xpath_element"
     ## Resort rows
