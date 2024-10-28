@@ -334,7 +334,7 @@ class manageusers_table extends wunderbyte_table {
             if (!empty($jsonobject->confirmwaitinglist)) {
                 $data[] = [
                     'label' => get_string('unconfirm', 'mod_booking'), // Name of your action button.
-                    'class' => 'btn btn-nolabel',
+                    'class' => "btn btn-nolabel unconfirmbooking-username-{$values->username} ",
                     'href' => '#', // You can either use the link, or JS, or both.
                     'iclass' => 'fa fa-ban', // Add an icon before the label.
                     'id' => $values->id,
@@ -361,7 +361,7 @@ class manageusers_table extends wunderbyte_table {
         ) {
             $data[] = [
                 'label' => '', // Name of your action button.
-                'class' => 'btn btn-nolabel',
+                'class' => "btn btn-nolabel confirmbooking-username-{$values->username} ",
                 'href' => '#', // You can either use the link, or JS, or both.
                 'iclass' => 'fa fa-check', // Add an icon before the label.
                 'id' => $values->id,
