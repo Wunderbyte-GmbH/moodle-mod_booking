@@ -681,6 +681,7 @@ class booking_answers {
                 bo.text,
                 b.name AS instancename,
                 u.id AS userid,
+                u.username,
                 u.firstname,
                 u.lastname,
                 u.email,
@@ -713,6 +714,7 @@ class booking_answers {
                     SELECT
                         ba.id,
                         u.id AS userid,
+                        u.username,
                         u.firstname,
                         u.lastname,
                         u.email,
