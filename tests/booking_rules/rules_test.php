@@ -1244,20 +1244,6 @@ final class rules_test extends advanced_testcase {
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
-        // Create booking rule - "ndays before".
-        $ruledata1 = [
-            'name' => '1daybefore',
-            'conditionname' => 'select_student_in_bo',
-            'contextid' => 1,
-            'conditiondata' => '{"borole":"0"}',
-            'actionname' => 'delete_conditions_from_bookinganswer',
-            'actiondata' => '{}',
-            'rulename' => 'rule_daysbefore',
-            'ruledata' => '{"days":"0","datefield":"courseendtime","cancelrules":[]}',
-        ];
-        // phpcs:ignore
-        $rule1 = $plugingenerator->create_rule($ruledata1);
-
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'Test option1';
@@ -1269,9 +1255,22 @@ final class rules_test extends advanced_testcase {
         $record->bo_cond_customform_label_1_1 = 'Personal requirement:';
         $record->bo_cond_customform_deleteinfoscheckboxadmin = 1;
         $record->coursestarttime_1 = strtotime('yesterday');
-        $record->courseendtime_1 = strtotime('now - 1 hour');
+        $record->courseendtime_1 = strtotime('now + 2 seconds'); // Ending time must be in future.
         $option1 = $plugingenerator->create_option($record);
         $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+
+        // Create booking rule - "ndays before".
+        $ruledata1 = [
+            'name' => '1daybefore',
+            'conditionname' => 'select_student_in_bo',
+            'contextid' => 1,
+            'conditiondata' => '{"borole":"0"}',
+            'actionname' => 'delete_conditions_from_bookinganswer',
+            'actiondata' => '{}',
+            'rulename' => 'rule_daysbefore',
+            'ruledata' => '{"days":"0","datefield":"courseendtime","cancelrules":[]}',
+        ];
+        $rule1 = $plugingenerator->create_rule($ruledata1);
 
         // Booking options by the 1st student.
         $result = $plugingenerator->create_answer(['optionid' => $option1->id, 'userid' => $student1->id]);
@@ -1290,6 +1289,7 @@ final class rules_test extends advanced_testcase {
         $customformstore1->set_customform_data($formrecord);
         customform::add_json_to_booking_answer($answer1, $student1->id);
 
+        sleep(5);
         // Verify presence of json string in the answer.
         singleton_service::destroy_booking_option_singleton($option1->id);
         $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
