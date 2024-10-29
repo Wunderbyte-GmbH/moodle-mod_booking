@@ -154,6 +154,7 @@ final class shopping_cart_test extends advanced_testcase {
         ];
 
         $plugingenerator->create_pricecategory($pricecategorydata);
+
         $option1 = $plugingenerator->create_option($record);
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
@@ -232,6 +233,215 @@ final class shopping_cart_test extends advanced_testcase {
         // User 1 should be booked now.
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+    }
+
+    /**
+     * Test subbookings in form of item with price.
+     *
+     * @covers \condition\priceset::is_available
+     * @covers \condition\subbooking_blocks::is_available
+     * @covers \subbookings\booking_subbooking
+     * @covers \subbookings\sb_types\subbooking_additionalitem
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_booking_bookit_subbookings_item_price(array $bdata): void {
+        global $DB, $CFG;
+
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create users.
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($student2->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id, 'editingteacher');
+
+        /** @var local_shopping_cart_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('local_shopping_cart');
+        $usercreditdata = [
+            'userid' => $student1->id,
+            'credit' => 200,
+            'currency' => 'EUR',
+        ];
+        $ucredit = $plugingenerator->create_user_credit($usercreditdata);
+
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1';
+        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->courseid = $course->id;
+        $record->useprice = 1; // Use price from the default category.
+        $record->maxanswers = 3;
+        $record->optiondateid_1 = "0";
+        $record->daystonotify_1 = "0";
+        $record->coursestarttime_1 = strtotime('now + 3 day');
+        $record->courseendtime_1 = strtotime('now + 6 day');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        // Create price categories.
+        $pricecategorydata1 = (object)[
+            'ordernum' => 1,
+            'name' => 'default',
+            'identifier' => 'default',
+            'defaultvalue' => 88,
+            'pricecatsortorder' => 1,
+        ];
+        $pricecategory1 = $plugingenerator->create_pricecategory($pricecategorydata1);
+
+        $pricecategorydata2 = (object)[
+            'ordernum' => 2,
+            'name' => 'discount1',
+            'identifier' => 'discount1',
+            'defaultvalue' => 77,
+            'pricecatsortorder' => 2,
+        ];
+        $pricecategory2 = $plugingenerator->create_pricecategory($pricecategorydata2);
+
+        $option1 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option1->id); // Mandatory there.
+
+        // Create subbokingdata.
+        $subbokingdata = (object)[
+            'name' => 'SubItem',
+            'type' => 'subbooking_additionalitem',
+            'data' => (object)[
+                'description' => 'You can bring your item(s):',
+                'descriptionformat' => 1,
+                'useprice' => 1,
+                'subbookingadditemformlink' => 0,
+                'subbookingadditemformlinkvalue' => '',
+            ],
+        ];
+        $subbokingdata = (object)[
+            'name' => 'SubItem', 'type' => 'subbooking_additionalitem',
+            'block' => 1, 'optionid' => $option1->id,
+            'json' => json_encode($subbokingdata),
+        ];
+        $subboking1 = $plugingenerator->create_subbooking($subbokingdata);
+
+        $pricedata1 = (object)[
+            'itemname' => 'SubItem',
+            'area' => 'subbooking',
+            'pricecategoryidentifier' => 'default',
+            'price' => 55,
+            'currency' => 'EUR',
+        ];
+        $plugingenerator->create_price($pricedata1);
+        $pricedata2 = (object)[
+            'itemname' => 'SubItem',
+            'area' => 'subbooking',
+            'pricecategoryidentifier' => 'discount1',
+            'price' => 44,
+            'currency' => 'EUR',
+        ];
+        $plugingenerator->create_price($pricedata2);
+
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $boinfo1 = new bo_info($settings1);
+
+        $this->setUser($student1);
+        // Validate that subboking is available and bloking.
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student1->id, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_SUBBOOKINGBLOCKS, $id);
+
+        // Admin confirms the users booking.
+        $this->setAdminUser();
+        // Verify price.
+        $price = price::get_price('option', $settings1->id);
+        // Default price expected.
+        $this->assertEquals($pricecategorydata1->defaultvalue, $price["price"]);
+
+        // Purchase item in behalf of user if shopping_cart installed.
+        // Clean cart.
+        shopping_cart::delete_all_items_from_cart($student1->id);
+
+        // Set user to buy in behalf of.
+        shopping_cart::buy_for_user($student1->id);
+
+        // Get cached data or setup defaults.
+        $cartstore = cartstore::instance($student1->id);
+
+        // Put in a test item with given ID (or default if ID > 4).
+        $item1 = shopping_cart::add_item_to_cart('mod_booking', 'option', $settings1->id, -1);
+        $item2 = shopping_cart::add_item_to_cart('mod_booking', 'subbooking', $subboking1->id, -1);
+
+        shopping_cart::save_used_credit_state($student1->id, 1);
+        $cartstore->save_useinstallments_state(0);
+
+        // The price is calculated from the cache, but there is a fallback to DB, if no cache is available.
+        $cartstore = cartstore::instance($student1->id);
+        $data = $cartstore->get_data();
+
+        // Validate subboking in shopping_cart.
+        $this->assertIsArray($data);
+        $this->assertEquals($usercreditdata['credit'], $data['credit']);
+        $this->assertEquals($usercreditdata['currency'], $data['currency']);
+        $this->assertEquals(143, $data['deductible']);
+        $this->assertEquals(143, $data['initialtotal']);
+        $this->assertEquals(false, $data['taxesenabled']);
+        $this->assertEquals(57, $data['remainingcredit']);
+        $this->assertEmpty($data['costcenter']);
+        $this->assertEmpty($data['useinstallments']);
+        // Validate cart items.
+        $this->assertArrayHasKey('items', $data);
+        $this->assertEquals(2, $data['count']);
+        $this->assertCount(2, $data['items']);
+        foreach ($data['items'] as $cartitem) {
+            $this->assertIsArray($cartitem);
+            if (strpos($cartitem['area'], "option") !== false ) {
+                $this->assertEquals($option1->text, $cartitem['itemname']);
+                $this->assertEquals($pricecategorydata1->defaultvalue, $cartitem['price']);
+                $this->assertEquals('option', $cartitem['area']);
+                $this->assertEmpty($cartitem['costcenter']);
+                $this->assertEmpty($cartitem['installment']);
+                $this->assertEquals('A', $cartitem['taxcategory']);
+            }
+            if (strpos($cartitem['area'], "subbooking") !== false ) {
+                $this->assertEquals($subbokingdata->name, $cartitem['itemname']);
+                $this->assertEquals($pricedata1->price, $cartitem['price']);
+                $this->assertEquals('subbooking', $cartitem['area']);
+                $this->assertEmpty($cartitem['costcenter']);
+                $this->assertEmpty($cartitem['installment']);
+                $this->assertEquals('A', $cartitem['taxcategory']);
+            }
+        }
+
+        // Confirm cash payment.
+        $res = shopping_cart::confirm_payment($student1->id, LOCAL_SHOPPING_CART_PAYMENT_METHOD_CREDITS);
+        // Validate payment.
+        $this->assertIsArray($res);
+        $this->assertEmpty($res['error']);
+        $this->assertEquals(1, $res['status']);
+        $this->assertEquals(57, $res['credit']);
+
+        // In this test, we book the user directly (we don't test the payment process).
+        $option = singleton_service::get_instance_of_booking_option($settings1->cmid, $settings1->id);
+        $option->user_submit_response($student1, 0, 0, 0, MOD_BOOKING_VERIFIED);
+
+        // User 1 should be booked now.
+        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Mandatory to solve potential cache issues.
+        singleton_service::destroy_booking_option_singleton($option1->id);
     }
 
     /**
