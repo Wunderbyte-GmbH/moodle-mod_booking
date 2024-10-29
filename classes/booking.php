@@ -1746,4 +1746,62 @@ class booking {
             singleton_service::destroy_booking_singleton_by_cmid($cmid);
         }
     }
+
+    /**
+     * Helper function to generate label descriptions, e.g. for navigation elements.
+     * @param string $prefix prefix for classes, e.g. the name of the moodle page like "report2"
+     * @param array $scopes an array of scopes, e.g. ["option", "instance", "course", "system"]
+     * @return string styling css embedded in html (with surrounding <style> element)
+     */
+    public static function generate_localized_css_for_navigation_labels(string $prefix, array $scopes) {
+        $css = "
+            .$prefix-nav {
+                display: flex;
+                flex-wrap: wrap;
+            }
+        ";
+
+        $last = end($scopes);
+
+        foreach ($scopes as $scope) {
+            $islast = ($last == $scope);
+            $css .= '
+            .' . $prefix . "-" . $scope . '-border::before {
+                content: "' . get_string($prefix . '_label_' . $scope, 'mod_booking') . '";
+                position: absolute;
+                top: -10px;
+                padding: 0 5px;
+                font-weight: 200;
+                font-size: small;
+                background-color: white;
+                color: ' . ($islast ? '#000' : '#333') . ';
+                white-space: nowrap;
+            }
+            .' . $prefix . '-' . $scope . '-border {
+                display: inline-block;
+                position: relative;
+                padding: 10px 20px;
+                margin-bottom: 10px;
+                border: ' . ($islast ? '1px dashed black' : '1px dotted gray') . ';
+                border-radius: 5px;
+                color: ' . ($islast ? '#0f6cbf' : 'gray') . ';
+                font-size: large;
+                font-weight: ' . ($islast ? 'bold' : 'lighter') . ';
+                white-space: nowrap;
+            }
+            ';
+        }
+
+        return "<style>$css</style>";
+    }
+
+    /**
+     * Helper function to shorten long texts and add 3 dots "..." at the end.
+     * @param string $text input text to be shortened
+     * @param int $length maximum length after which the "..." should be added
+     * @return string the return string, e.g. "Lorem ipsum..."
+     */
+    public static function shorten_text($text, $length = 20) {
+        return (strlen($text) > $length) ? substr($text, 0, $length) . "..." : $text;
+    }
 }
