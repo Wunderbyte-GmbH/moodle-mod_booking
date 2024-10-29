@@ -355,6 +355,7 @@ class rule_daysbefore implements booking_rule {
 
         $condition->execute($sql, $params, $testmode, $nextruntime);
 
+        $sql->select = " DISTINCT " . $sql->select; // Required to eliminate potential duplication in case inoptimal query.
         $sqlstring = "SELECT $sql->select FROM $sql->from WHERE $sql->where";
 
         $records = $DB->get_records_sql($sqlstring, $params);
