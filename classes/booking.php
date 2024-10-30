@@ -1754,12 +1754,7 @@ class booking {
      * @return string styling css embedded in html (with surrounding <style> element)
      */
     public static function generate_localized_css_for_navigation_labels(string $prefix, array $scopes) {
-        $css = "
-            .$prefix-nav {
-                display: flex;
-                flex-wrap: wrap;
-            }
-        ";
+        $css = "";
 
         $last = end($scopes);
 
@@ -1782,11 +1777,11 @@ class booking {
                 position: relative;
                 padding: 10px 20px;
                 margin-bottom: 10px;
-                border: ' . ($islast ? '1px dashed black' : '1px dotted gray') . ';
+                border: ' . ($islast ? '1px solid black' : '1px dashed gray') . ';
                 border-radius: 5px;
                 color: ' . ($islast ? '#0f6cbf' : 'gray') . ';
                 font-size: large;
-                font-weight: ' . ($islast ? 'bold' : 'lighter') . ';
+                font-weight: lighter;
                 white-space: nowrap;
             }
             ';

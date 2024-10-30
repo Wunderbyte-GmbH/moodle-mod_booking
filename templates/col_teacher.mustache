@@ -34,11 +34,16 @@
                 "institution": "Institution",
                 "teacherurl": "url"
             }
-        ]    
+        ]
     }
 }}
-
+<span class="col-teacher-teachers-container flex-wrap-container">
 {{#teachers}}
-    <i class="fa fa-fw fa-graduation-cap text-gray font-size-sm" aria-hidden="true"></i>
-    {{#teacherurl}}<a href="{{teacherurl}}">{{/teacherurl}}{{firstname}} {{lastname}}{{#teacherurl}}</a>{{/teacherurl}}&nbsp;
+    <span class="col-teacher-teacher flex-wrap-element">
+    <i class="fa fa-fw fa-sm fa-graduation-cap text-gray" aria-hidden="true"></i>&nbsp;
+    {{#teacherurl}}<a href="{{teacherurl}}">{{/teacherurl}}
+        {{firstname}} {{lastname}}
+    {{#teacherurl}}</a>{{/teacherurl}}&nbsp;
+    </span>
 {{/teachers}}
+</span>
