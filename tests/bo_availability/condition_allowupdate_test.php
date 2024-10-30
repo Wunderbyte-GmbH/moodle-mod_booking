@@ -328,9 +328,12 @@ final class condition_allowupdate_test extends advanced_testcase {
     }
 
     /**
-     * Test subbookings.
+     * Test subbookings - person.
      *
-     * @covers \condition\campaign_blockbooking::is_available
+     * @covers \condition\subbooking_blocks::is_available
+     * @covers \condition\subbooking::is_available
+     * @covers \subbookings\booking_subbooking
+     * @covers \subbookings\sb_types\subbooking_additionalperson
      * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
@@ -400,6 +403,15 @@ final class condition_allowupdate_test extends advanced_testcase {
         $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
         $boinfo1 = new bo_info($settings1);
 
+        // Validate subbooking presence.
+        $this->assertObjectHasAttribute('subbookings', $settings1);
+        $this->assertIsArray($settings1->subbookings);
+        $this->assertCount(1, $settings1->subbookings);
+        $subbookingobj = $settings1->subbookings[0];
+        $this->assertInstanceOf('mod_booking\subbookings\sb_types\subbooking_additionalperson', $subbookingobj);
+        $this->assertEquals($subboking->name, $subbookingobj->name);
+        $this->assertEquals($subboking->type, $subbookingobj->type);
+
         $this->setUser($student1);
         // Validate that subboking is available and non-bloking.
         list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student1->id, false);
@@ -426,6 +438,15 @@ final class condition_allowupdate_test extends advanced_testcase {
 
         $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
         $boinfo2 = new bo_info($settings2);
+
+        // Validate subbooking presence.
+        $this->assertObjectHasAttribute('subbookings', $settings2);
+        $this->assertIsArray($settings2->subbookings);
+        $this->assertCount(1, $settings2->subbookings);
+        $subbookingobj = $settings2->subbookings[0];
+        $this->assertInstanceOf('mod_booking\subbookings\sb_types\subbooking_additionalperson', $subbookingobj);
+        $this->assertEquals($subboking->name, $subbookingobj->name);
+        $this->assertEquals($subboking->type, $subbookingobj->type);
 
         // Try to book option2 with student2.
         $this->setUser($student2);
