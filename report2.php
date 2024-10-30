@@ -37,8 +37,12 @@ $cmid = optional_param('cmid', 0, PARAM_INT);
 $courseid = optional_param('courseid', 0, PARAM_INT);
 
 $ticketicon = '<i class="fa fa-fw fa-sm fa-ticket" aria-hidden="true"></i>&nbsp;';
-$linkicon = '<i class="fa fa-fw fa-sm fa-external-link" aria-hidden="true"></i>&nbsp;';
+$linkicon = '<i class="fa fa-fw fa-xs fa-external-link" aria-hidden="true"></i>&nbsp;';
 $divider = "<span class='mt-1'>&nbsp;&rsaquo;&nbsp;</span>";
+
+$r2syscontext = context_system::instance();
+$r2syscap = has_capability('mod/booking:managebookedusers', $r2syscontext);
+$r2systemurl = new moodle_url('/mod/booking/report2.php');
 
 if (!empty($optionid)) {
     $scopes = ['system', 'course', 'instance', 'option'];
@@ -52,7 +56,6 @@ if (!empty($optionid)) {
     $scopeid = $optionid;
     $urlparams = ["optionid" => $optionid]; // For PAGE url.
 
-    $r2systemurl = new moodle_url('/mod/booking/report2.php');
     $r2courseurl = new moodle_url('/mod/booking/report2.php', ['courseid' => $courseid]);
     $r2instanceurl = new moodle_url('/mod/booking/report2.php', ['cmid' => $cmid]);
     $r2optionurl = new moodle_url('/mod/booking/view.php', [
@@ -62,7 +65,6 @@ if (!empty($optionid)) {
     ]);
 
     // Define scope contexts.
-    $r2syscontext = context_system::instance();
     $r2coursecontext = context_course::instance($courseid);
     $r2instancecontext = context_module::instance($cmid);
 
@@ -72,13 +74,12 @@ if (!empty($optionid)) {
         require_capability('mod/booking:readresponses', $r2instancecontext);
     }
     // To create the correct links.
-    $r2syscap = has_capability('mod/booking:managebookedusers', $r2syscontext);
     $r2coursecap = has_capability('mod/booking:managebookedusers', $r2coursecontext);
     $r2instancecap = has_capability('mod/booking:managebookedusers', $r2instancecontext);
 
     // We only show links, if we have the matching capabilities.
-    $heading = get_string('managebookedusers_heading', 'mod_booking');
-    $navhtml = "<div class='report2-nav'>" .
+    $heading = get_string('managebookedusers_heading', 'mod_booking', $optionsettings->get_title_with_prefix());
+    $navhtml = "<div class='report2-nav flex-wrap-container'>" .
         ($r2syscap ? "<a href='{$r2systemurl}' class='report2-system-border'>" :
             "<span class='report2-system-border'>") .
         $ticketicon . booking::shorten_text($SITE->fullname) .
@@ -107,24 +108,21 @@ if (!empty($optionid)) {
     require_course_login($course, false, $cm);
     $urlparams = ["cmid" => $cmid]; // For PAGE url.
 
-    $r2systemurl = new moodle_url('/mod/booking/report2.php');
     $r2courseurl = new moodle_url('/mod/booking/report2.php', ['courseid' => $courseid]);
     $r2instanceurl = new moodle_url('/mod/booking/view.php', ['id' => $cmid]);
 
     // Define scope contexts.
-    $r2syscontext = context_system::instance();
     $r2coursecontext = context_course::instance($courseid);
     $r2instancecontext = context_module::instance($cmid);
 
     // To create the correct links.
-    $r2syscap = has_capability('mod/booking:managebookedusers', $r2syscontext);
     $r2coursecap = has_capability('mod/booking:managebookedusers', $r2coursecontext);
     $r2instancecap = has_capability('mod/booking:managebookedusers', $r2instancecontext);
 
     require_capability('mod/booking:managebookedusers', $r2instancecontext);
 
     // We only show links, if we have the matching capabilities.
-    $heading = get_string('managebookedusers_heading', 'mod_booking');
+    $heading = get_string('managebookedusers_heading', 'mod_booking', $bookingsettings->name);
     $navhtml =
         ($r2syscap ? "<a href='{$r2systemurl}' class='report2-system-border'>" :
             "<span class='report2-system-border'>") .
@@ -147,21 +145,18 @@ if (!empty($optionid)) {
     require_course_login($course, false);
     $urlparams = ["courseid" => $courseid]; // For PAGE url.
 
-    $r2systemurl = new moodle_url('/mod/booking/report2.php');
     $r2courseurl = new moodle_url('/course/view.php', ['id' => $courseid]);
 
     // Define scope contexts.
-    $r2syscontext = context_system::instance();
     $r2coursecontext = context_course::instance($courseid);
 
     // To create the correct links.
-    $r2syscap = has_capability('mod/booking:managebookedusers', $r2syscontext);
     $r2coursecap = has_capability('mod/booking:managebookedusers', $r2coursecontext);
 
     require_capability('mod/booking:managebookedusers', $r2coursecontext);
 
     // We only show links, if we have the matching capabilities.
-    $heading = get_string('managebookedusers_heading', 'mod_booking');
+    $heading = get_string('managebookedusers_heading', 'mod_booking', $course->fullname);
     $navhtml =
         ($r2syscap ? "<a href='{$r2systemurl}' class='report2-system-border'>" :
             "<span class='report2-system-border'>") .
@@ -178,18 +173,12 @@ if (!empty($optionid)) {
     $scopeid = 0;
     $urlparams = []; // For PAGE url.
 
-    // Define scope contexts.
-    $r2syscontext = context_system::instance();
-
     $r2systemurl = new moodle_url('/');
-
-    // To create the correct links.
-    $r2syscap = has_capability('mod/booking:managebookedusers', $r2syscontext);
 
     require_capability('mod/booking:managebookedusers', $r2syscontext);
 
     // We only show links, if we have the matching capabilities.
-    $heading = get_string('managebookedusers_heading', 'mod_booking');
+    $heading = get_string('managebookedusers_heading', 'mod_booking', $SITE->fullname);
     $navhtml =
         "<a href='$r2systemurl' class='report2-system-border'>" .
         $linkicon . $SITE->fullname .
@@ -203,8 +192,8 @@ $url = new moodle_url('/mod/booking/report2.php', $urlparams);
 $PAGE->set_url($url);
 
 echo $OUTPUT->header();
-
-echo $OUTPUT->heading("<div class='mb-5'>" . $heading . "</div>" . "<div class='h4 mt-3 mb-5'>$navhtml</div");
+echo $OUTPUT->heading("<div class='mb-5'>" . $ticketicon . $heading . "</div>" .
+    "<div class='mt-3 mb-5'>$navhtml</div");
 
 // Now we render the booked users for the provided scope.
 $data = new booked_users(
