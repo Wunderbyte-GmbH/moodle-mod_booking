@@ -1215,8 +1215,6 @@ final class rules_test extends advanced_testcase {
      * @dataProvider booking_common_settings_provider
      */
     public function test_booking_rules_customform_delete_data(array $bdata): void {
-        // phpcs:ignore
-        //cron::setup_user();
         // Setup test data.
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
@@ -1254,9 +1252,12 @@ final class rules_test extends advanced_testcase {
         $record->bo_cond_customform_select_1_1 = 'shorttext';
         $record->bo_cond_customform_label_1_1 = 'Personal requirement:';
         $record->bo_cond_customform_deleteinfoscheckboxadmin = 1;
+        $record->optiondateid_1 = "0";
+        $record->daystonotify_1 = "0";
         $record->coursestarttime_1 = strtotime('yesterday');
-        $record->courseendtime_1 = strtotime('now + 2 seconds'); // Ending time must be in future.
+        $record->courseendtime_1 = strtotime('now + 3 seconds'); // Ending time must be in future.
         $option1 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option1->id);
         $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
 
         // Create booking rule - "ndays before".
@@ -1285,6 +1286,7 @@ final class rules_test extends advanced_testcase {
         $formrecord->id = $option1->id;
         $formrecord->userid = $student1->id;
         $formrecord->customform_shorttext_1 = 'lactose-free milk';
+        $formrecord->deleteinfoscheckboxadmin = 1; // Should be provided explicitly.
         $customformstore1 = new customformstore($student1->id, $settings1->id);
         $customformstore1->set_customform_data($formrecord);
         customform::add_json_to_booking_answer($answer1, $student1->id);
@@ -1301,24 +1303,20 @@ final class rules_test extends advanced_testcase {
         $this->assertStringContainsString($formrecord->customform_shorttext_1, $answer2->json);
 
         // Trigger cron tasks.
+        $tsk = \core\task\manager::get_adhoc_tasks('\mod_booking\task\delete_conditions_from_bookinganswer_by_rule_adhoc');
         ob_start();
-        // phpcs:ignore
-        //\core\cron::run_scheduled_tasks(time());
         $this->runAdhocTasks();
-
         $res = ob_get_clean();
 
+        // Verify no json string in the answer.
         $answer3 = singleton_service::get_instance_of_booking_answers($settings1)->answers;
         $answer3 = array_shift($answer3);
-        // phpcs:ignore
-        //$this->assertNull($answer3->json);
+        $this->assertStringNotContainsString($formrecord->customform_shorttext_1, $answer3->json);
 
         // Mandatory to solve potential cache issues.
         singleton_service::destroy_booking_option_singleton($option1->id);
         // Mandatory to deal with static variable in the booking_rules.
-        // phpcs:ignore
         rules_info::$rulestoexecute = [];
-        // phpcs:ignore
         booking_rules::$rules = [];
     }
 
