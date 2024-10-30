@@ -357,6 +357,15 @@ final class shopping_cart_test extends advanced_testcase {
         $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
         $boinfo1 = new bo_info($settings1);
 
+        // Validate subbooking presence.
+        $this->assertObjectHasAttribute('subbookings', $settings1);
+        $this->assertIsArray($settings1->subbookings);
+        $this->assertCount(1, $settings1->subbookings);
+        $subbookingobj = $settings1->subbookings[0];
+        $this->assertInstanceOf('mod_booking\subbookings\sb_types\subbooking_additionalitem', $subbookingobj);
+        $this->assertEquals($subboking1->name, $subbookingobj->name);
+        $this->assertEquals($subboking1->type, $subbookingobj->type);
+
         $this->setUser($student1);
         // Validate that subboking is available and bloking.
         list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student1->id, false);
