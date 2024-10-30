@@ -33,6 +33,7 @@ use Exception;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\event\booking_debug;
 use mod_booking\message_controller;
+use mod_booking\singleton_service;
 
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
@@ -120,7 +121,10 @@ class delete_conditions_from_bookinganswer_by_rule_adhoc extends \core\task\adho
             // We might receive an error here, because we refer to baid which no longer exist.
             // That's not a problem, we just abort the action.
             try {
-                $ba = $DB->get_record('booking_answers', ['id' => $taskdata->baid], '*');
+                // We should read answers from cache!
+                $settings = singleton_service::get_instance_of_booking_option_settings($taskdata->optionid);
+                $answers = singleton_service::get_instance_of_booking_answers($settings);
+                $ba = $answers->answers[$taskdata->baid];
                 // Decode the JSON to an associative array.
                 $data = json_decode($ba->json, true);
                 $change = false;
