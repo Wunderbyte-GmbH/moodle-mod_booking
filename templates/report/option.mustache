@@ -35,20 +35,19 @@
 }}
 <div class="mod-booking-report-option">
 	<div>
-		<h6 class="mb-1">
+		<div class="h6 mb-1">
 			<a href="{{optionlink}}" target="_blank">{{#titleprefix}}{{.}} - {{/titleprefix}}{{title}}</a>
 			<span class="ml-1"><a class="btn btn-link btn-sm" data-toggle="collapse" href="#collapseoptionshortinfo-{{id}}"
 				role="button" aria-expanded="false" aria-controls="collapseoptionshortinfo-{{id}}">
 				<i class="fa fa-chevron-down" aria-hidden="true"></i>
 			</a></span>
-		</h6>
-
+		</div>
 	</div>
-	<div class="mb-1 collapse" id="collapseoptionshortinfo-{{id}}"><small>
+	<div class="mb-1 collapse" id="collapseoptionshortinfo-{{id}}">
 		<div class="mod-booking-report-option-teachers">{{{teachers}}}</div>
 		<div class="mod-booking-report-option-instance">
 			<i class="fa fa-fw fa-sm fa-calendar-check-o text-gray" aria-hidden="true"></i>&nbsp;
 			<a href="{{instancelink}}" target="_blank">{{instancename}}</a>
 		</div>
-	</small></div>
+	</div>
 </div>
