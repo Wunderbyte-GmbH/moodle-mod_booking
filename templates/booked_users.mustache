@@ -35,13 +35,13 @@
 <div class="accordion mt-3 mb-3" id="accordion-usertables">
     {{#bookedusers}}
         <div class="card">
-            <div class="card-header" id="accordion-heading-bookedusers">
+            <div class="card-header bg-transparent" id="accordion-heading-bookedusers">
                 <div class="btn btn-link btn-block text-left btn-lg font-weight-bold" role="button" data-toggle="collapse" data-target="#accordion-item-bookedusers" aria-expanded="true" aria-controls="accordion-item-bookedusers">
                     <i class="fa fa-fw fa-ticket" aria-hidden="true"></i>&nbsp;{{#str}} bookings, mod_booking {{/str}}
                 </div>
             </div>
             <div id="accordion-item-bookedusers" class="collapse show" aria-labelledby="accordion-heading-bookedusers" data-parent="#accordion-usertables">
-            <div class="card-body">
+            <div class="card-body p-0">
                 {{{bookedusers}}}
             </div>
             </div>
@@ -49,13 +49,13 @@
     {{/bookedusers}}
     {{#waitinglist}}
         <div class="card">
-            <div class="card-header" id="accordion-heading-waitinglist">
+            <div class="card-header bg-transparent" id="accordion-heading-waitinglist">
                 <div class="btn btn-link btn-block text-left btn-lg font-weight-bold" role="button" data-toggle="collapse" data-target="#accordion-item-waitinglist" aria-expanded="false" aria-controls="accordion-item-waitinglist">
                     <i class="fa fa-fw fa-hourglass" aria-hidden="true"></i>&nbsp;{{#str}} waitinglist, mod_booking {{/str}}
                 </div>
             </div>
             <div id="accordion-item-waitinglist" class="collapse" aria-labelledby="accordion-heading-waitinglist" data-parent="#accordion-usertables">
-            <div class="card-body">
+            <div class="card-body p-0">
                 {{{waitinglist}}}
             </div>
             </div>
@@ -63,13 +63,13 @@
     {{/waitinglist}}
     {{#reservedusers}}
         <div class="card">
-            <div class="card-header" id="accordion-heading-reservedusers">
+            <div class="card-header bg-transparent" id="accordion-heading-reservedusers">
                 <div class="btn btn-link btn-block text-left btn-lg font-weight-bold" role="button" data-toggle="collapse" data-target="#accordion-item-reservedusers" aria-expanded="false" aria-controls="accordion-item-reservedusers">
                     <i class="fa fa-fw fa-shopping-cart" aria-hidden="true"></i>&nbsp;{{#str}} reservedusers, mod_booking {{/str}}
                 </div>
             </div>
             <div id="accordion-item-reservedusers" class="collapse" aria-labelledby="accordion-heading-reservedusers" data-parent="#accordion-usertables">
-            <div class="card-body">
+            <div class="card-body p-0">
                 {{{reservedusers}}}
             </div>
             </div>
@@ -77,13 +77,13 @@
     {{/reservedusers}}
     {{#userstonotify}}
         <div class="card">
-            <div class="card-header" id="accordion-heading-userstonotify">
+            <div class="card-header bg-transparent" id="accordion-heading-userstonotify">
                 <div class="btn btn-link btn-block text-left btn-lg font-weight-bold" role="button" data-toggle="collapse" data-target="#accordion-item-userstonotify" aria-expanded="false" aria-controls="accordion-item-userstonotify">
                     <i class="fa fa-fw fa-bell-o" aria-hidden="true"></i>&nbsp;{{#str}} userstonotify, mod_booking {{/str}}
                 </div>
             </div>
             <div id="accordion-item-userstonotify" class="collapse" aria-labelledby="accordion-heading-userstonotify" data-parent="#accordion-usertables">
-            <div class="card-body">
+            <div class="card-body p-0">
                 {{{userstonotify}}}
             </div>
             </div>
@@ -91,13 +91,13 @@
     {{/userstonotify}}
     {{#deletedusers}}
         <div class="card">
-            <div class="card-header" id="accordion-heading-deletedusers">
+            <div class="card-header bg-transparent" id="accordion-heading-deletedusers">
                 <div class="btn btn-link btn-block text-left btn-lg font-weight-bold" role="button" data-toggle="collapse" data-target="#accordion-item-deletedusers" aria-expanded="false" aria-controls="accordion-item-deletedusers">
                     <i class="fa fa-fw fa-ban" aria-hidden="true"></i>&nbsp;{{#str}} deletedbookings, mod_booking {{/str}}
                 </div>
             </div>
             <div id="accordion-item-deletedusers" class="collapse" aria-labelledby="accordion-heading-deletedusers" data-parent="#accordion-usertables">
-            <div class="card-body">
+            <div class="card-body p-0">
                 {{{deletedusers}}}
             </div>
             </div>

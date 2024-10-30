@@ -15,7 +15,7 @@
 	along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_booking/bookingoption_title_and_instance
+    @template mod_booking/report/option
 
     Classes required for JS:
     * none
@@ -33,7 +33,7 @@
 		"instancelink" : "https://127.0.0.1/mod/booking/view.php?id=12"
     }
 }}
-<div class="bookingoption-title-and-instance">
+<div class="mod-booking-report-option">
 	<div>
 		<h6 class="mb-1">
 			<a href="{{optionlink}}" target="_blank">{{#titleprefix}}{{.}} - {{/titleprefix}}{{title}}</a>
@@ -45,7 +45,10 @@
 
 	</div>
 	<div class="mb-1 collapse" id="collapseoptionshortinfo-{{id}}"><small>
-		{{#str}} bookinginstance, mod_booking {{/str}}:
-		<a href="{{instancelink}}" target="_blank">{{instancename}}</a>
+		<div class="mod-booking-report-option-teachers">{{{teachers}}}</div>
+		<div class="mod-booking-report-option-instance">
+			<i class="fa fa-fw fa-sm fa-calendar-check-o text-gray" aria-hidden="true"></i>&nbsp;
+			<a href="{{instancelink}}" target="_blank">{{instancename}}</a>
+		</div>
 	</small></div>
 </div>

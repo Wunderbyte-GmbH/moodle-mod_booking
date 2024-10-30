@@ -1377,7 +1377,7 @@ $string['mailtemplatessource'] = 'Quelle von E-Mail-Vorlagen festlegen';
 $string['mailtemplatessource_help'] = '<b>Achtung:</b> Wenn Sie globale E-Mail-Vorlagen wählen, werden die Instanz-spezifischen
 E-Mail-Vorlagen nicht verwendet, sondern die E-Mail-Vorlagen, die in den Einstellungen des Buchungs-Plugins angelegt
 wurden. <br><br>Bitte stellen Sie sicher, dass zu allen E-Mail-Typen eine Vorlage vorhanden ist.';
-$string['managebookedusers_heading'] = 'Buchungsmanager';
+$string['managebookedusers_heading'] = 'Buchungen verwalten für "{$a}"';
 $string['managebooking'] = 'Verwalten';
 $string['managebookinginstancetemplates'] = 'Buchungsinstanz-Vorlagen verwalten';
 $string['managecustomreporttemplates'] = 'Vorlagen für benutzerdefinierte Berichte verwalten';
@@ -1823,6 +1823,7 @@ $string['qrenrollink'] = "QR Code von Einschreibelink";
 $string['qrid'] = "QR Code von Id";
 $string['qrusername'] = "QR Code von Nutzer/innenname";
 $string['question'] = "Frage";
+$string['rank'] = 'Reihenfolge';
 $string['ratings'] = 'Bewertung der Buchungsoption';
 $string['ratingsuccessful'] = 'Die Bewertungen wurden erfolgreich aktualisiert';
 $string['reallydeleteaction'] = 'Wirklich löschen?';

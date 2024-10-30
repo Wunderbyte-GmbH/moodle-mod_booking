@@ -38,7 +38,9 @@ use local_wunderbyte_table\wunderbyte_table;
 use moodle_url;
 use stdClass;
 use mod_booking\booking_option;
+use mod_booking\output\col_teacher;
 use mod_booking\singleton_service;
+use mod_booking\output\renderer;
 
 global $CFG;
 
@@ -54,6 +56,21 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  */
 class manageusers_table extends wunderbyte_table {
     /**
+     * Checkbox column.
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_checkbox(stdClass $values) {
+        if (!$this->is_downloading()) {
+            return '<input id="manageuserstable-check-' . $values->id .
+                     '" type="checkbox" class="usercheckbox" name="user[][' . $values->userid .
+                     ']" value="' . $values->userid . '" />';
+        } else {
+            return '';
+        }
+    }
+
+    /**
      * Return dragable column.
      *
      * @param stdClass $values
@@ -67,7 +84,7 @@ class manageusers_table extends wunderbyte_table {
     }
 
     /**
-     * Return dragable column.
+     * Return column timemodified.
      *
      * @param stdClass $values
      * @return string
@@ -87,6 +104,14 @@ class manageusers_table extends wunderbyte_table {
 
         global $OUTPUT;
 
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
+
+        // Render col_teacher using a template.
+        $data = new col_teacher($values->id, $settings);
+        /** @var renderer $output */
+        $output = singleton_service::get_renderer('mod_booking');
+        $teachers = $output->render_col_teacher($data);
+
         $optionlink = new moodle_url(
             '/mod/booking/view.php',
             [
@@ -105,12 +130,13 @@ class manageusers_table extends wunderbyte_table {
             'id' => $values->id,
             'titleprefix' => $values->titleprefix,
             'title' => $values->text,
-            'optionlink' => $optionlink,
+            'optionlink' => $optionlink->out(false),
             'instancename' => $values->instancename,
-            'instancelink' => $instancelink,
+            'instancelink' => $instancelink->out(false),
+            'teachers' => $teachers,
         ];
 
-        return $OUTPUT->render_from_template('mod_booking/bookingoption_title_and_instance', $data);
+        return $OUTPUT->render_from_template('mod_booking/report/option', $data);
     }
 
     /**
@@ -417,7 +443,10 @@ class manageusers_table extends wunderbyte_table {
         // This transforms the array to make it easier to use in mustache template.
         table::transform_actionbuttons_array($data);
 
-        return $OUTPUT->render_from_template('local_wunderbyte_table/component_actionbutton', ['showactionbuttons' => $data]);
+        return $OUTPUT->render_from_template(
+            'local_wunderbyte_table/component_actionbutton',
+            ['showactionbuttons' => $data]
+        );
     }
 
     /**

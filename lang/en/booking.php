@@ -1385,7 +1385,7 @@ $string['mailtemplatessource'] = 'Set source of mail templates';
 $string['mailtemplatessource_help'] = '<b>Caution:</b> If you choose global e-mail templates, the instance-specific mail
 templates won\'t be used. Instead the e-mail templates specified in the booking plugin settings will be used. <br><br>
 Please make sure that there are existing e-mail templates in the booking settings for each e-mail type.';
-$string['managebookedusers_heading'] = 'Manage bookings';
+$string['managebookedusers_heading'] = 'Manage bookings for "{$a}"';
 $string['managebooking'] = 'Manage';
 $string['managebookinginstancetemplates'] = 'Manage booking instance templates';
 $string['managecustomreporttemplates'] = 'Manage custom report templates';
@@ -1878,6 +1878,7 @@ $string['qrenrollink'] = "QR code for enrolment link";
 $string['qrid'] = "qr_id";
 $string['qrusername'] = "qr_username";
 $string['question'] = "Question";
+$string['rank'] = 'Rank';
 $string['ratings'] = 'Bookingoption ratings';
 $string['ratingsuccessful'] = 'The ratings were successfully updated';
 $string['reallydeleteaction'] = 'Really delete?';
