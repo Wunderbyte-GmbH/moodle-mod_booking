@@ -1850,11 +1850,11 @@ $string['reoccurringdatestring_help'] = 'Geben Sie einen Text in folgendem Forma
     "Tag, HH:MM - HH:MM", z.B. "Montag, 10:00 - 11:00" oder "So 09:00-10:00" oder "Block" bzw. "Blockveranstaltung.';
 $string['reoccurringdatestringerror'] = 'Geben Sie einen Text in folgendem Format ein:
     Tag, HH:MM - HH:MM oder "Block" bzw. "Blockveranstaltung."';
-$string['reportfields'] = 'Felder reportieren';
 $string['report2_label_course'] = 'Moodle-Kurs';
 $string['report2_label_instance'] = 'Buchungsinstanz';
 $string['report2_label_option'] = 'Buchungsoption';
 $string['report2_label_system'] = 'Gesamte Seite';
+$string['reportfields'] = 'Felder reportieren';
 $string['reportremindermessage'] = '{$a->bookingdetails}';
 $string['reportremindersubject'] = 'Erinnerung: Ihr gebuchter Kurs';
 $string['reservedusers'] = 'Kurzfristige Reservierungen';
