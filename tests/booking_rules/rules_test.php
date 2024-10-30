@@ -1263,14 +1263,11 @@ final class rules_test extends advanced_testcase {
         $record->text = 'Test option1';
         $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course1->id;
-        // Set test objective setting(s).
+        // Set test objective setting(s) - customform adnd admin deletion.
         $record->bo_cond_customform_restrict = 1;
         $record->bo_cond_customform_select_1_1 = 'shorttext';
         $record->bo_cond_customform_label_1_1 = 'Personal requirement:';
-        $record->bo_cond_customform_deleteinfoscheckboxadmin = 1; // Admin-level deletion.
-        // phpcs:ignore
-        //$record->bookingclosingtime = strtotime('24 February 2022 04:00');
-        //$record->bookingclosingtime = strtotime('now - 1 min');
+        $record->bo_cond_customform_deleteinfoscheckboxadmin = 1;
         $record->coursestarttime_1 = strtotime('yesterday');
         $record->courseendtime_1 = strtotime('now - 1 hour');
         $option1 = $plugingenerator->create_option($record);
