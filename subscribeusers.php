@@ -326,46 +326,19 @@ if (has_capability('mod/booking:bookanyone', $context) && $bookanyone) {
 }
 
 
-// We call the template render to display how many users are currently reserved.
+// Call the template renderer to display all other users.
 $data = new booked_users(
     'option',
     $optionid,
-    false,
+    false, // We already see the booked users.
     true,
     true,
     true,
     true
 );
+/** @var renderer $renderer */
 $renderer = $PAGE->get_renderer('mod_booking');
 echo $renderer->render_booked_users($data);
-
-// We call the template render to display how many users are currently reserved.
-$data = new booked_users('option', $optionid, false, false, false, false, true);
-$deletedlist = $renderer->render_booked_users($data);
-
-if (!empty($deletedlist)) {
-    $contents = html_writer::tag(
-        'a',
-        get_string('deletedusers', 'mod_booking'),
-        [
-            'class' => 'h5',
-            'data-toggle' => "collapse",
-            'href' => "#collapseDeletedlist",
-            'role' => "button",
-            'aria-expanded' => "false",
-            'aria-controls' => "collapseDeletedlist",
-        ]
-    );
-    echo html_writer::tag('div', $contents);
-    echo html_writer::tag(
-        'div',
-        $deletedlist,
-        [
-            'class' => "collapse",
-            'id' => "collapseDeletedlist",
-        ]
-    );
-}
 
 
 echo html_writer::tag(
