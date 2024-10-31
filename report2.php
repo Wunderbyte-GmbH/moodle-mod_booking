@@ -32,6 +32,8 @@ use mod_booking\singleton_service;
 
 global $PAGE, $SITE;
 
+$PAGE->requires->js_call_amd('mod_booking/report/report_actions', 'init');
+
 $optionid = optional_param('optionid', 0, PARAM_INT);
 $cmid = optional_param('cmid', 0, PARAM_INT);
 $courseid = optional_param('courseid', 0, PARAM_INT);
