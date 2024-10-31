@@ -1221,6 +1221,7 @@ final class rules_test extends advanced_testcase {
         // Create users.
         $student1 = $this->getDataGenerator()->create_user();
         $student2 = $this->getDataGenerator()->create_user();
+        $student3 = $this->getDataGenerator()->create_user();
         $teacher = $this->getDataGenerator()->create_user();
         $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
 
@@ -1236,18 +1237,20 @@ final class rules_test extends advanced_testcase {
 
         $this->getDataGenerator()->enrol_user($student1->id, $course1->id, 'student');
         $this->getDataGenerator()->enrol_user($student2->id, $course1->id, 'student');
+        $this->getDataGenerator()->enrol_user($student3->id, $course1->id, 'student');
         $this->getDataGenerator()->enrol_user($teacher->id, $course1->id, 'student');
         $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id, 'editingteacher');
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
+        // Option 1 - custom form with admin deleteion.
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'Test option1';
-        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->chooseorcreatecourse = 1;
         $record->courseid = $course1->id;
-        // Set test objective setting(s) - customform adnd admin deletion.
+        // Set test objective setting(s) - customform and admin deletion.
         $record->bo_cond_customform_restrict = 1;
         $record->bo_cond_customform_select_1_1 = 'shorttext';
         $record->bo_cond_customform_label_1_1 = 'Personal requirement:';
@@ -1259,6 +1262,20 @@ final class rules_test extends advanced_testcase {
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
         $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+
+        // Option 2 - custom form with user deleteion.
+        $record->text = 'Test option2';
+        $record->bo_cond_customform_restrict = 1;
+        $record->bo_cond_customform_select_1_1 = 'shorttext';
+        $record->bo_cond_customform_label_1_1 = 'Personal requirement:';
+        $record->bo_cond_customform_select_1_2 = 'deleteinfoscheckboxuser';
+        $record->optiondateid_1 = "0";
+        $record->daystonotify_1 = "0";
+        $record->coursestarttime_1 = strtotime('yesterday');
+        $record->courseendtime_1 = strtotime('now + 3 seconds');
+        $option2 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option2->id);
+        $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
 
         // Create booking rule - "ndays before".
         $ruledata1 = [
@@ -1273,7 +1290,7 @@ final class rules_test extends advanced_testcase {
         ];
         $rule1 = $plugingenerator->create_rule($ruledata1);
 
-        // Booking options by the 1st student.
+        // Book option1 by the 1st student.
         $result = $plugingenerator->create_answer(['optionid' => $option1->id, 'userid' => $student1->id]);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $result);
         $answer1 = singleton_service::get_instance_of_booking_answers($settings1)->answers;
@@ -1281,26 +1298,67 @@ final class rules_test extends advanced_testcase {
         $this->assertCount(1, $answer1);
         $answer1 = array_shift($answer1);
 
-        // Create option's answer custom form data record.
-        $formrecord = new stdClass();
-        $formrecord->id = $option1->id;
-        $formrecord->userid = $student1->id;
-        $formrecord->customform_shorttext_1 = 'lactose-free milk';
-        $formrecord->deleteinfoscheckboxadmin = 1; // Should be provided explicitly.
+        // Create option1/student1 answer custom form data record.
+        $formrecord1 = new stdClass();
+        $formrecord1->id = $option1->id;
+        $formrecord1->userid = $student1->id;
+        $formrecord1->customform_shorttext_1 = 'lactose-free milk (o1s1)';
+        $formrecord1->deleteinfoscheckboxadmin = 1; // Forece delete (should be provided explicitly).
         $customformstore1 = new customformstore($student1->id, $settings1->id);
-        $customformstore1->set_customform_data($formrecord);
+        $customformstore1->set_customform_data($formrecord1);
         customform::add_json_to_booking_answer($answer1, $student1->id);
 
-        sleep(5);
-        // Verify presence of json string in the answer.
-        singleton_service::destroy_booking_option_singleton($option1->id);
-        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        // Book option2 by the 2nd and 3rd students.
+        $result = $plugingenerator->create_answer(['optionid' => $option2->id, 'userid' => $student2->id]);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $result);
+        $result = $plugingenerator->create_answer(['optionid' => $option2->id, 'userid' => $student3->id]);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $result);
 
-        $answer2 = singleton_service::get_instance_of_booking_answers($settings1)->answers;
-        $this->assertIsArray($answer2);
-        $this->assertCount(1, $answer2);
-        $answer2 = array_shift($answer2);
-        $this->assertStringContainsString($formrecord->customform_shorttext_1, $answer2->json);
+        // Create custom form records for answers of the option2.
+        $answers2 = singleton_service::get_instance_of_booking_answers($settings2)->answers;
+        $this->assertIsArray($answers2);
+        $this->assertCount(2, $answers2);
+        // Create option2/student2 answer custom form data record.
+        $answer2 = array_shift($answers2);
+        $formrecord2 = new stdClass();
+        $formrecord2->id = $option2->id;
+        $formrecord2->userid = $student2->id;
+        $formrecord2->customform_shorttext_1 = 'honey (o2s2)';
+        $formrecord2->customform_deleteinfoscheckboxuser = 0; // Force NOT delete (should be provided explicitly).
+        $customformstore2 = new customformstore($student2->id, $settings2->id);
+        $customformstore2->set_customform_data($formrecord2);
+        customform::add_json_to_booking_answer($answer2, $student2->id);
+        // Create option2/student3 answer custom form data record.
+        $answer3 = array_shift($answers2);
+        $formrecord3 = new stdClass();
+        $formrecord3->id = $option2->id;
+        $formrecord3->userid = $student3->id;
+        $formrecord3->customform_shorttext_1 = 'butter (o2s3)';
+        $formrecord3->customform_deleteinfoscheckboxuser = 1; // Force delete (should be provided explicitly).
+        $customformstore2 = new customformstore($student3->id, $settings2->id);
+        $customformstore2->set_customform_data($formrecord3);
+        customform::add_json_to_booking_answer($answer3, $student3->id);
+
+        sleep(5);
+        // Verify presence of json strings in the answers.
+        singleton_service::destroy_booking_option_singleton($option1->id);
+        singleton_service::destroy_booking_option_singleton($option2->id);
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
+
+        $answer11 = singleton_service::get_instance_of_booking_answers($settings1)->answers;
+        $this->assertIsArray($answer11);
+        $this->assertCount(1, $answer11);
+        $answer11 = array_shift($answer11);
+        $this->assertStringContainsString($formrecord1->customform_shorttext_1, $answer11->json);
+
+        $answers2 = singleton_service::get_instance_of_booking_answers($settings2)->answers;
+        $this->assertIsArray($answers2);
+        $this->assertCount(2, $answers2);
+        $answer22 = array_shift($answers2);
+        $this->assertStringContainsString($formrecord2->customform_shorttext_1, $answer22->json);
+        $answer23 = array_shift($answers2);
+        $this->assertStringContainsString($formrecord3->customform_shorttext_1, $answer23->json);
 
         // Trigger cron tasks.
         $tsk = \core\task\manager::get_adhoc_tasks('\mod_booking\task\delete_conditions_from_bookinganswer_by_rule_adhoc');
@@ -1308,13 +1366,23 @@ final class rules_test extends advanced_testcase {
         $this->runAdhocTasks();
         $res = ob_get_clean();
 
-        // Verify no json string in the answer.
-        $answer3 = singleton_service::get_instance_of_booking_answers($settings1)->answers;
-        $answer3 = array_shift($answer3);
-        $this->assertStringNotContainsString($formrecord->customform_shorttext_1, $answer3->json);
+        // Verify no json string in the answer for option1.
+        $answer11 = singleton_service::get_instance_of_booking_answers($settings1)->answers;
+        $answer11 = array_shift($answer11);
+        $this->assertStringNotContainsString($formrecord1->customform_shorttext_1, $answer11->json);
+
+        // Verify json strings in the answers for option2.
+        $answers2 = singleton_service::get_instance_of_booking_answers($settings2)->answers;
+        // String must be present for student2.
+        $answer22 = array_shift($answers2);
+        $this->assertStringContainsString($formrecord2->customform_shorttext_1, $answer22->json);
+        // String must NOT be present for student3.
+        $answer23 = array_shift($answers2);
+        $this->assertStringNotContainsString($formrecord3->customform_shorttext_1, $answer23->json);
 
         // Mandatory to solve potential cache issues.
         singleton_service::destroy_booking_option_singleton($option1->id);
+        singleton_service::destroy_booking_option_singleton($option2->id);
         // Mandatory to deal with static variable in the booking_rules.
         rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
