@@ -88,14 +88,14 @@ class booked_users implements renderable, templatable {
         $deleteduserscols = ['name', 'timemodified'];
 
         // Headers.
-        $bookedusersheaders = [get_string('booking', 'mod_booking'), get_string('delete', 'mod_booking')];
+        $bookedusersheaders = [get_string('user', 'core'), get_string('delete', 'mod_booking')];
         $waitinglistheaders = [
-            get_string('booking', 'mod_booking'),
+            get_string('user', 'core'),
             get_string('delete', 'mod_booking'),
         ];
-        $reservedusersheaders = [get_string('booking', 'mod_booking'), get_string('delete', 'mod_booking')];
-        $userstonotifyheaders = [get_string('booking', 'mod_booking'), get_string('delete', 'mod_booking')];
-        $deletedusersheaders = [get_string('booking', 'mod_booking'), get_string('date')];
+        $reservedusersheaders = [get_string('user', 'core'), get_string('delete', 'mod_booking')];
+        $userstonotifyheaders = [get_string('user', 'core'), get_string('delete', 'mod_booking')];
+        $deletedusersheaders = [get_string('user', 'core'), get_string('date')];
 
         // If the scope contains more than one option...
         // ...then we have to add an option column!
@@ -119,16 +119,17 @@ class booked_users implements renderable, templatable {
             }
         }
 
-        array_unshift($bookeduserscols, 'checkbox');
-        array_unshift($waitinglistcols, 'checkbox');
-        array_unshift($reserveduserscols, 'checkbox');
-        array_unshift($userstonotifycols, 'checkbox');
-
-        $headercheckboxhtml = '<input type="checkbox" id="usercheckboxall" name="selectall" value="0" />';
-        array_unshift($bookedusersheaders, $headercheckboxhtml);
-        array_unshift($waitinglistheaders, $headercheckboxhtml);
-        array_unshift($reservedusersheaders, $headercheckboxhtml);
-        array_unshift($userstonotifyheaders, $headercheckboxhtml);
+        // We currently only support checkboxes in option scope.
+        // We might change this in future versions.
+        if ($scope == 'option') {
+            // Checkboxes are currently only supported for booked users and users on waiting list.
+            // We might change this in future versions.
+            array_unshift($bookeduserscols, 'checkbox');
+            array_unshift($waitinglistcols, 'checkbox');
+            $headercheckboxhtml = '<input type="checkbox" id="usercheckboxall" name="selectall" value="0" />';
+            array_unshift($bookedusersheaders, $headercheckboxhtml);
+            array_unshift($waitinglistheaders, $headercheckboxhtml);
+        }
 
         $this->bookedusers = $showbooked ?
             $this->render_users_table(
