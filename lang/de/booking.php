@@ -1762,6 +1762,7 @@ $string['reallydeleteaction'] = 'Wirklich löschen?';
 $string['reason'] = 'Grund';
 $string['recalculateall'] = 'Alle Preise der Instanz mit Formel neu berechnen';
 $string['recalculateprices'] = 'Preise mit Formel neu berechnen';
+$string['recipient'] = 'Empfänger';
 $string['recommendedin'] = "Shortcode um Buchungsoptionen in bestimmten Kursen zu empfehlen.
  Legen Sie ein neues benutzerdefiniertes Feld für Buchungsoptionen mit dem Kurznamen 'recommendedin' an.
  In einer Buchungsoption setzen Sie nun den Wert dieses Feldes auf 'course1', wenn Sie die Buchungsoption
@@ -1917,6 +1918,7 @@ $string['sendcopyofmail'] = 'Eine Kopie der E-Mail senden';
 $string['sendcopyofmailmessageprefix'] = 'Vorangestellter Text für die Nachricht';
 $string['sendcopyofmailsubjectprefix'] = 'Vorangestellter Text für den Betreff';
 $string['sendcustommsg'] = 'Persönliche Nachricht senden';
+$string['sender'] = 'Sender';
 $string['sendmail'] = "Sende E-Mail";
 $string['sendmailheading'] = 'E-Mail an alle TrainerInnen der ausgewählten Buchungsoptionen senden';
 $string['sendmailinterval'] = 'Eine Nachricht zeitversetzt an mehrere Nutzer:innen schicken';
