@@ -29,7 +29,7 @@ use Throwable;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->libdir.'/tablelib.php');
+require_once($CFG->libdir . '/tablelib.php');
 
 use local_wunderbyte_table\wunderbyte_table;
 
@@ -41,7 +41,6 @@ use local_wunderbyte_table\wunderbyte_table;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class event_log_table extends wunderbyte_table {
-
     /**
      * Overrides the output for this column.
      * @param object $values
@@ -105,5 +104,17 @@ class event_log_table extends wunderbyte_table {
 
         $user = singleton_service::get_instance_of_user($values->userid);
         return "$user->firstname $user->lastname";
+    }
+
+    /**
+     * Transform relateduserid to username.
+     *
+     * @param object $values The row data.
+     * @return string
+     */
+    public function col_relateduserid($values) {
+
+        $relateduser = singleton_service::get_instance_of_user($values->relateduserid);
+        return "$relateduser->firstname $relateduser->lastname";
     }
 }
