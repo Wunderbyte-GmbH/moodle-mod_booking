@@ -1737,6 +1737,7 @@ $string['reallydeleteaction'] = 'Really delete?';
 $string['reason'] = 'Reason';
 $string['recalculateall'] = 'Calculate all prices';
 $string['recalculateprices'] = 'Calculate all prices from instance with formula';
+$string['recipient'] = 'Recipient';
 $string['recommendedin'] = "Shortcode to show a list of booking options which should be recommended in a given course.
  To use this, add a booking customfield with the shortname 'recommendedin' and comma separated values with the shortnames
  of the courses you want to show this recommendations. So: When you want recommend option1 to the participants enroled in
@@ -1899,6 +1900,7 @@ $string['sendcopyofmail'] = 'Send an email copy';
 $string['sendcopyofmailmessageprefix'] = 'Message prefix for the copy';
 $string['sendcopyofmailsubjectprefix'] = 'Subject prefix for the copy';
 $string['sendcustommsg'] = 'Send custom message';
+$string['sender'] = 'Sender';
 $string['sendmail'] = 'Send email';
 $string['sendmailheading'] = 'Send mail to all teachers of selected bookingoption(s)';
 $string['sendmailinterval'] = 'Send a message to multiple users with a time delay';
