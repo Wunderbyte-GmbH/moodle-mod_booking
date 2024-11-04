@@ -872,6 +872,7 @@ $string['deleteconditionsfrombookinganswer'] = 'Userdaten aus Buchungsformular l
 $string['deletecustomfield'] = 'Feld löschen?';
 $string['deletecustomfield_help'] = 'Achtung: Wenn Sie diese Checkbox aktivieren, wird das zugehörige Feld beim Speichern gelöscht!';
 $string['deletedatafrombookinganswer'] = 'Userdaten aus Buchungsformular löschen';
+$string['deletedatafrombookingansweradhoc'] = 'Booking: Userdaten von Buchungsoption löschen (adhoc task)';
 $string['deletedbookingusermessage'] = 'Guten Tag {$a->participant},
 Die Buchung für {$a->title} wurde erfolgreich storniert
 ';

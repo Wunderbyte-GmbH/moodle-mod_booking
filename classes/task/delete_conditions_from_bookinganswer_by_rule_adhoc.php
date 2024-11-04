@@ -54,7 +54,7 @@ class delete_conditions_from_bookinganswer_by_rule_adhoc extends \core\task\adho
      * @throws \coding_exception
      */
     public function get_name() {
-        return get_string('deletedatafrombookingansweradhock', 'mod_booking');
+        return get_string('deletedatafrombookingansweradhoc', 'mod_booking');
     }
 
     /**
