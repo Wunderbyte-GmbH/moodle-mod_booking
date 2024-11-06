@@ -901,6 +901,8 @@ $string['deletethisbookingoption'] = 'Diese Buchungsoption löschen';
 $string['deleteuserfrombooking'] = 'Buchung für Nutzer:innen wirklich stornieren?';
 $string['department'] = 'Abteilung';
 $string['description'] = 'Beschreibung';
+$string['descriptionmaxlength'] = 'Maximale Länge der Beschreibung';
+$string['descriptionmaxlength_desc'] = 'Die Beschreibung einer Buchungsoption kann nicht länger sein';
 $string['details'] = 'Details';
 $string['disablebookingforinstance'] = 'Keine Option dieser Buchungsinstanz soll buchbar sein';
 $string['disablebookingusers'] = 'Buchung von Teilnehmer:innen deaktivieren - "Jetzt buchen" Button unsichtbar schalten';
@@ -1395,6 +1397,7 @@ $string['nocourse'] = 'Kein Kurs für Buchungsoption ausgewählt';
 $string['nocourseselected'] = 'Kein Kurs ausgewählt';
 $string['nodatesstring'] = "Aktuell gibt es keine Daten zu dieser Buchungsoption";
 $string['nodatesstring_desc'] = "no dates";
+$string['nodescriptionmaxlength'] = 'Keine maximale Länge der Beschreibung';
 $string['nodirectbookingbecauseofprice'] = 'Das Buchen von anderen ist bei dieser Buchungsoption nur eingeschränkt möglich. Die Gründe dafür sind folgende:
 <ul>
 <li>ein Preis ist hinterlegt</li>

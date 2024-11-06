@@ -165,4 +165,27 @@ class description extends field_base {
 
         $data->{$key} = ['text' => $value, 'format' => $format];
     }
+
+    /**
+     * This function adds error keys for form validation.
+     * @param array $data
+     * @param array $files
+     * @param array $errors
+     * @return array
+     */
+    public static function validation(array $data, array $files, array &$errors) {
+
+        $maxlength = get_config('booking', 'descriptionmaxlength');
+
+        if (
+            !empty($maxlength)
+            && !empty($data['description'])
+            && !empty($data['description']['text'])
+            && $maxlength < strlen(strip_tags($data['description']['text']))
+        ) {
+            $errors['description'] = get_string('maximumchars', '', $maxlength);
+        }
+
+        return $errors;
+    }
 }

@@ -164,6 +164,9 @@ if ($ADMIN->fulltree) {
         $collapsedescriptionoptions = [
             0 => get_string('collapsedescriptionoff', 'mod_booking'),
             100 => "100",
+            125 => "125",
+            150 => "150",
+            175 => "175",
             200 => "200",
             300 => "300",
             400 => "400",
@@ -178,6 +181,14 @@ if ($ADMIN->fulltree) {
                 get_string('collapsedescriptionmaxlength', 'mod_booking'),
                 get_string('collapsedescriptionmaxlength_desc', 'mod_booking'),
                 300, $collapsedescriptionoptions));
+
+        $description = $collapsedescriptionoptions;
+        $description[0] = get_string('nodescriptionmaxlength', 'mod_booking');
+        $settings->add(
+            new admin_setting_configselect('booking/descriptionmaxlength',
+                get_string('descriptionmaxlength', 'mod_booking'),
+                get_string('descriptionmaxlength_desc', 'mod_booking'),
+                0, $description));
 
         $options = [
             1 => "1",
