@@ -281,8 +281,8 @@ class campaigns_info {
         );
 
         $operators = [
-            '=' => get_string('equals', 'mod_booking'),
-            '!~' => get_string('containsnot', 'mod_booking'),
+            '=' => get_string('equalsplain', 'mod_booking'),
+            '!~' => get_string('containsnotplain', 'mod_booking'),
         ];
 
         $mform->addElement('select', 'campaignfieldnameoperator',
