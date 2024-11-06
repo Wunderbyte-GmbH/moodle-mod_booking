@@ -24,7 +24,6 @@
 
 namespace mod_booking\option\fields;
 
-use core_course_external;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
@@ -42,7 +41,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class coursestarttime extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -61,7 +59,7 @@ class coursestarttime extends field_base {
      * This identifies the header under which this particular field should be displayed.
      * @var string
      */
-    public static $header = MOD_BOOKING_HEADER_GENERAL;
+    public static $header = MOD_BOOKING_HEADER_DATES;
 
     /**
      * An int value to define if this field is standard or used in a different context.
@@ -80,24 +78,6 @@ class coursestarttime extends field_base {
      * @var array
      */
     public static $incompatiblefields = [];
-
-    /**
-     * This function interprets the value from the form and, if useful...
-     * ... relays it to the new option class for saving or updating.
-     * @param stdClass $formdata
-     * @param stdClass $newoption
-     * @param int $updateparam
-     * @param ?mixed $returnvalue
-     * @return array // If no warning, empty array.
-     */
-    public static function prepare_save_field(
-        stdClass &$formdata,
-        stdClass &$newoption,
-        int $updateparam,
-        $returnvalue = null): array {
-
-        return [];
-    }
 
     /**
      * This function adds error keys for form validation.
@@ -127,17 +107,28 @@ class coursestarttime extends field_base {
         $fieldstoinstanciate = [],
         $applyheader = true
     ) {
+        // Standardfunctionality to add a header to the mform (only if its not yet there).
+        if ($applyheader) {
+            fields_info::add_header_to_mform($mform, self::$header);
+        }
 
-    }
+        $mform->addElement(
+            'static',
+            'selflearningcourse:coursestarttime_alert',
+            '',
+            '<div class="alert alert-warning">' .
+                get_string('selflearningcourse:coursestarttime_alert', 'mod_booking') .
+                '</div>'
+        );
+        $mform->hideIf('selflearningcourse:coursestarttime_alert', 'selflearningcourse', 'neq', 1);
 
-    /**
-     * Standard function to transfer stored value to form.
-     * @param stdClass $data
-     * @param booking_option_settings $settings
-     * @return void
-     * @throws \dml_exception
-     */
-    public static function set_data(stdClass &$data, booking_option_settings $settings) {
-
+        $mform->addElement(
+            'date_time_selector',
+            'coursestarttime',
+            get_string('selflearningcourse:coursestarttime', 'mod_booking')
+        );
+        $mform->setType('coursestarttime', PARAM_INT);
+        $mform->addHelpButton('coursestarttime', 'selflearningcourse:coursestarttime', 'mod_booking');
+        $mform->hideIf('coursestarttime', 'selflearningcourse', 'neq', 1);
     }
 }

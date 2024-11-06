@@ -741,13 +741,13 @@ $string['coursepageshortinfo'] = 'Wenn Sie diesen Kurs buchen wollen, klicken Si
 $string['coursepageshortinfolbl'] = 'Kurzinfo';
 $string['coursepageshortinfolbl_help'] = 'Geben Sie den Kurzinfo-Text ein, der auf der Kursseite angezeigt werden soll.';
 $string['courses'] = 'Kurse';
-$string['coursesheader'] = 'Moodle Kurse';
+$string['coursesheader'] = 'Moodle-Kurs';
 $string['coursestart'] = 'Starten';
 $string['coursestarttime'] = 'Kursbeginn';
 $string['createdbywunderbyte'] = 'Dieses Buchungsmodul wurde von der Wunderbyte GmbH entwickelt';
 $string['createnewbookingoption'] = 'Neue Buchungsoption';
 $string['createnewbookingoptionfromtemplate'] = 'Neue Buchungsoption von Vorlage erstellen';
-$string['createnewmoodlecourse'] = 'Erstelle neuen, leeren Moodle Kurs';
+$string['createnewmoodlecourse'] = 'Erstelle neuen, leeren Moodle-Kurs';
 $string['createnewmoodlecoursefromtemplate'] = 'Erstelle neuen Kurs von Template';
 $string['createnewmoodlecoursefromtemplate_help'] = 'Vorlagen können nur verwendet werden, wenn sie das in den Einstellugnen definierte Tag haben und wenn die Nutzer:in folgende Rechte auf den Vorlagen-Kurs besitzt:
 <br>
@@ -825,6 +825,7 @@ $string['dateparseformat'] = 'Datumsformat';
 $string['dateparseformat_help'] = 'Bitte Datum so wie es im CSV definiert wurde verwenden. Hilfe unter <a href="http://php.net/manual/en/function.date.php">Datumsdokumentation</a> für diese Einstellung.';
 $string['dates'] = 'Termine';
 $string['datesandentities'] = 'TerminemitOrten';
+$string['datesheader'] = 'Termine';
 $string['dayofweek'] = 'Wochentag';
 $string['dayofweektime'] = 'Tag & Uhrzeit';
 $string['days'] = '{$a} Tage';
@@ -1037,6 +1038,8 @@ $string['error:reasonfornoteacher'] = 'Geben Sie einen Grund an, warum an diesem
 $string['error:reasonforsubstituteteacher'] = 'Geben Sie einen Grund für die Vertretung an.';
 $string['error:reasontoolong'] = 'Grund ist zu lange, geben Sie einen kürzeren Text ein.';
 $string['error:ruleactionsendcopynotpossible'] = 'Für das gewählte Ereignis kann leider keine E-Mail-Kopie versendet werden.';
+$string['error:selflearningcourseallowsnodates'] = 'Selbstlernkurse dürfen keine Termine haben. Bitte löschen Sie alle Termine bevor Sie speichern.';
+$string['error:selflearningcoursemoodlecoursemissing'] = 'Selbstlernkurse müssen mit einem Moodle-Kurs verbunden sein.';
 $string['error:semestermissingbutcanceldependentonsemester'] = 'Die Einstellung zur Berechnung der
 Stornierungsfrist ab Semesterbeginn ist aktiv, aber das Semester fehlt!';
 $string['error:taskalreadystarted'] = 'Sie haben bereits einen Task gestartet!';
@@ -1180,8 +1183,8 @@ $string['identifier'] = 'Identifikator';
 $string['ifdefinedusedtomatch'] = 'Wenn angegeben findet der Abgleich über diesen Wert statt.';
 $string['importaddtocalendar'] = 'Zum Moodle Kalender hinzufügen';
 $string['importcolumnsinfos'] = 'Informationen zu Importfeldern:';
-$string['importcoursenumber'] = 'Moodle ID Nummer eines Moodle Kurses, in den die Buchenden eingeschrieben werden';
-$string['importcourseshortname'] = 'Kurzname eines Moodle Kurses, in den die Buchenden eingeschrieben werden';
+$string['importcoursenumber'] = 'Moodle ID Nummer eines Moodle-Kurses, in den die Buchenden eingeschrieben werden';
+$string['importcourseshortname'] = 'Kurzname eines Moodle-Kurses, in den die Buchenden eingeschrieben werden';
 $string['importcsv'] = 'CSV Importer';
 $string['importcsvbookingoption'] = 'Buchungsoptionen via CSV-Datei importieren';
 $string['importcsvtitle'] = 'CSV-Datei importieren';
@@ -1279,8 +1282,8 @@ $string['linknotavailableyet'] = 'Der Link zum Online-Meeting-Raum ist erst 15 M
 und verschwindet nach Ende des Meetings wieder.';
 $string['linknotvalid'] = 'Dieser Link / dieses Event ist derzeit nicht verfügbar.
 Bitte probieren Sie es kurz vor Beginn noch einmal, wenn Sie dieses Event gebucht haben.';
-$string['linktomoodlecourseonbookedbutton'] = 'Zeige Link auf Moodle Kurs direkt am Buchen-Button';
-$string['linktomoodlecourseonbookedbutton_desc'] = 'Statt eines extra Links auf den Moodle Kurs wird diese Option den Buchungsbutton in einen Link auf den gebuchten Moodle Kurs umwandeln';
+$string['linktomoodlecourseonbookedbutton'] = 'Zeige Link auf Moodle-Kurs direkt am Buchen-Button';
+$string['linktomoodlecourseonbookedbutton_desc'] = 'Statt eines extra Links auf den Moodle-Kurs wird diese Option den Buchungsbutton in einen Link auf den gebuchten Moodle-Kurs umwandeln';
 $string['linktoteachersinstancereport'] = '<p><a href="{$a}" target="_self">&gt;&gt; Zum Trainer:innen-Gesamtbericht für die Buchungsinstanz</a></p>';
 $string['listentoaddresschange'] = "Reagieren auf Änderungen des Ortes der Buchungsoption";
 $string['listentoresponsiblepersonchange'] = "Reagieren auf Änderungen der verantwortlichen Person der Buchungsoption";
@@ -1417,7 +1420,7 @@ $string['noguestchoose'] = 'Gäste dürfen keine Buchungen vornehmen';
 $string['noinstitutionselected'] = 'Keine Institution ausgewählt';
 $string['nolabels'] = 'Keine Spaltennamen definiert.';
 $string['nolocationselected'] = 'Kein Ort ausgewählt';
-$string['nomoodlecourseconnection'] = 'Keine Verbindung zu Moodle Kurs';
+$string['nomoodlecourseconnection'] = 'Keine Verbindung zu Moodle-Kurs';
 $string['nooptionselected'] = 'Keine Buchungsoption ausgewählt';
 $string['nopermissiontoaccesscontent'] = '<div class="alert alert-danger" role="alert">Sie sind nicht berechtigt, auf diese Inhalte zuzugreifen.</div>';
 $string['nopermissiontoaccesspage'] = '<div class="alert alert-danger" role="alert">Sie sind nicht berechtigt, auf diese Seite zuzugreifen.</div>';
@@ -1793,6 +1796,15 @@ $string['selectteacherinbo'] = "Wähle Trainer:innen einer Buchungsoption";
 $string['selectuserfromevent'] = "Wähle Nutzer:in vom Ereignis";
 $string['selectusers'] = "Wähle Nutzer:innen ohne direkte Verbindung zur Buchungsoption";
 $string['selectusershoppingcart'] = "Wähle Nutzer:in die Ratenzahlung zu leisten hat";
+$string['selflearningcourse'] = 'Selbstlernkurs';
+$string['selflearningcourse:coursestarttime'] = 'Sortierungsdatum';
+$string['selflearningcourse:coursestarttime_alert'] = 'Da Sie unter "Moodle-Kurs" die Option "Selbstlernkurs" gewählt haben,
+können Sie hier keine Termine angeben, sondern nur ein Sortierungsdatum. Dieses wird für die Sortierung verwendet.';
+$string['selflearningcourse:coursestarttime_help'] = 'Dieses Datum wird ausschließlich für die Sortierung verwendet,da Selbstlernkurse kein fixes Startdatum haben.';
+$string['selflearningcourse_alert'] = 'Bei Selbstlernkursen werden die Benutzer:innen immer <b>direkt nach der Buchung</b>
+in den verbundenen Moodle-Kurs eingeschrieben. Die angegebene Dauer legt fest, wie lange der:die Benutzer:in im Kurs eingeschrieben bleibt.<br><br>
+<b>Achtung:</b> Bei Selbstlernkursen können Sie keine Termine angeben, jedoch ein <b>Sortierdatum</b> (im Abschnitt "Termine"), das für die Sortierung verwendet wird.';
+$string['selflearningcourse_help'] = 'Selbstlernkurse haben eine fixe Dauer, aber keine fixen Termine. Der Kurs beginnt sobald er gebucht wurde.';
 $string['semester'] = 'Semester';
 $string['semesterend'] = 'Semesterende';
 $string['semesterend_help'] = 'An welchem Tag endet das Semester?';
@@ -2007,7 +2019,7 @@ in den Einstellungen anpassen. (Z.B. 45 statt 60 Minuten).<br/>
 $string['teamsmeeting'] = 'Teams-Meeting';
 $string['template'] = 'Vorlagen';
 $string['templatecategoryname'] = 'Kurzname der Kurskategorie, in der sich die Vorlagenkurse befinden.';
-$string['templatecategoryname_desc'] = 'Buchungsoptionen können mit Moodle Kursen verknüpft werden. Dieses Feature erlaubt es, die Kurse beim ersten Speichern der Buchungsoption zu erstellen.';
+$string['templatecategoryname_desc'] = 'Buchungsoptionen können mit Moodle-Kursen verknüpft werden. Dieses Feature erlaubt es, die Kurse beim ersten Speichern der Buchungsoption zu erstellen.';
 $string['templatedeleted'] = 'Vorlage wurde gelöscht!';
 $string['templatefile'] = 'Datei für Vorlage';
 $string['templatesuccessfullysaved'] = 'Vorlage wurde gespeichert';
@@ -2070,7 +2082,7 @@ $string['until'] = 'Bis';
 $string['updatebooking'] = 'Update Buchung';
 $string['updatedrecords'] = '{$a} Eintrag/Einträge aktualisiert.';
 $string['uploadheaderimages'] = 'Header-Bilder für Buchungsoptionen';
-$string['usecoursecategorytemplates'] = 'Verwende Vorlagen für neu zu erstellende Moodle Kurse';
+$string['usecoursecategorytemplates'] = 'Verwende Vorlagen für neu zu erstellende Moodle-Kurse';
 $string['usecoursecategorytemplates_desc'] = '';
 $string['usedinbooking'] = 'Das Löschen dieser Kategorie/n ist nicht möglich, da sie verwendet werden!';
 $string['usedinbookinginstances'] = 'Die Vorlage wird in folgenden Buchungsinstanzen verwendet';

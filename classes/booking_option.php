@@ -2125,14 +2125,14 @@ class booking_option {
             'maxanswers' => $this->option->maxanswers,
             'maxoverbooking' => $this->option->maxoverbooking ?? 0,
             'minanswers' => $this->option->minanswers,
-            'bookingopeningtime' => ($this->option->bookingopeningtime == 0 ? get_string('nodateset', 'mod_booking') : userdate(
+            'bookingopeningtime' => ($this->option->bookingopeningtime == 0 ? get_string('datenotset', 'mod_booking') : userdate(
                 $this->option->bookingopeningtime, get_string('strftimedatetime', 'langconfig'))),
-            'bookingclosingtime' => ($this->option->bookingclosingtime == 0 ? get_string('nodateset', 'mod_booking') : userdate(
+            'bookingclosingtime' => ($this->option->bookingclosingtime == 0 ? get_string('datenotset', 'mod_booking') : userdate(
                 $this->option->bookingclosingtime, get_string('strftimedatetime', 'langconfig'))),
             'duration' => $bu->get_pretty_duration($this->option->duration),
-            'coursestarttime' => ($this->option->coursestarttime == 0 ? get_string('nodateset', 'mod_booking') : userdate(
+            'coursestarttime' => ($this->option->coursestarttime == 0 ? get_string('datenotset', 'mod_booking') : userdate(
                 $this->option->coursestarttime, get_string('strftimedatetime', 'langconfig'))),
-            'courseendtime' => ($this->option->courseendtime == 0 ? get_string('nodateset', 'mod_booking') : userdate(
+            'courseendtime' => ($this->option->courseendtime == 0 ? get_string('datenotset', 'mod_booking') : userdate(
                 $this->option->courseendtime, get_string('strftimedatetime', 'langconfig'))),
             'pollurl' => $this->option->pollurl,
             'pollurlteachers' => $this->option->pollurlteachers,

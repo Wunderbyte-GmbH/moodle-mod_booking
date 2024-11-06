@@ -42,7 +42,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class courseid extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -142,6 +141,13 @@ class courseid extends field_base {
             $data['courseid'] = reset($data['courseid']);
         }
 
+        if (
+            !empty($data['selflearningcourse'])
+            && ($data['chooseorcreatecourse'] == 0)
+        ) {
+            $errors['chooseorcreatecourse'] = get_string('error:selflearningcoursemoodlecoursemissing', 'mod_booking');
+        }
+
         return $errors;
     }
 
@@ -181,7 +187,7 @@ class courseid extends field_base {
             'multiple' => false,
             'ajax' => 'mod_booking/form_courses_selector',
             'noselectionstring' => get_string('nocourseselected', 'mod_booking'),
-            'valuehtmlcallback' => function($value) {
+            'valuehtmlcallback' => function ($value) {
                 if (isset($coursearray[$value])) {
                     return $coursearray[$value];
                 } else {
@@ -210,7 +216,9 @@ class courseid extends field_base {
                         } else {
                             // The course exists, so show it.
                             return $OUTPUT->render_from_template(
-                                'mod_booking/form-course-selector-suggestion', $courserecord);
+                                'mod_booking/form-course-selector-suggestion',
+                                $courserecord
+                            );
                         }
                     } else {
                         return get_string('courseduplicating', 'mod_booking');
@@ -236,11 +244,13 @@ class courseid extends field_base {
             },
         ];
 
-        $mform->addElement('autocomplete',
-                        'coursetemplateid',
-                        get_string("createnewmoodlecoursefromtemplate", "mod_booking"),
-                        [],
-                        $options);
+        $mform->addElement(
+            'autocomplete',
+            'coursetemplateid',
+            get_string("createnewmoodlecoursefromtemplate", "mod_booking"),
+            [],
+            $options
+        );
         $mform->hideIf('coursetemplateid', 'chooseorcreatecourse', 'neq', 3);
         $mform->addHelpButton('coursetemplateid', 'createnewmoodlecoursefromtemplate', 'mod_booking');
     }
@@ -259,13 +269,11 @@ class courseid extends field_base {
         if (!empty($data->importing)) {
             // We might import the courseid with a different key.
             if (!empty($data->coursenumber) && is_numeric($data->coursenumber)) {
-
                 $data->courseid = $data->coursenumber;
             }
 
             // We also support the enroltocourseshortname.
             if (!empty($data->enroltocourseshortname)) {
-
                 if ($courseid = $DB->get_field('course', 'id', ['shortname' => $data->enroltocourseshortname])) {
                     $data->courseid = $courseid;
                     unset($data->enroltocourseshortname);
@@ -275,16 +283,14 @@ class courseid extends field_base {
                         'mod_booking',
                         '',
                         $data->enroltocourseshortname,
-                        'Course not found: ' . $data->enroltocourseshortname);
+                        'Course not found: ' . $data->enroltocourseshortname
+                    );
                 }
-
             }
         } else {
-
             $key = fields_info::get_class_name(static::class);
             // Normally, we don't call set data after the first time loading.
             if (isset($data->{$key})) {
-
                 return;
             }
 
@@ -360,17 +366,35 @@ class courseid extends field_base {
         require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
 
         // Create the initial backupcontoller.
-        $bc = new \backup_controller(\backup::TYPE_1COURSE, $copydata->courseid, \backup::FORMAT_MOODLE,
-            \backup::INTERACTIVE_NO, \backup::MODE_COPY, $USER->id, \backup::RELEASESESSION_YES);
+        $bc = new \backup_controller(
+            \backup::TYPE_1COURSE,
+            $copydata->courseid,
+            \backup::FORMAT_MOODLE,
+            \backup::INTERACTIVE_NO,
+            \backup::MODE_COPY,
+            $USER->id,
+            \backup::RELEASESESSION_YES
+        );
         $copyids['backupid'] = $bc->get_backupid();
 
         // Create the initial restore contoller.
-        list($fullname, $shortname) = \restore_dbops::calculate_course_names(
-            0, get_string('copyingcourse', 'backup'), get_string('copyingcourseshortname', 'backup'));
+        [$fullname, $shortname] = \restore_dbops::calculate_course_names(
+            0,
+            get_string('copyingcourse', 'backup'),
+            get_string('copyingcourseshortname', 'backup')
+        );
         $newcourseid = \restore_dbops::create_new_course($fullname, $shortname, $copydata->category);
-        $rc = new \restore_controller($copyids['backupid'], $newcourseid, \backup::INTERACTIVE_NO,
-            \backup::MODE_COPY, $USER->id, \backup::TARGET_NEW_COURSE, null,
-            \backup::RELEASESESSION_NO, $copydata);
+        $rc = new \restore_controller(
+            $copyids['backupid'],
+            $newcourseid,
+            \backup::INTERACTIVE_NO,
+            \backup::MODE_COPY,
+            $USER->id,
+            \backup::TARGET_NEW_COURSE,
+            null,
+            \backup::RELEASESESSION_NO,
+            $copydata
+        );
         $copyids['restoreid'] = $rc->get_restoreid();
 
         $bc->set_status(\backup::STATUS_AWAITING);

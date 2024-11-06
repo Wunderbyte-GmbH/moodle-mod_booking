@@ -39,7 +39,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class addtocalendar extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -91,7 +90,8 @@ class addtocalendar extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         global $DB;
 
@@ -103,13 +103,16 @@ class addtocalendar extends field_base {
             if ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid])) {
                 foreach ($optiondates as $optiondate) {
                     // Delete calendar course event for the optiondate.
-                    if ($DB->delete_records_select('event',
-                        "eventtype = 'course'
-                        AND courseid <> 0
-                        AND component = 'mod_booking'
-                        AND uuid = :pattern",
-                        ['pattern' => "{$optionid}-{$optiondate->id}"]
-                    )) {
+                    if (
+                        $DB->delete_records_select(
+                            'event',
+                            "eventtype = 'course'
+                            AND courseid <> 0
+                            AND component = 'mod_booking'
+                            AND uuid = :pattern",
+                            ['pattern' => "{$optionid}-{$optiondate->id}"]
+                        )
+                    ) {
                         $optiondate->eventid = null;
                         $DB->update_record('booking_optiondates', $optiondate);
                     }
@@ -138,8 +141,10 @@ class addtocalendar extends field_base {
         if (isset($data->addtocalendar) && $data->addtocalendar == 1) {
             $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
             // We need to make sure not to run the calendar function on a tmeplate without a cmid.
-            if (!empty($settings->cmid) &&
-                ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $option->id]))) {
+            if (
+                !empty($settings->cmid)
+                && ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $option->id]))
+            ) {
                 foreach ($optiondates as $optiondate) {
                     if ($DB->record_exists('event', ['id' => $optiondate->eventid])) {
                         continue;
@@ -166,6 +171,10 @@ class addtocalendar extends field_base {
         $fieldstoinstanciate = [],
         $applyheader = true
     ) {
+        // Add header to the mform (only if its not yet there).
+        if ($applyheader) {
+            fields_info::add_header_to_mform($mform, self::$header);
+        }
 
         // Add to course calendar dropdown.
         $caleventtypes = [
@@ -174,6 +183,7 @@ class addtocalendar extends field_base {
         ];
         $mform->addElement('select', 'addtocalendar', get_string('addtocalendar', 'mod_booking'), $caleventtypes);
         $mform->setDefault('addtocalendar', 0);
+        $mform->hideIf('addtocalendar', 'selflearningcourse', 'eq', 1);
 
         if (get_config('booking', 'addtocalendar_locked')) {
             // If the setting is locked in settings.php it will be frozen.

@@ -149,6 +149,9 @@ class fields_info {
             case MOD_BOOKING_HEADER_COURSES:
                 $headericon = '<i class="fa fa-fw fa-graduation-cap" aria-hidden="true"></i>';
                 break;
+            case MOD_BOOKING_HEADER_DATES:
+                $headericon = '<i class="fa fa-fw fa-calendar" aria-hidden="true"></i>';
+                break;
             // TODO: Add icons for the other headers here...
         }
 

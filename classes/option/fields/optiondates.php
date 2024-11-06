@@ -25,14 +25,11 @@
 namespace mod_booking\option\fields;
 
 use coding_exception;
-use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
-use mod_booking\customfield\optiondate_cfields;
 use mod_booking\dates;
 use mod_booking\option\dates_handler;
-use mod_booking\option\fields;
-use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use mod_booking\option\fields_info;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
@@ -45,7 +42,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class optiondates extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -151,11 +147,12 @@ class optiondates extends field_base {
 
         // Run through all dates to make sure we don't have an array.
         // We need to transform dates to timestamps.
-        list($dates, $highesindex) = dates::get_list_of_submitted_dates($data);
+        [$dates, $highesindex] = dates::get_list_of_submitted_dates($data);
 
         $problems = array_filter($dates, fn($a) => $a['coursestarttime'] > $a['courseendtime']);
 
         foreach ($problems as $problem) {
+            // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
             // TODO: Make it nice.
             $errors['courseendtime_' . $problem['index']] = get_string('problemwithdate', 'mod_booking');
         }
@@ -177,7 +174,10 @@ class optiondates extends field_base {
         $fieldstoinstanciate = [],
         $applyheader = true
     ) {
-
+        // Standardfunctionality to add a header to the mform (only if its not yet there).
+        if ($applyheader) {
+            fields_info::add_header_to_mform($mform, self::$header);
+        }
         $mform->addElement('hidden', 'datesmarker', 0);
         $mform->setType('datesmarker', PARAM_INT);
     }
@@ -296,8 +296,10 @@ class optiondates extends field_base {
         $returndates = [];
         foreach ($dates as $date) {
             $date = (object)$date;
-            $d = dates_handler::prettify_datetime((int)$date->coursestarttime,
-            (int)$date->courseendtime);
+            $d = dates_handler::prettify_datetime(
+                (int)$date->coursestarttime,
+                (int)$date->courseendtime
+            );
             $datestring = $d->datestring;
             if (!empty($date->entityid)) {
                 $entity = singleton_service::get_entity_by_id($date->entityid);

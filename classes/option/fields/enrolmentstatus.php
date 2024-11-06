@@ -39,7 +39,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class enrolmentstatus extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -93,7 +92,8 @@ class enrolmentstatus extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
 
@@ -120,11 +120,18 @@ class enrolmentstatus extends field_base {
         $applyheader = true
     ) {
 
-        $mform->addElement('advcheckbox', 'enrolmentstatus', get_string('enrolmentstatus', 'mod_booking'),
-            '', ['group' => 1], [2, 0]);
+        $mform->addElement(
+            'advcheckbox',
+            'enrolmentstatus',
+            get_string('enrolmentstatus', 'mod_booking'),
+            '',
+            ['group' => 1],
+            [2, 0]
+        );
         $mform->setType('enrolmentstatus', PARAM_INT);
         $mform->setDefault('enrolmentstatus', 2);
         $mform->addHelpButton('enrolmentstatus', 'enrolmentstatus', 'mod_booking');
+        $mform->hideIf('enrolmentstatus', 'selflearningcourse', 'eq', 1);
     }
 
     /**
@@ -141,6 +148,7 @@ class enrolmentstatus extends field_base {
             $data->enrolmentstatus = $data->enrolmentstatus ?? 2; // Default is always 2.
         } else {
             if (!empty($data->enrolmentstatus) && $data->enrolmentstatus == 1) {
+                // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
                 // TODO: Fix course inscription.
                 // There is a fundamentally flawed way of inscribing users to courses.
                 // As long as this has not been fixed, we need to set this value to 0.
@@ -170,7 +178,8 @@ class enrolmentstatus extends field_base {
         field_base $self,
         $mockdata = '',
         string $key = '',
-        $value = ''): array {
+        $value = ''
+    ): array {
 
         if (!isset($self)) {
             return [];
@@ -196,8 +205,10 @@ class enrolmentstatus extends field_base {
             $oldvalue = $mockdata->enrolmentstatus;
             $newvalue = $value;
 
-            if ($oldvalue != $newvalue
-                && !(empty($oldvalue) && empty($newvalue))) {
+            if (
+                $oldvalue != $newvalue
+                && !(empty($oldvalue) && empty($newvalue))
+            ) {
                 $changes = [
                     'changes' => [
                         'fieldname' => $classname,

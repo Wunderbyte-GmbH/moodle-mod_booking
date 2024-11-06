@@ -318,6 +318,7 @@ abstract class field_base implements fields {
             'waitforconfirmation',
             'disablebookingusers',
             'disablecancel',
+            'selflearningcourse',
         ];
 
         $changes = [

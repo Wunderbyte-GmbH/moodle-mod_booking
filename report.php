@@ -789,7 +789,7 @@ if (!$tableallbookings->is_downloading()) {
         '</button>';
 
     echo "<p>" .
-             ($bookingoption->option->coursestarttime == 0 ? get_string('nodateset', 'booking') : userdate(
+             ($bookingoption->option->coursestarttime == 0 ? get_string('datenotset', 'booking') : userdate(
                     $bookingoption->option->coursestarttime, get_string('strftimedatetime', 'langconfig')) . " - " .
              userdate($bookingoption->option->courseendtime, get_string('strftimedatetime', 'langconfig'))) . " | " .
              (empty($bookingoption->booking->settings->lblteachname) ? get_string('teachers', 'booking') . ': ' :

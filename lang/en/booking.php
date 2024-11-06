@@ -759,7 +759,7 @@ $string['coursepageshortinfo'] = 'If you want to book yourself for this course, 
 $string['coursepageshortinfolbl'] = 'Short info';
 $string['coursepageshortinfolbl_help'] = 'Choose a short info text to show on the course page.';
 $string['courses'] = 'Courses';
-$string['coursesheader'] = 'Moodle Courses';
+$string['coursesheader'] = 'Moodle course';
 $string['coursestart'] = 'Start';
 $string['coursestarttime'] = 'Start time of the course';
 $string['courseurl'] = 'Course URL';
@@ -832,6 +832,7 @@ $string['dateparseformat'] = 'Date parse format';
 $string['dateparseformat_help'] = 'Please, use date format like specified in CSV file. Help with <a href="http://php.net/manual/en/function.date.php">this</a> resource for options.';
 $string['dates'] = 'Dates';
 $string['datesandentities'] = 'datesandentities';
+$string['datesheader'] = 'Dates';
 $string['dayofweek'] = 'Weekday';
 $string['dayofweektime'] = 'Day & Time';
 $string['days'] = '{$a} days';
@@ -955,7 +956,7 @@ $string['duplicationrestoreoption_desc'] = 'Special settings for the duplication
 $string['duplicationrestoreprices'] = 'Include prices';
 $string['duplicationrestoresubbookings'] = 'Include subbookings ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['duplicationrestoreteachers'] = 'Include teachers';
-$string['duration'] = "duration";
+$string['duration'] = "Duration";
 $string['duration:minutes'] = 'Duration (minutes)';
 $string['duration:units'] = 'Units ({$a} min)';
 $string['easyavailabilitypreviouslybooked'] = 'Easy already booked condition';
@@ -986,7 +987,7 @@ $string['electivesbookedsuccess'] = 'Your selected electives have been booked su
 $string['electivesettings'] = 'Elective Settings';
 $string['email'] = "email";
 $string['emailbody'] = 'Email body';
-$string['emailsettings'] = 'E-mail settings '. '<span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Deprecated</span>';
+$string['emailsettings'] = 'E-mail settings ' . '<span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Deprecated</span>';
 $string['enable'] = 'Enable';
 $string['enablecompletion'] = 'At least one of the booked options has to be marked as completed';
 $string['enablecompletion_help'] = 'To mark the options as completed, open the "Configure fields and columns" section and add the "Completed" field under "Manage responses". The options can then be marked as completed on the report page.';
@@ -1050,6 +1051,8 @@ $string['error:reasonfornoteacher'] = 'Enter a reason why no teachers were prese
 $string['error:reasonforsubstituteteacher'] = 'Enter a reason for the substitute teacher(s).';
 $string['error:reasontoolong'] = 'Reason is too long, enter a shorter text.';
 $string['error:ruleactionsendcopynotpossible'] = 'It\'s not possible to send an e-mail copy for the event you chose.';
+$string['error:selflearningcourseallowsnodates'] = 'Self-learning courses are not allowed to have dates. Please remove all dates and save again.';
+$string['error:selflearningcoursemoodlecoursemissing'] = 'Self-learning courses have to be connected to a Moodle course.';
 $string['error:semestermissingbutcanceldependentonsemester'] = 'The setting to calculate cancellation periods from semester start is active but semester is missing!';
 $string['error:taskalreadystarted'] = 'You have already started a task!';
 $string['error:wrongteacherid'] = 'Error: No user could be found for the provided "teacherid".';
@@ -1407,7 +1410,6 @@ $string['nocfnameselected'] = "Nothing selected. Either type new name or select 
 $string['nocomments'] = 'Commenting disabled';
 $string['nocourse'] = 'No course selected for this booking option';
 $string['nocourseselected'] = 'No course selected';
-$string['nodateset'] = 'Course date not set';
 $string['nodatesstring'] = "There are currently no dates associated with this booking option";
 $string['nodatesstring_desc'] = "no dates";
 $string['nodescriptionmaxlength'] = 'No maximum length of description';
@@ -1861,6 +1863,15 @@ $string['selectteacherinbo'] = "Select teachers of a booking option";
 $string['selectuserfromevent'] = "Select user from event";
 $string['selectusers'] = "Directly select users without connection to the booking option";
 $string['selectusershoppingcart'] = "Choose user who has to pay installments";
+$string['selflearningcourse'] = 'Self-learning course';
+$string['selflearningcourse:coursestarttime'] = 'Sorting date';
+$string['selflearningcourse:coursestarttime_alert'] = 'As you have activated the "Self-learning course" checkbox under the "Moodle course" settings
+you cannot add dates here but only provide a sorting date which will be used for sorting only.';
+$string['selflearningcourse:coursestarttime_help'] = 'This date will be used for sorting purposes only because self-learning courses do not have a fixed start date.';
+$string['selflearningcourse_alert'] = 'For self-learning courses, users will always be enrolled into the connected Moodle course <b>immediately after booking</b>.
+They will stay enrolled in the Moodle course for the provided duration.<br><br><b>Please note:</b> You cannot provide any dates for self-learning courses
+but you can provide a sorting date (in the "Dates" section) which will be used for sorting only.';
+$string['selflearningcourse_help'] = 'Self-learning courses have a fixed duration but no fixed dates. The course will start once it is booked.';
 $string['semester'] = 'Semester';
 $string['semesterend'] = 'Last day of semester';
 $string['semesterend_help'] = 'The day the semester ends';

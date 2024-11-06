@@ -65,7 +65,7 @@ class subbooking_timeslot implements booking_subbooking {
     /** @var int $duration This is a supplementary field which is not directly in the db but wrapped in the json */
     public $duration = 0;
 
-    /** @var int $duration This is a supplementary field which is not directly in the db but wrapped in the json */
+    /** @var string $description This is a supplementary field which is not directly in the db but wrapped in the json */
     public $description = '';
 
     /**
