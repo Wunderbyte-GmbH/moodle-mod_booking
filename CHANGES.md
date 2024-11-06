@@ -1,3 +1,45 @@
+## Version 8.7.6 (2024110600)
+* Improvement: Tests for checkbox deleting infos from bookinganswers
+* Improvement: Better tests for rules feature
+* Improvement: Possibility to limit description length via server side validation
+* Bugfix: Improve SQL to fetch bookinganswers
+* Bugfix: Fetch bookinganswers from cache
+* Bugfix: Add missing fields for booking options for backup and duplication.
+
+## Version 8.7.5 (2024102500)
+* New Feature: Billboard to overwrite warning messages blocking bookings
+* Improvement: add campaign to enable extension of limit for overbooked places
+* Improvement: better testing of booking option completed
+* Improvement: refactoring of delete_responses_activitycompletion() method to use singleton calls
+* Improvement: new behat Scenario: Configure availability with modal form and data deletion
+* Improvement: Possibility to adjust description passed on to shopping cart via placeholders
+* Improvement: if no price is set for user, allow booking
+* Improvement: Add setting for displayemptyprice
+* Improvement: New tests for rules
+* Bugfix: User delete response
+* Bugfix: String translations
+* Bugfix: detailview of teacher working with only 2nd phone as well
+* Bugfix: Search in template list
+* Bugfix: Allow alerts for prepagemodals
+* Bugfix: fallback for check on empty price
+
+## Version 8.7.4 (2024101700)
+* Improvement: improve filter of bulkoperations
+* Improvement: swap main and top button in prepagemodal
+* Improvement: update readme
+* Improvement: Better information about teacher roles enrolment
+* Improvement: Better informations for users regarding activitycompletion
+* Improvement: Add 'Uhr' to german time
+* Improvement: Improve Teams & bbb rendering in mails
+* Improvement: Execute Rules and related events (cancellation) in the right order
+* Improvement: Add field to db to check if overbooking is allowed
+* Bugfix: really avoid breaking task
+* Bugfix: Change infotext for changes of option fields
+* Bugfix: Don't show message symbol on teachers page when messaging is deactivitated
+* Bugfix: Better localization when sending mails
+* Bugfix: Don't render prepage when we block with an alert
+* Bugfix: fix link to price formula
+
 ## Version 8.7.3 (2024101100)
 * Bugfix: Display deletecheckbox correctly
 * Bugfix: Hide second customfield and operator correctly
