@@ -596,10 +596,10 @@ $string['caleventtype'] = 'Calendar event visibility';
 $string['callbackfunctionnotapplied'] = 'Callback function could not be applied.';
 $string['callbackfunctionnotdefined'] = 'Callback function is not defined.';
 $string['campaignblockbooking'] = 'Block certain booking options';
-$string['campaignblockbookingdescriptiontext'] = 'Affects: Booking option custom field "{$a->fieldname}"
+$string['campaignblockbookingdescriptiontext'] = 'Affects: Booking option custom field "{$a->bofieldname}"
 having the value "{$a->fieldvalue}".';
 $string['campaigncustomfield'] = 'Change price or booking limit';
-$string['campaigncustomfielddescriptiontext'] = 'Affects: Booking option custom field "{$a->fieldname}"
+$string['campaigncustomfielddescriptiontext'] = 'Affects: Booking option custom field "{$a->bofieldname}"
  having the value "{$a->fieldvalue}".';
 $string['campaignend'] = 'End of campaign';
 $string['campaignend_help'] = 'When does the campaign end?';
@@ -1586,7 +1586,12 @@ $string['optionsfield'] = 'Booking option field';
 $string['optionsfields'] = 'Booking option fields';
 $string['optionsiteach'] = 'Taught by me';
 $string['optionspagefields'] = 'Booking options overview - Page';
-$string['optionspecificcampaignwarning'] = "If you choose a Booking option field specific field here beneath, the price and limit part of the campaign will apply only for booking options that fullfill the requirements.<br><br>If you choose a Booking option field AND a Custom user profile field, both requirements have to be fullfilled.";
+$string['optionspecificcampaignwarning'] = 'If you choose fields here beneath, the campaign will apply only for booking options that fullfill the requirements.
+<div class="alert alert-warning style="margin-left: 200px;">
+<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+<span> Watch out: According to your settings, this campaign may disable booking options in many cases.</span>
+</div>
+If you choose a Booking option field AND a Custom user profile field, both requirements have to be fullfilled.';
 $string['optiontemplate'] = 'Option template';
 $string['optiontemplatename'] = 'Option template name';
 $string['optiontemplatenotsavednovalidlicense'] = 'Booking option template could not be saved as template.
@@ -2291,7 +2296,9 @@ $string['userprofilefield'] = "Profile field";
 $string['userprofilefieldoff'] = 'Do not show';
 $string['usersmatching'] = 'Matching users';
 $string['usersonlist'] = 'User on list';
-$string['userspecificcampaignwarning'] = "If you choose a Custom user profile field here beneath, the price part of the campaign will only be effective for users with the defined value in the custom user profile field.";
+$string['userspecificcampaignwarning'] = '
+    If you choose a Custom user profile field here beneath, the campaign will only be effective for users with the defined or excluded value in the custom user profile field.
+    ';
 $string['userssuccessfullenrolled'] = 'All users have been enrolled!';
 $string['userssuccessfullybooked'] = 'All users have been booked to the other booking option.';
 $string['userssuccessfullygetnewpresencestatus'] = 'All users have a new presence status.';

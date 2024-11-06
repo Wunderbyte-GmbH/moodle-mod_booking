@@ -583,10 +583,10 @@ $string['caleventtype'] = 'Kalenderereignis ist sichtbar für';
 $string['callbackfunctionnotapplied'] = 'Callback Funktion konnte nicht angewandt werden.';
 $string['callbackfunctionnotdefined'] = 'Callback Funktion nicht definiert.';
 $string['campaignblockbooking'] = 'Bestimmte Buchungen blockieren';
-$string['campaignblockbookingdescriptiontext'] = 'Betrifft: Benutzerdefiniertes Buchungsoptionsfeld "{$a->fieldname}"
+$string['campaignblockbookingdescriptiontext'] = 'Betrifft: Benutzerdefiniertes Buchungsoptionsfeld "{$a->bofieldname}"
 mit dem Wert "{$a->fieldvalue}".';
 $string['campaigncustomfield'] = 'Preis oder Buchungslimit anpassen';
-$string['campaigncustomfielddescriptiontext'] = 'Betrifft: Benutzerdefiniertes Buchungsoptionsfeld "{$a->fieldname}"
+$string['campaigncustomfielddescriptiontext'] = 'Betrifft: Benutzerdefiniertes Buchungsoptionsfeld "{$a->bofieldname}"
  mit dem Wert "{$a->fieldvalue}".';
 $string['campaignend'] = 'Ende der Kampagne';
 $string['campaignend_help'] = 'Wann soll die Kampagne enden?';
@@ -1576,7 +1576,13 @@ $string['optionsfield'] = 'Buchungsoptionsfeld';
 $string['optionsfields'] = 'Buchungsoptionsfelder';
 $string['optionsiteach'] = 'Von mir geleitet';
 $string['optionspagefields'] = 'Buchungsübersicht - Seite';
-$string['optionspecificcampaignwarning'] = "Wenn Sie ein Buchungsoptionsfeld auswählen, werden Preis und Limit nur für jene Buchungsoptionen geändert, die diese Anforderungen erfüllen.<br><br>Wenn Sie auch ein Benutzerdefiniertes User Profilfeld wählen, wird der Preis nur dann geändert, wenn BEIDE Anforderungen erfüllt sind.";
+$string['optionspecificcampaignwarning'] = '
+Wenn Sie ein Buchungsoptionsfeld auswählen, wird die Kampagne nur für jede Buchungsoptionen angewandt, die diese Anforderungen erfüllen.
+<div class="alert alert-warning style="margin-left: 200px;">
+<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+<span> Achtung: Entsprechend Ihrer Einstellungen kann diese Kampagne die Verfügbarkeit von sehr vielen Buchungsoptionen blockieren.</span>
+</div>
+Wenn Sie auch ein Benutzerdefiniertes User Profilfeld wählen, wird der Preis nur dann geändert, wenn BEIDE Anforderungen erfüllt sind.';
 $string['optiontemplate'] = 'Option template';
 $string['optiontemplatename'] = 'Vorlagenname der Buchungsoption';
 $string['optiontemplatenotsavednovalidlicense'] = 'Buchungsoption konnte nicht als Vorlage gespeichert werden.
@@ -2211,7 +2217,7 @@ $string['userprofilefield'] = "Profilfeld";
 $string['userprofilefieldoff'] = 'Nicht anzeigen';
 $string['usersmatching'] = 'Gefundene Nutzer:innen';
 $string['usersonlist'] = 'Nutzer:innen';
-$string['userspecificcampaignwarning'] = "Wenn Sie ein unten ein Benutzerdefiniertes User Profilfeld auswählen, wird der Preis-Teil der Kampagne nur für jene NutzerInnen wirksam, die auch dieses Feld ausgewählt haben.";
+$string['userspecificcampaignwarning'] = "Wenn Sie ein unten ein Benutzerdefiniertes User Profilfeld auswählen, wird die Kampagne nur für jene NutzerInnen wirksam, die in diesem Feld den angegebenen Wert haben (oder nicht haben).";
 $string['userssuccessfullenrolled'] = 'Alle Nutzer:innen wurden erfolgreich eingeschrieben!';
 $string['userssuccessfullybooked'] = 'Alle Nutzer:innen wurden erfolgreich in die andere Buchungsoption eingeschrieben.';
 $string['userssucesfullygetnewpresencestatus'] = 'Anwesenheitsstatus für ausgewählte Nutzer:innen erfolgreich aktualisiert';

@@ -68,8 +68,11 @@ class campaign_blockbooking implements booking_campaign {
     /** @var string $blockoperator */
     public $blockoperator = '';
 
-    /** @var string $fieldname */
-    public $fieldname = '';
+    /** @var string $bofieldname */
+    public $bofieldname = '';
+
+    /** @var string $campaignfieldnameoperator */
+    public $campaignfieldnameoperator = '';
 
     /** @var string $fieldvalue */
     public $fieldvalue = '';
@@ -104,8 +107,9 @@ class campaign_blockbooking implements booking_campaign {
 
         // Set additional data stored in JSON.
         $jsonobj = json_decode($record->json);
-        $this->fieldname = $jsonobj->fieldname;
-        $this->fieldvalue = $jsonobj->fieldvalue;
+        $this->bofieldname = $jsonobj->bofieldname ?? "";
+        $this->campaignfieldnameoperator = $jsonobj->campaignfieldnameoperator ?? "";
+        $this->fieldvalue = $jsonobj->fieldvalue ?? "";
         $this->cpfield = $jsonobj->cpfield ?? "";
         $this->cpoperator = $jsonobj->cpoperator ?? "";
         $this->cpvalue = $jsonobj->cpvalue ?? "";
@@ -186,7 +190,8 @@ class campaign_blockbooking implements booking_campaign {
             $jsonobject = json_decode($data->json);
         }
 
-        $jsonobject->fieldname = $data->fieldname;
+        $jsonobject->bofieldname = $data->bofieldname;
+        $jsonobject->campaignfieldnameoperator = $data->campaignfieldnameoperator;
         $jsonobject->fieldvalue = $data->fieldvalue;
         $jsonobject->cpfield = $data->cpfield;
         $jsonobject->cpoperator = $data->cpoperator;
@@ -231,18 +236,19 @@ class campaign_blockbooking implements booking_campaign {
         $data->starttime = $record->starttime;
         $data->endtime = $record->endtime;
 
-        if ($jsonboject = json_decode($record->json)) {
+        if ($jsonobject = json_decode($record->json)) {
             switch ($record->type) {
                 case MOD_BOOKING_CAMPAIGN_TYPE_BLOCKBOOKING:
-                    $data->fieldname = $jsonboject->fieldname;
-                    $data->fieldvalue = $jsonboject->fieldvalue;
-                    $data->cpfield = $jsonboject->cpfield;
-                    $data->cpoperator = $jsonboject->cpoperator;
-                    $data->cpvalue = $jsonboject->cpvalue;
-                    $data->blockoperator = $jsonboject->blockoperator;
-                    $data->blockinglabel = $jsonboject->blockinglabel;
-                    $data->hascapability = $jsonboject->hascapability;
-                    $data->percentageavailableplaces = $jsonboject->percentageavailableplaces;
+                    $data->bofieldname = $jsonobject->bofieldname;
+                    $data->campaignfieldnameoperator = $jsonobject->campaignfieldnameoperator;
+                    $data->fieldvalue = $jsonobject->fieldvalue;
+                    $data->cpfield = $jsonobject->cpfield;
+                    $data->cpoperator = $jsonobject->cpoperator;
+                    $data->cpvalue = $jsonobject->cpvalue;
+                    $data->blockoperator = $jsonobject->blockoperator;
+                    $data->blockinglabel = $jsonobject->blockinglabel;
+                    $data->hascapability = $jsonobject->hascapability;
+                    $data->percentageavailableplaces = $jsonobject->percentageavailableplaces;
                     break;
             }
         }
@@ -256,27 +262,29 @@ class campaign_blockbooking implements booking_campaign {
      * @return bool true if the campaign is currently active
      */
     public function campaign_is_active(int $optionid, booking_option_settings $settings): bool {
-
+        $isactive = false;
         $now = time();
         if ($this->starttime <= $now && $now <= $this->endtime) {
 
-            if (!empty($settings->customfields[$this->fieldname])) {
-                if (is_string($settings->customfields[$this->fieldname])
-                    && $settings->customfields[$this->fieldname] === $this->fieldvalue) {
+            if (!empty($settings->customfields[$this->bofieldname])) {
+                if (is_string($settings->customfields[$this->bofieldname])
+                    && $settings->customfields[$this->bofieldname] === $this->fieldvalue) {
                     // It's a string so we can compare directly.
-                    return true;
-                } else if (is_array($settings->customfields[$this->fieldname])
-                    && in_array($this->fieldvalue, $settings->customfields[$this->fieldname])) {
+                    $isactive = true;
+                } else if (is_array($settings->customfields[$this->bofieldname])
+                    && in_array($this->fieldvalue, $settings->customfields[$this->bofieldname])) {
                     // It's an array, so we check with in_array.
-                    return true;
-                } else {
-                    return false;
+                    $isactive = true;
                 }
-            } else {
-                return false;
+            }
+            // If operator is set to "does not contain" we need to invert the result.
+            if (
+                $this->campaignfieldnameoperator === '!~'
+            ) {
+                $isactive = !$isactive;
             }
         }
-        return false;
+        return $isactive;
     }
 
     /**
@@ -346,23 +354,23 @@ class campaign_blockbooking implements booking_campaign {
         }
 
         $user = singleton_service::get_instance_of_user($userid, true);
-        if (isset($this->cpfield) && !empty($fieldname = $this->cpfield)) {
+        if (isset($this->cpfield) && !empty($bofieldname = $this->cpfield)) {
             // If there is a value, it has to match in order to block.
             $blocking = false;
             $operator = $this->cpoperator;
 
             // TODO Handle other types of fields like arrays.
-            if (is_string($user->profile[$fieldname])) {
+            if (is_string($user->profile[$bofieldname])) {
                 switch ($operator) {
                     case "=": // Equals.
-                        $blocking = $user->profile[$fieldname] === $this->cpvalue;
+                        $blocking = $user->profile[$bofieldname] === $this->cpvalue;
                         break;
                     case "~": // Contains.
-                        $blocking = strpos($user->profile[$fieldname], $this->cpvalue) !== false;
+                        $blocking = strpos($user->profile[$bofieldname], $this->cpvalue) !== false;
                         break;
                     case "!~":
                         // Does not contain.
-                        $blocking = strpos($user->profile[$fieldname], $this->cpvalue) === false;
+                        $blocking = strpos($user->profile[$bofieldname], $this->cpvalue) === false;
                 }
             }
         }

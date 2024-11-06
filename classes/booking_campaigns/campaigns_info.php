@@ -71,6 +71,7 @@ class campaigns_info {
 
         $mform->registerNoSubmitButton('btn_bookingcampaigntype');
         $buttonargs = ['class' => 'd-none'];
+
         $categoryselect = [
             $mform->createElement('select', 'bookingcampaigntype',
             get_string('campaigntype', 'mod_booking'), $campaignsforselect),
@@ -268,41 +269,53 @@ class campaigns_info {
             $fieldnames[$record->shortname] = $record->name;
         }
 
+        $mform->addElement('select', 'bofieldname',
+            get_string('campaignfieldname', 'mod_booking'), $fieldnames);
+        $mform->addHelpButton('bofieldname', 'campaignfieldname', 'mod_booking');
+        $mform->registerNoSubmitButton('btn_bofieldname');
+        $mform->addElement(
+            'submit',
+            'btn_bofieldname',
+            'btn_bofieldname_label',
+            ['class' => 'd-none']
+        );
+
         $operators = [
             '=' => get_string('equals', 'mod_booking'),
-            '~' => get_string('contains', 'mod_booking'),
+            '!~' => get_string('containsnot', 'mod_booking'),
         ];
 
-        $mform->addElement('select', 'fieldname',
-            get_string('campaignfieldname', 'mod_booking'), $fieldnames);
-        $mform->addHelpButton('fieldname', 'campaignfieldname', 'mod_booking');
-
-        // Custom field value.
-        $sql = "SELECT DISTINCT cd.value
-            FROM {customfield_field} cf
-            JOIN {customfield_category} cc
-            ON cf.categoryid = cc.id
-            JOIN {customfield_data} cd
-            ON cd.fieldid = cf.id
-            WHERE cc.area = 'booking'
-            AND cd.value IS NOT NULL
-            AND cd.value <> ''
-            AND cf.shortname = :fieldname";
-
-        $params = ['fieldname' => ''];
-        if (!empty($ajaxformdata["fieldname"])) {
-            $params['fieldname'] = $ajaxformdata["fieldname"];
-        }
-        $records = $DB->get_fieldset_sql($sql, $params);
+        $mform->addElement('select', 'campaignfieldnameoperator',
+            get_string('blockoperator', 'mod_booking'), $operators);
+        $mform->hideIf('campaignfieldnameoperator', 'bofieldname', 'eq', "0");
 
         $fieldvalues = [];
-        foreach ($records as $record) {
-            if (strpos($record, ',') !== false) {
-                foreach (explode(',', $record) as $subrecord) {
-                    $fieldvalues[$subrecord] = $subrecord;
+        if (!empty($ajaxformdata["bofieldname"])) {
+            // Custom field value.
+            $sql = "SELECT DISTINCT cd.value
+                FROM {customfield_field} cf
+                JOIN {customfield_category} cc
+                ON cf.categoryid = cc.id
+                JOIN {customfield_data} cd
+                ON cd.fieldid = cf.id
+                WHERE cc.area = 'booking'
+                AND cd.value IS NOT NULL
+                AND cd.value <> ''
+                AND cf.shortname = :bofieldname";
+            // Propositions will only be displayed if form was saved before - and therefore fieldname is set.
+            // Maybe add a nosubmitbutton to fetch fieldname.
+
+            $params['bofieldname'] = $ajaxformdata["bofieldname"];
+            $records = $DB->get_fieldset_sql($sql, $params);
+
+            foreach ($records as $record) {
+                if (strpos($record, ',') !== false) {
+                    foreach (explode(',', $record) as $subrecord) {
+                        $fieldvalues[$subrecord] = $subrecord;
+                    }
+                } else {
+                    $fieldvalues[$record] = $record;
                 }
-            } else {
-                $fieldvalues[$record] = $record;
             }
         }
 
@@ -314,7 +327,7 @@ class campaigns_info {
         $mform->addElement('autocomplete', 'fieldvalue',
             get_string('campaignfieldvalue', 'mod_booking'), $fieldvalues, $options);
         $mform->addHelpButton('fieldvalue', 'campaignfieldvalue', 'mod_booking');
-        $mform->hideIf('fieldvalue', 'fieldname', 'eq', "0");
+        $mform->hideIf('fieldvalue', 'bofieldname', 'eq', "0");
 
         // Custom user profile field to be checked.
         $customuserprofilefields = $DB->get_records('user_info_field', null, '', 'id, name, shortname');
