@@ -360,6 +360,9 @@ class campaign_blockbooking implements booking_campaign {
                     case "~": // Contains.
                         $blocking = strpos($user->profile[$fieldname], $this->cpvalue) !== false;
                         break;
+                    case "!~":
+                        // Does not contain.
+                        $blocking = strpos($user->profile[$fieldname], $this->cpvalue) === false;
                 }
             }
         }

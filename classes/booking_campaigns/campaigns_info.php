@@ -335,6 +335,12 @@ class campaigns_info {
 
             $mform->addHelpButton('cpfield', 'customuserprofilefield', 'mod_booking');
 
+            $operators = [
+                '=' => get_string('equals', 'mod_booking'),
+                '~' => get_string('contains', 'mod_booking'),
+                '!~' => get_string('containsnot', 'mod_booking'),
+            ];
+
             $mform->addElement('select', 'cpoperator',
                 get_string('blockoperator', 'mod_booking'), $operators);
             $mform->hideIf('cpoperator', 'cpfield', 'eq', "0");
