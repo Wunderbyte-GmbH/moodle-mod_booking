@@ -57,7 +57,7 @@ class campaignslist implements renderable, templatable {
                     $a = new stdClass();
                     $a->bofieldname = $campaignobj->bofieldname;
                     $a->fieldvalue = $campaignobj->fieldvalue;
-                    $campaign->description = get_string('campaigncustomfielddescriptiontext', 'mod_booking', $a);
+                    $campaign->description = $this->render_description($campaignobj);
                     $campaign->localizedtype = get_string('campaigncustomfield', 'mod_booking');
                     $campaign->localizedstart = $this->render_localized_timestamp($campaign->starttime, current_language());
                     $campaign->localizedend = $this->render_localized_timestamp($campaign->endtime, current_language());
@@ -68,7 +68,7 @@ class campaignslist implements renderable, templatable {
                     $a = new stdClass();
                     $a->bofieldname = $campaignobj->bofieldname;
                     $a->fieldvalue = $campaignobj->fieldvalue;
-                    $campaign->description = get_string('campaignblockbookingdescriptiontext', 'mod_booking', $a);
+                    $campaign->description = $this->render_description($campaignobj);
                     $campaign->localizedtype = get_string('campaignblockbooking', 'mod_booking');
                     $campaign->localizedstart = $this->render_localized_timestamp($campaign->starttime, current_language());
                     $campaign->localizedend = $this->render_localized_timestamp($campaign->endtime, current_language());
@@ -108,5 +108,64 @@ class campaignslist implements renderable, templatable {
         return [
                 'campaigns' => $this->campaigns,
         ];
+    }
+
+    /**
+     * Taking the campaignobject rendering a meaningful description about applied conditions.
+     *
+     * @param object $campaignobj
+     *
+     * @return string
+     *
+     */
+    private function render_description(object $campaignobj): string {
+
+        $data = [];
+        $a = new stdClass();
+        if (!empty($a->bofieldname = $campaignobj->bofieldname ?? "")) {
+            switch ($campaignobj->campaignfieldnameoperator) {
+                case "=":
+                    $a->campaignfieldnameoperator = get_string('equalsplain', 'mod_booking');
+                    break;
+                case '!~':
+                    $a->campaignfieldnameoperator = get_string('containsnotplain', 'mod_booking');
+                    break;
+            }
+            $a->fieldvalue = $campaignobj->fieldvalue ?? "";
+
+            $data['bofieldname'] = get_string('campaigndescriptionfieldvalue', 'mod_booking', $a);
+        }
+        $b = new stdClass();
+        if (!empty($b->cpfield = $campaignobj->cpfield ?? "")) {
+            switch ($campaignobj->cpoperator) {
+                case "=":
+                    $b->cpoperator = get_string('equalsplain', 'mod_booking');
+                    break;
+                case '~':
+                    $b->cpoperator = get_string('containsplain', 'mod_booking');
+                    break;
+                case '!~':
+                    $b->cpoperator = get_string('containsnotplain', 'mod_booking');
+                    break;
+                default:
+            }
+            $b->cpvalue = $campaignobj->cpvalue ?? "";
+            $data['cpfield'] = get_string('campaigndescriptioncpvalue', 'mod_booking', $b);
+        }
+
+        switch (count($data)) {
+            case 1:
+                return array_values($data)[0];
+            case 2:
+                return
+                array_values($data)[0] .
+                ' ' .
+                get_string('overrideoperator:and', 'mod_booking') .
+                ' ' .
+                array_values($data)[1];
+            default:
+                return "";
+
+        }
     }
 }
