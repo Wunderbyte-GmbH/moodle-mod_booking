@@ -87,9 +87,8 @@ class campaigns_info {
             list($campaign) = $campaigns;
         }
 
-        // If campaign is empty, we use the default campaign.
         if (empty($campaign)) {
-            $campaign = self::get_campaign_by_type(MOD_BOOKING_CAMPAIGN_TYPE_CUSTOMFIELD);
+            return;
         }
 
         $campaign->add_campaign_to_mform($mform, $ajaxformdata);
