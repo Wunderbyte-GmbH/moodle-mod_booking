@@ -1405,10 +1405,10 @@ $string['nocfnameselected'] = "Nothing selected. Either type new name or select 
 $string['nocomments'] = 'Commenting disabled';
 $string['nocourse'] = 'No course selected for this booking option';
 $string['nocourseselected'] = 'No course selected';
-$string['nodescriptionmaxlength'] = 'No maximum length of description';
 $string['nodateset'] = 'Course date not set';
 $string['nodatesstring'] = "There are currently no dates associated with this booking option";
 $string['nodatesstring_desc'] = "no dates";
+$string['nodescriptionmaxlength'] = 'No maximum length of description';
 $string['nodirectbookingbecauseofprice'] = 'Booking for others is only partially possible with this booking option. The reasons for this are as follows:
     <ul>
     <li>a price is entered</li>
