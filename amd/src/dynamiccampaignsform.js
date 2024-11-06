@@ -114,8 +114,18 @@ function editCampaignsModal(element) {
                 return;
             }
             if (e.target.name == 'bookingcampaigntype') {
+                // eslint-disable-next-line no-console
+                console.log('change in bookingcampaigntype');
                 window.skipClientValidation = true;
                 let button = document.querySelector('[name="btn_bookingcampaigntype"]');
+                modalForm.processNoSubmitButton(button);
+            }
+
+            if (e.target.name == 'bofieldname') {
+                // eslint-disable-next-line no-console
+                console.log('change in fieldname');
+                window.skipClientValidation = true;
+                let button = document.querySelector('[name="btn_bofieldname"]');
                 modalForm.processNoSubmitButton(button);
             }
         });
