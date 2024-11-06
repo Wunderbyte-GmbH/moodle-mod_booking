@@ -69,8 +69,11 @@ class campaign_customfield implements booking_campaign {
     public $extendlimitforoverbooked = 0;
 
     // From JSON.
-    /** @var string $fieldname */
-    public $fieldname = '';
+    /** @var string $bofieldname */
+    public $bofieldname = '';
+
+    /** @var string $campaignfieldnameoperator */
+    public $campaignfieldnameoperator = '';
 
     /** @var string $fieldvalue */
     public $fieldvalue = '';
@@ -102,7 +105,8 @@ class campaign_customfield implements booking_campaign {
 
         // Set additional data stored in JSON.
         $jsonobj = json_decode($record->json);
-        $this->fieldname = $jsonobj->fieldname;
+        $this->bofieldname = $jsonobj->bofieldname;
+        $this->campaignfieldnameoperator = $jsonobj->campaignfieldnameoperator;
         $this->fieldvalue = $jsonobj->fieldvalue;
 
         if (!empty($jsonobj->cpfield)) {
@@ -174,7 +178,8 @@ class campaign_customfield implements booking_campaign {
             $jsonobject = json_decode($data->json);
         }
 
-        $jsonobject->fieldname = $data->fieldname;
+        $jsonobject->bofieldname = $data->bofieldname;
+        $jsonobject->campaignfieldnameoperator = $data->campaignfieldnameoperator;
         $jsonobject->fieldvalue = $data->fieldvalue;
 
         if (!empty($data->cpfield)) {
@@ -228,7 +233,8 @@ class campaign_customfield implements booking_campaign {
         if ($jsonobject = json_decode($record->json)) {
             switch ($record->type) {
                 case MOD_BOOKING_CAMPAIGN_TYPE_CUSTOMFIELD:
-                    $data->fieldname = $jsonobject->fieldname;
+                    $data->bofieldname = $jsonobject->bofieldname;
+                    $data->campaignfieldnameoperator = $jsonobject->campaignfieldnameoperator;
                     $data->fieldvalue = $jsonobject->fieldvalue;
 
                     $data->cpfield = $jsonobject->cpfield ?? 0;
@@ -247,32 +253,34 @@ class campaign_customfield implements booking_campaign {
      * @return bool true if the campaign is currently active
      */
     public function campaign_is_active(int $optionid, booking_option_settings $settings): bool {
-
+        $isactive = false;
         $now = time();
         if ($this->starttime <= $now && $now <= $this->endtime) {
 
-            // If it's user specific and there is no option specific fieldname, we return true right away.
+            // If it's user specific and there is no option specific bofieldname, we return true right away.
             // Price it'self for the user is calculated in get_campaign price.
-            if ($this->userspecificprice && empty($this->fieldname)) {
-                return true;
-            } else if (!empty($settings->customfields[$this->fieldname])) {
+            if ($this->userspecificprice && empty($this->bofieldname)) {
+                $isactive = true;
+            } else if (!empty($settings->customfields[$this->bofieldname])) {
                 if (
-                    is_string($settings->customfields[$this->fieldname])
-                    && $settings->customfields[$this->fieldname] === $this->fieldvalue) {
+                    is_string($settings->customfields[$this->bofieldname])
+                    && $settings->customfields[$this->bofieldname] === $this->fieldvalue) {
                     // It's a string so we can compare directly.
-                    return true;
-                } else if (is_array($settings->customfields[$this->fieldname])
-                    && in_array($this->fieldvalue, $settings->customfields[$this->fieldname])) {
+                    $isactive = true;
+                } else if (is_array($settings->customfields[$this->bofieldname])
+                    && in_array($this->fieldvalue, $settings->customfields[$this->bofieldname])) {
                     // It's an array, so we check with in_array.
-                    return true;
-                } else {
-                    return false;
+                    $isactive = true;
                 }
-            } else {
-                return false;
+                            // If operator is set to "does not contain" we need to invert the result.
+                if (
+                    $this->campaignfieldnameoperator === '!~'
+                ) {
+                    $isactive = !$isactive;
+                }
             }
         }
-        return false;
+        return $isactive;
     }
 
     /**
@@ -287,7 +295,7 @@ class campaign_customfield implements booking_campaign {
             $campaignprice = $price * $this->pricefactor;
         } else {
             $campaignprice = $price;
-            $user = singleton_service::get_instance_of_user($userid);
+            $user = singleton_service::get_instance_of_user($userid, true);
             if ($fieldvalue = $user->profile[$this->cpfield]) {
                 switch ($this->cpoperator) {
                     case '=':
@@ -297,6 +305,11 @@ class campaign_customfield implements booking_campaign {
                         break;
                     case '~':
                         if ($fieldvalue == $this->cpvalue) {
+                            $campaignprice = $price * $this->pricefactor;
+                        }
+                        break;
+                    case '!~':
+                        if ($fieldvalue !== $this->cpvalue) {
                             $campaignprice = $price * $this->pricefactor;
                         }
                         break;
