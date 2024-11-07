@@ -1009,8 +1009,15 @@ class booking {
     ) {
         global $DB;
 
-        return self::get_options_filter_sql($limitfrom, $limitnum, $searchtext, $fields, $context, [],
-            ['bookingid' => (int)$this->id]);
+        return self::get_options_filter_sql(
+            $limitfrom,
+            $limitnum,
+            $searchtext,
+            $fields,
+            $context,
+            [],
+            ['bookingid' => (int)$this->id]
+        );
     }
 
 
@@ -1034,17 +1041,19 @@ class booking {
      * @param string $innerfrom
      * @return array
      */
-    public static function get_options_filter_sql($limitfrom = 0,
-                                                $limitnum = 0,
-                                                $searchtext = '',
-                                                $fields = null,
-                                                $context = null,
-                                                $filterarray = [],
-                                                $wherearray = [],
-                                                $userid = null,
-                                                $bookingparams = [MOD_BOOKING_STATUSPARAM_BOOKED],
-                                                $additionalwhere = '',
-                                                $innerfrom = '') {
+    public static function get_options_filter_sql(
+        $limitfrom = 0,
+        $limitnum = 0,
+        $searchtext = '',
+        $fields = null,
+        $context = null,
+        $filterarray = [],
+        $wherearray = [],
+        $userid = null,
+        $bookingparams = [MOD_BOOKING_STATUSPARAM_BOOKED],
+        $additionalwhere = '',
+        $innerfrom = ''
+    ) {
 
         global $DB;
 
@@ -1062,7 +1071,7 @@ class booking {
 
         $params = [];
 
-        $groupby = " " .  implode (", ", $offieldsarray) . " ";
+        $groupby = " " . implode(", ", $offieldsarray) . " ";
 
         $outerfrom = "(
                         SELECT DISTINCT $groupby ";
