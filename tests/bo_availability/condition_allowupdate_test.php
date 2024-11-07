@@ -280,7 +280,7 @@ final class condition_allowupdate_test extends advanced_testcase {
 
         // Create blocking campaing.
         $campaingdata = (object)[
-            'fieldname' => 'spt1',
+            'bofieldname' => 'spt1',
             'fieldvalue' => 'tennis',
             'blockoperator' => 'blockabove',
             'blockinglabel' => 'block_above_30',
