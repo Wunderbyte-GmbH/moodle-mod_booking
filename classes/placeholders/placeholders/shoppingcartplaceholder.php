@@ -81,7 +81,14 @@ class shoppingcartplaceholder {
             $class = $rulejson->datafromevent->eventname;
             $event = $rulejson->datafromevent;
             if ($class == '\local_shopping_cart\event\payment_confirmed') {
-                $data = json_decode($event->other->cart, true);
+                $eventdata = json_decode($event->other->cart, true);
+                $data = [];
+                $data['historyitems'] = $eventdata['historyitems'] ?? [];
+                $data['price'] = $eventdata['price'];
+                $data['receipturl'] = $eventdata['receipturl'] ?? null;
+                $data['initialtotal'] = $eventdata['initialtotal'] ?? null;
+                $data['discount'] = $eventdata['discount'] ?? null;
+                $data['currency'] = $eventdata['currency'];
                 $value = $OUTPUT->render_from_template('local_shopping_cart/checkout_success_content', $data);
             }
         }
