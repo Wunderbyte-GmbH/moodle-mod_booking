@@ -179,6 +179,12 @@
                     </div>
                 </div>
             {{/datesexist}}
+            {{^datesexist}}
+                {{#selflearningcourse}}
+                    <i class="fa fa-fw fa-clock-o" aria-hidden="true"></i>&nbsp;
+                    {{#str}}selflearningcourse:durationinfo, mod_booking, {{duration}}{{/str}}
+                {{/selflearningcourse}}
+            {{/datesexist}}
         </div>
         <div class="col-md-5">
             <div class="card price-card">

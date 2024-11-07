@@ -61,14 +61,15 @@ $modinfo = get_fast_modinfo($booking->course);
 $cm = $modinfo->get_cm($cmid);
 if (!$cm->uservisible && !get_config('booking', 'bookonlyondetailspage')) {
     echo $OUTPUT->header();
-    echo html_writer::div(get_string('invisibleoption:notallowed', 'mod_booking'),
-        "alert alert-danger");
+    echo html_writer::div(
+        get_string('invisibleoption:notallowed', 'mod_booking'),
+        "alert alert-danger"
+    );
     echo $OUTPUT->footer();
     die();
 }
 
 if ($settings = singleton_service::get_instance_of_booking_option_settings($optionid)) {
-
     if ($userid == $USER->id || $userid == 0) {
         $user = $USER;
     } else {
@@ -82,7 +83,7 @@ if ($settings = singleton_service::get_instance_of_booking_option_settings($opti
     $PAGE->set_pagelayout('base');
 
     echo $OUTPUT->header();
-
+    // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
     // TODO: The following lines change the context of the PAGE object...
     // ... and have therefore to be called after printing the header.
     // This needs to be fixed.
@@ -97,14 +98,12 @@ if ($settings = singleton_service::get_instance_of_booking_option_settings($opti
     if ($data->is_invisible()) {
         // If the user does have the capability to see invisible options...
         if (has_capability('mod/booking:canseeinvisibleoptions', $syscontext)) {
-
             // ... then show it.
             echo $output->render_bookingoption_description_view($data);
         } else {
             // User is not entitled to see invisible options.
             echo get_string('invisibleoption:notallowed', 'mod_booking');
         }
-
     } else {
         echo $output->render_bookingoption_description_view($data);
     }

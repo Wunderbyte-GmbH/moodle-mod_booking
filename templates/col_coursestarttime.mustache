@@ -38,6 +38,7 @@
         ]
     }
 }}
+{{^selflearningcourse}}
 {{#showcollapsebtn}}
     <div class='booking-showdates-collapse mt-1'>
         <span>
@@ -77,3 +78,8 @@
 {{^datestrings}}
     {{#str}}datenotset, mod_booking{{/str}}
 {{/datestrings}}
+{{/selflearningcourse}}
+{{#selflearningcourse}}
+    <i class="fa fa-fw fa-clock-o" aria-hidden="true"></i>&nbsp;
+    {{#str}}selflearningcourse:durationinfo, mod_booking, {{duration}}{{/str}}
+{{/selflearningcourse}}

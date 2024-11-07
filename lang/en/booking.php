@@ -1866,11 +1866,13 @@ $string['selectusershoppingcart'] = "Choose user who has to pay installments";
 $string['selflearningcourse'] = 'Self-learning course';
 $string['selflearningcourse:coursestarttime'] = 'Sorting date';
 $string['selflearningcourse:coursestarttime_alert'] = 'As you have activated the "Self-learning course" checkbox under the "Moodle course" settings
-you cannot add dates here but only provide a sorting date which will be used for sorting only.';
-$string['selflearningcourse:coursestarttime_help'] = 'This date will be used for sorting purposes only because self-learning courses do not have a fixed start date.';
+you cannot add dates here but only provide a sorting date which will be used for sorting and as start date for the new Moodle course
+(only if you automatically create a new one).';
+$string['selflearningcourse:coursestarttime_help'] = 'This date will be used for sorting because self-learning courses do not have a fixed start date.';
+$string['selflearningcourse:durationinfo'] = 'This course has a duration of {$a}.';
 $string['selflearningcourse_alert'] = 'For self-learning courses, users will always be enrolled into the connected Moodle course <b>immediately after booking</b>.
 They will stay enrolled in the Moodle course for the provided duration.<br><br><b>Please note:</b> You cannot provide any dates for self-learning courses
-but you can provide a sorting date (in the "Dates" section) which will be used for sorting only.';
+but you can provide a sorting date (in the "Dates" section).';
 $string['selflearningcourse_help'] = 'Self-learning courses have a fixed duration but no fixed dates. The course will start once it is booked.';
 $string['semester'] = 'Semester';
 $string['semesterend'] = 'Last day of semester';

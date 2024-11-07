@@ -24,11 +24,13 @@
 
 namespace mod_booking\output;
 
+use mod_booking\booking_option;
 use moodle_exception;
 use renderer_base;
 use renderable;
 use templatable;
 use mod_booking\option\dates_handler;
+use mod_booking\singleton_service;
 
 /**
  * This class prepares data for displaying a booking instance
@@ -38,7 +40,6 @@ use mod_booking\option\dates_handler;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class col_coursestarttime implements renderable, templatable {
-
     /** @var array $datestrings */
     public $datestrings = null;
 
@@ -47,6 +48,12 @@ class col_coursestarttime implements renderable, templatable {
 
     /** @var bool $showcollapsebtn */
     public $showcollapsebtn = null;
+
+    /** @var bool $selflearningcourse */
+    public $selflearningcourse = null;
+
+    /** @var string $duration */
+    public $duration = null;
 
     /**
      * Constructor
@@ -57,12 +64,18 @@ class col_coursestarttime implements renderable, templatable {
      * @param bool $collapsed set to true, if dates should be collapsed
      *
      */
-    public function __construct($optionid, $booking=null, $cmid = null, $collapsed = true) {
+    public function __construct($optionid, $booking = null, $cmid = null, $collapsed = true) {
 
         if (empty($booking) && empty($cmid)) {
             throw new moodle_exception('Error: either booking instance or cmid have to be provided.');
         } else if (!empty($booking) && empty($cmid)) {
             $cmid = $booking->cm->id;
+        }
+
+        if (!empty(booking_option::get_value_of_json_by_key($optionid, "selflearningcourse"))) {
+            $this->selflearningcourse = true;
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            $this->duration = format_time($settings->duration);
         }
 
         $this->optionid = $optionid;
@@ -85,8 +98,15 @@ class col_coursestarttime implements renderable, templatable {
      *
      */
     public function export_for_template(renderer_base $output) {
+
         if (!$this->datestrings) {
-            return [];
+            if (!empty($this->selflearningcourse)) {
+                $returnarr['selflearningcourse'] = $this->selflearningcourse;
+                $returnarr['duration'] = $this->duration;
+                return $returnarr;
+            } else {
+                return [];
+            }
         }
 
         $returnarr = [

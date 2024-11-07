@@ -50,7 +50,6 @@ use templatable;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookingoption_description implements renderable, templatable {
-
     /** @var int $optionid optionid */
     private $optionid = null;
 
@@ -165,6 +164,9 @@ class bookingoption_description implements renderable, templatable {
     /** @var string $bookingclosingtime */
     private $bookingclosingtime = '';
 
+    /** @var bool $selflearningcourse */
+    private $selflearningcourse = null;
+
     /**
      * Constructor.
      *
@@ -250,13 +252,12 @@ class bookingoption_description implements renderable, templatable {
         // There can be more than one modal, therefore we use the id of this record.
         $this->modalcounter = $settings->id;
 
-        // Format the duration correctly.
-        $seconds = $settings->duration;
-        $minutes = $seconds / 60;
-        $d = floor ($minutes / 1440);
-        $h = floor (($minutes - $d * 1440) / 60);
-        $m = $minutes - ($d * 1440) - ($h * 60);
-        $this->duration = "{$d} " . get_string("days") . "  {$h} " . get_string("hours") . "  {$m} " . get_string("minutes");
+        // Check if it's a self-learning course. There's a JSON flag for this.
+        if (!empty(booking_option::get_value_of_json_by_key($optionid, "selflearningcourse"))) {
+            $this->selflearningcourse = true;
+            // Format the duration correctly.
+            $this->duration = format_time($settings->duration);
+        }
 
         // Datestring for date series and calculation of educational unit length.
         $this->dayofweektime = $settings->dayofweektime;
@@ -281,7 +282,6 @@ class bookingoption_description implements renderable, templatable {
             || (has_capability('mod/booking:addeditownoption', $modcontext) && $isteacher)
             || (has_capability('mod/booking:addeditownoption', $syscontext) && $isteacher)
         ) {
-
             $this->showmanageresponses = true;
 
             // Add a link to redirect to the booking option.
@@ -325,8 +325,13 @@ class bookingoption_description implements renderable, templatable {
         // Every date will be an array of datestring and customfields.
         // But customfields will only be shown if we show booking option information inline.
 
-        $this->dates = $bookingoption->return_array_of_sessions($bookingevent,
-                $descriptionparam, $withcustomfields, $forbookeduser, $ashtml);
+        $this->dates = $bookingoption->return_array_of_sessions(
+            $bookingevent,
+            $descriptionparam,
+            $withcustomfields,
+            $forbookeduser,
+            $ashtml
+        );
 
         if (!empty($this->dates)) {
             $this->datesexist = true;
@@ -389,6 +394,7 @@ class bookingoption_description implements renderable, templatable {
         }
 
         // Add price.
+        // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
         // TODO: Currently this will only use the logged in $USER, this won't work for the cashier use case!
         $priceitem = price::get_price('option', $optionid, $user);
         if (!empty($priceitem)) {
@@ -461,8 +467,9 @@ class bookingoption_description implements renderable, templatable {
                 $this->booknowbutton = "<a href=$encodedlink class='btn btn-primary'>"
                         . get_string('gotobookingoption', 'booking')
                         . "</a>";
-                // TODO: We would need an event tracking status changes between notbooked, iambooked and onwaitinglist...
-                // TODO: ...in order to update the event table accordingly.
+                // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
+                /* TODO: We would need an event tracking status changes between notbooked, iambooked and onwaitinglist...
+                TODO: ...in order to update the event table accordingly. */
                 break;
 
             case MOD_BOOKING_DESCRIPTION_ICAL:
@@ -523,6 +530,7 @@ class bookingoption_description implements renderable, templatable {
             'location' => $this->location,
             'address' => $this->address,
             'institution' => $this->institution,
+            'selflearningcourse' => $this->selflearningcourse,
             'duration' => $this->duration,
             'dates' => $this->dates,
             'datesexist' => $this->datesexist,
