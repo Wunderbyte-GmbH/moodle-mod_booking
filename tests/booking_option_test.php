@@ -47,11 +47,11 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class booking_option_test extends advanced_testcase {
-
     /**
      * Tests set up.
      */
     public function setUp(): void {
+        parent::setUp();
         $this->resetAfterTest();
     }
 
@@ -311,9 +311,11 @@ final class booking_option_test extends advanced_testcase {
         $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
 
         $result = $DB->get_record_sql(
-                'SELECT cm.id, cm.course, cm.module, cm.instance, m.name
+            'SELECT cm.id, cm.course, cm.module, cm.instance, m.name
                 FROM {course_modules} cm LEFT JOIN {modules} m ON m.id = cm.module WHERE cm.course = ?
-                AND cm.completion > 0 LIMIT 1', [$course->id]);
+                AND cm.completion > 0 LIMIT 1',
+            [$course->id]
+        );
 
         $bdata['name'] = 'Test Booking 2';
         unset($bdata['completion']);
