@@ -786,10 +786,27 @@ class mod_booking_mod_form extends moodleform_mod {
                 break;
         }
 
+        // Cancel date is either absolute or relative to defined start.
+        $strid = 'cdo:' . $canceldependenton;
+        $a = get_string($strid, 'mod_booking');
+        $mform->addElement('advcheckbox', 'cancelrelativedate', get_string('cancancelbookrelative', 'mod_booking', $a));
+        $mform->hideIf('cancelrelativedate', 'cancancelbook', 'eq', 0);
+        $mform->hideIf('cancelrelativedate', 'disablecancel', 'eq', 1);
+        $mform->setDefault('cancelrelativedate',
+        (int)booking::get_value_of_json_by_key($bookingid, 'cancelrelativedate') ?? 1);
+
+        $mform->addElement('date_time_selector', 'allowupdatetimestamp', 'infostring');
+        $mform->hideIf('allowupdatetimestamp', 'cancancelbook', 'eq', 0);
+        $mform->hideIf('allowupdatetimestamp', 'cancelrelativedate', 'eq', 1);
+        $mform->setDefault('allowupdatetimestamp',
+        booking::get_value_of_json_by_key($bookingid, 'allowupdatetimestamp') ?? '');
+
         $opts = [10000 => get_string('cancancelbookdaysno', 'mod_booking')];
         $extraopts = array_combine(range(-100, 100), range(-100, 100));
         $opts = $opts + $extraopts;
         $mform->addElement('select', 'allowupdatedays', $cancancelbookdaysstring, $opts);
+        $mform->hideIf('allowupdatedays', 'cancelrelativedate', 'eq', 0);
+
         $mform->setDefault('allowupdatedays', 10000); // One million means "no limit".
         $mform->disabledIf('allowupdatedays', 'cancancelbook', 'eq', 0);
         $mform->disabledIf('allowupdatedays', 'disablecancel', 'eq', 1);

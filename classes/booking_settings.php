@@ -334,6 +334,9 @@ class booking_settings {
     /** @var string $json is used to store non performance critical data like disablecancel, viewparam */
     public $json = null;
 
+    /** @var object $jsonobject is used to store non performance critical data like disablecancel, viewparam */
+    public $jsonobject = null;
+
     /**
      * Constructor for the booking settings class.
      *
@@ -496,6 +499,14 @@ class booking_settings {
 
             // JSON.
             $this->json = $dbrecord->json;
+            if (!empty($dbrecord->json)) {
+                $this->jsonobject = json_decode($this->json);
+                foreach ($this->jsonobject as $key => $value) {
+                    $this->$key = $value;
+                }
+            } else {
+                $this->jsonobject = new stdClass();
+            }
 
             // If we do not have it yet, we have to load the booking manager's user object from DB.
             if (empty($dbrecord->bookingmanageruser) && !empty($dbrecord->bookingmanager)) {

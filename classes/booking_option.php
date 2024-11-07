@@ -3055,7 +3055,12 @@ class booking_option {
         }
 
         $allowupdatedays = $bookingsettings->allowupdatedays;
-        if (isset($allowupdatedays) && $allowupdatedays != 10000 && !empty($starttime)) {
+        if (
+            !empty($bookingsettings->cancelrelativedate) &&
+            isset($allowupdatedays) &&
+            $allowupdatedays != 10000 &&
+            !empty($starttime)
+        ) {
             // Different string depending on plus or minus.
             if ($allowupdatedays >= 0) {
                 $datestring = " - $allowupdatedays days";
@@ -3064,6 +3069,13 @@ class booking_option {
                 $datestring = " + $allowupdatedays days";
             }
             $canceluntil = strtotime($datestring, $starttime);
+        } else if (
+            isset($bookingsettings->cancelrelativedate) &&
+            empty($bookingsettings->cancelrelativedate) &&
+            isset($bookingsettings->allowupdatetimestamp) &&
+            !empty($bookingsettings->allowupdatetimestamp)
+        ) {
+            $canceluntil = $bookingsettings->allowupdatetimestamp;
         } else {
             $canceluntil = 0;
         }

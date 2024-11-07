@@ -641,6 +641,14 @@ function booking_add_instance($booking) {
     $booking->beforecompletedtext = $booking->beforecompletedtext['text'] ?? null;
     $booking->aftercompletedtext = $booking->aftercompletedtext['text'] ?? null;
 
+    if (isset($booking->cancelrelativedate)) {
+        booking::add_data_to_json($booking, 'cancelrelativedate', $booking->cancelrelativedate);
+    }
+
+    if (isset($booking->allowupdatetimestamp)) {
+        booking::add_data_to_json($booking, 'allowupdatetimestamp', $booking->allowupdatetimestamp);
+    }
+
     // If no policy was entered, we still have to check for HTML tags.
     if (!isset($booking->bookingpolicy) || empty(strip_tags($booking->bookingpolicy))) {
         $booking->bookingpolicy = '';
@@ -864,6 +872,15 @@ function booking_update_instance($booking) {
         booking::remove_key_from_json($booking, "billboardtext");
     } else {
         booking::add_data_to_json($booking, "billboardtext", $booking->billboardtext);
+    }
+    if (empty($booking->cancelrelativedate)) {
+        // If date is not relative, delete given entries for relative dates.
+        $booking->allowupdatedays = "0";
+        booking::add_data_to_json($booking, "cancelrelativedate", $booking->cancelrelativedate);
+        booking::add_data_to_json($booking, "allowupdatetimestamp", $booking->allowupdatetimestamp);
+    } else {
+        booking::add_data_to_json($booking, "cancelrelativedate", $booking->cancelrelativedate);
+        booking::remove_key_from_json($booking, "allowupdatetimestamp");
     }
 
     // Update, delete or insert answers.

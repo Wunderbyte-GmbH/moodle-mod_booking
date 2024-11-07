@@ -353,9 +353,12 @@ class booking_bookit {
             } else if ($id === MOD_BOOKING_BO_COND_ASKFORCONFIRMATION) {
                 $isavailable = true;
             } else if ($id === MOD_BOOKING_BO_COND_ALREADYBOOKED || $id === MOD_BOOKING_BO_COND_ONWAITINGLIST) {
-
+                $cancelmyself = new cancelmyself();
                 // Add a layer of security to not cancel just because of unintentional double click.
-                if (!cancelmyself::apply_coolingoff_period($settings, $userid)) {
+                if (
+                    !cancelmyself::apply_coolingoff_period($settings, $userid) &&
+                    !$cancelmyself->is_available($settings, $userid)
+                ) {
                      // If the cancel condition is blocking here, we can actually mark the option for cancelation.
                     $cache = cache::make('mod_booking', 'confirmbooking');
                     $cachekey = $userid . "_" . $settings->id . "_cancel";

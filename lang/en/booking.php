@@ -617,6 +617,7 @@ $string['cancancelbookdays:bookingclosingtime'] = 'Disallow users to cancel thei
 $string['cancancelbookdays:bookingopeningtime'] = 'Disallow users to cancel their booking n days before <b>registration start</b> (booking opening time). Minus means, that users can still cancel n days AFTER registration start.';
 $string['cancancelbookdays:semesterstart'] = 'Disallow users to cancel their booking n days before <b>semester</b> start. Minus means, that users can still cancel n days AFTER semester start.';
 $string['cancancelbookdaysno'] = "Don't limit";
+$string['cancancelbookrelative'] = 'Set cancelling date relative to {$a}, not absolute';
 $string['cancel'] = 'Cancel';
 $string['cancelallusers'] = 'Cancel all booked users';
 $string['cancelbooking'] = 'Cancel booking';
