@@ -282,6 +282,10 @@ final class condition_allowupdate_test extends advanced_testcase {
         $campaingdata = (object)[
             'bofieldname' => 'spt1',
             'fieldvalue' => 'tennis',
+            'campaignfieldnameoperator' => '=',
+            'cpfield' => null,
+            'cpoperator' => null,
+            'cpvalue' => null,
             'blockoperator' => 'blockabove',
             'blockinglabel' => 'block_above_30',
             'hascapability' => null,
