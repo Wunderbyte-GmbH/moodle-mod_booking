@@ -206,7 +206,7 @@ class connectedcourse {
 
         // Courses need to have unique shortnames.
         $i = 1;
-        $shortname = !empty(self::clean_text($fullnamewithprefix)) ? self::clean_text($fullnamewithprefix) : 'newshortname';
+        $shortname = !empty(self::clean_text($fullnamewithprefix)) ? $fullnamewithprefix : 'newshortname';
         while ($DB->get_record('course', ['shortname' => $shortname])) {
             $shortname = $fullnamewithprefix . '_' . $i;
             $i++;
