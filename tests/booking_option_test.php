@@ -348,6 +348,9 @@ final class booking_option_test extends advanced_testcase {
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
         $option1 = $plugingenerator->create_option($record);
 
+        // Required to solve cahce issue.
+        singleton_service::destroy_booking_option_singleton($option1->id);
+
         $bookingobj1 = singleton_service::get_instance_of_booking_by_bookingid($booking1->id);
         $bookingsettings1 = singleton_service::get_instance_of_booking_settings_by_bookingid($bookingobj1->id);
         $bookingoption1 = singleton_service::get_instance_of_booking_option($bookingsettings1->cmid, $option1->id);
