@@ -349,6 +349,9 @@ class mod_booking_generator extends testing_module_generator {
         $ruleobject->actiondata = json_decode($ruledraft->actiondata);
         $ruleobject->rulename = $ruledraft->rulename;
         $ruleobject->ruledata = json_decode($ruledraft->ruledata);
+        if (empty($ruleobject->ruledata)) {
+            $ruleobject->ruledata = new stdClass();
+        }
 
         // Setup event name if provided explicitly or from ruledata if provided.
         if (!empty($ruledraft->eventname)) {
