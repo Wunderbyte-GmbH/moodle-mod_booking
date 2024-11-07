@@ -1222,6 +1222,7 @@ $string['installmoodlebugfix'] = 'Moodle update notwendig <span class="badge bg-
 $string['instancenotsavednovalidlicense'] = 'Buchung konnte nicht als Vorlage gespeichert werden.
                                                   Holen Sie sich die PRO-Version, um beliebig viele Vorlagen erstellen
                                                   zu können.';
+$string['instancename'] = "Instanzname";
 $string['instancesuccessfullysaved'] = 'Diese Buchung wurde erfolgreich als Vorlage gespeichert.';
 $string['instancetemplate'] = 'Buchungsinstanz-Vorlage';
 $string['institution'] = 'Institution';

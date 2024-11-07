@@ -1231,6 +1231,7 @@ $string['infotext:prolicensenecessary'] = 'You need a Booking PRO license if you
 $string['infowaitinglist'] = '<div class="infowaitinglist"><i>You are on the waiting list for this option.</i></div>';
 $string['installmentprice'] = 'installmentprice';
 $string['installmoodlebugfix'] = 'Moodle update necessary <span class="badge bg-danger text-light"><i class="fa fa-cogs" aria-hidden="true"></i> Important</span>';
+$string['instancename'] = "Name of instance";
 $string['instancenotsavednovalidlicense'] = 'Booking instance could not be saved as template.
                                                   Upgrade to PRO version to save an unlimited number of templates.';
 $string['instancesuccessfullysaved'] = 'This booking instance was sucesfully saved as template.';
