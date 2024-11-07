@@ -40,7 +40,6 @@ use context_course;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class connectedcourse {
-
     /**
      * Create new course.
      * @param stdClass $newoption
@@ -156,7 +155,6 @@ class connectedcourse {
                     $categoryid = $category->name;
                 }
             } else if (is_string($category->name) && !empty($category->name)) {
-
                 try {
                     $categories = core_course_external::get_categories([
                         ['key' => 'name', 'value' => $category->name],
@@ -256,12 +254,12 @@ class connectedcourse {
                         if (!$tag) {
                             throw new moodle_exception('tagnotfoundindb', 'mod_booking');
                         }
-                        $params['tag'. $indexparam] = $tag->id;
+                        $params['tag' . $indexparam] = $tag->id;
                         $where .= "t.tagid";
                         $where .= $operator == 'OR' ? ' = ' : ' != ';
                         $where .= ":tag" . $indexparam;
                         if ($index + 1 < $tagscount) {
-                            $where .= ' ' . $operator .' ';
+                            $where .= ' ' . $operator . ' ';
                         } else {
                             $where .= ")";
                         };
@@ -281,7 +279,6 @@ class connectedcourse {
         $courses = self::get_course_records($where, $params);
 
         foreach ($courses as $key => $course) {
-
             $context = context_course::instance($course->id);
             if (
                 !has_capability('moodle/course:view', $context)
@@ -305,14 +302,16 @@ class connectedcourse {
     protected static function get_course_records($whereclause, $params) {
         global $DB;
         $fields = ['c.id', 'c.fullname', 'c.shortname'];
-        $sql = "SELECT ". join(',', $fields).
+        $sql = "SELECT " . join(',', $fields) .
                 " FROM {course} c
                 JOIN {context} ctx ON c.id = ctx.instanceid
                 AND ctx.contextlevel = :contextcourse
                 WHERE " .
-                $whereclause."ORDER BY c.sortorder";
-        $list = $DB->get_records_sql($sql,
-            ['contextcourse' => CONTEXT_COURSE] + $params);
+                $whereclause . "ORDER BY c.sortorder";
+        $list = $DB->get_records_sql(
+            $sql,
+            ['contextcourse' => CONTEXT_COURSE] + $params
+        );
         return $list;
     }
 
