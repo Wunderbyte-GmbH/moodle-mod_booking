@@ -3046,12 +3046,22 @@ class booking_option {
                 throw new moodle_exception("Setting 'booking/canceldependenton' is dependent on semester start " .
                         "but no semester could be found.");
             }
-        } else if (get_config('booking', 'canceldependenton') == "bookingopeningtime"
-            && !empty($optionsettings->bookingopeningtime)) {
+        } else if (
+            get_config('booking', 'canceldependenton') == "bookingopeningtime"
+            && !empty($optionsettings->bookingopeningtime)
+        ) {
             $starttime = $optionsettings->bookingopeningtime;
-        } else if (get_config('booking', 'canceldependenton') == "bookingclosingtime"
-            && !empty($optionsettings->bookingclosingtime)) {
+        } else if (
+            get_config('booking', 'canceldependenton') == "bookingclosingtime"
+            && !empty($optionsettings->bookingclosingtime)
+        ) {
             $starttime = $optionsettings->bookingclosingtime;
+        } else {
+            // For 'coursestarttime', which is the default, we need to make sure that self-learning courses are not affected (#684).
+            // Self-learning courses use 'coursestarttime' as sorting date only. It's not used as actual start of the course.
+            if (self::get_value_of_json_by_key($optionid, "selflearningcourse")) {
+                return 0;
+            }
         }
 
         $allowupdatedays = $bookingsettings->allowupdatedays;
