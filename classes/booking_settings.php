@@ -353,7 +353,7 @@ class booking_settings {
 
     /** @var int $billboardtext */
     public $billboardtext = null;
-    
+
     /** @var int $cancelrelativedate */
     public $cancelrelativedate = null;
 

@@ -1219,10 +1219,10 @@ $string['infotext:prolicensenecessary'] = 'Sie benötigen Booking PRO, um dieses
 $string['infowaitinglist'] = '<div class="infowaitinglist"><i>Sie sind auf der Warteliste für diese Option.</i></div>';
 $string['installmentprice'] = 'Ratenzahlungspreis';
 $string['installmoodlebugfix'] = 'Moodle update notwendig <span class="badge bg-danger text-light"><i class="fa fa-cogs" aria-hidden="true"></i> Wichtig</span>';
+$string['instancename'] = "Instanzname";
 $string['instancenotsavednovalidlicense'] = 'Buchung konnte nicht als Vorlage gespeichert werden.
                                                   Holen Sie sich die PRO-Version, um beliebig viele Vorlagen erstellen
                                                   zu können.';
-$string['instancename'] = "Instanzname";
 $string['instancesuccessfullysaved'] = 'Diese Buchung wurde erfolgreich als Vorlage gespeichert.';
 $string['instancetemplate'] = 'Buchungsinstanz-Vorlage';
 $string['institution'] = 'Institution';
