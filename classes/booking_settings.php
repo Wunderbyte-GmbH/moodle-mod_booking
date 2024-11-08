@@ -337,6 +337,29 @@ class booking_settings {
     /** @var object $jsonobject is used to store non performance critical data like disablecancel, viewparam */
     public $jsonobject = null;
 
+    // Explicit declaration of params to avoid "Creation of dynamic property booking_settings::$xxxxxx is deprecated" error.
+
+    /** @var int $disablecancel */
+    public $disablecancel = null;
+
+    /** @var int $viewparam */
+    public $viewparam = null;
+
+    /** @var int $overwriteblockingwarnings */
+    public $overwriteblockingwarnings = null;
+
+    /** @var int $disablebooking */
+    public $disablebooking = null;
+
+    /** @var int $billboardtext */
+    public $billboardtext = null;
+    
+    /** @var int $cancelrelativedate */
+    public $cancelrelativedate = null;
+
+    /** @var int $allowupdatetimestamp */
+    public $allowupdatetimestamp = null;
+
     /**
      * Constructor for the booking settings class.
      *
