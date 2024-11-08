@@ -110,25 +110,35 @@ class rule_daysbefore implements booking_rule {
 
         // We support special treatments for shopping cart notifications.
         if (class_exists('local_shopping_cart\shopping_cart')) {
-
             $datefields['installmentpayment'] = get_string('installment', 'local_shopping_cart')
                 . " (" . get_string('pluginname', 'local_shopping_cart') . ")";
         }
 
-        $mform->addElement('static', 'rule_daysbefore_desc', '',
-            get_string('ruledaysbefore_desc', 'mod_booking'));
+        $mform->addElement(
+            'static',
+            'rule_daysbefore_desc',
+            '',
+            get_string('ruledaysbefore_desc', 'mod_booking')
+        );
 
         // Number of days before.
-        $mform->addElement('select', 'rule_daysbefore_days',
-            get_string('ruledays', 'mod_booking'), $numberofdaysbefore);
+        $mform->addElement(
+            'select',
+            'rule_daysbefore_days',
+            get_string('ruledays', 'mod_booking'),
+            $numberofdaysbefore
+        );
         $mform->setDefault('rule_daysbefore_days', 0);
         $repeateloptions['rule_daysbefore_days']['type'] = PARAM_TEXT;
 
         // Date field needed in combination with the number of days before.
-        $mform->addElement('select', 'rule_daysbefore_datefield',
-            get_string('ruledatefield', 'mod_booking'), $datefields);
+        $mform->addElement(
+            'select',
+            'rule_daysbefore_datefield',
+            get_string('ruledatefield', 'mod_booking'),
+            $datefields
+        );
         $repeateloptions['rule_daysbefore_datefield']['type'] = PARAM_TEXT;
-
     }
 
     /**
