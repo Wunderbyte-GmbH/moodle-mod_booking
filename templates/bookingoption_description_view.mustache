@@ -182,7 +182,12 @@
             {{^datesexist}}
                 {{#selflearningcourse}}
                     <i class="fa fa-fw fa-clock-o" aria-hidden="true"></i>&nbsp;
-                    {{#str}}selflearningcourse:durationinfo, mod_booking, {{duration}}{{/str}}
+                    {{^timeremaining}}
+                        {{#str}}selflearningcourse:durationinfo, mod_booking, {{duration}}{{/str}}
+                    {{/timeremaining}}
+                    {{#timeremaining}}
+                        {{#str}}selflearningcourse:timeremaininginfo, mod_booking, {{timeremaining}}{{/str}}
+                    {{/timeremaining}}
                 {{/selflearningcourse}}
             {{/datesexist}}
         </div>

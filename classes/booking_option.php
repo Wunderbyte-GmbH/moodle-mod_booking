@@ -974,10 +974,11 @@ class booking_option {
      * @throws \moodle_exception
      */
     public function enrol_user_coursestart($userid) {
-        if ($this->option->enrolmentstatus == 2 ||
-            ($this->option->enrolmentstatus < 2 && $this->option->coursestarttime < time())) {
-
-                // This is a new elective function. We only allow booking in the right order.
+        if (
+            $this->option->enrolmentstatus == 2 ||
+            ($this->option->enrolmentstatus < 2 && $this->option->coursestarttime < time())
+        ) {
+            // This is a new elective function. We only allow booking in the right order.
             if ($this->booking->is_elective()) {
                 if (!elective::check_if_allowed_to_inscribe($this, $userid)) {
                     // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
@@ -985,7 +986,6 @@ class booking_option {
                     return;
                 }
             }
-
             $this->enrol_user($userid);
         }
     }
@@ -1005,11 +1005,12 @@ class booking_option {
      * @return bool true if booking was possible, false if meanwhile the booking got full
      */
     public function user_submit_response(
-            $user,
-            $frombookingid = 0,
-            $subtractfromlimit = 0,
-            $status = 0,
-            $verified = MOD_BOOKING_UNVERIFIED) {
+        $user,
+        $frombookingid = 0,
+        $subtractfromlimit = 0,
+        $status = 0,
+        $verified = MOD_BOOKING_UNVERIFIED
+    ) {
 
         global $USER;
 
@@ -1035,7 +1036,7 @@ class booking_option {
 
         // The $status == 2 means confirm. Under some circumstances, waitinglist can be false here.
         if ($waitinglist === false && $status != 2) {
-
+            // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
             // TODO: introduce an "allowoverbooking" param into the availability JSON.
             // If the JSON contains it, we want to allow overbooking even without a waiting list.
             // TOOD: It has to be added to the override conditions mform elements as a checkbox.
@@ -1068,7 +1069,7 @@ class booking_option {
         $bookinganswers = singleton_service::get_instance_of_booking_answers($this->settings);
 
         if (isset($bookinganswers->users[$user->id]) && ($currentanswer = $bookinganswers->users[$user->id])) {
-            switch($currentanswer->waitinglist) {
+            switch ($currentanswer->waitinglist) {
                 case MOD_BOOKING_STATUSPARAM_DELETED:
                     break;
                 case MOD_BOOKING_STATUSPARAM_BOOKED:
@@ -1090,11 +1091,8 @@ class booking_option {
                     // If we are not yet booked and we need manual confirmation...
                     // ... We switch booking param to waitinglist.
                     if (!empty($this->settings->waitforconfirmation)) {
-
                         $waitinglist = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
-
                     }
-
                     break;
             }
             $currentanswerid = $currentanswer->baid;
@@ -1103,9 +1101,10 @@ class booking_option {
             $currentanswerid = null;
             $timecreated = null;
 
-            if ($waitinglist === MOD_BOOKING_STATUSPARAM_BOOKED
-                && !empty($this->settings->waitforconfirmation)) {
-
+            if (
+                $waitinglist === MOD_BOOKING_STATUSPARAM_BOOKED
+                && !empty($this->settings->waitforconfirmation)
+            ) {
                 $waitinglist = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
 
                 $event = bookinganswer_waitingforconfirmation::create([
@@ -1118,14 +1117,16 @@ class booking_option {
             }
         }
 
-        self::write_user_answer_to_db($this->booking->id,
-                                       $frombookingid,
-                                       $user->id,
-                                       $this->optionid,
-                                       $waitinglist,
-                                       $currentanswerid,
-                                       $timecreated,
-                                       $status);
+        self::write_user_answer_to_db(
+            $this->booking->id,
+            $frombookingid,
+            $user->id,
+            $this->optionid,
+            $waitinglist,
+            $currentanswerid,
+            $timecreated,
+            $status
+        );
 
         // Important: Purge caches after submitting a new user.
         self::purge_cache_for_answers($this->optionid);
@@ -1457,7 +1458,13 @@ class booking_option {
      * @param bool $isteacher true for teacher enrolments
      * @param int $courseid can override given courseid.
      */
-    public function enrol_user(int $userid, bool $manual = false, int $roleid = 0, bool $isteacher = false, int $courseid = 0) {
+    public function enrol_user(
+        int $userid,
+        bool $manual = false,
+        int $roleid = 0,
+        bool $isteacher = false,
+        int $courseid = 0
+    ) {
         global $DB;
 
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
@@ -1478,9 +1485,13 @@ class booking_option {
         if (!$enrol = enrol_get_plugin('manual')) {
             return; // No manual enrolment plugin.
         }
-        if (!$instances = $DB->get_records('enrol',
-                        ['enrol' => 'manual', 'courseid' => $courseid, 'status' => ENROL_INSTANCE_ENABLED],
-                        'sortorder,id ASC')) {
+        if (
+            !$instances = $DB->get_records(
+                'enrol',
+                ['enrol' => 'manual', 'courseid' => $courseid, 'status' => ENROL_INSTANCE_ENABLED],
+                'sortorder,id ASC'
+            )
+        ) {
             return; // No manual enrolment instance on this course.
         }
 
@@ -1488,28 +1499,49 @@ class booking_option {
 
         $instance = reset($instances); // Use the first manual enrolment plugin in the course.
         if ($bookinganswers->user_status($userid) == MOD_BOOKING_STATUSPARAM_BOOKED || $isteacher) {
-
-            // If a semester is set for the booking option...
-            // ...then we only want to enrol from semester startdate to semester enddate.
-            if (empty($this->settings->semesterid) || $isteacher) {
+            // For self-learning courses, users will be enrolled from the time booked...
+            // ...until the duration of the self-learning course has passed #684.
+            if (!empty($this->settings->selflearningcourse) && !$isteacher) {
+                $now = time();
+                $duration = $this->settings->duration ?? 0;
+                $end = $now + $duration;
+                // Enrol using the default role from now until now + duration.
+                $enrol->enrol_user(
+                    $instance,
+                    $userid,
+                    ($roleid > 0 ? $roleid : $instance->roleid),
+                    $now,
+                    $end
+                );
+            } else if (empty($this->settings->semesterid) || $isteacher) {
+                // If a semester is set for the booking option...
+                // ...then we only want to enrol from semester startdate to semester enddate.
                 // Enrol using the default role.
                 $enrol->enrol_user($instance, $userid, ($roleid > 0 ? $roleid : $instance->roleid));
             } else {
                 if ($semesterobj = $DB->get_record('booking_semesters', ['id' => $this->settings->semesterid])) {
                     // Enrol using the default role from semester start until semester end.
-                    $enrol->enrol_user($instance, $userid, ($roleid > 0 ? $roleid : $instance->roleid),
-                        $semesterobj->startdate, $semesterobj->enddate);
+                    $enrol->enrol_user(
+                        $instance,
+                        $userid,
+                        ($roleid > 0 ? $roleid : $instance->roleid),
+                        $semesterobj->startdate,
+                        $semesterobj->enddate
+                    );
                 } else {
                     // Enrol using the default role.
                     $enrol->enrol_user($instance, $userid, ($roleid > 0 ? $roleid : $instance->roleid));
                 }
             }
 
+            // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
             // TODO: Track enrolment status in booking_answers. It makes no sense to track it in booking_options.
             if ($bookingsettings->addtogroup == 1) {
                 $groups = groups_get_all_groups($courseid);
-                if (!is_null($this->option->groupid) && ($this->option->groupid > 0) &&
-                        in_array($this->option->groupid, $groups)) {
+                if (
+                    !is_null($this->option->groupid) && ($this->option->groupid > 0)
+                    && in_array($this->option->groupid, $groups)
+                ) {
                     groups_add_member($this->option->groupid, $userid);
                 } else {
                     $newoptionstd = $this->settings->return_settings_as_stdclass();
@@ -3059,7 +3091,7 @@ class booking_option {
         } else {
             // For 'coursestarttime', which is the default, we need to make sure that self-learning courses are not affected (#684).
             // Self-learning courses use 'coursestarttime' as sorting date only. It's not used as actual start of the course.
-            if (self::get_value_of_json_by_key($optionid, "selflearningcourse")) {
+            if (!empty($optionsettings->selflearningcourse)) {
                 return 0;
             }
         }

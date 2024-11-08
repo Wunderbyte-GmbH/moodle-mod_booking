@@ -104,6 +104,9 @@ class bookingoption_description implements renderable, templatable {
     /** @var string $duration is saved in db as seconds and will be formatted in this class */
     private $duration = null;
 
+    /** @var string $timeremaining */
+    private $timeremaining = null;
+
     /** @var string $booknowbutton as saved in db in minutes */
     private $booknowbutton = null;
 
@@ -253,10 +256,18 @@ class bookingoption_description implements renderable, templatable {
         $this->modalcounter = $settings->id;
 
         // Check if it's a self-learning course. There's a JSON flag for this.
-        if (!empty(booking_option::get_value_of_json_by_key($optionid, "selflearningcourse"))) {
+        if (!empty($settings->selflearningcourse)) {
             $this->selflearningcourse = true;
             // Format the duration correctly.
             $this->duration = format_time($settings->duration);
+
+            $ba = singleton_service::get_instance_of_booking_answers($settings);
+            $buyforuser = price::return_user_to_buy_for();
+            if (isset($ba->usersonlist[$buyforuser->id])) {
+                $timebooked = $ba->usersonlist[$buyforuser->id]->timecreated;
+                $timeremainingsec = $timebooked + $settings->duration - time();
+                $this->timeremaining = format_time($timeremainingsec);
+            }
         }
 
         // Datestring for date series and calculation of educational unit length.
@@ -550,6 +561,10 @@ class bookingoption_description implements renderable, templatable {
             'editurl' => !empty($this->editurl) ? $this->editurl : false,
             'returnurl' => !empty($this->returnurl) ? $this->returnurl : false,
         ];
+
+        if (!empty($this->timeremaining)) {
+            $returnarray['timeremaining'] = $this->timeremaining;
+        }
 
         if (!empty($this->unitstring)) {
             $returnarray['unitstring'] = $this->unitstring;

@@ -175,9 +175,9 @@ class duration extends field_base {
 
         if (!empty($data->importing)) {
             $data->selflearningcourse = $data->selflearningcourse
-                ?? booking_option::get_value_of_json_by_key($data->id, "selflearningcourse") ?? 0;
+                ?? $settings->selflearningcourse ?? 0;
         } else {
-            $selflearningcourse = booking_option::get_value_of_json_by_key($data->id, "selflearningcourse");
+            $selflearningcourse = $settings->selflearningcourse;
             if (!empty($selflearningcourse)) {
                 $data->selflearningcourse = $selflearningcourse;
             }

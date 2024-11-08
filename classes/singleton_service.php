@@ -134,7 +134,7 @@ class singleton_service {
      * @param booking_option_settings $settings
      * @return booking_answers
      */
-    public static function get_instance_of_booking_answers($settings) {
+    public static function get_instance_of_booking_answers($settings): booking_answers {
 
         $instance = self::get_instance();
 

@@ -1803,6 +1803,7 @@ können Sie hier keine Termine angeben, sondern nur ein Sortierdatum.
 (Dieses wird auch als Startdatum für einen automatisch generierten Moodle-Kurs verwendet, falls Sie einen neuen erstellen).';
 $string['selflearningcourse:coursestarttime_help'] = 'Dieses Datum wird ausschließlich für die Sortierung verwendet,da Selbstlernkurse kein fixes Startdatum haben.';
 $string['selflearningcourse:durationinfo'] = 'Dieser Kurs dauert {$a}.';
+$string['selflearningcourse:timeremaininginfo'] = 'Sie haben noch {$a} Zugriff auf diesen Kurs.';
 $string['selflearningcourse_alert'] = 'Bei Selbstlernkursen werden die Benutzer:innen immer <b>direkt nach der Buchung</b>
 in den verbundenen Moodle-Kurs eingeschrieben. Die angegebene Dauer legt fest, wie lange der:die Benutzer:in im Kurs eingeschrieben bleibt.<br><br>
 <b>Achtung:</b> Bei Selbstlernkursen können Sie keine Termine angeben, jedoch ein <b>Sortierdatum</b> (im Abschnitt "Termine"), das für die Sortierung verwendet wird.';

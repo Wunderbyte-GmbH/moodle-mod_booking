@@ -1870,6 +1870,7 @@ you cannot add dates here but only provide a sorting date which will be used for
 (only if you automatically create a new one).';
 $string['selflearningcourse:coursestarttime_help'] = 'This date will be used for sorting because self-learning courses do not have a fixed start date.';
 $string['selflearningcourse:durationinfo'] = 'This course has a duration of {$a}.';
+$string['selflearningcourse:timeremaininginfo'] = 'There are {$a} left to complete this course.';
 $string['selflearningcourse_alert'] = 'For self-learning courses, users will always be enrolled into the connected Moodle course <b>immediately after booking</b>.
 They will stay enrolled in the Moodle course for the provided duration.<br><br><b>Please note:</b> You cannot provide any dates for self-learning courses
 but you can provide a sorting date (in the "Dates" section).';

@@ -20,6 +20,7 @@ use context;
 use mod_booking\booking_rules\actions_info;
 use mod_booking\booking_rules\booking_rule;
 use mod_booking\booking_rules\conditions_info;
+use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
 
@@ -232,8 +233,7 @@ class rule_daysbefore implements booking_rule {
      * @param int $userid optional
      */
     public function execute(int $optionid = 0, int $userid = 0) {
-        global $DB;
-
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $jsonobject = json_decode($this->rulejson);
 
         // We reuse this code when we check for validity, therefore we use a separate function.
@@ -248,7 +248,7 @@ class rule_daysbefore implements booking_rule {
         foreach ($records as $record) {
             // Self-learning courses use coursestarttime only for sorting #684.
             // So if a rule is dependent on coursestarttime or courseendtime, we just skip the execution.
-            if (!empty(booking_option::get_value_of_json_by_key($record->optionid, 'selflearningcourse'))) {
+            if (!empty($settings->selflearningcourse)) {
                 if (
                     !empty($jsonobject->ruledata->datefield)
                     && (

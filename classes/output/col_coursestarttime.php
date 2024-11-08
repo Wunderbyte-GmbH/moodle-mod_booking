@@ -30,6 +30,7 @@ use renderer_base;
 use renderable;
 use templatable;
 use mod_booking\option\dates_handler;
+use mod_booking\price;
 use mod_booking\singleton_service;
 
 /**
@@ -55,6 +56,9 @@ class col_coursestarttime implements renderable, templatable {
     /** @var string $duration */
     public $duration = null;
 
+    /** @var string $timeremaining */
+    public $timeremaining = null;
+
     /**
      * Constructor
      *
@@ -72,9 +76,18 @@ class col_coursestarttime implements renderable, templatable {
             $cmid = $booking->cm->id;
         }
 
-        if (!empty(booking_option::get_value_of_json_by_key($optionid, "selflearningcourse"))) {
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        if (!empty($settings->selflearningcourse)) {
+            $ba = singleton_service::get_instance_of_booking_answers($settings);
+            $buyforuser = price::return_user_to_buy_for();
+            if (isset($ba->usersonlist[$buyforuser->id])) {
+                $timebooked = $ba->usersonlist[$buyforuser->id]->timecreated;
+                $timeremainingsec = $timebooked + $settings->duration - time();
+                $this->timeremaining = format_time($timeremainingsec);
+            }
+
             $this->selflearningcourse = true;
-            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
             $this->duration = format_time($settings->duration);
         }
 
@@ -103,6 +116,9 @@ class col_coursestarttime implements renderable, templatable {
             if (!empty($this->selflearningcourse)) {
                 $returnarr['selflearningcourse'] = $this->selflearningcourse;
                 $returnarr['duration'] = $this->duration;
+                if (!empty($this->timeremaining)) {
+                    $returnarr['timeremaining'] = $this->timeremaining;
+                }
                 return $returnarr;
             } else {
                 return [];
