@@ -50,17 +50,8 @@ final class lib_test extends advanced_testcase {
      * Tests set up.
      */
     public function setUp(): void {
-
-    }
-
-    /**
-     * Tear Down.
-     *
-     * @return void
-     *
-     */
-    public function tearDown(): void {
-
+        parent::setUp();
+        $this->resetAfterTest(true);
     }
 
     /**

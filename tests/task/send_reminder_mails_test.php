@@ -49,16 +49,8 @@ final class send_reminder_mails_test extends advanced_testcase {
      * Tests set up.
      */
     public function setUp(): void {
+        parent::setUp();
         $this->resetAfterTest();
-    }
-
-    /**
-     * Tear Down.
-     *
-     * @return void
-     *
-     */
-    public function tearDown(): void {
     }
 
     /**

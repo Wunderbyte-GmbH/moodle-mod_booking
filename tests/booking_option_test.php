@@ -56,15 +56,6 @@ final class booking_option_test extends advanced_testcase {
     }
 
     /**
-     * Tear Down.
-     *
-     * @return void
-     *
-     */
-    public function tearDown(): void {
-    }
-
-    /**
      * Test update of bookig option and tracking changes.
      *
      * @covers \mod_booking\event\teacher_added

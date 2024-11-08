@@ -51,16 +51,8 @@ final class condition_allowupdatetimestamp_test extends advanced_testcase {
      * Tests set up.
      */
     public function setUp(): void {
+        parent::setUp();
         $this->resetAfterTest(true);
-    }
-
-    /**
-     * Tear Down.
-     *
-     * @return void
-     *
-     */
-    public function tearDown(): void {
     }
 
     /**
