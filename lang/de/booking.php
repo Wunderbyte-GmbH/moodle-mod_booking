@@ -2121,6 +2121,7 @@ $string['userspecificcampaignwarning'] = "Wenn Sie ein unten ein Benutzerdefinie
 $string['userssuccessfullenrolled'] = 'Alle Nutzer:innen wurden erfolgreich eingeschrieben!';
 $string['userssuccessfullybooked'] = 'Alle Nutzer:innen wurden erfolgreich in die andere Buchungsoption eingeschrieben.';
 $string['userssucesfullygetnewpresencestatus'] = 'Anwesenheitsstatus für ausgewählte Nutzer:innen erfolgreich aktualisiert';
+$string['userstonotify'] = 'Benachrichtigungsliste';
 $string['userwhotriggeredevent'] = 'Nutzer:in, die das Ereignis ausgelöst hat';
 $string['viewallresponses'] = '{$a} Buchungen verwalten';
 $string['viewparam'] = 'Ansichtsart';

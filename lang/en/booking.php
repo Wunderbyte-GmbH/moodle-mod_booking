@@ -2200,6 +2200,7 @@ $string['userssuccessfullenrolled'] = 'All users have been enrolled!';
 $string['userssuccessfullybooked'] = 'All users have been booked to the other booking option.';
 $string['userssuccessfullygetnewpresencestatus'] = 'All users have a new presence status.';
 $string['userssucesfullygetnewpresencestatus'] = 'Presence status for selected users successfully updated';
+$string['userstonotify'] = 'Notification list';
 $string['userwhotriggeredevent'] = 'User who triggered the event';
 $string['viewallresponses'] = 'Manage {$a} responses';
 $string['viewparam'] = 'View type';

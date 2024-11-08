@@ -199,9 +199,11 @@ class duration extends field_base {
      */
     public static function validation(array $data, array $files, array &$errors) {
         // Check if we have dates set by checking if there are keys starting with "optiondate_".
-        $keys = preg_grep('/^optiondateid_/', array_keys($data));
-        if (!empty($keys)) {
-            $errors['selflearningcourse'] = get_string('error:selflearningcourseallowsnodates', 'mod_booking');
+        if (!empty($data['selflearningcourse'])) {
+            $keys = preg_grep('/^optiondateid_/', array_keys($data));
+            if (!empty($keys)) {
+                $errors['selflearningcourse'] = get_string('error:selflearningcourseallowsnodates', 'mod_booking');
+            }
         }
         return $errors;
     }
