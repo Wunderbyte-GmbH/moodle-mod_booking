@@ -1052,7 +1052,6 @@ $string['error:reasonforsubstituteteacher'] = 'Enter a reason for the substitute
 $string['error:reasontoolong'] = 'Reason is too long, enter a shorter text.';
 $string['error:ruleactionsendcopynotpossible'] = 'It\'s not possible to send an e-mail copy for the event you chose.';
 $string['error:selflearningcourseallowsnodates'] = 'Booking options of type "{$a}" are not allowed to have dates. Please remove all dates and save again.';
-$string['error:selflearningcoursemoodlecoursemissing'] = 'Booking options of type "{$a}" have to be connected to a Moodle course.';
 $string['error:semestermissingbutcanceldependentonsemester'] = 'The setting to calculate cancellation periods from semester start is active but semester is missing!';
 $string['error:taskalreadystarted'] = 'You have already started a task!';
 $string['error:wrongteacherid'] = 'Error: No user could be found for the provided "teacherid".';

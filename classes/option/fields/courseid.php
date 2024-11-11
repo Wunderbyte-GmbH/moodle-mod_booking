@@ -141,22 +141,6 @@ class courseid extends field_base {
             $data['courseid'] = reset($data['courseid']);
         }
 
-        if (
-            !empty($data['selflearningcourse'])
-            && ($data['chooseorcreatecourse'] == 0)
-        ) {
-            $selflearningcourselabel = get_string('selflearningcourse', 'mod_booking');
-            // The label can be overwritten in plugin config.
-            if (!empty(get_config('booking', 'selflearningcourselabel'))) {
-                $selflearningcourselabel = get_config('booking', 'selflearningcourselabel');
-            }
-            $errors['chooseorcreatecourse'] = get_string(
-                'error:selflearningcoursemoodlecoursemissing',
-                'mod_booking',
-                $selflearningcourselabel
-            );
-        }
-
         return $errors;
     }
 
