@@ -1,4 +1,6 @@
 <?php
+
+use mod_booking\placeholders\placeholders_info;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -60,38 +62,23 @@ $PAGE->set_pagelayout('standard');
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string("bookedtext", "booking"), 3, 'helptitle', 'uniqueid');
 
-$user = $DB->get_record('user', ['id' => $USER->id]);
-$answer = $DB->get_record_sql(
-    "SELECT * FROM {booking_answers}
-    WHERE userid = :userid
-    AND optionid = :optionid
-    AND waitinglist < 2",
-    ['userid' => $USER->id, 'optionid' => $optionid]);
-if (!$answer) {
+$settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+$answer = singleton_service::get_instance_of_booking_answers($settings);
+
+$userid = $USER->id;
+if (isset($answer->usersonlist[$userid])) {
+    $text = get_string('viewconfirmationbooked', 'booking');
+} else if (isset($answer->usersonwaitinglist[$userid])) {
+    $text = get_string('viewconfirmationwaiting', 'booking');
+} else {
     echo $OUTPUT->error_text(get_string("notbooked", "booking"));
     echo $OUTPUT->continue_button(new moodle_url('/course/view.php', ['id' => $course->id]));
     echo $OUTPUT->footer();
+    return;
 }
 
-if ($answer->waitinglist == 1) {
-    $msgparam = MOD_BOOKING_MSGPARAM_WAITINGLIST;
-} else {
-    $msgparam = MOD_BOOKING_MSGPARAM_CONFIRMATION;
-}
+$text = placeholders_info::render_text($text, $cmid, $optionid);
 
-// New message controller.
-$messagecontroller = new message_controller(
-    MOD_BOOKING_MSGCONTRPARAM_VIEW_CONFIRMATION,
-    $msgparam,
-    $cmid,
-    $bookingoption->optionid,
-    $user->id,
-    $bookingoption->bookingid
-);
-
-// Get the message from message controller (DO NOT SEND, we only want to show it here).
-$message = $messagecontroller->get_messagebody();
-
-echo "{$message}";
+echo "{$text}";
 
 echo $OUTPUT->footer();

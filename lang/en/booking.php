@@ -2209,6 +2209,20 @@ $string['userssucesfullygetnewpresencestatus'] = 'Presence status for selected u
 $string['userstonotify'] = 'Notification list';
 $string['userwhotriggeredevent'] = 'User who triggered the event';
 $string['viewallresponses'] = 'Manage {$a} responses';
+$string['viewconfirmationbooked'] = 'Your booking has been registered:
+{bookingdetails}
+<p>##########################################</p>
+Booking status: {status} <br>
+Participant:   {firstname} {lastname} <br>
+Back to overview of bookingoptions: {bookinglink}
+';
+$string['viewconfirmationwaiting'] = 'You are now on the waiting list of:
+{bookingdetails}
+<p>##########################################</p>
+Booking status: {status} <br>
+Participant:   {firstname} {lastname} <br>
+Back to overview of bookingoptions: {bookinglink}
+';
 $string['viewparam'] = 'View type';
 $string['viewparam:cards'] = 'Cards view';
 $string['viewparam:list'] = 'List view';

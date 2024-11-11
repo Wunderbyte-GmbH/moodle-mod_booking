@@ -2130,6 +2130,20 @@ $string['userssucesfullygetnewpresencestatus'] = 'Anwesenheitsstatus für ausgew
 $string['userstonotify'] = 'Benachrichtigungsliste';
 $string['userwhotriggeredevent'] = 'Nutzer:in, die das Ereignis ausgelöst hat';
 $string['viewallresponses'] = '{$a} Buchungen verwalten';
+$string['bookedtextmessage'] = 'Ihre Buchung wurde registriert:
+{bookingdetails}
+<p>##########################################</p>
+Buchungsstatus: {status} <br>
+Teilnehmer:   {firstname} {lastname} <br>
+Zurück zur Übersicht der Buchungsoptionen: {bookinglink} <br>
+';
+$string['viewconfirmationwaiting'] = 'Sie sind nun auf der Warteliste von:
+{bookingdetails}
+<p>##########################################</p>
+Buchungsstatus: {status} <br>
+Teilnehmer:   {firstname} {lastname} <br>
+Zurück zur Übersicht der Buchungsoptionen: {bookinglink} <br>
+';
 $string['viewparam'] = 'Ansichtsart';
 $string['viewparam:cards'] = 'Karten-Ansicht';
 $string['viewparam:list'] = 'Listen-Ansicht';

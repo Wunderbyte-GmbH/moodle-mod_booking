@@ -35,6 +35,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
  * Control and manage placeholders for booking instances, options and mails.
+ * Returns a link to a course the bookingoption is related to.
  *
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
  * @author Georg Maißer

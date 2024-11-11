@@ -85,7 +85,7 @@ class bookinglink {
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
             $value = '';
-            if ($settings->courseid) {
+            if ($settings->cmid) {
                 $bookinglink = new moodle_url('/mod/booking/view.php', ['id' => $cmid]);
                 $value = html_writer::link($bookinglink, $bookinglink->out());
             }
