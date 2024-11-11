@@ -201,18 +201,27 @@ class customfields extends field_base {
                 // For the moment we don't return exact data about fields and values.
                 // Only report that there was change in the section.
                 // Can be extended when needed.
-
-                $changes = [
+                $fieldname = $data->get_field()->get('name') ?? $key;
+                $changes[$key] = [
                     'changes' => [
                         'fieldname' => 'customfields',
+                        'oldvalue' => $fieldname . ' : ' . $oldvalue,
+                        'newvalue' => $fieldname . ' : ' . $newvalue,
                     ],
                 ];
-                break;
             }
         }
+        // Changes can apply to multiple fields.
+        $allchanges = [];
+        if (!empty($changes)) {
+            $allchanges['changes'] = [];
+            foreach ($changes as $key => $change) {
+                $allchanges['changes'][] = $change;
+            }
+        };
 
         $handler->instance_form_save($formdata, $optionid == -1);
-        return $changes;
+        return $allchanges;
     }
 
     /**
