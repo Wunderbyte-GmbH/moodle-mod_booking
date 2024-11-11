@@ -1038,8 +1038,8 @@ $string['error:reasonfornoteacher'] = 'Geben Sie einen Grund an, warum an diesem
 $string['error:reasonforsubstituteteacher'] = 'Geben Sie einen Grund für die Vertretung an.';
 $string['error:reasontoolong'] = 'Grund ist zu lange, geben Sie einen kürzeren Text ein.';
 $string['error:ruleactionsendcopynotpossible'] = 'Für das gewählte Ereignis kann leider keine E-Mail-Kopie versendet werden.';
-$string['error:selflearningcourseallowsnodates'] = 'Selbstlernkurse dürfen keine Termine haben. Bitte löschen Sie alle Termine bevor Sie speichern.';
-$string['error:selflearningcoursemoodlecoursemissing'] = 'Selbstlernkurse müssen mit einem Moodle-Kurs verbunden sein.';
+$string['error:selflearningcourseallowsnodates'] = 'Buchungsoptionen vom Typ "{$a}" dürfen keine Termine haben. Bitte löschen Sie alle Termine bevor Sie speichern.';
+$string['error:selflearningcoursemoodlecoursemissing'] = 'Buchungsoptionen vom Typ "{$a}" müssen mit einem Moodle-Kurs verbunden sein.';
 $string['error:semestermissingbutcanceldependentonsemester'] = 'Die Einstellung zur Berechnung der
 Stornierungsfrist ab Semesterbeginn ist aktiv, aber das Semester fehlt!';
 $string['error:taskalreadystarted'] = 'Sie haben bereits einen Task gestartet!';
@@ -1798,16 +1798,22 @@ $string['selectusers'] = "Wähle Nutzer:innen ohne direkte Verbindung zur Buchun
 $string['selectusershoppingcart'] = "Wähle Nutzer:in die Ratenzahlung zu leisten hat";
 $string['selflearningcourse'] = 'Selbstlernkurs';
 $string['selflearningcourse:coursestarttime'] = 'Sortierdatum';
-$string['selflearningcourse:coursestarttime_alert'] = 'Da Sie unter "Moodle-Kurs" die Option "Selbstlernkurs" gewählt haben,
+$string['selflearningcourse:coursestarttime_alert'] = 'Da Sie unter "Moodle-Kurs" die Option "{$a}" gewählt haben,
 können Sie hier keine Termine angeben, sondern nur ein Sortierdatum.
 (Dieses wird auch als Startdatum für einen automatisch generierten Moodle-Kurs verwendet, falls Sie einen neuen erstellen).';
-$string['selflearningcourse:coursestarttime_help'] = 'Dieses Datum wird ausschließlich für die Sortierung verwendet,da Selbstlernkurse kein fixes Startdatum haben.';
+$string['selflearningcourse:coursestarttime_help'] = 'Dieses Datum wird ausschließlich für die Sortierung verwendet, da Buchungsoptionen vom Typ "{$a}" kein fixes Startdatum haben.';
 $string['selflearningcourse:durationinfo'] = 'Dieser Kurs dauert {$a}.';
+$string['selflearningcourse:label'] = 'Bezeichnung für Buchungsoptionen mit fixer Dauer';
+$string['selflearningcourse:label_desc'] = 'Buchungsoptionen mit fixer Dauer, aber ohne Termine, haben die Standardbezeichnung "Selbstlernkurs".
+Sie können hier einen beliebigen anderen Namen für diesen Typ von Buchungsoptionen vergeben.';
+$string['selflearningcourse:settingsheader'] = 'Buchungsoptionen mit fixer Dauer ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['selflearningcourse:settingsheader_desc'] = 'Dieses Feature erlaubt es Ihnen Buchungsoptionen ohne Termine, jedoch mit einer fixen Dauer anzulegen.
+Die Benutzer:innen werden bei der Buchung für die festgelegte Dauer in den verknüpften Moodle-Kurs eingeschrieben.';
 $string['selflearningcourse:timeremaininginfo'] = 'Sie haben noch {$a} Zugriff auf diesen Kurs.';
-$string['selflearningcourse_alert'] = 'Bei Selbstlernkursen werden die Benutzer:innen immer <b>direkt nach der Buchung</b>
+$string['selflearningcourse_alert'] = 'Bei Buchungsoptionen vom Typ "{$a}" werden die Benutzer:innen immer <b>direkt nach der Buchung</b>
 in den verbundenen Moodle-Kurs eingeschrieben. Die angegebene Dauer legt fest, wie lange der:die Benutzer:in im Kurs eingeschrieben bleibt.<br><br>
-<b>Achtung:</b> Bei Selbstlernkursen können Sie keine Termine angeben, jedoch ein <b>Sortierdatum</b> (im Abschnitt "Termine"), das für die Sortierung verwendet wird.';
-$string['selflearningcourse_help'] = 'Selbstlernkurse haben eine fixe Dauer, aber keine fixen Termine. Der Kurs beginnt sobald er gebucht wurde.';
+<b>Achtung:</b> Sie können keine Termine angeben, jedoch ein <b>Sortierdatum</b> (im Abschnitt "Termine"), das für die Sortierung verwendet wird.';
+$string['selflearningcourse_help'] = 'Buchungsoptionen vom Typ "{$a}" haben eine fixe Dauer, aber keine fixen Termine. Der Kurs beginnt sobald er gebucht wurde.';
 $string['semester'] = 'Semester';
 $string['semesterend'] = 'Semesterende';
 $string['semesterend_help'] = 'An welchem Tag endet das Semester?';

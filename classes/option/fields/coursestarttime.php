@@ -149,12 +149,18 @@ class coursestarttime extends field_base {
             fields_info::add_header_to_mform($mform, self::$header);
         }
 
+        $selflearningcourselabel = get_string('selflearningcourse', 'mod_booking');
+        // The label can be overwritten in plugin config.
+        if (!empty(get_config('booking', 'selflearningcourselabel'))) {
+            $selflearningcourselabel = get_config('booking', 'selflearningcourselabel');
+        }
+
         $mform->addElement(
             'static',
             'selflearningcourse:coursestarttime_alert',
             '',
             '<div class="alert alert-warning">' .
-                get_string('selflearningcourse:coursestarttime_alert', 'mod_booking') .
+                get_string('selflearningcourse:coursestarttime_alert', 'mod_booking', $selflearningcourselabel) .
                 '</div>'
         );
         $mform->hideIf('selflearningcourse:coursestarttime_alert', 'selflearningcourse', 'neq', 1);
@@ -165,7 +171,14 @@ class coursestarttime extends field_base {
             get_string('selflearningcourse:coursestarttime', 'mod_booking')
         );
         $mform->setType('coursestarttime', PARAM_INT);
-        $mform->addHelpButton('coursestarttime', 'selflearningcourse:coursestarttime', 'mod_booking');
+        $mform->addHelpButton(
+            'coursestarttime',
+            'selflearningcourse:coursestarttime',
+            'mod_booking',
+            '',
+            false,
+            $selflearningcourselabel
+        );
         $mform->hideIf('coursestarttime', 'selflearningcourse', 'neq', 1);
     }
 }

@@ -137,23 +137,29 @@ class duration extends field_base {
             fields_info::add_header_to_mform($mform, self::$header);
         }
 
+        $selflearningcourselabel = get_string('selflearningcourse', 'mod_booking');
+        // The label can be overwritten in plugin config.
+        if (!empty(get_config('booking', 'selflearningcourselabel'))) {
+            $selflearningcourselabel = get_config('booking', 'selflearningcourselabel');
+        }
+
         // Add checkbox to mark self-learning courses.
         $mform->addElement(
             'advcheckbox',
             'selflearningcourse',
-            get_string('selflearningcourse', 'mod_booking'),
+            $selflearningcourselabel,
             null,
             null,
             [0, 1]
         );
-        $mform->addHelpButton('selflearningcourse', 'selflearningcourse', 'mod_booking');
+        $mform->addHelpButton('selflearningcourse', 'selflearningcourse', 'mod_booking', '', false, $selflearningcourselabel);
 
         $mform->addElement(
             'static',
             'selflearningcourse_alert',
             '',
             '<div class="alert alert-warning">' .
-                get_string('selflearningcourse_alert', 'mod_booking') .
+                get_string('selflearningcourse_alert', 'mod_booking', $selflearningcourselabel) .
                 '</div>'
         );
         $mform->hideIf('selflearningcourse_alert', 'selflearningcourse', 'neq', 1);
@@ -202,7 +208,12 @@ class duration extends field_base {
         if (!empty($data['selflearningcourse'])) {
             $keys = preg_grep('/^optiondateid_/', array_keys($data));
             if (!empty($keys)) {
-                $errors['selflearningcourse'] = get_string('error:selflearningcourseallowsnodates', 'mod_booking');
+                $selflearningcourselabel = get_string('selflearningcourse', 'mod_booking');
+                // The label can be overwritten in plugin config.
+                if (!empty(get_config('booking', 'selflearningcourselabel'))) {
+                    $selflearningcourselabel = get_config('booking', 'selflearningcourselabel');
+                }
+                $errors['selflearningcourse'] = get_string('error:selflearningcourseallowsnodates', 'mod_booking', $selflearningcourselabel);
             }
         }
         return $errors;

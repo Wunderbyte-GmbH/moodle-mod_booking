@@ -484,6 +484,24 @@ if ($ADMIN->fulltree) {
                 get_string('infotext:prolicensenecessary', 'mod_booking')));
     }
 
+    // Self-learning courses - Booking options with fixed duration.
+    $settings->add(
+        new admin_setting_heading(
+            'selflearningcoursesettingsheader',
+            get_string('selflearningcourse:settingsheader', 'mod_booking'),
+            get_string('selflearningcourse:settingsheader_desc', 'mod_booking')
+        )
+    );
+
+    $settings->add(
+        new admin_setting_configtext(
+            'booking/selflearningcourselabel',
+            get_string('selflearningcourse:label', 'mod_booking'),
+            get_string('selflearningcourse:label_desc', 'mod_booking'),
+            ''
+        )
+    );
+
     // Waiting list settings.
     $settings->add(
         new admin_setting_heading('waitinglistheader',
