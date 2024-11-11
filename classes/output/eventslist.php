@@ -41,6 +41,7 @@ use templatable;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class eventslist implements renderable, templatable {
+
     /**
      * The icon for events table.
      *
@@ -78,7 +79,7 @@ class eventslist implements renderable, templatable {
 
         global $DB;
 
-        [$select, $from, $where, $filter, $params] = booking::return_sql_for_event_logs('mod_booking', $eventnames, $id);
+        list($select, $from, $where, $filter, $params) = booking::return_sql_for_event_logs('mod_booking', $eventnames, $id);
 
         $tablenamestring = "eventlogtable" . $id . implode('-', $eventnames);
 
@@ -89,8 +90,7 @@ class eventslist implements renderable, templatable {
         $table->set_filter_sql($select, $from, $where, $filter, $params);
 
         $columnsarray = [
-            'userid' => get_string('sender', 'mod_booking'),
-            'relateduserid' => get_string('recipient', 'mod_booking'),
+            'userid' => get_string('user', 'core'),
             'eventname' => get_string('eventname', 'core'),
             'description' => get_string('description', 'core'),
             'timecreated' => get_string('timecreated', 'core'),
@@ -115,7 +115,7 @@ class eventslist implements renderable, templatable {
 
         $table->define_baseurl(new moodle_url('/mod/booking/downloads/download.php'));
 
-        [$idstring, $tablecachehash, $html] = $table->lazyouthtml(10, true);
+        list($idstring, $tablecachehash, $html) = $table->lazyouthtml(10, true);
         $this->eventstable = $html;
     }
 
