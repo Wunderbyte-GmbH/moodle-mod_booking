@@ -213,7 +213,11 @@ class duration extends field_base {
                 if (!empty(get_config('booking', 'selflearningcourselabel'))) {
                     $selflearningcourselabel = get_config('booking', 'selflearningcourselabel');
                 }
-                $errors['selflearningcourse'] = get_string('error:selflearningcourseallowsnodates', 'mod_booking', $selflearningcourselabel);
+                $errors['selflearningcourse'] = get_string(
+                    'error:selflearningcourseallowsnodates',
+                    'mod_booking',
+                    $selflearningcourselabel
+                );
             }
         }
         return $errors;
