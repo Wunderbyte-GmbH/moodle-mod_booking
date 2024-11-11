@@ -436,7 +436,6 @@ class message_controller {
      * @return bool true if successful
      */
     public function send_or_queue(): bool {
-        global $USER;
 
         // If user entered "0" as template, then mails are turned off for this type of messages.
         if ($this->messagebody === "0"
@@ -458,11 +457,12 @@ class message_controller {
 
                 // In all other cases, use message_send.
                 if (message_send($this->messagedata)) {
+
                     // Use an event to log that a message has been sent.
                     $event = \mod_booking\event\message_sent::create([
                         'context' => context_system::instance(),
-                        'userid' => $USER->id,
-                        'relateduserid' => $this->messagedata->userto->id,
+                        'userid' => $this->messagedata->userto->id,
+                        'relateduserid' => $this->messagedata->userfrom->id,
                         'objectid' => $this->optionid ?? 0,
                         'other' => [
                             'messageparam' => $this->messageparam,
