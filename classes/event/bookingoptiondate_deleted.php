@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The bookingoptiondate_created event.
+ * The bookingoptiondate_deleted event.
  *
  * @package mod_booking
  * @copyright 2021 Bernhard Fischer, https://www.wunderbyte.at
