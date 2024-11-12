@@ -1,6 +1,4 @@
 <?php
-
-use mod_booking\placeholders\placeholders_info;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -31,6 +29,7 @@ require_once($CFG->dirroot . '/mod/booking/locallib.php');
 use mod_booking\booking_option;
 use mod_booking\message_controller;
 use mod_booking\singleton_service;
+use mod_booking\placeholders\placeholders_info;
 
 $cmid = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT); // Option ID.

@@ -2130,7 +2130,7 @@ $string['userssucesfullygetnewpresencestatus'] = 'Anwesenheitsstatus für ausgew
 $string['userstonotify'] = 'Benachrichtigungsliste';
 $string['userwhotriggeredevent'] = 'Nutzer:in, die das Ereignis ausgelöst hat';
 $string['viewallresponses'] = '{$a} Buchungen verwalten';
-$string['bookedtextmessage'] = 'Ihre Buchung wurde registriert:
+$string['viewconfirmationbooked'] = 'Ihre Buchung wurde registriert:
 {bookingdetails}
 <p>##########################################</p>
 Buchungsstatus: {status} <br>
