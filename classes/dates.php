@@ -73,6 +73,15 @@ class dates {
         // Here we take a look in all the transmitted information and sort out how many dates we will have.
         [$dates, $highestidx] = self::get_list_of_submitted_dates($defaultvalues);
 
+        // Datesection for Dynamic Load.
+        // By default, we collapse.
+        if (!$keys = preg_grep('/^mform_isexpanded_id_datesheader_/', array_keys($formdata))) {
+            $mform->setExpanded('datesheader', false);
+        } else {
+            $key = reset($keys);
+            $mform->setExpanded('datesheader', (bool)$formdata[$key]);
+        }
+
         $bookingid = $formdata['bookingid'] ?? 0;
         $optionid = $formdata['id'] ?? $formdata['optionid'] ?? 0;
 
