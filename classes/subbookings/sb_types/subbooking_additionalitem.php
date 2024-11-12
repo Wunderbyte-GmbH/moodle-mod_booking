@@ -124,7 +124,7 @@ class subbooking_additionalitem implements booking_subbooking {
 
         $boid = $formdata['optionid'];
         $settings = singleton_service::get_instance_of_booking_option_settings($boid);
-        $formelements = $formelements = customform::return_formelements($settings);
+        $formelements = customform::return_formelements($settings);
 
         $formoptions = [0 => get_string('noformlink', 'mod_booking')];
         foreach ($formelements as $key => $value) {
