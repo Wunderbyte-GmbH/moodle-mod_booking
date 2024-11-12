@@ -1797,7 +1797,7 @@ $string['selectuserfromevent'] = "Wähle Nutzer:in vom Ereignis";
 $string['selectusers'] = "Wähle Nutzer:innen ohne direkte Verbindung zur Buchungsoption";
 $string['selectusershoppingcart'] = "Wähle Nutzer:in die Ratenzahlung zu leisten hat";
 $string['selflearningcourse'] = 'Selbstlernkurs';
-$string['selflearningcourseactive'] = 'Buchungsoptionen mit fixer Dauer aktivieren';
+$string['selflearningcourse:active'] = 'Buchungsoptionen mit fixer Dauer aktivieren';
 $string['selflearningcourse:coursestarttime'] = 'Sortierdatum';
 $string['selflearningcourse:coursestarttime_alert'] = 'Da Sie unter "Moodle-Kurs" die Option "{$a}" gewählt haben,
 können Sie hier keine Termine angeben, sondern nur ein Sortierdatum.';

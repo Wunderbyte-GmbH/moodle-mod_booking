@@ -1864,7 +1864,7 @@ $string['selectuserfromevent'] = "Select user from event";
 $string['selectusers'] = "Directly select users without connection to the booking option";
 $string['selectusershoppingcart'] = "Choose user who has to pay installments";
 $string['selflearningcourse'] = 'Self-learning course';
-$string['selflearningcourseactive'] = 'Activate booking options with fixed duration';
+$string['selflearningcourse:active'] = 'Activate booking options with fixed duration';
 $string['selflearningcourse:coursestarttime'] = 'Sorting date';
 $string['selflearningcourse:coursestarttime_alert'] = 'As you have activated the "{$a}" checkbox under the "Moodle course" settings
 you cannot add dates here but only provide a sorting date.';
