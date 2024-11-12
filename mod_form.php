@@ -769,7 +769,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setType('disablecancel', PARAM_INT);
         $mform->setDefault('disablecancel', (int) booking::get_value_of_json_by_key((int) $bookingid, "disablecancel"));
 
-        $mform->addElement('advcheckbox', 'cancancelbook', get_string('cancancelbook', 'mod_booking'));
+        $mform->addElement('advcheckbox', 'cancancelbook', get_string('cancancelbookallow', 'mod_booking'));
         $mform->disabledIf('cancancelbook', 'disablecancel', 'eq', 1);
 
         $cancancelbookdaysstring = get_string('cancancelbookdays', 'mod_booking');
@@ -795,7 +795,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setDefault('cancelrelativedate',
         (int)booking::get_value_of_json_by_key($bookingid, 'cancelrelativedate') ?? 1);
 
-        $mform->addElement('date_time_selector', 'allowupdatetimestamp', 'infostring');
+        $mform->addElement('date_time_selector', 'allowupdatetimestamp', get_string('canceldateabsolute', 'mod_booking'));
         $mform->hideIf('allowupdatetimestamp', 'cancancelbook', 'eq', 0);
         $mform->hideIf('allowupdatetimestamp', 'cancelrelativedate', 'eq', 1);
         $mform->setDefault('allowupdatetimestamp',

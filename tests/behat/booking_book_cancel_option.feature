@@ -74,7 +74,7 @@ Feature: In a booking instance
     And I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
     And I follow "Advanced options"
-    And I set the field "Set cancelling date relative to Start of the booking option (coursestarttime), not absolute" to "checked"
+    And I set the field "Set cancelling date relative to Start of the booking option (coursestarttime)" to "checked"
     ## name for "Disallow users to cancel their booking n days before start..."
     And I set the field "allowupdatedays" to "1"
     And I press "Save and display"
@@ -106,7 +106,7 @@ Feature: In a booking instance
     And I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
     And I follow "Advanced options"
-    And I set the field "Set cancelling date relative to Start of the booking option (coursestarttime), not absolute" to "checked"
+    And I set the field "Set cancelling date relative to Start of the booking option (coursestarttime)" to "checked"
     ## name for "Disallow users to cancel their booking n days before start..."
     And I set the field "Allow booking after course start" to "checked"
     And I set the field "allowupdatedays" to "0"
@@ -144,7 +144,7 @@ Feature: In a booking instance
     And I follow "Settings"
     And I follow "Advanced options"
     And I set the field "Allow booking after course start" to "checked"
-    And I set the field "Set cancelling date relative to Semester start, not absolute" to "checked"
+    And I set the field "Set cancelling date relative to Semester start" to "checked"
     And I set the field "allowupdatedays" to "32"
     And I press "Save and display"
     And I wait until the page is ready
@@ -193,7 +193,7 @@ Feature: In a booking instance
     ## allowupdatedays > max possible days before semester so cancellation impossible
     And I follow "Settings"
     And I follow "Advanced options"
-    And I set the field "Set cancelling date relative to Booking registration start (bookingopeningtime), not absolute" to "checked"
+    And I set the field "Set cancelling date relative to Booking registration start (bookingopeningtime)" to "checked"
     ## name for "Disallow users to cancel their booking n days before start..."
     And I set the field "allowupdatedays" to "0"
     And I press "Save and display"
@@ -233,7 +233,7 @@ Feature: In a booking instance
     ## allowupdatedays > max possible days before semester so cancellation impossible
     And I follow "Settings"
     And I follow "Advanced options"
-    And I set the field "Set cancelling date relative to Booking registration end (bookingclosingtime), not absolute" to "checked"
+    And I set the field "Set cancelling date relative to Booking registration end (bookingclosingtime)" to "checked"
     ## name for "Disallow users to cancel their booking n days before start..."
     And I set the field "allowupdatedays" to "1"
     And I press "Save and display"

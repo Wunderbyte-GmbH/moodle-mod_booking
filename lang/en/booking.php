@@ -611,16 +611,17 @@ $string['campaignname_help'] = 'Specify any name for the campaign - for example,
 $string['campaignstart'] = 'Start of campaign';
 $string['campaignstart_help'] = 'When does the campaign start?';
 $string['campaigntype'] = 'Campaign type';
-$string['cancancelbook'] = 'Allow users to cancel their booking themselves';
+$string['cancancelbookallow'] = 'Allow users to cancel their booking themselves';
 $string['cancancelbookdays'] = 'Disallow users to cancel their booking n days before start. Minus means, that users can still cancel n days AFTER course start.';
 $string['cancancelbookdays:bookingclosingtime'] = 'Disallow users to cancel their booking n days before <b>registration end</b> (booking closing time). Minus means, that users can still cancel n days AFTER registration end.';
 $string['cancancelbookdays:bookingopeningtime'] = 'Disallow users to cancel their booking n days before <b>registration start</b> (booking opening time). Minus means, that users can still cancel n days AFTER registration start.';
 $string['cancancelbookdays:semesterstart'] = 'Disallow users to cancel their booking n days before <b>semester</b> start. Minus means, that users can still cancel n days AFTER semester start.';
 $string['cancancelbookdaysno'] = "Don't limit";
-$string['cancancelbookrelative'] = 'Set cancelling date relative to {$a}, not absolute';
+$string['cancancelbookrelative'] = 'Set cancelling date <b>relative to {$a}</b>';
 $string['cancel'] = 'Cancel';
 $string['cancelallusers'] = 'Cancel all booked users';
 $string['cancelbooking'] = 'Cancel booking';
+$string['canceldateabsolute'] = 'Cancelling possible until';
 $string['canceldependenton'] = 'Cancellation period dependent on';
 $string['canceldependenton_desc'] = 'Choose the date that should be used as "start" for the setting
 "Disallow users to cancel their booking n days before start. Minus means, that users can still cancel n
@@ -1865,8 +1866,7 @@ $string['selectusershoppingcart'] = "Choose user who has to pay installments";
 $string['selflearningcourse'] = 'Self-learning course';
 $string['selflearningcourse:coursestarttime'] = 'Sorting date';
 $string['selflearningcourse:coursestarttime_alert'] = 'As you have activated the "{$a}" checkbox under the "Moodle course" settings
-you cannot add dates here but only provide a sorting date which will be used for sorting and as start date for the new Moodle course
-(only if you automatically create a new one).';
+you cannot add dates here but only provide a sorting date.';
 $string['selflearningcourse:coursestarttime_help'] = 'This date will be used for sorting because booking options of type "{$a}" do not have a fixed start date.';
 $string['selflearningcourse:durationinfo'] = 'This course has a duration of {$a}.';
 $string['selflearningcourse:label'] = 'Label for booking options with fixed duration';

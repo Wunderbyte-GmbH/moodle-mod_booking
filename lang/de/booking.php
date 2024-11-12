@@ -599,16 +599,17 @@ $string['campaignname_help'] = 'Geben Sie einen beliebigen Namen für die Kampag
 $string['campaignstart'] = 'Beginn der Kampagne';
 $string['campaignstart_help'] = 'Wann soll die Kampagne starten?';
 $string['campaigntype'] = 'Kampagnentyp';
-$string['cancancelbook'] = 'Teilnehmer:innen dürfen Buchungen selbst stornieren';
+$string['cancancelbookallow'] = 'Teilnehmer:innen dürfen Buchungen selbst stornieren';
 $string['cancancelbookdays'] = 'Nutzer:innen können nur bis n Tage vor Kursstart stornieren. Negative Werte meinen n Tage NACH Kursstart.';
 $string['cancancelbookdays:bookingclosingtime'] = 'Nutzer:innen können nur bis n Tage vor <b>Anmeldeschluss (Buchungsende)</b> stornieren. Negative Werte meinen n Tage NACH Anmeldeschluss.';
 $string['cancancelbookdays:bookingopeningtime'] = 'Nutzer:innen können nur bis n Tage vor <b>Anmeldebeginn (Buchungsbeginn)</b> stornieren. Negative Werte meinen n Tage NACH Anmeldebeginn.';
 $string['cancancelbookdays:semesterstart'] = 'Nutzer:innen können nur bis n Tage vor <b>Semesterbeginn</b> stornieren. Negative Werte meinen n Tage NACH Semesterbeginn.';
 $string['cancancelbookdaysno'] = 'Kein Limit';
-$string['cancancelbookrelative'] = 'Stornodatum relativ zu {$a} setzen, nicht absolut';
+$string['cancancelbookrelative'] = 'Stornodatum <b>relativ zu {$a}</b> setzen';
 $string['cancel'] = 'Abbrechen';
 $string['cancelallusers'] = 'Alle gebuchten Teilnehmer:innen stornieren';
 $string['cancelbooking'] = 'Buchung stornieren';
+$string['canceldateabsolute'] = 'Datum, bis zu dem storniert werden kann';
 $string['canceldependenton'] = 'Stornierungsfristen abhängig von';
 $string['canceldependenton_desc'] = 'Wählen Sie aus, auf welches Datumsfeld sich die Einstellung
 "Nutzer:innen können nur bis n Tage vor Kursstart stornieren. Negative Werte meinen n Tage NACH Kursstart."
@@ -1798,8 +1799,7 @@ $string['selectusershoppingcart'] = "Wähle Nutzer:in die Ratenzahlung zu leiste
 $string['selflearningcourse'] = 'Selbstlernkurs';
 $string['selflearningcourse:coursestarttime'] = 'Sortierdatum';
 $string['selflearningcourse:coursestarttime_alert'] = 'Da Sie unter "Moodle-Kurs" die Option "{$a}" gewählt haben,
-können Sie hier keine Termine angeben, sondern nur ein Sortierdatum.
-(Dieses wird auch als Startdatum für einen automatisch generierten Moodle-Kurs verwendet, falls Sie einen neuen erstellen).';
+können Sie hier keine Termine angeben, sondern nur ein Sortierdatum.';
 $string['selflearningcourse:coursestarttime_help'] = 'Dieses Datum wird ausschließlich für die Sortierung verwendet, da Buchungsoptionen vom Typ "{$a}" kein fixes Startdatum haben.';
 $string['selflearningcourse:durationinfo'] = 'Dieser Kurs dauert {$a}.';
 $string['selflearningcourse:label'] = 'Bezeichnung für Buchungsoptionen mit fixer Dauer';
