@@ -63,21 +63,20 @@
     </div>
 {{/showcollapsebtn}}
 {{^showcollapsebtn}}
-    <div id="optiondates{{{optionid}}}">
-        <div class='booking-showdates-title mt-1'>
-            <span>
-                <i class="fa fa-calendar fa-fw" aria-hidden="true"></i>
-            </span>
-            <span><b>{{#str}} dates, mod_booking {{/str}}:</b></span>
+    {{#datestrings.0}}
+        <div id="optiondates{{{optionid}}}">
+            <div class='booking-showdates-title mt-1'>
+                <span>
+                    <i class="fa fa-calendar fa-fw" aria-hidden="true"></i>
+                </span>
+                <span><b>{{#str}} dates, mod_booking {{/str}}:</b></span>
+            </div>
+            {{#datestrings}}
+                <div>{{{datestring}}}</div>
+            {{/datestrings}}
         </div>
-        {{#datestrings}}
-            <div>{{{datestring}}}</div>
-        {{/datestrings}}
-    </div>
+    {{/datestrings.0}}
 {{/showcollapsebtn}}
-{{^datestrings}}
-    {{#str}}datenotset, mod_booking{{/str}}
-{{/datestrings}}
 {{/selflearningcourse}}
 {{#selflearningcourse}}
     <i class="fa fa-fw fa-clock-o" aria-hidden="true"></i>&nbsp;
