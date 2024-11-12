@@ -28,6 +28,7 @@ use cache_helper;
 use context_module;
 use context_system;
 use dml_exception;
+use mod_booking\local\mobile\customformstore;
 use mod_booking\option\dates_handler;
 use moodle_url;
 use MoodleQuickForm;
@@ -743,7 +744,7 @@ class price {
         // 2. Explode pricecategoryidentifier for "," and see if $categoryidentifier is in the array.
         // 3. Concerning no match, we can either print a message and don't allow booking, or fallback on default price category.
 
-        $default = [];
+        $price = [];
 
         foreach ($prices as $pricerecord) {
             // We want to support string matching like category student for student@univie.ac.at.
@@ -756,7 +757,7 @@ class price {
                 && $pricerecord->pricecategoryidentifier == 'default'
                 && $categoryidentifier !== 'default'
             ) {
-                $default = [
+                $price = [
                     "price" => $pricerecord->price,
                     "currency" => $pricerecord->currency,
                     "pricecategoryidentifier" => $pricerecord->pricecategoryidentifier,
@@ -773,7 +774,7 @@ class price {
             }
 
             if ($pricecategoryfound) {
-                return [
+                $price = [
                     "price" => $pricerecord->price,
                     "currency" => $pricerecord->currency,
                     "pricecategoryidentifier" => $pricerecord->pricecategoryidentifier,
@@ -783,7 +784,12 @@ class price {
             }
         }
 
-        return $default;
+        if ($area === "option") {
+            $customformstore = new customformstore($user->id, $itemid);
+            $price['price'] = $customformstore->modify_price($price['price'], $categoryidentifier);
+        }
+
+        return $price;
     }
 
 

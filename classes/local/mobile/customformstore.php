@@ -201,4 +201,88 @@ class customformstore {
 
         return $data->{$identifier} ?? '';
     }
+
+    /**
+     * Modifiy price according to data in customform.
+     *
+     * @param float $price
+     * @param string $priceidentifier
+     *
+     * @return float
+     *
+     */
+    public function modify_price(float $price, string $priceidentifier):float {
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->itemid);
+        $formdata = customform::return_formelements($settings);
+        $data = (array) $this->get_customform_data(); // One of the values here indicates the right key for formdata.
+        $additionalprice = 0;
+
+        foreach ($formdata as $formelement) {
+            if (!isset($formelement->formtype) || $formelement->formtype != 'select' || !isset($formelement->value)) {
+                continue;
+            }
+            $lines = explode(PHP_EOL, $formelement->value);
+            foreach ($lines as $line) {
+                $linearray = explode(' => ', $line);
+                if (isset($linearray[3]) && in_array($linearray[0], $data)) {
+                    $additionalprice = $this->get_price_for_user($linearray[3]);
+                }
+            }
+        }
+        return $price + $additionalprice;
+    }
+
+    /**
+     * Get price and currency for user.
+     *
+     * @param string $pricedata
+     *
+     * @return string
+     *
+     */
+    public function get_price_and_currency_for_user(string $pricedata):string {
+
+        if (is_float($pricedata)) {
+            $price = (float) $pricedata;
+        } else {
+            $price = $this->get_price_for_user($pricedata);
+        }
+
+        return $price . ' ' . get_config('booking', 'globalcurrency');;
+    }
+
+    /**
+     * Get price for user.
+     *
+     * @param string $pricedata
+     * @param string $priceidentifier
+     *
+     * @return float
+     *
+     */
+    private function get_price_for_user(string $pricedata, string $priceidentifier = ""):float {
+
+        if ($price = (float) $pricedata) {
+            return (float) $price;
+        }
+
+        $pairs = explode(',', $pricedata);
+        $categoryprices = [];
+        foreach ($pairs as $pair) {
+            list($key, $value) = explode(':', $pair);
+            $categoryprices[$key] = (float)$value;
+        }
+
+        if (empty($priceidentifier)) {
+            $user = singleton_service::get_instance_of_user($this->userid);
+            $priceidentifier = singleton_service::get_pricecategory_for_user($user);
+        }
+
+        if (in_array($priceidentifier, array_keys($categoryprices))) {
+            return $categoryprices[$priceidentifier];
+        } else if (isset($categoryprices['default'])) {
+            return $categoryprices['default'];
+        }
+        return 0;
+    }
 }

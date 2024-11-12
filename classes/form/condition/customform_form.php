@@ -209,6 +209,16 @@ class customform_form extends dynamic_form {
                                     } else {
                                         $options[$linearray[0]] .= ', ' . $leftover  .
                                             ' ' . get_string('bocondcustomformstillavailable', 'mod_booking');
+                                        if (isset($linearray[3])) {
+                                            // Add price and default currency.
+                                            $customformstore = new customformstore(
+                                                (int) $formdata['userid'],
+                                                (int) $formdata['id']
+                                                );
+                                            $price = $customformstore->get_price_and_currency_for_user($linearray[3]);
+                                            $options[$linearray[0]] .= ' (' . $price . ')';
+                                        }
+
                                     }
                                 }
                             } else {
