@@ -102,10 +102,11 @@ class priceisset implements bo_condition {
 
         if (!get_config('booking', 'displayemptyprice') && !empty($settings->jsonobject->useprice)) {
             $user = singleton_service::get_instance_of_user($userid);
-            $price = price::get_price('option', $settings->id, $user);
-
-            if (isset($price['price']) && empty((float) $price['price'])) {
-                $isavailable = true;
+            if ($user) {
+                $price = price::get_price('option', $settings->id, $user);
+                if (isset($price['price']) && empty((float) $price['price'])) {
+                    $isavailable = true;
+                }
             }
         }
 
