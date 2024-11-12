@@ -494,6 +494,15 @@ if ($ADMIN->fulltree) {
     );
 
     $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/selflearningcourseactive',
+            get_string('selflearningcourseactive', 'mod_booking'),
+            '',
+            0
+        )
+    );
+
+    $settings->add(
         new admin_setting_configtext(
             'booking/selflearningcourselabel',
             get_string('selflearningcourse:label', 'mod_booking'),

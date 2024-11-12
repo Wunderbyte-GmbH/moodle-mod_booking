@@ -1864,12 +1864,13 @@ $string['selectuserfromevent'] = "Select user from event";
 $string['selectusers'] = "Directly select users without connection to the booking option";
 $string['selectusershoppingcart'] = "Choose user who has to pay installments";
 $string['selflearningcourse'] = 'Self-learning course';
+$string['selflearningcourseactive'] = 'Activate booking options with fixed duration';
 $string['selflearningcourse:coursestarttime'] = 'Sorting date';
 $string['selflearningcourse:coursestarttime_alert'] = 'As you have activated the "{$a}" checkbox under the "Moodle course" settings
 you cannot add dates here but only provide a sorting date.';
 $string['selflearningcourse:coursestarttime_help'] = 'This date will be used for sorting because booking options of type "{$a}" do not have a fixed start date.';
 $string['selflearningcourse:durationinfo'] = 'This course has a duration of {$a}.';
-$string['selflearningcourse:label'] = 'Label for booking options with fixed duration';
+$string['selflearningcourse:label'] = 'Name for booking options with fixed duration';
 $string['selflearningcourse:label_desc'] = 'Booking options with a fixed duration but without dates are usually called "self-learning course".
 If you want to use another name for this type of booking options you can enter it here.';
 $string['selflearningcourse:settingsheader'] = 'Booking options with fixed duration ' . '&nbsp;<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';

@@ -137,6 +137,9 @@ class duration extends field_base {
             fields_info::add_header_to_mform($mform, self::$header);
         }
 
+        $selflearningcourseactive = get_config('booking', 'selflearningcourseactive');
+        $mform->addElement('hidden', 'selflearningcourseactive', (int)$selflearningcourseactive);
+
         $selflearningcourselabel = get_string('selflearningcourse', 'mod_booking');
         // The label can be overwritten in plugin config.
         if (!empty(get_config('booking', 'selflearningcourselabel'))) {
@@ -147,12 +150,13 @@ class duration extends field_base {
         $mform->addElement(
             'advcheckbox',
             'selflearningcourse',
-            $selflearningcourselabel,
+            $selflearningcourselabel . " " . get_string('badge:pro', 'mod_booking'),
             null,
             null,
             [0, 1]
         );
         $mform->addHelpButton('selflearningcourse', 'selflearningcourse', 'mod_booking', '', false, $selflearningcourselabel);
+        $mform->disabledIf('selflearningcourse', 'selflearningcourseactive', 'eq', 0);
 
         $mform->addElement(
             'static',
