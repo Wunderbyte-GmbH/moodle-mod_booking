@@ -1766,7 +1766,8 @@ $string['progressbarsprofeature'] = '<ul>
 <li><b>show progress bars of time passed (for booking option)</b></li>
 <li><b>make progress bars collapsible</b></li>
 </ul>';
-$string['prolicensefeatures'] = '<p>You need a Booking PRO license if you want to use this feature. Purchasing a Pro license will allow you to use following features:</p>';
+$string['prolicensefeatures'] = '<p>You need a Booking PRO license if you want to use this feature.
+Purchasing a Pro license will allow you to use the following features:</p>';
 $string['proversion:cardsview'] = 'With Booking PRO you can also use cards view.';
 $string['proversiononly'] = 'Upgrade to Booking PRO to use this feature.';
 $string['qrid'] = "qr_id";

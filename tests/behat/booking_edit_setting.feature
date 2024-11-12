@@ -160,11 +160,11 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
   Scenario: Booking settings - hide branding info
     Given I log in as "admin"
     When I set the following administration settings values:
-      | Do not show Wunderbyte logo und link | |
+      | Do not show Wunderbyte logo and link | |
     And I am on the "My booking" Activity page
     And I should see "Booking module created by Wunderbyte GmbH" in the "#region-main" "css_element"
     And I set the following administration settings values:
-      | Do not show Wunderbyte logo und link | 1 |
+      | Do not show Wunderbyte logo and link | 1 |
     And I am on the "My booking" Activity page
     Then I should not see "Booking module created by Wunderbyte GmbH" in the "#region-main" "css_element"
 
