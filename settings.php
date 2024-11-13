@@ -162,7 +162,8 @@ if ($ADMIN->fulltree) {
         new admin_setting_heading(
             'licensekeycfgheading',
             get_string('licensekeycfg', 'mod_booking'),
-            get_string('licensekeycfgdesc', 'mod_booking')
+            $proversion ? get_string('licensekeycfgdesc:active', 'mod_booking') :
+                get_string('licensekeycfgdesc', 'mod_booking')
         )
     );
 

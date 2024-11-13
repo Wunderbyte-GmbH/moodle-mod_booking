@@ -1265,7 +1265,16 @@ $string['licenseactivated'] = 'PRO-Version wurde erfolgreich aktiviert.<br>(Läu
 $string['licenseinvalid'] = 'Ungültiger Lizenz-Schlüssel.';
 $string['licensekey'] = 'PRO-Lizenz-Schlüssel';
 $string['licensekeycfg'] = 'PRO-Version aktivieren';
-$string['licensekeycfgdesc'] = 'Mit einer PRO-Lizenz können Sie so viele Buchungsvorlagen erstellen wie Sie wollen und PRO-Features wie z.B. globale Mailvorlagen, Info-Texte für Wartelistenplätze und Benachrichtigungen für Trainer:innen nutzen.';
+$string['licensekeycfgdesc'] = '<div class="alert alert-warning"><i class="fa fa-lightbulb-o" aria-hidden="true"></i>&nbsp;
+<a href="https://showroom.wunderbyte.at/course/view.php?id=62" target="_blank">
+Sie können die PRO-Version 30 Tage lang KOSTENLOS testen. Hier klicken für mehr Info.
+</a>
+</div>';
+$string['licensekeycfgdesc:active'] = '<div class="alert alert-info"><i class="fa fa-lightbulb-o" aria-hidden="true"></i>&nbsp;
+<a href="https://showroom.wunderbyte.at/course/view.php?id=62" target="_blank">
+Hier können Sie Ihre Lizenz erneuern, wenn sie abgelaufen ist.
+</a>
+</div>';
 $string['licensekeydesc'] = 'Laden Sie hier einen gültigen Schlüssel hoch, um die PRO-Version zu aktivieren.';
 $string['limit'] = 'Maximale Anzahl';
 $string['limitanswers'] = 'Teilnehmeranzahl beschränken';

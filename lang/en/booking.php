@@ -1275,7 +1275,16 @@ $string['licenseactivated'] = 'PRO version activated successfully.<br>(Expires: 
 $string['licenseinvalid'] = 'Invalid license key';
 $string['licensekey'] = 'PRO license key';
 $string['licensekeycfg'] = 'Activate PRO version';
-$string['licensekeycfgdesc'] = 'With a PRO license you can create as many booking templates as you like and use PRO features such as global mail templates, waiting list info texts or teacher notifications.';
+$string['licensekeycfgdesc'] = '<div class="alert alert-warning"><i class="fa fa-lightbulb-o" aria-hidden="true"></i>&nbsp;
+<a href="https://showroom.wunderbyte.at/course/view.php?id=62" target="_blank">
+Get you FREE trial of Booking PRO for 30 days! Click here for more info.
+</a>
+</div>';
+$string['licensekeycfgdesc:active'] = '<div class="alert alert-info"><i class="fa fa-lightbulb-o" aria-hidden="true"></i>&nbsp;
+<a href="https://showroom.wunderbyte.at/course/view.php?id=62" target="_blank">
+When your license expires, you can renew it here.
+</a>
+</div>';
 $string['licensekeydesc'] = 'Upload a valid license key to activate the PRO version.';
 $string['limit'] = 'Limit';
 $string['limitanswers'] = 'Limit the number of participants';
