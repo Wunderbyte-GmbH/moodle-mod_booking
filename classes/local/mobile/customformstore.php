@@ -211,7 +211,7 @@ class customformstore {
      * @return float
      *
      */
-    public function modify_price(float $price, string $priceidentifier):float {
+    public function modify_price(float $price, string $priceidentifier): float {
         $settings = singleton_service::get_instance_of_booking_option_settings($this->itemid);
         $formdata = customform::return_formelements($settings);
         $data = (array) $this->get_customform_data(); // One of the values here indicates the right key for formdata.
@@ -241,7 +241,7 @@ class customformstore {
      * @return string
      *
      */
-    public function get_price_and_currency_for_user(string $pricedata):string {
+    public function get_price_and_currency_for_user(string $pricedata): string {
 
         if (empty($pricedata)) {
             return "";
@@ -262,7 +262,7 @@ class customformstore {
      * @return float
      *
      */
-    private function get_price_for_user(string $pricedata, string $priceidentifier = ""):float {
+    private function get_price_for_user(string $pricedata, string $priceidentifier = ""): float {
 
         if (empty((float) $pricedata)) {
             return 0;
