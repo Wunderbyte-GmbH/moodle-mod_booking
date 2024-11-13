@@ -1182,7 +1182,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         );
 
         if (!$proversion) {
-            $optionformconfignode->add_class('disabled-option');  // Add a custom class for non-pro users.
+            $optionformconfignode->add_class('disabled-profeature');  // Add a custom class for non-pro users.
         }
 
         // Booking Rules.
@@ -1200,7 +1200,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             );
 
             if (!$proversion) {
-                $bookingrulesnode->add_class('disabled-option');  // Add a custom class for non-pro users.
+                $bookingrulesnode->add_class('disabled-profeature');  // Add a custom class for non-pro users.
             }
         }
     }

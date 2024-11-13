@@ -101,13 +101,6 @@ $string['andotherfield'] = "AND additional field";
 $string['annotation'] = 'Internal annotation';
 $string['answer'] = "Answer";
 $string['answered'] = 'Answered';
-$string['appearanceprofeatures'] = '<ul>
-<li><b>hide Wunderbyte logo and link</b></li>
-<li><b>collapse description</b></li>
-<li><b>collapse show dates</b></li>
-<li><b>turn off modals</b></li>
-<li><b>options for attendance status</b></li>
-</ul>';
 $string['appearancesettings'] = 'Appearance ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['appearancesettings_desc'] = 'Configure the appearance of the booking plugin.';
 $string['apply'] = 'Apply';
@@ -134,21 +127,10 @@ $string['autcrwhatitis'] = 'If this option is enabled it automatically creates a
 $string['autoenrol'] = 'Automatically enrol users';
 $string['autoenrol_help'] = 'If selected, users will be enrolled onto the relevant course as soon as they make the booking and unenrolled from that course as soon as the booking is cancelled.';
 $string['automaticcoursecreation'] = 'Automatic creation of Moodle courses ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
-$string['automaticcoursecreationprofeatures'] = '<ul>
-<li><b>booking option custom field to be used as course category</b></li>
-<li><b>mark course with tags to use as templates</b></li>
-</ul>';
 $string['availability'] = 'Availability';
 $string['availabilityconditions'] = 'Availability conditions';
 $string['availabilityconditionsheader'] = '<i class="fa fa-fw fa-key" aria-hidden="true"></i>&nbsp;Availability conditions';
 $string['availabilityinfotextsheading'] = 'Availability info texts for booking places and waiting list ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
-$string['availabilityinfotextsprofeature'] = '<ul>
-<li><b>show availability info for booking places</b></li>
-<li><b>enable “booking places low” message</b></li>
-<li><b>show availability info for waiting list</b></li>
-<li><b>enable “waiting list places low” message</b></li>
-<li><b>show place on waiting list</b></li>
-</ul>';
 $string['available'] = 'Places available';
 $string['availableplaces'] = 'Places available: {$a->available} of {$a->maxanswers}';
 $string['availplacesfull'] = 'Full';
@@ -183,9 +165,6 @@ $string['boactions'] = 'Actions after booking ' . '<span class="badge bg-success
 $string['boactions_desc'] = "Booking actions after booking are still an EXPERIMENTAL feature. You can try them if you want.
 But do not use them in a productive environment yet!";
 $string['boactionselectuserprofilefield'] = "Choose profile field";
-$string['boactionsprofeature'] = '<ul>
-<li><b>activate actions after booking</b></li>
-</ul>';
 $string['boactionuserprofilefieldvalue'] = 'Value';
 $string['bocondallowedtobookininstance'] = "Booking without capability";
 $string['bocondallowedtobookininstanceanyways'] = "Allow booking without the capability 'mod/booking:choose'";
@@ -649,10 +628,6 @@ $string['canceldependenton_desc'] = 'Choose the date that should be used as "sta
 days AFTER course start.".<br>
 This will also set the <i>service period</i> of courses in shopping cart accordingly (if shopping cart is installed). This also affects installment payments. You can take out the semester in the Dates section of a booking option, if you want to use the coursestart instead of the semesterstart.';
 $string['cancellationsettings'] = 'Cancellation settings ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
-$string['cancellationsettingsprofeatures'] = '<ul>
-<li><b>adjustable cancellation period</b></li>
-<li><b>cancellation cool off period (seconds)</b></li>
-</ul>';
 $string['cancelmyself'] = 'Undo my booking';
 $string['canceloption'] = "Cancel boooking option";
 $string['canceloption_desc'] = "Canceling a boooking option means that it is no longer bookabel, but it is still shown in list.";
@@ -979,9 +954,6 @@ $string['duplicationrestoredesc'] = 'Here you can set which information you want
 $string['duplicationrestoreentities'] = 'Include entities';
 $string['duplicationrestoreoption'] = 'Booking options: Duplication settings ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['duplicationrestoreoption_desc'] = 'Special settings for the duplication of booking options.';
-$string['duplicationrestoreoptionprofeatures'] = '<ul>
-<li><b>duplicate moodle course when duplicating a booking option</b></li>
-</ul>';
 $string['duplicationrestoreprices'] = 'Include prices';
 $string['duplicationrestoresubbookings'] = 'Include subbookings ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['duplicationrestoreteachers'] = 'Include teachers';
@@ -1603,9 +1575,6 @@ $string['otherbookinglimit_help'] = "How many users you accept from option. If 0
 $string['otherbookingnumber'] = 'Num. of users';
 $string['otherbookingoptions'] = 'Accepting from';
 $string['otherbookingsuccessfullysaved'] = 'Rule saved!';
-$string['overbookingprofeatures'] = '<ul>
-<li><b>allow overbooking</b></li>
-</ul>';
 $string['overridecondition'] = 'Condition';
 $string['overrideconditioncheckbox'] = 'Has relation to other condition';
 $string['overrideoperator'] = 'Operator';
@@ -1691,11 +1660,6 @@ $string['priceformulamultiply_help'] = 'Additional value to <strong>multiply</st
 $string['priceformulaoff'] = 'Prevent recalculation of prices';
 $string['priceformulaoff_help'] = 'Activate this option, in order to prevent the function "Calculate all prices from
  instance with formula" from recalculating the prices for this booking option.';
-$string['priceformulaprofeature'] = '<ul>
-<li><b>use price formula to automatically calculate prices</b></li>
-<li><b>apply unit factor</b></li>
-<li><b>round prices</b></li>
-</ul>';
 $string['priceisalwayson'] = 'Prices always active';
 $string['priceisalwayson_desc'] = 'If you activate this checkbox, you cannot deactive prices for individual booking options.
  However, you can still set a price of 0 EUR.';
@@ -1758,14 +1722,65 @@ $string['problemsofcohortorgroupbooking'] = '<br><p>Not all users could be booke
 <li>{$a->notsubscribedusers} users not booked for other reasons</li>
 </ul>';
 $string['problemwithdate'] = 'Please verify dates';
+$string['profeatures:appearance'] = '<ul>
+<li><b>hide Wunderbyte logo and link</b></li>
+<li><b>collapse description</b></li>
+<li><b>collapse show dates</b></li>
+<li><b>turn off modals</b></li>
+<li><b>options for attendance status</b></li>
+</ul>';
+$string['profeatures:automaticcoursecreation'] = '<ul>
+<li><b>booking option custom field to be used as course category</b></li>
+<li><b>mark course with tags to use as templates</b></li>
+</ul>';
+$string['profeatures:availabilityinfotexts'] = '<ul>
+<li><b>show availability info for booking places</b></li>
+<li><b>enable “booking places low” message</b></li>
+<li><b>show availability info for waiting list</b></li>
+<li><b>enable “waiting list places low” message</b></li>
+<li><b>show place on waiting list</b></li>
+</ul>';
+$string['profeatures:boactions'] = '<ul>
+<li><b>activate actions after booking</b></li>
+</ul>';
+$string['profeatures:cancellationsettings'] = '<ul>
+<li><b>adjustable cancellation period</b></li>
+<li><b>cancellation cool off period (seconds)</b></li>
+</ul>';
+$string['profeatures:duplicationrestoreoption'] = '<ul>
+<li><b>duplicate moodle course when duplicating a booking option</b></li>
+</ul>';
+$string['profeatures:overbooking'] = '<ul>
+<li><b>allow overbooking</b></li>
+</ul>';
+$string['profeatures:priceformula'] = '<ul>
+<li><b>use price formula to automatically calculate prices</b></li>
+<li><b>apply unit factor</b></li>
+<li><b>round prices</b></li>
+</ul>';
+$string['profeatures:progressbars'] = '<ul>
+<li><b>show progress bars of time passed (for booking option)</b></li>
+<li><b>make progress bars collapsible</b></li>
+</ul>';
+$string['profeatures:selflearningcourse'] = '<ul>
+<li><b>activate booking options with fixed duration (e.g. for self-learning courses)</b></li>
+<li><b>define a custom name for this type (e.g. "Self-learning course")</b></li>
+</ul>';
+$string['profeatures:subbookings'] = '<ul>
+<li><b>activate subbookings</b></li>
+</ul>';
+$string['profeatures:teachers'] = '<ul>
+<li><b>add links to teacher pages</b></li>
+<li><b>login for teacher pages not necessary</b></li>
+<li><b>always show teacher’s email addresses to everyone</b></li>
+<li><b>show teacher’s email addresses to booked users</b></li>
+<li><b>teachers can send email to all booked users using own mail client</b></li>
+<li><b>teachers of booking option are assigned to fitting role</b></li>
+</ul>';
 $string['profilepicture'] = 'Profile picture';
 $string['progressbars'] = 'Progress bars of time passed ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['progressbars_desc'] = 'Get a visual representation of the time which has already passed for a booking option.';
 $string['progressbarscollapsible'] = 'Make progress bars collapsible';
-$string['progressbarsprofeature'] = '<ul>
-<li><b>show progress bars of time passed (for booking option)</b></li>
-<li><b>make progress bars collapsible</b></li>
-</ul>';
 $string['prolicensefeatures'] = '<p>You need a Booking PRO license if you want to use this feature.
 Purchasing a Pro license will allow you to use the following features:</p>';
 $string['proversion:cardsview'] = 'With Booking PRO you can also use cards view.';
@@ -2061,9 +2076,6 @@ $string['subbookingname'] = "Name of the subbooking";
 $string['subbookings'] = "Subbookings";
 $string['subbookings_desc'] = 'Activate subbookings in order to enable the booking of additional items or time slots (e.g. for tennis courts).';
 $string['subbookingsheader'] = 'Subbookings ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
-$string['subbookingsprofeature'] = '<ul>
-<li><b>activate subbookings</b></li>
-</ul>';
 $string['subbookingtimeslot'] = "Timeslot booking";
 $string['subbookingtimeslot_desc'] = "This opens timeslots for every booking date with a set duration.";
 $string['subject'] = 'Subject';
@@ -2131,14 +2143,6 @@ $string['teacherslinkonteacher'] = 'Add links to teacher pages';
 $string['teacherslinkonteacher_desc'] = 'When there are teachers added to booking options, this setting will add a link to an overview page for each teacher.';
 $string['teachersnologinrequired'] = 'Login for teacher pages not necessary';
 $string['teachersnologinrequired_desc'] = 'If you activate this setting, everyone can access the teacher pages, regardless if logged in or not.';
-$string['teachersprofeatures'] = '<ul>
-<li><b>add links to teacher pages</b></li>
-<li><b>login for teacher pages not necessary</b></li>
-<li><b>always show teacher’s email addresses to everyone</b></li>
-<li><b>show teacher’s email addresses to booked users</b></li>
-<li><b>teachers can send email to all booked users using own mail client</b></li>
-<li><b>teachers of booking option are assigned to fitting role</b></li>
-</ul>';
 $string['teachersshowemails'] = 'Always show teacher\'s email addresses to everyone';
 $string['teachersshowemails_desc'] = 'If you activate this setting, every user can see
     the e-mail address of any teacher - even if they are not logged in. <span class="text-danger"><b>Be careful:</b> This might be

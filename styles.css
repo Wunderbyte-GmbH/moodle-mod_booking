@@ -471,18 +471,18 @@ if there only was one booking option. */
     color: red;
 }
 
-.disabled-option {
+.disabled-profeature {
     color: grey;
     pointer-events: none; /* Disables clicks */
     opacity: 0.6; /* Makes it appear lighter */
     cursor: not-allowed; /* Shows a not-allowed cursor */
 }
 
-.disabled-option a {
+.disabled-profeature a {
     color: grey; /* Also greys out the link */
     text-decoration: none; /* Optional: Remove underline if it's styled */
 }
 
-.disabled-option a:hover {
+.disabled-profeature a:hover {
     color: grey; /* Ensures hover doesn’t change color */
 }

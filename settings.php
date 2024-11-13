@@ -314,7 +314,7 @@ if ($ADMIN->fulltree) {
                 'appearancesettings',
                 get_string('appearancesettings', 'mod_booking'),
                 get_string('prolicensefeatures', 'mod_booking') .
-                get_string('appearanceprofeatures', 'mod_booking') .
+                get_string('profeatures:appearance', 'mod_booking') .
                 get_string('infotext:prolicensenecessary', 'mod_booking')
             )
         );
@@ -551,7 +551,7 @@ if ($ADMIN->fulltree) {
                 'teachersettings',
                 get_string('teachersettings', 'mod_booking'),
                 get_string('prolicensefeatures', 'mod_booking') .
-                get_string('teachersprofeatures', 'mod_booking') .
+                get_string('profeatures:teachers', 'mod_booking') .
                 get_string('infotext:prolicensenecessary', 'mod_booking')
             )
         );
@@ -598,7 +598,7 @@ if ($ADMIN->fulltree) {
                 'cancellationsettings',
                 get_string('cancellationsettings', 'mod_booking'),
                 get_string('prolicensefeatures', 'mod_booking') .
-                get_string('cancellationsettingsprofeatures', 'mod_booking') .
+                get_string('profeatures:cancellationsettings', 'mod_booking') .
                 get_string('infotext:prolicensenecessary', 'mod_booking')
             )
         );
@@ -631,7 +631,7 @@ if ($ADMIN->fulltree) {
                 'allowoverbookingheader',
                 get_string('allowoverbookingheader', 'mod_booking'),
                 get_string('prolicensefeatures', 'mod_booking') .
-                get_string('overbookingprofeatures', 'mod_booking') .
+                get_string('profeatures:overbooking', 'mod_booking') .
                 get_string('infotext:prolicensenecessary', 'mod_booking')
             )
         );
@@ -705,38 +705,48 @@ if ($ADMIN->fulltree) {
                 'newcoursecategorycfieldheading',
                 get_string('automaticcoursecreation', 'mod_booking'),
                 get_string('prolicensefeatures', 'mod_booking') .
-                get_string('automaticcoursecreationprofeatures', 'mod_booking') .
+                get_string('profeatures:automaticcoursecreation', 'mod_booking') .
                 get_string('infotext:prolicensenecessary', 'mod_booking')
             )
         );
     }
 
-    // Self-learning courses - Booking options with fixed duration.
-    $settings->add(
-        new admin_setting_heading(
-            'selflearningcoursesettingsheader',
-            get_string('selflearningcourse:settingsheader', 'mod_booking'),
-            get_string('selflearningcourse:settingsheader_desc', 'mod_booking')
-        )
-    );
-
-    $settings->add(
-        new admin_setting_configcheckbox(
-            'booking/selflearningcourseactive',
-            get_string('selflearningcourse:active', 'mod_booking'),
-            '',
-            0
-        )
-    );
-
-    $settings->add(
-        new admin_setting_configtext(
-            'booking/selflearningcourselabel',
-            get_string('selflearningcourse:label', 'mod_booking'),
-            get_string('selflearningcourse:label_desc', 'mod_booking'),
-            ''
-        )
-    );
+    // PRO-Feature: Self-learning courses - Booking options with fixed duration.
+    if ($proversion) {
+        $settings->add(
+            new admin_setting_heading(
+                'selflearningcoursesettingsheader',
+                get_string('selflearningcourse:settingsheader', 'mod_booking'),
+                get_string('selflearningcourse:settingsheader_desc', 'mod_booking')
+            )
+        );
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/selflearningcourseactive',
+                get_string('selflearningcourse:active', 'mod_booking'),
+                '',
+                0
+            )
+        );
+        $settings->add(
+            new admin_setting_configtext(
+                'booking/selflearningcourselabel',
+                get_string('selflearningcourse:label', 'mod_booking'),
+                get_string('selflearningcourse:label_desc', 'mod_booking'),
+                ''
+            )
+        );
+    } else {
+        $settings->add(
+            new admin_setting_heading(
+                'selflearningcoursesettingsheader',
+                get_string('selflearningcourse:settingsheader', 'mod_booking'),
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('profeatures:selflearningcourse', 'mod_booking') .
+                get_string('infotext:prolicensenecessary', 'mod_booking')
+            )
+        );
+    }
 
     // Waiting list settings.
     $settings->add(
@@ -1028,7 +1038,7 @@ if ($ADMIN->fulltree) {
                 'priceformulaheader',
                 get_string('priceformulaheader', 'mod_booking'),
                 get_string('prolicensefeatures', 'mod_booking') .
-                get_string('priceformulaprofeature', 'mod_booking') .
+                get_string('profeatures:priceformula', 'mod_booking') .
                 get_string('infotext:prolicensenecessary', 'mod_booking')
             )
         );
@@ -1109,7 +1119,7 @@ if ($ADMIN->fulltree) {
                 'duplicationrestoreoption',
                 get_string('duplicationrestoreoption', 'mod_booking'),
                 get_string('prolicensefeatures', 'mod_booking') .
-                get_string('duplicationrestoreoptionprofeatures', 'mod_booking') .
+                get_string('profeatures:duplicationrestoreoption', 'mod_booking') .
                 get_string('infotext:prolicensenecessary', 'mod_booking')
             )
         );
@@ -1229,7 +1239,7 @@ if ($ADMIN->fulltree) {
                 'availabilityinfotexts_heading',
                 get_string('availabilityinfotextsheading', 'mod_booking'),
                 get_string('prolicensefeatures', 'mod_booking') .
-                get_string('availabilityinfotextsprofeature', 'mod_booking') .
+                get_string('profeatures:availabilityinfotexts', 'mod_booking') .
                 get_string('infotext:prolicensenecessary', 'mod_booking')
             )
         );
@@ -1259,7 +1269,7 @@ if ($ADMIN->fulltree) {
                 'subbookings',
                 get_string('subbookingsheader', 'mod_booking'),
                 get_string('prolicensefeatures', 'mod_booking') .
-                get_string('subbookingsprofeature', 'mod_booking') .
+                get_string('profeatures:subbookings', 'mod_booking') .
                 get_string('infotext:prolicensenecessary', 'mod_booking')
             )
         );
@@ -1291,7 +1301,7 @@ if ($ADMIN->fulltree) {
                 'boactions',
                 get_string('boactions', 'mod_booking'),
                 get_string('prolicensefeatures', 'mod_booking') .
-                get_string('boactionsprofeature', 'mod_booking') .
+                get_string('profeatures:boactions', 'mod_booking') .
                 get_string('infotext:prolicensenecessary', 'mod_booking')
             )
         );
@@ -1328,7 +1338,7 @@ if ($ADMIN->fulltree) {
                 'progressbars',
                 get_string('progressbars', 'mod_booking'),
                 get_string('prolicensefeatures', 'mod_booking') .
-                get_string('progressbarsprofeature', 'mod_booking') .
+                get_string('profeatures:progressbars', 'mod_booking') .
                 get_string('infotext:prolicensenecessary', 'mod_booking')
             )
         );
