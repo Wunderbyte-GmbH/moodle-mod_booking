@@ -182,10 +182,10 @@ $string['boactionname'] = "Name of action";
 $string['boactions'] = 'Actions after booking ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>' . ' ' . '<span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimental</span>';
 $string['boactions_desc'] = "Booking actions after booking are still an EXPERIMENTAL feature. You can try them if you want.
 But do not use them in a productive environment yet!";
+$string['boactionselectuserprofilefield'] = "Choose profile field";
 $string['boactionsprofeature'] = '<ul>
 <li><b>activate actions after booking</b></li>
 </ul>';
-$string['boactionselectuserprofilefield'] = "Choose profile field";
 $string['boactionuserprofilefieldvalue'] = 'Value';
 $string['bocondallowedtobookininstance'] = "Booking without capability";
 $string['bocondallowedtobookininstanceanyways'] = "Allow booking without the capability 'mod/booking:choose'";
@@ -979,10 +979,10 @@ $string['duplicationrestoredesc'] = 'Here you can set which information you want
 $string['duplicationrestoreentities'] = 'Include entities';
 $string['duplicationrestoreoption'] = 'Booking options: Duplication settings ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['duplicationrestoreoption_desc'] = 'Special settings for the duplication of booking options.';
-$string['duplicationrestoreprices'] = 'Include prices';
 $string['duplicationrestoreoptionprofeatures'] = '<ul>
 <li><b>duplicate moodle course when duplicating a booking option</b></li>
 </ul>';
+$string['duplicationrestoreprices'] = 'Include prices';
 $string['duplicationrestoresubbookings'] = 'Include subbookings ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['duplicationrestoreteachers'] = 'Include teachers';
 $string['duration'] = "Duration";

@@ -178,10 +178,10 @@ $string['boactionname'] = "Name der Aktion";
 $string['boactions'] = 'Aktionen nach der Buchung ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>' . ' ' . '<span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimentell</span>';
 $string['boactions_desc'] = "Aktionen nach der Buchung sind derzeit ein experimentelles Feature.
 Sie können es ausprobieren, aber bitte verwenden Sie es noch auf keiner Produktivplattform!";
+$string['boactionselectuserprofilefield'] = "Wähle Profilfeld";
 $string['boactionsprofeature'] = '<ul>
 <li><b>Aktionen nach der Buchung aktivieren</b></li>
 </ul>';
-$string['boactionselectuserprofilefield'] = "Wähle Profilfeld";
 $string['boactionsheader'] = 'Aktionen nach der Buchung [EXPERIMENTELL]';
 $string['boactionuserprofilefieldvalue'] = 'Wert';
 $string['bocondallowedtobookininstance'] = "Buchen ohne Berechtigung";
@@ -544,9 +544,6 @@ $string['bookingsubbookingadd'] = 'Füge eine Zusatzbuchung hinzu';
 $string['bookingsubbookingdelete'] = 'Lösche Zusatzbuchung';
 $string['bookingsubbookingedit'] = 'Bearbeite';
 $string['bookingsubbookingsheader'] = "Zusatzbuchungen";
-$string['subbookingsprofeature'] = '<ul>
-<li><b>Zusatzbuchungen aktivieren</b></li>
-</ul>';
 $string['bookingtags'] = 'Schlagwörter';
 $string['bookingtext'] = 'Buchungsbeschreibung';
 $string['bookinguseastemplate'] = 'Setze diese Regel als Template';
@@ -971,10 +968,10 @@ $string['duplicationrestoredesc'] = 'Hier können Sie einstellen, welche Informa
 $string['duplicationrestoreentities'] = 'Entities inkludieren';
 $string['duplicationrestoreoption'] = 'Buchungsoptionen: Duplizieren ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['duplicationrestoreoption_desc'] = 'Spezielle Einstellungen für das Duplizieren von Buchungsoptionen.';
-$string['duplicationrestoreprices'] = 'Preise inkludieren';
 $string['duplicationrestoreoptionprofeatures'] = '<ul>
 <li><b>Moodle-Kurs duplizieren, wenn eine Buchungsoption dupliziert wird</b></li>
 </ul>';
+$string['duplicationrestoreprices'] = 'Preise inkludieren';
 $string['duplicationrestoresubbookings'] = 'Zusatzbuchungen inkludieren ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['duplicationrestoreteachers'] = 'Trainer:innen inkludieren';
 $string['duration'] = "Dauer";
@@ -1991,6 +1988,9 @@ $string['subbookingname'] = "Name der Zusatzbuchung";
 $string['subbookings'] = "Zusatzbuchungen";
 $string['subbookings_desc'] = 'Schalten Sie Zusatzbuchungen wie z.B. zusätzlich buchbare Items oder Slot-Buchungen für bestimmte Zeiten (z.B. für Tennisplätze) frei.';
 $string['subbookingsheader'] = 'Zusatzbuchungen ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['subbookingsprofeature'] = '<ul>
+<li><b>Zusatzbuchungen aktivieren</b></li>
+</ul>';
 $string['subbookingtimeslot'] = "Zeitfenster Buchung";
 $string['subbookingtimeslot_desc'] = "Mit dieser Funktion kann die Dauer von buchbaren Zeitfenstern für jedes Datum der Buchungsoption festgelegt werden.";
 $string['subject'] = 'Betreff';
