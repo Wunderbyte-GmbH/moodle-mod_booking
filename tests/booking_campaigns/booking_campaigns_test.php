@@ -174,11 +174,8 @@ final class booking_campaigns_test extends advanced_testcase {
         list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
 
-        // Force campaing deletion.
-        $camps = campaigns_info::get_all_campaigns();
-        foreach ($camps as $camp) {
-            campaigns_info::delete_campaign($camp->id);
-        }
+        // Mandatory clean-up.
+        singleton_service::reset_campaigns();
         singleton_service::get_instance()->users = [];
         singleton_service::get_instance()->bookinganswers = [];
     }
@@ -391,11 +388,8 @@ final class booking_campaigns_test extends advanced_testcase {
         list($id, $isavailable, $description) = $boinfo1->is_available($settings3->id, $student3->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
 
-        // Force campaing deletion.
-        $camps = campaigns_info::get_all_campaigns();
-        foreach ($camps as $camp) {
-            campaigns_info::delete_campaign($camp->id);
-        }
+        // Mandatory clean-up.
+        singleton_service::reset_campaigns();
         singleton_service::get_instance()->users = [];
         singleton_service::get_instance()->bookinganswers = [];
     }
