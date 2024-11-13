@@ -135,6 +135,13 @@ class customformstore {
                         break;
                     }
                 }
+            } else if (
+                $formelement->formtype == 'enrolusersaction'
+            ) {
+                if (!(int) $data[$identifier]) {
+                    $errors[$identifier] = get_string('error:chooseint', 'mod_booking');
+                }
+
             }
             if (!empty($formelement->notempty)) {
                 if (empty($data[$identifier])) {
@@ -218,19 +225,37 @@ class customformstore {
         $additionalprice = 0;
 
         foreach ($formdata as $formdatakey => $formelement) {
-            if (!isset($formelement->formtype) || $formelement->formtype != 'select' || !isset($formelement->value)) {
+            if (
+                !isset($formelement->formtype) ||
+                !isset($formelement->value)
+            ) {
                 continue;
             }
-            $key = 'customform_select_' . $formdatakey;
-            $lines = explode(PHP_EOL, $formelement->value);
-            foreach ($lines as $line) {
-                $linearray = explode(' => ', $line);
-                if (isset($linearray[3]) && isset($data[$key]) && $data[$key] == $linearray[0]) {
-                    $additionalprice = $this->get_price_for_user($linearray[3]);
-                }
+            switch ($formelement->formtype) {
+                case "select":
+                    $key = 'customform_select_' . $formdatakey;
+                    $lines = explode(PHP_EOL, $formelement->value);
+                    foreach ($lines as $line) {
+                        $linearray = explode(' => ', $line);
+                        if (isset($linearray[3]) && isset($data[$key]) && $data[$key] == $linearray[0]) {
+                            $additionalprice = $this->get_price_for_user($linearray[3]);
+                        }
+                    }
+                    $price += $additionalprice;
+                    break;
+                case "enrolusersaction":
+                    $key = 'customform_enrolusersaction_' . $formdatakey;
+                    if (isset($data[$key])) {
+                        $factor = (int) $data[$key];
+                        $price = $price * $factor;
+                    }
+                    break;
+                default:
+                    break;
             }
+
         }
-        return $price + $additionalprice;
+        return $price;
     }
 
     /**
