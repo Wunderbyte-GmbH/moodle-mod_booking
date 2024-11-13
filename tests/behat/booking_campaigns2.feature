@@ -62,11 +62,11 @@ Feature: Create booking campaigns2 for booking options as admin and booking it a
       | BookingCMP | Option-include | student5 |
     And I change viewport size to "1366x10000"
 
-  @javascript
-  Scenario: Booking campaigns2: create bloking booking campaign via DB view and book as students
+  ## @javascript
+  Scenario: Booking campaigns2: conditions states option customfield does not contain and profile field does contain values
     Given the following "mod_booking > campaigns" exist:
-      | name      | type | json                                                                                                                                                                                                                                        | starttime   | endtime        | pricefactor | limitfactor |
-      | campaign3 | 1    | {"bofieldname":"bcustom1","fieldvalue":"exclude","campaignfieldnameoperator":"!~","cpfield":"ucustom1","cpoperator":"~","cpvalue":"student","blockoperator":"blockbelow","blockinglabel":"Below50","hascapability":null,"percentageavailableplaces":50} | ## yesterday ## | ## + 1 month ## | 1 | 1 |
+      | name      | type | json                                                                                                                                                                                                                                                    | starttime       | endtime         | pricefactor | limitfactor |
+      | campaign3 | 1    | {"bofieldname":"bcustom1","fieldvalue":"exclude","campaignfieldnameoperator":"!~","cpfield":"ucustom1","cpoperator":"~","cpvalue":"student","blockoperator":"blockbelow","blockinglabel":"Below50","hascapability":null,"percentageavailableplaces":50} | ## yesterday ## | ## + 1 month ## | 1           | 1           |
     ## Verify "above" blocking campaing2
     When I am on the "BookingCMP" Activity page logged in as student1
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
@@ -82,4 +82,26 @@ Feature: Create booking campaigns2 for booking options as admin and booking it a
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r2 .booknow" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r3 .booknow" "css_element"
+    And I log out
+
+  ## @javascript
+  Scenario: Booking campaigns2: conditions states option customfield does contain and profile field does not contain values
+    Given the following "mod_booking > campaigns" exist:
+      | name      | type | json                                                                                                                                                                                                                                                    | starttime       | endtime         | pricefactor | limitfactor |
+      | campaign3 | 1    | {"bofieldname":"bcustom1","fieldvalue":"include","campaignfieldnameoperator":"=","cpfield":"ucustom1","cpoperator":"!~","cpvalue":"student","blockoperator":"blockbelow","blockinglabel":"Below50","hascapability":null,"percentageavailableplaces":50} | ## yesterday ## | ## + 1 month ## | 1           | 1           |
+    ## Verify "above" blocking campaing2
+    When I am on the "BookingCMP" Activity page logged in as student1
+    And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r2 .booknow" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r3 .booknow" "css_element"
+    And I log out
+    And I am on the "BookingCMP" Activity page logged in as student2
+    And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r2 .booknow" "css_element"
+    And I should see "Below50" in the ".allbookingoptionstable_r3 .booknow" "css_element"
+    And I log out
+    And I am on the "BookingCMP" Activity page logged in as student3
+    And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r2 .booknow" "css_element"
+    And I should see "Below50" in the ".allbookingoptionstable_r3 .booknow" "css_element"
     And I log out
