@@ -285,6 +285,15 @@ class customform_form extends dynamic_form {
                             get_string('apply', 'mod_booking')
                         );
                         break;
+                    case 'enrolusersaction':
+                        $identifier = 'customform_' . $formelementvalue->formtype . '_' . $counter;
+                        $mform->addElement(
+                            'text',
+                            $identifier,
+                            format_string($formelementvalue->label) ?? "Label " . $counter
+                        );
+                        $mform->setDefault('customform_enrolusersaction_' . $counter, $formelementvalue->value);
+                        $mform->setType('customform_enrolusersaction_' . $counter, PARAM_TEXT);
                 }
 
                 $counter++;

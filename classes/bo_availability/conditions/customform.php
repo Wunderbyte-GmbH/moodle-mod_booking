@@ -224,6 +224,7 @@ class customform implements bo_condition {
                 'url' => get_string('bocondcustomformurl', 'mod_booking'),
                 'mail' => get_string('bocondcustomformmail', 'mod_booking'),
                 'deleteinfoscheckboxuser' => get_string('bocondcustomformdeleteinfoscheckboxuser', 'mod_booking'),
+                'enrolusersaction' => get_string('autoenrol', 'mod_booking'),
             ];
 
             // We add four potential elements.
@@ -610,12 +611,37 @@ class customform implements bo_condition {
                 "condition_customform" => $data,
             ];
             $newanswer->json = json_encode($data);
+            self::update_places($data, $settings, $newanswer);
         }
 
         // We only delete the json when it's booked.
         if ($newanswer->waitinglist === MOD_BOOKING_STATUSPARAM_BOOKED) {
             $customformstore->delete_customform_data();
         }
+    }
+
+    /**
+     * Update places column in case there is a enrolusersaction field.
+     *
+     * @param mixed $data
+     * @param mixed $newanswer
+     *
+     * @return bool
+     *
+     */
+    private static function update_places($data, &$newanswer): bool {
+        if (!isset($data->condition_customform)) {
+            return false;
+        }
+        foreach ($data->condition_customform as $key => $value) {
+            // For the moment, we only support 1 enrolusersaction field.
+            if (strpos($key, 'customform_enrolusersaction_') === 0) {
+                $newanswer->places = $value;
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

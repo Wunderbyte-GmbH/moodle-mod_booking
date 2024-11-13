@@ -1038,6 +1038,7 @@ $string['equalsnotplain'] = 'has not exactly this value';
 $string['equalsplain'] = 'has exactly this value';
 $string['error:campaignend'] = 'Campaign end has to be after campaign start.';
 $string['error:campaignstart'] = 'Campaign start has to be before campaign end.';
+$string['error:chooseint'] = 'You have to enter a number here.';
 $string['error:choosevalue'] = 'You have to choose a value here.';
 $string['error:confirmthatyouaresure'] = 'Please confirm that you are sure.';
 $string['error:coursecategoryvaluemissing'] = 'You need to choose a value here as it is needed as course category
