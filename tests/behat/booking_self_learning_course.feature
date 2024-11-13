@@ -37,6 +37,7 @@ Feature: Configure and validate self-learning course feature for booking option
     Given the following config values are set as admin:
       | config                           | value | plugin  |
       | linktomoodlecourseonbookedbutton | 1     | booking |
+      | selflearningcourseactive         | 1     | booking |
     And the following "mod_booking > options" exist:
       | booking    | text         | description  | chooseorcreatecourse | course | limitanswers | maxanswers | teachersforoption |
       | My booking | SelfLearning | SelfLearning | 1                    | C2     | 0            | 0          | teacher1          |
