@@ -544,6 +544,7 @@ class singleton_service {
 
     /**
      * Delete campaigns from singleton.
+     * @param int $id
      * @return array
      */
     public static function reset_campaigns($id = 0): array {
