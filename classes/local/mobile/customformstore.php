@@ -125,9 +125,9 @@ class customformstore {
                         $filteredba = array_filter($ba->usersonlist, function($userbookings) use ($identifier, $expectedvalue) {
                             return isset($userbookings->$identifier) && $userbookings->$identifier === $expectedvalue;
                         });
-                        if (count($filteredba) >= $linearray[2]) {
+                        if (count($filteredba) >= $linearray[2] && !empty($linearray[2])) {
                             $errors[$identifier] = get_string(
-                                'bo_cond_customform_fully_booked',
+                                'bocondcustomformfullybooked',
                                 'mod_booking',
                                 $linearray[1]
                             );
@@ -217,14 +217,15 @@ class customformstore {
         $data = (array) $this->get_customform_data(); // One of the values here indicates the right key for formdata.
         $additionalprice = 0;
 
-        foreach ($formdata as $formelement) {
+        foreach ($formdata as $formdatakey => $formelement) {
             if (!isset($formelement->formtype) || $formelement->formtype != 'select' || !isset($formelement->value)) {
                 continue;
             }
+            $key = 'customform_select_' . $formdatakey;
             $lines = explode(PHP_EOL, $formelement->value);
             foreach ($lines as $line) {
                 $linearray = explode(' => ', $line);
-                if (isset($linearray[3]) && in_array($linearray[0], $data)) {
+                if (isset($linearray[3]) && isset($data[$key]) && $data[$key] == $linearray[0]) {
                     $additionalprice = $this->get_price_for_user($linearray[3]);
                 }
             }
@@ -242,9 +243,10 @@ class customformstore {
      */
     public function get_price_and_currency_for_user(string $pricedata):string {
 
-        if (is_float($pricedata)) {
-            $price = (float) $pricedata;
-        } else {
+        if (empty($pricedata)) {
+            return "";
+        }
+        if (!is_float($price = (float) $pricedata)) {
             $price = $this->get_price_for_user($pricedata);
         }
 
@@ -262,13 +264,19 @@ class customformstore {
      */
     private function get_price_for_user(string $pricedata, string $priceidentifier = ""):float {
 
+        if (empty((float) $pricedata)) {
+            return 0;
+        }
         if ($price = (float) $pricedata) {
-            return (float) $price;
+            return $price;
         }
 
         $pairs = explode(',', $pricedata);
         $categoryprices = [];
         foreach ($pairs as $pair) {
+            if (strpos($pair, ':') === false) {
+                continue;
+            }
             list($key, $value) = explode(':', $pair);
             $categoryprices[$key] = (float)$value;
         }
