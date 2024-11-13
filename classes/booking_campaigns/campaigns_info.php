@@ -200,6 +200,7 @@ class campaigns_info {
     public static function delete_campaign(int $campaignid) {
         global $DB;
         $DB->delete_records('booking_campaigns', ['id' => (int)$campaignid]);
+        singleton_service::reset_campaigns($campaignid);
 
         cache_helper::purge_by_event('setbackoptionstable');
         cache_helper::purge_by_event('setbackoptionsettings');
