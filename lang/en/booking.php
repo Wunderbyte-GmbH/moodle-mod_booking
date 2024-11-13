@@ -814,6 +814,22 @@ $string['customform'] = "customform";
 $string['customformnotchecked'] = 'You didn\'t accept yet.';
 $string['customformparams_desc'] = "Use parameter that are set in the customform.";
 $string['customformparamsvalue'] = "Customform parameter";
+$string['customformselectoptions'] = '<div class="alert alert-info" role="alert">
+<i class="fa fa-info-circle"></i>
+<span><b>Values for selection can be specified like:</b> <br>
+key => Display name <br>
+Details and additional optional values: <br>
+key (<i>Should contain no spaces or special characters</i>) => <br>
+Display name (<i>As displayed to users</i>) => <br>
+Maximum number of bookings (<i>Total availability shared across all users, displayed to users</i>) => <br>
+Price (<i>Can be modified with the defined price category field, displayed to users</i>) => <br>
+Allowed users (<i>IDs of users who have access to this option</i>) <br>
+<b>Example:</b> <br>
+choose => Select... <br>
+singleroom => Single Room => 10 => 100 => 1,2,3,4,5 <br>
+doubleroom => Double Room => 5 => student:100,expert:200,default:150 => 1,2,3,4,5
+</span>
+</div>';
 $string['customlabelsdeprecated'] = '[DEPRECATED] Custom labels';
 $string['custommessagesent'] = 'Custom message sent';
 $string['customprofilefield'] = 'Custom profile field to check';

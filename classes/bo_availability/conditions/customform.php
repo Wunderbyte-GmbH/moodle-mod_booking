@@ -207,7 +207,7 @@ class customform implements bo_condition {
      * @return void
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0, ?\moodleform $moodleform = null) {
-        global $DB;
+        global $DB, $CFG;
 
         // Check if PRO version is activated.
         if (wb_payment::pro_version_is_activated()) {
@@ -275,6 +275,23 @@ class customform implements bo_condition {
                     'bo_cond_customform_select_1_' . $counter,
                     'eq',
                     'deleteinfoscheckboxuser'
+                );
+
+                if ($CFG->version >= 2023100900) {
+                    $mform->addElement(
+                        'static',
+                        'info_about_select_options_' . $counter,
+                        '',
+                        get_string('customformselectoptions', 'mod_booking')
+                    );
+                }
+
+                $mform->hideIf('info_about_select_options_' . $counter, 'bo_cond_customform_restrict', 'notchecked');
+                $mform->hideIf(
+                    'info_about_select_options_' . $counter,
+                    'bo_cond_customform_select_1_' . $counter,
+                    'neq',
+                    'select'
                 );
 
                 // We need to create all possible elements and hide them via "hideif" right now.

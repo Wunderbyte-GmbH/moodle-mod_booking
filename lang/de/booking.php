@@ -795,6 +795,22 @@ $string['customform'] = "customform";
 $string['customformnotchecked'] = 'Noch nicht akzeptiert.';
 $string['customformparams_desc'] = "Benutze die Parameter aus der customform.";
 $string['customformparamsvalue'] = "Customform Parameter";
+$string['customformselectoptions'] = '<div class="alert alert-info" role="alert">
+    <i class="fa fa-info-circle"></i>
+    <span><b>Werte für Auswahl können folgendermaßen angeben werden:</b> <br>
+    key => Anzeigename <br>
+    Details und weitere optionale Werte: <br>
+    key (<i>Sollte keine Abstände oder Sonderzeichen enthalten</i>) => <br>
+    Anzeigename (<i>Wird den NutzerInnen angezeigt</i>) => <br>
+    Maximalanzahl der Buchungen (<i>Gesamtverfügbarkeit für alle NutzerInnen gemeinsam, wird NutzerInnen angezeigt</i>) => <br>
+    Preis (<i>Kann mit dem definierten Preiskategoriefeld modifiziert werden, wird NutzerInnen angezeigt</i>) => <br>
+    Erlaubte NutzerInnen (<i>Userids von jeden Personen, denen diese Option zur Verfügung steht</i>) <br>
+    <b>Beispiel:</b> <br>
+    choose => Auswählen... <br>
+    singleroom => Einzelzimmer => 10 => 100 => 1,2,3,4,5 <br>
+    doubleroom => Doppelzimmer => 5 => student:100,expert:200,default:150 => 1,2,3,4,5
+    </span>
+    </div>';
 $string['customlabelsdeprecated'] = '[VERALTET] Benutzerdefinierte Bezeichnungen';
 $string['custommessagesent'] = 'Persönliche Nachricht gesendet';
 $string['customprofilefield'] = 'Custom profile field to check';
