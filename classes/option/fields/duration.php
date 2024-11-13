@@ -29,6 +29,7 @@ use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use mod_booking\utils\wb_payment;
 use MoodleQuickForm;
 use stdClass;
 
@@ -137,7 +138,12 @@ class duration extends field_base {
             fields_info::add_header_to_mform($mform, self::$header);
         }
 
-        $selflearningcourseactive = (int)get_config('booking', 'selflearningcourseactive');
+        // PRO feature: Self-learning courses - booking options with a duration.
+        if (wb_payment::pro_version_is_activated()) {
+            $selflearningcourseactive = (int)get_config('booking', 'selflearningcourseactive');
+        } else {
+            $selflearningcourseactive = 0;
+        }
         $mform->addElement('hidden', 'selflearningcourseactive', $selflearningcourseactive);
         $mform->setType('selflearningcourseactive', PARAM_INT);
 
