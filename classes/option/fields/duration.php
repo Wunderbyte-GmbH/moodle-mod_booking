@@ -137,8 +137,9 @@ class duration extends field_base {
             fields_info::add_header_to_mform($mform, self::$header);
         }
 
-        $selflearningcourseactive = get_config('booking', 'selflearningcourseactive');
-        $mform->addElement('hidden', 'selflearningcourseactive', (int)$selflearningcourseactive);
+        $selflearningcourseactive = (int)get_config('booking', 'selflearningcourseactive');
+        $mform->addElement('hidden', 'selflearningcourseactive', $selflearningcourseactive);
+        $mform->setType('selflearningcourseactive', PARAM_INT);
 
         $selflearningcourselabel = get_string('selflearningcourse', 'mod_booking');
         // The label can be overwritten in plugin config.
