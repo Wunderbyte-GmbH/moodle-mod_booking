@@ -543,6 +543,23 @@ class singleton_service {
     }
 
     /**
+     * Delete campaigns from singleton.
+     * @return array
+     */
+    public static function reset_campaigns($id = 0): array {
+
+        $instance = self::get_instance();
+
+        if (empty($id)) {
+            $instance->campaigns = [];
+        } else {
+            unset($instance->campaigns[$id]);
+        }
+
+        return (array)$instance->campaigns;
+    }
+
+    /**
      * Return course with given id.
      * Returns false if course does not exist anymore.
      *
