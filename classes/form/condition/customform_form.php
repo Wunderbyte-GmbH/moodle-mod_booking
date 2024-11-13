@@ -214,23 +214,33 @@ class customform_form extends dynamic_form {
                                                     && $userbookings->$identifier === $expectedvalue;
                                         }
                                     );
+                                    // Check availabilty.
                                     $leftover = $linearray[2] - count($filteredba);
-                                    if ($leftover == 0) {
+                                    if (empty($linearray[2])) {
+                                        $availablestring = '';
+                                    } else if ($leftover == 0) {
                                         unset($options[$linearray[0]]);
                                     } else {
-                                        $options[$linearray[0]] .= ', ' . $leftover  .
+                                        $availablestring = ', ' . $leftover  .
                                             ' ' . get_string('bocondcustomformstillavailable', 'mod_booking');
-                                        if (isset($linearray[3])) {
-                                            // Add price and default currency.
-                                            $customformstore = new customformstore(
-                                                (int) $formdata['userid'],
-                                                (int) $formdata['id']
-                                                );
-                                            $price = $customformstore->get_price_and_currency_for_user($linearray[3]);
-                                            $options[$linearray[0]] .= ' (' . $price . ')';
-                                        }
-
                                     }
+
+                                    // Check price.
+                                    $priceinfostring = '';
+                                    if (isset($linearray[3])) {
+                                        // Add price and default currency.
+                                        $customformstore = new customformstore(
+                                            (int) $formdata['userid'],
+                                            (int) $formdata['id']
+                                            );
+                                        $price = $customformstore->get_price_and_currency_for_user($linearray[3]);
+                                        if (!empty($price)) {
+                                            $priceinfostring = ' (+' . $price . ')';
+                                        }
+                                    }
+                                    // Append infos to select.
+                                    $options[$linearray[0]] .= $availablestring;
+                                    $options[$linearray[0]] .= $priceinfostring;
                                 }
                             } else {
                                 $options[] = format_string($line);
