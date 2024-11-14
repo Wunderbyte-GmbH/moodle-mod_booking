@@ -86,7 +86,7 @@ class shortcodes {
 
         $table = self::init_table_for_courses(null, md5($pageurl));
 
-        $wherearray['recommendedin'] = "%$course->shortname%";
+        $wherearray['recommendedin'] = "$course->shortname";
 
         list($fields, $from, $where, $params, $filter) =
                 booking::get_options_filter_sql(0, 0, '', null, null, [], $wherearray);
