@@ -509,6 +509,18 @@ if there only was one booking option. */
     color: red;
 }
 
+/* Make sure that spans within this container don't break.
+We need this for teachers for example. */
+.flex-wrap-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.flex-wrap-element {
+    display: inline-block;
+    white-space: nowrap;
+}
+
 /* Styles for new report.php */
 #accordion-usertables .columnclass.option {
     max-width: 100px;
@@ -528,18 +540,6 @@ if there only was one booking option. */
 #page-mod-booking-report2 .pagination {
     font-size: calc(0.9rem + 0.045vw);
     margin-left: 20px;
-}
-
-/* Make sure that spans within this container don't break.
-We need this for teachers for example. */
-.flex-wrap-container {
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.flex-wrap-element {
-    display: inline-block;
-    white-space: nowrap;
 }
 
 .report2-system-border {
