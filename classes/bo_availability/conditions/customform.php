@@ -31,6 +31,7 @@ use Exception;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
+use mod_booking\event\enrollinkbot_triggered;
 use mod_booking\local\mobile\customformstore;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
@@ -611,7 +612,7 @@ class customform implements bo_condition {
                 "condition_customform" => $data,
             ];
             $newanswer->json = json_encode($data);
-            self::update_places($data, $settings, $newanswer);
+            self::trigger_enrolbot_actions($data, $newanswer, $settings);
         }
 
         // We only delete the json when it's booked.
@@ -625,11 +626,14 @@ class customform implements bo_condition {
      *
      * @param mixed $data
      * @param mixed $newanswer
+     * @param mixed $settings
      *
      * @return bool
      *
      */
-    private static function update_places($data, &$newanswer): bool {
+    private static function trigger_enrolbot_actions($data, &$newanswer, $settings): bool {
+        global $USER;
+
         if (!isset($data->condition_customform)) {
             return false;
         }
@@ -637,6 +641,20 @@ class customform implements bo_condition {
             // For the moment, we only support 1 enrolusersaction field.
             if (strpos($key, 'customform_enrolusersaction_') === 0) {
                 $newanswer->places = $value;
+                $bosettings = singleton_service::get_instance_of_booking_option_settings($newanswer->optionid);
+                $event = enrollinkbot_triggered::create([
+                    'objectid' => $newanswer->optionid,
+                    'context' => \context_module::instance($settings->cmid),
+                    'userid' => $USER->id, // The user who triggered the event.
+                    'relateduserid' => $newanswer->userid, // Affected user.
+                    'other' => [
+                        'places' => $value,
+                        'optionid' => $newanswer->optionid,
+                        'courseid' => $bosettings->courseid,
+                    ]
+                ]);
+                $event->trigger();
+
                 return true;
             }
         }
