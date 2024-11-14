@@ -123,6 +123,7 @@ class rule_react_on_event implements booking_rule {
             'optiondates_teacher_added',
             'optiondates_teacher_deleted',
             'rest_script_success',
+            'enrollinkbot_triggered',
         ];
 
         // Get a list of all booking events.
