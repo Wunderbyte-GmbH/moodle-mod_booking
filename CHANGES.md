@@ -1,3 +1,31 @@
+## Version 8.7.8 (2024111500)
+* New feature: Booking option with a duration for self-learning courses:
+Users will get enrolled when they book for the defined duration.
+* New feature: Better display of PRO features and links to renew license and to new Booking Academy.
+* Improvement: Placeholders for Semester & Name of instance (#660)
+* Improvement: Select absolute canceluntil date in bookingsettings (#662)
+* Improvement: Track detailed changes of customfields (#670).
+* Improvement: Set flag for last teacher in array to be used in template (#695).
+* Improvement: Better strings for absolute date (with adjusted behat).
+* Improvement: Make courses with fixed duration a PRO feature.
+* Improvement: When there are no dates, we simply don't show them. No reason to show a "No date set" string.
+* Improvement: selector names, linting, fix pro-features UI etc.
+* Improvement: Link to booking rules course in showroom #694.
+* Bugfix: Display only meaningful data in shoppingcartplaceholder (#687)
+* Bugfix: Do not clean shortname as some customers need the fullname even in the shortname (e.g. for placeholders) - fixes #688
+* Bugfix: Fix potential cache issue in the test_delete_responses_activitycompletion()
+* Bugfix: Fix for "assertObjectHasAttribute() is deprecated and will be removed in PHPUnit 10. Refactor your test to use assertObjectHasProperty() instead" in phpunit (#689).
+* Bugfix: Fix generator method on rule creation.
+* Bugfix: Explicit declaration of params to avoid "Creation of dynamic property booking_settings::$xxxxxx is deprecated" error.
+* Bugfix: viewconfirmation render correct data.
+* Bugfix: Correctly display price if user isn't logged in.
+* Bugfix: Make sure date section does not collapse when adding dates.
+* Bugfix: setType to PARAM_INT for selflearningcourseactive.
+* Bugfix: When no license is set, we disable self-learning course checkbox.
+* Bugfix: Fix behat for self-learning course enrolment. #684
+* Bugfix: GH-703 - Recommendedin matches without wildcards to avoid false positives.
+* Test: new behat scenario for Self-learning courses: duration and enrollment (#684).
+
 ## Version 8.7.6 (2024110600)
 * Improvement: Tests for checkbox deleting infos from bookinganswers
 * Improvement: Better tests for rules feature
