@@ -1270,9 +1270,9 @@ $string['licensekeycfgdesc'] = '<div class="alert alert-warning"><i class="fa fa
 Sie können die PRO-Version 30 Tage lang KOSTENLOS testen. Hier klicken für mehr Info.
 </a>
 </div>';
-$string['licensekeycfgdesc:active'] = '<div class="alert alert-info"><i class="fa fa-lightbulb-o" aria-hidden="true"></i>&nbsp;
+$string['licensekeycfgdesc:active'] = '<div class="alert alert-secondary"><i class="fa fa-lightbulb-o" aria-hidden="true"></i>&nbsp;
 <a href="https://showroom.wunderbyte.at/course/view.php?id=62" target="_blank">
-Hier können Sie Ihre Lizenz erneuern, wenn sie abgelaufen ist.
+Hier klicken um Ihre Lizenz zu erneuern, wenn sie abgelaufen ist.
 </a>
 </div>';
 $string['licensekeydesc'] = 'Laden Sie hier einen gültigen Schlüssel hoch, um die PRO-Version zu aktivieren.';
@@ -1291,6 +1291,11 @@ $string['linknotvalid'] = 'Dieser Link / dieses Event ist derzeit nicht verfügb
 Bitte probieren Sie es kurz vor Beginn noch einmal, wenn Sie dieses Event gebucht haben.';
 $string['linktomoodlecourseonbookedbutton'] = 'Zeige Link auf Moodle-Kurs direkt am Buchen-Button';
 $string['linktomoodlecourseonbookedbutton_desc'] = 'Statt eines extra Links auf den Moodle-Kurs wird diese Option den Buchungsbutton in einen Link auf den gebuchten Moodle-Kurs umwandeln';
+$string['linktoshowroom:bookingrules'] = '<div class="alert alert-secondary"><i class="fa fa-lightbulb-o" aria-hidden="true"></i>&nbsp;
+<a href="https://showroom.wunderbyte.at/course/view.php?id=70" target="_blank">
+Sie möchten Buchungsregeln besser verstehen? Hier geht\'s zum Tutorial.
+</a>
+</div>';
 $string['linktoteachersinstancereport'] = '<p><a href="{$a}" target="_self">&gt;&gt; Zum Trainer:innen-Gesamtbericht für die Buchungsinstanz</a></p>';
 $string['listentoaddresschange'] = "Reagieren auf Änderungen des Ortes der Buchungsoption";
 $string['listentoresponsiblepersonchange'] = "Reagieren auf Änderungen der verantwortlichen Person der Buchungsoption";

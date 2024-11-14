@@ -1282,7 +1282,7 @@ Get you FREE trial of Booking PRO for 30 days! Click here for more info.
 </div>';
 $string['licensekeycfgdesc:active'] = '<div class="alert alert-info"><i class="fa fa-lightbulb-o" aria-hidden="true"></i>&nbsp;
 <a href="https://showroom.wunderbyte.at/course/view.php?id=62" target="_blank">
-When your license expires, you can renew it here.
+When your license expires, you can click here to renew it.
 </a>
 </div>';
 $string['licensekeydesc'] = 'Upload a valid license key to activate the PRO version.';
@@ -1301,6 +1301,11 @@ $string['linknotvalid'] = 'This link or meeting is not accessible.
 If it is a meeting you have booked, please check again, shortly before start.';
 $string['linktomoodlecourseonbookedbutton'] = 'Show Link to Moodle course directly on booked button';
 $string['linktomoodlecourseonbookedbutton_desc'] = 'Instead of an extra link, this will transform the booked button the a link to the moodle course';
+$string['linktoshowroom:bookingrules'] = '<div class="alert alert-secondary"><i class="fa fa-lightbulb-o" aria-hidden="true"></i>&nbsp;
+<a href="https://showroom.wunderbyte.at/course/view.php?id=70" target="_blank">
+Click here to expand yor knowledge on Booking Rules.
+</a>
+</div>';
 $string['linktoteachersinstancereport'] = '<p><a href="{$a}" target="_self">&gt;&gt; Go to teachers report for booking instance</a></p>';
 $string['listentoaddresschange'] = "React on change of address of bookingoption";
 $string['listentoresponsiblepersonchange'] = "React on change of responsible person of bookingoption";
