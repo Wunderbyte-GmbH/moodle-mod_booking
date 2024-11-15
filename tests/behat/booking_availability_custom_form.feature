@@ -53,6 +53,10 @@ Feature: Create custom availability form for booking options as admin and bookin
     Given I log in as "admin"
     And I set the following administration settings values:
       | User profile field for price category | userpricecat |
+    ## Or use
+    ## And the following config values are set as admin:
+    ##   | config                      | value        | plugin  |
+    ##   | pricecategoryfield          | userpricecat | booking |
     And I am on the "BookingCMP" Activity page
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -71,15 +75,10 @@ Feature: Create custom availability form for booking options as admin and bookin
     """
     And I press "Save"
     And I log out
-    ## Or use
-    ## And the following config values are set as admin:
-    ##   | config                      | value        | plugin  |
-    ##   | pricecategoryfield          | userpricecat | booking |
     When I am on the "BookingCMP" Activity page logged in as student1
     Then I should see "99 EUR" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Rooms" in the ".condition-customform" "css_element"
-    And I wait "30" seconds
     And I set the field "customform_select_1" to "doubleroom"
     And I follow "Continue"
     And I should see "Thank you! You have successfully put Option-form into the shopping cart." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
