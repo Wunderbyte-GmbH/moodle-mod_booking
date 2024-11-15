@@ -246,11 +246,13 @@ class customformstore {
         if (empty($pricedata)) {
             return "";
         }
-        if (!is_float($price = (float) $pricedata)) {
+        if (is_numeric($pricedata)) {
+            $price = (float) $pricedata;
+        } else {
             $price = $this->get_price_for_user($pricedata);
         }
 
-        return $price . ' ' . get_config('booking', 'globalcurrency');;
+        return $price . ' ' . get_config('booking', 'globalcurrency');
     }
 
     /**
@@ -263,13 +265,6 @@ class customformstore {
      *
      */
     private function get_price_for_user(string $pricedata, string $priceidentifier = ""): float {
-
-        if (empty((float) $pricedata)) {
-            return 0;
-        }
-        if ($price = (float) $pricedata) {
-            return $price;
-        }
 
         $pairs = explode(',', $pricedata);
         $categoryprices = [];
