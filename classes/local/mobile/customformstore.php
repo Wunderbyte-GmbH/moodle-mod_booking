@@ -208,10 +208,10 @@ class customformstore {
      * @param float $price
      * @param string $priceidentifier
      *
-     * @return float
+     * @return string
      *
      */
-    public function modify_price(float $price, string $priceidentifier): float {
+    public function modify_price(float $price, string $priceidentifier): string {
         $settings = singleton_service::get_instance_of_booking_option_settings($this->itemid);
         $formdata = customform::return_formelements($settings);
         $data = (array) $this->get_customform_data(); // One of the values here indicates the right key for formdata.
@@ -230,7 +230,7 @@ class customformstore {
                 }
             }
         }
-        return $price + $additionalprice;
+        return number_format(round((float) ($price + $additionalprice), 2), 2, '.', '');
     }
 
     /**
@@ -252,7 +252,7 @@ class customformstore {
             $price = $this->get_price_for_user($pricedata);
         }
 
-        return $price . ' ' . get_config('booking', 'globalcurrency');
+        return number_format($price, 2, '.', '') . ' ' . get_config('booking', 'globalcurrency');
     }
 
     /**
