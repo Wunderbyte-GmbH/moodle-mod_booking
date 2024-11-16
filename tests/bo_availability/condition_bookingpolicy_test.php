@@ -90,9 +90,9 @@ final class condition_bookingpolicy_test extends advanced_testcase {
         $bdata['bookingmanager'] = $bookingmanager->username;
 
         $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+        // Mandatory to solve potential cache issues.
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($booking1->id);
         singleton_service::destroy_booking_singleton_by_cmid($bookingsettings->cmid);
-        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($booking1->id);
 
         $this->setAdminUser();
 
@@ -132,6 +132,7 @@ final class condition_bookingpolicy_test extends advanced_testcase {
 
         // Mandatory to solve potential cache issues.
         singleton_service::destroy_booking_option_singleton($option1->id);
+        singleton_service::destroy_booking_singleton_by_cmid($bookingsettings->cmid);
     }
 
     /**
@@ -161,9 +162,9 @@ final class condition_bookingpolicy_test extends advanced_testcase {
         $bdata['bookingmanager'] = $bookingmanager->username;
 
         $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+        // Mandatory to solve potential cache issues.
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($booking1->id);
         singleton_service::destroy_booking_singleton_by_cmid($bookingsettings->cmid);
-        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($booking1->id);
 
         $this->setAdminUser();
 
@@ -211,6 +212,7 @@ final class condition_bookingpolicy_test extends advanced_testcase {
 
         // Mandatory to solve potential cache issues.
         singleton_service::destroy_booking_option_singleton($option1->id);
+        singleton_service::destroy_booking_singleton_by_cmid($bookingsettings->cmid);
     }
 
     /**
