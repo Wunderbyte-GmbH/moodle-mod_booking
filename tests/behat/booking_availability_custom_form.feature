@@ -76,10 +76,11 @@ Feature: Create custom availability form for booking options as admin and bookin
     And I press "Save"
     And I log out
     When I am on the "BookingCMP" Activity page logged in as student1
-    Then I should see "99 EUR" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    Then I should see "99.00 EUR" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Rooms" in the ".condition-customform" "css_element"
     And I set the field "customform_select_1" to "doubleroom"
+    And I should see "Double Room, 5 still available (+150.00 EUR)" in the ".condition-customform" "css_element"
     And I follow "Continue"
     And I should see "Thank you! You have successfully put Option-form into the shopping cart." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
     And I click on "Proceed to checkout" "text" in the ".modal-dialog.modal-xl .modalFooter" "css_element"
