@@ -204,6 +204,7 @@ final class condition_all_test extends advanced_testcase {
             $this->assertEquals($pricecategorydata->defaultvalue, $res['credit']);
             $this->assertEmpty($res['error']);
         }
+        singleton_service::get_instance()->userpricecategory = [];
     }
 
     /**
