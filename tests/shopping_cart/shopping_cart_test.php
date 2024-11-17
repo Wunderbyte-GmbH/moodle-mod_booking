@@ -33,6 +33,7 @@ use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
 use local_shopping_cart\shopping_cart;
 use local_shopping_cart\shopping_cart_history;
+use mod_booking\local\mobile\customformstore;
 use local_shopping_cart\local\cartstore;
 use local_shopping_cart\output\shoppingcart_history_list;
 use local_shopping_cart_generator;
@@ -59,6 +60,17 @@ final class shopping_cart_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
+    }
+
+    /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        parent::tearDown();
+        // Mandatory clean-up.
+        singleton_service::get_instance()->users = [];
+        singleton_service::get_instance()->bookinganswers = [];
+        singleton_service::get_instance()->userpricecategory = [];
     }
 
     /**
@@ -158,6 +170,7 @@ final class shopping_cart_test extends advanced_testcase {
 
         // Book option1 by the student1 himself.
         $this->setUser($student1);
+        singleton_service::destroy_user($student1->id);
 
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
         // The user sees now either the payment button or the noshoppingcart message.
@@ -225,6 +238,9 @@ final class shopping_cart_test extends advanced_testcase {
         // User 1 should be booked now.
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Mandatory to solve potential cache issues.
+        singleton_service::destroy_booking_option_singleton($option1->id);
     }
 
     /**
@@ -363,6 +379,7 @@ final class shopping_cart_test extends advanced_testcase {
         $this->assertEquals($subboking1->type, $subbookingobj->type);
 
         $this->setUser($student1);
+        singleton_service::destroy_user($student1->id);
         // Validate that subboking is available and bloking.
         list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student1->id, false);
         $this->assertEquals(MOD_BOOKING_BO_COND_SUBBOOKINGBLOCKS, $id);
@@ -443,6 +460,159 @@ final class shopping_cart_test extends advanced_testcase {
 
         // User 1 should be booked now.
         list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Mandatory to solve potential cache issues.
+        singleton_service::destroy_booking_option_singleton($option1->id);
+    }
+
+    /**
+     * Test of booking option with price as well as cancellation by user.
+     *
+     * @covers \condition\priceset::is_available
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     *
+     */
+    public function test_booking_customform_select_with_prices(array $bdata): void {
+        global $DB, $CFG;
+
+        // Setup test data.
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create user profile custom fields.
+        $this->getDataGenerator()->create_custom_profile_field([
+            'datatype' => 'text', 'shortname' => 'pricecat', 'name' => 'pricecat',
+        ]);
+        set_config('pricecategoryfield', 'pricecat', 'booking');
+
+        // Create users.
+        $student1 = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'default']);
+        $student2 = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'discount1']);
+        $student3 = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'discount2']);
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id, 'student');
+        $this->getDataGenerator()->enrol_user($student2->id, $course1->id, 'student');
+        $this->getDataGenerator()->enrol_user($student3->id, $course1->id, 'student');
+        $this->getDataGenerator()->enrol_user($teacher->id, $course1->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id, 'editingteacher');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        // Create set of price categories.
+        $pricecategorydata1 = (object)[
+            'ordernum' => 1,
+            'name' => 'default',
+            'identifier' => 'default',
+            'defaultvalue' => 99,
+            'pricecatsortorder' => 1,
+        ];
+        $plugingenerator->create_pricecategory($pricecategorydata1);
+        $pricecategorydata2 = (object)[
+            'ordernum' => 2,
+            'name' => 'discount1',
+            'identifier' => 'discount1',
+            'defaultvalue' => 89,
+            'pricecatsortorder' => 2,
+        ];
+        $plugingenerator->create_pricecategory($pricecategorydata2);
+
+        $pricecategorydata3 = (object)[
+            'ordernum' => 3,
+            'name' => 'discount2',
+            'identifier' => 'discount2',
+            'defaultvalue' => 79,
+            'pricecatsortorder' => 3,
+        ];
+        $plugingenerator->create_pricecategory($pricecategorydata3);
+
+        // Create a booking option.
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1';
+        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->courseid = $course2->id;
+        $record->maxanswers = 4;
+        $record->useprice = 1; // Use price from the default category.
+        // Set test objective setting(s) - custoform "select".
+        $record->bo_cond_customform_restrict = 1;
+        $record->bo_cond_customform_select_1_1 = 'select';
+        $record->bo_cond_customform_label_1_1 = 'Rooms';
+        $record->bo_cond_customform_notempty_1_1 = 1;
+        $record->bo_cond_customform_value_1_1 =
+            'choose => Select...' . PHP_EOL .
+            'singleroom => Single Room => 10 => 100' . PHP_EOL .
+            'doubleroom => Double Room => 5 => discount2:100,discount1:200,default:150';
+        $option1 = $plugingenerator->create_option($record);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid); // Require to avoid caching issues.
+        $boinfo = new bo_info($settings);
+
+        // Try to book option1 by the student1.
+        $this->setUser($student1);
+        singleton_service::destroy_user($student1->id);
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_CUSTOMFORM, $id);
+
+        $price = price::get_price('option', $settings->id);
+        $this->assertEquals($pricecategorydata1->defaultvalue, $price["price"]);
+
+        // Try to book option1 by the student2.
+        $this->setUser($student2);
+        singleton_service::destroy_user($student2->id);
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_CUSTOMFORM, $id);
+
+        $customformdata = (object) [
+            'id' => $settings->id,
+            'userid' => $student2->id,
+            'customform_select_1' => 'doubleroom',
+        ];
+        $customformstore = new customformstore($student2->id, $settings->id);
+        $customformstore->set_customform_data($customformdata);
+        $price = price::get_price('option', $settings->id);
+        $this->assertEquals(289, $price["price"]);
+
+        $this->setAdminUser();
+        // Simulate purchase: clean cart 1st.
+        shopping_cart::delete_all_items_from_cart($student2->id);
+
+        // Set user to buy in behalf of.
+        shopping_cart::buy_for_user($student2->id);
+        // Get cached data or setup defaults.
+        $cartstore = cartstore::instance($student2->id);
+        // Put in a test item with given ID (or default if ID > 4).
+        shopping_cart::add_item_to_cart('mod_booking', 'option', $settings->id, -1);
+        $total = $cartstore->get_total_price_of_items();
+        $this->assertEquals(289, $total);
+
+        // Confirm payment.
+        $res = shopping_cart::confirm_payment($student2->id, LOCAL_SHOPPING_CART_PAYMENT_METHOD_CASHIER_CASH);
+        // Validate payment.
+        $this->assertIsArray($res);
+        $this->assertEmpty($res['error']);
+
+        // In this test, we book the user directly (we don't test the payment process).
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $option->user_submit_response($student1, 0, 0, 0, MOD_BOOKING_VERIFIED);
+        // Validate that already booked.
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Mandatory to solve potential cache issues.
