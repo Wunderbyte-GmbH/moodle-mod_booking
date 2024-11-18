@@ -46,25 +46,13 @@ Feature: As an admin - configure booking's prices feature and validate it as stu
     Given the following config values are set as admin:
       | config             | value        | plugin  |
       | pricecategoryfield | userpricecat | booking |
+      | displayemptyprice  |              | booking |
     When I am on the "BookingCMP" Activity page logged in as student1
     And I should see "89.00 EUR" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I log out
     Then I am on the "BookingCMP" Activity page logged in as student2
-    And I should see "0.00 EUR" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I visit "/local/shopping_cart/checkout.php"
-    And I wait until the page is ready
-    ## Verify prices and credits
-    And I should see "Option-price" in the ".shopping-cart-checkout-items-container" "css_element"
-    And I should see "0.00 EUR" in the ".shopping-cart-checkout-items-container" "css_element"
-    And I should see "0 EUR" in the ".sc_price_label .sc_initialtotal" "css_element"
-    And I should see "0 EUR" in the ".sc_totalprice" "css_element"
-    And I press "Checkout"
-    And I should see "You do not have to pay anything. Do you want to proceed and book?" in the ".modal-body" "css_element"
-    And I wait "1" seconds
-    And I press "Confirm"
-    And I wait until the page is ready
-    And I should see "Payment successful!"
-    And I should see "0.00 EUR" in the ".payment-success ul.list-group" "css_element"
-    And I should see "Option-price" in the ".payment-success ul.list-group" "css_element"
+    And I should not see "0.00 EUR" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I log out
