@@ -1360,7 +1360,7 @@ class booking_option {
                 ]);
             $event->trigger();
 
-            customform::trigger_enrolbot_event(
+            customform::trigger_enrolbot_actions(
                 $this->optionid,
                 $user->id,
                 $this->settings,

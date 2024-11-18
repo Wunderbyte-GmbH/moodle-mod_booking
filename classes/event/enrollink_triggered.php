@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The enrollinkbot_triggered event.
+ * The enrollink_triggered event.
  *
  * @package mod_booking
  * @copyright 2024 Magdalena Holczik, info@wunderbyte.at
@@ -25,14 +25,14 @@
 namespace mod_booking\event;
 
 /**
- * The enrollinkbot_triggered event class.
+ * The enrollink_triggered event class.
  *
  * @property-read array $other { Extra information about event. Acesss an instance of the booking module }
  * @since Moodle 2.7
  * @copyright 2024 Magdalena Holczik, info@wunderbyte.at
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class enrollinkbot_triggered extends \core\event\base {
+class enrollink_triggered extends \core\event\base {
 
     /**
      * Init
