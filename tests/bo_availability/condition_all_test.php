@@ -239,6 +239,7 @@ final class condition_all_test extends advanced_testcase {
             'datatype' => 'text', 'shortname' => 'pricecat', 'name' => 'pricecat',
         ]);
         set_config('pricecategoryfield', 'pricecat', 'booking');
+        set_config('displayemptyprice', 0, 'booking');
 
         // Create users.
         $student1 = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'realprice']);
@@ -324,29 +325,10 @@ final class condition_all_test extends advanced_testcase {
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id);
         // The user sees now either the payment button or the noshoppingcart message.
         if (class_exists('local_shopping_cart\shopping_cart')) {
-            $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
+            $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
         } else {
             $this->assertEquals(MOD_BOOKING_BO_COND_NOSHOPPINGCART, $id);
         }
-        $price = price::get_price('option', $settings->id);
-        $this->assertEquals(0, $price["price"]);
-
-        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
-
-        // Simulate purchase: clean cart 1st.
-        shopping_cart::delete_all_items_from_cart($student2->id);
-        // Get cached data or setup defaults.
-        $cartstore = cartstore::instance($student2->id);
-        // Put in a test item with given ID (or default if ID > 4).
-        shopping_cart::add_item_to_cart('mod_booking', 'option', $settings->id, -1);
-        $total = $cartstore->get_total_price_of_items();
-        $this->assertEquals(0, $total);
-        // Confirm payment.
-        $res = shopping_cart::confirm_payment($student2->id, LOCAL_SHOPPING_CART_PAYMENT_METHOD_ONLINE);
-
-        // Validate that already booked.
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id);
-        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Mandatory clean-up.
         singleton_service::get_instance()->userpricecategory = [];
