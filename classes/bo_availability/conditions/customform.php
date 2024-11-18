@@ -31,7 +31,7 @@ use Exception;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
-use mod_booking\event\enrollinkbot_triggered;
+use mod_booking\event\enrollink_triggered;
 use mod_booking\local\mobile\customformstore;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
@@ -658,36 +658,78 @@ class customform implements bo_condition {
      * @return bool
      *
      */
-    public static function trigger_enrolbot_event(int $optionid, int $userid, object $settings, object $bookinganswer, int $baid): bool {
-        global $USER;
+    public static function trigger_enrolbot_actions(
+        int $optionid,
+        int $userid,
+        object $settings,
+        object $bookinganswer,
+        int $baid
+    ): bool {
+        global $USER, $DB;
 
-        foreach ($bookinganswer->answers as $id => $answer) {
-            if ($id != $baid) {
-                continue;
-            }
-            foreach ($answer as $key => $value) {
-                if (
-                    strpos($key, 'customform_enrolusersaction_') === 0 &&
-                    !empty($value)
-                ) {
-                    $event = enrollinkbot_triggered::create([
-                        'objectid' => $optionid,
-                        'context' => \context_module::instance($settings->cmid),
-                        'userid' => $USER->id, // The user who triggered the event.
-                        'relateduserid' => $userid, // Affected user.
-                        'other' => [
-                            'places' => $value,
-                            'optionid' => $optionid,
-                            'courseid' => $settings->courseid,
-                        ]
-                    ]);
-                    $event->trigger();
+        if (!isset($bookinganswer->answers[$baid])) {
+            return false;
+        }
 
-                    return true;
-                }
+        $answer = $bookinganswer->answers[$baid];
+        $key = self::enrolusersaction_applies($answer);
+
+        if (empty($key)) {
+            return false;
+        };
+
+        $places = $answer->$key;
+        // Update table.
+        $data = new stdClass();
+        $data->courseid = $settings->courseid;
+        $data->userid = $USER->id;
+        $data->usermodified = $USER->id;
+        $data->timecreated = time();
+        $data->timemodified = $data->timecreated;
+        $data->places = $places;
+        $data->erlid = md5(random_string());
+        $data->baid = $baid;
+        $data->optionid = $optionid;
+        $id = $DB->insert_record('booking_enrollink_bundles', $data);
+
+        // Trigger event.
+        $event = enrollink_triggered::create([
+            'objectid' => $optionid, // Always needs to be the optionid, to make sure rules are applied correctly.
+            'context' => \context_module::instance($settings->cmid),
+            'userid' => $USER->id, // The user who triggered the event.
+            'relateduserid' => $userid, // Affected user.
+            'other' => [
+                'places' => $places,
+                'optionid' => $optionid,
+                'courseid' => $settings->courseid,
+                'erlid' => $data->erlid, // The hash of this enrollink bundle.
+                'bundleid' => $id, // The hash of this enrollink bundle.
+            ]
+        ]);
+        $event->trigger();
+
+        return true;
+    }
+
+    /**
+     * Check if enrolusersaction from customform applies.
+     * If so, return key of string in bookinganswer. Otherwise return empty stirng.
+     *
+     * @param object $answer
+     *
+     * @return string
+     *
+     */
+    public static function enrolusersaction_applies(object $answer): string {
+        foreach ($answer as $key => $value) {
+            if (
+                strpos($key, 'customform_enrolusersaction_') === 0 &&
+                !empty($value)
+            ) {
+                return $key;
             }
         }
-        return false;
+        return "";
     }
 
     /**
