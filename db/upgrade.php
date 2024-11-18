@@ -3888,5 +3888,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024111800, 'booking');
     }
 
+    if ($oldversion < 2024111801) {
+
+        // Define field baid to be added to booking_enrollink_bundles.
+        $table = new xmldb_table('booking_enrollink_bundles');
+        $field = new xmldb_field('baid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'usermodified');
+
+        // Conditionally launch add field baid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2024111801, 'booking');
+    }
+
     return true;
 }
