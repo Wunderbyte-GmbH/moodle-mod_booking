@@ -852,11 +852,17 @@ class bo_info {
             && $settings->useprice) {
             $priceitems = price::get_price('option', $settings->id, $user);
             if (count($priceitems) > 0) {
-                $data['sub'] = [
-                    'label' => $priceitems["price"] . " " . $priceitems["currency"],
-                    'class' => ' text-center ',
-                    'role' => '',
-                ];
+                if (
+                    get_config('booking', 'priceisalwayson')
+                    || !empty(get_config('booking', 'displayemptyprice'))
+                    || !empty((float)$priceitems["price"])
+                ) {
+                    $data['sub'] = [
+                        'label' => $priceitems["price"] . " " . $priceitems["currency"],
+                        'class' => ' text-center ',
+                        'role' => '',
+                    ];
+                }
             }
         }
 
