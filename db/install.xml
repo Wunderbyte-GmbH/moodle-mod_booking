@@ -561,6 +561,7 @@
         <FIELD NAME="erlid" TYPE="char" LENGTH="255" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="hash value to double check the matching with the items from the bundle"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="baid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="id of bookinganswer with which the bundle was created"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
