@@ -1359,6 +1359,14 @@ class booking_option {
                     'other' => $other,
                 ]);
             $event->trigger();
+
+            customform::trigger_enrolbot_event(
+                $this->optionid,
+                $user->id,
+                $this->settings,
+                $ba,
+                $other['baid']
+            );
         }
 
         $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);

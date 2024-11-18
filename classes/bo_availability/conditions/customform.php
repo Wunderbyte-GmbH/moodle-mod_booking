@@ -612,7 +612,7 @@ class customform implements bo_condition {
                 "condition_customform" => $data,
             ];
             $newanswer->json = json_encode($data);
-            self::trigger_enrolbot_actions($data, $newanswer, $settings);
+            self::update_places_with_customformdata($data, $newanswer);
         }
 
         // We only delete the json when it's booked.
@@ -626,12 +626,11 @@ class customform implements bo_condition {
      *
      * @param mixed $data
      * @param mixed $newanswer
-     * @param mixed $settings
      *
      * @return bool
      *
      */
-    private static function trigger_enrolbot_actions($data, &$newanswer, $settings): bool {
+    private static function update_places_with_customformdata($data, &$newanswer): bool {
         global $USER;
 
         if (!isset($data->condition_customform)) {
@@ -641,24 +640,53 @@ class customform implements bo_condition {
             // For the moment, we only support 1 enrolusersaction field.
             if (strpos($key, 'customform_enrolusersaction_') === 0) {
                 $newanswer->places = $value;
-                $bosettings = singleton_service::get_instance_of_booking_option_settings($newanswer->optionid);
-                $event = enrollinkbot_triggered::create([
-                    'objectid' => $newanswer->optionid,
-                    'context' => \context_module::instance($settings->cmid),
-                    'userid' => $USER->id, // The user who triggered the event.
-                    'relateduserid' => $newanswer->userid, // Affected user.
-                    'other' => [
-                        'places' => $value,
-                        'optionid' => $newanswer->optionid,
-                        'courseid' => $bosettings->courseid,
-                    ]
-                ]);
-                $event->trigger();
-
                 return true;
             }
         }
+        return false;
+    }
 
+    /**
+     * If data from customform enrolusersaction is given, trigger the corresponding event.
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @param object $settings
+     * @param object $bookinganswer
+     * @param int $baid
+     *
+     * @return bool
+     *
+     */
+    public static function trigger_enrolbot_event(int $optionid, int $userid, object $settings, object $bookinganswer, int $baid): bool {
+        global $USER;
+
+        foreach ($bookinganswer->answers as $id => $answer) {
+            if ($id != $baid) {
+                continue;
+            }
+            foreach ($answer as $key => $value) {
+                if (
+                    strpos($key, 'customform_enrolusersaction_') === 0 &&
+                    !empty($value)
+                ) {
+                    $event = enrollinkbot_triggered::create([
+                        'objectid' => $optionid,
+                        'context' => \context_module::instance($settings->cmid),
+                        'userid' => $USER->id, // The user who triggered the event.
+                        'relateduserid' => $userid, // Affected user.
+                        'other' => [
+                            'places' => $value,
+                            'optionid' => $optionid,
+                            'courseid' => $settings->courseid,
+                        ]
+                    ]);
+                    $event->trigger();
+
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
