@@ -210,7 +210,7 @@ final class condition_all_test extends advanced_testcase {
     }
 
     /**
-     * Test of booking option with price as well as cancellation by user.
+     * Test of booking option with zero price as different displayemptyprice settings.
      *
      * @covers \condition\priceset::is_available
      *
@@ -223,6 +223,8 @@ final class condition_all_test extends advanced_testcase {
      */
     public function test_booking_bookit_with_pricecategories_and_zero_price(array $bdata): void {
         global $DB, $CFG;
+
+        $this->setAdminUser();
 
         // Set parems requred for cancellation.
         $bdata['cancancelbook'] = 1;
@@ -239,7 +241,7 @@ final class condition_all_test extends advanced_testcase {
             'datatype' => 'text', 'shortname' => 'pricecat', 'name' => 'pricecat',
         ]);
         set_config('pricecategoryfield', 'pricecat', 'booking');
-        set_config('displayemptyprice', 0, 'booking');
+        set_config('displayemptyprice', 1, 'booking');
 
         // Create users.
         $student1 = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'realprice']);
@@ -253,8 +255,6 @@ final class condition_all_test extends advanced_testcase {
         $bdata['bookingmanager'] = $bookingmanager->username;
 
         $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
-
-        $this->setAdminUser();
 
         $this->getDataGenerator()->enrol_user($student1->id, $course1->id, 'student');
         $this->getDataGenerator()->enrol_user($student2->id, $course1->id, 'student');
@@ -316,6 +316,7 @@ final class condition_all_test extends advanced_testcase {
         } else {
             $this->assertEquals(MOD_BOOKING_BO_COND_NOSHOPPINGCART, $id);
         }
+        // Validation that price == category price.
         $price = price::get_price('option', $settings->id);
         $this->assertEquals($pricecategorydata3->defaultvalue, $price["price"]);
 
@@ -325,10 +326,43 @@ final class condition_all_test extends advanced_testcase {
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id);
         // The user sees now either the payment button or the noshoppingcart message.
         if (class_exists('local_shopping_cart\shopping_cart')) {
-            $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+            $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
         } else {
             $this->assertEquals(MOD_BOOKING_BO_COND_NOSHOPPINGCART, $id);
         }
+        // Validation of 0 price.
+        $price = price::get_price('option', $settings->id);
+        $this->assertEquals(0, $price["price"]);
+
+        // Change displayemptyprice setting value.
+        $this->setAdminUser();
+        set_config('displayemptyprice', 0, 'booking');
+
+        // Try to book option1 by the student1 - still blocked.
+        $this->setUser($student1);
+        singleton_service::destroy_user($student1->id);
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id);
+        // The user sees now either the payment button or the noshoppingcart message.
+        if (class_exists('local_shopping_cart\shopping_cart')) {
+            $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
+        } else {
+            $this->assertEquals(MOD_BOOKING_BO_COND_NOSHOPPINGCART, $id);
+        }
+        $price = price::get_price('option', $settings->id);
+        $this->assertEquals($pricecategorydata3->defaultvalue, $price["price"]);
+
+        // Try to book option1 by the student2 - allowed.
+        $this->setUser($student2);
+        singleton_service::destroy_user($student2->id);
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id);
+        // The user sees now either the payment button or the noshoppingcart message.
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        // Book student2 and verify it.
+        $result = booking_bookit::bookit('option', $settings->id, $student2->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student2->id);
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Mandatory clean-up.
         singleton_service::get_instance()->userpricecategory = [];
