@@ -3836,5 +3836,57 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024101700, 'booking');
     }
 
+    if ($oldversion < 2024111800) {
+
+        // Define table booking_enrollink_bundles to be created.
+        $table = new xmldb_table('booking_enrollink_bundles');
+
+        // Adding fields to table booking_enrollink_bundles.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('places', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('erlid', XMLDB_TYPE_CHAR, '255', null, null, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('usermodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table booking_enrollink_bundles.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Adding indexes to table booking_enrollink_bundles.
+        $table->add_index('erlid', XMLDB_INDEX_UNIQUE, ['erlid']);
+
+        // Conditionally launch create table for booking_enrollink_bundles.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Define table booking_enrollink_items to be created.
+        $table = new xmldb_table('booking_enrollink_items');
+
+        // Adding fields to table booking_enrollink_items.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('erlid', XMLDB_TYPE_CHAR, '255', null, null, null, '0');
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('consumed', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+
+        // Adding keys to table booking_enrollink_items.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Adding indexes to table booking_enrollink_items.
+        $table->add_index('erlid', XMLDB_INDEX_UNIQUE, ['erlid']);
+
+        // Conditionally launch create table for booking_enrollink_items.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2024111800, 'booking');
+    }
+
     return true;
 }
