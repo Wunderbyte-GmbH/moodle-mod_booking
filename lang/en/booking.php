@@ -1024,6 +1024,11 @@ $string['enrolledinoptions'] = "already booked in booking options: ";
 $string['enrolledratings'] = 'Only enrolled';
 $string['enrolledusers'] = 'Users enrolled in course';
 $string['enrollink'] = 'Enrolment link';
+$string['enrollink:alreadyenrolled'] = 'You are already enrolled to this course and can access it';
+$string['enrollink:enrolled'] = 'Successfully enrolled';
+$string['enrollink:enrolmentexception'] = 'An error occured during the enrolment';
+$string['enrollink:invalidenrollink'] = 'Your enrolment link is invalid.';
+$string['enrollink:nomoreseats'] = 'There are no more places available in the bundle.';
 $string['enrollinktriggered'] = 'Enrol link generation triggered';
 $string['enrollinktriggered:description'] = 'The event as the basis for the automatic generation of an enrolment link has been triggered.';
 $string['enrolmentstatus'] = 'Enrol users at course start time (Default: Not checked &rarr; enrol them immediately.)';
@@ -1322,6 +1327,7 @@ $string['linknotavailableyet'] = "The link to access the meeting is available on
 until the end of the session.";
 $string['linknotvalid'] = 'This link or meeting is not accessible.
 If it is a meeting you have booked, please check again, shortly before start.';
+$string['linktocourse'] = "Link to course";
 $string['linktomoodlecourseonbookedbutton'] = 'Show Link to Moodle course directly on booked button';
 $string['linktomoodlecourseonbookedbutton_desc'] = 'Instead of an extra link, this will transform the booked button the a link to the moodle course';
 $string['linktoshowroom:bookingrules'] = '<div class="alert alert-secondary"><i class="fa fa-lightbulb-o" aria-hidden="true"></i>&nbsp;
