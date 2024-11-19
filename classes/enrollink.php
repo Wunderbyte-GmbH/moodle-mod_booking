@@ -313,6 +313,9 @@ class enrollink {
         $data->optionid = $optionid;
         $id = $DB->insert_record('booking_enrollink_bundles', $data);
 
+        $bas = singleton_service::get_instance_of_booking_answers($settings);
+        $barecord = $bas->answers[$baid];
+
         // Trigger event.
         $event = enrollink_triggered::create([
             'objectid' => $optionid, // Always needs to be the optionid, to make sure rules are applied correctly.
@@ -325,6 +328,7 @@ class enrollink {
                 'courseid' => $settings->courseid,
                 'erlid' => $data->erlid, // The hash of this enrollink bundle.
                 'bundleid' => $id, // The hash of this enrollink bundle.
+                'json' => $barecord->json,
             ]
         ]);
         $event->trigger();
