@@ -3917,5 +3917,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024111802, 'booking');
     }
 
+    if ($oldversion < 2024111804) {
+
+        // Define index erlid (unique) to be dropped form booking_enrollink_items.
+        $table = new xmldb_table('booking_enrollink_items');
+        $index = new xmldb_index('erlid', XMLDB_INDEX_UNIQUE, ['erlid']);
+
+        // Conditionally launch drop index erlid.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2024111804, 'booking');
+    }
+
     return true;
 }

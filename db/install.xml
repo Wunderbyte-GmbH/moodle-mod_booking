@@ -583,9 +583,6 @@
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
-      <INDEXES>
-        <INDEX NAME="erlid" UNIQUE="true" FIELDS="erlid"/>
-      </INDEXES>
     </TABLE>
   </TABLES>
 </XMLDB>
