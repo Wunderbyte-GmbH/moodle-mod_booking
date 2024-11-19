@@ -1,3 +1,15 @@
+## Version 8.7.9 (2024111900)
+* Improvement: Enable price as 3rd arg for customform select (#669 MUSI-621)
+* Improvement: Extend customform select limit to allowed users (#669 MUSI-621)
+* Improvement: Display infos about select in customform (#669 MUSI-621)
+* Improvement: user string price with fixed decimal points as elsewhere (#696)
+* Improvement: Fixes and improvements for campaigns.
+* Bugfix: Customform select specific usecases (#669 #650 MUSI-621)
+* Bugfix: Fix of incorrect processing of pricecategory string
+* Bugfix: small adjustment of the condition_bookingpolicy_test class.
+* Bugfix: Fix zero price phpunit test (#654).
+* Bugfix: Do not show zero price for students unless it forced
+
 ## Version 8.7.8 (2024111500)
 * New feature: Booking option with a duration for self-learning courses:
 Users will get enrolled when they book for the defined duration.
