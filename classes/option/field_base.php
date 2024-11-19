@@ -386,7 +386,8 @@ abstract class field_base implements fields {
         if (empty($user)) {
             return false;
         }
-        $returnvalue .= get_string('userinfosasstring', 'mod_booking', $user) . " ";
+        $returnvalue .= empty($returnvalue) ? "" : ", ";
+        $returnvalue .= get_string('userinfosasstring', 'mod_booking', $user);
         return true;
     }
 }
