@@ -252,7 +252,7 @@ class customformstore {
             $price = $this->get_price_for_user($pricedata);
         }
 
-        return $price . ' ' . get_config('booking', 'globalcurrency');
+        return number_format($price, 2, '.', '') . ' ' . get_config('booking', 'globalcurrency');
     }
 
     /**
