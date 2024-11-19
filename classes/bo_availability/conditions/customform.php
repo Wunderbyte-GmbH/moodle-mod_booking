@@ -647,92 +647,6 @@ class customform implements bo_condition {
     }
 
     /**
-     * If data from customform enrolusersaction is given, trigger the corresponding event.
-     *
-     * @param int $optionid
-     * @param int $userid
-     * @param object $settings
-     * @param object $bookinganswer
-     * @param int $baid
-     *
-     * @return bool
-     *
-     */
-    public static function trigger_enrolbot_actions(
-        int $optionid,
-        int $userid,
-        object $settings,
-        object $bookinganswer,
-        int $baid
-    ): bool {
-        global $USER, $DB;
-
-        if (!isset($bookinganswer->answers[$baid])) {
-            return false;
-        }
-
-        $answer = $bookinganswer->answers[$baid];
-        $key = self::enrolusersaction_applies($answer);
-
-        if (empty($key)) {
-            return false;
-        };
-
-        $places = $answer->$key;
-        // Update table.
-        $data = new stdClass();
-        $data->courseid = $settings->courseid;
-        $data->userid = $USER->id;
-        $data->usermodified = $USER->id;
-        $data->timecreated = time();
-        $data->timemodified = $data->timecreated;
-        $data->places = $places;
-        $data->erlid = md5(random_string());
-        $data->baid = $baid;
-        $data->optionid = $optionid;
-        $id = $DB->insert_record('booking_enrollink_bundles', $data);
-
-        // Trigger event.
-        $event = enrollink_triggered::create([
-            'objectid' => $optionid, // Always needs to be the optionid, to make sure rules are applied correctly.
-            'context' => \context_module::instance($settings->cmid),
-            'userid' => $USER->id, // The user who triggered the event.
-            'relateduserid' => $userid, // Affected user.
-            'other' => [
-                'places' => $places,
-                'optionid' => $optionid,
-                'courseid' => $settings->courseid,
-                'erlid' => $data->erlid, // The hash of this enrollink bundle.
-                'bundleid' => $id, // The hash of this enrollink bundle.
-            ]
-        ]);
-        $event->trigger();
-
-        return true;
-    }
-
-    /**
-     * Check if enrolusersaction from customform applies.
-     * If so, return key of string in bookinganswer. Otherwise return empty stirng.
-     *
-     * @param object $answer
-     *
-     * @return string
-     *
-     */
-    public static function enrolusersaction_applies(object $answer): string {
-        foreach ($answer as $key => $value) {
-            if (
-                strpos($key, 'customform_enrolusersaction_') === 0 &&
-                !empty($value)
-            ) {
-                return $key;
-            }
-        }
-        return "";
-    }
-
-    /**
      * This interprets the availability column, looks for an entry from this class and returns the fields.
      * @param booking_option_settings $settings
      * @return object
@@ -777,5 +691,35 @@ class customform implements bo_condition {
             }
         }
         return $answer;
+    }
+
+    /**
+     * This function adds error keys for form validation.
+     * @param array $data
+     * @param array $files
+     * @param array $errors
+     * @return array
+     */
+    public static function validation(array $data, array $files, array &$errors) {
+
+        if (
+            empty($data['chooseorcreatecourse'])
+            || (is_array($data['courseid']) && empty($data['courseid'][0]))
+            || empty($data['courseid'])
+        ) {
+            foreach ($data as $key => $value) {
+                // We need a courseid for the customform_enrolusersaction.
+                if (preg_match('/^bo_cond_customform_select_/', $key) && $data[$key] === "enrolusersaction") {
+                    if (empty($data['chooseorcreatecourse'])) {
+                        $errors['chooseorcreatecourse'] = get_string('relatedcourseidneeded', 'mod_booking');
+                    } else {
+                        $errors['courseid'] = get_string('relatedcourseidneeded', 'mod_booking');
+                    }
+                    return $errors;
+                }
+            }
+            return $errors;
+        }
+        return $errors;
     }
 }

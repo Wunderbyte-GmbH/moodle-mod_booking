@@ -1007,6 +1007,11 @@ $string['enrolledcomments'] = 'Nur Eingeschriebene können kommentieren';
 $string['enrolledratings'] = 'Nur Eingeschriebene können bewerten';
 $string['enrolledusers'] = 'In den Kurs eingeschriebene Nutzer:innen';
 $string['enrollink'] = 'Einschreibelink';
+$string['enrollink:alreadyenrolled'] = 'Sie sind bereits in diesen Kurs eingeschrieben und können darauf zugreifen';
+$string['enrollink:enrolled'] = 'Sie sind erfolgreich eingeschrieben';
+$string['enrollink:enrolmentexception'] = 'Beim Einschreiben ist ein Fehler passiert';
+$string['enrollink:invalidenrollink'] = 'Ihr Einschreibelink ist leider fehlerhaft';
+$string['enrollink:nomoreseats'] = 'Es sind keine freien Plätze mehr in Ihrem Kontingent verfügbar';
 $string['enrollinktriggered'] = 'Einschreibe-Link Generierung ausgelöst';
 $string['enrollinktriggered:description'] = 'Das Event als Grundlage für die automatische Generierung eines Einschreibe-Links wurde ausgelöst.';
 $string['enrolmentstatus'] = 'Nutzer:innen erst zu Kursbeginn in den Kurs einschreiben (Standard: Nicht angehakt &rarr; sofort einschreiben.)';
@@ -1312,6 +1317,7 @@ $string['linknotavailableyet'] = 'Der Link zum Online-Meeting-Raum ist erst 15 M
 und verschwindet nach Ende des Meetings wieder.';
 $string['linknotvalid'] = 'Dieser Link / dieses Event ist derzeit nicht verfügbar.
 Bitte probieren Sie es kurz vor Beginn noch einmal, wenn Sie dieses Event gebucht haben.';
+$string['linktocourse'] = "Hier geht's zum Kurs";
 $string['linktomoodlecourseonbookedbutton'] = 'Zeige Link auf Moodle-Kurs direkt am Buchen-Button';
 $string['linktomoodlecourseonbookedbutton_desc'] = 'Statt eines extra Links auf den Moodle-Kurs wird diese Option den Buchungsbutton in einen Link auf den gebuchten Moodle-Kurs umwandeln';
 $string['linktoshowroom:bookingrules'] = '<div class="alert alert-secondary"><i class="fa fa-lightbulb-o" aria-hidden="true"></i>&nbsp;
