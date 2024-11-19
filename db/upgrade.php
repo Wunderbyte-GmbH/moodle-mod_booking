@@ -3836,7 +3836,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024101700, 'booking');
     }
 
-    if ($oldversion < 2024111800) {
+    if ($oldversion < 2024111901) {
 
         // Define table booking_enrollink_bundles to be created.
         $table = new xmldb_table('booking_enrollink_bundles');
@@ -3885,10 +3885,10 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2024111800, 'booking');
+        upgrade_mod_savepoint(true, 2024111901, 'booking');
     }
 
-    if ($oldversion < 2024111801) {
+    if ($oldversion < 2024111902) {
 
         // Define field baid to be added to booking_enrollink_bundles.
         $table = new xmldb_table('booking_enrollink_bundles');
@@ -3900,9 +3900,9 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2024111801, 'booking');
+        upgrade_mod_savepoint(true, 2024111902, 'booking');
     }
-    if ($oldversion < 2024111802) {
+    if ($oldversion < 2024111903) {
 
         // Define field optionid to be added to booking_enrollink_bundles.
         $table = new xmldb_table('booking_enrollink_bundles');
@@ -3914,10 +3914,10 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2024111802, 'booking');
+        upgrade_mod_savepoint(true, 2024111903, 'booking');
     }
 
-    if ($oldversion < 2024111804) {
+    if ($oldversion < 2024111904) {
 
         // Define index erlid (unique) to be dropped form booking_enrollink_items.
         $table = new xmldb_table('booking_enrollink_items');
@@ -3929,7 +3929,7 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2024111804, 'booking');
+        upgrade_mod_savepoint(true, 2024111904, 'booking');
     }
 
     return true;
