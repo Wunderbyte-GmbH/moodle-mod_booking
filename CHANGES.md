@@ -1,3 +1,6 @@
+## Version 8.8.0 (2024112000)
+* Improvement: Updated wunderbyte table dependency to new version 2024112000.
+
 ## Version 8.7.9 (2024111900)
 * Improvement: Enable price as 3rd arg for customform select (#669 MUSI-621)
 * Improvement: Extend customform select limit to allowed users (#669 MUSI-621)
