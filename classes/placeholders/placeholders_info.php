@@ -89,8 +89,6 @@ class placeholders_info {
             $userid = $USER->id;
         }
 
-        // If there are placeholders at all...
-        // ... they will be localized. We need to replace them.
         if (!empty($placeholders)) {
 
             self::return_list_of_placeholders();
@@ -107,8 +105,8 @@ class placeholders_info {
             // We don't want any numbers, because we need classnames.
             $identifier = preg_replace('/\d/', '', $placeholder);
 
-            // Now we "unlocalize" the classname.
-            $classname = self::$localizedplaceholders[$identifier] ?? $identifier;
+            // Keep the original identifier for later.
+            $classname = $identifier;
 
             // Now we can execute it.
             $fieldexists = true;
@@ -225,7 +223,7 @@ class placeholders_info {
 
         $placeholders = [];
         foreach (self::$localizedplaceholders as $key => $value) {
-            $placeholders[] = "<li data-id='$value'>{" . $key . "}</li>";
+            $placeholders[] = "<li data-id='$value'>{" . $value . "} " . $key ."</li>";
         }
 
         $returnstring = implode('<br>', $placeholders);

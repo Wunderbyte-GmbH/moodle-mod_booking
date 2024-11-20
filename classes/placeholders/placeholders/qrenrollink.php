@@ -18,16 +18,13 @@
  * Handle fields for booking option.
  *
  * @package mod_booking
- * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @copyright 2024 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_booking\placeholders\placeholders;
 
-use html_writer;
 use mod_booking\placeholders\placeholders_info;
-use mod_booking\singleton_service;
-use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -35,12 +32,13 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
  * Control and manage placeholders for booking instances, options and mails.
+ * Returns a link to a course the bookingoption is related to.
  *
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
- * @author Georg Maißer
+ * @author Magdalena Holczik
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class bookinglink {
+class qrenrollink {
 
     /**
      * Function which takes a text, replaces the placeholders...
@@ -54,6 +52,7 @@ class bookinglink {
      * @param string $text
      * @param array $params
      * @param int $descriptionparam
+     * @param string $rulejson
      * @return string
      */
     public static function return_value(
@@ -65,37 +64,49 @@ class bookinglink {
         float $price = 0,
         string &$text = '',
         array &$params = [],
-        int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE) {
+        int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE,
+        string $rulejson = ''
+        ) {
 
+        $value = "";
         $classname = substr(strrchr(get_called_class(), '\\'), 1);
 
-        if (!empty($optionid)) {
-
-            // The cachekey depends on the kind of placeholder and it's ttl.
-            // If it's the same for all users, we don't use userid.
-            // If it's the same for all options of a cmid, we don't use optionid.
-            $cachekey = "$classname-$optionid";
-            if (isset(placeholders_info::$placeholders[$cachekey])) {
-                return placeholders_info::$placeholders[$cachekey];
-            }
-
-            $timeformat = get_string('strftimedate', 'langconfig');
-
-            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-
-            $value = '';
-            if ($settings->cmid) {
-                $bookinglink = new moodle_url('/mod/booking/view.php', ['id' => $cmid]);
-                $value = html_writer::link($bookinglink, $bookinglink->out());
-            }
-
-             // Save the value to profit from singleton.
-             placeholders_info::$placeholders[$cachekey] = $value;
-
-        } else {
-            $classname = substr(strrchr(get_called_class(), '\\'), 1);
-            $value = get_string('sthwentwrongwithplaceholder', 'mod_booking', $classname);
+        // The cachekey depends on the kind of placeholder and it's ttl.
+        // If it's the same for all users, we don't use userid.
+        // If it's the same for all options of a cmid, we don't use optionid.
+        $rulejson = json_decode($rulejson);
+        if (empty($rulejson) || empty($rulejson->datafromevent)) {
+            return $value;
         }
+
+        $class = $rulejson->datafromevent->eventname;
+        $event = $rulejson->datafromevent;
+        if ($class != '\mod_booking\event\enrollink_triggered') {
+            return $value;
+        }
+
+        if (
+            isset($event->other) &&
+            isset($event->other->erlid)
+        ) {
+            // Hashed ID of enrollink.
+            $erlid = $event->other->erlid;
+        } else {
+            return $value;
+        }
+
+        $oid = $event->other->bundleid;
+        $cachekey = "$classname-$oid";
+        if (isset(placeholders_info::$placeholders[$cachekey])) {
+            return placeholders_info::$placeholders[$cachekey];
+        }
+
+        $link = \mod_booking\enrollink::create_enrollink($erlid);
+        $value = '<img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' .
+        rawurlencode($link) . '">';
+
+        // Save the value to profit from singleton.
+        placeholders_info::$placeholders[$cachekey] = $value;
 
         return $value;
     }
