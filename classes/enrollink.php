@@ -61,6 +61,14 @@ class enrollink {
         $this->set_values($erlid);
     }
 
+    /**
+     * Set values.
+     *
+     * @param string $erlid
+     *
+     * @return [type]
+     *
+     */
     public function set_values(string $erlid) {
         global $DB;
 
@@ -208,7 +216,6 @@ class enrollink {
     /**
      * Check if enrolment is blocked.
      *
-     * @param mixed $erlid
      *
      * @return string
      *
@@ -329,7 +336,7 @@ class enrollink {
                 'erlid' => $data->erlid, // The hash of this enrollink bundle.
                 'bundleid' => $id, // The hash of this enrollink bundle.
                 'json' => $barecord->json,
-            ]
+            ],
         ]);
         $event->trigger();
 
