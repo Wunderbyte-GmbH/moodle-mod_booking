@@ -1488,86 +1488,90 @@ if ($ADMIN->fulltree) {
             1
         )
     );
-    $settings->add(
-        new admin_setting_confightmleditor(
-            'booking/globalbookedtext',
-            get_string('globalbookedtext', 'booking'),
-            '',
-            ''
-        )
-    );
-    $settings->add(
-        new admin_setting_confightmleditor(
-            'booking/globalwaitingtext',
-            get_string('globalwaitingtext', 'booking'),
-            '',
-            ''
-        )
-    );
-    $settings->add(
-        new admin_setting_confightmleditor(
-            'booking/globalnotifyemail',
-            get_string('globalnotifyemail', 'booking'),
-            '',
-            ''
-        )
-    );
-    $settings->add(
-        new admin_setting_confightmleditor(
-            'booking/globalnotifyemailteachers',
-            get_string('globalnotifyemailteachers', 'booking'),
-            '',
-            ''
-        )
-    );
-    $settings->add(
-        new admin_setting_confightmleditor(
-            'booking/globalstatuschangetext',
-            get_string('globalstatuschangetext', 'booking'),
-            '',
-            ''
-        )
-    );
-    $settings->add(
-        new admin_setting_confightmleditor(
-            'booking/globaluserleave',
-            get_string('globaluserleave', 'booking'),
-            '',
-            ''
-        )
-    );
-    $settings->add(
-        new admin_setting_confightmleditor(
-            'booking/globaldeletedtext',
-            get_string('globaldeletedtext', 'booking'),
-            '',
-            ''
-        )
-    );
-    $settings->add(
-        new admin_setting_confightmleditor(
-            'booking/globalbookingchangedtext',
-            get_string('globalbookingchangedtext', 'booking'),
-            '',
-            ''
-        )
-    );
-    $settings->add(
-        new admin_setting_confightmleditor(
-            'booking/globalpollurltext',
-            get_string('globalpollurltext', 'booking'),
-            '',
-            ''
-        )
-    );
-    $settings->add(
-        new admin_setting_confightmleditor(
-            'booking/globalpollurlteacherstext',
-            get_string('globalpollurlteacherstext', 'booking'),
-            '',
-            ''
-        )
-    );
+
+    if (!empty(get_config('booking', 'uselegacymailtemplates'))) {
+        $settings->add(
+            new admin_setting_confightmleditor(
+                'booking/globalbookedtext',
+                get_string('globalbookedtext', 'booking'),
+                '',
+                ''
+            )
+        );
+        $settings->add(
+            new admin_setting_confightmleditor(
+                'booking/globalwaitingtext',
+                get_string('globalwaitingtext', 'booking'),
+                '',
+                ''
+            )
+        );
+        $settings->add(
+            new admin_setting_confightmleditor(
+                'booking/globalnotifyemail',
+                get_string('globalnotifyemail', 'booking'),
+                '',
+                ''
+            )
+        );
+        $settings->add(
+            new admin_setting_confightmleditor(
+                'booking/globalnotifyemailteachers',
+                get_string('globalnotifyemailteachers', 'booking'),
+                '',
+                ''
+            )
+        );
+        $settings->add(
+            new admin_setting_confightmleditor(
+                'booking/globalstatuschangetext',
+                get_string('globalstatuschangetext', 'booking'),
+                '',
+                ''
+            )
+        );
+        $settings->add(
+            new admin_setting_confightmleditor(
+                'booking/globaluserleave',
+                get_string('globaluserleave', 'booking'),
+                '',
+                ''
+            )
+        );
+        $settings->add(
+            new admin_setting_confightmleditor(
+                'booking/globaldeletedtext',
+                get_string('globaldeletedtext', 'booking'),
+                '',
+                ''
+            )
+        );
+        $settings->add(
+            new admin_setting_confightmleditor(
+                'booking/globalbookingchangedtext',
+                get_string('globalbookingchangedtext', 'booking'),
+                '',
+                ''
+            )
+        );
+        $settings->add(
+            new admin_setting_confightmleditor(
+                'booking/globalpollurltext',
+                get_string('globalpollurltext', 'booking'),
+                '',
+                ''
+            )
+        );
+        $settings->add(
+            new admin_setting_confightmleditor(
+                'booking/globalpollurlteacherstext',
+                get_string('globalpollurlteacherstext', 'booking'),
+                '',
+                ''
+            )
+        );
+    }
+
     // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
     // TODO: globalactivitycompletiontext is currently not implemented because activitycompletiontext isn't either.
 }

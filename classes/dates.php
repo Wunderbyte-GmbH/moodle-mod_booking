@@ -695,16 +695,18 @@ class dates {
         $element->setValue($time);
         $elements[] = $element;
 
-        $element = $mform->addElement(
-            'text',
-            MOD_BOOKING_FORM_DAYSTONOTIFY . $idx,
-            get_string('daystonotifysession', 'mod_booking')
-        );
+        if (!empty(get_config('booking', 'uselegacymailtemplates'))) {
+            $element = $mform->addElement(
+                'text',
+                MOD_BOOKING_FORM_DAYSTONOTIFY . $idx,
+                get_string('daystonotifysession', 'mod_booking')
+            );
 
-        $mform->setType(MOD_BOOKING_FORM_DAYSTONOTIFY . $idx, PARAM_INT);
-        $element->setValue($date['daystonotify']);
-        $mform->addHelpButton(MOD_BOOKING_FORM_DAYSTONOTIFY . $idx, 'daystonotifysession', 'mod_booking');
-        $elements[] = $element;
+            $mform->setType(MOD_BOOKING_FORM_DAYSTONOTIFY . $idx, PARAM_INT);
+            $element->setValue($date['daystonotify']);
+            $mform->addHelpButton(MOD_BOOKING_FORM_DAYSTONOTIFY . $idx, 'daystonotifysession', 'mod_booking');
+            $elements[] = $element;
+        }
 
         // Add entities.
         if (class_exists('local_entities\entitiesrelation_handler')) {
