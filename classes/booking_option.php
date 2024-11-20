@@ -1465,6 +1465,7 @@ class booking_option {
      * @param int $roleid
      * @param bool $isteacher true for teacher enrolments
      * @param int $courseid can override given courseid.
+     * @param bool $enrolwithoutba Enrol a user event if there is no corresponding booking answer
      */
     public function enrol_user(
         int $userid,
