@@ -355,8 +355,12 @@ class campaign_blockbooking implements booking_campaign {
             ];
         }
 
-        $user = singleton_service::get_instance_of_user($userid, true);
-        if (isset($this->cpfield) && !empty($bofieldname = $this->cpfield)) {
+        if (
+            !empty($userid)
+            && isset($this->cpfield)
+            && !empty($bofieldname = $this->cpfield)
+            ) {
+            $user = singleton_service::get_instance_of_user($userid, true);
             // If there is a value, it has to match in order to block.
             $blocking = false;
             $operator = $this->cpoperator;
