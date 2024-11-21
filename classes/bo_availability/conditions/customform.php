@@ -343,6 +343,29 @@ class customform implements bo_condition {
             'bo_cond_customform_select_1_1',
             'eq',
             0);
+            if ($CFG->version >= 2023100900) {
+                $mform->addElement(
+                    'static',
+                    'deleteinfoscheckboxadminwarning',
+                    '',
+                    get_string('deleteinfoscheckboxadminwarning', 'mod_booking')
+                );
+                $mform->hideIf(
+                    'deleteinfoscheckboxadminwarning',
+                    'bo_cond_customform_restrict',
+                    'notchecked'
+                );
+                $mform->hideIf(
+                    'deleteinfoscheckboxadminwarning',
+                'bo_cond_customform_select_1_1',
+                'eq',
+                0);
+                $mform->hideIf(
+                    'deleteinfoscheckboxadminwarning',
+                    'bo_cond_customform_deleteinfoscheckboxadmin',
+                    'eq',
+                    0);
+            }
         } else {
             // No PRO license is active.
             $mform->addElement('static', 'bo_cond_customform_restrict',
