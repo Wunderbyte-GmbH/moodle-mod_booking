@@ -1891,23 +1891,23 @@ $string['selectuserfromevent'] = "Wähle Nutzer:in vom Ereignis";
 $string['selectusers'] = "Wähle Nutzer:innen ohne direkte Verbindung zur Buchungsoption";
 $string['selectusershoppingcart'] = "Wähle Nutzer:in die Ratenzahlung zu leisten hat";
 $string['selflearningcourse'] = 'Selbstlernkurs';
-$string['selflearningcourse:active'] = 'Buchungsoptionen mit fixer Dauer aktivieren';
-$string['selflearningcourse:coursestarttime'] = 'Sortierdatum';
-$string['selflearningcourse:coursestarttime_alert'] = 'Da Sie unter "Moodle-Kurs" die Option "{$a}" gewählt haben,
-können Sie hier keine Termine angeben, sondern nur ein Sortierdatum.';
-$string['selflearningcourse:coursestarttime_help'] = 'Dieses Datum wird ausschließlich für die Sortierung verwendet, da Buchungsoptionen vom Typ "{$a}" kein fixes Startdatum haben.';
-$string['selflearningcourse:durationinfo'] = 'Dieser Kurs dauert {$a}.';
-$string['selflearningcourse:label'] = 'Bezeichnung für Buchungsoptionen mit fixer Dauer';
-$string['selflearningcourse:label_desc'] = 'Buchungsoptionen mit fixer Dauer, aber ohne Termine, haben die Standardbezeichnung "Selbstlernkurs".
-Sie können hier einen beliebigen anderen Namen für diesen Typ von Buchungsoptionen vergeben.';
-$string['selflearningcourse:settingsheader'] = 'Buchungsoptionen mit fixer Dauer ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
-$string['selflearningcourse:settingsheader_desc'] = 'Dieses Feature erlaubt es Ihnen Buchungsoptionen ohne Termine, jedoch mit einer fixen Dauer anzulegen.
-Die Benutzer:innen werden bei der Buchung für die festgelegte Dauer in den verknüpften Moodle-Kurs eingeschrieben.';
-$string['selflearningcourse:timeremaininginfo'] = 'Sie haben noch {$a} Zugriff auf diesen Kurs.';
+$string['selflearningcourse_active'] = 'Buchungsoptionen mit fixer Dauer aktivieren';
 $string['selflearningcourse_alert'] = 'Bei Buchungsoptionen vom Typ "{$a}" werden die Benutzer:innen immer <b>direkt nach der Buchung</b>
 in den verbundenen Moodle-Kurs eingeschrieben. Die angegebene Dauer legt fest, wie lange der:die Benutzer:in im Kurs eingeschrieben bleibt.<br><br>
 <b>Achtung:</b> Sie können keine Termine angeben, jedoch ein <b>Sortierdatum</b> (im Abschnitt "Termine"), das für die Sortierung verwendet wird.';
+$string['selflearningcourse_coursestarttime'] = 'Sortierdatum';
+$string['selflearningcourse_coursestarttime_alert'] = 'Da Sie unter "Moodle-Kurs" die Option "{$a}" gewählt haben,
+können Sie hier keine Termine angeben, sondern nur ein Sortierdatum.';
+$string['selflearningcourse_coursestarttime_help'] = 'Dieses Datum wird ausschließlich für die Sortierung verwendet, da Buchungsoptionen vom Typ "{$a}" kein fixes Startdatum haben.';
+$string['selflearningcourse_durationinfo'] = 'Dieser Kurs dauert {$a}.';
 $string['selflearningcourse_help'] = 'Buchungsoptionen vom Typ "{$a}" haben eine fixe Dauer, aber keine fixen Termine. Der Kurs beginnt sobald er gebucht wurde.';
+$string['selflearningcourse_label'] = 'Bezeichnung für Buchungsoptionen mit fixer Dauer';
+$string['selflearningcourse_label_desc'] = 'Buchungsoptionen mit fixer Dauer, aber ohne Termine, haben die Standardbezeichnung "Selbstlernkurs".
+Sie können hier einen beliebigen anderen Namen für diesen Typ von Buchungsoptionen vergeben.';
+$string['selflearningcourse_settingsheader'] = 'Buchungsoptionen mit fixer Dauer ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['selflearningcourse_settingsheader_desc'] = 'Dieses Feature erlaubt es Ihnen Buchungsoptionen ohne Termine, jedoch mit einer fixen Dauer anzulegen.
+Die Benutzer:innen werden bei der Buchung für die festgelegte Dauer in den verknüpften Moodle-Kurs eingeschrieben.';
+$string['selflearningcourse_timeremaininginfo'] = 'Sie haben noch {$a} Zugriff auf diesen Kurs.';
 $string['semester'] = 'Semester';
 $string['semesterend'] = 'Semesterende';
 $string['semesterend_help'] = 'An welchem Tag endet das Semester?';

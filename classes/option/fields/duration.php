@@ -163,7 +163,7 @@ class duration extends field_base {
             [0, 1]
         );
         $mform->addHelpButton('selflearningcourse', 'selflearningcourse', 'mod_booking', '', false, $selflearningcourselabel);
-        $mform->disabledIf('selflearningcourse', 'selflearningcourseactive', 'eq', 0);
+        $mform->hideIf('selflearningcourse', 'selflearningcourseactive', 'eq', 0);
 
         $mform->addElement(
             'static',

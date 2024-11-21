@@ -157,13 +157,13 @@ class coursestarttime extends field_base {
 
         $mform->addElement(
             'static',
-            'selflearningcourse:coursestarttime_alert',
+            'selflearningcourse_coursestarttime_alert',
             '',
             '<div class="alert alert-warning">' .
-                get_string('selflearningcourse:coursestarttime_alert', 'mod_booking', $selflearningcourselabel) .
+                get_string('selflearningcourse_coursestarttime_alert', 'mod_booking', $selflearningcourselabel) .
                 '</div>'
         );
-        $mform->hideIf('selflearningcourse:coursestarttime_alert', 'selflearningcourse', 'neq', 1);
+        $mform->hideIf('selflearningcourse_coursestarttime_alert', 'selflearningcourse', 'neq', 1);
 
         $mform->addElement(
             'date_time_selector',
