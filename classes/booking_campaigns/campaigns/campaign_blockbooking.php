@@ -20,6 +20,7 @@ use context_system;
 use mod_booking\booking_answers;
 use mod_booking\booking_campaigns\booking_campaign;
 use mod_booking\booking_campaigns\campaigns_info;
+use mod_booking\booking_context_helper;
 use mod_booking\booking_option_settings;
 use mod_booking\customfield\booking_handler;
 use mod_booking\singleton_service;
@@ -327,6 +328,8 @@ class campaign_blockbooking implements booking_campaign {
      * @return array
      */
     public function is_blocking(booking_option_settings $settings, int $userid): array {
+        global $PAGE;
+        booking_context_helper::fix_booking_page_context($PAGE, $settings->cmid);
 
         $ba = singleton_service::get_instance_of_booking_answers($settings);
 
