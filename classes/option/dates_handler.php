@@ -758,7 +758,7 @@ class dates_handler {
             $date->datestring = $date->startdatetime;
 
             if (!empty($endtime)) {
-                $date->enddatetime = userdate($endtime, $strftimedaydatetime) . get_string('h', 'mod_booking');
+                $date->enddatetime = userdate($endtime, $strftimedaydatetime);
                 // Friday, 3. February 2023, 12:45.
                 $date->enddate = userdate($endtime, $strftimedaydate); // Friday, 3. February 2023.
                 $date->datestring .= " - ";
