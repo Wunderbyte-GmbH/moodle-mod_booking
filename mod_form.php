@@ -751,18 +751,6 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('header', 'bookingandcancelling',
                 get_string('bookingandcancelling', 'mod_booking'));
 
-        $mform->addElement('advcheckbox', 'disablebooking', get_string('disablebookingforinstance', 'mod_booking'));
-        $mform->setType('disablebooking', PARAM_INT);
-        $mform->setDefault('disablebooking', (int) booking::get_value_of_json_by_key((int) $bookingid, "disablebooking"));
-
-        // Miscellaneous settings.
-        $mform->addElement('header', 'miscellaneoussettingshdr',
-                get_string('advancedoptions', 'mod_booking'));
-
-        $mform->addElement('editor', 'bookingpolicy', get_string("bookingpolicy", "booking"), null,
-                null);
-        $mform->setType('bookingpolicy', PARAM_CLEANHTML);
-
         $mform->addElement('advcheckbox', 'allowupdate', get_string('allowbookingafterstart', 'mod_booking'));
 
         $mform->addElement('advcheckbox', 'disablecancel', get_string('disablecancelforinstance', 'mod_booking'));
@@ -810,6 +798,18 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setDefault('allowupdatedays', 10000); // One million means "no limit".
         $mform->disabledIf('allowupdatedays', 'cancancelbook', 'eq', 0);
         $mform->disabledIf('allowupdatedays', 'disablecancel', 'eq', 1);
+
+        $mform->addElement('advcheckbox', 'disablebooking', get_string('disablebookingforinstance', 'mod_booking'));
+        $mform->setType('disablebooking', PARAM_INT);
+        $mform->setDefault('disablebooking', (int) booking::get_value_of_json_by_key((int) $bookingid, "disablebooking"));
+
+        // Miscellaneous settings.
+        $mform->addElement('header', 'miscellaneoussettingshdr',
+                get_string('advancedoptions', 'mod_booking'));
+
+        $mform->addElement('editor', 'bookingpolicy', get_string("bookingpolicy", "booking"), null,
+                null);
+        $mform->setType('bookingpolicy', PARAM_CLEANHTML);
 
         $mform->addElement('advcheckbox', 'autoenrol', get_string('autoenrol', 'booking'));
         $mform->setDefault('autoenrol', 1);
