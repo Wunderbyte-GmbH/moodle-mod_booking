@@ -784,7 +784,7 @@ class price {
             }
         }
 
-        if ($area === "option") {
+        if ($area === "option" && isset($price['price'])) {
             $customformstore = new customformstore($user->id, $itemid);
             $price['price'] = $customformstore->modify_price($price['price'], $categoryidentifier);
         }
