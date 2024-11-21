@@ -1959,7 +1959,8 @@ $string['selectusers'] = "Directly select users without connection to the bookin
 $string['selectusershoppingcart'] = "Choose user who has to pay installments";
 $string['selflearningcourse'] = 'Self-learning course';
 $string['selflearningcourseactive'] = 'Activate booking options with fixed duration';
-$string['selflearningcoursealert'] = 'For booking options of type "{$a}", users will always be enrolled into the connected Moodle course <b>immediately after booking</b>. They will stay enrolled in the Moodle course for the provided duration.<br><br><b>Please note:</b> You cannot provide any dates but you can provide a sorting date (in the "Dates" section).';
+$string['selflearningcourse_alert'] = 'If a Moodle course is connected, then for booking options of type "{$a}" users will always be enrolled <b>immediately after booking</b>.
+They will stay enrolled in the Moodle course for the provided duration.<br><br><b>Please note:</b> You cannot provide any dates but you can provide a sorting date (in the "Dates" section).';
 $string['selflearningcoursecoursestarttime'] = 'Sorting date';
 $string['selflearningcoursecoursestarttimealert'] = 'As you have activated the "{$a}" checkbox under the "Moodle course" settings you cannot add dates here but only provide a sorting date.';
 $string['selflearningcoursecoursestarttime_help'] = 'This date will be used for sorting because booking options of type "{$a}" do not have a fixed start date.';

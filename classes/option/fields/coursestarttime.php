@@ -160,7 +160,7 @@ class coursestarttime extends field_base {
             'static',
             'selflearningcoursecoursestarttimealert',
             '',
-            '<div class="alert alert-warning">' .
+            '<div class="alert alert-light">' .
                 get_string('selflearningcoursecoursestarttimealert', 'mod_booking', $selflearningcourselabel) .
                 '</div>'
         );

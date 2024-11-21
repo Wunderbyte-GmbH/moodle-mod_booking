@@ -169,7 +169,7 @@ class duration extends field_base {
             'static',
             'selflearningcoursealert',
             '',
-            '<div class="alert alert-warning">' .
+            '<div class="alert alert-light">' .
                 get_string('selflearningcoursealert', 'mod_booking', $selflearningcourselabel) .
                 '</div>'
         );

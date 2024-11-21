@@ -1892,8 +1892,8 @@ $string['selectusers'] = "Wähle Nutzer:innen ohne direkte Verbindung zur Buchun
 $string['selectusershoppingcart'] = "Wähle Nutzer:in die Ratenzahlung zu leisten hat";
 $string['selflearningcourse'] = 'Selbstlernkurs';
 $string['selflearningcourseactive'] = 'Buchungsoptionen mit fixer Dauer aktivieren';
-$string['selflearningcoursealert'] = 'Bei Buchungsoptionen vom Typ "{$a}" werden die Benutzer:innen immer <b>direkt nach der Buchung</b>
-in den verbundenen Moodle-Kurs eingeschrieben. Die angegebene Dauer legt fest, wie lange der:die Benutzer:in im Kurs eingeschrieben bleibt.<br><br>
+$string['selflearningcourse_alert'] = 'Wenn ein Moodle-Kurs verbunden ist, dann werden bei Buchungsoptionen vom Typ "{$a}" die Benutzer:innen immer <b>direkt nach der Buchung</b>
+eingeschrieben. Die angegebene Dauer legt fest, wie lange der:die Benutzer:in im Kurs eingeschrieben bleibt.<br><br>
 <b>Achtung:</b> Sie können keine Termine angeben, jedoch ein <b>Sortierdatum</b> (im Abschnitt "Termine"), das für die Sortierung verwendet wird.';
 $string['selflearningcoursecoursestarttime'] = 'Sortierdatum';
 $string['selflearningcoursecoursestarttimealert'] = 'Da Sie unter "Moodle-Kurs" die Option "{$a}" gewählt haben,
