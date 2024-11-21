@@ -717,14 +717,14 @@ if ($ADMIN->fulltree) {
         $settings->add(
             new admin_setting_heading(
                 'selflearningcoursesettingsheader',
-                get_string('selflearningcourse:settingsheader', 'mod_booking'),
-                get_string('selflearningcourse:settingsheader_desc', 'mod_booking')
+                get_string('selflearningcourse_settingsheader', 'mod_booking'),
+                get_string('selflearningcourse_settingsheader_desc', 'mod_booking')
             )
         );
         $settings->add(
             new admin_setting_configcheckbox(
                 'booking/selflearningcourseactive',
-                get_string('selflearningcourse:active', 'mod_booking'),
+                get_string('selflearningcourse_active', 'mod_booking'),
                 '',
                 0
             )
@@ -732,8 +732,8 @@ if ($ADMIN->fulltree) {
         $settings->add(
             new admin_setting_configtext(
                 'booking/selflearningcourselabel',
-                get_string('selflearningcourse:label', 'mod_booking'),
-                get_string('selflearningcourse:label_desc', 'mod_booking'),
+                get_string('selflearningcourse_label', 'mod_booking'),
+                get_string('selflearningcourse_label_desc', 'mod_booking'),
                 ''
             )
         );
@@ -741,7 +741,7 @@ if ($ADMIN->fulltree) {
         $settings->add(
             new admin_setting_heading(
                 'selflearningcoursesettingsheader',
-                get_string('selflearningcourse:settingsheader', 'mod_booking'),
+                get_string('selflearningcourse_settingsheader', 'mod_booking'),
                 get_string('prolicensefeatures', 'mod_booking') .
                 get_string('profeatures:selflearningcourse', 'mod_booking') .
                 get_string('infotext:prolicensenecessary', 'mod_booking')

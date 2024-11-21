@@ -168,12 +168,12 @@ class coursestarttime extends field_base {
         $mform->addElement(
             'date_time_selector',
             'coursestarttime',
-            get_string('selflearningcourse:coursestarttime', 'mod_booking')
+            get_string('selflearningcourse_coursestarttime', 'mod_booking')
         );
         $mform->setType('coursestarttime', PARAM_INT);
         $mform->addHelpButton(
             'coursestarttime',
-            'selflearningcourse:coursestarttime',
+            'selflearningcourse_coursestarttime',
             'mod_booking',
             '',
             false,
