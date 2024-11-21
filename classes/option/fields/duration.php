@@ -167,13 +167,13 @@ class duration extends field_base {
 
         $mform->addElement(
             'static',
-            'selflearningcourse_alert',
+            'selflearningcoursealert',
             '',
             '<div class="alert alert-warning">' .
-                get_string('selflearningcourse_alert', 'mod_booking', $selflearningcourselabel) .
+                get_string('selflearningcoursealert', 'mod_booking', $selflearningcourselabel) .
                 '</div>'
         );
-        $mform->hideIf('selflearningcourse_alert', 'selflearningcourse', 'neq', 1);
+        $mform->hideIf('selflearningcoursealert', 'selflearningcourse', 'neq', 1);
 
         // Add duration.
         $mform->addElement('duration', 'duration', get_string('duration', 'mod_booking'));

@@ -144,6 +144,7 @@ class coursestarttime extends field_base {
         $fieldstoinstanciate = [],
         $applyheader = true
     ) {
+        global $CFG;
         // Standardfunctionality to add a header to the mform (only if its not yet there).
         if ($applyheader) {
             fields_info::add_header_to_mform($mform, self::$header);
@@ -157,23 +158,25 @@ class coursestarttime extends field_base {
 
         $mform->addElement(
             'static',
-            'selflearningcourse_coursestarttime_alert',
+            'selflearningcoursecoursestarttimealert',
             '',
             '<div class="alert alert-warning">' .
-                get_string('selflearningcourse_coursestarttime_alert', 'mod_booking', $selflearningcourselabel) .
+                get_string('selflearningcoursecoursestarttimealert', 'mod_booking', $selflearningcourselabel) .
                 '</div>'
         );
-        $mform->hideIf('selflearningcourse_coursestarttime_alert', 'selflearningcourse', 'neq', 1);
+        if ($CFG->version >= 2023100900) {
+            $mform->hideIf('selflearningcoursecoursestarttimealert', 'selflearningcourse', 'neq', 1);
+        }
 
         $mform->addElement(
             'date_time_selector',
             'coursestarttime',
-            get_string('selflearningcourse_coursestarttime', 'mod_booking')
+            get_string('selflearningcoursecoursestarttime', 'mod_booking')
         );
         $mform->setType('coursestarttime', PARAM_INT);
         $mform->addHelpButton(
             'coursestarttime',
-            'selflearningcourse_coursestarttime',
+            'selflearningcoursecoursestarttime',
             'mod_booking',
             '',
             false,

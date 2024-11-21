@@ -916,8 +916,8 @@ Booking link: {$a->bookinglink}
 $string['deletedtextsubject'] = 'Deleted booking: {$a->title} by {$a->participant}';
 $string['deletedusers'] = 'Deleted users';
 $string['deleteholiday'] = 'Delete holiday';
-$string['deleteinfoscheckboxadmin'] = 'Delete the data provided by the user after the option has ended.
-<div class="alert alert-warning style="margin-left: 200px;">
+$string['deleteinfoscheckboxadmin'] = 'Delete the data provided by the user after the option has ended.';
+$string['deleteinfoscheckboxadminwarning'] = '<div class="alert alert-warning style="margin-left: 200px;">
 <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
 <span> A corresponding <a target="_blank" href="{$a}">booking rule</a> must be configured to execute this option!</span>
 </div>';
@@ -1958,17 +1958,17 @@ $string['selectuserfromevent'] = "Select user from event";
 $string['selectusers'] = "Directly select users without connection to the booking option";
 $string['selectusershoppingcart'] = "Choose user who has to pay installments";
 $string['selflearningcourse'] = 'Self-learning course';
-$string['selflearningcourse_active'] = 'Activate booking options with fixed duration';
-$string['selflearningcourse_alert'] = 'For booking options of type "{$a}", users will always be enrolled into the connected Moodle course <b>immediately after booking</b>. They will stay enrolled in the Moodle course for the provided duration.<br><br><b>Please note:</b> You cannot provide any dates but you can provide a sorting date (in the "Dates" section).';
-$string['selflearningcourse_coursestarttime'] = 'Sorting date';
-$string['selflearningcourse_coursestarttime_alert'] = 'As you have activated the "{$a}" checkbox under the "Moodle course" settings you cannot add dates here but only provide a sorting date.';
-$string['selflearningcourse_coursestarttime_help'] = 'This date will be used for sorting because booking options of type "{$a}" do not have a fixed start date.';
-$string['selflearningcourse_durationinfo'] = 'This course has a duration of {$a}.';
+$string['selflearningcourseactive'] = 'Activate booking options with fixed duration';
+$string['selflearningcoursealert'] = 'For booking options of type "{$a}", users will always be enrolled into the connected Moodle course <b>immediately after booking</b>. They will stay enrolled in the Moodle course for the provided duration.<br><br><b>Please note:</b> You cannot provide any dates but you can provide a sorting date (in the "Dates" section).';
+$string['selflearningcoursecoursestarttime'] = 'Sorting date';
+$string['selflearningcoursecoursestarttimealert'] = 'As you have activated the "{$a}" checkbox under the "Moodle course" settings you cannot add dates here but only provide a sorting date.';
+$string['selflearningcoursecoursestarttime_help'] = 'This date will be used for sorting because booking options of type "{$a}" do not have a fixed start date.';
+$string['selflearningcoursedurationinfo'] = 'This course has a duration of {$a}.';
 $string['selflearningcourse_help'] = 'Booking options of type "{$a}" have a fixed duration but no fixed dates. The course will start once it is booked.';
-$string['selflearningcourse_label'] = 'Name for booking options with fixed duration';
-$string['selflearningcourse_label_desc'] = 'Booking options with a fixed duration but without dates are usually called "self-learning course". If you want to use another name for this type of booking options you can enter it here.';
-$string['selflearningcourse_settingsheader'] = 'Booking options with fixed duration ' . '&nbsp;<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
-$string['selflearningcourse_settingsheader_desc'] = 'This feature allows you to create booking options with a fixed duration but without dates. The booked users will be enrolled into the connected Moodle course for the specified duration.';
+$string['selflearningcourselabel'] = 'Name for booking options with fixed duration';
+$string['selflearningcourselabeldesc'] = 'Booking options with a fixed duration but without dates are usually called "self-learning course". If you want to use another name for this type of booking options you can enter it here.';
+$string['selflearningcoursesettingsheader'] = 'Booking options with fixed duration ' . '&nbsp;<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['selflearningcoursesettingsheaderdesc'] = 'This feature allows you to create booking options with a fixed duration but without dates. The booked users will be enrolled into the connected Moodle course for the specified duration.';
 $string['selflearningcourse_timeremaininginfo'] = 'There are {$a} left to complete this course.';
 $string['semester'] = 'Semester';
 $string['semesterend'] = 'Last day of semester';
