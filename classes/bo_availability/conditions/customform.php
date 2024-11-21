@@ -225,7 +225,7 @@ class customform implements bo_condition {
                 'url' => get_string('bocondcustomformurl', 'mod_booking'),
                 'mail' => get_string('bocondcustomformmail', 'mod_booking'),
                 'deleteinfoscheckboxuser' => get_string('bocondcustomformdeleteinfoscheckboxuser', 'mod_booking'),
-                'enrolusersaction' => get_string('autoenrol', 'mod_booking'),
+                'enrolusersaction' => get_string('enrolmultipleusers', 'mod_booking'),
             ];
 
             // We add four potential elements.
