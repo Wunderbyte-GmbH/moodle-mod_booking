@@ -47,10 +47,12 @@ Feature: Create booking campaigns2 for booking options as admin and booking it a
       | 2        | discount1  | Disc1 | 77           | 0        | 2                 |
       | 3        | discount2  | Disc2 | 66           | 0        | 3                 |
     And the following "mod_booking > options" exist:
-      | booking     | text            | course | description    | customfield_bcustom1 | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | useprice |
-      | BookingCMP  | Option-exclude  | C1     | Price-exclude  | exclude              | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0        |
-      | BookingCMP  | Option-football | C1     | Price-football |                      | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +3 days ##   | 0        |
-      | BookingCMP  | Option-include  | C1     | Yoga-include   | include              | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +3 days ##   | 0        |
+      | booking     | text                | course | description     | customfield_bcustom1 | useprice | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | BookingCMP  | Option-exclude      | C1     | NoPrice-exclude | exclude              | 0        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+      | BookingCMP  | Option-nocustom     | C1     | nocustom        |                      | 0        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+      | BookingCMP  | Option-include      | C1     | NoPrice-include | include              | 0        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +3 days ##   |
+      | BookingCMP  | Option-priceexclude | C1     | Price-exclude   | exclude              | 1        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +3 days ##   |
+      | BookingCMP  | Option-priceinclude | C1     | Price-include   | include              | 1        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +3 days ##   |
     And the following "mod_booking > answers" exist:
       | booking    | option         | user     |
       | BookingCMP | Option-exclude | student4 |
@@ -60,6 +62,13 @@ Feature: Create booking campaigns2 for booking options as admin and booking it a
       | BookingCMP | Option-exclude | student8 |
       | BookingCMP | Option-include | student4 |
       | BookingCMP | Option-include | student5 |
+      | BookingCMP | Option-priceexclude | student4 |
+      | BookingCMP | Option-priceexclude | student5 |
+      | BookingCMP | Option-priceexclude | student6 |
+      | BookingCMP | Option-priceexclude | student7 |
+      | BookingCMP | Option-priceexclude | student8 |
+      | BookingCMP | Option-priceinclude | student4 |
+      | BookingCMP | Option-priceinclude | student5 |
     And I change viewport size to "1366x10000"
 
   ## @javascript
@@ -72,16 +81,22 @@ Feature: Create booking campaigns2 for booking options as admin and booking it a
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Below50" in the ".allbookingoptionstable_r2 .booknow" "css_element"
     And I should see "Below50" in the ".allbookingoptionstable_r3 .booknow" "css_element"
+    And I should see "Add to cart" in the ".allbookingoptionstable_r4 .booknow" "css_element"
+    And I should see "Below50" in the ".allbookingoptionstable_r5 .booknow" "css_element"
     And I log out
     And I am on the "BookingCMP" Activity page logged in as student2
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r2 .booknow" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r3 .booknow" "css_element"
+    And I should see "Add to cart" in the ".allbookingoptionstable_r4 .booknow" "css_element"
+    And I should see "Add to cart" in the ".allbookingoptionstable_r5 .booknow" "css_element"
     And I log out
     And I am on the "BookingCMP" Activity page logged in as student3
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r2 .booknow" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r3 .booknow" "css_element"
+    And I should see "Add to cart" in the ".allbookingoptionstable_r4 .booknow" "css_element"
+    And I should see "Add to cart" in the ".allbookingoptionstable_r5 .booknow" "css_element"
     And I log out
 
   ## @javascript
@@ -94,14 +109,20 @@ Feature: Create booking campaigns2 for booking options as admin and booking it a
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r2 .booknow" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r3 .booknow" "css_element"
+    And I should see "Add to cart" in the ".allbookingoptionstable_r4 .booknow" "css_element"
+    And I should see "Add to cart" in the ".allbookingoptionstable_r5 .booknow" "css_element"
     And I log out
     And I am on the "BookingCMP" Activity page logged in as student2
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I should see "Book now" in the ".allbookingoptionstable_r2 .booknow" "css_element"
-    And I should see "Below50" in the ".allbookingoptionstable_r3 .booknow" "css_element"
+    And I should see "Below50" in the ".allbookingoptionstable_r2 .booknow" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r3 .booknow" "css_element"
+    And I should see "Add to cart" in the ".allbookingoptionstable_r4 .booknow" "css_element"
+    And I should see "Below50" in the ".allbookingoptionstable_r5 .booknow" "css_element"
     And I log out
     And I am on the "BookingCMP" Activity page logged in as student3
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I should see "Book now" in the ".allbookingoptionstable_r2 .booknow" "css_element"
-    And I should see "Below50" in the ".allbookingoptionstable_r3 .booknow" "css_element"
+    And I should see "Below50" in the ".allbookingoptionstable_r2 .booknow" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r3 .booknow" "css_element"
+    And I should see "Add to cart" in the ".allbookingoptionstable_r4 .booknow" "css_element"
+    And I should see "Below50" in the ".allbookingoptionstable_r5 .booknow" "css_element"
     And I log out
