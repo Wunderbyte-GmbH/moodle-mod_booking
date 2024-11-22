@@ -1052,6 +1052,12 @@ class view implements renderable, templatable {
         $wbtable->add_subcolumns('footer', $columnsfooter);
         $wbtable->add_subcolumns('rightside', ['booknow', 'course', 'progressbar', 'ratings']);
 
+        // Add header image.
+        $wbtable->add_subcolumns('headerimage', ['image']);
+        $wbtable->add_classes_to_subcolumns('headerimage', ['columnvalueclass' => 'w-100'], ['image']);
+        $wbtable->add_classes_to_subcolumns('headerimage', ['headerimagealt' => get_string('bookingoptionimage', 'mod_booking')],
+            ['image']);
+
         $wbtable->add_classes_to_subcolumns('leftside', ['columnkeyclass' => 'd-none']);
         $wbtable->add_classes_to_subcolumns(
             'leftside',
