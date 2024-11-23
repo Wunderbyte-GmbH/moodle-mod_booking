@@ -35,7 +35,7 @@ Feature: In a booking instance
       | My booking | Test option 1 | C1     | Cancellation |
     And I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
-    And I follow "Advanced options"
+    And I follow "Booking und Cancelling"
     And I set the field "Allow users to cancel their booking themselves" to ""
     And I press "Save and display"
     When I am on the "My booking" Activity page logged in as student1
@@ -73,7 +73,7 @@ Feature: In a booking instance
     ## Important: ## tomorrow ## means 00:00 start time!
     And I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
-    And I follow "Advanced options"
+    And I follow "Booking und Cancelling"
     And I set the field "Set cancelling date relative to Start of the booking option (coursestarttime)" to "checked"
     ## name for "Disallow users to cancel their booking n days before start..."
     And I set the field "allowupdatedays" to "1"
@@ -89,7 +89,7 @@ Feature: In a booking instance
     And I log out
     And I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
-    And I follow "Advanced options"
+    And I follow "Booking und Cancelling"
     And I set the field "allowupdatedays" to "0"
     And I press "Save and display"
     And I log out
@@ -105,7 +105,7 @@ Feature: In a booking instance
     ## Important: ## tomorrow ## means 00:00 start time!
     And I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
-    And I follow "Advanced options"
+    And I follow "Booking und Cancelling"
     And I set the field "Set cancelling date relative to Start of the booking option (coursestarttime)" to "checked"
     ## name for "Disallow users to cancel their booking n days before start..."
     And I set the field "Allow booking after course start" to "checked"
@@ -122,7 +122,7 @@ Feature: In a booking instance
     And I log out
     And I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
-    And I follow "Advanced options"
+    And I follow "Booking und Cancelling"
     And I set the field "allowupdatedays" to "-1"
     And I press "Save and display"
     And I log out
@@ -142,7 +142,7 @@ Feature: In a booking instance
     And I am on the "My booking" Activity page
     ## allowupdatedays > max possible days before semester so cancellation impossible
     And I follow "Settings"
-    And I follow "Advanced options"
+    And I follow "Booking und Cancelling"
     And I set the field "Allow booking after course start" to "checked"
     And I set the field "Set cancelling date relative to Semester start" to "checked"
     And I set the field "allowupdatedays" to "32"
@@ -171,7 +171,7 @@ Feature: In a booking instance
     And I log out
     And I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
-    And I follow "Advanced options"
+    And I follow "Booking und Cancelling"
     ## 0 has been used to pass test OK for any day until "next month" comes
     And I set the field "allowupdatedays" to "0"
     And I press "Save and display"
@@ -192,7 +192,7 @@ Feature: In a booking instance
     And I am on the "My booking" Activity page
     ## allowupdatedays > max possible days before semester so cancellation impossible
     And I follow "Settings"
-    And I follow "Advanced options"
+    And I follow "Booking und Cancelling"
     And I set the field "Set cancelling date relative to Booking registration start (bookingopeningtime)" to "checked"
     ## name for "Disallow users to cancel their booking n days before start..."
     And I set the field "allowupdatedays" to "0"
@@ -211,7 +211,7 @@ Feature: In a booking instance
     ## Update self-cancellation as a teacher
     And I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
-    And I follow "Advanced options"
+    And I follow "Booking und Cancelling"
     And I set the field "allowupdatedays" to "-2"
     And I press "Save and display"
     And I log out
@@ -232,7 +232,7 @@ Feature: In a booking instance
     And I am on the "My booking" Activity page
     ## allowupdatedays > max possible days before semester so cancellation impossible
     And I follow "Settings"
-    And I follow "Advanced options"
+    And I follow "Booking und Cancelling"
     And I set the field "Set cancelling date relative to Booking registration end (bookingclosingtime)" to "checked"
     ## name for "Disallow users to cancel their booking n days before start..."
     And I set the field "allowupdatedays" to "1"
@@ -251,7 +251,7 @@ Feature: In a booking instance
     ## Update self-cancellation as a teacher
     And I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
-    And I follow "Advanced options"
+    And I follow "Booking und Cancelling"
     And I set the field "allowupdatedays" to "-1"
     And I press "Save and display"
     And I log out
