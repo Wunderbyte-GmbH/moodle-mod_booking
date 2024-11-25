@@ -60,6 +60,9 @@ class col_teacher implements renderable, templatable {
                 $teacherurl = new moodle_url('/mod/booking/teacher.php', ['teacherid' => $teacher->userid]);
                 $teacher->teacherurl = $teacherurl->out(false);
             }
+
+            $teacher->description = format_text($teacher->description, $teacher->descriptionformat);
+
             $this->teachers[] = (array)$teacher;
         }
     }

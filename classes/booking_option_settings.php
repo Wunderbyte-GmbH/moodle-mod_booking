@@ -710,7 +710,8 @@ class booking_option_settings {
                 null,
             );
 
-            $teachers[$key]->description = format_text($descriptiontext, $teacher->descriptionformat);
+            $teachers[$key]->description = $descriptiontext;
+            $teachers[$key]->descriptionformat = $teacher->descriptionformat;
         }
 
         $this->teachers = $teachers;
