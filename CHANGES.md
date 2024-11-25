@@ -1,3 +1,23 @@
+## Version 8.8.1 (2024112500)
+* Improvement: Better strings for self-learning courses feature.
+* Improvement: Add support for Moodle 4.5.
+* Improvement: Move booking and cancelling settings into corresponding section.
+* Improvement: Display static warning about 'deleteinfocheckbox' only for Moodle >= 4.3.
+* Improvement: Adjust behat "Booking option availability: custom form with selection of prices" to cover even decimals in the additional prices.
+* Bugfix: Fix missing strings and string order.
+* Bugfix: Render 'enddatetime' with only one "h" for hour (#234).
+* Bugfix: Correct string identifier and hide static warning for Moodle < 4.3 (#713).
+* Bugfix: Fix booking page context for blockbooking campaign.
+* Bugfix: Fix strings for self-learning courses (#713).
+* Bugfix: Potential bugfix for self-learning courses.
+* Bugfix: Fix behats on cancellation due to "Booking and Cancelling" settings group.
+* Bugfix: Only modify price if given.
+* Bugfix: Don't show legacy notification mail templates (#685).
+* Bugfix: Ensure no legacy reminder mails are sent when they are turned off (#685).
+* Bugfix: Use English placeholders only (#712).
+* Bugfix: Append usernames with a comma in changes (#706).
+* Test: New behat scenario for self-learning courses enrolment (#684).
+
 ## Version 8.8.0 (2024112000)
 * Improvement: Updated wunderbyte table dependency to new version 2024112000.
 
@@ -38,7 +58,7 @@ Users will get enrolled when they book for the defined duration.
 * Bugfix: setType to PARAM_INT for selflearningcourseactive.
 * Bugfix: When no license is set, we disable self-learning course checkbox.
 * Bugfix: Fix behat for self-learning course enrolment. #684
-* Bugfix: GH-703 - Recommendedin matches without wildcards to avoid false positives.
+* Bugfix: #703 - Recommendedin matches without wildcards to avoid false positives.
 * Test: new behat scenario for Self-learning courses: duration and enrollment (#684).
 
 ## Version 8.7.6 (2024110600)
@@ -284,7 +304,7 @@ Users will get enrolled when they book for the defined duration.
 ## Version 8.6.5 (2024081900)
 * Improvement: Enhancements of rules and placeholders
 * Improvement: Better book on detail page handling
-* Improvement: GH-596 Better feedback for not logged in users
+* Improvement: #596 Better feedback for not logged in users
 * Improvement: Use format_string instead of format text when advisable
 * Improvement: Add booked AND on waitinglist selector to bookingoptionusers
 * Improvement: Add deleted users to report.php
@@ -1096,7 +1116,7 @@ In shopping cart, a new setting can then be activated to avoid booking of items 
 * Improvement: Fix signin sheets, only Lastname, Firstname, No profiletext anymore.
 
 **Bugfixes:**
-* Bugfix: Fixes for GH-325 (Pull request).
+* Bugfix: Fixes for #325 (Pull request).
 * Bugfix: Fix bug in event description.
 * Bugfix: New teacher syntax.
 * Bugfix: We need module context in the teacher substitutions form!
