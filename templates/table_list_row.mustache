@@ -123,7 +123,7 @@
   flex-md-row align-items-center row gx-0" {{#datafields}} data-{{key}}="{{value}}" {{/datafields}}>
   <div class="content w-100">
     <div class="row mod-booking-row {{rowclasses}} {{rowid}}">
-      {{#headerimage}}
+      {{#showheaderimage}}{{#headerimage}}
       <div class="mod-booking-view-list-image-container col-md-3">
         {{#value}}
           <img class="mod-booking-view-list-image rounded-left" src="{{{value}}}" {{#headerimagealt}}alt="{{.}}" title="{{.}}"{{/headerimagealt}}>
@@ -138,8 +138,7 @@
         {{/value}}
       </div>
       <div class="col-md-9 pt-3 pb-3">
-      {{/headerimage}}
-        <div class="row">
+        <div class="row">{{/headerimage}}{{/showheaderimage}}
           <div
           {{#rightside}} class="col-md-9" {{/rightside}}
           {{^rightside}} class="col-12" {{/rightside}}
@@ -221,9 +220,9 @@
             {{#columnclass}}</div>{{/columnclass}}
           {{/rightside}}
           </div>
-        </div>
+        {{#showheaderimage}}{{#headerimage}}</div>{{/headerimage}}{{/showheaderimage}}
       </div>
-      {{#headerimage}}</div>{{/headerimage}}
+      {{#showheaderimage}}{{#headerimage}}</div>{{/headerimage}}{{/showheaderimage}}
     </div>
   </div>
 </div>

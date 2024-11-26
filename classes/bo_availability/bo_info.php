@@ -1131,7 +1131,11 @@ class bo_info {
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $viewparam = booking::get_value_of_json_by_key($settings->bookingid, 'viewparam');
         $turnoffmodals = 0; // By default, we use modals.
-        if ($viewparam == MOD_BOOKING_VIEW_PARAM_LIST) {
+        if (
+            $viewparam == MOD_BOOKING_VIEW_PARAM_LIST
+            || $viewparam = MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT
+            || $viewparam = MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT
+        ) {
             // Only if we use list view, we can use inline modals.
             // So only in this case, we need to check the config setting.
             $turnoffmodals = get_config('booking', 'turnoffmodals');

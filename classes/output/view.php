@@ -128,6 +128,12 @@ class view implements renderable, templatable {
     /** @var array $elective */
     private $electivemodal = null;
 
+    /** @var bool $showheaderimage */
+    private $showheaderimage = null;
+
+    /** @var string $headerimageposition */
+    private $headerimageposition = null;
+
     /**
      * Constructor
      *
@@ -702,6 +708,17 @@ class view implements renderable, templatable {
             case MOD_BOOKING_VIEW_PARAM_CARDS:
                 self::generate_table_for_cards($wbtable, $optionsfields);
                 break;
+            case MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT:
+                $wbtable->set_template_data('showheaderimage', true);
+                $wbtable->set_template_data('headerimageleft', true);
+                self::generate_table_for_list($wbtable, $optionsfields);
+                break;
+            case MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT:
+                $wbtable->set_template_data('showheaderimage', true);
+                $wbtable->set_template_data('headerimageright', true);
+                self::generate_table_for_list($wbtable, $optionsfields);
+                break;
+            case MOD_BOOKING_VIEW_PARAM_LIST:
             default:
                 self::generate_table_for_list($wbtable, $optionsfields);
                 break;
@@ -1188,6 +1205,8 @@ class view implements renderable, templatable {
             'showinvisible' => $this->showinvisible,
             'showfieldofstudy' => $this->showfieldofstudy,
             'elective' => empty($this->renderelectivetable) ? false : $this->electivemodal,
+            'showheaderimage' => $this->showheaderimage,
+            'headerimageposition' => $this->headerimageposition,
         ];
     }
 }
