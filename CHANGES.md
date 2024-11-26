@@ -1,3 +1,9 @@
+## Version 8.8.2 (2024112600)
+* Bugfix: Wunderbyte-GmbH#240 - Fix localization on teacher description page.
+* Bugfix: Fix warnings for self-learning courses and never show them if config setting is off.
+* Bugfix: Do not hide but disable self-learning course checkbox, so users can understand behavior of form elements.
+* Bugfix: Set notlast flag instead of last flag for comma in teachers list.
+
 ## Version 8.8.1 (2024112500)
 * Improvement: Better strings for self-learning courses feature.
 * Improvement: Add support for Moodle 4.5.
