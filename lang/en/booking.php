@@ -1035,6 +1035,11 @@ $string['enrolmentstatus'] = 'Enrol users at course start time (Default: Not che
 $string['enrolmentstatus_help'] = 'Notice: In order for automatic enrolment to work, you need to change the booking instance setting
  "Automatically enrol users" to "Yes".';
 $string['enrolmultipleusers'] = 'Enrol multiple users';
+$string['enrolusersaction:alert'] = '<div class="alert alert-info" role="alert">
+<i class="fa fa-info-circle"></i>
+<span><b>This function refers to the selected course in the Moodle Courses area..</b> <br>
+</span>
+</div>';
 $string['enteruserprofilefield'] = "Select users by entering a value for custom user profile field. Attention! This targets all the users on the plattform.";
 $string['entervalidurl'] = 'Please, enter a valid URL!';
 $string['entities'] = 'Choose places with entities plugin';

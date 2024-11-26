@@ -286,6 +286,19 @@ class customform implements bo_condition {
                         '',
                         get_string('customformselectoptions', 'mod_booking')
                     );
+
+                    $mform->addElement(
+                        'static',
+                        'info_about_enrolusersaction' . $counter,
+                        '',
+                        get_string('enrolusersaction:alert', 'mod_booking'),
+                    );
+                    $mform->hideIf(
+                        'info_about_enrolusersaction' . $counter,
+                        'bo_cond_customform_select_1_' . $counter,
+                        'neq',
+                        'enrolusersaction'
+                    );
                 }
 
                 $mform->hideIf('info_about_select_options_' . $counter, 'bo_cond_customform_restrict', 'notchecked');
