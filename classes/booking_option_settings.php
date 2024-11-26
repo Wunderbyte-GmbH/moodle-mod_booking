@@ -756,13 +756,14 @@ class booking_option_settings {
 
         $data = [];
         $teachers = array_values($this->teachers);
+        // Set 'notlast' flag if it's the last item. We need this for the template.
         $lastindex = count($teachers) - 1;
 
         foreach ($teachers as $index => $teacher) {
             $t = [
                 'firstname' => $teacher->firstname,
                 'lastname' => $teacher->lastname,
-                'last' => ($index === $lastindex) ? 1 : 0,  // Set 'last' flag if it's the last item. We need this for the template.
+                'notlast' => ($index != $lastindex) ? 1 : 0,
             ];
             $data['teachers'][] = $t;
         }
