@@ -35,6 +35,7 @@ use mod_booking\bo_availability\conditions\customform;
 use mod_booking\local\mobile\customformstore;
 use local_shopping_cart\shopping_cart;
 use local_shopping_cart\local\cartstore;
+use mod_booking\enrollink;
 
 /**
  * Tests for booking enrollink rules.
@@ -67,13 +68,9 @@ final class rules_enrollink_test extends advanced_testcase {
     /**
      * Test rule on answer and option being cancelled.
      *
-     * @covers \mod_booking\event\bookinganswer_cancelled
-     * @covers \mod_booking\event\bookingoption_cancelled
-     * @covers \mod_booking\option->user_delete_response
-     * @covers \mod_booking\booking_option::cancelbookingoption
+     * @covers \mod_booking\event\enrollink_triggered
      * @covers \mod_booking\booking_rules\rules\rule_react_on_event->execute
      * @covers \mod_booking\booking_rules\conditions\select_student_in_bo->execute
-     * @covers \mod_booking\booking_rules\conditions\select_teacher_in_bo->execute
      * @covers \mod_booking\booking_rules\actions\send_mail->execute
      *
      * @param array $bdata
@@ -231,11 +228,18 @@ final class rules_enrollink_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Get messages.
-        $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $messagesobjs = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+
+        ob_start();
+        $messagesink = $this->redirectMessages();
+        $this->runAdhocTasks();
+        $messages = $messagesink->get_messages();
+        $res = ob_get_clean();
+        $messagesink->close();
 
         // Validate scheduled adhoc tasks. Validate messages - order might be free.
-        foreach ($messages as $key => $message) {
-            $customdata = $message->get_custom_data();
+        foreach ($messagesobjs as $key => $messageobj) {
+            $customdata = $messageobj->get_custom_data();
             if (strpos($customdata->customsubject, "Enrollinksubj") !== false) {
                 // Validate message on the option's enrol link.
                 $this->assertEquals($teacher1->id, $customdata->userid);
@@ -245,6 +249,20 @@ final class rules_enrollink_test extends advanced_testcase {
             }
         }
 
+        // Validate console output.
+        $expected = "send_mail_by_rule_adhoc task: mail successfully sent for option " . $option->id . " to user " . $teacher1->id;
+        $this->assertStringContainsString($expected, $res);
+
+        // Validate emails. Might be more than one dependitg to Moodle's version.
+        foreach ($messages as $key => $message) {
+            if (strpos($message->subject, "Enrollinksubj")) {
+                // Validate email on enrol link.
+                $this->assertStringContainsString("mod/booking/enrollink.php?erlid=", $message->fullmessage);
+                $this->assertStringContainsString("Number of user: 3", $message->fullmessage);
+            }
+        }
+        // phpcs:ignore
+        //enrollink::trigger_enrolbot_actions();
         // Mandatory to solve potential cache issues.
         singleton_service::destroy_booking_option_singleton($option1->id);
         // Mandatory to deal with static variable in the booking_rules.
