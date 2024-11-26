@@ -116,13 +116,17 @@
 
 }}
 
-<div class="card border pl-3 pr-3 pt-2 pb-0 sk-fade ml-0 mr-0 mb-2 flex-md-row align-items-center row gx-0" {{#datafields}} data-{{key}}="{{value}}" {{/datafields}}>
+<div class="card border
+  rounded
+  pl-0 pr-3 pt-0 pb-0
+  sk-fade ml-0 mr-0 mb-2
+  flex-md-row align-items-center row gx-0" {{#datafields}} data-{{key}}="{{value}}" {{/datafields}}>
   <div class="content w-100">
     <div class="row mod-booking-row {{rowclasses}} {{rowid}}">
       {{#headerimage}}
-      <div class="bookingoption-listview-row-headerimage-container col-md-3">
+      <div class="mod-booking-view-list-image-container col-md-3">
         {{#value}}
-          <img class="w-100 h-100 rounded-top bookingoption-listview-row-headerimage-container" src="{{{value}}}" {{#headerimagealt}}alt="{{.}}" title="{{.}}"{{/headerimagealt}}>
+          <img class="mod-booking-view-list-image rounded-left" src="{{{value}}}" {{#headerimagealt}}alt="{{.}}" title="{{.}}"{{/headerimagealt}}>
         {{/value}}
         {{^value}}
           <div class="w-100 h-100 d-flex align-items-center justify-content-center"
@@ -133,8 +137,9 @@
           </div>
         {{/value}}
       </div>
-      <div class="col-md-9">
+      <div class="col-md-9 pt-3 pb-3">
       {{/headerimage}}
+        <div class="row">
           <div
           {{#rightside}} class="col-md-9" {{/rightside}}
           {{^rightside}} class="col-12" {{/rightside}}
@@ -217,6 +222,7 @@
           {{/rightside}}
           </div>
         </div>
+      </div>
       {{#headerimage}}</div>{{/headerimage}}
     </div>
   </div>
