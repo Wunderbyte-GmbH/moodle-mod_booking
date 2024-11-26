@@ -162,23 +162,27 @@ class duration extends field_base {
             null,
             [0, 1]
         );
+        $mform->setDefault('selflearningcourse', 0);
         $mform->addHelpButton('selflearningcourse', 'selflearningcourse', 'mod_booking', '', false, $selflearningcourselabel);
-        $mform->hideIf('selflearningcourse', 'selflearningcourseactive', 'eq', 0);
+        $mform->hideIf('selflearningcourse', 'selflearningcourseactive', 'neq', 1);
 
-        $mform->addElement(
-            'static',
-            'selflearningcoursealert',
-            '',
-            '<div class="alert alert-light">' .
-                get_string('selflearningcoursealert', 'mod_booking', $selflearningcourselabel) .
+        if ($selflearningcourseactive === 1) {
+            $mform->addElement(
+                'static',
+                'selflearningcoursealert',
+                '',
+                '<div class="alert alert-light">' .
+                    get_string('selflearningcoursealert', 'mod_booking', $selflearningcourselabel) .
                 '</div>'
-        );
-        $mform->hideIf('selflearningcoursealert', 'selflearningcourse', 'neq', 1);
+            );
+            $mform->hideIf('selflearningcoursealert', 'selflearningcourse');
+        }
 
         // Add duration.
         $mform->addElement('duration', 'duration', get_string('duration', 'mod_booking'));
         $mform->setType('duration', PARAM_INT);
-        $mform->hideIf('duration', 'selflearningcourse', 'noteq', 1);
+        $mform->setDefault('duration', 2592000); // 30 days.
+        $mform->hideIf('duration', 'selflearningcourse', 'neq', 1);
     }
 
     /**

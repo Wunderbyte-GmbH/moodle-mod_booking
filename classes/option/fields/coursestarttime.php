@@ -27,6 +27,7 @@ namespace mod_booking\option\fields;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use mod_booking\utils\wb_payment;
 use MoodleQuickForm;
 use stdClass;
 
@@ -150,21 +151,28 @@ class coursestarttime extends field_base {
             fields_info::add_header_to_mform($mform, self::$header);
         }
 
+        // Check if config setting for self-learning courses is active.
+        if (wb_payment::pro_version_is_activated()) {
+            $selflearningcourseactive = (int)get_config('booking', 'selflearningcourseactive');
+        } else {
+            $selflearningcourseactive = 0;
+        }
+
         $selflearningcourselabel = get_string('selflearningcourse', 'mod_booking');
         // The label can be overwritten in plugin config.
         if (!empty(get_config('booking', 'selflearningcourselabel'))) {
             $selflearningcourselabel = get_config('booking', 'selflearningcourselabel');
         }
 
-        $mform->addElement(
-            'static',
-            'selflearningcoursecoursestarttimealert',
-            '',
-            '<div class="alert alert-light">' .
-                get_string('selflearningcoursecoursestarttimealert', 'mod_booking', $selflearningcourselabel) .
+        if ($selflearningcourseactive === 1) {
+            $mform->addElement(
+                'static',
+                'selflearningcoursecoursestarttimealert',
+                '',
+                '<div class="alert alert-light">' .
+                    get_string('selflearningcoursecoursestarttimealert', 'mod_booking', $selflearningcourselabel) .
                 '</div>'
-        );
-        if ($CFG->version >= 2023100900) {
+            );
             $mform->hideIf('selflearningcoursecoursestarttimealert', 'selflearningcourse', 'neq', 1);
         }
 
