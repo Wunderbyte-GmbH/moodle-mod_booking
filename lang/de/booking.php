@@ -1018,6 +1018,11 @@ $string['enrolmentstatus'] = 'Nutzer:innen erst zu Kursbeginn in den Kurs einsch
 $string['enrolmentstatus_help'] = 'Achtung: Damit die automatische Einschreibung funktioniert,
  müssen Sie in den Einstellungen der Buchungsinstanz "Nutzer:innen automatisch einschreiben" auf "Ja" setzen.';
 $string['enrolmultipleusers'] = 'Mehrere Nutzer:innen einschreiben';
+$string['enrolusersaction:alert'] = '<div class="alert alert-info" role="alert">
+<i class="fa fa-info-circle"></i>
+<span><b>Diese Funktion bezieht sich auf den ausgewählten Kurs im Bereich Moodle Kurse.</b> <br>
+</span>
+</div>';
 $string['enteruserprofilefield'] = "Wähle Nutzer:innen nach eingegebenem Wert für Profilfeld. Achtung! Das betrifft ALLE Nutzer:inne nauf der Plattform.";
 $string['entervalidurl'] = 'Bitte geben Sie eine gültige URL an!';
 $string['entities'] = 'Orte mit Entities Plugin auswählen';
