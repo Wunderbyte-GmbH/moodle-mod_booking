@@ -121,6 +121,7 @@ class col_availableplaces implements renderable, templatable {
         $bookinginformation = array_pop($fullbookinginformation);
 
         // Get maxanswers from cache if exist.
+        // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
         // TODO: how about entire option settings?
         $cache = \cache::make('mod_booking', 'bookingoptionsettings');
         $cachedoption = $cache->get($settings->id);

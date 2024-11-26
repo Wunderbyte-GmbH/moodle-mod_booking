@@ -161,9 +161,11 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
         $viewparamoptions = [MOD_BOOKING_VIEW_PARAM_LIST => get_string('viewparam:list', 'mod_booking')];
-        // Cards view is a PRO feature.
+        // Additional views like cards view are a PRO feature.
         if ($isproversion) {
             $viewparamoptions[MOD_BOOKING_VIEW_PARAM_CARDS] = get_string('viewparam:cards', 'mod_booking');
+            $viewparamoptions[MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT] = get_string('viewparam:listimgleft', 'mod_booking');
+            $viewparamoptions[MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT] = get_string('viewparam:listimgright', 'mod_booking');
         }
         // Default view param (0...List view, 1...Cards view).
         $mform->addElement('select', 'viewparam', get_string('viewparam', 'mod_booking'),
