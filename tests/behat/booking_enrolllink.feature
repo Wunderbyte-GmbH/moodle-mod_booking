@@ -7,9 +7,9 @@ Feature: Create enrollink availability form for booking options with connected c
       | text     | userpricecat  | userpricecat |
     And the following "mod_booking > pricecategories" exist:
       | ordernum | identifier | name  | defaultvalue | disabled | pricecatsortorder |
-      | 1        | default    | Price | 69           | 0        | 1                 |
-      | 2        | discount1  | Disc1 | 59           | 0        | 2                 |
-      | 3        | discount2  | Disc2 | 49           | 0        | 3                 |
+      | 1        | default    | Price | 25           | 0        | 1                 |
+      | 2        | discount1  | Disc1 | 20           | 0        | 2                 |
+      | 3        | discount2  | Disc2 | 15           | 0        | 3                 |
     And the following "users" exist:
       | username | firstname | lastname | email                | idnumber | profile_field_userpricecat |
       | teacher1 | Teacher   | 1        | teacher1@example.com | T1       |                            |
@@ -25,11 +25,15 @@ Feature: Create enrollink availability form for booking options with connected c
     And the following "local_shopping_cart > payment gateways" exist:
       | account  | gateway | enabled | config                                                                                |
       | Account1 | paypal  | 1       | {"brandname":"Test paypal","clientid":"Test","secret":"Test","environment":"sandbox"} |
+    And the following "local_shopping_cart > plugin setup" exist:
+      | account  | cancelationfee |
+      | Account1 | 0              |
     And the following "local_shopping_cart > user credits" exist:
       | user     | credit | currency |
       | student1 | 300    | EUR      |
       | student2 | 350    | EUR      |
       | student3 | 400    | EUR      |
+      | teacher1 | 450    | EUR      |
     And the following "courses" exist:
       | fullname | shortname | category | enablecompletion |
       | Course1  | C1        | 0        | 1                |
@@ -63,7 +67,7 @@ Feature: Create enrollink availability form for booking options with connected c
     And I set the following fields to these values:
       | bo_cond_customform_select_1_1   | enrolusersaction |
       | bo_cond_customform_label_1_1    | Number of user   |
-      | bo_cond_customform_value_1_1    | 2                |
+      | bo_cond_customform_value_1_1    | 1                |
     ##And I press "Save"
     ## Should be valiation error.
     ##And I should see "A related course is needed because of your availabilty condition(s)." in the "//div[contains(@id, 'fitem_id_chooseorcreatecourse_')]" "xpath_element"
@@ -73,5 +77,35 @@ Feature: Create enrollink availability form for booking options with connected c
     And I wait "1" seconds
     And I set the field with xpath "//div[contains(@id, 'fitem_id_courseid_')]//input[contains(@id, 'form_autocomplete_input-')]" to "Course2"
     And I press "Save"
-    And I wait "21" seconds
+    And I wait until the page is ready
+    And I should see "25.00 EUR" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Number of user" in the ".condition-customform" "css_element"
+    And I set the field "customform_enrolusersaction_1" to "3"
+    And I follow "Continue"
+    And I wait "1" seconds
+    And I should see "75.00 EUR" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    ##And I should see "Thank you! You have successfully put Option-form into the shopping cart. Now click on \"Proceed to checkout\" to continue." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
+    And I click on "Proceed to checkout" "text" in the ".modal-dialog.modal-xl .modalFooter" "css_element"
+    And I wait to be redirected
+    ## Verify prices and credits
+    And I should see "Option-form" in the ".shopping-cart-checkout-items-container" "css_element"
+    And I should see "75.00 EUR" in the ".shopping-cart-checkout-items-container" "css_element"
+    And I should see "75.00 EUR" in the ".sc_price_label .sc_initialtotal" "css_element"
+    And I should see "Use credit: 450.00 EUR" in the ".sc_price_label .sc_credit" "css_element"
+    And I should see "75.00 EUR" in the ".sc_price_label .sc_deductible" "css_element"
+    And I should see "375.00 EUR" in the ".sc_price_label .sc_remainingcredit" "css_element"
+    And I should see "0 EUR" in the ".sc_totalprice" "css_element"
+    And I press "Checkout"
+    And I wait "1" seconds
+    And I press "Confirm"
+    And I wait until the page is ready
+    And I should see "Payment successful!"
+    And I should see "Credits used" in the ".payment-success ul.list-group" "css_element"
+    And I should see "-75.00 EUR" in the ".payment-success ul.list-group" "css_element"
+    And I should see "Option-form" in the ".payment-success ul.list-group" "css_element"
+    And I am on the "BookingCMP" Activity page
+         ##And I wait "21" seconds
+    And I should see "3" in the ".allbookingoptionstable_r1 .col-ap-availableplaces.text-success.avail .text-success" "css_element"
+    And I should see "/ 6" in the ".allbookingoptionstable_r1 .col-ap-availableplaces.text-success.avail" "css_element"
     And I log out
