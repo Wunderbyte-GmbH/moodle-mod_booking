@@ -439,6 +439,16 @@ if there only was one booking option. */
     object-fit: cover;
 }
 
+#page-mod-booking-view .mod-booking-view-list-image {
+    width: inherit;
+    height: 100%; /* Fallback for unsupported browsers */
+    /* stylelint-disable-next-line declaration-block-no-duplicate-properties, csstree/validator */
+    height: -webkit-fill-available; /* WebKit-specific implementation */
+    object-fit: cover;
+    max-height: 250px;
+    box-shadow: 3px 0 7px 2px rgba(0, 0, 0, 0.1);
+}
+
 #page-mod-booking-editoptions div[id^='fgroup_id_buttonar_'] {
     position: sticky;
     bottom: 5px;
