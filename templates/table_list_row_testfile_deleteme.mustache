@@ -119,32 +119,32 @@
 <div class="card border
   rounded
   pl-0 pr-3 pt-0 pb-0
-  sk-fade ml-0 mr-0 mb-3
+  sk-fade ml-0 mr-0 mb-2
   flex-md-row align-items-center row gx-0" {{#datafields}} data-{{key}}="{{value}}" {{/datafields}}>
   <div class="content w-100">
     <div class="row mod-booking-row {{rowclasses}} {{rowid}}">
       {{#showheaderimageleft}}
-      {{#headerimage}}
-      <div class="mod-booking-view-list-image-container col-md-3">
-        {{#value}}
-          <img class="mod-booking-view-list-image rounded-left" src="{{{value}}}" {{#headerimagealt}}alt="{{.}}" title="{{.}}"{{/headerimagealt}}>
-        {{/value}}
-        {{^value}}
-          <div class="mod-booking-view-list-image rounded-left w-100 h-100"
-            style="background-color: #e6f0f7;
-                  opacity: 0.8;
-                  background-image: radial-gradient(#45aaf7 0.5px, #e6f0f7 0.5px);
-                  background-size: 10px 10px;">
-          </div>
-        {{/value}}
-      </div>
-      <div class="col-md-9 p-3">
-        <div class="row">
-      {{/headerimage}}
+        {{#headerimage}}
+        <div class="mod-booking-view-list-image-container col-md-3">
+          {{#value}}
+            <img class="mod-booking-view-list-image rounded-left" src="{{{value}}}" {{#headerimagealt}}alt="{{.}}" title="{{.}}"{{/headerimagealt}}>
+          {{/value}}
+          {{^value}}
+            <div class="mod-booking-view-list-image rounded-left w-100 h-100"
+              style="background-color: #e6f0f7;
+                    opacity: 0.8;
+                    background-image: radial-gradient(#45aaf7 0.5px, #e6f0f7 0.5px);
+                    background-size: 10px 10px;">
+            </div>
+          {{/value}}
+        </div>
+        <div class="col-md-9 pt-3 pb-3">
+          <div class="row">
+        {{/headerimage}}
       {{/showheaderimageleft}}
       {{#showheaderimageright}}
         {{#headerimage}}
-        <div class="col-md-9 p-3">
+        <div class="col-md-9 pt-3 pb-3">
           <div class="row">
         {{/headerimage}}
       {{/showheaderimageright}}
@@ -232,13 +232,13 @@
         {{#showheaderimageleft}}{{#headerimage}}</div></div>{{/headerimage}}{{/showheaderimageleft}}
         {{#showheaderimageright}}
           {{#headerimage}}
-            </div></div></div>
+          </div></div>
             <div class="mod-booking-view-list-image-container col-md-3">
               {{#value}}
-                <img class="mod-booking-view-list-image rounded-right" src="{{{value}}}" {{#headerimagealt}}alt="{{.}}" title="{{.}}"{{/headerimagealt}}>
+                <img class="mod-booking-view-list-image rounded-left" src="{{{value}}}" {{#headerimagealt}}alt="{{.}}" title="{{.}}"{{/headerimagealt}}>
               {{/value}}
               {{^value}}
-                <div class="mod-booking-view-list-image rounded-right w-100 h-100"
+                <div class="mod-booking-view-list-image rounded-left w-100 h-100"
                   style="background-color: #e6f0f7;
                         opacity: 0.8;
                         background-image: radial-gradient(#45aaf7 0.5px, #e6f0f7 0.5px);
@@ -246,9 +246,10 @@
                 </div>
               {{/value}}
             </div>
+          </div>
           {{/headerimage}}
         {{/showheaderimageright}}
-      {{^showheaderimageright}}</div>{{/showheaderimageright}}
+      </div>
     </div>
   </div>
 </div>

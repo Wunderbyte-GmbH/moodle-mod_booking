@@ -176,7 +176,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         if (!$isproversion) {
             $mform->addElement('html', '<div class="mb-3" style="margin-left: 13rem;">' . get_string('badge:pro', 'mod_booking') .
-                " <span class='small'>" . get_string('proversion:cardsview', 'mod_booking') . '</span></div>');
+                " <span class='small'>" . get_string('proversion:extraviews', 'mod_booking') . '</span></div>');
         }
 
         // Choose semester.
@@ -1314,7 +1314,9 @@ class mod_booking_mod_form extends moodleform_mod {
             }
         }
 
+        // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
         // TODO: Check if it's possible to overwrite instance specific mail templates with global mail templates...
+        // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
         // TODO: ... if mailtemplatessource is set to 1 on saving.
     }
 

@@ -1837,7 +1837,7 @@ $string['progressbars_desc'] = 'Get a visual representation of the time which ha
 $string['progressbarscollapsible'] = 'Make progress bars collapsible';
 $string['prolicensefeatures'] = '<p>You need a Booking PRO license if you want to use this feature.
 Purchasing a Pro license will allow you to use the following features:</p>';
-$string['proversion:cardsview'] = 'With Booking PRO you can also use cards view.';
+$string['proversion:extraviews'] = 'With Booking PRO you can use additional views like cards view or list view with images.';
 $string['proversiononly'] = 'Upgrade to Booking PRO to use this feature.';
 $string['qrenrollink'] = "QR code for enrolment link";
 $string['qrid'] = "qr_id";
@@ -2336,6 +2336,8 @@ Back to overview of bookingoptions: {bookinglink}
 $string['viewparam'] = 'View type';
 $string['viewparam:cards'] = 'Cards view';
 $string['viewparam:list'] = 'List view';
+$string['viewparam:listimgleft'] = 'List view with image on the left';
+$string['viewparam:listimgright'] = 'List view with image on the right';
 $string['visibleoptions'] = 'Visible booking options';
 $string['vuebookingstatsback'] = 'Back';
 $string['vuebookingstatsbooked'] = 'Booked';
