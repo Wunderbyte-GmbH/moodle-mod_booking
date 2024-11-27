@@ -857,8 +857,9 @@ class bo_info {
                     || !empty(get_config('booking', 'displayemptyprice'))
                     || !empty((float)$priceitems["price"])
                 ) {
+                    $currstring = isset($priceitems["currency"]) ? " " .  $priceitems["currency"] : '';
                     $data['sub'] = [
-                        'label' => $priceitems["price"] . " " . $priceitems["currency"],
+                        'label' => $priceitems["price"] . $currstring,
                         'class' => ' text-center ',
                         'role' => '',
                     ];
@@ -876,7 +877,7 @@ class bo_info {
             if ($price = price::get_price('option', $settings->id, $user)) {
                 $data['price'] = [
                     'price' => $price['price'],
-                    'currency' => $price['currency'],
+                    'currency' => $price['currency'] ?? '',
                 ];
             }
         }
