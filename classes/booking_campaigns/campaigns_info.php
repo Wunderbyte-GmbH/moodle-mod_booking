@@ -407,4 +407,46 @@ class campaigns_info {
             $mform->hideIf('cpvalue', 'cpfield', 'eq', "0");
         }
     }
+
+    /**
+     * If any of the fields apply to the user, return true.
+     *
+     * @param array $fields // Key should be fieldname and value(s) the given values to check for.
+     * @param int $userid
+     *
+     * @return boolean
+     *
+     */
+    public static function check_if_profilefield_applies(
+        array $fields,
+        string $fieldname,
+        string $operator,
+        int $userid = 0
+    ): bool {
+        global $USER;
+        $result = false;
+        $userid = $userid ?? $USER->id;
+
+        $user = singleton_service::get_instance_of_user($userid, true);
+
+        foreach ($fields as $field) {
+            if (!is_string($user->profile[$field])) {
+                continue;
+            }
+            switch ($operator) {
+                case "=": // Equals.
+                    $blocking = $user->profile[$fieldname] === $field;
+                    break;
+                case "~": // Contains.
+                    $blocking = strpos($user->profile[$fieldname], $field) !== false;
+                    break;
+                case "!~":
+                    // Does not contain.
+                    $blocking = strpos($user->profile[$fieldname], $field) === false;
+                    break;
+            }
+            $result = $blocking;
+        }
+        return $result;
+    }
 }

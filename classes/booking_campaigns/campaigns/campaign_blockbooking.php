@@ -360,25 +360,8 @@ class campaign_blockbooking implements booking_campaign {
             && isset($this->cpfield)
             && !empty($bofieldname = $this->cpfield)
             ) {
-            $user = singleton_service::get_instance_of_user($userid, true);
             // If there is a value, it has to match in order to block.
-            $blocking = false;
-            $operator = $this->cpoperator;
-
-            // TODO Handle other types of fields like arrays.
-            if (is_string($user->profile[$bofieldname])) {
-                switch ($operator) {
-                    case "=": // Equals.
-                        $blocking = $user->profile[$bofieldname] === $this->cpvalue;
-                        break;
-                    case "~": // Contains.
-                        $blocking = strpos($user->profile[$bofieldname], $this->cpvalue) !== false;
-                        break;
-                    case "!~":
-                        // Does not contain.
-                        $blocking = strpos($user->profile[$bofieldname], $this->cpvalue) === false;
-                }
-            }
+            $blocking = campaigns_info::check_if_profilefield_applies($this->cpvalue, $this->cpfield, $this->cpoperator, $userid);
         }
         if ($blocking) {
             return [

@@ -427,7 +427,7 @@ final class booking_campaigns_test extends advanced_testcase {
             'campaignfieldnameoperator' => '!~', // Does not contain!
             'cpfield' => 'ucustom1',
             'cpoperator' => '~',
-            'cpvalue' => 'student',
+            'cpvalue' => ['student'],
             'blockoperator' => 'blockbelow',
             'blockinglabel' => 'Below_50',
             'hascapability' => null,
