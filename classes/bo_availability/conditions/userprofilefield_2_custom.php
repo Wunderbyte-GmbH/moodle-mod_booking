@@ -279,7 +279,7 @@ class userprofilefield_2_custom implements bo_condition {
                 $usercustomfields->{$formfield->field->shortname} = $formfield->data;
             }
             $user->profile = (array)$usercustomfields ?? [];
-            $value = $user->profile[$profilefield] ?? null;
+            $value = $user->profile[$profilefield] ?? '';
         } else {
             $value = $user->$profilefield;
         }
