@@ -123,9 +123,17 @@ function editCampaignsModal(element) {
 
             if (e.target.name == 'bofieldname') {
                 // eslint-disable-next-line no-console
-                console.log('change in fieldname');
+                console.log('change in booking option fieldname');
                 window.skipClientValidation = true;
                 let button = document.querySelector('[name="btn_bofieldname"]');
+                modalForm.processNoSubmitButton(button);
+            }
+
+            if (e.target.name == 'cpfield') {
+                // eslint-disable-next-line no-console
+                console.log('change in user profile field');
+                window.skipClientValidation = true;
+                let button = document.querySelector('[name="btn_cpfield"]');
                 modalForm.processNoSubmitButton(button);
             }
         });

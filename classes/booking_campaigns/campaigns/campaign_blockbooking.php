@@ -81,8 +81,8 @@ class campaign_blockbooking implements booking_campaign {
     /** @var string $cpfield */
     public $cpfield = '';
 
-    /** @var string $cpvalue */
-    public $cpvalue = '';
+    /** @var array $cpvalue */
+    public $cpvalue = [];
 
     /** @var string $cpoperator */
     public $cpoperator = '';
@@ -113,7 +113,7 @@ class campaign_blockbooking implements booking_campaign {
         $this->fieldvalue = $jsonobj->fieldvalue ?? "";
         $this->cpfield = $jsonobj->cpfield ?? "";
         $this->cpoperator = $jsonobj->cpoperator ?? "";
-        $this->cpvalue = $jsonobj->cpvalue ?? "";
+        $this->cpvalue = $jsonobj->cpvalue ?? [];
         $this->blockoperator = $jsonobj->blockoperator;
         $this->blockinglabel = $jsonobj->blockinglabel;
         $this->hascapability = $jsonobj->hascapability;

@@ -84,8 +84,8 @@ class campaign_customfield implements booking_campaign {
     /** @var string $cpoperator */
     public $cpoperator = '';
 
-    /** @var string $cpvalue */
-    public $cpvalue = '';
+    /** @var array $cpvalue */
+    public $cpvalue = [];
 
     /** @var bool $userspecificprice */
     public $userspecificprice = false;
@@ -115,7 +115,7 @@ class campaign_customfield implements booking_campaign {
 
             $this->cpfield = $jsonobj->cpfield ?? 0;
             $this->cpoperator = $jsonobj->cpoperator ?? '';
-            $this->cpvalue = $jsonobj->cpvalue ?? '';
+            $this->cpvalue = $jsonobj->cpvalue ?? [];
         }
     }
 
@@ -185,7 +185,7 @@ class campaign_customfield implements booking_campaign {
         if (!empty($data->cpfield)) {
             $jsonobject->cpfield = $data->cpfield;
             $jsonobject->cpoperator = $data->cpoperator ?? '';
-            $jsonobject->cpvalue = $data->cpvalue ?? '';
+            $jsonobject->cpvalue = $data->cpvalue ?? [];
         }
 
         $record->json = json_encode($jsonobject);
@@ -239,7 +239,7 @@ class campaign_customfield implements booking_campaign {
 
                     $data->cpfield = $jsonobject->cpfield ?? 0;
                     $data->cpoperator = $jsonobject->cpoperator ?? '';
-                    $data->cpvalue = $jsonobject->cpvalue ?? '';
+                    $data->cpvalue = $jsonobject->cpvalue ?? [];
                     break;
             }
         }
