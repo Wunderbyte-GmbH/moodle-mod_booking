@@ -1776,7 +1776,7 @@ $string['progressbars'] = 'Fortschrittsbalken für bereits vergangene Zeit ' . '
 $string['progressbars_desc'] = 'Mit diesem Feature erhalten Sie eine visuelle Darstellung der bereits vergangenen Zeit von Buchungsoptionen.';
 $string['progressbarscollapsible'] = 'Fortschrittsbalken können ausgeklappt werden';
 $string['prolicensefeatures'] = 'Sie benötigen Booking PRO, um dieses Feature nutzen zu können. Durch den Kauf einer Pro-Lizenz können Sie die folgenden Funktionen nutzen:';
-$string['proversion:cardsview'] = 'Mit Booking PRO können Sie auch die Karten-Ansicht aktivieren.';
+$string['proversion:extraviews'] = 'Mit Booking PRO können Sie weitere Ansichten aktivieren (z.B. Kartenansicht oder Listanansicht mit Bildern).';
 $string['proversiononly'] = 'Nur in der PRO-Version verfügbar.';
 $string['qrenrollink'] = "QR Code von Einschreibelink";
 $string['qrid'] = "QR Code von Id";
@@ -2254,6 +2254,8 @@ Zurück zur Übersicht der Buchungsoptionen: {bookinglink} <br>
 $string['viewparam'] = 'Ansichtsart';
 $string['viewparam:cards'] = 'Karten-Ansicht';
 $string['viewparam:list'] = 'Listen-Ansicht';
+$string['viewparam:listimgleft'] = 'Listen-Ansicht mit Bild links';
+$string['viewparam:listimgright'] = 'Listen-Ansicht mit Bild rechts';
 $string['visibleoptions'] = 'Sichtbare Buchungsoptionen';
 $string['vue_dashboard_booking_instances'] = 'Booking instances';
 $string['vuebookingstatsback'] = 'Zurück';
