@@ -789,7 +789,9 @@ class price {
             $price['price'] = $customformstore->modify_price($price['price'], $categoryidentifier);
         }
 
-        $price['price'] = number_format($price['price'], 2, '.', '');
+        if (isset($price['price'])) {
+            $price['price'] = number_format($price['price'], 2, '.', '');
+        }
 
         return $price;
     }

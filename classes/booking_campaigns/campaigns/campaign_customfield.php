@@ -105,9 +105,9 @@ class campaign_customfield implements booking_campaign {
 
         // Set additional data stored in JSON.
         $jsonobj = json_decode($record->json);
-        $this->bofieldname = $jsonobj->bofieldname;
-        $this->campaignfieldnameoperator = $jsonobj->campaignfieldnameoperator;
-        $this->fieldvalue = $jsonobj->fieldvalue;
+        $this->bofieldname = $jsonobj->bofieldname ?? '';
+        $this->campaignfieldnameoperator = $jsonobj->campaignfieldnameoperator ?? '';
+        $this->fieldvalue = $jsonobj->fieldvalue ?? '';
 
         if (!empty($jsonobj->cpfield)) {
 
