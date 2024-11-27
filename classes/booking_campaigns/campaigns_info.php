@@ -341,7 +341,7 @@ class campaigns_info {
 
             // Create an array of key => value pairs for the dropdown.
             foreach ($customuserprofilefields as $customuserprofilefield) {
-                $customuserprofilefieldsarray[$customuserprofilefield->shortname] = $customuserprofilefield->name;
+                $customuserprofilefieldsarray[$customuserprofilefield->shortname] = format_string($customuserprofilefield->name);
             }
 
             $mform->addElement('select', 'cpfield',
@@ -359,8 +359,50 @@ class campaigns_info {
                 get_string('blockoperator', 'mod_booking'), $operators);
             $mform->hideIf('cpoperator', 'cpfield', 'eq', "0");
 
-            $mform->addElement('text', 'cpvalue',
-                get_string('textfield', 'mod_booking'));
+            $fieldnames = [];
+            if (!empty($ajaxformdata["cpfield"])) {
+                // Profile field value.
+                $sql = "
+                    SELECT DISTINCT
+                        uid.data AS fieldvalue
+                    FROM
+                        {user_info_data} uid
+                    JOIN
+                        {user_info_field} uif ON uif.id = uid.fieldid
+                    WHERE
+                        uif.shortname = :shortname
+                    AND
+                        uid.data IS NOT NULL
+                    AND
+                        uid.data != ''
+                    ORDER BY
+                        uid.data ASC";
+                // Propositions will only be displayed if form was saved before - and therefore fieldname is set.
+                // Maybe add a nosubmitbutton to fetch fieldnames.
+                $params = [
+                    'shortname' => $ajaxformdata["cpfield"],
+                ];
+                $records = $DB->get_fieldset_sql($sql, $params);
+
+                foreach ($records as $record) {
+                    $fieldnames[$record] = $record;
+                }
+            }
+            $mform->addElement(
+                'autocomplete',
+                'cpvalue',
+                get_string('textfield', 'mod_booking'),
+                $fieldnames,
+                ['multiple' => true, 'tags' => true]
+            );
+            $mform->registerNoSubmitButton('btn_cpfield');
+            $mform->addElement(
+                'submit',
+                'btn_cpfield',
+                'btn_cpfield_label',
+                ['class' => 'd-none']
+            );
+
             $mform->setType('cpvalue', PARAM_TEXT);
             $mform->hideIf('cpvalue', 'cpfield', 'eq', "0");
         }
