@@ -76,7 +76,7 @@ Feature: Create booking campaigns2 for booking options as admin and booking it a
   Scenario: Booking campaigns2: conditions states option customfield does not contain and profile field does contain values
     Given the following "mod_booking > campaigns" exist:
       | name      | type | json                                                                                                                                                                                                                                                    | starttime       | endtime         | pricefactor | limitfactor |
-      | campaign3 | 1    | {"bofieldname":"bcustom1","fieldvalue":"exclude","campaignfieldnameoperator":"!~","cpfield":"ucustom1","cpoperator":"~","cpvalue":"student","blockoperator":"blockbelow","blockinglabel":"Below50","hascapability":null,"percentageavailableplaces":50} | ## yesterday ## | ## + 1 month ## | 1           | 1           |
+      | campaign3 | 1    | {"bofieldname":"bcustom1","fieldvalue":"exclude","campaignfieldnameoperator":"!~","cpfield":"ucustom1","cpoperator":"~","cpvalue":["student"],"blockoperator":"blockbelow","blockinglabel":"Below50","hascapability":null,"percentageavailableplaces":50} | ## yesterday ## | ## + 1 month ## | 1           | 1           |
     ## Verify "above" blocking campaing2
     When I am on the "BookingCMP" Activity page logged in as student1
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
@@ -103,8 +103,8 @@ Feature: Create booking campaigns2 for booking options as admin and booking it a
   ## @javascript
   Scenario: Booking campaigns2: conditions states option customfield does contain and profile field does not contain values
     Given the following "mod_booking > campaigns" exist:
-      | name      | type | json                                                                                                                                                                                                                                                    | starttime       | endtime         | pricefactor | limitfactor |
-      | campaign3 | 1    | {"bofieldname":"bcustom1","fieldvalue":"include","campaignfieldnameoperator":"=","cpfield":"ucustom1","cpoperator":"!~","cpvalue":"student","blockoperator":"blockbelow","blockinglabel":"Below50","hascapability":null,"percentageavailableplaces":50} | ## yesterday ## | ## + 1 month ## | 1           | 1           |
+      | name      | type | json                                                                                                                                                                                                                                                      | starttime       | endtime         | pricefactor | limitfactor |
+      | campaign3 | 1    | {"bofieldname":"bcustom1","fieldvalue":"include","campaignfieldnameoperator":"=","cpfield":"ucustom1","cpoperator":"!~","cpvalue":["student"],"blockoperator":"blockbelow","blockinglabel":"Below50","hascapability":null,"percentageavailableplaces":50} | ## yesterday ## | ## + 1 month ## | 1           | 1           |
     ## Verify "above" blocking campaing2
     When I am on the "BookingCMP" Activity page logged in as student1
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"

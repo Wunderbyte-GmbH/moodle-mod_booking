@@ -411,7 +411,9 @@ class campaigns_info {
     /**
      * If any of the fields apply to the user, return true.
      *
-     * @param array $fields // Key should be fieldname and value(s) the given values to check for.
+     * @param array $fields
+     * @param string $fieldname
+     * @param string $operator
      * @param int $userid
      *
      * @return boolean
@@ -462,7 +464,12 @@ class campaigns_info {
      * @return bool
      *
      */
-    public static function check_if_campaign_is_active(int $starttime, int $endtime, mixed $fieldname, string $fieldvalue, string $operator): bool {
+    public static function check_if_campaign_is_active(
+        int $starttime,
+        int $endtime,
+        mixed $fieldname,
+        string $fieldvalue,
+        string $operator): bool {
         $isactive = false;
         $now = time();
         if ($starttime <= $now && $now <= $endtime) {
