@@ -263,11 +263,12 @@ class campaign_blockbooking implements booking_campaign {
      * @return bool true if the campaign is currently active
      */
     public function campaign_is_active(int $optionid, booking_option_settings $settings): bool {
+        $value = is_array($this->fieldvalue) ? $this->fieldvalue[0] : $this->fieldvalue;
         return campaigns_info::check_if_campaign_is_active(
             $this->starttime,
             $this->endtime,
             $settings->customfields[$this->bofieldname] ?? '',
-            $this->fieldvalue[0] ?? '',
+            $value ?? '',
             $this->campaignfieldnameoperator
         );
     }

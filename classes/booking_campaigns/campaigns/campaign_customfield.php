@@ -274,7 +274,12 @@ class campaign_customfield implements booking_campaign {
             $campaignprice = $price * $this->pricefactor;
         } else {
             $campaignprice = $price;
-            $fieldapplies = campaigns_info::check_if_profilefield_applies($this->cpvalue, $this->cpfield, $this->cpoperator, $userid);
+            $fieldapplies = campaigns_info::check_if_profilefield_applies(
+                $this->cpvalue,
+                $this->cpfield,
+                $this->cpoperator,
+                $userid
+            );
             if ($fieldapplies) {
                 $campaignprice = $price * $this->pricefactor;
             }
