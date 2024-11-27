@@ -430,7 +430,7 @@ class campaigns_info {
         $user = singleton_service::get_instance_of_user($userid, true);
 
         foreach ($fields as $field) {
-            if (!is_string($user->profile[$field])) {
+            if (!is_string($field)) {
                 continue;
             }
             switch ($operator) {
@@ -448,5 +448,45 @@ class campaigns_info {
             $result = $blocking;
         }
         return $result;
+    }
+
+    /**
+     * Check if given campaign is active.
+     *
+     * @param int $starttime
+     * @param int $endtime
+     * @param mixed $fieldname
+     * @param string $fieldvalue
+     * @param string $operator
+     *
+     * @return bool
+     *
+     */
+    public static function check_if_campaign_is_active(int $starttime, int $endtime, mixed $fieldname, string $fieldvalue, string $operator): bool {
+        $isactive = false;
+        $now = time();
+        if ($starttime <= $now && $now <= $endtime) {
+
+            if (!empty($fieldname)) {
+                if (is_string($fieldname)
+                    && $fieldname === $fieldvalue) {
+                    // It's a string so we can compare directly.
+                    $isactive = true;
+                } else if (is_array($fieldname)
+                    && in_array($fieldvalue, $fieldname)) {
+                    // It's an array, so we check with in_array.
+                    $isactive = true;
+                }
+                if (
+                    $operator === '!~'
+                ) {
+                    // If operator is set to "does not contain" we need to invert the result.
+                    $isactive = !$isactive;
+                }
+            } else {
+                $isactive = true;
+            }
+        }
+        return $isactive;
     }
 }
