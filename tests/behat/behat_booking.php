@@ -27,12 +27,13 @@ use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Mink\Exception\DriverException;
 use mod_booking\booking;
 use mod_booking\singleton_service;
+use mod_booking\booking_rules\booking_rules;
+use mod_booking\booking_rules\rules_info;
 
 /**
  * To create booking specific behat scearios.
  */
 class behat_booking extends behat_base {
-
     /**
      * Create booking option in booking instance
      * @Given /^I create booking option "(?P<optionname_string>(?:[^"]|\\")*)" in "(?P<instancename_string>(?:[^"]|\\")*)"$/
@@ -112,13 +113,27 @@ class behat_booking extends behat_base {
 
         $counter = 1;
         foreach ($fields as $field) {
-
             if ($counter == $numberofitem) {
-
                 $field->click();
-
             }
             $counter++;
         }
+    }
+
+    /**
+     * Clean bookig singleton cache
+     * @Given /^I clean booking cache$/
+     * @param string $optionname
+     * @param string $instancename
+     * @return void
+     */
+    public function i_clean_booking_cache() {
+            // Mandatory clean-up.
+            singleton_service::reset_campaigns();
+            singleton_service::get_instance()->users = [];
+            singleton_service::get_instance()->bookinganswers = [];
+            singleton_service::get_instance()->userpricecategory = [];
+            rules_info::$rulestoexecute = [];
+            booking_rules::$rules = [];
     }
 }
