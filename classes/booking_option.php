@@ -3120,14 +3120,13 @@ class booking_option {
             // Different string depending on plus or minus.
             if ($allowupdatedays >= 0) {
                 $allowupdatedays--; // We set 00:00 of the next day.
-                $datestring = " - $allowupdatedays days";
+                $datestring = "midnight - $allowupdatedays days";
             } else {
                 $allowupdatedays++; // We set 00:00 of the next day.
                 $allowupdatedays = abs($allowupdatedays);
-                $datestring = " + $allowupdatedays days";
+                $datestring = "midnight + $allowupdatedays days";
             }
-            $timestamp = strtotime($datestring, $starttime);
-            $canceluntil = strtotime('midnight', $timestamp);
+            $canceluntil = strtotime($datestring, $starttime);
         } else if (
             isset($bookingsettings->cancelrelativedate) &&
             empty($bookingsettings->cancelrelativedate) &&
