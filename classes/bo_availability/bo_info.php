@@ -279,7 +279,6 @@ class bo_info {
 
         // Now we might need to override the result of a previous condition which has been resolved as false before.
         foreach ($overrideconditions as $condition) {
-
             // As we manipulate this value, we have to keep the original value.
             $resultsarray[$condition->id]['isavailable:original'] = $resultsarray[$condition->id]['isavailable'];
 
@@ -294,8 +293,10 @@ class bo_info {
                             // If one of the two results is true, both are true.
                             if (isset($resultsarray[$ocid])) {
                                 $overrideswithkeys = array_flip($resultsarray[$ocid]['condition']->overrides ?? []);
-                                if (!$resultsarray[$ocid]['reciprocal'] ||
-                                    isset($overrideswithkeys[$condition->id])) {
+                                if (
+                                    !$resultsarray[$ocid]['reciprocal'] ||
+                                    isset($overrideswithkeys[$condition->id])
+                                ) {
                                     if ($resultsarray[$ocid]['isavailable']) {
                                         $resultsarray[$condition->id]['isavailable'] = true;
                                     }
@@ -759,7 +760,7 @@ class bo_info {
             $renderedstring .= $output->render_col_price($data);
         }
 
-        // If notification list ist turned on, we show the "notify-me" button.
+        // If notification list is turned on, we show the "notify-me" button.
         if ($shownotificationlist && $optionid && $usertobuyfor->id) {
             $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
             $bookinginformation = $bookinganswer->return_all_booking_information($usertobuyfor->id);

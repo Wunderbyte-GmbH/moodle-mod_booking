@@ -32,28 +32,43 @@
         "area": "option"
     }
 }}
-{{^onlist}}
-    <a class="booking-button-notify-me h3 text-center"
-    data-userid="{{userid}}"
+<div class="w-100 d-flex justify-content-center booking-button-area"
     data-itemid="{{itemid}}"
     data-area="{{area}}"
-    data-toggle="tooltip"
-    data-placement="top"
-    title="{{#str}} notifyme, mod_booking {{/str}}">
-    <i class="fa fa-bell-o" aria-hidden="true"></i>
-    </a>
-{{/onlist}}
-{{#onlist}}
-    <a class="booking-button-notify-me h3 text-center"
-    data-userid="{{userid}}"
-    data-itemid="{{itemid}}"
-    data-area="{{area}}"
-    data-toggle="tooltip"
-    data-placement="top"
-    title="{{#str}} alreadyonlist, mod_booking {{/str}}">
-    <i class="fa fa-bell" aria-hidden="true"></i>
-    </a>
-{{/onlist}}
+
+    {{#dataaction}}data-action="{{dataaction}}"{{/dataaction}} >
+
+     {{#price}}
+        <div class="pricecontainer mb-2 {{#fullwidth}}w-100{{/fullwidth}}">
+            <span class="pricecurrency h5">
+                {{price}} {{currency}}
+            </span>
+                <div>
+                    <a class="booking-button-notify-me h3 text-center"
+                        data-userid="{{userid}}"
+                        data-itemid="{{itemid}}"
+                        data-area="{{area}}"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="{{#str}} notifyme, mod_booking {{/str}}">
+                        <i class="{{^onlist}}fa fa-bell-o{{/onlist}}{{#onlist}}fa fa-bell{{/onlist}}" aria-hidden="true"></i>
+                    </a>
+                </div>
+        </div>
+     {{/price}}
+     {{^price}}
+        <a class="booking-button-notify-me h3 text-center"
+            data-userid="{{userid}}"
+            data-itemid="{{itemid}}"
+            data-area="{{area}}"
+            data-toggle="tooltip"
+            data-placement="top"
+            title="{{#str}} notifyme, mod_booking {{/str}}">
+            <i class="{{^onlist}}fa fa-bell-o{{/onlist}}{{#onlist}}fa fa-bell{{/onlist}}" aria-hidden="true"></i>
+        </a>
+     {{/price}}
+</div>
+
 
 {{#js}}
     require(['mod_booking/button_notifyme'], function(init) {

@@ -107,7 +107,8 @@ class booking_bookit {
     public static function render_bookit_template_data(
         booking_option_settings $settings,
         int $userid = 0,
-        bool $renderprepagemodal = true) {
+        bool $renderprepagemodal = true
+    ) {
 
         // Get blocking conditions, including prepages$prepages etc.
         $results = bo_info::get_condition_results($settings->id, $userid);

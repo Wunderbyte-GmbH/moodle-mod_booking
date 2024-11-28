@@ -215,7 +215,8 @@ class alreadybooked implements bo_condition {
     ): array {
 
         $link = '';
-        if (get_config('booking', 'linktomoodlecourseonbookedbutton')
+        if (
+            get_config('booking', 'linktomoodlecourseonbookedbutton')
             && !empty($settings->courseid)) {
             $label = get_string('coursestart', 'mod_booking');
             $url = new \moodle_url('/course/view.php', ['id' => $settings->courseid]);

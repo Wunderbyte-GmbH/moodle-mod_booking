@@ -25,6 +25,8 @@
 
 namespace mod_booking\output;
 
+use mod_booking\price;
+use mod_booking\singleton_service;
 use renderer_base;
 use renderable;
 use templatable;
@@ -72,6 +74,9 @@ class button_notifyme implements renderable, templatable {
         $this->userid = $userid;
         $this->itemid = $itemid;
         $this->onlist = $onlist;
+
+        $user = singleton_service::get_instance_of_user($userid);
+        $this->price = price::get_price('option', $itemid, $user);
     }
 
     /**
@@ -83,6 +88,7 @@ class button_notifyme implements renderable, templatable {
         $returnarray = [
             'userid' => $this->userid,
             'itemid' => $this->itemid,
+            'price' => $this->price,
             'area' => 'option',
         ];
 
