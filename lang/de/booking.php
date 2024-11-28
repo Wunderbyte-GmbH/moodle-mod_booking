@@ -466,7 +466,9 @@ $string['bookingoptionbookedotheruserwaitinglistdesc'] = 'NutzerIn mit ID {$a->u
 $string['bookingoptionbookedsameuserdesc'] = 'NutzerIn mit ID {$a->userid} hat die Buchung der Option Nr. {$a->objectid} gebucht.';
 $string['bookingoptionbookedsameuserwaitinglistdesc'] = 'NutzerIn mit ID {$a->userid} hat die Buchung der Option Nr. {$a->objectid} auf die Warteliste gebucht.';
 $string['bookingoptioncalendarentry'] = '<a href="{$a}" class="btn btn-primary">Jetzt buchen...</a>';
+$string['bookingoptioncanbecancelleduntil'] = 'Sie können bis zum {$a} stornieren.';
 $string['bookingoptioncancelled'] = "Buchungsoption für alle storniert";
+$string['bookingoptioncantbecancelledanymore'] = 'Stornierung war bis zum {$a} möglich.';
 $string['bookingoptioncompleted'] = 'Buchungsoption abgeschlossen';
 $string['bookingoptionconfirmed'] = 'Buchungsoption bestätigt';
 $string['bookingoptionconfirmed:description'] = 'NutzerIn mit ID {$a->userid} hat NutzerIn mit ID {$a->relateduserid} für die Buchung der Option Nr. {$a->objectid} freigeschaltet.';
@@ -613,6 +615,7 @@ $string['canceldependenton_desc'] = 'Wählen Sie aus, auf welches Datumsfeld sic
 "Nutzer:innen können nur bis n Tage vor Kursstart stornieren. Negative Werte meinen n Tage NACH Kursstart."
 beziehen soll.<br>Dadurch wird auch die <i>Serviceperiode</i> von Kursen im Warenkorb entsprechend festgelegt
 (wenn Shopping Cart installiert ist). Dies betrifft auch die Ratenzahlung. Entfernen Sie das ausgewählte Semester, wenn Sie Kursstart anstelle von Semesterstart nutzen möchten.';
+$string['cancellation'] = 'Stornierung';
 $string['cancellationsettings'] = 'Stornierungseinstellungen ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['cancelmyself'] = 'Wieder abmelden';
 $string['canceloption'] = "Storniere Buchungsoption";

@@ -181,13 +181,15 @@
             {{/datesexist}}
             {{^datesexist}}
                 {{#selflearningcourse}}
-                    <i class="fa fa-fw fa-clock-o" aria-hidden="true"></i>&nbsp;
-                    {{^timeremaining}}
-                        {{#str}}selflearningcoursedurationinfo, mod_booking, {{duration}}{{/str}}
-                    {{/timeremaining}}
-                    {{#timeremaining}}
-                        {{#str}}selflearningcoursetimeremaininginfo, mod_booking, {{timeremaining}}{{/str}}
-                    {{/timeremaining}}
+                    <div>
+                        <i class="fa fa-fw fa-clock-o" aria-hidden="true"></i>&nbsp;
+                        {{^timeremaining}}
+                            {{#str}}selflearningcoursedurationinfo, mod_booking, {{duration}}{{/str}}
+                        {{/timeremaining}}
+                        {{#timeremaining}}
+                            {{#str}}selflearningcoursetimeremaininginfo, mod_booking, {{timeremaining}}{{/str}}
+                        {{/timeremaining}}
+                    </div>
                 {{/selflearningcourse}}
             {{/datesexist}}
         </div>
@@ -284,6 +286,19 @@
                             </div>
                         </li>
                         {{/minanswers}}
+                        {{#canceluntil}}
+                        <li>
+                            <div class="col-ap-canceluntilinfo">
+                                <span><i class="fa fa-fw fa-sign-out" aria-hidden="true"></i></span>
+                                {{#canstillbecancelled}}
+                                    {{#str}}bookingoptioncanbecancelleduntil, mod_booking, {{canceluntil}}{{/str}}
+                                {{/canstillbecancelled}}
+                                {{^canstillbecancelled}}
+                                    {{#str}}bookingoptioncantbecancelledanymore, mod_booking, {{canceluntil}}{{/str}}
+                                {{/canstillbecancelled}}
+                            </div>
+                        </li>
+                        {{/canceluntil}}
                         {{/bookinginformation}}
                     </ul>
                 </div>

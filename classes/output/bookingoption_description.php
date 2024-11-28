@@ -170,6 +170,12 @@ class bookingoption_description implements renderable, templatable {
     /** @var bool $selflearningcourse */
     private $selflearningcourse = null;
 
+    /** @var bool $canstillbecancelled */
+    private $canstillbecancelled = null;
+
+    /** @var string $canceluntil */
+    private $canceluntil = null;
+
     /**
      * Constructor.
      *
@@ -267,6 +273,28 @@ class bookingoption_description implements renderable, templatable {
                 $timebooked = $ba->usersonlist[$buyforuser->id]->timecreated;
                 $timeremainingsec = $timebooked + $settings->duration - time();
                 $this->timeremaining = format_time($timeremainingsec);
+            }
+        }
+
+        // Show info until when the booking option can be cancelled.
+        // If cancelling was disabled in the booking option or for the whole instance...
+        // ...then we do not show the cancel until info.
+        if (booking_option::get_value_of_json_by_key($optionid, 'disablecancel')
+            || booking::get_value_of_json_by_key($settings->bookingid, 'disablecancel')) {
+            $this->canceluntil = null;
+        } else {
+            // Check if the option has its own canceluntil date.
+            $canceluntiltimestamp = booking_option::get_value_of_json_by_key($optionid, 'canceluntil');
+            if (!empty($canceluntiltimestamp)) {
+                $this->canceluntil = userdate($canceluntiltimestamp, get_string('strftimedatetime', 'langconfig'));
+            } else {
+                $canceluntiltimestamp = booking_option::return_cancel_until_date($optionid);
+                if (!empty($canceluntiltimestamp)) {
+                    $this->canceluntil = userdate($canceluntiltimestamp, get_string('strftimedatetime', 'langconfig'));
+                }
+            }
+            if (!empty($canceluntiltimestamp) && ($canceluntiltimestamp > time())) {
+                $this->canstillbecancelled = true;
             }
         }
 
@@ -560,6 +588,8 @@ class bookingoption_description implements renderable, templatable {
             'bookingclosingtime' => $this->bookingclosingtime,
             'editurl' => !empty($this->editurl) ? $this->editurl : false,
             'returnurl' => !empty($this->returnurl) ? $this->returnurl : false,
+            'canceluntil' => $this->canceluntil,
+            'canstillbecancelled' => $this->canstillbecancelled,
         ];
 
         if (!empty($this->timeremaining)) {

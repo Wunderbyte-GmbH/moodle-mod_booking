@@ -478,7 +478,9 @@ $string['bookingoptionbookedotheruserwaitinglistdesc'] = 'The user with id {$thi
 $string['bookingoptionbookedsameuserdesc'] = 'The user with id {$a->userid} booked the booking option with id {$a->objectid}.';
 $string['bookingoptionbookedsameuserwaitinglistdesc'] = 'The user with id {$a->userid} booked the booking option with id {$a->objectid} on the waitinglist.';
 $string['bookingoptioncalendarentry'] = '<a href="{$a}" class="btn btn-primary">Book now...</a>';
+$string['bookingoptioncanbecancelleduntil'] = 'You can cancel until {$a}.';
 $string['bookingoptioncancelled'] = "Booking option cancelled for all";
+$string['bookingoptioncantbecancelledanymore'] = 'Cancelling was possible until {$a}.';
 $string['bookingoptioncompleted'] = 'Booking option completed';
 $string['bookingoptionconfirmed'] = 'Booking option confirmed';
 $string['bookingoptionconfirmed:description'] = 'User with ID {$a->userid} enabled booking of bookingoption {$a->objectid} for user with ID {$a->relateduserid}.';
@@ -626,6 +628,7 @@ $string['canceldependenton_desc'] = 'Choose the date that should be used as "sta
 "Disallow users to cancel their booking n days before start. Minus means, that users can still cancel n
 days AFTER course start.".<br>
 This will also set the <i>service period</i> of courses in shopping cart accordingly (if shopping cart is installed). This also affects installment payments. You can take out the semester in the Dates section of a booking option, if you want to use the coursestart instead of the semesterstart.';
+$string['cancellation'] = 'Cancellation';
 $string['cancellationsettings'] = 'Cancellation settings ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['cancelmyself'] = 'Undo my booking';
 $string['canceloption'] = "Cancel boooking option";
