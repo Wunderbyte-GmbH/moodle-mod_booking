@@ -27,6 +27,7 @@ Feature: Configure and validate different course connection settings for booking
       | teacher2 | C1     | editingteacher |
       | student1 | C1     | student        |
       | student2 | C1     | student        |
+    And I clean booking cache
     And the following "activities" exist:
       | activity | course | name       | intro                  | bookingmanager | eventtype | autoenrol |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | 1         |

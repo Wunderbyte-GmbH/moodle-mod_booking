@@ -32,6 +32,7 @@ Feature: Create booking campaigns2 for booking options as admin and booking it a
       | student6 | C1     | student        |
       | student7 | C1     | student        |
       | student8 | C1     | student        |
+    And I clean booking cache
     And the following "activities" exist:
       | activity | course | name       | intro               | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail |
       | booking  | C1     | BookingCMP | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      |
