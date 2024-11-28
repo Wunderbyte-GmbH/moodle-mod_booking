@@ -1,3 +1,16 @@
+## Version 8.8.3 (2024112800)
+* New feature: List views with header image on left or right side. (#233)
+* Improvement: Pass template data via Wunderbyte table. (#233)
+* Improvement: Adjust template and CSS for new header images in list view. (#233)
+* Improvement: Add alert about reference to Moodle course. (#711, #650)
+* Improvement: Change name of option "multienrol" for clarity. (#650)
+* Bugfix: Fix upgrade after version update due to rebase.
+* Bugfix: Remove wrong indexing.
+* Bugfix: Correctly trigger events for enrolment actions. (#650)
+* Test: Finalize Behat scenario: Booking option enrollink creation and validation. (#711)
+* Test: Add new PHPUnit test `test_rule_on_enrollink_and_enroll()`. (#711)
+* Test: Extend PHPUnit test for placeholders in `test_rule_on_enrollink_and_enroll()`. (#711)
+
 ## Version 8.8.2 (2024112600)
 * Bugfix: Wunderbyte-GmbH#240 - Fix localization on teacher description page.
 * Bugfix: Fix warnings for self-learning courses and never show them if config setting is off.
