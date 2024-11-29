@@ -16,6 +16,7 @@ Feature: Create booking option with price and force students answer as admin tha
       | teacher1 | C1     | manager        |
       | student1 | C1     | student        |
       | student2 | C1     | student        |
+    And I clean booking cache
     And the following "activities" exist:
       | activity | course | name       | intro               | bookingmanager | eventtype | cancancelbook | Default view for booking options | Send confirmation e-mail |
       | booking  | C1     | BookingCMP | Booking description | teacher1       | Webinar   | 1             | All bookings                     | Yes                      |

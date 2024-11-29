@@ -19,6 +19,7 @@ Feature: Create enrollink availability form for booking options with connected c
     And the following config values are set as admin:
       | config             | value        | plugin  |
       | pricecategoryfield | userpricecat | booking |
+    And I clean booking cache
     And the following "core_payment > payment accounts" exist:
       | name           |
       | Account1       |

@@ -25,6 +25,7 @@ Feature: In a course add a booking option and manage its waiting list
       | student3 | C1     | student        |
       | student4 | C1     | student        |
       | student5 | C1     | student        |
+    And I clean booking cache
     And the following "activities" exist:
       | activity | course | name       | intro                  | bookingmanager | eventtype |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   |

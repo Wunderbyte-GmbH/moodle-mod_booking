@@ -20,6 +20,7 @@ Feature: In a booking instance
       | admin1   | C1     | manager        |
       | student1 | C1     | student        |
       | student2 | C1     | student        |
+    And I clean booking cache
     And the following "mod_booking > semesters" exist:
       | identifier | name      | startdate                      | enddate                         |
       | nextmomth  | NextMonth | ## first day of next month ##  | ## last day of next month ##    |

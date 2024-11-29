@@ -16,6 +16,7 @@ Feature: Create custom availability form for booking options as admin and bookin
       | student1 | Student   | 1        | student1@example.com | S1       | default                    |
       | student2 | Student   | 2        | student2@example.com | S2       | discount1                  |
       | student3 | Student   | 3        | student3@example.com | S3       | discount2                  |
+    And I clean booking cache
     And the following "core_payment > payment accounts" exist:
       | name           |
       | Account1       |

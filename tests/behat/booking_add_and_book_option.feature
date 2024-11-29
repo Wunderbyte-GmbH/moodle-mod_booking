@@ -21,6 +21,7 @@ Feature: In a booking instance create booking options
       | teacher2 | C1     | editingteacher |
       | student1 | C1     | student        |
       | student2 | C1     | student        |
+    And I clean booking cache
     And the following "activities" exist:
       | activity | course | name       | intro                  | bookingmanager | eventtype |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   |

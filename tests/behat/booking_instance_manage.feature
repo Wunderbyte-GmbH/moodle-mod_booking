@@ -19,6 +19,7 @@ Feature: In a course add a booking instance and manage it
       | teacher1 | C1     | manager        |
       | student1 | C1     | student        |
       | student2 | C1     | student        |
+    And I clean booking cache
 
   @javascript
   Scenario: Booking: Create instance as teacher

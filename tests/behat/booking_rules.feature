@@ -25,6 +25,7 @@ Feature: Create global booking rules as admin and insure they are working.
       | student2 | C1     | student        |
       | student3 | C1     | student        |
       | student4 | C1     | student        |
+    And I clean booking cache
     And the following "activities" exist:
       | activity | course | name       | intro               | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail |
       | booking  | C1     | BookingCMP | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      |

@@ -17,6 +17,7 @@ Feature: In a course add a booking option and manage its entities
       | teacher1 | C1     | manager        |
       | student1 | C1     | student        |
       | student2 | C1     | student        |
+    And I clean booking cache
     And the following "activities" exist:
       | activity | course | name       | intro                  | bookingmanager | eventtype |
       | booking  | C1     | BookingEnt | My booking description | teacher1       | Webinar   |

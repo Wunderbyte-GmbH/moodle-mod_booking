@@ -15,6 +15,7 @@ Feature: As an admin - configure booking's prices feature and validate it as stu
       | teacher1 | Teacher   | 1        | teacher1@example.com | T1       |                            |
       | student1 | Student   | 1        | student1@example.com | S1       | discount1                  |
       | student2 | Student   | 2        | student2@example.com | S2       | zeroprice                  |
+    And I clean booking cache
     And the following "core_payment > payment accounts" exist:
       | name           |
       | Account1       |

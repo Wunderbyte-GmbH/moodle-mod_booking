@@ -18,6 +18,7 @@ Feature: In a booking create a template
       | teacher1 | C1     | editingteacher |
       | teacher1 | C1     | manager        |
       | student1 | C1     | student        |
+    And I clean booking cache
     And the following "mod_booking > pricecategories" exist:
       | ordernum | identifier | name       | defaultvalue | disabled | pricecatsortorder |
       | 1        | default    | Base Price | 70           | 0        | 1                 |

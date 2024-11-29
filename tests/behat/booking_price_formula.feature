@@ -18,6 +18,7 @@ Feature: As a teacher - configure and use booking's price formula feature.
       | admin1   | C1     | manager        |
       | student1 | C1     | student        |
       | student2 | C1     | student        |
+    And I clean booking cache
     And the following "mod_booking > semesters" exist:
       | identifier | name     | startdate                        | enddate                         |
       | nextmay    | Next May | ## first day of May next year ## | ## last day of May next year ## |

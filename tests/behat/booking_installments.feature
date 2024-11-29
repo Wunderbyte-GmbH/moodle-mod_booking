@@ -16,6 +16,7 @@ Feature: Enabling installments as admin configuring installments as a teacher an
       | teacher1 | C1     | manager        |
       | student1 | C1     | student        |
       | student2 | C1     | student        |
+    And I clean booking cache
     And the following "mod_booking > pricecategories" exist:
       | ordernum | identifier | name  | defaultvalue | disabled | pricecatsortorder |
       | 1        | default    | Price | 88           | 0        | 1                 |
