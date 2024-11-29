@@ -3118,12 +3118,14 @@ class booking_option {
             !empty($starttime)
         ) {
             // Different string depending on plus or minus.
-            if ($allowupdatedays >= 0) {
-                $allowupdatedays--; // We set 00:00 of the next day.
+            if ($allowupdatedays == 0) {
+                // We cancel exact until (option's) start time.
+                return $starttime;
+            } else if ($allowupdatedays > 0) {
+                $allowupdatedays--; // We set 00:00 of the previous day.
                 $datestring = "midnight - $allowupdatedays days";
             } else {
-                $allowupdatedays++; // We set 00:00 of the next day.
-                $allowupdatedays = abs($allowupdatedays);
+                $allowupdatedays = abs($allowupdatedays); // We set 00:00 of the next day.
                 $datestring = "midnight + $allowupdatedays days";
             }
             $canceluntil = strtotime($datestring, $starttime);
