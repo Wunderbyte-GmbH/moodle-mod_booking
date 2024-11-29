@@ -70,14 +70,17 @@ Feature: In a booking instance
   Scenario: Booking option cancellation: try self-cancell future option as a student with different disallow settings
     Given the following "mod_booking > options" exist:
       | booking    | text          | course | description  | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
-      | My booking | Test option 1 | C1     | Cancellation | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+      | My booking | Test option 1 | C1     | Cancellation | 1           | 0              | 0              | ## tomorrow ##     | ## +3 days ##   |
     ## Important: ## tomorrow ## means 00:00 start time!
+    ## With this setting, and option starts on the 5th at 00:00 o clock,
+    ## users would expect it to be cancelable until 4th at 23:59:59.
+    ## In this case, there would be now difference between "1 day before" and no setting at all.
     And I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
     And I follow "Booking und Cancelling"
     And I set the field "Set cancelling date relative to Start of the booking option (coursestarttime)" to "checked"
     ## name for "Disallow users to cancel their booking n days before start..."
-    And I set the field "allowupdatedays" to "1"
+    And I set the field "allowupdatedays" to "2"
     And I press "Save and display"
     And I log out
     When I am on the "My booking" Activity page logged in as student1
@@ -94,15 +97,25 @@ Feature: In a booking instance
     And I set the field "allowupdatedays" to "0"
     And I press "Save and display"
     And I log out
-    When I am on the "My booking" Activity page logged in as student1
-    Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
+    And I am on the "My booking" Activity page logged in as student1
+    And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I log out
+    And I am on the "My booking" Activity page logged in as teacher1
+    And I follow "Settings"
+    And I follow "Booking und Cancelling"
+    And I set the field "allowupdatedays" to "1"
+    And I press "Save and display"
+    And I log out
+    And I am on the "My booking" Activity page logged in as student1
+    And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
 
   @javascript
   Scenario: Booking option cancellation: try self-cancell ongoing option as a student with different disallow settings
     Given the following "mod_booking > options" exist:
       | booking    | text          | course | description  | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
-      | My booking | Test option 1 | C1     | Cancellation | 1           | 0              | 0              | ## today ##       | ## +2 days ##   |
+      | My booking | Test option 1 | C1     | Cancellation | 1           | 0              | 0              | ## -5 minutes ##    | ## +2 days ##   |
     ## Important: ## tomorrow ## means 00:00 start time!
     And I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
@@ -184,8 +197,8 @@ Feature: In a booking instance
   @javascript
   Scenario: Booking option cancellation: try self-cancell ongoing option as a student with bookingopeningtime and different disallow settings
     Given the following "mod_booking > options" exist:
-      | booking    | text          | course | description  | availability | restrictanswerperiodopening | bookingopeningtime | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
-      | My booking | Test option 1 | C1     | Cancellation | 1            | 1                           | ##yesterday##      | 1           | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
+      | booking    | text          | course | description  | availability | restrictanswerperiodopening | bookingopeningtime   | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | My booking | Test option 1 | C1     | Cancellation | 1            | 1                           | ## yesterday noon ## | 1           | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
     And I log in as "admin"
     ## Define semester start time as relative date to cancellation
     And I set the following administration settings values:
@@ -224,8 +237,8 @@ Feature: In a booking instance
   @javascript
   Scenario: Booking option cancellation: try self-cancell ongoing option as a student with bookingclosingtime and different disallow settings
     Given the following "mod_booking > options" exist:
-      | booking    | text          | course | description  | availability | restrictanswerperiodclosing | bookingclosingtime | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
-      | My booking | Test option 1 | C1     | Cancellation | 1            | 1                           | ##tomorrow##          | 1           | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
+      | booking    | text          | course | description  | availability | restrictanswerperiodclosing | bookingclosingtime  | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | My booking | Test option 1 | C1     | Cancellation | 1            | 1                           | ## tomorrow noon ## | 1           | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
     And I log in as "admin"
     ## Define semester start time as relative date to cancellation
     And I set the following administration settings values:
@@ -236,7 +249,7 @@ Feature: In a booking instance
     And I follow "Booking und Cancelling"
     And I set the field "Set cancelling date relative to Booking registration end (bookingclosingtime)" to "checked"
     ## name for "Disallow users to cancel their booking n days before start..."
-    And I set the field "allowupdatedays" to "1"
+    And I set the field "allowupdatedays" to "2"
     And I press "Save and display"
     And I log out
     ## Book option as student
@@ -253,7 +266,7 @@ Feature: In a booking instance
     And I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
     And I follow "Booking und Cancelling"
-    And I set the field "allowupdatedays" to "-1"
+    And I set the field "allowupdatedays" to "0"
     And I press "Save and display"
     And I log out
     When I am on the "My booking" Activity page logged in as student1
