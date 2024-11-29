@@ -44,6 +44,9 @@ class singleton_service {
     /** @var array $bookinganswers */
     public array $bookinganswers = [];
 
+    /** @var array $bookinganswersforuser */
+    public array $bookinganswersforuser = [];
+
     /** @var array $bookingsbycmid */
     public array $bookingsbycmid = [];
 
@@ -148,6 +151,37 @@ class singleton_service {
     }
 
     /**
+     * Service to store the array of answers in the singleton.
+     * @param int $userid
+     * @return array
+     */
+    public static function get_answers_for_user($userid): array {
+
+        $instance = self::get_instance();
+
+        if (isset($instance->bookinganswersforuser[$userid])) {
+            return $instance->bookinganswersforuser[$userid];
+        } else {
+            return [];
+        }
+    }
+
+    /**
+     * Service to store the array of answers in the singleton.
+     * @param int $userid
+     * @param array $data
+     * @return bool
+     */
+    public static function set_answers_for_user($userid, $data): bool {
+
+        $instance = self::get_instance();
+
+        $instance->bookinganswersforuser[$userid] = $data;
+
+        return true;
+    }
+
+    /**
      * When invalidating the cache, we need to also destroy the booking_settings (instance settings).
      * As we batch handle a lot of users, they always need a "clean" booking (instance) settings object.
      *
@@ -199,6 +233,8 @@ class singleton_service {
      * When invalidating the cache, we need to also destroy the booking_answer_object.
      * As we batch handle a lot of users, they always need a "clean" booking answers object.
      *
+     * This will also destory the list of currently booked answers for users.
+     *
      * @param int $optionid
      * @return bool
      */
@@ -207,6 +243,25 @@ class singleton_service {
 
         if (isset($instance->bookinganswers[$optionid])) {
             unset($instance->bookinganswers[$optionid]);
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * When invalidating the cache, we need to also destroy the singleton of the user who booked.
+     *
+     * @param int $userid
+     * @return bool
+     */
+    public static function destroy_booking_answers_for_user($userid) {
+        $instance = self::get_instance();
+
+        if (isset($instance->bookinganswersforuser[$userid])) {
+            unset($instance->bookinganswersforuser[$userid]);
+
             return true;
         } else {
             return false;
