@@ -63,6 +63,26 @@ Feature: Create booking campaigns for booking options as admin and booking it as
     And I wait until the page is ready
     And I should see "campaign1"
 
+  @javascript
+  Scenario: Booking campaigns: create settings for blooking booking campaign via UI as admin and edit it
+    Given I log in as "admin"
+    And I visit "/mod/booking/edit_campaigns.php"
+    And I click on "Add campaign" "text"
+    And I set the field "Campaign type" to "Block certain booking options"
+    And I set the following fields to these values:
+      | Custom name for the campaign   | blockingcampaing1  |
+      | endtime[year]                  | ## + 1 year ##%Y## |
+      | blockoperator                  | blockabove         |
+      | Percentage of available places | 30                 |
+      | Message when blocking          | BlockAbove30       |
+    ## Mandatory workaround for autocomplete field
+    And I set the field "Booking option field" to "Sport1"
+    And I wait "1" seconds
+    And I set the field "Value" to "tenis"
+    And I click on "Save changes" "button"
+    And I wait until the page is ready
+    And I should see "blockingcampaing1"
+
   ## @javascript - JS no need for this test
   Scenario: Booking campaigns: create booking campaign via DB and view as teacher
     Given the following "mod_booking > campaigns" exist:
