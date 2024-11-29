@@ -123,8 +123,6 @@ class behat_booking extends behat_base {
     /**
      * Clean bookig singleton cache
      * @Given /^I clean booking cache$/
-     * @param string $optionname
-     * @param string $instancename
      * @return void
      */
     public function i_clean_booking_cache() {
