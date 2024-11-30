@@ -467,20 +467,18 @@ class campaigns_info {
     public static function check_if_campaign_is_active(
         int $starttime,
         int $endtime,
-        mixed $fieldname,
+        $fieldname,
         string $fieldvalue,
-        string $operator): bool {
+        string $operator
+    ): bool {
         $isactive = false;
         $now = time();
         if ($starttime <= $now && $now <= $endtime) {
-
             if (!empty($fieldname)) {
-                if (is_string($fieldname)
-                    && $fieldname === $fieldvalue) {
+                if (is_string($fieldname) && $fieldname === $fieldvalue) {
                     // It's a string so we can compare directly.
                     $isactive = true;
-                } else if (is_array($fieldname)
-                    && in_array($fieldvalue, $fieldname)) {
+                } else if (is_array($fieldname) && in_array($fieldvalue, $fieldname)) {
                     // It's an array, so we check with in_array.
                     $isactive = true;
                 }
