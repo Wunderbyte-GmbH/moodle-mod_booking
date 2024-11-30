@@ -194,9 +194,9 @@ class campaign_blockbooking implements booking_campaign {
         $jsonobject->bofieldname = $data->bofieldname;
         $jsonobject->campaignfieldnameoperator = $data->campaignfieldnameoperator;
         $jsonobject->fieldvalue = $data->fieldvalue;
-        $jsonobject->cpfield = $data->cpfield;
-        $jsonobject->cpoperator = $data->cpoperator;
-        $jsonobject->cpvalue = $data->cpvalue;
+        $jsonobject->cpfield = $data->cpfield ?? '';
+        $jsonobject->cpoperator = $data->cpoperator ?? '';
+        $jsonobject->cpvalue = $data->cpvalue ?? '';
         $jsonobject->blockoperator = $data->blockoperator;
         $jsonobject->blockinglabel = $data->blockinglabel;
         $jsonobject->hascapability = $data->hascapability ?? '';
