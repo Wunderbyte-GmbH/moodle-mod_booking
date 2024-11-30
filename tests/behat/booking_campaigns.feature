@@ -70,7 +70,7 @@ Feature: Create booking campaigns for booking options as admin and booking it as
     And I click on "Add campaign" "text"
     And I set the field "Campaign type" to "Block certain booking options"
     And I set the following fields to these values:
-      | Custom name for the campaign   | blockingcampaing1  |
+      | Custom name for the campaign   | blogcampaing1      |
       | endtime[year]                  | ## + 1 year ##%Y## |
       | blockoperator                  | blockabove         |
       | Percentage of available places | 30                 |
@@ -79,6 +79,12 @@ Feature: Create booking campaigns for booking options as admin and booking it as
     And I set the field "Booking option field" to "Sport1"
     And I wait "1" seconds
     And I set the field "Value" to "tenis"
+    And I click on "Save changes" "button"
+    And I wait until the page is ready
+    And I should see "blogcampaing1"
+    And I click on "Edit" "text" in the ".booking-campaigns-list" "css_element"
+    And I wait "1" seconds
+    And I set the field "Custom name for the campaign" to "blockingcampaing1"
     And I click on "Save changes" "button"
     And I wait until the page is ready
     And I should see "blockingcampaing1"
