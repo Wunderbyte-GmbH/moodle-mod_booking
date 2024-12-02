@@ -200,6 +200,27 @@ class shortcodes {
             return get_string('definecmidforshortcode', 'mod_booking');
         }
 
+        $viewparam = MOD_BOOKING_VIEW_PARAM_LIST; // Default value.
+        if (isset($args['type'])) {
+            switch ($args['type']) {
+                // Cards are currently not yet supported in shortcode.
+                // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+                /*case 'cards':
+                    $viewparam = MOD_BOOKING_VIEW_PARAM_CARDS;
+                    break;*/
+                case 'imageleft':
+                    $viewparam = MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT;
+                    break;
+                case 'imageright':
+                    $viewparam = MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT;
+                    break;
+                case 'list':
+                default:
+                    $viewparam = MOD_BOOKING_VIEW_PARAM_LIST;
+                    break;
+            }
+        }
+
         $booking = singleton_service::get_instance_of_booking_settings_by_cmid((int)$args['cmid']);
 
         if (empty($booking->id)) {
@@ -274,6 +295,8 @@ class shortcodes {
             $showsearch,
             $showsort,
             false,
+            true,
+            $viewparam
         );
 
         // Possibility to add customfieldfilter.

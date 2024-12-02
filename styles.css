@@ -434,26 +434,39 @@ if there only was one booking option. */
     right: 0;
 }
 
-#page-mod-booking-view .mod-booking-view-card-image {
+/* DO NOT USE #page-mod-booking-view because this needs to work in shortcodes too! */
+.mod-booking-view-card-image {
     height: 220px;
     object-fit: cover;
 }
 
-#page-mod-booking-view .mod-booking-view-list-image {
+/* DO NOT USE #page-mod-booking-view because this needs to work in shortcodes too! */
+.mod-booking-view-list-image {
     width: inherit;
     height: 100%; /* Fallback for unsupported browsers */
     /* stylelint-disable-next-line declaration-block-no-duplicate-properties, csstree/validator */
     height: -webkit-fill-available; /* WebKit-specific implementation */
     object-fit: cover;
-    max-height: 250px;
+    max-height: 300px;
+    border-radius: 0;
 }
 
-#page-mod-booking-view .mod-booking-view-list-image.rounded-left {
-    box-shadow: 5px 0 10px 1px rgba(0, 0, 0, 0.2);
+/* DO NOT USE #page-mod-booking-view because this needs to work in shortcodes too! */
+.mod-booking-view-list-image.rounded-left {
+    box-shadow: 3px 0 10px 1px rgba(0, 0, 0, 0.1);
+    /* stylelint-disable-next-line declaration-no-important */
+    border-top-right-radius: 0 !important;
+    /* stylelint-disable-next-line declaration-no-important */
+    border-bottom-right-radius: 0 !important;
 }
 
-#page-mod-booking-view .mod-booking-view-list-image.rounded-right {
-    box-shadow: -5px 0 10px 1px rgba(0, 0, 0, 0.2);
+/* DO NOT USE #page-mod-booking-view because this needs to work in shortcodes too! */
+.mod-booking-view-list-image.rounded-right {
+    box-shadow: -3px 0 10px 1px rgba(0, 0, 0, 0.1);
+    /* stylelint-disable-next-line declaration-no-important */
+    border-top-left-radius: 0 !important;
+    /* stylelint-disable-next-line declaration-no-important */
+    border-bottom-left-radius: 0 !important;
 }
 
 #page-mod-booking-editoptions div[id^='fgroup_id_buttonar_'] {

@@ -880,6 +880,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                             get_string('deletethisbookingoption', 'mod_booking')
                 ) . '</div>';
             }
+            // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
             // TODO: Move booking options to another option currently does not work correcly.
             // We temporarily remove it from booking until we are sure, it works.
             // We need to make sure it works for: teachers, optiondates, prices, answers customfields etc.
