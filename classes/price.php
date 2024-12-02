@@ -764,6 +764,12 @@ class price {
                     "pricecategoryname" =>
                         self::get_active_pricecategory_from_cache_or_db($pricerecord->pricecategoryidentifier)->name,
                 ];
+            } else if (
+                empty(get_config('booking', 'pricecategoryfallback'))
+                && $pricerecord->pricecategoryidentifier == 'default'
+                && $categoryidentifier !== 'default'
+            ) {
+                return [];
             }
 
             $pricecategoryfound = false;
