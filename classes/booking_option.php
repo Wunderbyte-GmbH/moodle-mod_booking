@@ -3125,7 +3125,8 @@ class booking_option {
                 $allowupdatedays--; // We set 00:00 of the previous day.
                 $datestring = "midnight - $allowupdatedays days";
             } else {
-                $allowupdatedays = abs($allowupdatedays); // We set 00:00 of the next day.
+                $allowupdatedays++; // We set 00:00 of the next day.
+                $allowupdatedays = abs($allowupdatedays);
                 $datestring = "midnight + $allowupdatedays days";
             }
             $canceluntil = strtotime($datestring, $starttime);
