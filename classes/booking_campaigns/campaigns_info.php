@@ -457,8 +457,8 @@ class campaigns_info {
      *
      * @param int $starttime
      * @param int $endtime
-     * @param mixed $fieldname
-     * @param string $fieldvalue
+     * @param mixed $fieldname // The name given in the bookingoptionfield.
+     * @param string $fieldvalue // The value required or excluded by campaign.
      * @param string $operator
      *
      * @return bool
@@ -488,7 +488,10 @@ class campaigns_info {
                     // If operator is set to "does not contain" we need to invert the result.
                     $isactive = !$isactive;
                 }
-            } else if (empty($fieldvalue)) { // No fieldname given in option, no fieldname required in campaign.
+            } else if (
+                !empty($fieldvalue)
+                && $operator == '!~'
+            ) { // No fieldname given in option, and fieldname required in campaign with "does not contain".
                 $isactive = true;
             } else {
                 $isactive = false; // No fieldname given in option but fieldname required in campaign.
