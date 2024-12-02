@@ -318,7 +318,6 @@ class campaign_blockbooking implements booking_campaign {
         // This is because we have to run the is_blocking function and need to cache the instantiated campaign class.
         $settings->campaigns[] = $this;
         $dbrecord->campaigns[] = $this;
-
     }
 
     /**

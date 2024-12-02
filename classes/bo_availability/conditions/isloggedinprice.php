@@ -222,7 +222,6 @@ class isloggedinprice implements bo_condition {
         $priceitems = price::get_prices_from_cache_or_db('option', $settings->id, $userid);
         $sortedpriceitems = [];
         foreach ($priceitems as $priceitem) {
-
             $pricecategory = price::get_active_pricecategory_from_cache_or_db($priceitem->pricecategoryidentifier);
 
             $priceitemarray = (array)$priceitem;

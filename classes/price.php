@@ -886,12 +886,12 @@ class price {
         // If not, we look for the price for all.
         if ($cacheduserprices === true) {
             return [];
-        } else if ($cacheduserprices) {
+        } else if ($cacheduserprices) { // No price found.
             $prices = $cacheduserprices;
         } else {
             // Here, we haven't found a user price. We still might have a general price.
             $cachedprices = $cache->get($cachekey);
-            if ($cachedprices === true) {
+            if ($cachedprices === true) { // No price found.
                 // We set the user price, to know the next time.
                 $cache->set($usercachekey, true);
                 return [];
@@ -900,8 +900,11 @@ class price {
 
                 // At this point, we have the general prices, but we might have a user specific camapaign override.
                 // Save the user specific prices.
-                self::apply_campaigns($itemid, $prices, $userid);
-                $cache->set($usercachekey, $cachedprices);
+                if ($userid > 0) {
+                    self::apply_campaigns($itemid, $prices, $userid);
+                    $cache->set($usercachekey, $cachedprices);
+                }
+
             } else {
                 // Here, we haven't found user specific prices and we haven't found general prices.
                 // Therefore, we need to have a look in the DB.
@@ -921,7 +924,6 @@ class price {
                     self::apply_campaigns($itemid, $prices, 0);
                     $cache->set($cachekey, $prices);
 
-                    // Save the user specific prices.
                     self::apply_campaigns($itemid, $prices, $userid);
                     $cache->set($usercachekey, $prices);
 
