@@ -3122,12 +3122,12 @@ class booking_option {
                 // We cancel exact until (option's) start time.
                 return $starttime;
             } else if ($allowupdatedays > 0) {
-                $allowupdatedays--; // We set 00:00 of the previous day.
+                $allowupdatedays--; // Value over 0 means days before $startdays.
                 $datestring = "midnight - $allowupdatedays days";
             } else {
-                $allowupdatedays++; // We set 00:00 of the next day.
                 $allowupdatedays = abs($allowupdatedays);
-                $datestring = "midnight + $allowupdatedays days";
+                $allowupdatedays++;
+                $datestring = "midnight + $allowupdatedays days"; // Midnight reduces the time to 00:00 of same day.
             }
             $canceluntil = strtotime($datestring, $starttime);
         } else if (
