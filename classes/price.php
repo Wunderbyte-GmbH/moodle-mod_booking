@@ -904,7 +904,6 @@ class price {
                     self::apply_campaigns($itemid, $prices, $userid);
                     $cache->set($usercachekey, $cachedprices);
                 }
-
             } else {
                 // Here, we haven't found user specific prices and we haven't found general prices.
                 // Therefore, we need to have a look in the DB.
@@ -924,9 +923,10 @@ class price {
                     self::apply_campaigns($itemid, $prices, 0);
                     $cache->set($cachekey, $prices);
 
-                    self::apply_campaigns($itemid, $prices, $userid);
-                    $cache->set($usercachekey, $prices);
-
+                    if (isloggedin() && !isguestuser()) {
+                        self::apply_campaigns($itemid, $prices, $userid);
+                        $cache->set($usercachekey, $prices);
+                    }
                 } else {
                     $cache->set($cachekey, $prices);
                     $cache->set($usercachekey, $prices);
@@ -1078,7 +1078,7 @@ class price {
                 foreach ($prices as &$price) {
                     $price->price = $campaign->get_campaign_price($price->price, $userid);
                     // Render all prices to 2 fixed decimals.
-                    $price->price = number_format(round((float) $price->price , 2), 2, '.', '');
+                    $price->price = number_format(round((float) $price->price, 2), 2, '.', '');
                     // Campaign price factor has been applied.
                 }
             }
