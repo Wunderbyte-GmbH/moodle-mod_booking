@@ -6,7 +6,49 @@
             <% value %>
 <%/arguments%>
 
-<div>
+<style>
+  .mod-booking-mobile-navbar {
+      display: flex;
+      overflow-x: auto;
+      white-space: nowrap;
+      background-color: #f8f9fa;
+      padding: 10px 5px;
+      border-bottom: 1px solid #ddd;
+  }
+  .mod-booking-mobile-navbar ion-button {
+      flex-shrink: 0;
+      font-size: 14px;
+      margin: 0 5px;
+      --background: orange;
+      --color: white;
+      border-radius: 1rem;
+  }
+  .mod-booking-mobile-navbar ion-button.active {
+      --background: darkorange;
+      --color: white;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      font-weight: bold;
+      transform: scale(1.05);
+  }
+</style>
+
+
+<div class="mod-booking-mobile-navbar">
+  <%#availablenavtabs%>
+    <ion-button
+        core-site-plugins-new-content
+        title="<% text %>"
+        component="mod_booking"
+        method="mobile_course_view"
+        [args]="{cmid: <% cmid %>, whichview: '<% label %>'}"
+        class="<% class %>"
+    >
+        <% isactive %>
+        <% name %>
+    </ion-button>
+  <%/availablenavtabs%>
+</div>
+
 <%#mybookings%>
     <ion-card>
         <ion-card-header>
@@ -81,4 +123,3 @@
         </ion-card-content>
     </ion-card>
 <%/mybookings%>
-</div>
