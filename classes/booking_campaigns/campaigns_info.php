@@ -488,8 +488,10 @@ class campaigns_info {
                     // If operator is set to "does not contain" we need to invert the result.
                     $isactive = !$isactive;
                 }
-            } else {
+            } else if (empty($fieldvalue)) { // No fieldname given in option, no fieldname required in campaign.
                 $isactive = true;
+            } else {
+                $isactive = false; // No fieldname given in option but fieldname required in campaign.
             }
         }
         return $isactive;
