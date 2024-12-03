@@ -28,6 +28,7 @@ use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
+use moodle_url;
 use MoodleQuickForm;
 use stdClass;
 
@@ -58,6 +59,41 @@ class nooverlapping implements bo_condition {
      * @var int
      */
     private int $handling = MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY;
+
+    /**
+     * Storing overlapping options.
+     *
+     * @var array
+     */
+    private array $overlappinganswers = [];
+
+    /**
+     * Singleton instance.
+     *
+     * @var object
+     */
+    private static $instance = null;
+
+    /**
+     * C
+     *
+     *
+     */
+    private function __construct() {
+    }
+
+    /**
+     * Singleton instance.
+     *
+     * @return object
+     *
+     */
+    public static function instance(): object {
+        if (empty(self::$instance)) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
 
     /**
      * Get the condition id.
@@ -115,7 +151,7 @@ class nooverlapping implements bo_condition {
                 isset($bookinginformation['iambooked'])
                 || isset($bookinginformation['onwaitinglist'])
             )
-            || !$bookinganswer->is_overlapping($userid)
+            || empty($this->overlappinganswers = $bookinganswer->is_overlapping($userid))
         ) {
             $isavailable = true;
         }
@@ -184,7 +220,7 @@ class nooverlapping implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        $description = $this->get_description_string($isavailable, $full, $settings);
+        $description = $this->get_description_string($isavailable, $full, $settings, $userid);
 
         $handling = $this->return_handling_from_settings($settings);
         $buttonclass = $handling == MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK
@@ -287,9 +323,15 @@ class nooverlapping implements bo_condition {
      * @param bool $isavailable
      * @param bool $full
      * @param booking_option_settings $settings
+     * @param int $userid
      * @return string
      */
-    private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings): string {
+    private function get_description_string(
+        bool $isavailable,
+        bool $full,
+        booking_option_settings $settings,
+        int $userid = 0
+    ): string {
 
         $description = "";
         if (
@@ -312,6 +354,43 @@ class nooverlapping implements bo_condition {
             }
         }
         return $description;
+    }
+
+    /**
+     * Return a rendered string with links to bookingoption.
+     *
+     * @param string $identifier
+     * @param object $settings
+     * @param int $userid
+     *
+     * @return [type]
+     *
+     */
+    private function get_string_with_url(string $identifier, object $settings, int $userid = 0) {
+        global $CFG, $USER;
+
+        $optionid = 0;
+        $string = "";
+        foreach ($this->overlappinganswers as $answer) {
+            if (empty($optionid = $answer->optionid)) {
+                continue;
+            }
+
+            $booking = singleton_service::get_instance_of_booking_by_optionid($optionid);
+            $bookinoption = singleton_service::get_instance_of_booking_option_settings($optionid);
+            if (empty($userid)) {
+                $userid = $USER->id;
+            }
+
+            $title = $bookinoption->text;
+            $url = new moodle_url($CFG->wwwroot . '/mod/booking/optionview.php', [
+                'cmid' => $booking->cmid,
+                'optionid' => $optionid,
+            ]);
+            $url = $url->out(false);
+            $string .= '<div><a href="' . $url . '" >"' . $title . '" </a></div>';
+        }
+        return get_string($identifier, 'mod_booking', $string);
     }
 
     /**

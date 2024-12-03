@@ -1539,6 +1539,8 @@ $string['notopenyet'] = 'Sorry, this activity is not available until {$a} ';
 $string['notstarted'] = "Not yet started";
 $string['nouserfound'] = 'No user found: ';
 $string['nousers'] = 'No users!';
+$string['nooverlapblocking'] = 'This option can not be booked, it is overlapping with at least your option: <a href="{$a->url}" >"{$a->title}"</a>';
+$string['nooverlapwarning'] = 'Warning! This option is overlapping with at least your option: <a href="{$a->url}">"{$a->title}"</a>';
 $string['nooverlappingselectblocking'] = 'Block booking';
 $string['nooverlappingselectinfo'] = 'If this booking option is selected even though the sessions overlap with another, what should happen?';
 $string['nooverlappingselectwarning'] = 'Show warning';

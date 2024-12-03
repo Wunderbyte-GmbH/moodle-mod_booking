@@ -64,13 +64,32 @@ class customform implements bo_condition {
     public $customsettings = null;
 
     /**
+     * Singleton instance.
+     *
+     * @var object
+     */
+    private static $instance = null;
+
+    /**
+     * Singleton instance.
+     *
+     * @return object
+     *
+     */
+    public static function instance(?int $id = null): object {
+        if (empty(self::$instance)) {
+            self::$instance = new self($id);
+        }
+        return self::$instance;
+    }
+
+    /**
      * Constructor.
      *
      * @param ?int $id
      * @return void
      */
-    public function __construct(?int $id = null) {
-
+    private function __construct(?int $id = null) {
         if ($id) {
             $this->id = $id;
         }

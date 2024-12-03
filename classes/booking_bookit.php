@@ -206,7 +206,11 @@ class booking_bookit {
 
             // The extra button condition is used to show Alert & Button, if this is allowed for a user.
             if (!$justmyalert && !empty($extrabuttoncondition)) {
-                $condition = new $extrabuttoncondition();
+                if (method_exists($extrabuttoncondition, 'instance')) {
+                    $condition = $extrabuttoncondition::instance();
+                } else {
+                    $condition = new $extrabuttoncondition();
+                }
 
                 list($template, $data) = $condition->render_button($settings, $userid, $full, false, true);
 
@@ -216,7 +220,11 @@ class booking_bookit {
                 $templates[] = $template;
             }
 
-            $condition = new $buttoncondition();
+            if (method_exists($buttoncondition, 'instance')) {
+                $condition = $buttoncondition::instance();
+            } else {
+                $condition = new $buttoncondition();
+            }
 
             list($template, $data) = $condition->render_button($settings, $userid, $full, false, true);
             $data['results'] = json_encode(array_keys($results));

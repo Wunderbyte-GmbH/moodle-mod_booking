@@ -93,7 +93,7 @@ class capbookingchoose implements bo_condition {
         // This check can be overridden by a json condition.
         // Therefore, we use it's logic.
 
-        $allowedtobookininstance = new allowedtobookininstance();
+        $allowedtobookininstance = allowedtobookininstance::instance();
         $allowedtobookininstance->apply_customdata($settings);
         return $allowedtobookininstance->is_available($settings, $userid, $not);
     }

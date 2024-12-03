@@ -243,7 +243,11 @@ class bo_info {
                     // We now set the id from the json for this instance.
                     // We might actually use a hardcoded condition with a negative id...
                     // ... also as customized condition with positive id.
-                    $instance = new $classname($condition->id);
+                    if (method_exists($classname, 'instance')) {
+                        $instance = $classname::instance($condition->id);
+                    } else {
+                        $instance = new $classname($condition->id);
+                    }
                     $instance->customsettings = $condition;
 
                 } else {
@@ -420,7 +424,12 @@ class bo_info {
         foreach ($jsonobject as $conditionobject) {
 
             $classname = $conditionobject->class;
-            $condition = new $classname($conditionobject->id);
+            if (method_exists($classname, 'instance')) {
+                $condition = $classname::instance($conditionobject->id);
+            } else {
+                $condition = new $classname($conditionobject->id);
+            }
+
             $condition->set_defaults($defaultvalues, $conditionobject);
         }
     }
@@ -555,7 +564,12 @@ class bo_info {
 
             // We instantiate all the classes, because we need some information.
             if (class_exists($filename)) {
-                $instance = new $filename();
+                if (method_exists($filename, 'instance')) {
+                    $instance = $filename::instance();
+                } else {
+                    $instance = new $filename();
+                }
+
 
                 switch ($condparam) {
                     case MOD_BOOKING_CONDPARAM_HARDCODED_ONLY:
@@ -1304,12 +1318,16 @@ class bo_info {
         if (!empty($settings->availability)) {
             $existingconditions = json_decode($settings->availability);
             foreach ($existingconditions as $existingcondition) {
-                $class = new $existingcondition->class();
+                $classname = $existingcondition->class;
+                if (method_exists($classname, 'instance')) {
+                    $class = $classname::instance();
+                } else {
+                    $class = new $classname();
+                }
                 if (method_exists($class, 'validation')) {
                     $class->validation($data, $files, $errors);
                 };
             }
-
         }
 
         return $errors;

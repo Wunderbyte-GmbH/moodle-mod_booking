@@ -29,6 +29,7 @@ use context_system;
 use dml_exception;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\singleton_service;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -337,17 +338,18 @@ class booking_answers {
      *
      * @param int $userid
      *
-     * @return [type]
+     * @return array
      *
      */
-    public function is_overlapping(int $userid) {
+    public function is_overlapping(int $userid): array {
+        $overlappinganswers = [];
 
         $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
         $myanswers = $this->get_all_answers_for_user_cached($userid);
 
         // If the user has no answers, then there is no overlap.
         if (empty($myanswers)) {
-            return false;
+            return $overlappinganswers;
         }
 
         foreach ($myanswers as $answer) {
@@ -367,7 +369,8 @@ class booking_answers {
 
             // If there are no sessions, we can return true right away.
             if (count($settings->sessions) < 2) {
-                return true;
+                $overlappinganswers[$answer->optionid] = $answer;
+                continue;
             }
             // Else, we need to check each session.
             foreach ($settings->sessions as $session) {
@@ -379,10 +382,12 @@ class booking_answers {
                         $session->endtime
                     )
                 ) {
-                    return true;
+                    $overlappinganswers[$answer->optionid] = $answer;
+                    continue;
                 }
             }
         }
+        return $overlappinganswers;
     }
 
     /**
