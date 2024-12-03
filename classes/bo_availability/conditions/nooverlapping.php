@@ -53,6 +53,13 @@ class nooverlapping implements bo_condition {
     public $overwrittenbybillboard = false;
 
     /**
+     * Handling for overlapping options/sessions.
+     *
+     * @var string
+     */
+    private string $handling = "";
+
+    /**
      * Get the condition id.
      *
      * @return int
@@ -92,6 +99,10 @@ class nooverlapping implements bo_condition {
 
         // This is the return value. Not available to begin with.
         $isavailable = false;
+
+        if (empty($this->return_handling_from_settings($settings))) {
+            return true;
+        }
 
         // Get the booking answers for this instance.
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
@@ -171,7 +182,10 @@ class nooverlapping implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full, $settings);
 
-        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_JUSTMYALERT];
+        $handling = $this->return_handling_from_settings($settings);
+        $buttonclass = $handling == "BLOCK" ? MOD_BOOKING_BO_BUTTON_JUSTMYALERT : MOD_BOOKING_BO_BUTTON_CANCEL;
+
+        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, $buttonclass];
     }
 
     /**
@@ -235,30 +249,29 @@ class nooverlapping implements bo_condition {
         bool $fullwidth = true
     ): array {
 
-        $link = '';
-        if (
-            get_config('booking', 'linktomoodlecourseonbookedbutton')
-            && !empty($settings->courseid)
-        ) {
-            $label = get_string('coursestart', 'mod_booking');
-            $url = new \moodle_url('/course/view.php', ['id' => $settings->courseid]);
-            $link = $url->out();
-        } else {
-            $label = $this->get_description_string(false, $full, $settings);
+        $label = $this->get_description_string(false, $full, $settings);
+        // return bo_info::render_button($settings, $userid, $label, 'alert alert-warning', true, $fullwidth, 'alert', 'option'); for optionhasstarted.
+        $handling = $this->return_handling_from_settings($settings);
+        switch ($handling) {
+            case "BLOCK":
+                $buttonclass = 'alert alert-danger';
+                break;
+            default:
+                $buttonclass = 'alert alert-warning';
+                break;
         }
-
         return bo_info::render_button(
             $settings,
             $userid,
             $label,
-            $link !== '' ? 'bookinglinkbutton btn btn-primary' : 'alert alert-success',
+            $buttonclass,
             true,
             $fullwidth,
             'alert',
             'option',
             true,
             '',
-            $link,
+            '',
             'fa-play'
         );
     }
@@ -271,8 +284,9 @@ class nooverlapping implements bo_condition {
      * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
+    private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings): string {
 
+        $description = "";
         if (
             !$isavailable
             && $this->overwrittenbybillboard
@@ -280,12 +294,17 @@ class nooverlapping implements bo_condition {
         ) {
             return $desc;
         }
-        if ($isavailable) {
-            $description = $full ? get_string('bocondalreadybookedfullavailable', 'mod_booking') :
-                get_string('bocondalreadybookedavailable', 'mod_booking');
-        } else {
-            $description = $full ? get_string('bocondalreadybookedfullnotavailable', 'mod_booking') :
-                get_string('bocondalreadybookednotavailable', 'mod_booking');
+
+        if (!$isavailable) {
+            $handling = $this->return_handling_from_settings($settings);
+            switch ($handling) {
+                case "BLOCK":
+                    $description = get_string('nooverlapblocking', 'mod_booking');
+                    break;
+                case "WARN":
+                    $description = get_string('nooverlapwarning', 'mod_booking');
+                    break;
+            }
         }
         return $description;
     }
@@ -320,5 +339,46 @@ class nooverlapping implements bo_condition {
         }
         // Might be an empty object.
         return $conditionobject;
+    }
+
+    /**
+     * Set the defaults.
+     *
+     * @param stdClass $defaultvalues
+     * @param stdClass $acdefault
+     *
+     *
+     */
+    public function set_defaults(stdClass &$defaultvalues, stdClass $acdefault) {
+        if (!empty($acdefault->nooverlapping)) {
+            $defaultvalues->bo_cond_nooverlapping_restrict = "1";
+            $defaultvalues->bo_cond_nooverlapping_handling = $acdefault->nooverlappinghandling ?? "";
+        } else {
+            $defaultvalues->bo_cond_nooverlapping_restrict = "0";
+        }
+    }
+
+    /**
+     * Returns empty string if no overlapping is defined and otherwise the kind of handling (block, warn).
+     *
+     * @param booking_option_settings $settings
+     *
+     * @return string
+     *
+     */
+    private function return_handling_from_settings(booking_option_settings $settings): string {
+        if (!empty($this->handling)) {
+            return $this->handling;
+        }
+
+        if (!isset($settings->availability)) {
+            return "";
+        }
+        $availability = json_decode($settings->availability);
+        if (empty($availability[0]->nooverlapping)) {
+            return "";
+        }
+        $this->handling = $availability[0]->nooverlappinghandling ?? "";
+        return $this->handling;
     }
 }
