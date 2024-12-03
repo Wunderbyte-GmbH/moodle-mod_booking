@@ -858,9 +858,27 @@ class bo_info {
                     || !empty(get_config('booking', 'displayemptyprice'))
                     || !empty((float)$priceitems["price"])
                 ) {
-                    $currstring = isset($priceitems["currency"]) ? " " .  $priceitems["currency"] : '';
+                    $currstring = isset($priceitems["currency"]) ? "" .  $priceitems["currency"] : '';
+
+                    $label = "";
+                    if (
+                        (!isloggedin()
+                        || isguestuser())
+                        && !empty($priceitems = self::return_sorted_priceitems($settings->id))
+                        ) {
+                        foreach ($priceitems as $priceitem) {
+                            if (!empty($label)) {
+                                $label .= " / ";
+                            }
+                            $label .= $priceitem['price'];
+                        }
+                        $label .= " " . $currstring;
+                    } else {
+                        $label = $priceitems["price"] . " " . $currstring;
+                    }
+
                     $data['sub'] = [
-                        'label' => $priceitems["price"] . $currstring,
+                        'label' => $label,
                         'class' => ' text-center ',
                         'role' => '',
                     ];
@@ -897,8 +915,38 @@ class bo_info {
             'mod_booking/bookit_button', // The template.
             $data, // The corresponding data object.
         ];
-
         return $returnarray;
+    }
+
+    /**
+     * Return priceitems.
+     *
+     * @param mixed $itemid
+     * @param int $userid
+     *
+     * @return array
+     *
+     */
+    private static function return_sorted_priceitems($itemid, $userid = 0): array {
+        $priceitems = price::get_prices_from_cache_or_db('option', $itemid, $userid);
+        $sortedpriceitems = [];
+        foreach ($priceitems as $priceitem) {
+            $pricecategory = price::get_active_pricecategory_from_cache_or_db($priceitem->pricecategoryidentifier);
+
+            $priceitemarray = (array)$priceitem;
+
+            if (!empty($pricecategory)) {
+                $priceitemarray['pricecategoryname'] = $pricecategory->name;
+                // Actually not yet sorted.
+                $sortedpriceitems[$pricecategory->pricecatsortorder] = $priceitemarray;
+            }
+        }
+
+        // Now we sort the array according to the sort order defined in price categories.
+        ksort($sortedpriceitems);
+        // The mustache template cannot handle keys, so we remove them now.
+        $sortedpriceitems = array_values($sortedpriceitems);
+        return $sortedpriceitems;
     }
 
     /**
