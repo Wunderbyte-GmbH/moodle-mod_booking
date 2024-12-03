@@ -397,7 +397,7 @@ class booking_answers {
      *
      */
     private static function check_overlap($starttime1, $endtime1, $starttime2, $endtime2): bool {
-        if ($starttime1 <= $endtime2 && $endtime1 >= $starttime2) {
+        if ($starttime1 <= $endtime2 || $endtime1 >= $starttime2) {
             return true;
         }
         return false;

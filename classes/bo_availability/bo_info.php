@@ -1015,7 +1015,7 @@ class bo_info {
                 }
             }
 
-            // One no button condition tetermines this for all.
+            // One no button condition determines this for all.
             if ($result['button'] === MOD_BOOKING_BO_BUTTON_NOBUTTON) {
                 $showbutton = false;
             }
