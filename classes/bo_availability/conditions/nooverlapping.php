@@ -55,9 +55,9 @@ class nooverlapping implements bo_condition {
     /**
      * Handling for overlapping options/sessions.
      *
-     * @var string
+     * @var int
      */
-    private string $handling = "";
+    private int $handling = MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY;
 
     /**
      * Get the condition id.
@@ -154,6 +154,10 @@ class nooverlapping implements bo_condition {
      * @return bool
      */
     public function hard_block(booking_option_settings $settings, $userid): bool {
+        $handling = $this->return_handling_from_settings($settings);
+        if ($handling != MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK) {
+            return false;
+        }
         return true;
     }
 
@@ -183,7 +187,8 @@ class nooverlapping implements bo_condition {
         $description = $this->get_description_string($isavailable, $full, $settings);
 
         $handling = $this->return_handling_from_settings($settings);
-        $buttonclass = $handling == "BLOCK" ? MOD_BOOKING_BO_BUTTON_JUSTMYALERT : MOD_BOOKING_BO_BUTTON_CANCEL;
+        $buttonclass = $handling == MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK
+            ? MOD_BOOKING_BO_BUTTON_JUSTMYALERT : MOD_BOOKING_BO_BUTTON_CANCEL;
 
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, $buttonclass];
     }
@@ -202,8 +207,8 @@ class nooverlapping implements bo_condition {
             get_string('nooverlappingsettingcheckbox', 'mod_booking'),
         );
         $options = [
-            'BLOCK' => get_string('nooverlappingselectblocking', 'mod_booking'),
-            'WARN' => get_string('nooverlappingselectwarning', 'mod_booking'),
+            MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK => get_string('nooverlappingselectblocking', 'mod_booking'),
+            MOD_BOOKING_COND_OVERLAPPING_HANDLING_WARN => get_string('nooverlappingselectwarning', 'mod_booking'),
         ];
         $mform->addElement(
             'select',
@@ -253,7 +258,7 @@ class nooverlapping implements bo_condition {
         // return bo_info::render_button($settings, $userid, $label, 'alert alert-warning', true, $fullwidth, 'alert', 'option'); for optionhasstarted.
         $handling = $this->return_handling_from_settings($settings);
         switch ($handling) {
-            case "BLOCK":
+            case MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK:
                 $buttonclass = 'alert alert-danger';
                 break;
             default:
@@ -298,11 +303,11 @@ class nooverlapping implements bo_condition {
         if (!$isavailable) {
             $handling = $this->return_handling_from_settings($settings);
             switch ($handling) {
-                case "BLOCK":
-                    $description = get_string('nooverlapblocking', 'mod_booking');
+                case MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK:
+                    $description = $this->get_string_with_url('nooverlapblocking', $settings, $userid);
                     break;
-                case "WARN":
-                    $description = get_string('nooverlapwarning', 'mod_booking');
+                case MOD_BOOKING_COND_OVERLAPPING_HANDLING_WARN:
+                    $description = $this->get_string_with_url('nooverlapwarning', $settings, $userid);
                     break;
             }
         }
@@ -332,10 +337,17 @@ class nooverlapping implements bo_condition {
         $conditionobject = new stdClass();
 
         if (!empty($fromform->bo_cond_nooverlapping_restrict)) {
+
+            $classname = __CLASS__;
+            $classnameparts = explode('\\', $classname);
+            $shortclassname = end($classnameparts);
+
             // Remove the namespace from classname.
+            $conditionobject->id = $this->id;
             $conditionobject->nooverlapping = 1;
             $conditionobject->nooverlappinghandling = $fromform->bo_cond_nooverlapping_handling;
-            $conditionobject->class = __CLASS__;
+            $conditionobject->class = $classname;
+            $conditionobject->name = $shortclassname;
         }
         // Might be an empty object.
         return $conditionobject;
@@ -363,22 +375,22 @@ class nooverlapping implements bo_condition {
      *
      * @param booking_option_settings $settings
      *
-     * @return string
+     * @return int
      *
      */
-    private function return_handling_from_settings(booking_option_settings $settings): string {
+    private function return_handling_from_settings(booking_option_settings $settings): int {
         if (!empty($this->handling)) {
             return $this->handling;
         }
 
         if (!isset($settings->availability)) {
-            return "";
+            return MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY;
         }
         $availability = json_decode($settings->availability);
         if (empty($availability[0]->nooverlapping)) {
-            return "";
+            return MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY;
         }
-        $this->handling = $availability[0]->nooverlappinghandling ?? "";
+        $this->handling = $availability[0]->nooverlappinghandling ?? MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY;
         return $this->handling;
     }
 }
