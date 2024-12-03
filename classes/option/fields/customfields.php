@@ -205,8 +205,8 @@ class customfields extends field_base {
                 $changes[$key] = [
                     'changes' => [
                         'fieldname' => 'customfields',
-                        'oldvalue' => $fieldname . ' : ' . $oldvalue,
-                        'newvalue' => $fieldname . ' : ' . $newvalue,
+                        'oldvalue' => $fieldname . ' : ' . format_string($oldvalue),
+                        'newvalue' => $fieldname . ' : ' . format_string($newvalue),
                     ],
                 ];
             }
