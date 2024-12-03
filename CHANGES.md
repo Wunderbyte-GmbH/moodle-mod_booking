@@ -1,3 +1,11 @@
+## Version 8.8.4 (2024120300)
+* Improvement: Add type=imageleft (or imageright) to shortcode 'courselist' to show header images.
+* Improvement: Campaigns allow multiple profile fields
+* Improvement: Set relative cancellation dates until midnight of selected day
+* Improvement: Format string on changes values from customfields
+* Bugfix: Apply campaigns correctly for users not logged in.
+* Bugfix: check userprofilefield doesn't break view for users not logged in
+
 ## Version 8.8.3 (2024112800)
 * New feature: List views with header image on left or right side. (#233)
 * Improvement: Pass template data via Wunderbyte table. (#233)
