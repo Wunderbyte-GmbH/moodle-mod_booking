@@ -29,6 +29,7 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -66,7 +67,7 @@ class nooverlapping implements bo_condition {
      * @return bool
      */
     public function is_json_compatible(): bool {
-        return false; // Hardcoded condition.
+        return true; // Hardcoded condition.
     }
 
     /**
@@ -74,7 +75,7 @@ class nooverlapping implements bo_condition {
      * @return bool
      */
     public function is_shown_in_mform(): bool {
-        return false;
+        return true;
     }
 
     /**
@@ -181,7 +182,23 @@ class nooverlapping implements bo_condition {
      * @return void
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
-        // Do nothing.
+        $mform->addElement(
+            'advcheckbox',
+            'bo_cond_nooverlapping_restrict',
+            get_string('nooverlappingsettingcheckbox', 'mod_booking'),
+        );
+        $options = [
+            'BLOCK' => get_string('nooverlappingselectblocking', 'mod_booking'),
+            'WARN' => get_string('nooverlappingselectwarning', 'mod_booking'),
+        ];
+        $mform->addElement(
+            'select',
+            'bo_cond_nooverlapping_handling',
+            get_string('nooverlappingselectinfo', 'mod_booking'),
+            $options
+        );
+        $mform->hideIf('bo_cond_nooverlapping_handling', 'bo_cond_nooverlapping_restrict', 'eq', 0);
+        $mform->addElement('html', '<hr class="w-50"/>');
     }
 
     /**
@@ -219,8 +236,10 @@ class nooverlapping implements bo_condition {
     ): array {
 
         $link = '';
-        if (get_config('booking', 'linktomoodlecourseonbookedbutton')
-            && !empty($settings->courseid)) {
+        if (
+            get_config('booking', 'linktomoodlecourseonbookedbutton')
+            && !empty($settings->courseid)
+        ) {
             $label = get_string('coursestart', 'mod_booking');
             $url = new \moodle_url('/course/view.php', ['id' => $settings->courseid]);
             $link = $url->out();
@@ -269,5 +288,37 @@ class nooverlapping implements bo_condition {
                 get_string('bocondalreadybookednotavailable', 'mod_booking');
         }
         return $description;
+    }
+
+    /**
+     * Set data function to add the right values to the form.
+     * @param stdClass $defaultvalues
+     * @param int $optiondateid
+     * @param int $idx
+     * @return void
+     */
+    public static function set_data(stdClass &$defaultvalues, int $optiondateid, int $idx) {
+
+        $values = &$defaultvalues;
+    }
+
+    /**
+     * Returns a condition object which is needed to create the condition JSON.
+     *
+     * @param stdClass $fromform
+     * @return stdClass|null the object for the JSON
+     */
+    public function get_condition_object_for_json(stdClass $fromform): stdClass {
+
+        $conditionobject = new stdClass();
+
+        if (!empty($fromform->bo_cond_nooverlapping_restrict)) {
+            // Remove the namespace from classname.
+            $conditionobject->nooverlapping = 1;
+            $conditionobject->nooverlappinghandling = $fromform->bo_cond_nooverlapping_handling;
+            $conditionobject->class = __CLASS__;
+        }
+        // Might be an empty object.
+        return $conditionobject;
     }
 }
