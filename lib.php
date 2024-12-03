@@ -1408,16 +1408,22 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 /**
  * Check if logged in user is a teacher of the passed option.
  * @param mixed|int $optionoroptionid optional option class or optionid
+ * @param int $userid optional userid, if none is provided, we use the logged-in $USER->id
  * @return true if is assigned as teacher otherwise return false
  */
-function booking_check_if_teacher($optionoroptionid = null) {
+function booking_check_if_teacher($optionoroptionid = null, int $userid = 0) {
     global $DB, $USER;
+
+    // If no userid is provided, we use the logged-in user.
+    if (empty($userid)) {
+        $userid = $USER->id;
+    }
 
     if (empty($optionoroptionid)) {
         // If we have no option, we check, if the teacher is a teacher of ANY option.
         $user = $DB->get_records(
             'booking_teachers',
-            ['userid' => $USER->id]
+            ['userid' => $userid]
         );
         if (empty($user)) {
             return false;
@@ -1433,11 +1439,11 @@ function booking_check_if_teacher($optionoroptionid = null) {
             return false;
         }
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        if (in_array($USER->id, $settings->teacherids)) {
+        if (in_array($userid, $settings->teacherids)) {
             return true;
         } else if (
             get_config('booking', 'responsiblecontactcanedit')
-            && $settings->responsiblecontact == $USER->id
+            && $settings->responsiblecontact == $userid
         ) {
             return true;
         } else {

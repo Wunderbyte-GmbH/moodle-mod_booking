@@ -363,17 +363,18 @@ class bookingoption_description implements renderable, templatable {
 
         // Every date will be an array of datestring and customfields.
         // But customfields will only be shown if we show booking option information inline.
-
-        $this->dates = $bookingoption->return_array_of_sessions(
-            $bookingevent,
-            $descriptionparam,
-            $withcustomfields,
-            $forbookeduser,
-            $ashtml
-        );
-
-        if (!empty($this->dates)) {
-            $this->datesexist = true;
+        // Make sure, that optiondates (sessions) are not stored for self-learning courses.
+        if (empty($settings->selflearningcourse)) {
+            $this->dates = $bookingoption->return_array_of_sessions(
+                $bookingevent,
+                $descriptionparam,
+                $withcustomfields,
+                $forbookeduser,
+                $ashtml
+            );
+            if (!empty($this->dates)) {
+                $this->datesexist = true;
+            }
         }
 
         $colteacher = new col_teacher($optionid, $settings);

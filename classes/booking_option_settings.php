@@ -285,7 +285,7 @@ class booking_option_settings {
     /** @var int $sqlfilter defines if an element should be hidden via sql filter. hidden > 0 */
     public $sqlfilter = 0;
 
-    /** @var int $attachedfiles The links on the attached files */
+    /** @var array $attachedfiles The links on the attached files */
     public $attachedfiles = [];
 
     /**
@@ -609,7 +609,9 @@ class booking_option_settings {
                 $this->electivecombinations = $dbrecord->electivecombinations;
             }
 
+            // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
             // TODO: This is a performance problem. We need to cache campaigns!
+            // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
             // TODO: We need to cache get_all_campaigns too!
             // Check if there are active campaigns.
             // If yes, we need to apply the booking limit factor.
@@ -1069,7 +1071,7 @@ class booking_option_settings {
             $this->boactions = $dbrecord->boactions ?? null;
             $this->canceluntil = $dbrecord->canceluntil ?? 0;
             $this->useprice = $dbrecord->useprice ?? null;
-            $this->selflearningcourse = $dbrecord->selflearningcourse ?? null;
+            $this->selflearningcourse = $dbrecord->selflearningcourse ?? 0;
             $this->waitforconfirmation = $dbrecord->waitforconfirmation ?? 0;
             $this->jsonobject = $dbrecord->jsonobject ?? null;
         }

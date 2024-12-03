@@ -77,7 +77,9 @@ class col_coursestarttime implements renderable, templatable {
         }
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $this->optionid = $optionid;
 
+        // For self-learning courses, we do not show any optiondates (sessions).
         if (!empty($settings->selflearningcourse)) {
             $ba = singleton_service::get_instance_of_booking_answers($settings);
             $buyforuser = price::return_user_to_buy_for();
@@ -89,16 +91,16 @@ class col_coursestarttime implements renderable, templatable {
 
             $this->selflearningcourse = true;
             $this->duration = format_time($settings->duration);
-        }
+        } else {
+            // No self-learning course.
+            $this->datestrings = dates_handler::return_array_of_sessions_simple($optionid);
 
-        $this->optionid = $optionid;
-        $this->datestrings = dates_handler::return_array_of_sessions_simple($optionid);
+            $maxdates = get_config('booking', 'collapseshowsettings') ?? 2; // Hardcoded fallback on two.
 
-        $maxdates = get_config('booking', 'collapseshowsettings') ?? 2; // Hardcoded fallback on two.
-
-        // Show a collapse button for the dates.
-        if (!empty($this->datestrings) && count($this->datestrings) > $maxdates && $collapsed == true) {
-            $this->showcollapsebtn = true;
+            // Show a collapse button for the dates.
+            if (!empty($this->datestrings) && count($this->datestrings) > $maxdates && $collapsed == true) {
+                $this->showcollapsebtn = true;
+            }
         }
     }
 
@@ -112,17 +114,17 @@ class col_coursestarttime implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output) {
 
-        if (!$this->datestrings) {
-            if (!empty($this->selflearningcourse)) {
-                $returnarr['selflearningcourse'] = $this->selflearningcourse;
-                $returnarr['duration'] = $this->duration;
-                if (!empty($this->timeremaining)) {
-                    $returnarr['timeremaining'] = $this->timeremaining;
-                }
-                return $returnarr;
-            } else {
-                return [];
+        if (!empty($this->selflearningcourse)) {
+            $returnarr['selflearningcourse'] = $this->selflearningcourse;
+            $returnarr['duration'] = $this->duration;
+            if (!empty($this->timeremaining)) {
+                $returnarr['timeremaining'] = $this->timeremaining;
             }
+            return $returnarr;
+        }
+
+        if (empty($this->datestrings)) {
+            return [];
         }
 
         $returnarr = [

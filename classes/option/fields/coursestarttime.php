@@ -108,10 +108,12 @@ class coursestarttime extends field_base {
         $returnvalue = null
     ): array {
         if (!empty($formdata->selflearningcourse)) {
-            return parent::prepare_save_field($formdata, $newoption, $updateparam, $returnvalue);
-        } else {
-            return [];
+            /* For self-learning courses we store the sorting date (in field coursestarttime)
+            as both coursestarttime and courseendtime. */
+            $newoption->coursestarttime = $formdata->coursestarttime ?? 0;
+            $newoption->courseendtime = $formdata->coursestarttime ?? 0;
         }
+        return [];
     }
 
     /**
