@@ -85,10 +85,11 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
 
             // The first check needs to be if the rule has changed at all, eg. in any of the set values.
             if (
-                $ruleinstance->rulename === 'days_before'
+                $ruleinstance->rulename === 'rule_daysbefore'
                 && ($taskdata->rulejson !== $ruleinstance->rulejson)
             ) {
-                mtrace('send_mail_by_rule_adhoc task: Rule has changed. Mail was NOT SENT for option.'
+                mtrace(
+                    'send_mail_by_rule_adhoc task: Rule has changed. Mail was NOT SENT for option.'
                     . $taskdata->optionid
                     . ' and user '
                     . $taskdata->userid
