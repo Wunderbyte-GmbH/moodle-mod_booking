@@ -16,6 +16,7 @@
 
 namespace mod_booking\form;
 use context_module;
+use mod_booking\local\templaterule;
 use mod_booking\singleton_service;
 
 defined('MOODLE_INTERNAL') || die();
@@ -264,8 +265,13 @@ class rulesform extends dynamic_form {
               'bookingruletemplate' => $id,
             ];
         }
-        // If we have an ID, we retrieve the right rule from DB.
-        $record = $DB->get_record('booking_rules', ['id' => $id]);
+
+        if ($id < 0) {
+            $record = templaterule::get_template_record_by_id($id);
+        } else {
+            // If we have an ID, we retrieve the right rule from DB.
+            $record = $DB->get_record('booking_rules', ['id' => $id]);
+        }
 
         $jsonboject = json_decode($record->rulejson);
 
