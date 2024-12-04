@@ -15,6 +15,7 @@ Feature: As an admin - configure booking's prices feature and validate it as stu
       | teacher1 | Teacher   | 1        | teacher1@example.com | T1       |                            |
       | student1 | Student   | 1        | student1@example.com | S1       | discount1                  |
       | student2 | Student   | 2        | student2@example.com | S2       | zeroprice                  |
+      | student3 | Student   | 3        | student3@example.com | S3       |                            |
     And I clean booking cache
     And the following "core_payment > payment accounts" exist:
       | name           |
@@ -34,6 +35,7 @@ Feature: As an admin - configure booking's prices feature and validate it as stu
       | teacher1 | C1     | manager        |
       | student1 | C1     | student        |
       | student2 | C1     | student        |
+      | student3 | C1     | student        |
     And the following "activities" exist:
       | activity | course | name       | intro               | bookingmanager | eventtype | Default view for booking options |
       | booking  | C1     | BookingCMP | Booking description | teacher1       | Webinar   | All bookings                     |
@@ -48,7 +50,10 @@ Feature: As an admin - configure booking's prices feature and validate it as stu
       | config             | value        | plugin  |
       | pricecategoryfield | userpricecat | booking |
       | displayemptyprice  |              | booking |
-    When I am on the "BookingCMP" Activity page logged in as student1
+    When I am on the "BookingCMP" Activity page logged in as student3
+    And I should see "99.00 EUR" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I log out
+    And I am on the "BookingCMP" Activity page logged in as student1
     And I should see "89.00 EUR" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I log out
     Then I am on the "BookingCMP" Activity page logged in as student2
