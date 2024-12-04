@@ -1,3 +1,10 @@
+## Version 8.8.5 (2024120400)
+* Improvement: Nav tabs for mobile view
+* Bugfix: Prevent booking rules from being sent on inactive configuration
+* Bugfix: No price if fallback for default price is off
+* Bugfix: Notification list only for logged in users & display price
+* Bugfix: Several fixes for self-learning courses
+
 ## Version 8.8.4 (2024120300)
 * Improvement: Add type=imageleft (or imageright) to shortcode 'courselist' to show header images.
 * Improvement: Campaigns allow multiple profile fields
