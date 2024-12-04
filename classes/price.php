@@ -745,49 +745,50 @@ class price {
         // 3. Concerning no match, we can either print a message and don't allow booking, or fallback on default price category.
 
         $price = [];
-
+        unset($pricerecorddefault);
+        $pricecategoryfound = false;
         foreach ($prices as $pricerecord) {
             // We want to support string matching like category student for student@univie.ac.at.
-
             $pricecategoryidentifiers = explode(',', $pricerecord->pricecategoryidentifier);
 
-            $pricecategoryfound = false;
             foreach ($pricecategoryidentifiers as $pricecategoryidentifier) {
+                // We store the default record as a fallback.
+                if ($pricecategoryidentifier == 'default') {
+                    $pricerecorddefault = $pricerecord;
+                }
+                // Looking for matched pricecategory.
                 if (strpos($categoryidentifier, $pricecategoryidentifier) !== false) {
                     $pricecategoryfound = true;
+                    $price = [
+                        "price" => $pricerecord->price,
+                        "currency" => $pricerecord->currency,
+                        "pricecategoryidentifier" => $pricerecord->pricecategoryidentifier,
+                        "pricecategoryname" =>
+                            self::get_active_pricecategory_from_cache_or_db($pricerecord->pricecategoryidentifier)->name,
+                    ];
                 }
-            }
-
-            if ($pricecategoryfound) {
-                $price = [
-                    "price" => $pricerecord->price,
-                    "currency" => $pricerecord->currency,
-                    "pricecategoryidentifier" => $pricerecord->pricecategoryidentifier,
-                    "pricecategoryname" =>
-                        self::get_active_pricecategory_from_cache_or_db($pricerecord->pricecategoryidentifier)->name,
-                ];
             }
         }
 
-        // We store the default record as a fallback.
+        // We use the default record as a fallback.
         if (
             $pricecategoryfound === false
             && get_config('booking', 'pricecategoryfallback')
-            && $pricerecord->pricecategoryidentifier == 'default'
-            && $categoryidentifier !== 'default'
         ) {
-            $price = [
-                "price" => $pricerecord->price,
-                "currency" => $pricerecord->currency,
-                "pricecategoryidentifier" => $pricerecord->pricecategoryidentifier,
-                "pricecategoryname" =>
-                    self::get_active_pricecategory_from_cache_or_db($pricerecord->pricecategoryidentifier)->name,
-            ];
+            if (!empty($pricerecorddefault)) {
+                $price = [
+                    "price" => $pricerecorddefault->price,
+                    "currency" => $pricerecorddefault->currency,
+                    "pricecategoryidentifier" => $pricerecorddefault->pricecategoryidentifier,
+                    "pricecategoryname" =>
+                        self::get_active_pricecategory_from_cache_or_db($pricerecorddefault->pricecategoryidentifier)->name,
+                ];
+            } else {
+                return []; // No default for some reason (should never happens).
+            }
         } else if (
             $pricecategoryfound === false
             && empty(get_config('booking', 'pricecategoryfallback'))
-            && $pricerecord->pricecategoryidentifier == 'default'
-            && $categoryidentifier !== 'default'
         ) {
             return [];
         }
