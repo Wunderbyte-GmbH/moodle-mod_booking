@@ -25,6 +25,8 @@
 
 namespace mod_booking\local;
 
+use core_component;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/mod/booking/lib.php');
@@ -44,13 +46,28 @@ class templaterule {
      */
     public static function get_template_rules() {
         global $DB;
-        $records = $DB->get_records_sql(
-          "SELECT boru.id, boru.rulejson
-          FROM {booking_rules} boru
-          WHERE boru.useastemplate = 1");
+
         $selectoptions = [
-          '0' => get_string('bookingdefaulttemplate', 'mod_booking'),
+            '0' => get_string('bookingdefaulttemplate', 'mod_booking'),
         ];
+
+        $templates = core_component::get_component_classes_in_namespace(
+            "mod_booking",
+            'booking_rules\\rules\\templates'
+        );
+
+        foreach ($templates as $classname => $namespace) {
+            $class = new $classname();
+            $id = - $classname::$templateid;
+            $selectoptions[$id] = $class->get_name();
+        }
+
+        $records = $DB->get_records_sql(
+            "SELECT boru.id, boru.rulejson
+          FROM {booking_rules} boru
+          WHERE boru.useastemplate = 1"
+        );
+
         foreach ($records as $record) {
             $record->rulejson = json_decode($record->rulejson);
             $selectoptions[$record->id] = $record->rulejson->name;
@@ -59,4 +76,27 @@ class templaterule {
         return $selectoptions;
     }
 
+    /**
+     * Returns the template record by id.
+     *
+     * @param int $id
+     *
+     * @return object
+     *
+     */
+    public static function get_template_record_by_id(int $id) {
+        $templateid = - $id;
+        $templates = core_component::get_component_classes_in_namespace(
+            "mod_booking",
+            'booking_rules\\rules\\templates'
+        );
+        foreach ($templates as $classname => $namespace) {
+            if ($classname::$templateid == $templateid) {
+
+                $class = new $classname();
+                $record = $class->return_template();
+            }
+        }
+        return $record;
+    }
 }

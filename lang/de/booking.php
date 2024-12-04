@@ -1972,6 +1972,9 @@ $string['rulesincontextheader'] = '<a href="{$a->rulesincontexturl}" target="_bl
 $string['rulesnotfound'] = 'Keine Regeln für diese Buchungsoption gefunden';
 $string['rulessettings'] = "Einstellungen für Regeln";
 $string['rulessettingsdesc'] = 'Einstellungen, die für die <a href="{$a}">Funktion Buchungs Regeln</a> gelten.';
+$string['ruletemplateconfirmbooking'] = "Template - Bestätige Buchung";
+$string['ruletemplateconfirmbookingbody'] = "<p>Sehr geehrte/r {firstname} {lastname},<\/p>\r\n<p>Vielen Dank für Ihre Buchung<\/p>\r\n<p>{bookingdetails}<\/p>\r\n<p>Alles Gute!<\/p>";
+$string['ruletemplateconfirmbookingsubject'] = "Sie haben erfolgreich gebucht";
 $string['rulevalue'] = 'Wert';
 $string['sameday'] = 'Selber Tag';
 $string['saturday'] = 'Samstag';

@@ -27,6 +27,7 @@ namespace mod_booking\booking_rules;
 
 use context;
 use context_module;
+use core_component;
 use dml_exception;
 use context_system;
 use mod_booking\local\templaterule;
@@ -232,8 +233,15 @@ class rules_info {
             return new stdClass();
         }
 
-        // If we have an ID, we retrieve the right rule from DB.
-        $record = $DB->get_record('booking_rules', ['id' => $data->id]);
+        if ($data->id < 0) {
+            // We get the value von den predefined templates.
+
+            $record = templaterule::get_template_record_by_id($data->id);
+
+        } else {
+            // If we have an ID, we retrieve the right rule from DB.
+            $record = $DB->get_record('booking_rules', ['id' => $data->id]);
+        }
 
         $data->contextid = $record->contextid;
 
