@@ -68,6 +68,13 @@ class nooverlapping implements bo_condition {
     private array $overlappinganswers = [];
 
     /**
+     * Customsettings.
+     *
+     * @var object
+     */
+    public object $customsettings;
+
+    /**
      * Singleton instance.
      *
      * @var object

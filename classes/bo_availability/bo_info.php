@@ -92,7 +92,6 @@ class bo_info {
 
         $this->optionid = $settings->id;
         $this->userid = $USER->id;
-
     }
 
     /**
@@ -511,7 +510,11 @@ class bo_info {
         }
         foreach ($conditions as $class) {
 
-            $condition = new $class();
+            if (method_exists($class, 'instance')) {
+                $condition = $class::instance();
+            } else {
+                $condition = new $class();
+            }
 
             list($select, $from, $filter, $params, $where) = $condition->return_sql();
 

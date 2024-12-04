@@ -367,7 +367,7 @@ class booking_answers {
             // If the coursestarttime is bigger than the other courseendtime we can skip.
             if (
                 !self::check_overlap(
-                    $answer->coursestartime,
+                    $answer->coursestarttime,
                     $answer->courseendtime,
                     $settings->coursestarttime,
                     $settings->courseendtime

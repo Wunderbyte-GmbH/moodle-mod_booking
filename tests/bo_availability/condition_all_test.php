@@ -1374,6 +1374,87 @@ final class condition_all_test extends advanced_testcase {
     }
 
     /**
+     * Test overlapping.
+     *
+     * @covers \condition\isbookable::is_available
+     * @covers \condition\bookitbutton::is_available
+     * @covers \condition\alreadybooked::is_available
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_booking_bookit_overlapping(array $bdata): void {
+        global $DB, $CFG;
+
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create users.
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course->id);
+        $this->getDataGenerator()->enrol_user($student2->id, $course->id);
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id);
+
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1';
+        $record->courseid = 0;
+        $record->maxanswers = 2;
+        $record->disablebookingusers = 0;
+        $record->coursestarttime = strtotime('now + 3 day');
+        $record->courseendtime = strtotime('now + 6 day');
+        // $record->optiondateid_0 = 1;
+        // $record->coursestarttime_0 = strtotime('now - 3 day');
+        // $record->courseendtime_0 = strtotime('now + 6 day');
+        // $record->optiondateid_1 = 1;
+        // $record->coursestarttime_1 = strtotime('now - 1 day');
+        // $record->courseendtime_1 = strtotime('now + 3 day');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option1 = $plugingenerator->create_option($record);
+
+        // Add restriction
+        $record->coursestarttime = strtotime('now + 2 day');
+        $record->courseendtime = strtotime('now + 4 day');
+        $record->bo_cond_nooverlapping_restrict = 1;
+        $record->bo_cond_nooverlapping_handling = MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK;
+        $option2 = $plugingenerator->create_option($record);
+        // Enrol user in first option.
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
+        $boinfo1 = new bo_info($settings1);
+        $boinfo2 = new bo_info($settings2);
+
+        // Try to enrol user in second option.
+        $this->setUser($student1);
+        $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
+        $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
+
+        // 2. option to check if overlapping.
+        // Try to book the student1.
+
+
+        // Option 2 is bookable since we didn't define nooverlapping.
+        list($id, $isavailable, $description) = $boinfo2->is_available($settings2->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING, $id);
+    }
+
+    /**
      * Data provider for condition_bookingpolicy_test
      *
      * @return array
