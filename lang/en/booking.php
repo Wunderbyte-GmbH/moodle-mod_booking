@@ -2005,6 +2005,9 @@ $string['rulesendmailcpf_desc'] = 'Choose an event that should trigger the "Send
   Example: All users having the value "Vienna center" in a custom user profile field called "Study center".';
 $string['rulessettings'] = "Settings for Booking Rules";
 $string['rulessettingsdesc'] = 'Settings that apply to the <a href="{$a}">Booking Rules Feature</a>.';
+$string['ruletemplateconfirmbooking'] = "Template - Confirm Booking";
+$string['ruletemplateconfirmbookingbody'] = "<p>Dear {firstname} {lastname},<\/p>\r\n<p>Thank you very much for your booking<\/p>\r\n<p>{bookingdetails}<\/p>\r\n<p>All the best!<\/p>";
+$string['ruletemplateconfirmbookingsubject'] = "You have successfully booked";
 $string['rulevalue'] = 'Value';
 $string['sameday'] = 'same day';
 $string['saturday'] = 'Saturday';
