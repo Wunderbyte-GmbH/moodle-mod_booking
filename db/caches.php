@@ -98,7 +98,10 @@ $definitions = [
         'simplekeys' => true,
         'staticacceleration' => true,
         'staticaccelerationsize' => 1000,
-        'invalidationevents' => ['setbackoptionsanswers'],
+        'invalidationevents' => [
+            'setbackoptionsanswers',
+            'setbacksessionanswers',
+        ],
     ],
     'bookedusertable' => [ // This cache uses optionids as keys.
         'mode' => cache_store::MODE_APPLICATION,

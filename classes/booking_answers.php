@@ -345,7 +345,16 @@ class booking_answers {
         $overlappinganswers = [];
 
         $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
-        $myanswers = $this->get_all_answers_for_user_cached($userid);
+        $myanswers = $this->get_all_answers_for_user_cached(
+            $userid,
+            0,
+            [
+                MOD_BOOKING_STATUSPARAM_BOOKED,
+                MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+                MOD_BOOKING_STATUSPARAM_RESERVED,
+            ],
+            true
+        );
 
         // If the user has no answers, then there is no overlap.
         if (empty($myanswers)) {
@@ -683,7 +692,7 @@ class booking_answers {
      * @param int $userid
      * @param int $cmid
      * @param array $status
-     * @param mixed
+     * @param bool $withcoursetimes
      *
      * @return array
      *
@@ -695,7 +704,8 @@ class booking_answers {
             MOD_BOOKING_STATUSPARAM_BOOKED,
             MOD_BOOKING_STATUSPARAM_WAITINGLIST,
             MOD_BOOKING_STATUSPARAM_RESERVED,
-        ]
+        ],
+        bool $withcoursetimes = false,
     ) {
 
         global $DB;
@@ -710,7 +720,7 @@ class booking_answers {
             $answers = [];
             // We don't have any answers, we get the ones we need.
             if (!$data) {
-                [$sql, $params] = $this->return_sql_to_get_answers(0, $userid, $status);
+                [$sql, $params] = $this->return_sql_to_get_answers(0, $userid, $status, $withcoursetimes);
 
                 $answers = $DB->get_records_sql($sql, $params);
 
@@ -786,8 +796,9 @@ class booking_answers {
         }
 
         if ($withcoursetimes) {
-            $withcoursestarttimesselect = " , bo.coursestarttime, bo.courseenttime ";
-            $withcoursestarttimesjoin = " JOIN {bookingoptions} bo ON ba.optionid = bo.id ";
+            $withcoursestarttimesselect = " , bo.coursestarttime, bo.courseendtime ";
+            $withcoursestarttimesjoin = " JOIN {booking_options} bo ON ba.optionid = bo.id ";
+            $wherearray[] = ' NOT (bo.json LIKE \'%"selflearningcourse":"1"%\' OR bo.json LIKE \'%"selflearningcourse":1%\')';
         } else {
             $withcoursestarttimesselect = "";
             $withcoursestarttimesjoin = "";

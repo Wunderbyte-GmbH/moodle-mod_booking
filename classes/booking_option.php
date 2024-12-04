@@ -3046,6 +3046,7 @@ class booking_option {
     public static function purge_cache_for_answers(int $optionid) {
 
         cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
+        cache_helper::purge_by_event('setbacksessionanswers');
         // When we set back the booking_answers...
         // ... we have to make sure it's also deleted in the singleton service.
         singleton_service::destroy_booking_answers($optionid);

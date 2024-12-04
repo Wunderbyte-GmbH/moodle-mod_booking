@@ -48,7 +48,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  */
 class nooverlapping implements bo_condition {
     /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = MOD_BOOKING_BO_COND_NOOVERLAPPING;
+    public $id = MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING;
 
     /** @var bool $overwrittenbybillboard Indicates if the condition can be overwritten by the billboard. */
     public $overwrittenbybillboard = false;
