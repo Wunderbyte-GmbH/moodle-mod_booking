@@ -751,27 +751,6 @@ class price {
 
             $pricecategoryidentifiers = explode(',', $pricerecord->pricecategoryidentifier);
 
-            // We store the default record as a fallback.
-            if (
-                get_config('booking', 'pricecategoryfallback')
-                && $pricerecord->pricecategoryidentifier == 'default'
-                && $categoryidentifier !== 'default'
-            ) {
-                $price = [
-                    "price" => $pricerecord->price,
-                    "currency" => $pricerecord->currency,
-                    "pricecategoryidentifier" => $pricerecord->pricecategoryidentifier,
-                    "pricecategoryname" =>
-                        self::get_active_pricecategory_from_cache_or_db($pricerecord->pricecategoryidentifier)->name,
-                ];
-            } else if (
-                empty(get_config('booking', 'pricecategoryfallback'))
-                && $pricerecord->pricecategoryidentifier == 'default'
-                && $categoryidentifier !== 'default'
-            ) {
-                return [];
-            }
-
             $pricecategoryfound = false;
             foreach ($pricecategoryidentifiers as $pricecategoryidentifier) {
                 if (strpos($categoryidentifier, $pricecategoryidentifier) !== false) {
@@ -788,6 +767,29 @@ class price {
                         self::get_active_pricecategory_from_cache_or_db($pricerecord->pricecategoryidentifier)->name,
                 ];
             }
+        }
+
+        // We store the default record as a fallback.
+        if (
+            $pricecategoryfound === false
+            && get_config('booking', 'pricecategoryfallback')
+            && $pricerecord->pricecategoryidentifier == 'default'
+            && $categoryidentifier !== 'default'
+        ) {
+            $price = [
+                "price" => $pricerecord->price,
+                "currency" => $pricerecord->currency,
+                "pricecategoryidentifier" => $pricerecord->pricecategoryidentifier,
+                "pricecategoryname" =>
+                    self::get_active_pricecategory_from_cache_or_db($pricerecord->pricecategoryidentifier)->name,
+            ];
+        } else if (
+            $pricecategoryfound === false
+            && empty(get_config('booking', 'pricecategoryfallback'))
+            && $pricerecord->pricecategoryidentifier == 'default'
+            && $categoryidentifier !== 'default'
+        ) {
+            return [];
         }
 
         if ($area === "option" && isset($price['price'])) {
