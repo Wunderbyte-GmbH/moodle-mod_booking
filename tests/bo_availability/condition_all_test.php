@@ -1496,6 +1496,7 @@ final class condition_all_test extends advanced_testcase {
      */
     public function test_booking_bookit_overlapping_sessions(array $bdata): void {
         global $DB, $CFG;
+        $this->tearDown();
 
         // Setup test data.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
@@ -1623,5 +1624,14 @@ final class condition_all_test extends advanced_testcase {
             'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
         ];
         return ['bdata' => [$bdata]];
+    }
+
+    /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        parent::tearDown();
+        // Mandatory clean-up.
+        singleton_service::destroy_instance();
     }
 }

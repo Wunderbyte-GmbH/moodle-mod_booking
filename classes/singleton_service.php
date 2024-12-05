@@ -808,4 +808,14 @@ class singleton_service {
 
         return $instance->allbookinginstances;
     }
+
+    /**
+     * Destroys the singleton entirely.
+     *
+     * @return bool
+     */
+    public static function destroy_instance() {
+        self::$instance = null;
+        return true;
+    }
 }
