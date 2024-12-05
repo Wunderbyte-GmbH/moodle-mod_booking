@@ -1,3 +1,6 @@
+## Version 8.8.6 (2024120500)
+* Bugfix: format string in customfields only for string
+
 ## Version 8.8.5 (2024120400)
 * Improvement: Nav tabs for mobile view
 * Bugfix: Prevent booking rules from being sent on inactive configuration
