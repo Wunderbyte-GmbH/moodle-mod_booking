@@ -1,3 +1,6 @@
+## Version 8.8.7 (2024120501)
+* New Feature: Add condition to block/warn overlapping of bookingoption dates.
+
 ## Version 8.8.6 (2024120500)
 * Bugfix: format string in customfields only for string
 
