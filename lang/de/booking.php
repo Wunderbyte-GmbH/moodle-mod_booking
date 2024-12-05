@@ -1124,6 +1124,9 @@ $string['extendlimitforoverbooked'] = 'Überbuchte Personen zusätzlich zu Fakto
 $string['extendlimitforoverbooked_help'] = 'Wählen Sie diese Option, passiert folgendes:
     Ein Kurs hat ein Limit von 40. Er ist aber bereits mit 2 TN auf 42 TN überbucht.
     Wird auf diesen Kurs eine Limiterhöhung um beispielsweise 10% angewandt, wird das Limit auf 46 erhöht (40 + 4 (10%) + 2 (bereits überbuchte)), statt auf 44 (40+4).';
+$string['fallbackonlywhenempty'] = 'Fallback nur, wenn entsprechendes Nutzerprofilfeld leer ist';
+$string['fallbackonlywhennotmatching'] = 'Fallback nur, wenn nicht übereinstimmend (auch wenn Feld leer ist)';
+$string['fallbackturnedoff'] = 'Fallback deaktiviert';
 $string['feedbackurl'] = 'Link zur Umfrage';
 $string['feedbackurl_help'] = 'Link zu einem Feedback-Formular, das an Teilnehmer:innen gesendet werden soll.
  Verwenden Sie in E-Mails den Platzhalter <b>{pollurl}</b>.';

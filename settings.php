@@ -69,7 +69,7 @@ $ADMIN->add(
         get_string('optionformconfig', 'mod_booking'),
         new moodle_url('/mod/booking/optionformconfig.php', [
             'cmid' => 0,
-            ])
+        ])
     )
 );
 
@@ -163,7 +163,7 @@ if ($ADMIN->fulltree) {
             'licensekeycfgheading',
             get_string('licensekeycfg', 'mod_booking'),
             $proversion ? get_string('licensekeycfgdesc:active', 'mod_booking') :
-                get_string('licensekeycfgdesc', 'mod_booking')
+            get_string('licensekeycfgdesc', 'mod_booking')
         )
     );
 
@@ -926,12 +926,20 @@ if ($ADMIN->fulltree) {
             $userprofilefieldsarray
         )
     );
+
+    $defaultbehaviours = [
+        0 => get_string('fallbackonlywhenempty', 'booking'),
+        1 => get_string('fallbackonlywhennotmatching', 'booking'),
+        2 => get_string('fallbackturnedoff', 'booking'),
+    ];
+
     $settings->add(
-        new admin_setting_configcheckbox(
+        new admin_setting_configselect(
             'booking/pricecategoryfallback',
             get_string('pricecategoryfallback', 'mod_booking'),
             get_string('pricecategoryfallback_desc', 'mod_booking'),
-            0
+            0,
+            $defaultbehaviours
         )
     );
 
@@ -1377,10 +1385,12 @@ if ($ADMIN->fulltree) {
         )
     );
 
-    $options = [1 => get_string('courseurl', 'mod_booking'),
-                2 => get_string('location', 'mod_booking'),
-                3 => get_string('institution', 'mod_booking'), 4 => get_string('address'),
-            ];
+    $options = [
+        1 => get_string('courseurl', 'mod_booking'),
+        2 => get_string('location', 'mod_booking'),
+        3 => get_string('institution', 'mod_booking'),
+        4 => get_string('address'),
+    ];
     $settings->add(
         new admin_setting_configselect(
             'booking/icalfieldlocation',
