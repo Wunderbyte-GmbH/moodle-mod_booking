@@ -199,7 +199,7 @@ class nooverlappingproxy implements bo_condition {
      * @return bool
      */
     public function hard_block(booking_option_settings $settings, $userid): bool {
-        $handling = $this->return_handling_from_answers();
+        $handling = $this->return_handling_from_answers($settings->id);
         if ($handling != MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK) {
             return false;
         }
