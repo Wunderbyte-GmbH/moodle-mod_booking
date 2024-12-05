@@ -444,7 +444,7 @@ class campaigns_info {
                     break;
                 case "!~":
                     // Does not contain.
-                    $blocking = strpos($user->profile[$fieldname], $field) === false;
+                    $blocking = strpos($user->profile[$fieldname], $field) == false;
                     break;
             }
             $result = $blocking;
@@ -494,6 +494,11 @@ class campaigns_info {
             } else if (
                 !empty($fieldvalue)
                 && $operator == '!~'
+            ) {
+                $isactive = true;
+            } else if (
+                empty($fieldvalue) &&
+                empty($fieldname)
             ) { // No fieldname given in option, and fieldname required in campaign with "does not contain".
                 $isactive = true;
             } else {
