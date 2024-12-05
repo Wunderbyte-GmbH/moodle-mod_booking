@@ -449,20 +449,23 @@ class campaigns_info {
             }
             switch ($operator) {
                 case "=": // Equals.
-                    $blocking = $user->profile[$fieldname] === $field;
+                    if ($blocking = $user->profile[$fieldname] === $field) {
+                        return true;
+                    }
                     break;
                 case "~": // Contains.
-                    $blocking = strpos($user->profile[$fieldname], $field) !== false;
+                    if ($blocking = strpos($user->profile[$fieldname], $field) !== false) {
+                        return true;
+                    }
                     break;
                 case "!~":
                     // Does not contain.
-                    $blocking = strpos($user->profile[$fieldname], $field) == false;
+                    if (!$blocking = strpos($user->profile[$fieldname], $field) === false) {
+                        return false;
+                    }
                     break;
             }
             $result = $blocking;
-            if ($result == true) {
-                break;
-            }
         }
         return $result;
     }
