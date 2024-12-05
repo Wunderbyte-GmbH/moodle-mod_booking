@@ -169,6 +169,21 @@ class singleton_service {
     /**
      * Service to store the array of answers in the singleton.
      * @param int $userid
+     * @return array
+     */
+    public static function destroy_answers_for_user($userid): array {
+
+        $instance = self::get_instance();
+
+        if (isset($instance->bookinganswersforuser[$userid])) {
+            unset($instance->bookinganswersforuser[$userid]);
+        }
+        return [];
+    }
+
+    /**
+     * Service to store the array of answers in the singleton.
+     * @param int $userid
      * @param array $data
      * @return bool
      */

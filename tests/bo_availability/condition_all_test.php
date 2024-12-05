@@ -1472,10 +1472,10 @@ final class condition_all_test extends advanced_testcase {
         list($id, $isavailable, $description) = $boinfo3->is_available($settings3->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
-        // // TODO: try to book an option that doesn't contain the nooverlapping flab BUT overlaps with previously booked option 3.
-        // list($id, $isavailable, $description) = $boinfo4->is_available($settings4->id, $student1->id, true);
-        // $this->assertEquals(MOD_BOOKING_BO_COND_JSON_NOOVERLAPPINGPROXY, $id);
-        // // TODO: extend tests for sessions.
+        singleton_service::destroy_answers_for_user($student1->id);
+        // Now try to book an option that doesn't contain the nooverlapping flab BUT overlaps with previously booked option 3.
+        list($id, $isavailable, $description) = $boinfo4->is_available($settings4->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_NOOVERLAPPINGPROXY, $id);
     }
 
     /**
