@@ -58,9 +58,9 @@ class nooverlappingproxy implements bo_condition {
     /**
      * Handling for overlapping options/sessions.
      *
-     * @var int
+     * @var array
      */
-    private int $handling = MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY;
+    private array $handling = [];
 
     /**
      * Storing overlapping options.
@@ -231,7 +231,7 @@ class nooverlappingproxy implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full, $settings, $userid);
 
-        $handling = $this->return_handling_from_answers(); // Fetch the handling correctly if overlapping is done because of settings in answer.
+        $handling = $this->return_handling_from_answers($settings->id); // Fetch the handling correctly if overlapping is done because of settings in answer.
         $buttonclass = $handling == MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK
             ? MOD_BOOKING_BO_BUTTON_JUSTMYALERT : MOD_BOOKING_BO_BUTTON_CANCEL;
 
@@ -301,7 +301,7 @@ class nooverlappingproxy implements bo_condition {
 
         $label = $this->get_description_string(false, $full, $settings);
         // return bo_info::render_button($settings, $userid, $label, 'alert alert-warning', true, $fullwidth, 'alert', 'option'); for optionhasstarted.
-        $handling = $this->return_handling_from_answers();
+        $handling = $this->return_handling_from_answers($settings->id);
         switch ($handling) {
             case MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK:
                 $buttonclass = 'alert alert-danger';
@@ -354,7 +354,7 @@ class nooverlappingproxy implements bo_condition {
         if (!$isavailable) {
             // Check in the overlapping answers if any of them are blocking, or only warning.
 
-            $handling = $this->return_handling_from_answers();
+            $handling = $this->return_handling_from_answers($settings->id);
 
             switch ($handling) {
                 case MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK:
@@ -469,9 +469,9 @@ class nooverlappingproxy implements bo_condition {
      * @return int
      *
      */
-    private function return_handling_from_answers(): int {
-        if (!empty($this->handling)) {
-            return $this->handling;
+    private function return_handling_from_answers(int $optionid): int {
+        if (!empty($this->handling[$optionid])) {
+            return $this->handling[$optionid];
         }
         if (empty($this->overlappinganswers)) {
             return MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY;
@@ -484,8 +484,8 @@ class nooverlappingproxy implements bo_condition {
                 $handling = $answer->nooverlappinghandling;
             }
         }
-        $this->handling = $handling;
-        return $this->handling;
+        $this->handling[$optionid] = $handling;
+        return $this->handling[$optionid];
     }
 
     /**
@@ -505,7 +505,8 @@ class nooverlappingproxy implements bo_condition {
         if (empty($availability[0]->nooverlapping)) {
             return MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY;
         }
-        $this->handling = $availability[0]->nooverlappinghandling ?? MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY;
-        return $this->handling;
+        $optionid = $settings->id;
+        $this->handling[$optionid] = $availability[0]->nooverlappinghandling ?? MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY;
+        return $this->handling[$optionid];
     }
 }
