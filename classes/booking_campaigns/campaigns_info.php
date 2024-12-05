@@ -448,6 +448,9 @@ class campaigns_info {
                     break;
             }
             $result = $blocking;
+            if ($result == true) {
+                break;
+            }
         }
         return $result;
     }
