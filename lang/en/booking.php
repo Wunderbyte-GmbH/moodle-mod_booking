@@ -1136,6 +1136,9 @@ $string['extendlimitforoverbooked'] = 'Add overbooked seats to applied factor';
 $string['extendlimitforoverbooked_help'] = 'If you select this option, the following happens:
     A course has a limit of 40 but is already overbooked with 2 participants to 42 participants.
     If a limit increase of, for example, 10% is applied to this course, the limit will be increased to 46 (40 + 4 (10%) + 2 (overbooked seats)), instead of 44 (40 + 4).';
+$string['fallbackonlywhenempty'] = 'Fallback only when user profile field is empty';
+$string['fallbackonlywhennotmatching'] = 'Fallback when not matching (also empty)';
+$string['fallbackturnedoff'] = 'Fallback turned off';
 $string['feedbackurl'] = 'Poll url';
 $string['feedbackurl_help'] = 'Enter a link to a feedback form that should be sent to participants.
  It can be added to e-mails with the <b>{pollurl}</b> placeholder.';

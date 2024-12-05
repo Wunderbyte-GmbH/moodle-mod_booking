@@ -757,7 +757,7 @@ class price {
                     $pricerecorddefault = $pricerecord;
                 }
                 // Looking for matched pricecategory.
-                if (strpos($categoryidentifier, $pricecategoryidentifier) !== false) {
+                if (!empty($categoryidentifier) && strpos($categoryidentifier, $pricecategoryidentifier) !== false) {
                     $pricecategoryfound = true;
                     $price = [
                         "price" => $pricerecord->price,
@@ -770,30 +770,41 @@ class price {
             }
         }
 
-        // We use the default record as a fallback.
-        if (
-            $pricecategoryfound === false
-            && get_config('booking', 'pricecategoryfallback')
-        ) {
-            if (!empty($pricerecorddefault)) {
-                $price = [
-                    "price" => $pricerecorddefault->price,
-                    "currency" => $pricerecorddefault->currency,
-                    "pricecategoryidentifier" => $pricerecorddefault->pricecategoryidentifier,
-                    "pricecategoryname" =>
-                        self::get_active_pricecategory_from_cache_or_db($pricerecorddefault->pricecategoryidentifier)->name,
-                ];
-            } else {
-                return []; // No default for some reason (should never happens).
-            }
-        } else if (
-            $pricecategoryfound === false
-            && empty(get_config('booking', 'pricecategoryfallback'))
-        ) {
-            return [];
+        switch ((int)get_config('booking', 'pricecategoryfallback')) {
+            case 1:
+                // Logic is: when categoryidentifer is empty, we use default.
+                $usedefault = true;
+                break;
+            case 2:
+                $usedefault = false;
+                break;
+            default:
+                $usedefault = false;
+                break;
         }
 
-        if ($area === "option" && isset($price['price'])) {
+        if (
+            !$pricecategoryfound
+            && $usedefault
+            && !empty($pricerecorddefault)
+        ) {
+            $price = [
+                "price" => $pricerecorddefault->price,
+                "currency" => $pricerecorddefault->currency,
+                "pricecategoryidentifier" => $pricerecorddefault->pricecategoryidentifier,
+                "pricecategoryname" =>
+                    self::get_active_pricecategory_from_cache_or_db($pricerecorddefault->pricecategoryidentifier)->name,
+            ];
+        } else if (
+            !$pricecategoryfound
+            && !$usedefault
+        ) {
+            return []; // No default for some reason (should never happens).
+        }
+
+        if (
+            $area === "option" && isset($price['price'])
+        ) {
             $customformstore = new customformstore($user->id, $itemid);
             $price['price'] = $customformstore->modify_price($price['price'], $categoryidentifier);
         }
@@ -849,17 +860,26 @@ class price {
         // If a user profile field to story the price category identifiers for each user has been set,
         // then retrieve it from config and set the correct category identifier for the current user.
         $fieldshortname = get_config('booking', 'pricecategoryfield');
+        $pricecategoryfallback = get_config('booking', 'pricecategoryfallback');
 
-        if (!isset($user->profile) ||
-            !isset($user->profile[$fieldshortname])) {
+        if (
+            !isset($user->profile) ||
+            !isset($user->profile[$fieldshortname])
+        ) {
 
                 require_once("$CFG->dirroot/user/profile/lib.php");
                 profile_load_custom_fields($user);
         }
 
-        if (!isset($user->profile[$fieldshortname])
-            || empty($user->profile[$fieldshortname])) {
-            $categoryidentifier = 'default'; // Default.
+        if (
+            !isset($user->profile[$fieldshortname])
+            || empty($user->profile[$fieldshortname])
+        ) {
+            if ($pricecategoryfallback == 2) {
+                $categoryidentifier = '';
+            } else {
+                $categoryidentifier = 'default'; // Default.
+            }
         } else {
             $categoryidentifier = $user->profile[$fieldshortname];
         }
