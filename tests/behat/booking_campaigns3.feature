@@ -50,18 +50,18 @@ Feature: Create booking campaigns3 for booking options as admin and booking it a
     And the following "mod_booking > options" exist:
       | booking     | text                | course | description      | customfield_bexcluded1 | useprice | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
       | BookingCMP  | Option-exclude      | C1     | NoPrice-excl_yes | yes                    | 0        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
-      | BookingCMP  | Option-nocustom     | C1     | nocustom         |                        | 0        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
       | BookingCMP  | Option-include      | C1     | NoPrice-excl_no  | no                     | 0        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +3 days ##   |
+      | BookingCMP  | Option-nocustom     | C1     | nocustom         |                        | 0        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
       | BookingCMP  | Option-priceexclude | C1     | Price-excl_yes   | yes                    | 1        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +3 days ##   |
       | BookingCMP  | Option-priceinclude | C1     | Price-excl_no    | no                     | 1        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +3 days ##   |
     And I change viewport size to "1366x10000"
 
   ## @javascript
-  Scenario: Booking campaigns31: staggered booking start - test blocking campaign1 (both customfields does not contain values)
+  Scenario: Booking campaigns31: staggered booking start - test blocking campaign1 (bexcluded1 not no and ugroup1 not employee)
     Given the following "mod_booking > campaigns" exist:
       | name      | type | json                                                                                                                                                                                                                                                       | starttime   | endtime        | pricefactor | limitfactor |
       | campaign1 | 1    | {"bofieldname":"bexcluded1","fieldvalue":"no","campaignfieldnameoperator":"!~","cpfield":"ugroup1","cpoperator":"!~","cpvalue":["employee"],"blockoperator":"blockalways","blockinglabel":"Blocked","hascapability":null,"percentageavailableplaces":null} | ## today ## | ## tomorrow ## | 1           | 1           |
-    ## Verify blocking campaing1
+    ## Verify blocking campaing1 IS APPLIED for student
     And I am on the "BookingCMP" Activity page logged in as student1
     And I should see "Blocked" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r2 .booknow" "css_element"
@@ -69,6 +69,7 @@ Feature: Create booking campaigns3 for booking options as admin and booking it a
     And I should see "Blocked" in the ".allbookingoptionstable_r4 .booknow" "css_element"
     And I should see "Add to cart" in the ".allbookingoptionstable_r5 .booknow" "css_element"
     And I log out
+    ## Verify blocking campaing1 NOT APPLIED for employee
     And I am on the "BookingCMP" Activity page logged in as student2
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r2 .booknow" "css_element"
@@ -76,6 +77,7 @@ Feature: Create booking campaigns3 for booking options as admin and booking it a
     And I should see "Add to cart" in the ".allbookingoptionstable_r4 .booknow" "css_element"
     And I should see "Add to cart" in the ".allbookingoptionstable_r5 .booknow" "css_element"
     And I log out
+    ## Verify blocking campaing1 IS APPLIED for general
     And I am on the "BookingCMP" Activity page logged in as student3
     And I should see "Blocked" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r2 .booknow" "css_element"
@@ -85,30 +87,31 @@ Feature: Create booking campaigns3 for booking options as admin and booking it a
     And I log out
 
   @javascript
-  Scenario: Booking campaigns2: conditions states option customfield does contain and profile field does not contain values
+  Scenario: Booking campaigns32: staggered booking start - test blocking campaign2 (bexcluded1 not no and ugroup1 not employee neither student)
     Given the following "mod_booking > campaigns" exist:
-      | name      | type | json                                                                                                                                                                                                                                                      | starttime       | endtime         | pricefactor | limitfactor |
-      | campaign3 | 1    | {"bofieldname":"bcustom1","fieldvalue":"include","campaignfieldnameoperator":"=","cpfield":"ucustom1","cpoperator":"!~","cpvalue":["student"],"blockoperator":"blockbelow","blockinglabel":"Below50","hascapability":null,"percentageavailableplaces":50} | ## yesterday ## | ## + 1 month ## | 1           | 1           |
-    ## Verify "above" blocking campaing2
-    When I am on the "BookingCMP" Activity page logged in as student1
-    And I wait "30" seconds
+      | name      | type | json                                                                                                                                                                                                                                                                 | starttime   | endtime        | pricefactor | limitfactor |
+      | campaign2 | 1    | {"bofieldname":"bexcluded1","fieldvalue":"no","campaignfieldnameoperator":"!~","cpfield":"ugroup1","cpoperator":"!~","cpvalue":["employee","student"],"blockoperator":"blockalways","blockinglabel":"Blocked","hascapability":null,"percentageavailableplaces":null} | ## today ## | ## tomorrow ## | 1           | 1           |
+    ## Verify blocking campaing1 NOT APPLIED for employee
+    And I am on the "BookingCMP" Activity page logged in as student2
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r2 .booknow" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r3 .booknow" "css_element"
     And I should see "Add to cart" in the ".allbookingoptionstable_r4 .booknow" "css_element"
     And I should see "Add to cart" in the ".allbookingoptionstable_r5 .booknow" "css_element"
     And I log out
-    And I am on the "BookingCMP" Activity page logged in as student2
+    ## Verify blocking campaing1 NOT APPLIED for student
+    And I am on the "BookingCMP" Activity page logged in as student1
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I should see "Below50" in the ".allbookingoptionstable_r2 .booknow" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r2 .booknow" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r3 .booknow" "css_element"
     And I should see "Add to cart" in the ".allbookingoptionstable_r4 .booknow" "css_element"
-    And I should see "Below50" in the ".allbookingoptionstable_r5 .booknow" "css_element"
+    And I should see "Add to cart" in the ".allbookingoptionstable_r5 .booknow" "css_element"
     And I log out
+    ## Verify blocking campaing1 IS APPLIED for general
     And I am on the "BookingCMP" Activity page logged in as student3
-    And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I should see "Below50" in the ".allbookingoptionstable_r2 .booknow" "css_element"
-    And I should see "Book now" in the ".allbookingoptionstable_r3 .booknow" "css_element"
-    And I should see "Add to cart" in the ".allbookingoptionstable_r4 .booknow" "css_element"
-    And I should see "Below50" in the ".allbookingoptionstable_r5 .booknow" "css_element"
+    And I should see "Blocked" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r2 .booknow" "css_element"
+    And I should see "Blocked" in the ".allbookingoptionstable_r3 .booknow" "css_element"
+    And I should see "Blocked" in the ".allbookingoptionstable_r4 .booknow" "css_element"
+    And I should see "Add to cart" in the ".allbookingoptionstable_r5 .booknow" "css_element"
     And I log out
