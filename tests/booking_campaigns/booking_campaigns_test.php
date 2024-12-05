@@ -83,10 +83,14 @@ final class booking_campaigns_test extends advanced_testcase {
         // Setup test data.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
+        $this->getDataGenerator()->create_custom_profile_field(['datatype' => 'text', 'shortname' => 'ugroup1', 'name' => 'ugroup1',
+        'visible' => "2"]);
         // Create users.
-        $student1 = $this->getDataGenerator()->create_user();
+        $student1 = $this->getDataGenerator()->create_user(['username' => 'student1', 'ugroup1' => 'student']);
         $student2 = $this->getDataGenerator()->create_user();
         $student3 = $this->getDataGenerator()->create_user();
+        $employee = $this->getDataGenerator()->create_user(['ugroup1' => 'employee']);
+        $multipleugroups = $this->getDataGenerator()->create_user(['ugroup1' => 'employee, somethingelse']);
         $teacher = $this->getDataGenerator()->create_user();
         $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
 
@@ -128,7 +132,7 @@ final class booking_campaigns_test extends advanced_testcase {
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
-        // Create 1st blocking campaing: with "abowe" condition.
+        // Create 1st blocking campaing: with "above" condition.
         $campaingdata1 = (object)[
             'bofieldname' => 'spt1',
             'fieldvalue' => 'tennis',
@@ -169,6 +173,50 @@ final class booking_campaigns_test extends advanced_testcase {
             'json' => json_encode($campaingdata2),
         ];
         $plugingenerator->create_campaign($campaing2);
+
+        //Create 3rd blocking campaing: with multiple custom user profile fields and without bofield.
+        $campaingdata3 = (object)[
+            'bofieldname' => '0',
+            'campaignfieldnameoperator' => null,
+            'fieldvalue' => '',
+            'cpfield' => 'ugroup1',
+            'cpoperator' => '!~',
+            'cpvalue' => ["student","employee"],
+            'blockoperator' => 'blockalways',
+            'blockinglabel' => 'multiple user fields',
+            'hascapability' => "",
+            'percentageavailableplaces' => 50,
+        ];
+        $campaing3 = [
+            'name' => 'multiple_user_fields', 'type' => 1,
+            'starttime' => strtotime('yesterday'), 'endtime' => strtotime('now + 1 month'),
+            'pricefactor' => 1, 'limitfactor' => 1,
+            'json' => json_encode($campaingdata3),
+        ];
+        // TODO: For the moment, this campaign isn't active.
+        // First make sure, user contains custom field value in $user->profile['ugroup1'].
+        // $plugingenerator->create_campaign($campaing3);
+
+        // //Create 4th blocking campaing: with multiple custom user profile fields.
+        // $campaingdata3 = (object)[
+        //     'bofieldname' => 'spt1',
+        //     'campaignfieldnameoperator' => '!~',
+        //     'fieldvalue' => 'yoga',
+        //     'cpfield' => 'ugroup1',
+        //     'cpoperator' => '!~',
+        //     'cpvalue' => ["student","employee"],
+        //     'blockoperator' => 'blockalways',
+        //     'blockinglabel' => 'multiple user fields',
+        //     'hascapability' => "",
+        //     'percentageavailableplaces' => 50,
+        // ];
+        // $campaing4 = [
+        //     'name' => 'multiple_user_fields', 'type' => 1,
+        //     'starttime' => strtotime('now - 3 days'), 'endtime' => strtotime('now + 1 month'),
+        //     'pricefactor' => 1, 'limitfactor' => 1,
+        //     'json' => json_encode($campaingdata3),
+        // ];
+        // $plugingenerator->create_campaign($campaing3);
 
         // Create 1st booking option.
         $record = new stdClass();
