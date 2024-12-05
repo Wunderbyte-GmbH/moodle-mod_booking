@@ -613,6 +613,20 @@ class singleton_service {
     }
 
     /**
+     * Fetch campaigns if there are not there already.
+     * @return array
+     */
+    public static function destroy_all_campaigns(): array {
+
+        global $DB;
+
+        $instance = self::get_instance();
+        unset($instance->campaigns);
+
+        return [];
+    }
+
+    /**
      * Delete campaigns from singleton.
      * @param int $id
      * @return array
