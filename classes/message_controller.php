@@ -221,7 +221,7 @@ class message_controller {
 
         // For custom messages only.
         if ($this->messageparam == MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE) {
-            $this->customsubject = $customsubject;
+            $this->customsubject = format_string($customsubject);
             $this->custommessage = $custommessage;
         }
 
@@ -273,6 +273,8 @@ class message_controller {
 
         // Generate the email body.
         $this->messagebody = $this->get_email_body();
+
+        $this->messagebody = format_text($this->messagebody);
 
         // For adhoc task mails, we need to prepare data differently.
         if ($this->msgcontrparam == MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC) {
