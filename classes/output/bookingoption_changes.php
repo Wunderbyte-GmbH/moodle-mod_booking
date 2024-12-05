@@ -132,13 +132,7 @@ class bookingoption_changes implements renderable, templatable {
 
                     $entry['newvalue'] = html_writer::link($link, $link->out());
                 }
-                if (isset($entry['newvalue']) && is_string($entry['newvalue'])) {
-                    $entry['newvalue'] = format_string($entry['newvalue']);
-                }
 
-                if (isset($entry['oldvalue']) && is_string($entry['oldvalue'])) {
-                    $entry['oldvalue'] = format_string($entry['oldvalue']);
-                }
                 // Add all custom fields here.
                 $newchangesarray[] = $entry;
             }
