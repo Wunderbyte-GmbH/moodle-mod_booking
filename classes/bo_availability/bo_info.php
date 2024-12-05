@@ -1283,26 +1283,27 @@ class bo_info {
     }
 
     /**
-     * Returns part of SQL-Query according to DB Family for a specified column and key.
+     * Returns part of an SQL query to extract a JSON key from a column based on the DB Family.
      *
-     * @param string $dbcolumn
-     * @param string $jsonkey
+     * @param string $dbcolumn The name of the column containing JSON data.
+     * @param string $jsonkey The key to extract from the JSON object.
      *
-     * @return string
-     *
+     * @return string SQL snippet for extracting the JSON key.
      */
-    public static function check_for_sqljson_key(string $dbcolumn, string $jsonkey): string {
+    public static function check_for_sqljson_key_in_array(string $dbcolumn, string $jsonkey, int $index = 0): string {
         global $DB;
 
         $databasetype = $DB->get_dbfamily();
-        // The $key param is the name of the param in json.
+
         switch ($databasetype) {
             case 'postgres':
-                return " ($dbcolumn->>'$jsonkey')";
+                // PostgreSQL: Extract key from JSON array element at specified index.
+                return "(CAST($dbcolumn AS JSONB)->$index->>'" . addslashes($jsonkey) . "')";
             case 'mysql':
-                return " JSON_EXTRACT($dbcolumn, '$jsonkey')";
+                // MySQL: Extract key from JSON array element at specified index.
+                return "JSON_UNQUOTE(JSON_EXTRACT($dbcolumn, '$[$index]." . addslashes($jsonkey) . "'))";
             default:
-                return '';
+                throw new \moodle_exception('Unsupported database type for JSON key extraction.');
         }
     }
 

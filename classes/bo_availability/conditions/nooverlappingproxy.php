@@ -37,18 +37,20 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Base class for a single bo availability condition.
+ * This class extends MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING (nooverlapping.php) to extend check to remotely affected options.
+ * Even if overlapping isn't forbidden for the current bookingoption, it may be overlapping with other booked options where it is forbidden.
+ * Therefore we have to check the availability for each bookingoption, even if condtion isn't set in availabilty field.
  *
  * All bo condition types must extend this class.
  *
  *
  * @package mod_booking
- * @copyright 2022 Wunderbyte GmbH
+ * @copyright 2024 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class nooverlapping implements bo_condition {
+class nooverlappingproxy implements bo_condition {
     /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING;
+    public $id = MOD_BOOKING_BO_COND_JSON_NOOVERLAPPINGPROXY;
 
     /** @var bool $overwrittenbybillboard Indicates if the condition can be overwritten by the billboard. */
     public $overwrittenbybillboard = false;
@@ -117,7 +119,7 @@ class nooverlapping implements bo_condition {
      * @return bool
      */
     public function is_json_compatible(): bool {
-        return true; // Hardcoded condition.
+        return false; // Hardcoded condition.
     }
 
     /**
@@ -125,7 +127,7 @@ class nooverlapping implements bo_condition {
      * @return bool
      */
     public function is_shown_in_mform(): bool {
-        return true;
+        return false;
     }
 
     /**
@@ -138,31 +140,29 @@ class nooverlapping implements bo_condition {
      */
     public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
 
-        global $DB;
-
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
-        // Check if this bookingoption forbids the overlapping.
-        $forbidden = true;
-        if (empty($this->return_handling_from_settings($settings))) {
-            $forbidden = false;
-        }
 
-        // Get the booking answers for this instance.
-        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
-
-        $bookinginformation = $bookinganswer->return_all_booking_information($userid);
-
-        // If the user is not yet booked we return true.
-        if (
-            (
-                isset($bookinginformation['iambooked'])
-                || isset($bookinginformation['onwaitinglist'])
-            )
-            || empty($this->overlappinganswers = $bookinganswer->is_overlapping($userid, $forbidden))
-        ) {
+        if (!empty($this->return_handling_from_settings($settings))) {
             $isavailable = true;
+        } else {
+            $forbidden = false;
+            // Get the booking answers for this instance.
+            $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+
+            $bookinginformation = $bookinganswer->return_all_booking_information($userid);
+
+            // If the user is not yet booked we return true.
+            if (
+                (
+                    isset($bookinginformation['iambooked'])
+                    || isset($bookinginformation['onwaitinglist'])
+                )
+                || empty($this->overlappinganswers = $bookinganswer->is_overlapping($userid, $forbidden))
+            ) {
+                $isavailable = true;
+            }
         }
 
         // If it's inversed, we inverse.
@@ -199,7 +199,7 @@ class nooverlapping implements bo_condition {
      * @return bool
      */
     public function hard_block(booking_option_settings $settings, $userid): bool {
-        $handling = $this->return_handling_from_settings($settings);
+        $handling = $this->return_handling_from_answers();
         if ($handling != MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK) {
             return false;
         }
@@ -231,7 +231,7 @@ class nooverlapping implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full, $settings, $userid);
 
-        $handling = $this->return_handling_from_settings($settings);
+        $handling = $this->return_handling_from_answers(); // Fetch the handling correctly if overlapping is done because of settings in answer.
         $buttonclass = $handling == MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK
             ? MOD_BOOKING_BO_BUTTON_JUSTMYALERT : MOD_BOOKING_BO_BUTTON_CANCEL;
 
@@ -301,7 +301,7 @@ class nooverlapping implements bo_condition {
 
         $label = $this->get_description_string(false, $full, $settings);
         // return bo_info::render_button($settings, $userid, $label, 'alert alert-warning', true, $fullwidth, 'alert', 'option'); for optionhasstarted.
-        $handling = $this->return_handling_from_settings($settings);
+        $handling = $this->return_handling_from_answers();
         switch ($handling) {
             case MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK:
                 $buttonclass = 'alert alert-danger';
@@ -352,7 +352,10 @@ class nooverlapping implements bo_condition {
         }
 
         if (!$isavailable) {
-            $handling = $this->return_handling_from_settings($settings);
+            // Check in the overlapping answers if any of them are blocking, or only warning.
+
+            $handling = $this->return_handling_from_answers();
+
             switch ($handling) {
                 case MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK:
                     $description = $this->get_string_with_url('nooverlapblocking', $settings, $userid);
@@ -466,10 +469,34 @@ class nooverlapping implements bo_condition {
      * @return int
      *
      */
-    private function return_handling_from_settings(booking_option_settings $settings): int {
+    private function return_handling_from_answers(): int {
         if (!empty($this->handling)) {
             return $this->handling;
         }
+        if (empty($this->overlappinganswers)) {
+            return MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY;
+        }
+        $handling = MOD_BOOKING_COND_OVERLAPPING_HANDLING_WARN;
+
+        foreach ($this->overlappinganswers as $answer) {
+            if ($answer->nooverlappinghandling > $handling) {
+                // BLOCKING will be higher than warning - use highest here.
+                $handling = $answer->nooverlappinghandling;
+            }
+        }
+        $this->handling = $handling;
+        return $this->handling;
+    }
+
+    /**
+     * Returns empty string if no overlapping is defined and otherwise the kind of handling (block, warn).
+     *
+     * @param booking_option_settings $settings
+     *
+     * @return int
+     *
+     */
+    private function return_handling_from_settings(booking_option_settings $settings): int {
 
         if (!isset($settings->availability)) {
             return MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY;

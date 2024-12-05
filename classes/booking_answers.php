@@ -27,6 +27,7 @@ namespace mod_booking;
 
 use context_system;
 use dml_exception;
+use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\singleton_service;
 use stdClass;
@@ -341,7 +342,7 @@ class booking_answers {
      * @return array
      *
      */
-    public function is_overlapping(int $userid): array {
+    public function is_overlapping(int $userid, bool $forbiddenbynewoption = true): array {
         $overlappinganswers = [];
 
         $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
@@ -362,10 +363,16 @@ class booking_answers {
         }
 
         foreach ($myanswers as $answer) {
+            // Even if in this bookingoption, overlapping is not forbidden,...
+            // ...we have to check in the bookinganswers if it overlaps with other options where it is forbidden.
+
             // First we check if there could be a general overlapping. Only where this can occure, we check sessions.
             // If the courseendtime is smaller than the other coursestarttime we can skip.
             // If the coursestarttime is bigger than the other courseendtime we can skip.
             if (
+                (!$forbiddenbynewoption &&
+                (!isset($answer->nooverlappinghandling) ||
+                $answer->nooverlappinghandling == MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY)) ||
                 !self::check_overlap(
                     $answer->coursestarttime,
                     $answer->courseendtime,
@@ -383,16 +390,19 @@ class booking_answers {
             }
             // Else, we need to check each session.
             foreach ($settings->sessions as $session) {
-                if (
-                    self::check_overlap(
-                        $answer->coursestartime,
-                        $answer->courseendtime,
-                        $session->starttime,
-                        $session->endtime
-                    )
-                ) {
-                    $overlappinganswers[$answer->optionid] = $answer;
-                    continue;
+                $settingsanswers = singleton_service::get_instance_of_booking_option_settings($answer->optionid);
+                foreach ($settingsanswers->sessions as $answersession) {
+                    if (
+                        self::check_overlap(
+                            $answersession->coursestarttime,
+                            $answersession->courseendtime,
+                            $session->coursestarttime,
+                            $session->courseendtime
+                        )
+                    ) {
+                        $overlappinganswers[$answer->optionid] = $answer;
+                        continue 2;
+                    }
                 }
             }
         }
@@ -411,7 +421,11 @@ class booking_answers {
      *
      */
     private static function check_overlap($starttime1, $endtime1, $starttime2, $endtime2): bool {
-        if ($starttime1 <= $endtime2 || $endtime1 >= $starttime2) {
+        if (
+            ($starttime1 <= $endtime2 && $endtime1 >= $starttime2) ||
+            ($starttime1 == $starttime2) ||
+            ($endtime1 == $endtime2)
+        ) {
             return true;
         }
         return false;
@@ -710,7 +724,11 @@ class booking_answers {
 
         global $DB;
 
-        $answers = singleton_service::get_answers_for_user($userid);
+        $answers = [];
+        $data = singleton_service::get_answers_for_user($userid);
+        if (isset($data['answers'])) {
+            $answers = $data['answers'];
+        }
 
         // If we don't have the answers in the singleton, we look in the cache.
         if (empty($answers)) {
@@ -796,7 +814,8 @@ class booking_answers {
         }
 
         if ($withcoursetimes) {
-            $withcoursestarttimesselect = " , bo.coursestarttime, bo.courseendtime ";
+            $overlapping = bo_info::check_for_sqljson_key_in_array('bo.availability', 'nooverlappinghandling');
+            $withcoursestarttimesselect = " , bo.coursestarttime, bo.courseendtime, $overlapping as nooverlappinghandling";
             $withcoursestarttimesjoin = " JOIN {booking_options} bo ON ba.optionid = bo.id ";
             $wherearray[] = ' NOT (bo.json LIKE \'%"selflearningcourse":"1"%\' OR bo.json LIKE \'%"selflearningcourse":1%\')';
         } else {
