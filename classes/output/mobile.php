@@ -215,24 +215,25 @@ class mobile {
         global $OUTPUT, $USER, $DB;
 
         $mybookings = $DB->get_records_sql(
-        "SELECT ba.id id, c.id courseid, c.fullname fullname, b.id bookingid, b.name, bo.text, bo.id optionid,
-        bo.coursestarttime coursestarttime, bo.courseendtime courseendtime, cm.id cmid
-        FROM
-        {booking_answers} ba
-        LEFT JOIN
-    {booking_options} bo ON ba.optionid = bo.id
-        LEFT JOIN
-    {booking} b ON b.id = bo.bookingid
-        LEFT JOIN
-    {course} c ON c.id = b.course
-        LEFT JOIN
-        {course_modules} cm ON cm.module = (SELECT
-                id
+            "SELECT ba.id id, c.id courseid, c.fullname fullname, b.id bookingid, b.name, bo.text, bo.id optionid,
+            bo.coursestarttime coursestarttime, bo.courseendtime courseendtime, cm.id cmid
             FROM
-                {modules}
-            WHERE
-                name = 'booking')
-            WHERE instance = b.id AND ba.userid = {$USER->id} AND cm.visible = 1");
+            {booking_answers} ba
+            LEFT JOIN
+        {booking_options} bo ON ba.optionid = bo.id
+            LEFT JOIN
+        {booking} b ON b.id = bo.bookingid
+            LEFT JOIN
+        {course} c ON c.id = b.course
+            LEFT JOIN
+            {course_modules} cm ON cm.module = (SELECT
+                    id
+                FROM
+                    {modules}
+                WHERE
+                    name = 'booking')
+                WHERE instance = b.id AND ba.userid = {$USER->id} AND cm.visible = 1"
+        );
 
         $outputdata = [];
 
@@ -278,7 +279,9 @@ class mobile {
         global $DB, $OUTPUT, $USER;
 
         $cmid = $args['cmid'];
-        $whichview = $args['whichview'] ?? 'showall';
+        $availablenavtabs = self::get_available_nav_tabs();
+        $whichview = self::set_active_nav_tabs($availablenavtabs, $args['whichview']);
+
         if (empty($cmid)) {
             throw new moodle_exception('nocmidselected', 'mod_booking');
         }
@@ -303,10 +306,11 @@ class mobile {
             $outputdata[] = $data;
         }
 
+        $data['availablenavtabs'] = $availablenavtabs;
         $data['whichview'] = $whichview;
         $data['cmid'] = $cmid;
         $data['mybookings'] = $outputdata;
-        $data['availablenavtabs'] = self::get_available_nav_tabs($whichview);
+        $data['timestamp'] = time();
         return [
             'templates' => [
                 [
@@ -331,7 +335,7 @@ class mobile {
         $params = [];
         switch ($selectedview) {
             case 'showactive':
-                $params = self::get_rendered_all_options_table($booking);
+                $params = self::get_rendered_active_options_table($booking);
                 break;
             case 'mybooking':
                 $params = self::get_rendered_my_booked_options_table($booking);
@@ -361,9 +365,13 @@ class mobile {
             [],
             $params['wherearray'],
             $userid ?? null,
-            null,
+            $params['bookingparams'] ?? null,
             $params['additionalwhere'] ?? null
         );
+
+        if ($selectedview == 'showactive') {
+            $params['timenow'] = strtotime('today 00:00');
+        }
 
         $sql = "SELECT $fields
                 FROM $from
@@ -446,6 +454,7 @@ class mobile {
         return [
             'wherearray' => $wherearray,
             'additionalwhere' => $additionalwhere,
+            'bookingparams' => [MOD_BOOKING_STATUSPARAM_BOOKED],
         ];
     }
 
@@ -477,22 +486,41 @@ class mobile {
     }
 
     /**
-     * Get all selected nav tabs from the config
-     * @param string $activetab
+     * Get all selected nav tabs from the config$activetab
      * @return array
      */
-    public static function get_available_nav_tabs($activetab) {
+    public static function get_available_nav_tabs() {
         $selectednavlabelnames = [];
         $navlabelnames = self::match_view_label_and_names();
-        $navtabs = explode(',', get_config('booking', 'mobileviewoptions'));
-        foreach ($navtabs as $navtab) {
-            $selectednavlabelnames[] = [
-              'label' => $navtab,
-              'name' => $navlabelnames[$navtab],
-              'class' => $activetab === $navtab ? 'active' : false,
-            ];
+        $configmobileviewoptions = get_config('booking', 'mobileviewoptions');
+        if ($configmobileviewoptions !== '') {
+            $navtabs = explode(',', get_config('booking', 'mobileviewoptions'));
+            foreach ($navtabs as $navtab) {
+                $selectednavlabelnames[] = [
+                  'label' => $navtab,
+                  'name' => $navlabelnames[$navtab],
+                  'class' => $activetab === $navtab ? 'active' : false,
+                ];
+            }
         }
         return $selectednavlabelnames;
+    }
+
+    /**
+     * Get all selected nav tabs from the config$activetab
+     * @param array $tabs
+     * @param string $activetab
+     * @return string
+     */
+    public static function set_active_nav_tabs(&$tabs, $activetab) {
+        $whichview = $activetab ?? $tabs[0]['label'] ?? 'showall';
+        foreach ($tabs as &$tab) {
+            if ($tab['label'] == $whichview) {
+                $tab['class'] = 'active';
+                break;
+            }
+        }
+        return $whichview;
     }
 
     /**
