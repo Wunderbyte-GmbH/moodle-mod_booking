@@ -135,9 +135,11 @@ class nooverlappingproxy implements bo_condition {
     /**
      * Determines whether a particular item is currently available
      * according to this availability condition.
+     *
      * @param booking_option_settings $settings Item we're checking
      * @param int $userid User ID to check availability for
      * @param bool $not Set true if we are inverting the condition
+     *
      * @return bool True if available
      */
     public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
@@ -466,7 +468,7 @@ class nooverlappingproxy implements bo_condition {
     /**
      * Returns empty string if no overlapping is defined and otherwise the kind of handling (block, warn).
      *
-     * @param booking_option_settings $settings
+     * @param int $optionid
      *
      * @return int
      *

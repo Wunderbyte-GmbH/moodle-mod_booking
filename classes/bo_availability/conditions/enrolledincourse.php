@@ -68,6 +68,7 @@ class enrolledincourse implements bo_condition {
     /**
      * Singleton instance.
      *
+     * @param ?int $id
      * @return object
      *
      */

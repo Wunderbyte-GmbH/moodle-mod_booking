@@ -1293,6 +1293,7 @@ class bo_info {
      *
      * @param string $dbcolumn The name of the column containing JSON data.
      * @param string $jsonkey The key to extract from the JSON object.
+     * @param int $index
      *
      * @return string SQL snippet for extracting the JSON key.
      */

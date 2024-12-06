@@ -338,6 +338,7 @@ class booking_answers {
      * This function checks if the current instance of the booking option is overlapping with other bookings of this given user.
      *
      * @param int $userid
+     * @param bool $forbiddenbynewoption
      *
      * @return array
      *
