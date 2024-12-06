@@ -719,7 +719,7 @@ class booking_answers {
             MOD_BOOKING_STATUSPARAM_WAITINGLIST,
             MOD_BOOKING_STATUSPARAM_RESERVED,
         ],
-        bool $withcoursetimes = false,
+        bool $withcoursetimes = false
     ) {
 
         global $DB;

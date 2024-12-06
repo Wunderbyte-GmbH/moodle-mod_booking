@@ -37,8 +37,10 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * This class extends MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING (nooverlapping.php) to extend check to remotely affected options.
- * Even if overlapping isn't forbidden for the current bookingoption, it may be overlapping with other booked options where it is forbidden.
+ * This class extends MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING (nooverlapping.php)
+ * to extend check to remotely affected options.
+ * Even if overlapping isn't forbidden for the current bookingoption,
+ * it may be overlapping with other booked options where it is forbidden.
  * Therefore we have to check the availability for each bookingoption, even if condtion isn't set in availabilty field.
  *
  * All bo condition types must extend this class.
@@ -230,7 +232,9 @@ class nooverlappingproxy implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full, $settings, $userid);
 
-        $handling = $this->return_handling_from_answers($settings->id); // Fetch the handling correctly if overlapping is done because of settings in answer.
+        // Fetch the handling correctly if overlapping is done because of settings in answer.
+        $handling = $this->return_handling_from_answers($settings->id);
+
         $buttonclass = $handling == MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK
             ? MOD_BOOKING_BO_BUTTON_JUSTMYALERT : MOD_BOOKING_BO_BUTTON_CANCEL;
 
