@@ -300,7 +300,6 @@ class nooverlapping implements bo_condition {
     ): array {
 
         $label = $this->get_description_string(false, $full, $settings);
-        // return bo_info::render_button($settings, $userid, $label, 'alert alert-warning', true, $fullwidth, 'alert', 'option'); for optionhasstarted.
         $handling = $this->return_handling_from_settings($settings);
         switch ($handling) {
             case MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK:

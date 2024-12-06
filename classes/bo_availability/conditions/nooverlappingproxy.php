@@ -143,7 +143,6 @@ class nooverlappingproxy implements bo_condition {
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
-
         if (!empty($this->return_handling_from_settings($settings))) {
             $isavailable = true;
         } else {
@@ -300,7 +299,6 @@ class nooverlappingproxy implements bo_condition {
     ): array {
 
         $label = $this->get_description_string(false, $full, $settings);
-        // return bo_info::render_button($settings, $userid, $label, 'alert alert-warning', true, $fullwidth, 'alert', 'option'); for optionhasstarted.
         $handling = $this->return_handling_from_answers($settings->id);
         switch ($handling) {
             case MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK:
