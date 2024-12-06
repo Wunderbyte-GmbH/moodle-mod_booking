@@ -697,7 +697,11 @@ class bo_info {
         $template = 'mod_booking/bookingpage/header';
 
         // We get the condition for the right page.
-        $condition = new $condition();
+        if (method_exists($condition, 'instance')) {
+            $condition = $condition::instance();
+        } else {
+            $condition = new $condition();
+        }
         $object = $condition->render_page($optionid, $userid ?? 0);
 
         // Now we introduce the header at the first place.
@@ -781,8 +785,11 @@ class bo_info {
         if ($shownotificationlist && $optionid && $usertobuyfor->id) {
             $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
             $bookinginformation = $bookinganswer->return_all_booking_information($usertobuyfor->id);
-            $data = new button_notifyme($usertobuyfor->id, $optionid,
-                $bookinginformation['notbooked']['onnotifylist']);
+            $data = new button_notifyme(
+                $usertobuyfor->id,
+                $optionid,
+                $bookinginformation['notbooked']['onnotifylist']
+            );
 
             $renderedstring .= $output->render_notifyme_button($data);
         }
