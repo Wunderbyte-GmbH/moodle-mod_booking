@@ -543,7 +543,6 @@ final class condition_all_test extends advanced_testcase {
         $price = price::get_price('option', $settings->id);
         $this->assertEquals($pricecategorydata2->defaultvalue, $price["price"]);
 
-
         // Student one should see the the default price.
         $this->setUser($student3);
         singleton_service::destroy_instance();
@@ -596,7 +595,6 @@ final class condition_all_test extends advanced_testcase {
         $price = price::get_price('option', $settings->id);
         $this->assertEquals($pricecategorydata2->defaultvalue, $price["price"]);
 
-
         // Student one should see the the default price.
         $this->setUser($student3);
         singleton_service::destroy_instance();
@@ -611,7 +609,6 @@ final class condition_all_test extends advanced_testcase {
 
         // Validation that price == category price.
         $price = price::get_price('option', $settings->id);
-        // $this->assertEquals((int)get_config('booking', 'pricecategoryfallback'), $price["price"]);
         $this->assertEmpty($price);
     }
 
@@ -1406,7 +1403,7 @@ final class condition_all_test extends advanced_testcase {
             'datatype' => 'text',
             'shortname' => 'credit',
             'name' => 'Credit',
-            'visible' => PROFILE_VISIBLE_NONE
+            'visible' => PROFILE_VISIBLE_NONE,
         ]);
 
         // Create users.

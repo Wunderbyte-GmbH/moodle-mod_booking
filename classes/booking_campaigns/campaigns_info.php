@@ -232,7 +232,7 @@ class campaigns_info {
      * Destroys all campaigns in db and singleton.
      * @return bool
      */
-    public static function delete_all_campaigns(): bool{
+    public static function delete_all_campaigns(): bool {
         global $DB;
         $DB->delete_records('booking_campaigns');
         singleton_service::destroy_all_campaigns();

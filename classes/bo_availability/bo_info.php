@@ -573,7 +573,6 @@ class bo_info {
                     $instance = new $filename();
                 }
 
-
                 switch ($condparam) {
                     case MOD_BOOKING_CONDPARAM_HARDCODED_ONLY:
                         if ($instance->is_json_compatible() === false) {
