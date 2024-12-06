@@ -269,6 +269,7 @@ $string['bocondiscancelledfullavailable'] = 'Buchen möglich';
 $string['bocondiscancelledfullnotavailable'] = 'Storniert';
 $string['bocondiscancellednotavailable'] = 'Storniert';
 $string['bocondisloggedin'] = 'isloggedin: User ist eingeloggt';
+$string['bocondisloggedinnotavailable'] = 'Log-In um zu buchen';
 $string['bocondisloggedinprice'] = 'isloggedinprice: Zeige alle Preise wenn nicht eingelogged.';
 $string['bocondmaxnumberofbookings'] = 'max_number_of_bookings: Maximum an Nutzer:innen erreicht, die dieser User buchen darf';
 $string['bocondmaxnumberofbookingsavailable'] = 'Buchen';
