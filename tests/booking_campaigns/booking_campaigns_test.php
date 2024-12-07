@@ -488,7 +488,7 @@ final class booking_campaigns_test extends advanced_testcase {
         $student6 = $this->getDataGenerator()->create_user();
         $student7 = $this->getDataGenerator()->create_user();
         $student8 = $this->getDataGenerator()->create_user();
-        $student9 = $this->getDataGenerator()->create_user(['profile_field_ucustom1' => 'student']);
+        $student9 = $this->getDataGenerator()->create_user(['profile_field_ucustom1' => 'other1,other2']);
         $employee = $this->getDataGenerator()->create_user(['profile_field_ucustom1' => 'employee']);
         $multipleugroups = $this->getDataGenerator()->create_user(['profile_field_ucustom1' => 'employee,somethingelse']);
         $teacher = $this->getDataGenerator()->create_user();
@@ -559,7 +559,7 @@ final class booking_campaigns_test extends advanced_testcase {
 
         $record = new stdClass();
         $record->bookingid = $booking1->id;
-        $record->text = 'Test option1';
+        $record->text = 'Test option';
         $record->chooseorcreatecourse = 1;
         $record->courseid = $course2->id;
         $record->useprice = 0;
@@ -575,7 +575,7 @@ final class booking_campaigns_test extends advanced_testcase {
 
         $record = new stdClass();
         $record->bookingid = $booking1->id;
-        $record->text = 'Test option1';
+        $record->text = 'Test option3';
         $record->chooseorcreatecourse = 1;
         $record->courseid = $course2->id;
         $record->useprice = 0;
@@ -593,9 +593,9 @@ final class booking_campaigns_test extends advanced_testcase {
         $campaingdata1 = (object) [
             'bofieldname' => 'bcustom1',
             'fieldvalue' => 'exclude',
-            'campaignfieldnameoperator' => '!~', // Does not contain!
+            'campaignfieldnameoperator' => '!~', // Does not contains!
             'cpfield' => 'ucustom1',
-            'cpoperator' => '~',
+            'cpoperator' => '~', // Contains!
             'cpvalue' => ['student'],
             'blockoperator' => 'blockbelow',
             'blockinglabel' => 'Below_50',
@@ -620,7 +620,7 @@ final class booking_campaigns_test extends advanced_testcase {
             'campaignfieldnameoperator' => null,
             'fieldvalue' => '',
             'cpfield' => 'ucustom1',
-            'cpoperator' => '!~',
+            'cpoperator' => '!~', // Does not contains!
             'cpvalue' => ["student", "employee", "teacher"],
             'blockoperator' => 'blockalways',
             'blockinglabel' => 'multiple user fields',
@@ -672,10 +672,10 @@ final class booking_campaigns_test extends advanced_testcase {
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
         // Blocked by campaign1.
-        [$id, $isavailable, $description] = $boinfo1->is_available($settings2->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
         // Blocked by campaign1.
-        [$id, $isavailable, $description] = $boinfo1->is_available($settings3->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo3->is_available($settings3->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
 
         $this->setUser($student2);
@@ -683,9 +683,9 @@ final class booking_campaigns_test extends advanced_testcase {
         // All blocked by campaign2.
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
-        [$id, $isavailable, $description] = $boinfo1->is_available($settings2->id, $student2->id, true);
+        [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
-        [$id, $isavailable, $description] = $boinfo1->is_available($settings3->id, $student2->id, true);
+        [$id, $isavailable, $description] = $boinfo3->is_available($settings3->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
 
         $this->setUser($student3);
@@ -693,9 +693,41 @@ final class booking_campaigns_test extends advanced_testcase {
         // All accessible.
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student3->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
-        [$id, $isavailable, $description] = $boinfo1->is_available($settings2->id, $student3->id, true);
+        [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student3->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
-        [$id, $isavailable, $description] = $boinfo1->is_available($settings3->id, $student3->id, true);
+        [$id, $isavailable, $description] = $boinfo3->is_available($settings3->id, $student3->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        $this->setUser($student9);
+        singleton_service::destroy_user($student9->id);
+        // All blocked by campaign2.
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student9->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
+        [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student9->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
+        [$id, $isavailable, $description] = $boinfo3->is_available($settings3->id, $student9->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
+
+        // Try to book options with employee.
+        $this->setUser($employee);
+        singleton_service::destroy_user($employee->id);
+        // All accessible.
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $employee->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+        [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $employee->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+        [$id, $isavailable, $description] = $boinfo3->is_available($settings3->id, $employee->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        // Try to book options with multipleugroups.
+        $this->setUser($multipleugroups);
+        singleton_service::destroy_user($multipleugroups->id);
+        // All accessible.
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $multipleugroups->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+        [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $multipleugroups->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+        [$id, $isavailable, $description] = $boinfo3->is_available($settings3->id, $multipleugroups->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
     }
 
