@@ -3122,6 +3122,7 @@ class booking_option {
         $allowupdatedays = $bookingsettings->allowupdatedays;
         if (
             !empty($bookingsettings->cancelrelativedate) &&
+            $bookingsettings->cancelrelativedate == 1 &&
             isset($allowupdatedays) &&
             $allowupdatedays != 10000 &&
             !empty($starttime)

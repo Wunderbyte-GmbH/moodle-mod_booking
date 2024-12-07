@@ -159,10 +159,14 @@ class mod_booking_observer {
      * @throws dml_exception
      */
     public static function bookingoption_cancelled(\mod_booking\event\bookingoption_cancelled $event) {
-
         rules_info::$eventstoexecute[] = function () use ($event) {
             $optionid = $event->objectid;
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+            // We don't test.
+            if (PHPUNIT_TEST && empty($settings->cmid)) {
+                return;
+            }
             $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
             $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
 

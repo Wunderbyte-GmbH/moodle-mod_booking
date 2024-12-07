@@ -118,7 +118,7 @@ final class condition_allowupdate_test extends advanced_testcase {
         $this->setUser($student1);
 
         // Try to book again with user1.
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ISCANCELLED, $id);
 
         // Now we undo cancel of the booking option.
@@ -126,8 +126,159 @@ final class condition_allowupdate_test extends advanced_testcase {
 
         // Try to book again with user1.
         $this->setUser($student1);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_OPTIONHASSTARTED, $id);
+    }
+
+    /**
+     * Test cancelation with all cancelrelativedate options.
+     *
+     * @covers \condition\iscancelled::is_available
+     * @covers \condition\hasstarted::is_available
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_booking_bookit_cancelrelativedate(array $bdata): void {
+        global $DB, $CFG;
+
+        singleton_service::destroy_instance();
+
+        $bdata['cancancelbook'] = 0;
+        $bdata['allowupdate'] = 1;
+
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create users.
+        $admin = $this->getDataGenerator()->create_user();
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $bdata['cancancelbook'] = 0;
+
+        $bookings = [];
+        // Booking option where cancel is not allowed.
+        $bookings[0] = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        // Booking option where cancel is allowed.
+        $bdata['cancancelbook'] = 1;
+        $bookings[1] = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        // Booking option where cancel is allowed until precise date (5 days from now).
+        // So allowed now.
+        $bdata['cancancelbook'] = 1;
+        $bdata['allowupdatetimestamp'] = strtotime('now + 5 days');
+        $bdata['cancelrelativedate'] = 0;
+        $bookings[2] = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        // Booking option where cancel is allowed until precise date (5 days from now).
+        // So not allowed now.
+        $bdata['cancancelbook'] = 1;
+        $bdata['allowupdatetimestamp'] = strtotime('now - 5 days');
+        $bdata['cancelrelativedate'] = 0;
+        $bookings[3] = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        // Booking option where cancel is allowed only 20 days before coursestart.
+        // So, not allowed now.
+        $bdata['cancancelbook'] = 1;
+        $bdata['cancelrelativedate'] = 1;
+        $bdata['allowupdatedays'] = 20;
+        $bookings[4] = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        // Booking option where cancel is allowed only 2 days before coursestart.
+        // So, allowed now.
+        $bdata['cancancelbook'] = 1;
+        $bdata['cancelrelativedate'] = 1;
+        $bdata['allowupdatedays'] = 2;
+        $bookings[5] = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        // Booking option where cancel is without limit.
+        // So, allowed now.
+        $bdata['cancancelbook'] = 1;
+        $bdata['cancelrelativedate'] = 2;
+        $bookings[6] = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($admin->id, $course->id);
+        $this->getDataGenerator()->enrol_user($student1->id, $course->id);
+        $this->getDataGenerator()->enrol_user($student2->id, $course->id);
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id);
+
+        $record1 = new stdClass();
+        $record1->text = 'Test option1';
+        $record1->courseid = 0;
+        $record1->maxanswers = 2;
+        $record1->coursestarttime = strtotime('now + 10 days');
+        $record1->courseendtime = strtotime('now + 12 days');
+
+        $record2 = new stdClass();
+        $record2->text = 'Test option1';
+        $record2->courseid = 0;
+        $record2->maxanswers = 2;
+        $record2->coursestarttime = strtotime('now - 10 days');
+        $record2->courseendtime = strtotime('now + 12 days');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $expectedresults1 = [
+            0 => MOD_BOOKING_BO_COND_ALREADYBOOKED,
+            1 => MOD_BOOKING_BO_COND_CONFIRMCANCEL,
+            2 => MOD_BOOKING_BO_COND_CONFIRMCANCEL,
+            3 => MOD_BOOKING_BO_COND_ALREADYBOOKED,
+            4 => MOD_BOOKING_BO_COND_ALREADYBOOKED,
+            5 => MOD_BOOKING_BO_COND_CONFIRMCANCEL,
+            6 => MOD_BOOKING_BO_COND_CONFIRMCANCEL,
+        ];
+
+        $expectedresults2 = [
+            0 => MOD_BOOKING_BO_COND_ALREADYBOOKED,
+            1 => MOD_BOOKING_BO_COND_CONFIRMCANCEL,
+            2 => MOD_BOOKING_BO_COND_CONFIRMCANCEL,
+            3 => MOD_BOOKING_BO_COND_ALREADYBOOKED,
+            4 => MOD_BOOKING_BO_COND_ALREADYBOOKED,
+            5 => MOD_BOOKING_BO_COND_ALREADYBOOKED,
+            6 => MOD_BOOKING_BO_COND_CONFIRMCANCEL,
+        ];
+
+        foreach ($bookings as $key => $booking) {
+            $this->setAdminUser();
+            $record1->bookingid = $booking->id;
+            $record2->bookingid = $booking->id;
+            $option1 = $plugingenerator->create_option($record1);
+            $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+            $boinfo1 = new bo_info($settings1);
+
+            $option2 = $plugingenerator->create_option($record2);
+            $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
+            $boinfo2 = new bo_info($settings2);
+
+            // Try to book again with user1.
+            $this->setUser($student1);
+            $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
+            $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
+
+            $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
+            [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
+            $this->assertEquals($expectedresults1[$key], $id);
+
+            $result = booking_bookit::bookit('option', $settings2->id, $student1->id);
+            $result = booking_bookit::bookit('option', $settings2->id, $student1->id);
+
+            $result = booking_bookit::bookit('option', $settings2->id, $student1->id);
+            [$id, $isavailable, $description] = $boinfo1->is_available($settings2->id, $student1->id, true);
+            $this->assertEquals($expectedresults2[$key], $id);
+        }
     }
 
     /**
@@ -183,7 +334,7 @@ final class condition_allowupdate_test extends advanced_testcase {
         $this->setUser($student1);
 
         // Try to book again with user1.
-        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ISBOOKABLE, $id);
 
         // Now we enable option1 back.
@@ -195,13 +346,13 @@ final class condition_allowupdate_test extends advanced_testcase {
 
         // Try to book again with user1.
         $this->setUser($student1);
-        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
 
         // That was just for fun. Now we make sure the student1 will be booked.
         $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
         $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
     }
 
@@ -297,13 +448,13 @@ final class condition_allowupdate_test extends advanced_testcase {
 
         $this->setUser($student1);
         // Validate that subboking is available and non-bloking.
-        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student1->id, false);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, false);
         $this->assertEquals(MOD_BOOKING_BO_COND_SUBBOOKING, $id);
 
         // Book option1 by student1.
         $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
         $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Set blocking subbooking.
@@ -338,13 +489,13 @@ final class condition_allowupdate_test extends advanced_testcase {
         // Try to book option2 with student2.
         $this->setUser($student2);
         // Validate that subboking is available and non-bloking.
-        list($id, $isavailable, $description) = $boinfo2->is_available($settings2->id, $student2->id, false);
+        [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student2->id, false);
         $this->assertEquals(MOD_BOOKING_BO_COND_SUBBOOKINGBLOCKS, $id);
 
         // Book option2 by student2.
         $result = booking_bookit::bookit('option', $settings2->id, $student2->id);
         $result = booking_bookit::bookit('option', $settings2->id, $student2->id);
-        list($id, $isavailable, $description) = $boinfo2->is_available($settings2->id, $student2->id, true);
+        [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
         // TODO: how to make subboking in code?
 
@@ -377,5 +528,14 @@ final class condition_allowupdate_test extends advanced_testcase {
             'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
         ];
         return ['bdata' => [$bdata]];
+    }
+
+    /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        parent::tearDown();
+        // Mandatory clean-up.
+        singleton_service::destroy_instance();
     }
 }
