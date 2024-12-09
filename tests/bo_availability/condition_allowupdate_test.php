@@ -166,7 +166,6 @@ final class condition_allowupdate_test extends advanced_testcase {
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
         foreach ($bdata['bookings'] as $key => $bookingdata) {
-            $bookingdata['course'] = $course->id;
             $booking = $this->getDataGenerator()->create_module('booking', $bookingdata);
 
             $record1 = (object)[
