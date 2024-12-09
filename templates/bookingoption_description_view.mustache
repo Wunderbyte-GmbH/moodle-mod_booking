@@ -179,19 +179,17 @@
                     </div>
                 </div>
             {{/datesexist}}
-            {{^datesexist}}
-                {{#selflearningcourse}}
-                    <div>
-                        <i class="fa fa-fw fa-clock-o" aria-hidden="true"></i>&nbsp;
-                        {{^timeremaining}}
-                            {{#str}}selflearningcoursedurationinfo, mod_booking, {{duration}}{{/str}}
-                        {{/timeremaining}}
-                        {{#timeremaining}}
-                            {{#str}}selflearningcoursetimeremaininginfo, mod_booking, {{timeremaining}}{{/str}}
-                        {{/timeremaining}}
-                    </div>
-                {{/selflearningcourse}}
-            {{/datesexist}}
+            {{#selflearningcourseshowdurationinfo}}
+                <div>
+                    <i class="fa fa-fw fa-clock-o" aria-hidden="true"></i>&nbsp;
+                    {{^timeremaining}}
+                        {{#str}}selflearningcoursedurationinfo, mod_booking, {{duration}}{{/str}}
+                    {{/timeremaining}}
+                    {{#timeremaining}}
+                        {{#str}}selflearningcoursetimeremaininginfo, mod_booking, {{timeremaining}}{{/str}}
+                    {{/timeremaining}}
+                </div>
+            {{/selflearningcourseshowdurationinfo}}
         </div>
         <div class="col-md-5">
             <div class="card price-card">

@@ -78,7 +78,7 @@
     {{/datestrings.0}}
 {{/showcollapsebtn}}
 {{/selflearningcourse}}
-{{#selflearningcourse}}
+{{#selflearningcourseshowdurationinfo}}
     <i class="fa fa-fw fa-clock-o" aria-hidden="true"></i>&nbsp;
     {{^timeremaining}}
         {{#str}}selflearningcoursedurationinfo, mod_booking, {{duration}}{{/str}}
@@ -86,4 +86,4 @@
     {{#timeremaining}}
         {{#str}}selflearningcoursetimeremaininginfo, mod_booking, {{timeremaining}}{{/str}}
     {{/timeremaining}}
-{{/selflearningcourse}}
+{{/selflearningcourseshowdurationinfo}}

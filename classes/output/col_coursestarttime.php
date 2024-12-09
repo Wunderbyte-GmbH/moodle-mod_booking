@@ -59,6 +59,9 @@ class col_coursestarttime implements renderable, templatable {
     /** @var string $timeremaining */
     public $timeremaining = null;
 
+    /** @var bool $selflearningcourseshowdurationinfo */
+    private $selflearningcourseshowdurationinfo = null;
+
     /**
      * Constructor
      *
@@ -81,16 +84,23 @@ class col_coursestarttime implements renderable, templatable {
 
         // For self-learning courses, we do not show any optiondates (sessions).
         if (!empty($settings->selflearningcourse)) {
-            $ba = singleton_service::get_instance_of_booking_answers($settings);
-            $buyforuser = price::return_user_to_buy_for();
-            if (isset($ba->usersonlist[$buyforuser->id])) {
-                $timebooked = $ba->usersonlist[$buyforuser->id]->timecreated;
-                $timeremainingsec = $timebooked + $settings->duration - time();
-                $this->timeremaining = format_time($timeremainingsec);
-            }
-
             $this->selflearningcourse = true;
-            $this->duration = format_time($settings->duration);
+
+            if (!empty($settings->duration)) {
+                // We do not show duration info if it is set to 0.
+                $this->selflearningcourseshowdurationinfo = true;
+
+                // Format the duration correctly.
+                $this->duration = format_time($settings->duration);
+
+                $ba = singleton_service::get_instance_of_booking_answers($settings);
+                $buyforuser = price::return_user_to_buy_for();
+                if (isset($ba->usersonlist[$buyforuser->id])) {
+                    $timebooked = $ba->usersonlist[$buyforuser->id]->timecreated;
+                    $timeremainingsec = $timebooked + $settings->duration - time();
+                    $this->timeremaining = format_time($timeremainingsec);
+                }
+            }
         } else {
             // No self-learning course.
             $this->datestrings = dates_handler::return_array_of_sessions_simple($optionid);
@@ -117,6 +127,7 @@ class col_coursestarttime implements renderable, templatable {
         if (!empty($this->selflearningcourse)) {
             $returnarr['selflearningcourse'] = $this->selflearningcourse;
             $returnarr['duration'] = $this->duration;
+            $returnarr['selflearningcourseshowdurationinfo'] = $this->selflearningcourseshowdurationinfo;
             if (!empty($this->timeremaining)) {
                 $returnarr['timeremaining'] = $this->timeremaining;
             }
