@@ -873,40 +873,39 @@ class bo_info {
         if (
             (!has_capability('mod/booking:bookforothers', $context)
             || get_config('booking', 'bookonlyondetailspage'))
-            && $settings->useprice) {
-            $priceitems = price::get_price('option', $settings->id, $user);
-            if (count($priceitems) > 0) {
+            && $settings->useprice
+        ) {
+            $currstring = isset($priceitems["currency"]) ? "" .  $priceitems["currency"] : '';
+
+            $label = "";
+            if (
+                (!isloggedin()
+                || isguestuser())
+                && !empty($priceitems = self::return_sorted_priceitems($settings->id))
+            ) {
+                $priceitems = self::return_sorted_priceitems($settings->id);
+                foreach ($priceitems as $priceitem) {
+                    if (!empty($label)) {
+                        $label .= " / ";
+                    }
+                    $label .= $priceitem['price'];
+                }
+                $label .= " " . $currstring;
+            } else {
+                $priceitem = price::get_price('option', $settings->id, $user);
                 if (
                     get_config('booking', 'priceisalwayson')
                     || !empty(get_config('booking', 'displayemptyprice'))
-                    || !empty((float)$priceitems["price"])
+                    || !empty((float)$priceitem["price"])
                 ) {
-                    $currstring = isset($priceitems["currency"]) ? "" .  $priceitems["currency"] : '';
-
-                    $label = "";
-                    if (
-                        (!isloggedin()
-                        || isguestuser())
-                        && !empty($priceitems = self::return_sorted_priceitems($settings->id))
-                        ) {
-                        foreach ($priceitems as $priceitem) {
-                            if (!empty($label)) {
-                                $label .= " / ";
-                            }
-                            $label .= $priceitem['price'];
-                        }
-                        $label .= " " . $currstring;
-                    } else {
-                        $label = $priceitems["price"] . " " . $currstring;
-                    }
-
-                    $data['sub'] = [
-                        'label' => $label,
-                        'class' => ' text-center ',
-                        'role' => '',
-                    ];
+                    $label = $priceitem["price"] . " " . $currstring;
                 }
             }
+            $data['sub'] = [
+                'label' => $label,
+                'class' => ' text-center ',
+                'role' => '',
+            ];
         }
 
         // Needed for bookit_price button.

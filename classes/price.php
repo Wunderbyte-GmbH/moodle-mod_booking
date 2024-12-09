@@ -799,7 +799,7 @@ class price {
             !$pricecategoryfound
             && !$usedefault
         ) {
-            return []; // No default for some reason (should never happens).
+            return []; // No default for some reason (should never happen).
         }
 
         if (
