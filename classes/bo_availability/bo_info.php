@@ -875,22 +875,18 @@ class bo_info {
             || get_config('booking', 'bookonlyondetailspage'))
             && $settings->useprice
         ) {
-            $currstring = isset($priceitems["currency"]) ? "" .  $priceitems["currency"] : '';
-
             $label = "";
             if (
                 (!isloggedin()
                 || isguestuser())
                 && !empty($priceitems = self::return_sorted_priceitems($settings->id))
             ) {
-                $priceitems = self::return_sorted_priceitems($settings->id);
                 foreach ($priceitems as $priceitem) {
                     if (!empty($label)) {
                         $label .= " / ";
                     }
                     $label .= $priceitem['price'];
                 }
-                $label .= " " . $currstring;
             } else {
                 $priceitem = price::get_price('option', $settings->id, $user);
                 if (
@@ -898,9 +894,13 @@ class bo_info {
                     || !empty(get_config('booking', 'displayemptyprice'))
                     || !empty((float)$priceitem["price"])
                 ) {
-                    $label = $priceitem["price"] . " " . $currstring;
+                    $currstring = isset($priceitem["currency"]) ? "" .  $priceitem["currency"] : '';
+                    $label = $priceitem["price"];
                 }
             }
+            $currstring = isset($priceitem["currency"]) ? " " .  $priceitem["currency"] : '';
+            $label .= $currstring;
+
             $data['sub'] = [
                 'label' => $label,
                 'class' => ' text-center ',
@@ -961,6 +961,8 @@ class bo_info {
                 $priceitemarray['pricecategoryname'] = $pricecategory->name;
                 // Actually not yet sorted.
                 $sortedpriceitems[$pricecategory->pricecatsortorder] = $priceitemarray;
+            } else if (isset($priceitemarray['price'])) {
+                $sortedpriceitems[] = $priceitemarray;
             }
         }
 
