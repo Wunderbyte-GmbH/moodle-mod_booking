@@ -962,6 +962,8 @@ class bo_info {
                 $priceitemarray['pricecategoryname'] = $pricecategory->name;
                 // Actually not yet sorted.
                 $sortedpriceitems[$pricecategory->pricecatsortorder] = $priceitemarray;
+            } else {
+                $sortedpriceitems[] = $priceitemarray;
             }
         }
 
