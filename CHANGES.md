@@ -1,3 +1,8 @@
+## Version 8.8.8 (2024120900)
+* Improvement: Add another option in booking settings to allow cancel without limit.
+* Bugfix: Fix mlang first in event log table and in message body.
+* Bugfix: Campaign feature.
+
 ## Version 8.8.7 (2024120501)
 * New Feature: Add condition to block/warn overlapping of bookingoption dates.
 
