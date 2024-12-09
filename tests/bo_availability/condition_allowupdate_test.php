@@ -135,57 +135,126 @@ final class condition_allowupdate_test extends advanced_testcase {
      *
      * @covers \condition\iscancelled::is_available
      * @covers \condition\hasstarted::is_available
-     * @dataProvider booking_cancelrelativedate_provider
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
      */
-    public function test_booking_bookit_cancelrelativedate(array $bdata, array $expectedresults1, array $expectedresults2): void {
-        global $CFG;
+    public function test_booking_bookit_cancelrelativedate(array $bdata): void {
+        global $DB, $CFG;
 
         singleton_service::destroy_instance();
 
+        $bdata['cancancelbook'] = 0;
+        $bdata['allowupdate'] = 1;
+
         // Setup test data.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
-        $bdata['course'] = $course->id;
 
         // Create users.
         $admin = $this->getDataGenerator()->create_user();
         $student1 = $this->getDataGenerator()->create_user();
         $student2 = $this->getDataGenerator()->create_user();
         $teacher = $this->getDataGenerator()->create_user();
-        $bookingmanager = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['course'] = $course->id;
         $bdata['bookingmanager'] = $bookingmanager->username;
 
-        // Enrol users in the course.
+        $bdata['cancancelbook'] = 0;
+
+        $bookings = [];
+        // Booking option where cancel is not allowed.
+        $bookings[0] = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        // Booking option where cancel is allowed.
+        $bdata['cancancelbook'] = 1;
+        $bookings[1] = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        // Booking option where cancel is allowed until precise date (5 days from now).
+        // So allowed now.
+        $bdata['cancancelbook'] = 1;
+        $bdata['allowupdatetimestamp'] = strtotime('now + 5 days');
+        $bdata['cancelrelativedate'] = 0;
+        $bookings[2] = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        // Booking option where cancel is allowed until precise date (5 days from now).
+        // So not allowed now.
+        $bdata['cancancelbook'] = 1;
+        $bdata['allowupdatetimestamp'] = strtotime('now - 5 days');
+        $bdata['cancelrelativedate'] = 0;
+        $bookings[3] = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        // Booking option where cancel is allowed only 20 days before coursestart.
+        // So, not allowed now.
+        $bdata['cancancelbook'] = 1;
+        $bdata['cancelrelativedate'] = 1;
+        $bdata['allowupdatedays'] = 20;
+        $bookings[4] = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        // Booking option where cancel is allowed only 2 days before coursestart.
+        // So, allowed now.
+        $bdata['cancancelbook'] = 1;
+        $bdata['cancelrelativedate'] = 1;
+        $bdata['allowupdatedays'] = 2;
+        $bookings[5] = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        // Booking option where cancel is without limit.
+        // So, allowed now.
+        $bdata['cancancelbook'] = 1;
+        $bdata['cancelrelativedate'] = 2;
+        $bookings[6] = $this->getDataGenerator()->create_module('booking', $bdata);
+
         $this->setAdminUser();
+
         $this->getDataGenerator()->enrol_user($admin->id, $course->id);
         $this->getDataGenerator()->enrol_user($student1->id, $course->id);
         $this->getDataGenerator()->enrol_user($student2->id, $course->id);
         $this->getDataGenerator()->enrol_user($teacher->id, $course->id);
         $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id);
 
+        $record1 = new stdClass();
+        $record1->text = 'Test option1';
+        $record1->courseid = 0;
+        $record1->maxanswers = 2;
+        $record1->coursestarttime = strtotime('now + 10 days');
+        $record1->courseendtime = strtotime('now + 12 days');
+
+        $record2 = new stdClass();
+        $record2->text = 'Test option1';
+        $record2->courseid = 0;
+        $record2->maxanswers = 2;
+        $record2->coursestarttime = strtotime('now - 10 days');
+        $record2->courseendtime = strtotime('now + 12 days');
+
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
-        foreach ($bdata['bookings'] as $key => $bookingdata) {
-            $booking = $this->getDataGenerator()->create_module('booking', $bookingdata);
+        $expectedresults1 = [
+            0 => MOD_BOOKING_BO_COND_ALREADYBOOKED,
+            1 => MOD_BOOKING_BO_COND_CONFIRMCANCEL,
+            2 => MOD_BOOKING_BO_COND_CONFIRMCANCEL,
+            3 => MOD_BOOKING_BO_COND_ALREADYBOOKED,
+            4 => MOD_BOOKING_BO_COND_ALREADYBOOKED,
+            5 => MOD_BOOKING_BO_COND_CONFIRMCANCEL,
+            6 => MOD_BOOKING_BO_COND_CONFIRMCANCEL,
+        ];
 
-            $record1 = (object)[
-                'text' => 'Test option1',
-                'courseid' => 0,
-                'maxanswers' => 2,
-                'coursestarttime' => strtotime('now + 10 days'),
-                'courseendtime' => strtotime('now + 12 days'),
-                'bookingid' => $booking->id,
-            ];
+        $expectedresults2 = [
+            0 => MOD_BOOKING_BO_COND_ALREADYBOOKED,
+            1 => MOD_BOOKING_BO_COND_CONFIRMCANCEL,
+            2 => MOD_BOOKING_BO_COND_CONFIRMCANCEL,
+            3 => MOD_BOOKING_BO_COND_ALREADYBOOKED,
+            4 => MOD_BOOKING_BO_COND_ALREADYBOOKED,
+            5 => MOD_BOOKING_BO_COND_ALREADYBOOKED,
+            6 => MOD_BOOKING_BO_COND_CONFIRMCANCEL,
+        ];
 
-            $record2 = (object)[
-                'text' => 'Test option1',
-                'courseid' => 0,
-                'maxanswers' => 2,
-                'coursestarttime' => strtotime('now - 10 days'),
-                'courseendtime' => strtotime('now + 12 days'),
-                'bookingid' => $booking->id,
-            ];
-
+        foreach ($bookings as $key => $booking) {
+            $this->setAdminUser();
+            $record1->bookingid = $booking->id;
+            $record2->bookingid = $booking->id;
             $option1 = $plugingenerator->create_option($record1);
             $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
             $boinfo1 = new bo_info($settings1);
@@ -194,67 +263,22 @@ final class condition_allowupdate_test extends advanced_testcase {
             $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
             $boinfo2 = new bo_info($settings2);
 
+            // Try to book again with user1.
             $this->setUser($student1);
             $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
-            [$id, , ] = $boinfo1->is_available($settings1->id, $student1->id, true);
+            $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
+
+            $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
+            [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
             $this->assertEquals($expectedresults1[$key], $id);
 
             $result = booking_bookit::bookit('option', $settings2->id, $student1->id);
-            [$id, , ] = $boinfo2->is_available($settings2->id, $student1->id, true);
+            $result = booking_bookit::bookit('option', $settings2->id, $student1->id);
+
+            $result = booking_bookit::bookit('option', $settings2->id, $student1->id);
+            [$id, $isavailable, $description] = $boinfo1->is_available($settings2->id, $student1->id, true);
             $this->assertEquals($expectedresults2[$key], $id);
         }
-    }
-
-    /**
-     * Data provider for test_booking_bookit_cancelrelativedate.
-     *
-     * @return array
-     */
-    public static function booking_cancelrelativedate_provider(): array {
-        $commondata = [
-            'cancancelbook' => 0,
-            'allowupdate' => 1,
-            'bookings' => [
-                // Booking option where cancel is not allowed.
-                ['cancancelbook' => 0],
-                // Booking option where cancel is allowed.
-                ['cancancelbook' => 1],
-                // Booking option where cancel is allowed until precise date (5 days from now).
-                ['cancancelbook' => 1, 'allowupdatetimestamp' => strtotime('now + 5 days'), 'cancelrelativedate' => 0],
-                // Booking option where cancel is allowed until precise date (5 days ago).
-                ['cancancelbook' => 1, 'allowupdatetimestamp' => strtotime('now - 5 days'), 'cancelrelativedate' => 0],
-                // Booking option where cancel is allowed only 20 days before coursestart.
-                ['cancancelbook' => 1, 'cancelrelativedate' => 1, 'allowupdatedays' => 20],
-                // Booking option where cancel is allowed only 2 days before coursestart.
-                ['cancancelbook' => 1, 'cancelrelativedate' => 1, 'allowupdatedays' => 2],
-                // Booking option where cancel is without limit.
-                ['cancancelbook' => 1, 'cancelrelativedate' => 2],
-            ],
-        ];
-
-        return [
-            [
-                'bdata' => $commondata,
-                'expectedresults1' => [
-                    MOD_BOOKING_BO_COND_ALREADYBOOKED,
-                    MOD_BOOKING_BO_COND_CONFIRMCANCEL,
-                    MOD_BOOKING_BO_COND_CONFIRMCANCEL,
-                    MOD_BOOKING_BO_COND_ALREADYBOOKED,
-                    MOD_BOOKING_BO_COND_ALREADYBOOKED,
-                    MOD_BOOKING_BO_COND_CONFIRMCANCEL,
-                    MOD_BOOKING_BO_COND_CONFIRMCANCEL,
-                ],
-                'expectedresults2' => [
-                    MOD_BOOKING_BO_COND_ALREADYBOOKED,
-                    MOD_BOOKING_BO_COND_CONFIRMCANCEL,
-                    MOD_BOOKING_BO_COND_CONFIRMCANCEL,
-                    MOD_BOOKING_BO_COND_ALREADYBOOKED,
-                    MOD_BOOKING_BO_COND_ALREADYBOOKED,
-                    MOD_BOOKING_BO_COND_ALREADYBOOKED,
-                    MOD_BOOKING_BO_COND_CONFIRMCANCEL,
-                ],
-            ],
-        ];
     }
 
     /**
