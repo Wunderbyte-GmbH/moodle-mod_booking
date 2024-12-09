@@ -136,10 +136,9 @@ final class condition_allowupdate_test extends advanced_testcase {
      * @covers \condition\iscancelled::is_available
      * @covers \condition\hasstarted::is_available
      * @param array $bdata
-     * @throws \coding_exception
-     * @throws \dml_exception
      *
-     * @dataProvider booking_common_settings_provider
+     * @return void
+     *
      */
     public function test_booking_bookit_cancelrelativedate(array $bdata): void {
         global $DB, $CFG;
