@@ -344,6 +344,9 @@ class booking_answers {
      *
      */
     public function is_overlapping(int $userid, bool $forbiddenbynewoption = true): array {
+        if (!isloggedin() || isguestuser()) {
+            return [];
+        }
         $overlappinganswers = [];
 
         $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
