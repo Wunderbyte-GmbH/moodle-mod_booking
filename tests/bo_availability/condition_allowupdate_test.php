@@ -139,6 +139,7 @@ final class condition_allowupdate_test extends advanced_testcase {
      *
      * @return void
      *
+     * @dataProvider booking_common_settings_provider
      */
     public function test_booking_bookit_cancelrelativedate(array $bdata): void {
         global $DB, $CFG;
