@@ -317,8 +317,8 @@ class teachers_handler {
 
         if ($inserted) {
             $event = \mod_booking\event\teacher_added::create([
-                'userid' => $USER->id,
-                'relateduserid' => $userid,
+                'userid' => $USER->id, // The logged-in user.
+                'relateduserid' => $userid, // This is the teacher!
                 'objectid' => $optionid,
                 'context' => $context,
             ]);
@@ -354,6 +354,7 @@ class teachers_handler {
                 ['userid' => $userid, 'optionid' => $optionid]));
     }
 
+    // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
     // TODO: diese Functions aus dates_handler rausnehmen und von hier aus verwenden!
 
     /**
