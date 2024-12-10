@@ -93,22 +93,23 @@ class behat_booking extends behat_base {
 
     /**
      * Fill specified HTMLQuickForm element by its number under given xpath with a value.
-     * @When /^I click on the element with the number "([^"]*)" with the dynamic identifier "([^"]*)"$/
+     * @When /^I click on the element with the number "([^"]*)" with the dynamic identifier "([^"]*)" and action "([^"]*)"$/
      * @param mixed $numberofitem
-     * @param mixed $tablecontaineridentifier
+     * @param mixed $containeridentifier
+     * @param mixed $actionidentifier
      * @return void
      * @throws RuntimeException
      * @throws InvalidArgumentException
      * @throws UnsupportedDriverActionException
      * @throws DriverException
      */
-    public function i_click_on_element($numberofitem, $tablecontaineridentifier) {
+    public function i_click_on_element($numberofitem, $containeridentifier, $actionidentifier) {
         // Use $dynamicIdentifier to locate and fill in the corresponding form field.
         // Use $value to set the desired value in the form field.
 
         // First we need to open all collapsibles.
         // We should probably have a single fuction for that.
-        $xpathtarget = "//tr[starts-with(@id, 'waitinglist')]//a[@data-methodname='confirmbooking']";
+        $xpathtarget = "//tr[starts-with(@id, '" . $containeridentifier . "')]//a[@data-methodname='" . $actionidentifier . "']";
         $fields = $this->getSession()->getPage()->findAll('xpath', $xpathtarget);
 
         $counter = 1;
