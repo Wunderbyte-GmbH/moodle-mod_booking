@@ -1,3 +1,7 @@
+## Version 8.8.9 (2024121000)
+* Improvement: Extend tests for campaign
+* Bugfix: Pricedisplay with unknown identifier
+
 ## Version 8.8.8 (2024120900)
 * Improvement: Add another option in booking settings to allow cancel without limit.
 * Bugfix: Fix mlang first in event log table and in message body.
