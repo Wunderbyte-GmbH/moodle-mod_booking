@@ -166,15 +166,24 @@ class calendar {
                 break;
 
             case $this::MOD_BOOKING_TYPETEACHERREMOVE:
-                $calendarid = $DB->get_field('booking_teachers', 'calendarid',
-                    ['userid' => $userid, 'optionid' => $optionid]);
+                // We want to delete all user events for this teacher for this option.
+                $params = ['optionid' => $optionid, 'userid' => $userid];
 
-                if ($calendarid > 0) {
-                    if ($DB->record_exists("event", ['id' => $calendarid])) {
-                        $event = \calendar_event::load($calendarid);
-                        $event->delete(true);
-                    }
-                }
+                $sql1 = "DELETE FROM {event}
+                        WHERE id IN
+                        (
+                            SELECT eventid
+                            FROM {booking_userevents}
+                            WHERE optionid = :optionid
+                            AND userid = :userid
+                        )
+                ";
+                $DB->execute($sql1, $params);
+
+                $sql2 = "DELETE FROM {booking_userevents}
+                        WHERE optionid = :optionid
+                        AND userid = :userid";
+                $DB->execute($sql2, $params);
                 break;
         }
     }
