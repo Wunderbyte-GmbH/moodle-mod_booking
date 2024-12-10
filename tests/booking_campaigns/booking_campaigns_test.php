@@ -208,8 +208,7 @@ final class booking_campaigns_test extends advanced_testcase {
             'limitfactor' => 1,
             'json' => json_encode($campaingdata3),
         ];
-        // TODO: For the moment, this campaign isn't active.
-        // First make sure, user contains custom field value in $user->profile['ugroup1'].
+
         $plugingenerator->create_campaign($campaing3);
 
         // Create 1st booking option.
@@ -729,6 +728,378 @@ final class booking_campaigns_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
         [$id, $isavailable, $description] = $boinfo3->is_available($settings3->id, $multipleugroups->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+    }
+
+    /**
+     * Test campaign blockbooking.
+     *
+     * @covers \condition\campaign_blockbooking::is_available
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_campaigns_settings_provider
+     */
+    public function test_booking_bookit_campaign_blockbooking_extended_cases(array $bdata): void {
+        global $DB, $CFG;
+
+        self::tearDown();
+
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        $this->getDataGenerator()->create_custom_profile_field([
+            'datatype' => 'text',
+            'shortname' => 'ugroup1',
+            'name' => 'ugroup1',
+            'visible' => "2",
+        ]);
+        // Create users.
+        $student1 = $this->getDataGenerator()->create_user(['profile_field_ugroup1' => 'student,employee']);
+        $student2 = $this->getDataGenerator()->create_user(['profile_field_ugroup1' => 'student']);
+        $student3 = $this->getDataGenerator()->create_user();
+        $employee = $this->getDataGenerator()->create_user(['profile_field_ugroup1' => 'employee']);
+        $multipleugroups = $this->getDataGenerator()->create_user(['profile_field_ugroup1' => 'employee,somethingelse']);
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($student2->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($student3->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($employee->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($multipleugroups->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id, 'editingteacher');
+
+        $categorydata = new stdClass();
+        $categorydata->name = 'BookCustomCat1';
+        $categorydata->component = 'mod_booking';
+        $categorydata->area = 'booking';
+        $categorydata->itemid = 0;
+        $categorydata->contextid = context_system::instance()->id;
+
+        $bookingcat = $this->getDataGenerator()->create_custom_field_category((array) $categorydata);
+        $bookingcat->save();
+
+        $fielddata = new stdClass();
+        $fielddata->categoryid = $bookingcat->get('id');
+        $fielddata->name = 'Sport1';
+        $fielddata->shortname = 'spt1';
+        $fielddata->type = 'text';
+        $fielddata->configdata = "{\"required\":\"0\",\"uniquevalues\":\"0\",\"locked\":\"0\",\"visibility\":\"2\",
+                                    \"defaultvalue\":\"\",\"displaysize\":30,\"maxlength\":50,\"ispassword\":\"0\",
+                                    \"link\":\"\",\"linktarget\":\"\"}";
+        $bookingfield = $this->getDataGenerator()->create_custom_field((array) $fielddata);
+        $bookingfield->save();
+        $this->assertTrue(\core_customfield\field::record_exists($bookingfield->get('id')));
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $campaingdata2 = (object) [
+            'bofieldname' => 'spt1',
+            'fieldvalue' => 'yoga',
+            'campaignfieldnameoperator' => '!~', // Not contain.
+            'cpfield' => 'ugroup1',
+            'cpoperator' => '!~', // Not contain.
+            'cpvalue' => ["student", "employee"],
+            'blockoperator' => 'blockalways',
+            'blockinglabel' => 'multiple user fields',
+            'hascapability' => "",
+            'percentageavailableplaces' => 50,
+        ];
+        $campaing2 = [
+            'name' => 'not containing yoga no students, no employees',
+            'type' => 1,
+            'starttime' => strtotime('yesterday'),
+            'endtime' => strtotime('now + 1 month'),
+            'pricefactor' => 1,
+            'limitfactor' => 1,
+            'json' => json_encode($campaingdata2),
+        ];
+        $plugingenerator->create_campaign($campaing2);
+
+        // Create 1st booking option.
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1';
+        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->courseid = $course->id;
+        $record->useprice = 0;
+        $record->maxanswers = 3;
+        $record->optiondateid_1 = "0";
+        $record->daystonotify_1 = "0";
+        $record->coursestarttime_1 = strtotime('now + 3 day');
+        $record->courseendtime_1 = strtotime('now + 6 day');
+        $record->customfield_spt1 = 'tennis';
+        $option1 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option1->id); // Mandatory there.
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $optionobj1 = singleton_service::get_instance_of_booking_option($settings1->cmid, $option1->id);
+        $boinfo1 = new bo_info($settings1);
+
+        // Create 2nd booking option.
+        $record->text = 'Test option2';
+        $record->customfield_spt1 = 'yoga';
+        $option2 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option2->id); // Mandatory there.
+        $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
+        $optionobj2 = singleton_service::get_instance_of_booking_option($settings2->cmid, $option2->id);
+        $boinfo2 = new bo_info($settings2);
+
+        // Create 3rd booking option.
+        $record->text = 'Test option3';
+        $record->customfield_spt1 = '';
+        $record->maxanswers = 6;
+        $option3 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option3->id); // Mandatory there.
+        $settings3 = singleton_service::get_instance_of_booking_option_settings($option3->id);
+        $optionobj3 = singleton_service::get_instance_of_booking_option($settings3->cmid, $option3->id);
+        $boinfo3 = new bo_info($settings3);
+
+        // Try to book options with student3.
+        $this->setUser($student3);
+        singleton_service::destroy_user($student3->id);
+        // Try to book option1 but cannot: student3 doesn't have values in the profile field.
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student3->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
+        // Option2 is not blocking because of field yoga.
+        [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student3->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+        $result = booking_bookit::bookit('option', $settings2->id, $student3->id);
+        $result = booking_bookit::bookit('option', $settings2->id, $student3->id);
+        [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student3->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+        // Try to book option3 but cannot: student3 doesn't have values in the profile field.
+        [$id, $isavailable, $description] = $boinfo3->is_available($settings3->id, $student3->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
+    }
+
+    /**
+     * Test campaign blockbooking.
+     *
+     * @covers \condition\campaign_blockbooking::is_available
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_campaigns_settings_provider
+     */
+    public function test_booking_bookit_campaign_blockbooking_extended_cases1(array $bdata): void {
+        global $DB, $CFG;
+
+        self::tearDown();
+
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        $this->getDataGenerator()->create_custom_profile_field([
+            'datatype' => 'text',
+            'shortname' => 'ugroup1',
+            'name' => 'ugroup1',
+            'visible' => "2",
+        ]);
+        // Create users.
+        $student1 = $this->getDataGenerator()->create_user(['profile_field_ugroup1' => 'student,employee']);
+        $student2 = $this->getDataGenerator()->create_user(['profile_field_ugroup1' => 'student']);
+        $student3 = $this->getDataGenerator()->create_user();
+        $employee = $this->getDataGenerator()->create_user(['profile_field_ugroup1' => 'employee']);
+        $multipleugroups = $this->getDataGenerator()->create_user(['profile_field_ugroup1' => 'employee,somethingelse']);
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($student2->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($student3->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($employee->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($multipleugroups->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id, 'editingteacher');
+
+        $categorydata = new stdClass();
+        $categorydata->name = 'BookCustomCat1';
+        $categorydata->component = 'mod_booking';
+        $categorydata->area = 'booking';
+        $categorydata->itemid = 0;
+        $categorydata->contextid = context_system::instance()->id;
+
+        $bookingcat = $this->getDataGenerator()->create_custom_field_category((array) $categorydata);
+        $bookingcat->save();
+
+        $fielddata = new stdClass();
+        $fielddata->categoryid = $bookingcat->get('id');
+        $fielddata->name = 'Sport1';
+        $fielddata->shortname = 'spt1';
+        $fielddata->type = 'text';
+        $fielddata->configdata = "{\"required\":\"0\",\"uniquevalues\":\"0\",\"locked\":\"0\",\"visibility\":\"2\",
+                                    \"defaultvalue\":\"\",\"displaysize\":30,\"maxlength\":50,\"ispassword\":\"0\",
+                                    \"link\":\"\",\"linktarget\":\"\"}";
+        $bookingfield = $this->getDataGenerator()->create_custom_field((array) $fielddata);
+        $bookingfield->save();
+        $this->assertTrue(\core_customfield\field::record_exists($bookingfield->get('id')));
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        // Create 1st blocking campaing: with multiple custom user profile fields and without bofield.
+        $campaingdata1 = (object) [
+            'bofieldname' => '0',
+            'campaignfieldnameoperator' => null,
+            'fieldvalue' => '',
+            'cpfield' => 'ugroup1',
+            'cpoperator' => '!~', // Not contain.
+            'cpvalue' => ["student", "employee"],
+            'blockoperator' => 'blockalways',
+            'blockinglabel' => 'multiple user fields',
+            'hascapability' => "",
+            'percentageavailableplaces' => 50,
+        ];
+        $campaing1 = [
+            'name' => 'multiple_user_fields',
+            'type' => 1,
+            'starttime' => strtotime('yesterday'),
+            'endtime' => strtotime('now + 1 month'),
+            'pricefactor' => 1,
+            'limitfactor' => 1,
+            'json' => json_encode($campaingdata1),
+        ];
+        $plugingenerator->create_campaign($campaing1);
+
+        $campaingdata2 = (object) [
+            'bofieldname' => 'spt1',
+            'fieldvalue' => 'yoga',
+            'campaignfieldnameoperator' => '!~', // Not contain.
+            'cpfield' => 'ugroup1',
+            'cpoperator' => '!~', // Not contain.
+            'cpvalue' => ["student", "employee"],
+            'blockoperator' => 'blockalways',
+            'blockinglabel' => 'multiple user fields',
+            'hascapability' => "",
+            'percentageavailableplaces' => 50,
+        ];
+        $campaing2 = [
+            'name' => 'not containing yoga no students, no employees',
+            'type' => 1,
+            'starttime' => strtotime('yesterday'),
+            'endtime' => strtotime('now + 1 month'),
+            'pricefactor' => 1,
+            'limitfactor' => 1,
+            'json' => json_encode($campaingdata2),
+        ];
+
+        // Create 1st booking option.
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1';
+        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->courseid = $course->id;
+        $record->useprice = 0;
+        $record->maxanswers = 3;
+        $record->optiondateid_1 = "0";
+        $record->daystonotify_1 = "0";
+        $record->coursestarttime_1 = strtotime('now + 3 day');
+        $record->courseendtime_1 = strtotime('now + 6 day');
+        $record->customfield_spt1 = 'tennis';
+        $option1 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option1->id); // Mandatory there.
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $optionobj1 = singleton_service::get_instance_of_booking_option($settings1->cmid, $option1->id);
+        $boinfo1 = new bo_info($settings1);
+
+        // Create 2nd booking option.
+        $record->text = 'Test option2';
+        $record->customfield_spt1 = 'yoga';
+        $option2 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option2->id); // Mandatory there.
+        $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
+        $optionobj2 = singleton_service::get_instance_of_booking_option($settings2->cmid, $option2->id);
+        $boinfo2 = new bo_info($settings2);
+
+        // Create 3rd booking option.
+        $record->text = 'Test option3';
+        $record->customfield_spt1 = '';
+        $record->maxanswers = 6;
+        $option3 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option3->id); // Mandatory there.
+        $settings3 = singleton_service::get_instance_of_booking_option_settings($option3->id);
+        $optionobj3 = singleton_service::get_instance_of_booking_option($settings3->cmid, $option3->id);
+        $boinfo3 = new bo_info($settings3);
+
+        // Try to book options with student1.
+        $this->setUser($student1);
+        singleton_service::destroy_user($student1->id);
+        // Book option1.
+        $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
+        $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Try to book options with student3.
+        $this->setUser($student3);
+        singleton_service::destroy_user($student3->id);
+        // Try to book option1 but cannot: student3 doesn't have values in the profile field.
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student3->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
+        // Try to book option2 but cannot: student3 doesn't have values in the profile field.
+        [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student3->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
+        // Try to book option3 but cannot: student3 doesn't have values in the profile field.
+        [$id, $isavailable, $description] = $boinfo3->is_available($settings3->id, $student3->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
+
+        // Try to book options with teacher. Everything blocks because doesn't have values in the profile field.
+        $this->setUser($teacher);
+        singleton_service::destroy_user($teacher->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $teacher->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
+        [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $teacher->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
+        [$id, $isavailable, $description] = $boinfo3->is_available($settings3->id, $teacher->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
+
+        // Try to book options with employee.
+        $this->setUser($employee);
+        singleton_service::destroy_user($employee->id);
+        // Book option3: profile_field_ugroup1 == employee.
+        $result = booking_bookit::bookit('option', $settings3->id, $employee->id);
+        $result = booking_bookit::bookit('option', $settings3->id, $employee->id);
+        [$id, $isavailable, $description] = $boinfo3->is_available($settings3->id, $employee->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // TODO: Check why it's not working to activate campaign AFTER creation of bookingoptions
+        //singleton_service::destroy_all_campaigns();
+        // $plugingenerator->create_campaign($campaing2);
+
+        // Try to book options with student3.
+        // $this->setUser($student3);
+        // singleton_service::destroy_user($student3->id);
+        // // Try to book option1 but cannot: student3 doesn't have values in the profile field.
+        // [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student3->id, true);
+        // $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
+        // // Option2 is not blocking because of field yoga.
+        // [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student3->id, true);
+        // $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+        // $result = booking_bookit::bookit('option', $settings2->id, $student3->id);
+        // $result = booking_bookit::bookit('option', $settings2->id, $student3->id);
+        // [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student3->id, true);
+        // $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+        // // Try to book option3 but cannot: student3 doesn't have values in the profile field.
+        // [$id, $isavailable, $description] = $boinfo3->is_available($settings3->id, $student3->id, true);
+        // $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
     }
 
     /**
