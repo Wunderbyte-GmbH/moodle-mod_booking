@@ -122,6 +122,7 @@ class booking {
 
         // If the course has groups and I do not have the capability to see all groups, show only
         // users of my groups.
+        // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
         // TODO: Move this potentially expensive function to settings and, with its own cache.
         // It needs to use the live information from cm & context and be invalidated by group change events in this course.
         if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS &&
@@ -389,6 +390,7 @@ class booking {
 
         $this->canbookusers = get_enrolled_users($this->context, 'mod/booking:choose', null, 'u.id');
 
+        // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
         // TODO check if course has guest access if not get all enrolled users and check with...
         // ...has_capability if user has right to book.
         // CODEBEGIN $this->canbookusers = get_users_by_capability($this->context, 'mod/booking:choose', CODEEND.
@@ -1198,7 +1200,7 @@ class booking {
 
                 $where .= " AND ( ";
                 $orstring = [];
-
+                // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
                 // TODO: This could be replaced with in or equal, but not sure of if its worth it.
                 foreach ($value as $arrayvalue) {
 
@@ -1335,6 +1337,7 @@ class booking {
         global $CFG;
 
         // See github issue: https://github.com/Wunderbyte-GmbH/moodle-mod_booking/issues/305.
+        // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
         // TODO: We currently encode the whole URL, but we should only encode the params.
         // Encoding the whole URL makes migration to a new WWWROOT impossible.
 
@@ -1357,6 +1360,7 @@ class booking {
      */
     public static function return_array_of_entity_dates(array $areas): array {
 
+        // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
         // TODO: Now that the SQL has been changed, we need to fix this function!
 
         global $DB, $USER, $PAGE;
@@ -1745,5 +1749,20 @@ class booking {
             // Make sure, we destroy singletons too.
             singleton_service::destroy_booking_singleton_by_cmid($cmid);
         }
+    }
+
+    /**
+     * Helper function to get an array of all available booking cmids.
+     * @return array all cmids of booking instances
+     */
+    public static function get_all_cmids() {
+        global $DB;
+        $sql = "SELECT cm.id AS cmid
+                  FROM {course_modules} cm
+                  JOIN {modules} m
+                    ON m.id = cm.module
+                   AND m.name = 'booking'
+              ORDER BY cm.id DESC";
+        return $DB->get_fieldset_sql($sql);
     }
 }
