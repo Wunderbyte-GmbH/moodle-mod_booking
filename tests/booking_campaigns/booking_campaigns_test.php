@@ -979,28 +979,6 @@ final class booking_campaigns_test extends advanced_testcase {
         ];
         $plugingenerator->create_campaign($campaing1);
 
-        $campaingdata2 = (object) [
-            'bofieldname' => 'spt1',
-            'fieldvalue' => 'yoga',
-            'campaignfieldnameoperator' => '!~', // Not contain.
-            'cpfield' => 'ugroup1',
-            'cpoperator' => '!~', // Not contain.
-            'cpvalue' => ["student", "employee"],
-            'blockoperator' => 'blockalways',
-            'blockinglabel' => 'multiple user fields',
-            'hascapability' => "",
-            'percentageavailableplaces' => 50,
-        ];
-        $campaing2 = [
-            'name' => 'not containing yoga no students, no employees',
-            'type' => 1,
-            'starttime' => strtotime('yesterday'),
-            'endtime' => strtotime('now + 1 month'),
-            'pricefactor' => 1,
-            'limitfactor' => 1,
-            'json' => json_encode($campaingdata2),
-        ];
-
         // Create 1st booking option.
         $record = new stdClass();
         $record->bookingid = $booking1->id;
@@ -1079,27 +1057,6 @@ final class booking_campaigns_test extends advanced_testcase {
         $result = booking_bookit::bookit('option', $settings3->id, $employee->id);
         [$id, $isavailable, $description] = $boinfo3->is_available($settings3->id, $employee->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
-
-        // TODO: Check why it's not working to activate campaign AFTER creation of bookingoptions
-        //singleton_service::destroy_all_campaigns();
-        // $plugingenerator->create_campaign($campaing2);
-
-        // Try to book options with student3.
-        // $this->setUser($student3);
-        // singleton_service::destroy_user($student3->id);
-        // // Try to book option1 but cannot: student3 doesn't have values in the profile field.
-        // [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student3->id, true);
-        // $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
-        // // Option2 is not blocking because of field yoga.
-        // [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student3->id, true);
-        // $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
-        // $result = booking_bookit::bookit('option', $settings2->id, $student3->id);
-        // $result = booking_bookit::bookit('option', $settings2->id, $student3->id);
-        // [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student3->id, true);
-        // $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
-        // // Try to book option3 but cannot: student3 doesn't have values in the profile field.
-        // [$id, $isavailable, $description] = $boinfo3->is_available($settings3->id, $student3->id, true);
-        // $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
     }
 
     /**
