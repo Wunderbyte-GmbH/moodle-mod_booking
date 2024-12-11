@@ -266,7 +266,7 @@ class campaign_customfield implements booking_campaign {
         return campaigns_info::check_if_campaign_is_active(
             $this->starttime,
             $this->endtime,
-            $settings->customfields[$this->bofieldname],
+            $settings->customfields[$this->bofieldname] ?? '',
             empty($this->bofieldname) ? "" : $this->fieldvalue,
             $this->campaignfieldnameoperator
         );
