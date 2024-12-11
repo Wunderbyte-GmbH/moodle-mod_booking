@@ -110,12 +110,21 @@ class campaign_customfield implements booking_campaign {
         $this->fieldvalue = $jsonobj->fieldvalue ?? '';
 
         if (!empty($jsonobj->cpfield)) {
-
+            // Cpfield should be type string.
+            if (is_array($jsonobj->cpfield)) {
+                $this->cpfield = $jsonobj->cpfield[0];
+            } else {
+                $this->cpfield = $jsonobj->cpfield;
+            }
             $this->userspecificprice = true;
 
-            $this->cpfield = $jsonobj->cpfield ?? 0;
             $this->cpoperator = $jsonobj->cpoperator ?? '';
-            $this->cpvalue = $jsonobj->cpvalue ?? [];
+            // Cpvalue should be type array.
+            if (!is_array($jsonobj->cpvalue)) {
+                $this->cpvalue = [$jsonobj->cpvalue];
+            } else {
+                $this->cpvalue = $jsonobj->cpvalue ?? [];
+            }
         }
     }
 
@@ -253,11 +262,12 @@ class campaign_customfield implements booking_campaign {
      * @return bool true if the campaign is currently active
      */
     public function campaign_is_active(int $optionid, booking_option_settings $settings): bool {
+        $this->fieldvalue = is_array($this->fieldvalue) ? $this->fieldvalue[0] : $this->fieldvalue;
         return campaigns_info::check_if_campaign_is_active(
             $this->starttime,
             $this->endtime,
             $settings->customfields[$this->bofieldname],
-            $this->fieldvalue,
+            empty($this->bofieldname) ? "" : $this->fieldvalue,
             $this->campaignfieldnameoperator
         );
     }
