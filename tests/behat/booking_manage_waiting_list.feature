@@ -64,12 +64,12 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Student 3 (student3@example.com)" "text"
     When I click on "Add" "button"
     ## Book 2 students
-    And I click on the element with the number "3" with the dynamic identifier "waitinglist"
+    And I click on the element with the number "3" with the dynamic identifier "waitinglist" and action "confirmbooking"
     And I wait "1" seconds
     And I click on "Book" "button" in the ".modal-footer" "css_element"
     ## And I wait until the page is ready
     And I wait "1" seconds
-    And I click on the element with the number "2" with the dynamic identifier "waitinglist"
+    And I click on the element with the number "2" with the dynamic identifier "waitinglist" and action "confirmbooking"
     And I wait "1" seconds
     And I click on "Book" "button" in the ".modal-footer" "css_element"
     And I wait until the page is ready
@@ -87,7 +87,7 @@ Feature: In a course add a booking option and manage its waiting list
     And I should see "student5@example.com" in the "//tr[contains(@id, 'waitinglist') and contains(@id, '_r1')]" "xpath_element"
 
   @javascript
-    Scenario: Booking option: waiting list with prices
+  Scenario: Booking option: waiting list with prices
     Given the following config values are set as admin:
       | config             | value        | plugin  |
       | pricecategoryfield | userpricecat | booking |
@@ -178,4 +178,21 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I wait until the page is ready
     And I visit "/local/shopping_cart/checkout.php"
-    And I wait "30" seconds
+    And I should see "Waiting_list_with_price" in the ".shopping-cart-checkout-items-container" "css_element"
+    ##And I should see "44.00 EUR" in the ".shopping-cart-checkout-items-container" "css_element"
+    And I should see "44.00 EUR" in the ".sc_price_label .sc_initialtotal" "css_element"
+    And I should see "Use credit: 200.00 EUR" in the ".sc_price_label .sc_credit" "css_element"
+    And I should see "44.00 EUR" in the ".sc_price_label .sc_deductible" "css_element"
+    And I should see "156.00 EUR" in the ".sc_price_label .sc_remainingcredit" "css_element"
+    And I should see "0 EUR" in the ".sc_totalprice" "css_element"
+    And I press "Checkout"
+    And I wait "1" seconds
+    And I press "Confirm"
+    And I wait until the page is ready
+    And I should see "Payment successful!"
+    And I log out
+    ## Validate that student 4 still on waiting list with only cancellation possible
+    And I am on the "My booking" Activity page logged in as student4
+    And I should see "You are on the waiting list" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Undo my booking" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "(Waiting list: 1/3)" in the ".allbookingoptionstable_r1" "css_element"
