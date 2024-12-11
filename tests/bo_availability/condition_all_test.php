@@ -1796,10 +1796,11 @@ final class condition_all_test extends advanced_testcase {
         $option2 = $plugingenerator->create_option($record);
 
         // Not overlapping.
+        $record->text = '2 sessions should overlap';
         $record->coursestarttime_1 = strtotime('now + 10 day');
         $record->courseendtime_1 = strtotime('now + 11 day');
-        $record->coursestarttime_2 = strtotime('now + 13 day');
-        $record->courseendtime_2 = strtotime('now + 14 day');
+        $record->coursestarttime_2 = strtotime('now + 14 day');
+        $record->courseendtime_2 = strtotime('now + 15 day');
         $record->bo_cond_nooverlapping_restrict = 1;
         $record->bo_cond_nooverlapping_handling = MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK;
         $option3 = $plugingenerator->create_option($record);
@@ -1813,14 +1814,33 @@ final class condition_all_test extends advanced_testcase {
         unset($record->bo_cond_nooverlapping_handling);
         $option4 = $plugingenerator->create_option($record);
 
+        // Testing combinations of multiple and single sessions.
+        // Only one session that isn't really overlapping.
+        $record->text = 'No session, not overlapping';
+        $record->coursestarttime = strtotime('now + 12 day');
+        $record->courseendtime = strtotime('now + 13 day');
+        $record->bo_cond_nooverlapping_restrict = 1;
+        unset($record->coursestarttime_1);
+        unset($record->courseendtime_1);
+        unset($record->coursestarttime_2);
+        unset($record->courseendtime_2);
+        unset($record->optiondateid_1);
+        unset($record->daystonotify_1);
+        unset($record->optiondateid_2);
+        unset($record->daystonotify_2);
+        $record->bo_cond_nooverlapping_handling = MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK;
+        $option5 = $plugingenerator->create_option($record);
+
         $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
         $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
         $settings3 = singleton_service::get_instance_of_booking_option_settings($option3->id);
         $settings4 = singleton_service::get_instance_of_booking_option_settings($option4->id);
+        $settings5 = singleton_service::get_instance_of_booking_option_settings($option5->id);
         $boinfo1 = new bo_info($settings1);
         $boinfo2 = new bo_info($settings2);
         $boinfo3 = new bo_info($settings3);
         $boinfo4 = new bo_info($settings4);
+        $boinfo5 = new bo_info($settings5);
 
         // Book user to first option.
         $this->setUser($student1);
@@ -1846,6 +1866,11 @@ final class condition_all_test extends advanced_testcase {
         // Now try to book an option that doesn't contain the nooverlapping flab BUT overlaps with previously booked option 3.
         [$id, $isavailable, $description] = $boinfo4->is_available($settings4->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_JSON_NOOVERLAPPINGPROXY, $id);
+
+        singleton_service::destroy_instance();
+        // Check for option5, should not be blocked.
+        [$id, $isavailable, $description] = $boinfo5->is_available($settings5->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
     }
 
     /**

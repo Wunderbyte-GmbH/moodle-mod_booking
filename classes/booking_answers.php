@@ -386,15 +386,17 @@ class booking_answers {
             ) {
                 continue;
             }
-
+            $settingsanswers = singleton_service::get_instance_of_booking_option_settings($answer->optionid);
             // If there are no sessions, we can return true right away.
-            if (count($settings->sessions) < 2) {
+            if (
+                count($settings->sessions) < 2
+                && count($settingsanswers->sessions) < 2
+            ) {
                 $overlappinganswers[$answer->optionid] = $answer;
                 continue;
             }
             // Else, we need to check each session.
             foreach ($settings->sessions as $session) {
-                $settingsanswers = singleton_service::get_instance_of_booking_option_settings($answer->optionid);
                 foreach ($settingsanswers->sessions as $answersession) {
                     if (
                         self::check_overlap(
