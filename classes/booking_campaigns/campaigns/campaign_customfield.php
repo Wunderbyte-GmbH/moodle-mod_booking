@@ -262,7 +262,7 @@ class campaign_customfield implements booking_campaign {
      * @return bool true if the campaign is currently active
      */
     public function campaign_is_active(int $optionid, booking_option_settings $settings): bool {
-        $this->fieldvalue = is_array($this->fieldvalue) ? $this->fieldvalue[0] : $this->fieldvalue;
+        $this->fieldvalue = is_array($this->fieldvalue) ? reset($this->fieldvalue) : $this->fieldvalue;
         return campaigns_info::check_if_campaign_is_active(
             $this->starttime,
             $this->endtime,
