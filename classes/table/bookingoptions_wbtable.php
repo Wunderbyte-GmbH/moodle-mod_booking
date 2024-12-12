@@ -71,7 +71,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
      */
     public function col_invisibleoption($values) {
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
 
         if (!empty($settings->invisible)) {
             return get_string('invisibleoption', 'mod_booking');
@@ -90,7 +90,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
      */
     public function col_image($values) {
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
 
         if (empty($settings->imageurl)) {
             return null;
@@ -170,7 +170,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
         global $USER;
 
         // Render col_price using a template.
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
 
         $buyforuser = price::return_user_to_buy_for();
 
@@ -403,7 +403,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
     public function col_bookings($values) {
         $output = singleton_service::get_renderer('mod_booking');
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
         $buyforuser = price::return_user_to_buy_for();
         // Render col_bookings using a template.
         $data = new col_availableplaces($values, $settings, $buyforuser);
@@ -438,7 +438,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
      */
     public function col_location($values) {
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
 
         if (isset($settings->entity) && (count($settings->entity) > 0)) {
 
@@ -474,7 +474,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
      */
     public function col_institution($values) {
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
         return $settings->institution;
     }
 
@@ -489,7 +489,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
     public function col_course($values) {
         global $USER;
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
 
         $ret = '';
 
@@ -556,7 +556,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
      */
     public function col_dayofweektime($values) {
         $ret = '';
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
         if (!empty($settings->dayofweektime)) {
             $ret = $settings->dayofweektime;
         }
@@ -621,7 +621,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
         // Link is empty on default.
         $link = '';
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid, $values);
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
         $bookinganswers = singleton_service::get_instance_of_booking_answers($settings, 0);
 
         if (booking_answers::count_places($bookinganswers->usersonlist) > 0) {
