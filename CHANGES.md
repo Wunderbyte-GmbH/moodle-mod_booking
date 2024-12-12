@@ -1,3 +1,11 @@
+## Version 8.9.0 (2024121200)
+* Improvement: Possibility to turn off prices for not logged in users #762.
+* Improvement: Empty tabs (#709).
+* Bugfix: Make campaigns backwards compatible (Wunderbyte-GmbH/Wunderbyte-GmbH#279).
+* Bugfix: Correctly check overlapping for combination of two dates and one date (#757).
+* Test: Fix custom behat step to use proper identificators.
+* Test: New behat Scenario: Booking option: waiting list with prices (#457).
+
 ## Version 8.8.9 (2024121000)
 * Improvement: Extend tests for campaign
 * Bugfix: Pricedisplay with unknown identifier
