@@ -2067,6 +2067,7 @@ $string['showlistoncoursepage_help'] = 'If you activate this setting, the course
 $string['showmessages'] = 'Show messages';
 $string['showmybookingsonly'] = 'My booked options';
 $string['showmyfieldofstudyonly'] = "My field of study";
+$string['showpriceifnotloggedin'] = 'Display price(s) for users not logged in';
 $string['showprogressbars'] = 'Show progress bars of time passed';
 $string['showrecentupdates'] = 'Show recent updates';
 $string['showsubbookings'] = 'Activate subbookings';

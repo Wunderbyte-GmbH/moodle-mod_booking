@@ -1997,6 +1997,7 @@ $string['showlistoncoursepage_help'] = 'Wenn Sie diese Einstellung aktivieren, w
 $string['showmessages'] = 'Zeige Nachrichten';
 $string['showmybookingsonly'] = 'Meine Buchungen';
 $string['showmyfieldofstudyonly'] = "Mein Studiengang";
+$string['showpriceifnotloggedin'] = 'Preis(e) anzeigen, wenn Nutzer:innen nicht eingeloggt sind';
 $string['showprogressbars'] = 'Fortschrittsbalken für bereits vergangene Zeit anzeigen';
 $string['showrecentupdates'] = 'Zeige die letzten Bearbeitungen';
 $string['showsubbookings'] = 'Zusatzbuchungen aktivieren';

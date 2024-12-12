@@ -880,6 +880,7 @@ class bo_info {
                 (!isloggedin()
                 || isguestuser())
                 && !empty($priceitems = self::return_sorted_priceitems($settings->id))
+                && get_config('booking', 'showpriceifnotloggedin')
             ) {
                 foreach ($priceitems as $priceitem) {
                     if (!empty($label)) {

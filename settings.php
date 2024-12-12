@@ -906,6 +906,15 @@ if ($ADMIN->fulltree) {
         )
     );
 
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/showpriceifnotloggedin',
+            get_string('showpriceifnotloggedin', 'mod_booking'),
+            '',
+            1
+        )
+    );
+
     // Choose the user profile field which is used to store each user's price category.
     $userprofilefieldsarray[0] = get_string('userprofilefieldoff', 'mod_booking');
     $userprofilefields = profile_get_custom_fields();
