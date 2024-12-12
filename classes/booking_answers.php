@@ -31,6 +31,7 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\singleton_service;
 use stdClass;
+use Throwable;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -728,7 +729,7 @@ class booking_answers {
         bool $withcoursetimes = false
     ) {
 
-        global $DB;
+        global $DB, $CFG;
 
         $answers = [];
         $data = singleton_service::get_answers_for_user($userid);
@@ -736,46 +737,51 @@ class booking_answers {
             $answers = $data['answers'];
         }
 
-        // If we don't have the answers in the singleton, we look in the cache.
-        if (empty($answers)) {
-            $cache = \cache::make('mod_booking', 'bookinganswers');
-            $data = $cache->get('myanswers');
-            $statustofetch = [];
-            $answers = [];
-            // We don't have any answers, we get the ones we need.
-            if (!$data) {
-                [$sql, $params] = $this->return_sql_to_get_answers(0, $userid, $status, $withcoursetimes);
+        try {
+            // If we don't have the answers in the singleton, we look in the cache.
+            if (empty($answers)) {
+                $cache = \cache::make('mod_booking', 'bookinganswers');
+                $data = $cache->get('myanswers');
+                $statustofetch = [];
+                $answers = [];
+                // We don't have any answers, we get the ones we need.
+                if (!$data) {
+                    [$sql, $params] = $this->return_sql_to_get_answers(0, $userid, $status, $withcoursetimes);
 
-                $answers = $DB->get_records_sql($sql, $params);
-
-                $data = [
-                    'status' => $status,
-                    'answers' => $answers,
-                ];
-            } else {
-                // We need to check if we have all the answers we currently want.
-                // Therefore, we check in the cached object if there it covers the right status.
-
-                foreach ($status as $bookingstatus) {
-                    if (!in_array($bookingstatus, $data['status'])) {
-                        $statustofetch[] = $bookingstatus;
-                    }
-                }
-
-                if (!empty($statustofetch)) {
-                    [$sql, $params] = $this->return_sql_to_get_answers(0, $userid, $statustofetch);
                     $answers = $DB->get_records_sql($sql, $params);
+
+                    $data = [
+                        'status' => $status,
+                        'answers' => $answers,
+                    ];
+                } else {
+                    // We need to check if we have all the answers we currently want.
+                    // Therefore, we check in the cached object if there it covers the right status.
+
+                    foreach ($status as $bookingstatus) {
+                        if (!in_array($bookingstatus, $data['status'])) {
+                            $statustofetch[] = $bookingstatus;
+                        }
+                    }
+
+                    if (!empty($statustofetch)) {
+                        [$sql, $params] = $this->return_sql_to_get_answers(0, $userid, $statustofetch);
+                        $answers = $DB->get_records_sql($sql, $params);
+                    }
+
+                    $data['answers'] = array_merge($data['answers'], $answers ?? []);
+                    $data['status'] = array_merge($statustofetch, $data['status'] ?? []);
                 }
 
-                $data['answers'] = array_merge($data['answers'], $answers ?? []);
-                $data['status'] = array_merge($statustofetch, $data['status'] ?? []);
+                $answers = $data['answers'];
+                singleton_service::set_answers_for_user($userid, $data);
+                $cache->set('myanswers', $data);
             }
-
-            $answers = $data['answers'];
-            singleton_service::set_answers_for_user($userid, $data);
-            $cache->set('myanswers', $data);
+        } catch (Throwable $e) {
+            if ($CFG->debug = (E_ALL | E_STRICT)) {
+                throw $e;
+            }
         }
-
         return $answers;
     }
 
