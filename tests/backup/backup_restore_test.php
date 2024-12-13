@@ -20,6 +20,8 @@ use advanced_testcase;
 use backup_controller;
 use restore_controller;
 use backup;
+use stdClass;
+use context_system;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -72,6 +74,26 @@ final class backup_restore_test extends advanced_testcase {
         $generator->enrol_user($teacher->id, $course1->id, 'editingteacher');
         $generator->enrol_user($teacher->id, $course2->id, 'editingteacher');
 
+        // Create custom booking field.
+        $categorydata = new stdClass();
+        $categorydata->name = 'BookCustomCat1';
+        $categorydata->component = 'mod_booking';
+        $categorydata->area = 'booking';
+        $categorydata->itemid = 0;
+        $categorydata->contextid = context_system::instance()->id;
+
+        $bookingcat = $this->getDataGenerator()->create_custom_field_category((array) $categorydata);
+        $bookingcat->save();
+
+        $fielddata = new stdClass();
+        $fielddata->categoryid = $bookingcat->get('id');
+        $fielddata->name = 'Sport1';
+        $fielddata->shortname = 'spt1';
+        $fielddata->type = 'text';
+        $fielddata->configdata = "";
+        $bookingfield = $this->getDataGenerator()->create_custom_field((array) $fielddata);
+        $bookingfield->save();
+
         $bookings = [];
         $options = [];
         // Create 1st booking.
@@ -92,22 +114,26 @@ final class backup_restore_test extends advanced_testcase {
         $record = (object)$bdata['options'][0];
         $record->bookingid = $bookings[0]->id;
         $record->text = 'Test Option 11';
+        $record->customfield_spt1 = 'chess';
         $options[0] = $plugingenerator->create_option($record);
 
         $record = (object)$bdata['options'][1];
         $record->bookingid = $bookings[0]->id;
         $record->text = 'Test Option 12';
+        $record->customfield_spt1 = 'football';
         $options[1] = $plugingenerator->create_option($record);
 
         // Create options for the 2nd booking.
         $record = (object)$bdata['options'][0];
         $record->bookingid = $bookings[1]->id;
         $record->text = 'Test Option 21';
+        $record->customfield_spt1 = 'tennis';
         $options[2] = $plugingenerator->create_option($record);
 
         $record = (object)$bdata['options'][1];
         $record->bookingid = $bookings[1]->id;
         $record->text = 'Test Option 22';
+        $record->customfield_spt1 = 'tennis';
         $options[3] = $plugingenerator->create_option($record);
 
         // Step 2: Backup the first course.
@@ -150,10 +176,12 @@ final class backup_restore_test extends advanced_testcase {
         $this->assertEquals($options[0]->text, $option20->text);
         $this->assertEquals($options[0]->coursestarttime, $option20->coursestarttime);
         $this->assertEquals($options[0]->courseendtime, $option20->courseendtime);
+        $this->assertEquals($options[0]->customfield_spt1, $option20->spt1);
         $option21 = array_shift($options2);
         $this->assertEquals($options[1]->text, $option21->text);
         $this->assertEquals($options[1]->coursestarttime, $option21->coursestarttime);
         $this->assertEquals($options[1]->courseendtime, $option21->courseendtime);
+        $this->assertEquals($options[1]->customfield_spt1, $option21->spt1);
         // Validabe 2nd booking and its options.
         $booking22 = array_shift($bookings2);
         $this->assertEquals($bookings[1]->name, $booking22->get_name());
@@ -164,10 +192,12 @@ final class backup_restore_test extends advanced_testcase {
         $this->assertEquals($options[2]->text, $option22->text);
         $this->assertEquals($options[2]->coursestarttime, $option22->coursestarttime);
         $this->assertEquals($options[2]->courseendtime, $option22->courseendtime);
+        $this->assertEquals($options[2]->customfield_spt1, $option22->spt1);
         $option23 = array_shift($options2);
         $this->assertEquals($options[3]->text, $option23->text);
         $this->assertEquals($options[3]->coursestarttime, $option23->coursestarttime);
         $this->assertEquals($options[3]->courseendtime, $option23->courseendtime);
+        $this->assertEquals($options[3]->customfield_spt1, $option23->spt1);
 
         singleton_service::destroy_instance();
     }
