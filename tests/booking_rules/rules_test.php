@@ -893,7 +893,7 @@ final class rules_test extends advanced_testcase {
     }
 
     /**
-     * Test rules on ask for confirmation of the booking.
+     * Test rules for "booking on waitinglist booked" and "option free to bookagain" events.
      *
      * @covers \condition\alreadybooked::is_available
      * @covers \condition\onwaitinglist::is_available
@@ -1025,24 +1025,24 @@ final class rules_test extends advanced_testcase {
         // Validate messages. Might be free order.
         foreach ($messages as $key => $message) {
             $customdata = $message->get_custom_data();
-            if (strpos($customdata->customsubject, "freeplacesubj") !== false ) {
+            if (strpos($customdata->customsubject, "freeplacesubj") !== false) {
                 // Validate message on the bookingoption_freetobookagain event.
-                $this->assertEquals("freeplacesubj",  $customdata->customsubject);
-                $this->assertEquals("freeplacemsg",  $customdata->custommessage);
-                $this->assertEquals($student1->id,  $customdata->userid);
-                $this->assertStringContainsString($boevent2,  $customdata->rulejson);
-                $this->assertStringContainsString($ruledata2['conditiondata'],  $customdata->rulejson);
-                $this->assertStringContainsString($ruledata2['actiondata'],  $customdata->rulejson);
-                $this->assertEquals($student1->id,  $message->get_userid());
+                $this->assertEquals("freeplacesubj", $customdata->customsubject);
+                $this->assertEquals("freeplacemsg", $customdata->custommessage);
+                $this->assertEquals($student1->id, $customdata->userid);
+                $this->assertStringContainsString($boevent2, $customdata->rulejson);
+                $this->assertStringContainsString($ruledata2['conditiondata'], $customdata->rulejson);
+                $this->assertStringContainsString($ruledata2['actiondata'], $customdata->rulejson);
+                $this->assertEquals($student1->id, $message->get_userid());
             } else {
                 // Validate message on the bookingoptionwaitinglist_booked event.
-                $this->assertEquals("waitinglistsubj",  $customdata->customsubject);
-                $this->assertEquals("waitinglistmsg",  $customdata->custommessage);
-                $this->assertEquals($teacher1->id,  $customdata->userid);
-                $this->assertStringContainsString($boevent1,  $customdata->rulejson);
-                $this->assertStringContainsString($ruledata1['conditiondata'],  $customdata->rulejson);
-                $this->assertStringContainsString($ruledata1['actiondata'],  $customdata->rulejson);
-                $this->assertEquals($teacher1->id,  $message->get_userid());
+                $this->assertEquals("waitinglistsubj", $customdata->customsubject);
+                $this->assertEquals("waitinglistmsg", $customdata->custommessage);
+                $this->assertEquals($teacher1->id, $customdata->userid);
+                $this->assertStringContainsString($boevent1, $customdata->rulejson);
+                $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
+                $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
+                $this->assertEquals($teacher1->id, $message->get_userid());
                 $rulejson = json_decode($customdata->rulejson);
                 $this->assertContains($rulejson->datafromevent->relateduserid, [$student1->id, $student2->id]);
             }
