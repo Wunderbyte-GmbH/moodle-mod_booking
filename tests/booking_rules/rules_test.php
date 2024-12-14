@@ -43,7 +43,6 @@ use mod_booking\local\mobile\customformstore;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class rules_test extends advanced_testcase {
-
     /**
      * Tests set up.
      */
@@ -68,6 +67,8 @@ final class rules_test extends advanced_testcase {
      * @dataProvider booking_common_settings_provider
      */
     public function test_rule_on_teacher_added(array $bdata): void {
+
+        singleton_service::destroy_instance();
 
         set_config('timezone', 'Europe/Kyiv');
         set_config('forcetimezone', 'Europe/Kyiv');
@@ -136,17 +137,17 @@ final class rules_test extends advanced_testcase {
         // Message 1 has to be "teacher_removed" sent to user1.
         $message = $messages[$keys[0]];
         $customdata = $message->get_custom_data();
-        $this->assertEquals("teacher added",  $customdata->customsubject);
-        $this->assertEquals("teacher added msg",  $customdata->custommessage);
-        $this->assertEquals(2,  $customdata->userid);
-        $this->assertStringContainsString($boevent1,  $customdata->rulejson);
-        $this->assertStringContainsString($ruledata1['conditiondata'],  $customdata->rulejson);
-        $this->assertStringContainsString($ruledata1['actiondata'],  $customdata->rulejson);
+        $this->assertEquals("teacher added", $customdata->customsubject);
+        $this->assertEquals("teacher added msg", $customdata->custommessage);
+        $this->assertEquals(2, $customdata->userid);
+        $this->assertStringContainsString($boevent1, $customdata->rulejson);
+        $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
+        $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
         $rulejson = json_decode($customdata->rulejson);
         $this->assertEquals($user1->id, $rulejson->datafromevent->relateduserid);
 
         // Mandatory to solve potential cache issues.
-        singleton_service::destroy_booking_option_singleton($option1->id);
+        singleton_service::destroy_instance();
         // Mandatory to deal with static variable in the booking_rules.
         rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
@@ -168,6 +169,8 @@ final class rules_test extends advanced_testcase {
      * @dataProvider booking_common_settings_provider
      */
     public function test_rule_on_teacher_removed(array $bdata): void {
+
+        singleton_service::destroy_instance();
 
         set_config('timezone', 'Europe/Kyiv');
         set_config('forcetimezone', 'Europe/Kyiv');
@@ -236,27 +239,27 @@ final class rules_test extends advanced_testcase {
         $keys = array_keys($messages);
         // Message 1 has to be "teacher_removed" sent to user1.
         $message = $messages[$keys[0]];
-        $this->assertEquals($user1->id,  $message->get_userid());
+        $this->assertEquals($user1->id, $message->get_userid());
         $customdata = $message->get_custom_data();
-        $this->assertEquals("teacher removed",  $customdata->customsubject);
-        $this->assertEquals("teacher removed msg",  $customdata->custommessage);
-        $this->assertEquals($user1->id,  $customdata->userid);
-        $this->assertStringContainsString($boevent1,  $customdata->rulejson);
-        $this->assertStringContainsString($ruledata1['conditiondata'],  $customdata->rulejson);
-        $this->assertStringContainsString($ruledata1['actiondata'],  $customdata->rulejson);
+        $this->assertEquals("teacher removed", $customdata->customsubject);
+        $this->assertEquals("teacher removed msg", $customdata->custommessage);
+        $this->assertEquals($user1->id, $customdata->userid);
+        $this->assertStringContainsString($boevent1, $customdata->rulejson);
+        $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
+        $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
         $rulejson = json_decode($customdata->rulejson);
         $this->assertEquals($user1->id, $rulejson->datafromevent->relateduserid);
         // Message 2 has to be "teacher_removed" sent to user2.
         $message = $messages[$keys[1]];
-        $this->assertEquals($user2->id,  $message->get_userid());
+        $this->assertEquals($user2->id, $message->get_userid());
         $customdata = $message->get_custom_data();
-        $this->assertEquals("teacher removed",  $customdata->customsubject);
-        $this->assertEquals($user2->id,  $customdata->userid);
+        $this->assertEquals("teacher removed", $customdata->customsubject);
+        $this->assertEquals($user2->id, $customdata->userid);
         $rulejson = json_decode($customdata->rulejson);
         $this->assertEquals($user1->id, $rulejson->datafromevent->relateduserid);
 
         // Mandatory to solve potential cache issues.
-        singleton_service::destroy_booking_option_singleton($option1->id);
+        singleton_service::destroy_instance();
         // Mandatory to deal with static variable in the booking_rules.
         rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
@@ -280,6 +283,8 @@ final class rules_test extends advanced_testcase {
      * @dataProvider booking_common_settings_provider
      */
     public function test_rule_on_answer_and_option_cancelled(array $bdata): void {
+
+        singleton_service::destroy_instance();
 
         set_config('timezone', 'Europe/Kyiv');
         set_config('forcetimezone', 'Europe/Kyiv');
@@ -369,27 +374,27 @@ final class rules_test extends advanced_testcase {
         // Validate scheduled adhoc tasks. Validate messages - order might be free.
         foreach ($messages as $key => $message) {
             $customdata = $message->get_custom_data();
-            if (strpos($customdata->customsubject, "answcancsubj") !== false ) {
+            if (strpos($customdata->customsubject, "answcancsubj") !== false) {
                 // Validate message on the option's answer cancellation.
-                $this->assertEquals("answcancsubj",  $customdata->customsubject);
-                $this->assertEquals("answcancmsg",  $customdata->custommessage);
-                $this->assertEquals($user3->id,  $customdata->userid);
-                $this->assertStringContainsString('bookinganswer_cancelled',  $customdata->rulejson);
-                $this->assertStringContainsString($ruledata1['conditiondata'],  $customdata->rulejson);
-                $this->assertStringContainsString($ruledata1['actiondata'],  $customdata->rulejson);
+                $this->assertEquals("answcancsubj", $customdata->customsubject);
+                $this->assertEquals("answcancmsg", $customdata->custommessage);
+                $this->assertEquals($user3->id, $customdata->userid);
+                $this->assertStringContainsString('bookinganswer_cancelled', $customdata->rulejson);
+                $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
+                $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
             } else {
                 // Validate message on the entire option cancellation.
-                $this->assertEquals("optcancsubj",  $customdata->customsubject);
-                $this->assertEquals("optcancmsg",  $customdata->custommessage);
-                $this->assertEquals($user1->id,  $customdata->userid);
-                $this->assertStringContainsString($boevent2,  $customdata->rulejson);
-                $this->assertStringContainsString($ruledata2['conditiondata'],  $customdata->rulejson);
-                $this->assertStringContainsString($ruledata2['actiondata'],  $customdata->rulejson);
+                $this->assertEquals("optcancsubj", $customdata->customsubject);
+                $this->assertEquals("optcancmsg", $customdata->custommessage);
+                $this->assertEquals($user1->id, $customdata->userid);
+                $this->assertStringContainsString($boevent2, $customdata->rulejson);
+                $this->assertStringContainsString($ruledata2['conditiondata'], $customdata->rulejson);
+                $this->assertStringContainsString($ruledata2['actiondata'], $customdata->rulejson);
             }
         }
 
         // Mandatory to solve potential cache issues.
-        singleton_service::destroy_booking_option_singleton($option1->id);
+        singleton_service::destroy_instance();
         // Mandatory to deal with static variable in the booking_rules.
         rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
@@ -411,6 +416,8 @@ final class rules_test extends advanced_testcase {
      * @dataProvider booking_common_settings_provider
      */
     public function test_rule_on_beforeafter_cursestart(array $bdata): void {
+
+        singleton_service::destroy_instance();
 
         set_config('timezone', 'Europe/Kyiv');
         set_config('forcetimezone', 'Europe/Kyiv');
@@ -480,25 +487,25 @@ final class rules_test extends advanced_testcase {
             $customdata = $message->get_custom_data();
             if (strpos($customdata->customsubject, "1daybefore") !== false) {
                 $this->assertEquals(strtotime('19 June 2050 15:00'), $message->get_next_run_time());
-                $this->assertEquals("will start tomorrow",  $customdata->custommessage);
-                $this->assertEquals("2",  $customdata->userid);
-                $this->assertStringContainsString($ruledata1['ruledata'],  $customdata->rulejson);
-                $this->assertStringContainsString($ruledata1['conditiondata'],  $customdata->rulejson);
-                $this->assertStringContainsString($ruledata1['actiondata'],  $customdata->rulejson);
+                $this->assertEquals("will start tomorrow", $customdata->custommessage);
+                $this->assertEquals("2", $customdata->userid);
+                $this->assertStringContainsString($ruledata1['ruledata'], $customdata->rulejson);
+                $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
+                $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
             } else if (strpos($customdata->customsubject, "1dayafter") !== false) {
                 $this->assertEquals(strtotime('21 July 2050 14:00'), $message->get_next_run_time());
-                $this->assertEquals("was ended yesterday",  $customdata->custommessage);
+                $this->assertEquals("was ended yesterday", $customdata->custommessage);
                 $this->assertEquals("2",  $customdata->userid);
-                $this->assertStringContainsString($ruledata2['ruledata'],  $customdata->rulejson);
-                $this->assertStringContainsString($ruledata2['conditiondata'],  $customdata->rulejson);
-                $this->assertStringContainsString($ruledata2['actiondata'],  $customdata->rulejson);
+                $this->assertStringContainsString($ruledata2['ruledata'], $customdata->rulejson);
+                $this->assertStringContainsString($ruledata2['conditiondata'], $customdata->rulejson);
+                $this->assertStringContainsString($ruledata2['actiondata'], $customdata->rulejson);
             } else {
                 continue;
             }
         }
 
         // Mandatory to solve potential cache issues.
-        singleton_service::destroy_booking_option_singleton($option1->id);
+        singleton_service::destroy_instance();
         // Mandatory to deal with static variable in the booking_rules.
         rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
@@ -520,6 +527,8 @@ final class rules_test extends advanced_testcase {
      * @dataProvider booking_common_settings_provider
      */
     public function test_rule_on_rule_override(array $bdata): void {
+
+        singleton_service::destroy_instance();
 
         set_config('timezone', 'Europe/Kyiv');
         set_config('forcetimezone', 'Europe/Kyiv');
@@ -606,16 +615,16 @@ final class rules_test extends advanced_testcase {
         // Task 1 has to be "override".
         $message = $messages[$keys[0]];
         $customdata = $message->get_custom_data();
-        $this->assertEquals("overridesubj",  $customdata->customsubject);
-        $this->assertEquals("overridemsg",  $customdata->custommessage);
-        $this->assertEquals($user1->id,  $customdata->userid);
-        $this->assertStringContainsString($boevent2,  $customdata->rulejson);
-        $this->assertStringContainsString($cancelrules2,  $customdata->rulejson);
-        $this->assertStringContainsString($ruledata2['conditiondata'],  $customdata->rulejson);
-        $this->assertStringContainsString($ruledata2['actiondata'],  $customdata->rulejson);
+        $this->assertEquals("overridesubj", $customdata->customsubject);
+        $this->assertEquals("overridemsg", $customdata->custommessage);
+        $this->assertEquals($user1->id, $customdata->userid);
+        $this->assertStringContainsString($boevent2, $customdata->rulejson);
+        $this->assertStringContainsString($cancelrules2, $customdata->rulejson);
+        $this->assertStringContainsString($ruledata2['conditiondata'], $customdata->rulejson);
+        $this->assertStringContainsString($ruledata2['actiondata'], $customdata->rulejson);
 
         // Mandatory to solve potential cache issues.
-        singleton_service::destroy_booking_option_singleton($option1->id);
+        singleton_service::destroy_instance();
         // Mandatory to deal with static variable in the booking_rules.
         rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
@@ -638,6 +647,8 @@ final class rules_test extends advanced_testcase {
      * @dataProvider booking_common_settings_provider
      */
     public function test_rule_on_booking_option_update(array $bdata): void {
+
+        singleton_service::destroy_instance();
 
         // Setup test data.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
@@ -711,28 +722,28 @@ final class rules_test extends advanced_testcase {
 
         // Validate console output.
         $expected = "send_mail_by_rule_adhoc task: mail successfully sent for option " . $option->id . " to user " . $user1->id;
-        $this->assertStringContainsString($expected,  $res);
+        $this->assertStringContainsString($expected, $res);
 
         // Validate emails. Might be more than one dependitg to Moodle's version.
         foreach ($messages as $key => $message) {
             if (strpos($message->subject, "OptionChanged")) {
                 // Validate email on option change.
                 $this->assertEquals("OptionChanged",  $message->subject);
-                $this->assertStringContainsString("Dates has changed",  $message->fullmessage);
-                $this->assertStringContainsString("20 June 2050",  $message->fullmessage);
-                $this->assertStringContainsString("20 July 2050",  $message->fullmessage);
-                $this->assertStringContainsString("10 April 2055",  $message->fullmessage);
-                $this->assertStringContainsString("10 May 2055",  $message->fullmessage);
-                $this->assertStringContainsString("Teachers has changed",  $message->fullmessage);
-                $this->assertStringContainsString("Teacher 1 (ID:",  $message->fullmessage);
-                $this->assertStringContainsString("Description has changed",  $message->fullmessage);
-                $this->assertStringContainsString("Test description",  $message->fullmessage);
-                $this->assertStringContainsString("Description updated",  $message->fullmessage);
+                $this->assertStringContainsString("Dates has changed", $message->fullmessage);
+                $this->assertStringContainsString("20 June 2050", $message->fullmessage);
+                $this->assertStringContainsString("20 July 2050", $message->fullmessage);
+                $this->assertStringContainsString("10 April 2055", $message->fullmessage);
+                $this->assertStringContainsString("10 May 2055", $message->fullmessage);
+                $this->assertStringContainsString("Teachers has changed", $message->fullmessage);
+                $this->assertStringContainsString("Teacher 1 (ID:", $message->fullmessage);
+                $this->assertStringContainsString("Description has changed", $message->fullmessage);
+                $this->assertStringContainsString("Test description", $message->fullmessage);
+                $this->assertStringContainsString("Description updated", $message->fullmessage);
             }
         }
 
         // Mandatory to solve potential cache issues.
-        singleton_service::destroy_booking_option_singleton($option->id);
+        singleton_service::destroy_instance();
         // Mandatory to deal with static variable in the booking_rules.
         rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
@@ -758,6 +769,8 @@ final class rules_test extends advanced_testcase {
      */
     public function test_rule_on_askforconfirmation(array $bdata): void {
         global $DB, $CFG;
+
+        singleton_service::destroy_instance();
 
         $bdata['cancancelbook'] = 1;
 
@@ -862,31 +875,31 @@ final class rules_test extends advanced_testcase {
         $message = $messages[$keys[0]];
         // Validate adhoc tasks for rule 1.
         $customdata = $message->get_custom_data();
-        $this->assertEquals("waitinglistconfirmsubj",  $customdata->customsubject);
-        $this->assertEquals("waitinglistconfirmmsg",  $customdata->custommessage);
-        $this->assertEquals($teacher2->id,  $customdata->userid);
-        $this->assertStringContainsString($boevent1,  $customdata->rulejson);
-        $this->assertStringContainsString($ruledata1['conditiondata'],  $customdata->rulejson);
-        $this->assertStringContainsString($ruledata1['actiondata'],  $customdata->rulejson);
+        $this->assertEquals("waitinglistconfirmsubj", $customdata->customsubject);
+        $this->assertEquals("waitinglistconfirmmsg", $customdata->custommessage);
+        $this->assertEquals($teacher2->id, $customdata->userid);
+        $this->assertStringContainsString($boevent1, $customdata->rulejson);
+        $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
+        $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
         $rulejson = json_decode($customdata->rulejson);
         $this->assertEquals($student1->id, $rulejson->datafromevent->relateduserid);
-        $this->assertEquals($teacher2->id,  $message->get_userid());
+        $this->assertEquals($teacher2->id, $message->get_userid());
         // Task 2 has to be "bookingoptionwaitinglist_booked".
         $message = $messages[$keys[1]];
         // Validate adhoc tasks for rule 1.
         $customdata = $message->get_custom_data();
-        $this->assertEquals("waitinglistsubj",  $customdata->customsubject);
-        $this->assertEquals("waitinglistmsg",  $customdata->custommessage);
-        $this->assertEquals($teacher1->id,  $customdata->userid);
-        $this->assertStringContainsString($boevent2,  $customdata->rulejson);
-        $this->assertStringContainsString($ruledata2['conditiondata'],  $customdata->rulejson);
-        $this->assertStringContainsString($ruledata2['actiondata'],  $customdata->rulejson);
+        $this->assertEquals("waitinglistsubj", $customdata->customsubject);
+        $this->assertEquals("waitinglistmsg", $customdata->custommessage);
+        $this->assertEquals($teacher1->id, $customdata->userid);
+        $this->assertStringContainsString($boevent2, $customdata->rulejson);
+        $this->assertStringContainsString($ruledata2['conditiondata'], $customdata->rulejson);
+        $this->assertStringContainsString($ruledata2['actiondata'], $customdata->rulejson);
         $rulejson = json_decode($customdata->rulejson);
         $this->assertEquals($student1->id, $rulejson->datafromevent->relateduserid);
-        $this->assertEquals($teacher1->id,  $message->get_userid());
+        $this->assertEquals($teacher1->id, $message->get_userid());
 
         // Mandatory to solve potential cache issues.
-        singleton_service::destroy_booking_option_singleton($option1->id);
+        singleton_service::destroy_instance();
         // Mandatory to deal with static variable in the booking_rules.
         rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
@@ -912,6 +925,8 @@ final class rules_test extends advanced_testcase {
      */
     public function test_rule_on_freeplaceagain(array $bdata): void {
         global $DB, $CFG;
+
+        singleton_service::destroy_instance();
 
         $bdata['cancancelbook'] = 1;
 
@@ -1049,11 +1064,13 @@ final class rules_test extends advanced_testcase {
         }
 
         // Mandatory to solve potential cache issues.
-        singleton_service::destroy_booking_option_singleton($option1->id);
+        singleton_service::destroy_instance();
         // Mandatory to deal with static variable in the booking_rules.
         rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
     }
+
+
 
     /**
      * Test rule on option being completed for user.
@@ -1072,6 +1089,8 @@ final class rules_test extends advanced_testcase {
      * @dataProvider booking_common_settings_provider
      */
     public function test_rule_on_option_completion(array $bdata): void {
+
+        singleton_service::destroy_instance();
 
         set_config('timezone', 'Europe/Kyiv');
         set_config('forcetimezone', 'Europe/Kyiv');
@@ -1154,9 +1173,9 @@ final class rules_test extends advanced_testcase {
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
         $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
 
-        $this->assertEquals(false,  $option->user_completed_option());
+        $this->assertEquals(false, $option->user_completed_option());
         booking_activitycompletion([$user2->id], $option->booking->settings, $settings->cmid, $option1->id);
-        $this->assertEquals(true,  $option->user_completed_option());
+        $this->assertEquals(true, $option->user_completed_option());
 
         // Get messages.
         $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
@@ -1167,29 +1186,29 @@ final class rules_test extends advanced_testcase {
         $message = $messages[$keys[0]];
         // Validate adhoc tasks for rule 1.
         $customdata = $message->get_custom_data();
-        $this->assertEquals("bookedsubj",  $customdata->customsubject);
-        $this->assertEquals("bookednmsg",  $customdata->custommessage);
-        $this->assertEquals($user3->id,  $customdata->userid);
-        $this->assertStringContainsString("bookingoption_booked",  $customdata->rulejson);
-        $this->assertStringContainsString($ruledata1['conditiondata'],  $customdata->rulejson);
-        $this->assertStringContainsString($ruledata1['actiondata'],  $customdata->rulejson);
-        $this->assertEquals($user3->id,  $message->get_userid());
+        $this->assertEquals("bookedsubj", $customdata->customsubject);
+        $this->assertEquals("bookednmsg", $customdata->custommessage);
+        $this->assertEquals($user3->id, $customdata->userid);
+        $this->assertStringContainsString("bookingoption_booked", $customdata->rulejson);
+        $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
+        $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
+        $this->assertEquals($user3->id, $message->get_userid());
         // Task 2 has to be "select_user_from_event".
         $message = $messages[$keys[1]];
         // Validate adhoc tasks for rule 1.
         $customdata = $message->get_custom_data();
-        $this->assertEquals("completionsubj",  $customdata->customsubject);
-        $this->assertEquals("completionmsg",  $customdata->custommessage);
-        $this->assertEquals($user2->id,  $customdata->userid);
-        $this->assertStringContainsString("bookingoption_completed",  $customdata->rulejson);
-        $this->assertStringContainsString($ruledata2['conditiondata'],  $customdata->rulejson);
-        $this->assertStringContainsString($ruledata2['actiondata'],  $customdata->rulejson);
+        $this->assertEquals("completionsubj", $customdata->customsubject);
+        $this->assertEquals("completionmsg", $customdata->custommessage);
+        $this->assertEquals($user2->id, $customdata->userid);
+        $this->assertStringContainsString("bookingoption_completed", $customdata->rulejson);
+        $this->assertStringContainsString($ruledata2['conditiondata'], $customdata->rulejson);
+        $this->assertStringContainsString($ruledata2['actiondata'], $customdata->rulejson);
         $rulejson = json_decode($customdata->rulejson);
         $this->assertEquals($user2->id, $rulejson->datafromevent->relateduserid);
-        $this->assertEquals($user2->id,  $message->get_userid());
+        $this->assertEquals($user2->id, $message->get_userid());
 
         // Mandatory to solve potential cache issues.
-        singleton_service::destroy_booking_option_singleton($option1->id);
+        singleton_service::destroy_instance();
         // Mandatory to deal with static variable in the booking_rules.
         rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
@@ -1207,6 +1226,9 @@ final class rules_test extends advanced_testcase {
      * @dataProvider booking_common_settings_provider
      */
     public function test_booking_rules_customform_delete_data(array $bdata): void {
+        
+        singleton_service::destroy_instance();
+
         // Setup test data.
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
@@ -1373,8 +1395,7 @@ final class rules_test extends advanced_testcase {
         $this->assertStringNotContainsString($formrecord3->customform_shorttext_1, $answer23->json);
 
         // Mandatory to solve potential cache issues.
-        singleton_service::destroy_booking_option_singleton($option1->id);
-        singleton_service::destroy_booking_option_singleton($option2->id);
+        singleton_service::destroy_instance();
         // Mandatory to deal with static variable in the booking_rules.
         rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
