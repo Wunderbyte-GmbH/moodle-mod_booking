@@ -305,7 +305,7 @@ class shortcodes {
             self::apply_customfieldfilter($table, $customfieldfilter);
         }
 
-        $table->showcountlabel = false;
+        $table->showcountlabel = $showfilter ? true : false;
 
         // If "rightside" is in the "exclude" array, then we do not show the rightside area (containing the "Book now" button).
         if (!empty($exclude) && in_array('rightside', $exclude)) {
