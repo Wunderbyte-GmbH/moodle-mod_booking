@@ -743,7 +743,7 @@ class dates_handler {
             if (!empty($endtime)) {
                 $date->enddatetime = userdate($endtime, $strftimedaydatetime); // Friday, 3. February 2023, 12:45.
                 $date->enddate = userdate($endtime, $strftimedaydate); // Friday, 3. February 2023.
-                $timespan = html_writer::span($date->starttime . ' - ' . $date->endtime, 'time');
+                $timespan = html_writer::span($date->starttime . ' - ' . $date->endtime . get_string('h', 'mod_booking'), 'time');
                 if ($date->startdate !== $date->enddate) {
                     $datespan = html_writer::span($date->startdate . ' - ' . $date->enddate, 'date');
                 }
