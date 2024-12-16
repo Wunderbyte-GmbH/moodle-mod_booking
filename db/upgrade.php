@@ -3932,7 +3932,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024112604, 'booking');
     }
 
-    if ($oldversion < 2024121201) {
+    if ($oldversion < 2024121600) {
 
         // Fetch all booking options where availability is empty or null
         $records = $DB->get_records_select('booking_options', "availability = '' OR availability IS NULL");
@@ -3943,7 +3943,7 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2024112604, 'booking');
+        upgrade_mod_savepoint(true, 2024121600, 'booking');
     }
 
     return true;
