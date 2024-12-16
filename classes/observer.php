@@ -358,7 +358,14 @@ class mod_booking_observer {
         }
         $teacherid = $event->relateduserid;
         $cmid = $event->contextinstanceid;
+
+        // For templates, we do not create calendar events for teachers (fixes #766).
+        if (empty($cmid)) {
+            return;
+        }
+
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
         // Create calendar events for the newly added teacher.
         foreach ($settings->sessions as $session) {
             new calendar($cmid, $optionid, $teacherid,

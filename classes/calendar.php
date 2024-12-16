@@ -133,16 +133,20 @@ class calendar {
                                 $DB->update_record('booking_userevents', $userevent);
                             }
                         }
-                    } else {
-                        echo "ERROR: Calendar entry for option date could not be created.";
                     }
+                    /* TODO: Currently, dates might not be saved for teachers if the optiondates are not already saved.
+                    We need to make sure, that dates are also saved for teachers, even if we newly create an option.
+                    We might need a new MOD_BOOKING_EXECUTION_POSTSAVE_AFTER for this, so this happens AFTER the dates
+                    have been created. */
                 } else if ($settings->addtocalendar == 1) {
                     if ($optiondate = $DB->get_record("booking_optiondates", ["id" => $optiondateid])) {
                         $newcalendarid = self::booking_optiondate_add_to_cal($cmid, $optionid,
                             $optiondate, $settings->calendarid, 0, 1);
-                    } else {
-                        echo "ERROR: Calendar entry for option date could not be created.";
                     }
+                    /* TODO: Currently, dates might not be saved for teachers if the optiondates are not already saved.
+                    We need to make sure, that dates are also saved for teachers, even if we newly create an option.
+                    We might need a new MOD_BOOKING_EXECUTION_POSTSAVE_AFTER for this, so this happens AFTER the dates
+                    have been created. */
                 }
                 break;
 
