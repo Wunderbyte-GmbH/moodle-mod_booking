@@ -90,13 +90,21 @@ class page_allteachers implements renderable, templatable {
             // Here we can load custom userprofile fields and add the to the array to render.
             // Right now, we just use a few standard pieces of information.
 
+            $shortdescription = strip_tags(format_text($teacher->description, $teacher->descriptionformat));
+            $shortdescription = substr($shortdescription, 0, 300);
+
             $teacherarr = [
                 'teacherid' => $teacher->id,
                 'firstname' => $teacher->firstname,
                 'lastname' => $teacher->lastname,
                 'orderletter' => substr($teacher->lastname, 0, 1), // First letter of the teacher's last name.
-                'description' => format_text($teacher->description, $teacher->descriptionformat),
+                'description' => $shortdescription,
+
             ];
+
+            if (strlen(strip_tags($teacher->description)) > 300) {
+                $teacherarr['descriptionlong'] = format_text($teacher->description, $teacher->descriptionformat);
+            }
 
             if ($teacher->picture) {
                 $picture = new \user_picture($teacher);
