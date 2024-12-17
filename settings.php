@@ -1488,6 +1488,34 @@ if ($ADMIN->fulltree) {
         $settings->add($setting);
     }
 
+    if ($proversion) {
+        // Global mail templates (PRO).
+        $settings->add(
+            new admin_setting_heading(
+                'mobile_settings',
+                get_string('mobilesettings', 'mod_booking'),
+                get_string('mobilesettings_desc', 'mod_booking')
+            )
+        );
+
+        $whichviewopts = [
+            'showall' => get_string('showallbookingoptions', 'booking'),
+            'mybooking' => get_string('showmybookingsonly', 'booking'),
+            'myoptions' => get_string('optionsiteach', 'booking'),
+            'showactive' => get_string('activebookingoptions', 'booking'),
+            'myinstitution' => get_string('myinstitution', 'booking'),
+            'showvisible' => get_string('visibleoptions', 'booking'),
+            'showinvisible' => get_string('invisibleoptions', 'booking'),
+        ];
+        $settings->add(new admin_setting_configmultiselect(
+            'booking/mobileviewoptions',
+            get_string('mobileviewoptionstext', 'booking'),
+            get_string('mobileviewoptionsdesc', 'booking'),
+            [],
+            $whichviewopts
+        ));
+    }
+
     // Global mail templates (PRO).
     $settings->add(
         new admin_setting_heading(
@@ -1589,22 +1617,6 @@ if ($ADMIN->fulltree) {
                 ''
             )
         );
-        $whichviewopts = [
-            'showall' => get_string('showallbookingoptions', 'booking'),
-            'mybooking' => get_string('showmybookingsonly', 'booking'),
-            'myoptions' => get_string('optionsiteach', 'booking'),
-            'showactive' => get_string('activebookingoptions', 'booking'),
-            'myinstitution' => get_string('myinstitution', 'booking'),
-            'showvisible' => get_string('visibleoptions', 'booking'),
-            'showinvisible' => get_string('invisibleoptions', 'booking'),
-        ];
-        $settings->add(new admin_setting_configmultiselect(
-            'booking/mobileviewoptions',
-            get_string('mobileviewoptionstext', 'booking'),
-            get_string('mobileviewoptionsdesc', 'booking'),
-            [],
-            $whichviewopts
-        ));
     }
 
     // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
