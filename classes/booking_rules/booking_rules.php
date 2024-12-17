@@ -132,27 +132,12 @@ class booking_rules {
     /**
      * Deletes rules for this context and below.
      * @param int $contextid
-     * @param string $eventname
-     * @throws coding_exception
-     * @throws dml_exception
      */
     public static function delete_rules_by_context(int $contextid) {
         $rulesofcontext = self::get_list_of_saved_rules_by_context($contextid);
 
         foreach ($rulesofcontext as $rule) {
-            self::delete_rule($rule->id);
+            rules_info::delete_rule($rule->id);
         }
-    }
-
-    /**
-     * Returns the saved rules for the right context.
-     * @param int $contextid
-     * @param string $eventname
-     * @throws coding_exception
-     * @throws dml_exception
-     */
-    public static function delete_rule(int $ruleid) {
-        global $DB;
-        $DB->delete_records('booking_rules', ['id' => $ruleid]);
     }
 }
