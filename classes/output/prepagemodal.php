@@ -97,7 +97,11 @@ class prepagemodal implements renderable, templatable {
         list($template, $data) = $condition->render_button($settings, $userid, $full);
 
         if (!empty($extrabuttoncondition)) {
-            $extracondition = new $extrabuttoncondition();
+            if (method_exists($extrabuttoncondition, 'instance')) {
+                $extracondition = $extrabuttoncondition::instance();
+            } else {
+                $extracondition = new $extrabuttoncondition();
+            }
             list($extratemplate, $extradata) = $extracondition->render_button($settings, $userid, $full);
             if (!empty($data['main']) || $full) { // Full means has capability "bookforothers" & therefore 2 areas: top & main.
                 $extradata['top'] = $extradata["main"];

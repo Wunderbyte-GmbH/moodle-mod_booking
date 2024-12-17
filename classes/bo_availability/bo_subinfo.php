@@ -340,7 +340,11 @@ class bo_subinfo {
         }
 
         // We get the condition for the right page.
-        $condition = new $condition();
+        if (method_exists($condition, 'instance')) {
+            $condition = $condition::instance();
+        } else {
+            $condition = new $condition();
+        }
 
         // The condition renders the page we actually need.
         return $condition->render_page($optionid);

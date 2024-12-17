@@ -139,7 +139,11 @@ class booking_subbookit {
 
         // The extra button condition is used to show Alert & Button, if this is allowed for a user.
         if (!$justmyalert && !empty($extrabuttoncondition)) {
-            $condition = new $extrabuttoncondition();
+            if (method_exists($extrabuttoncondition, 'instance')) {
+                $condition = $extrabuttoncondition::instance();
+            } else {
+                $condition = new $extrabuttoncondition();
+            }
 
             list($template, $data) = $condition->render_button($settings, $subbookingid, 0, $full);
 
