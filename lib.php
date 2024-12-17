@@ -1,4 +1,6 @@
 <?php
+
+use mod_booking\booking_rules\booking_rules;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -2152,6 +2154,9 @@ function booking_delete_instance($id) {
 
     // When deleting an instance, we need to invalidate the cache for booking instances.
     booking::purge_cache_for_booking_instance_by_cmid($cm->id);
+
+    // Delete rules of this instance.
+    booking_rules::delete_rules_by_context($context->id);
 
     return $result;
 }

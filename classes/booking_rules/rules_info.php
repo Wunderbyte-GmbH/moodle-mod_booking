@@ -362,7 +362,6 @@ class rules_info {
 
         // Now we check all the existing rules from booking.
         foreach ($records as $record) {
-            // TODO this needs to be updated: Maybe rulename with namespace from event.
             $rule = self::get_rule($record->rulename);
 
             // THIS is the place where we need to add event data to the rulejson!

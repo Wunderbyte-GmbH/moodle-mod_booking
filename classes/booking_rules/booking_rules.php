@@ -19,7 +19,7 @@
  *
  * @package mod_booking
  * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
- * @author Bernhard Fischer
+ * @author Bernhard Fischer, Magdalena Holczik
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -127,5 +127,32 @@ class booking_rules {
             return array_filter($rules,
                 fn($a) => (in_array($a->contextid, $patharray) && ($a->eventname == $eventname)));
         }
+    }
+
+    /**
+     * Deletes rules for this context and below.
+     * @param int $contextid
+     * @param string $eventname
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public static function delete_rules_by_context(int $contextid) {
+        $rulesofcontext = self::get_list_of_saved_rules_by_context($contextid);
+
+        foreach ($rulesofcontext as $rule) {
+            self::delete_rule($rule->id);
+        }
+    }
+
+    /**
+     * Returns the saved rules for the right context.
+     * @param int $contextid
+     * @param string $eventname
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public static function delete_rule(int $ruleid) {
+        global $DB;
+        $DB->delete_records('booking_rules', ['id' => $ruleid]);
     }
 }
