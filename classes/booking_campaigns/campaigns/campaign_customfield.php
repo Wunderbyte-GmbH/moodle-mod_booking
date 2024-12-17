@@ -365,4 +365,24 @@ class campaign_customfield implements booking_campaign {
             'message' => '',
         ];
     }
+
+    /**
+     * Return name of campaign.
+     *
+     * @return string
+     *
+     */
+    public function get_name_of_campaign(): string {
+        return $this->name ?? '';
+    }
+
+    /**
+     * Return id of campaign.
+     *
+     * @return int
+     *
+     */
+    public function get_id_of_campaign(): int {
+        return $this->id ?? 0;
+    }
 }

@@ -106,4 +106,16 @@ interface booking_campaign {
      * @return array
      */
     public function is_blocking(booking_option_settings $settings, int $userid): array;
+
+    /**
+     * Return name of campaign.
+     * @return string
+     */
+    public function get_name_of_campaign(): string;
+
+    /**
+     * Return id of campaign.
+     * @return int
+     */
+    public function get_id_of_campaign(): int;
 }

@@ -374,4 +374,24 @@ class campaign_blockbooking implements booking_campaign {
             'label' => '',
         ];
     }
+
+    /**
+     * Return name of campaign.
+     *
+     * @return string
+     *
+     */
+    public function get_name_of_campaign(): string {
+        return $this->name ?? '';
+    }
+
+    /**
+     * Return id of campaign.
+     *
+     * @return int
+     *
+     */
+    public function get_id_of_campaign(): int {
+        return $this->id ?? 0;
+    }
 }

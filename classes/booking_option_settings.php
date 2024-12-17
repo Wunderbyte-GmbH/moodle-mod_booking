@@ -618,11 +618,18 @@ class booking_option_settings {
             if (!isset($dbrecord->campaignisset)) {
                 $campaigns = campaigns_info::get_all_campaigns();
                 foreach ($campaigns as $camp) {
-                    /** @var booking_campaign $campaign */
-                    $campaign = $camp;
-                    if ($campaign->campaign_is_active($this->id, $this)) {
+                    try {
+                        /** @var booking_campaign $campaign */
+                        $campaign = $camp;
+                        if ($campaign->campaign_is_active($this->id, $this)) {
 
-                        $campaign->apply_logic($this, $dbrecord);
+                            $campaign->apply_logic($this, $dbrecord);
+                        }
+                    } catch (\Exception $e) {
+                        global $CFG;
+                        if ($CFG->debug = (E_ALL | E_STRICT)) {
+                            throw $e;
+                        }
                     }
                 }
                 // Campaigns have been applied - let's cache a flag so we do not do it again.
