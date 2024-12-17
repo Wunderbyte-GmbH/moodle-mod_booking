@@ -471,6 +471,7 @@
         <FIELD NAME="rulejson" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="JSON defining the rule."/>
         <FIELD NAME="eventname" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="For eventbased rules, for faster execution"/>
         <FIELD NAME="useastemplate" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="The value 1 means that this rule is a template."/>
+        <FIELD NAME="isactive" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="Only active rules will be applied."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

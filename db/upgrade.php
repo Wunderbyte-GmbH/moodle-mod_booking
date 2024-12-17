@@ -3946,5 +3946,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024121600, 'booking');
     }
 
+    if ($oldversion < 2024121701) {
+
+        // Define field isactive to be added to booking_rules.
+        $table = new xmldb_table('booking_rules');
+        $field = new xmldb_field('isactive', XMLDB_TYPE_INTEGER, '2', null, null, null, '1', 'useastemplate');
+
+        // Conditionally launch add field isactive.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2024121701, 'booking');
+    }
+
     return true;
 }
