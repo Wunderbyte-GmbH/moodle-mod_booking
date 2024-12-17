@@ -102,7 +102,7 @@ class page_allteachers implements renderable, templatable {
 
             ];
 
-            if (strlen(strip_tags($teacher->description)) > 300) {
+            if (strlen(strip_tags($teacher->description ?? '')) > 300) {
                 $teacherarr['descriptionlong'] = format_text($teacher->description, $teacher->descriptionformat);
             }
 
