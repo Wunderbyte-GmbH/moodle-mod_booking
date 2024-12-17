@@ -360,14 +360,12 @@ class customform implements bo_condition {
                 $counter++;
             }
 
-            $url = new moodle_url('/mod/booking/edit_rules.php');
             $mform->addElement(
                 'advcheckbox',
                 'bo_cond_customform_deleteinfoscheckboxadmin',
                 "",
-                get_string('deleteinfoscheckboxadmin',
-                'mod_booking',
-                $url->out()));
+                get_string('deleteinfoscheckboxadmin', 'mod_booking')
+            );
             $mform->hideIf(
                 'bo_cond_customform_deleteinfoscheckboxadmin',
                 'bo_cond_customform_restrict',
@@ -379,11 +377,13 @@ class customform implements bo_condition {
             'eq',
             0);
             if ($CFG->version >= 2023100900) {
+                $rulesmoodleurl = new moodle_url('/mod/booking/edit_rules.php');
+                $rulesurl = $rulesmoodleurl->out(true);
                 $mform->addElement(
                     'static',
                     'deleteinfoscheckboxadminwarning',
                     '',
-                    get_string('deleteinfoscheckboxadminwarning', 'mod_booking')
+                    get_string('deleteinfoscheckboxadminwarning', 'mod_booking', $rulesurl)
                 );
                 $mform->hideIf(
                     'deleteinfoscheckboxadminwarning',

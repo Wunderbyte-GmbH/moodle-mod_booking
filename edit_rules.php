@@ -29,10 +29,8 @@ require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 require_once($CFG->libdir . '/adminlib.php');
 
-
 $cmid = optional_param('cmid', 0, PARAM_INT);
 $contextid = optional_param('contextid', 0, PARAM_INT);
-
 
 global $DB;
 
