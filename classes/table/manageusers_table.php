@@ -367,7 +367,7 @@ class manageusers_table extends wunderbyte_table {
             'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
                 'id' => $values->id,
                 'labelcolumn' => 'username',
-                'titlestring' => 'deletebooking',
+                'titlestring' => 'delete',
                 'bodystring' => 'deletebookinglong',
                 'submitbuttonstring' => 'delete',
                 'component' => 'mod_booking',
@@ -403,7 +403,7 @@ class manageusers_table extends wunderbyte_table {
             'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
                 'id' => $values->id,
                 'labelcolumn' => 'username',
-                'titlestring' => 'deletebooking',
+                'titlestring' => 'delete',
                 'bodystring' => 'deletebookinglong',
                 'submitbuttonstring' => 'delete',
                 'component' => 'mod_booking',

@@ -664,6 +664,15 @@ class booking_option {
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
         $ba = singleton_service::get_instance_of_booking_answers($optionsettings);
 
+        // Check if user might only be on waitinglist. (Because call came from a wb_table i.e.).
+        if (
+            !$bookingoptioncancel
+            && !isset($ba->usersonlist[$userid])
+            && isset($ba->usersonwaitinglist[$userid])
+        ) {
+            $cancelreservation = true;
+        }
+
         // We need to check if we were, before deleting, fully booked.
         if ($ba->is_fully_booked()) {
             $fullybooked = true;
@@ -689,12 +698,15 @@ class booking_option {
         }
 
         if ($cancelreservation) {
-            $DB->delete_records('booking_answers',
-                    ['userid' => $userid,
-                      'optionid' => $this->optionid,
-                      'completed' => 0,
-                      'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED,
-                    ]);
+            $DB->delete_records(
+                'booking_answers',
+                [
+                    'userid' => $userid,
+                    'optionid' => $this->optionid,
+                    'completed' => 0,
+                    'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED,
+                ]
+            );
         } else {
             foreach ($results as $result) {
                 if ($result->waitinglist != MOD_BOOKING_STATUSPARAM_DELETED) {
