@@ -855,7 +855,6 @@ class bookingoptions_wbtable extends wunderbyte_table {
         }
 
         $cmid = $settings->cmid;
-        $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
         $context = context_module::instance($cmid);
         $answersobject = singleton_service::get_instance_of_booking_answers($settings);
         $status = $answersobject->user_status($USER->id);
