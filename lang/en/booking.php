@@ -1199,6 +1199,7 @@ $string['globaluserleave'] = 'User has cancelled his/her own booking (global tem
 $string['globalwaitingtext'] = 'Waiting list confirmation (global template) ' . '<span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Deprecated</span>';
 $string['gotobooking'] = '&lt;&lt; Bookings';
 $string['gotobookingoption'] = "Go to bookingoption";
+$string['gotobookingoptionlink'] = '{$a}';
 $string['gotomanageresponses'] = '&lt;&lt; Manage bookings';
 $string['gotomoodlecourse'] = 'Go to Moodle course';
 $string['groupdeleted'] = 'This booking instance creates groups automatically in the target course. But the group has been manually deleted in the target course. Activate the following checkbox in order to recreate the group';

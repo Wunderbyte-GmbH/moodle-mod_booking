@@ -530,7 +530,7 @@ class bookingoption_description implements renderable, templatable {
                 // The link should be clickable in mails (placeholder {bookingdetails}).
                 $this->booknowbutton = get_string('gotobookingoption', 'booking') . ': ' .
                     '<a href = "' . $moodleurl . '" target = "_blank">' .
-                        $moodleurl->out(false) .
+                        get_string('gotobookingoptionlink', 'booking', $moodleurl->out(false)) .
                     '</a>';
                 break;
 

@@ -1189,6 +1189,7 @@ $string['globaluserleave'] = 'Nutzer/in hat Buchung storniert (globale Vorlage) 
 $string['globalwaitingtext'] = 'Wartelistenbestätigung (globale Vorlage) ' . '<span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Veraltet</span>';
 $string['gotobooking'] = '&lt;&lt; Zu den Buchungen';
 $string['gotobookingoption'] = "Buchungslink";
+$string['gotobookingoptionlink'] = '{$a}';
 $string['gotomanageresponses'] = '&lt;&lt; Buchungen verwalten';
 $string['gotomoodlecourse'] = 'Zum Moodle-Kurs';
 $string['groupdeleted'] = 'Diese Buchung erstellt automatisch Gruppen im Zielkurs. Aber die Gruppe wurde im Zielkurs manuell gelöscht. Aktivieren Sie folgende Checkbox, um die Gruppe erneut zu erstellen';
