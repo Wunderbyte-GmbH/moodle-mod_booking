@@ -289,6 +289,7 @@ if (has_capability('mod/booking:downloadresponses', $context)) {
 $tableallbookings->show_download_buttons_at([TABLE_P_BOTTOM]);
 $tableallbookings->no_sorting('selected');
 $tableallbookings->no_sorting('rating');
+$tableallbookings->no_sorting('indexnumber');
 
 if (!$tableallbookings->is_downloading()) {
 
