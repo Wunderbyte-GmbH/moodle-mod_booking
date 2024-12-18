@@ -1338,6 +1338,7 @@ $string['linknotavailableyet'] = 'Der Link zum Online-Meeting-Raum ist erst 15 M
 und verschwindet nach Ende des Meetings wieder.';
 $string['linknotvalid'] = 'Dieser Link / dieses Event ist derzeit nicht verfügbar.
 Bitte probieren Sie es kurz vor Beginn noch einmal, wenn Sie dieses Event gebucht haben.';
+$string['linktocalendarurltext'] = "Hier geht's zum Kalender";
 $string['linktocourse'] = "Hier geht's zum Kurs";
 $string['linktomoodlecourseonbookedbutton'] = 'Zeige Link auf Moodle-Kurs direkt am Buchen-Button';
 $string['linktomoodlecourseonbookedbutton_desc'] = 'Statt eines extra Links auf den Moodle-Kurs wird diese Option den Buchungsbutton in einen Link auf den gebuchten Moodle-Kurs umwandeln';

@@ -1347,6 +1347,7 @@ $string['linknotavailableyet'] = "The link to access the meeting is available on
 until the end of the session.";
 $string['linknotvalid'] = 'This link or meeting is not accessible.
 If it is a meeting you have booked, please check again, shortly before start.';
+$string['linktocalendarurltext'] = "Link to calendar";
 $string['linktocourse'] = "Link to course";
 $string['linktomoodlecourseonbookedbutton'] = 'Show Link to Moodle course directly on booked button';
 $string['linktomoodlecourseonbookedbutton_desc'] = 'Instead of an extra link, this will transform the booked button the a link to the moodle course';

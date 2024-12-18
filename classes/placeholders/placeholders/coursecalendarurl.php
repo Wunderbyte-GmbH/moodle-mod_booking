@@ -81,13 +81,12 @@ class coursecalendarurl {
             $bu = new booking_utils();
             $user = singleton_service::get_instance_of_user($userid);
 
-            $value = '<a href="#" style="text-decoration:none; color:#000">' .
-                $bu->booking_generate_calendar_subscription_link($user, 'courses') .
+            $value = '<a href="' . $bu->booking_generate_calendar_subscription_link($user, 'courses') . '">' .
+                get_string('linktocalendarurltext', 'mod_booking') .
                 '</a>';
 
             // Save the value to profit from singleton.
             placeholders_info::$placeholders[$cachekey] = $value;
-
         } else {
             $value = get_string('sthwentwrongwithplaceholder', 'mod_booking', $classname);
         }
