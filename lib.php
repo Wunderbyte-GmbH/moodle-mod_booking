@@ -1,6 +1,4 @@
 <?php
-
-use mod_booking\booking_rules\booking_rules;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -42,6 +40,7 @@ use mod_booking\singleton_service;
 use mod_booking\teachers_handler;
 use mod_booking\utils\wb_payment;
 use mod_booking\booking_rules\rules_info;
+use mod_booking\booking_rules\booking_rules;
 
 // Default fields for bookingoptions in view.php and for download.
 define('MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS', "identifier,titleprefix,text,description,teacher,responsiblecontact," .
@@ -2367,7 +2366,7 @@ register_shutdown_function(function () {
     // To avoid loops, we need a counter.
 
     $counter = 0;
-
+    $rules = rules_info::$rulestoexecute;
     while (
         (count(rules_info::$rulestoexecute) > 0
         || count(rules_info::$eventstoexecute) > 0)
