@@ -113,4 +113,22 @@
         </li>
         {{/rules}}
     </ul>
+    {{#displayothercontexts}}
+        <div class="mt-4">
+            <h5 class="mb-3">{{#str}} bookingrulesothercontextheading, mod_booking {{/str}}</h5>
+            {{#rulesothercontext}}
+                <div>
+                    <a href="{{linktorulesininstance}}" target="_blank">
+                        <i class="fa fa-fw fa-graduation-cap" aria-hidden="true"></i>
+                        {{coursename}}
+                        <i class="fa fa-fw fa-calendar-check-o" aria-hidden="true"></i>
+                        {{bookingname}}
+                    </a>
+                </div>
+            {{/rulesothercontext}}
+            {{^rulesothercontext}}
+                <div>{{#str}} bookingrulesnootherfound, mod_booking {{/str}}</div>
+            {{/rulesothercontext}}
+        </div>
+    {{/displayothercontexts}}
 </div>

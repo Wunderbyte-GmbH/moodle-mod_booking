@@ -520,6 +520,8 @@ $string['bookingrulecondition'] = "Kondition der Regel";
 $string['bookingruleisactive'] = "Regel ist aktiv und wird angewandt";
 $string['bookingruleisnotactive'] = "Regel ist nicht aktiv und wird nicht angewandt";
 $string['bookingrules'] = 'Buchung: Regeln';
+$string['bookingrulesnootherfound'] = 'Keine anderen Regeln gefunden';
+$string['bookingrulesothercontextheading'] = 'Links to rules in other contexts';
 $string['bookingruleswithbadge'] = 'Buchung: Regeln ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['bookingruletemplates'] = 'Lade eine Template-Regel';
 $string['bookings'] = 'Buchungen';

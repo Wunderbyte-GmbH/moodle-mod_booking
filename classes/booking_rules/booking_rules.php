@@ -54,7 +54,8 @@ class booking_rules {
     public static function get_rendered_list_of_saved_rules($contextid = 1, $enableaddbutton = true) {
         global $PAGE;
 
-        $rules = self::get_list_of_saved_rules($contextid);
+        // Fetch all rules.
+        $rules = self::get_list_of_saved_rules();
         $data = new ruleslist($rules, $contextid, $enableaddbutton);
         $output = $PAGE->get_renderer('booking');
         return $output->render_ruleslist($data);
