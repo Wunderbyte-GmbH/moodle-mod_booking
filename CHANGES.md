@@ -1,3 +1,27 @@
+## Version 8.9.1 (2024121800)
+* Improvement: Add helper function to get a list of all cmids (of all booking instances).
+* Improvement: GH-771 Show countlabel whenever filters are activated (to have the reset button).
+* Improvement: Add "h" string also to htmlstring.
+* Improvement: Truncate teacher description on overview page, add modal to view long description directly.
+* Improvement: Add debug messages, so we can investigate broken download (Wunderbyte-GmbH/Wunderbyte-GmbH#283).
+* Improvement: Improve settings for Moodle Mobile App.
+* Improvement: Try catch for campaign application to make sure nothing breaks if campaign contains errors.
+* Improvement: Codestyle remove duplicated function.
+* Bugfix: GH-765 Make sure we don't encounter error with legacy booking answers.
+* Bugfix: Display "hour" only once.
+* Bugfix: Correctly create and delete user events (for each session) for teachers of booking options.
+* Bugfix: Error when creating booking option templates with teachers, dates and addtocalendar active (fixes #766).
+* Bugfix: strip_tags needs string value, null not allowed.
+* Bugfix: Check for singleton of (extrabutton-)condition.
+* Bugfix: Add link to booking rules for string deleteinfoscheckboxadminwarning.
+* Bugfix: Correctly handle cancel of reservation in report.php (#759).
+* Bugfix: Make sure rules of instance are deleted with booking instance (#764).
+* Test: New phpunit test method test_backup_restore_bookings_with_options_quiz_into_other_course() (#518).
+* Test: Extend phpunit test method test_backup_restore_bookings_with_options_quiz_into_other_course() to use custom fields too (#518).
+* Test: Update phpunit test method test_backup_restore_bookings_with_options_quiz_into_other_course() to use few date sessions (#518).
+* Test: Improve cache clean-up.
+* Test: New phpunit test_rule_on_freeplace_on_intervals() (#467).
+
 ## Version 8.9.0 (2024121200)
 * Improvement: Possibility to turn off prices for not logged in users #762.
 * Improvement: Empty tabs (#709).
