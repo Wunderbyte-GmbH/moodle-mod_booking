@@ -49,7 +49,7 @@ Feature: In a course add a booking instance and manage it
     And I click on "Add booking instance to template" "link" in the "[data-key=\"nav_saveinstanceastemplate\"]" "css_element"
     And I set the field "Name" to "InstanceTemplate"
     And I press "Save changes"
-    And I should see "This booking instance was sucesfully saved as template."
+    And I should see "This booking instance was successfully saved as template."
     When I visit "/mod/booking/instancetemplatessettings.php"
     Then I should see "InstanceTemplate" in the "#instancetemplatessettings_r0" "css_element"
     And I click on "Delete" "button" in the "#instancetemplatessettings_r0" "css_element"
@@ -68,7 +68,7 @@ Feature: In a course add a booking instance and manage it
     And I click on "Add booking instance to template" "link" in the "[data-key=\"nav_saveinstanceastemplate\"]" "css_element"
     And I set the field "Name" to "InstanceTemplate"
     And I press "Save changes"
-    And I should see "This booking instance was sucesfully saved as template."
+    And I should see "This booking instance was successfully saved as template."
     ## Create a booking instance useing template
     And I am on "Course 1" course homepage with editing mode on
     ##And I add a "Booking" to section "0"
