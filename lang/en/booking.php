@@ -65,13 +65,13 @@ $string['addtocalendar'] = 'Add to course calendar';
 $string['addtocalendardesc'] = 'Course calendar events are visible to ALL users within a course. If you do not want them to be created at all,
 you can turn this setting off and lock it by default. Don\'t worry: user calendar events for booked options will still be created anyways.';
 $string['addtogroup'] = 'Automatically enrol users in group';
-$string['addtogroup_help'] = 'Automatically enrol users in group - group will be created automatically with name: Bookin name - Option name';
+$string['addtogroup_help'] = 'Automatically enrol users in group - group will be created automatically with name: Booking name - Option name';
 $string['addusertogroup'] = 'Add user to group: ';
 $string['adminparameter_desc'] = "Use parameter that are set in the admin settings.";
 $string['adminparametervalue'] = "Admin parameter";
 $string['advancedoptions'] = 'Advanced options';
 $string['aftercompletedtext'] = 'After activity completed';
-$string['aftercompletedtext_help'] = 'Message shown after activity become compleated';
+$string['aftercompletedtext_help'] = 'Message shown after activity was completed';
 $string['aftersubmitaction'] = 'After saving...';
 $string['age'] = 'Age';
 $string['alertrecalculate'] = '<b>Caution!</b> All prices will be recalculated and all old prices will be overwritten.';
@@ -160,7 +160,7 @@ of bookings is reached. Booking will only be possible for a cashier or admin aft
 <b>Block below</b> ... Online booking will be blocked until the given percentage
 of bookings is reached. Before that happens, booking is only possible for cashier or admin.';
 $string['boactioncancelbookingdesc'] = "Used for options which can be bought multiple times";
-$string['boactioncancelbookingvalue'] = "Activate immediate cancelation";
+$string['boactioncancelbookingvalue'] = "Activate immediate cancellation";
 $string['boactionname'] = "Name of action";
 $string['boactions'] = 'Actions after booking ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>' . ' ' . '<span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimental</span>';
 $string['boactions_desc'] = "Booking actions after booking are still an EXPERIMENTAL feature. You can try them if you want.
@@ -641,7 +641,7 @@ $string['cancellationsettings'] = 'Cancellation settings ' . '<span class="badge
 $string['cancelmyself'] = 'Undo my booking';
 $string['canceloption'] = "Cancel boooking option";
 $string['canceloption_desc'] = "Canceling a boooking option means that it is no longer bookabel, but it is still shown in list.";
-$string['cancelreason'] = "Reason for cancelation of this booking option";
+$string['cancelreason'] = "Reason for cancellation of this booking option";
 $string['cancelsign'] = '<i class="fa fa-ban" aria-hidden="true"></i>';
 $string['cancelthisbookingoption'] = "Cancel this booking option";
 $string['canceluntil'] = 'Cancelling is only possible until certain date';
@@ -758,7 +758,7 @@ $string['copyonlythisbookingurl'] = 'Copy this booking URL';
 $string['copypollurl'] = 'Copy poll URL';
 $string['copytoclipboard'] = 'Copy to clipboard: Ctrl+C, Enter';
 $string['copytotemplate'] = 'Save booking option as template';
-$string['copytotemplatesucesfull'] = 'Booking option was sucesfully saved as template.';
+$string['copytotemplatesucesfull'] = 'Booking option was successfully saved as template.';
 $string['course'] = 'Moodle course';
 $string['coursecalendarurl'] = "URL for course calendar";
 $string['coursedate'] = 'Date';
@@ -960,7 +960,7 @@ $string['displayloginbuttonforbookingoptions_desc'] = 'Will be displayed for use
 $string['displaytext'] = "Display text";
 $string['dontaddpersonalevents'] = 'Dont add personal calendar events';
 $string['dontaddpersonaleventsdesc'] = 'For each booked option and for all of its sessions, personal events are created in the moodle calendar. Suppressing them improves performance for heavy load sites.';
-$string['dontmove'] = 'Nicht verschieben';
+$string['dontmove'] = 'Don\'t move';
 $string['dontuse'] = 'Don\'t use template';
 $string['download'] = 'Download';
 $string['downloadallresponses'] = 'Download all responses for all booking options';
@@ -1284,7 +1284,7 @@ $string['installmoodlebugfix'] = 'Moodle update necessary <span class="badge bg-
 $string['instancename'] = "Name of instance";
 $string['instancenotsavednovalidlicense'] = 'Booking instance could not be saved as template.
                                                   Upgrade to PRO version to save an unlimited number of templates.';
-$string['instancesuccessfullysaved'] = 'This booking instance was sucesfully saved as template.';
+$string['instancesuccessfullysaved'] = 'This booking instance was successfully saved as template.';
 $string['instancetemplate'] = 'Instance template';
 $string['institution'] = 'Institution';
 $string['institution_help'] = 'You can either enter the institution name manually or choose from a list of previous institutions.
@@ -2166,8 +2166,8 @@ $string['successfulcalculation'] = 'Price calculation successful!';
 $string['successfulldeleted'] = 'Category was deleted!';
 $string['successfullybooked'] = 'Successfully booked';
 $string['successfullysorted'] = 'Successfully sorted';
-$string['sucesfullcompleted'] = 'Activity was sucesfully completed for users.';
-$string['sucesfullytransfered'] = 'Users were sucesfully transfered.';
+$string['sucesfullcompleted'] = 'Activity was successfully completed for users.';
+$string['sucesfullytransfered'] = 'Users were successfully transfered.';
 $string['sucessfullybooked'] = 'Sucessfully booked';
 $string['sumunits'] = 'Sum of units';
 $string['sunday'] = 'Sunday';
