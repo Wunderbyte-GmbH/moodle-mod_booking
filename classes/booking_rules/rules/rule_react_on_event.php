@@ -385,7 +385,7 @@ class rule_react_on_event implements booking_rule {
      */
     public function check_if_rule_still_applies(int $optionid, int $userid, int $nextruntime): bool {
 
-        if (empty($this->isactive)) {
+        if (empty($this->ruleisactive)) {
             return false;
         }
 
