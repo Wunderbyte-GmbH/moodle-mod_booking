@@ -278,6 +278,9 @@ class rulesform extends dynamic_form {
         if (empty($ajaxformdata['bookingruleactiontype'])) {
             $ajaxformdata['bookingruleactiontype'] = $jsonboject->actionname;
         }
+        if (empty($ajaxformdata['isactive'])) {
+            $ajaxformdata['isactive'] = $record->isactive;
+        }
     }
 
     /**

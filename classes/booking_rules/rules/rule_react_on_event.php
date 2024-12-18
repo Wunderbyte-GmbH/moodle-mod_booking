@@ -83,6 +83,7 @@ class rule_react_on_event implements booking_rule {
      */
     public function set_ruledata(stdClass $record) {
         $this->ruleid = $record->id ?? 0;
+        $this->ruleisactive = $record->isactive;
         $this->set_ruledata_from_json($record->rulejson);
     }
 
@@ -262,6 +263,7 @@ class rule_react_on_event implements booking_rule {
         $record->rulename = $this->rulename;
         $record->eventname = $data->rule_react_on_event_event ?? '';
         $record->contextid = $data->contextid ?? 1;
+        $record->isactive = $data->ruleisactive;
         if (isset($data->useastemplate)) {
             $jsonobject->useastemplate = $data->useastemplate;
             $record->useastemplate = $data->useastemplate;
@@ -290,6 +292,7 @@ class rule_react_on_event implements booking_rule {
         $ruledata = $jsonobject->ruledata;
 
         $data->rule_name = $jsonobject->name;
+        $data->ruleisactive = $record->isactive;
         $data->rule_react_on_event_event = $ruledata->boevent;
         $data->rule_react_on_event_condition = $ruledata->condition;
         $data->rule_react_on_event_after_completion = $ruledata->aftercompletion;
@@ -381,6 +384,10 @@ class rule_react_on_event implements booking_rule {
      * @return bool true if the rule still applies, false if not
      */
     public function check_if_rule_still_applies(int $optionid, int $userid, int $nextruntime): bool {
+
+        if (empty($this->isactive)) {
+            return false;
+        }
 
         $jsonobject = json_decode($this->rulejson);
         $ruledata = $jsonobject->ruledata;

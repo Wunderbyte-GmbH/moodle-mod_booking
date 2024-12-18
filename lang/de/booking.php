@@ -514,7 +514,11 @@ $string['bookingpricesettings_desc'] = 'Individuelle Einstellungen für die Prei
 $string['bookingreportlink'] = 'Link zum Buchungsberichts';
 $string['bookingrule'] = 'Regel';
 $string['bookingruleaction'] = "Aktion der Regel";
+$string['bookingruleapply'] = "Regel anwenden";
+$string['bookingruleapplydesc'] = "Entfernen Sie den Haken, wenn Sie die Regel deaktivieren möchten.";
 $string['bookingrulecondition'] = "Kondition der Regel";
+$string['bookingruleisactive'] = "Regel ist aktiv und wird angewandt";
+$string['bookingruleisnotactive'] = "Regel ist nicht aktiv und wird nicht angewandt";
 $string['bookingrules'] = 'Buchung: Regeln';
 $string['bookingruleswithbadge'] = 'Buchung: Regeln ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['bookingruletemplates'] = 'Lade eine Template-Regel';

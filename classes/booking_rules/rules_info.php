@@ -109,6 +109,18 @@ class rules_info {
             $mform->addElement('advcheckbox', 'useastemplate',
                 get_string('bookinguseastemplate', 'mod_booking'));
         }
+        $mform->addElement(
+            'advcheckbox',
+            'ruleisactive',
+            get_string('bookingruleapply', 'mod_booking'),
+            get_string('bookingruleapplydesc', 'mod_booking'),
+            null,
+            null,
+            [0, 1]
+        );
+        // Fetch data for default value.
+        $active = (isset($ajaxformdata['isactive']) && empty($ajaxformdata['isactive'])) ? 0 : 1;
+        $mform->setDefault('ruleisactive', $active);
 
         $mform->registerNoSubmitButton('btn_bookingruletype');
         $mform->addElement('select', 'bookingruletype',
@@ -215,6 +227,7 @@ class rules_info {
 
         // These function just add their bits to the object.
         $data->useastemplate = $record->useastemplate;
+        $data->ruleisactive = isset($record->ruleisactive) ? $record->ruleisactive : 1;
         $condition->set_defaults($data, $record);
         $action->set_defaults($data, $record);
         $rule->set_defaults($data, $record);
@@ -407,6 +420,11 @@ class rules_info {
         foreach ($allrules as $ruleid => $rulearray) {
             // Run through all the excluded rules of this array and unset them.
             $rule = $rulearray['rule'];
+
+            if (empty($rule->ruleisactive)) {
+                // Inactive rules can't exculde others.
+                continue;
+            }
             $ruleobject = json_decode($rule->rulejson);
             $ruledata = $ruleobject->ruledata;
             if (!empty($ruledata->cancelrules)) {
@@ -424,6 +442,10 @@ class rules_info {
 
         foreach ($rulestoexecute as $key => $rulearray) {
             $rule = $rulearray['rule'];
+            if (empty($rule->ruleisactive)) {
+                // Inactive rules are not executed.
+                continue;
+            }
             // Make sure we don't execute this multiple times.
             unset($rulestoexecute[$key]);
             unset(self::$rulestoexecute[$key]);

@@ -286,6 +286,9 @@ if there only was one booking option. */
 #page-mod-booking-edit-rules .booking-rules-cards {
     padding-top: 15px;
 }
+.booking-rules-list .ruleinactive {
+    color: gray; /* Sets the text color to gray */
+}
 
 /* Subbooking Timeslot */
 .mod-booking-timeslotbooking [data-bookable="1"] {

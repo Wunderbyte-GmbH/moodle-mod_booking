@@ -58,7 +58,6 @@ class ruleslist implements renderable, templatable {
     public function __construct(array $rules, int $contextid, bool $enableaddbutton = true) {
 
         foreach ($rules as $rule) {
-
             $ruleobj = json_decode($rule->rulejson);
             $rule->name = $ruleobj->name;
             $rule->actionname = $ruleobj->actionname;
