@@ -263,25 +263,31 @@ class booking_bookit {
         global $USER, $CFG;
 
         // Make sure the user has the right to book in principle.
-        $context = context_system::instance();
+        if ($area === 'option') {
+            $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
+            $context = context_module::instance($settings->cmid);
+        } else {
+            $context = context_system::instance();
+        }
 
-        if (!empty($userid)
+        if (
+            !empty($userid)
             && $userid != $USER->id
-            && !has_capability('mod/booking:bookforothers', $context)) {
+            && !has_capability('mod/booking:bookforothers', $context)
+        ) {
             throw new moodle_exception('norighttoaccess', 'mod_booking');
         } else if (empty($userid)) {
             $userid = $USER->id;
         }
 
         if ($area === 'option') {
-
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
             $boinfo = new bo_info($settings);
 
             // There are two cases where we can actually book.
             // We call thefunction with hadblock set to true.
             // This means that we only get those blocks that actually should prevent booking.
-            list($id, $isavailable, $description) = $boinfo->is_available($itemid, $userid, true);
+            [$id, $isavailable, $description] = $boinfo->is_available($itemid, $userid, true);
 
             // If isavailable is true, there is actually no blocking condition at all.
             // This might never be the case, as we use this to introduce prepages and buttons (add to cart or bookit).
