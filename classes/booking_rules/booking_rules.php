@@ -149,4 +149,19 @@ class booking_rules {
             rules_info::delete_rule($rule->id);
         }
     }
+
+    /**
+     * Check if rules in a given contextid match with the bookingid.
+     * @param int $bookingid
+     * @param int $contextid
+     */
+    public static function booking_matches_rulecontext(int $bookingcmid, int $contextid) {
+
+        if ($contextid == 1) {
+            return true;
+        }
+        // Context of the rule.
+        $context = context::instance_by_id($contextid);
+        return $context->instanceid == $bookingcmid;
+    }
 }
