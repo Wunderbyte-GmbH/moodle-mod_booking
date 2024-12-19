@@ -65,7 +65,7 @@ $string['addtocalendar'] = 'Add to course calendar';
 $string['addtocalendardesc'] = 'Course calendar events are visible to ALL users within a course. If you do not want them to be created at all,
 you can turn this setting off and lock it by default. Don\'t worry: user calendar events for booked options will still be created anyways.';
 $string['addtogroup'] = 'Automatically enrol users in group';
-$string['addtogroup_help'] = 'Automatically enrol users in group - group will be created automatically with name: Booking name - Option name';
+$string['addtogroup_help'] = 'Automatically enrol users in group that is linked in settings of bookingoption. Group will be created automatically with name: Booking name - Option name';
 $string['addusertogroup'] = 'Add user to group: ';
 $string['adminparameter_desc'] = "Use parameter that are set in the admin settings.";
 $string['adminparametervalue'] = "Admin parameter";

@@ -65,7 +65,7 @@ $string['addtocalendar'] = 'Zum Kurs-Kalender hinzufügen';
 $string['addtocalendardesc'] = 'Kurs-Kalenderevents können von ALLEN Kursteilnehmer:innen des Kurses gesehen werden. Falls Sie nicht möchten, dass Kurs-Kalenderevents
 erstellt werden, können Sie diese Einstellung standardmäßig ausschalten und sperren. Keine Sorge: Normale Kalenderevents für gebuchte Optionen (User-Events) werden weiterhin erstellt.';
 $string['addtogroup'] = 'Nutzer:innen automatisch in Gruppe einschreiben';
-$string['addtogroup_help'] = 'Nutzer:innen automatisch in Gruppe eintragen. Die Gruppe wird nach folgendem Schema automatisch erstellt: Aktivitätsname - Name der Buchungsoption';
+$string['addtogroup_help'] = 'Nutzer:innen automatisch in Gruppe des in der Buchungsoption verknüpften Kurses eintragen. Die Gruppe wird nach folgendem Schema automatisch erstellt: Aktivitätsname - Name der Buchungsoption';
 $string['adminparameter_desc'] = "Benutze die Parameter aus den Admin Einstellungen.";
 $string['adminparametervalue'] = "Admin Parameter";
 $string['advancedoptions'] = 'Erweiterte Einstellungen';
