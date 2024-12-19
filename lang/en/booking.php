@@ -2010,6 +2010,10 @@ $string['rulesendmailcpf'] = '[Preview] Send an e-mail to user with custom profi
 $string['rulesendmailcpf_desc'] = 'Choose an event that should trigger the "Send an e-mail" rule. Enter an e-mail template
  (you can use placeholders like {bookingdetails}) and define to which users the e-mail should be sent.
   Example: All users having the value "Vienna center" in a custom user profile field called "Study center".';
+$string['rulesheader'] = '<i class="fa fa-fw fa-pencil-square" aria-hidden="true"></i>&nbsp; Regeln';
+$string['rulesincontextglobalheader'] = '<a href="{$a}" target="_blank">Global rules</a>';
+$string['rulesincontextheader'] = '<a href="{$a->rulesincontexturl}" target="_blank">Rules in bookinginstance "{$a->bookingname}"</a>';
+$string['rulesnotfound'] = 'No rules found for this bookingoption';
 $string['rulessettings'] = "Settings for Booking Rules";
 $string['rulessettingsdesc'] = 'Settings that apply to the <a href="{$a}">Booking Rules Feature</a>.';
 $string['rulevalue'] = 'Value';

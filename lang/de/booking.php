@@ -522,6 +522,7 @@ $string['bookingrule'] = 'Regel';
 $string['bookingruleaction'] = "Aktion der Regel";
 $string['bookingruleapply'] = "Regel anwenden";
 $string['bookingruleapplydesc'] = "Entfernen Sie den Haken, wenn Sie die Regel deaktivieren möchten.";
+$string['bookingruledeactivate'] = "Regel für diese Buchungsoption <b>deaktivieren</b>";
 $string['bookingrulecondition'] = "Kondition der Regel";
 $string['bookingruleisactive'] = "Regel ist aktiv und wird angewandt";
 $string['bookingruleisnotactive'] = "Regel ist nicht aktiv und wird nicht angewandt";
@@ -1951,6 +1952,10 @@ $string['rulesendmailcpf'] = '[Vorschau] E-Mail versenden an User:in mit benutze
 $string['rulesendmailcpf_desc'] = 'Wählen Sie ein Event aus, auf das reagiert werden soll. Legen Sie eine E-Mail-Vorlage an
 (Sie können auch Platzhalter wie {bookingdetails} verwenden) und legen Sie fest, an welche Nutzer:innen die E-Mail versendet werden soll.
 Beispiel: Alle Nutzer:innen, die im benutzerdefinierten Feld "Studienzentrumsleitung" den Wert "SZL Wien" stehen haben.';
+$string['rulesheader'] = '<i class="fa fa-fw fa-pencil-square" aria-hidden="true"></i>&nbsp; Regeln';
+$string['rulesincontextglobalheader'] = '<a href="{$a}" target="_blank">Globale Regeln</a>';
+$string['rulesincontextheader'] = '<a href="{$a->rulesincontexturl}" target="_blank">Regeln in Buchungsinstanz "{$a->bookingname}"</a>';
+$string['rulesnotfound'] = 'Keine Regeln für diese Buchungsoption gefunden';
 $string['rulessettings'] = "Einstellungen für Regeln";
 $string['rulessettingsdesc'] = 'Einstellungen, die für die <a href="{$a}">Funktion Buchungs Regeln</a> gelten.';
 $string['rulevalue'] = 'Wert';
