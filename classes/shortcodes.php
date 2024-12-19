@@ -231,8 +231,12 @@ class shortcodes {
 
         $wherearray['bookingid'] = (int)$booking->id;
 
+        // Additional where condition for both card and list views.
+        $additionalwhere = self::set_wherearray_from_arguments($args, $wherearray) ?? '';
+
         list($fields, $from, $where, $params, $filter) =
-                booking::get_options_filter_sql(0, 0, '', null, null, [], $wherearray);
+                booking::get_options_filter_sql(0, 0, '', null, null, [], $wherearray, null,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED], $additionalwhere);
 
         // By default, we do not show booking options that lie in the past.
         // Shortcode arg values get transmitted as string, so also check for "false" and "0".
@@ -832,5 +836,64 @@ class shortcodes {
         $instancefilter = new standardfilter('bookingid', get_string('bookingidfilter', 'mod_booking'));
         $instancefilter->add_options($filterarray);
         $table->add_filter($instancefilter);
+    }
+
+    /**
+     * Modify there wherearray via arguments.
+     *
+     * @param array $args
+     *
+     * @return string
+     *
+     */
+    private static function set_wherearray_from_arguments(array &$args, &$wherearray) {
+
+        global $DB;
+
+        $customfields = booking_handler::get_customfields();
+        // Set given customfields (shortnames) as arguments.
+        $fields = [];
+        $additonalwhere = '';
+        if (!empty($customfields) && !empty($args)) {
+            foreach ($args as $key => $value) {
+                foreach ($customfields as $customfield) {
+                    if ($customfield->shortname == $key) {
+                        $configdata = json_decode($customfield->configdata ?? '[]');
+
+                        if (!empty($configdata->multiselect)) {
+                            if (!empty($additonalwhere)) {
+                                $additonalwhere .= " AND ";
+                            }
+
+                            $values = explode(',', $value);
+
+                            if (!empty($values)) {
+                                $additonalwhere .= " ( ";
+                            }
+
+                            foreach ($values as $vkey => $vvalue) {
+
+                                $additonalwhere .= $vkey > 0 ? ' OR ' : '';
+                                $vvalue = "'%$vvalue%'";
+                                $additonalwhere .= " $key LIKE $vvalue ";
+                            }
+
+                            if (!empty($values)) {
+                                $additonalwhere .= " ) ";
+                            }
+
+                        } else {
+                            $argument = strip_tags($value);
+                            $argument = trim($argument);
+                            $wherearray[$key] = $argument;
+                        }
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $additonalwhere;
     }
 }
