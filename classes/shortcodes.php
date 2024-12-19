@@ -311,6 +311,18 @@ class shortcodes {
 
         $table->showcountlabel = $showfilter ? true : false;
 
+        if (
+            isset($args['filterontop'])
+            && (
+                $args['filterontop'] == '1'
+                || $args['filterontop'] == 'true'
+            )
+        ) {
+            $table->showfilterontop = true;
+        } else {
+            $table->showfilterontop = false;
+        }
+
         // If "rightside" is in the "exclude" array, then we do not show the rightside area (containing the "Book now" button).
         if (!empty($exclude) && in_array('rightside', $exclude)) {
             unset($table->subcolumns['rightside']);

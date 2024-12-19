@@ -98,11 +98,21 @@
                     </div>
                </div>
           </div>
-          <div class="wunderbyte_table_container {{uniqueid}}">
+          <div class="wunderbyte_table_container {{#showfilterontop}}showontop{{/showfilterontop}} {{uniqueid}}">
+               {{#showfilterontop}}
+               <div class="filterheader">
+                    <aside class="wunderbyte_table_components {{^showcomponentstoggle}} inactive{{/showcomponentstoggle}}">
+                         {{> local_wunderbyte_table/component_filter }}
+                         {{> local_wunderbyte_table/component_infinitescroll }}
+                    </aside>
+               </div>
+               {{/showfilterontop}}
+               {{^showfilterontop}}
                <aside class="wunderbyte_table_components {{^showcomponentstoggle}} inactive{{/showcomponentstoggle}}">
                     {{> local_wunderbyte_table/component_filter }}
                     {{> local_wunderbyte_table/component_infinitescroll }}
                </aside>
+               {{/showfilterontop}}
                <div class= "wunderbyteTableClass {{uniqueid}}" id='a{{idstring}}'>
                     {{> mod_booking/table_cards }}
                </div>
