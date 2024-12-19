@@ -253,6 +253,7 @@ define('MOD_BOOKING_OPTION_FIELD_BOOKUSERS', 520);
 define('MOD_BOOKING_OPTION_FIELD_TIMEMODIFIED', 530);
 define('MOD_BOOKING_OPTION_FIELD_TEMPLATESAVE', 600);
 define('MOD_BOOKING_OPTION_FIELD_EVENTSLIST', 700);
+define('MOD_BOOKING_OPTION_FIELD_RULES', 800);
 define('MOD_BOOKING_OPTION_FIELD_AFTERSUBMITACTION', 999);
 
 // To define execution of field methods.
@@ -276,6 +277,7 @@ define('MOD_BOOKING_HEADER_SUBBOOKINGS', 'bookingsubbookingsheader');
 define('MOD_BOOKING_HEADER_CUSTOMFIELDS', 'category_'); // There can be multiple headers, with custom names.
 define('MOD_BOOKING_HEADER_TEMPLATESAVE', 'templateheader');
 define('MOD_BOOKING_HEADER_COURSES', 'coursesheader');
+define('MOD_BOOKING_HEADER_RULES', 'rulesheader');
 
 define('MOD_BOOKING_MAX_CUSTOM_FIELDS', 3);
 define('MOD_BOOKING_FORM_OPTIONDATEID', 'optiondateid_');

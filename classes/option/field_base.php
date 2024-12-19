@@ -112,7 +112,6 @@ abstract class field_base implements fields {
         $fieldstoinstanciate = [],
         $applyheader = true
     ) {
-
     }
 
     /**
