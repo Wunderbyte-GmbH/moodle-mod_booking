@@ -41,7 +41,6 @@ $userid = optional_param('userid', 0, PARAM_INT);
 $returnto = optional_param('returnto', '', PARAM_ALPHA);
 $returnurl = optional_param('returnurl', '', PARAM_URL);
 
-$syscontext = context_system::instance();
 $modcontext = context_module::instance($cmid);
 
 // If we have this setting.
@@ -49,7 +48,7 @@ if (!get_config('booking', 'bookonlyondetailspage')) {
     require_capability('mod/booking:view', $modcontext);
 }
 
-$PAGE->set_context($syscontext);
+$PAGE->set_context($modcontext);
 
 $url = new moodle_url('/mod/booking/optionview.php', ['cmid' => $cmid, 'optionid' => $optionid]);
 $PAGE->set_url($url);
@@ -69,7 +68,8 @@ if (!$cm->uservisible && !get_config('booking', 'bookonlyondetailspage')) {
     die();
 }
 
-if ($settings = singleton_service::get_instance_of_booking_option_settings($optionid)) {
+$settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+if ($settings && !empty($settings->optionid)) {
     if ($userid == $USER->id || $userid == 0) {
         $user = $USER;
     } else {
@@ -97,7 +97,7 @@ if ($settings = singleton_service::get_instance_of_booking_option_settings($opti
 
     if ($data->is_invisible()) {
         // If the user does have the capability to see invisible options...
-        if (has_capability('mod/booking:canseeinvisibleoptions', $syscontext)) {
+        if (has_capability('mod/booking:canseeinvisibleoptions', $modcontext)) {
             // ... then show it.
             echo $output->render_bookingoption_description_view($data);
         } else {
