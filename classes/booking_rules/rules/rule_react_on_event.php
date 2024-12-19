@@ -63,7 +63,7 @@ class rule_react_on_event implements booking_rule {
     public $intervaldata = null;
 
     /** @var bool $ruleisactive */
-    public $ruleisactive = false;
+    public $ruleisactive = true;
 
     /** Const state of booking option */
     public const ALWAYS = 0;

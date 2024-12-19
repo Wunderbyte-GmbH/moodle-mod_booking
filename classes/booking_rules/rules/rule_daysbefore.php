@@ -62,7 +62,7 @@ class rule_daysbefore implements booking_rule {
     public $datefield = null;
 
     /** @var bool $ruleisactive */
-    public $ruleisactive = false;
+    public $ruleisactive = true;
 
     /**
      * Load json data from DB into the object.
