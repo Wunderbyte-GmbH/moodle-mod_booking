@@ -42,13 +42,14 @@ $returnto = optional_param('returnto', '', PARAM_ALPHA);
 $returnurl = optional_param('returnurl', '', PARAM_URL);
 
 $modcontext = context_module::instance($cmid);
+$syscontext = context_system::instance();
 
 // If we have this setting.
 if (!get_config('booking', 'bookonlyondetailspage')) {
     require_capability('mod/booking:view', $modcontext);
 }
 
-$PAGE->set_context($modcontext);
+$PAGE->set_context($syscontext);
 
 $url = new moodle_url('/mod/booking/optionview.php', ['cmid' => $cmid, 'optionid' => $optionid]);
 $PAGE->set_url($url);
@@ -69,7 +70,7 @@ if (!$cm->uservisible && !get_config('booking', 'bookonlyondetailspage')) {
 }
 
 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-if ($settings && !empty($settings->optionid)) {
+if ($settings && !empty($settings->id)) {
     if ($userid == $USER->id || $userid == 0) {
         $user = $USER;
     } else {
