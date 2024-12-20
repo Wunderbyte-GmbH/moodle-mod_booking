@@ -1949,6 +1949,7 @@ $string['selflearningcoursecoursestarttime'] = 'Sortierdatum';
 $string['selflearningcoursecoursestarttime_help'] = 'Dieses Datum wird ausschließlich für die Sortierung verwendet, da Buchungsoptionen vom Typ "{$a}" kein fixes Startdatum haben.';
 $string['selflearningcoursecoursestarttimealert'] = 'Da Sie unter "Moodle-Kurs" die Option "{$a}" gewählt haben, können Sie hier keine Termine angeben, sondern nur ein Sortierdatum.';
 $string['selflearningcoursedurationinfo'] = 'Dieser Kurs dauert {$a}.';
+$string['selflearningcoursehideduration'] = 'Dauer für Selbstlernkurse ausblenden';
 $string['selflearningcourselabel'] = 'Bezeichnung für Buchungsoptionen mit fixer Dauer';
 $string['selflearningcourselabeldesc'] = 'Buchungsoptionen mit fixer Dauer, aber ohne Termine, haben die Standardbezeichnung "Selbstlernkurs". Sie können hier einen beliebigen anderen Namen für diesen Typ von Buchungsoptionen vergeben.';
 $string['selflearningcoursesettingsheader'] = 'Buchungsoptionen mit fixer Dauer ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';

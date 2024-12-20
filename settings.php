@@ -730,6 +730,14 @@ if ($ADMIN->fulltree) {
             )
         );
         $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/selflearningcoursehideduration',
+                get_string('selflearningcoursehideduration', 'mod_booking'),
+                '',
+                0
+            )
+        );
+        $settings->add(
             new admin_setting_configtext(
                 'booking/selflearningcourselabel',
                 get_string('selflearningcourselabel', 'mod_booking'),

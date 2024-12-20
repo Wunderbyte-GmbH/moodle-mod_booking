@@ -2011,6 +2011,7 @@ $string['selflearningcoursecoursestarttime'] = 'Sorting date';
 $string['selflearningcoursecoursestarttime_help'] = 'This date will be used for sorting because booking options of type "{$a}" do not have a fixed start date.';
 $string['selflearningcoursecoursestarttimealert'] = 'As you have activated the "{$a}" checkbox under the "Moodle course" settings you cannot add dates here but only provide a sorting date.';
 $string['selflearningcoursedurationinfo'] = 'This course has a duration of {$a}.';
+$string['selflearningcoursehideduration'] = 'Hide duration for self-learning courses';
 $string['selflearningcourselabel'] = 'Name for booking options with fixed duration';
 $string['selflearningcourselabeldesc'] = 'Booking options with a fixed duration but without dates are usually called "self-learning course". If you want to use another name for this type of booking options you can enter it here.';
 $string['selflearningcoursesettingsheader'] = 'Booking options with fixed duration ' . '&nbsp;<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
