@@ -3961,5 +3961,13 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024121701, 'booking');
     }
 
+    if ($oldversion < 2024122002) {
+        // Remove values form completiongradeitemnumber and completionpassgrade to avoid #779 error after #629.
+        remove_completiongradeitemnumber_2024122002();
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2024122002, 'booking');
+    }
+
     return true;
 }
