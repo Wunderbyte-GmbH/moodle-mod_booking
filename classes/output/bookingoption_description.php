@@ -268,7 +268,9 @@ class bookingoption_description implements renderable, templatable {
         if (!empty($settings->selflearningcourse)) {
             $this->selflearningcourse = true;
 
-            if (!empty($settings->duration)) {
+            if (get_config('booking', 'selflearningcoursehideduration')) {
+                $this->selflearningcourseshowdurationinfo = null;
+            } else if (!empty($settings->duration)) {
                 // We do not show duration info if it is set to 0.
                 $this->selflearningcourseshowdurationinfo = true;
 
