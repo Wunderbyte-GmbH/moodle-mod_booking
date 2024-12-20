@@ -156,3 +156,25 @@ function fix_places_for_booking_answers() {
     // Execute the query.
     $DB->execute($sql, $params);
 }
+
+/**
+ * Remove values form completiongradeitemnumber and completionpassgrade to avoid #779 error after #629.
+ *
+ * @return void
+ */
+function remove_completiongradeitemnumber_2025010803() {
+    global $DB;
+
+    $bookingmoduleid = $DB->get_field('modules', 'id', ['name' => 'booking']);
+
+    // Define your SQL update query.
+    $sql = "UPDATE {course_modules}
+        SET completiongradeitemnumber = null, completionpassgrade = 0
+        WHERE module = :bookigmodules";
+
+    // Define the parameters for the query.
+    $params = ['bookigmodules' => $bookingmoduleid];
+
+    // Execute the query.
+    $DB->execute($sql, $params);
+}
