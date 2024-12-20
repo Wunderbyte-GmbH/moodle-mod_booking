@@ -1,3 +1,23 @@
+## Version 8.9.2 (2024122000)
+* New feature: Add shortcode arg to show the courselist filter on top (#752).
+* Improvement: Rules can be set active/inactive #764
+* Improvement: Convert bookingdetailslink overwritable string #767
+* Improvement: Display links to other rules in system rules site #656
+* Improvement: Better description for enrol in group function #635
+* Improvement: Set rule property active default as true.
+* Improvement: Add possibility to pre-filter shortcode for any customfield (#752).
+* Improvement: add setting to hide duration for selflearning courses
+* Improvement: Also hide duration on optionview.php if setting to hide duration for selflearningcourses is active.
+* Bugfix: Correct strings #742
+* Bugfix: Placeholder coursecalendar generates correct link #754
+* Bugfix: Correctly check if rule is active #764
+* Bugfix: Disable sorting of indexnumber in report.php #741
+* Bugfix: Bugfix for "Unknown error type: Creation of dynamic property mod_booking\booking_rules\rules\rule_react_on_event::$ruleisactive is deprecated".
+* Bugfix: Check capability on correct context (Wunderbyte-GmbH/Wunderbyte-GmbH#291)
+* Bugfix: Test modcontext, not systemcontext for invisible options
+* Bugfix: Use correct context and test on $settings-id, not optionid
+* Test: Fix fieldname and message strings in behat.
+
 ## Version 8.9.1 (2024121800)
 * Improvement: Add helper function to get a list of all cmids (of all booking instances).
 * Improvement: GH-771 Show countlabel whenever filters are activated (to have the reset button).
