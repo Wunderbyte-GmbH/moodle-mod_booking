@@ -832,7 +832,7 @@ class shortcodes {
     /**
      * Add filter displaying the possible instances of mod booking.
      *
-     * @param mixed $table
+     * @param mixed $table reference to table
      *
      * @return void
      *
@@ -853,12 +853,11 @@ class shortcodes {
     /**
      * Modify there wherearray via arguments.
      *
-     * @param array $args
-     *
+     * @param array $args reference to args
+     * @param array $wherearray reference to wherearray
      * @return string
-     *
      */
-    private static function set_wherearray_from_arguments(array &$args, &$wherearray) {
+    private static function set_wherearray_from_arguments(array &$args, array &$wherearray) {
 
         global $DB;
 
