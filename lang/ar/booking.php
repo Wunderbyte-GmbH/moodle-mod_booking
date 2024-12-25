@@ -1769,3 +1769,633 @@ $string['profeatures:appearance']                                   = '<ul>
             <li><b>إيقاف النوافذ المنبثقة</b></li>
             <li><b>خيارات حالة الحضور</b></li>
             </ul>';
+$string['profeatures:automaticcoursecreation']                      = '<ul>
+            <li><b>حقل مخصص لخيار الحجز ليتم استخدامه كفئة الدورة</b></li>
+            <li><b>تمييز الدورة بالعلامات لاستخدامها كقوالب</b></li>
+            </ul>';
+$string['profeatures:availabilityinfotexts']                        = '<ul>
+            <li><b>عرض معلومات التوافر لأماكن الحجز</b></li>
+            <li><b>تمكين رسالة "أماكن الحجز القليلة"</b></li>
+            <li><b>عرض معلومات التوافر لقائمة الانتظار</b></li>
+            <li><b>تمكين رسالة "أماكن قائمة الانتظار القليلة"</b></li>
+            <li><b>عرض المكان في قائمة الانتظار</b></li>
+            </ul>';
+$string['profeatures:boactions']                                    = '<ul>
+            <li><b>تفعيل الإجراءات بعد الحجز</b></li>
+            </ul>';
+$string['profeatures:cancellationsettings']                         = '<ul>
+            <li><b>فترة إلغاء قابلة للتعديل</b></li>
+            <li><b>فترة تهدئة الإلغاء (بالثواني)</b></li>
+            </ul>';
+$string['profeatures:duplicationrestoreoption']                     = '<ul>
+            <li><b>تكرار دورة Moodle عند تكرار خيار الحجز</b></li>
+            </ul>';
+$string['profeatures:overbooking']                                  = '<ul>
+            <li><b>السماح بالحجز الزائد</b></li>
+            </ul>';
+$string['profeatures:priceformula']                                 = '<ul>
+            <li><b>استخدام صيغة السعر لحساب الأسعار تلقائيًا</b></li>
+            <li><b>تطبيق عامل الوحدة</b></li>
+            <li><b>تقريب الأسعار</b></li>
+            </ul>';
+$string['profeatures:progressbars']                                 = '<ul>
+            <li><b>عرض أشرطة التقدم للوقت المنقضي (لخيار الحجز)</b></li>
+            <li><b>جعل أشرطة التقدم قابلة للطي</b></li>
+            </ul>';
+$string['profeatures:selflearningcourse']                           = '<ul>
+            <li><b>تفعيل خيارات الحجز ذات المدة الثابتة (مثل الدورات الذاتية التعلم)</b></li>
+            <li><b>تحديد اسم مخصص لهذا النوع (مثل "دورة ذاتية التعلم")</b></li>
+            </ul>';
+$string['profeatures:subbookings']                                  = '<ul>
+            <li><b>تفعيل الحجوزات الفرعية</b></li>
+            </ul>';
+$string['profeatures:teachers']                                     = '<ul>
+            <li><b>إضافة روابط إلى صفحات المعلمين</b></li>
+            <li><b>تسجيل الدخول لصفحات المعلمين غير ضروري</b></li>
+            <li><b>عرض عناوين البريد الإلكتروني للمعلمين دائمًا للجميع</b></li>
+            <li><b>عرض عناوين البريد الإلكتروني للمعلمين للمستخدمين المحجوزين</b></li>
+            <li><b>يمكن للمعلمين إرسال بريد إلكتروني لجميع المستخدمين المحجوزين باستخدام عميل البريد الخاص بهم</b></li>
+            <li><b>يتم تعيين معلمي خيار الحجز إلى الدور المناسب</b></li>
+            </ul>';
+$string['profilepicture']                                           = 'صورة الملف الشخصي';
+$string['progressbars']                                             = 'أشرطة التقدم للوقت المنقضي ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['progressbars_desc']                                        = 'احصل على تمثيل مرئي للوقت الذي انقضى بالفعل لخيار الحجز.';
+$string['progressbarscollapsible']                                  = 'جعل أشرطة التقدم قابلة للطي';
+$string['prolicensefeatures']                                       = '<p>تحتاج إلى ترخيص Booking PRO إذا كنت ترغب في استخدام هذه الميزة.
+            شراء ترخيص Pro سيسمح لك باستخدام الميزات التالية:</p>';
+$string['proversion:extraviews']                                    = 'مع Booking PRO يمكنك استخدام طرق عرض إضافية مثل عرض البطاقات أو عرض القائمة مع الصور.';
+$string['proversiononly']                                           = 'قم بالترقية إلى Booking PRO لاستخدام هذه الميزة.';
+$string['qrenrollink']                                              = "رمز QR لرابط التسجيل";
+$string['qrid']                                                     = "qr_id";
+$string['qrusername']                                               = "qr_username";
+$string['question']                                                 = "سؤال";
+$string['ratings']                                                  = 'تقييمات خيار الحجز';
+$string['ratingsuccessful']                                         = 'تم تحديث التقييمات بنجاح';
+$string['reallydeleteaction']                                       = 'هل تريد حقًا الحذف؟';
+$string['reason']                                                   = 'السبب';
+$string['recalculateall']                                           = 'حساب جميع الأسعار';
+$string['recalculateprices']                                        = 'حساب جميع الأسعار من المثيل باستخدام الصيغة';
+$string['recommendedin']                                            = "رمز قصير لعرض قائمة خيارات الحجز التي يجب التوصية بها في دورة معينة.
+             لاستخدام هذا، أضف حقل مخصص للحجز بالاسم المختصر 'recommendedin' وقيم مفصولة بفاصلة مع الأسماء المختصرة
+             للدورات التي تريد عرض هذه التوصيات فيها. لذا: عندما تريد التوصية بالخيار1 للمشاركين المسجلين في
+             دورة 1 (course1)، تحتاج إلى تعيين الحقل المخصص 'recommendedin' من داخل خيار الحجز إلى 'course1'.";
+$string['recordsimported']                                          = 'تم استيراد خيارات الحجز عبر csv';
+$string['recordsimporteddescription']                               = '{$a} خيارات الحجز تم استيرادها عبر csv';
+$string['recreategroup']                                            = 'إعادة إنشاء المجموعة في الدورة المستهدفة وتسجيل المستخدمين في المجموعة';
+$string['recurringheader']                                          = 'خيارات متكررة';
+$string['recurringoptions']                                         = 'خيارات الحجز المتكررة';
+$string['relatedcourseidneeded']                                    = 'دورة متصلة مطلوبة بسبب شروط التوافر الخاصة بك.';
+$string['reminder1sent']                                            = 'تم إرسال التذكير الأول';
+$string['reminder2sent']                                            = 'تم إرسال التذكير الثاني';
+$string['reminderteachersent']                                      = 'تم إرسال تذكير المعلم';
+$string['removeafterminutes']                                       = 'إزالة إكمال النشاط بعد N دقيقة';
+$string['removeresponses']                                          = 'إزالة جميع الردود';
+$string['removeuseronunenrol']                                      = 'إزالة المستخدم من الحجز عند إلغاء التسجيل من الدورة المرتبطة؟';
+$string['reoccurringdatestring']                                    = 'يوم الأسبوع، وقت البدء والانتهاء (اليوم، HH:MM - HH:MM)';
+$string['reoccurringdatestring_help']                               = 'أدخل نصًا بالتنسيق التالي:
+                "اليوم، HH:MM - HH:MM"، مثل "الاثنين، 10:00 - 11:00" أو "الأحد 09:00-10:00" أو "block" للأحداث المحظورة.';
+$string['reoccurringdatestringerror']                               = 'أدخل نصًا بالتنسيق التالي:
+                اليوم، HH:MM - HH:MM أو "block" للأحداث المحظورة.';
+$string['repeatthisbooking']                                        = 'تكرار هذا الخيار';
+$string['reportfields']                                             = 'حقول التقرير';
+$string['reportremindermessage']                                    = '{$a->bookingdetails}';
+$string['reportremindersubject']                                    = 'تذكير: دورتك المحجوزة';
+$string['reservedusers']                                            = 'المستخدمون مع حجوزات قصيرة الأجل';
+$string['reset']                                                    = 'إعادة تعيين';
+$string['responses']                                                = 'الردود';
+$string['responsesfields']                                          = 'الحقول في قائمة المشاركين';
+$string['responsesto']                                              = 'الردود على {$a} ';
+$string['responsible']                                              = 'المسؤول';
+$string['responsiblecontact']                                       = 'شخص الاتصال المسؤول';
+$string['responsiblecontact_help']                                  = 'اختر شخصًا مسؤولًا عن خيار الحجز هذا.
+            لا يُفترض أن يكون هذا الشخص هو المعلم!';
+$string['responsiblecontactcanedit']                                = 'السماح للأشخاص المسؤولين بالتحرير';
+$string['responsiblecontactcanedit_desc']                           = 'قم بتفعيل هذا الإعداد إذا كنت تريد السماح للأشخاص المسؤولين
+            بتحرير خيارات الحجز الخاصة بهم ورؤية وتحرير قائمة المستخدمين المحجوزين.<br>
+            <b>هام:</b> يحتاج الشخص المسؤول أيضًا إلى القدرة
+            <b>mod/booking:addeditownoption</b>.';
+$string['restresponse']                                             = "استجابة rest";
+$string['restrictanswerperiodclosing']                              = 'الحجز ممكن فقط حتى تاريخ معين';
+$string['restrictanswerperiodopening']                              = 'الحجز ممكن فقط بعد تاريخ معين';
+$string['restscriptexecuted']                                       = 'بعد تنفيذ استدعاء rest';
+$string['restscriptfailed']                                         = 'فشل تنفيذ النص';
+$string['restscriptsuccess']                                        = 'تنفيذ نص rest';
+$string['resultofcohortorgroupbooking']                             = '<p>هذه هي نتيجة حجز المجموعة:</p>
+            <ul>
+            <li>تم العثور على {$a->sumcohortmembers} مستخدمين في المجموعات المحددة</li>
+            <li>تم العثور على {$a->sumgroupmembers} مستخدمين في المجموعات المحددة</li>
+            <li><b>تم حجز {$a->subscribedusers} مستخدمين لهذا الخيار</b></li>
+            </ul>';
+$string['returnurl']                                                = "رابط العودة";
+$string['reviewed']                                                 = 'تمت المراجعة';
+$string['rootcategory']                                             = 'الجذر';
+$string['roundpricesafterformula']                                  = 'تقريب الأسعار (صيغة السعر)';
+$string['roundpricesafterformula_desc']                             = 'إذا كان نشطًا، سيتم تقريب الأسعار إلى أرقام كاملة (بدون كسور عشرية) بعد تطبيق <strong>صيغة السعر</strong>.';
+$string['rowupdated']                                               = 'تم تحديث الصف.';
+$string['rulecustomprofilefield']                                   = 'حقل ملف تعريف المستخدم المخصص';
+$string['ruledatefield']                                            = 'حقل التاريخ';
+$string['ruledays']                                                 = 'عدد الأيام';
+$string['ruledaysbefore']                                           = 'التنفيذ n أيام بالنسبة لتاريخ معين';
+$string['ruledaysbefore_desc']                                      = 'اختر حقل تاريخ لخيارات الحجز وعدد الأيام بالنسبة لهذا التاريخ.';
+$string['ruleevent']                                                = 'الحدث';
+$string['ruleeventcondition']                                       = 'التنفيذ عندما...';
+$string['rulemailtemplate']                                         = 'قالب البريد الإلكتروني';
+$string['rulename']                                                 = "اسم مخصص للقاعدة";
+$string['ruleoperator']                                             = 'المشغل';
+$string['ruleoptionfield']                                          = 'حقل الخيار للمقارنة';
+$string['ruleoptionfieldaddress']                                   = 'العنوان (address)';
+$string['ruleoptionfieldbookingclosingtime']                        = 'نهاية فترة الحجز المسموح بها (bookingclosingtime)';
+$string['ruleoptionfieldbookingopeningtime']                        = 'بداية فترة الحجز المسموح بها (bookingopeningtime)';
+$string['ruleoptionfieldcourseendtime']                             = 'النهاية (courseendtime)';
+$string['ruleoptionfieldcoursestarttime']                           = 'البداية (coursestarttime)';
+$string['ruleoptionfieldlocation']                                  = 'الموقع (location)';
+$string['ruleoptionfieldtext']                                      = 'اسم خيار الحجز (text)';
+$string['rulereactonchangeevent_desc']                              = 'بالنسبة لحدث "تم تحديث خيار الحجز"، يمكنك تحديد الخيارات هنا: <a href="{$a}">إعدادات مكون الحجز</a>.';
+$string['rulereactonevent']                                         = "التفاعل مع الحدث";
+$string['rulereactonevent_desc']                                    = "اختر حدثًا يجب أن يطلق القاعدة.<br>
+            <b>تلميح:</b> يمكنك استخدام العنصر النائب <code>{eventdescription}</code> لعرض وصف الحدث.";
+$string['rulereactoneventaftercompletion']                          = "عدد الأيام بعد نهاية خيار الحجز، حيث لا تزال القاعدة تنطبق";
+$string['rulereactoneventaftercompletion_help']                     = "اترك هذا الحقل فارغًا أو اضبطه على 0 إذا كنت تريد الاستمرار في تنفيذ الإجراء. يمكنك استخدام الأرقام السالبة إذا كانت القاعدة يجب أن تتوقف قبل نهاية الدورة المحددة.";
+$string['rulereactoneventcancelrules']                              = 'تخطي هذه القاعدة';
+$string['rulesendmailcpf']                                          = '[معاينة] إرسال بريد إلكتروني إلى المستخدم مع حقل ملف تعريف مخصص';
+$string['rulesendmailcpf_desc']                                     = 'اختر حدثًا يجب أن يطلق قاعدة "إرسال بريد إلكتروني". أدخل قالب بريد إلكتروني
+            (يمكنك استخدام العناصر النائبة مثل {bookingdetails}) وحدد للمستخدمين الذين يجب إرسال البريد الإلكتروني إليهم.
+            مثال: جميع المستخدمين الذين لديهم القيمة "مركز فيينا" في حقل ملف تعريف المستخدم المسمى "مركز الدراسة".';
+$string['rulessettings']                                            = "إعدادات قواعد الحجز";
+$string['rulessettingsdesc']                                        = 'الإعدادات التي تنطبق على <a href="{$a}">ميزة قواعد الحجز</a>.';
+$string['rulevalue']                                                = 'القيمة';
+$string['sameday']                                                  = 'نفس اليوم';
+$string['saturday']                                                 = 'السبت';
+$string['saveinstanceastemplate']                                   = 'إضافة مثيل الحجز إلى القالب';
+$string['savenewtagtemplate']                                       = 'حفظ';
+$string['sccartdescription']                                        = "الوصف في عربة التسوق";
+$string['sccartdescription_desc']                                   = "الوصف المعروض في عربة التسوق. يمكن إدراج حقول خيار الحجز باستخدام العناصر النائبة، مثل {location}";
+$string['scgfbookgroupscohorts']                                    = 'حجز مجموعة أو مجموعات';
+$string['scgfcohortheader']                                         = 'اشتراك المجموعة';
+$string['scgfgroupheader']                                          = 'اشتراك المجموعة';
+$string['scgfselectcohorts']                                        = 'اختر مجموعة';
+$string['scgfselectgroups']                                         = 'اختر مجموعة';
+$string['sch_allowinstallment']                                     = 'السماح بالأقساط';
+$string['sch_allowrebooking']                                       = 'السماح بإعادة الحجز';
+$string['search']                                                   = 'بحث...';
+$string['searchdate']                                               = 'التاريخ';
+$string['searchname']                                               = 'الاسم الأول';
+$string['searchsurname']                                            = 'الاسم الأخير';
+$string['searchtag']                                                = 'بحث عن العلامات';
+$string['searchwaitinglist']                                        = 'في قائمة الانتظار';
+$string['select']                                                   = 'اختيار';
+$string['selectanoption']                                           = 'يرجى اختيار خيار الحجز';
+$string['selectatleastoneuser']                                     = 'يرجى اختيار مستخدم واحد على الأقل!';
+$string['selectboactiontype']                                       = 'اختر الإجراء بعد الحجز';
+$string['selectcategory']                                           = 'اختر الفئة الرئيسية';
+$string['selected']                                                 = 'المختار';
+$string['selectelective']                                           = 'اختر الاختياري لـ {$a} أرصدة';
+$string['selectfield']                                              = 'قائمة منسدلة';
+$string['selectfieldofbookingoption']                               = 'اختر حقل خيار الحجز';
+$string['selectoptionid']                                           = 'يرجى اختيار الخيار!';
+$string['selectoptioninotherbooking']                               = "الخيار";
+$string['selectoptionsfirst']                                       = "يرجى اختيار خيارات الحجز أولاً.";
+$string['selectpresencestatus']                                     = "اختر حالة الحضور";
+$string['selectstudentinbo']                                        = "اختر المستخدمين لخيار الحجز";
+$string['selectteacherinbo']                                        = "اختر المعلمين لخيار الحجز";
+$string['selectuserfromevent']                                      = "اختر المستخدم من الحدث";
+$string['selectusers']                                              = "اختر المستخدمين مباشرة بدون اتصال بخيار الحجز";
+$string['selectusershoppingcart']                                   = "اختر المستخدم الذي يجب أن يدفع الأقساط";
+$string['selflearningcourse']                                       = 'دورة ذاتية التعلم';
+$string['selflearningcourse_help']                                  = 'خيارات الحجز من النوع "{$a}" لها مدة ثابتة ولكن بدون تواريخ ثابتة. ستبدأ الدورة بمجرد حجزها.';
+$string['selflearningcourseactive']                                 = 'تفعيل خيارات الحجز ذات المدة الثابتة';
+$string['selflearningcoursealert']                                  = 'إذا كانت دورة Moodle متصلة، فإن خيارات الحجز من النوع "{$a}" سيتم تسجيل المستخدمين فيها <b>فورًا بعد الحجز</b>. سيبقون مسجلين في دورة Moodle للمدة المحددة.<br><br><b>يرجى ملاحظة:</b> لا يمكنك تقديم أي تواريخ ولكن يمكنك تقديم تاريخ للفرز (في قسم "التواريخ").';
+$string['selflearningcoursecoursestarttime']                        = 'تاريخ الفرز';
+$string['selflearningcoursecoursestarttime_help']                   = 'سيتم استخدام هذا التاريخ للفرز لأن خيارات الحجز من النوع "{$a}" ليس لها تاريخ بدء ثابت.';
+$string['selflearningcoursecoursestarttimealert']                   = 'نظرًا لأنك قمت بتفعيل خانة الاختيار "{$a}" ضمن إعدادات "دورة Moodle"، لا يمكنك إضافة تواريخ هنا ولكن فقط تقديم تاريخ للفرز.';
+$string['selflearningcoursedurationinfo']                           = 'هذه الدورة لها مدة {$a}.';
+$string['selflearningcourselabel']                                  = 'اسم لخيارات الحجز ذات المدة الثابتة';
+$string['selflearningcourselabeldesc']                              = 'خيارات الحجز ذات المدة الثابتة ولكن بدون تواريخ عادة ما تسمى "دورة ذاتية التعلم". إذا كنت ترغب في استخدام اسم آخر لهذا النوع من خيارات الحجز، يمكنك إدخاله هنا.';
+$string['selflearningcoursesettingsheader']                         = 'خيارات الحجز ذات المدة الثابتة ' . '&nbsp;<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['selflearningcoursesettingsheaderdesc']                     = 'تتيح لك هذه الميزة إنشاء خيارات حجز ذات مدة ثابتة ولكن بدون تواريخ. سيتم تسجيل المستخدمين المحجوزين في دورة Moodle المتصلة للمدة المحددة.';
+$string['selflearningcoursetimeremaininginfo']                      = 'تبقى {$a} لإكمال هذه الدورة.';
+$string['semester']                                                 = 'الفصل الدراسي';
+$string['semesterend']                                              = 'آخر يوم في الفصل الدراسي';
+$string['semesterend_help']                                         = 'اليوم الذي ينتهي فيه الفصل الدراسي';
+$string['semesterid']                                               = 'معرف الفصل الدراسي';
+$string['semesteridentifier']                                       = 'المعرف';
+$string['semesteridentifier_help']                                  = 'نص قصير لتحديد الفصل الدراسي، مثل "ws22".';
+$string['semestername']                                             = 'الاسم';
+$string['semestername_help']                                        = 'أدخل الاسم الكامل للفصل الدراسي، مثل "فصل الشتاء 2021/22"';
+$string['semesters']                                                = 'الفصول الدراسية';
+$string['semesterssaved']                                           = 'تم حفظ الفصول الدراسية';
+$string['semesterssubtitle']                                        = 'هنا يمكنك إضافة أو تغيير أو حذف <strong>الفصول الدراسية والعطلات</strong>.
+            بعد الحفظ، سيتم ترتيب الإدخالات حسب <strong>تاريخ البدء بترتيب تنازلي</strong>.';
+$string['semesterstart']                                            = 'أول يوم في الفصل الدراسي';
+$string['semesterstart_help']                                       = 'اليوم الذي يبدأ فيه الفصل الدراسي.';
+$string['send']                                                     = 'إرسال';
+$string['sendcopyofmail']                                           = 'إرسال نسخة من البريد الإلكتروني';
+$string['sendcopyofmailmessageprefix']                              = 'بادئة الرسالة للنسخة';
+$string['sendcopyofmailsubjectprefix']                              = 'بادئة الموضوع للنسخة';
+$string['sendcustommsg']                                            = 'إرسال رسالة مخصصة';
+$string['sendmail']                                                 = 'إرسال بريد إلكتروني';
+$string['sendmailheading']                                          = 'إرسال بريد إلى جميع المعلمين لخيار الحجز المحدد';
+$string['sendmailinterval']                                         = 'إرسال رسالة إلى عدة مستخدمين بفاصل زمني';
+$string['sendmailtoallbookedusers']                                 = 'إرسال بريد إلكتروني إلى جميع المستخدمين المحجوزين';
+$string['sendmailtobooker']                                         = 'صفحة حجز المستخدمين الآخرين: إرسال بريد إلكتروني إلى المستخدم الذي يحجز بدلاً من المستخدمين الذين تم حجزهم';
+$string['sendmailtobooker_help']                                    = 'قم بتفعيل هذا الخيار لإرسال رسائل تأكيد الحجز إلى المستخدم الذي يحجز المستخدمين الآخرين بدلاً من المستخدمين الذين تمت إضافتهم إلى خيار الحجز. هذا ذو صلة فقط بالحجوزات التي تتم على صفحة "حجز المستخدمين الآخرين".';
+$string['sendmailtoteachers']                                       = 'إرسال بريد إلكتروني إلى المعلم(ين)';
+$string['sendmessage']                                              = 'إرسال رسالة';
+$string['sendpollurltoteachers']                                    = 'إرسال رابط الاستطلاع';
+$string['sendreminderemail']                                        = "إرسال بريد إلكتروني للتذكير";
+$string['sendreminderemailsuccess']                                 = 'تم إرسال بريد التذكير الإلكتروني!';
+$string['sessionnotifications']                                     = 'إشعارات البريد الإلكتروني لكل جلسة';
+$string['sessionremindermailmessage']                               = '<p>تذكر: أنت محجوز للجلسة التالية:</p>
+            <p>{$a->optiontimes}</p>
+            <p>##########################################</p>
+            <p>{$a->sessiondescription}</p>
+            <p>##########################################</p>
+            <p>حالة الحجز: {$a->status}</p>
+            <p>المشارك: {$a->participant}</p>
+            ';
+$string['sessionremindermailsubject']                               = 'تذكير: لديك جلسة قادمة';
+$string['sessions']                                                 = 'جلسة(جلسات)';
+$string['shoppingcart']                                             = 'تعيين خيارات الدفع مع مكون عربة التسوق';
+$string['shoppingcartplaceholder']                                  = 'عربة التسوق';
+$string['shortcodenotsupportedonyourdb']                            = "هذا الرمز القصير غير مدعوم في قاعدة بياناتك. يعمل فقط على postgres و mariadb";
+$string['shorttext']                                                = "نص قصير";
+$string['showallbookingoptions']                                    = 'جميع خيارات الحجز';
+$string['showallteachers']                                          = '&gt;&gt; عرض جميع المعلمين';
+$string['showboactions']                                            = "تفعيل الإجراءات بعد الحجز";
+$string['showcoursenameandbutton']                                  = 'عرض اسم الدورة، معلومات قصيرة وزر يعيد التوجيه إلى خيارات الحجز المتاحة';
+$string['showcoursesofteacher']                                     = 'الدورات';
+$string['showcustomfields']                                         = 'حقول خيار الحجز المخصصة';
+$string['showcustomfields_desc']                                    = 'اختر حقول خيار الحجز المخصصة التي سيتم عرضها في ورقة التسجيل';
+$string['showdates']                                                = 'عرض التواريخ';
+$string['showdescription']                                          = 'عرض الوصف';
+$string['showinapi']                                                = 'عرض في API؟';
+$string['showlistoncoursepage']                                     = 'عرض المعلومات الإضافية في صفحة الدورة';
+$string['showlistoncoursepage_help']                                = 'إذا قمت بتفعيل هذا الإعداد، سيتم عرض اسم الدورة، معلومات قصيرة وزر يعيد التوجيه إلى خيارات الحجز المتاحة.';
+$string['showmessages']                                             = 'عرض الرسائل';
+$string['showmybookingsonly']                                       = 'خياراتي المحجوزة';
+$string['showmyfieldofstudyonly']                                   = "مجال دراستي";
+$string['showprogressbars']                                         = 'عرض أشرطة التقدم للوقت المنقضي';
+$string['showrecentupdates']                                        = 'عرض التحديثات الأخيرة';
+$string['showsubbookings']                                          = 'تفعيل الحجوزات الفرعية';
+$string['showteachersmailinglist']                                  = 'عرض قائمة البريد الإلكتروني لجميع المعلمين...';
+$string['showviews']                                                = 'طرق العرض التي سيتم عرضها في نظرة عامة على خيارات الحجز';
+$string['signature']                                                = 'التوقيع';
+$string['signinadddatemanually']                                    = 'إضافة التاريخ يدويًا';
+$string['signinaddemptyrows']                                       = 'إضافة صفوف فارغة';
+$string['signincustfields']                                         = 'حقول الملف الشخصي المخصصة';
+$string['signincustfields_desc']                                    = 'اختر حقول الملف الشخصي المخصصة التي سيتم عرضها في ورقة التسجيل';
+$string['signinextracols']                                          = 'عمود إضافي';
+$string['signinextracols_desc']                                     = 'يمكنك طباعة ما يصل إلى 3 أعمدة إضافية في ورقة التسجيل. املأ عنوان العمود أو اتركه فارغًا لعدم وجود عمود إضافي';
+$string['signinextracolsheading']                                   = 'الأعمدة الإضافية في ورقة التسجيل';
+$string['signinextrasessioncols']                                   = 'إضافة أعمدة إضافية للتواريخ';
+$string['signinhidedate']                                           = 'إخفاء التواريخ';
+$string['signinlogo']                                               = 'الشعار لعرضه في ورقة التسجيل';
+$string['signinlogofooter']                                         = 'الشعار في التذييل لعرضه في ورقة التسجيل';
+$string['signinlogoheader']                                         = 'الشعار في الرأس لعرضه في ورقة التسجيل';
+$string['signinonesession']                                         = 'عرض التاريخ(التواريخ) في الرأس';
+$string['signinsheetaddress']                                       = 'العنوان: ';
+$string['signinsheetconfigure']                                     = 'تكوين ورقة التسجيل';
+$string['signinsheetdate']                                          = 'التاريخ(التواريخ): ';
+$string['signinsheetdatetofillin']                                  = 'التاريخ: ';
+$string['signinsheetdownload']                                      = 'تنزيل ورقة التسجيل';
+$string['signinsheetfields']                                        = 'حقول ورقة التسجيل (PDF)';
+$string['signinsheetlocation']                                      = 'الموقع: ';
+$string['sortbookingoptions']                                       = "يرجى ترتيب حجوزاتك بالترتيب الصحيح. ستتمكن من الوصول إلى الدورات المرتبطة واحدة تلو الأخرى. الأعلى يأتي أولاً.";
+$string['sortorder']                                                = 'ترتيب الفرز';
+$string['sortorder:asc']                                            = 'A&rarr;Z';
+$string['sortorder:desc']                                           = 'Z&rarr;A';
+$string['spaceleft']                                                = 'مكان متاح';
+$string['spacesleft']                                               = 'أماكن متاحة';
+$string['sqlfiltercheckstring']                                     = 'إخفاء خيار الحجز عند عدم تلبية الشرط';
+$string['startdate']                                                = "تاريخ البدء";
+$string['starttime']                                                = "وقت البدء";
+$string['starttimenotset']                                          = 'لم يتم تعيين تاريخ البدء';
+$string['status']                                                   = 'الحالة';
+$string['statusattending']                                          = "حضور";
+$string['statuschangetext']                                         = 'رسالة تغيير الحالة';
+$string['statuschangetextmessage']                                  = 'مرحبًا {$a->participant}!
+            تم تغيير حالة حجزك.
+            حالة الحجز: {$a->status}
+            المشارك:   {$a->participant}
+            خيار الحجز: {$a->title}
+            التاريخ: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
+            اذهب إلى خيار الحجز: {$a->gotobookingoption}
+            ';
+$string['statuschangetextsubject']                                  = 'تم تغيير حالة الحجز لـ {$a->title}';
+$string['statuscomplete']                                           = "مكتمل";
+$string['statusexcused']                                            = "معذور";
+$string['statusfailed']                                             = "فشل";
+$string['statusincomplete']                                         = "غير مكتمل";
+$string['statusnoshow']                                             = "لم يحضر";
+$string['statusunknown']                                            = "غير معروف";
+$string['sthwentwrongwithplaceholder']                              = '';
+$string['studentbooked']                                            = 'المستخدمون الذين حجزوا';
+$string['studentbookedandwaitinglist']                              = 'المستخدمون الذين حجزوا وهم في قائمة الانتظار';
+$string['studentdeleted']                                           = 'المستخدمون الذين تم حذفهم بالفعل';
+$string['studentnotificationlist']                                  = 'المستخدمون في قائمة الإشعارات';
+$string['studentwaitinglist']                                       = 'المستخدمون في قائمة الانتظار';
+$string['subbookingadditemformlink']                                = "رابط إلى نموذج خيار الحجز هذا";
+$string['subbookingadditemformlink_help']                           = "اختر عنصر النموذج الذي تريد ربطه بهذا الحجز الإضافي. سيتم عرض الحجز الإضافي فقط إذا كان المستخدم قد اختار القيمة المقابلة في النموذج مسبقًا.";
+$string['subbookingadditemformlinkvalue']                           = "القيمة التي يجب اختيارها في النموذج";
+$string['subbookingadditionalitem']                                 = "حجز عنصر إضافي";
+$string['subbookingadditionalitem_desc']                            = "يسمح لك بإضافة عناصر قابلة للحجز اختياريًا إلى خيار الحجز هذا، مثل حجز مقعد خاص أفضل أو إفطار في غرفتك.";
+$string['subbookingadditionalitemdescription']                      = "وصف العنصر القابل للحجز الإضافي:";
+$string['subbookingadditionalperson']                               = "حجز شخص إضافي";
+$string['subbookingadditionalperson_desc']                          = "يسمح لك بإضافة أشخاص آخرين إلى خيار الحجز هذا، مثل حجز أماكن لأفراد عائلتك.";
+$string['subbookingadditionalpersondescription']                    = "وصف خيار حجز الشخص الإضافي";
+$string['subbookingaddpersons']                                     = "إضافة شخص(أشخاص) إضافي(ين)";
+$string['subbookingbookedpersons']                                  = "تمت إضافة الشخص(الأشخاص) التالي(ين):";
+$string['subbookingduration']                                       = "المدة بالدقائق";
+$string['subbookingname']                                           = "اسم الحجز الفرعي";
+$string['subbookings']                                              = "الحجوزات الفرعية";
+$string['subbookings_desc']                                         = 'تفعيل الحجوزات الفرعية لتمكين حجز العناصر الإضافية أو الفترات الزمنية (مثل ملاعب التنس).';
+$string['subbookingsheader']                                        = 'الحجوزات الفرعية ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['subbookingtimeslot']                                       = "حجز الفترة الزمنية";
+$string['subbookingtimeslot_desc']                                  = "يفتح الفترات الزمنية لكل تاريخ حجز مع مدة محددة.";
+$string['subject']                                                  = 'الموضوع';
+$string['submitandadd']                                             = 'إضافة خيار حجز جديد';
+$string['submitandgoback']                                          = 'إغلاق هذا النموذج';
+$string['submitandstay']                                            = 'البقاء هنا';
+$string['subscribersto']                                            = 'المعلمين لـ \'{$a}\'';
+$string['subscribetocourse']                                        = 'تسجيل المستخدمين في الدورة';
+$string['subscribeuser']                                            = 'هل تريد حقًا تسجيل المستخدمين في الدورة التالية';
+$string['substitutions']                                            = 'الاستبدالات';
+$string['successfulcalculation']                                    = 'تم حساب السعر بنجاح!';
+$string['successfulldeleted']                                       = 'تم حذف الفئة!';
+$string['successfullybooked']                                       = 'تم الحجز بنجاح';
+$string['successfullysorted']                                       = 'تم الفرز بنجاح';
+$string['sucesfullcompleted']                                       = 'تم إكمال النشاط بنجاح للمستخدمين.';
+$string['sucesfullytransfered']                                     = 'تم نقل المستخدمين بنجاح.';
+$string['sucessfullybooked']                                        = 'تم الحجز بنجاح';
+$string['sumunits']                                                 = 'مجموع الوحدات';
+$string['sunday']                                                   = 'الأحد';
+$string['tableheadercourseendtime']                                 = 'نهاية الدورة';
+$string['tableheadercoursestarttime']                               = 'بداية الدورة';
+$string['tableheadermaxanswers']                                    = 'الأماكن المتاحة';
+$string['tableheadermaxoverbooking']                                = 'أماكن قائمة الانتظار';
+$string['tableheaderminanswers']                                    = 'الحد الأدنى لعدد المشاركين';
+$string['tableheaderteacher']                                       = 'المعلم(ون)';
+$string['tableheadertext']                                          = 'اسم الدورة';
+$string['tagdeleted']                                               = 'تم حذف قالب العلامة!';
+$string['tagsuccessfullysaved']                                     = 'تم حفظ العلامة.';
+$string['tagtag']                                                   = 'علامة';
+$string['tagtemplates']                                             = 'قوالب العلامات';
+$string['tagtext']                                                  = 'النص';
+$string['taken']                                                    = 'محجوز';
+$string['taskadhocresetoptiondatesforsemester']                     = 'مهمة مخصصة: إعادة تعيين وإنشاء تواريخ جديدة للفصل الدراسي';
+$string['taskcleanbookingdb']                                       = 'الحجز: تنظيف قاعدة البيانات';
+$string['taskenrolbookeduserstocourse']                             = 'الحجز: تسجيل المستخدمين المحجوزين في الدورة';
+$string['taskpurgecampaigncaches']                                  = 'الحجز: تنظيف ذاكرات التخزين المؤقت للحملات';
+$string['taskremoveactivitycompletion']                             = 'الحجز: إزالة إكمال النشاط';
+$string['tasksendcompletionmails']                                  = 'الحجز: إرسال رسائل الإكمال';
+$string['tasksendconfirmationmails']                                = 'الحجز: إرسال رسائل التأكيد';
+$string['tasksendmailbyruleadhoc']                                  = 'الحجز: إرسال بريد إلكتروني بواسطة القاعدة (مهمة مخصصة)';
+$string['tasksendnotificationmails']                                = 'الحجز: إرسال رسائل الإشعار';
+$string['tasksendremindermails']                                    = 'الحجز: إرسال رسائل التذكير';
+$string['teacher']                                                  = 'المعلم';
+$string['teachernotfound']                                          = 'لم يتم العثور على المعلم أو لا يوجد.';
+$string['teacherroleid']                                            = 'اختر الدور التالي لتسجيل المعلمين في دورة جديدة تم إنشاؤها (إذا تم تحديدها).';
+$string['teachers']                                                 = 'المعلمين';
+$string['teachersallowmailtobookedusers']                           = 'السماح للمعلمين بإرسال بريد إلكتروني إلى جميع المستخدمين المحجوزين باستخدام عميل البريد الخاص بهم';
+$string['teachersallowmailtobookedusers_desc']                      = 'إذا قمت بتفعيل هذا الإعداد، يمكن للمعلمين النقر على زر لإرسال بريد إلكتروني
+                            إلى جميع المستخدمين المحجوزين باستخدام عميل البريد الخاص بهم - ستكون عناوين البريد الإلكتروني لجميع المستخدمين مرئية.
+                            <span class="text-danger"><b>كن حذرًا:</b> قد يكون هذا مشكلة خصوصية. قم بتفعيل هذا فقط
+                            إذا كنت متأكدًا من أنه يتوافق مع سياسة الخصوصية الخاصة بمنظمتك.</span>';
+$string['teachersalwaysenablemessaging']                            = 'السماح للمستخدمين بإرسال رسالة إلى جميع المعلمين';
+$string['teachersalwaysenablemessaging_desc']                       = 'إذا قمت بتفعيل هذا الإعداد، يمكن للمستخدمين إرسال رسائل إلى المعلمين حتى إذا لم يكونوا مسجلين في أي من دوراتهم.';
+$string['teachersettings']                                          = 'المعلمين ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['teachersettings_desc']                                     = 'إعدادات خاصة بالمعلمين.';
+$string['teachersforoption']                                        = 'المعلمين';
+$string['teachersforoption_help']                                   = '<b>كن حذرًا: </b>عند إضافة المعلمين هنا، سيتم إضافتهم أيضًا إلى كل تاريخ في المستقبل في تقرير التدريس.
+                        عند حذف المعلمين هنا، سيتم إزالتهم من كل تاريخ في المستقبل في تقرير التدريس!';
+$string['teachersinstanceconfig']                                   = 'تحرير نموذج خيار الحجز';
+$string['teachersinstancereport']                                   = 'تقرير المعلمين';
+$string['teachersinstancereport:subtitle']                          = '<strong>تلميح:</strong> يتم حساب عدد الوحدات لدورة (خيار الحجز) بواسطة مدة الوحدة التعليمية
+                         التي يمكنك <a href="{$CFG->wwwroot}/admin/settings.php?section=modsettingbooking" target="_blank">تعيينها في إعدادات الحجز</a> وسلسلة التواريخ المحددة (مثل "الثلاثاء، 16:00-17:30").
+                         بالنسبة للأحداث المحظورة أو خيارات الحجز التي تفتقد هذه السلسلة، لا يمكن حساب عدد الوحدات!';
+$string['teacherslinkonteacher']                                    = 'إضافة روابط إلى صفحات المعلمين';
+$string['teacherslinkonteacher_desc']                               = 'عندما يتم إضافة المعلمين إلى خيارات الحجز، سيضيف هذا الإعداد رابطًا إلى صفحة نظرة عامة لكل معلم.';
+$string['teachersnologinrequired']                                  = 'تسجيل الدخول لصفحات المعلمين غير ضروري';
+$string['teachersnologinrequired_desc']                             = 'إذا قمت بتفعيل هذا الإعداد، يمكن للجميع الوصول إلى صفحات المعلمين، بغض النظر عما إذا كانوا مسجلين الدخول أم لا.';
+$string['teachersshowemails']                                       = 'عرض عناوين البريد الإلكتروني للمعلمين دائمًا للجميع';
+$string['teachersshowemails_desc']                                  = 'إذا قمت بتفعيل هذا الإعداد، يمكن لكل مستخدم رؤية
+                            عنوان البريد الإلكتروني لأي معلم - حتى إذا لم يكونوا مسجلين الدخول. <span class="text-danger"><b>كن حذرًا:</b> قد يكون
+                            هذا مشكلة خصوصية. قم بتفعيل هذا فقط إذا كنت متأكدًا من أنه يتوافق مع سياسة الخصوصية الخاصة بمنظمتك.</span>';
+$string['teachingconfigforinstance']                                = 'تحرير نموذج خيار الحجز لـ ';
+$string['teachingreportforinstance']                                = 'تقرير نظرة عامة على التدريس لـ ';
+$string['teachingreportfortrainer']                                 = 'تقرير الوحدات التعليمية المنفذة للمدرب';
+$string['teachingreportfortrainer:subtitle']                        = '<strong>تلميح:</strong> يمكنك تغيير مدة
+                        الوحدة التعليمية في إعدادات المكون (مثل 45 بدلاً من 60 دقيقة).<br/>
+                        <a href="{$CFG->wwwroot}/admin/settings.php?section=modsettingbooking" target="_blank">
+                        &gt;&gt; اذهب إلى إعدادات المكون...
+                        </a>';
+$string['teamsmeeting']                                             = 'اجتماع Teams';
+$string['template']                                                 = 'القوالب';
+$string['templatecategoryname']                                     = 'الاسم المختصر لفئة الدورة حيث توجد دورات القوالب.';
+$string['templatecategoryname_desc']                                = 'يمكن ربط خيارات الحجز بدورات Moodle. تتيح هذه الميزة إنشاء الدورات عند الحفظ الأول لخيار الحجز.';
+$string['templatedeleted']                                          = 'تم حذف القالب!';
+$string['templatefile']                                             = 'ملف القالب';
+$string['templatesuccessfullysaved']                                = 'تم حفظ القالب.';
+$string['terminated']                                               = "منتهي";
+$string['text']                                                     = 'العنوان';
+$string['textarea']                                                 = "منطقة النص";
+$string['textdependingonstatus']                                    = "النص حسب حالة الحجز ";
+$string['textfield']                                                = 'إدخال نصي بخط واحد';
+$string['thankyoubooked']                                           = '<i class="fa fa-3x fa-calendar-check-o text-success" aria-hidden="true"></i><br><br>
+                        شكرًا لك! لقد حجزت بنجاح <b>{$a}</b>.';
+$string['thankyoucheckout']                                         = '<i class="fa fa-3x fa-shopping-cart text-success" aria-hidden="true"></i><br><br>
+                        شكرًا لك! لقد وضعت <b>{$a}</b> بنجاح في عربة التسوق. الآن انقر على <b>"المتابعة إلى الدفع"</b>
+                         للمتابعة.';
+$string['thankyouerror']                                            = '<i class="fa fa-3x fa-frown-o text-danger" aria-hidden="true"></i><br>
+                        للأسف، حدث خطأ عند حجز <b>{$a}</b>.';
+$string['thankyouwaitinglist']                                      = '<i class="fa fa-3x fa-clock-o text-primary" aria-hidden="true"></i><br><br>
+                         تمت إضافتك إلى قائمة الانتظار لـ <b>{$a}</b>. ستنتقل تلقائيًا إلى الأعلى في حالة انسحاب شخص ما.';
+$string['thisinstance']                                             = 'مثيل الحجز هذا';
+$string['thursday']                                                 = 'الخميس';
+$string['timecreated']                                              = 'وقت الإنشاء';
+$string['timefilter:bookingtime']                                   = 'وقت الحجز';
+$string['timefilter:coursetime']                                    = 'وقت الدورة';
+$string['timemodified']                                             = 'وقت التعديل';
+$string['timerestrict']                                             = 'تقييد الإجابة على هذه الفترة الزمنية: هذا مهمل وسيتم إزالته. يرجى استخدام إعدادات "تقييد الوصول" لجعل نشاط الحجز متاحًا لفترة معينة';
+$string['title']                                                    = "العنوان";
+$string['titleprefix']                                              = 'بادئة';
+$string['titleprefix_help']                                         = 'أضف بادئة سيتم عرضها قبل عنوان الخيار، مثل "BB42".';
+$string['to']                                                       = 'إلى';
+$string['toomanytoshow']                                            = 'تم العثور على عدد كبير جدًا من السجلات...';
+$string['toomuchusersbooked']                                       = 'الحد الأقصى لعدد المستخدمين الذين يمكنك حجزهم هو: {$a}';
+$string['topic']                                                    = "الموضوع";
+$string['transefusers']                                             = "نقل المستخدمين";
+$string['transfer']                                                 = 'نقل';
+$string['transferheading']                                          = 'نقل المستخدمين المحددين إلى خيار الحجز المحدد';
+$string['transferhelp']                                             = 'نقل المستخدمين الذين لم يكملوا النشاط من الخيار المحدد إلى {$a}.';
+$string['transferoptionsuccess']                                    = 'تم نقل خيار الحجز والمستخدمين بنجاح.';
+$string['transferproblem']                                          = 'لم يتمكن التالي من النقل بسبب حد خيار الحجز أو حد المستخدم: {$a}';
+$string['transfersuccess']                                          = 'تم نقل المستخدمين بنجاح إلى خيار الحجز الجديد';
+$string['tuesday']                                                  = 'الثلاثاء';
+$string['turnoffmodals']                                            = "إيقاف النوافذ المنبثقة";
+$string['turnoffmodals_desc']                                       = "ستفتح بعض الخطوات أثناء عملية الحجز نوافذ منبثقة. سيعرض هذا الإعداد المعلومات مضمنة، ولن تفتح أي نوافذ منبثقة.
+                        <b>يرجى ملاحظة:</b> إذا كنت تستخدم عرض <b>البطاقات</b> للحجز، فستظل النوافذ المنبثقة مستخدمة. يمكنك <b>إيقافها فقط لعرض القائمة</b>.";
+$string['turnoffwaitinglist']                                       = 'إيقاف قائمة الانتظار عالميًا';
+$string['turnoffwaitinglist_desc']                                  = 'قم بتفعيل هذا الإعداد إذا كنت لا تريد استخدام ميزة قائمة الانتظار
+                         على هذا الموقع (مثل لأنك تريد استخدام قائمة الإشعارات فقط).';
+$string['turnoffwaitinglistaftercoursestart']                       = 'إيقاف الانتقال التلقائي من قائمة الانتظار بعد بدء خيار الحجز.';
+$string['turnoffwunderbytelogo']                                    = 'عدم عرض شعار Wunderbyte والرابط';
+$string['turnoffwunderbytelogo_desc']                               = 'إذا قمت بتفعيل هذا الإعداد، لن يتم عرض شعار Wunderbyte والرابط إلى موقع Wunderbyte.';
+$string['unconfirm']                                                = 'حذف التأكيد';
+$string['unconfirmbooking']                                         = 'حذف تأكيد هذا الحجز';
+$string['unconfirmbookinglong']                                     = 'هل تريد حقًا حذف تأكيد هذا الحجز؟';
+$string['undocancelreason']                                         = "هل تريد حقًا التراجع عن إلغاء خيار الحجز هذا؟";
+$string['undocancelthisbookingoption']                              = "التراجع عن إلغاء خيار الحجز هذا";
+$string['units']                                                    = 'الوحدات';
+$string['unitscourses']                                             = 'الدورات / الوحدات';
+$string['unitsunknown']                                             = 'عدد الوحدات غير معروف';
+$string['unlimitedcredits']                                         = 'عدم استخدام الأرصدة';
+$string['unlimitedplaces']                                          = 'غير محدود';
+$string['unsubscribe:alreadyunsubscribed']                          = 'أنت غير مشترك بالفعل.';
+$string['unsubscribe:errorotheruser']                               = 'غير مسموح لك بإلغاء اشتراك مستخدم آخر غير نفسك!';
+$string['unsubscribe:successnotificationlist']                      = 'تم إلغاء اشتراكك بنجاح من إشعارات البريد الإلكتروني لـ "{$a}".';
+$string['until']                                                    = 'حتى';
+$string['updatebooking']                                            = 'تحديث الحجز';
+$string['updatedrecords']                                           = '{$a} سجل(ات) محدث.';
+$string['uploadheaderimages']                                       = 'صور الرأس لخيارات الحجز';
+$string['usecoursecategorytemplates']                               = 'استخدام القوالب للدورات الجديدة التي تم إنشاؤها';
+$string['usecoursecategorytemplates_desc']                          = '';
+$string['usedinbooking']                                            = 'لا يمكنك حذف هذه الفئة لأنها مستخدمة في الحجز!';
+$string['usedinbookinginstances']                                   = 'القالب مستخدم في مثيلات الحجز التالية';
+$string['uselegacymailtemplates']                                   = 'استخدام قوالب البريد الإلكتروني القديمة';
+$string['uselegacymailtemplates_desc']                              = 'هذه الوظيفة مهملة وسيتم إزالتها في المستقبل القريب. نوصي بشدة بنقل قوالبك وإعداداتك إلى <a href="{$a}">قواعد الحجز</a>.
+                         <span class="text-danger"><b>كن حذرًا:</b> إذا قمت بإلغاء تحديد هذا المربع، فلن يتم عرض واستخدام قوالب البريد الإلكتروني في مثيلات الحجز الخاصة بك بعد الآن.</span>';
+$string['usenotificationlist']                                      = 'استخدام قائمة الإشعارات';
+$string['useonlyonefield']                                          = 'لا يوجد حقل إضافي';
+$string['useprice']                                                 = 'الحجز بالسعر فقط';
+$string['useprotoenablemorerules']                                  = 'تحتاج إلى Booking PRO لتتمكن من إضافة المزيد من القواعد.
+                        <a href="https://wunderbyte.at/kontakt" target="_blank">اتصل بـ Wunderbyte</a> إذا كنت ترغب في شراء ترخيص pro.';
+$string['useraffectedbyevent']                                      = 'المستخدم المتأثر بالحدث';
+$string['usercalendarentry']                                        = 'أنت محجوز لـ <a href="{$a}">هذه الجلسة</a>.';
+$string['usercalendarurl']                                          = "رابط تقويم المستخدم";
+$string['userdownload']                                             = 'تنزيل المستخدمين';
+$string['usergavereason']                                           = '{$a} أعطى السبب التالي للإلغاء:';
+$string['userid']                                                   = 'معرف المستخدم';
+$string['userinfofieldoff']                                         = 'لم يتم اختيار حقل ملف تعريف المستخدم';
+$string['userinfosasstring']                                        = '{$a->firstname} {$a->lastname} (معرف:{$a->id})';
+$string['userleave']                                                = 'قام المستخدم بإلغاء حجزه الخاص (أدخل 0 لإيقاف التشغيل)';
+$string['userleavemessage']                                         = 'مرحبًا {$a->participant},
+                        لقد تم إلغاء حجزك لـ {$a->title}.
+                        ';
+$string['userleavesubject']                                         = 'لقد قمت بإلغاء الاشتراك بنجاح من {$a->title}';
+$string['username']                                                 = "اسم المستخدم";
+$string['usernameofbookingmanager']                                 = 'اختر مدير الحجز';
+$string['usernameofbookingmanager_help']                            = 'اسم المستخدم للمستخدم الذي سيتم عرضه في حقل "من" في إشعارات التأكيد. إذا تم تمكين خيار "إرسال بريد تأكيد إلى مدير الحجز"، فهذا هو المستخدم الذي يتلقى نسخة من إشعارات التأكيد.';
+$string['userparameter_desc']                                       = "استخدام معلمة المستخدم.";
+$string['userparametervalue']                                       = "معلمة المستخدم";
+$string['userprofilefield']                                         = "حقل الملف الشخصي";
+$string['userprofilefieldoff']                                      = 'عدم العرض';
+$string['usersmatching']                                            = 'المستخدمون المطابقون';
+$string['usersonlist']                                              = 'المستخدم في القائمة';
+$string['userspecificcampaignwarning']                              = '
+                        إذا اخترت حقل ملف تعريف المستخدم المخصص هنا أدناه، ستكون الحملة فعالة فقط للمستخدمين الذين لديهم القيمة المحددة أو المستبعدة في حقل ملف تعريف المستخدم المخصص.
+                        ';
+$string['userssuccessfullenrolled']                                 = 'تم تسجيل جميع المستخدمين!';
+$string['userssuccessfullybooked']                                  = 'تم حجز جميع المستخدمين لخيار الحجز الآخر.';
+$string['userssuccessfullygetnewpresencestatus']                    = 'جميع المستخدمين لديهم حالة حضور جديدة.';
+$string['userssucesfullygetnewpresencestatus']                      = 'تم تحديث حالة الحضور للمستخدمين المحددين بنجاح';
+$string['userstonotify']                                            = 'قائمة الإشعارات';
+$string['userwhotriggeredevent']                                    = 'المستخدم الذي أطلق الحدث';
+$string['viewallresponses']                                         = 'إدارة {$a} الردود';
+$string['viewconfirmationbooked']                                   = 'تم تسجيل حجزك:
+                        {bookingdetails}
+                        <p>##########################################</p>
+                        حالة الحجز: {status} <br>
+                        المشارك:   {firstname} {lastname} <br>
+                        العودة إلى نظرة عامة على خيارات الحجز: {bookinglink}
+                        ';
+$string['viewconfirmationwaiting']                                  = 'أنت الآن في قائمة الانتظار لـ:
+                        {bookingdetails}
+                        <p>##########################################</p>
+                        حالة الحجز: {status} <br>
+                        المشارك:   {firstname} {lastname} <br>
+                        العودة إلى نظرة عامة على خيارات الحجز: {bookinglink}
+                        ';
+$string['viewparam']                                                = 'نوع العرض';
+$string['viewparam:cards']                                          = 'عرض البطاقات';
+$string['viewparam:list']                                           = 'عرض القائمة';
+$string['viewparam:listimgleft']                                    = 'عرض القائمة مع الصورة على اليسار';
+$string['viewparam:listimgright']                                   = 'عرض القائمة مع الصورة على اليمين';
+$string['visibleoptions']                                           = 'خيارات الحجز المرئية';
+$string['vuebookingstatsback']                                      = 'عودة';
+$string['vuebookingstatsbooked']                                    = 'محجوز';
+$string['vuebookingstatsbookingoptions']                            = 'خيارات الحجز';
+$string['vuebookingstatscapability']                                = 'القدرة';
+$string['vuebookingstatsno']                                        = 'لا';
+$string['vuebookingstatsreserved']                                  = 'محجوز';
+$string['vuebookingstatsrestore']                                   = 'استعادة';
+$string['vuebookingstatsrestoreconfirmation']                       = 'هل تريد حقًا إعادة تعيين هذا التكوين؟';
+$string['vuebookingstatssave']                                      = 'حفظ';
+$string['vuebookingstatsselectall']                                 = 'اختر الكل';
+$string['vuebookingstatswaiting']                                   = 'قائمة الانتظار';
+$string['vuebookingstatsyes']                                       = 'نعم';
+$string['vuecapabilityoptionscapconfig']                            = 'تكوين القدرة';
+$string['vuecapabilityoptionsnecessary']                            = 'ضروري';
+$string['vuecapabilityunsavedchanges']                              = 'هناك تغييرات غير محفوظة';
+$string['vuecapabilityunsavedcontinue']                             = 'هل تريد حقًا إعادة تعيين هذا التكوين؟';
+$string['vueconfirmmodal']                                          = 'هل أنت متأكد أنك تريد العودة؟';
+$string['vuedashboardassignrole']                                   = 'تعيين الأدوار';
+$string['vuedashboardchecked']                                      = 'محدد افتراضيًا';
+$string['vuedashboardcoursecount']                                  = 'عدد الدورات';
+$string['vuedashboardcreateoe']                                     = 'إنشاء OE جديد';
+$string['vuedashboardgotocategory']                                 = 'اذهب إلى الفئة';
+$string['vuedashboardname']                                         = 'الاسم';
+$string['vuedashboardnewcourse']                                    = 'إنشاء دورة جديدة';
+$string['vuedashboardpath']                                         = 'المسار';
+$string['vueheadingmodal']                                          = 'تأكيد';
+$string['vuenotfoundroutenotfound']                                 = 'المسار غير موجود';
+$string['vuenotfoundtryagain']                                      = 'يرجى المحاولة مرة أخرى لاحقًا';
+$string['vuenotificationtextactionfail']                            = 'حدث خطأ أثناء الحفظ. لم يتم إجراء التغييرات.';
+$string['vuenotificationtextactionsuccess']                         = 'تم تكوين {$a} بنجاح.';
+$string['vuenotificationtextunsave']                                = 'لم يتم اكتشاف أي تغييرات غير محفوظة.';
+$string['vuenotificationtitleactionfail']                           = 'لم يتم تكوين {$a}';
+$string['vuenotificationtitleactionsuccess']                        = 'تم تكوين {$a}';
+$string['vuenotificationtitleunsave']                               = 'لم يتم اكتشاف أي تغييرات غير محفوظة';
+$string['waitforconfirmation']                                      = 'الحجز فقط بعد التأكيد';
+$string['waitinglist']                                              = 'قائمة الانتظار';
+$string['waitinglistenoughmessage']                                 = 'لا تزال هناك أماكن كافية في قائمة الانتظار.';
+$string['waitinglistfullmessage']                                   = 'قائمة الانتظار ممتلئة.';
+$string['waitinglistheader']                                        = 'قائمة الانتظار';
+$string['waitinglistheader_desc']                                   = 'هنا يمكنك تعيين كيفية تصرف قائمة الانتظار للحجز.';
+$string['waitinglistinfotexts']                                     = 'عرض نصوص معلومات التوافر لقائمة الانتظار';
+$string['waitinglistinfotextsinfo']                                 = 'عرض رسائل معلومات قصيرة بدلاً من عدد الأماكن المتاحة في قائمة الانتظار.';
+$string['waitinglistlowmessage']                                    = 'بقيت أماكن قليلة فقط في قائمة الانتظار!';
+$string['waitinglistlowpercentage']                                 = 'النسبة المئوية لرسالة الأماكن القليلة المتاحة في قائمة الانتظار';
+$string['waitinglistlowpercentagedesc']                             = 'إذا وصلت الأماكن المتاحة في قائمة الانتظار أو انخفضت عن هذه النسبة المئوية، سيتم عرض رسالة الأماكن القليلة المتاحة في قائمة الانتظار.';
+$string['waitinglistshowplaceonwaitinglist']                        = 'عرض المكان في قائمة الانتظار.';
+$string['waitinglistshowplaceonwaitinglistinfo']                    = 'قائمة الانتظار: يعرض المكان الدقيق للمستخدم في قائمة الانتظار.';
+$string['waitinglisttaken']                                         = 'في قائمة الانتظار';
+$string['waitinglistusers']                                         = 'المستخدمون في قائمة الانتظار';
+$string['waitingplacesavailable']                                   = 'أماكن قائمة الانتظار المتاحة: {$a->overbookingavailable} من {$a->maxoverbooking}';
+$string['waitingtext']                                              = 'تأكيد قائمة الانتظار';
+$string['waitingtextmessage']                                       = 'أنت الآن في قائمة الانتظار لـ:
+                        {$a->bookingdetails}
+                        <p>##########################################</p>
+                        حالة الحجز: {$a->status}
+                        المشارك:   {$a->participant}
+                        لعرض جميع دوراتك المحجوزة، انقر على الرابط التالي: {$a->bookinglink}
+                        يمكن العثور على الدورة المرتبطة هنا: {$a->courselink}
+                        ';
+                        $string['waitingtextsubject'] = 'تم تغيير حالة الحجز لـ {$a->title}';
+                        $string['waitingtextsubjectbookingmanager'] = 'تم تغيير حالة الحجز لـ {$a->title}';
+                        $string['waitspaceavailable'] = 'أماكن متاحة في قائمة الانتظار';
+                        $string['wednesday'] = 'الأربعاء';
+                        $string['week'] = "الأسبوع";
+                        $string['whichview'] = 'عرض افتراضي لخيارات الحجز';
+                        $string['whichviewerror'] = 'يجب تضمين العرض الافتراضي في: طرق العرض التي سيتم عرضها في نظرة عامة على خيارات الحجز';
+                        $string['withselected'] = 'مع المستخدمين المحددين:';
+                        $string['wrongdataallfields'] = 'يرجى ملء جميع الحقول!';
+                        $string['wronglabels'] = 'ملف CSV المستورد لا يحتوي على التسميات الصحيحة. العمود {$a} لا يمكن استيراده.';
+                        $string['xusersarebooked'] = '{$a} مستخدمين محجوزين';
+                        $string['yes'] = 'نعم';
+                        $string['youareediting'] = 'أنت تقوم بتحرير "<b>{$a}</b>".';
+                        $string['youareusingconfig'] = 'أنت تستخدم تكوين النموذج التالي: {$a}';
+                        $string['yourplaceonwaitinglist'] = 'أنت في المكان {$a} في قائمة الانتظار';
+                        $string['yourselection'] = 'اختيارك';
+                        $string['zoommeeting'] = 'اجتماع Zoom';
+                        
