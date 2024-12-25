@@ -36,6 +36,7 @@ Feature: Create booking option with price and force students answer as admin tha
       | booking     | text            | course | description    | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | useprice | canceluntil    | canceluntilcheckbox |
       | BookingCMP  | Option-tenis    | C1     | Price-tenis    | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 1        | ## tomorrow ## | 1                   |
       | BookingCMP  | Option-football | C1     | Price-football | 4          | 1           | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | ## tomorrow ## | 1                   |
+      | BookingCMP  | Option-xconsume | C1     | Price-xconsume | 4          | 1           | 0              | 0              | ## yesterday ##   | ## +2 days ##   | 1        | ## tomorrow ## | 1                   |
     And the following "core_payment > payment accounts" exist:
       | name           |
       | Account1       |
@@ -98,4 +99,35 @@ Feature: Create booking option with price and force students answer as admin tha
       | 66.00 |         |                 | Option-football            | student3@example.com | Cashier (Cash) | Success  |
       | 77.00 |         |                 | Option-football            | student2@example.com | Cashier (Cash) | Success  |
       | 88.00 |         |                 | Option-football            | student1@example.com | Cashier (Cash) | Success  |
+    And I log out
+
+  @javascript
+  Scenario: Booking: cancellation of all users purchases when price and fixed consumption were set
+    Given the following "local_shopping_cart > plugin setup" exist:
+      | account  | cancelationfee | calculateconsumation | calculateconsumationfixedpercentage |
+      | Account1 | 4              | 1                    | 30                                  |
+    And the following "mod_booking > user purchases" exist:
+      | booking     | option          | user     |
+      | BookingCMP  | Option-xconsume | student1 |
+      | BookingCMP  | Option-xconsume | student2 |
+      | BookingCMP  | Option-xconsume | student3 |
+    And I am on the "BookingCMP" Activity page logged in as admin
+    ## Teacher does not have permission to cancel all - only cashier and above
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
+    When I click on "Cancel all booked users" "link" in the ".allbookingoptionstable_r3" "css_element"
+    ## And I wait "1" seconds
+    Then I should see "Do you really want to cancel this purchase for all users?" in the ".modal.show .modal-body" "css_element"
+    And I should see "The following users will get their money back as credit:" in the ".modal.show .modal-body" "css_element"
+    And I should see "student1@example.com, 88.00 EUR (-30%)" in the ".modal.show .modal-body" "css_element"
+    And I should see "student2@example.com, 77.00 EUR (-30%)" in the ".modal.show .modal-body" "css_element"
+    And I should see "student3@example.com, 66.00 EUR (-30%)" in the ".modal.show .modal-body" "css_element"
+    And I set the field "cancelationfee" to "3"
+    And I click on "Save changes" "button" in the ".modal.show .modal-footer" "css_element"
+    ## Verify records in the ledger table.
+    And I visit "/local/shopping_cart/report.php"
+    And the following should exist in the "cash_report_table" table:
+      | Paid  | Credit: | Cancelation fee | Item name                  | E-Mail               | Payment method  | Status   |
+      | 0.00  | 43.00   | 3.00            | Canceled - Option-xconsume | student3@example.com | Credits	       | Canceled |
+      | 0.00  | 51.00   | 3.00            | Canceled - Option-xconsume | student2@example.com | Credits	       | Canceled |
+      | 0.00  | 59.00   | 3.00            | Canceled - Option-xconsume | student1@example.com | Credits	       | Canceled |
     And I log out
