@@ -2381,21 +2381,20 @@ $string['waitingtextmessage']                                       = 'أنت ا
                         لعرض جميع دوراتك المحجوزة، انقر على الرابط التالي: {$a->bookinglink}
                         يمكن العثور على الدورة المرتبطة هنا: {$a->courselink}
                         ';
-                        $string['waitingtextsubject'] = 'تم تغيير حالة الحجز لـ {$a->title}';
-                        $string['waitingtextsubjectbookingmanager'] = 'تم تغيير حالة الحجز لـ {$a->title}';
-                        $string['waitspaceavailable'] = 'أماكن متاحة في قائمة الانتظار';
-                        $string['wednesday'] = 'الأربعاء';
-                        $string['week'] = "الأسبوع";
-                        $string['whichview'] = 'عرض افتراضي لخيارات الحجز';
-                        $string['whichviewerror'] = 'يجب تضمين العرض الافتراضي في: طرق العرض التي سيتم عرضها في نظرة عامة على خيارات الحجز';
-                        $string['withselected'] = 'مع المستخدمين المحددين:';
-                        $string['wrongdataallfields'] = 'يرجى ملء جميع الحقول!';
-                        $string['wronglabels'] = 'ملف CSV المستورد لا يحتوي على التسميات الصحيحة. العمود {$a} لا يمكن استيراده.';
-                        $string['xusersarebooked'] = '{$a} مستخدمين محجوزين';
-                        $string['yes'] = 'نعم';
-                        $string['youareediting'] = 'أنت تقوم بتحرير "<b>{$a}</b>".';
-                        $string['youareusingconfig'] = 'أنت تستخدم تكوين النموذج التالي: {$a}';
-                        $string['yourplaceonwaitinglist'] = 'أنت في المكان {$a} في قائمة الانتظار';
-                        $string['yourselection'] = 'اختيارك';
-                        $string['zoommeeting'] = 'اجتماع Zoom';
-                        
+$string['waitingtextsubject']                                       = 'تم تغيير حالة الحجز لـ {$a->title}';
+$string['waitingtextsubjectbookingmanager']                         = 'تم تغيير حالة الحجز لـ {$a->title}';
+$string['waitspaceavailable']                                       = 'أماكن متاحة في قائمة الانتظار';
+$string['wednesday']                                                = 'الأربعاء';
+$string['week']                                                     = "الأسبوع";
+$string['whichview']                                                = 'عرض افتراضي لخيارات الحجز';
+$string['whichviewerror']                                           = 'يجب تضمين العرض الافتراضي في: طرق العرض التي سيتم عرضها في نظرة عامة على خيارات الحجز';
+$string['withselected']                                             = 'مع المستخدمين المحددين:';
+$string['wrongdataallfields']                                       = 'يرجى ملء جميع الحقول!';
+$string['wronglabels']                                              = 'ملف CSV المستورد لا يحتوي على التسميات الصحيحة. العمود {$a} لا يمكن استيراده.';
+$string['xusersarebooked']                                          = '{$a} مستخدمين محجوزين';
+$string['yes']                                                      = 'نعم';
+$string['youareediting']                                            = 'أنت تقوم بتحرير "<b>{$a}</b>".';
+$string['youareusingconfig']                                        = 'أنت تستخدم تكوين النموذج التالي: {$a}';
+$string['yourplaceonwaitinglist']                                   = 'أنت في المكان {$a} في قائمة الانتظار';
+$string['yourselection']                                            = 'اختيارك';
+$string['zoommeeting']                                              = 'اجتماع Zoom';
