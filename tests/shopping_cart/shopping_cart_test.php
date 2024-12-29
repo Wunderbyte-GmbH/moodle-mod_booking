@@ -53,7 +53,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  *
  */
 final class shopping_cart_test extends advanced_testcase {
-
     /**
      * Tests set up.
      */
@@ -68,13 +67,11 @@ final class shopping_cart_test extends advanced_testcase {
     public function tearDown(): void {
         parent::tearDown();
         // Mandatory clean-up.
-        singleton_service::get_instance()->users = [];
-        singleton_service::get_instance()->bookinganswers = [];
-        singleton_service::get_instance()->userpricecategory = [];
+        singleton_service::destroy_instance();
     }
 
     /**
-     * Test of booking option with price as well as cancellation by user.
+     * Test of purchase of booking option with price and installments enabled.
      *
      * @covers \condition\priceset::is_available
      * @covers \condition\cancelmyself::is_available
@@ -238,13 +235,10 @@ final class shopping_cart_test extends advanced_testcase {
         // User 1 should be booked now.
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_booking_option_singleton($option1->id);
     }
 
     /**
-     * Test subbookings in form of item with price.
+     * Test of purchase of booking option with subbooking in form of item with price.
      *
      * @covers \condition\priceset::is_available
      * @covers \condition\subbooking_blocks::is_available
@@ -461,15 +455,13 @@ final class shopping_cart_test extends advanced_testcase {
         // User 1 should be booked now.
         list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_booking_option_singleton($option1->id);
     }
 
     /**
-     * Test of booking option with price as well as cancellation by user.
+     * Test of purchase of booking option with price and additional feature selected by customform.
      *
      * @covers \condition\priceset::is_available
+     * @covers \mod_booking\local\mobile\customformstore
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -614,9 +606,6 @@ final class shopping_cart_test extends advanced_testcase {
         // Validate that already booked.
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_booking_option_singleton($option1->id);
     }
 
     /**
