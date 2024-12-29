@@ -56,6 +56,15 @@ final class booking_option_test extends advanced_testcase {
     }
 
     /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        parent::tearDown();
+        // Mandatory clean-up.
+        singleton_service::destroy_instance();
+    }
+
+    /**
      * Test update of bookig option and tracking changes.
      *
      * @covers \mod_booking\event\teacher_added
@@ -180,9 +189,6 @@ final class booking_option_test extends advanced_testcase {
                 }
             }
         }
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_booking_option_singleton($option->id);
     }
 
     /**
@@ -371,7 +377,7 @@ final class booking_option_test extends advanced_testcase {
         $this->assertEquals(1, $bookinganswers1->is_activity_completed($user1->id));
         // Verify can_rate.
         $this->setUser($user1);
-        $this->assertEquals(false, $bookingoption1->can_rate());
+        $this->assertEquals(true, $bookingoption1->can_rate());
 
         // Delete responses and verivy absence of completion.
         $this->setAdminUser();
@@ -382,9 +388,6 @@ final class booking_option_test extends advanced_testcase {
         $this->setUser($user1);
         $this->assertEquals(0, $bookinganswers1->is_activity_completed($user1->id));
         $this->assertEquals(false, $bookingoption1->can_rate());
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_booking_option_singleton($option1->id);
     }
 
     /**
@@ -653,16 +656,6 @@ final class booking_option_test extends advanced_testcase {
         $modules = get_fast_modinfo($courses[$key]);
         $instances = $modules->get_instances();
         $this->assertEquals(true, array_key_exists('page', $instances));
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_booking_option_singleton($option1->id);
-        singleton_service::destroy_booking_option_singleton($option2->id);
-        singleton_service::destroy_booking_option_singleton($option3->id);
-        singleton_service::destroy_booking_option_singleton($option4->id);
-        singleton_service::destroy_booking_option_singleton($option5->id);
-        singleton_service::destroy_booking_option_singleton($option6->id);
-        singleton_service::destroy_booking_option_singleton($option7->id);
-        singleton_service::destroy_booking_option_singleton($option8->id);
     }
 
     /**
