@@ -35,7 +35,6 @@ use local_shopping_cart\shopping_cart;
 use local_shopping_cart\shopping_cart_history;
 use mod_booking\local\mobile\customformstore;
 use local_shopping_cart\local\cartstore;
-use local_shopping_cart\output\shoppingcart_history_list;
 use local_shopping_cart_generator;
 use stdClass;
 
@@ -107,10 +106,9 @@ final class shopping_cart_test extends advanced_testcase {
         $teacher = $this->getDataGenerator()->create_user();
         $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
 
-        $bdata['course'] = $course1->id;
-        $bdata['bookingmanager'] = $bookingmanager->username;
-
-        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+        $bdata['booking']['course'] = $course1->id;
+        $bdata['booking']['bookingmanager'] = $bookingmanager->username;
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata['booking']);
 
         $this->setAdminUser();
 
@@ -262,10 +260,9 @@ final class shopping_cart_test extends advanced_testcase {
         $teacher = $this->getDataGenerator()->create_user();
         $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
 
-        $bdata['course'] = $course->id;
-        $bdata['bookingmanager'] = $bookingmanager->username;
-
-        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+        $bdata['booking']['course'] = $course->id;
+        $bdata['booking']['bookingmanager'] = $bookingmanager->username;
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata['booking']);
 
         $this->setAdminUser();
 
@@ -422,7 +419,7 @@ final class shopping_cart_test extends advanced_testcase {
         $this->assertCount(2, $data['items']);
         foreach ($data['items'] as $cartitem) {
             $this->assertIsArray($cartitem);
-            if (strpos($cartitem['area'], "option") !== false ) {
+            if (strpos($cartitem['area'], "option") !== false) {
                 $this->assertEquals($option1->text, $cartitem['itemname']);
                 $this->assertEquals($pricecategorydata1->defaultvalue, $cartitem['price']);
                 $this->assertEquals('option', $cartitem['area']);
@@ -430,7 +427,7 @@ final class shopping_cart_test extends advanced_testcase {
                 $this->assertEmpty($cartitem['installment']);
                 $this->assertEquals('A', $cartitem['taxcategory']);
             }
-            if (strpos($cartitem['area'], "subbooking") !== false ) {
+            if (strpos($cartitem['area'], "subbooking") !== false) {
                 $this->assertEquals($subbokingdata->name, $cartitem['itemname']);
                 $this->assertEquals($pricedata1->price, $cartitem['price']);
                 $this->assertEquals('subbooking', $cartitem['area']);
@@ -490,10 +487,9 @@ final class shopping_cart_test extends advanced_testcase {
         $teacher = $this->getDataGenerator()->create_user();
         $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
 
-        $bdata['course'] = $course1->id;
-        $bdata['bookingmanager'] = $bookingmanager->username;
-
-        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+        $bdata['booking']['course'] = $course1->id;
+        $bdata['booking']['bookingmanager'] = $bookingmanager->username;
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata['booking']);
 
         $this->setAdminUser();
 
@@ -507,31 +503,9 @@ final class shopping_cart_test extends advanced_testcase {
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
         // Create set of price categories.
-        $pricecategorydata1 = (object)[
-            'ordernum' => 1,
-            'name' => 'default',
-            'identifier' => 'default',
-            'defaultvalue' => 99,
-            'pricecatsortorder' => 1,
-        ];
-        $plugingenerator->create_pricecategory($pricecategorydata1);
-        $pricecategorydata2 = (object)[
-            'ordernum' => 2,
-            'name' => 'discount1',
-            'identifier' => 'discount1',
-            'defaultvalue' => 89,
-            'pricecatsortorder' => 2,
-        ];
-        $plugingenerator->create_pricecategory($pricecategorydata2);
-
-        $pricecategorydata3 = (object)[
-            'ordernum' => 3,
-            'name' => 'discount2',
-            'identifier' => 'discount2',
-            'defaultvalue' => 79,
-            'pricecatsortorder' => 3,
-        ];
-        $plugingenerator->create_pricecategory($pricecategorydata3);
+        $plugingenerator->create_pricecategory($bdata['pricecategories'][0]);
+        $plugingenerator->create_pricecategory($bdata['pricecategories'][1]);
+        $plugingenerator->create_pricecategory($bdata['pricecategories'][2]);
 
         // Create a booking option.
         $record = new stdClass();
@@ -563,7 +537,7 @@ final class shopping_cart_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_JSON_CUSTOMFORM, $id);
 
         $price = price::get_price('option', $settings->id);
-        $this->assertEquals($pricecategorydata1->defaultvalue, $price["price"]);
+        $this->assertEquals($bdata['pricecategories'][0]->defaultvalue, $price["price"]);
 
         // Try to book option1 by the student2.
         $this->setUser($student2);
@@ -616,20 +590,78 @@ final class shopping_cart_test extends advanced_testcase {
      */
     public static function booking_common_settings_provider(): array {
         $bdata = [
-            'name' => 'Test Booking Shopping Cart 1',
-            'eventtype' => 'Test event',
-            'enablecompletion' => 1,
-            'bookedtext' => ['text' => 'text'],
-            'waitingtext' => ['text' => 'text'],
-            'notifyemail' => ['text' => 'text'],
-            'statuschangetext' => ['text' => 'text'],
-            'deletedtext' => ['text' => 'text'],
-            'pollurltext' => ['text' => 'text'],
-            'pollurlteacherstext' => ['text' => 'text'],
-            'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
-            'tags' => '',
-            'completion' => 2,
-            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
+            'booking' => [
+                'name' => 'Test Booking',
+                'eventtype' => 'Test event',
+                'enablecompletion' => 1,
+                'bookedtext' => ['text' => 'text'],
+                'waitingtext' => ['text' => 'text'],
+                'notifyemail' => ['text' => 'text'],
+                'statuschangetext' => ['text' => 'text'],
+                'deletedtext' => ['text' => 'text'],
+                'pollurltext' => ['text' => 'text'],
+                'pollurlteacherstext' => ['text' => 'text'],
+                'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
+                'tags' => '',
+                'completion' => 2,
+                'cancancelbook' => 0,
+                'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
+            ],
+            'options' => [
+                // Option 1 with 1 session in remote future.
+                0 => [
+                    'text' => 'Test Option 1',
+                    'courseid' => 0,
+                    'maxanswers' => 2,
+                    'optiondateid_1' => "0",
+                    'daystonotify_1' => "0",
+                    'coursestarttime_1' => strtotime('20 May 2050 15:00'),
+                    'courseendtime_1' => strtotime('20 June 2050 14:00'),
+                ],
+                // Option 2 with 1 session started tomorrow.
+                1 => [
+                    'text' => 'Test Option 2',
+                    'courseid' => 0,
+                    'maxanswers' => 4,
+                    'optiondateid_1' => "0",
+                    'daystonotify_1' => "0",
+                    'coursestarttime_1' => strtotime('now + 1 day'),
+                    'courseendtime_1' => strtotime('now + 3 day'),
+                ],
+                // Option 3 with 1 ongoing session started yesterday.
+                2 => [
+                    'text' => 'Test Option 3',
+                    'courseid' => 0,
+                    'maxanswers' => 4,
+                    'optiondateid_1' => "0",
+                    'daystonotify_1' => "0",
+                    'coursestarttime_1' => strtotime('now -1 day'),
+                    'courseendtime_1' => strtotime('now + 2 day'),
+                ],
+            ],
+            'pricecategories' => [
+                0 => (object)[
+                    'ordernum' => 1,
+                    'name' => 'default',
+                    'identifier' => 'default',
+                    'defaultvalue' => 99,
+                    'pricecatsortorder' => 1,
+                ],
+                1 => (object)[
+                    'ordernum' => 2,
+                    'name' => 'discount1',
+                    'identifier' => 'discount1',
+                    'defaultvalue' => 89,
+                    'pricecatsortorder' => 2,
+                ],
+                2 => (object)[
+                    'ordernum' => 3,
+                    'name' => 'discount2',
+                    'identifier' => 'discount2',
+                    'defaultvalue' => 79,
+                    'pricecatsortorder' => 3,
+                ],
+            ],
         ];
         return ['bdata' => [$bdata]];
     }
