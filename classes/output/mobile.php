@@ -144,7 +144,7 @@ class mobile {
         $data['teachers'] = $teachers;
         $data['userid'] = $USER->id;
 
-        $boinfo = new bo_info($settings);
+        $boinfo = bo_info::get_instance($settings);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $USER->id, false);
 
         // Now we render the button for this option & user.

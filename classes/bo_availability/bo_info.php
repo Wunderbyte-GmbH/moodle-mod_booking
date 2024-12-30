@@ -67,6 +67,8 @@ define('MOD_BOOKING_BO_PREPAGE_POSTBOOK', 3); // This should be after the bookit
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bo_info {
+    /** @var array array of instances */
+    private static $instances = [];
 
     /** @var bool Visibility flag (eye icon) */
     protected $visible;
@@ -80,18 +82,42 @@ class bo_info {
     /** @var int userid for a given user */
     protected $userid;
 
+    /** @var int $results store results as singleton */
+    protected $results = [];
+
     /**
      * Constructs with item details.
      *
      * @param booking_option_settings $settings
      *
      */
-    public function __construct(booking_option_settings $settings) {
+    private function __construct(booking_option_settings $settings) {
 
         global $USER;
 
         $this->optionid = $settings->id;
         $this->userid = $USER->id;
+    }
+
+    /**
+     * Constructs with item details.
+     *
+     * @param booking_option_settings $settings
+     *
+     */
+    public static function get_instance(booking_option_settings $settings) {
+
+        global $USER;
+
+        if (
+            !isset(self::$instances[$settings->id])
+            || PHPUNIT_TEST
+        ) {
+            self::$instances[$settings->id] = new static($settings);
+        } else {
+            $found = 2;
+        }
+        return self::$instances[$settings->id];
     }
 
     /**
@@ -154,7 +180,6 @@ class bo_info {
         }
 
         return [$id, $isavailable, $description];
-
     }
 
     /**
@@ -165,10 +190,18 @@ class bo_info {
      * @param bool $onlyhardblock
      * @return array
      */
-    public static function get_condition_results(?int $optionid = null, int $userid = 0, bool $onlyhardblock = false): array {
+    public function get_condition_results(?int $optionid = null, int $userid = 0, bool $onlyhardblock = false): array {
         global $USER, $CFG;
 
         require_once($CFG->dirroot . '/mod/booking/lib.php');
+
+        $singletonkey = md5($optionid . $userid . $onlyhardblock);
+        if (
+            isset($this->results[$singletonkey])
+            && !PHPUNIT_TEST
+        ) {
+            return $this->results[$singletonkey];
+        }
 
         // We only get full description when we book for another user.
         // It's a clear sign of higher rights.
@@ -351,6 +384,9 @@ class bo_info {
         });
 
         ksort($results);
+
+        $this->results[$singletonkey] = $results;
+
         return $results;
     }
 
@@ -631,7 +667,7 @@ class bo_info {
      */
     public static function load_pre_booking_page(int $optionid, int $pagenumber, int $userid) {
 
-        $results = self::get_condition_results($optionid, $userid);
+        $results = $this->get_condition_results($optionid, $userid);
 
         // Results have to be sorted the right way. At the moment, it depends on the id of the blocking condition.
         usort($results, function ($a, $b) {
@@ -660,7 +696,7 @@ class bo_info {
             ) {
                 // Check if we are already booked.
                 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-                $boinfo = new bo_info($settings);
+                $boinfo = self::get_instance($settings);
 
                 // Check option availability if user is not logged yet.
                 [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $userid, false);
@@ -1219,7 +1255,8 @@ class bo_info {
         if ($conditions[$pagenumber]['id'] === MOD_BOOKING_BO_COND_CONFIRMATION) {
             // We need to decide if we want to show on the last page a "go to checkout" button.
             if (self::has_price_set($results)) {
-                $results = self::get_condition_results($optionid, $userid);
+                $boinfo = self::get_instance($settings);
+                $results = $boinfo->get_condition_results($optionid, $userid);
                 $lastresultid = array_pop($results)['id'];
                 switch ($lastresultid) {
                     case MOD_BOOKING_BO_COND_ALREADYRESERVED:

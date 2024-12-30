@@ -194,7 +194,7 @@ class mod_booking_generator extends testing_module_generator {
         $record = (object) $record;
 
         $settings = singleton_service::get_instance_of_booking_option_settings($record->optionid);
-        $boinfo = new bo_info($settings);
+        $boinfo = bo_info::get_instance($settings);
         $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
         $user = $DB->get_record('user', ['id' => (int)$record->userid], '*', MUST_EXIST);
         $option->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED);

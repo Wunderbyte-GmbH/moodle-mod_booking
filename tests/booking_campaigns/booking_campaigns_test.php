@@ -228,7 +228,7 @@ final class booking_campaigns_test extends advanced_testcase {
         singleton_service::destroy_booking_option_singleton($option1->id); // Mandatory there.
         $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
         $optionobj1 = singleton_service::get_instance_of_booking_option($settings1->cmid, $option1->id);
-        $boinfo1 = new bo_info($settings1);
+        $boinfo1 = bo_info::get_instance($settings1);
 
         // Create 2nd booking option.
         $record->text = 'Test option2';
@@ -237,7 +237,7 @@ final class booking_campaigns_test extends advanced_testcase {
         singleton_service::destroy_booking_option_singleton($option2->id); // Mandatory there.
         $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
         $optionobj2 = singleton_service::get_instance_of_booking_option($settings2->cmid, $option2->id);
-        $boinfo2 = new bo_info($settings2);
+        $boinfo2 = bo_info::get_instance($settings2);
 
         // Create 3rd booking option.
         $record->text = 'Test option3';
@@ -247,7 +247,7 @@ final class booking_campaigns_test extends advanced_testcase {
         singleton_service::destroy_booking_option_singleton($option3->id); // Mandatory there.
         $settings3 = singleton_service::get_instance_of_booking_option_settings($option3->id);
         $optionobj3 = singleton_service::get_instance_of_booking_option($settings3->cmid, $option3->id);
-        $boinfo3 = new bo_info($settings3);
+        $boinfo3 = bo_info::get_instance($settings3);
 
         // Try to book options with student1.
         $this->setUser($student1);
@@ -367,15 +367,15 @@ final class booking_campaigns_test extends advanced_testcase {
         singleton_service::destroy_booking_option_singleton($option1->id); // Mandatory there.
         $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
         $optionobj1 = singleton_service::get_instance_of_booking_option($settings1->cmid, $option1->id);
-        $boinfo1 = new bo_info($settings1);
+        $boinfo1 = bo_info::get_instance($settings1);
         singleton_service::destroy_booking_option_singleton($option2->id); // Mandatory there.
         $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
         $optionobj2 = singleton_service::get_instance_of_booking_option($settings2->cmid, $option2->id);
-        $boinfo2 = new bo_info($settings2);
+        $boinfo2 = bo_info::get_instance($settings2);
         singleton_service::destroy_booking_option_singleton($option3->id); // Mandatory there.
         $settings3 = singleton_service::get_instance_of_booking_option_settings($option3->id);
         $optionobj3 = singleton_service::get_instance_of_booking_option($settings3->cmid, $option3->id);
-        $boinfo3 = new bo_info($settings3);
+        $boinfo3 = bo_info::get_instance($settings3);
 
         // Try to book options with student1.
         $this->setUser($student1);
@@ -641,7 +641,7 @@ final class booking_campaigns_test extends advanced_testcase {
         $optionobj1 = singleton_service::get_instance_of_booking_option($settings1->cmid, $option1->id);
         // To avoid retrieving the singleton with the wrong settings, we destroy it.
         singleton_service::destroy_booking_singleton_by_cmid($settings1->cmid);
-        $boinfo1 = new bo_info($settings1);
+        $boinfo1 = bo_info::get_instance($settings1);
 
         // Option1 - book necessary users directly.
         $optionobj1->user_submit_response($student4, 0, 0, 0, MOD_BOOKING_VERIFIED);
@@ -654,7 +654,7 @@ final class booking_campaigns_test extends advanced_testcase {
         $optionobj2 = singleton_service::get_instance_of_booking_option($settings2->cmid, $option2->id);
         // To avoid retrieving the singleton with the wrong settings, we destroy it.
         singleton_service::destroy_booking_singleton_by_cmid($settings2->cmid);
-        $boinfo2 = new bo_info($settings2);
+        $boinfo2 = bo_info::get_instance($settings2);
 
         $settings3 = singleton_service::get_instance_of_booking_option_settings($option3->id);
         $optionobj3 = singleton_service::get_instance_of_booking_option($settings3->cmid, $option3->id);
@@ -664,7 +664,7 @@ final class booking_campaigns_test extends advanced_testcase {
         // Option3 - book necessary users directly.
         $optionobj3->user_submit_response($student4, 0, 0, 0, MOD_BOOKING_VERIFIED);
         $optionobj3->user_submit_response($student5, 0, 0, 0, MOD_BOOKING_VERIFIED);
-        $boinfo3 = new bo_info($settings3);
+        $boinfo3 = bo_info::get_instance($settings3);
 
         $this->setUser($student1);
         singleton_service::destroy_user($student1->id);
@@ -843,7 +843,7 @@ final class booking_campaigns_test extends advanced_testcase {
         singleton_service::destroy_booking_option_singleton($option1->id); // Mandatory there.
         $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
         $optionobj1 = singleton_service::get_instance_of_booking_option($settings1->cmid, $option1->id);
-        $boinfo1 = new bo_info($settings1);
+        $boinfo1 = bo_info::get_instance($settings1);
 
         // Create 2nd booking option.
         $record->text = 'Test option2';
@@ -852,7 +852,7 @@ final class booking_campaigns_test extends advanced_testcase {
         singleton_service::destroy_booking_option_singleton($option2->id); // Mandatory there.
         $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
         $optionobj2 = singleton_service::get_instance_of_booking_option($settings2->cmid, $option2->id);
-        $boinfo2 = new bo_info($settings2);
+        $boinfo2 = bo_info::get_instance($settings2);
 
         // Create 3rd booking option.
         $record->text = 'Test option3';
@@ -862,7 +862,7 @@ final class booking_campaigns_test extends advanced_testcase {
         singleton_service::destroy_booking_option_singleton($option3->id); // Mandatory there.
         $settings3 = singleton_service::get_instance_of_booking_option_settings($option3->id);
         $optionobj3 = singleton_service::get_instance_of_booking_option($settings3->cmid, $option3->id);
-        $boinfo3 = new bo_info($settings3);
+        $boinfo3 = bo_info::get_instance($settings3);
 
         // Try to book options with student3.
         $this->setUser($student3);
@@ -996,7 +996,7 @@ final class booking_campaigns_test extends advanced_testcase {
         singleton_service::destroy_booking_option_singleton($option1->id); // Mandatory there.
         $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
         $optionobj1 = singleton_service::get_instance_of_booking_option($settings1->cmid, $option1->id);
-        $boinfo1 = new bo_info($settings1);
+        $boinfo1 = bo_info::get_instance($settings1);
 
         // Create 2nd booking option.
         $record->text = 'Test option2';
@@ -1005,7 +1005,7 @@ final class booking_campaigns_test extends advanced_testcase {
         singleton_service::destroy_booking_option_singleton($option2->id); // Mandatory there.
         $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
         $optionobj2 = singleton_service::get_instance_of_booking_option($settings2->cmid, $option2->id);
-        $boinfo2 = new bo_info($settings2);
+        $boinfo2 = bo_info::get_instance($settings2);
 
         // Create 3rd booking option.
         $record->text = 'Test option3';
@@ -1015,7 +1015,7 @@ final class booking_campaigns_test extends advanced_testcase {
         singleton_service::destroy_booking_option_singleton($option3->id); // Mandatory there.
         $settings3 = singleton_service::get_instance_of_booking_option_settings($option3->id);
         $optionobj3 = singleton_service::get_instance_of_booking_option($settings3->cmid, $option3->id);
-        $boinfo3 = new bo_info($settings3);
+        $boinfo3 = bo_info::get_instance($settings3);
 
         // Try to book options with student1.
         $this->setUser($student1);

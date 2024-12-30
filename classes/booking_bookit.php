@@ -111,7 +111,8 @@ class booking_bookit {
     ) {
 
         // Get blocking conditions, including prepages$prepages etc.
-        $results = bo_info::get_condition_results($settings->id, $userid);
+        $boinfo = bo_info::get_instance($settings);
+        $results = $boinfo->get_condition_results($settings->id, $userid);
         // Decide, wether to show the direct booking button or a modal.
 
         $datas = [];
@@ -282,7 +283,7 @@ class booking_bookit {
 
         if ($area === 'option') {
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
-            $boinfo = new bo_info($settings);
+            $boinfo = bo_info::get_instance($settings);
 
             // There are two cases where we can actually book.
             // We call thefunction with hadblock set to true.
