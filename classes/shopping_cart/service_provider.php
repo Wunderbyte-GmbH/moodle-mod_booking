@@ -63,7 +63,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             // First, we need to check if we have the right to actually load the item.
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
 
-            $boinfo = new bo_info($settings);
+            $boinfo = bo_info::get_instance($settings);
             list($id, $isavailable, $description) = $boinfo->is_available($itemid, $userid, true);
 
             // The blocking ID has to be the price id.
@@ -441,7 +441,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
 
-            $boinfo = new bo_info($settings);
+            $boinfo = bo_info::get_instance($settings);
             // There are two cases where we can actually book.
             // We call thefunction with hadblock set to true.
             // This means that we only get those blocks that actually should prevent booking.

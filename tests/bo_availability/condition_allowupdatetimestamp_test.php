@@ -120,7 +120,7 @@ final class condition_allowupdatetimestamp_test extends advanced_testcase {
         $this->setUser($student1);
 
         // Book the first user without any problem.
-        $boinfo = new bo_info($settings);
+        $boinfo = bo_info::get_instance($settings);
 
         // With these options, cancelling should be possible.
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);

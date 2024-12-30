@@ -166,7 +166,7 @@ final class shopping_cart_test extends advanced_testcase {
         singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
 
         // Book the first user without any problem.
-        $boinfo = new bo_info($settings);
+        $boinfo = bo_info::get_instance($settings);
 
         // Book option1 by the student1 himself.
         $this->setUser($student1);
@@ -363,7 +363,7 @@ final class shopping_cart_test extends advanced_testcase {
         $plugingenerator->create_price($pricedata2);
 
         $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
-        $boinfo1 = new bo_info($settings1);
+        $boinfo1 = bo_info::get_instance($settings1);
 
         // Validate subbooking presence.
         if ((float)\PHPUnit\Runner\Version::series() < 9.6) {
@@ -562,7 +562,7 @@ final class shopping_cart_test extends advanced_testcase {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
         singleton_service::destroy_booking_singleton_by_cmid($settings->cmid); // Require to avoid caching issues.
-        $boinfo = new bo_info($settings);
+        $boinfo = bo_info::get_instance($settings);
 
         // Try to book option1 by the student1.
         $this->setUser($student1);

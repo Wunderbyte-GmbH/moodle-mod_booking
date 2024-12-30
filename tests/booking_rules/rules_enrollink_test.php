@@ -174,7 +174,7 @@ final class rules_enrollink_test extends advanced_testcase {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
         singleton_service::destroy_booking_singleton_by_cmid($settings->cmid); // Require to avoid caching issues.
-        $boinfo = new bo_info($settings);
+        $boinfo = bo_info::get_instance($settings);
 
         // Try to book option1 by the teacher1.
         $this->setUser($teacher1);

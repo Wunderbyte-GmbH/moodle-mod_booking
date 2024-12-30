@@ -31,6 +31,7 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\output\bookingoption_description;
 use mod_booking\price;
+use mod_booking\singleton_service;
 use MoodleQuickForm;
 
 defined('MOODLE_INTERNAL') || die();
@@ -186,7 +187,9 @@ class confirmation implements bo_condition {
         $userid = empty($userid) ? $USER->id : $userid;
 
         // Get blocking conditions, including prepages$prepages etc.
-        $results = bo_info::get_condition_results($optionid, $userid);
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $boinfo = bo_info::get_instance($settings);
+        $results = $boinfo->get_condition_results($optionid, $userid);
         $lastresultid = array_pop($results)['id'];
 
         $data = new bookingoption_description($optionid, null, MOD_BOOKING_DESCRIPTION_WEBSITE, true, false);
