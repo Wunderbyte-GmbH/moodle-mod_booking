@@ -106,16 +106,11 @@ class bo_info {
      *
      */
     public static function get_instance(booking_option_settings $settings) {
-
-        global $USER;
-
         if (
             !isset(self::$instances[$settings->id])
             || PHPUNIT_TEST
         ) {
             self::$instances[$settings->id] = new static($settings);
-        } else {
-            $found = 2;
         }
         return self::$instances[$settings->id];
     }
@@ -667,7 +662,9 @@ class bo_info {
      */
     public static function load_pre_booking_page(int $optionid, int $pagenumber, int $userid) {
 
-        $results = $this->get_condition_results($optionid, $userid);
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $boinfo = self::get_instance($settings);
+        $results = $boinfo->get_condition_results($optionid, $userid);
 
         // Results have to be sorted the right way. At the moment, it depends on the id of the blocking condition.
         usort($results, function ($a, $b) {
