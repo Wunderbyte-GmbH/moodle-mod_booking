@@ -28,6 +28,7 @@ namespace mod_booking\booking_rules;
 use coding_exception;
 use context;
 use context_module;
+use context_system;
 use dml_exception;
 use mod_booking\output\ruleslist;
 use mod_booking\singleton_service;
@@ -132,9 +133,18 @@ class booking_rules {
 
     /**
      * Deletes rules for this context and below.
+     * Does not work on context_system, to avoid 100% deletion.
      * @param int $contextid
      */
     public static function delete_rules_by_context(int $contextid) {
+
+        // We can't delete all rules for the system context.
+        // This is an emergency brake.
+        if ($contextid == context_system::instance()) {
+            return;
+        }
+
+        $rulesofcontext = self::get_list_of_saved_rules_by_context($contextid);
 
         global $DB;
 
