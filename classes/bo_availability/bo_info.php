@@ -106,10 +106,7 @@ class bo_info {
      *
      */
     public static function get_instance(booking_option_settings $settings) {
-        if (
-            !isset(self::$instances[$settings->id])
-            || PHPUNIT_TEST
-        ) {
+        if (!isset(self::$instances[$settings->id])) {
             self::$instances[$settings->id] = new static($settings);
         }
         return self::$instances[$settings->id];
