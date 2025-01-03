@@ -592,6 +592,7 @@ $string['cachedef_cachedpricecategories'] = 'Booking price categories (cache)';
 $string['cachedef_cachedprices'] = 'Prices in booking (cache)';
 $string['cachedef_cachedsemesters'] = 'Semesters (cache)';
 $string['cachedef_cachedteachersjournal'] = 'Teaches journal (Cache)';
+$string['cachedef_cacheduserprices'] = 'Individual prices in booking (cache)';
 $string['cachedef_conditionforms'] = 'Condition Forms (Cache)';
 $string['cachedef_confirmbooking'] = 'Booking confirmed (Cache)';
 $string['cachedef_customformuserdata'] = 'Custom form user data (Cache)';
