@@ -135,7 +135,16 @@ class booking_rules {
      * @param int $contextid
      */
     public static function delete_rules_by_context(int $contextid) {
-        $rulesofcontext = self::get_list_of_saved_rules_by_context($contextid);
+
+        global $DB;
+
+        // We can't delete all rules for the system context.
+        // This is an emergency brake.
+        if ($contextid == context_system::instance()->id) {
+            return;
+        }
+
+        $rulesofcontext = $DB->get_records('booking_rules', ['contextid' => $contextid]);
 
         foreach ($rulesofcontext as $rule) {
             rules_info::delete_rule($rule->id);
