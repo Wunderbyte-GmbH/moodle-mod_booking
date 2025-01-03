@@ -590,6 +590,7 @@ $string['cachedef_bookingoptionstable'] = 'Tables of booking options with hashed
 $string['cachedef_cachedbookinginstances'] = 'Booking instances (cache)';
 $string['cachedef_cachedpricecategories'] = 'Booking price categories (cache)';
 $string['cachedef_cachedprices'] = 'Prices in booking (cache)';
+$string['cachedef_cacheduserprices'] = 'Individual prices in booking (cache)';
 $string['cachedef_cachedsemesters'] = 'Semesters (cache)';
 $string['cachedef_cachedteachersjournal'] = 'Teaches journal (Cache)';
 $string['cachedef_conditionforms'] = 'Condition Forms (Cache)';

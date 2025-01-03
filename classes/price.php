@@ -866,7 +866,6 @@ class price {
             !isset($user->profile) ||
             !isset($user->profile[$fieldshortname])
         ) {
-
                 require_once("$CFG->dirroot/user/profile/lib.php");
                 profile_load_custom_fields($user);
         }
@@ -905,12 +904,13 @@ class price {
         }
 
         $cache = \cache::make('mod_booking', 'cachedprices');
+        $usercache = \cache::make('mod_booking', 'cacheduserprices');
         // We need to combine area with itemid for uniqueness!
 
         $usercachekey = $area . $itemid . "_" . $userid;
         $cachekey = $area . $itemid;
 
-        $cacheduserprices = $cache->get($usercachekey);
+        $cacheduserprices = $usercache->get($usercachekey);
 
         // For speed, we have cached prices for all and individual prices as well.
         // If we have a cached user price, we can return it right away.
@@ -924,7 +924,7 @@ class price {
             $cachedprices = $cache->get($cachekey);
             if ($cachedprices === true) { // No price found.
                 // We set the user price, to know the next time.
-                $cache->set($usercachekey, true);
+                $usercache->set($usercachekey, true);
                 return [];
             } else if ($cachedprices && is_array($cachedprices)) {
                 $prices = $cachedprices;
@@ -933,7 +933,7 @@ class price {
                 // Save the user specific prices.
                 if ($userid > 0) {
                     self::apply_campaigns($itemid, $prices, $userid);
-                    $cache->set($usercachekey, $cachedprices);
+                    $usercache->set($usercachekey, $cachedprices);
                 }
             } else {
                 // Here, we haven't found user specific prices and we haven't found general prices.
@@ -941,7 +941,7 @@ class price {
                 if (!$prices = $DB->get_records('booking_prices', ['area' => $area, 'itemid' => $itemid])) {
                     // If there are no prices at all, we can't have a campaign either.
                     $cache->set($cachekey, true);
-                    $cache->set($usercachekey, true);
+                    $usercache->set($usercachekey, true);
                     return [];
                 }
 
@@ -956,11 +956,11 @@ class price {
 
                     if (isloggedin() && !isguestuser()) {
                         self::apply_campaigns($itemid, $prices, $userid);
-                        $cache->set($usercachekey, $prices);
+                        $usercache->set($usercachekey, $prices);
                     }
                 } else {
                     $cache->set($cachekey, $prices);
-                    $cache->set($usercachekey, $prices);
+                    $usercache->set($usercachekey, $prices);
                 }
             }
         }

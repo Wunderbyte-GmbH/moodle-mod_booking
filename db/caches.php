@@ -36,7 +36,14 @@ $definitions = [
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
         'staticacceleration' => true,
-        'staticaccelerationsize' => 100,
+        'staticaccelerationsize' => 10000,
+        'invalidationevents' => ['setbackprices'],
+    ],
+    'cacheduserprices' => [
+        'mode' => cache_store::MODE_SESSION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 10000,
         'invalidationevents' => ['setbackprices'],
     ],
     'cachedpricecategories' => [
@@ -93,7 +100,7 @@ $definitions = [
         'staticaccelerationsize' => 1000,
         'invalidationevents' => ['setbackoptionsanswers'],
     ],
-    'bookinganswers' => [ // This cache uses optionids as keys.
+    'bookinganswers' => [ // This cache uses optionids as keys. These are personal answers.
         'mode' => cache_store::MODE_SESSION,
         'simplekeys' => true,
         'staticacceleration' => true,
@@ -143,7 +150,7 @@ $definitions = [
         'mode' => cache_store::MODE_APPLICATION, // In order support buy for others, we need to make this MODE_APPLICATION cache.
         'simplekeys' => true,
         'staticacceleration' => true,
-        'staticaccelerationsize' => 1,
+        'staticaccelerationsize' => 1000,
     ],
     'eventlogtable' => [
         'mode' => cache_store::MODE_APPLICATION,
