@@ -1,3 +1,7 @@
+## Version 8.9.3 (2025010300)
+* Bugfix: Avoid unintentional deletion of all system rules (Important!)
+* Bugfix: Add missing cachedef strings
+
 ## Version 8.9.2 (2024122000)
 * New feature: Add shortcode arg to show the courselist filter on top (#752).
 * Improvement: Rules can be set active/inactive #764
