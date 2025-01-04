@@ -1031,8 +1031,8 @@ final class shopping_cart_test extends advanced_testcase {
                     'maxanswers' => 4,
                     'optiondateid_1' => "0",
                     'daystonotify_1' => "0",
-                    'coursestarttime_1' => strtotime('now -2 day'),
-                    'courseendtime_1' => strtotime('now +3 day'),
+                    'coursestarttime_1' => strtotime('now -48 hours'),
+                    'courseendtime_1' => strtotime('now +72 hours'),
                 ],
             ],
             'pricecategories' => [

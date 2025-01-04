@@ -36,7 +36,7 @@ Feature: Create booking option with price and force students answer as admin tha
       | booking     | text            | course | description    | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | useprice | canceluntil    | canceluntilcheckbox |
       | BookingCMP  | Option-tenis    | C1     | Price-tenis    | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 1        | ## tomorrow ## | 1                   |
       | BookingCMP  | Option-football | C1     | Price-football | 4          | 1           | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | ## tomorrow ## | 1                   |
-      | BookingCMP  | Option-xconsume | C1     | Price-xconsume | 4          | 1           | 0              | 0              | ## yesterday ##   | ## +2 days ##   | 1        | ## tomorrow ## | 1                   |
+      | BookingCMP  | Option-xconsume | C1     | Price-xconsume | 4          | 1           | 0              | 0              | ## -48 hours ##   | ## +72 hours ## | 1        | ## tomorrow ## | 1                   |
     And the following "core_payment > payment accounts" exist:
       | name           |
       | Account1       |
@@ -149,16 +149,16 @@ Feature: Create booking option with price and force students answer as admin tha
     ## And I wait "1" seconds
     Then I should see "Do you really want to cancel this purchase for all users?" in the ".modal.show .modal-body" "css_element"
     And I should see "The following users will get their money back as credit:" in the ".modal.show .modal-body" "css_element"
-    And I should see "student1@example.com, 88.00 EUR (-34%)" in the ".modal.show .modal-body" "css_element"
-    And I should see "student2@example.com, 77.00 EUR (-34%)" in the ".modal.show .modal-body" "css_element"
-    And I should see "student3@example.com, 66.00 EUR (-34%)" in the ".modal.show .modal-body" "css_element"
+    And I should see "student1@example.com, 88.00 EUR (-40%)" in the ".modal.show .modal-body" "css_element"
+    And I should see "student2@example.com, 77.00 EUR (-40%)" in the ".modal.show .modal-body" "css_element"
+    And I should see "student3@example.com, 66.00 EUR (-40%)" in the ".modal.show .modal-body" "css_element"
     And I set the field "cancelationfee" to "4"
     And I click on "Save changes" "button" in the ".modal.show .modal-footer" "css_element"
     ## Verify records in the ledger table.
     And I visit "/local/shopping_cart/report.php"
     And the following should exist in the "cash_report_table" table:
       | Paid  | Credit: | Cancelation fee | Item name                  | E-Mail               | Payment method | Status   |
-      | 0.00  | 40.00   | 4.00            | Canceled - Option-xconsume | student3@example.com | Credits	       | Canceled |
-      | 0.00  | 47.00   | 4.00            | Canceled - Option-xconsume | student2@example.com | Credits	       | Canceled |
-      | 0.00  | 54.00   | 4.00            | Canceled - Option-xconsume | student1@example.com | Credits	       | Canceled |
+      | 0.00  | 36.00   | 4.00            | Canceled - Option-xconsume | student3@example.com | Credits	       | Canceled |
+      | 0.00  | 42.00   | 4.00            | Canceled - Option-xconsume | student2@example.com | Credits	       | Canceled |
+      | 0.00  | 49.00   | 4.00            | Canceled - Option-xconsume | student1@example.com | Credits	       | Canceled |
     And I log out
