@@ -60,6 +60,99 @@ final class condition_all_test extends advanced_testcase {
     }
 
     /**
+     * Test booking, cancelation, option has started etc.
+     *
+     * @covers \condition\bookitbutton::is_available
+     * @covers \condition\alreadybooked::is_available
+     * @covers \condition\fullybooked::is_available
+     * @covers \condition\confirmation::render_page
+     * @covers \condition\notifymelist::is_available
+     * @covers \condition\isloggedin::is_available
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_booking_bookit_capabilitynotneeded(array $bdata): void {
+        global $DB, $CFG;
+
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create users.
+        $admin = $this->getDataGenerator()->create_user();
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course->id);
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id);
+
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1';
+        $record->courseid = $course->id;
+        $record->maxanswers = 2;
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option1 = $plugingenerator->create_option($record);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        // To avoid retrieving the singleton with the wrong settings, we destroy it.
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
+
+        // Book the first user without any problem.
+        $boinfo = new bo_info($settings);
+
+        // Check option availability if user is not logged yet.
+        require_logout();
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ISLOGGEDIN, $id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ISLOGGEDIN, $id);
+
+        // Booking is possible for student1.
+        $this->setUser($student1);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
+
+        // Booking is impossible for studnet2 because he does not have 'mod/booking:choose' capability (not enrolled in course).
+        $this->setUser($student2);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, false);
+        $this->assertEquals(MOD_BOOKING_CONDPARAM_CANBEOVERRIDDEN, $id);
+        $this->assertEquals(false, $isavailable);
+        $this->assertEquals("No right to book", $description);
+
+        // Update option to allow booking without capability.
+        $this->setAdminUser();
+        $record->id = $option1->id;
+        $record->bo_cond_allowedtobookininstance_restrict = 1;
+        $record->bo_cond_allowedtobookininstance_capabilitynotneeded = 1;
+        $record->cmid = $settings->cmid;
+        booking_option::update($record);
+
+        // Ensure that student 2 now capable to book option.
+        $this->setUser($student2);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+    }
+
+    /**
      * Test of booking option with price as well as cancellation by user.
      *
      * @covers \condition\priceset::is_available
