@@ -188,10 +188,7 @@ class bo_info {
         require_once($CFG->dirroot . '/mod/booking/lib.php');
 
         $singletonkey = md5($optionid . $userid . $onlyhardblock);
-        if (
-            isset($this->results[$singletonkey])
-            && !PHPUNIT_TEST
-        ) {
+        if (isset($this->results[$singletonkey])) {
             return $this->results[$singletonkey];
         }
 
