@@ -149,16 +149,16 @@ Feature: Create booking option with price and force students answer as admin tha
     ## And I wait "1" seconds
     Then I should see "Do you really want to cancel this purchase for all users?" in the ".modal.show .modal-body" "css_element"
     And I should see "The following users will get their money back as credit:" in the ".modal.show .modal-body" "css_element"
-    And I should see "student1@example.com, 88.00 EUR (-49%)" in the ".modal.show .modal-body" "css_element"
-    And I should see "student2@example.com, 77.00 EUR (-49%)" in the ".modal.show .modal-body" "css_element"
-    And I should see "student3@example.com, 66.00 EUR (-49%)" in the ".modal.show .modal-body" "css_element"
+    And I should see "student1@example.com, 88.00 EUR (-34%)" in the ".modal.show .modal-body" "css_element"
+    And I should see "student2@example.com, 77.00 EUR (-34%)" in the ".modal.show .modal-body" "css_element"
+    And I should see "student3@example.com, 66.00 EUR (-34%)" in the ".modal.show .modal-body" "css_element"
     And I set the field "cancelationfee" to "4"
     And I click on "Save changes" "button" in the ".modal.show .modal-footer" "css_element"
     ## Verify records in the ledger table.
     And I visit "/local/shopping_cart/report.php"
     And the following should exist in the "cash_report_table" table:
       | Paid  | Credit: | Cancelation fee | Item name                  | E-Mail               | Payment method | Status   |
-      | 0.00  | 29.66   | 4.00            | Canceled - Option-xconsume | student3@example.com | Credits	       | Canceled |
-      | 0.00  | 35.27   | 4.00            | Canceled - Option-xconsume | student2@example.com | Credits	       | Canceled |
-      | 0.00  | 40.88   | 4.00            | Canceled - Option-xconsume | student1@example.com | Credits	       | Canceled |
+      | 0.00  | 40.00   | 4.00            | Canceled - Option-xconsume | student3@example.com | Credits	       | Canceled |
+      | 0.00  | 47.00   | 4.00            | Canceled - Option-xconsume | student2@example.com | Credits	       | Canceled |
+      | 0.00  | 54.00   | 4.00            | Canceled - Option-xconsume | student1@example.com | Credits	       | Canceled |
     And I log out
