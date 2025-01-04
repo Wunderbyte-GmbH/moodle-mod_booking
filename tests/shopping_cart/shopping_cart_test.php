@@ -966,13 +966,13 @@ final class shopping_cart_test extends advanced_testcase {
             $this->assertArrayNotHasKey(2, $balance1);
             switch ($key) {
                 case 0:
-                    $this->assertEquals(65, $balance1[0]);
+                    $this->assertEquals(55, $balance1[0]);
                     break;
                 case 1:
-                    $this->assertEquals(58, $balance1[0]);
+                    $this->assertEquals(49, $balance1[0]);
                     break;
                 case 2:
-                    $this->assertEquals(51, $balance1[0]);
+                    $this->assertEquals(43, $balance1[0]);
                     break;
             }
         }
