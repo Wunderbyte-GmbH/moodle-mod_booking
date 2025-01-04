@@ -2946,7 +2946,7 @@ class booking_option {
 
         if (count($optionsettings->sessions) == 1) {
             // Single-session.
-            $session = array_pop($optionsettings->sessions);
+            $session = reset($optionsettings->sessions);
 
             // If there's only one session and it's already over, then we count it as consumed.
             if ($session->courseendtime < $now) {
