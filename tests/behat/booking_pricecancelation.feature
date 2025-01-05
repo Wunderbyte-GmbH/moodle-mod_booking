@@ -135,8 +135,8 @@ Feature: Create booking option with price and force students answer as admin tha
   @javascript
   Scenario: Booking: cancellation of all users purchases when price and consumption were set
     Given the following "local_shopping_cart > plugin setup" exist:
-      | account  | cancelationfee | calculateconsumation | calculateconsumationfixedpercentage |
-      | Account1 | 1              | 1                    | -1                                  |
+      | account  | cancelationfee | calculateconsumation |
+      | Account1 | 1              | 1                    |
     And the following "mod_booking > user purchases" exist:
       | booking     | option          | user     |
       | BookingCMP  | Option-xconsume | student1 |
