@@ -57,6 +57,35 @@
             </h3>
         </ion-card-header>
         <ion-card-content>
+            <%# descriptioncollapsable.0 %>
+                <ion-accordion-group>
+                    <ion-accordion value="description">
+                        <ion-item slot="header" color="light">
+                            <ion-label style="display: flex; align-items: center;">
+                                <ion-icon
+                                    name="information-circle-outline"
+                                    aria-hidden="true"
+                                    style="font-size: 20px; margin-right: 8px; vertical-align: middle;"
+                                >
+                                </ion-icon>
+                                {{ 'plugin.mod_booking.showdescription' | translate }}
+                            </ion-label>
+                        </ion-item>
+                        <div
+                            slot="content"
+                            class="ion-padding"
+                            style="
+                                border: 2px solid #dbd9d9;
+                                border-radius: 8px;
+                                background-color: #f9f9f9;"
+                        >
+                            <%# descriptioncollapsable %>
+                                <%{ . }%>
+                            <%/ descriptioncollapsable %>
+                        </div>
+                    </ion-accordion>
+                </ion-accordion-group>
+            <%/ descriptioncollapsable.0 %>
             <%# description.0 %>
                 <b>
                 {{ 'plugin.mod_booking.description' | translate }}
@@ -84,7 +113,7 @@
               <ion-accordion value="first">
                 <ion-item slot="header" color="light">
                   <ion-label>
-                    {{ 'plugin.mod_booking.show_dates' | translate }}
+                    {{ 'plugin.mod_booking.showdates' | translate }}
                     <ion-icon name="calendar-outline" />
                   </ion-label>
                 </ion-item>
@@ -108,7 +137,7 @@
             <%# price %>
             <ion-text>
                 <b>
-                  {{ 'plugin.mod_booking.mobileapp_price' | translate }}
+                  {{ 'plugin.mod_booking.mobileappprice' | translate }}
                 </b>
                 <h4><% price %> <% currency %></h4>
                 <br>

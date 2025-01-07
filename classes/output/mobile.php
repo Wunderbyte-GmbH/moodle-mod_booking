@@ -186,11 +186,11 @@ class mobile {
                 $data['nosubmit']['label'] = get_string('notbookable', 'mod_booking');
                 break;
             default:
-
                 $data['nosubmit']['label']
                     = !empty($description) ? $description : get_string('notbookable', 'mod_booking');
                 break;
         }
+        self::render_course_button($data);
 
         $detailhtml = $OUTPUT->render_from_template('mod_booking/mobile/mobile_booking_option_details', $data);
         return [
@@ -203,6 +203,26 @@ class mobile {
             'javascript' => '',
             'otherdata' => ['data' => '{}'],
         ];
+    }
+
+    /**
+     * Get all selected nav tabs from the config
+     * @param string $selectedview
+     * @param int $cmid
+     */
+    public static function render_course_button(&$data) {
+        global $CFG;
+        if (
+            isset($data['courseid']) &&
+            (int)$data['courseid'] > 0
+        ) {
+            $linktocourse = $CFG->wwwroot . '/course/view.php?id=' . $data['courseid'];
+            if (get_config('booking', 'linktomoodlecourseonbookedbutton')) {
+                $data['linktomoodlecourseonbookedbutton'] = $linktocourse;
+            } else {
+                $data['linktomoodlecourseadditionalbutton'] = $linktocourse;
+            }
+        }
     }
 
     /**
@@ -279,7 +299,7 @@ class mobile {
         global $DB, $OUTPUT, $USER;
 
         $cmid = $args['cmid'];
-        $availablenavtabs = self::get_available_nav_tabs();
+        $availablenavtabs = self::get_available_nav_tabs($cmid);
         $whichview = self::set_active_nav_tabs($availablenavtabs, $args['whichview']);
 
         if (empty($cmid)) {
@@ -297,15 +317,19 @@ class mobile {
             $settings = singleton_service::get_instance_of_booking_option_settings($record->id);
             $tmpoutputdata = $settings->return_booking_option_information();
             $tmpoutputdata['maxsessions'] = $maxdatabeforecollapsable;
-            $data = $settings->return_booking_option_information();
-            $data['description'] = preg_split($pattern, $data['description']);
-            if (count($settings->sessions) > $maxdatabeforecollapsable) {
-                $data['collapsedsessions'] = $data['sessions'];
-                unset($data['sessions']);
+            $tmpoutputdata = $settings->return_booking_option_information();
+            $tmpoutputdata['description'] = preg_split($pattern, $tmpoutputdata['description']);
+            if (strlen($tmpoutputdata['description'][0]) > get_config('booking', 'collapsedescriptionmaxlength')) {
+                $tmpoutputdata['descriptioncollapsable'] = $tmpoutputdata['description'];
+                unset($tmpoutputdata['description']);
             }
-            $outputdata[] = $data;
+            if (count($settings->sessions) > $maxdatabeforecollapsable) {
+                $tmpoutputdata['collapsedsessions'] = $tmpoutputdata['sessions'];
+                unset($tmpoutputdata['sessions']);
+            }
+            $outputdata[] = $tmpoutputdata;
         }
-
+        $data = [];
         $data['availablenavtabs'] = $availablenavtabs;
         $data['whichview'] = $whichview;
         $data['cmid'] = $cmid;
@@ -487,20 +511,23 @@ class mobile {
 
     /**
      * Get all selected nav tabs from the config$activetab
+     * @param string $cmid
      * @return array
      */
-    public static function get_available_nav_tabs() {
+    public static function get_available_nav_tabs($cmid) {
         $selectednavlabelnames = [];
         $navlabelnames = self::match_view_label_and_names();
         $configmobileviewoptions = get_config('booking', 'mobileviewoptions');
         if ($configmobileviewoptions !== '') {
             $navtabs = explode(',', get_config('booking', 'mobileviewoptions'));
             foreach ($navtabs as $navtab) {
-                $selectednavlabelnames[] = [
-                  'label' => $navtab,
-                  'name' => $navlabelnames[$navtab],
-                  'class' => $activetab === $navtab ? 'active' : false,
-                ];
+                if (self::get_available_booking_options($navtab, $cmid)) {
+                    $selectednavlabelnames[] = [
+                      'label' => $navtab,
+                      'name' => $navlabelnames[$navtab],
+                      'class' => $activetab === $navtab ? 'active' : false,
+                    ];
+                }
             }
         }
         return $selectednavlabelnames;

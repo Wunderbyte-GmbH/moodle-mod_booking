@@ -5,13 +5,21 @@
             <% text %>
         </ion-card-header>
         <ion-card-content>
-            <b>{{ 'plugin.mod_booking.description' | translate }}</b>: 
-            <ion-text>
-              <%{ description }%>
-            </ion-text>
+            <%#description%>
+                <b>{{ 'plugin.mod_booking.description' | translate }}</b>:
+                <ion-text>
+                <%{ description }%>
+                </ion-text>
+            <%/description%>
+
             <br>
-            <b>{{ 'plugin.mod_booking.location' | translate }}</b>: <% location %> <br>
-            <b>{{ 'plugin.mod_booking.address' | translate }}</b>: <% address %> <br>
+            <%#location%>
+                <b>{{ 'plugin.mod_booking.location' | translate }}</b>: <% location %> <br>
+            <%/location%>
+
+            <%#address%>
+                <b>{{ 'plugin.mod_booking.address' | translate }}</b>: <% address %> <br>
+            <%/address%>
 
             <%#teachers%>
             <b>{{ 'plugin.mod_booking.firstname' | translate }}</b>: <% firstname %> <br>
@@ -29,10 +37,27 @@
             <%/submit%>
 
             <%#nosubmit%>
-            <ion-button disabled>
-                <% label %>
-            </ion-button>
+                <%#linktomoodlecourseonbookedbutton%>
+                    <ion-button href="<% linktomoodlecourseonbookedbutton %>">
+                        Start
+                        {{ 'plugin.mod_booking.coursestart' | translate }}
+                    </ion-button>
+                <%/linktomoodlecourseonbookedbutton%>
+
+                <%^linktomoodlecourseonbookedbutton%>
+                    <ion-button disabled>
+                        <% label %>
+                    </ion-button>
+                    <%#linktomoodlecourseadditionalbutton%>
+                        <br>
+                        <ion-button href="<% linktomoodlecourseadditionalbutton %>">
+                            <ion-icon name="school" style="margin-right: 8px; font-size: 18px;"></ion-icon>
+                            {{ 'plugin.mod_booking.gotomoodlecourse' | translate }}
+                        </ion-button>
+                    <%/linktomoodlecourseadditionalbutton%>
+                <%/linktomoodlecourseonbookedbutton%>
             <%/nosubmit%>
+
         </ion-card-content>
     </ion-card>
 </div>

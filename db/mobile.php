@@ -41,7 +41,6 @@ $addons = [
         'lang' => [
             ['pluginname', 'booking'],
             ['showmybookingsonly', 'booking'],
-            ['showmybookingsonly', 'booking'],
             ['mybookingsbooking', 'booking'],
             ['details', 'mod_booking'],
             ['showdates', 'mod_booking'],
@@ -65,6 +64,9 @@ $addons = [
             ['mobileresetsubmission', 'mod_booking'],
             ['mobilesetsubmission', 'mod_booking'],
             ['mobilefieldrequired', 'mod_booking'],
+            ['coursestart', 'mod_booking'],
+            ['gotomoodlecourse', 'mod_booking'],
+            ['showdescription', 'mod_booking'],
         ],
     ],
 ];
