@@ -270,7 +270,10 @@ class connectedcourse {
             $where .= ")";
             // Add query, if there is any.
             if (!empty($query)) {
-                $where .= " AND (c.fullname LIKE :query1 OR c.shortname LIKE :query2)";
+                $query1sql = $DB->sql_like('c.fullname', ':query1', false);
+                $query2sql = $DB->sql_like('c.shortname', ':query2', false);
+
+                $where .= " AND ($query1sql OR $query2sql )";
                 $params['query1'] = '%' . $query . '%';
                 $params['query2'] = '%' . $query . '%';
             }
