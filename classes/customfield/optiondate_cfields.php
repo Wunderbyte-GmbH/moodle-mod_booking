@@ -151,7 +151,7 @@ class optiondate_cfields {
      */
     public static function get_list_of_submitted_cfields(array $formdata, $index) {
 
-        $regexstring = '/^customfieldname_' . $index . '/';
+        $regexstring = '/^customfieldname_' . $index . '_/';
         if (!$cfnames = preg_grep($regexstring, array_keys($formdata))) {
             // For performance.
             return [];
