@@ -27,8 +27,6 @@ use mod_booking\event\bookinganswer_confirmed;
 
 defined('MOODLE_INTERNAL') || die();
 
-global $CFG;
-
 use cache;
 use cache_helper;
 use coding_exception;
@@ -50,7 +48,9 @@ use mod_booking\output\col_teacher;
 use mod_booking\price;
 use mod_booking\singleton_service;
 
-defined('MOODLE_INTERNAL') || die();
+global $CFG;
+
+require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
  * Class to handle search results for managers are shown in a table.
@@ -60,7 +60,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class manageusers_table extends wunderbyte_table {
-
     /**
      * Return dragable column.
      *
@@ -264,6 +263,8 @@ class manageusers_table extends wunderbyte_table {
      */
     public function action_deletebooking(int $id, string $data): array {
 
+        global $DB;
+
         $jsonobject = json_decode($data);
 
         $userid = $jsonobject->userid;
@@ -277,7 +278,11 @@ class manageusers_table extends wunderbyte_table {
 
             $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
 
-            $option->user_delete_response($userid, false, false, false);
+            if ($DB->record_exists('booking_answers', ['userid' => $userid, 'optionid' => $optionid, 'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED])) {
+                $option->user_delete_response($userid, true, false, false);
+            } else {
+                $option->user_delete_response($userid, false, false, false);
+            }
 
             return [
                 'success' => 1,

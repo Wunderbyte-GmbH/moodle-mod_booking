@@ -655,23 +655,19 @@ class booking_option {
      * @param bool $deleteall set this to true if you want to delete a complete answers too
      * @return bool true if booking was deleted successfully, otherwise false
      */
-    public function user_delete_response($userid, $cancelreservation = false,
-        $bookingoptioncancel = false, $syncwaitinglist = true, $deleteall = false) {
+    public function user_delete_response(
+        $userid,
+        $cancelreservation = false,
+        $bookingoptioncancel = false,
+        $syncwaitinglist = true,
+        $deleteall = false
+    ) {
 
         global $USER, $DB;
 
         $optionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
         $ba = singleton_service::get_instance_of_booking_answers($optionsettings);
-
-        // Check if user might only be on waitinglist. (Because call came from a wb_table i.e.).
-        if (
-            !$bookingoptioncancel
-            && !isset($ba->usersonlist[$userid])
-            && isset($ba->usersonwaitinglist[$userid])
-        ) {
-            $cancelreservation = true;
-        }
 
         // We need to check if we were, before deleting, fully booked.
         if ($ba->is_fully_booked()) {
