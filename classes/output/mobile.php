@@ -207,8 +207,7 @@ class mobile {
 
     /**
      * Get all selected nav tabs from the config
-     * @param string $selectedview
-     * @param int $cmid
+     * @param array $data
      */
     public static function render_course_button(&$data) {
         global $CFG;
