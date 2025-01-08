@@ -956,7 +956,9 @@ class bo_info {
         $sortedpriceitems = [];
         foreach ($priceitems as $priceitem) {
             $pricecategory = price::get_active_pricecategory_from_cache_or_db($priceitem->pricecategoryidentifier);
-
+            if (!$pricecategory) {
+                continue;
+            }
             $priceitemarray = (array)$priceitem;
 
             if (!empty($pricecategory)) {
