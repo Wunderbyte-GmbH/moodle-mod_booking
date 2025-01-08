@@ -1,3 +1,7 @@
+## Version 8.9.10 (2025010802)
+Bugfix: replace empty placeholders correctly if tags are given
+Bugfix: Use actual blank instead of nbsp as it might not be rendered in plaintext e-mail. #787
+
 ## Version 8.9.9 (2025010801)
 Bugfix: don't format text for all event descriptions in event log table
 
