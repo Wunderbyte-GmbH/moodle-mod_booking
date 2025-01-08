@@ -1,3 +1,6 @@
+## Version 8.9.9 (2025010801)
+Bugfix: don't format text for all event descriptions in event log table
+
 ## Version 8.9.8 (2025010800)
 * Improvement: Case insensitive fetching of template courses
 * Bugfix: Replace wrong usage of array_pop which destroyed our singleton. #777
