@@ -192,7 +192,7 @@ class placeholders_info {
                 }
                 // Delete everything beetween enclosing placeholder.
                 if (!empty($end)) {
-                    $pattern = '/' . preg_quote('{' . $placeholder . '}', '/') . '.*?' . preg_quote($end, '/') . '/';
+                    $pattern = '/' . preg_quote('{' . $placeholder . '}', '/') . '.*?' . preg_quote($end, '/') . '/s';
                 } else {
                     $pattern = '/\$\{placeholder\}/';
                 }
