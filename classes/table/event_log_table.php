@@ -82,7 +82,7 @@ class event_log_table extends wunderbyte_table {
             $description = $values->other;
         }
 
-        return format_text($description);
+        return $description;
     }
 
     /**

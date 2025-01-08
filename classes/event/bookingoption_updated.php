@@ -127,10 +127,9 @@ class bookingoption_updated extends \core\event\base {
                 'objectid' => $this->objectid,
             ];
             $infostring = get_string('bookingoptionupdateddesc', 'mod_booking', $infos);
-            return $infostring . $html;
+            return format_text($infostring . $html);
         } catch (Throwable $e) {
             return get_string('bookingoptionupdated', 'mod_booking');
         }
-
     }
 }
