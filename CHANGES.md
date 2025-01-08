@@ -1,3 +1,9 @@
+## Version 8.9.8 (2025010800)
+* Improvement: Case insensitive fetching of template courses
+* Bugfix: Replace wrong usage of array_pop which destroyed our singleton. #777
+* Bugfix: Fix regex for optiondate customfields so it doesn't match incorrectly. (#781)
+* Bugfix: Deletion of other than shortterm reservations were not working anymore via booked_users class (#759)
+
 ## Version 8.9.3 (2025010300)
 * Bugfix: Avoid unintentional deletion of all system rules (Important!)
 * Bugfix: Add missing cachedef strings
