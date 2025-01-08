@@ -203,7 +203,6 @@ class manageusers_table extends wunderbyte_table {
                 'message' => get_string('successfullybooked', 'mod_booking'),
                 'reload' => 1,
             ];
-
         } else {
             return [
                 'success' => 0,
@@ -246,7 +245,6 @@ class manageusers_table extends wunderbyte_table {
                 'message' => get_string('successfullybooked', 'mod_booking'),
                 'reload' => 1,
             ];
-
         } else {
             return [
                 'success' => 0,
@@ -278,7 +276,12 @@ class manageusers_table extends wunderbyte_table {
 
             $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
 
-            if ($DB->record_exists('booking_answers', ['userid' => $userid, 'optionid' => $optionid, 'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED])) {
+            if (
+                $DB->record_exists(
+                    'booking_answers',
+                    ['userid' => $userid, 'optionid' => $optionid, 'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED]
+                )
+            ) {
                 $option->user_delete_response($userid, true, false, false);
             } else {
                 $option->user_delete_response($userid, false, false, false);
