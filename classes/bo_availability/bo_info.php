@@ -895,7 +895,7 @@ class bo_info {
                 if (
                     get_config('booking', 'priceisalwayson')
                     || !empty(get_config('booking', 'displayemptyprice'))
-                    || !empty((float)($priceitem["price"] ?? 0))
+                    || (isset($priceitem["price"]) && !empty((float)$priceitem["price"]))
                 ) {
                     $currstring = isset($priceitem["currency"]) ? " " .  $priceitem["currency"] : '';
                     $label = $priceitem["price"];
