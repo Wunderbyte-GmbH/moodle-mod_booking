@@ -1643,6 +1643,8 @@ $string['optiontemplatenotsavednovalidlicense'] = 'Buchungsoption konnte nicht a
                                                   Holen Sie sich die PRO-Version, um beliebig viele Vorlagen erstellen
                                                   zu können.';
 $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';
+$string['optionviewcustomfields'] = 'Benutzerdefinierte Felder auf Detailseite anzeigen';
+$string['optionviewcustomfieldsdesc'] = 'Wählen Sie die benutzerdefinierten Buchungsoptionsfelder aus, die auf der Detailseite von Buchungsoptionen angezeigt werden sollen.';
 $string['optionvisibility'] = 'Sichtbarkeit';
 $string['optionvisibility_help'] = 'Stellen Sie ein, ob die Buchungsoption für jede_n sichtbar sein soll oder nur für berechtigte Nutzer:innen.';
 $string['optionvisible'] = 'Für alle sichtbar (Standard)';
