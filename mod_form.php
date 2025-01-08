@@ -337,6 +337,46 @@ class mod_booking_mod_form extends moodleform_mod {
         // Hide short info for the first two options.
         $mform->hideIf('coursepageshortinfo', 'showlistoncoursepage', 'in', [0]);
 
+        // Booking manager.
+        $contextbooking = $this->get_context();
+        $choosepotentialmanager = [];
+        $potentials[$USER->id] = $USER;
+        $potentials1 = get_users_by_capability($contextbooking, 'mod/booking:readresponses',
+            'u.id, u.firstname, u.lastname, u.username, u.email');
+        $potentials2 = get_users_by_capability($contextbooking, 'moodle/course:update',
+            'u.id, u.firstname, u.lastname, u.username, u.email');
+        $potentialmanagers = array_merge($potentials1, $potentials2, $potentials);
+
+        // Before creating the array, we have to check if there is a booking manager already set.
+        // If so, but the user has left the course, an arbitrary value will be shown. Therefore we add the...
+        // ... existing bookingmanager to the array.
+        if (((int)$this->_instance)
+            && ($existingmanager = $DB->get_field('booking', 'bookingmanager', ['id' => $this->_instance]))) {
+            if ($existinguser = $DB->get_record('user', ['username' => $existingmanager])) {
+                $found = false;
+                foreach ($potentialmanagers as $user) {
+                    if ($user->id == $existinguser->id) {
+                        $found = true;
+                    }
+                }
+                if (!$found) {
+                    $potentialmanagers = array_merge($potentialmanagers, [$existinguser]);
+                }
+            }
+        }
+
+        foreach ($potentialmanagers as $potentialmanager) {
+            $choosepotentialmanager[$potentialmanager->username] = $potentialmanager->firstname
+                    . ' ' . $potentialmanager->lastname . ' (' .
+            $potentialmanager->email . ')';
+        }
+        $mform->addElement('autocomplete', 'bookingmanager',
+                get_string('usernameofbookingmanager', 'booking'), $choosepotentialmanager);
+        $mform->addHelpButton('bookingmanager', 'usernameofbookingmanager', 'booking');
+        $mform->setType('bookingmanager', PARAM_TEXT);
+        $mform->setDefault('bookingmanager', $USER->username);
+        $mform->addRule('bookingmanager', null, 'required', null, 'client');
+
         // Configure fields and columns section.
         $mform->addElement('header', 'configurefields', get_string('configurefields', 'booking'));
 
@@ -550,46 +590,6 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->setDefault('daystonotifyteachers', 0);
             $mform->addHelpButton('daystonotifyteachers', 'daystonotify', 'booking');
             $mform->setType('daystonotifyteachers', PARAM_INT);
-
-            // Booking manager.
-            $contextbooking = $this->get_context();
-            $choosepotentialmanager = [];
-            $potentials[$USER->id] = $USER;
-            $potentials1 = get_users_by_capability($contextbooking, 'mod/booking:readresponses',
-                'u.id, u.firstname, u.lastname, u.username, u.email');
-            $potentials2 = get_users_by_capability($contextbooking, 'moodle/course:update',
-                'u.id, u.firstname, u.lastname, u.username, u.email');
-            $potentialmanagers = array_merge ($potentials1, $potentials2, $potentials);
-
-            // Before creating the array, we have to check if there is a booking manager already set.
-            // If so, but the user has left the course, an arbitrary value will be shown. Therefore we add the...
-            // ... existing bookingmanager to the array.
-            if (((int)$this->_instance)
-                && ($existingmanager = $DB->get_field('booking', 'bookingmanager', ['id' => $this->_instance]))) {
-                if ($existinguser = $DB->get_record('user', ['username' => $existingmanager])) {
-                    $found = false;
-                    foreach ($potentialmanagers as $user) {
-                        if ($user->id == $existinguser->id) {
-                            $found = true;
-                        }
-                    }
-                    if (!$found) {
-                        $potentialmanagers = array_merge($potentialmanagers, [$existinguser]);
-                    }
-                }
-            }
-
-            foreach ($potentialmanagers as $potentialmanager) {
-                $choosepotentialmanager[$potentialmanager->username] = $potentialmanager->firstname
-                        . ' ' . $potentialmanager->lastname . ' (' .
-                $potentialmanager->email . ')';
-            }
-            $mform->addElement('autocomplete', 'bookingmanager',
-                    get_string('usernameofbookingmanager', 'booking'), $choosepotentialmanager);
-            $mform->addHelpButton('bookingmanager', 'usernameofbookingmanager', 'booking');
-            $mform->setType('bookingmanager', PARAM_TEXT);
-            $mform->setDefault('bookingmanager', $USER->username);
-            $mform->addRule('bookingmanager', null, 'required', null, 'client');
 
             $mailtemplatessource = [];
             $mailtemplatessource[0] = get_string('mailtemplatesinstance', 'booking');
