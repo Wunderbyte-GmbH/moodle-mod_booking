@@ -977,7 +977,8 @@ class price {
     public static function get_active_pricecategory_from_cache_or_db(string $identifier) {
         global $DB;
 
-        if ($pricecategory = singleton_service::get_price_category($identifier)) {
+        $pricecategory = singleton_service::get_price_category($identifier);
+        if ($pricecategory != false) {
             return $pricecategory;
         }
 
@@ -988,12 +989,14 @@ class price {
         if (!$cachedpricecategory) {
             if (!$pricecategory = $DB->get_record('booking_pricecategories', ['identifier' => $identifier, 'disabled' => 0])) {
                 $cache->set($identifier, true);
+                singleton_service::set_price_category($identifier, null);
                 return null;
             }
 
             $data = json_encode($pricecategory);
             $cache->set($identifier, $data);
         } else if ($cachedpricecategory === true) {
+            singleton_service::set_price_category($identifier, null);
             return null;
         } else {
             $pricecategory = json_decode($cachedpricecategory);

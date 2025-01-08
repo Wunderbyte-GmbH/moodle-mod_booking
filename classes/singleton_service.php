@@ -519,7 +519,7 @@ class singleton_service {
      *
      * @param string $identifier
      *
-     * @return stdClass|null
+     * @return mixed
      */
     public static function get_price_category($identifier) {
         $instance = self::get_instance();
@@ -527,7 +527,7 @@ class singleton_service {
         if (isset($instance->pricecategory[$identifier])) {
             return $instance->pricecategory[$identifier];
         } else {
-            return null;
+            return false;
         }
     }
 
@@ -558,7 +558,7 @@ class singleton_service {
      * Set pricecategory to singleton service.
      *
      * @param string $identifier
-     * @param stdClass $pricecategory
+     * @param stdClass|null $pricecategory
      *
      * @return bool
      */
