@@ -56,7 +56,7 @@ $context = context_module::instance($cm->id);
 require_capability('mod/booking:updatebooking', $context);
 
 $PAGE->navbar->add(get_string("importcsvtitle", "booking"));
-$booking = singleton_service::get_instance_of_booking_by_cmid($cm->id);
+$booking = singleton_service::get_instance_of_booking_by_cmid((int)$cm->id);
 $PAGE->set_title(format_string($booking->settings->name));
 $PAGE->set_heading($course->fullname);
 $PAGE->set_pagelayout('standard');

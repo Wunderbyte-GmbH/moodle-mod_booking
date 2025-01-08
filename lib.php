@@ -307,7 +307,7 @@ define('MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK', 2);
  */
 function booking_get_coursemodule_info($cm) {
     $info = new cached_cm_info();
-    $booking = singleton_service::get_instance_of_booking_by_cmid($cm->id);
+    $booking = singleton_service::get_instance_of_booking_by_cmid((int)$cm->id);
     $booking->apply_tags();
     if (!empty($booking->settings->name)) {
         $info->name = $booking->settings->name;

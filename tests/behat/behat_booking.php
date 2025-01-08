@@ -45,7 +45,7 @@ class behat_booking extends behat_base {
 
         $cm = $this->get_cm_by_booking_name($instancename);
 
-        $booking = singleton_service::get_instance_of_booking_by_cmid($cm->id);
+        $booking = singleton_service::get_instance_of_booking_by_cmid((int)$cm->id);
 
         $record = new stdClass();
         $record->bookingid = $booking->id;

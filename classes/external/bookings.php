@@ -102,7 +102,7 @@ class bookings extends external_api {
             $context = context_module::instance($cm->id);
 
             if (strcmp($cm->visible, "1") == 0 || has_capability('mod/booking:bookforothers', $context)) {
-                $bookingdata = singleton_service::get_instance_of_booking_by_cmid($cm->id);
+                $bookingdata = singleton_service::get_instance_of_booking_by_cmid((int)$cm->id);
 
                 if ($bookingdata->settings->showinapi == "1") {
                     $bookingdata->apply_tags();

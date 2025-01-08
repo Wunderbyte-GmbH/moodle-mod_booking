@@ -77,7 +77,7 @@ foreach ($modinfo->instances['booking'] as $cm) {
     }
 
     $context = context_module::instance($cm->id);
-    $booking = singleton_service::get_instance_of_booking_by_cmid($cm->id);
+    $booking = singleton_service::get_instance_of_booking_by_cmid((int)$cm->id);
     $bo = $booking->get_user_booking($USER);
 
     $numberofbookings = '';
