@@ -1085,11 +1085,12 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         if (!empty($ddoptions)) {
             $ret .= '<div class="dropdown d-inline">
-                    <button class="dropdown-toggle btn btn-link" id="action-menu-toggle-' . $optionid .
+                    <button class="bookingoption-edit-button dropdown-toggle btn btn-light btn-sm" id="action-menu-toggle-' .
+                        $optionid .
                         '" title="" role="button" data-toggle="dropdown"
-                        aria-haspopup="true" aria-expanded="false">' . $OUTPUT->pix_icon(
-                    't/edit', get_string('settings', 'moodle')) .
-                '</button>
+                        aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-fw fa-cog" aria-hidden="true" aria-label="Edit menu dropdown"></i>
+                    </button>
                     <div class="dropdown-menu dropdown-menu-right menu align-tr-br" id="action-menu-' .
                 $optionid .
                 '-menu" data-rel="menu-content"
