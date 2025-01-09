@@ -446,9 +446,7 @@ if there only was one booking option. */
 /* DO NOT USE #page-mod-booking-view because this needs to work in shortcodes too! */
 .mod-booking-view-list-image {
     width: inherit;
-    height: 100%; /* Fallback for unsupported browsers */
-    /* stylelint-disable-next-line declaration-block-no-duplicate-properties, csstree/validator */
-    height: -webkit-fill-available; /* WebKit-specific implementation */
+    height: 100%;
     object-fit: cover;
     max-height: 300px;
     border-radius: 0;
@@ -456,9 +454,7 @@ if there only was one booking option. */
 
 .mod-booking-view-list-image-half {
     width: inherit;
-    height: 100%; /* Fallback for unsupported browsers */
-    /* stylelint-disable-next-line declaration-block-no-duplicate-properties, csstree/validator */
-    height: -webkit-fill-available; /* WebKit-specific implementation */
+    height: 100%;
     object-fit: cover;
     border-radius: 0;
 }
@@ -527,4 +523,8 @@ if there only was one booking option. */
 
 .disabled-profeature a:hover {
     color: grey; /* Ensures hover doesn’t change color */
+}
+
+.bookingoption-edit-button {
+    text-decoration: none;
 }
