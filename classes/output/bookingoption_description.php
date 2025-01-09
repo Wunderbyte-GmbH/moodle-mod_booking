@@ -27,12 +27,12 @@ namespace mod_booking\output;
 use context_module;
 use context_system;
 use html_writer;
+use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
 use mod_booking\booking;
 use mod_booking\booking_answers;
 use mod_booking\booking_bookit;
 use mod_booking\booking_context_helper;
 use mod_booking\booking_option;
-use mod_booking\customfield\booking_handler;
 use mod_booking\local\modechecker;
 use mod_booking\option\dates_handler;
 use mod_booking\price;
@@ -621,18 +621,13 @@ class bookingoption_description implements renderable, templatable {
         if ($this->customfields) {
             foreach ($this->customfields as $key => $value) {
                 if (!isset($returnarray[$key])) {
+                    // Make sure, print value for arrays will be converted to string.
                     $printvalue = is_array($value) ? implode(',', $value) : $value;
 
-                    $type = $settings->customfieldsfortemplates[$key]['type'];
-
-                    switch ($type) {
-                        case 'textarea':
-                            $returnarray[$key] = format_text($printvalue);
-                            break;
-                        default:
-                            $returnarray[$key] = format_string($printvalue);
-                            break;
-                    }
+                    // Get the correct field controller from Wunderbyte table.
+                    $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname($key);
+                    // Get the option value from field controller.
+                    $returnarray[$key] = $fieldcontroller->get_option_value_by_key($printvalue);
                 }
             }
         }
