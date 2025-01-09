@@ -32,6 +32,7 @@ use mod_booking\booking_answers;
 use mod_booking\booking_bookit;
 use mod_booking\booking_context_helper;
 use mod_booking\booking_option;
+use mod_booking\customfield\booking_handler;
 use mod_booking\local\modechecker;
 use mod_booking\option\dates_handler;
 use mod_booking\price;
@@ -643,6 +644,20 @@ class bookingoption_description implements renderable, templatable {
         }
         if (count($this->teachers) > 0) {
             $returnarray['showteacherslabel'] = 1;
+        }
+
+        // In plugin settings, we can choose customfields we want to have rendered together.
+        $returnarray['optionviewcustomfields'] = '';
+        if (!empty($cfstoshowstring = get_config('booking', 'optionviewcustomfields'))) {
+            $cfstoshow = explode(',', $cfstoshowstring);
+            foreach ($cfstoshow as $cftoshow) {
+                if (!empty($returnarray[$cftoshow])) {
+                    $returnarray['optionviewcustomfields'] .=
+                        "<p class='optionview-customfield-$cftoshow'>" .
+                            $returnarray[$cftoshow] .
+                        "</p>";
+                }
+            }
         }
 
         return $returnarray;

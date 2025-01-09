@@ -97,7 +97,8 @@ class booking_handler extends \core_customfield\handler {
         FROM {customfield_field} cff
         LEFT JOIN {customfield_category} cfc
         ON cff.categoryid = cfc.id
-        WHERE cfc.component = 'mod_booking'";
+        WHERE cfc.component = 'mod_booking'
+        ORDER BY cfc.sortorder, cff.sortorder";
 
         $records = $DB->get_records_sql($sql);
 
