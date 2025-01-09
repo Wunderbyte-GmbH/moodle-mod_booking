@@ -180,8 +180,8 @@ final class booking_importer_test extends advanced_testcase {
         // phpcs:ignore
         //$dates1 = $bookingoptionobj->return_array_of_sessions()); // Also works.
         $dates = dates_handler::return_array_of_sessions_datestrings($option1->id);
-        $this->assertEquals("25 September 2023, 5:15 PM - 7:30 PM", $dates[0]);
-        $this->assertEquals("25 December 2023, 5:15 PM - 7:30 PM", $dates[13]);
+        $this->assertEquals("25 September 2023, 5:15 PM - 7:30 PM", $dates[0]);
+        $this->assertEquals("25 December 2023, 5:15 PM - 7:30 PM", $dates[13]);
         $this->assertArrayNotHasKey(14, $dates);
 
         // Check prices.
@@ -227,8 +227,8 @@ final class booking_importer_test extends advanced_testcase {
         // Bookimg option must have sessions.
         $this->assertEquals(true, booking_utils::booking_option_has_optiondates($option3->id));
         $dates = dates_handler::return_array_of_sessions_datestrings($option3->id);
-        $this->assertEquals("20 September 2023, 6:10 PM - 7:40 PM", $dates[0]);
-        $this->assertEquals("27 December 2023, 6:10 PM - 7:40 PM", $dates[14]);
+        $this->assertEquals("20 September 2023, 6:10 PM - 7:40 PM", $dates[0]);
+        $this->assertEquals("27 December 2023, 6:10 PM - 7:40 PM", $dates[14]);
         $this->assertArrayNotHasKey(15, $dates);
 
         // Check prices.
