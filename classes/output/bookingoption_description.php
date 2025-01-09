@@ -653,9 +653,9 @@ class bookingoption_description implements renderable, templatable {
             foreach ($cfstoshow as $cftoshow) {
                 if (!empty($returnarray[$cftoshow])) {
                     $returnarray['optionviewcustomfields'] .=
-                        "<p class='optionview-customfield-$cftoshow'>" .
+                        "<div class='optionview-customfield-$cftoshow'>" .
                             $returnarray[$cftoshow] .
-                        "</p>";
+                        "</div>";
                 }
             }
         }
