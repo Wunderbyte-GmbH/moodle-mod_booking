@@ -90,9 +90,22 @@ class datesandentities {
             }
             /** @var renderer $output*/
             $output = $PAGE->get_renderer('mod_booking');
+            if ($settings->selflearningcourse == 1) {
+                $ba = singleton_service::get_instance_of_booking_answers($settings);
+                if (isset($ba->usersonlist[$userid])) {
+                    $timebooked = $ba->usersonlist[$userid]->timecreated;
+                    $timeremainingsec = $timebooked + $settings->duration - time();
+                    // We want to round up, to not have strange messages.
+                    $hours = ceil($timeremainingsec / 3600);
+                    $timeremainingsec = $hours * 3600;
 
-            // For the moment, we only support locations from entities plugin.
-            if (class_exists('local_entities\entitiesrelation_handler')) {
+                    $durationstring = format_time($timeremainingsec);
+                } else {
+                    $durationstring = format_time($settings->duration);
+                }
+
+                $value = get_string('selflearningcourseplaceholder', 'mod_booking', $durationstring);
+            } else if (class_exists('local_entities\entitiesrelation_handler')) {
                 $data = new optiondates_with_entities($settings);
                 $value = $output->render_optiondates_with_entities($data);
             } else {
