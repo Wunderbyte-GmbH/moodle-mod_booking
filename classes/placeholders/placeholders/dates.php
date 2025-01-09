@@ -90,7 +90,7 @@ class dates {
 
             // Render optiontimes using a template.
             $data = new optiondates_only($settings);
-            $value = $output->render_optiondates_only($data);
+            $value = $output->render_optiondates_for_placeholder($data);
 
             // Save the value to profit from singleton.
             placeholders_info::$placeholders[$cachekey] = $value;
