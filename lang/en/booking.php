@@ -2373,6 +2373,7 @@ $string['viewparam'] = 'View type';
 $string['viewparam:cards'] = 'Cards view';
 $string['viewparam:list'] = 'List view';
 $string['viewparam:listimgleft'] = 'List view with image on the left';
+$string['viewparam:listimglefthalf'] = 'List view with image on the left over half the width';
 $string['viewparam:listimgright'] = 'List view with image on the right';
 $string['visibleoptions'] = 'Visible booking options';
 $string['vuebookingstatsback'] = 'Back';

@@ -116,42 +116,75 @@
 
 }}
 
+{{#showheaderimagelefthalf}}
+<div class="card border
+  pl-0 pr-3 pt-0 pb-0
+  sk-fade ml-0 mr-0 mb-3
+  flex-md-row align-items-center row gx-0" {{#datafields}} data-{{key}}="{{value}}" {{/datafields}}>
+{{/showheaderimagelefthalf}}
+{{^showheaderimagelefthalf}}
 <div class="card border
   rounded
   pl-0 pr-3 pt-0 pb-0
   sk-fade ml-0 mr-0 mb-3
   flex-md-row align-items-center row gx-0" {{#datafields}} data-{{key}}="{{value}}" {{/datafields}}>
+{{/showheaderimagelefthalf}}
   <div class="content w-100">
     <div class="row mod-booking-row {{rowclasses}} {{rowid}} {{#noheaderimage}}p-3{{/noheaderimage}}">
       {{#showheaderimageleft}}
-      {{#headerimage}}
-      <div class="mod-booking-view-list-image-container col-md-3">
-        {{#value}}
-          <img class="mod-booking-view-list-image rounded-left" src="{{{value}}}" {{#headerimagealt}}alt="{{.}}" title="{{.}}"{{/headerimagealt}}>
-        {{/value}}
-        {{^value}}
-          <div class="mod-booking-view-list-image rounded-left w-100 h-100"
-            style="background-color: #e6f0f7;
-                  opacity: 0.8;
-                  background-image: radial-gradient(#45aaf7 0.5px, #e6f0f7 0.5px);
-                  background-size: 10px 10px;">
-          </div>
-        {{/value}}
-      </div>
-      <div class="col-md-9 p-3">
-        <div class="row">
-      {{/headerimage}}
+        {{#headerimage}}
+        <div class="mod-booking-view-list-image-container col-md-3">
+          {{#value}}
+            <img class="mod-booking-view-list-image rounded-left" src="{{{value}}}" {{#headerimagealt}}alt="{{.}}" title="{{.}}"{{/headerimagealt}}>
+          {{/value}}
+          {{^value}}
+            <div class="mod-booking-view-list-image rounded-left w-100 h-100"
+              style="background-color: #e6f0f7;
+                    opacity: 0.8;
+                    background-image: radial-gradient(#45aaf7 0.5px, #e6f0f7 0.5px);
+                    background-size: 10px 10px;">
+            </div>
+          {{/value}}
+        </div>
+        <div class="col-md-9 p-3">
+          <div class="row">
+        {{/headerimage}}
       {{/showheaderimageleft}}
+      {{#showheaderimagelefthalf}}
+        {{#headerimage}}
+        <div class="mod-booking-view-list-image-container col-md-6 p-0 m-0">
+          {{#value}}
+            <img class="mod-booking-view-list-image-half rounded-0" src="{{{value}}}" {{#headerimagealt}}alt="{{.}}" title="{{.}}"{{/headerimagealt}}>
+          {{/value}}
+          {{^value}}
+            <div class="mod-booking-view-list-image-half w-100 h-100"
+              style="background-color: #e6f0f7;
+                    opacity: 0.8;
+                    background-image: radial-gradient(#45aaf7 0.5px, #e6f0f7 0.5px);
+                    background-size: 10px 10px;">
+            </div>
+          {{/value}}
+        </div>
+        <div class="col-md-6">
+          <div class="row ml-1 mr-1 mt-5 mb-3 d-flex">
+        {{/headerimage}}
+      {{/showheaderimagelefthalf}}
       {{#showheaderimageright}}
         {{#headerimage}}
         <div class="col-md-9 pt-3 pl-5">
           <div class="row">
         {{/headerimage}}
       {{/showheaderimageright}}
+      {{^showheaderimagelefthalf}}
           <div
           {{#rightside}} class="col-md-9" {{/rightside}}
           {{^rightside}} class="col-12" {{/rightside}}
           >
+      {{/showheaderimagelefthalf}}
+      {{#showheaderimagelefthalf}}
+          <!-- When using showheaderimagelefthalf we want to have the booking buttons below the content. -->
+          <div class="showheaderimagelefthalf-infocontent">
+      {{/showheaderimagelefthalf}}
             {{#leftside}}
               {{#columnclass}}<div class="{{.}} {{key}}">{{/columnclass}}
                 <span {{^value}} style="display:none" {{/value}}>
@@ -207,7 +240,8 @@
             {{/footer}}
           </div>
         </div>
-        <div class="col-md-3">
+        {{^showheaderimagelefthalf}}<div class="col-md-3">{{/showheaderimagelefthalf}}
+        {{#showheaderimagelefthalf}}<div class="showheaderimagelefthalf-buttoncontent ml-auto">{{/showheaderimagelefthalf}}
           <div class="h-100 d-flex" style=" justify-content: flex-end;
           flex-direction: column;">
           {{#rightside}}
@@ -230,6 +264,7 @@
           {{/rightside}}
           </div>
         {{#showheaderimageleft}}{{#headerimage}}</div></div>{{/headerimage}}{{/showheaderimageleft}}
+        {{#showheaderimagelefthalf}}{{#headerimage}}</div></div>{{/headerimage}}{{/showheaderimagelefthalf}}
         {{#showheaderimageright}}
           {{#headerimage}}
             </div></div></div>

@@ -2297,6 +2297,7 @@ $string['viewparam'] = 'Ansichtsart';
 $string['viewparam:cards'] = 'Karten-Ansicht';
 $string['viewparam:list'] = 'Listen-Ansicht';
 $string['viewparam:listimgleft'] = 'Listen-Ansicht mit Bild links';
+$string['viewparam:listimglefthalf'] = 'Listen-Ansicht mit Bild links über die Hälfte';
 $string['viewparam:listimgright'] = 'Listen-Ansicht mit Bild rechts';
 $string['visibleoptions'] = 'Sichtbare Buchungsoptionen';
 $string['vue_dashboard_booking_instances'] = 'Booking instances';

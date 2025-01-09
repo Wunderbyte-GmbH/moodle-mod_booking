@@ -214,6 +214,9 @@ class shortcodes {
                 case 'imageright':
                     $viewparam = MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT;
                     break;
+                case 'imagelefthalf':
+                    $viewparam = MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF;
+                    break;
                 case 'list':
                 default:
                     $viewparam = MOD_BOOKING_VIEW_PARAM_LIST;

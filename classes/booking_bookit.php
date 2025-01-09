@@ -189,6 +189,7 @@ class booking_bookit {
                 $viewparam == MOD_BOOKING_VIEW_PARAM_LIST
                 || $viewparam == MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT
                 || $viewparam == MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT
+                || $viewparam == MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF
             ) {
                 // Only if we use one of the list views, we can use inline modals.
                 // So only in this case, we need to check the config setting.

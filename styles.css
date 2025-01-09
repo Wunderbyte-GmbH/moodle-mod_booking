@@ -454,6 +454,15 @@ if there only was one booking option. */
     border-radius: 0;
 }
 
+.mod-booking-view-list-image-half {
+    width: inherit;
+    height: 100%; /* Fallback for unsupported browsers */
+    /* stylelint-disable-next-line declaration-block-no-duplicate-properties, csstree/validator */
+    height: -webkit-fill-available; /* WebKit-specific implementation */
+    object-fit: cover;
+    border-radius: 0;
+}
+
 /* DO NOT USE #page-mod-booking-view because this needs to work in shortcodes too! */
 .mod-booking-view-list-image.rounded-left {
     box-shadow: 3px 0 10px 1px rgba(0, 0, 0, 0.1);

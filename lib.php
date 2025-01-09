@@ -51,6 +51,7 @@ define('MOD_BOOKING_VIEW_PARAM_LIST', 0); // List view.
 define('MOD_BOOKING_VIEW_PARAM_CARDS', 1); // Cards view.
 define('MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT', 2); // List view with image on the left.
 define('MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT', 3); // List view with image on the right.
+define('MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF', 4); // List view with image on the left taking 50% of the width.
 
 // Currently up to 9 different price categories can be set.
 define('MOD_BOOKING_MAX_PRICE_CATEGORIES', 9);

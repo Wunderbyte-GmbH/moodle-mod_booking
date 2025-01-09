@@ -134,6 +134,9 @@ class view implements renderable, templatable {
     /** @var bool $showheaderimageright */
     private $showheaderimageright = null;
 
+      /** @var bool $showheaderimagelefthalf */
+      private $showheaderimagelefthalf = null;
+
     /** @var bool $noheaderimage */
     private $noheaderimage = null;
 
@@ -717,6 +720,10 @@ class view implements renderable, templatable {
                 break;
             case MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT:
                 $wbtable->set_template_data('showheaderimageright', true);
+                self::generate_table_for_list($wbtable, $optionsfields);
+                break;
+            case MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF:
+                $wbtable->set_template_data('showheaderimagelefthalf', true);
                 self::generate_table_for_list($wbtable, $optionsfields);
                 break;
             case MOD_BOOKING_VIEW_PARAM_LIST:

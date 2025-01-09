@@ -166,6 +166,7 @@ class mod_booking_mod_form extends moodleform_mod {
             $viewparamoptions[MOD_BOOKING_VIEW_PARAM_CARDS] = get_string('viewparam:cards', 'mod_booking');
             $viewparamoptions[MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT] = get_string('viewparam:listimgleft', 'mod_booking');
             $viewparamoptions[MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT] = get_string('viewparam:listimgright', 'mod_booking');
+            $viewparamoptions[MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF] = get_string('viewparam:listimglefthalf', 'mod_booking');
         }
         // Default view param (0...List view, 1...Cards view).
         $mform->addElement('select', 'viewparam', get_string('viewparam', 'mod_booking'),
