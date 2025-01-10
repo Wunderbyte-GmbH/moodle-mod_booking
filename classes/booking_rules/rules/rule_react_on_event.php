@@ -362,6 +362,10 @@ class rule_react_on_event implements booking_rule {
 
         // Now we finally execution the action, where we pass on every record.
         $action = actions_info::get_action($jsonobject->actionname);
+
+        $jsonobject->datafromevent = $datafromevent;
+        $this->rulejson = json_encode($jsonobject);
+
         $action->set_actiondata_from_json($this->rulejson);
         // For the execution, we need a rule id, otherwise we can't test for consistency.
         $action->ruleid = $this->ruleid;
@@ -547,6 +551,10 @@ class rule_react_on_event implements booking_rule {
                 break;
             case "entities":
                 $config = get_config('booking', 'listentoaddresschange');
+                break;
+            case "customfields":
+                // We never allow customfields.
+                $config = null;
                 break;
             default:
                 return true;

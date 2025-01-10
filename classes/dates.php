@@ -620,6 +620,11 @@ class dates {
         ) {
             return [];
         }
+
+        if (!empty($formdata->selflearningcourse)) {
+            return [];
+        }
+
         $newvalue = array_merge($newvalues, $datestosave);
         $changes = [
             'changes' => [

@@ -72,7 +72,6 @@ class fields_info {
         foreach ($classes as $classname) {
 
             if (class_exists($classname)) {
-
                 // We want to ignore some classes here.
                 if (self::ignore_class($formdata, $classname)) {
                     continue;
