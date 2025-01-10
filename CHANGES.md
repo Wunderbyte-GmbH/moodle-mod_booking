@@ -1,3 +1,8 @@
+## Version 8.9.11 (2025011000)
+* Improvement: Change datesandentties placeholder to deal with selflearningcourses.
+* Improvement: Better datesandentities placeholder (especially with duration 0).
+* Bugfix: Move setting for bookingmanager in global area of bo instance settings.
+
 ## Version 8.9.10 (2025010802)
 Bugfix: replace empty placeholders correctly if tags are given
 Bugfix: Use actual blank instead of nbsp as it might not be rendered in plaintext e-mail. #787
