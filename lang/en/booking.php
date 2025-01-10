@@ -1907,10 +1907,10 @@ $string['reoccurringdatestring_help'] = 'Enter a text in the following format:
 $string['reoccurringdatestringerror'] = 'Enter a text in the following format:
     Day, HH:MM - HH:MM or "block" for blocked events.';
 $string['repeatthisbooking'] = 'Repeat this option';
-$string['report2_label_course'] = 'Moodle course';
-$string['report2_label_instance'] = 'Booking instance';
-$string['report2_label_option'] = 'Booking option';
-$string['report2_label_system'] = 'Site';
+$string['report2labelcourse'] = 'Moodle course';
+$string['report2labelinstance'] = 'Booking instance';
+$string['report2labeloption'] = 'Booking option';
+$string['report2labelsystem'] = 'Site';
 $string['reportfields'] = 'Report fields';
 $string['reportremindermessage'] = '{$a->bookingdetails}';
 $string['reportremindersubject'] = 'Reminder: Your booked course';

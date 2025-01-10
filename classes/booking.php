@@ -1766,7 +1766,7 @@ class booking {
             $islast = ($last == $scope);
             $css .= '
             .' . $prefix . "-" . $scope . '-border::before {
-                content: "' . get_string($prefix . '_label_' . $scope, 'mod_booking') . '";
+                content: "' . get_string($prefix . 'label' . $scope, 'mod_booking') . '";
                 position: absolute;
                 top: -10px;
                 padding: 0 5px;
