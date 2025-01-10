@@ -1089,7 +1089,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                         $optionid .
                         '" title="" role="button" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-fw fa-cog" aria-hidden="true"
+                        <i class="icon fa fa-cog fa-fw" aria-hidden="true"
                             aria-label="' . get_string('settings') . '" title="' . get_string('settings') . '" >
                         </i>
                     </button>
