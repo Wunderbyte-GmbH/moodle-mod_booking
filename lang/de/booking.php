@@ -1954,6 +1954,8 @@ $string['selflearningcoursedurationinfo'] = 'Dieser Kurs dauert {$a}.';
 $string['selflearningcoursehideduration'] = 'Dauer für Selbstlernkurse ausblenden';
 $string['selflearningcourselabel'] = 'Bezeichnung für Buchungsoptionen mit fixer Dauer';
 $string['selflearningcourselabeldesc'] = 'Buchungsoptionen mit fixer Dauer, aber ohne Termine, haben die Standardbezeichnung "Selbstlernkurs". Sie können hier einen beliebigen anderen Namen für diesen Typ von Buchungsoptionen vergeben.';
+$string['selflearningcourseplaceholder'] = 'Der Kurs/Das Angebot steht Ihnen ab sofort zur Verfügung.';
+$string['selflearningcourseplaceholderduration'] = 'Sie haben noch {$a} Zugang.';
 $string['selflearningcoursesettingsheader'] = 'Buchungsoptionen mit fixer Dauer ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['selflearningcoursesettingsheaderdesc'] = 'Dieses Feature erlaubt es Ihnen Buchungsoptionen ohne Termine, jedoch mit einer fixen Dauer anzulegen. Die Benutzer:innen werden bei der Buchung für die festgelegte Dauer in den verknüpften Moodle-Kurs eingeschrieben.';
 $string['selflearningcoursetimeremaininginfo'] = 'Sie haben noch {$a} Zugriff auf diesen Kurs.';

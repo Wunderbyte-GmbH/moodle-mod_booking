@@ -2016,6 +2016,8 @@ $string['selflearningcoursedurationinfo'] = 'This course has a duration of {$a}.
 $string['selflearningcoursehideduration'] = 'Hide duration for self-learning courses';
 $string['selflearningcourselabel'] = 'Name for booking options with fixed duration';
 $string['selflearningcourselabeldesc'] = 'Booking options with a fixed duration but without dates are usually called "self-learning course". If you want to use another name for this type of booking options you can enter it here.';
+$string['selflearningcourseplaceholder'] = 'You can access your course/the offer right away.';
+$string['selflearningcourseplaceholderduration'] = 'It will be available to you for {$a}.';
 $string['selflearningcoursesettingsheader'] = 'Booking options with fixed duration ' . '&nbsp;<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['selflearningcoursesettingsheaderdesc'] = 'This feature allows you to create booking options with a fixed duration but without dates. The booked users will be enrolled into the connected Moodle course for the specified duration.';
 $string['selflearningcoursetimeremaininginfo'] = 'There are {$a} left to complete this course.';
