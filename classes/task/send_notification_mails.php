@@ -64,6 +64,11 @@ class send_notification_mails extends \core\task\scheduled_task {
 
         global $CFG, $DB;
 
+        if (empty(get_config('booking', 'uselegacymailtemplates'))) {
+            mtrace("Legacy mails are turned off, this task should be deactivated.");
+            return;
+        }
+
         $results = $DB->get_records('booking_answers', ['waitinglist' => MOD_BOOKING_STATUSPARAM_NOTIFYMELIST]);
 
         mtrace('number of records', count($results ?? 0));

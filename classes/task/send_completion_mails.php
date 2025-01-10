@@ -61,6 +61,11 @@ class send_completion_mails extends \core\task\adhoc_task {
      */
     public function execute() {
 
+        if (empty(get_config('booking', 'uselegacymailtemplates'))) {
+            mtrace("Legacy mails are turned off, this task should be deactivated.");
+            return;
+        }
+
         $taskdata = $this->get_custom_data();
 
         mtrace('send_completion_mails task: sending completion mail to user with id: ' . $taskdata->userid);
