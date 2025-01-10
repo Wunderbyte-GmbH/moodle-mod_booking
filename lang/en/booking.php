@@ -134,6 +134,7 @@ $string['availabilityinfotextsheading'] = 'Availability info texts for booking p
 $string['available'] = 'Places available';
 $string['availableplaces'] = 'Places available: {$a->available} of {$a->maxanswers}';
 $string['availplacesfull'] = 'Full';
+$string['back'] = 'Back';
 $string['backtoresponses'] = '&lt;&lt; Back to responses';
 $string['badge:exp'] = '<span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimental</span>';
 $string['badge:pro'] = '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';

@@ -132,6 +132,7 @@ $string['availabilityinfotextsheading'] = 'Beschreibungstexte für verfügbare B
 $string['available'] = 'Plätze verfügbar';
 $string['availableplaces'] = 'Verfügbare Plätze: {$a->available} von {$a->maxanswers}';
 $string['availplacesfull'] = 'Voll';
+$string['back'] = 'Zurück';
 $string['backtoresponses'] = '&lt;&lt; Zurück zu den Buchungen';
 $string['badge:exp'] = '<span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimentell</span>';
 $string['badge:pro'] = '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';

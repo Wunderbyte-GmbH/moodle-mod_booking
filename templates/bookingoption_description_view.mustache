@@ -139,6 +139,26 @@
 
 
 <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12 d-flex mb-3">
+            <!-- Left Button -->
+            <span class="spanhidemobile">
+            {{#returnurl}}
+                <a href="{{returnurl}}" role="button" class="btn mr-auto d-flex justify-content-start align-items-center">
+                    <i class="fa-solid fa-arrow-left smallericon" style="margin-right: 8px"></i>
+                    {{#str}} back, mod_booking {{/str}}
+                </a>
+            {{/returnurl}}
+            </span>
+            <!-- Right Button -->
+            {{#editurl}}
+                <a href="{{editurl}}" role="button" class="btn btn-light ml-auto">
+                    <i class="fa-solid fa-pen smallericon" style="margin-right: 8px"></i>
+                    {{#str}} edit {{/str}}
+                </a>
+            {{/editurl}}
+        </div>
+    </div>
     <div class="row mod-booking-row">
         <div class="col-md-7">
             <h2 class="title" >{{{title}}}</h2>
