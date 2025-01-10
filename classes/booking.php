@@ -1802,8 +1802,9 @@ class booking {
      */
     public static function shorten_text($text, $length = 20) {
         return (strlen($text) > $length) ? substr($text, 0, $length) . "..." : $text;
-	}
+    }
 
+    /**
      * Helper function to get an array of all available booking cmids.
      * @return array all cmids of booking instances
      */
