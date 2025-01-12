@@ -45,6 +45,10 @@ Feature: Test booking options avaialbility conditions
       | My booking | Option - availability by dates | C1     | Deskr       | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +5 days ##   |
       | My booking | Option - dependency            | C1     | Deskr       | 1           | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 0              | 0              | ## +5 days ##     | ## +6 days ##   |
     And I change viewport size to "1366x10000"
+    ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
+    And the following config values are set as admin:
+      | config      | value         |
+      | texteditors | atto,textarea |
 
   @javascript
   Scenario: Configure availability condition by dates - until
@@ -463,6 +467,56 @@ Feature: Test booking options avaialbility conditions
     And I follow "<< Back to responses"
     And I should see "student1" in the "#mod_booking_all_users_sort_new_r0" "css_element"
     And I should see "lactose-free milk" in the "#mod_booking_all_users_sort_new_r0" "css_element"
+
+  @javascript
+  Scenario: Configure availability with modal form and multiple elements
+    Given I am on the "My booking" Activity page logged in as teacher1
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I follow "Availability conditions"
+    And I set the field "Form needs to be filled out before booking" to "checked"
+    And I wait "1" seconds
+    And I set the following fields to these values:
+      | bo_cond_customform_select_1_1   | static                |
+      | bo_cond_customform_label_1_1    | Static lavel          |
+      | bo_cond_customform_value_1_1    | Static text           |
+      | bo_cond_customform_select_1_2   | url                   |
+      | bo_cond_customform_label_1_2    | Provide URL:          |
+      | bo_cond_customform_value_1_2    | Provide a valid URL   |
+      | bo_cond_customform_notempty_1_2 | 1                     |
+      | bo_cond_customform_select_1_3   | mail                  |
+      | bo_cond_customform_label_1_3    | Provide email:        |
+      | bo_cond_customform_value_1_3    | Provide a valid email |
+      | bo_cond_customform_notempty_1_3 | 1                     |
+    And I press "Save"
+    And I log out
+    ## Check availability as students
+    When I am on the "My booking" Activity page logged in as student1
+    And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Static lavel" in the ".condition-customform" "css_element"
+    And I should see "Static text" in the ".condition-customform" "css_element"
+    And I should see "Provide URL:" in the ".condition-customform" "css_element"
+    And I should see "Provide email:" in the ".condition-customform" "css_element"
+    ## Chack form validation 
+    And I follow "Continue"
+    And I should see "The URL is not valid or does not start with http or https." in the ".condition-customform" "css_element"
+    And I should see "The email address is invalid." in the ".condition-customform" "css_element"
+    And I set the field "customform_url_2" to "https://test.com"
+    And I set the field "customform_mail_3" to "test@test.com"
+    And I follow "Continue"
+    And I should see "You have successfully booked Option - advanced availability" in the ".condition-confirmation" "css_element"
+    And I follow "Close"
+    And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
+    And I log out
+    ## Check customform value as admin
+    And I am on the "My booking" Activity page logged in as teacher1
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I follow "<< Back to responses"
+    And I should see "student1" in the "#mod_booking_all_users_sort_new_r0" "css_element"
+    And I should see "https://test.com" in the "#mod_booking_all_users_sort_new_r0" "css_element"
+    And I should see "test@test.com" in the "#mod_booking_all_users_sort_new_r0" "css_element"
 
   @javascript
   Scenario: Configure availability to fill inline agreement form
