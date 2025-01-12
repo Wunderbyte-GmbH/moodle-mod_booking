@@ -323,10 +323,6 @@ final class condition_bookingpolicy_test extends advanced_testcase {
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_MAX_NUMBER_OF_BOOKINGS, $id);
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_booking_option_singleton($option1->id);
-        singleton_service::destroy_booking_option_singleton($option2->id);
     }
 
     /**
@@ -473,11 +469,6 @@ final class condition_bookingpolicy_test extends advanced_testcase {
         $result = booking_bookit::bookit('option', $settings3->id, $student2->id);
         list($id, $isavailable, $description) = $boinfo3->is_available($settings3->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_booking_option_singleton($option1->id);
-        singleton_service::destroy_booking_option_singleton($option2->id);
-        singleton_service::destroy_booking_option_singleton($option3->id);
     }
 
 
@@ -652,12 +643,6 @@ final class condition_bookingpolicy_test extends advanced_testcase {
         $result = booking_bookit::bookit('option', $settings3->id, $student3->id);
         list($id, $isavailable, $description) = $boinfo1->is_available($settings3->id, $student3->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_booking_option_singleton($option1->id);
-        singleton_service::destroy_booking_option_singleton($option2->id);
-        singleton_service::destroy_booking_option_singleton($option3->id);
-
     }
 
     /**

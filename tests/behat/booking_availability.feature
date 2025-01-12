@@ -498,7 +498,7 @@ Feature: Test booking options avaialbility conditions
     And I should see "Static text" in the ".condition-customform" "css_element"
     And I should see "Provide URL:" in the ".condition-customform" "css_element"
     And I should see "Provide email:" in the ".condition-customform" "css_element"
-    ## Chack form validation 
+    ## Chack form validation
     And I follow "Continue"
     And I should see "The URL is not valid or does not start with http or https." in the ".condition-customform" "css_element"
     And I should see "The email address is invalid." in the ".condition-customform" "css_element"
