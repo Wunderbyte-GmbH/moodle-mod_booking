@@ -61,6 +61,15 @@ final class condition_bookingpolicy_test extends advanced_testcase {
     }
 
     /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        parent::tearDown();
+        // Mandatory clean-up.
+        singleton_service::destroy_instance();
+    }
+
+    /**
      * Test booking option availability: \condition\bookingpolicy.
      *
      * @covers \condition\bookingpolicy::is_available
@@ -129,10 +138,6 @@ final class condition_bookingpolicy_test extends advanced_testcase {
         // Verify that user already booked.
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_booking_option_singleton($option1->id);
-        singleton_service::destroy_booking_singleton_by_cmid($bookingsettings->cmid);
     }
 
     /**
@@ -182,9 +187,18 @@ final class condition_bookingpolicy_test extends advanced_testcase {
         // Set test objective setting(s).
         $record->bo_cond_customform_restrict = 1;
         $record->bo_cond_customform_select_1_1 = 'static';
-        $record->bo_cond_customform_value_1_1 = 'confirm';
+        $record->bo_cond_customform_label_1_1 = 'Static: label';
+        $record->bo_cond_customform_value_1_1 = 'Static: confirm';
         $record->bo_cond_customform_select_1_2 = 'advcheckbox';
         $record->bo_cond_customform_label_1_2 = 'agree';
+        $record->bo_cond_customform_select_1_3 = 'url';
+        $record->bo_cond_customform_label_1_3 = 'Provide: URL';
+        $record->bo_cond_customform_value_1_1 = 'Provide a valid URL';
+        $record->bo_cond_customform_notempty_1_3 = 1;
+        $record->bo_cond_customform_select_1_4 = 'mail';
+        $record->bo_cond_customform_label_1_4 = 'Provide: email';
+        $record->bo_cond_customform_value_1_1 = 'Provide a valid email';
+        $record->bo_cond_customform_notempty_1_4 = 1;
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
@@ -201,18 +215,30 @@ final class condition_bookingpolicy_test extends advanced_testcase {
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, false);
         $this->assertEquals(MOD_BOOKING_BO_COND_JSON_CUSTOMFORM, $id);
 
-        $this->setAdminUser();
-        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
-        // In this test, we book the user directly (user don't confirm policy).
-        $option->user_submit_response($student1, 0, 0, 0, MOD_BOOKING_VERIFIED);
+        $customformdata = (object) [
+            'id' => $settings->id,
+            'userid' => $student1->id,
+            'customform_select_2' => 1,
+            'customform_url_3' => 'https://test.com',
+            'customform_mail_4' => 'test@test.com',
+        ];
+        $customformstore = new customformstore($student1->id, $settings->id);
+        $customformstore->set_customform_data($customformdata);
 
-        // Verify that user already booked.
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, false);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_booking_option_singleton($option1->id);
-        singleton_service::destroy_booking_singleton_by_cmid($bookingsettings->cmid);
+        $this->setAdminUser();
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        // Validate student1's response.
+        $bookedusers = $option->get_all_users_booked();
+        $this->assertCount(1, $bookedusers);
+        $bookeduser = reset($bookedusers);
+        $this->assertEquals($student1->id, $bookeduser->userid);
+        $this->assertEquals($customformdata->customform_select_2, $bookeduser->customform_select_2);
+        $this->assertEquals($customformdata->customform_url_3, $bookeduser->customform_url_3);
+        $this->assertEquals($customformdata->customform_mail_4, $bookeduser->customform_mail_4);
     }
 
     /**
