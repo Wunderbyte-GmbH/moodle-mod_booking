@@ -120,6 +120,10 @@ class enrollink {
      */
     public function enrol_user(int $userid): string {
 
+        if (!empty($block = $this->enrolment_blocking())) {
+            return $block;
+        }
+
         $context = context_course::instance($this->bundle->courseid);
         // Make sure, the user isn't booked yet.
         if (
