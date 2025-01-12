@@ -54,11 +54,18 @@ Feature: Create enrollink availability form for booking options with connected c
     And the following "mod_booking > options" exist:
       | booking     | text         | course | description | chooseorcreatecourse | enrolmentstatus | useprice | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | BookingCMP  | Option-form  | C1     | Price-form  | 0                    | 2               | 1        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+    ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
+    And the following config values are set as admin:
+      | config      | value         |
+      | texteditors | atto,textarea |
     And I change viewport size to "1366x10000"
 
   @javascript
   Scenario: Booking option enrollink: create and validate
-    Given I am on the "BookingCMP" Activity page logged in as teacher1
+    Given the following "mod_booking > rules" exist:
+      | conditionname        | contextid | conditiondata  | name      | actionname | actiondata                                                                                                                                                            | rulename            | ruledata                                                                                           | cancelrules |
+      | select_student_in_bo | 1         | {"borole":"0"} | enrollink | send_mail  | {"subject":"Enrollinksubj","template":"<p>{enrollink}<\/p><p>{qrenrollink}<\/p><p>{#customform}<\/p><p>{customform}<\/p><p>{\/customform}<\/p>","templateformat":"1"} | rule_react_on_event | {"boevent":"\\\\mod_booking\\\\event\\\\enrollink_triggered","aftercompletion":"","condition":"0"} |             |
+    And I am on the "BookingCMP" Activity page logged in as teacher1
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I wait until the page is ready
     And I expand all fieldsets
@@ -69,10 +76,6 @@ Feature: Create enrollink availability form for booking options with connected c
       | bo_cond_customform_select_1_1   | enrolusersaction |
       | bo_cond_customform_label_1_1    | Number of user   |
       | bo_cond_customform_value_1_1    | 1                |
-    ##And I press "Save"
-    ## Should be valiation error.
-    ##And I should see "A related course is needed because of your availabilty condition(s)." in the "//div[contains(@id, 'fitem_id_chooseorcreatecourse_')]" "xpath_element"
-    ## And I follow "Moodle course"
     ## To avoid duplicated field label "Connected Moodle course"!
     And I set the field "chooseorcreatecourse" to "Connected Moodle course"
     And I wait "1" seconds
@@ -106,7 +109,16 @@ Feature: Create enrollink availability form for booking options with connected c
     And I should see "-75.00 EUR" in the ".payment-success ul.list-group" "css_element"
     And I should see "Option-form" in the ".payment-success ul.list-group" "css_element"
     And I am on the "BookingCMP" Activity page
-         ##And I wait "21" seconds
     And I should see "3" in the ".allbookingoptionstable_r1 .col-ap-availableplaces.text-success.avail .text-success" "css_element"
     And I should see "/ 6" in the ".allbookingoptionstable_r1 .col-ap-availableplaces.text-success.avail" "css_element"
+    And I log out
+    ## Send messages via cron and verify via events log
+    And I am logged in as admin
+    And I trigger cron
+    And I visit "/report/loglive/index.php"
+    And I should see "Custom message A message e-mail with subject \"Enrollinksubj\" has been sent to user: \"Teacher 1\" by the user \"Teacher 1\""
+    And I follow "Custom message A message e-mail with subject \"Enrollinksubj\" has been sent to user: \"Teacher 1\" by the user \"Teacher 1\""
+    And I should see "/mod/booking/enrollink.php?erlid="
+    And I should see "Number of user: 3"
+    ## Logout is mandatory for admin pages to avoid error
     And I log out
