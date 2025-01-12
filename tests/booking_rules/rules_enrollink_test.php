@@ -60,9 +60,7 @@ final class rules_enrollink_test extends advanced_testcase {
     public function tearDown(): void {
         parent::tearDown();
         // Mandatory clean-up.
-        singleton_service::get_instance()->users = [];
-        singleton_service::get_instance()->bookinganswers = [];
-        singleton_service::get_instance()->userpricecategory = [];
+        singleton_service::destroy_instance();
     }
 
     /**
@@ -336,6 +334,7 @@ final class rules_enrollink_test extends advanced_testcase {
         $this->assertEquals('enrolled', $info2);
         $this->assertStringContainsString('/moodle/course/view.php?id=' . $course2->id, $courselink);
         $this->assertEquals(0, $enrollink->free_places_left());
+        // TODO: Guest became enrolled. Does it correct behavior?
 
         // Proceed with enrolling of student3.
         $this->setUser($student4);
@@ -346,8 +345,6 @@ final class rules_enrollink_test extends advanced_testcase {
         $this->assertEquals('nomoreseats', $info2);
         $this->assertEquals(0, $enrollink->free_places_left());
 
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_booking_option_singleton($option1->id);
         // Mandatory to deal with static variable in the booking_rules.
         rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
