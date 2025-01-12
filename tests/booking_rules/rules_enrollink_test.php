@@ -79,6 +79,7 @@ final class rules_enrollink_test extends advanced_testcase {
      * @dataProvider booking_common_settings_provider
      */
     public function test_rule_on_enrollink_and_enroll(array $bdata): void {
+        global $USER;
 
         set_config('timezone', 'Europe/Kyiv');
         set_config('forcetimezone', 'Europe/Kyiv');
@@ -89,9 +90,14 @@ final class rules_enrollink_test extends advanced_testcase {
         $teacher1 = $this->getDataGenerator()->create_user();
         $student1 = $this->getDataGenerator()->create_user();
         $student2 = $this->getDataGenerator()->create_user();
+        $student3 = $this->getDataGenerator()->create_user();
+        $student4 = $this->getDataGenerator()->create_user();
+        $student5 = $this->getDataGenerator()->create_user();
 
         $bdata['course'] = $course->id;
         $bdata['bookingmanager'] = $teacher1->username;
+        // Autoenroll must be enabled!
+        $bdata['autoenrol'] = 1;
 
         $booking = $this->getDataGenerator()->create_module('booking', $bdata);
 
@@ -99,7 +105,6 @@ final class rules_enrollink_test extends advanced_testcase {
 
         $this->getDataGenerator()->enrol_user($teacher1->id, $course->id, 'editingteacher');
         $this->getDataGenerator()->enrol_user($student1->id, $course->id, 'student');
-        $this->getDataGenerator()->enrol_user($student2->id, $course->id, 'student');
 
         /** @var local_shopping_cart_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('local_shopping_cart');
@@ -220,12 +225,17 @@ final class rules_enrollink_test extends advanced_testcase {
         $this->assertEmpty($res['error']);
         $this->assertEquals(225, $res['credit']);
 
-        // In this test, we book the user directly (we don't test the payment process).
+        // In this test, we book the teacher into option directly.
         $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
         $option->user_submit_response($teacher1, 0, 0, 0, MOD_BOOKING_VERIFIED);
-
-        // User 1 should be booked now.
+        // Teacher1 should be booked now.
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $teacher1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Book student1 as well (skip paynent process for him).
+        $option->user_submit_response($student1, 0, 0, 0, MOD_BOOKING_VERIFIED);
+        // Teacher1 should be booked now.
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Get messages.
@@ -262,8 +272,80 @@ final class rules_enrollink_test extends advanced_testcase {
                 $this->assertStringContainsString("Number of user: 3", $message->fullmessage);
             }
         }
-        // phpcs:ignore
-        //enrollink::trigger_enrolbot_actions();
+
+        // Validate incorrect erlid.
+        $enrollink = new enrollink('dummy');
+        $info1 = $enrollink->enrolment_blocking();
+        $this->assertEquals('invalidenrollink', $enrollink->errorinfo);
+        $this->assertEquals('invalidenrollink', $info1);
+
+        // Get erlid string.
+        $erlid = str_replace('Number of user: 3', '', $message->fullmessage);
+        $erlid = (explode('=', $erlid))[1];
+        $enrollink = new enrollink($erlid);
+        $this->assertEquals(3, $enrollink->free_places_left());
+
+        // Validate redirect for not logged users.
+        require_logout();
+        $info1 = $enrollink->enrolment_blocking();
+        $this->assertEmpty($info1);
+        $info2 = $enrollink->enrol_user($USER->id);
+        $this->assertEquals('enrolmentexception', $info2);
+
+        // Validate that student1 already booked and no consumtion.
+        $this->setUser($student1);
+        $info1 = $enrollink->enrolment_blocking();
+        $this->assertEmpty($info1);
+        $info2 = $enrollink->enrol_user($student1->id);
+        $courselink = $enrollink->get_courselink_url();
+        $this->assertEquals('alreadyenrolled', $info2);
+        $this->assertStringContainsString('/moodle/course/view.php?id=' . $course2->id, $courselink);
+        $this->assertEquals(3, $enrollink->free_places_left());
+
+        // Proceed with enrolling of student2.
+        $this->setUser($student2);
+        $info1 = $enrollink->enrolment_blocking();
+        $this->assertEmpty($info1);
+        $info2 = $enrollink->enrol_user($student2->id);
+        $infostring = $enrollink->get_readable_info($info2);
+        $courselink = $enrollink->get_courselink_url();
+        // Validate enrollment status and remainaing free places.
+        $this->assertEquals('enrolled', $info2);
+        $this->assertEquals('Successfully enrolled', $infostring);
+        $this->assertStringContainsString('/moodle/course/view.php?id=' . $course2->id, $courselink);
+        $this->assertEquals(2, $enrollink->free_places_left());
+
+        // Proceed with enrolling of student3.
+        $this->setUser($student3);
+        $info1 = $enrollink->enrolment_blocking();
+        $this->assertEmpty($info1);
+        $info2 = $enrollink->enrol_user($student3->id);
+        $courselink = $enrollink->get_courselink_url();
+        // Validate enrollment status and remainaing free places.
+        $this->assertEquals('enrolled', $info2);
+        $this->assertStringContainsString('/moodle/course/view.php?id=' . $course2->id, $courselink);
+        $this->assertEquals(1, $enrollink->free_places_left());
+
+        // An attempt to enroll guest.
+        $this->setGuestUser();
+        $info1 = $enrollink->enrolment_blocking();
+        $this->assertEmpty($info1);
+        $info2 = $enrollink->enrol_user($USER->id);
+        $courselink = $enrollink->get_courselink_url();
+        // Validate enrollment status and remainaing free places.
+        $this->assertEquals('enrolled', $info2);
+        $this->assertStringContainsString('/moodle/course/view.php?id=' . $course2->id, $courselink);
+        $this->assertEquals(0, $enrollink->free_places_left());
+
+        // Proceed with enrolling of student3.
+        $this->setUser($student4);
+        $info1 = $enrollink->enrolment_blocking();
+        $this->assertEquals('nomoreseats', $info1);
+        $info2 = $enrollink->enrol_user($student4->id);
+        // Validate "nomoreseats" enrollment status and remainaing free places.
+        $this->assertEquals('nomoreseats', $info2);
+        $this->assertEquals(0, $enrollink->free_places_left());
+
         // Mandatory to solve potential cache issues.
         singleton_service::destroy_booking_option_singleton($option1->id);
         // Mandatory to deal with static variable in the booking_rules.
