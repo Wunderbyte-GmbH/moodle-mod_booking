@@ -355,6 +355,52 @@ class manageusers_table extends wunderbyte_table {
     }
 
     /**
+     * Change number of rows. Uses the transmitaction pattern (actionbutton).
+     * @param int $id
+     * @param string $data
+     * @return array
+     */
+    public function action_delete_checked_booking_answers(int $id, string $data): array {
+
+        global $DB;
+
+        $jsonobject = json_decode($data);
+
+        $bookinganswerids = $jsonobject->checkedids;
+
+        foreach ($bookinganswerids as $bookinganswerid) {
+            if ($answerrecord = $DB->get_record('booking_answers', ['id' => $bookinganswerid])) {
+                $userid = $answerrecord->userid;
+                $optionid = $answerrecord->optionid;
+
+                $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+                $context = context_module::instance($settings->cmid);
+
+                if (!has_capability('mod/booking:bookforothers', $context)) {
+                    throw new moodle_exception('Missing capability: mod/booking:bookforothers', 'mod_booking');
+                }
+
+                $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
+
+                if ($answerrecord->waitinglist == MOD_BOOKING_STATUSPARAM_RESERVED) {
+                    $option->user_delete_response($userid, true, false, false);
+                } else {
+                    $option->user_delete_response($userid, false, false, false);
+                }
+            } else {
+                throw new moodle_exception('invalidanswerid', 'mod_booking', '', null,
+                    'Answer ID: ' . $bookinganswerid . ' not found in table booking_answers.');
+            }
+        }
+
+        return [
+            'success' => 1,
+            'message' => get_string('checkedanswersdeleted', 'mod_booking'),
+            'reload' => 1,
+        ];
+    }
+
+    /**
      * This handles the action column with buttons, icons, checkboxes.
      *
      * @param stdClass $values

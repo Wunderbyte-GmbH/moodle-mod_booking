@@ -121,7 +121,8 @@ class booked_users implements renderable, templatable {
 
         // We currently only support checkboxes in option scope.
         // We might change this in future versions.
-        if ($scope == 'option') {
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* if ($scope == 'option') {
             // Checkboxes are currently only supported for booked users and users on waiting list.
             // We might change this in future versions.
             array_unshift($bookeduserscols, 'checkbox');
@@ -129,7 +130,7 @@ class booked_users implements renderable, templatable {
             $headercheckboxhtml = '<input type="checkbox" id="usercheckboxall" name="selectall" value="0" />';
             array_unshift($bookedusersheaders, $headercheckboxhtml);
             array_unshift($waitinglistheaders, $headercheckboxhtml);
-        }
+        } */
 
         $this->bookedusers = $showbooked ?
             $this->render_users_table(
@@ -222,6 +223,38 @@ class booked_users implements renderable, templatable {
         }
 
         $table->set_sql($fields, $from, $where, $params);
+
+        // Checkboxes are currently only supported in option scope.
+        if ($scope === 'option') {
+            $table->addcheckboxes = true;
+
+            // Show modal, single call, use selected items.
+            $table->actionbuttons[] = [
+                'iclass' => 'fa fa-trash mr-1', // Add an icon before the label.
+                'label' => get_string('delete', 'moodle'),
+                'class' => 'btn btn-sm btn-danger ml-2 mb-2',
+                'href' => '#',
+                'methodname' => 'delete_checked_booking_answers',
+                // To include a dynamic form to open and edit entry in modal.
+                // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+                /* 'formname' => 'local_myplugin\\form\\edit_mytableentry', */
+                'nomodal' => false,
+                'selectionmandatory' => true,
+                'id' => -1,
+                'data' => [
+                    'id' => 'id',
+                    'titlestring' => 'delete',
+                    'bodystring' => 'deletecheckedanswersbody',
+                    // Localized title to be displayed as title in dynamic form (formname).
+                    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+                    /* 'title' => get_string('title'), */
+                    'submitbuttonstring' => 'delete',
+                    'component' => 'mod_booking',
+                    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+                    /* 'labelcolumn' => 'name', */
+                ],
+            ];
+        }
 
         $html = $table->outhtml(20, false);
         return count($table->rawdata) > 0 ? $html : null;
