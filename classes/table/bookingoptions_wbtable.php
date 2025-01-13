@@ -1050,8 +1050,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
                         ['id' => $cmid, 'optionid' => -1, 'copyoptionid' => $optionid,
                         'returnto' => 'url', 'returnurl' => $returnurl,
                         ]), $OUTPUT->pix_icon('t/copy',
-                            get_string('duplicatebooking', 'mod_booking')) .
-                        get_string('duplicatebooking', 'mod_booking')) . '</div>';
+                            get_string('duplicatebookingoption', 'mod_booking')) .
+                        get_string('duplicatebookingoption', 'mod_booking')) . '</div>';
 
                 $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
                         new moodle_url('/mod/booking/report.php', [

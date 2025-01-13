@@ -1270,14 +1270,14 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         }
         if (has_capability('mod/booking:updatebooking', $context)) {
             $navref->add(
-                get_string('duplicatebooking', 'booking'),
+                get_string('duplicatebookingoption', 'booking'),
                 new moodle_url(
                     '/mod/booking/editoptions.php',
                     ['id' => $cm->id, 'optionid' => -1, 'copyoptionid' => $optionid]
                 ),
                 navigation_node::TYPE_CUSTOM,
                 null,
-                'nav_duplicatebooking'
+                'nav_duplicatebookingoption'
             );
         }
 

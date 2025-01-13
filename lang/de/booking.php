@@ -964,7 +964,7 @@ $string['downloadusersforthisoptionods'] = 'Nutzer:innen im .ods-Format herunter
 $string['downloadusersforthisoptionxls'] = 'Nutzer:innen im  .xls-Format herunterladen';
 $string['doyouwanttobook'] = 'Wollen Sie <b>{$a}</b> buchen?';
 $string['duedate'] = 'Fälligkeitsdatum';
-$string['duplicatebooking'] = 'Diese Buchungsoption duplizieren';
+$string['duplicatebookingoption'] = 'Diese Buchungsoption duplizieren';
 $string['duplicatemoodlecourses'] = 'Moodle-Kurs duplizieren';
 $string['duplicatemoodlecourses_desc'] = 'Wenn diese Einstellung aktiviert ist, dann wird beim Duplizieren einer Buchungsoption
 auch der verbundene Moodle-Kurs dupliziert (Achtung: Nutzer:innen-Daten des Moodle-Kurses werden nicht mit-dupliziert!).

@@ -975,7 +975,7 @@ $string['downloadusersforthisoptionods'] = 'Download users as .ods';
 $string['downloadusersforthisoptionxls'] = 'Download users as .xls';
 $string['doyouwanttobook'] = 'Do you want to book <b>{$a}</b>?';
 $string['duedate'] = 'Duedate of installment';
-$string['duplicatebooking'] = 'Duplicate this booking option';
+$string['duplicatebookingoption'] = 'Duplicate this booking option';
 $string['duplicatemoodlecourses'] = 'Duplicate Moodle course';
 $string['duplicatemoodlecourses_desc'] = 'When this setting is active and you duplicate a booking option,
 then the connected Moodle course will also be duplicated. This will be done with an adhoc task,
