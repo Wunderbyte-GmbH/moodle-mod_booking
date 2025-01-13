@@ -888,6 +888,8 @@ class bo_info {
                     }
                     $label .= $priceitem['price'];
                 }
+                $currstring = isset($priceitem["currency"]) ? " " .  $priceitem["currency"] : '';
+                $label .= $currstring;
             } else {
                 $priceitem = price::get_price('option', $settings->id, $user);
                 if (
@@ -899,8 +901,8 @@ class bo_info {
                     $label = $priceitem["price"];
                 }
             }
-            $currstring = isset($priceitem["currency"]) ? " " .  $priceitem["currency"] : '';
-            $label .= $currstring;
+
+
 
             $data['sub'] = [
                 'label' => $label,
