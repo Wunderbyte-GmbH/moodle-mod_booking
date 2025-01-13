@@ -890,19 +890,18 @@ class bo_info {
                 }
                 $currstring = isset($priceitem["currency"]) ? " " .  $priceitem["currency"] : '';
                 $label .= $currstring;
-            } else {
+            } else if ($includeprice) {
                 $priceitem = price::get_price('option', $settings->id, $user);
                 if (
                     get_config('booking', 'priceisalwayson')
                     || !empty(get_config('booking', 'displayemptyprice'))
                     || !empty((float)$priceitem["price"])
                 ) {
-                    $currstring = isset($priceitem["currency"]) ? "" .  $priceitem["currency"] : '';
+                    $currstring = isset($priceitem["currency"]) ? " " .  $priceitem["currency"] : '';
                     $label = $priceitem["price"];
+                    $label .= $currstring;
                 }
             }
-
-
 
             $data['sub'] = [
                 'label' => $label,

@@ -230,7 +230,7 @@ class alreadybooked implements bo_condition {
             $userid,
             $label,
             $link !== '' ? 'bookinglinkbutton btn btn-primary' : 'alert alert-success',
-            true,
+            false,
             $fullwidth,
             'alert',
             'option',
