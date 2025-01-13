@@ -388,7 +388,7 @@ class bookingoption_description implements renderable, templatable {
             }
         }
 
-        $colteacher = new col_teacher($optionid, $settings);
+        $colteacher = new col_teacher($optionid, $settings, true);
         $this->teachers = $colteacher->teachers;
 
         // User object of the responsible contact.
