@@ -50,6 +50,7 @@ class col_teacher implements renderable, templatable {
      *
      * @param int $optionid
      * @param booking_option_settings $settings
+     * @param bool $loadprofileimage true if a profile image for the teacher should be shown, false by default
      */
     public function __construct(int $optionid, booking_option_settings $settings, bool $loadprofileimage = false) {
         global $PAGE;
