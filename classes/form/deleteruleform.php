@@ -85,7 +85,6 @@ class deleteruleform extends dynamic_form {
 
         $data = (object) $this->_ajaxformdata;
         $this->set_data($data);
-
     }
 
     /**
@@ -124,6 +123,14 @@ class deleteruleform extends dynamic_form {
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
-        require_capability('moodle/site:config', context_system::instance());
+
+        $customdata = $this->_customdata;
+        $ajaxformdata = $this->_ajaxformdata;
+
+        $contextid = $ajaxformdata['contextid'] ?? $customdata['contextid'];
+
+        $context = context::instance_by_id($contextid);
+
+        require_capability('mod/booking:editbookingrules', $context);
     }
 }
