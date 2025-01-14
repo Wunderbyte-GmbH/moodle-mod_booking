@@ -185,6 +185,9 @@ class mobile {
             case MOD_BOOKING_BO_COND_BOOKINGPOLICY:
                 $data['nosubmit']['label'] = get_string('notbookable', 'mod_booking');
                 break;
+            case MOD_BOOKING_BO_COND_ALREADYBOOKED:
+                self::render_course_button($data);
+                break;
             default:
                 $data['nosubmit']['label']
                     = !empty($description) ? $description : get_string('notbookable', 'mod_booking');
@@ -387,8 +390,8 @@ class mobile {
             $booking->context,
             [],
             $params['wherearray'],
-            $userid ?? null,
-            $params['bookingparams'] ?? null,
+            $params['userid'] ?? null,
+            $params['bookingparams'] ?? 0,
             $params['additionalwhere'] ?? null
         );
 
