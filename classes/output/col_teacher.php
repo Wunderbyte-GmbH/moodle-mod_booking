@@ -71,6 +71,8 @@ class col_teacher implements renderable, templatable {
                     $picture->size = 150;
                     $imageurl = $picture->get_url($PAGE);
                     $teacher->image = $imageurl;
+                } else {
+                    $teacher->image = false;
                 }
             }
 
