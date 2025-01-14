@@ -297,21 +297,40 @@ class cancelmyself implements bo_condition {
 
         // At this point, we need some logic, because we have a different button for ...
         // ... purchases and just normal bookings.
-        if (class_exists('local_shopping_cart\shopping_cart')
-            && !empty($settings->jsonobject->useprice)) {
+        if (
+            class_exists('local_shopping_cart\shopping_cart')
+            && !empty($settings->jsonobject->useprice)
+        ) {
+            $user = singleton_service::get_instance_of_user($userid);
+            $price = price::get_price('option', $settings->id, $user);
 
-            // Get the booking answers for this instance.
-            $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
-            $bookinginformation = $bookinganswer->return_all_booking_information($userid);
+            if (
+                !empty((float)($price['price'] ?? 0))
+                || !empty(get_config('mod_booking', 'displayemptyprice'))
+            ) {
+                // Get the booking answers for this instance.
+                $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+                $bookinginformation = $bookinganswer->return_all_booking_information($userid);
 
-            if (!isset($bookinginformation['onwaitinglist'])
-                && !isset($bookinginformation['iambooked']['paidwithcredits'])) {
-                $label = get_string('cancelsign', 'mod_booking')
-                . "&nbsp;" . get_string('cancelpurchase', 'local_shopping_cart');
+                if (
+                    !isset($bookinginformation['onwaitinglist'])
+                    && !isset($bookinginformation['iambooked']['paidwithcredits'])
+                ) {
+                    $label = get_string('cancelsign', 'mod_booking')
+                    . "&nbsp;" . get_string('cancelpurchase', 'local_shopping_cart');
 
-                return bo_info::render_button($settings, $userid, $label,
-                    'btn btn-light btn-sm shopping-cart-cancel-button',
-                    false, $fullwidth, 'button', 'option', false);
+                    return bo_info::render_button(
+                        $settings,
+                        $userid,
+                        $label,
+                        'btn btn-light btn-sm shopping-cart-cancel-button',
+                        false,
+                        $fullwidth,
+                        'button',
+                        'option',
+                        false
+                    );
+                }
             }
         }
 

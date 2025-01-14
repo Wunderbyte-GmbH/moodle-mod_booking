@@ -107,6 +107,15 @@ class confirmcancel implements bo_condition {
                 && !isset($bookinginformation['iambooked']['paidwithcredits'])) {
                 $isavailable = true; // True means, it won't be shown.
             }
+
+            if (
+                $isavailable
+                && empty((float)($price['price'] ?? 0))
+                && empty(get_config('mod_booking', 'displayemptyprice'))
+            ) {
+                // We might want to override this, if there is a zero price.
+                $isavailable = false;
+            }
         }
 
         if ($isavailable === false) {
