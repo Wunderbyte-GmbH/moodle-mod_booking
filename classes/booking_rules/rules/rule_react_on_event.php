@@ -338,15 +338,17 @@ class rule_react_on_event implements booking_rule {
         }
 
         // Only execute rules for bookingoption_changed event according to settings.
-        if (!empty(get_config('booking', 'limitchangestrackinginrules'))
-        && $datafromevent->eventname == '\mod_booking\event\bookingoption_updated') {
+        if (
+            !empty(get_config('booking', 'limitchangestrackinginrules'))
+            && $datafromevent->eventname == '\mod_booking\event\bookingoption_updated'
+        ) {
             if (!empty($datafromevent->other->changes)) {
                 $changes = $datafromevent->other->changes;
                 foreach ($changes as $index => $change) {
                     if (empty($change->fieldname)) {
                         continue;
                     }
-                    if ($this->ruleevent_excluded_via_config($change->fieldname)) {
+                    if ($this->ruleevent_excluded_via_config($change->fieldname, (array) $change)) {
                         unset($datafromevent->other->changes[$index]);
                     }
                 }
@@ -518,12 +520,13 @@ class rule_react_on_event implements booking_rule {
     /**
      * Check if event is excluded via config.
      *
-     * @param mixed $fieldname
+     * @param string $fieldname
+     * @param array $changes
      *
      * @return bool
      *
      */
-    private function ruleevent_excluded_via_config($fieldname): bool {
+    private function ruleevent_excluded_via_config(string $fieldname, array $changes): bool {
 
         if (empty(get_config('booking', 'limitchangestrackinginrules'))) {
             return false;
@@ -543,13 +546,54 @@ class rule_react_on_event implements booking_rule {
                 break;
             // Beginning and ending or location of date.
             case "dates":
-                $config = get_config('booking', 'listentotimestampchange');
+                $datesconfig = get_config('booking', 'listentotimestampchange');
+                // Case 1: Dates changes are tracked.
+                if ($datesconfig) {
+                    $config = $datesconfig;
+                    if (get_config('booking', 'listentoaddresschange')) {
+                        break;
+                    }
+                    $datechange = false;
+                    // If only adress was changed and we don't track adress changes, ruleevent is still excluded.
+                    foreach ($changes['oldvalue'] as $index => $oldvalue) {
+                        if (
+                            $oldvalue->coursestarttime != $changes['newvalue'][$index]->coursestarttime
+                            || $oldvalue->courseendtime != $changes['newvalue'][$index]->courseendtime
+                        ) {
+                            $datechange = true;
+                        }
+                    }
+                    if (!$datechange) {
+                        return true;
+                    }
+                } else if (get_config('booking', 'listentoaddresschange')) {
+                    // Case 2: Dates changes are not tracked, but adress changes are tracked.
+                    $entitychange = false;
+                    // If only adress was changed and we don't track adress changes, ruleevent is still excluded.
+                    foreach ($changes['oldvalue'] as $index => $oldvalue) {
+                        // Given entities plugin is installed.
+                        $ov = $oldvalue->entityid ?? 0;
+                        $nv = $changes['newvalue'][$index]->entityid ?? 0;
+                        if (
+                            !(empty($ov) && empty($nv))
+                            && $ov != $nv
+                        ) {
+                            $entitychange = true;
+                        }
+                    }
+                    $config = $entitychange;
+                } else {
+                    $config = false;
+                }
                 break;
             // Address can be with or without entities plugin.
             case "address":
                 $config = get_config('booking', 'listentoaddresschange');
                 break;
             case "entities":
+                $config = get_config('booking', 'listentoaddresschange');
+                break;
+            case "location":
                 $config = get_config('booking', 'listentoaddresschange');
                 break;
             case "customfields":
