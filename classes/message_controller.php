@@ -121,6 +121,9 @@ class message_controller {
     /** @var float $price price given in installment */
     private $price;
 
+    /** @var array $ruleid duedate of installment. */
+    private $rulesettings;
+
     /**
      * Constructor
      *
@@ -153,10 +156,23 @@ class message_controller {
         int $installmentnr = 0,
         int $duedate = 0,
         float $price = 0.0,
-        string $rulejson = ''
+        string $rulejson = '',
+        int $ruleid= null
     ) {
 
-        global $USER, $PAGE, $SESSION;
+        global $USER, $PAGE, $DB;
+
+        if (!is_null($ruleid)) {
+            // For some reason $this->rulejson doesn't get passed to the controller.
+            // So instead we use the ruleid that we have added to this class.
+            // Get the rulesjson and convert into an array for later
+            // There is probably an exisiting method for this, but I couldn't find it.
+            $this->rulesettings = $DB->get_record('booking_rules', ['id' => $ruleid], 'rulejson');
+            if ( $this->rulesettings) {
+                $this->rulesettings =  json_decode($this->rulesettings->rulejson);
+            }
+        }
+
 
         $user = singleton_service::get_instance_of_user($userid);
         $originallanguage = force_current_language($user->lang);
@@ -457,8 +473,60 @@ class message_controller {
 
             } else {
 
+                // If the rule has sendical set then we get the ical attachment, create it in file storage and put it in the message object.
+                if ($this->rulesettings->actiondata->sendical) {
+
+                    $update = false;
+                    if ($this->rulesettings->actiondata->sendicalcreateorcancel == 'cancel') {
+                        $update = true;
+                    }
+
+                    // Pass the update param - false will create a remove calendar invite.
+                    // TODO The system still fires an unsubsrbe message - I believe this is a hangover of the old non rules booking system
+                    list($attachments, $attachname) = $this->get_attachments($update);
+
+                    if (!empty($attachments)) {
+                        // TODO this should probably be a method in the ical class - left here to limit to number of changed files
+                        // store the file correctly in order to be able to attach it
+                        $fs = get_file_storage();
+                        $context = context_system::instance(); // Use a suitable context, such as course or module context.
+                        $tempfilepath = $attachments['booking.ics'];
+
+                        // Check if the file exists in the temp path
+                        if (file_exists($tempfilepath)) {
+
+                            // Prepare file record in Moodle storage
+                            $file_record = [
+                                    'contextid' => $context->id,
+                                    'component' => 'mod_booking', // Change to your component.
+                                    'filearea' => 'message_attachments', // A custom file area for attachments.
+                                    'itemid' => 0, // Item ID (0 for general use or unique identifier for the message).
+                                    'filepath' => '/', // Always use '/' as the root directory.
+                                    'filename' => $attachname,
+                                    'userid' => $this->messagedata->userto->id,
+                            ];
+
+                            // Create or retrieve the file in Moodle's file storage
+                            $storedfile = $fs->create_file_from_pathname($file_record, $tempfilepath);
+
+                            // Set the file as an attachment
+                            $this->messagedata->attachment = $storedfile;
+                            $this->messagedata->attachname = $attachname;
+                        }  else {
+                            // TODO There is possibly a better way to handle this error nicely - or remove the check entirely
+                            throw new \moodle_exception('Attachment file not found.');
+                        }
+
+                    }
+                }
+
                 // In all other cases, use message_send.
                 if (message_send($this->messagedata)) {
+
+                    if ($this->rulesettings->actiondata->sendical) {
+                        // Tidy up the now not needed file.
+                        $storedfile->delete();
+                    }
 
                     // Use an event to log that a message has been sent.
                     $event = \mod_booking\event\message_sent::create([
@@ -471,6 +539,8 @@ class message_controller {
                             'subject' => $this->messagedata->subject,
                             'objectid' => $this->optionid ?? 0,
                             'message' => $this->messagedata->fullmessage ?? '',
+                            // Store the full html message as this is useful if the message every needs to be replayed or audited
+                            'messagehtml' => $this->messagedata->fullmessagehtml ?? '',
                         ],
                     ]);
                     $event->trigger();
@@ -552,7 +622,7 @@ class message_controller {
             // Generate ical attachments to go with the message. Check if ical attachments enabled.
             if (get_config('booking', 'attachical')) {
                 $ical = new ical($this->bookingsettings, $this->optionsettings, $this->user, $this->bookingmanager, $updated);
-                $attachments = $ical->get_attachments(false);
+                $attachments = $ical->get_attachments($updated);
                 $attachname = $ical->get_name();
             }
         }

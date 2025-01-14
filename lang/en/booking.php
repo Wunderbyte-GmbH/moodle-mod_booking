@@ -640,6 +640,7 @@ $string['canceldependenton_desc'] = 'Choose the date that should be used as "sta
 "Disallow users to cancel their booking n days before start. Minus means, that users can still cancel n
 days AFTER course start.".<br>
 This will also set the <i>service period</i> of courses in shopping cart accordingly (if shopping cart is installed). This also affects installment payments. You can take out the semester in the Dates section of a booking option, if you want to use the coursestart instead of the semesterstart.';
+$string['cancelical'] = 'Cancel';
 $string['cancellation'] = 'Cancellation';
 $string['cancellationsettings'] = 'Cancellation settings ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['cancelmyself'] = 'Undo my booking';
@@ -781,6 +782,7 @@ $string['coursestart'] = 'Start';
 $string['coursestarttime'] = 'Start time of the course';
 $string['courseurl'] = 'Course URL';
 $string['createdbywunderbyte'] = 'Booking module created by Wunderbyte GmbH';
+$string['createical'] = 'Create';
 $string['createnewbookingoption'] = 'New booking option';
 $string['createnewbookingoptionfromtemplate'] = 'Add a new booking option from template';
 $string['createnewmoodlecourse'] = 'Create new empty Moodle course';
@@ -2045,6 +2047,8 @@ $string['sendmailtoallbookedusers'] = 'Send e-mail to all booked users';
 $string['sendmailtobooker'] = 'Book other users page: Send mail to user who books instead to users who are booked';
 $string['sendmailtobooker_help'] = 'Activate this option in order to send booking confirmation mails to the user who books other users instead to users, who have been added to a booking option. This is only relevant for bookings made on the page "book other users".';
 $string['sendmailtoteachers'] = 'Send mail to teacher(s)';
+$string['sendical'] = 'Send ICS file as attachment';
+$string['sendicalcreateorcancel'] = 'Is the Ical a create or cancel event?';
 $string['sendmessage'] = 'Send message';
 $string['sendpollurltoteachers'] = 'Send poll url';
 $string['sendreminderemail'] = "Send reminder e-mail";

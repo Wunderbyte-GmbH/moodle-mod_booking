@@ -628,6 +628,7 @@ $string['canceldependenton_desc'] = 'Wählen Sie aus, auf welches Datumsfeld sic
 "Nutzer:innen können nur bis n Tage vor Kursstart stornieren. Negative Werte meinen n Tage NACH Kursstart."
 beziehen soll.<br>Dadurch wird auch die <i>Serviceperiode</i> von Kursen im Warenkorb entsprechend festgelegt
 (wenn Shopping Cart installiert ist). Dies betrifft auch die Ratenzahlung. Entfernen Sie das ausgewählte Semester, wenn Sie Kursstart anstelle von Semesterstart nutzen möchten.';
+$string['cancelical'] = 'Abbrechen';
 $string['cancellation'] = 'Stornierung';
 $string['cancellationsettings'] = 'Stornierungseinstellungen ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['cancelmyself'] = 'Wieder abmelden';
@@ -762,6 +763,7 @@ $string['coursesheader'] = 'Moodle-Kurs';
 $string['coursestart'] = 'Starten';
 $string['coursestarttime'] = 'Kursbeginn';
 $string['createdbywunderbyte'] = 'Dieses Buchungsmodul wurde von der Wunderbyte GmbH entwickelt';
+$string['createical'] = 'Erstellen';
 $string['createnewbookingoption'] = 'Neue Buchungsoption';
 $string['createnewbookingoptionfromtemplate'] = 'Neue Buchungsoption von Vorlage erstellen';
 $string['createnewmoodlecourse'] = 'Erstelle neuen, leeren Moodle-Kurs';
@@ -1984,6 +1986,8 @@ $string['sendmailtobooker'] = 'Buchung für andere User durchführen: Mail an Us
 $string['sendmailtobooker_help'] = 'Diese Option aktivieren, um Buchungsbestätigungsmails anstatt an die gebuchten Nutzer:innen zu senden an den/die Nutzer/in senden, die die Buchung durchgeführt hat. Dies betrifft nur Buchungen, die auf der Seite "Buchung für andere Nutzer:innen durchführen" getätigt wurden';
 $string['sendmailtoteachers'] = 'E-Mail an TrainerInnen senden';
 $string['sendmessage'] = 'Nachricht senden';
+$string['sendical'] = 'Senden Sie die ICS-Datei als Anhang';
+$string['sendicalcreateorcancel'] = 'Handelt es sich bei der iCal-Datei um eine Erstellung oder eine Stornierung eines Ereignisses?';
 $string['sendreminderemailsuccess'] = 'Benachrichtung wurde per E-Mail versandt';
 $string['sessionnotifications'] = 'E-Mail-Benachrichtigungen für Einzeltermine';
 $string['sessionremindermailmessage'] = '<p>Erinnerung: Sie haben den folgenden Termin gebucht:</p>
