@@ -479,6 +479,8 @@ $string['bookingoptionbookedotheruserdesc'] = 'The user with id {$this->userid} 
 $string['bookingoptionbookedotheruserwaitinglistdesc'] = 'The user with id {$this->userid} booked the user with id {$a->relateduserid} to the option with id {$this->objectid} on the waitinglist.';
 $string['bookingoptionbookedsameuserdesc'] = 'The user with id {$a->userid} booked the booking option with id {$a->objectid}.';
 $string['bookingoptionbookedsameuserwaitinglistdesc'] = 'The user with id {$a->userid} booked the booking option with id {$a->objectid} on the waitinglist.';
+$string['bookingoptionbookedviaautoenrol'] = 'Booking option booked automatically via autoenrol';
+$string['bookingoptionbookedviaautoenroldesc'] = 'User with ID {$a->userid} was enrolled in bookingoption with ID {$a->objectid} via enrolment link.';
 $string['bookingoptioncalendarentry'] = '<a href="{$a}" class="btn btn-primary">Book now...</a>';
 $string['bookingoptioncanbecancelleduntil'] = 'You can cancel until {$a}.';
 $string['bookingoptioncancelled'] = "Booking option cancelled for all";
