@@ -28,6 +28,7 @@ use coding_exception;
 use mod_booking\output\report_edit_bookingnotes;
 use html_writer;
 use mod_booking\bo_availability\conditions\customform;
+use mod_booking\utils\wb_payment;
 use moodle_url;
 use stdClass;
 use user_picture;
@@ -597,8 +598,13 @@ class all_userbookings extends \table_sql {
 
                 $presences = [];
                 $storedpresences = explode(',', get_config('booking', 'presenceoptions'));
-                foreach ($storedpresences as $id) {
-                    $presences[$id] = $possiblepresences[$id];
+                if (wb_payment::pro_version_is_activated()) {
+                    foreach ($storedpresences as $id) {
+                        $presences[$id] = $possiblepresences[$id];
+                    }
+                } else {
+                    // Without PRO version, use all possible presences.
+                    $presences = $possiblepresences;
                 }
 
                 echo html_writer::select($presences, 'selectpresencestatus', '', ['' => 'choosedots'],
