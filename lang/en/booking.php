@@ -1060,6 +1060,7 @@ $string['enrolusersaction:alert'] = '<div class="alert alert-info" role="alert">
 <span><b>This function refers to the selected course in the Moodle Courses area..</b> <br>
 </span>
 </div>';
+$string['enroluserstowaitinglist'] = "Put booking users on waitinglist and enrol only after confirmation?";
 $string['enroluserwhobookedtocourse'] = "Do you also want to be enrolled to the linked course? <br> In this case, your seat will be deducted from the purchased spots.";
 $string['enteruserprofilefield'] = "Select users by entering a value for custom user profile field. Attention! This targets all the users on the plattform.";
 $string['entervalidurl'] = 'Please, enter a valid URL!';

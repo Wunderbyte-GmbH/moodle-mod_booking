@@ -19,6 +19,7 @@ namespace mod_booking;
 use context_course;
 use context_module;
 use html_writer;
+use mod_booking\bo_availability\conditions\customform;
 use mod_booking\event\enrollink_triggered;
 use moodle_url;
 use stdClass;
@@ -405,5 +406,30 @@ class enrollink {
             }
         }
         return true;
+    }
+
+    /**
+     * Check if users should be enroled to waitinglist or booked directly.
+     *
+     * @param booking_option_settings $settings
+     *
+     * @return bool
+     *
+     */
+    public static function enrolmentstatus_waitinglist(booking_option_settings $settings): bool {
+
+        $formsarray = customform::return_formelements($settings);
+
+        foreach ($formsarray as $forms) {
+            foreach ($forms as $form) {
+                if (
+                    $form->formtype == 'enrolusersaction'
+                    && !empty($form->enroluserstowaitinglist)
+                ) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
