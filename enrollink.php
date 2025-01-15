@@ -31,13 +31,6 @@ $erlid = required_param('erlid', PARAM_TEXT); // Course id.
 
 $enrollink = new enrollink($erlid);
 
-$PAGE->set_context(context_system::instance());
-$PAGE->set_url('/mod/booking/enrollink.php', ['erlid' => $erlid]);
-
-echo $OUTPUT->header();
-$output = $PAGE->get_renderer('mod_booking');
-
-
 // Check if there are conditions blocking before login is required.
 $info = $enrollink->enrolment_blocking();
 if (!empty($info)) {
@@ -51,6 +44,12 @@ if (!empty($info)) {
     );
 } else {
     require_login();
+
+    $PAGE->set_context(context_system::instance());
+    $PAGE->set_url('/mod/booking/enrollink.php', ['erlid' => $erlid]);
+
+    echo $OUTPUT->header();
+    $output = $PAGE->get_renderer('mod_booking');
     global $USER;
     $info = $enrollink->enrol_user( $USER->id);
     $courselink = $enrollink->get_courselink_url();
