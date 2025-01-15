@@ -295,10 +295,25 @@ define('MOD_BOOKING_SQL_FILTER_ACTIVE_BO_TIME', 2);
 define('MOD_BOOKING_CLASSES_EXCLUDED_FROM_CHANGES_TRACKING', [
 ]);
 
-// SQL Filter.
+// Overlapping handling.
 define('MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY', 0);
 define('MOD_BOOKING_COND_OVERLAPPING_HANDLING_WARN', 1);
 define('MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK', 2);
+
+// Autoenrol status.
+define('MOD_BOOKING_AUTOENROL_STATUS_EXCEPTION', 0);
+define('MOD_BOOKING_AUTOENROL_STATUS_ALREADY_ENROLLED', 1);
+define('MOD_BOOKING_AUTOENROL_STATUS_SUCCESS', 2);
+
+// Status for user submit response (enrolment into bookingoption).
+// 1 if we just added this booking option to the shopping cart, 2 for confirmation.
+define('MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT', 0);
+define('MOD_BOOKING_BO_SUBMIT_STATUS_ADDED_TO_CART', 1);
+define('MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION', 2);
+define('MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM', 3);
+define('MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL', 4);
+
+
 
 /**
  * Booking get coursemodule info.

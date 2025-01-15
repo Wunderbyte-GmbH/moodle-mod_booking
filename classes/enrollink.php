@@ -115,41 +115,53 @@ class enrollink {
      *
      * @param int $userid
      *
-     * @return string
+     * @return int
      *
      */
-    public function enrol_user(int $userid): string {
+    public function enrol_user(int $userid): int {
 
         if (!empty($block = $this->enrolment_blocking())) {
             return $block;
         }
 
         $context = context_course::instance($this->bundle->courseid);
+        $courseenrolmentstatus = MOD_BOOKING_AUTOENROL_STATUS_EXCEPTION;
+        // 1. Enrolling to the linked course.
         // Make sure, the user isn't booked to the course yet.
         if (
             is_enrolled($context, $userid)
         ) {
-            return "alreadyenrolled";
+            $courseenrolmentstatus = MOD_BOOKING_AUTOENROL_STATUS_ALREADY_ENROLLED;
         }
 
         $cmid = $this->get_bo_contextid();
-        $bo = new booking_option($cmid, $this->bundle->optionid);
-
+        $bo = singleton_service::get_instance_of_booking_option($cmid, $this->bundle->optionid);
         try {
-            $bo->enrol_user(
-                $userid,
-                false,
-                0,
-                false,
-                $this->bundle->courseid,
-                true
+            // $bo->enrol_user(
+            //     $userid,
+            //     false,
+            //     0,
+            //     false,
+            //     $this->bundle->courseid,
+            //     true
+            // );
+            $user = singleton_service::get_instance_of_user($userid);
+            $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
+            $bo->user_submit_response(
+                $user,
+                $booking->id,
+                1,
+                MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL,
+                MOD_BOOKING_VERIFIED
             );
+
             $this->add_consumed_item($userid);
             // Enrol to bookingoption and reduce places in bookinganswer.
-            return "enrolled";
+            $courseenrolmentstatus = MOD_BOOKING_AUTOENROL_STATUS_SUCCESS;
         } catch (\Exception $e) {
-            return "enrolmentexception";
+            $courseenrolmentstatus = MOD_BOOKING_AUTOENROL_STATUS_EXCEPTION;
         }
+        return $courseenrolmentstatus;
     }
 
     /**
