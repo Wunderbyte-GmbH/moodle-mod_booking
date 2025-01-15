@@ -586,13 +586,13 @@ class all_userbookings extends \table_sql {
                 echo "<br>";
 
                 $possiblepresences = [
-                    5 => get_string('statusunknown', 'booking'),
-                    6 => get_string('statusattending', 'booking'),
-                    1 => get_string('statuscomplete', 'booking'),
-                    2 => get_string('statusincomplete', 'booking'),
-                    3 => get_string('statusnoshow', 'booking'),
-                    4 => get_string('statusfailed', 'booking'),
-                    7 => get_string('statusexcused', 'booking'),
+                    5 => get_string('statusunknown', 'mod_booking'),
+                    6 => get_string('statusattending', 'mod_booking'),
+                    1 => get_string('statuscomplete', 'mod_booking'),
+                    2 => get_string('statusincomplete', 'mod_booking'),
+                    3 => get_string('statusnoshow', 'mod_booking'),
+                    4 => get_string('statusfailed', 'mod_booking'),
+                    7 => get_string('statusexcused', 'mod_booking'),
                 ];
 
                 $presences = [];

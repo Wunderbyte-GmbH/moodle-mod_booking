@@ -614,8 +614,6 @@ class bookingoption_description implements renderable, templatable {
             $returnarray['unitstring'] = $this->unitstring;
         }
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
-
         // We return all the customfields of the option.
         // But we make sure, the shortname of a customfield does not conflict with an existing key.
         if ($this->customfields) {
@@ -626,6 +624,7 @@ class bookingoption_description implements renderable, templatable {
 
                     // Get the correct field controller from Wunderbyte table.
                     $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname($key);
+
                     // Get the option value from field controller.
                     $returnarray[$key] = $fieldcontroller->get_option_value_by_key($printvalue);
                 }
