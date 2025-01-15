@@ -115,17 +115,25 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I wait until the page is ready
     ## Confirm all 4 students' bookings
+    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I wait until the page is ready
     And I click on the element with the number "4" with the dynamic identifier "waitinglist" and action "confirmbooking"
     And I wait until the page is ready
     And I click on "Book" "button" in the ".modal-footer" "css_element"
+    And I wait until the page is ready
+    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
     And I wait until the page is ready
     And I click on the element with the number "3" with the dynamic identifier "waitinglist" and action "confirmbooking"
     And I wait until the page is ready
     And I click on "Book" "button" in the ".modal-footer" "css_element"
     And I wait until the page is ready
+    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I wait until the page is ready
     And I click on the element with the number "2" with the dynamic identifier "waitinglist" and action "confirmbooking"
     And I wait until the page is ready
     And I click on "Book" "button" in the ".modal-footer" "css_element"
+    And I wait until the page is ready
+    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
     And I wait until the page is ready
     And I click on the element with the number "1" with the dynamic identifier "waitinglist" and action "confirmbooking"
     And I wait until the page is ready
@@ -171,6 +179,8 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Student 2 (student2@example.com)" "text"
     And I click on "Remove" "button"
     ## Cancel waiting list for student 4
+    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I wait until the page is ready
     And I click on the element with the number "1" with the dynamic identifier "waitinglist" and action "unconfirmbooking"
     And I wait until the page is ready
     And I click on "Book" "button" in the ".modal-footer" "css_element"
