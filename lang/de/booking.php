@@ -463,11 +463,13 @@ $string['bookingnotopenyet'] = 'Ihr Event startet erst in {$a} Minuten. Dieser L
 $string['bookingopen'] = 'Offen';
 $string['bookingopeningtime'] = 'Buchbar ab';
 $string['bookingoption'] = 'Buchungsoption';
-$string['bookingoptionbooked'] = 'Buchungsoption durchgeführt';
+$string['bookingoptionbooked'] = 'Buchungsoption gebucht';
 $string['bookingoptionbookedotheruserdesc'] = 'NutzerIn mit ID {$a->userid} hat NutzerIn mit ID {$a->relateduserid} für die Buchung der Option Nr. {$a->objectid} gebucht.';
 $string['bookingoptionbookedotheruserwaitinglistdesc'] = 'NutzerIn mit ID {$a->userid} hat NutzerIn mit ID {$a->relateduserid} für die Buchung der Option Nr. {$a->objectid} auf die Warteliste gebucht.';
 $string['bookingoptionbookedsameuserdesc'] = 'NutzerIn mit ID {$a->userid} hat die Buchung der Option Nr. {$a->objectid} gebucht.';
 $string['bookingoptionbookedsameuserwaitinglistdesc'] = 'NutzerIn mit ID {$a->userid} hat die Buchung der Option Nr. {$a->objectid} auf die Warteliste gebucht.';
+$string['bookingoptionbookedviaautoenrol'] = 'Buchungsoption automatisch gebucht';
+$string['bookingoptionbookedviaautoenroldesc'] = 'NutzerIn mit ID {$a->userid} wurde in die Buchungsoption Nr. {$a->objectid} via Einschreibelink angemeldet';
 $string['bookingoptioncalendarentry'] = '<a href="{$a}" class="btn btn-primary">Jetzt buchen...</a>';
 $string['bookingoptioncanbecancelleduntil'] = 'Sie können bis zum {$a} stornieren.';
 $string['bookingoptioncancelled'] = "Buchungsoption für alle storniert";
