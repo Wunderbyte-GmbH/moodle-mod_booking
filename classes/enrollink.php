@@ -81,7 +81,6 @@ class enrollink {
             $this->erlid = false;
             $this->errorinfo = 'invalidenrollink';
         }
-
     }
 
     /**
@@ -125,7 +124,7 @@ class enrollink {
         }
 
         $context = context_course::instance($this->bundle->courseid);
-        // Make sure, the user isn't booked yet.
+        // Make sure, the user isn't booked to the course yet.
         if (
             is_enrolled($context, $userid)
         ) {
@@ -145,6 +144,7 @@ class enrollink {
                 true
             );
             $this->add_consumed_item($userid);
+            // Enrol to bookingoption and reduce places in bookinganswer.
             return "enrolled";
         } catch (\Exception $e) {
             return "enrolmentexception";
@@ -311,6 +311,18 @@ class enrollink {
         };
 
         $places = $answer->$key;
+
+        // Check if user who bought was enrolled fo the course. If so, deduce one place.
+        if (
+            isset($bookinganswer->answers[$baid])
+            && self::enroluseraction_allows_enrolment($bookinganswer, $baid)
+        ) {
+            $places--;
+        }
+        // If there are no seats left, don't trigger actions (Maybe user bought only one seat and was enrolled).
+        if ((int) $places < 1) {
+            return false;
+        }
         // Update table.
         $data = new stdClass();
         $data->courseid = $settings->courseid;
@@ -318,7 +330,7 @@ class enrollink {
         $data->usermodified = $USER->id;
         $data->timecreated = time();
         $data->timemodified = $data->timecreated;
-        $data->places = $places;
+        $data->places = (string) $places;
         $data->erlid = md5(random_string());
         $data->baid = $baid;
         $data->optionid = $optionid;
@@ -368,5 +380,30 @@ class enrollink {
         return "";
     }
 
+    /**
+     * Check if this is a enrolbotaction and if so, check if user actually should be enrolled.
+     *
+     * @param object $bookinganswer
+     * @param int $baid
+     *
+     * @return bool
+     *
+     */
+    public static function enroluseraction_allows_enrolment(
+        object $bookinganswer,
+        int $baid
+    ): bool {
 
+        $answer = $bookinganswer->answers[$baid];
+        $data = json_decode($answer->json);
+        foreach ($data->condition_customform as $key => $value) {
+            if (
+                strpos($key, 'customform_enroluserwhobookedcheckbox_enrolusersaction') === 0 &&
+                empty($value)
+            ) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

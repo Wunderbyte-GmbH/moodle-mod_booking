@@ -1346,14 +1346,22 @@ class booking_option {
             return true;
         }
 
-        $this->enrol_user_coursestart($user->id);
-
         $other = [];
         $ba = singleton_service::get_instance_of_booking_answers($this->settings);
+
         if (isset($ba->usersonlist[$user->id])) {
             $answer = $ba->usersonlist[$user->id];
             $other['baid'] = $answer->baid;
             $other['json'] = $answer->json ?? '';
+        }
+
+        if (
+            !empty($ba)
+            && !empty($answer->baid)
+            && isset($ba->answers[$answer->baid])
+            && enrollink::enroluseraction_allows_enrolment($ba, $answer->baid)
+        ) {
+            $this->enrol_user_coursestart($user->id);
         }
 
         if ($waitinglist == MOD_BOOKING_STATUSPARAM_WAITINGLIST) {
