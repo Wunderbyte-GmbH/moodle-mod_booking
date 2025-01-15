@@ -55,7 +55,6 @@ if (!empty($info)) {
     $info = $enrollink->enrol_user( $USER->id);
     $courselink = $enrollink->get_courselink_url();
     $infostring = $enrollink->get_readable_info($info);
-    // TODO: Course hinterlegt. Check!
     echo $output->render_from_template(
         'mod_booking/enrollink',
         [

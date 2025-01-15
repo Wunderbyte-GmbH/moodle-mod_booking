@@ -1009,7 +1009,7 @@ class booking_option {
      *        The number of bookings for the user has to be decreased by one, because, the user will
      *        be unsubscribed
      *        from the old booking option afterwards (which is not yet taken into account).
-     * @param int $status 1 if we just added this booking option to the shopping cart, 2 for confirmation.
+     * @param int $status 1 if we just added this booking option to the shopping cart, 2 for confirmation. See MOD_BOOKING_BO_SUBMIT_STATUS_*
      * @param int $verified 0 for unverified, 1 for pending and 2 for verified.
      * @return bool true if booking was possible, false if meanwhile the booking got full
      */
@@ -1017,7 +1017,7 @@ class booking_option {
         $user,
         $frombookingid = 0,
         $subtractfromlimit = 0,
-        $status = 0,
+        $status = MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT,
         $verified = MOD_BOOKING_UNVERIFIED
     ) {
 
@@ -1044,7 +1044,7 @@ class booking_option {
         // With the second param, we check if overbooking is allowed.
 
         // The $status == 2 means confirm. Under some circumstances, waitinglist can be false here.
-        if ($waitinglist === false && $status != 2) {
+        if ($waitinglist === false && $status != MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION) {
             // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
             // TODO: introduce an "allowoverbooking" param into the availability JSON.
             // If the JSON contains it, we want to allow overbooking even without a waiting list.
@@ -1056,13 +1056,15 @@ class booking_option {
         }
 
         switch ($status) {
-            case 1: // Means reserve.
+            case MOD_BOOKING_BO_SUBMIT_STATUS_ADDED_TO_CART: // Means reserve.
                 $waitinglist = MOD_BOOKING_STATUSPARAM_RESERVED;
                 break;
-            case 2: // Means confirm on waitinglist.
-            case 3: // Means unconfirm on waitinglist.
+            case MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION: // Means confirm on waitinglist.
+            case MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM: // Means unconfirm on waitinglist.
                 $waitinglist = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
                 break;
+            case MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL: // Means autoenrol.
+                $waitinglist = MOD_BOOKING_STATUSPARAM_BOOKED;
         }
 
         // Only if maxperuser is set, the part after the OR is executed.
@@ -1077,6 +1079,7 @@ class booking_option {
 
         $bookinganswers = singleton_service::get_instance_of_booking_answers($this->settings);
 
+        // Handling of waitinglist.
         if (isset($bookinganswers->users[$user->id]) && ($currentanswer = $bookinganswers->users[$user->id])) {
             switch ($currentanswer->waitinglist) {
                 case MOD_BOOKING_STATUSPARAM_DELETED:
@@ -1110,9 +1113,13 @@ class booking_option {
             $currentanswerid = null;
             $timecreated = null;
 
+            // Should users who want to book be parked in the waitinglist waiting for confirmation.
             if (
-                $waitinglist === MOD_BOOKING_STATUSPARAM_BOOKED
-                && !empty($this->settings->waitforconfirmation)
+                ($waitinglist === MOD_BOOKING_STATUSPARAM_BOOKED
+                && !empty($this->settings->waitforconfirmation))
+                && ($status != MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL
+                || (($status = MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL)
+                && enrollink::enrolmentstatus_waitinglist($this->settings)))
             ) {
                 $waitinglist = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
 
