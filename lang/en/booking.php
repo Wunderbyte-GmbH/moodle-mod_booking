@@ -2335,7 +2335,7 @@ $string['useprotoenablemorerules'] = 'You need Booking PRO, to be able to add mo
 <a href="https://wunderbyte.at/kontakt" target="_blank">Contact Wunderbyte</a>, if you want to buy a pro license.';
 $string['useraffectedbyevent'] = 'User affected by the event';
 $string['usercalendarentry'] = 'You are booked for <a href="{$a}">this session</a>.';
-$string['usercalendarurl'] = "usercalendarurl";
+$string['usercalendarurl'] = "User calendar URL";
 $string['userdownload'] = 'Download users';
 $string['usergavereason'] = '{$a} gave the following reason for cancellation:';
 $string['userid'] = 'UserID';
