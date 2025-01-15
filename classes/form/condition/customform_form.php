@@ -294,6 +294,16 @@ class customform_form extends dynamic_form {
                         );
                         $mform->setDefault('customform_enrolusersaction_' . $counter, $formelementvalue->value);
                         $mform->setType('customform_enrolusersaction_' . $counter, PARAM_TEXT);
+                        $mform->addElement(
+                            'advcheckbox',
+                            'customform_enroluserwhobookedcheckbox_' . $formelementvalue->formtype . '_' . $counter,
+                            get_string('enroluserwhobookedtocourse', 'mod_booking'),
+                            get_string('apply', 'mod_booking')
+                        );
+                        $mform->setDefault(
+                            'customform_enroluserwhobookedcheckbox_' . $formelementvalue->formtype . '_' . $counter,
+                            1
+                        );
                 }
 
                 $counter++;

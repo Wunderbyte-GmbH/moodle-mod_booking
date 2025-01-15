@@ -306,7 +306,6 @@ class actions_info {
         }
 
         return $status;
-
     }
 
     /**
