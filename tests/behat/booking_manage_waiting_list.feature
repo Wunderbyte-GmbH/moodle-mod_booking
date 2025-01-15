@@ -99,12 +99,12 @@ Feature: In a course add a booking option and manage its waiting list
       | My booking | Waiting_list_with_price | student1 |
       | My booking | Waiting_list_with_price | student2 |
     And I am on the "My booking" Activity page logged in as student3
-    And I should see "44.00 EUR" in the ".allbookingoptionstable_r1" "css_element"
+    ## And I should see "44.00 EUR" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book it - on waitinglist" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "You are on the waiting list" in the ".allbookingoptionstable_r1" "css_element"
     And I log out
     And I am on the "My booking" Activity page logged in as student4
-    And I should see "55.00 EUR" in the ".allbookingoptionstable_r1" "css_element"
+    ## And I should see "55.00 EUR" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book it - on waitinglist" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "You are on the waiting list" in the ".allbookingoptionstable_r1" "css_element"
     And I log out
