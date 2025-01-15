@@ -1118,7 +1118,7 @@ class booking_option {
                 ($waitinglist === MOD_BOOKING_STATUSPARAM_BOOKED
                 && !empty($this->settings->waitforconfirmation))
                 && ($status != MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL
-                || (($status = MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL)
+                || (($status === MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL)
                 && enrollink::enrolmentstatus_waitinglist($this->settings)))
             ) {
                 $waitinglist = MOD_BOOKING_STATUSPARAM_WAITINGLIST;

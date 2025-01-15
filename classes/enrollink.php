@@ -408,6 +408,9 @@ class enrollink {
     ): bool {
 
         $answer = $bookinganswer->answers[$baid];
+        if (!$answer->json) {
+            return true;
+        }
         $data = json_decode($answer->json);
         foreach ($data->condition_customform as $key => $value) {
             if (
