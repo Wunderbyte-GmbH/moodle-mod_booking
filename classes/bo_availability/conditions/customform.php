@@ -502,8 +502,8 @@ class customform implements bo_condition {
             $key = 'bo_cond_customform_notempty_' . $formcounter . '_' . $counter;
             $formobject->notempty = $fromform->{$key} ?? null;
 
-            $key = 'bo_cond_customform_enroluserwhobookedtocourse' . $counter;
-            $formobject->enroluserwhobookedtocourse = $fromform->{$key} ?? null;
+            $key = 'bo_cond_customform_enroluserstowaitinglist' . $counter;
+            $formobject->enroluserstowaitinglist = $fromform->{$key} ?? null;
 
             $newform[$counter] = $formobject;
 
@@ -554,8 +554,8 @@ class customform implements bo_condition {
                 $key = 'bo_cond_customform_notempty_' . $formcounter . '_' . $counter;
                 $defaultvalues->{$key} = $formelement->notempty ?? 0;
 
-                $key = 'bo_cond_customform_enroluserwhobookedtocourse' . $counter;
-                $defaultvalues->{$key} = $formelement->enroluserwhobookedtocourse ?? 0;
+                $key = 'bo_cond_customform_enroluserstowaitinglist' . $counter;
+                $defaultvalues->{$key} = $formelement->enroluserstowaitinglist ?? 0;
             }
         }
         if (isset($acdefault->deleteinfoscheckboxadmin) && !empty($acdefault->deleteinfoscheckboxadmin)) {
