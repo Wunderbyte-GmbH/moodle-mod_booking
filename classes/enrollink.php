@@ -137,14 +137,6 @@ class enrollink {
         $cmid = $this->get_bo_contextid();
         $bo = singleton_service::get_instance_of_booking_option($cmid, $this->bundle->optionid);
         try {
-            // $bo->enrol_user(
-            //     $userid,
-            //     false,
-            //     0,
-            //     false,
-            //     $this->bundle->courseid,
-            //     true
-            // );
             $user = singleton_service::get_instance_of_user($userid);
             $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
             $bo->user_submit_response(
@@ -152,10 +144,10 @@ class enrollink {
                 $booking->id,
                 1,
                 MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL,
-                MOD_BOOKING_VERIFIED
+                MOD_BOOKING_VERIFIED,
+                $this
             );
 
-            $this->add_consumed_item($userid);
             // Enrol to bookingoption and reduce places in bookinganswer.
             $courseenrolmentstatus = MOD_BOOKING_AUTOENROL_STATUS_SUCCESS;
         } catch (\Exception $e) {
@@ -172,11 +164,11 @@ class enrollink {
      * @return bool
      *
      */
-    private function add_consumed_item(int $userid): bool {
+    public function add_consumed_item(int $userid): bool {
         global $DB;
         if (
             empty($this->free_places_left())
-            ) {
+        ) {
             return false;
         }
 
@@ -202,7 +194,41 @@ class enrollink {
         $this->itemsconsumed[$id] = $data;
         $this->freeseats--;
 
+        $this->update_bookinganswer($this->erlid);
         return true;
+    }
+
+    /**
+     * Update bookingsanswer to make sure the place reserved from bundle is deduced...
+     * From the bookinganswer that is reserving the bundle.
+     *
+     * @param string $erlid
+     *
+     * @return bool
+     *
+     */
+    private function update_bookinganswer(string $erlid): bool {
+        global $DB;
+
+        $sql = "
+            SELECT ba.*
+            FROM {booking_answers} ba
+            JOIN {booking_enrollink_bundles} beb ON beb.baid = ba.id
+            WHERE beb.erlid = :erlid
+        ";
+        $params = ['erlid' => $erlid];
+        $record = $DB->get_record_sql($sql, $params);
+
+        if (
+            $record
+            && $record->places > 0
+        ) {
+            $record->places -= 1;
+            $DB->update_record('booking_answers', $record);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**

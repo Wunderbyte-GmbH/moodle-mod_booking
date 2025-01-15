@@ -1012,6 +1012,7 @@ class booking_option {
      *        from the old booking option afterwards (which is not yet taken into account).
      * @param int $status 1 if we just added this booking option to the shopping cart, 2 for confirmation. See MOD_BOOKING_BO_SUBMIT_STATUS_*
      * @param int $verified 0 for unverified, 1 for pending and 2 for verified.
+     * @param enrollink|null $enrollink
      * @return bool true if booking was possible, false if meanwhile the booking got full
      */
     public function user_submit_response(
@@ -1019,7 +1020,8 @@ class booking_option {
         $frombookingid = 0,
         $subtractfromlimit = 0,
         $status = MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT,
-        $verified = MOD_BOOKING_UNVERIFIED
+        $verified = MOD_BOOKING_UNVERIFIED,
+        $erlid = null
     ) {
 
         global $USER;
@@ -1131,18 +1133,6 @@ class booking_option {
                     'relateduserid' => $user->id, // Affected user - the user who is waiting for confirmation.
                 ]);
                 $event->trigger(); // This will trigger the observer function.
-            } else if (
-                $status === MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL
-                && $waitinglist === MOD_BOOKING_STATUSPARAM_BOOKED
-            ) {
-                // This case if for bookings via autoenrol.
-                $event = bookingoption_bookedviaautoenrol::create([
-                    'objectid' => $this->optionid,
-                    'context' => context_module::instance($this->cmid),
-                    'userid' => $USER->id, // The user triggered the action.
-                    'relateduserid' => $user->id, // Affected user - the user who is waiting for confirmation.
-                ]);
-                $event->trigger(); // This will trigger the observer function.
             }
         }
 
@@ -1156,6 +1146,23 @@ class booking_option {
             $timecreated,
             $status
         );
+
+        if (
+            $status === MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL
+            && $waitinglist === MOD_BOOKING_STATUSPARAM_BOOKED
+            && !empty($enrollink)
+        ) {
+            // Check if the enrolment worked.
+            if ($enrollink->add_consumed_item($user->id)) {
+                $event = bookingoption_bookedviaautoenrol::create([
+                    'objectid' => $this->optionid,
+                    'context' => context_module::instance($this->cmid),
+                    'userid' => $USER->id, // The user triggered the action.
+                    'relateduserid' => $user->id, // Affected user - the user who is waiting for confirmation.
+                ]);
+                $event->trigger(); // This will trigger the observer function.
+            }
+        }
 
         // Important: Purge caches after submitting a new user.
         self::purge_cache_for_answers($this->optionid);
