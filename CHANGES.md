@@ -1,4 +1,22 @@
-## Version 8.9.11 (2025011000)
+## Version 8.9.12 (2025011500)
+* Improvement: Display teacherimage on bookingoption detailview #792
+* Improvement: GH-784 go to course button
+* Bugfix: Don't show currency labels on empty price
+* Bugfix: Show price correctly
+* Bugfix context check for rules deletion
+* Bugfix: Avoid error on empty price element
+* Bugfix: removed duplicate string
+* Bugfix: default value get_options_filter_sql
+* Bugfix: Display teacherimage only for teachers with image
+* Bugfix: Track changes for dates and location correctly #796
+* Bugfix: Allow cancellation on zero price booking options
+
+## Version 8.9.11.1 (2025011001)
+* Bugfix: Make sure no notification,completion,confirmation mails are sent anymore.
+* Bugfix: Don't compare on dates to notify anymore
+* Bugfix: Fix limit send notification for updated booking options
+
+## Version 8.9.11 (2025011100)
 * Improvement: Change datesandentties placeholder to deal with selflearningcourses.
 * Improvement: Better datesandentities placeholder (especially with duration 0).
 * Bugfix: Move setting for bookingmanager in global area of bo instance settings.
