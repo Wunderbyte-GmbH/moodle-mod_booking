@@ -1044,6 +1044,7 @@ $string['enrolusersaction:alert'] = '<div class="alert alert-info" role="alert">
 <span><b>Diese Funktion bezieht sich auf den ausgewählten Kurs im Bereich Moodle Kurse.</b> <br>
 </span>
 </div>';
+$string['enroluserstowaitinglist'] = "Buchende NutzerInnen auf die Warteliste setzen und erst nach Bestätigung einschreiben?";
 $string['enroluserwhobookedtocourse'] = "Möchten Sie selbst auch in den verknüpften Kurs eingeschrieben werden? <br> In diesem Fall wird von Kontingent der gekauften Plätze direkt ein Platz abgezogen.";
 $string['enteruserprofilefield'] = "Wähle Nutzer:innen nach eingegebenem Wert für Profilfeld. Achtung! Das betrifft ALLE Nutzer:inne nauf der Plattform.";
 $string['entervalidurl'] = 'Bitte geben Sie eine gültige URL an!';

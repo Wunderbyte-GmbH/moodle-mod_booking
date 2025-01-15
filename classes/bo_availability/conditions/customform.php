@@ -299,6 +299,19 @@ class customform implements bo_condition {
                     'deleteinfoscheckboxuser'
                 );
 
+                $mform->addElement(
+                    'advcheckbox',
+                    'bo_cond_customform_enroluserstowaitinglist' . $counter,
+                    get_string('enroluserstowaitinglist', 'mod_booking'),
+                    [],
+                );
+                $mform->hideIf(
+                    'bo_cond_customform_enroluserstowaitinglist' . $counter,
+                    'bo_cond_customform_select_1_' . $counter,
+                    'neq',
+                    'enrolusersaction'
+                );
+
                 if ($CFG->version >= 2023100900) {
                     $mform->addElement(
                         'static',
@@ -489,6 +502,9 @@ class customform implements bo_condition {
             $key = 'bo_cond_customform_notempty_' . $formcounter . '_' . $counter;
             $formobject->notempty = $fromform->{$key} ?? null;
 
+            $key = 'bo_cond_customform_enroluserwhobookedtocourse' . $counter;
+            $formobject->enroluserwhobookedtocourse = $fromform->{$key} ?? null;
+
             $newform[$counter] = $formobject;
 
             // If the next key is not there, we increase $formcounter, else $counter.
@@ -537,6 +553,9 @@ class customform implements bo_condition {
 
                 $key = 'bo_cond_customform_notempty_' . $formcounter . '_' . $counter;
                 $defaultvalues->{$key} = $formelement->notempty ?? 0;
+
+                $key = 'bo_cond_customform_enroluserwhobookedtocourse' . $counter;
+                $defaultvalues->{$key} = $formelement->enroluserwhobookedtocourse ?? 0;
             }
         }
         if (isset($acdefault->deleteinfoscheckboxadmin) && !empty($acdefault->deleteinfoscheckboxadmin)) {
