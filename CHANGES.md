@@ -1,3 +1,41 @@
+## Version 8.9.13 (2025011600)
+* New feature: Add possibility to display the values of any booking option customfields on detail page. (#774)
+* Improvement: Add action delete button to new report2.
+* Improvement: Fix string for duplicate booking option.
+* Improvement: Remove underscores from links and use better divider in report2 nav.
+* Improvement: Add back and edit button to details view (#773).
+* Improvement: Fix margin for showheaderimagelefthalf.
+* Improvement: Add class to identify card for imagelefthalf.
+* Improvement: Better string for selflearningcoursedurationinfo.
+* Improvement: Always generically use wbt field controllers to render customfields on detail page (#774).
+* Improvement: Add multiselect for customfields to show on detail page. (#774)
+* Improvement: Make sure empty price categories are deleted from singleton.
+* Bugfix: Fix behat for new waiting list accordion (extra click necessary).
+* Bugfix: Fix string for user calendar URL.
+* Bugfix: Presence status still needs to work without PRO license!
+* Bugfix: Fix merging errors.
+* Bugfix: Fix "file is stale" problems.
+* Bugfix: Fix string order issues (#648).
+* Bugfix: Add icon class to fix behat.
+* Bugfix: Add title and aria-label for settings dropdown to fix behat tests.
+* Bugfix: Use fontawesome icon fa-cog instead of t/edit to fix Moodle 4.4 icon.
+* Bugfix: Remove webkit-specific CSS to fix Safari layout.
+* Bugfix: Dates placeholder returns dates (#756).
+* Bugfix: Remove `<br>` tag for date display col starttime.
+* Bugfix: Make sure to use cmid of type int (#572).
+* Bugfix: Correctly handle empty price category (#778).
+* Bugfix: Coding error completion `custom_completion` (#779).
+* Test: New phpunit test `test_booking_cancellation_wiht_multiple_dates_and_consumption_enabled` (#777).
+* Test: New phpunit test `test_booking_cancellation_wiht_consumption_enabled` (#777).
+* Test: New phpunit test `test_booking_cancellation_wiht_fixed_consumption` (#777).
+* Test: New phpunit test `test_booking_bookit_capabilitynotneeded` to cover `JSON_ALLOWEDTOBOOKININSTANCE` and `MOD_BOOKING_CONDPARAM_CANBEOVERRI`.
+* Test: Adjust 6 phpunit tests.
+* Test: Refactor and extend `test_booking_customform()` phpunit to support multiple form elements and validate response (#524).
+* Test: Refactor 1 data provider and 1 phpunit test.
+* Test: New behat scenario: Booking - cancellation of all users' purchases when price and consumption were set (#777).
+* Test: New behat scenario: Configure availability with modal form and multiple elements (#524).
+* Test: New behat scenario: Booking - cancellation of all user purchases by teacher when price was set (#777).
+
 ## Version 8.9.12 (2025011500)
 * Improvement: Display teacherimage on bookingoption detailview #792
 * Improvement: GH-784 go to course button
