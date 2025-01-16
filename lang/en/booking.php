@@ -1064,6 +1064,7 @@ $string['enrolusersaction:alert'] = '<div class="alert alert-info" role="alert">
 </div>';
 $string['enroluserstowaitinglist'] = "Put booking users on waitinglist and enrol only after confirmation?";
 $string['enroluserwhobookedtocourse'] = "Do you also want to be enrolled to the linked course? <br> In this case, your seat will be deducted from the purchased spots.";
+$string['enroluserwhobookedtocoursewarning'] = "If you purchase only one seat and choose to be enrolled yourself, there will be no enrollment link created.";
 $string['enteruserprofilefield'] = "Select users by entering a value for custom user profile field. Attention! This targets all the users on the plattform.";
 $string['entervalidurl'] = 'Please, enter a valid URL!';
 $string['entities'] = 'Choose places with entities plugin';

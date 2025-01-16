@@ -1048,6 +1048,7 @@ $string['enrolusersaction:alert'] = '<div class="alert alert-info" role="alert">
 </div>';
 $string['enroluserstowaitinglist'] = "Buchende NutzerInnen auf die Warteliste setzen und erst nach Bestätigung einschreiben?";
 $string['enroluserwhobookedtocourse'] = "Möchten Sie selbst auch in den verknüpften Kurs eingeschrieben werden? <br> In diesem Fall wird von Kontingent der gekauften Plätze direkt ein Platz abgezogen.";
+$string['enroluserwhobookedtocoursewarning'] = "Wenn Sie nur einen Platz kaufen und selbst eingeschrieben werden, wird kein Einschreibelink generiert.";
 $string['enteruserprofilefield'] = "Wähle Nutzer:innen nach eingegebenem Wert für Profilfeld. Achtung! Das betrifft ALLE Nutzer:inne nauf der Plattform.";
 $string['entervalidurl'] = 'Bitte geben Sie eine gültige URL an!';
 $string['entities'] = 'Orte mit Entities Plugin auswählen';
