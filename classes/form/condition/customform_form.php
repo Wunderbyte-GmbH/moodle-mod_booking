@@ -304,6 +304,24 @@ class customform_form extends dynamic_form {
                             'customform_enroluserwhobookedcheckbox_' . $formelementvalue->formtype . '_' . $counter,
                             1
                         );
+                        $mform->addElement(
+                            'static',
+                            'infoenroluserwhobookedstatic',
+                            '',
+                            get_string('enroluserwhobookedtocoursewarning', 'mod_booking')
+                        );
+                        $mform->hideIf(
+                            'infoenroluserwhobookedstatic',
+                            $identifier,
+                            'neq',
+                            '1'
+                        );
+                        $mform->hideIf(
+                            'infoenroluserwhobookedstatic',
+                            'customform_enroluserwhobookedcheckbox_' . $formelementvalue->formtype . '_' . $counter,
+                            'neq',
+                            '1'
+                        );
                 }
 
                 $counter++;
