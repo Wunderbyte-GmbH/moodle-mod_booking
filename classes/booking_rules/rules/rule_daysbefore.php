@@ -92,9 +92,10 @@ class rule_daysbefore implements booking_rule {
      *
      * @param MoodleQuickForm $mform
      * @param array $repeateloptions
+     * @param array $ajaxformdata
      * @return void
      */
-    public function add_rule_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
+    public function add_rule_to_mform(MoodleQuickForm &$mform, array &$repeateloptions, array $ajaxformdata = []) {
         global $DB;
 
         $numberofdaysbefore = [];

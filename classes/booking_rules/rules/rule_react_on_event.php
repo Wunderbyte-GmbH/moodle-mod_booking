@@ -107,9 +107,10 @@ class rule_react_on_event implements booking_rule {
      *
      * @param MoodleQuickForm $mform
      * @param array $repeateloptions
+     * @param array $ajaxformdata
      * @return void
      */
-    public function add_rule_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
+    public function add_rule_to_mform(MoodleQuickForm &$mform, array &$repeateloptions, array $ajaxformdata = []) {
 
         // Only these events are currently supported and tested.
         $allowedeventkeys = [
@@ -202,7 +203,7 @@ class rule_react_on_event implements booking_rule {
 
         $mform->hideIf('rule_react_on_event_after_completion', 'rule_react_on_event_event', 'in', $notborelatedevents);
 
-        $rules = booking_rules::get_list_of_saved_rules_by_context();
+        $rules = booking_rules::get_list_of_saved_rules_by_context($ajaxformdata['contextid'] ?? 1);
 
         $rulesselect = [];
         foreach ($rules as $rule) {

@@ -159,7 +159,7 @@ class rules_info {
             return;
         }
 
-        $rule->add_rule_to_mform($mform, $repeateloptions);
+        $rule->add_rule_to_mform($mform, $repeateloptions, $ajaxformdata);
 
         $mform->addElement('html', '<hr>');
 
