@@ -1,3 +1,6 @@
+## Version 8.9.14 (2025011601)
+* Improvement: Changed dependency of Wunderbyte Table to newer version fixing wbt_field_controllers.
+
 ## Version 8.9.13 (2025011600)
 * New feature: Add possibility to display the values of any booking option customfields on detail page. (#774)
 * Improvement: Add action delete button to new report2.
