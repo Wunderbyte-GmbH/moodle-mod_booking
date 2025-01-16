@@ -1010,9 +1010,9 @@ class booking_option {
      *        The number of bookings for the user has to be decreased by one, because, the user will
      *        be unsubscribed
      *        from the old booking option afterwards (which is not yet taken into account).
-     * @param int $status 1 if we just added this booking option to the shopping cart, 2 for confirmation. See MOD_BOOKING_BO_SUBMIT_STATUS_*
+     * @param int $status 1 added to shopping cart, 2 for confirmation. See MOD_BOOKING_BO_SUBMIT_STATUS_*
      * @param int $verified 0 for unverified, 1 for pending and 2 for verified.
-     * @param enrollink|null $enrollink
+     * @param mixed $enrollink
      * @return bool true if booking was possible, false if meanwhile the booking got full
      */
     public function user_submit_response(
