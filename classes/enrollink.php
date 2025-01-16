@@ -157,14 +157,16 @@ class enrollink {
     }
 
     /**
-     * [Description for update_consumed_items]
+     * Add consumed item to enrollink table and update bookinganswer.
+     * If the user is the initial user who bought the bundle, the consumed item should not be deduced from bookinganswer places.
      *
      * @param int $userid
+     * @param bool $initialuser
      *
      * @return bool
      *
      */
-    public function add_consumed_item(int $userid): bool {
+    public function add_consumed_item(int $userid, bool $initialuser = false): bool {
         global $DB;
         if (
             empty($this->free_places_left())
@@ -194,7 +196,9 @@ class enrollink {
         $this->itemsconsumed[$id] = $data;
         $this->freeseats--;
 
-        $this->update_bookinganswer($this->erlid);
+        if (!$initialuser) {
+            $this->update_bookinganswer($this->erlid);
+        }
         return true;
     }
 
@@ -348,20 +352,12 @@ class enrollink {
         if (empty($key)) {
             return false;
         };
-
+        $freeplaces = false;
         $places = $answer->$key;
+        if ($places > 0) {
+            $freeplaces = true;
+        }
 
-        // Check if user who bought was enrolled fo the course. If so, deduce one place.
-        if (
-            isset($bookinganswer->answers[$baid])
-            && self::enroluseraction_allows_enrolment($bookinganswer, $baid)
-        ) {
-            $places--;
-        }
-        // If there are no seats left, don't trigger actions (Maybe user bought only one seat and was enrolled).
-        if ((int) $places < 1) {
-            return false;
-        }
         // Update table.
         $data = new stdClass();
         $data->courseid = $settings->courseid;
@@ -375,26 +371,39 @@ class enrollink {
         $data->optionid = $optionid;
         $id = $DB->insert_record('booking_enrollink_bundles', $data);
 
-        $bas = singleton_service::get_instance_of_booking_answers($settings);
-        $barecord = $bas->answers[$baid];
+        // Check if user who bought was enrolled fo the course. If so, add item to db.
+        if (
+            isset($bookinganswer->answers[$baid])
+            && self::enroluseraction_allows_enrolment($bookinganswer, $baid)
+        ) {
+            $el = new enrollink($data->erlid);
+            $el->add_consumed_item($userid, true);
+            if ($places == 1) {
+                $freeplaces = false;
+            }
+        }
 
-        // Trigger event.
-        $event = enrollink_triggered::create([
-            'objectid' => $optionid, // Always needs to be the optionid, to make sure rules are applied correctly.
-            'context' => \context_module::instance($settings->cmid),
-            'userid' => $USER->id, // The user who triggered the event.
-            'relateduserid' => $userid, // Affected user.
-            'other' => [
-                'places' => $places,
-                'optionid' => $optionid,
-                'courseid' => $settings->courseid,
-                'erlid' => $data->erlid, // The hash of this enrollink bundle.
-                'bundleid' => $id, // The hash of this enrollink bundle.
-                'json' => $barecord->json,
-            ],
-        ]);
-        $event->trigger();
+        if ($freeplaces) {
+            $bas = singleton_service::get_instance_of_booking_answers($settings);
+            $barecord = $bas->answers[$baid];
 
+            // Trigger event.
+            $event = enrollink_triggered::create([
+                'objectid' => $optionid, // Always needs to be the optionid, to make sure rules are applied correctly.
+                'context' => \context_module::instance($settings->cmid),
+                'userid' => $USER->id, // The user who triggered the event.
+                'relateduserid' => $userid, // Affected user.
+                'other' => [
+                    'places' => $places,
+                    'optionid' => $optionid,
+                    'courseid' => $settings->courseid,
+                    'erlid' => $data->erlid, // The hash of this enrollink bundle.
+                    'bundleid' => $id, // The hash of this enrollink bundle.
+                    'json' => $barecord->json,
+                ],
+            ]);
+            $event->trigger();
+        }
         return true;
     }
 
