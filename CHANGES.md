@@ -1,3 +1,6 @@
+## Version 8.9.15 (2025011700)
+* Hotfix: Make sure missing rules_info in lib.php does not break the upgrade. (#805)
+
 ## Version 8.9.14 (2025011601)
 * Improvement: Changed dependency of Wunderbyte Table to newer version fixing wbt_field_controllers.
 
