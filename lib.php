@@ -2363,9 +2363,12 @@ function clean_string(string $text) {
 
 // With this function, we can execute code at the last moment.
 register_shutdown_function(function () {
+    // Bugfix: Make sure this does not break the update process if class is not existing yet.
+    if (!class_exists('\mod_booking\booking_rules\rules_info')) {
+        return;
+    }
 
     // To avoid loops, we need a counter.
-
     $counter = 0;
     $rules = rules_info::$rulestoexecute;
     while (
