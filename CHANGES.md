@@ -1,3 +1,6 @@
+## Version 8.9.16 (2025011702)
+* Bugfix: Only add setting optionviewcustomfields if custom fields exist.
+
 ## Version 8.9.15 (2025011700)
 * Hotfix: Make sure missing rules_info in lib.php does not break the upgrade. (#805)
 
