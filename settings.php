@@ -332,20 +332,21 @@ if ($ADMIN->fulltree) {
 
     // Custom fields to be shown on detail page (optionview.php).
     $customfields = booking_handler::get_customfields();
-    $customfieldshortnames = [];
-    foreach ($customfields as $cf) {
-        $customfieldshortnames[$cf->shortname] = "$cf->name ($cf->shortname)";
+    if (!empty($customfields)) {
+        $customfieldshortnames = [];
+        foreach ($customfields as $cf) {
+            $customfieldshortnames[$cf->shortname] = "$cf->name ($cf->shortname)";
+        }
+        $settings->add(
+            new admin_setting_configmultiselect(
+                'booking/optionviewcustomfields',
+                get_string('optionviewcustomfields', 'mod_booking'),
+                get_string('optionviewcustomfieldsdesc', 'mod_booking'),
+                [],
+                $customfieldshortnames
+            )
+        );
     }
-
-    $settings->add(
-        new admin_setting_configmultiselect(
-            'booking/optionviewcustomfields',
-            get_string('optionviewcustomfields', 'mod_booking'),
-            get_string('optionviewcustomfieldsdesc', 'mod_booking'),
-            [],
-            $customfieldshortnames
-        )
-    );
 
     $settings->add(
         new admin_setting_configcheckbox(
