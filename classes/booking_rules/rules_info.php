@@ -99,15 +99,26 @@ class rules_info {
         $buttonargs = ['class' => 'd-none'];
 
         $mform->registerNoSubmitButton('btn_bookingruletemplates');
-        $mform->addElement('select', 'bookingruletemplate',
-              get_string('bookingruletemplates', 'mod_booking'), $templates);
-        $mform->addElement('submit', 'btn_bookingruletemplates',
-              get_string('bookingruletemplates', 'mod_booking'), $buttonargs);
+        $mform->addElement(
+            'select',
+            'bookingruletemplate',
+            get_string('bookingruletemplates', 'mod_booking'),
+            $templates
+        );
+        $mform->addElement(
+            'submit',
+            'btn_bookingruletemplates',
+            get_string('bookingruletemplates', 'mod_booking'),
+            $buttonargs
+        );
         $mform->setType('btn_bookingruletemplates', PARAM_NOTAGS);
 
         if (has_capability('mod/booking:manageoptiontemplates', context_system::instance())) {
-            $mform->addElement('advcheckbox', 'useastemplate',
-                get_string('bookinguseastemplate', 'mod_booking'));
+            $mform->addElement(
+                'advcheckbox',
+                'useastemplate',
+                get_string('bookinguseastemplate', 'mod_booking')
+            );
         }
         $mform->addElement(
             'advcheckbox',
@@ -123,16 +134,24 @@ class rules_info {
         $mform->setDefault('ruleisactive', $active);
 
         $mform->registerNoSubmitButton('btn_bookingruletype');
-        $mform->addElement('select', 'bookingruletype',
-            get_string('bookingrule', 'mod_booking'), $rulesforselect);
-        $mform->addElement('submit', 'btn_bookingruletype',
-            get_string('bookingrule', 'mod_booking'), $buttonargs);
+        $mform->addElement(
+            'select',
+            'bookingruletype',
+            get_string('bookingrule', 'mod_booking'),
+            $rulesforselect
+        );
+        $mform->addElement(
+            'submit',
+            'btn_bookingruletype',
+            get_string('bookingrule', 'mod_booking'),
+            $buttonargs
+        );
         $mform->setType('btn_bookingruletype', PARAM_NOTAGS);
 
         if (isset($ajaxformdata['bookingruletype'])) {
             $rule = self::get_rule($ajaxformdata['bookingruletype']);
         } else {
-            list($rule) = $rules;
+            [$rule] = $rules;
         }
 
         // We skip if no rule was selected.
@@ -429,7 +448,6 @@ class rules_info {
             $ruledata = $ruleobject->ruledata;
             if (!empty($ruledata->cancelrules)) {
                 foreach ($ruledata->cancelrules as $cancelrule) {
-
                     foreach ($rulestoexecute as $key => $rulearray) {
                         if ($rulearray['ruleid'] == $cancelrule) {
                             unset($rulestoexecute[$key]);
