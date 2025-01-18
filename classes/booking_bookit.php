@@ -173,13 +173,15 @@ class booking_bookit {
         if ($showprepagemodal) {
             // We render the button only from the highest relevant blocking condition.
 
-            $data = new prepagemodal(
+            $data = (array)new prepagemodal(
                 $settings, // We pass on the optionid.
                 count($prepages), // The total number of pre booking pages.
                 $buttoncondition,  // This is the button we need to render twice.
                 !$justmyalert ? $extrabuttoncondition : '', // There might be a second button to render.
                 $userid, // The userid for which all this will be rendered.
             );
+
+            $data['results'] = json_encode(array_keys($results));
 
             $datas[] = $data;
 
