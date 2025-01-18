@@ -107,20 +107,20 @@ final class bookitbutton_test extends advanced_testcase {
                 switch ($user['role']) {
                     case 'teacher':
                         $teacher = $this->getDataGenerator()->create_user($user);
-                        $teachers[$teacher->id] = $teacher;
-                        $users[] = $teacher;
+                        $teachers[$teacher->username] = $teacher;
+                        $users[$teacher->username] = $teacher;
                         $this->getDataGenerator()->enrol_user($teacher->id, $course->id);
                         break;
                     case 'bookingmanager':
                         $bookingmanager = $this->getDataGenerator()->create_user($user);
                         $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id);
-                        $users[] = $bookingmanager;
+                        $users[$bookingmanager->username] = $bookingmanager;
                         break;
                     default:
                         $student = $this->getDataGenerator()->create_user($user);
-                        $students[$student->id] = $student;
+                        $students[$student->username] = $student;
                         $this->getDataGenerator()->enrol_user($student->id, $course->id);
-                        $users[] = $student;
+                        $users[$student->username] = $student;
                         break;
                 }
             }
@@ -135,7 +135,7 @@ final class bookitbutton_test extends advanced_testcase {
                     $option['bookingid'] = $booking->id;
                     $option = $plugingenerator->create_option((object)$option);
 
-                    $bookingoptions[] = $option;
+                    $bookingoptions[$option->identifier] = $option;
                 }
             }
         }
@@ -153,10 +153,30 @@ final class bookitbutton_test extends advanced_testcase {
             [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $user->id, false);
             $this->assertEquals($expecteddata['bo_cond'], $id);
 
+            // We can also check how the button actually looks which will be displayed to this user.
+            [$templates, $datas] = booking_bookit::render_bookit_template_data($settings, $user->id);
+
+            if ($expecteddata['label'] ?? false) {
+                // Check the label of the button.
+                $label = $datas[0]->data["main"]["label"];
+                $this->assertEquals($expecteddata['label'], $label);
+            }
+
             if ($expecteddata['showprice']) {
                 $price = price::get_price('option', $settings->id, $user);
 
+                // We check the price which is stored.
                 $this->assertEquals($expecteddata['price'], (float)$price['price']);
+
+                // Here we check the price which is shown on the button.
+
+                if (!is_array($datas[0]->data["price"])) {
+                    $price = $datas[0]->data["price"] ?? null;
+                    $this->assertEquals($expecteddata['price'], (float)$price);
+                } else {
+                    $price = $datas[0]->data["price"]["price"] ?? 0;
+                    $this->assertEquals($expecteddata['price'], (float)$price);
+                }
             }
         }
     }
@@ -175,21 +195,21 @@ final class bookitbutton_test extends advanced_testcase {
                 'ordernum' => 1,
                 'name' => 'default',
                 'identifier' => 'default',
-                'defaultvalue' => 100,
+                'defaultvalue' => 111,
                 'pricecatsortorder' => 1,
             ],
             [
                 'ordernum' => 2,
                 'name' => 'student',
                 'identifier' => 'student',
-                'defaultvalue' => 100,
+                'defaultvalue' => 222,
                 'pricecatsortorder' => 2,
             ],
             [
                 'ordernum' => 3,
                 'name' => 'staff',
                 'identifier' => 'staff',
-                'defaultvalue' => 100,
+                'defaultvalue' => 333,
                 'pricecatsortorder' => 3,
             ],
         ];
@@ -198,6 +218,7 @@ final class bookitbutton_test extends advanced_testcase {
             [
                 'text' => 'Test Booking Option without price',
                 'description' => 'Test Booking Option',
+                'identifier' => 'noprice',
                 'maxanswers' => 1,
                 'useprice' => 0,
                 'price' => 0,
@@ -208,6 +229,7 @@ final class bookitbutton_test extends advanced_testcase {
             [
                 'text' => 'Test Booking Option with price',
                 'description' => 'Test Booking Option',
+                'identifier' => 'withprice',
                 'maxanswers' => 1,
                 'useprice' => 1,
                 'default' => 20,
@@ -216,8 +238,9 @@ final class bookitbutton_test extends advanced_testcase {
                 'importing' => 1,
             ],
             [
-                'text' => 'Test Booking Option with price',
+                'text' => 'Disalbed Test Booking Option',
                 'description' => 'Test Booking Option',
+                'identifier' => 'disabledoption',
                 'maxanswers' => 1,
                 'useprice' => 1,
                 'default' => 20,
@@ -225,6 +248,30 @@ final class bookitbutton_test extends advanced_testcase {
                 'staff' => 30,
                 'importing' => 1,
                 'disablebookingusers' => 1,
+            ],
+            [
+                'text' => 'Wait for confirmation Booking Option, no price',
+                'description' => 'Test Booking Option',
+                'identifier' => 'waitforconfirmationnoprice',
+                'maxanswers' => 1,
+                'useprice' => 0,
+                'default' => 20,
+                'student' => 10,
+                'staff' => 30,
+                'importing' => 1,
+                'waitforconfirmation' => 1,
+            ],
+            [
+                'text' => 'Wait for confirmation Booking Option, price',
+                'description' => 'Test Booking Option',
+                'identifier' => 'waitforconfirmationwithprice',
+                'maxanswers' => 1,
+                'useprice' => 1,
+                'default' => 20,
+                'student' => 10,
+                'staff' => 0,
+                'importing' => 1,
+                'waitforconfirmation' => 1,
             ],
         ];
 
@@ -268,6 +315,7 @@ final class bookitbutton_test extends advanced_testcase {
 
         $standardusers = [
             [ // User 0 in tests.
+                'username'  => 'student1',
                 'firstname' => "Student",
                 'lastname' => "Tester",
                 'email' => 'student.tester1@example.com',
@@ -276,6 +324,7 @@ final class bookitbutton_test extends advanced_testcase {
             ],
             [
                 // User 1 in tests.
+                'username' => 'teacher1',
                 'firstname' => "Teacher",
                 'lastname' => "Tester",
                 'email' => 'teacher.tester1@example.com',
@@ -284,6 +333,7 @@ final class bookitbutton_test extends advanced_testcase {
             ],
             [
                 // User 2 in tests.
+                'username' => 'bookingmanager',
                 'firstname' => "Booking",
                 'lastname' => "Manager",
                 'email' => 'booking.manager@example.com',
@@ -312,8 +362,8 @@ final class bookitbutton_test extends advanced_testcase {
             'pricecategories' => $standardpricecategories,
             'expected' => [
                 [
-                    'user' => 0,
-                    'boookingoption' => 0,
+                    'user' => 'student1',
+                    'boookingoption' => 'noprice',
                     'bo_cond' => MOD_BOOKING_BO_COND_BOOKITBUTTON,
                     'showprice' => false,
                     'price' => 0,
@@ -321,8 +371,8 @@ final class bookitbutton_test extends advanced_testcase {
                     'canbook' => 1,
                 ],
                 [
-                    'user' => 0,
-                    'boookingoption' => 1,
+                    'user' => 'student1',
+                    'boookingoption' => 'withprice',
                     'bo_cond' => MOD_BOOKING_BO_COND_PRICEISSET,
                     'showprice' => true,
                     'price' => 10,
@@ -330,8 +380,8 @@ final class bookitbutton_test extends advanced_testcase {
                     'canbook' => 1,
                 ],
                 [
-                    'user' => 1,
-                    'boookingoption' => 1,
+                    'user' => 'teacher1',
+                    'boookingoption' => 'withprice',
                     'bo_cond' => MOD_BOOKING_BO_COND_PRICEISSET,
                     'showprice' => true,
                     'price' => 20,
@@ -339,8 +389,8 @@ final class bookitbutton_test extends advanced_testcase {
                     'canbook' => 1,
                 ],
                 [
-                    'user' => 2,
-                    'boookingoption' => 1,
+                    'user' => 'bookingmanager',
+                    'boookingoption' => 'withprice',
                     'bo_cond' => MOD_BOOKING_BO_COND_PRICEISSET,
                     'showprice' => true,
                     'price' => 30,
@@ -348,11 +398,38 @@ final class bookitbutton_test extends advanced_testcase {
                     'canbook' => 1,
                 ],
                 [
-                    'user' => 0,
-                    'boookingoption' => 2,
+                    'user' => 'student1',
+                    'boookingoption' => 'disabledoption', // Booking disabled.
                     'bo_cond' => MOD_BOOKING_BO_COND_ISBOOKABLE,
                     'showprice' => false,
                     'price' => 30,
+                    'cancancelbook' => 0,
+                    'canbook' => 1,
+                ],
+                [
+                    'user' => 'student1',
+                    'boookingoption' => 'waitforconfirmationnoprice', // Ask for confirmation, no price.
+                    'bo_cond' => MOD_BOOKING_BO_COND_ASKFORCONFIRMATION,
+                    'showprice' => false,
+                    'price' => 30,
+                    'cancancelbook' => 0,
+                    'canbook' => 1,
+                ],
+                [
+                    'user' => 'student1',
+                    'boookingoption' => 'waitforconfirmationwithprice', // Ask for confirmation, price.
+                    'bo_cond' => MOD_BOOKING_BO_COND_ASKFORCONFIRMATION,
+                    'showprice' => true,
+                    'price' => 10,
+                    'cancancelbook' => 0,
+                    'canbook' => 1,
+                ],
+                [
+                    'user' => 'bookingmanager',
+                    'boookingoption' => 'waitforconfirmationwithprice', // Ask for confirmation, price.
+                    'bo_cond' => MOD_BOOKING_BO_COND_ASKFORCONFIRMATION,
+                    'showprice' => true,
+                    'price' => 0,
                     'cancancelbook' => 0,
                     'canbook' => 1,
                 ],

@@ -190,20 +190,19 @@ class price extends field_base {
             }
 
             foreach ($pricehandler->pricecategories as $category) {
-
                 // If we have an imported value, we use it here.
                 // To do this, we look in data for the price category identifier.
-                if (!empty($data->{$category->identifier}) && is_numeric($data->{$category->identifier})) {
+                if (isset($data->{$category->identifier}) && is_numeric($data->{$category->identifier})) {
                     $price = $data->{$category->identifier};
                     // We don't want this value to be used elsewhere.
                 } else {
                     // Make sure that if prices exist, we do not lose them.
                     $items = array_filter($priceitems, fn($a) => $a->pricecategoryidentifier == $category->identifier);
                     $item = reset($items);
-                    $price = $item->price ?? $category->defaultvalue ?? 0;
+                    $price = $item->price ?? $category->defaultvalue ?? null;
                 }
 
-                if (!empty($price)) {
+                if ($price !== null) {
                     $encodedkey = bin2hex($category->identifier);
                     $pricegroup = MOD_BOOKING_FORM_PRICEGROUP . $encodedkey;
                     $priceidentifier = MOD_BOOKING_FORM_PRICE . $encodedkey;
