@@ -168,6 +168,7 @@ final class rules_enrollink_test extends advanced_testcase {
         $record->bo_cond_customform_select_1_1 = 'enrolusersaction';
         $record->bo_cond_customform_label_1_1 = 'Number of user';
         $record->bo_cond_customform_value_1_1 = 1;
+        $record->importing = 1;
 
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);

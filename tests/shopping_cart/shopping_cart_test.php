@@ -137,6 +137,7 @@ final class shopping_cart_test extends advanced_testcase {
         $record->courseid = $course2->id;
         $record->maxanswers = 2;
         $record->useprice = 1; // Use price from the default category.
+        $record->importing = 1;
         // Allow and configure installemnts for option.
         $record->sch_allowinstallment = 1;
         $record->sch_downpayment = 44;
@@ -293,6 +294,7 @@ final class shopping_cart_test extends advanced_testcase {
         $record->daystonotify_1 = "0";
         $record->coursestarttime_1 = strtotime('now + 3 day');
         $record->courseendtime_1 = strtotime('now + 6 day');
+        $record->importing = 1;
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
@@ -517,6 +519,7 @@ final class shopping_cart_test extends advanced_testcase {
         $record->courseid = $course2->id;
         $record->maxanswers = 4;
         $record->useprice = 1; // Use price from the default category.
+        $record->importing = 1;
         // Set test objective setting(s) - custoform "select".
         $record->bo_cond_customform_restrict = 1;
         $record->bo_cond_customform_select_1_1 = 'select';
@@ -651,6 +654,7 @@ final class shopping_cart_test extends advanced_testcase {
         $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course2->id;
         $record->useprice = 1; // Use price from the default category.
+        $record->importing = 1;
         $record->teachersforoption = $teacher->username;
         $option1 = $plugingenerator->create_option($record);
 
@@ -857,6 +861,7 @@ final class shopping_cart_test extends advanced_testcase {
         $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course2->id;
         $record->useprice = 1; // Use price from the default category.
+        $record->importing = 1;
         $record->teachersforoption = $teacher->username;
         $option1 = $plugingenerator->create_option($record);
 
@@ -1046,6 +1051,7 @@ final class shopping_cart_test extends advanced_testcase {
         $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course2->id;
         $record->useprice = 1; // Use price from the default category.
+        $record->importing = 1;
         $record->teachersforoption = $teacher->username;
         $option1 = $plugingenerator->create_option($record);
 

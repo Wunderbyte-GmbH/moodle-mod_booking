@@ -206,6 +206,7 @@ final class condition_all_test extends advanced_testcase {
         $record->courseid = $course2->id;
         $record->maxanswers = 2;
         $record->useprice = 1; // Use price from the default category.
+        $record->importing = 1;
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
@@ -393,6 +394,7 @@ final class condition_all_test extends advanced_testcase {
         $record->courseid = $course2->id;
         $record->maxanswers = 2;
         $record->useprice = 1; // Use price from the default category.
+        $record->importing = 1;
         $option1 = $plugingenerator->create_option($record);
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
@@ -547,6 +549,7 @@ final class condition_all_test extends advanced_testcase {
         $record->courseid = $course2->id;
         $record->maxanswers = 2;
         $record->useprice = 1; // Use price from the default category.
+        $record->importing = 1;
         $option1 = $plugingenerator->create_option($record);
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
@@ -1312,6 +1315,7 @@ final class condition_all_test extends advanced_testcase {
         $record->maxoverbooking = 2;
         $record->waitforconfirmation = 1;
         $record->useprice = 1; // Use price from the default category.
+        $record->importing = 1;
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
@@ -1637,6 +1641,7 @@ final class condition_all_test extends advanced_testcase {
         $record->maxoverbooking = 0;  // Disable waitinglist.
         $record->waitforconfirmation = 0; // Waitinglist nof enforced.
         $record->useprice = 1; // Use price from the default category.
+        $record->importing = 1;
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
