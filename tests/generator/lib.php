@@ -145,7 +145,7 @@ class mod_booking_generator extends testing_module_generator {
         // Finalizing object with required properties.
         $record->id = 0;
         $record->cmid = $booking->cmid;
-        $record->identifier = booking_option::create_truly_unique_option_identifier();
+        $record->identifier = $record->identifier ?? booking_option::create_truly_unique_option_identifier();
 
         $context = context_module::instance($record->cmid);
 
@@ -171,12 +171,12 @@ class mod_booking_generator extends testing_module_generator {
 
         // Create / save booking option(s).
         if ($record->id = booking_option::update($record, $context)) {
-            $record->optionid = $record->id;
+            //$record->optionid = $record->id;
 
             // Add price (via API).
-            $price = new Mod_bookingPrice('option', $record->id);
-            $price->set_data($record);
-            booking_option::update($record, $context);
+            // $price = new Mod_bookingPrice('option', $record->id);
+            // $price->set_data($record);
+            // booking_option::update($record, $context);
         }
 
         return $record;
