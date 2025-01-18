@@ -141,6 +141,13 @@ final class bookitbutton_test extends advanced_testcase {
         }
 
         foreach ($expected as $expecteddata) {
+
+            if (isset($expecteddata['config'])) {
+                foreach ($expecteddata['config'] as $key => $value) {
+                    set_config($key, $value, 'booking');
+                }
+            }
+
             $option = $bookingoptions[$expecteddata['boookingoption']];
             $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
 
@@ -176,6 +183,12 @@ final class bookitbutton_test extends advanced_testcase {
                 } else {
                     $price = $datas[0]->data["price"]["price"] ?? 0;
                     $this->assertEquals($expecteddata['price'], (float)$price);
+                }
+            }
+
+            if (isset($expecteddata['undoconfig'])) {
+                foreach ($expecteddata['undoconfig'] as $key => $value) {
+                    set_config($key, $value, 'booking');
                 }
             }
         }
