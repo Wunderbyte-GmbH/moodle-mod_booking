@@ -284,8 +284,18 @@ class askforconfirmation implements bo_condition {
         }
         $label = $this->get_description_string(false, $full, $settings);
 
-        return bo_info::render_button($settings, $userid, $label, 'btn btn-secondary mt-1 mb-1', false, $fullwidth,
-            'button', 'option', false, 'noforward');
+        return bo_info::render_button(
+            $settings,
+            $userid,
+            $label,
+            'btn btn-secondary mt-1 mb-1',
+            true,
+            $fullwidth,
+            'button',
+            'option',
+            false,
+            'noforward'
+        );
     }
 
     /**
