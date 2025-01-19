@@ -58,6 +58,8 @@ class prepagemodal implements renderable, templatable {
     /** @var string $inmodalbuttonhtml  */
     public $inmodalbuttonhtml = "";
 
+    /** @var string $results  */
+    public $results = "";
     /**
      * Constructor
      *
