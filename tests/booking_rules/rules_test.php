@@ -119,6 +119,7 @@ final class rules_test extends advanced_testcase {
         $record->daystonotify_1 = "0";
         $record->coursestarttime_1 = strtotime('20 June 2050 15:00');
         $record->courseendtime_1 = strtotime('20 July 2050 14:00');
+        $record->importing = 1;
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
 

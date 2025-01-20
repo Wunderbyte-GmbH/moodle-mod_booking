@@ -73,6 +73,7 @@ class availability extends field_base {
      */
     public static $alternativeimportidentifiers = [
         'boavenrolledincourse',
+        'bo_cond_customform_restrict',
     ];
 
     /**
