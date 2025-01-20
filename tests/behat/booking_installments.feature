@@ -54,8 +54,8 @@ Feature: Enabling installments as admin configuring installments as a teacher an
   @javascript
   Scenario: Add an installmetn for a booking option as a teacher and verify it
     Given the following "mod_booking > options" exist:
-      | booking     | text               | course | description | useprice | limitanswers | maxanswers | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
-      | BookingInst | Option-installment | C1     | Deskr2      | 1        | 1            | 4          | 0              | 0              | ## +5 days ##     | ## +8 days ##   |
+      | booking     | text               | course | description | importing | useprice | limitanswers | maxanswers | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | BookingInst | Option-installment | C1     | Deskr2      | 1         | 1        | 1            | 4          | 0              | 0              | ## +5 days ##     | ## +8 days ##   |
     And I am on the "BookingInst" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -88,8 +88,8 @@ Feature: Enabling installments as admin configuring installments as a teacher an
   @javascript
   Scenario: Add an installment for a booking option via DB and brought it as student
     Given the following "mod_booking > options" exist:
-      | booking     | text               | course | description | useprice | sch_allowinstallment | sch_downpayment | sch_numberofpayments | sch_duedaysbeforecoursestart | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
-      | BookingInst | Option-installment | C1     | Deskr2      | 1        | 1                    | 44              | 2                    | 1                            | 0              | 0              | ## +6 days ##     | ## +8 days ##   |
+      | booking     | text               | course | description | importing | useprice | sch_allowinstallment | sch_downpayment | sch_numberofpayments | sch_duedaysbeforecoursestart | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | BookingInst | Option-installment | C1     | Deskr2      | 1         | 1        | 1                    | 44              | 2                    | 1                            | 0              | 0              | ## +6 days ##     | ## +8 days ##   |
     And I am on the "BookingInst" Activity page logged in as student1
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I visit "/local/shopping_cart/checkout.php"
@@ -97,14 +97,14 @@ Feature: Enabling installments as admin configuring installments as a teacher an
     And I set the field "Use installment payments" to "checked"
     And I wait "1" seconds
     ## Disabled because of constant failures at GitHub. Working locally. See https://github.com/Wunderbyte-GmbH/moodle-mod_booking/issues/633 for detail
-    ##And I should see "Down payment for Option-installment"
-    ##And I should see "44 EUR instead of 88 EUR"
-    ##And I should see "Further payments"
-    ##And I should see "2" occurrences of "22 EUR on" in the ".sc_installments .furtherpayments" "css_element"
-    ##When I press "Checkout"
-    ##And I wait "1" seconds
-    ##And I press "Confirm"
-    ##And I wait until the page is ready
-    ##Then I should see "Payment successful!"
-    ##And I should see "Option-installment" in the ".payment-success ul.list-group" "css_element"
-    ##And I should see "44.00 EUR" in the ".payment-success ul.list-group" "css_element"
+    And I should see "Down payment for Option-installment"
+    And I should see "44 EUR instead of 88 EUR"
+    And I should see "Further payments"
+    And I should see "2" occurrences of "22 EUR on" in the ".sc_installments .furtherpayments" "css_element"
+    When I press "Checkout"
+    And I wait "1" seconds
+    And I press "Confirm"
+    And I wait until the page is ready
+    Then I should see "Payment successful!"
+    And I should see "Option-installment" in the ".payment-success ul.list-group" "css_element"
+    And I should see "44.00 EUR" in the ".payment-success ul.list-group" "css_element"

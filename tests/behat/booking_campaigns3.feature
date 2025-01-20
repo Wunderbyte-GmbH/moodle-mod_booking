@@ -48,12 +48,12 @@ Feature: Create booking campaigns3 for booking options as admin and booking it a
       | 2        | discount1  | Disc1 | 77           | 0        | 2                 |
       | 3        | discount2  | Disc2 | 66           | 0        | 3                 |
     And the following "mod_booking > options" exist:
-      | booking     | text                | course | description      | customfield_bexcluded1 | useprice | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
-      | BookingCMP  | Option-exclude      | C1     | NoPrice-excl_yes | yes                    | 0        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
-      | BookingCMP  | Option-include      | C1     | NoPrice-excl_no  | no                     | 0        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +3 days ##   |
-      | BookingCMP  | Option-nocustom     | C1     | nocustom         |                        | 0        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
-      | BookingCMP  | Option-priceexclude | C1     | Price-excl_yes   | yes                    | 1        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +3 days ##   |
-      | BookingCMP  | Option-priceinclude | C1     | Price-excl_no    | no                     | 1        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +3 days ##   |
+      | booking     | text                | course | description      | importing | customfield_bexcluded1 | useprice | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | BookingCMP  | Option-exclude      | C1     | NoPrice-excl_yes | 1         | yes                    | 0        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+      | BookingCMP  | Option-include      | C1     | NoPrice-excl_no  | 1         | no                     | 0        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +3 days ##   |
+      | BookingCMP  | Option-nocustom     | C1     | nocustom         | 1         |                        | 0        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+      | BookingCMP  | Option-priceexclude | C1     | Price-excl_yes   | 1         | yes                    | 1        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +3 days ##   |
+      | BookingCMP  | Option-priceinclude | C1     | Price-excl_no    | 1         | no                     | 1        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +3 days ##   |
     And I change viewport size to "1366x10000"
 
   ## @javascript

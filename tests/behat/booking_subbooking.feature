@@ -158,8 +158,8 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
       | 1        | default    | Price | 88           | 0        | 1                 |
       | 2        | discount1  | Disc1 | 77           | 0        | 2                 |
     And the following "mod_booking > options" exist:
-      | booking    | text           | course | description | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | useprice |
-      | My booking | Option-subitem | C1     | Subitem     | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 1        |
+      | booking    | text           | course | description | importing | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | useprice |
+      | My booking | Option-subitem | C1     | Subitem     | 1         | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 1        |
     And the following "mod_booking > subbookings" exist:
       | name | type                      | option         | block | json                                                                                                                                                                                                |
       | item | subbooking_additionalitem | Option-subitem | 0     | {"name":"MyItem","type":"subbooking_additionalitem","data":{"description":"item descr","descriptionformat":"1","useprice":"1","subbookingadditemformlink":"0","subbookingadditemformlinkvalue":""}} |
