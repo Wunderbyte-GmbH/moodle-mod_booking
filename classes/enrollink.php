@@ -409,7 +409,7 @@ class enrollink {
 
     /**
      * Check if enrolusersaction from customform applies.
-     * If so, return key of string in bookinganswer. Otherwise return empty stirng.
+     * If so, return key of string in bookinganswer. Otherwise return empty string.
      *
      * @param object $answer
      *
@@ -471,13 +471,37 @@ class enrollink {
         $formsarray = customform::return_formelements($settings);
 
         foreach ($formsarray as $forms) {
-            foreach ($forms as $form) {
-                if (
-                    $form->formtype == 'enrolusersaction'
-                    && !empty($form->enroluserstowaitinglist)
-                ) {
-                    return true;
-                }
+            if (
+                $forms->formtype == 'enrolusersaction'
+                && !empty($forms->enroluserstowaitinglist)
+            ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if it's the initial answer to enrol users.
+     *
+     * @param object $bookinganswer
+     *
+     * @return bool
+     *
+     */
+    public static function is_initial_answer(
+        object $answer,
+    ): bool {
+
+        if (!$answer->json) {
+            return false;
+        }
+        $data = json_decode($answer->json);
+        foreach ($data->condition_customform as $key => $value) {
+            if (
+                strpos($key, 'customform_enroluserwhobookedcheckbox_enrolusersaction') === 0
+            ) {
+                return true;
             }
         }
         return false;
