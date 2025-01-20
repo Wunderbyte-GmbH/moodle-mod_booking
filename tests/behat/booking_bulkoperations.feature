@@ -32,19 +32,19 @@ Feature: As admin - apply bulk operations under booking options.
       | 2        | discount1  | Disc1 | 77           | 0        | 2                 |
       | 3        | discount2  | Disc2 | 66           | 0        | 3                 |
     And the following "mod_booking > options" exist:
-      | booking     | text       | course | description    | maxanswers | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | optiondateid_2 | daystonotify_2 | coursestarttime_2 | courseendtime_2 | useprice | customfield_spt1 |
-      | BookingCMP  | Option01-t | C1     | Price-tenis    | 1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | tenis            |
-      | BookingCMP  | Option02-f | C1     | Price-football | 2          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | football         |
-      | BookingCMP  | Option03-y | C1     | Yoga-noprice   | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | yoga             |
-      | BookingCMP  | Option04-c | C1     | Price-chess    | 1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | chess            |
-      | BookingCMP  | Option05-r | C1     | Price-rugby    | 2          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | rugby            |
-      | BookingCMP  | Option06-d | C1     | Darth-noprice  | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | darth            |
-      | BookingCMP  | Option07-a | C1     | Price-auto     | 1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | auto             |
-      | BookingCMP  | Option08-m | C1     | Price-moto     | 2          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | moto             |
-      | BookingCMP  | Option09-p | C1     | Polo-noprice   | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | polo             |
-      | BookingCMP  | Option10-b | C1     | Price-box      | 1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | box              |
-      | BookingCMP  | Option11-j | C1     | Price-jump     | 2          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | jump             |
-      | BookingCMP  | Option12-s | C1     | Ski-noprice    | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | ski              |
+      | booking     | text       | course | description    | importing | maxanswers | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | optiondateid_2 | daystonotify_2 | coursestarttime_2 | courseendtime_2 | useprice | spt1     |
+      | BookingCMP  | Option01-t | C1     | Price-tenis    | 1         | 1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | tenis    |
+      | BookingCMP  | Option02-f | C1     | Price-football | 1         | 2          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | football |
+      | BookingCMP  | Option03-y | C1     | Yoga-noprice   | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | yoga     |
+      | BookingCMP  | Option04-c | C1     | Price-chess    | 1         | 1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | chess    |
+      | BookingCMP  | Option05-r | C1     | Price-rugby    | 1         | 2          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | rugby    |
+      | BookingCMP  | Option06-d | C1     | Darth-noprice  | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | darth    |
+      | BookingCMP  | Option07-a | C1     | Price-auto     | 1         | 1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | auto     |
+      | BookingCMP  | Option08-m | C1     | Price-moto     | 1         | 2          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | moto     |
+      | BookingCMP  | Option09-p | C1     | Polo-noprice   | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | polo     |
+      | BookingCMP  | Option10-b | C1     | Price-box      | 1         | 1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | box      |
+      | BookingCMP  | Option11-j | C1     | Price-jump     | 1         | 2          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | jump     |
+      | BookingCMP  | Option12-s | C1     | Ski-noprice    | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | ski      |
     And the following "activity" exists:
       | activity       | page                               |
       | course         | C1                                 |
@@ -54,6 +54,10 @@ Feature: As admin - apply bulk operations under booking options.
       | content        | [bulkoperations customfields=spt1] |
       | contentformat  | 0                                  |
     And I change viewport size to "1366x10000"
+    ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
+    And the following config values are set as admin:
+      | config      | value         |
+      | texteditors | atto,textarea |
 
   @javascript
   Scenario: Booking bulkoperations: create list and perform its basic management
@@ -92,7 +96,8 @@ Feature: As admin - apply bulk operations under booking options.
     And "//tr[contains(@id, '_optionbulkoperationstable_r10')]" "xpath_element" should not exist
     And I set the field with xpath "//input[contains(@name, '_optionbulkoperationstable')]" to ""
     ## Testing sorting
-    And I click on "th.id.wb-table-column" "css_element"
+    And I click on "th.id.wb-table-column.desc" "css_element"
+    And I wait "1" seconds
     And I should see "Option01-t" in the "//tr[contains(@id, '_optionbulkoperationstable_r1')]" "xpath_element"
     And I should see "Option12-s" in the "//tr[contains(@id, '_optionbulkoperationstable_r12')]" "xpath_element"
     ## Testing pagination
