@@ -32,6 +32,10 @@ Feature: Configure and validate different course connection settings for booking
       | activity | course | name       | intro                  | bookingmanager | eventtype | autoenrol |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | 1         |
     And I change viewport size to "1366x10000"
+    ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
+    And the following config values are set as admin:
+      | config      | value         |
+      | texteditors | atto,textarea |
 
   @javascript
   Scenario: Booking courseconnection: connect existing course and enroll users
@@ -40,9 +44,9 @@ Feature: Configure and validate different course connection settings for booking
       | linktomoodlecourseonbookedbutton | 1     | booking |
     ## New behavior - direct link to the connected course
     And the following "mod_booking > options" exist:
-      | booking    | text         | description  | chooseorcreatecourse | course | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
-      | My booking | Enroll_later | Enroll_later | 1                    | C2     | 0               | 0            | 0          | teacher1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
-      | My booking | Enroll_now   | Enroll_now   | 1                    | C3     | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
+      | booking    | text         | description  | importing | chooseorcreatecourse | course | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | My booking | Enroll_later | Enroll_later | 1         | 1                    | C2     | 0               | 0            | 0          | teacher1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+      | My booking | Enroll_now   | Enroll_now   | 1         | 1                    | C3     | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
     ## enrolmentstatus: 0 enrol at coursestart; 1 enrolment done; 2 immediately enrol
     ## Verify enroll later (at course start)
     And the following "mod_booking > answers" exist:
@@ -68,9 +72,9 @@ Feature: Configure and validate different course connection settings for booking
       | linktomoodlecourseonbookedbutton | 0     | booking |
     ## OLD behavior - "Booked" label and "Go to course" link to the connected course
     And the following "mod_booking > options" exist:
-      | booking    | text         | description  | course | chooseorcreatecourse | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
-      | My booking | Enroll_later | Enroll_later | C1     | 2                    | 0               | 0            | 0          | teacher1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
-      | My booking | Enroll_now   | Enroll_now   | C1     | 2                    | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
+      | booking    | text         | description  | importing | course | chooseorcreatecourse | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | My booking | Enroll_later | Enroll_later | 1         | C1     | 2                    | 0               | 0            | 0          | teacher1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+      | My booking | Enroll_now   | Enroll_now   | 1         | C1     | 2                    | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
     ## enrolmentstatus: 0 enrol at coursestart; 1 enrolment done; 2 immediately enrol
     ## Verify enroll later (at course start)
     And the following "mod_booking > answers" exist:
@@ -103,9 +107,9 @@ Feature: Configure and validate different course connection settings for booking
       | linktomoodlecourseonbookedbutton | 0         | booking |
     ## OLD behavior - "Booked" label and "Go to course" link to the connected course
     And the following "mod_booking > options" exist:
-      | booking    | text            | description | course | chooseorcreatecourse | customfield_coursecat | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
-      | My booking | Enroll_existcat | existcat    | C1     | 2                    | BookCat1              | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +1 days ##     | ## +3 days ##   |
-      | My booking | Enroll_newcat   | newcat      | C1     | 2                    | NewBookCat            | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
+      | booking    | text            | description | importing | course | chooseorcreatecourse | coursecat  | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | My booking | Enroll_existcat | existcat    | 1         | C1     | 2                    | BookCat1   | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +1 days ##     | ## +3 days ##   |
+      | My booking | Enroll_newcat   | newcat      | 1         | C1     | 2                    | NewBookCat | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
     And I am on the "My booking" Activity page logged in as student1
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
@@ -155,8 +159,8 @@ Feature: Configure and validate different course connection settings for booking
       | templatetags | optiontemplate |
     And I log out
     And the following "mod_booking > options" exist:
-      | booking    | text            | description | chooseorcreatecourse | customfield_coursecat | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
-      | My booking | Enroll_newcat   | newcat      | 3                    | NewBookCat            | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
+      | booking    | text            | description | importing | course | chooseorcreatecourse | coursecat  | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | My booking | Enroll_newcat   | newcat      | 1         | C1     | 3                    | NewBookCat | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
     ## Set course template visually to ensure all above defaults are OK.
     And I am on the "My booking" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
