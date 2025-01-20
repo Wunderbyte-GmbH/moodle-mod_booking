@@ -1021,7 +1021,6 @@ class booking_option {
         $subtractfromlimit = 0,
         $status = MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT,
         $verified = MOD_BOOKING_UNVERIFIED,
-        $erlid = null
     ) {
 
         global $USER;
@@ -1118,11 +1117,10 @@ class booking_option {
 
             // Should users who want to book be parked in the waitinglist waiting for confirmation.
             if (
-                ($waitinglist === MOD_BOOKING_STATUSPARAM_BOOKED
-                && !empty($this->settings->waitforconfirmation))
-                && ($status != MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL
+                ($waitinglist === MOD_BOOKING_STATUSPARAM_BOOKED)
+                && ($status != MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL && !empty($this->settings->waitforconfirmation))
                 || (($status === MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL)
-                && enrollink::enrolmentstatus_waitinglist($this->settings)))
+                && enrollink::enrolmentstatus_waitinglist($this->settings))
             ) {
                 $waitinglist = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
 

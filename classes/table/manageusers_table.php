@@ -24,6 +24,7 @@
  */
 
 namespace mod_booking\table;
+use mod_booking\enrollink;
 use mod_booking\event\bookinganswer_confirmed;
 
 defined('MOODLE_INTERNAL') || die();
@@ -236,9 +237,13 @@ class manageusers_table extends wunderbyte_table {
             $user = singleton_service::get_instance_of_user($userid);
 
             // If booking option is booked with a price, we don't book directly but just allow to book.
+            // Exeption: The booking is autoenrol and needs to be booked directly...
+            // In this case price can be given for bookingoption, but was already payed before.
             if (
                 !empty($settings->jsonobject->useprice)
                 && empty(get_config('booking', 'turnoffwaitinglist'))
+                && (!enrollink::enrolmentstatus_waitinglist($settings)
+                    || enrollink::is_initial_answer($record)) // Only the initial answer of enrollink needs to be bought.
             ) {
                 $option->user_submit_response($user, 0, 0, 2, MOD_BOOKING_VERIFIED);
             } else {
