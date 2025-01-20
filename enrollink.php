@@ -51,7 +51,7 @@ if (!empty($info)) {
     echo $OUTPUT->header();
     $output = $PAGE->get_renderer('mod_booking');
     global $USER;
-    $info = $enrollink->enrol_user( $USER->id);
+    $info = $enrollink->enrol_user($USER->id);
     $courselink = $enrollink->get_courselink_url();
     $infostring = $enrollink->get_readable_info($info);
     echo $output->render_from_template(

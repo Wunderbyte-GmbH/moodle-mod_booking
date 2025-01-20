@@ -48,8 +48,8 @@ class enrollink {
     /** @var string erlid  */
     public $erlid = 0;
 
-    /** @var string errorinfo  */
-    public $errorinfo = "";
+    /** @var int errorinfo  */
+    public $errorinfo = 0;
 
 
     /**
@@ -80,7 +80,7 @@ class enrollink {
             $this->freeseats = $this->bundle->places - count($this->itemsconsumed);
         } catch (\Exception $e) {
             $this->erlid = false;
-            $this->errorinfo = 'invalidenrollink';
+            $this->errorinfo = MOD_BOOKING_AUTOENROL_STATUS_LINK_NOT_VALID;
         }
     }
 
@@ -264,23 +264,23 @@ class enrollink {
      * Check if enrolment is blocked.
      *
      *
-     * @return string
+     * @return int
      *
      */
-    public function enrolment_blocking(): string {
+    public function enrolment_blocking(): int {
 
         if (!empty($this->errorinfo)) {
             return $this->errorinfo;
         }
 
         if (!$this->erlid) {
-            return 'invalidenrollink';
+            return MOD_BOOKING_AUTOENROL_STATUS_LINK_NOT_VALID;
         }
 
         if (empty($this->free_places_left())) {
-            return "nomoreseats";
+            return MOD_BOOKING_AUTOENROL_STATUS_NO_MORE_SEATS;
         }
-        return "";
+        return 0;
     }
 
 
