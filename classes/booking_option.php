@@ -1012,7 +1012,7 @@ class booking_option {
      *        from the old booking option afterwards (which is not yet taken into account).
      * @param int $status 1 added to shopping cart, 2 for confirmation. See MOD_BOOKING_BO_SUBMIT_STATUS_*
      * @param int $verified 0 for unverified, 1 for pending and 2 for verified.
-     * @param mixed $enrollink
+     * @param string $erlid the identifier of the enrollink, if given
      * @return bool true if booking was possible, false if meanwhile the booking got full
      */
     public function user_submit_response(
@@ -1021,6 +1021,7 @@ class booking_option {
         $subtractfromlimit = 0,
         $status = MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT,
         $verified = MOD_BOOKING_UNVERIFIED,
+        $erlid = "",
     ) {
 
         global $USER;
@@ -1134,7 +1135,7 @@ class booking_option {
             }
         }
 
-        self::write_user_answer_to_db(
+        $baid = self::write_user_answer_to_db(
             $this->booking->id,
             $frombookingid,
             $user->id,
@@ -1142,24 +1143,33 @@ class booking_option {
             $waitinglist,
             $currentanswerid,
             $timecreated,
-            $status
+            $status,
+            $erlid
         );
 
         if (
             $status === MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL
             && $waitinglist === MOD_BOOKING_STATUSPARAM_BOOKED
-            && !empty($enrollink)
         ) {
+            global $DB;
+            // Reinstanciate the enrollink class.
             // Check if the enrolment worked.
-            if ($enrollink->add_consumed_item($user->id)) {
-                $event = bookingoption_bookedviaautoenrol::create([
-                    'objectid' => $this->optionid,
-                    'context' => context_module::instance($this->cmid),
-                    'userid' => $USER->id, // The user triggered the action.
-                    'relateduserid' => $user->id, // Affected user - the user who is waiting for confirmation.
-                ]);
-                $event->trigger(); // This will trigger the observer function.
+            // We need the erlid in the bookinganswer.
+            $bajson = $DB->get_field('booking_answers', 'json', ['id' => $baid]);
+            $data = json_decode($bajson);
+            if (isset($data->erlid)) {
+                $enrollink = new enrollink($data->erlid);
+                if ($enrollink->add_consumed_item($user->id)) {
+                    $event = bookingoption_bookedviaautoenrol::create([
+                        'objectid' => $this->optionid,
+                        'context' => context_module::instance($this->cmid),
+                        'userid' => $USER->id, // The user triggered the action.
+                        'relateduserid' => $user->id, // Affected user - the user who is waiting for confirmation.
+                    ]);
+                    $event->trigger(); // This will trigger the observer function.
+                }
             }
+
         }
 
         // Important: Purge caches after submitting a new user.
@@ -1191,7 +1201,7 @@ class booking_option {
     }
 
     /**
-     * Handles the actual writing or updating.
+     * Handles the actual writing or updating. Returns ID.
      *
      * @param int $bookingid
      * @param int $frombookingid
@@ -1201,7 +1211,8 @@ class booking_option {
      * @param [type] $currentanswerid
      * @param [type] $timecreated
      * @param int $confirmwaitinglist
-     * @return void
+     * @param string $erlid
+     * @return int
      */
     public static function write_user_answer_to_db(int $bookingid,
                                             int $frombookingid,
@@ -1210,7 +1221,8 @@ class booking_option {
                                             int $waitinglist,
                                             $currentanswerid = null,
                                             $timecreated = null,
-                                            $confirmwaitinglist = 0) {
+                                            $confirmwaitinglist = 0,
+                                            $erlid = "") {
 
         global $DB, $USER;
 
@@ -1252,6 +1264,9 @@ class booking_option {
             self::remove_key_from_json($newanswer, 'confirmwaitinglist_modifieduserid');
             self::remove_key_from_json($newanswer, 'confirmwaitinglist_timemodified');
         }
+        if (!empty($erlid)) {
+            self::add_data_to_json($newanswer, 'erlid', $erlid);
+        }
 
         if (isset($currentanswerid)) {
             $newanswer->id = $currentanswerid;
@@ -1259,13 +1274,14 @@ class booking_option {
                 new \moodle_exception("dmlwriteexception");
             }
         } else {
-            if (!$DB->insert_record('booking_answers', $newanswer)) {
+            if (!$newanswer->id = $DB->insert_record('booking_answers', $newanswer)) {
                 new \moodle_exception("dmlwriteexception");
             }
         }
 
         // After writing an answer, cache has to be invalidated.
         self::purge_cache_for_answers($optionid);
+        return $newanswer->id;
     }
 
 

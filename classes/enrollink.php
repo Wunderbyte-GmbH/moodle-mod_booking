@@ -145,7 +145,7 @@ class enrollink {
                 1,
                 MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL,
                 MOD_BOOKING_VERIFIED,
-                $this
+                $this->erlid
             );
 
             // Enrol to bookingoption and reduce places in bookinganswer.
