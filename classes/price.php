@@ -70,7 +70,9 @@ class price {
     public function __construct(string $area, int $itemid = 0) {
         global $DB;
 
-        $this->pricecategories = $DB->get_records('booking_pricecategories', ['disabled' => 0]);
+        $sql = "SELECT * FROM {booking_pricecategories} WHERE disabled = 0 ORDER BY pricecatsortorder";
+
+        $this->pricecategories = $DB->get_records_sql($sql);
         $this->area = $area;
         $this->itemid = $itemid;
     }
@@ -757,7 +759,11 @@ class price {
                     $pricerecorddefault = $pricerecord;
                 }
                 // Looking for matched pricecategory.
-                if (!empty($categoryidentifier) && strpos($categoryidentifier, $pricecategoryidentifier) !== false) {
+                if (
+                    $pricecategoryfound === false
+                    && !empty($categoryidentifier)
+                    && strpos($categoryidentifier, $pricecategoryidentifier) !== false
+                ) {
                     $pricecategoryfound = true;
                     $price = [
                         "price" => $pricerecord->price,
@@ -938,7 +944,14 @@ class price {
             } else {
                 // Here, we haven't found user specific prices and we haven't found general prices.
                 // Therefore, we need to have a look in the DB.
-                if (!$prices = $DB->get_records('booking_prices', ['area' => $area, 'itemid' => $itemid])) {
+                $sql = "SELECT bp.*
+                        FROM {booking_prices} bp
+                        JOIN {booking_pricecategories} bpc ON bp.pricecategoryidentifier = bpc.identifier
+                        WHERE area = :area AND itemid = :itemid
+                        ORDER BY bpc.pricecatsortorder DESC";
+
+                $params = ['area' => $area, 'itemid' => $itemid];
+                if (!$prices = $DB->get_records_sql($sql, $params)) {
                     // If there are no prices at all, we can't have a campaign either.
                     $cache->set($cachekey, true);
                     $cache->set($usercachekey, true);
