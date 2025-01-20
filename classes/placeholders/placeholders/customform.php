@@ -123,8 +123,6 @@ class customform {
                                 }
                             }
                             $returnarray[] = "$formelement->label: $returnvalue";
-                        } else {
-                            $returnarray[] = "$formelement->label: $value";
                         }
                     }
                 }
