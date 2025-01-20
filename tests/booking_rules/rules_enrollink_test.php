@@ -274,8 +274,8 @@ final class rules_enrollink_test extends advanced_testcase {
         // Validate incorrect erlid.
         $enrollink = new enrollink('dummy');
         $info1 = $enrollink->enrolment_blocking();
-        $this->assertEquals('invalidenrollink', $enrollink->errorinfo);
-        $this->assertEquals('invalidenrollink', $info1);
+        $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_LINK_NOT_VALID, $enrollink->errorinfo);
+        $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_LINK_NOT_VALID, $info1);
 
         // Get erlid string.
         $erlid = str_replace('Number of user: 3', '', $message->fullmessage);
@@ -288,7 +288,7 @@ final class rules_enrollink_test extends advanced_testcase {
         $info1 = $enrollink->enrolment_blocking();
         $this->assertEmpty($info1);
         $info2 = $enrollink->enrol_user($USER->id);
-        $this->assertEquals('enrolmentexception', $info2);
+        $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_EXCEPTION, $info2);
 
         // Validate that student1 already booked and no consumtion.
         $this->setUser($student1);
@@ -296,7 +296,7 @@ final class rules_enrollink_test extends advanced_testcase {
         $this->assertEmpty($info1);
         $info2 = $enrollink->enrol_user($student1->id);
         $courselink = $enrollink->get_courselink_url();
-        $this->assertEquals('alreadyenrolled', $info2);
+        $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_ALREADY_ENROLLED, $info2);
         $this->assertStringContainsString('/moodle/course/view.php?id=' . $course2->id, $courselink);
         $this->assertEquals(3, $enrollink->free_places_left());
 
@@ -308,7 +308,7 @@ final class rules_enrollink_test extends advanced_testcase {
         $infostring = $enrollink->get_readable_info($info2);
         $courselink = $enrollink->get_courselink_url();
         // Validate enrollment status and remainaing free places.
-        $this->assertEquals('enrolled', $info2);
+        $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_SUCCESS, $info2);
         $this->assertEquals('Successfully enrolled', $infostring);
         $this->assertStringContainsString('/moodle/course/view.php?id=' . $course2->id, $courselink);
         $this->assertEquals(2, $enrollink->free_places_left());
@@ -320,7 +320,7 @@ final class rules_enrollink_test extends advanced_testcase {
         $info2 = $enrollink->enrol_user($student3->id);
         $courselink = $enrollink->get_courselink_url();
         // Validate enrollment status and remainaing free places.
-        $this->assertEquals('enrolled', $info2);
+        $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_SUCCESS, $info2);
         $this->assertStringContainsString('/moodle/course/view.php?id=' . $course2->id, $courselink);
         $this->assertEquals(1, $enrollink->free_places_left());
 
@@ -331,7 +331,7 @@ final class rules_enrollink_test extends advanced_testcase {
         $info2 = $enrollink->enrol_user($USER->id);
         $courselink = $enrollink->get_courselink_url();
         // Validate enrollment status and remainaing free places.
-        $this->assertEquals('enrolled', $info2);
+        $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_SUCCESS, $info2);
         $this->assertStringContainsString('/moodle/course/view.php?id=' . $course2->id, $courselink);
         $this->assertEquals(0, $enrollink->free_places_left());
         // TODO: Guest became enrolled. Does it correct behavior?
@@ -339,10 +339,10 @@ final class rules_enrollink_test extends advanced_testcase {
         // Proceed with enrolling of student3.
         $this->setUser($student4);
         $info1 = $enrollink->enrolment_blocking();
-        $this->assertEquals('nomoreseats', $info1);
+        $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_NO_MORE_SEATS, $info1);
         $info2 = $enrollink->enrol_user($student4->id);
         // Validate "nomoreseats" enrollment status and remainaing free places.
-        $this->assertEquals('nomoreseats', $info2);
+        $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_NO_MORE_SEATS, $info2);
         $this->assertEquals(0, $enrollink->free_places_left());
 
         // Mandatory to deal with static variable in the booking_rules.
