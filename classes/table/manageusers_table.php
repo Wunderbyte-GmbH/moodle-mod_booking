@@ -242,12 +242,18 @@ class manageusers_table extends wunderbyte_table {
             if (
                 !empty($settings->jsonobject->useprice)
                 && empty(get_config('booking', 'turnoffwaitinglist'))
-                && (!enrollink::enrolmentstatus_waitinglist($settings)
+                && (!$erwaitinglist = enrollink::enrolmentstatus_waitinglist($settings)
                     || enrollink::is_initial_answer($record)) // Only the initial answer of enrollink needs to be bought.
             ) {
                 $option->user_submit_response($user, 0, 0, 2, MOD_BOOKING_VERIFIED);
             } else {
-                $option->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED);
+                // Check if it's an autoenrollment. If so, we need to change the status.
+                if ($erwaitinglist) {
+                    $status = MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL;
+                } else {
+                    $status = MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT;
+                }
+                $option->user_submit_response($user, 0, 0, $status, MOD_BOOKING_VERIFIED);
             }
             // Event is triggered no matter if a bookinganswer with or without price was confirmed.
             $event = bookinganswer_confirmed::create(
