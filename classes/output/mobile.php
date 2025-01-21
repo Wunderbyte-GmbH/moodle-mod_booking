@@ -186,6 +186,7 @@ class mobile {
                 $data['nosubmit']['label'] = get_string('notbookable', 'mod_booking');
                 break;
             case MOD_BOOKING_BO_COND_ALREADYBOOKED:
+                $data['nosubmit']['label'] = get_string('alreadybooked', 'mod_booking');
                 self::render_course_button($data);
                 break;
             default:
@@ -193,7 +194,6 @@ class mobile {
                     = !empty($description) ? $description : get_string('notbookable', 'mod_booking');
                 break;
         }
-        self::render_course_button($data);
 
         $detailhtml = $OUTPUT->render_from_template('mod_booking/mobile/mobile_booking_option_details', $data);
         return [
@@ -218,7 +218,7 @@ class mobile {
             isset($data['courseid']) &&
             (int)$data['courseid'] > 0
         ) {
-            $linktocourse = $CFG->wwwroot . '/course/view.php?id=' . $data['courseid'];
+            $linktocourse = 'moodlemobile://' . $CFG->wwwroot . '?redirect=/course/view.php?id=' . $data['courseid'];
             if (get_config('booking', 'linktomoodlecourseonbookedbutton')) {
                 $data['linktomoodlecourseonbookedbutton'] = $linktocourse;
             } else {
@@ -310,26 +310,12 @@ class mobile {
 
         $records = self::get_available_booking_options($whichview, $cmid);
         $outputdata = [];
-        $pattern = '/<br\s*\/?>/i';
         $maxdatabeforecollapsable = get_config('booking', 'collapseshowsettings');
         if ($maxdatabeforecollapsable === false) {
             $maxdatabeforecollapsable = '2';
         }
         foreach ($records as $record) {
-            $settings = singleton_service::get_instance_of_booking_option_settings($record->id);
-            $tmpoutputdata = $settings->return_booking_option_information();
-            $tmpoutputdata['maxsessions'] = $maxdatabeforecollapsable;
-            $tmpoutputdata = $settings->return_booking_option_information();
-            $tmpoutputdata['description'] = preg_split($pattern, $tmpoutputdata['description']);
-            if (strlen($tmpoutputdata['description'][0]) > get_config('booking', 'collapsedescriptionmaxlength')) {
-                $tmpoutputdata['descriptioncollapsable'] = $tmpoutputdata['description'];
-                unset($tmpoutputdata['description']);
-            }
-            if (count($settings->sessions) > $maxdatabeforecollapsable) {
-                $tmpoutputdata['collapsedsessions'] = $tmpoutputdata['sessions'];
-                unset($tmpoutputdata['sessions']);
-            }
-            $outputdata[] = $tmpoutputdata;
+            $outputdata[] = self::get_course_view_output_dat($record->id, $maxdatabeforecollapsable);
         }
         $data = [];
         $data['availablenavtabs'] = $availablenavtabs;
@@ -347,6 +333,30 @@ class mobile {
             'javascript' => '',
             'otherdata' => ['data' => '{}'],
         ];
+    }
+
+    /**
+     * Get all selected nav tabs from the config
+     * @param int $recordid
+     * @param int $maxdatabeforecollapsable
+     * @return array
+     */
+    public static function get_course_view_output_dat($recordid, $maxdatabeforecollapsable) {
+        $pattern = '/<br\s*\/?>/i';
+        $settings = singleton_service::get_instance_of_booking_option_settings($recordid);
+        $tmpoutputdata = $settings->return_booking_option_information();
+        $tmpoutputdata['maxsessions'] = $maxdatabeforecollapsable;
+        $tmpoutputdata = $settings->return_booking_option_information();
+        $tmpoutputdata['description'] = preg_split($pattern, $tmpoutputdata['description']);
+        if (strlen($tmpoutputdata['description'][0]) > get_config('booking', 'collapsedescriptionmaxlength')) {
+            $tmpoutputdata['descriptioncollapsable'] = $tmpoutputdata['description'];
+            unset($tmpoutputdata['description']);
+        }
+        if (count($settings->sessions) > $maxdatabeforecollapsable) {
+            $tmpoutputdata['collapsedsessions'] = $tmpoutputdata['sessions'];
+            unset($tmpoutputdata['sessions']);
+        }
+        return $tmpoutputdata;
     }
 
     /**

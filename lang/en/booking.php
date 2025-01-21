@@ -94,6 +94,7 @@ $string['allowupdatedays'] = 'Days before reference date';
 $string['allratings'] = 'Everybody can rate';
 $string['allteachers'] = 'All teachers';
 $string['allusersbooked'] = 'All {$a} selected users have successfully been assigned to this booking option.';
+$string['alreadybooked'] = 'Already booked';
 $string['alreadyonlist'] = 'You will be notified';
 $string['alreadypassed'] = 'Already passed';
 $string['always'] = 'Always';

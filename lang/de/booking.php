@@ -93,6 +93,7 @@ $string['allowupdatedays'] = 'Tage vor Referenzdatum';
 $string['allratings'] = 'Jede/r kann bewerten';
 $string['allteachers'] = 'Alle Trainer:innen';
 $string['allusersbooked'] = 'Alle {$a} Nutzer:innen wurden erfolgreich für diese Buchungsoption gebucht.';
+$string['alreadybooked'] = 'Bereits gebucht';
 $string['alreadyonlist'] = 'Sie werden benachrichtigt';
 $string['alreadypassed'] = 'Bereits vergangen';
 $string['always'] = 'Immer';
