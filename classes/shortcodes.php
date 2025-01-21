@@ -707,6 +707,20 @@ class shortcodes {
             }
         }
 
+        if (isset($args['columns'])) {
+            $additionalcolumns = explode(",", $args['columns']);
+            foreach ($additionalcolumns as $additionalcolumn) {
+                if (in_array($additionalcolumn, $columns)) {
+                    continue;
+                }
+                $columns[$additionalcolumn] = $additionalcolumn;
+            }
+        }
+
+        if (!empty($args['download'])) {
+            $table->showdownloadbutton = true;
+        }
+
         $table->define_headers(array_values($columns));
         $table->define_columns(array_keys($columns));
         $table->addcheckboxes = true;
