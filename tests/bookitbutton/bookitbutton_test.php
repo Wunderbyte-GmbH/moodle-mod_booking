@@ -64,9 +64,8 @@ final class bookitbutton_test extends advanced_testcase {
      *
      * @covers \booking_bookit
      *
-     * @param array $bdata
-     * @param array $users
-     * @param array $courses
+     * @param array $coursedata
+     * @param array $pricecategories
      * @param array $expected
      * @throws \coding_exception
      * @throws \dml_exception
@@ -452,8 +451,6 @@ final class bookitbutton_test extends advanced_testcase {
 
         // Test 2: Standard booking instance.
         // Price should be shown.
-
-
 
         return $returnarray;
     }

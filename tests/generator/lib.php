@@ -164,20 +164,10 @@ class mod_booking_generator extends testing_module_generator {
         if (!empty($record->semesterid)) {
             // Force $bookingsettings->semesterid by given $record->semesterid.
             $DB->set_field('booking', 'semesterid', $record->semesterid, ['id' => $record->bookingid]);
-            // It might be necessary to reset cache.
-            // phpcs:ignore
-            //$semester = new semester($record->semesterid);
         }
 
         // Create / save booking option(s).
-        if ($record->id = booking_option::update($record, $context)) {
-            //$record->optionid = $record->id;
-
-            // Add price (via API).
-            // $price = new Mod_bookingPrice('option', $record->id);
-            // $price->set_data($record);
-            // booking_option::update($record, $context);
-        }
+        $record->id = booking_option::update($record, $context);
 
         return $record;
     }
