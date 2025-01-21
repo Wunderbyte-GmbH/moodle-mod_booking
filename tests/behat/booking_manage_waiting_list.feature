@@ -54,7 +54,7 @@ Feature: In a course add a booking option and manage its waiting list
   @javascript
   Scenario: Booking option: reorder waiting list
     Given the following "mod_booking > options" exist:
-      | booking    | text                 | course | description  | importing | teachersforoption | maxanswers | maxoverbooking | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | waitforconfirmation |
+      | booking    | text                 | course | description  | importing | teachersforoption | maxanswers | maxoverbooking | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | waitforconfirmation |
       | My booking | Option: waiting list | C1     | Waiting list | 1         | teacher1          | 5          | 5              | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 1                   |
     Given I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
@@ -94,7 +94,7 @@ Feature: In a course add a booking option and manage its waiting list
       | config             | value        | plugin  |
       | pricecategoryfield | userpricecat | booking |
     And the following "mod_booking > options" exist:
-      | booking    | text                    | course | description  | importing | teachersforoption | useprice | maxanswers | maxoverbooking | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | waitforconfirmation |
+      | booking    | text                    | course | description  | importing | teachersforoption | useprice | maxanswers | maxoverbooking | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | waitforconfirmation |
       | My booking | Waiting_list_with_price | C1     | Waiting list | 1         | teacher1          | 1        | 2          | 3              | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 1                   |
     And the following "mod_booking > answers" exist:
       | booking    | option                  | user     |

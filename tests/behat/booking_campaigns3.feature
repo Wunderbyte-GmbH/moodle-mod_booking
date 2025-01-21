@@ -48,7 +48,7 @@ Feature: Create booking campaigns3 for booking options as admin and booking it a
       | 2        | discount1  | Disc1 | 77           | 0        | 2                 |
       | 3        | discount2  | Disc2 | 66           | 0        | 3                 |
     And the following "mod_booking > options" exist:
-      | booking     | text                | course | description      | importing | bexcluded1 | useprice | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | booking     | text                | course | description      | importing | bexcluded1 | useprice | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | BookingCMP  | Option-exclude      | C1     | NoPrice-excl_yes | 1         | yes        | 0        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
       | BookingCMP  | Option-include      | C1     | NoPrice-excl_no  | 1         | no         | 0        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +3 days ##   |
       | BookingCMP  | Option-nocustom     | C1     | nocustom         | 1         |            | 0        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |

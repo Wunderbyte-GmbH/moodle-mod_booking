@@ -69,8 +69,8 @@ Feature: In a booking instance
   @javascript
   Scenario: Booking option cancellation: try self-cancell future option as a student with different disallow settings
     Given the following "mod_booking > options" exist:
-      | booking    | text          | course | description  | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
-      | My booking | Test option 1 | C1     | Cancellation | 1           | 0              | 0              | ## tomorrow ##     | ## +3 days ##   |
+      | booking    | text          | course | description  | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
+      | My booking | Test option 1 | C1     | Cancellation | 1           | 0              | 0              | ## tomorrow ##    | ## +3 days ##   |
     ## Important: ## tomorrow ## means 00:00 start time!
     ## With this setting, and option starts on the 5th at 00:00 o clock,
     ## users would expect it to be cancelable until 4th at 23:59:59.
@@ -114,8 +114,8 @@ Feature: In a booking instance
   @javascript
   Scenario: Booking option cancellation: try self-cancell ongoing option as a student with different disallow settings
     Given the following "mod_booking > options" exist:
-      | booking    | text          | course | description  | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
-      | My booking | Test option 1 | C1     | Cancellation | 1           | 0              | 0              | ## -5 minutes ##    | ## +2 days ##   |
+      | booking    | text          | course | description  | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
+      | My booking | Test option 1 | C1     | Cancellation | 1           | 0              | 0              | ## -5 minutes ##  | ## +2 days ##   |
     ## Important: ## tomorrow ## means 00:00 start time!
     And I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
@@ -197,7 +197,7 @@ Feature: In a booking instance
   @javascript
   Scenario: Booking option cancellation: try self-cancell ongoing option as a student with bookingopeningtime and different disallow settings
     Given the following "mod_booking > options" exist:
-      | booking    | text          | course | description  | availability | restrictanswerperiodopening | bookingopeningtime   | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | booking    | text          | course | description  | availability | restrictanswerperiodopening | bookingopeningtime   | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | My booking | Test option 1 | C1     | Cancellation | 1            | 1                           | ## yesterday noon ## | 1           | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
     And I log in as "admin"
     ## Define semester start time as relative date to cancellation
@@ -237,7 +237,7 @@ Feature: In a booking instance
   @javascript
   Scenario: Booking option cancellation: try self-cancell ongoing option as a student with bookingclosingtime and different disallow settings
     Given the following "mod_booking > options" exist:
-      | booking    | text          | course | description  | availability | restrictanswerperiodclosing | bookingclosingtime  | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | booking    | text          | course | description  | availability | restrictanswerperiodclosing | bookingclosingtime  | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | My booking | Test option 1 | C1     | Cancellation | 1            | 1                           | ## tomorrow noon ## | 1           | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
     And I log in as "admin"
     ## Define semester start time as relative date to cancellation

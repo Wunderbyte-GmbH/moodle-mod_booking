@@ -33,7 +33,7 @@ Feature: Create booking option with price and force students answer as admin tha
       | activity | course | name       | intro               | bookingmanager | eventtype | cancancelbook | Default view for booking options | Send confirmation e-mail |
       | booking  | C1     | BookingCMP | Booking description | teacher1       | Webinar   | 1             | All bookings                     | Yes                      |
     And the following "mod_booking > options" exist:
-      | booking     | text            | course | description    | importing | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | useprice | canceluntil    | canceluntilcheckbox |
+      | booking     | text            | course | description    | importing | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | useprice | canceluntil    | canceluntilcheckbox |
       | BookingCMP  | Option-tenis    | C1     | Price-tenis    | 1         | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 1        | ## tomorrow ## | 1                   |
       | BookingCMP  | Option-football | C1     | Price-football | 1         | 4          | 1           | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | ## tomorrow ## | 1                   |
       | BookingCMP  | Option-xconsume | C1     | Price-xconsume | 1         | 4          | 1           | 0              | 0              | ## -48 hours ##   | ## +72 hours ## | 1        | ## tomorrow ## | 1                   |

@@ -81,7 +81,7 @@ Feature: Create global booking rules as admin and insure they are working.
   @javascript
   Scenario: Booking rules: create booking rule for teacher substituing event
     Given the following "mod_booking > options" exist:
-      | booking     | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | booking     | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | BookingCMP  | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
       | conditionname | contextid | conditiondata     | name        | actionname | actiondata                                                                      | rulename            | ruledata                                                                                           | cancelrules |
@@ -111,7 +111,7 @@ Feature: Create global booking rules as admin and insure they are working.
   @javascript
   Scenario: Booking rules: create booking rule for option cancellation event and notify students
     Given the following "mod_booking > options" exist:
-      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
       | conditionname        | contextid | conditiondata  | name        | actionname | actiondata                                                                    | rulename            | ruledata                                                                                         | cancelrules |
@@ -143,7 +143,7 @@ Feature: Create global booking rules as admin and insure they are working.
   @javascript
   Scenario: Booking rules: create booking rule for answer cancellation event and notify students
     Given the following "mod_booking > options" exist:
-      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
       | conditionname        | contextid | conditiondata  | name        | actionname | actiondata                                                                                  | rulename            | ruledata                                                                                         | cancelrules |
@@ -168,7 +168,7 @@ Feature: Create global booking rules as admin and insure they are working.
   @javascript
   Scenario: Booking rules: create booking rule for option cancellation for user event and notify admin
     Given the following "mod_booking > options" exist:
-      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
       | conditionname | contextid | conditiondata     | name        | actionname | actiondata                                                                       | rulename            | ruledata                                                                                         | cancelrules |
@@ -195,7 +195,7 @@ Feature: Create global booking rules as admin and insure they are working.
   @javascript
   Scenario: Booking rules: create booking rule for teacher removal event and notify other teachers
     Given the following "mod_booking > options" exist:
-      | booking     | text           | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | teachersforoption         |
+      | booking     | text           | course | description | limitanswers | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | teachersforoption         |
       | BookingCMP  | Option-teacher | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | teacher2, teacher1, admin |
     And the following "mod_booking > rules" exist:
       | conditionname        | contextid | name        | actionname | actiondata                                                                          | rulename            | ruledata                                                                                             | cancelrules |
@@ -224,7 +224,7 @@ Feature: Create global booking rules as admin and insure they are working.
   @javascript
   Scenario: Booking rules: create booking rule for option completion event and notify by user from event
     Given the following "mod_booking > options" exist:
-      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
       | conditionname          | contextid | conditiondata                  | name          | actionname | actiondata                                                                | rulename            | ruledata                                                                                         | cancelrules |
@@ -251,7 +251,7 @@ Feature: Create global booking rules as admin and insure they are working.
   @javascript
   Scenario: Booking rules: create booking rule for option cancellation event and notify user matching profile field value
     Given the following "mod_booking > options" exist:
-      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | teachersforoption  |
+      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | teachersforoption  |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | teacher1, teacher2 |
     And the following "mod_booking > rules" exist:
       | conditionname          | contextid | conditiondata                                             | name         | actionname | actiondata                                                                               | rulename            | ruledata                                                                                         | cancelrules |
@@ -274,7 +274,7 @@ Feature: Create global booking rules as admin and insure they are working.
   @javascript
   Scenario: Booking rules: create booking rule for event of completion and notify user matching profile field with option name
     Given the following "mod_booking > options" exist:
-      | booking    | text     | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | teachersforoption  |
+      | booking    | text     | course | description | limitanswers | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | teachersforoption  |
       | BookingCMP | football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | teacher1, teacher2 |
     And the following "mod_booking > rules" exist:
       | conditionname          | contextid | conditiondata                                           | name         | actionname | actiondata                                                                         | rulename            | ruledata                                                                                         | cancelrules |
@@ -300,7 +300,7 @@ Feature: Create global booking rules as admin and insure they are working.
   @javascript
   Scenario: Booking rule for: copy to teacher a custom message sent to users who booked option
     Given the following "mod_booking > options" exist:
-      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
       | conditionname          | contextid | conditiondata                  | name          | actionname        | actiondata                                                  | rulename            | ruledata                                                                                     | cancelrules |
@@ -333,7 +333,7 @@ Feature: Create global booking rules as admin and insure they are working.
   @javascript
   Scenario: Booking rule for: copy to admin a bulk custom message sent to 3 users who booked option
     Given the following "mod_booking > options" exist:
-      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
       | conditionname | contextid | conditiondata     | name        | actionname        | actiondata                                                       | rulename            | ruledata                                                                                          | cancelrules |
@@ -367,7 +367,7 @@ Feature: Create global booking rules as admin and insure they are working.
   @javascript
   Scenario: Booking rules: create booking rule for option update and notify teachers about it
     Given the following "mod_booking > options" exist:
-      | booking     | text           | course | description   | limitanswers | maxanswers | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | teachersforoption  |
+      | booking     | text           | course | description   | limitanswers | maxanswers | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | teachersforoption  |
       | BookingCMP  | Option-created | C1     | Deskr-created | 0            | 0          | 0              | 0              | 2346937200        | 2347110000      | teacher1, teacher2 |
       ## 2044/05/15 - 2044/05/17
     And the following "mod_booking > rules" exist:
@@ -394,7 +394,7 @@ Feature: Create global booking rules as admin and insure they are working.
   @javascript
   Scenario: Booking rules: create booking rule for rule overriding
     Given the following "mod_booking > options" exist:
-      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | teachersforoption  |
+      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | teachersforoption  |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | teacher1, teacher2 |
     And the following "mod_booking > rules" exist:
       | conditionname        | contextid | conditiondata     | name        | actionname | actiondata                                                               | rulename            | ruledata                                                                                         | cancelrules |
@@ -434,7 +434,7 @@ Feature: Create global booking rules as admin and insure they are working.
       | select_users  | 1         | {"userids":["2"]} | 1dayafter  | send_mail  | {"subject":"1dayafter","template":"was ended yesterday","templateformat":"1"}  | rule_daysbefore | {"days":"-1","datefield":"courseendtime"}  |
     ## It is important to setup next day exactly in minutes
     And the following "mod_booking > options" exist:
-      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1   | courseendtime_1       |
+      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0   | courseendtime_0       |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +1440 minutes ## | ## +3 days ##         |
       | BookingCMP | Option-tennis   | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## -3 days ##       | ## -1440 minutes ##   |
     And I am on the "BookingCMP" Activity page

@@ -54,7 +54,7 @@ Feature: Enabling installments as admin configuring installments as a teacher an
   @javascript
   Scenario: Add an installmetn for a booking option as a teacher and verify it
     Given the following "mod_booking > options" exist:
-      | booking     | text               | course | description | importing | useprice | limitanswers | maxanswers | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | booking     | text               | course | description | importing | useprice | limitanswers | maxanswers | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | BookingInst | Option-installment | C1     | Deskr2      | 1         | 1        | 1            | 4          | 0              | 0              | ## +5 days ##     | ## +8 days ##   |
     And I am on the "BookingInst" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
@@ -88,7 +88,7 @@ Feature: Enabling installments as admin configuring installments as a teacher an
   @javascript
   Scenario: Add an installment for a booking option via DB and brought it as student
     Given the following "mod_booking > options" exist:
-      | booking     | text               | course | description | importing | useprice | sch_allowinstallment | sch_downpayment | sch_numberofpayments | sch_duedaysbeforecoursestart | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | booking     | text               | course | description | importing | useprice | sch_allowinstallment | sch_downpayment | sch_numberofpayments | sch_duedaysbeforecoursestart | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | BookingInst | Option-installment | C1     | Deskr2      | 1         | 1        | 1                    | 44              | 2                    | 1                            | 0              | 0              | ## +6 days ##     | ## +8 days ##   |
     And I am on the "BookingInst" Activity page logged in as student1
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"

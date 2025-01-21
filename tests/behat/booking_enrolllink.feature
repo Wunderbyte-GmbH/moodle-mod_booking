@@ -52,7 +52,7 @@ Feature: Create enrollink availability form for booking options with connected c
       | activity | course | name       | intro               | bookingmanager | eventtype | Default view for booking options |
       | booking  | C1     | BookingCMP | Booking description | teacher1       | Webinar   | All bookings                     |
     And the following "mod_booking > options" exist:
-      | booking     | text         | course | description | chooseorcreatecourse | enrolmentstatus | useprice | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | booking     | text         | course | description | chooseorcreatecourse | enrolmentstatus | useprice | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | BookingCMP  | Option-form  | C1     | Price-form  | 0                    | 2               | 1        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
     And I change viewport size to "1366x10000"
 

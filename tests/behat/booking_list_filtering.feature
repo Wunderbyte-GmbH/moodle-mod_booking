@@ -32,7 +32,7 @@ Feature: In a booking - create options and filter it
       | activity | course | name       | intro                  | bookingmanager | eventtype | Default view for booking options | Booking option name  |
       | booking  | C1     | My booking | My booking description | admin1         | Webinar   | All bookings                     | New option - Webinar |
     And the following "mod_booking > options" exist:
-      | booking    | text              | course | description  | teachersforoption | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | booking    | text              | course | description  | teachersforoption | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | My booking | Option - Teacher1 | C1     | Option deskr | teacher1          | 0              | 0              | 2346937200        | 2347110000      |
       | My booking | Option - Teacher2 | C1     | Option deskr | teacher2          | 0              | 0              | 2347110000        | 2347282800      |
       | My booking | Option - Teacher3 | C1     | Option deskr | teacher3,teacher1 | 0              | 0              | 2347369200        | 2347542000      |

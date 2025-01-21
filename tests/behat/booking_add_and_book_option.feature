@@ -59,7 +59,7 @@ Feature: In a booking instance create booking options
   @javascript
   Scenario: Create booking option via DB than edit it and review changes as a teacher
     Given the following "mod_booking > options" exist:
-      | booking    | text           | course | description   | limitanswers | maxanswers | teachersforoption | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | booking    | text           | course | description   | limitanswers | maxanswers | teachersforoption | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | My booking | Option-created | C1     | Deskr-created | 0            | 0          | teacher1          | 0              | 0              | 2346937200        | 2347110000      |
       ## 2044/05/15 - 2044/05/17
     And I am on the "My booking" Activity page logged in as teacher1
