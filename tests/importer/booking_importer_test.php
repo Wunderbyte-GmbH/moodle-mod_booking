@@ -82,11 +82,14 @@ final class booking_importer_test extends advanced_testcase {
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
         $pricecat1 = $plugingenerator->create_pricecategory(
-                ['ordernum' => '1', 'identifier' => 'default', 'name' => 'Price', 'defaultvalue' => '12']);
+            ['ordernum' => '1', 'identifier' => 'default', 'name' => 'Price', 'defaultvalue' => '12', 'pricecatsortorder' => 1]
+        );
         $pricecat2 = $plugingenerator->create_pricecategory(
-                ['ordernum' => '2', 'identifier' => 'intern', 'name' => 'Intern', 'defaultvalue' => '13']);
+            ['ordernum' => '2', 'identifier' => 'intern', 'name' => 'Intern', 'defaultvalue' => '13', 'pricecatsortorder' => 1]
+        );
         $testsemester = $plugingenerator->create_semester(
-                ['identifier' => 'fall2023', 'name' => 'Fall 2023', 'startdate' => '1695168000', 'enddate' => '1704067140']);
+            ['identifier' => 'fall2023', 'name' => 'Fall 2023', 'startdate' => '1695168000', 'enddate' => '1704067140']
+        );
         // For tests startdate = bookingopeningtime = 20.09.2023 00:00 and enddate = bookingclosingtime = 31.12.2023 23:59 GMT.
 
         // Setup booking defaults and create booking course module.
