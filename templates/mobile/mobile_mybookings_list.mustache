@@ -57,7 +57,7 @@
             </h3>
         </ion-card-header>
         <ion-card-content>
-            <%# descriptioncollapsable.0 %>
+            <%# descriptioncollapsable %>
                 <ion-accordion-group>
                     <ion-accordion value="description">
                         <ion-item slot="header" color="light">
@@ -79,22 +79,18 @@
                                 border-radius: 8px;
                                 background-color: #f9f9f9;"
                         >
-                            <%# descriptioncollapsable %>
-                                <%{ . }%>
-                            <%/ descriptioncollapsable %>
+                            <%{ . }%>
                         </div>
                     </ion-accordion>
                 </ion-accordion-group>
-            <%/ descriptioncollapsable.0 %>
-            <%# description.0 %>
+            <%/ descriptioncollapsable %>
+            <%# description %>
                 <b>
                 {{ 'plugin.mod_booking.description' | translate }}
                 </b>
-                <%# description %>
-                  <%{ . }%> <br>
-                <%/ description %>
+                  <%{ . }%>
                 <br>
-            <%/ description.0 %>
+            <%/ description %>
             <%# teachers %>
                 <div><% firstname %> <% lastname %> (<% email %>)</div>
             <%/ teachers %>

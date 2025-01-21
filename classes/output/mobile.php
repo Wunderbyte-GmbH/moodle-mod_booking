@@ -82,7 +82,7 @@ class mobile {
         $records = $DB->get_records_sql($sql, $params);
 
         $outputdata = [];
-        $pattern = '/<br\s*\/?>/i';
+
         $maxdatabeforecollapsable = get_config('booking', 'collapseshowsettings');
         if ($maxdatabeforecollapsable === false) {
             $maxdatabeforecollapsable = '2';
@@ -92,7 +92,6 @@ class mobile {
             $tmpoutputdata = $settings->return_booking_option_information();
             $tmpoutputdata['maxsessions'] = $maxdatabeforecollapsable;
             $data = $settings->return_booking_option_information();
-            $data['description'] = preg_split($pattern, $data['description']);
             if (count($settings->sessions) > $maxdatabeforecollapsable) {
                 $data['collapsedsessions'] = $data['sessions'];
                 unset($data['sessions']);
@@ -347,8 +346,10 @@ class mobile {
         $tmpoutputdata = $settings->return_booking_option_information();
         $tmpoutputdata['maxsessions'] = $maxdatabeforecollapsable;
         $tmpoutputdata = $settings->return_booking_option_information();
-        $tmpoutputdata['description'] = preg_split($pattern, $tmpoutputdata['description']);
-        if (strlen($tmpoutputdata['description'][0]) > get_config('booking', 'collapsedescriptionmaxlength')) {
+        if (
+            strlen(strip_tags($tmpoutputdata['description'])) >
+            (int) get_config('booking', 'collapsedescriptionmaxlength')
+        ) {
             $tmpoutputdata['descriptioncollapsable'] = $tmpoutputdata['description'];
             unset($tmpoutputdata['description']);
         }
