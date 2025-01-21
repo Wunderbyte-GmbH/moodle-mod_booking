@@ -402,10 +402,10 @@ final class condition_allowupdate_test extends advanced_testcase {
         $record->courseid = $course->id;
         $record->useprice = 0;
         $record->maxanswers = 3;
-        $record->optiondateid_1 = "0";
-        $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('now + 3 day');
-        $record->courseendtime_1 = strtotime('now + 6 day');
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('now + 3 day');
+        $record->courseendtime_0 = strtotime('now + 6 day');
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');

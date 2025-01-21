@@ -115,10 +115,10 @@ final class rules_test extends advanced_testcase {
         $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course->id;
         $record->description = 'Will start 2050';
-        $record->optiondateid_1 = "0";
-        $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('20 June 2050 15:00');
-        $record->courseendtime_1 = strtotime('20 July 2050 14:00');
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
         $record->importing = 1;
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
@@ -218,10 +218,10 @@ final class rules_test extends advanced_testcase {
         $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course->id;
         $record->description = 'Will start 2050';
-        $record->optiondateid_1 = "0";
-        $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('20 June 2050 15:00');
-        $record->courseendtime_1 = strtotime('20 July 2050 14:00');
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
         $record->teachersforoption = $user1->username . ',' . $user2->username;
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
@@ -347,10 +347,10 @@ final class rules_test extends advanced_testcase {
         $record->chooseorcreatecourse = 1; // Connected existing course.
         $record->courseid = $course->id;
         $record->description = 'Will start tomorrow';
-        $record->optiondateid_1 = "0";
-        $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('20 June 2050 15:00');
-        $record->courseendtime_1 = strtotime('20 July 2050 14:00');
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
         $record->teachersforoption = $user1->username;
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
@@ -474,10 +474,10 @@ final class rules_test extends advanced_testcase {
         $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course->id;
         $record->description = 'Will start tomorrow';
-        $record->optiondateid_1 = "0";
-        $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('20 June 2050 15:00');
-        $record->courseendtime_1 = strtotime('20 July 2050 14:00');
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
 
@@ -590,10 +590,10 @@ final class rules_test extends advanced_testcase {
         $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course->id;
         $record->description = 'Will start tomorrow';
-        $record->optiondateid_1 = "0";
-        $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('20 June 2050 15:00');
-        $record->courseendtime_1 = strtotime('20 July 2050 14:00');
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
         $record->teachersforoption = $user1->username;
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
@@ -679,10 +679,10 @@ final class rules_test extends advanced_testcase {
         $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course->id;
         $record->description = 'Test description';
-        $record->optiondateid_1 = "0";
-        $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('20 June 2050');
-        $record->courseendtime_1 = strtotime('20 July 2050');
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('20 June 2050');
+        $record->courseendtime_0 = strtotime('20 July 2050');
         $option = $plugingenerator->create_option($record);
 
         // Create booking rule.
@@ -708,8 +708,8 @@ final class rules_test extends advanced_testcase {
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         $record->id = $option->id;
         $record->cmid = $settings->cmid;
-        $record->coursestarttime_1 = strtotime('10 April 2055');
-        $record->courseendtime_1 = strtotime('10 May 2055');
+        $record->coursestarttime_0 = strtotime('10 April 2055');
+        $record->courseendtime_0 = strtotime('10 May 2055');
         $record->description = 'Description updated';
         $record->teachersforoption = [$user1->id];
         booking_option::update($record);
@@ -841,10 +841,10 @@ final class rules_test extends advanced_testcase {
         $record->maxanswers = 1;
         $record->waitforconfirmation = 1; // Force waitinglist.
         $record->description = 'Will start in 2050';
-        $record->optiondateid_1 = "0";
-        $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('20 June 2050 15:00');
-        $record->courseendtime_1 = strtotime('20 July 2050 14:00');
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
         $record->teachersforoption = $teacher1->username . ',' . $teacher2->username;
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
@@ -993,10 +993,10 @@ final class rules_test extends advanced_testcase {
         $record->maxoverbooking = 2; // Enable waitinglist.
         $record->waitforconfirmation = 1; // Do not force waitinglist.
         $record->description = 'Will start in 2050';
-        $record->optiondateid_1 = "0";
-        $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('20 June 2050 15:00');
-        $record->courseendtime_1 = strtotime('20 July 2050 14:00');
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
         $record->teachersforoption = $teacher1->username;
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
@@ -1155,10 +1155,10 @@ final class rules_test extends advanced_testcase {
         $record->chooseorcreatecourse = 1; // Connected existing course.
         $record->courseid = $course->id;
         $record->description = 'Will start tomorrow';
-        $record->optiondateid_1 = "0";
-        $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('20 June 2050 15:00');
-        $record->courseendtime_1 = strtotime('20 July 2050 14:00');
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
         $record->teachersforoption = $user1->username;
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
@@ -1268,10 +1268,10 @@ final class rules_test extends advanced_testcase {
         $record->bo_cond_customform_select_1_1 = 'shorttext';
         $record->bo_cond_customform_label_1_1 = 'Personal requirement:';
         $record->bo_cond_customform_deleteinfoscheckboxadmin = 1;
-        $record->optiondateid_1 = "0";
-        $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('yesterday');
-        $record->courseendtime_1 = strtotime('now + 3 seconds'); // Ending time must be in future.
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('yesterday');
+        $record->courseendtime_0 = strtotime('now + 3 seconds'); // Ending time must be in future.
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
         $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
@@ -1282,10 +1282,10 @@ final class rules_test extends advanced_testcase {
         $record->bo_cond_customform_select_1_1 = 'shorttext';
         $record->bo_cond_customform_label_1_1 = 'Personal requirement:';
         $record->bo_cond_customform_select_1_2 = 'deleteinfoscheckboxuser';
-        $record->optiondateid_1 = "0";
-        $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('yesterday');
-        $record->courseendtime_1 = strtotime('now + 3 seconds');
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('yesterday');
+        $record->courseendtime_0 = strtotime('now + 3 seconds');
         $option2 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option2->id);
         $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
@@ -1485,10 +1485,10 @@ final class rules_test extends advanced_testcase {
         $record->maxoverbooking = 3; // Enable waitinglist.
         $record->waitforconfirmation = 1; // Do not force waitinglist.
         $record->description = 'Will start in 2050';
-        $record->optiondateid_1 = "0";
-        $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('20 June 2050 15:00');
-        $record->courseendtime_1 = strtotime('20 July 2050 14:00');
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
         $record->teachersforoption = $teacher1->username;
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);

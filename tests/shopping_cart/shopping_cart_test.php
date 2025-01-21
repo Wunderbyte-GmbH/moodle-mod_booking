@@ -290,10 +290,10 @@ final class shopping_cart_test extends advanced_testcase {
         $record->courseid = $course->id;
         $record->useprice = 1; // Use price from the default category.
         $record->maxanswers = 3;
-        $record->optiondateid_1 = "0";
-        $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('now + 3 day');
-        $record->courseendtime_1 = strtotime('now + 6 day');
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('now + 3 day');
+        $record->courseendtime_0 = strtotime('now + 6 day');
         $record->importing = 1;
 
         /** @var mod_booking_generator $plugingenerator */

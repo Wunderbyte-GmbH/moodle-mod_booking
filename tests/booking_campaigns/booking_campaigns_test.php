@@ -219,10 +219,10 @@ final class booking_campaigns_test extends advanced_testcase {
         $record->courseid = $course->id;
         $record->useprice = 0;
         $record->maxanswers = 3;
-        $record->optiondateid_1 = "0";
-        $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('now + 3 day');
-        $record->courseendtime_1 = strtotime('now + 6 day');
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('now + 3 day');
+        $record->courseendtime_0 = strtotime('now + 6 day');
         $record->customfield_spt1 = 'tennis';
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id); // Mandatory there.
@@ -547,10 +547,10 @@ final class booking_campaigns_test extends advanced_testcase {
         $record->courseid = $course2->id;
         $record->useprice = 0;
         $record->maxanswers = 6;
-        $record->optiondateid_1 = "0";
-        $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('now + 1 day');
-        $record->courseendtime_1 = strtotime('now + 2 day');
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('now + 1 day');
+        $record->courseendtime_0 = strtotime('now + 2 day');
         $record->customfield_bcustom1 = 'exclude';
 
         $option1 = $plugingenerator->create_option($record);
@@ -563,10 +563,10 @@ final class booking_campaigns_test extends advanced_testcase {
         $record->courseid = $course2->id;
         $record->useprice = 0;
         $record->maxanswers = 6;
-        $record->optiondateid_1 = "0";
-        $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('now + 1 day');
-        $record->courseendtime_1 = strtotime('now + 3 day');
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('now + 1 day');
+        $record->courseendtime_0 = strtotime('now + 3 day');
         $record->customfield_bcustom1 = '';
 
         $option2 = $plugingenerator->create_option($record);
@@ -579,10 +579,10 @@ final class booking_campaigns_test extends advanced_testcase {
         $record->courseid = $course2->id;
         $record->useprice = 0;
         $record->maxanswers = 6;
-        $record->optiondateid_1 = "0";
-        $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('now + 1 day');
-        $record->courseendtime_1 = strtotime('now + 4 day');
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('now + 1 day');
+        $record->courseendtime_0 = strtotime('now + 4 day');
         $record->customfield_bcustom1 = 'include';
 
         $option3 = $plugingenerator->create_option($record);
@@ -834,10 +834,10 @@ final class booking_campaigns_test extends advanced_testcase {
         $record->courseid = $course->id;
         $record->useprice = 0;
         $record->maxanswers = 3;
-        $record->optiondateid_1 = "0";
-        $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('now + 3 day');
-        $record->courseendtime_1 = strtotime('now + 6 day');
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('now + 3 day');
+        $record->courseendtime_0 = strtotime('now + 6 day');
         $record->customfield_spt1 = 'tennis';
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id); // Mandatory there.
@@ -987,10 +987,10 @@ final class booking_campaigns_test extends advanced_testcase {
         $record->courseid = $course->id;
         $record->useprice = 0;
         $record->maxanswers = 3;
-        $record->optiondateid_1 = "0";
-        $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('now + 3 day');
-        $record->courseendtime_1 = strtotime('now + 6 day');
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('now + 3 day');
+        $record->courseendtime_0 = strtotime('now + 6 day');
         $record->customfield_spt1 = 'tennis';
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id); // Mandatory there.

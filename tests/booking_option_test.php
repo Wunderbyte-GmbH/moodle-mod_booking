@@ -108,10 +108,10 @@ final class booking_option_test extends advanced_testcase {
         $record->courseid = $course->id;
         $record->description = 'Deskr-created';
         $record->teachersforoption = $user1->username;
-        $record->optiondateid_1 = "0";
-        $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('20 June 2050');
-        $record->courseendtime_1 = strtotime('20 July 2050');
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('20 June 2050');
+        $record->courseendtime_0 = strtotime('20 July 2050');
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
@@ -136,8 +136,8 @@ final class booking_option_test extends advanced_testcase {
         $record->description = 'Deskr-updated';
         $record->limitanswers = 1;
         $record->maxanswers = 5;
-        $record->coursestarttime_1 = strtotime('10 April 2055');
-        $record->courseendtime_1 = strtotime('10 May 2055');
+        $record->coursestarttime_0 = strtotime('10 April 2055');
+        $record->courseendtime_0 = strtotime('10 May 2055');
         $record->teachersforoption = [$user2->id];
         booking_option::update($record);
 
@@ -332,14 +332,14 @@ final class booking_option_test extends advanced_testcase {
         $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course->id;
         $record->description = 'Test description';
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('now - 2 day');
+        $record->courseendtime_0 = strtotime('now + 1 day');
         $record->optiondateid_1 = "0";
         $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('now - 2 day');
-        $record->courseendtime_1 = strtotime('now + 1 day');
-        $record->optiondateid_2 = "0";
-        $record->daystonotify_2 = "0";
-        $record->coursestarttime_2 = strtotime('now + 2 day');
-        $record->courseendtime_2 = strtotime('now + 3 day');
+        $record->coursestarttime_1 = strtotime('now + 2 day');
+        $record->courseendtime_1 = strtotime('now + 3 day');
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
@@ -448,10 +448,10 @@ final class booking_option_test extends advanced_testcase {
         $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course2->id;
         $record->enrolmentstatus = 0; // Enrol at coursestart.
-        $record->optiondateid_1 = "0";
-        $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('now + 3 day');
-        $record->courseendtime_1 = strtotime('now + 4 day');
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('now + 3 day');
+        $record->courseendtime_0 = strtotime('now + 4 day');
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');

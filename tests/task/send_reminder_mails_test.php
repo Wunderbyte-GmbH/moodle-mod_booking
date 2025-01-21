@@ -115,14 +115,14 @@ final class send_reminder_mails_test extends advanced_testcase {
         $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course->id;
         $record->description = 'Test description';
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = $onedaysbefore->getTimestamp();
+        $record->courseendtime_0 = $threedaysbefore->getTimestamp();
         $record->optiondateid_1 = "0";
         $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = $onedaysbefore->getTimestamp();
-        $record->courseendtime_1 = $threedaysbefore->getTimestamp();
-        $record->optiondateid_2 = "0";
-        $record->daystonotify_2 = "0";
-        $record->coursestarttime_2 = $twodaysbefore->getTimestamp();
-        $record->courseendtime_2 = $fourdaysbefore->getTimestamp();
+        $record->coursestarttime_1 = $twodaysbefore->getTimestamp();
+        $record->courseendtime_1 = $fourdaysbefore->getTimestamp();
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
