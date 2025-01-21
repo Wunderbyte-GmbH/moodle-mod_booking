@@ -170,14 +170,7 @@ class mod_booking_generator extends testing_module_generator {
         }
 
         // Create / save booking option(s).
-        if ($record->id = booking_option::update($record, $context)) {
-            //$record->optionid = $record->id;
-
-            // Add price (via API).
-            // $price = new Mod_bookingPrice('option', $record->id);
-            // $price->set_data($record);
-            // booking_option::update($record, $context);
-        }
+        $record->id = booking_option::update($record, $context);
 
         return $record;
     }

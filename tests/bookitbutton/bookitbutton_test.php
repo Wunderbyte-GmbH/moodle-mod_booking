@@ -64,15 +64,14 @@ final class bookitbutton_test extends advanced_testcase {
      *
      * @covers \booking_bookit
      *
-     * @param array $bdata
-     * @param array $users
-     * @param array $courses
-     * @param array $expected
+     * @param array $coursedata
+     * @param mixed $pricecategories
+     * @param mixed $expected
+     *
      * @throws \coding_exception
      * @throws \dml_exception
      *
-     * @dataProvider booking_common_settings_provider
-     *
+     * @return void
      */
     public function test_booking_bookit_with_price_and_cancellation(array $coursedata, $pricecategories, $expected): void {
         global $DB, $CFG;
@@ -449,12 +448,6 @@ final class bookitbutton_test extends advanced_testcase {
             ],
 
         ];
-
-        // Test 2: Standard booking instance.
-        // Price should be shown.
-
-
-
         return $returnarray;
     }
 
