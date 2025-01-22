@@ -89,16 +89,16 @@ class send_mail implements booking_rule_action {
      */
     public function add_action_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
 
-        // Select to send ical
+        // Select to send ical.
         $mform->addElement('selectyesno', 'action_send_mail_sendical', get_string('sendical', 'mod_booking'));
         $mform->addRule('action_send_mail_sendical', null, 'required', null, 'client');
         $mform->setType('action_send_mail_sendical', PARAM_INT);
 
-        // TODO This should probably only show if the above dropdown is set to yes
-        $options = ['create' => get_string('createical', 'mod_booking'), 'cancel' =>  get_string('cancelical', 'mod_booking')];
-        $mform->addElement('select', 'action_send_mail_sendicalcreateorcancel', get_string('sendicalcreateorcancel', 'mod_booking'), $options);
+        // TODO This should probably only show if the above dropdown is set to yes.
+        $options = ['create' => get_string('createical', 'mod_booking'), 'cancel' => get_string('cancelical', 'mod_booking')];
+        $mform->addElement('select', 'action_send_mail_sendicalcreateorcancel',
+                get_string('sendicalcreateorcancel', 'mod_booking'), $options);
         $mform->setType('action_send_mail_sendicalcreateorcancel', PARAM_RAW);
-
 
         // Mail subject.
         $mform->addElement('text', 'action_send_mail_subject', get_string('messagesubject', 'mod_booking'),

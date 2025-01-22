@@ -123,6 +123,7 @@ class message_controller {
 
     /** @var array $ruleid duedate of installment. */
     private $rulesettings;
+    private $ruleid;
 
     /**
      * Constructor
@@ -141,6 +142,7 @@ class message_controller {
      * @param int $duedate UNIX timestamp for duedate of installment
      * @param float $price price of installment
      * @param string $rulejson event data
+     * @param ?int $ruleid the id of the running rule
      */
     public function __construct(
         int $msgcontrparam,
@@ -157,7 +159,7 @@ class message_controller {
         int $duedate = 0,
         float $price = 0.0,
         string $rulejson = '',
-        int $ruleid= null
+        ?int $ruleid = null
     ) {
 
         global $USER, $PAGE, $DB;
@@ -169,10 +171,10 @@ class message_controller {
             // There is probably an exisiting method for this, but I couldn't find it.
             $this->rulesettings = $DB->get_record('booking_rules', ['id' => $ruleid], 'rulejson');
             if ( $this->rulesettings) {
-                $this->rulesettings =  json_decode($this->rulesettings->rulejson);
+                $this->rulesettings = json_decode($this->rulesettings->rulejson);
+                $this->ruleid = $ruleid;
             }
         }
-
 
         $user = singleton_service::get_instance_of_user($userid);
         $originallanguage = force_current_language($user->lang);
@@ -473,7 +475,8 @@ class message_controller {
 
             } else {
 
-                // If the rule has sendical set then we get the ical attachment, create it in file storage and put it in the message object.
+                // If the rule has sendical set then we get the ical attachment.
+                // Create it in file storage and put it in the message object.
                 if ($this->rulesettings->actiondata->sendical) {
 
                     $update = false;
@@ -482,21 +485,21 @@ class message_controller {
                     }
 
                     // Pass the update param - false will create a remove calendar invite.
-                    // TODO The system still fires an unsubsrbe message - I believe this is a hangover of the old non rules booking system
+                    // TODO The system still fires an unsubsrbe message - I believe this is a hangover of the old non rules booking system.
                     list($attachments, $attachname) = $this->get_attachments($update);
 
                     if (!empty($attachments)) {
-                        // TODO this should probably be a method in the ical class - left here to limit to number of changed files
-                        // store the file correctly in order to be able to attach it
+                        // TODO this should probably be a method in the ical class - left here to limit to number of changed files.
+                        // Store the file correctly in order to be able to attach it.
                         $fs = get_file_storage();
                         $context = context_system::instance(); // Use a suitable context, such as course or module context.
                         $tempfilepath = $attachments['booking.ics'];
 
-                        // Check if the file exists in the temp path
+                        // Check if the file exists in the temp path.
                         if (file_exists($tempfilepath)) {
 
-                            // Prepare file record in Moodle storage
-                            $file_record = [
+                            // Prepare file record in Moodle storage.
+                            $filerecord = [
                                     'contextid' => $context->id,
                                     'component' => 'mod_booking', // Change to your component.
                                     'filearea' => 'message_attachments', // A custom file area for attachments.
@@ -507,13 +510,13 @@ class message_controller {
                             ];
 
                             // Create or retrieve the file in Moodle's file storage
-                            $storedfile = $fs->create_file_from_pathname($file_record, $tempfilepath);
+                            $storedfile = $fs->create_file_from_pathname($filerecord, $tempfilepath);
 
                             // Set the file as an attachment
                             $this->messagedata->attachment = $storedfile;
                             $this->messagedata->attachname = $attachname;
-                        }  else {
-                            // TODO There is possibly a better way to handle this error nicely - or remove the check entirely
+                        } else {
+                            // TODO There is possibly a better way to handle this error nicely - or remove the check entirely.
                             throw new \moodle_exception('Attachment file not found.');
                         }
 
@@ -541,6 +544,7 @@ class message_controller {
                             'message' => $this->messagedata->fullmessage ?? '',
                             // Store the full html message as this is useful if the message every needs to be replayed or audited
                             'messagehtml' => $this->messagedata->fullmessagehtml ?? '',
+                            'bookingruleid' => $this->ruleid ?? NULL
                         ],
                     ]);
                     $event->trigger();
