@@ -1,3 +1,23 @@
+## Version 8.9.17 (2025012200)
+* Improvement: If the user is logged-in, we check if (s)he has accepted the site policy.
+* Improvement: Add results array (condition ids) to button template for better understanding (#807).
+* Improvement: Delete unnecessary step in booking option creation (#807).
+* Improvement: Allow testing of 0 price conditions (#807).
+* Improvement: Support setting configs for each expected result.
+* Improvement: Allow "optiondateid_0" etc. keys to upload sessions.
+* Improvement: Add download and columns to bulkoperations.
+* Improvement: Possibility to skip rules from current context.
+* Bugfix: Make sure price is shown when askforconfirmation is blocking (#807).
+* Bugfix: Use importing to correctly set price during option creation.
+* Bugfix: Fix behat tests by correctly calling importer.
+* Bugfix: Respect order of price categories when deciding which price category will actually be used #808.
+* Bugfix: Fix behat tests by properly create the customfield.
+* Bugfix: Correctly handle empty price category #778.
+* Bugfix: Only display customfields with values.
+* Bugfix: Fix pricecategory sort order.
+* Tests: Add new test type with making use of data provider (#807).
+* Tests: Fix behat and phpunit tests.
+
 ## Version 8.9.16 (2025011702)
 * Bugfix: Only add setting optionviewcustomfields if custom fields exist.
 
