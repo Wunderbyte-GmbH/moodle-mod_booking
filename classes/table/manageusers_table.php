@@ -248,7 +248,7 @@ class manageusers_table extends wunderbyte_table {
                 $option->user_submit_response($user, 0, 0, 2, MOD_BOOKING_VERIFIED);
             } else {
                 // Check if it's an autoenrollment. If so, we need to change the status.
-                if ($erwaitinglist) {
+                if (!empty($erwaitinglist)) {
                     $status = MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL;
                 } else {
                     $status = MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT;
