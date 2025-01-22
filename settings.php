@@ -978,14 +978,14 @@ if ($ADMIN->fulltree) {
         )
     );
 
-    // $settings->add(
-    //     new admin_setting_configcheckbox(
-    //         'booking/pricecategorychoosehighest',
-    //         get_string('pricecategorychoosehighest', 'mod_booking'),
-    //         get_string('pricecategorychoosehighest_desc', 'mod_booking'),
-    //         0
-    //     )
-    // );
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/pricecategorychoosehighest',
+            get_string('pricecategorychoosehighest', 'mod_booking'),
+            get_string('pricecategorychoosehighest_desc', 'mod_booking'),
+            0
+        )
+    );
 
     // Currency dropdown.
     $currenciesobjects = price::get_possible_currencies();
