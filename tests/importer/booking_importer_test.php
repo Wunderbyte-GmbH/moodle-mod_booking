@@ -85,7 +85,7 @@ final class booking_importer_test extends advanced_testcase {
             ['ordernum' => '1', 'identifier' => 'default', 'name' => 'Price', 'defaultvalue' => '12', 'pricecatsortorder' => 1]
         );
         $pricecat2 = $plugingenerator->create_pricecategory(
-            ['ordernum' => '2', 'identifier' => 'intern', 'name' => 'Intern', 'defaultvalue' => '13', 'pricecatsortorder' => 1]
+            ['ordernum' => '2', 'identifier' => 'intern', 'name' => 'Intern', 'defaultvalue' => '13', 'pricecatsortorder' => 2]
         );
         $testsemester = $plugingenerator->create_semester(
             ['identifier' => 'fall2023', 'name' => 'Fall 2023', 'startdate' => '1695168000', 'enddate' => '1704067140']
