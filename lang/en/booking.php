@@ -1720,6 +1720,8 @@ $string['pricecategoriessubtitle'] = '<p>Here you can define different price cat
     Only disable or rename it.</p>';
 $string['pricecategory'] = 'Price category';
 $string['pricecategorychanged'] = 'Price category changed';
+$string['pricecategorychoosehighest'] = 'Highest sorted price category is chosen first';
+$string['pricecategorychoosehighest_desc'] = 'If a user has multiple price category identifiers in their user profile, the highest-ranked price category will be chosen first. By default, the lowest is chosen.';
 $string['pricecategoryfallback'] = 'Fall back on default price category';
 $string['pricecategoryfallback_desc'] = 'Use default price category when no machting cateogry is found';
 $string['pricecategoryfield'] = 'User profile field for price category';

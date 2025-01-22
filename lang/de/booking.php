@@ -1719,6 +1719,8 @@ $string['pricecategoriessubtitle'] = '<p>Hier können Sie unterschiedliche Kateg
     Sie können Kategorien aber umbenennen oder deaktivieren.</p>';
 $string['pricecategory'] = 'Preiskategorie';
 $string['pricecategorychanged'] = 'Preiskategorie geändert';
+$string['pricecategorychoosehighest'] = 'Höchst sortierte Preiskategorie wird zuerst gewählt';
+$string['pricecategorychoosehighest_desc'] = 'Hat ein/e Nutzer:in mehrere Preiskategorie-Identifier in seinem Userprofil hinterlegt, wird die am höchsten gereihte Preiskategorie zuerst gewählt. Standard ist die niedrigste.';
 $string['pricecategoryfallback'] = 'Nutze standard Preiskategorie als Fallback';
 $string['pricecategoryfallback_desc'] = 'Nutze default Preiskategorie wenn keine passende Kategorie gefunden wurde';
 $string['pricecategoryfield'] = 'Nutzerprofilfeld für die Preiskategorie';

@@ -70,7 +70,9 @@ class price {
     public function __construct(string $area, int $itemid = 0) {
         global $DB;
 
-        $sql = "SELECT * FROM {booking_pricecategories} WHERE disabled = 0 ORDER BY pricecatsortorder ASC";
+        $sortorder = empty(get_config('booking', 'pricecategorychoosehighest')) ? 'ASC' : 'DESC';
+
+        $sql = "SELECT * FROM {booking_pricecategories} WHERE disabled = 0 ORDER BY pricecatsortorder $sortorder";
 
         $this->pricecategories = $DB->get_records_sql($sql);
         $this->area = $area;
