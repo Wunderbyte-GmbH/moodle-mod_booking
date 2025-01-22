@@ -134,5 +134,6 @@ class behat_booking extends behat_base {
             singleton_service::get_instance()->userpricecategory = [];
             rules_info::$rulestoexecute = [];
             booking_rules::$rules = [];
+            singleton_service::destroy_instance();
     }
 }
