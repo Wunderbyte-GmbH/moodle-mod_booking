@@ -70,7 +70,7 @@ class price {
     public function __construct(string $area, int $itemid = 0) {
         global $DB;
 
-        $sql = "SELECT * FROM {booking_pricecategories} WHERE disabled = 0 ORDER BY pricecatsortorder";
+        $sql = "SELECT * FROM {booking_pricecategories} WHERE disabled = 0 ORDER BY pricecatsortorder ASC";
 
         $this->pricecategories = $DB->get_records_sql($sql);
         $this->area = $area;
@@ -948,7 +948,7 @@ class price {
                         FROM {booking_prices} bp
                         JOIN {booking_pricecategories} bpc ON bp.pricecategoryidentifier = bpc.identifier
                         WHERE area = :area AND itemid = :itemid
-                        ORDER BY bpc.pricecatsortorder DESC";
+                        ORDER BY bpc.pricecatsortorder ASC";
 
                 $params = ['area' => $area, 'itemid' => $itemid];
                 if (!$prices = $DB->get_records_sql($sql, $params)) {
