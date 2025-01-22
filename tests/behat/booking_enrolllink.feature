@@ -52,8 +52,8 @@ Feature: Create enrollink availability form for booking options with connected c
       | activity | course | name       | intro               | bookingmanager | eventtype | Default view for booking options |
       | booking  | C1     | BookingCMP | Booking description | teacher1       | Webinar   | All bookings                     |
     And the following "mod_booking > options" exist:
-      | booking     | text         | course | description | chooseorcreatecourse | enrolmentstatus | useprice | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
-      | BookingCMP  | Option-form  | C1     | Price-form  | 0                    | 2               | 1        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+      | booking     | text         | course | description | importing | chooseorcreatecourse | enrolmentstatus | useprice | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
+      | BookingCMP  | Option-form  | C1     | Price-form  | 1         | 0                    | 2               | 1        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
     ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
     And the following config values are set as admin:
       | config      | value         |
@@ -73,9 +73,12 @@ Feature: Create enrollink availability form for booking options with connected c
     And I set the field "Form needs to be filled out before booking" to "checked"
     And I wait "1" seconds
     And I set the following fields to these values:
-      | bo_cond_customform_select_1_1   | enrolusersaction |
-      | bo_cond_customform_label_1_1    | Number of user   |
-      | bo_cond_customform_value_1_1    | 1                |
+    ## byer enrolled directly, users by enrollink - after confirmation. 
+      | bo_cond_customform_select_1_1               | enrolusersaction |
+      | bo_cond_customform_label_1_1                | Number of user   |
+      | bo_cond_customform_value_1_1                | 2                |
+      | bo_cond_customform_enroluserstowaitinglist1 | 1                |
+      | waitforconfirmation                         |                  |
     ## To avoid duplicated field label "Connected Moodle course"!
     And I set the field "chooseorcreatecourse" to "Connected Moodle course"
     And I wait "1" seconds
@@ -86,6 +89,7 @@ Feature: Create enrollink availability form for booking options with connected c
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Number of user" in the ".condition-customform" "css_element"
     And I set the field "customform_enrolusersaction_1" to "3"
+    And I set the field "customform_enroluserwhobookedcheckbox_enrolusersaction_1" to "checked"
     And I follow "Continue"
     And I wait "1" seconds
     And I should see "75.00 EUR" in the ".allbookingoptionstable_r1 .booknow" "css_element"
