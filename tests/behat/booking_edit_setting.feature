@@ -23,6 +23,10 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
       | activity | course | name       | intro                  | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | All bookings                     | Yes                      |
     And I create booking option "New option" in "My booking"
+    ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
+    And the following config values are set as admin:
+      | config      | value         |
+      | texteditors | atto,textarea |
     And I change viewport size to "1366x10000"
 
   @javascript

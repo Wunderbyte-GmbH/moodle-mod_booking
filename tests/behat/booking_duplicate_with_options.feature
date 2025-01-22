@@ -35,6 +35,10 @@ Feature: In a booking create booking option with multiple custom options
       | 1        | default       | Base Price    | 70           | 0        | 1                 |
       | 2        | specialprice  | Special Price | 60           | 0        | 2                 |
     And I create booking option "New option - duplication source" in "My booking"
+    ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
+    And the following config values are set as admin:
+      | config      | value         |
+      | texteditors | atto,textarea |
     And I change viewport size to "1366x10000"
 
   @javascript
