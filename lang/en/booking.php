@@ -1051,6 +1051,7 @@ $string['enrollink:1'] = 'You are already enrolled to this course and can access
 $string['enrollink:2'] = 'Successfully enrolled';
 $string['enrollink:3'] = 'Your enrolment link is invalid.';
 $string['enrollink:4'] = 'There are no more places available in the bundle.';
+$string['enrollink:5'] = 'No guestusers allowed';
 $string['enrollinktriggered'] = 'Enrol link generation triggered';
 $string['enrollinktriggered:description'] = 'The event as the basis for the automatic generation of an enrolment link has been triggered.';
 $string['enrolmentstatus'] = 'Enrol users at course start time (Default: Not checked &rarr; enrol them immediately.)';

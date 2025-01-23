@@ -137,6 +137,9 @@ class enrollink {
             return $block;
         }
 
+        if (isguestuser()) {
+            return MOD_BOOKING_AUTOENROL_STATUS_LOGGED_IN_AS_GUEST;
+        }
         $context = context_course::instance($this->bundle->courseid);
         $courseenrolmentstatus = MOD_BOOKING_AUTOENROL_STATUS_EXCEPTION;
         // 1. Enrolling to the linked course.
