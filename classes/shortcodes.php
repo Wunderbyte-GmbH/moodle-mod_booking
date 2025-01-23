@@ -51,7 +51,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * Deals with local_shortcodes regarding booking.
  */
 class shortcodes {
-
     /**
      * This shortcode shows a list of booking options, which have a booking customfield...
      * ... with the shortname "recommendedin" and the value set to the shortname of the course...
@@ -67,6 +66,11 @@ class shortcodes {
     public static function recommendedin($shortcode, $args, $content, $env, $next) {
 
         global $PAGE;
+
+        // If shortcodes are turned off, we return the shortcode as it is.
+        if (get_config('booking', 'shortcodesoff')) {
+            return "[[$shortcode]]";
+        }
 
         $course = $PAGE->course;
 
@@ -88,7 +92,7 @@ class shortcodes {
 
         $wherearray['recommendedin'] = "$course->shortname";
 
-        list($fields, $from, $where, $params, $filter) =
+        [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(0, 0, '', null, null, [], $wherearray);
 
         // By default, we do not show booking options that lie in the past.
@@ -180,6 +184,11 @@ class shortcodes {
 
         global $PAGE;
 
+        // If shortcodes are turned off, we return the shortcode as it is.
+        if (get_config('booking', 'shortcodesoff')) {
+            return "[[$shortcode]]";
+        }
+
         $course = $PAGE->course;
 
         if (!wb_payment::pro_version_is_activated()) {
@@ -237,9 +246,19 @@ class shortcodes {
         // Additional where condition for both card and list views.
         $additionalwhere = self::set_wherearray_from_arguments($args, $wherearray) ?? '';
 
-        list($fields, $from, $where, $params, $filter) =
-                booking::get_options_filter_sql(0, 0, '', null, null, [], $wherearray, null,
-                    [MOD_BOOKING_STATUSPARAM_BOOKED], $additionalwhere);
+        [$fields, $from, $where, $params, $filter] =
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    null,
+                    [],
+                    $wherearray,
+                    null,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    $additionalwhere
+                );
 
         // By default, we do not show booking options that lie in the past.
         // Shortcode arg values get transmitted as string, so also check for "false" and "0".
@@ -388,6 +407,11 @@ class shortcodes {
 
         global $COURSE, $USER, $DB, $CFG;
 
+        // If shortcodes are turned off, we return the shortcode as it is.
+        if (get_config('booking', 'shortcodesoff')) {
+            return "[[$shortcode]]";
+        }
+
         if (!wb_payment::pro_version_is_activated()) {
             return get_string('infotext:prolicensenecessary', 'mod_booking');
         }
@@ -415,7 +439,6 @@ class shortcodes {
             $records = $DB->get_records_sql($sql, ['userid' => $USER->id, 'course' => $COURSE->id]);
             $groupnames = array_map(fn($a) => $a->name, $records);
             $courseids = array_map(fn($a) => $a->courseid, $records);
-
         } else {
             $courseids = $DB->get_fieldset_select('groups', 'courseid', 'name = :groupname', ['groupname' => $args['group']]);
         }
@@ -424,7 +447,7 @@ class shortcodes {
             return get_string('definefieldofstudy', 'mod_booking');
         }
 
-        list($inorequal, $params) = $DB->get_in_or_equal($groupnames);
+        [$inorequal, $params] = $DB->get_in_or_equal($groupnames);
 
         $sql = "SELECT c.id, c.shortname
                 FROM {course} c
@@ -441,7 +464,7 @@ class shortcodes {
 
         $table = self::init_table_for_courses(null, "courses_" . implode("_", $courseids));
 
-        list($fields, $from, $where, $params, $filter) =
+        [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(0, 0, '', null, null, [], ['recommendedin' => $courseshortnames], null, [], '');
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
@@ -499,6 +522,11 @@ class shortcodes {
 
         global $COURSE, $USER, $DB, $CFG, $PAGE;
 
+        // If shortcodes are turned off, we return the shortcode as it is.
+        if (get_config('booking', 'shortcodesoff')) {
+            return "[[$shortcode]]";
+        }
+
         if (!wb_payment::pro_version_is_activated()) {
             return get_string('infotext:prolicensenecessary', 'mod_booking');
         }
@@ -508,7 +536,7 @@ class shortcodes {
         $wherearray = ['courseid' => (int)$COURSE->id];
 
         // Even though this is huge and fetches way to much data, we still use it as it will take care of invisible options etc.
-        list($fields, $from, $where, $params, $filter) =
+        [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(0, 0, '', null, null, [], $wherearray);
 
         $optionids = $DB->get_records_sql(" SELECT $fields FROM $from WHERE $where", $params);
@@ -564,6 +592,11 @@ class shortcodes {
 
         global $PAGE, $USER, $DB, $CFG;
 
+        // If shortcodes are turned off, we return the shortcode as it is.
+        if (get_config('booking', 'shortcodesoff')) {
+            return "[[$shortcode]]";
+        }
+
         if (!wb_payment::pro_version_is_activated()) {
             return get_string('infotext:prolicensenecessary', 'mod_booking');
         }
@@ -593,8 +626,7 @@ class shortcodes {
         }
 
         if (empty($cohortids)) {
-
-            require_once($CFG->dirroot.'/cohort/lib.php');
+            require_once($CFG->dirroot . '/cohort/lib.php');
 
             $cohorts = cohort_get_user_cohorts($USER->id);
             if (!empty($cohorts)) {
@@ -607,7 +639,7 @@ class shortcodes {
             return get_string('nofieldofstudyfound', 'mod_booking');
         }
 
-        list ($inorequal, $params) = $DB->get_in_or_equal($cohortids);
+         [$inorequal, $params] = $DB->get_in_or_equal($cohortids);
 
         $sql = "SELECT e.courseid
                 FROM {enrol} e
@@ -623,7 +655,7 @@ class shortcodes {
 
         $innerfrom = booking::get_sql_for_fieldofstudy(get_class($DB), $courses);
 
-        list($fields, $from, $where, $params, $filter) =
+        [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(0, 0, '', null, null, [], [], null, null, '', $innerfrom);
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
@@ -674,6 +706,11 @@ class shortcodes {
     public static function bulkoperations($shortcode, $args, $content, $env, $next): string {
 
         global $PAGE;
+
+        // If shortcodes are turned off, we return the shortcode as it is.
+        if (get_config('booking', 'shortcodesoff')) {
+            return "[[$shortcode]]";
+        }
 
         if (!is_siteadmin()) {
             return get_string('nopermissiontoaccesscontent', 'mod_booking');
@@ -740,7 +777,7 @@ class shortcodes {
         $table->sort_default_order = SORT_DESC;
 
         // Templates are excluded here.
-        list($fields, $from, $where, $params, $filter) =
+        [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(0, 0, '', null, null, [], [], null, [], ' bookingid > 0');
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
@@ -900,7 +937,6 @@ class shortcodes {
                             }
 
                             foreach ($values as $vkey => $vvalue) {
-
                                 $additonalwhere .= $vkey > 0 ? ' OR ' : '';
                                 $vvalue = "'%$vvalue%'";
                                 $additonalwhere .= " $key LIKE $vvalue ";
@@ -909,7 +945,6 @@ class shortcodes {
                             if (!empty($values)) {
                                 $additonalwhere .= " ) ";
                             }
-
                         } else {
                             $argument = strip_tags($value);
                             $argument = trim($argument);

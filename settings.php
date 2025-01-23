@@ -496,6 +496,15 @@ if ($ADMIN->fulltree) {
         )
     );
 
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/shortcodesoff',
+            get_string('shortcodesoff', 'mod_booking'),
+            get_string('shortcodesoff_desc', 'mod_booking'),
+            0
+        )
+    );
+
     // PRO feature: Teacher settings.
     if ($proversion) {
         $settings->add(
