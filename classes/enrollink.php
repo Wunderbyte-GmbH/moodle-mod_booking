@@ -131,7 +131,7 @@ class enrollink {
         if (
             is_enrolled($context, $userid)
         ) {
-            $courseenrolmentstatus = MOD_BOOKING_AUTOENROL_STATUS_ALREADY_ENROLLED;
+            return MOD_BOOKING_AUTOENROL_STATUS_ALREADY_ENROLLED;
         }
 
         $cmid = $this->get_bo_contextid();
