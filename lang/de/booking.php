@@ -1035,6 +1035,7 @@ $string['enrollink:1'] = 'Sie sind bereits in diesen Kurs eingeschrieben und kö
 $string['enrollink:2'] = 'Sie sind erfolgreich eingeschrieben';
 $string['enrollink:3'] = 'Ihr Einschreibelink ist leider fehlerhaft';
 $string['enrollink:4'] = 'Es sind keine freien Plätze mehr in Ihrem Kontingent verfügbar';
+$string['enrollink:5'] = 'Keine Gastnutzer erlaubt';
 $string['enrollinktriggered'] = 'Einschreibe-Link Generierung ausgelöst';
 $string['enrollinktriggered:description'] = 'Das Event als Grundlage für die automatische Generierung eines Einschreibe-Links wurde ausgelöst.';
 $string['enrolmentstatus'] = 'Nutzer:innen erst zu Kursbeginn in den Kurs einschreiben (Standard: Nicht angehakt &rarr; sofort einschreiben.)';

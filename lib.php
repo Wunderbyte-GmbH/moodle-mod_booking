@@ -306,6 +306,7 @@ define('MOD_BOOKING_AUTOENROL_STATUS_ALREADY_ENROLLED', 1);
 define('MOD_BOOKING_AUTOENROL_STATUS_SUCCESS', 2);
 define('MOD_BOOKING_AUTOENROL_STATUS_LINK_NOT_VALID', 3);
 define('MOD_BOOKING_AUTOENROL_STATUS_NO_MORE_SEATS', 4);
+define('MOD_BOOKING_AUTOENROL_STATUS_LOGGED_IN_AS_GUEST', 5);
 
 // Status for user submit response (enrolment into bookingoption).
 // 1 if we just added this booking option to the shopping cart, 2 for confirmation.

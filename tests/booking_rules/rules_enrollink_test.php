@@ -335,10 +335,20 @@ final class rules_enrollink_test extends advanced_testcase {
         $info2 = $enrollink->enrol_user($USER->id);
         $courselink = $enrollink->get_courselink_url();
         // Validate enrollment status and remainaing free places.
+        $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_LOGGED_IN_AS_GUEST, $info2);
+        $this->assertStringContainsString('/moodle/course/view.php?id=' . $course2->id, $courselink);
+        $this->assertEquals(1, $enrollink->free_places_left());
+
+        // An attempt to enroll guest.
+        $this->setUser($student5);
+        $info1 = $enrollink->enrolment_blocking();
+        $this->assertEmpty($info1);
+        $info2 = $enrollink->enrol_user($USER->id);
+        $courselink = $enrollink->get_courselink_url();
+        // Validate enrollment status and remainaing free places.
         $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_SUCCESS, $info2);
         $this->assertStringContainsString('/moodle/course/view.php?id=' . $course2->id, $courselink);
         $this->assertEquals(0, $enrollink->free_places_left());
-        // TODO: Guest became enrolled. Does it correct behavior?
 
         // Proceed with enrolling of student3.
         $this->setUser($student4);
