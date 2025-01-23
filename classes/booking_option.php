@@ -1158,7 +1158,7 @@ class booking_option {
             $bajson = $DB->get_field('booking_answers', 'json', ['id' => $baid]);
             $data = json_decode($bajson);
             if (isset($data->erlid)) {
-                $enrollink = new enrollink($data->erlid);
+                $enrollink = enrollink::get_instance($data->erlid);
                 if ($enrollink->add_consumed_item($user->id)) {
                     $event = bookingoption_bookedviaautoenrol::create([
                         'objectid' => $this->optionid,

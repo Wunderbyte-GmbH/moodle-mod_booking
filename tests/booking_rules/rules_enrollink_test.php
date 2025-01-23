@@ -276,7 +276,7 @@ final class rules_enrollink_test extends advanced_testcase {
         }
 
         // Validate incorrect erlid.
-        $enrollink = new enrollink('dummy');
+        $enrollink = enrollink::get_instance('dummy');
         $info1 = $enrollink->enrolment_blocking();
         $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_LINK_NOT_VALID, $enrollink->errorinfo);
         $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_LINK_NOT_VALID, $info1);
@@ -284,7 +284,7 @@ final class rules_enrollink_test extends advanced_testcase {
         // Get erlid string.
         $erlid = str_replace('Number of user: 4', '', $message->fullmessage);
         $erlid = (explode('=', $erlid))[1];
-        $enrollink = new enrollink($erlid);
+        $enrollink = enrollink::get_instance($erlid);
         $this->assertEquals(3, $enrollink->free_places_left());
 
         // Validate redirect for not logged users.
@@ -300,10 +300,7 @@ final class rules_enrollink_test extends advanced_testcase {
         $this->assertEmpty($info1);
         $info2 = $enrollink->enrol_user($student1->id);
         $courselink = $enrollink->get_courselink_url();
-        // TODO: status changed is it OK?
-        // phpcs:ignore
-        //$this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_ALREADY_ENROLLED, $info2);
-        $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_SUCCESS, $info2);
+        $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_ALREADY_ENROLLED, $info2);
         $this->assertStringContainsString('/moodle/course/view.php?id=' . $course2->id, $courselink);
         $this->assertEquals(3, $enrollink->free_places_left());
 
@@ -319,7 +316,6 @@ final class rules_enrollink_test extends advanced_testcase {
         $this->assertEquals('Successfully enrolled', $infostring);
         $this->assertStringContainsString('/moodle/course/view.php?id=' . $course2->id, $courselink);
         $this->assertEquals(2, $enrollink->free_places_left());
-        // TODO: error: actual value is 3!
 
         // Proceed with enrolling of student3.
         $this->setUser($student3);
@@ -331,7 +327,6 @@ final class rules_enrollink_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_SUCCESS, $info2);
         $this->assertStringContainsString('/moodle/course/view.php?id=' . $course2->id, $courselink);
         $this->assertEquals(1, $enrollink->free_places_left());
-        // TODO: error: actual value is 3!
 
         // An attempt to enroll guest.
         $this->setGuestUser();
@@ -343,7 +338,6 @@ final class rules_enrollink_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_SUCCESS, $info2);
         $this->assertStringContainsString('/moodle/course/view.php?id=' . $course2->id, $courselink);
         $this->assertEquals(0, $enrollink->free_places_left());
-        // TODO: error: actual value is 3!
         // TODO: Guest became enrolled. Does it correct behavior?
 
         // Proceed with enrolling of student3.

@@ -29,7 +29,7 @@ require_once("lib.php");
 
 $erlid = required_param('erlid', PARAM_TEXT); // Course id.
 
-$enrollink = new enrollink($erlid);
+$enrollink = enrollink::get_instance($erlid);
 
 // Check if there are conditions blocking before login is required.
 $info = $enrollink->enrolment_blocking();
