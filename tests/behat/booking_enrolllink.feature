@@ -69,11 +69,11 @@ Feature: Create enrollink availability form for booking options with connected c
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I wait until the page is ready
     And I expand all fieldsets
-    ## And I follow "Availability conditions"
+    ## And I follow "Availability conditions".
     And I set the field "Form needs to be filled out before booking" to "checked"
     And I wait "1" seconds
     And I set the following fields to these values:
-    ## byer enrolled directly, users by enrollink - after confirmation. 
+    ## Buyer enrolled directly, users by enrollink - after confirmation.
       | bo_cond_customform_select_1_1               | enrolusersaction |
       | bo_cond_customform_label_1_1                | Number of user   |
       | bo_cond_customform_value_1_1                | 2                |
