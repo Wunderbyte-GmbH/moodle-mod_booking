@@ -2082,6 +2082,7 @@ $string['shoppingcartplaceholder'] = 'Shoppingcart';
 $string['shortcodenotsupportedonyourdb'] = "This shortcode is not supported on your DB. It only works on postgres & mariadb";
 $string['shortcodesoff'] = 'Disable booking shortcodes';
 $string['shortcodesoff_desc'] = 'Activate this setting, if you want to disable booking shortcodes (e.g. [[courselist]]) for the whole site.';
+$string['shortcodesoffwarning'] = 'Shortcode [{$a}] can not be used, because shortcodes are turned off.';
 $string['shorttext'] = "Shorttext";
 $string['showallbookingoptions'] = 'All booking options';
 $string['showallteachers'] = '&gt;&gt; Show all teachers';

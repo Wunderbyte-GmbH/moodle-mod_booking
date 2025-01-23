@@ -69,7 +69,9 @@ class shortcodes {
 
         // If shortcodes are turned off, we return the shortcode as it is.
         if (get_config('booking', 'shortcodesoff')) {
-            return "[[$shortcode]]";
+            return "<div class='alert alert-warning'>" .
+                get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
+            "</div>";
         }
 
         $course = $PAGE->course;
@@ -186,7 +188,9 @@ class shortcodes {
 
         // If shortcodes are turned off, we return the shortcode as it is.
         if (get_config('booking', 'shortcodesoff')) {
-            return "[[$shortcode]]";
+            return "<div class='alert alert-warning'>" .
+                get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
+            "</div>";
         }
 
         $course = $PAGE->course;
@@ -409,7 +413,9 @@ class shortcodes {
 
         // If shortcodes are turned off, we return the shortcode as it is.
         if (get_config('booking', 'shortcodesoff')) {
-            return "[[$shortcode]]";
+            return "<div class='alert alert-warning'>" .
+                get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
+            "</div>";
         }
 
         if (!wb_payment::pro_version_is_activated()) {
@@ -524,7 +530,9 @@ class shortcodes {
 
         // If shortcodes are turned off, we return the shortcode as it is.
         if (get_config('booking', 'shortcodesoff')) {
-            return "[[$shortcode]]";
+            return "<div class='alert alert-warning'>" .
+                get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
+            "</div>";
         }
 
         if (!wb_payment::pro_version_is_activated()) {
@@ -594,7 +602,9 @@ class shortcodes {
 
         // If shortcodes are turned off, we return the shortcode as it is.
         if (get_config('booking', 'shortcodesoff')) {
-            return "[[$shortcode]]";
+            return "<div class='alert alert-warning'>" .
+                get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
+            "</div>";
         }
 
         if (!wb_payment::pro_version_is_activated()) {
@@ -709,7 +719,9 @@ class shortcodes {
 
         // If shortcodes are turned off, we return the shortcode as it is.
         if (get_config('booking', 'shortcodesoff')) {
-            return "[[$shortcode]]";
+            return "<div class='alert alert-warning'>" .
+                get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
+            "</div>";
         }
 
         if (!is_siteadmin()) {
