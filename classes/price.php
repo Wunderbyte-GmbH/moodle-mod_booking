@@ -946,11 +946,14 @@ class price {
             } else {
                 // Here, we haven't found user specific prices and we haven't found general prices.
                 // Therefore, we need to have a look in the DB.
+
+                $sortorder = empty(get_config('booking', 'pricecategorychoosehighest')) ? 'ASC' : 'DESC';
+
                 $sql = "SELECT bp.*
                         FROM {booking_prices} bp
                         JOIN {booking_pricecategories} bpc ON bp.pricecategoryidentifier = bpc.identifier
                         WHERE area = :area AND itemid = :itemid
-                        ORDER BY bpc.pricecatsortorder ASC";
+                        ORDER BY bpc.pricecatsortorder $sortorder";
 
                 $params = ['area' => $area, 'itemid' => $itemid];
                 if (!$prices = $DB->get_records_sql($sql, $params)) {
