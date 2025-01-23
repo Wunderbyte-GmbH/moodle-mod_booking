@@ -36,6 +36,9 @@ require_once($CFG->dirroot.'/calendar/lib.php');
  */
 class enrollink {
 
+    /** @var static $instances  */
+    private static $instances = [];
+
     /** @var object $bundle  */
     public $bundle = [];
 
@@ -53,12 +56,24 @@ class enrollink {
 
 
     /**
-     * Construct and set values.
+     * Get the singleton instance.
      *
      * @param string $erlid
-     *
+     * @return enrollink
      */
-    public function __construct(string $erlid) {
+    public static function get_instance(string $erlid): ?self {
+        if (!isset(self::$instances[$erlid])) {
+            self::$instances[$erlid] = new self($erlid);
+        }
+        return self::$instances[$erlid];
+    }
+
+    /**
+     * Private constructor to prevent direct instantiation.
+     *
+     * @param string $erlid
+     */
+    private function __construct(string $erlid) {
         $this->set_values($erlid);
     }
 
@@ -66,11 +81,9 @@ class enrollink {
      * Set values.
      *
      * @param string $erlid
-     *
-     * @return [type]
-     *
+     * @return void
      */
-    public function set_values(string $erlid) {
+    private function set_values(string $erlid): void {
         global $DB;
 
         $this->erlid = $erlid;
@@ -376,7 +389,7 @@ class enrollink {
             isset($bookinganswer->answers[$baid])
             && self::enroluseraction_allows_enrolment($bookinganswer, $baid)
         ) {
-            $el = new enrollink($data->erlid);
+            $el = self::get_instance($data->erlid);
             $el->add_consumed_item($userid, true);
             if ($places == 1) {
                 $freeplaces = false;
@@ -447,6 +460,9 @@ class enrollink {
             return true;
         }
         $data = json_decode($answer->json);
+        if (!isset($data->condition_customform)) {
+            return true;
+        }
         foreach ($data->condition_customform as $key => $value) {
             if (
                 strpos($key, 'customform_enroluserwhobookedcheckbox_enrolusersaction') === 0 &&
