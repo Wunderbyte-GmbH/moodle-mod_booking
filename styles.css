@@ -542,31 +542,6 @@ We need this for teachers for example. */
     margin-left: 20px;
 }
 
-.report2-system-border {
-    position: relative;
-    padding: 5px 10px;
-    border: 1px solid gray;
-    border-radius: 5px;
-}
-.report2-course-border {
-    position: relative;
-    padding: 5px 10px;
-    border: 1px solid gray;
-    border-radius: 5px;
-}
-.report2-instance-border {
-    position: relative;
-    padding: 5px 10px;
-    border: 1px solid gray;
-    border-radius: 5px;
-}
-.report2-option-border {
-    position: relative;
-    padding: 5px 10px;
-    border: 1px solid gray;
-    border-radius: 5px;
-}
-
 .disabled-profeature {
     color: grey;
     pointer-events: none; /* Disables clicks */
