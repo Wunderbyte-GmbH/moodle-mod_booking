@@ -484,7 +484,7 @@ class enrollink {
     /**
      * Check if it's the initial answer to enrol users.
      *
-     * @param object $bookinganswer
+     * @param object $answer
      *
      * @return bool
      *
