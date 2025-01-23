@@ -1155,10 +1155,16 @@ class booking_option {
             // Reinstanciate the enrollink class.
             // Check if the enrolment worked.
             // We need the erlid in the bookinganswer.
-            $bajson = $DB->get_field('booking_answers', 'json', ['id' => $baid]);
-            $data = json_decode($bajson);
-            if (isset($data->erlid)) {
-                $enrollink = enrollink::get_instance($data->erlid);
+            if (empty($erlid)) {
+                // Param $erlid might be empty if this is a booking confirmation. In this case, we fetch it from the answer.
+                $bajson = $DB->get_field('booking_answers', 'json', ['id' => $baid]);
+                $data = json_decode($bajson);
+                if (isset($erlid)) {
+                    $erlid = $data->erlid;
+                }
+            }
+            if (!empty($erlid)) {
+                $enrollink = enrollink::get_instance($erlid);
                 if ($enrollink->add_consumed_item($user->id)) {
                     $event = bookingoption_bookedviaautoenrol::create([
                         'objectid' => $this->optionid,
@@ -1169,7 +1175,6 @@ class booking_option {
                     $event->trigger(); // This will trigger the observer function.
                 }
             }
-
         }
 
         // Important: Purge caches after submitting a new user.
