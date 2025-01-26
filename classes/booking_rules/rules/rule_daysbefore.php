@@ -17,6 +17,7 @@
 namespace mod_booking\booking_rules\rules;
 
 use context;
+use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_rules\actions_info;
 use mod_booking\booking_rules\booking_rule;
 use mod_booking\booking_rules\conditions_info;
@@ -112,6 +113,7 @@ class rule_daysbefore implements booking_rule {
             'courseendtime' => get_string('ruleoptionfieldcourseendtime', 'mod_booking'),
             'bookingopeningtime' => get_string('ruleoptionfieldbookingopeningtime', 'mod_booking'),
             'bookingclosingtime' => get_string('ruleoptionfieldbookingclosingtime', 'mod_booking'),
+            'selflearningcourseenddate' => get_string('ruleoptionfieldselflearningcourseenddate', 'mod_booking'),
         ];
 
         // We support special treatments for shopping cart notifications.
@@ -365,7 +367,30 @@ class rule_daysbefore implements booking_rule {
 
         $sql = new stdClass();
 
-        $sql->select = "bo.id optionid, cm.id cmid, bo." . $ruledata->datefield . " datefield";
+        $sql->where = " c.path LIKE :path ";
+        $sql->where .= " $andoptionid $anduserid ";
+
+        // We need a special treatment for selflearningcourseneddate.
+        if ($ruledata->datefield == 'selflearningcourseenddate') {
+            $stringfordatefield = bo_info::check_for_sqljson_key_in_object(
+                'ba.json',
+                'selflearningendofsubscription',
+                'bigint'
+            );
+            $sql->select = "bo.id optionid, cm.id cmid, $stringfordatefield datefield";
+
+            // In testmode we don't check the timestamp.
+            $sql->where .= " AND
+                $stringfordatefield
+                > ( :nowparam + (86400 * :numberofdays ))";
+        } else {
+            $sql->select = "bo.id optionid, cm.id cmid, bo." . $ruledata->datefield . " datefield";
+
+            // In testmode we don't check the timestamp.
+            $sql->where .= " AND bo." . $ruledata->datefield;
+            $sql->where .= !$testmode ? " >= ( :nowparam + (86400 * :numberofdays ))" : " IS NOT NULL ";
+
+        }
 
         $sql->from = "{booking_options} bo
                     JOIN {course_modules} cm
@@ -375,10 +400,6 @@ class rule_daysbefore implements booking_rule {
                     JOIN {context} c
                     ON c.instanceid = cm.id";
 
-        // In testmode we don't check the timestamp.
-        $sql->where = " c.path LIKE :path AND bo." . $ruledata->datefield;
-        $sql->where .= !$testmode ? " >= ( :nowparam + (86400 * :numberofdays ))" : " IS NOT NULL ";
-        $sql->where .= " $andoptionid $anduserid ";
 
         // Now that we know the ids of the booking options concerend, we will determine the users concerned.
         // The condition execution will add their own code to the sql.

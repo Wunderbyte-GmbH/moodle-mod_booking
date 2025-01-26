@@ -1209,6 +1209,13 @@ class booking_option {
         // When a user submits a userform, we need to save this as well.
         credits::add_json_to_booking_answer($newanswer, $userid);
 
+        if (!empty($settings->selflearningcourse)) {
+            $now = time();
+            $duration = $settings->duration ?? 0;
+            $end = empty($duration) ? 0 : $now + $duration;
+            self::add_data_to_json($newanswer, 'selflearningendofsubscription', $end);
+        }
+
         // The confirmation on the waitinglist is saved here.
         if ($confirmwaitinglist === 2) {
             self::add_data_to_json($newanswer, 'confirmwaitinglist', 1);

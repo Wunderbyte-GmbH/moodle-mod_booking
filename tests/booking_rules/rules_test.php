@@ -108,6 +108,8 @@ final class rules_test extends advanced_testcase {
         ];
         $rule1 = $plugingenerator->create_rule($ruledata1);
 
+        global $DB;
+
         // Create booking option 1.
         $record = new stdClass();
         $record->bookingid = $booking->id;
@@ -131,7 +133,6 @@ final class rules_test extends advanced_testcase {
 
         // Get messages.
         $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
-
         // Validate adhoc tasks for rule 1.
         $this->assertCount(1, $messages);
         $keys = array_keys($messages);

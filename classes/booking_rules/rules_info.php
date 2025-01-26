@@ -516,4 +516,15 @@ class rules_info {
             $event();
         }
     }
+
+    /**
+     * Destroy all singletons.
+     *
+     * @return void
+     *
+     */
+    public static function destroy_singletons() {
+        self::$rulestoexecute = [];
+        self::$eventstoexecute = [];
+    }
 }

@@ -551,6 +551,8 @@ class booking_bookit {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
 
+        // booking_context_helper::fix_booking_page_context($PAGE, $settings->cmid);
+
         // Make sure that we only buy from instance the user has access to.
         // This is just fraud prevention and can not happen ordinarily.
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found

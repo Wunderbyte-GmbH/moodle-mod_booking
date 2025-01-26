@@ -1,4 +1,7 @@
 <?php
+
+use mod_booking\booking_rules\booking_rules;
+use mod_booking\booking_rules\rules_info;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -322,6 +325,9 @@ class mod_booking_generator extends testing_module_generator {
      */
     public function create_rule($ruledraft = null) {
         global $DB;
+
+        rules_info::destroy_singletons();
+        booking_rules::$rules = [];
 
         $ruledraft = (object) $ruledraft;
 

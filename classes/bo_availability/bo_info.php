@@ -1321,6 +1321,41 @@ class bo_info {
     }
 
     /**
+     * Returns part of an SQL query to extract a JSON key from a column based on the DB Family.
+     *
+     * @param string $dbcolumn The name of the column containing JSON data.
+     * @param string $jsonkey The key to extract from the JSON object.
+     * @param int $index
+     * @param string $type
+     *
+     * @return string SQL snippet for extracting the JSON key.
+     */
+    public static function check_for_sqljson_key_in_object(string $dbcolumn, string $jsonkey, string $type = 'text'): string {
+        global $DB;
+
+        $databasetype = $DB->get_dbfamily();
+
+        switch ($databasetype) {
+            case 'postgres':
+                // PostgreSQL: Extract key from JSON object and cast to the desired type.
+                // Ensure that $type maps to valid PostgreSQL types like 'text', 'integer', etc.
+                return "($dbcolumn::jsonb ->> '" . addslashes($jsonkey) . "')::" . $type;
+
+            case 'mysql':
+                // MySQL: Extract key from JSON object and cast to the desired type.
+                // Handle numeric or string-based types accordingly.
+                if (in_array(strtolower($type), ['int', 'integer', 'bigint', 'float', 'double', 'decimal'], true)) {
+                    return "CAST(JSON_EXTRACT($dbcolumn, '$." . addslashes($jsonkey) . "') AS UNSIGNED)";
+                } else {
+                    return "CAST(JSON_EXTRACT($dbcolumn, '$." . addslashes($jsonkey) . "') AS CHAR)";
+                }
+
+            default:
+                throw new moodle_exception('Unsupported database type for JSON key extraction.');
+        }
+    }
+
+    /**
      * This function adds error keys for form validation.
      * @param array $data
      * @param array $files
