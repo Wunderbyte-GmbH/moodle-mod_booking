@@ -3969,7 +3969,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2025010803, 'booking');
     }
 
-    if ($oldversion < 2025012700) {
+    if ($oldversion < 2025012701) {
 
         // Define table booking_optiondates_answers to be created.
         $table = new xmldb_table('booking_optiondates_answers');
@@ -3981,6 +3981,7 @@ function xmldb_booking_upgrade($oldversion) {
         $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
         $table->add_field('status', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
         $table->add_field('json', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('notes', XMLDB_TYPE_TEXT, null, null, null, null, null);
         $table->add_field('usermodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
         $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
         $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
@@ -3999,7 +4000,7 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2025012700, 'booking');
+        upgrade_mod_savepoint(true, 2025012701, 'booking');
     }
 
 
