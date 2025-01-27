@@ -407,8 +407,13 @@ class manageusers_table extends wunderbyte_table {
                     $option->user_delete_response($userid, false, false, false);
                 }
             } else {
-                throw new moodle_exception('invalidanswerid', 'mod_booking', '', null,
-                    'Answer ID: ' . $bookinganswerid . ' not found in table booking_answers.');
+                throw new moodle_exception(
+                    'invalidanswerid',
+                    'mod_booking',
+                    '',
+                    null,
+                    'Answer ID: ' . $bookinganswerid . ' not found in table booking_answers.'
+                );
             }
         }
 

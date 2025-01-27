@@ -33,7 +33,7 @@ use mod_booking\singleton_service;
 $id = required_param('id', PARAM_INT); // Course_module ID.
 $optionid = required_param('optionid', PARAM_INT);
 
-list($course, $cm) = get_course_and_cm_from_cmid($id);
+[$course, $cm] = get_course_and_cm_from_cmid($id);
 
 require_login($course, true, $cm);
 
@@ -46,7 +46,7 @@ $url = new moodle_url('/mod/booking/confirmactivity.php', ['id' => $id, 'optioni
 $backurl = new moodle_url('/mod/booking/report.php', ['id' => $cm->id, 'optionid' => $optionid]);
 $errorurl = new moodle_url('/mod/booking/view.php', ['id' => $id]);
 
-if (!booking_check_if_teacher ( $bookingoption->option )) {
+if (!booking_check_if_teacher($bookingoption->option)) {
     if (!(has_capability('mod/booking:readresponses', $context) || has_capability('moodle/site:accessallgroups', $context))) {
         throw new moodle_exception('nopermissions', 'core', $errorurl, get_string('bookotherusers', 'mod_booking'));
     }
@@ -57,7 +57,6 @@ $mform = new confirmactivity($url, ['course' => $course, 'optionid' => $optionid
 if ($mform->is_cancelled()) {
     redirect($backurl, '', 0);
 } else if ($fromform = $mform->get_data()) {
-
     switch ($fromform->whichtype) {
         case 0: // Activity.
             if (!empty($fromform->activity)) {
