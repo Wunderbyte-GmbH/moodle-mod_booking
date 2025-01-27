@@ -36,7 +36,12 @@
 <div class="mod-booking-report-option ml-3">
 	<div>
 		<div class="h6 mb-1">
-			<a href="{{optionlink}}" target="_blank">{{#titleprefix}}{{.}} - {{/titleprefix}}{{title}}</a>
+			<a href="{{report2link}}" target="_blank">
+				<i class="fa fa-fw fa-ticket" aria-hidden="true"></i>&nbsp;{{#titleprefix}}{{.}} - {{/titleprefix}}{{title}}
+			</a>&nbsp;
+			<a href="{{optionlink}}" target="_blank">
+				<i class="fa fa-fw fa-external-link" aria-hidden="true"></i>
+			</a>
 			<span class="ml-1"><a class="btn btn-link btn-sm" data-toggle="collapse" href="#collapseoptionshortinfo-{{id}}"
 				role="button" aria-expanded="false" aria-controls="collapseoptionshortinfo-{{id}}">
 				<i class="fa fa-chevron-down" aria-hidden="true"></i>

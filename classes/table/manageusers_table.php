@@ -122,9 +122,17 @@ class manageusers_table extends wunderbyte_table {
             ]
         );
 
+        $report2link = new moodle_url(
+            '/mod/booking/report2.php',
+            [
+                'cmid' => $values->cmid,
+                'optionid' => $values->optionid,
+            ]
+        );
+
         $instancelink = new moodle_url(
-            '/mod/booking/view.php',
-            ['id' => $values->cmid]
+            '/mod/booking/report2.php',
+            ['cmid' => $values->cmid]
         );
 
         $data = [
@@ -132,6 +140,7 @@ class manageusers_table extends wunderbyte_table {
             'titleprefix' => $values->titleprefix,
             'title' => $values->text,
             'optionlink' => $optionlink->out(false),
+            'report2link' => $report2link->out(false),
             'instancename' => $values->instancename,
             'instancelink' => $instancelink->out(false),
             'teachers' => $teachers,

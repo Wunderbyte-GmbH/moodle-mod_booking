@@ -170,7 +170,7 @@ if (!empty($optionid)) {
         "</a>";
 } else {
     $scopes = ['system'];
-    require_login(0, false);
+    require_login(1, false);
     $scope = 'system'; // The whole site.
     $scopeid = 0;
     $urlparams = []; // For PAGE url.
