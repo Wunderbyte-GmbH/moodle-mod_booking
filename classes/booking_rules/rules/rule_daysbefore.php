@@ -400,7 +400,6 @@ class rule_daysbefore implements booking_rule {
                     JOIN {context} c
                     ON c.instanceid = cm.id";
 
-
         // Now that we know the ids of the booking options concerend, we will determine the users concerned.
         // The condition execution will add their own code to the sql.
 

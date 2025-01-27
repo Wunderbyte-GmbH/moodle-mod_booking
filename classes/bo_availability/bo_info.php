@@ -1323,12 +1323,12 @@ class bo_info {
     /**
      * Returns part of an SQL query to extract a JSON key from a column based on the DB Family.
      *
-     * @param string $dbcolumn The name of the column containing JSON data.
-     * @param string $jsonkey The key to extract from the JSON object.
-     * @param int $index
+     * @param string $dbcolumn
+     * @param string $jsonkey
      * @param string $type
      *
-     * @return string SQL snippet for extracting the JSON key.
+     * @return string
+     *
      */
     public static function check_for_sqljson_key_in_object(string $dbcolumn, string $jsonkey, string $type = 'text'): string {
         global $DB;

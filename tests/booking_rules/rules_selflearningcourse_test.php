@@ -254,7 +254,11 @@ final class rules_selflearningcourse_test extends advanced_testcase {
                     $this->assertSame('send_mail', $rulejson['actionname'], 'Incorrect actionname value.');
                     $this->assertSame('rule_daysbefore', $rulejson['rulename'], 'Incorrect rulename value in rulejson.');
                     $this->assertSame($taskexpected['days'], $rulejson['ruledata']['days'], 'Incorrect days value in ruledata.');
-                    $this->assertSame('selflearningcourseenddate', $rulejson['ruledata']['datefield'], 'Incorrect datefield value.');
+                    $this->assertSame(
+                        'selflearningcourseenddate',
+                        $rulejson['ruledata']['datefield'],
+                        'Incorrect datefield value.'
+                    );
                 }
             }
         }

@@ -1,7 +1,4 @@
 <?php
-
-use mod_booking\booking_rules\booking_rules;
-use mod_booking\booking_rules\rules_info;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -25,6 +22,9 @@ use mod_booking\booking_rules\rules_info;
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use mod_booking\booking_rules\booking_rules;
+use mod_booking\booking_rules\rules_info;
 
 defined('MOODLE_INTERNAL') || die();
 
