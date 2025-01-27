@@ -339,8 +339,8 @@ final class rules_enrollink_test extends advanced_testcase {
         $this->assertStringContainsString('/moodle/course/view.php?id=' . $course2->id, $courselink);
         $this->assertEquals(1, $enrollink->free_places_left());
 
-        // An attempt to enroll guest.
-        $this->setUser($student5);
+        // Proceed with enrolling of student4.
+        $this->setUser($student4);
         $info1 = $enrollink->enrolment_blocking();
         $this->assertEmpty($info1);
         $info2 = $enrollink->enrol_user($USER->id);
@@ -350,8 +350,8 @@ final class rules_enrollink_test extends advanced_testcase {
         $this->assertStringContainsString('/moodle/course/view.php?id=' . $course2->id, $courselink);
         $this->assertEquals(0, $enrollink->free_places_left());
 
-        // Proceed with enrolling of student3.
-        $this->setUser($student4);
+        // Proceed with enrolling of student5 - no more seats.
+        $this->setUser($student5);
         $info1 = $enrollink->enrolment_blocking();
         $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_NO_MORE_SEATS, $info1);
         $info2 = $enrollink->enrol_user($student4->id);
