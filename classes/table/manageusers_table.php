@@ -247,7 +247,13 @@ class manageusers_table extends wunderbyte_table {
                     || enrollink::is_initial_answer($record) === true
                 ) // Only the initial answer of enrollink needs to be bought.
             ) {
-                $option->user_submit_response($user, 0, 0, 2, MOD_BOOKING_VERIFIED);
+                $option->user_submit_response(
+                    $user,
+                    0,
+                    0,
+                    MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION,
+                    MOD_BOOKING_VERIFIED
+                );
             } else {
                 // Check if it's an autoenrollment. If so, we need to change the status.
                 if (!empty($erwaitinglist)) {

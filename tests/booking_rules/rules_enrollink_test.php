@@ -515,11 +515,17 @@ final class rules_enrollink_test extends advanced_testcase {
         $this->setAdminUser();
 
         $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
-        $option->user_submit_response($teacher1, 0, 0, 0, MOD_BOOKING_VERIFIED);
+        $option->user_submit_response(
+            $teacher1,
+            0,
+            0,
+            MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION,
+            MOD_BOOKING_VERIFIED
+        );
 
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $teacher1->id);
-        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
-        //TODO: I would expect MOD_BOOKING_BO_COND_PRICEISSET there because purchase not done yet ?
+        $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
+        // TODO: Buy this item to make sure, a new erlid bundle is created.
 
         // Purchase item in behalf of teacher1.
         shopping_cart::delete_all_items_from_cart($teacher1->id);
@@ -538,7 +544,6 @@ final class rules_enrollink_test extends advanced_testcase {
         // Validate payment.
         $this->assertIsArray($res);
         $this->assertEmpty($res['error']);
-        // TODO: returns "There are no items in the cart".
         $this->assertEquals(225, $res['credit']);
 
         // In this test, we book the teacher into option directly.
@@ -593,6 +598,7 @@ final class rules_enrollink_test extends advanced_testcase {
         $erlid = str_replace('Number of user: 3', '', $message->fullmessage);
         $erlid = (explode('=', $erlid))[1];
         $enrollink = enrollink::get_instance($erlid);
+        // TODO: This is the same bundle as in the previous test. Items are already consumed. Make sure to use new bundle bought in line 528.
         $this->assertEquals(2, $enrollink->free_places_left());
         // TODO: returns 0 ?
 
