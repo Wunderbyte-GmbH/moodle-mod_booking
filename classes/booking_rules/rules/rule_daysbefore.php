@@ -380,15 +380,17 @@ class rule_daysbefore implements booking_rule {
             $sql->select = "bo.id optionid, cm.id cmid, $stringfordatefield datefield";
 
             // In testmode we don't check the timestamp.
+            // Also, add one hour of tolerance.
             $sql->where .= " AND
                 $stringfordatefield
-                > ( :nowparam + (86400 * :numberofdays ))";
+                > ( :nowparam - 3600 + (86400 * :numberofdays ))";
         } else {
             $sql->select = "bo.id optionid, cm.id cmid, bo." . $ruledata->datefield . " datefield";
 
             // In testmode we don't check the timestamp.
             $sql->where .= " AND bo." . $ruledata->datefield;
-            $sql->where .= !$testmode ? " >= ( :nowparam + (86400 * :numberofdays ))" : " IS NOT NULL ";
+            // Add one hour of tolerance.
+            $sql->where .= !$testmode ? " >= ( :nowparam - 3600 + (86400 * :numberofdays ))" : " IS NOT NULL ";
 
         }
 
