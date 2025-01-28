@@ -62,6 +62,9 @@ class col_coursestarttime implements renderable, templatable {
     /** @var bool $selflearningcourseshowdurationinfo */
     private $selflearningcourseshowdurationinfo = null;
 
+    /** @var bool $selflearningcourseshowdurationinfoexpired */
+    private $selflearningcourseshowdurationinfoexpired = null;
+
     /**
      * Constructor
      *
@@ -101,7 +104,13 @@ class col_coursestarttime implements renderable, templatable {
                 if (isset($ba->usersonlist[$buyforuser->id])) {
                     $timebooked = $ba->usersonlist[$buyforuser->id]->timecreated;
                     $timeremainingsec = $timebooked + $settings->duration - time();
-                    $this->timeremaining = format_time($timeremainingsec);
+
+                    if ($timeremainingsec <= 0) {
+                        $this->selflearningcourseshowdurationinfo = null;
+                        $this->selflearningcourseshowdurationinfoexpired = true;
+                    } else {
+                        $this->timeremaining = format_time($timeremainingsec);
+                    }
                 }
             }
         } else {
@@ -131,6 +140,7 @@ class col_coursestarttime implements renderable, templatable {
             $returnarr['selflearningcourse'] = $this->selflearningcourse;
             $returnarr['duration'] = $this->duration;
             $returnarr['selflearningcourseshowdurationinfo'] = $this->selflearningcourseshowdurationinfo;
+            $returnarr['selflearningcourseshowdurationinfoexpired'] = $this->selflearningcourseshowdurationinfoexpired;
             if (!empty($this->timeremaining)) {
                 $returnarr['timeremaining'] = $this->timeremaining;
             }

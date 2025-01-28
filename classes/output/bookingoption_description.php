@@ -180,6 +180,9 @@ class bookingoption_description implements renderable, templatable {
     /** @var bool $selflearningcourseshowdurationinfo */
     private $selflearningcourseshowdurationinfo = null;
 
+    /** @var bool $selflearningcourseshowdurationinfoexpired */
+    private $selflearningcourseshowdurationinfoexpired = null;
+
     /**
      * Constructor.
      *
@@ -283,7 +286,13 @@ class bookingoption_description implements renderable, templatable {
                 if (isset($ba->usersonlist[$buyforuser->id])) {
                     $timebooked = $ba->usersonlist[$buyforuser->id]->timecreated;
                     $timeremainingsec = $timebooked + $settings->duration - time();
-                    $this->timeremaining = format_time($timeremainingsec);
+
+                    if ($timeremainingsec <= 0) {
+                        $this->selflearningcourseshowdurationinfo = null;
+                        $this->selflearningcourseshowdurationinfoexpired = true;
+                    } else {
+                        $this->timeremaining = format_time($timeremainingsec);
+                    }
                 }
             }
         }
@@ -584,6 +593,7 @@ class bookingoption_description implements renderable, templatable {
             'institution' => $this->institution,
             'selflearningcourse' => $this->selflearningcourse,
             'selflearningcourseshowdurationinfo' => $this->selflearningcourseshowdurationinfo,
+            'selflearningcourseshowdurationinfoexpired' => $this->selflearningcourseshowdurationinfoexpired,
             'duration' => $this->duration,
             'dates' => $this->dates,
             'datesexist' => $this->datesexist,

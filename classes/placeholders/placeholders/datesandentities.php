@@ -102,13 +102,21 @@ class datesandentities {
                 ) {
                     $timebooked = $ba->usersonlist[$userid]->timecreated;
                     $timeremainingsec = $timebooked + $settings->duration - time();
-                    // We want to round up, to not have strange messages.
-                    $hours = ceil($timeremainingsec / 3600);
-                    $timeremainingsec = $hours * 3600;
 
-                    $durationstring = format_time($timeremainingsec);
-                    $value .= " " . get_string('selflearningcourseplaceholderduration', 'mod_booking', $durationstring);
-                    $value = html_writer::tag('p', $value);
+                    if ($timeremainingsec < 0) {
+                        $value .= " " . get_string(
+                            'selflearningcourseplaceholderdurationexpired',
+                            'mod_booking'
+                        );
+                    } else {
+                        // We want to round up, to not have strange messages.
+                        $hours = ceil($timeremainingsec / 3600);
+                        $timeremainingsec = $hours * 3600;
+
+                        $durationstring = format_time($timeremainingsec);
+                        $value .= " " . get_string('selflearningcourseplaceholderduration', 'mod_booking', $durationstring);
+                        $value = html_writer::tag('p', $value);
+                    }
                 }
             } else if (class_exists('local_entities\entitiesrelation_handler')) {
                 $data = new optiondates_with_entities($settings);

@@ -211,6 +211,10 @@
                     {{/timeremaining}}
                 </div>
             {{/selflearningcourseshowdurationinfo}}
+            {{#selflearningcourseshowdurationinfoexpired}}
+                <i class="fa fa-fw fa-clock-o" aria-hidden="true"></i>&nbsp;
+                {{#str}} selflearningcoursetimeremaininginfoexpired, booking {{/str}}
+            {{/selflearningcourseshowdurationinfoexpired}}
         </div>
         <div class="col-md-5">
             <div class="card price-card">
