@@ -22,19 +22,22 @@
  */
 
 /**
- * Init.
- */
-export const init = () => {
-    // Initialize if necessary.
-};
-
-/**
  * Navigate to a page.
  *
  * @param {object} select
  */
-export function navigateToPage(select) {
-    if (select.url) {
-        window.location.href = select.url;
-    }
-}
+define([], function() {
+    return {
+        init: function() {
+            const dropdown = document.querySelector('#mod-booking-report2-navigation-dropdown');
+            if (dropdown) {
+                dropdown.addEventListener('change', function() {
+                    const url = this.value;
+                    if (url) {
+                        window.location.href = url;
+                    }
+                });
+            }
+        }
+    };
+});

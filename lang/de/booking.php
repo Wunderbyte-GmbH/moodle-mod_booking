@@ -1865,6 +1865,7 @@ $string['reoccurringdatestringerror'] = 'Geben Sie einen Text in folgendem Forma
 $string['report2labelcourse'] = 'Moodle-Kurs';
 $string['report2labelinstance'] = 'Buchungsinstanz';
 $string['report2labeloption'] = 'Buchungsoption';
+$string['report2labeloptiondate'] = 'Termin';
 $string['report2labelsystem'] = 'Gesamte Seite';
 $string['reportfields'] = 'Felder reportieren';
 $string['reportremindermessage'] = '{$a->bookingdetails}';

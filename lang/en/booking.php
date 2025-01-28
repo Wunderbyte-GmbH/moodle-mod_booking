@@ -1922,6 +1922,7 @@ $string['repeatthisbooking'] = 'Repeat this option';
 $string['report2labelcourse'] = 'Moodle course';
 $string['report2labelinstance'] = 'Booking instance';
 $string['report2labeloption'] = 'Booking option';
+$string['report2labeloptiondate'] = 'Date';
 $string['report2labelsystem'] = 'Site';
 $string['reportfields'] = 'Report fields';
 $string['reportremindermessage'] = '{$a->bookingdetails}';

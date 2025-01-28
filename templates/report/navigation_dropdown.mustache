@@ -31,16 +31,11 @@
 }}
 {{#optiondatesexist}}
 <span class="mt-1">
-	<select id="mod-booking-report2-navigation-dropdown"
-		onchange="navigateToPage(this)" class="form-control">
-		{{#optiondates}}
-			<option url="{{dateurl}}">{{prettydate}}</option>
-		{{/optiondates}}
-	</select>
+    <select id="mod-booking-report2-navigation-dropdown"
+        onchange="M.mod_booking.bookingjslib.navigateToPage(this)" class="form-control">
+        {{#optiondates}}
+        <option value="{{dateurl}}">{{prettydate}}</option>
+        {{/optiondates}}
+    </select>
 </span>
 {{/optiondatesexist}}
-{{#js}}
-	require(['mod_booking/bookingjslib'], function(fn) {
-		fn.init();
-	});
-{{/js}}
