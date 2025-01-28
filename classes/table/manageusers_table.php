@@ -242,8 +242,10 @@ class manageusers_table extends wunderbyte_table {
             if (
                 !empty($settings->jsonobject->useprice)
                 && empty(get_config('booking', 'turnoffwaitinglist'))
-                && (!$erwaitinglist = enrollink::enrolmentstatus_waitinglist($settings)
-                    || enrollink::is_initial_answer($record)) // Only the initial answer of enrollink needs to be bought.
+                && (
+                    $erwaitinglist = enrollink::enrolmentstatus_waitinglist($settings) === false
+                    || enrollink::is_initial_answer($record) === true
+                ) // Only the initial answer of enrollink needs to be bought.
             ) {
                 $option->user_submit_response($user, 0, 0, 2, MOD_BOOKING_VERIFIED);
             } else {
