@@ -55,14 +55,20 @@ final class optiondates_test extends advanced_testcase {
      *
      * @covers \mod_booking/local/optiondates/optiondate
      * @dataProvider data_provider
+     * @param int $userid
+     * @param int $optiondateid
+     * @param int $optionid
+     * @param int $status
+     * @param string|null $notes
+     * @param string|null $json
      */
     public function test_save_and_get_record(
-        $userid,
-        $optiondateid,
-        $optionid,
-        $status,
-        $notes,
-        $json
+        int $userid,
+        int $optiondateid,
+        int $optionid,
+        int $status,
+        string $notes,
+        string $json
     ): void {
         global $DB;
         $this->resetAfterTest(true);
@@ -86,14 +92,20 @@ final class optiondates_test extends advanced_testcase {
      *
      * @covers \mod_booking/local/optiondates/optiondate
      * @dataProvider data_provider
+     * @param int $userid
+     * @param int $optiondateid
+     * @param int $optionid
+     * @param int $status
+     * @param string|null $notes
+     * @param string|null $json
      */
     public function test_delete_record(
-        $userid,
-        $optiondateid,
-        $optionid,
-        $status,
-        $notes,
-        $json
+        int $userid,
+        int $optiondateid,
+        int $optionid,
+        int $status,
+        string $notes,
+        string $json
     ): void {
         $this->resetAfterTest(true);
 
@@ -111,14 +123,20 @@ final class optiondates_test extends advanced_testcase {
      *
      * @covers \mod_booking/local/optiondates/optiondate
      * @dataProvider data_provider
+     * @param int $userid
+     * @param int $optiondateid
+     * @param int $optionid
+     * @param int $status
+     * @param string|null $notes
+     * @param string|null $json
      */
     public function test_update_record(
-        $userid,
-        $optiondateid,
-        $optionid,
-        $status,
-        $notes,
-        $json
+        int $userid,
+        int $optiondateid,
+        int $optionid,
+        int $status,
+        string $notes,
+        string $json
     ): void {
         $this->resetAfterTest(true);
 
