@@ -1769,7 +1769,8 @@ class booking {
                 content: "' . get_string($prefix . 'label' . $scope, 'mod_booking') . '";
                 position: absolute;
                 top: -10px;
-                padding: 0 5px;
+                left: 5px;
+                padding: 0 3px;
                 font-weight: 200;
                 font-size: small;
                 background-color: white;

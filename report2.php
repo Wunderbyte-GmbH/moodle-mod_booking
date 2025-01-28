@@ -27,10 +27,13 @@ require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 use mod_booking\booking;
+use mod_booking\option\dates_handler;
 use mod_booking\output\booked_users;
 use mod_booking\singleton_service;
 
 global $PAGE, $SITE;
+
+$PAGE->requires->js_call_amd('mod_booking/bookingjslib');
 
 $optionid = optional_param('optionid', 0, PARAM_INT);
 $cmid = optional_param('cmid', 0, PARAM_INT);
@@ -38,8 +41,8 @@ $courseid = optional_param('courseid', 0, PARAM_INT);
 
 $ticketicon = '<i class="fa fa-fw fa-sm fa-ticket" aria-hidden="true"></i>&nbsp;';
 $linkicon = '<i class="fa fa-fw fa-xs fa-external-link" aria-hidden="true"></i>&nbsp;';
-$divider = "<span class='mt-1 ml-1 mr-1 mt-3'>
-    <i class='fa-solid fa-2xs fa-arrow-right' aria-hidden='true' style='color: gray;'></i>
+$divider = "<span class='mt-1 ml-1 mr-1 mt-4'>
+    <i class='fa-solid fa-2xs fa-angle-right' aria-hidden='true' style='color: gray;'></i>
 </span>";
 
 $r2syscontext = context_system::instance();
@@ -47,6 +50,7 @@ $r2syscap = has_capability('mod/booking:managebookedusers', $r2syscontext);
 $r2systemurl = new moodle_url('/mod/booking/report2.php');
 
 if (!empty($optionid)) {
+    // We are in option scope.
     $scopes = ['system', 'course', 'instance', 'option'];
     $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
     $cmid = $optionsettings->cmid;
@@ -99,8 +103,33 @@ if (!empty($optionid)) {
         $divider .
         "<a href='{$r2optionurl}' class='report2-option-border'>" .
         $linkicon . $optionsettings->get_title_with_prefix() .
-        "</a></div>";
+        "</a>";
+
+    // Create a navigation dropdown for all optiondates (sessions) of the booking option.
+    $optiondates = $optionsettings->sessions;
+    if (!empty($optiondates) && count($optiondates) > 1) {
+        $data['optiondatesexist'] = true;
+        foreach ($optiondates as &$optiondate) {
+            $optiondate = (array) $optiondate;
+            $optiondate['prettydate'] = dates_handler::prettify_optiondates_start_end(
+                $optiondate['coursestarttime'],
+                $optiondate['courseendtime'],
+                current_language(),
+                true
+            );
+            $dateurl = new moodle_url('/mod/booking/report2.php', [
+                'optionid' => $optionid,
+                'optiondateid' => $optiondate['id'],
+            ]);
+            $optiondate['dateurl'] = $dateurl->out(false);
+        }
+        $data['optiondates'] = array_values((array) $optiondates);
+        // Now we just append the dropdown to the navigation HTML.
+        $navhtml .= $divider . $OUTPUT->render_from_template('mod_booking/report/navigation_dropdown', $data);
+    }
+    $navhtml .= "</div>";
 } else if (!empty($cmid)) {
+    // We are in instance scope.
     $scopes = ['system', 'course', 'instance'];
     $scope = 'instance';
     $scopeid = $cmid;
@@ -140,6 +169,7 @@ if (!empty($optionid)) {
         $linkicon . $bookingsettings->name .
         "</a>";
 } else if (!empty($courseid)) {
+    // We are in course scope.
     $scopes = ['system', 'course'];
     $scope = 'course'; // A moodle course containing (a) booking option(s).
     $scopeid = $courseid;
@@ -169,6 +199,7 @@ if (!empty($optionid)) {
         $linkicon . $course->fullname .
         "</a>";
 } else {
+    // We are in system scope.
     $scopes = ['system'];
     require_login(1, false);
     $scope = 'system'; // The whole site.
