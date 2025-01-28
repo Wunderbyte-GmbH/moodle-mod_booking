@@ -61,6 +61,7 @@ final class rules_enrollink_test extends advanced_testcase {
         parent::tearDown();
         // Mandatory clean-up.
         singleton_service::destroy_instance();
+        enrollink::destroy_instances();
     }
 
     /**
@@ -362,6 +363,7 @@ final class rules_enrollink_test extends advanced_testcase {
         // Mandatory to deal with static variable in the booking_rules.
         rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
+        enrollink::destroy_instances();
     }
 
     /**
@@ -378,7 +380,7 @@ final class rules_enrollink_test extends advanced_testcase {
      * @dataProvider booking_common_settings_provider
      */
     public function test_rule_on_enrollink_and_enroll_via_waitinglists(array $bdata): void {
-        global $USER;
+        global $USER, $DB;
 
         set_config('timezone', 'Europe/Kyiv');
         set_config('forcetimezone', 'Europe/Kyiv');
@@ -479,6 +481,7 @@ final class rules_enrollink_test extends advanced_testcase {
 
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
+        enrollink::destroy_instances();
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
         singleton_service::destroy_booking_singleton_by_cmid($settings->cmid); // Require to avoid caching issues.
@@ -526,6 +529,8 @@ final class rules_enrollink_test extends advanced_testcase {
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $teacher1->id);
         $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
         // TODO: Buy this item to make sure, a new erlid bundle is created.
+        $bundles = $DB->get_records('booking_enrollink_bundles');
+        var_dump($bundles);
 
         // Purchase item in behalf of teacher1.
         shopping_cart::delete_all_items_from_cart($teacher1->id);

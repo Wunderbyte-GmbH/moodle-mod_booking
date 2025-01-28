@@ -78,6 +78,16 @@ class enrollink {
     }
 
     /**
+     * Destroys the singleton entirely.
+     *
+     * @return bool
+     */
+    public static function destroy_instances() {
+        self::$instances = null;
+        return true;
+    }
+
+    /**
      * Set values.
      *
      * @param string $erlid
