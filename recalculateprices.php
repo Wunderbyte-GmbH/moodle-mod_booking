@@ -25,13 +25,14 @@
 namespace mod_booking;
 
 use context_system;
+use mod_booking\task\recalculate_prices;
 use moodle_url;
 use stdClass;
 
 require_once('../../config.php');
 require_once($CFG->libdir.'/adminlib.php');
 
-global $OUTPUT;
+global $OUTPUT, $USER;
 
 $context = context_system::instance();
 
@@ -69,31 +70,28 @@ if ($submit) {
         $data->alert = 1;
     } else if (empty($formulastring)) {
         $url = new moodle_url("/admin/category.php", ['category' => 'modbookingfolder'], 'admin-defaultpriceformula');
+        $a = new stdClass();
         $a->url = $url->out(false);
         $data->alertmsg = get_string('nopriceformulaset', 'mod_booking', $a);
         $data->alert = 1;
     } else {
-        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
-        $alloptionids = \mod_booking\booking::get_all_optionids($bookingsettings->id);
-        foreach ($alloptionids as $optionid) {
-            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-            // If priceformulaoff is set to 1, we're not doing anything!
-            if (isset($settings->priceformulaoff) && $settings->priceformulaoff == 1) {
-                continue;
-            }
+        if (!$DB->record_exists('task_adhoc', ['classname' => '\mod_booking\task\recalculate_prices'])) {
+            $task = new recalculate_prices();
+            $taskdata = [
+                'cmid' => $cmid,
+            ];
+            $task->set_custom_data($taskdata);
+            $task->set_userid($USER->id);
 
-            foreach ($price->pricecategories as $pricecategory) {
-                price::add_price(
-                    'option',
-                    $optionid,
-                    $pricecategory->identifier,
-                    price::calculate_price_with_bookingoptionsettings($settings, $formulastring, $pricecategory->identifier),
-                    $currency
-                );
-            }
+            // Now queue the task or reschedule it if it already exists (with matching data).
+            \core\task\manager::reschedule_or_queue_adhoc_task($task);
+
+            $msg = get_string('successfulcalculation', 'mod_booking');
+        } else {
+            $msg = get_string('bocondoptionhasstarted', 'mod_booking');
         }
-        $msg = get_string('successfulcalculation', 'mod_booking');
+
         redirect($data->back, $msg, 5);
     }
 }
