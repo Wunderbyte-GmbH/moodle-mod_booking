@@ -514,8 +514,27 @@ if ($ADMIN->fulltree) {
         )
     );
 
-    // PRO feature: Teacher settings.
     if ($proversion) {
+        // PRO feature: Bookings tracker.
+        $settings->add(
+            new admin_setting_heading(
+                'bookingstrackerheading',
+                get_string('bookingstracker', 'mod_booking')
+                    . " " . get_string('badge:pro', 'mod_booking')
+                    . " " . get_string('badge:exp', 'mod_booking'),
+                ""
+            )
+        );
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/bookingstracker',
+                get_string('bookingstracker', 'mod_booking'),
+                get_string('bookingstracker_desc', 'mod_booking'),
+                0
+            )
+        );
+
+        // PRO feature: Teacher settings.
         $settings->add(
             new admin_setting_heading(
                 'teachersettings',

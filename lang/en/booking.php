@@ -542,6 +542,10 @@ $string['bookingruletemplates'] = 'Load a template rule';
 $string['bookings'] = 'Bookings';
 $string['bookingsaved'] = 'Your booking was successfully saved. You can now proceed to book other courses.';
 $string['bookingsettings'] = 'Booking: Main settings';
+$string['bookingstracker'] = "Bookings tracker";
+$string['bookingstracker_desc'] = "Here you can activate the bookings tracker.
+It allows authorized users to manage bookings for the entire site at various hierarchical booking levels
+(optiondates, booking options, booking instance, Moodle course, site-wide).";
 $string['bookingsubbooking'] = "Subbooking";
 $string['bookingsubbookingadd'] = 'Add a subbooking';
 $string['bookingsubbookingdelete'] = 'Delete subbooking';
@@ -1076,6 +1080,9 @@ $string['equals'] = 'has exactly this value (text or number)';
 $string['equalsnot'] = 'has not exactly this value (text or number)';
 $string['equalsnotplain'] = 'has not exactly this value';
 $string['equalsplain'] = 'has exactly this value';
+$string['error:bookingstrackernotactivated'] = 'You are not allowed to open this page.
+Either the setting for the bookings tracker (bookingstracker) is not activated or you do not have Booking PRO
+(or Booking PRO is expired).';
 $string['error:campaignend'] = 'Campaign end has to be after campaign start.';
 $string['error:campaignstart'] = 'Campaign start has to be before campaign end.';
 $string['error:chooseint'] = 'You have to enter a number here.';

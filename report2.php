@@ -30,8 +30,15 @@ use mod_booking\booking;
 use mod_booking\option\dates_handler;
 use mod_booking\output\booked_users;
 use mod_booking\singleton_service;
+use mod_booking\utils\wb_payment;
 
 global $PAGE, $SITE;
+
+if (!get_config('booking', 'bookingstracker') || !wb_payment::pro_version_is_activated()) {
+    echo $OUTPUT->header();
+    echo "<div class='alert alert-warning'>" . get_string('error:bookingstrackernotactivated', 'mod_booking') . "</div>";
+    echo $OUTPUT->footer();
+}
 
 $PAGE->requires->js_call_amd('mod_booking/bookingjslib', 'init');
 
@@ -66,11 +73,7 @@ if (!empty($optiondateid)) {
 
     $r2courseurl = new moodle_url('/mod/booking/report2.php', ['courseid' => $courseid]);
     $r2instanceurl = new moodle_url('/mod/booking/report2.php', ['cmid' => $cmid]);
-    $r2optionurl = new moodle_url('/mod/booking/view.php', [
-        'id' => $cmid,
-        'optionid' => $optionid,
-        'whichview' => 'showonlyone',
-    ]);
+    $r2optionurl = new moodle_url('/mod/booking/report2.php', ['optionid' => $optionid]);
 
     // Define scope contexts.
     $r2coursecontext = context_course::instance($courseid);
@@ -85,11 +88,19 @@ if (!empty($optiondateid)) {
     $r2coursecap = has_capability('mod/booking:managebookedusers', $r2coursecontext);
     $r2instancecap = has_capability('mod/booking:managebookedusers', $r2instancecontext);
 
+    // Get the optiondate record from DB.
+    $optiondate = $DB->get_record('booking_optiondates', ['id' => $optiondateid]);
+    $prettydatestring = dates_handler::prettify_optiondates_start_end(
+        $optiondate->coursestarttime,
+        $optiondate->courseendtime,
+        current_language(),
+        true
+    );
+
     // We only show links, if we have the matching capabilities.
     $heading = get_string('managebookedusers_heading', 'mod_booking', $optionsettings->get_title_with_prefix()) .
-        " - " . "TODO: session name... continue here!"; // TODO: Continue here.
-    // TODO: Optiondate aus DB holen und via prettify_optiondates_start_end() formatieren und im Header anzeigen.
-    $navhtml = "<div class='report2-nav flex-wrap-container'>" .
+        " - " . $prettydatestring;
+    $navhtml = "<div class='report2-nav mb-3 flex-wrap-container'>" .
         ($r2syscap ? "<a href='{$r2systemurl}' class='report2-system-border'>" :
             "<span class='report2-system-border'>") .
         $ticketicon . booking::shorten_text($SITE->fullname) .
@@ -106,7 +117,7 @@ if (!empty($optiondateid)) {
         ($r2instancecap ? "</a>" : "</span>") .
         $divider .
         "<a href='{$r2optionurl}' class='report2-option-border'>" .
-        $linkicon . $optionsettings->get_title_with_prefix() .
+        $ticketicon . $optionsettings->get_title_with_prefix() .
         "</a>";
 
     // Create a navigation dropdown for all optiondates (sessions) of the booking option.
@@ -172,7 +183,7 @@ if (!empty($optiondateid)) {
 
     // We only show links, if we have the matching capabilities.
     $heading = get_string('managebookedusers_heading', 'mod_booking', $optionsettings->get_title_with_prefix());
-    $navhtml = "<div class='report2-nav flex-wrap-container'>" .
+    $navhtml = "<div class='report2-nav mb-3 flex-wrap-container'>" .
         ($r2syscap ? "<a href='{$r2systemurl}' class='report2-system-border'>" :
             "<span class='report2-system-border'>") .
         $ticketicon . booking::shorten_text($SITE->fullname) .
@@ -318,8 +329,8 @@ $url = new moodle_url('/mod/booking/report2.php', $urlparams);
 $PAGE->set_url($url);
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading("<div class='mb-5'>" . $ticketicon . $heading . "</div>" .
-    "<div class='mt-3 mb-5'>$navhtml</div");
+echo $OUTPUT->heading("<div class='mt-3 mb-5'>$navhtml</div>" .
+    "<div class='mb-5'>" . $ticketicon . $heading . "</div>");
 
 // Now we render the booked users for the provided scope.
 $data = new booked_users(

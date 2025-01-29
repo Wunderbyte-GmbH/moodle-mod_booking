@@ -531,6 +531,10 @@ $string['bookingruletemplates'] = 'Lade eine Template-Regel';
 $string['bookings'] = 'Buchungen';
 $string['bookingsaved'] = '<b>Vielen Dank für Ihre Buchung!</b> <br /> Ihre Buchung wurde erfolgreich gespeichert und ist somit abgeschlossen. Sie können nun weitere Online-Seminare buchen oder bereits getätigte Buchungen verwalten';
 $string['bookingsettings'] = 'Buchung: Einstellungen';
+$string['bookingstracker'] = "Buchungstracker";
+$string['bookingstracker_desc'] = "Hier können Sie den Buchungstracker aktivieren.
+Er erlaubt es berechtigten Benutzer/innen, die Buchungen der gesamten Seite auf verschiedenen hierarchischen Buchungsebenen
+(Termin, Buchungsoption, Buchungsinstanz, Moodle-Kurs, gesamte Plattform) zu verwalten.";
 $string['bookingsubbooking'] = "Zusatzbuchungen";
 $string['bookingsubbookingadd'] = 'Füge eine Zusatzbuchung hinzu';
 $string['bookingsubbookingdelete'] = 'Lösche Zusatzbuchung';
@@ -1060,6 +1064,9 @@ $string['equals'] = 'hat genau diesen Wert (Text oder Zahl)';
 $string['equalsnot'] = 'hat nicht genau diesen Wert (Text oder Zahl)';
 $string['equalsnotplain'] = 'hat nicht genau diesen Wert';
 $string['equalsplain'] = 'hat genau diesen Wert';
+$string['error:bookingstrackernotactivated'] = 'Sie dürfen diese Seite nicht öffnen.
+Entweder ist die Einstellung für den Buchungstracker (bookingstracker) nicht aktiviert
+oder Sie haben keine Booking PRO-Lizenz (oder Ihre Booking PRO-Lizenz ist abgelaufen).';
 $string['error:campaignend'] = 'Kampagnenende muss nach dem Kampagnenbeginn sein.';
 $string['error:campaignstart'] = 'Kampagnenbeginn muss vor dem Kampagnenende liegen.';
 $string['error:chooseint'] = 'Sie müssen hier eine ganze Zahl eingeben';

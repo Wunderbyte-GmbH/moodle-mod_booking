@@ -930,6 +930,38 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 get_string('editbookingoption', 'mod_booking')
             ) . '</div>';
 
+            $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
+                new moodle_url(
+                    '/mod/booking/report.php',
+                    [
+                        'id' => $cmid,
+                        'optionid' => $optionid,
+                    ]
+                ),
+                '<i class="icon fa fa-ticket fa-fw" aria-hidden="true"
+                    aria-label="' . get_string('manageresponses', 'mod_booking') .
+                    '" title="' . get_string('manageresponses', 'mod_booking') . '" >
+                </i>' .
+                get_string('manageresponses', 'mod_booking')
+            ) . '</div>';
+
+            if (get_config('booking', 'bookingstracker')) {
+                $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
+                    new moodle_url(
+                        '/mod/booking/report2.php',
+                        [
+                            'cmid' => $cmid,
+                            'optionid' => $optionid,
+                        ]
+                    ),
+                    '<i class="icon fa fa-sitemap fa-fw" aria-hidden="true"
+                        aria-label="' . get_string('bookingstracker', 'mod_booking') .
+                        '" title="' . get_string('bookingstracker', 'mod_booking') . '" >
+                    </i>' .
+                    get_string('bookingstracker', 'mod_booking')
+                ) . '</div>';
+            }
+
             // Book other users.
             if (
                 has_capability('mod/booking:bookforothers', $context) &&
