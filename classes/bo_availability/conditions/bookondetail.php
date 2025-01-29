@@ -94,7 +94,14 @@ class bookondetail implements bo_condition {
         // This is the return value. Not available to begin with.
         $isavailable = true;
 
-        if (isloggedin()) {
+        if (
+            isloggedin()
+            || (
+                (!isloggedin() || isguestuser())
+                && get_config('booking', 'showbookingdetailstoall')
+                && get_config('booking', 'bookonlyondetailspage')
+            )
+        ) {
             if (!modechecker::use_special_details_page_treatment()) {
                 $isavailable = false;
             }

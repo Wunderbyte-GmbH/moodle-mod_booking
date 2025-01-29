@@ -273,17 +273,17 @@ class priceisset implements bo_condition {
         ) {
             $returnurl = $PAGE->url->out();
 
-                // The current page is not /mod/booking/optionview.php.
-                $url = new moodle_url("/mod/booking/optionview.php", [
-                    "optionid" => (int)$settings->id,
-                    "cmid" => (int)$settings->cmid,
-                    "userid" => (int)$userid,
-                    'returnto' => 'url',
-                    'returnurl' => $returnurl,
-                ]);
-                $data['link'] = $url->out(false);
-                $data['nojs'] = true;
-                $data['role'] = '';
+            // The current page is not /mod/booking/optionview.php.
+            $url = new moodle_url("/mod/booking/optionview.php", [
+                "optionid" => (int)$settings->id,
+                "cmid" => (int)$settings->cmid,
+                "userid" => (int)$userid,
+                'returnto' => 'url',
+                'returnurl' => $returnurl,
+            ]);
+            $data['link'] = $url->out(false);
+            $data['nojs'] = true;
+            $data['role'] = '';
         }
 
         return ['mod_booking/bookit_price', $data];

@@ -220,7 +220,9 @@ class isloggedin implements bo_condition {
             'option',
             true,
             '',
-            "/login/index.php");
+            "/login/index.php",
+            'fa-play'
+        );
 
         return $button;
     }
