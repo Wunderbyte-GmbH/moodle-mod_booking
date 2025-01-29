@@ -121,8 +121,10 @@ class message_controller {
     /** @var float $price price given in installment */
     private $price;
 
-    /** @var array $ruleid duedate of installment. */
+    /** @var array $rulesettings duedate of installment. */
     private $rulesettings;
+
+    /** @var array $ruleid the id of the running rule. */
     private $ruleid;
 
     /**
@@ -485,11 +487,12 @@ class message_controller {
                     }
 
                     // Pass the update param - false will create a remove calendar invite.
-                    // TODO The system still fires an unsubsrbe message - I believe this is a hangover of the old non rules booking system.
+                    // TODO The system still fires an unsubscribe message - I believe this is a hangover of the old non rules booking system.
                     list($attachments, $attachname) = $this->get_attachments($update);
 
                     if (!empty($attachments)) {
-                        // TODO this should probably be a method in the ical class - left here to limit to number of changed files.
+                        // TODO this should probably be a method in the ical class.
+                        // Left here to limit to number of changed files.
                         // Store the file correctly in order to be able to attach it.
                         $fs = get_file_storage();
                         $context = context_system::instance(); // Use a suitable context, such as course or module context.
@@ -509,10 +512,10 @@ class message_controller {
                                     'userid' => $this->messagedata->userto->id,
                             ];
 
-                            // Create or retrieve the file in Moodle's file storage
+                            // Create or retrieve the file in Moodle's file storage.
                             $storedfile = $fs->create_file_from_pathname($filerecord, $tempfilepath);
 
-                            // Set the file as an attachment
+                            // Set the file as an attachment.
                             $this->messagedata->attachment = $storedfile;
                             $this->messagedata->attachname = $attachname;
                         } else {
@@ -542,9 +545,9 @@ class message_controller {
                             'subject' => $this->messagedata->subject,
                             'objectid' => $this->optionid ?? 0,
                             'message' => $this->messagedata->fullmessage ?? '',
-                            // Store the full html message as this is useful if the message every needs to be replayed or audited
+                            // Store the full html message as this is useful if the message every needs to be replayed or audited.
                             'messagehtml' => $this->messagedata->fullmessagehtml ?? '',
-                            'bookingruleid' => $this->ruleid ?? NULL
+                            'bookingruleid' => $this->ruleid ?? null,
                         ],
                     ]);
                     $event->trigger();
