@@ -669,8 +669,8 @@ class booking_answers {
      * @return (string|int[])[]
      */
     public static function return_sql_for_booked_users(string $scope, int $scopeid, int $statusparam) {
-
-        if ($scope != "option") {
+        global $DB;
+        if (!in_array($scope, ["option", "optiondate"])) {
             $advancedsqlstart = "SELECT
                 ba.id,
                 cm.id AS cmid,
@@ -706,6 +706,46 @@ class booking_answers {
         $where = '1=1';
 
         switch ($scope) {
+            case 'optiondate':
+                $optiondateid = $scopeid;
+                // We need to set a limit for the query in mysqlfamily.
+                $fields = 's1.*';
+                $from = "(
+                    SELECT " .
+                        $DB->sql_concat("bod.id", "'-'", "u.id") .
+                        " uniqueid,
+                        bod.id optiondateid,
+                        bod.coursestarttime,
+                        bod.courseendtime,
+                        boda.userid,
+                        boda.status,
+                        boda.json,
+                        boda.notes,
+                        boda.optionid,
+                        bo.titleprefix,
+                        bo.text,
+                        boda.userid,
+                        u.firstname,
+                        u.lastname,
+                        u.email
+                    FROM {booking_optiondates} bod
+                    JOIN {booking_options} bo
+                    ON bo.id = bod.optionid
+                    JOIN {booking_answers} ba
+                    ON bo.id = ba.optionid
+                    JOIN {user} u
+                    ON u.id = ba.userid
+                    LEFT JOIN {booking_optiondates_answers} boda
+                    ON bod.id = boda.optiondateid AND bo.id = boda.optionid AND ba.userid = boda.userid
+                    WHERE bod.id = :optiondateid AND ba.waitinglist = :statusparam
+                    ORDER BY bod.coursestarttime, u.lastname, u.firstname ASC
+                    LIMIT 10000000000
+                ) s1";
+                $params = [
+                    'optiondateid' => $optiondateid,
+                    'statusparam' => MOD_BOOKING_STATUSPARAM_BOOKED,
+                ];
+                break;
             case 'option':
                 $optionid = $scopeid;
                 // We need to set a limit for the query in mysqlfamily.
@@ -863,7 +903,7 @@ class booking_answers {
                 $cache->set('myanswers', $data);
             }
         } catch (Throwable $e) {
-            if ($CFG->debug = (E_ALL | E_STRICT)) {
+            if ($CFG->debug === E_ALL) {
                 throw $e;
             }
         }

@@ -27,7 +27,7 @@
 namespace mod_booking;
 
 use advanced_testcase;
-use mod_booking\local\optiondates\optiondate;
+use mod_booking\local\optiondates\optiondate_answer;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -36,7 +36,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 /**
  * PHPUnit test case for the class.
  */
-final class optiondates_test extends advanced_testcase {
+final class optiondate_answer_test extends advanced_testcase {
     /**
      * Data provider for the test.
      *
@@ -70,10 +70,9 @@ final class optiondates_test extends advanced_testcase {
         $notes,
         $json
     ): void {
-        global $DB;
         $this->resetAfterTest(true);
 
-        $manager = new optiondate($userid, $optiondateid, $optionid);
+        $manager = new optiondate_answer($userid, $optiondateid, $optionid);
         $manager->save_record($status, $notes, $json);
 
         $record = $manager->get_record();
@@ -109,7 +108,7 @@ final class optiondates_test extends advanced_testcase {
     ): void {
         $this->resetAfterTest(true);
 
-        $manager = new optiondate($userid, $optiondateid, $optionid);
+        $manager = new optiondate_answer($userid, $optiondateid, $optionid);
         $manager->save_record($status, $notes, $json);
 
         $this->assertNotEmpty($manager->get_record());
@@ -140,7 +139,7 @@ final class optiondates_test extends advanced_testcase {
     ): void {
         $this->resetAfterTest(true);
 
-        $manager = new optiondate($userid, $optiondateid, $optionid);
+        $manager = new optiondate_answer($userid, $optiondateid, $optionid);
         $manager->add_or_update_status($status);
 
         $this->assertNotEmpty($manager->get_record());

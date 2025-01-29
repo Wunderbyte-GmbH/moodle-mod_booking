@@ -29,9 +29,9 @@ use stdClass;
 
 
 /**
- * Class to handle optiondates, presence status etc.
+ * Class to handle booking answers for specific optiondates, e.g. for presence status.
  */
-class optiondate {
+class optiondate_answer {
     /**
      * $userid
      *
@@ -136,7 +136,7 @@ class optiondate {
      *
      * @return array An array of record objects.
      */
-    public function get_records_by_optiondate() {
+    public function get_records_for_optiondate() {
         global $DB;
         return $DB->get_records(
             'booking_optiondates_answers',
@@ -151,8 +151,6 @@ class optiondate {
      * @return bool True on success, false on failure.
      */
     public function add_or_update_status($status) {
-        global $DB;
-
         return $this->save_record($status);
     }
 
@@ -163,8 +161,6 @@ class optiondate {
      * @return bool True on success, false on failure.
      */
     public function add_or_update_notes($note) {
-        global $DB;
-
         return $this->save_record(null, $note);
     }
 }

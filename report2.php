@@ -63,6 +63,9 @@ if (!empty($optiondateid)) {
     $scopes = ['system', 'course', 'instance', 'option', 'optiondate'];
     $scope = 'optiondate'; // A specific date of a booking option.
     $scopeid = $optiondateid;
+    if (empty($optionid)) {
+        $optionid = $DB->get_field('booking_optiondates', 'optionid', ['id' => $optiondateid]);
+    }
     $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
     $cmid = $optionsettings->cmid;
     $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);

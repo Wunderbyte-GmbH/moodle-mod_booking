@@ -174,6 +174,29 @@ class manageusers_table extends wunderbyte_table {
     }
 
     /**
+     * Return presence column.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_status(stdClass $values) {
+        $possiblepresences = [
+            5 => get_string('statusunknown', 'mod_booking'),
+            6 => get_string('statusattending', 'mod_booking'),
+            1 => get_string('statuscomplete', 'mod_booking'),
+            2 => get_string('statusincomplete', 'mod_booking'),
+            3 => get_string('statusnoshow', 'mod_booking'),
+            4 => get_string('statusfailed', 'mod_booking'),
+            7 => get_string('statusexcused', 'mod_booking'),
+        ];
+        if (isset($possiblepresences[$values->status])) {
+            return $possiblepresences[$values->status];
+        } else {
+            return get_string('statusunknown', 'mod_booking');
+        }
+    }
+
+    /**
      * Change number of rows. Uses the transmitaction pattern (actionbutton).
      * @param int $id
      * @param string $data
