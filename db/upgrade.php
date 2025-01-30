@@ -4805,7 +4805,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2025010803, 'booking');
     }
 
-    if ($oldversion < 2025012702) {
+    if ($oldversion < 2025013000) {
         // Define table booking_optiondates_answers to be created.
         $table = new xmldb_table('booking_optiondates_answers');
 
@@ -4835,7 +4835,7 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2025012702, 'booking');
+        upgrade_mod_savepoint(true, 2025013000, 'booking');
     }
 
     return true;
