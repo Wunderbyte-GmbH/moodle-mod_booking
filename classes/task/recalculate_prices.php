@@ -44,7 +44,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class recalculate_prices extends \core\task\adhoc_task {
-
     /**
      * Get the task name.
      *
@@ -84,8 +83,12 @@ class recalculate_prices extends \core\task\adhoc_task {
             }
 
             foreach ($price->pricecategories as $pricecategory) {
+                $newprice = price::calculate_price_with_bookingoptionsettings(
+                    $settings,
+                    $formulastring,
+                    $pricecategory->identifier
+                );
 
-                $newprice = price::calculate_price_with_bookingoptionsettings($settings, $formulastring, $pricecategory->identifier);
                 price::add_price(
                     'option',
                     $optionid,
@@ -94,7 +97,8 @@ class recalculate_prices extends \core\task\adhoc_task {
                     $currency
                 );
 
-                mtrace("Price calculated for option $settings->id and pricecategory $pricecategory->identifier new price is: $newprice");
+                mtrace("Price calculated for option $settings->id and pricecategory $pricecategory->identifier - " .
+                    "New price is: $newprice");
             }
         }
     }
