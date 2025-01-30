@@ -648,13 +648,62 @@ final class rules_enrollink_test extends advanced_testcase {
         $this->assertEquals(2, $enrollink->free_places_left());
         // TODO: I would expect 1 there? Or after confirmation?
 
+        // Proceed with enrolling of student3.
+        $this->setUser($student3);
+        $info1 = $enrollink->enrolment_blocking();
+        $this->assertEmpty($info1);
+        $info2 = $enrollink->enrol_user($student3->id);
+        $courselink = $enrollink->get_courselink_url();
+        // Validate enrollment status and remainaing free places.
+        $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_SUCCESS, $info2);
+        $this->assertStringContainsString('/moodle/course/view.php?id=' . $course2->id, $courselink);
+        $this->assertEquals(2, $enrollink->free_places_left());
+
+        // An attempt to enroll guest.
+        $this->setGuestUser();
+        $info1 = $enrollink->enrolment_blocking();
+        $this->assertEmpty($info1);
+        $info2 = $enrollink->enrol_user($USER->id);
+        $courselink = $enrollink->get_courselink_url();
+        // Validate enrollment status and remainaing free places.
+        $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_LOGGED_IN_AS_GUEST, $info2);
+        $this->assertStringContainsString('/moodle/course/view.php?id=' . $course2->id, $courselink);
+        $this->assertEquals(2, $enrollink->free_places_left());
+
+        // Admin confirms student2 from waiting list.
         $this->setAdminUser();
-        $enrollink = enrollink::get_instance($erlid);
-        $option->user_submit_response($student2, 0, 0, MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION, MOD_BOOKING_VERIFIED);
-        $this->assertEquals(2, $enrollink->free_places_left());
-        $option->user_submit_response($student2, 0, 0, 0, MOD_BOOKING_VERIFIED);
-        $this->assertEquals(2, $enrollink->free_places_left());
-        // TODO: I would definitely expect 1 there?
+        $option->user_submit_response($student2, 0, 0, MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL, MOD_BOOKING_VERIFIED);
+        $this->assertEquals(1, $enrollink->free_places_left());
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Proceed with enrolling of student4.
+        $this->setUser($student4);
+        $info1 = $enrollink->enrolment_blocking();
+        $this->assertEmpty($info1);
+        $info2 = $enrollink->enrol_user($USER->id);
+        $courselink = $enrollink->get_courselink_url();
+        // Validate enrollment status and remainaing free places.
+        $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_SUCCESS, $info2);
+        $this->assertStringContainsString('/moodle/course/view.php?id=' . $course2->id, $courselink);
+        $this->assertEquals(1, $enrollink->free_places_left());
+
+        // Admin confirms student3 from waiting list.
+        $this->setAdminUser();
+        $option->user_submit_response($student3, 0, 0, MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL, MOD_BOOKING_VERIFIED);
+        $this->assertEquals(0, $enrollink->free_places_left());
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student3->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Proceed with enrolling of student5 - no more seats.
+        $this->setUser($student5);
+        $info1 = $enrollink->enrolment_blocking();
+        $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_NO_MORE_SEATS, $info1);
+        $info2 = $enrollink->enrol_user($student4->id);
+        // Validate "nomoreseats" enrollment status and remainaing free places.
+        $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_NO_MORE_SEATS, $info2);
+        $this->assertEquals(0, $enrollink->free_places_left());
+        // User Student4 remains on the waitinglist.
 
         // Mandatory to deal with static variable in the booking_rules.
         rules_info::$rulestoexecute = [];
