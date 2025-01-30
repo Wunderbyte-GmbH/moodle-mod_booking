@@ -165,6 +165,7 @@ class enrollink {
         try {
             $user = singleton_service::get_instance_of_user($userid);
             $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
+            // Enrol to bookingoption and reduce places in bookinganswer.
             $bo->user_submit_response(
                 $user,
                 $booking->id,
@@ -173,9 +174,13 @@ class enrollink {
                 MOD_BOOKING_VERIFIED,
                 $this->erlid
             );
+            // Change answer if user was enrolled only to waitinglist.
+            if ($this->enrolmentstatus_waitinglist($bo->settings)) {
+                $courseenrolmentstatus = MOD_BOOKING_AUTOENROL_STATUS_WAITINGLIST;
+            } else {
+                $courseenrolmentstatus = MOD_BOOKING_AUTOENROL_STATUS_SUCCESS;
+            }
 
-            // Enrol to bookingoption and reduce places in bookinganswer.
-            $courseenrolmentstatus = MOD_BOOKING_AUTOENROL_STATUS_SUCCESS;
         } catch (\Exception $e) {
             $courseenrolmentstatus = MOD_BOOKING_AUTOENROL_STATUS_EXCEPTION;
         }
