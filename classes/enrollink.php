@@ -83,7 +83,7 @@ class enrollink {
      * @return bool
      */
     public static function destroy_instances() {
-        self::$instances = null;
+        self::$instances = [];
         return true;
     }
 
