@@ -521,6 +521,8 @@ final class rules_enrollink_test extends advanced_testcase {
         $this->setAdminUser();
 
         $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+
+        // Confirmation from waitinglist.
         $option->user_submit_response(
             $teacher1,
             0,
@@ -528,43 +530,22 @@ final class rules_enrollink_test extends advanced_testcase {
             MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION,
             MOD_BOOKING_VERIFIED
         );
-
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $teacher1->id);
         $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
-        // TODO: Buy this item to make sure, a new erlid bundle is created.
-        $bundles = $DB->get_records('booking_enrollink_bundles');
-        // TODO: Phpunit returns mo record from BD. And it is a feature. So - how to get bundles?
-
-        // Purchase item in behalf of teacher1.
-        shopping_cart::delete_all_items_from_cart($teacher1->id);
-        shopping_cart::buy_for_user($teacher1->id);
-
-        // Get cached data or setup defaults.
-        $cartstore = cartstore::instance($teacher1->id);
-
-        // Put in a test item with given ID (or default if ID > 4).
-        $item = shopping_cart::add_item_to_cart('mod_booking', 'option', $settings->id, -1);
-
-        shopping_cart::save_used_credit_state($teacher1->id, 1);
-
-        // Confirm credit payment.
-        $res = shopping_cart::confirm_payment($teacher1->id, LOCAL_SHOPPING_CART_PAYMENT_METHOD_CREDITS);
-        // Validate payment.
-        $this->assertIsArray($res);
-        $this->assertEmpty($res['error']);
-        $this->assertEquals(225, $res['credit']);
-
-        // In this test, we book the teacher into option directly.
-        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
-        $option->user_submit_response($teacher1, 0, 0, 0, MOD_BOOKING_VERIFIED);
-        // Teacher1 should be booked now.
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $teacher1->id, true);
+        // User buying the bundle.
+        $option->user_submit_response(
+            $teacher1,
+            0,
+            0,
+            MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT,
+            MOD_BOOKING_VERIFIED
+        );
+        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $teacher1->id);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
-        // Book student1 as well (skip paynent process for him).
+        // Student1 also buys a bundle (skip payment process for him).
         $option->user_submit_response($student1, 0, 0, MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION, MOD_BOOKING_VERIFIED);
         $option->user_submit_response($student1, 0, 0, 0, MOD_BOOKING_VERIFIED);
-        // Teacher1 should be booked now.
         list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
