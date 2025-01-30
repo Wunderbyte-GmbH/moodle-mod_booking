@@ -63,12 +63,12 @@ final class optiondates_test extends advanced_testcase {
      * @param string|null $json
      */
     public function test_save_and_get_record(
-        int $userid,
-        int $optiondateid,
-        int $optionid,
-        int $status,
-        string $notes,
-        string $json
+        $userid,
+        $optiondateid,
+        $optionid,
+        $status,
+        $notes,
+        $json
     ): void {
         global $DB;
         $this->resetAfterTest(true);
@@ -100,12 +100,12 @@ final class optiondates_test extends advanced_testcase {
      * @param string|null $json
      */
     public function test_delete_record(
-        int $userid,
-        int $optiondateid,
-        int $optionid,
-        int $status,
-        string $notes,
-        string $json
+        $userid,
+        $optiondateid,
+        $optionid,
+        $status,
+        $notes,
+        $json
     ): void {
         $this->resetAfterTest(true);
 
@@ -131,12 +131,12 @@ final class optiondates_test extends advanced_testcase {
      * @param string|null $json
      */
     public function test_update_record(
-        int $userid,
-        int $optiondateid,
-        int $optionid,
-        int $status,
-        string $notes,
-        string $json
+        $userid,
+        $optiondateid,
+        $optionid,
+        $status,
+        $notes,
+        $json
     ): void {
         $this->resetAfterTest(true);
 
