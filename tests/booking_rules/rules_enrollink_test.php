@@ -624,7 +624,10 @@ final class rules_enrollink_test extends advanced_testcase {
         $courselink = $enrollink->get_courselink_url();
         // Validate enrollment status and remainaing free places.
         $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_WAITINGLIST, $info2);
-        $this->assertEquals('Your registration has been completed and must still be confirmed by an authorised person.', $infostring);
+        $this->assertEquals(
+            'Your registration has been completed and must still be confirmed by an authorised person.',
+            $infostring
+        );
         $this->assertStringContainsString('/moodle/course/view.php?id=' . $course2->id, $courselink);
         $this->assertEquals(2, $enrollink->free_places_left());
         // No reduction of seats because user needs confirmation first.
