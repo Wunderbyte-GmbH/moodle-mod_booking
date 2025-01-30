@@ -623,11 +623,11 @@ final class rules_enrollink_test extends advanced_testcase {
         $infostring = $enrollink->get_readable_info($info2);
         $courselink = $enrollink->get_courselink_url();
         // Validate enrollment status and remainaing free places.
-        $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_SUCCESS, $info2);
-        $this->assertEquals('Successfully enrolled', $infostring);
+        $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_WAITINGLIST, $info2);
+        $this->assertEquals('Your registration has been completed and must still be confirmed by an authorised person.', $infostring);
         $this->assertStringContainsString('/moodle/course/view.php?id=' . $course2->id, $courselink);
         $this->assertEquals(2, $enrollink->free_places_left());
-        // TODO: I would expect 1 there? Or after confirmation?
+        // No reduction of seats because user needs confirmation first.
 
         // Proceed with enrolling of student3.
         $this->setUser($student3);
@@ -636,7 +636,7 @@ final class rules_enrollink_test extends advanced_testcase {
         $info2 = $enrollink->enrol_user($student3->id);
         $courselink = $enrollink->get_courselink_url();
         // Validate enrollment status and remainaing free places.
-        $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_SUCCESS, $info2);
+        $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_WAITINGLIST, $info2);
         $this->assertStringContainsString('/moodle/course/view.php?id=' . $course2->id, $courselink);
         $this->assertEquals(2, $enrollink->free_places_left());
 
@@ -665,7 +665,7 @@ final class rules_enrollink_test extends advanced_testcase {
         $info2 = $enrollink->enrol_user($USER->id);
         $courselink = $enrollink->get_courselink_url();
         // Validate enrollment status and remainaing free places.
-        $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_SUCCESS, $info2);
+        $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_WAITINGLIST, $info2);
         $this->assertStringContainsString('/moodle/course/view.php?id=' . $course2->id, $courselink);
         $this->assertEquals(1, $enrollink->free_places_left());
 
