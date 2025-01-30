@@ -2150,6 +2150,7 @@ $string['taskadhocresetoptiondatesforsemester'] = 'Adhoc task: Termine zurückse
 $string['taskcleanbookingdb'] = 'Booking: Datenbank aufräumen';
 $string['taskenrolbookeduserstocourse'] = 'Booking: Gebuchte User in Kurs einschreiben';
 $string['taskpurgecampaigncaches'] = 'Booking: Caches für Buchungskampagne leeren';
+$string['taskrecalculateprices'] = 'Preise einer Buchungsaktivität werden mit der Preisformel neu berechnet';
 $string['taskremoveactivitycompletion'] = 'Booking: Activitätsabschluss entfernen';
 $string['tasksendcompletionmails'] = 'Booking: Abschluss-Mails versenden';
 $string['tasksendconfirmationmails'] = 'Booking: Bestätigungs-Mails versenden';

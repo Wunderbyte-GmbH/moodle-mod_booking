@@ -2220,6 +2220,7 @@ $string['taskadhocresetoptiondatesforsemester'] = 'Adhoc task: Reset and generat
 $string['taskcleanbookingdb'] = 'Booking: Clean database';
 $string['taskenrolbookeduserstocourse'] = 'Booking: Enrol booked users to course';
 $string['taskpurgecampaigncaches'] = 'Booking: Clean caches for booking campaigns';
+$string['taskrecalculateprices'] = 'Prices of a booking instance are recalculated using the price formula';
 $string['taskremoveactivitycompletion'] = 'Booking: Remove activity completion';
 $string['tasksendcompletionmails'] = 'Booking: Send completion mails';
 $string['tasksendconfirmationmails'] = 'Booking: Send confirmation mails';
