@@ -106,6 +106,9 @@ class singleton_service {
     /** @var array $allbookinginstances */
     public array $allbookinginstances;
 
+    /** @var array $customfieldbyshortname */
+    public array $customfieldbyshortname;
+
 
     /**
      * Constructor
@@ -821,6 +824,28 @@ class singleton_service {
         }
 
         return $instance->allbookinginstances;
+    }
+
+    /**
+     * [Description for get_customfield_field_by_shortname]
+     *
+     * @param string $field
+     *
+     * @return object
+     *
+     */
+    public static function get_customfield_field_by_shortname(string $field) {
+        $instance = self::get_instance();
+
+        if (!isset($instance->customfieldbyshortname[$field])) {
+            global $DB;
+
+            $record = $DB->get_record('customfield_field', ['shortname' => $field]);
+
+            $instance->customfieldbyshortname[$field] = $record;
+        }
+
+        return $instance->customfieldbyshortname[$field];
     }
 
     /**
