@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Moodle form to change presence status of users
+ * Moodle form to change notes for bookings of users
  * for specific optiondates (sessions).
  *
  * @package   mod_booking
@@ -40,7 +40,7 @@ use mod_booking\local\optiondates\optiondate_answer;
 use moodle_url;
 
 /**
- * Moodle form to change presence status of users
+ * Moodle form to change notes for bookings of users
  * for specific optiondates (sessions).
  *
  * @package   mod_booking
@@ -48,7 +48,7 @@ use moodle_url;
  * @author    Bernhard Fischer-Sengseis
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class modal_change_status extends dynamic_form {
+class modal_change_notes extends dynamic_form {
     /**
      * {@inheritdoc}
      * @see moodleform::definition()
@@ -73,17 +73,8 @@ class modal_change_status extends dynamic_form {
         $mform->addElement('hidden', 'userid', $userid);
         $mform->setType('userid', PARAM_INT);
 
-        // Todo: Define presences in lib.
-        // Todo: Only use presence statuses set in config settings.
-        // Todo: Only enable presence status if instance setting is enabled.
-        $mform->addElement(
-            'select',
-            'status',
-            get_string('presence', 'mod_booking'),
-            MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY
-        );
-        $mform->setType('status', PARAM_INT);
-        $mform->setDefault('status', 5); // Unknown.
+        $mform->addElement('textarea', 'notes', get_string('notes', 'mod_booking'));
+        $mform->setType('notes', PARAM_TEXT);
     }
 
     /**
@@ -107,9 +98,8 @@ class modal_change_status extends dynamic_form {
     public function process_dynamic_submission() {
 
         $data = $this->get_data();
-        if (empty($data->status)) {
-            // Todo: Make sure that status unknown is always part of the array!
-            $data->status = MOD_BOOKING_PRESENCE_STATUS_UNKNOWN;
+        if (empty($data->notes)) {
+            $data->notes = '';
         }
 
         $userid = $this->_ajaxformdata['userid'];
@@ -117,7 +107,7 @@ class modal_change_status extends dynamic_form {
         $optionid = $this->_ajaxformdata['optionid'];
 
         $optiondateanswer = new optiondate_answer($userid, $optiondateid, $optionid);
-        $optiondateanswer->add_or_update_status($data->status);
+        $optiondateanswer->add_or_update_notes($data->notes);
 
         cache_helper::purge_by_event('setbackbookedusertable');
 

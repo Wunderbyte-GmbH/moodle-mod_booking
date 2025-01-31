@@ -30,7 +30,7 @@ $string['actionoperator'] = 'Aktion';
 $string['actionoperator:adddate'] = 'Füge Zeitraum hinzu';
 $string['actionoperator:set'] = 'Ersetzen';
 $string['actionoperator:subtract'] = 'Minus';
-$string['actions'] = 'Buchungsaktionen';
+$string['actions'] = 'Aktionen';
 $string['activatemails'] = 'E-Mails aktivieren (Bestätigungen, Erinnerungen etc.)';
 $string['activebookingoptions'] = 'Aktuelle Buchungsoptionen';
 $string['activitycompletionsuccess'] = 'Alle Nutzer:innen wurden für den Aktivitätsabschluss ausgewählt';
@@ -674,7 +674,7 @@ $string['changeinfosessionadded'] = 'Ein Termin wurde hinzugefügt:';
 $string['changeinfosessiondeleted'] = 'Ein Termin wurde gelöscht:';
 $string['changenew'] = '[NEU] ';
 $string['changeold'] = '[GELÖSCHT] ';
-$string['changepresencestatus'] = 'Präsenzstatus ändern';
+$string['changepresencestatus'] = 'Anwesenheitsstatus ändern';
 $string['changes'] = "Änderungen";
 $string['changesemester'] = 'Termine für Semester neu erstellen';
 $string['changesemester:warning'] = '<strong>Achtung:</strong> Durch Klicken auf "Änderungen speichern" werden alle bisherigen Termine gelöscht und durch die Termine
@@ -1024,7 +1024,7 @@ $string['enable'] = 'Enable';
 $string['enablecompletion'] = 'Es muss mindestens eine der Buchungen als abgeschlossen markiert werden.';
 $string['enablecompletion_help'] = 'Um die Optionen als abgeschlossen zu markieren, fügen Sie unter dem Punkt "Spalten und Felder anpassen" bei "Buchungen verwalten" das Feld "Abgeschlossen" hinzu. Danach können die Optionen auf der Berichtsseite als abgeschlossen markiert werden.';
 $string['enablecompletiongroup'] = 'Aktivitätsabschluss';
-$string['enablepresence'] = 'Präsenzstatus aktivieren';
+$string['enablepresence'] = 'Anwesenheitsstatus aktivieren';
 $string['enddate'] = "Enddatum";
 $string['endtime'] = "Endzeit";
 $string['endtimenotset'] = 'Kursende nicht festgelegt';
@@ -1415,10 +1415,10 @@ $string['maxperuser_help'] = 'Die maximale Anzahl an Buchungen, die ein/e Nutzer
 <b>Achtung:</b> In den Booking-Plugin-Einstellungen können Sie auswählen, ob Nutzer:innen, die teilgenommen
 oder abgeschlossen haben und ob Buchungsoptionen, die bereits vorbei sind, mitgezählt werden sollen oder nicht.';
 $string['maxperuserdontcountcompleted'] = 'Max. Anz. Buchungen: Abgeschlossene ignorieren';
-$string['maxperuserdontcountcompleted_desc'] = 'Abgeschlossene Buchungen und Teilnehmer:innen mit Präsenzstatus "Teilgenommen" oder "Abgeschlossen"
+$string['maxperuserdontcountcompleted_desc'] = 'Abgeschlossene Buchungen und Teilnehmer:innen mit Anwesenheitsstatus "Teilgenommen" oder "Abgeschlossen"
 bei der Berechnung der maximalen Anzahl an Buchungen nicht mitzählen';
 $string['maxperuserdontcountnoshow'] = 'Max. Anz. Buchungen: Abwesende ignorieren';
-$string['maxperuserdontcountnoshow_desc'] = 'Abwesende Teilnehmer:innen mit Präsenzstatus "Nicht aufgetaucht"
+$string['maxperuserdontcountnoshow_desc'] = 'Abwesende Teilnehmer:innen mit Anwesenheitsstatus "Nicht aufgetaucht"
 bei der Berechnung der maximalen Anzahl an Buchungen nicht mitzählen';
 $string['maxperuserdontcountpassed'] = 'Max. Anz. Buchungen: Vergangene ignorieren';
 $string['maxperuserdontcountpassed_desc'] = 'Buchungen von Buchungsoptionen, die bereits vergangen sind, bei der Berechnung
@@ -1722,8 +1722,8 @@ $string['pollurltextsubject'] = 'Bitte nehmen Sie an der Umfrage teil';
 $string['populatefromtemplate'] = 'Mit Vorlage ausfüllen';
 $string['potentialsubscribers'] = 'Mögliche Nutzer:innen';
 $string['prepareimport'] = "Bereite den Import vor";
-$string['presence'] = "Anwesenheit";
-$string['presenceoptions'] = "Möglicher Präsenzstatus";
+$string['presence'] = "Anwesenheitsstatus";
+$string['presenceoptions'] = "Möglicher Anwesenheitsstatus";
 $string['presenceoptions_desc'] = "Welcher Status soll zur Verfügung stehen?";
 $string['previous'] = 'Vorherige';
 $string['price'] = 'Preis';
@@ -1782,7 +1782,7 @@ $string['profeatures:appearance'] = '<ul>
 <li><b>Beschreibungen einklappen</b></li>
 <li><b>Terminanzeige einklappen</b></li>
 <li><b>Modale (Fenster) ausschalten</b></li>
-<li><b>Optionen für Präsenzstatus (Anwesenheit)</b></li>
+<li><b>Optionen für Anwesenheitsstatus</b></li>
 </ul>';
 $string['profeatures:automaticcoursecreation'] = '<ul>
 <li><b>Benutzerdefiniertes Buchungsoptionfeld, das als Kurskategorie von automatisch erstellten Kursen verwendet werden soll</b></li>
@@ -1943,6 +1943,7 @@ $string['rulessettingsdesc'] = 'Einstellungen, die für die <a href="{$a}">Funkt
 $string['rulevalue'] = 'Wert';
 $string['sameday'] = 'Selber Tag';
 $string['saturday'] = 'Samstag';
+$string['save'] = 'Speichern';
 $string['saveinstanceastemplate'] = 'Buchung als Vorlage hinzufügen';
 $string['savenewtagtemplate'] = 'Speichern';
 $string['sccartdescription'] = "Beschreibung im Shopping Cart";

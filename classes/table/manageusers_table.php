@@ -180,19 +180,10 @@ class manageusers_table extends wunderbyte_table {
      * @return string
      */
     public function col_status(stdClass $values) {
-        $possiblepresences = [
-            5 => get_string('statusunknown', 'mod_booking'),
-            6 => get_string('statusattending', 'mod_booking'),
-            1 => get_string('statuscomplete', 'mod_booking'),
-            2 => get_string('statusincomplete', 'mod_booking'),
-            3 => get_string('statusnoshow', 'mod_booking'),
-            4 => get_string('statusfailed', 'mod_booking'),
-            7 => get_string('statusexcused', 'mod_booking'),
-        ];
-        if (isset($possiblepresences[$values->status])) {
-            return $possiblepresences[$values->status];
+        if (isset(MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY[$values->status])) {
+            return MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY[$values->status];
         } else {
-            return get_string('statusunknown', 'mod_booking');
+            return '';
         }
     }
 
@@ -593,7 +584,7 @@ class manageusers_table extends wunderbyte_table {
      * @param stdClass $values
      * @return void
      */
-    public function col_action_changepresence($values) {
+    public function col_actions($values) {
 
         global $OUTPUT;
 
@@ -601,8 +592,8 @@ class manageusers_table extends wunderbyte_table {
         $cmid = $settings->cmid ?? 0;
 
         $data[] = [
-            'label' => get_string('changepresencestatus', 'mod_booking'), // Name of your action button.
-            'class' => 'btn btn-warning',
+            'label' => get_string('presence', 'mod_booking'), // Name of your action button.
+            'class' => 'btn btn-light btn-sm',
             'href' => '#', // You can either use the link, or JS, or both.
             'iclass' => 'fa fa-user-o', // Add an icon before the label.
             // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
@@ -613,13 +604,36 @@ class manageusers_table extends wunderbyte_table {
             'selectionmandatory' => false,
             'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
                 'titlestring' => 'changepresencestatus',
-                'bodystring' => 'changepresencebody',
-                'submitbuttonstring' => 'changepresencestatus',
+                'submitbuttonstring' => 'save',
                 'component' => 'mod_booking',
                 'cmid' => $cmid,
                 'optionid' => $values->optionid ?? 0,
                 'optiondateid' => $values->optiondateid ?? 0,
                 'userid' => $values->userid ?? 0,
+                'status' => $values->status ?? 0,
+            ],
+        ];
+
+        $data[] = [
+            'label' => get_string('notes', 'mod_booking'), // Name of your action button.
+            'class' => 'btn btn-light btn-sm',
+            'href' => '#', // You can either use the link, or JS, or both.
+            'iclass' => 'fa fa-pencil', // Add an icon before the label.
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* 'methodname' => 'mymethod', // The method needs to be added to your child of wunderbyte_table class. */
+            'formname' => 'mod_booking\\form\\optiondates\\modal_change_notes',
+            'nomodal' => false,
+            'id' => -1,
+            'selectionmandatory' => false,
+            'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                'titlestring' => 'notes',
+                'submitbuttonstring' => 'save',
+                'component' => 'mod_booking',
+                'cmid' => $cmid,
+                'optionid' => $values->optionid ?? 0,
+                'optiondateid' => $values->optiondateid ?? 0,
+                'userid' => $values->userid ?? 0,
+                'notes' => $values->notes ?? '',
             ],
         ];
 

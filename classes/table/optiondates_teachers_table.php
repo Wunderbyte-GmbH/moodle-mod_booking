@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once(__DIR__ . '/../../lib.php');
-require_once($CFG->libdir.'/tablelib.php');
+require_once($CFG->libdir . '/tablelib.php');
 
 use cache_helper;
 use context_system;
@@ -50,7 +50,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class optiondates_teachers_table extends wunderbyte_table {
-
     /**
      * This function is called for each data row to allow processing of the
      * optiondateid value.
@@ -73,9 +72,11 @@ class optiondates_teachers_table extends wunderbyte_table {
      */
     public function col_optiondate(object $values): string {
 
-        return dates_handler::prettify_optiondates_start_end($values->coursestarttime,
-            $values->courseendtime, current_language());
-
+        return dates_handler::prettify_optiondates_start_end(
+            $values->coursestarttime,
+            $values->courseendtime,
+            current_language()
+        );
     }
 
     /**
@@ -108,8 +109,10 @@ class optiondates_teachers_table extends wunderbyte_table {
                 $teacherids = explode(',', $values->teachers);
                 foreach ($teacherids as $teacherid) {
                     if ($teacheruser = $DB->get_record('user', ['id' => $teacherid])) {
-                        $teacherprofileurl = new moodle_url('/mod/booking/teacher_performed_units_report.php',
-                            ['teacherid' => $teacherid]);
+                        $teacherprofileurl = new moodle_url(
+                            '/mod/booking/teacher_performed_units_report.php',
+                            ['teacherid' => $teacherid]
+                        );
                         $teacherlink = "<a href='$teacherprofileurl'>" .
                             "$teacheruser->firstname $teacheruser->lastname</a>";
                         $teacherlinks[] = $teacherlink;
@@ -137,11 +140,12 @@ class optiondates_teachers_table extends wunderbyte_table {
     public function col_edit(object $values): string {
         $ret = '';
         if (!$this->is_downloading() && !$values->reviewed == 1) {
-
             $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
             $cmid = $settings->cmid;
 
-            $ret .= html_writer::div(html_writer::link('#', "<h5><i class='icon fa fa-edit'></i></h5>",
+            $ret .= html_writer::div(html_writer::link(
+                '#',
+                "<h5><i class='icon fa fa-edit'></i></h5>",
                 ['class' => 'btn-modal-edit-teachers',
                 'data-cmid' => $cmid,
                 'data-optionid' => $values->optionid,
@@ -149,7 +153,8 @@ class optiondates_teachers_table extends wunderbyte_table {
                 'data-optiondateid' => $values->optiondateid,
                 'title' => get_string('editteachers', 'mod_booking'),
                 'aria-label' => get_string('editteachers', 'mod_booking'),
-            ]));
+                ]
+            ));
         } else if ($values->reviewed == 1) {
             $ret .= "<h5 style='color: #D3D3D3; cursor: not-allowed;'><i class='icon fa fa-edit'></i></h5>";
         }
@@ -218,7 +223,8 @@ class optiondates_teachers_table extends wunderbyte_table {
         // This transforms the array to make it easier to use in mustache template.
         table::transform_actionbuttons_array($data);
 
-        return $OUTPUT->render_from_template('local_wunderbyte_table/component_actionbutton', ['showactionbuttons' => $data]);;
+        return $OUTPUT->render_from_template('local_wunderbyte_table/component_actionbutton', ['showactionbuttons' => $data]);
+        ;
     }
 
     /**

@@ -48,7 +48,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class additionalperson_form extends dynamic_form {
-
     /** @var int $id */
     private $id = null;
 
@@ -133,18 +132,28 @@ class additionalperson_form extends dynamic_form {
 
         $mform->addElement('hidden', 'id', $id);
 
-        $mform->addElement('static', 'subbookingaddpersondescription', '',
-            $subbooking->description ?? get_string('subbookingadditionalperson_desc', 'mod_booking'));
+        $mform->addElement(
+            'static',
+            'subbookingaddpersondescription',
+            '',
+            $subbooking->description ?? get_string('subbookingadditionalperson_desc', 'mod_booking')
+        );
 
         $mform->registerNoSubmitButton('btn_addperson');
         $buttonargs = ['style' => 'visibility:hidden;'];
         $categoryselect = [
-            $mform->createElement('select', 'subbooking_addpersons',
-            get_string('subbookingaddpersons', 'mod_booking'), [0 => 0, 1 => 1, 2 => 2, 3 => 3, 4 => 4]),
-            $mform->createElement('submit',
+            $mform->createElement(
+                'select',
+                'subbooking_addpersons',
+                get_string('subbookingaddpersons', 'mod_booking'),
+                [0 => 0, 1 => 1, 2 => 2, 3 => 3, 4 => 4]
+            ),
+            $mform->createElement(
+                'submit',
                 'btn_addperson',
                 get_string('subbookingaddpersons', 'mod_booking'),
-                $buttonargs),
+                $buttonargs
+            ),
         ];
         $mform->addGroup($categoryselect, 'subbooking_addpersons', get_string('subbookingaddpersons', 'mod_booking'), ' ', false);
         $mform->setType('btn_addperson', PARAM_NOTAGS);

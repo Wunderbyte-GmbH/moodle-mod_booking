@@ -34,7 +34,6 @@ use moodle_url;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class subbookingsform extends dynamic_form {
-
     /**
      * {@inheritdoc}
      * @see moodleform::definition()
@@ -84,11 +83,10 @@ class subbookingsform extends dynamic_form {
             $data = (object)$this->_ajaxformdata;
             $data = subbookings_info::set_data_for_form($data);
         } else {
-            $data = (Object)$this->_ajaxformdata;
+            $data = (object)$this->_ajaxformdata;
         }
 
         $this->set_data($data);
-
     }
 
     /**

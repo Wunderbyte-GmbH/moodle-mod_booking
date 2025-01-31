@@ -83,14 +83,14 @@ class booked_users implements renderable, templatable {
         if ($scope == 'optiondate') {
             // For optiondates we only show booked users.
             // Also, we have no delete action but presence tracking.
-            $bookeduserscols = ['lastname', 'firstname', 'email', 'status', 'notes', 'action_changepresence'];
+            $bookeduserscols = ['lastname', 'firstname', 'email', 'status', 'notes', 'actions'];
             $bookedusersheaders = [
                 get_string('lastname', 'core'),
                 get_string('firstname', 'core'),
                 get_string('email', 'core'),
                 get_string('presence', 'mod_booking'),
                 get_string('notes', 'mod_booking'),
-                get_string('changepresencestatus', 'mod_booking'),
+                get_string('actions', 'mod_booking'),
             ];
         } else {
             // Define columns and headers for the tables.
@@ -264,7 +264,6 @@ class booked_users implements renderable, templatable {
                     'bodystring' => 'deletecheckedanswersbody',
                     // Localized title to be displayed as title in dynamic form (formname).
                     // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-                    /* 'title' => get_string('title'), */
                     'submitbuttonstring' => 'delete',
                     'component' => 'mod_booking',
                     // phpcs:ignore Squiz.PHP.CommentedOutCode.Found

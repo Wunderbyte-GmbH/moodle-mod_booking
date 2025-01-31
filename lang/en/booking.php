@@ -30,7 +30,7 @@ $string['actionoperator'] = 'Action';
 $string['actionoperator:adddate'] = 'Add date';
 $string['actionoperator:set'] = 'Replace';
 $string['actionoperator:subtract'] = 'Subtract';
-$string['actions'] = 'Booking actions';
+$string['actions'] = 'Actions';
 $string['activatemails'] = 'Activate e-mails (confirmations, notifications and more)';
 $string['active'] = "Active";
 $string['activebookingoptions'] = 'Active booking options';
@@ -2002,6 +2002,7 @@ $string['rulessettingsdesc'] = 'Settings that apply to the <a href="{$a}">Bookin
 $string['rulevalue'] = 'Value';
 $string['sameday'] = 'same day';
 $string['saturday'] = 'Saturday';
+$string['save'] = 'Save';
 $string['saveinstanceastemplate'] = 'Add booking instance to template';
 $string['savenewtagtemplate'] = 'Save';
 $string['sccartdescription'] = "Description in the Shopping Cart";
