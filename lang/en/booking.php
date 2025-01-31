@@ -686,6 +686,7 @@ $string['changeinfosessionadded'] = 'A session has been added:';
 $string['changeinfosessiondeleted'] = 'A session has been deleted:';
 $string['changenew'] = '[NEW] ';
 $string['changeold'] = '[DELETED] ';
+$string['changepresencestatus'] = 'Change presence status';
 $string['changes'] = "Changes made in bookingoption (for rule listening to bookingoption_updated)";
 $string['changesemester'] = 'Reset and create dates for semester';
 $string['changesemester:warning'] = '<strong>Be careful:</strong> By clicking "Save changes" all dates will be deleted

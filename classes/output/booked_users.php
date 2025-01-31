@@ -83,13 +83,14 @@ class booked_users implements renderable, templatable {
         if ($scope == 'optiondate') {
             // For optiondates we only show booked users.
             // Also, we have no delete action but presence tracking.
-            $bookeduserscols = ['lastname', 'firstname', 'email', 'status', 'notes'];
+            $bookeduserscols = ['lastname', 'firstname', 'email', 'status', 'notes', 'action_changepresence'];
             $bookedusersheaders = [
                 get_string('lastname', 'core'),
                 get_string('firstname', 'core'),
                 get_string('email', 'core'),
                 get_string('presence', 'mod_booking'),
                 get_string('notes', 'mod_booking'),
+                get_string('changepresencestatus', 'mod_booking'),
             ];
         } else {
             // Define columns and headers for the tables.

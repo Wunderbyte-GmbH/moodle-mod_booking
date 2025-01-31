@@ -1,0 +1,218 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Moodle form to change presence status of users
+ * for specific optiondates (sessions).
+ *
+ * @package   mod_booking
+ * @copyright 2025 Wunderbyte GmbH {@link http://www.wunderbyte.at}
+ * @author    Bernhard Fischer-Sengseis
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+namespace mod_booking\form\optiondates;
+
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+require_once("$CFG->libdir/formslib.php");
+
+use context;
+use context_system;
+use context_module;
+use core_form\dynamic_form;
+use mod_booking\local\optiondates\optiondate_answer;
+use moodle_url;
+use stdClass;
+
+/**
+ * Moodle form to change presence status of users
+ * for specific optiondates (sessions).
+ *
+ * @package   mod_booking
+ * @copyright 2025 Wunderbyte GmbH {@link http://www.wunderbyte.at}
+ * @author    Bernhard Fischer-Sengseis
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class modal_change_status extends dynamic_form {
+    /**
+     * {@inheritdoc}
+     * @see moodleform::definition()
+     */
+    public function definition() {
+        $mform = $this->_form;
+
+        $cmid = $this->_ajaxformdata['cmid'] ?? 0;
+        $optionid = $this->_ajaxformdata['optionid'] ?? 0;
+        $optiondateid = $this->_ajaxformdata['optiondateid'] ?? 0;
+        $userid = $this->_ajaxformdata['userid'] ?? 0;
+
+        $mform->addElement('hidden', 'cmid', $cmid);
+        $mform->setType('cmid', PARAM_INT);
+
+        $mform->addElement('hidden', 'optionid', $optionid);
+        $mform->setType('optionid', PARAM_INT);
+
+        $mform->addElement('hidden', 'optiondateid', $optiondateid);
+        $mform->setType('optiondateid', PARAM_INT);
+
+        $mform->addElement('hidden', 'userid', $userid);
+        $mform->setType('userid', PARAM_INT);
+
+        $possiblepresences = [
+            5 => get_string('statusunknown', 'mod_booking'),
+            6 => get_string('statusattending', 'mod_booking'),
+            1 => get_string('statuscomplete', 'mod_booking'),
+            2 => get_string('statusincomplete', 'mod_booking'),
+            3 => get_string('statusnoshow', 'mod_booking'),
+            4 => get_string('statusfailed', 'mod_booking'),
+            7 => get_string('statusexcused', 'mod_booking'),
+        ];
+
+        $mform->addElement('select', 'status', get_string('presence', 'mod_booking'), $possiblepresences);
+        $mform->setType('status', PARAM_INT);
+        $mform->setDefault('status', 5); // Unknown.
+    }
+
+    /**
+     * Check access for dynamic submission.
+     *
+     * @return void
+     */
+    protected function check_access_for_dynamic_submission(): void {
+        require_capability('mod/booking:managebookedusers', $this->get_context_for_dynamic_submission());
+    }
+
+    /**
+     * Process the form submission, used if form was submitted via AJAX
+     *
+     * This method can return scalar values or arrays that can be json-encoded, they will be passed to the caller JS.
+     *
+     * Submission data can be accessed as: $this->get_data()
+     *
+     * @return mixed
+     */
+    public function process_dynamic_submission() {
+
+        $data = $this->get_data();
+        if (empty($data->status)) {
+            return false;
+        }
+
+        $userid = $this->_ajaxformdata['userid'];
+        $optiondateid = $this->_ajaxformdata['optiondateid'];
+        $optionid = $this->_ajaxformdata['optionid'];
+
+        $optiondateanswer = new optiondate_answer($userid, $optiondateid, $optionid);
+        $optiondateanswer->add_or_update_status($data->status);
+
+        return $data;
+    }
+
+
+    /**
+     * Load in existing data as form defaults
+     *
+     * Can be overridden to retrieve existing values from db by entity id and also
+     * to preprocess editor and filemanager elements
+     *
+     * Example:
+     *     $this->set_data(get_entity($this->_ajaxformdata['cmid']));
+     */
+    public function set_data_for_dynamic_submission(): void {
+        $data = new stdClass();
+        $this->set_data($data);
+    }
+
+    /**
+     * Returns form context
+     *
+     * If context depends on the form data, it is available in $this->_ajaxformdata or
+     * by calling $this->optional_param()
+     *
+     * @return context
+     */
+    protected function get_context_for_dynamic_submission(): context {
+        $cmid = $this->_ajaxformdata['cmid'] ?? 0;
+        if (empty($cmid)) {
+            $cmid = $this->optional_param('cmid', 0, PARAM_INT);
+            if ($cmid == 0) {
+                return context_system::instance();
+            }
+        }
+        return context_module::instance($cmid);
+    }
+
+    /**
+     * Returns url to set in $PAGE->set_url() when form is being rendered or submitted via AJAX
+     *
+     * This is used in the form elements sensitive to the page url, such as Atto autosave in 'editor'
+     *
+     * If the form has arguments (such as 'id' of the element being edited), the URL should
+     * also have respective argument.
+     *
+     * @return moodle_url
+     */
+    protected function get_page_url_for_dynamic_submission(): moodle_url {
+        $optiondateid = $this->_ajaxformdata['optiondateid'] ?? 0;
+        if (empty($optiondateid)) {
+            $optiondateid = $this->optional_param('optiondateid', 0, PARAM_INT);
+        }
+
+        $optionid = $this->_ajaxformdata['optionid'] ?? 0;
+        if (empty($optionid)) {
+            $optionid = $this->optional_param('optionid', 0, PARAM_INT);
+        }
+
+        $cmid = $this->_ajaxformdata['cmid'] ?? 0;
+        if (empty($cmid)) {
+            $cmid = $this->optional_param('cmid', 0, PARAM_INT);
+        }
+
+        if (!empty($optionid) && !empty($optiondateid)) {
+            return new moodle_url('/mod/booking/report2.php', ['optionid' => $optionid, 'optiondateid' => $optiondateid]);
+        } else if (!empty($optionid) && empty($optiondateid)) {
+            return new moodle_url('/mod/booking/report2.php', ['optionid' => $optionid]);
+        } else if (!empty($cmid)) {
+            return new moodle_url('/mod/booking/report2.php', ['cmid' => $cmid]);
+        } else {
+            return new moodle_url('/mod/booking/report2.php');
+        }
+    }
+
+    /**
+     * Validation.
+     *
+     * @param array $data
+     * @param array $files
+     * @return array
+     *
+     */
+    public function validation($data, $files) {
+        $errors = [];
+        return $errors;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see moodleform::get_data()
+     */
+    public function get_data() {
+        $data = parent::get_data();
+        return $data;
+    }
+}

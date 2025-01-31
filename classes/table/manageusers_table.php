@@ -552,7 +552,7 @@ class manageusers_table extends wunderbyte_table {
     }
 
     /**
-     * This handles the action column with buttons, icons, checkboxes.
+     * This handles the delete action column.
      *
      * @param stdClass $values
      * @return void
@@ -578,6 +578,48 @@ class manageusers_table extends wunderbyte_table {
                 'component' => 'mod_booking',
                 'optionid' => $values->optionid,
                 'userid' => $values->userid,
+            ],
+        ];
+
+        // This transforms the array to make it easier to use in mustache template.
+        table::transform_actionbuttons_array($data);
+
+        return $OUTPUT->render_from_template('local_wunderbyte_table/component_actionbutton', ['showactionbuttons' => $data]);
+    }
+
+    /**
+     * This handles the presence status action column.
+     *
+     * @param stdClass $values
+     * @return void
+     */
+    public function col_action_changepresence($values) {
+
+        global $OUTPUT;
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
+        $cmid = $settings->cmid ?? 0;
+
+        $data[] = [
+            'label' => get_string('changepresencestatus', 'mod_booking'), // Name of your action button.
+            'class' => 'btn btn-warning',
+            'href' => '#', // You can either use the link, or JS, or both.
+            'iclass' => 'fa fa-user-o', // Add an icon before the label.
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* 'methodname' => 'mymethod', // The method needs to be added to your child of wunderbyte_table class. */
+            'formname' => 'mod_booking\\form\\optiondates\\modal_change_status',
+            'nomodal' => false,
+            'id' => -1,
+            'selectionmandatory' => false,
+            'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                'titlestring' => 'changepresencestatus',
+                'bodystring' => 'changepresencebody',
+                'submitbuttonstring' => 'changepresencestatus',
+                'component' => 'mod_booking',
+                'cmid' => $cmid,
+                'optionid' => $values->optionid ?? 0,
+                'optiondateid' => $values->optiondateid ?? 0,
+                'userid' => $values->userid ?? 0,
             ],
         ];
 

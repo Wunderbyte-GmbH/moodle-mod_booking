@@ -674,6 +674,7 @@ $string['changeinfosessionadded'] = 'Ein Termin wurde hinzugefügt:';
 $string['changeinfosessiondeleted'] = 'Ein Termin wurde gelöscht:';
 $string['changenew'] = '[NEU] ';
 $string['changeold'] = '[GELÖSCHT] ';
+$string['changepresencestatus'] = 'Präsenzstatus ändern';
 $string['changes'] = "Änderungen";
 $string['changesemester'] = 'Termine für Semester neu erstellen';
 $string['changesemester:warning'] = '<strong>Achtung:</strong> Durch Klicken auf "Änderungen speichern" werden alle bisherigen Termine gelöscht und durch die Termine

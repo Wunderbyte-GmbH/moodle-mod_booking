@@ -265,7 +265,7 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
-    // Capability to view reports without write access.
+    // Limited capability to edit own booking options.
     'mod/booking:limitededitownoption' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
