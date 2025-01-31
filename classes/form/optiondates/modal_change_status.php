@@ -37,6 +37,7 @@ use context_system;
 use context_module;
 use core_form\dynamic_form;
 use mod_booking\local\optiondates\optiondate_answer;
+use mod_booking\utils\wb_payment;
 use moodle_url;
 
 /**
@@ -73,14 +74,23 @@ class modal_change_status extends dynamic_form {
         $mform->addElement('hidden', 'userid', $userid);
         $mform->setType('userid', PARAM_INT);
 
-        // Todo: Define presences in lib.
-        // Todo: Only use presence statuses set in config settings.
-        // Todo: Only enable presence status if instance setting is enabled.
+        $possiblepresences[0] = '';
+        $storedpresences = explode(',', get_config('booking', 'presenceoptions'));
+        if (wb_payment::pro_version_is_activated()) {
+            foreach ($storedpresences as $key) {
+                $possiblepresences[$key] = MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY[$key];
+            }
+        } else {
+            // Without PRO version, use all possible presences.
+            foreach (MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY as $key => $value) {
+                $possiblepresences[$key] = $value;
+            }
+        }
         $mform->addElement(
             'select',
             'status',
             get_string('presence', 'mod_booking'),
-            MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY
+            $possiblepresences
         );
         $mform->setType('status', PARAM_INT);
         $mform->setDefault('status', 5); // Unknown.

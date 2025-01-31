@@ -35,9 +35,9 @@ use mod_booking\utils\wb_payment;
 global $PAGE, $SITE;
 
 if (!get_config('booking', 'bookingstracker') || !wb_payment::pro_version_is_activated()) {
-    echo $OUTPUT->header();
+    require_login(1, false);
+    $PAGE->set_url(new moodle_url('/mod/booking/report2.php'));
     echo "<div class='alert alert-warning'>" . get_string('error:bookingstrackernotactivated', 'mod_booking') . "</div>";
-    echo $OUTPUT->footer();
 }
 
 $PAGE->requires->js_call_amd('mod_booking/bookingjslib', 'init');
@@ -343,7 +343,8 @@ $data = new booked_users(
     true,
     true,
     true,
-    true
+    true,
+    $cmid
 );
 $renderer = $PAGE->get_renderer('mod_booking');
 echo $renderer->render_booked_users($data);

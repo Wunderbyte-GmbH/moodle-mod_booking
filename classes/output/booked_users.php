@@ -28,6 +28,7 @@
 namespace mod_booking\output;
 
 use mod_booking\booking_answers;
+use mod_booking\singleton_service;
 use mod_booking\table\manageusers_table;
 use renderer_base;
 use renderable;
@@ -69,7 +70,7 @@ class booked_users implements renderable, templatable {
      * @param bool $showreserved
      * @param bool $showtonotify
      * @param bool $showdeleted
-     *
+     * @param int $cmid optional course module id of booking instance
      */
     public function __construct(
         string $scope = 'system',
@@ -78,20 +79,29 @@ class booked_users implements renderable, templatable {
         bool $showwaiting = false,
         bool $showreserved = false,
         bool $showtonotify = false,
-        bool $showdeleted = false
+        bool $showdeleted = false,
+        int $cmid = 0
     ) {
         if ($scope == 'optiondate') {
+            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+            $enablepresence = $bookingsettings->enablepresence;
+
             // For optiondates we only show booked users.
             // Also, we have no delete action but presence tracking.
-            $bookeduserscols = ['lastname', 'firstname', 'email', 'status', 'notes', 'actions'];
-            $bookedusersheaders = [
-                get_string('lastname', 'core'),
-                get_string('firstname', 'core'),
-                get_string('email', 'core'),
-                get_string('presence', 'mod_booking'),
-                get_string('notes', 'mod_booking'),
-                get_string('actions', 'mod_booking'),
-            ];
+            $bookeduserscols[] = 'lastname';
+            $bookedusersheaders[] = get_string('lastname', 'core');
+            $bookeduserscols[] = 'firstname';
+            $bookedusersheaders[] = get_string('firstname', 'core');
+            $bookeduserscols[] = 'email';
+            $bookedusersheaders[] = get_string('email', 'core');
+            if ($enablepresence) {
+                $bookeduserscols[] = 'status';
+                $bookedusersheaders[] = get_string('presence', 'mod_booking');
+            }
+            $bookeduserscols[] = 'notes';
+            $bookedusersheaders[] = get_string('notes', 'mod_booking');
+            $bookeduserscols[] = 'actions';
+            $bookedusersheaders[] = get_string('actions', 'mod_booking');
         } else {
             // Define columns and headers for the tables.
             $bookeduserscols = ['name', 'action_delete'];
