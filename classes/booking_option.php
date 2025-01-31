@@ -1021,7 +1021,7 @@ class booking_option {
         $subtractfromlimit = 0,
         $status = MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT,
         $verified = MOD_BOOKING_UNVERIFIED,
-        $erlid = "",
+        $erlid = ""
     ) {
 
         global $USER;
