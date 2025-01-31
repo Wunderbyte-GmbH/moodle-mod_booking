@@ -524,7 +524,7 @@ class enrollink {
      *
      */
     public static function is_initial_answer(
-        object $answer,
+        object $answer
     ): bool {
 
         if (!$answer->json) {
