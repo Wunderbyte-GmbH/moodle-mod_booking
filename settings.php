@@ -444,6 +444,33 @@ if ($ADMIN->fulltree) {
             1
         )
     );
+    $customfields = booking_handler::get_customfields();
+    if (!empty($customfields)) {
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/maxoptionsfromcategory',
+                get_string('maxoptionsfromcategory', 'mod_booking'),
+                get_string('maxoptionsfromcategorydesc', 'mod_booking'),
+                0
+            )
+        );
+        $maxoptionsfromcategory = get_config('booking', 'maxoptionsfromcategory') == 1;
+        if ($maxoptionsfromcategory) {
+            $customfieldshortnames = [];
+            foreach ($customfields as $cf) {
+                $customfieldshortnames[$cf->shortname] = "$cf->name ($cf->shortname)";
+            }
+            $settings->add(
+                new admin_setting_configselect(
+                    'booking/maxoptionsfromcategoryfield',
+                    get_string('maxoptionsfromcategoryfield', 'mod_booking'),
+                    get_string('maxoptionsfromcategoryfielddesc', 'mod_booking'),
+                   '',
+                    $customfieldshortnames
+                )
+            );
+        }
+    }
 
     $settings->add(
         new admin_setting_configcheckbox(

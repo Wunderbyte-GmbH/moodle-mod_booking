@@ -1044,6 +1044,44 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setType('disablebooking', PARAM_INT);
         $mform->setDefault('disablebooking', (int) booking::get_value_of_json_by_key((int) $bookingid, "disablebooking"));
 
+        // Define maximum of options to be booked from a certain category, defined by tag.
+        $enabled = get_config('booking', 'maxoptionsfromcategory') == 1;
+        $field = get_config('booking', 'maxoptionsfromcategoryfield');
+        if ($enabled && !empty($field)) {
+            global $DB;
+            $customfield = singleton_service::get_customfield_field_by_shortname($field);
+            $mform->addElement(
+                'text',
+                'maxoptionsfromcategoryint',
+                get_string('maxoptionsfromcategoryint','booking',$customfield->name),
+                0
+            );
+            $mform->setDefault('maxoptionsfromcategoryint', 0);
+            $mform->setType('maxoptionsfromcategoryint', PARAM_INT);
+
+            $sql = "SELECT DISTINCT cd.value
+                FROM {customfield_data} cd
+                WHERE fieldid = :fieldid
+                ORDER BY value ASC";
+
+            $params = [
+                'fieldid' => $customfield->id,
+            ];
+
+            $records = $DB->get_records_sql($sql, $params);
+            // Extract values into a clean array
+            $options = [];
+            foreach ($records as $record) {
+                if (empty($record->value)) {
+                    continue;
+                }
+                // TODO: Maybe sanitze string here to use it as key?
+                $options[] = $record->value;
+            }
+
+            $mform->addElement('select', 'maxoptionsfromcategory', get_string('maxoptionsfromcategory', 'booking'), $options);
+            $mform->setType('maxoptionsfromcategory', PARAM_INT);
+        }
         // Miscellaneous settings.
         $mform->addElement(
             'header',
