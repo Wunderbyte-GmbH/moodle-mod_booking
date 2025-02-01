@@ -829,7 +829,7 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->addElement(
                 'text',
                 'maxoptionsfromcategoryint',
-                get_string('maxoptionsfromcategoryint','booking',$customfield->name),
+                get_string('maxoptionsfromcategoryint', 'booking', $customfield->name),
                 0
             );
             $mform->setDefault('maxoptionsfromcategoryint', 0);
@@ -845,7 +845,7 @@ class mod_booking_mod_form extends moodleform_mod {
             ];
 
             $records = $DB->get_records_sql($sql, $params);
-            // Extract values into a clean array
+            // Extract values into a clean array.
             $options = [];
             foreach ($records as $record) {
                 if (empty($record->value)) {
@@ -859,11 +859,19 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->setType('maxoptionsfromcategory', PARAM_INT);
         }
         // Miscellaneous settings.
-        $mform->addElement('header', 'miscellaneoussettingshdr',
-                get_string('advancedoptions', 'mod_booking'));
+        $mform->addElement(
+            'header',
+            'miscellaneoussettingshdr',
+            get_string('advancedoptions', 'mod_booking')
+        );
 
-        $mform->addElement('editor', 'bookingpolicy', get_string("bookingpolicy", "booking"), null,
-                null);
+        $mform->addElement(
+            'editor',
+            'bookingpolicy',
+            get_string("bookingpolicy", "booking"),
+            null,
+            null
+        );
         $mform->setType('bookingpolicy', PARAM_CLEANHTML);
 
         $mform->addElement('advcheckbox', 'autoenrol', get_string('autoenrol', 'booking'));
@@ -896,7 +904,7 @@ class mod_booking_mod_form extends moodleform_mod {
             $opts = [-1 => get_string('disable')];
 
             $result = $DB->get_records_sql(
-                    'SELECT cm.id, cm.course, cm.module, cm.instance, m.name
+                'SELECT cm.id, cm.course, cm.module, cm.instance, m.name
                 FROM {course_modules} cm LEFT JOIN {modules} m ON m.id = cm.module WHERE cm.course = ?
                 AND cm.completion > 0', [$COURSE->id]);
 
@@ -907,8 +915,12 @@ class mod_booking_mod_form extends moodleform_mod {
                 }
             }
 
-            $mform->addElement('select', 'completionmodule',
-                    get_string('completionmodule', 'mod_booking'), $opts);
+            $mform->addElement(
+                'select',
+                'completionmodule',
+                get_string('completionmodule', 'mod_booking'),
+                $opts
+            );
             $mform->setDefault('completionmodule', -1);
             $mform->addHelpButton('completionmodule', 'completionmodule', 'mod_booking');
         } else {
