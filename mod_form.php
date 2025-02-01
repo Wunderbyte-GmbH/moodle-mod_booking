@@ -1053,7 +1053,7 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->addElement(
                 'text',
                 'maxoptionsfromcategoryint',
-                get_string('maxoptionsfromcategoryint','booking',$customfield->name),
+                get_string('maxoptionsfromcategoryint', 'booking', $customfield->name),
                 0
             );
             $mform->setDefault('maxoptionsfromcategoryint', 0);
@@ -1069,7 +1069,7 @@ class mod_booking_mod_form extends moodleform_mod {
             ];
 
             $records = $DB->get_records_sql($sql, $params);
-            // Extract values into a clean array
+            // Extract values into a clean array.
             $options = [];
             foreach ($records as $record) {
                 if (empty($record->value)) {
