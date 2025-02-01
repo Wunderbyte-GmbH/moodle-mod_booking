@@ -21,6 +21,7 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_rules\actions_info;
 use mod_booking\booking_rules\booking_rule;
 use mod_booking\booking_rules\conditions_info;
+use mod_booking\option\fields\applybookingrules;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
@@ -245,6 +246,10 @@ class rule_daysbefore implements booking_rule {
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $jsonobject = json_decode($this->rulejson);
 
+        if (!applybookingrules::apply_rule($optionid, $this->ruleid)) {
+            return;
+        }
+
         // We reuse this code when we check for validity, therefore we use a separate function.
         $records = $this->get_records_for_execution($optionid, $userid);
 
@@ -294,6 +299,10 @@ class rule_daysbefore implements booking_rule {
         }
 
         $rulestillapplies = true;
+
+        if (!applybookingrules::apply_rule($optionid, $this->ruleid)) {
+            return false;
+        }
 
         // We retrieve the same sql we also use in the execute function.
         $records = $this->get_records_for_execution($optionid, $userid, true);

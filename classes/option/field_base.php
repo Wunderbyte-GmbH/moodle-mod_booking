@@ -287,9 +287,9 @@ abstract class field_base implements fields {
      *
      */
     public function get_changes_description(array $changes): array {
-        $oldvalue = $changes['oldvalue'];
-        $newvalue = $changes['newvalue'];
-        $fieldname = $changes['fieldname'];
+        $oldvalue = $changes['oldvalue'] ?? '';
+        $newvalue = $changes['newvalue'] ?? '';
+        $fieldname = $changes['fieldname'] ?? '';
 
         $fieldnamestring = get_string($changes['fieldname'], 'booking');
         $infotext = get_string('changeinfochanged', 'booking', $fieldnamestring);
