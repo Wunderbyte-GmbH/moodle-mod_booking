@@ -105,6 +105,7 @@ $string['answerscount'] = "Anzahl der Buchungen";
 $string['appearancesettings'] = 'Darstellung ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['appearancesettings_desc'] = 'Passen Sie die Darstellung des Buchungsplugins an.';
 $string['apply'] = 'Anwenden';
+$string['applybookingrules'] = 'Buchungsregeln anwenden';
 $string['applyunitfactor'] = 'Einheitenfaktor anwenden';
 $string['applyunitfactor_desc'] = 'Wenn diese Einstellung aktiviert ist, wird die Länge der oben gesetzten Unterrichtseinheiten (z.B. 45 min) zur Berechnung der Anzahl der Einheiten
  herangezogen und als Faktor für die Preisformel verwendet. Beispiel: Eine Buchungsoption hat die Terminserie "Mo, 15:00 - 16:30". Sie dauert also 2 UE von
@@ -2103,6 +2104,10 @@ $string['signinsheetdatetofillin'] = 'Datum: ';
 $string['signinsheetdownload'] = 'Unterschriftenliste herunterladen';
 $string['signinsheetfields'] = 'Auf der Unterschriftenliste (PDF-Download)';
 $string['signinsheetlocation'] = 'Ort: ';
+$string['skipbookingrulesmode'] = 'Anwendung der Buchungsregeln';
+$string['skipbookingrulesoptin'] = 'Opt in: Nur folgende Regeln anwenden';
+$string['skipbookingrulesoptout'] = 'Opt out: Folgende Regeln nicht anwenden';
+$string['skipbookingrulesrules'] = 'Auswahl der Buchungsregeln';
 $string['sortbookingoptions'] = "Bitte die Buchungsoptionen in die richtige Reihenfolge bringen. Die Kurse können nur in der hier festgelegten Reihenfolge absolviert werden. Der oberste Kurs muss zuerst absolviert werden.";
 $string['sortorder'] = 'Sortierreihenfolge';
 $string['sortorder:asc'] = 'A&rarr;Z';
@@ -2169,6 +2174,7 @@ $string['successfullysorted'] = 'Erfolgreich sortiert';
 $string['sucessfullybooked'] = 'Erfolgreich gebucht';
 $string['sumunits'] = 'Summe UE';
 $string['sunday'] = 'Sonntag';
+$string['system'] = 'System';
 $string['tableheadercourseendtime'] = 'Kursende';
 $string['tableheadercoursestarttime'] = 'Kursbeginn';
 $string['tableheadermaxanswers'] = 'Verfügbare Plätze';
