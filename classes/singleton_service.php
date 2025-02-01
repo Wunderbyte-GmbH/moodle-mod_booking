@@ -854,6 +854,26 @@ class singleton_service {
     }
 
     /**
+     * Sanitize a string to able to use it as a key in an array and store matching with original string.
+     *
+     * @param string $originalstring
+     *
+     * @return string
+     *
+     */
+    public static function sanitze_string_and_store(string $originalstring) {
+        $instance = self::get_instance();
+        $lower = strtolower($originalstring);
+        $safekey = (preg_replace('/[^a-z0-9]+/', '', $lower));
+
+        if (!isset($instance->sanitzedstringkey[$safekey])) {
+            $instance->sanitzedstringkey[$safekey] = $originalstring;
+        }
+
+        return $safekey;
+    }
+
+    /**
      * Destroys the singleton entirely.
      *
      * @return bool
