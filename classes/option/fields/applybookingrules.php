@@ -74,7 +74,11 @@ class applybookingrules extends field_base {
      * Additionally to the classname, there might be others keys which should instantiate this class.
      * @var array
      */
-    public static $alternativeimportidentifiers = [];
+    public static $alternativeimportidentifiers = [
+        'skipbookingrulesmode',
+        'skipbookingrules',
+
+    ];
 
     /**
      * This is an array of incompatible field ids.
@@ -210,8 +214,15 @@ class applybookingrules extends field_base {
      * @throws dml_exception
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
-        $data->skipbookingrulesmode = booking_option::get_value_of_json_by_key($data->id, "skipbookingrulesmode");
-        $data->skipbookingrules = booking_option::get_value_of_json_by_key($data->id, "skipbookingrules");
+
+        // When importing, we can leave everything as it is.
+        // Only when not importing, we need to read from json.
+        if (!empty($data->importing) && !empty($data->skipbookingrules)) {
+            $data->skipbookingrules = explode(',', $data->skipbookingrules);
+        } else {
+            $data->skipbookingrulesmode = booking_option::get_value_of_json_by_key($data->id, "skipbookingrulesmode");
+            $data->skipbookingrules = booking_option::get_value_of_json_by_key($data->id, "skipbookingrules");
+        }
     }
 
     /**

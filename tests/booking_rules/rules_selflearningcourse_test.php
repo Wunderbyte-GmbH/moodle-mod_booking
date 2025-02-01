@@ -144,6 +144,16 @@ final class rules_selflearningcourse_test extends advanced_testcase {
                 // Create booking options.
                 foreach ($bdata['bookingoptions'] as $option) {
                     $option['bookingid'] = $booking->id;
+
+                    if (!empty($option['skipbookingrules'])) {
+                        $rulename = $option['skipbookingrules'];
+                        $sql = "SELECT id
+                                FROM {booking_rules}
+                                WHERE rulejson LIKE '%$rulename%'";
+                        $ruleid = $DB->get_field_sql($sql);
+                        $option['skipbookingrules'] = $ruleid;
+                    }
+
                     $option = $plugingenerator->create_option((object)$option);
 
                     $bookingoptions[$option->identifier] = $option;
@@ -366,6 +376,18 @@ final class rules_selflearningcourse_test extends advanced_testcase {
                 'selflearningcourse' => 1,
                 'duration' => 84400 * 4, // 4 days.
             ],
+            [
+                'text' => 'self learning course, rules test',
+                'description' => 'self learning course, rules test',
+                'identifier' => 'selflearningcoursenotifypreviousdaytest',
+                'maxanswers' => 1,
+                'useprice' => 0,
+                'importing' => 1,
+                'selflearningcourse' => 1,
+                'duration' => 84400 * 1, // 4 days.
+                'skipbookingrulesmode' => 0, // 0 is opt out, 1 is opt in.
+                'skipbookingrules' => '1dayafter', // We use name here and fetch id in test.
+            ],
         ];
 
         $standardbookinginstances =
@@ -561,6 +583,31 @@ final class rules_selflearningcourse_test extends advanced_testcase {
                         [
                             'subject' => '1 day before',
                             'nextruntime' => strtotime('+ 3 days'),
+                            'days' => '1',
+                        ],
+                    ],
+                ],
+                [
+                    'user' => 'student1',
+                    'boookingoption' => 'selflearningcoursenotifypreviousdaytest', // Ask for confirmation, price.
+                    'bo_cond' => MOD_BOOKING_BO_COND_BOOKITBUTTON,
+                    'showprice' => false,
+                    'price' => 10,
+                    'numberoftasks' => 3, // 2 from previous test.
+                    'taskexpected' => [
+                        [
+                            'subject' => '1 day after', // From previous test.
+                            'nextruntime' => strtotime('+ 5 days'),
+                            'days' => '-1',
+                        ],
+                        [
+                            'subject' => '1 day before', // From previous test.
+                            'nextruntime' => strtotime('+ 3 days'),
+                            'days' => '1',
+                        ],
+                        [
+                            'subject' => '1 day before',
+                            'nextruntime' => strtotime('now'),
                             'days' => '1',
                         ],
                     ],
