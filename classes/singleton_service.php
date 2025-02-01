@@ -109,6 +109,9 @@ class singleton_service {
     /** @var array $customfieldbyshortname */
     public array $customfieldbyshortname;
 
+    /** @var array $sanitzedstringkey */
+    public array $sanitzedstringkey;
+
 
     /**
      * Constructor
@@ -846,6 +849,26 @@ class singleton_service {
         }
 
         return $instance->customfieldbyshortname[$field];
+    }
+
+    /**
+     * Sanitize a string to able to use it as a key in an array and store matching with original string.
+     *
+     * @param string $originalstring
+     *
+     * @return string
+     *
+     */
+    public static function sanitze_string_and_store(string $originalstring) {
+        $instance = self::get_instance();
+        $lower = strtolower($originalstring);
+        $safekey = (preg_replace('/[^a-z0-9]+/', '', $lower));
+
+        if (!isset($instance->sanitzedstringkey[$safekey])) {
+            $instance->sanitzedstringkey[$safekey] = $originalstring;
+        }
+
+        return $safekey;
     }
 
     /**
