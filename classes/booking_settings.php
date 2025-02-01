@@ -360,6 +360,9 @@ class booking_settings {
     /** @var int $allowupdatetimestamp */
     public $allowupdatetimestamp = null;
 
+    /** @var array $maxoptionsfromcategory */
+    public $maxoptionsfromcategory = null;
+
     /**
      * Constructor for the booking settings class.
      *
