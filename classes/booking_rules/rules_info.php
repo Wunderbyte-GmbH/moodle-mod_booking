@@ -320,6 +320,10 @@ class rules_info {
         // Eventbased rules don't have to be reapplied.
         if ($records = booking_rules::get_list_of_saved_rules_by_context($contextid, '')) {
             foreach ($records as $record) {
+                if (empty($record->isactive)) {
+                    continue;
+                }
+
                 if ($record->rulename != 'rule_daysbefore') {
                     continue;
                 }
