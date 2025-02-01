@@ -1052,12 +1052,12 @@ class mod_booking_mod_form extends moodleform_mod {
             $customfield = singleton_service::get_customfield_field_by_shortname($field);
             $mform->addElement(
                 'text',
-                'maxoptionsfromcategoryint',
-                get_string('maxoptionsfromcategoryint', 'booking', $customfield->name),
+                'maxoptionsfromcategorycount',
+                get_string('maxoptionsfromcategorycount', 'booking', $customfield->name),
                 0
             );
-            $mform->setDefault('maxoptionsfromcategoryint', 0);
-            $mform->setType('maxoptionsfromcategoryint', PARAM_INT);
+            $mform->setDefault('maxoptionsfromcategorycount', 0);
+            $mform->setType('maxoptionsfromcategorycount', PARAM_INT);
 
             $sql = "SELECT DISTINCT cd.value
                 FROM {customfield_data} cd
@@ -1075,12 +1075,18 @@ class mod_booking_mod_form extends moodleform_mod {
                 if (empty($record->value)) {
                     continue;
                 }
-                // TODO: Maybe sanitze string here to use it as key?
-                $options[] = $record->value;
+                // Sanitize the value to be used as a key and store to facilitate matching of values.
+                $key = singleton_service::sanitze_string_and_store($record->value);
+                $options[$key] = $record->value;
             }
 
-            $mform->addElement('select', 'maxoptionsfromcategory', get_string('maxoptionsfromcategory', 'booking'), $options);
-            $mform->setType('maxoptionsfromcategory', PARAM_INT);
+            $mform->addElement(
+                'select',
+                'maxoptionsfromcategoryvalue',
+                get_string('maxoptionsfromcategoryvalue',
+                'booking', $customfield->name),
+                $options
+            );
         }
         // Miscellaneous settings.
         $mform->addElement(

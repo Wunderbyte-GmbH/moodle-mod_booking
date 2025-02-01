@@ -1053,6 +1053,16 @@ function booking_update_instance($booking) {
         }
     }
 
+    if (empty($booking->maxoptionsfromcategorycount)) {
+        booking::remove_key_from_json($booking, "maxoptionsfromcategory");
+    } else if (!empty($booking->maxoptionsfromcategoryvalue)) {
+        $value = json_encode(
+            [
+                $booking->maxoptionsfromcategoryvalue => $booking->maxoptionsfromcategorycount,
+            ]
+        );
+        booking::add_data_to_json($booking, "maxoptionsfromcategory", $value);
+	}
     if (empty($booking->customfieldsforfilter)) {
         // This will store the correct JSON to $optionvalues->json.
         booking::remove_key_from_json($booking, "customfieldsforfilter");
