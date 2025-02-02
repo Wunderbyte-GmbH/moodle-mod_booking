@@ -867,8 +867,52 @@ class singleton_service {
         if (!isset($instance->sanitzedstringkey[$safekey])) {
             $instance->sanitzedstringkey[$safekey] = $originalstring;
         }
-
         return $safekey;
+    }
+
+    /**
+     * Get customfield value from sanitzed string.
+     *
+     * @param string $originalstring
+     * @param string $field
+     *
+     * @return string
+     *
+     */
+    public static function get_customfield_value_from_sanitzed_string(string $sanitizedstring, $field) {
+
+        $instance = self::get_instance();
+
+        if (isset($instance->sanitzedstringkey[$sanitizedstring])) {
+            return $instance->sanitzedstringkey[$sanitizedstring];
+        } else {
+            global $DB;
+            // This should not happen, but just in case we've lost the storage...
+            // ... fetch the original value of the sanitzed key again.
+            $sql = "SELECT DISTINCT cd.value
+            FROM {customfield_data} cd
+            JOIN {customfield_field} cf ON cf.id = cd.fieldid
+            WHERE cf.shortname = :fieldname
+            ORDER BY value ASC";
+
+            $params = [
+                'fieldname' => $field,
+            ];
+
+            $records = $DB->get_records_sql($sql, $params);
+            foreach ($records as $record) {
+                if (empty($record->value)) {
+                    continue;
+                }
+                $lower = strtolower($record->value);
+                $skey = (preg_replace('/[^a-z0-9]+/', '', $lower));
+                if ($skey == $sanitizedstring) {
+                    $instance->sanitzedstringkey[$sanitizedstring] = $record->value;
+                    return $record->value;
+                }
+            }
+        }
+        return '';
     }
 
     /**
