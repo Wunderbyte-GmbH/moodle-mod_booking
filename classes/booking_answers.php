@@ -424,6 +424,70 @@ class booking_answers {
     }
 
     /**
+     * This function checks if the user already booked options similar to the current instance of the booking option.
+     * And if the user has already booked the maximum number of options from the same category.
+     *
+     * @param int $userid
+     * @param array $restriction
+     * @param string $field
+     *
+     * @return bool
+     *
+     */
+    public function exceeds_max_bookings(int $userid, array $restriction, string $field): bool {
+        if (!isloggedin() || isguestuser()) {
+            return false;
+        }
+        // Check if restriction applies to current answer.
+        $field = get_config('booking', 'maxoptionsfromcategoryfield');
+        $key = array_key_first($restriction);
+        $localizedentry = singleton_service::get_customfield_value_from_sanitzed_string($key, $field);
+        if (
+            !isset($this->bookingoptionsettings->customfields[$field])
+            || $this->bookingoptionsettings->customfields[$field] != $localizedentry
+        ) {
+            return false;
+        }
+        $answerspercategory = [];
+        $myanswers = $this->get_all_answers_for_user_cached(
+            $userid,
+            0,
+            [
+                MOD_BOOKING_STATUSPARAM_BOOKED,
+                MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+                MOD_BOOKING_STATUSPARAM_RESERVED,
+            ],
+            true
+        );
+
+        // If the user has no answers, then there is no problem.
+        if (empty($myanswers)) {
+            return false;
+        }
+        // TODO: Should this only restrict to the bookings from this instance or to all answers??
+        foreach ($myanswers as $answer) {
+            $bosetting = singleton_service::get_instance_of_booking_option_settings($answer->optionid);
+            if (!isset($bosetting->customfields[$field])) {
+                continue;
+            }
+            if ($bosetting->customfields[$field] === $localizedentry) {
+                // TODO: Eventually make a setting if this should apply to answers from all bookings or only current one.
+                // $bosettings->bookingid == $this->bookingoptionsettings->bookingid.
+                $answerspercategory[$answer->id] = $answer;
+            }
+        }
+        // If the user has no answers in this category, then there is no problem.
+        if (empty($answerspercategory)) {
+            return false;
+        }
+        // Finally count the number of answers and check if it is more than the limit.
+        if (count($answerspercategory) >= $restriction[$key]) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Checks overlapping of dates.
      *
      * @param mixed $starttime1
