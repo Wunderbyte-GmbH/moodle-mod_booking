@@ -343,12 +343,17 @@ class price {
             return 0;
         }
 
-        foreach ($jsonobject as $key => $value) {
+        foreach ($jsonobject as $formulacomponent) {
+
             // For invalid JSON.
-            if (is_string($value)) {
+            if (is_string($formulacomponent)) {
                 // We return the 0 price. This will cause the form not to validate, if we try to apply the formula.
                 return 0;
             }
+
+            // Use array_key_first for 8.1+.
+            $key = key($formulacomponent);
+            $value = $formulacomponent->$key;
 
             switch ($key) {
                 // We apply each factor only once, after application we break the loop.
