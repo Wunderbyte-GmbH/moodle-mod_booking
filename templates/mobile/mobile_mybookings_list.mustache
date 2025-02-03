@@ -57,47 +57,7 @@
             </h3>
         </ion-card-header>
         <ion-card-content>
-            <%# descriptioncollapsable %>
-                <ion-accordion-group>
-                    <ion-accordion value="description">
-                        <ion-item slot="header" color="light">
-                            <ion-label style="display: flex; align-items: center;">
-                                <ion-icon
-                                    name="information-circle-outline"
-                                    aria-hidden="true"
-                                    style="font-size: 20px; margin-right: 8px; vertical-align: middle;"
-                                >
-                                </ion-icon>
-                                {{ 'plugin.mod_booking.showdescription' | translate }}
-                            </ion-label>
-                        </ion-item>
-                        <div
-                            slot="content"
-                            class="ion-padding"
-                            style="
-                                border: 2px solid #dbd9d9;
-                                border-radius: 8px;
-                                background-color: #f9f9f9;"
-                        >
-                            <%{ . }%>
-                        </div>
-                    </ion-accordion>
-                </ion-accordion-group>
-            <%/ descriptioncollapsable %>
-            <%# description %>
-                <b>
-                {{ 'plugin.mod_booking.description' | translate }}
-                </b>
-                  <%{ . }%>
-                <br>
-            <%/ description %>
-            <%# teachers %>
-                <div><% firstname %> <% lastname %> (<% email %>)</div>
-            <%/ teachers %>
-            <%# teachers.0 %>
             <br>
-            <%/ teachers.0 %>
-
             <%# sessions %>
                 <div><% coursestarttime %> - <% courseendtime %></div>
             <%/ sessions %>
