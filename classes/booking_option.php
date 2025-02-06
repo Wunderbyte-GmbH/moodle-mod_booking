@@ -3282,6 +3282,13 @@ class booking_option {
         // Use the booking option title as subject.
         $subject = str_replace(' ', '%20', $settings->get_title_with_prefix());
 
+        // As neither comma nor semicolon works on all machines, we need to distinghish here.
+        $useragent = $_SERVER['HTTP_USER_AGENT'];
+        $ismacuser = stripos($useragent, 'Macintosh') !== false ||
+                    stripos($useragent, 'iPhone') !== false ||
+                    stripos($useragent, 'iPad') !== false;
+        $emailseparator = $ismacuser ? ',' : ';';
+
         if (empty($bookedusers)) {
             return '';
         }
@@ -3290,11 +3297,11 @@ class booking_option {
         if (!empty($settings->teachers)) {
             foreach ($settings->teachers as $t) {
                 if (!empty($t->email) && ($t->email != $USER->email)) {
-                    $teachersstring .= "$t->email;";
+                    $teachersstring .= "$t->email" . $emailseparator;
                 }
             }
             if ($teachersstring) {
-                $teachersstring = trim($teachersstring, ';');
+                $teachersstring = trim($teachersstring, $emailseparator);
                 $teachersstring = "cc=$teachersstring&";
             }
         }
@@ -3303,10 +3310,10 @@ class booking_option {
         foreach ($bookedusers as $bu) {
             $user = singleton_service::get_instance_of_user($bu->userid);
             if (!empty($user->email)) {
-                $emailstring .= "$user->email;";
+                $emailstring .= "$user->email" . $emailseparator;
             }
         }
-        $emailstring = trim($emailstring, ';');
+        $emailstring = trim($emailstring, $emailseparator);
 
         if (empty($emailstring)) {
             return '';
