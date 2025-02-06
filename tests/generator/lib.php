@@ -34,6 +34,7 @@ use mod_booking\booking_option;
 use mod_booking\booking_campaigns\campaigns_info;
 use mod_booking\singleton_service;
 use mod_booking\semester;
+use mod_booking\booking;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\price as Mod_bookingPrice;
 use local_shopping_cart\shopping_cart;
@@ -103,6 +104,13 @@ class mod_booking_generator extends testing_module_generator {
             if (!isset($record->{$name})) {
                 $record->{$name} = $value;
             }
+        }
+
+        if (empty($record->disablebooking)) {
+            // This will store the correct JSON to $optionvalues->json.
+            booking::remove_key_from_json($record, "disablebooking");
+        } else {
+            booking::add_data_to_json($record, "disablebooking", 1);
         }
 
         // To set default semester is mandatory.
