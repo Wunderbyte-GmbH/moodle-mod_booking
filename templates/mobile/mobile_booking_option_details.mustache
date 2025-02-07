@@ -2,7 +2,9 @@
 <div style="padding: 16px;">
     <ion-card>
         <ion-card-header>
-            <% text %>
+            <ion-text>
+                <h3 class="ion-text-bold"><% text %></h3>
+            </ion-text>
         </ion-card-header>
         <ion-card-content>
             <%#description%>
@@ -26,6 +28,8 @@
             <b>{{ 'plugin.mod_booking.lastname' | translate }}</b>: <% lastname %> <br>
             <b>{{ 'plugin.mod_booking.email' | translate }}</b>: <% email %> <br>
             <%/teachers%>
+
+            <br>
 
             <%#submit%>
             <ion-button core-site-plugins-call-ws

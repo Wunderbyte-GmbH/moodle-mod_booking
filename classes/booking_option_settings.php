@@ -25,6 +25,7 @@ use mod_booking\bo_availability\bo_subinfo;
 use mod_booking\bo_availability\conditions\subbooking;
 use mod_booking\booking_campaigns\campaigns_info;
 use mod_booking\customfield\booking_handler;
+use mod_booking\option\dates_handler;
 use mod_booking\subbookings\subbookings_info;
 use mod_booking\booking_campaigns\booking_campaign;
 use moodle_exception;
@@ -1447,6 +1448,11 @@ class booking_option_settings {
             'sessions' => array_values(array_map(fn($a) => [
                 'coursestarttime' => userdate($a->coursestarttime),
                 'courseendtime' => userdate($a->courseendtime),
+                'concatinatedstartendtime' => dates_handler::prettify_optiondates_start_end(
+                    $a->coursestarttime,
+                    $a->courseendtime,
+                    current_language(),
+                ),
             ], $this->sessions)),
             'teachers' => array_values(array_map(fn($a) => [
                 'firstname' => $a->firstname,

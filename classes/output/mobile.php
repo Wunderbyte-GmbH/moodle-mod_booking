@@ -194,6 +194,7 @@ class mobile {
                 break;
         }
 
+        self::format_description($data['description']);
         $detailhtml = $OUTPUT->render_from_template('mod_booking/mobile/mobile_booking_option_details', $data);
         return [
             'templates' => [
@@ -206,6 +207,15 @@ class mobile {
             'otherdata' => ['data' => '{}'],
         ];
     }
+
+    /**
+     * Get all selected nav tabs from the config
+     * @param string $description
+     */
+    private static function format_description(&$description) {
+        $description = str_replace('</p>', '</p><br>', $description);
+    }
+
 
     /**
      * Get all selected nav tabs from the config
@@ -341,7 +351,6 @@ class mobile {
      * @return array
      */
     public static function get_course_view_output_dat($recordid, $maxdatabeforecollapsable) {
-        $pattern = '/<br\s*\/?>/i';
         $settings = singleton_service::get_instance_of_booking_option_settings($recordid);
         $tmpoutputdata = $settings->return_booking_option_information();
         $tmpoutputdata['maxsessions'] = $maxdatabeforecollapsable;
