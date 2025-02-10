@@ -197,14 +197,15 @@ class fields_info {
         $classes = self::get_field_classes($context->id);
 
         if (empty($classes)) {
-            $mform->addElement('static', 'nofields', 'mytext', 'mytext');
+            $mform->addElement('html', '<div class="alert alert-warning">' .
+                get_string('error:formcapabilitymissing', 'mod_booking') .
+                '</div>');
         } else {
             foreach ($classes as $classname) {
                 // We want to ignore some classes here.
                 if (self::ignore_class((object)$formdata, $classname)) {
                     continue;
                 }
-
                 $classname::instance_form_definition($mform, $formdata, []);
             }
         }
