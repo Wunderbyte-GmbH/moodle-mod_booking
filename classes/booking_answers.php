@@ -457,7 +457,7 @@ class booking_answers {
                 MOD_BOOKING_STATUSPARAM_WAITINGLIST,
                 MOD_BOOKING_STATUSPARAM_RESERVED,
             ],
-            true
+            false
         );
 
         // If the user has no answers, then there is no problem.
