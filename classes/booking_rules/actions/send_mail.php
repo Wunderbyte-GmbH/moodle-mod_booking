@@ -45,6 +45,12 @@ class send_mail implements booking_rule_action {
     /** @var int $ruleid */
     public $ruleid = null;
 
+    /** @var string $sendical */
+    public $sendical = null;
+
+    /** @var string $sendicalcreateorcancel */
+    public $sendicalcreateorcancel = null;
+
     /** @var string $subject */
     public $subject = null;
 
@@ -68,6 +74,8 @@ class send_mail implements booking_rule_action {
         $jsonobject = json_decode($json);
         $actiondata = $jsonobject->actiondata;
 
+        $this->sendical = $actiondata->sendical ?? '';
+        $this->sendicalcreateorcancel = $actiondata->sendicalcreateorcancel ?? '';
         $this->subject = $actiondata->subject;
         $this->template = $actiondata->template;
     }
@@ -80,6 +88,17 @@ class send_mail implements booking_rule_action {
      * @return void
      */
     public function add_action_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
+
+        // Select to send ical.
+        $mform->addElement('selectyesno', 'action_send_mail_sendical', get_string('sendical', 'mod_booking'));
+        $mform->addRule('action_send_mail_sendical', null, 'required', null, 'client');
+        $mform->setType('action_send_mail_sendical', PARAM_INT);
+
+        // TODO This should probably only show if the above dropdown is set to yes.
+        $options = ['create' => get_string('createical', 'mod_booking'), 'cancel' => get_string('cancelical', 'mod_booking')];
+        $mform->addElement('select', 'action_send_mail_sendicalcreateorcancel',
+                get_string('sendicalcreateorcancel', 'mod_booking'), $options);
+        $mform->setType('action_send_mail_sendicalcreateorcancel', PARAM_RAW);
 
         // Mail subject.
         $mform->addElement('text', 'action_send_mail_subject', get_string('messagesubject', 'mod_booking'),
@@ -130,6 +149,8 @@ class send_mail implements booking_rule_action {
         $jsonobject->name = $data->name ?? $this->actionname;
         $jsonobject->actionname = $this->actionname;
         $jsonobject->actiondata = new stdClass();
+        $jsonobject->actiondata->sendical = $data->action_send_mail_sendical;
+        $jsonobject->actiondata->sendicalcreateorcancel = $data->action_send_mail_sendicalcreateorcancel;
         $jsonobject->actiondata->subject = $data->action_send_mail_subject;
         $jsonobject->actiondata->template = $data->action_send_mail_template['text'];
         $jsonobject->actiondata->templateformat = $data->action_send_mail_template['format'];
@@ -147,6 +168,8 @@ class send_mail implements booking_rule_action {
         $jsonobject = json_decode($record->rulejson);
         $actiondata = $jsonobject->actiondata;
 
+        $data->action_send_mail_sendical = $actiondata->sendical;
+        $data->action_send_mail_sendicalcreateorcancel = $actiondata->sendicalcreateorcancel;
         $data->action_send_mail_subject = $actiondata->subject;
         $data->action_send_mail_template = [];
         $data->action_send_mail_template['text'] = $actiondata->template;
@@ -172,6 +195,8 @@ class send_mail implements booking_rule_action {
             'userid' => $record->userid,
             'optionid' => $record->optionid,
             'cmid' => $record->cmid,
+            'sendical' => $this->sendical,
+            'sendicalcreateorcancel' => $this->sendicalcreateorcancel,
             'customsubject' => $this->subject,
             'custommessage' => $this->template,
             'installmentnr' => $record->payment_id ?? 0,
