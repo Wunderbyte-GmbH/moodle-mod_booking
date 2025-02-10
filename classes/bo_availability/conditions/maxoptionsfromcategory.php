@@ -54,7 +54,7 @@ class maxoptionsfromcategory implements bo_condition {
     public $overwrittenbybillboard = false;
 
     /**
-     * Handling for maxanswersfromcategory.
+     * Handling for otheranswersfromcategory.
      *
      * @var array
      */
@@ -72,7 +72,7 @@ class maxoptionsfromcategory implements bo_condition {
      *
      * @var array
      */
-    private array $overlappinganswers = [];
+    private array $otheranswers = [];
 
     /**
      * Customsettings.
@@ -163,7 +163,7 @@ class maxoptionsfromcategory implements bo_condition {
 
             // If the user is not yet booked we return true.
             if (
-                empty($this->overlappinganswers = $bookinganswer->exceeds_max_bookings($userid, $restriction, $field))
+                $bookinganswer->exceeds_max_bookings($userid, $restriction, $field) === false
             ) {
                 $isavailable = true;
             }
@@ -234,11 +234,7 @@ class maxoptionsfromcategory implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full, $settings, $userid);
 
-        $handling = $this->max_options_defined($settings);
-        $buttonclass = $handling == MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK
-            ? MOD_BOOKING_BO_BUTTON_JUSTMYALERT : MOD_BOOKING_BO_BUTTON_CANCEL;
-
-        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, $buttonclass];
+        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_CANCEL];
     }
 
     /**
@@ -286,20 +282,11 @@ class maxoptionsfromcategory implements bo_condition {
     ): array {
 
         $label = $this->get_description_string(false, $full, $settings);
-        $handling = $this->max_options_defined($settings);
-        switch ($handling) {
-            case MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK:
-                $buttonclass = 'alert alert-danger';
-                break;
-            default:
-                $buttonclass = 'alert alert-warning';
-                break;
-        }
         return bo_info::render_button(
             $settings,
             $userid,
             $label,
-            $buttonclass,
+            'alert alert-danger',
             true,
             $fullwidth,
             'alert',
@@ -337,15 +324,7 @@ class maxoptionsfromcategory implements bo_condition {
         }
 
         if (!$isavailable) {
-            $handling = $this->max_options_defined($settings);
-            switch ($handling) {
-                case MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK:
-                    $description = $this->get_string_with_url('nooverlapblocking', $settings, $userid);
-                    break;
-                case MOD_BOOKING_COND_OVERLAPPING_HANDLING_WARN:
-                    $description = $this->get_string_with_url('nooverlapwarning', $settings, $userid);
-                    break;
-            }
+            $description = get_string('maxoptionsstring', 'mod_booking');
         }
         return $description;
     }
@@ -471,5 +450,4 @@ class maxoptionsfromcategory implements bo_condition {
         $this->handling = $maxoptions;
         return $this->handling;
     }
-
 }
