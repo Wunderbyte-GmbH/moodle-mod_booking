@@ -142,6 +142,7 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
                     $taskdata->duedate ?? 0,
                     $taskdata->price ?? 0,
                     $taskdata->rulejson ?? 0,
+                    $taskdata->ruleid ?? 0  // Send the ruleid as rulejson often seems to not work.
                 );
             } catch (Exception $e) {
                 if (get_config('booking', 'bookingdebugmode')) {
