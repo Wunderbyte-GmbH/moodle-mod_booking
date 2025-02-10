@@ -196,14 +196,17 @@ class fields_info {
 
         $classes = self::get_field_classes($context->id);
 
-        foreach ($classes as $classname) {
+        if (empty($classes)) {
+            $mform->addElement('static', 'nofields', 'mytext', 'mytext');
+        } else {
+            foreach ($classes as $classname) {
+                // We want to ignore some classes here.
+                if (self::ignore_class((object)$formdata, $classname)) {
+                    continue;
+                }
 
-            // We want to ignore some classes here.
-            if (self::ignore_class((object)$formdata, $classname)) {
-                continue;
+                $classname::instance_form_definition($mform, $formdata, []);
             }
-
-            $classname::instance_form_definition($mform, $formdata, []);
         }
     }
 
